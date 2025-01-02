@@ -196,6 +196,8 @@ class TranslationsCommonEn {
 	String get numViews => 'Views';
 	String get updatedAt => 'Updated At';
 	String get publishedAt => 'Published At';
+	String get download => 'Download';
+	String get selectQuality => 'Select Quality';
 }
 
 // Path: auth
@@ -546,6 +548,12 @@ class TranslationsVideoDetailEn {
 	String get authorOtherVideos => 'Author\'s Other Videos';
 	String get relatedVideos => 'Related Videos';
 	String get privateVideo => 'This is a private video';
+	String get noDownloadUrl => 'No download URL';
+	String get startDownloading => 'Start downloading';
+	String get downloadFailed => 'Download failed, please try again later';
+	String get downloadSuccess => 'Download success';
+	String get download => 'Download';
+	String get downloadManager => 'Download Manager';
 }
 
 // Path: share
@@ -704,6 +712,8 @@ extension on Translations {
 			case 'common.numViews': return 'Views';
 			case 'common.updatedAt': return 'Updated At';
 			case 'common.publishedAt': return 'Published At';
+			case 'common.download': return 'Download';
+			case 'common.selectQuality': return 'Select Quality';
 			case 'auth.login': return 'Login';
 			case 'auth.logout': return 'Logout';
 			case 'auth.email': return 'Email';
@@ -937,6 +947,12 @@ extension on Translations {
 			case 'videoDetail.authorOtherVideos': return 'Author\'s Other Videos';
 			case 'videoDetail.relatedVideos': return 'Related Videos';
 			case 'videoDetail.privateVideo': return 'This is a private video';
+			case 'videoDetail.noDownloadUrl': return 'No download URL';
+			case 'videoDetail.startDownloading': return 'Start downloading';
+			case 'videoDetail.downloadFailed': return 'Download failed, please try again later';
+			case 'videoDetail.downloadSuccess': return 'Download success';
+			case 'videoDetail.download': return 'Download';
+			case 'videoDetail.downloadManager': return 'Download Manager';
 			case 'share.sharePlayList': return 'Share Play List';
 			case 'share.wowDidYouSeeThis': return 'Wow, did you see this?';
 			case 'share.nameIs': return 'Name is';

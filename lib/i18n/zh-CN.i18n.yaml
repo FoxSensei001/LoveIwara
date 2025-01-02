@@ -138,7 +138,8 @@ common:
   numViews: 观看次数
   updatedAt: 更新时间
   publishedAt: 发布时间
-
+  download: 下载
+  selectQuality: 选择画质
 auth:
   login: 登录
   logout: 退出登录
@@ -396,6 +397,12 @@ videoDetail:
   authorOtherVideos: 作者的其他视频
   relatedVideos: 相关视频
   privateVideo: 这是一个私密视频
+  noDownloadUrl: 没有下载链接
+  startDownloading: 开始下载
+  downloadFailed: 下载失败，请稍后再试
+  downloadSuccess: 下载成功
+  download: 下载
+  downloadManager: 下载管理
 
 share:
   sharePlayList: 分享播放列表

@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/models/video_source.model.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:path_provider/path_provider.dart';
 import '../app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 
 class CommonUtils {
@@ -165,5 +166,18 @@ class CommonUtils {
         return '${formatNumber(result)}B';
       }
     }
+  }
+
+  static Future<Directory> getAppDirectory({String pathSuffix = ''}) async {
+    final directory = await getApplicationDocumentsDirectory();
+    if (pathSuffix.isNotEmpty) {
+      final path = '${directory.path}/$pathSuffix';
+      final dir = Directory(path);
+      if (!await dir.exists()) {
+        await dir.create(recursive: true);
+      }
+      return dir;
+    }
+    return directory;
   }
 }

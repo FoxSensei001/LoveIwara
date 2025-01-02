@@ -9,6 +9,7 @@ import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/video_descripti
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/utils/common_utils.dart';
+import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
 import '../../../../../../common/constants.dart';
 import '../../../../widgets/error_widget.dart';
@@ -20,6 +21,8 @@ import '../../../../widgets/follow_button_widget.dart';
 import '../../../../widgets/like_button_widget.dart';
 import '../../../../../../i18n/strings.g.dart' as slang;
 import 'add_video_to_playlist_dialog.dart';
+import 'package:i_iwara/app/models/download/download_task.model.dart';
+import 'package:i_iwara/app/services/download_service.dart';
 
 class VideoDetailContent extends StatelessWidget {
   final MyVideoStateController controller;
@@ -223,6 +226,26 @@ class VideoDetailContent extends StatelessWidget {
                                   ),
                                 ),
                               ),
+                              Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(16),
+                                  onTap: () {
+                                    _showDownloadDialog(context);
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(Icons.download),
+                                        const SizedBox(width: 4),
+                                        Text(t.common.download),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                     );
@@ -387,5 +410,91 @@ class VideoDetailContent extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void _showDownloadDialog(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final sources = controller.currentVideoSourceList;
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(t.common.selectQuality),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: sources.map((source) {
+            return ListTile(
+              title: Text(source.name ?? 'Unknown'),
+              onTap: () async {
+                Navigator.of(context).pop();
+                
+                if (source.download == null) {
+                  showToastWidget(
+                    MDToastWidget(
+                      message: t.videoDetail.noDownloadUrl,
+                      type: MDToastType.error,
+                    ),
+                    position: ToastPosition.top,
+                  );
+                  return;
+                }
+
+                try {
+                  final task = DownloadTask(
+                    id: '${controller.videoInfo.value?.id}_${source.name}',
+                    url: source.download!,
+                    savePath: await _getSavePath(
+                      controller.videoInfo.value?.title ?? 'video',
+                      source.name ?? 'unknown',
+                    ),
+                    fileName: '${controller.videoInfo.value?.title ?? 'video'}_${source.name}.mp4',
+                    supportsRange: true,
+                  );
+                  
+                  await DownloadService.to.addTask(task);
+                  
+                  showToastWidget(
+                    MDToastWidget(
+                      message: t.videoDetail.startDownloading,
+                      type: MDToastType.success,
+                    ),
+                    position: ToastPosition.top,
+                  );
+                  
+                  // 打开下载管理页面
+                  NaviService.navigateToDownloadTaskListPage();
+                } catch (e) {
+                  LogUtils.e('添加下载任务失败: $e', tag: 'VideoDetailContent', error: e);
+                  String message;
+                  if(e.toString().contains('下载任务已存在')) {
+                    // message = t.videoDetail.downloadTaskExists;
+                    message = 'Download task already exists';
+                  } else if(e.toString().contains('该视频已下载')) {
+                    // message = t.videoDetail.videoAlreadyDownloaded;
+                    message = 'The video has already been downloaded';
+                  } else {
+                    message = 'Download failed';
+                  }
+                  
+                  showToastWidget(
+                    MDToastWidget(
+                      message: message,
+                      type: MDToastType.error,
+                    ),
+                    position: ToastPosition.top,
+                  );
+                }
+              },
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
+  Future<String> _getSavePath(String title, String quality) async {
+    final dir = await CommonUtils.getAppDirectory(pathSuffix: 'downloads');
+    final sanitizedTitle = title.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_');
+    return '${dir.path}/${sanitizedTitle}_$quality.mp4';
   }
 }

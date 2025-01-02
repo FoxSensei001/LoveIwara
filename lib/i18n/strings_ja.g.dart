@@ -192,6 +192,8 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get numViews => '視聴回数';
 	@override String get updatedAt => '更新時間';
 	@override String get publishedAt => '発表時間';
+	@override String get download => 'ダウンロード';
+	@override String get selectQuality => '画質を選択';
 }
 
 // Path: auth
@@ -542,6 +544,12 @@ class _TranslationsVideoDetailJa implements TranslationsVideoDetailEn {
 	@override String get authorOtherVideos => '作者の他のビデオ';
 	@override String get relatedVideos => '関連ビデオ';
 	@override String get privateVideo => 'これはプライベートビデオです';
+	@override String get noDownloadUrl => 'ダウンロードURLがありません';
+	@override String get startDownloading => 'ダウンロードを開始';
+	@override String get downloadFailed => 'ダウンロードに失敗しました。後でもう一度お試しください';
+	@override String get downloadSuccess => 'ダウンロードに成功しました';
+	@override String get download => 'ダウンロード';
+	@override String get downloadManager => 'ダウンロード管理';
 }
 
 // Path: share
@@ -700,6 +708,8 @@ extension on TranslationsJa {
 			case 'common.numViews': return '視聴回数';
 			case 'common.updatedAt': return '更新時間';
 			case 'common.publishedAt': return '発表時間';
+			case 'common.download': return 'ダウンロード';
+			case 'common.selectQuality': return '画質を選択';
 			case 'auth.login': return 'ログイン';
 			case 'auth.logout': return 'ログアウト';
 			case 'auth.email': return 'メールアドレス';
@@ -933,6 +943,12 @@ extension on TranslationsJa {
 			case 'videoDetail.authorOtherVideos': return '作者の他のビデオ';
 			case 'videoDetail.relatedVideos': return '関連ビデオ';
 			case 'videoDetail.privateVideo': return 'これはプライベートビデオです';
+			case 'videoDetail.noDownloadUrl': return 'ダウンロードURLがありません';
+			case 'videoDetail.startDownloading': return 'ダウンロードを開始';
+			case 'videoDetail.downloadFailed': return 'ダウンロードに失敗しました。後でもう一度お試しください';
+			case 'videoDetail.downloadSuccess': return 'ダウンロードに成功しました';
+			case 'videoDetail.download': return 'ダウンロード';
+			case 'videoDetail.downloadManager': return 'ダウンロード管理';
 			case 'share.sharePlayList': return 'プレイリストを共有';
 			case 'share.wowDidYouSeeThis': return 'ああ、見たの？';
 			case 'share.nameIs': return '名前は';

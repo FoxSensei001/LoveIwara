@@ -135,6 +135,8 @@ common:
   numViews: Views
   updatedAt: Updated At
   publishedAt: Published At
+  download: Download
+  selectQuality: Select Quality
 auth:
   login: Login
   logout: Logout
@@ -391,6 +393,12 @@ videoDetail:
   authorOtherVideos: Author's Other Videos
   relatedVideos: Related Videos
   privateVideo: This is a private video
+  noDownloadUrl: No download URL
+  startDownloading: Start downloading
+  downloadFailed: Download failed, please try again later
+  downloadSuccess: Download success
+  download: Download
+  downloadManager: Download Manager
 
 share:
   sharePlayList: Share Play List

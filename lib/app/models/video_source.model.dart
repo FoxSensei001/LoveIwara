@@ -3,8 +3,8 @@
 class VideoSource {
   final String id;
   final String? name; // 清晰度，例如 "360", "540", "720"
-  final String? viewUrl;
-  final String? downloadUrl;
+  final String? view;
+  final String? download;
   final String? type; // 视频类型，例如 "video/mp4"
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -13,8 +13,8 @@ class VideoSource {
   VideoSource({
     required this.id,
     this.name,
-    this.viewUrl,
-    this.downloadUrl,
+    this.view,
+    this.download,
     this.type,
     this.createdAt,
     this.updatedAt,
@@ -25,8 +25,8 @@ class VideoSource {
     return VideoSource(
       id: json['id'],
       name: json['name'],
-      viewUrl: json['src'] != null ? 'https:${json['src']['view']}' : null,
-      downloadUrl:
+      view: json['src'] != null ? 'https:${json['src']['view']}' : null,
+      download:
           json['src'] != null ? 'https:${json['src']['download']}' : null,
       type: json['type'],
       createdAt:

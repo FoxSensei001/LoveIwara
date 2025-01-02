@@ -28,6 +28,11 @@ class GlobalDrawerColumns extends StatelessWidget {
           child: ListView(
             padding: EdgeInsets.zero,
             children: [
+              // 下载管理
+              _buildMenuItem(Icons.download, '下载管理', () {
+                NaviService.navigateToDownloadTaskListPage();
+                AppService.switchGlobalDrawer();
+              }),
               // 历史记录
               _buildMenuItem(Icons.history, t.common.history, () {
                 NaviService.navigateToHistoryListPage();

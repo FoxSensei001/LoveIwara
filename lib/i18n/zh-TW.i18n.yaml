@@ -135,7 +135,8 @@ common:
   numViews: 觀看次數
   updatedAt: 更新時間
   publishedAt: 發布時間
-
+  download: 下載
+  selectQuality: 選擇畫質
 auth:
   login: 登入
   logout: 登出
@@ -394,6 +395,12 @@ videoDetail:
   authorOtherVideos: 作者的其他影片
   relatedVideos: 相關影片
   privateVideo: 這是一個私密影片
+  noDownloadUrl: 沒有下載連結
+  startDownloading: 開始下載
+  downloadFailed: 下載失敗，請稍後再試
+  downloadSuccess: 下載成功
+  download: 下載
+  downloadManager: 下載管理
 
 share:
   sharePlayList: 分享播放列表

@@ -71,6 +71,7 @@ class MyVideoStateController extends GetxController
   final Rxn<String> currentResolutionTag = Rxn<String>();
   final RxBool isDescriptionExpanded = false.obs;
   final RxBool isFullscreen = false.obs;
+  final RxList<VideoSource> currentVideoSourceList = <VideoSource>[].obs;
 
   // 快进和后退时间设置
   final RxList<BufferRange> buffers = <BufferRange>[].obs; // 缓冲区段列表
@@ -316,6 +317,7 @@ class MyVideoStateController extends GetxController
       List<dynamic> data = res.data;
       List<VideoSource> sources =
           data.map((item) => VideoSource.fromJson(item)).toList();
+      currentVideoSourceList.value = sources;
 
       var lastUserSelectedResolution =
           _configService[ConfigService.DEFAULT_QUALITY_KEY];

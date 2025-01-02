@@ -193,6 +193,8 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String get numViews => '观看次数';
 	@override String get updatedAt => '更新时间';
 	@override String get publishedAt => '发布时间';
+	@override String get download => '下载';
+	@override String get selectQuality => '选择画质';
 }
 
 // Path: auth
@@ -543,6 +545,12 @@ class _TranslationsVideoDetailZhCn implements TranslationsVideoDetailEn {
 	@override String get authorOtherVideos => '作者的其他视频';
 	@override String get relatedVideos => '相关视频';
 	@override String get privateVideo => '这是一个私密视频';
+	@override String get noDownloadUrl => '没有下载链接';
+	@override String get startDownloading => '开始下载';
+	@override String get downloadFailed => '下载失败，请稍后再试';
+	@override String get downloadSuccess => '下载成功';
+	@override String get download => '下载';
+	@override String get downloadManager => '下载管理';
 }
 
 // Path: share
@@ -702,6 +710,8 @@ extension on TranslationsZhCn {
 			case 'common.numViews': return '观看次数';
 			case 'common.updatedAt': return '更新时间';
 			case 'common.publishedAt': return '发布时间';
+			case 'common.download': return '下载';
+			case 'common.selectQuality': return '选择画质';
 			case 'auth.login': return '登录';
 			case 'auth.logout': return '退出登录';
 			case 'auth.email': return '邮箱';
@@ -935,6 +945,12 @@ extension on TranslationsZhCn {
 			case 'videoDetail.authorOtherVideos': return '作者的其他视频';
 			case 'videoDetail.relatedVideos': return '相关视频';
 			case 'videoDetail.privateVideo': return '这是一个私密视频';
+			case 'videoDetail.noDownloadUrl': return '没有下载链接';
+			case 'videoDetail.startDownloading': return '开始下载';
+			case 'videoDetail.downloadFailed': return '下载失败，请稍后再试';
+			case 'videoDetail.downloadSuccess': return '下载成功';
+			case 'videoDetail.download': return '下载';
+			case 'videoDetail.downloadManager': return '下载管理';
 			case 'share.sharePlayList': return '分享播放列表';
 			case 'share.wowDidYouSeeThis': return '哇哦，你看过这个吗？';
 			case 'share.nameIs': return '名字叫做';

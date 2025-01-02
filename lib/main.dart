@@ -8,6 +8,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/comment_service.dart';
 import 'package:i_iwara/app/services/deep_link_service.dart';
+import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/services/light_service.dart';
 import 'package:i_iwara/app/services/play_list_service.dart';
@@ -112,6 +113,7 @@ void main() {
     Get.lazyPut(() => LightService());
     Get.lazyPut(() => GlobalSearchService());
     Get.lazyPut(() => PlayListService());
+    Get.lazyPut(() => DownloadService());
     Get.put(TranslationService());
 
     // 初始化 MediaKit

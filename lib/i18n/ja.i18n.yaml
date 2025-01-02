@@ -136,7 +136,8 @@ common:
   numViews: 視聴回数
   updatedAt: 更新時間
   publishedAt: 発表時間
-
+  download: ダウンロード
+  selectQuality: 画質を選択
 auth:
   login: ログイン
   logout: ログアウト
@@ -393,6 +394,12 @@ videoDetail:
   authorOtherVideos: 作者の他のビデオ
   relatedVideos: 関連ビデオ
   privateVideo: これはプライベートビデオです
+  noDownloadUrl: ダウンロードURLがありません
+  startDownloading: ダウンロードを開始
+  downloadFailed: ダウンロードに失敗しました。後でもう一度お試しください
+  downloadSuccess: ダウンロードに成功しました
+  download: ダウンロード
+  downloadManager: ダウンロード管理
 
 share:
   sharePlayList: プレイリストを共有

@@ -12,6 +12,7 @@ import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_con
 import 'package:i_iwara/app/ui/pages/video_detail/video_detail_page_v2.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/my_video_screen.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
 
 import '../routes/app_routes.dart';
 import '../ui/pages/author_profile/author_profile_page.dart';
@@ -389,6 +390,23 @@ class NaviService {
             begin: const Offset(1, 0),
             end: Offset.zero,
           ).animate(animation),
+          child: child,
+        );
+      },
+    ));
+  }
+
+  // 跳转到下载任务列表页
+  static void navigateToDownloadTaskListPage() {
+    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
+      settings: const RouteSettings(name: Routes.DOWNLOAD_TASK_LIST),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return const DownloadTaskListPage();
+      },
+      transitionDuration: const Duration(milliseconds: 200),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return SlideTransition(
+          position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(animation),
           child: child,
         );
       },

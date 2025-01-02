@@ -41,6 +41,8 @@ abstract class Routes {
 
   static const ABOUT_PAGE = '/settings/about';
 
+  static const DOWNLOAD_TASK_LIST = '/download_task_list';
+
   static String POST_DETAIL(String id) => '/post/$id';
 }
 
