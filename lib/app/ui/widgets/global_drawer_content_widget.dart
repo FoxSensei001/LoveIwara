@@ -29,7 +29,7 @@ class GlobalDrawerColumns extends StatelessWidget {
             padding: EdgeInsets.zero,
             children: [
               // 下载管理
-              _buildMenuItem(Icons.download, '下载管理', () {
+              _buildMenuItem(Icons.download, t.download.downloadList, () {
                 NaviService.navigateToDownloadTaskListPage();
                 AppService.switchGlobalDrawer();
               }),

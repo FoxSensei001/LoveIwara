@@ -3,10 +3,11 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/models/video_source.model.dart';
+import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:path_provider/path_provider.dart';
 import '../app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
-
+import 'package:path/path.dart' as p;
 class CommonUtils {
   /// 格式化Duration 为 mm:ss
   static String formatDuration(Duration duration) {
@@ -168,16 +169,15 @@ class CommonUtils {
     }
   }
 
+  /// 获取应用目录
   static Future<Directory> getAppDirectory({String pathSuffix = ''}) async {
     final directory = await getApplicationDocumentsDirectory();
-    if (pathSuffix.isNotEmpty) {
-      final path = '${directory.path}/$pathSuffix';
-      final dir = Directory(path);
-      if (!await dir.exists()) {
-        await dir.create(recursive: true);
-      }
-      return dir;
+    // join 上 applicationName
+    final path = p.join(directory.path, CommonConstants.applicationName, pathSuffix);
+    final dir = Directory(path);
+    if (!await dir.exists()) {
+      await dir.create(recursive: true);
     }
-    return directory;
+    return dir;
   }
 }

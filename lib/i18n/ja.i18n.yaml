@@ -409,3 +409,6 @@ share:
   iReallyLikeThis: 本当に好きです
   shareFailed: 共有に失敗しました。後でもう一度お試しください
   share: 共有
+
+download:
+  downloadList: ダウンロードリスト

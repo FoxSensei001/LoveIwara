@@ -48,6 +48,7 @@ class TranslationsZhCn implements Translations {
 	@override late final _TranslationsSubscriptionsZhCn subscriptions = _TranslationsSubscriptionsZhCn._(_root);
 	@override late final _TranslationsVideoDetailZhCn videoDetail = _TranslationsVideoDetailZhCn._(_root);
 	@override late final _TranslationsShareZhCn share = _TranslationsShareZhCn._(_root);
+	@override late final _TranslationsDownloadZhCn download = _TranslationsDownloadZhCn._(_root);
 }
 
 // Path: common
@@ -569,6 +570,16 @@ class _TranslationsShareZhCn implements TranslationsShareEn {
 	@override String get share => '分享';
 }
 
+// Path: download
+class _TranslationsDownloadZhCn implements TranslationsDownloadEn {
+	_TranslationsDownloadZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get downloadList => '下载列表';
+}
+
 /// Flat map(s) containing all translations.
 /// Only for edge cases! For simple maps, use the map function of this library.
 extension on TranslationsZhCn {
@@ -958,6 +969,7 @@ extension on TranslationsZhCn {
 			case 'share.iReallyLikeThis': return '我真的是太喜欢这个了，你也来看看吧！';
 			case 'share.shareFailed': return '分享失败，请稍后再试';
 			case 'share.share': return '分享';
+			case 'download.downloadList': return '下载列表';
 			default: return null;
 		}
 	}

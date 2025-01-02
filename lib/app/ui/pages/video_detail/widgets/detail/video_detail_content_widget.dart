@@ -23,6 +23,7 @@ import '../../../../../../i18n/strings.g.dart' as slang;
 import 'add_video_to_playlist_dialog.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/services/download_service.dart';
+import 'package:path/path.dart' as p;
 
 class VideoDetailContent extends StatelessWidget {
   final MyVideoStateController controller;
@@ -53,7 +54,8 @@ class VideoDetailContent extends StatelessWidget {
                 // 如果视频加载出错，显示错误组件
                 if (controller.videoErrorMessage.value != null) {
                   return CommonErrorWidget(
-                    text: controller.videoErrorMessage.value ?? t.videoDetail.errorLoadingVideo,
+                    text: controller.videoErrorMessage.value ??
+                        t.videoDetail.errorLoadingVideo,
                     children: [
                       ElevatedButton(
                         onPressed: () => AppService.tryPop(),
@@ -158,7 +160,10 @@ class VideoDetailContent extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: SizedBox(
                         height: 40,
-                        child: LikeAvatarsWidget(mediaId: videoId, mediaType: MediaType.VIDEO,),
+                        child: LikeAvatarsWidget(
+                          mediaId: videoId,
+                          mediaType: MediaType.VIDEO,
+                        ),
                       ),
                     );
                   } else {
@@ -172,82 +177,98 @@ class VideoDetailContent extends StatelessWidget {
                   if (videoInfo != null) {
                     return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Row(
-                            spacing: 8,
-                            children: [
-                              LikeButtonWidget(
-                                mediaId: videoInfo.id,
-                                liked: videoInfo.liked ?? false,
-                                likeCount: videoInfo.numLikes ?? 0,
-                                onLike: (id) async {
-                                  final result = await Get.find<VideoService>().likeVideo(id);
-                                  return result.isSuccess;
-                                },
-                                onUnlike: (id) async {
-                                  final result = await Get.find<VideoService>().unlikeVideo(id);
-                                  return result.isSuccess;
-                                },
-                                onLikeChanged: (liked) {
-                                  controller.videoInfo.value = controller.videoInfo.value?.copyWith(
-                                    liked: liked,
-                                    numLikes: (controller.videoInfo.value?.numLikes ?? 0) + (liked ? 1 : -1),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          spacing: 8,
+                          children: [
+                            LikeButtonWidget(
+                              mediaId: videoInfo.id,
+                              liked: videoInfo.liked ?? false,
+                              likeCount: videoInfo.numLikes ?? 0,
+                              onLike: (id) async {
+                                final result = await Get.find<VideoService>()
+                                    .likeVideo(id);
+                                return result.isSuccess;
+                              },
+                              onUnlike: (id) async {
+                                final result = await Get.find<VideoService>()
+                                    .unlikeVideo(id);
+                                return result.isSuccess;
+                              },
+                              onLikeChanged: (liked) {
+                                controller.videoInfo.value =
+                                    controller.videoInfo.value?.copyWith(
+                                  liked: liked,
+                                  numLikes:
+                                      (controller.videoInfo.value?.numLikes ??
+                                              0) +
+                                          (liked ? 1 : -1),
+                                );
+                              },
+                            ),
+                            Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(16),
+                                onTap: () {
+                                  final UserService userService = Get.find();
+                                  if (!userService.isLogin) {
+                                    showToastWidget(MDToastWidget(
+                                        message: t.errors.pleaseLoginFirst,
+                                        type: MDToastType.error));
+                                    Get.toNamed(Routes.LOGIN);
+                                    return;
+                                  }
+                                  showModalBottomSheet(
+                                    backgroundColor: Colors.transparent,
+                                    isScrollControlled: true,
+                                    builder: (context) =>
+                                        AddVideoToPlayListDialog(
+                                      videoId:
+                                          controller.videoInfo.value?.id ?? '',
+                                    ),
+                                    context: context,
                                   );
                                 },
-                              ),
-                              Material(
-                                color: Colors.transparent,
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(16),
-                                  onTap: () {
-                                    final UserService userService = Get.find();
-                                    if (!userService.isLogin) {
-                                      showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error));
-                                      Get.toNamed(Routes.LOGIN);
-                                      return;
-                                    }
-                                    showModalBottomSheet(
-                                      backgroundColor: Colors.transparent,
-                                      isScrollControlled: true,
-                                      builder: (context) => AddVideoToPlayListDialog(
-                                        videoId: controller.videoInfo.value?.id ?? '',
-                                      ), context: context,
-                                    );
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const Icon(Icons.playlist_add),
-                                        const SizedBox(width: 4),
-                                        Text(slang.Translations.of(context).playList.myPlayList),
-                                      ],
-                                    ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.playlist_add),
+                                      const SizedBox(width: 4),
+                                      Text(slang.Translations.of(context)
+                                          .playList
+                                          .myPlayList),
+                                    ],
                                   ),
                                 ),
                               ),
-                              Material(
-                                color: Colors.transparent,
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(16),
-                                  onTap: () {
-                                    _showDownloadDialog(context);
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const Icon(Icons.download),
-                                        const SizedBox(width: 4),
-                                        Text(t.common.download),
-                                      ],
-                                    ),
+                            ),
+                            Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(16),
+                                onTap: () {
+                                  _showDownloadDialog(context);
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.download),
+                                      const SizedBox(width: 4),
+                                      Text(t.common.download),
+                                    ],
                                   ),
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
+                        ),
+                      ),
                     );
                   } else {
                     return const SizedBox.shrink();
@@ -402,7 +423,8 @@ class VideoDetailContent extends StatelessWidget {
             FollowButtonWidget(
               user: controller.videoInfo.value!.user!,
               onUserUpdated: (updatedUser) {
-                controller.videoInfo.value = controller.videoInfo.value?.copyWith(
+                controller.videoInfo.value =
+                    controller.videoInfo.value?.copyWith(
                   user: updatedUser,
                 );
               },
@@ -415,10 +437,9 @@ class VideoDetailContent extends StatelessWidget {
   void _showDownloadDialog(BuildContext context) {
     final t = slang.Translations.of(context);
     final sources = controller.currentVideoSourceList;
-    
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
+
+    Get.dialog(
+      AlertDialog(
         title: Text(t.common.selectQuality),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -426,8 +447,8 @@ class VideoDetailContent extends StatelessWidget {
             return ListTile(
               title: Text(source.name ?? 'Unknown'),
               onTap: () async {
-                Navigator.of(context).pop();
-                
+                AppService.tryPop();
+
                 if (source.download == null) {
                   showToastWidget(
                     MDToastWidget(
@@ -447,12 +468,13 @@ class VideoDetailContent extends StatelessWidget {
                       controller.videoInfo.value?.title ?? 'video',
                       source.name ?? 'unknown',
                     ),
-                    fileName: '${controller.videoInfo.value?.title ?? 'video'}_${source.name}.mp4',
+                    fileName:
+                        '${controller.videoInfo.value?.title ?? 'video'}_${source.name}.mp4',
                     supportsRange: true,
                   );
-                  
+
                   await DownloadService.to.addTask(task);
-                  
+
                   showToastWidget(
                     MDToastWidget(
                       message: t.videoDetail.startDownloading,
@@ -460,22 +482,23 @@ class VideoDetailContent extends StatelessWidget {
                     ),
                     position: ToastPosition.top,
                   );
-                  
+
                   // 打开下载管理页面
                   NaviService.navigateToDownloadTaskListPage();
                 } catch (e) {
-                  LogUtils.e('添加下载任务失败: $e', tag: 'VideoDetailContent', error: e);
+                  LogUtils.e('添加下载任务失败: $e',
+                      tag: 'VideoDetailContent', error: e);
                   String message;
-                  if(e.toString().contains('下载任务已存在')) {
+                  if (e.toString().contains('下载任务已存在')) {
                     // message = t.videoDetail.downloadTaskExists;
                     message = 'Download task already exists';
-                  } else if(e.toString().contains('该视频已下载')) {
+                  } else if (e.toString().contains('该视频已下载')) {
                     // message = t.videoDetail.videoAlreadyDownloaded;
                     message = 'The video has already been downloaded';
                   } else {
                     message = 'Download failed';
                   }
-                  
+
                   showToastWidget(
                     MDToastWidget(
                       message: message,
@@ -492,8 +515,9 @@ class VideoDetailContent extends StatelessWidget {
     );
   }
 
+  // 获取视频的下载地址
   Future<String> _getSavePath(String title, String quality) async {
-    final dir = await CommonUtils.getAppDirectory(pathSuffix: 'downloads');
+    final dir = await CommonUtils.getAppDirectory(pathSuffix: p.join('downloads', 'videos'));
     final sanitizedTitle = title.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_');
     return '${dir.path}/${sanitizedTitle}_$quality.mp4';
   }

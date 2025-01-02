@@ -49,7 +49,7 @@ dependencies:
   dynamic_color: ^1.7.0
   oktoast: ^3.4.0
   app_links: ^6.3.3
-
+  open_file: ^3.5.10
 dev_dependencies:
   flutter_test:
     sdk: flutter

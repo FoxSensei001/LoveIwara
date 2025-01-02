@@ -408,3 +408,6 @@ share:
   iReallyLikeThis: I really like this
   shareFailed: Share failed, please try again later
   share: Share
+
+download:
+  downloadList: Download List

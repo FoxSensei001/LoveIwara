@@ -410,3 +410,6 @@ share:
   iReallyLikeThis: 我真的是太喜歡這個了，你也來看看吧！
   shareFailed: 分享失敗，請稍後再試
   share: 分享
+
+download:
+  downloadList: 下載列表

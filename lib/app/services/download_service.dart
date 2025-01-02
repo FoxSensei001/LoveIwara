@@ -1,47 +1,99 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/repositories/download_task_repository.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
 class DownloadService extends GetxService {
-  static DownloadService get to => Get.find();
+  static DownloadService get to => Get.find<DownloadService>();
   
-  final _tasks = <String, DownloadTask>{}.obs;
+  static const int _pageSize = 20;
+  
+  final _activeTasks = <String, DownloadTask>{}.obs;
+  final _completedTasks = <String, DownloadTask>{}.obs;
   final _activeDownloads = <String, CancelToken>{};
   final _downloadQueue = <String>[].obs;
+  
+  int _completedTasksOffset = 0;
+  bool _hasMoreCompletedTasks = true;
+  
+  // 获取所有任务（包括活跃和已加载的已完成任务）
+  Map<String, DownloadTask> get tasks => {
+    ..._activeTasks,
+    ..._completedTasks,
+  };
+
+  // 是否还有更多已完成的任务可以加载
+  bool get hasMoreCompletedTasks => _hasMoreCompletedTasks;
+
   final _repository = DownloadTaskRepository();
   
   static const maxConcurrentDownloads = 3;
   final dio = Dio();
   
-  Map<String, DownloadTask> get tasks => _tasks;
   List<String> get downloadQueue => _downloadQueue;
   
-  // 添加节流控制相关属性
-  Timer? _progressUpdateTimer;
-  final _pendingProgressUpdates = <String>{};
+  // 添加任务专用的计时器映射
+  final _taskTimers = <String, Timer>{};
+
+  int get activeDownloadsCount => _activeDownloads.length;
+
+  bool get hasActiveSlot => activeDownloadsCount < maxConcurrentDownloads;
+
+  // 获取等待中的任务数
+  int get pendingTasksCount => _downloadQueue.length;
+
+  // 获取所有下载中的任务
+  List<DownloadTask> get downloadingTasks => 
+      _activeTasks.values.where((task) => task.status == DownloadStatus.downloading).toList();
+
+  // 获取所有等待中的任务
+  List<DownloadTask> get pendingTasks => 
+      _activeTasks.values.where((task) => task.status == DownloadStatus.pending).toList();
   
   @override
-  void onInit() {
+  Future<void> onInit() async {
     super.onInit();
-    _loadTasks();
+    await _loadAllTasks();
   }
 
-  Future<void> _loadTasks() async {
+  // 修改加载逻辑
+  Future<void> _loadAllTasks() async {
     try {
-      final tasks = await _repository.getAllTasks();
-      _tasks.addAll({for (var task in tasks) task.id: task});
+      // 加载活跃任务（包括失败的任务）
+      final activeTasks = await _repository.getActiveTasks();
+      _activeTasks.clear();
+      _activeTasks.addAll({for (var task in activeTasks) task.id: task});
       
       // 恢复未完成的任务
-      for (var task in tasks) {
+      for (var task in activeTasks) {
+        // 只将downloading状态的任务重置为pending并加入队列
         if (task.status == DownloadStatus.downloading) {
           task.status = DownloadStatus.pending;
           _downloadQueue.add(task.id);
         }
       }
+      
+      // 加载已完成任务的第一页
+      final completedTasks = await _repository.getCompletedTasks(
+        offset: 0,
+        limit: _pageSize,
+      );
+      _completedTasks.clear();
+      _completedTasks.addAll({for (var task in completedTasks) task.id: task});
+      _completedTasksOffset = completedTasks.length;
+      
+      // 检查是否还有更多已完成任务
+      final counts = await _repository.getTasksCount();
+      _hasMoreCompletedTasks = counts['completed']! > completedTasks.length;
+
+      LogUtils.i(
+        '已加载 ${activeTasks.length} 个活跃任务（包括失败任务）, ${completedTasks.length} 个已完成任务',
+        'DownloadService'
+      );
       
       _processQueue();
     } catch (e) {
@@ -49,59 +101,111 @@ class DownloadService extends GetxService {
     }
   }
 
-  Future<void> addTask(DownloadTask task) async {
-    // 检查任务是否已存在
-    if(_tasks.containsKey(task.id)) {
-      final existingTask = _tasks[task.id]!;
-      // 如果任务已完成，提示用户
-      if(existingTask.status == DownloadStatus.completed) {
-        throw Exception('该视频已下载');
-      }
-      // 如果任务失败或暂停，则恢复下载
-      if(existingTask.status == DownloadStatus.failed || 
-         existingTask.status == DownloadStatus.paused) {
-        await resumeTask(task.id);
+  // 加载更多已完成的任务
+  Future<void> loadMoreCompletedTasks() async {
+    if (!_hasMoreCompletedTasks) return;
+
+    try {
+      final tasks = await _repository.getCompletedTasks(
+        offset: _completedTasksOffset,
+        limit: _pageSize,
+      );
+      
+      if (tasks.isEmpty) {
+        _hasMoreCompletedTasks = false;
         return;
       }
-      throw Exception('下载任务已存在');
+
+      _completedTasks.addAll({for (var task in tasks) task.id: task});
+      _completedTasksOffset += tasks.length;
+      
+      // 如果获取的任务数少于页大小，说明没有更多任务了
+      if (tasks.length < _pageSize) {
+        _hasMoreCompletedTasks = false;
+      }
+    } catch (e) {
+      LogUtils.e('加载已完成的下载任务失败', error: e);
     }
-    
-    LogUtils.d('添加下载任务: ${task.fileName}', 'DownloadService');
-    await _repository.insertTask(task);
-    _tasks[task.id] = task;
-    _downloadQueue.add(task.id);
-    
-    _processQueue();
+  }
+
+  // 清理已完成任务的缓存
+  void clearCompletedTasksCache() {
+    _completedTasks.clear();
+    _completedTasksOffset = 0;
+    _hasMoreCompletedTasks = true;
+  }
+
+  Future<void> addTask(DownloadTask task) async {
+    try {
+      // 检查任务是否已存在
+      if (_activeTasks.containsKey(task.id) || _completedTasks.containsKey(task.id)) {
+        final existingTask = tasks[task.id]!;
+        
+        // 如果任务已完成，提示用户
+        if (existingTask.status == DownloadStatus.completed) {
+          throw Exception('该视频已下载');
+        }
+        
+        // 如果任务失败或暂停，则恢复下载
+        if (existingTask.status == DownloadStatus.failed || 
+            existingTask.status == DownloadStatus.paused) {
+          await resumeTask(task.id);
+          return;
+        }
+        
+        // 如果任务正在下载或等待下载，提示用户
+        throw Exception('下载任务已存在');
+      }
+
+      // 使用事务插入任务
+      await _repository.insertTaskWithTransaction(task);
+      
+      _activeTasks[task.id] = task;
+      _downloadQueue.add(task.id);
+      
+      LogUtils.i('添加下载任务: ${task.fileName}', 'DownloadService');
+      _processQueue();
+      
+    } catch (e) {
+      LogUtils.e('添加下载任务失败', tag: 'DownloadService', error: e);
+      _showError('添加下载任务失败: ${_getErrorMessage(e)}');
+      rethrow;
+    }
   }
   
   Future<void> pauseTask(String taskId) async {
-    final task = _tasks[taskId];
-    if(task == null) return;
+    final task = _activeTasks[taskId];
+    if (task == null) return;
     
-    if(task.status == DownloadStatus.downloading) {
+    if (task.status == DownloadStatus.downloading) {
+      LogUtils.i('暂停下载任务: ${task.fileName}', 'DownloadService');
       _activeDownloads[taskId]?.cancel('用户暂停下载');
       _activeDownloads.remove(taskId);
+      
+      task.status = DownloadStatus.paused;
+      _activeTasks[taskId] = task;
+      await _repository.updateTask(task);
+      
+      // 处理等待队列中的下一个任务
+      _processQueue();
     }
-    
-    task.status = DownloadStatus.paused;
-    _tasks[taskId] = task;
   }
   
   Future<void> resumeTask(String taskId) async {
-    final task = _tasks[taskId];
+    final task = _activeTasks[taskId];
     if(task == null) return;
     
     if(task.status == DownloadStatus.paused) {
       task.status = DownloadStatus.pending;
       _downloadQueue.add(taskId);
-      _tasks[taskId] = task;
+      _activeTasks[taskId] = task;
       
       _processQueue();
     }
   }
   
   Future<void> deleteTask(String taskId) async {
-    final task = _tasks[taskId];
+    final task = _activeTasks[taskId];
     if(task == null) return;
     
     try {
@@ -128,7 +232,7 @@ class DownloadService extends GetxService {
       LogUtils.d('已从数据库删除任务记录', 'DownloadService');
       
       // 从内存中移除任务
-      _tasks.remove(taskId);
+      _activeTasks.remove(taskId);
       _downloadQueue.remove(taskId);
       
       LogUtils.i('下载任务删除完成: ${task.fileName}', 'DownloadService');
@@ -139,20 +243,38 @@ class DownloadService extends GetxService {
   }
 
   void _processQueue() async {
-    if(_activeDownloads.length >= maxConcurrentDownloads || _downloadQueue.isEmpty) {
+    // 检查当前活动下载数量是否达到上限
+    if (_activeDownloads.length >= maxConcurrentDownloads) {
+      LogUtils.d(
+        '当前活动下载数: ${_activeDownloads.length}, 已达到最大并发数: $maxConcurrentDownloads',
+        'DownloadService'
+      );
+      return;
+    }
+
+    // 检查下载队列是否为空
+    if (_downloadQueue.isEmpty) {
+      LogUtils.d('下载队列为空', 'DownloadService');
       return;
     }
 
     final taskId = _downloadQueue.first;
-    final task = _tasks[taskId];
+    final task = _activeTasks[taskId];
 
-    if(task == null || task.status != DownloadStatus.pending) {
+    if (task == null || task.status != DownloadStatus.pending) {
       _downloadQueue.removeAt(0);
-      _processQueue();
+      _processQueue(); // 继续处理队列中的下一个任务
       return;
     }
 
     _downloadQueue.removeAt(0);
+    
+    // 记录开始下载的时间
+    LogUtils.i(
+      '开始下载任务: ${task.fileName} (当前活动下载数: ${_activeDownloads.length + 1}/$maxConcurrentDownloads)',
+      'DownloadService'
+    );
+    
     await _startDownload(task);
   }
   
@@ -233,26 +355,24 @@ class DownloadService extends GetxService {
 
       LogUtils.d('开始接收数据流', 'DownloadService');
 
-      // 设置1秒的节流间隔
-      _progressUpdateTimer?.cancel();
-      _progressUpdateTimer = Timer.periodic(const Duration(seconds: 1), (_) {
-        if(_pendingProgressUpdates.isNotEmpty) {
-          task.updateSpeed();
-          _repository.updateTask(task);
-          if (task.totalBytes > 0) {
-            LogUtils.d(
-              '下载进度: ${task.downloadedBytes}/${task.totalBytes} (${(task.downloadedBytes / task.totalBytes * 100).toStringAsFixed(2)}%), '
-              '速度: ${(task.speed / 1024 / 1024).toStringAsFixed(2)}MB/s',
-              'DownloadService'
-            );
-          } else {
-            LogUtils.d(
-              '已下载: ${task.downloadedBytes} bytes, '
-              '速度: ${(task.speed / 1024 / 1024).toStringAsFixed(2)}MB/s',
-              'DownloadService'
-            );
-          }
-          _pendingProgressUpdates.clear();
+      // 为当前任务创建专用的计时器
+      _taskTimers[task.id]?.cancel();
+      _taskTimers[task.id] = Timer.periodic(const Duration(seconds: 1), (_) {
+        task.updateSpeed();
+        _repository.updateTask(task);
+        if (task.totalBytes > 0) {
+          LogUtils.d(
+            '[${task.fileName}] 下载进度: ${task.downloadedBytes}/${task.totalBytes} '
+            '(${(task.downloadedBytes / task.totalBytes * 100).toStringAsFixed(2)}%), '
+            '速度: ${(task.speed / 1024 / 1024).toStringAsFixed(2)}MB/s',
+            'DownloadService'
+          );
+        } else {
+          LogUtils.d(
+            '[${task.fileName}] 已下载: ${task.downloadedBytes} bytes, '
+            '速度: ${(task.speed / 1024 / 1024).toStringAsFixed(2)}MB/s',
+            'DownloadService'
+          );
         }
       });
 
@@ -263,11 +383,10 @@ class DownloadService extends GetxService {
           try {
             raf?.writeFromSync(chunk);
             task.downloadedBytes = (task.downloadedBytes + chunk.length) as int;
-            _tasks[task.id] = task;
-            _pendingProgressUpdates.add(task.id);
+            _activeTasks[task.id] = task;
           } catch (e) {
             LogUtils.e('写入文件失败: $e', tag: 'DownloadService', error: e);
-            throw e;
+            rethrow;
           }
         },
         onDone: () async {
@@ -309,16 +428,31 @@ class DownloadService extends GetxService {
       }
       
     } catch(e) {
-      if (e is DioException && e.type == DioExceptionType.cancel) {
-        // 用户主动取消,不需要额外处理
-        LogUtils.d('用户暂停下载: ${task.fileName}', 'DownloadService');
+      if (e is DioException) {
+        final errorMsg = _getErrorMessage(e);
+        LogUtils.e('下载失败: $errorMsg', tag: 'DownloadService', error: e);
+        _showError(errorMsg);
+        
+      } else if (e is FileSystemException) {
+        final errorMsg = '文件系统错误: ${e.message}';
+        LogUtils.e(errorMsg, tag: 'DownloadService', error: e);
+        _showError(errorMsg);
+        
       } else {
-        // 其他错误需要正常处理
-        LogUtils.e('下载任务执行失败: $e', tag: 'DownloadService', error: e);
-        await _cleanupDownload(task, raf, subscription);
-        task.status = DownloadStatus.failed;
-        task.error = _getErrorMessage(e);
-        await _updateTaskStatus(task);
+        final errorMsg = '未知错误: $e';
+        LogUtils.e(errorMsg, tag: 'DownloadService', error: e);
+        _showError(errorMsg);
+      }
+      
+      await _cleanupDownload(task, raf, subscription);
+      task.status = DownloadStatus.failed;
+      task.error = _getErrorMessage(e);
+      await _updateTaskStatus(task);
+      _processQueue();
+    } finally {
+      // 确保在任务结束时（无论成功还是失败）都会检查队列
+      if (_activeDownloads.length < maxConcurrentDownloads && 
+          _downloadQueue.isNotEmpty) {
         _processQueue();
       }
     }
@@ -331,14 +465,26 @@ class DownloadService extends GetxService {
     StreamSubscription? subscription
   ) async {
     await subscription?.cancel();
-    await raf?.close();
+    try {
+      await raf?.close();
+    } catch (e) {
+      LogUtils.e('关闭文件失败: $e', tag: 'DownloadService', error: e);
+    }
     _activeDownloads.remove(task.id);
-    _progressUpdateTimer?.cancel();
-    _progressUpdateTimer = null;
+    
+    // 清理任务专用的计时器
+    _taskTimers[task.id]?.cancel();
+    _taskTimers.remove(task.id);
   }
 
   Future<void> _updateTaskStatus(DownloadTask task) async {
-    _tasks[task.id] = task;
+    if (task.status == DownloadStatus.completed) {
+      // 如果任务完成，从活跃任务移到已完成任务
+      _activeTasks.remove(task.id);
+      _completedTasks[task.id] = task;
+    } else {
+      _activeTasks[task.id] = task;
+    }
     await _repository.updateTask(task);
   }
 
@@ -360,5 +506,54 @@ class DownloadService extends GetxService {
       return '文件系统错误: ${error.message}';
     }
     return error.toString();
+  }
+
+  // 添加重试方法
+  Future<void> retryTask(String taskId) async {
+    final task = _activeTasks[taskId];
+    if (task == null) return;
+
+    if (task.status == DownloadStatus.failed) {
+      LogUtils.i('重试下载任务: ${task.fileName}', 'DownloadService');
+      task.error = null;
+      task.status = DownloadStatus.pending;
+      _downloadQueue.add(taskId);
+      _activeTasks[taskId] = task;
+      await _repository.updateTask(task);
+      
+      _processQueue();
+    }
+  }
+
+  @override
+  void onClose() {
+    // 取消所有下载
+    for (var cancelToken in _activeDownloads.values) {
+      cancelToken.cancel('Service is closing');
+    }
+    _activeDownloads.clear();
+
+    // 清理所有计时器
+    for (var timer in _taskTimers.values) {
+      timer.cancel(); 
+    }
+    _taskTimers.clear();
+
+    // 清理其他资源
+    _activeTasks.clear();
+    _completedTasks.clear();
+    _downloadQueue.clear();
+    
+    super.onClose();
+  }
+
+  void _showError(String message) {
+    Get.showSnackbar(
+      GetSnackBar(
+        message: message,
+        duration: const Duration(seconds: 2),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
 } 

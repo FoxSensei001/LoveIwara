@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:path/path.dart';
+import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart'
     show getApplicationDocumentsDirectory;
 import 'package:sqlite3/common.dart' show CommonDatabase;
@@ -12,8 +12,8 @@ import '../../utils/logger_utils.dart';
 Future<CommonDatabase> openSqliteDb() async {
   LogUtils.i('打开数据库', 'DatabaseService');
   Directory documentsDirectory = await getApplicationDocumentsDirectory();
-  String appDirPath = join(documentsDirectory.path, CommonConstants.applicationName);
-  String path = join(appDirPath, "i_iwara.db");
+  String appDirPath = p.join(documentsDirectory.path, CommonConstants.applicationName);
+  String path = p.join(appDirPath, "i_iwara.db");
   LogUtils.i('数据库路径：$path', 'DatabaseService');
 
   // 确保目录存在

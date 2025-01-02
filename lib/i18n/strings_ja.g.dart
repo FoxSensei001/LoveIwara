@@ -48,6 +48,7 @@ class TranslationsJa implements Translations {
 	@override late final _TranslationsSubscriptionsJa subscriptions = _TranslationsSubscriptionsJa._(_root);
 	@override late final _TranslationsVideoDetailJa videoDetail = _TranslationsVideoDetailJa._(_root);
 	@override late final _TranslationsShareJa share = _TranslationsShareJa._(_root);
+	@override late final _TranslationsDownloadJa download = _TranslationsDownloadJa._(_root);
 }
 
 // Path: common
@@ -568,6 +569,16 @@ class _TranslationsShareJa implements TranslationsShareEn {
 	@override String get share => '共有';
 }
 
+// Path: download
+class _TranslationsDownloadJa implements TranslationsDownloadEn {
+	_TranslationsDownloadJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get downloadList => 'ダウンロードリスト';
+}
+
 /// Flat map(s) containing all translations.
 /// Only for edge cases! For simple maps, use the map function of this library.
 extension on TranslationsJa {
@@ -956,6 +967,7 @@ extension on TranslationsJa {
 			case 'share.iReallyLikeThis': return '本当に好きです';
 			case 'share.shareFailed': return '共有に失敗しました。後でもう一度お試しください';
 			case 'share.share': return '共有';
+			case 'download.downloadList': return 'ダウンロードリスト';
 			default: return null;
 		}
 	}

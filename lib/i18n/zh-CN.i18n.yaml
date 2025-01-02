@@ -412,3 +412,7 @@ share:
   iReallyLikeThis: 我真的是太喜欢这个了，你也来看看吧！
   shareFailed: 分享失败，请稍后再试
   share: 分享
+
+download:
+  downloadList: 下载列表
+

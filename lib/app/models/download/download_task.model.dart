@@ -1,13 +1,13 @@
 class DownloadTask {
   final String id;
-  final String url;
-  final String savePath;
-  final String fileName;
-  int totalBytes;
-  int downloadedBytes;
-  DownloadStatus status;
-  bool supportsRange;
-  String? error;
+  final String url; // 下载链接
+  final String savePath; // 保存路径
+  final String fileName; // 文件名
+  int totalBytes; // 文件总大小
+  int downloadedBytes; // 已下载大小
+  DownloadStatus status; // 下载状态
+  bool supportsRange; // 是否支持断点续传
+  String? error; // 错误信息
   int speed = 0; // 当前下载速度(bytes/s)
   DateTime? lastSpeedUpdateTime; // 上次速度更新时间
   int lastDownloadedBytes = 0; // 上次下载的字节数

@@ -48,6 +48,7 @@ class TranslationsZhTw implements Translations {
 	@override late final _TranslationsSubscriptionsZhTw subscriptions = _TranslationsSubscriptionsZhTw._(_root);
 	@override late final _TranslationsVideoDetailZhTw videoDetail = _TranslationsVideoDetailZhTw._(_root);
 	@override late final _TranslationsShareZhTw share = _TranslationsShareZhTw._(_root);
+	@override late final _TranslationsDownloadZhTw download = _TranslationsDownloadZhTw._(_root);
 }
 
 // Path: common
@@ -568,6 +569,16 @@ class _TranslationsShareZhTw implements TranslationsShareEn {
 	@override String get share => '分享';
 }
 
+// Path: download
+class _TranslationsDownloadZhTw implements TranslationsDownloadEn {
+	_TranslationsDownloadZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get downloadList => '下載列表';
+}
+
 /// Flat map(s) containing all translations.
 /// Only for edge cases! For simple maps, use the map function of this library.
 extension on TranslationsZhTw {
@@ -956,6 +967,7 @@ extension on TranslationsZhTw {
 			case 'share.iReallyLikeThis': return '我真的是太喜歡這個了，你也來看看吧！';
 			case 'share.shareFailed': return '分享失敗，請稍後再試';
 			case 'share.share': return '分享';
+			case 'download.downloadList': return '下載列表';
 			default: return null;
 		}
 	}

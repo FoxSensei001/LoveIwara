@@ -52,6 +52,7 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final TranslationsSubscriptionsEn subscriptions = TranslationsSubscriptionsEn._(_root);
 	late final TranslationsVideoDetailEn videoDetail = TranslationsVideoDetailEn._(_root);
 	late final TranslationsShareEn share = TranslationsShareEn._(_root);
+	late final TranslationsDownloadEn download = TranslationsDownloadEn._(_root);
 }
 
 // Path: common
@@ -572,6 +573,16 @@ class TranslationsShareEn {
 	String get share => 'Share';
 }
 
+// Path: download
+class TranslationsDownloadEn {
+	TranslationsDownloadEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get downloadList => 'Download List';
+}
+
 /// Flat map(s) containing all translations.
 /// Only for edge cases! For simple maps, use the map function of this library.
 extension on Translations {
@@ -960,6 +971,7 @@ extension on Translations {
 			case 'share.iReallyLikeThis': return 'I really like this';
 			case 'share.shareFailed': return 'Share failed, please try again later';
 			case 'share.share': return 'Share';
+			case 'download.downloadList': return 'Download List';
 			default: return null;
 		}
 	}

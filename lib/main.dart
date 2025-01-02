@@ -113,7 +113,7 @@ void main() {
     Get.lazyPut(() => LightService());
     Get.lazyPut(() => GlobalSearchService());
     Get.lazyPut(() => PlayListService());
-    Get.lazyPut(() => DownloadService());
+    Get.put(DownloadService());
     Get.put(TranslationService());
 
     // 初始化 MediaKit
