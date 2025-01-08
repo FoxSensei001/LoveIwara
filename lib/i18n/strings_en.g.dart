@@ -199,12 +199,12 @@ class TranslationsCommonEn {
 	String get numViews => 'Views';
 	String get updatedAt => 'Updated At';
 	String get publishedAt => 'Published At';
-	String get download => 'Download';
-	String get selectQuality => 'Select Quality';
 	String get externalVideo => 'External Video';
 	String get originalText => 'Original Text';
 	String get showOriginalText => 'Show Original Text';
 	String get showProcessedText => 'Show Processed Text';
+	String get download => 'Download';
+	String get selectQuality => 'Select Quality';
 }
 
 // Path: auth

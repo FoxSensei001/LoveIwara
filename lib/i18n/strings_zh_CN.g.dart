@@ -48,6 +48,7 @@ class TranslationsZhCn implements Translations {
 	@override late final _TranslationsSubscriptionsZhCn subscriptions = _TranslationsSubscriptionsZhCn._(_root);
 	@override late final _TranslationsVideoDetailZhCn videoDetail = _TranslationsVideoDetailZhCn._(_root);
 	@override late final _TranslationsShareZhCn share = _TranslationsShareZhCn._(_root);
+	@override late final _TranslationsDownloadZhCn download = _TranslationsDownloadZhCn._(_root);
 }
 
 // Path: common
@@ -199,6 +200,8 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String get originalText => '原文';
 	@override String get showOriginalText => '显示原始文本';
 	@override String get showProcessedText => '显示处理后文本';
+	@override String get download => '下载';
+	@override String get selectQuality => '选择画质';
 }
 
 // Path: auth
@@ -569,6 +572,12 @@ class _TranslationsVideoDetailZhCn implements TranslationsVideoDetailEn {
 	@override String get externalVideo => '这是一个站外视频';
 	@override String get openInBrowser => '在浏览器中打开';
 	@override String get resourceDeleted => '这个视频貌似被删除了 :/';
+	@override String get noDownloadUrl => '没有下载链接';
+	@override String get startDownloading => '开始下载';
+	@override String get downloadFailed => '下载失败，请稍后再试';
+	@override String get downloadSuccess => '下载成功';
+	@override String get download => '下载';
+	@override String get downloadManager => '下载管理';
 }
 
 // Path: share
@@ -585,6 +594,16 @@ class _TranslationsShareZhCn implements TranslationsShareEn {
 	@override String get iReallyLikeThis => '我真的是太喜欢这个了，你也来看看吧！';
 	@override String get shareFailed => '分享失败，请稍后再试';
 	@override String get share => '分享';
+}
+
+// Path: download
+class _TranslationsDownloadZhCn implements TranslationsDownloadEn {
+	_TranslationsDownloadZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get downloadList => '下载列表';
 }
 
 /// Flat map(s) containing all translations.
@@ -734,6 +753,8 @@ extension on TranslationsZhCn {
 			case 'common.originalText': return '原文';
 			case 'common.showOriginalText': return '显示原始文本';
 			case 'common.showProcessedText': return '显示处理后文本';
+			case 'common.download': return '下载';
+			case 'common.selectQuality': return '选择画质';
 			case 'auth.login': return '登录';
 			case 'auth.logout': return '退出登录';
 			case 'auth.email': return '邮箱';
@@ -987,6 +1008,12 @@ extension on TranslationsZhCn {
 			case 'videoDetail.externalVideo': return '这是一个站外视频';
 			case 'videoDetail.openInBrowser': return '在浏览器中打开';
 			case 'videoDetail.resourceDeleted': return '这个视频貌似被删除了 :/';
+			case 'videoDetail.noDownloadUrl': return '没有下载链接';
+			case 'videoDetail.startDownloading': return '开始下载';
+			case 'videoDetail.downloadFailed': return '下载失败，请稍后再试';
+			case 'videoDetail.downloadSuccess': return '下载成功';
+			case 'videoDetail.download': return '下载';
+			case 'videoDetail.downloadManager': return '下载管理';
 			case 'share.sharePlayList': return '分享播放列表';
 			case 'share.wowDidYouSeeThis': return '哇哦，你看过这个吗？';
 			case 'share.nameIs': return '名字叫做';
@@ -994,6 +1021,7 @@ extension on TranslationsZhCn {
 			case 'share.iReallyLikeThis': return '我真的是太喜欢这个了，你也来看看吧！';
 			case 'share.shareFailed': return '分享失败，请稍后再试';
 			case 'share.share': return '分享';
+			case 'download.downloadList': return '下载列表';
 			default: return null;
 		}
 	}

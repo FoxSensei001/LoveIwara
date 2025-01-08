@@ -48,6 +48,7 @@ class TranslationsJa implements Translations {
 	@override late final _TranslationsSubscriptionsJa subscriptions = _TranslationsSubscriptionsJa._(_root);
 	@override late final _TranslationsVideoDetailJa videoDetail = _TranslationsVideoDetailJa._(_root);
 	@override late final _TranslationsShareJa share = _TranslationsShareJa._(_root);
+	@override late final _TranslationsDownloadJa download = _TranslationsDownloadJa._(_root);
 }
 
 // Path: common
@@ -198,6 +199,8 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get originalText => '原文';
 	@override String get showOriginalText => '原文を表示';
 	@override String get showProcessedText => '処理後の原文を表示';
+	@override String get download => 'ダウンロード';
+	@override String get selectQuality => '画質を選択';
 }
 
 // Path: auth
@@ -566,6 +569,12 @@ class _TranslationsVideoDetailJa implements TranslationsVideoDetailEn {
 	@override String get externalVideo => 'これは站外ビデオです';
 	@override String get openInBrowser => 'ブラウザで開く';
 	@override String get resourceDeleted => 'このビデオは削除されたようです :/';
+	@override String get noDownloadUrl => 'ダウンロードURLがありません';
+	@override String get startDownloading => 'ダウンロードを開始';
+	@override String get downloadFailed => 'ダウンロードに失敗しました。後でもう一度お試しください';
+	@override String get downloadSuccess => 'ダウンロードに成功しました';
+	@override String get download => 'ダウンロード';
+	@override String get downloadManager => 'ダウンロード管理';
 }
 
 // Path: share
@@ -582,6 +591,16 @@ class _TranslationsShareJa implements TranslationsShareEn {
 	@override String get iReallyLikeThis => '本当に好きです';
 	@override String get shareFailed => '共有に失敗しました。後でもう一度お試しください';
 	@override String get share => '共有';
+}
+
+// Path: download
+class _TranslationsDownloadJa implements TranslationsDownloadEn {
+	_TranslationsDownloadJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get downloadList => 'ダウンロードリスト';
 }
 
 /// Flat map(s) containing all translations.
@@ -730,6 +749,8 @@ extension on TranslationsJa {
 			case 'common.originalText': return '原文';
 			case 'common.showOriginalText': return '原文を表示';
 			case 'common.showProcessedText': return '処理後の原文を表示';
+			case 'common.download': return 'ダウンロード';
+			case 'common.selectQuality': return '画質を選択';
 			case 'auth.login': return 'ログイン';
 			case 'auth.logout': return 'ログアウト';
 			case 'auth.email': return 'メールアドレス';
@@ -981,6 +1002,12 @@ extension on TranslationsJa {
 			case 'videoDetail.externalVideo': return 'これは站外ビデオです';
 			case 'videoDetail.openInBrowser': return 'ブラウザで開く';
 			case 'videoDetail.resourceDeleted': return 'このビデオは削除されたようです :/';
+			case 'videoDetail.noDownloadUrl': return 'ダウンロードURLがありません';
+			case 'videoDetail.startDownloading': return 'ダウンロードを開始';
+			case 'videoDetail.downloadFailed': return 'ダウンロードに失敗しました。後でもう一度お試しください';
+			case 'videoDetail.downloadSuccess': return 'ダウンロードに成功しました';
+			case 'videoDetail.download': return 'ダウンロード';
+			case 'videoDetail.downloadManager': return 'ダウンロード管理';
 			case 'share.sharePlayList': return 'プレイリストを共有';
 			case 'share.wowDidYouSeeThis': return 'ああ、見たの？';
 			case 'share.nameIs': return '名前は';
@@ -988,6 +1015,7 @@ extension on TranslationsJa {
 			case 'share.iReallyLikeThis': return '本当に好きです';
 			case 'share.shareFailed': return '共有に失敗しました。後でもう一度お試しください';
 			case 'share.share': return '共有';
+			case 'download.downloadList': return 'ダウンロードリスト';
 			default: return null;
 		}
 	}

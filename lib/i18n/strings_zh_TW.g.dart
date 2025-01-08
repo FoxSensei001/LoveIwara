@@ -48,6 +48,7 @@ class TranslationsZhTw implements Translations {
 	@override late final _TranslationsSubscriptionsZhTw subscriptions = _TranslationsSubscriptionsZhTw._(_root);
 	@override late final _TranslationsVideoDetailZhTw videoDetail = _TranslationsVideoDetailZhTw._(_root);
 	@override late final _TranslationsShareZhTw share = _TranslationsShareZhTw._(_root);
+	@override late final _TranslationsDownloadZhTw download = _TranslationsDownloadZhTw._(_root);
 }
 
 // Path: common
@@ -194,6 +195,8 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get numViews => '觀看次數';
 	@override String get updatedAt => '更新時間';
 	@override String get publishedAt => '發布時間';
+	@override String get download => '下載';
+	@override String get selectQuality => '選擇畫質';
 	@override String get externalVideo => '站外影片';
 	@override String get originalText => '原文';
 	@override String get showOriginalText => '顯示原始文本';
@@ -566,6 +569,12 @@ class _TranslationsVideoDetailZhTw implements TranslationsVideoDetailEn {
 	@override String get externalVideo => '這是一個站外影片';
 	@override String get openInBrowser => '在瀏覽器中打開';
 	@override String get resourceDeleted => '這個影片貌似被刪除了 :/';
+	@override String get noDownloadUrl => '沒有下載連結';
+	@override String get startDownloading => '開始下載';
+	@override String get downloadFailed => '下載失敗，請稍後再試';
+	@override String get downloadSuccess => '下載成功';
+	@override String get download => '下載';
+	@override String get downloadManager => '下載管理';
 }
 
 // Path: share
@@ -582,6 +591,16 @@ class _TranslationsShareZhTw implements TranslationsShareEn {
 	@override String get iReallyLikeThis => '我真的是太喜歡這個了，你也來看看吧！';
 	@override String get shareFailed => '分享失敗，請稍後再試';
 	@override String get share => '分享';
+}
+
+// Path: download
+class _TranslationsDownloadZhTw implements TranslationsDownloadEn {
+	_TranslationsDownloadZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get downloadList => '下載列表';
 }
 
 /// Flat map(s) containing all translations.
@@ -726,6 +745,8 @@ extension on TranslationsZhTw {
 			case 'common.numViews': return '觀看次數';
 			case 'common.updatedAt': return '更新時間';
 			case 'common.publishedAt': return '發布時間';
+			case 'common.download': return '下載';
+			case 'common.selectQuality': return '選擇畫質';
 			case 'common.externalVideo': return '站外影片';
 			case 'common.originalText': return '原文';
 			case 'common.showOriginalText': return '顯示原始文本';
@@ -981,6 +1002,12 @@ extension on TranslationsZhTw {
 			case 'videoDetail.externalVideo': return '這是一個站外影片';
 			case 'videoDetail.openInBrowser': return '在瀏覽器中打開';
 			case 'videoDetail.resourceDeleted': return '這個影片貌似被刪除了 :/';
+			case 'videoDetail.noDownloadUrl': return '沒有下載連結';
+			case 'videoDetail.startDownloading': return '開始下載';
+			case 'videoDetail.downloadFailed': return '下載失敗，請稍後再試';
+			case 'videoDetail.downloadSuccess': return '下載成功';
+			case 'videoDetail.download': return '下載';
+			case 'videoDetail.downloadManager': return '下載管理';
 			case 'share.sharePlayList': return '分享播放列表';
 			case 'share.wowDidYouSeeThis': return '哇哦，你看过这个吗？';
 			case 'share.nameIs': return '名字叫做';
@@ -988,6 +1015,7 @@ extension on TranslationsZhTw {
 			case 'share.iReallyLikeThis': return '我真的是太喜歡這個了，你也來看看吧！';
 			case 'share.shareFailed': return '分享失敗，請稍後再試';
 			case 'share.share': return '分享';
+			case 'download.downloadList': return '下載列表';
 			default: return null;
 		}
 	}
