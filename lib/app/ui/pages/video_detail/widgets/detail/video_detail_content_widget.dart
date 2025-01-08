@@ -27,6 +27,7 @@ import 'add_video_to_playlist_dialog.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:path/path.dart' as p;
+import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 
 class VideoDetailContent extends StatelessWidget {
   final MyVideoStateController controller;
@@ -602,16 +603,35 @@ class VideoDetailContent extends StatelessWidget {
                 }
 
                 try {
+                  final videoInfo = controller.videoInfo.value;
+                  if (videoInfo == null) {
+                    throw Exception('视频信息为空');
+                  }
+
+                  // 创建视频下载的额外信息
+                  final videoExtData = VideoDownloadExtData(
+                    id: videoInfo.id,
+                    title: videoInfo.title,
+                    thumbnail: videoInfo.thumbnailUrl,
+                    authorName: videoInfo.user?.name,
+                    authorUsername: videoInfo.user?.username,
+                    authorAvatar: videoInfo.user?.avatar?.avatarUrl,
+                    duration: videoInfo.file?.duration,
+                  );
+
                   final task = DownloadTask(
-                    id: '${controller.videoInfo.value?.id}_${source.name}',
+                    id: '${videoInfo.id}_${source.name}',
                     url: source.download!,
                     savePath: await _getSavePath(
-                      controller.videoInfo.value?.title ?? 'video',
+                      videoInfo.title ?? 'video',
                       source.name ?? 'unknown',
                     ),
-                    fileName:
-                        '${controller.videoInfo.value?.title ?? 'video'}_${source.name}.mp4',
+                    fileName: '${videoInfo.title ?? 'video'}_${source.name}.mp4',
                     supportsRange: true,
+                    extData: DownloadTaskExtData(
+                      type: 'video',
+                      data: videoExtData.toJson(),
+                    ),
                   );
 
                   await DownloadService.to.addTask(task);
@@ -631,10 +651,8 @@ class VideoDetailContent extends StatelessWidget {
                       tag: 'VideoDetailContent', error: e);
                   String message;
                   if (e.toString().contains('下载任务已存在')) {
-                    // message = t.videoDetail.downloadTaskExists;
                     message = 'Download task already exists';
                   } else if (e.toString().contains('该视频已下载')) {
-                    // message = t.videoDetail.videoAlreadyDownloaded;
                     message = 'The video has already been downloaded';
                   } else {
                     message = 'Download failed';

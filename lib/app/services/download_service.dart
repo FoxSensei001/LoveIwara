@@ -525,6 +525,15 @@ class DownloadService extends GetxService {
     }
   }
 
+  // 清除所有失败的任务
+  Future<void> clearFailedTasks() async {
+    final failedTasks = _activeTasks.values.where((task) => task.status == DownloadStatus.failed).toList();
+    
+    for (var task in failedTasks) {
+      await deleteTask(task.id);
+    }
+  }
+
   @override
   void onClose() {
     // 取消所有下载

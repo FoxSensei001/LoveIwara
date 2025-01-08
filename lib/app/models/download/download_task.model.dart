@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'download_task_ext_data.model.dart';
+
 class DownloadTask {
   final String id;
   final String url; // 下载链接
@@ -8,6 +11,7 @@ class DownloadTask {
   DownloadStatus status; // 下载状态
   bool supportsRange; // 是否支持断点续传
   String? error; // 错误信息
+  DownloadTaskExtData? extData; // 额外数据
   int speed = 0; // 当前下载速度(bytes/s)
   DateTime? lastSpeedUpdateTime; // 上次速度更新时间
   int lastDownloadedBytes = 0; // 上次下载的字节数
@@ -22,6 +26,7 @@ class DownloadTask {
     this.status = DownloadStatus.pending,
     this.supportsRange = false,
     this.error,
+    this.extData,
   });
 
   // 从数据库行转换
@@ -36,6 +41,9 @@ class DownloadTask {
       status: DownloadStatus.values.byName(row['status']),
       supportsRange: row['supports_range'] == 1,
       error: row['error'],
+      extData: row['ext_data'] != null 
+        ? DownloadTaskExtData.fromJson(jsonDecode(row['ext_data']))
+        : null,
     );
   }
 
@@ -51,6 +59,7 @@ class DownloadTask {
       'status': status.name,
       'supports_range': supportsRange ? 1 : 0,
       'error': error,
+      'ext_data': extData != null ? jsonEncode(extData!.toJson()) : null,
       'updated_at': DateTime.now().millisecondsSinceEpoch,
     };
   }

@@ -22,6 +22,7 @@ class MigrationV3DownloadTask extends Migration {
         status TEXT NOT NULL,
         supports_range INTEGER NOT NULL DEFAULT 0,
         error TEXT,
+        ext_data TEXT,
         created_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
         updated_at INTEGER NOT NULL DEFAULT (strftime('%s','now'))
       );
