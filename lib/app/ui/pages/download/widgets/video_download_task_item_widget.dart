@@ -3,12 +3,13 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
+import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:open_file/open_file.dart';
 import 'package:super_clipboard/super_clipboard.dart';
 
@@ -23,131 +24,353 @@ class VideoDownloadTaskItem extends StatelessWidget {
     final width = MediaQuery.of(context).size.width;
     final isSmallScreen = width < 600;
     
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: InkWell(
-        onTap: () => _onTap(context),
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 视频缩略图
-                  if (videoData.thumbnail != null)
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: CachedNetworkImage(
-                        imageUrl: videoData.thumbnail!,
-                        width: isSmallScreen ? 120 : 160,
-                        height: isSmallScreen ? 68 : 90,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) => Container(
-                          color: Colors.grey[300],
-                          child: const Center(child: CircularProgressIndicator()),
-                        ),
-                        errorWidget: (context, url, error) => Container(
-                          color: Colors.grey[300],
-                          child: const Icon(Icons.error),
-                        ),
+    // 从任务ID中提取清晰度信息
+    final quality = task.id.split('_').last;
+
+    return GestureDetector(
+      onSecondaryTapUp: (details) =>
+          _showContextMenu(context, details.globalPosition),
+      child: Card(
+        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: InkWell(
+          onTap: () => _onTap(context),
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 视频缩略图
+                    if (videoData.thumbnail != null)
+                      Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: CachedNetworkImage(
+                              imageUrl: videoData.thumbnail!,
+                              width: isSmallScreen ? 120 : 160,
+                              height: isSmallScreen ? 68 : 90,
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) => Container(
+                                color: Colors.grey[300],
+                                child: const Center(
+                                    child: CircularProgressIndicator()),
+                              ),
+                              errorWidget: (context, url, error) => Container(
+                                color: Colors.grey[300],
+                                child: const Icon(Icons.error),
+                              ),
+                            ),
+                          ),
+                          // 清晰度标签
+                          Positioned(
+                            left: 4,
+                            top: 4,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.black54,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                quality,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // 视频标题
-                        Text(
-                          videoData.title ?? task.fileName,
-                          style: Theme.of(context).textTheme.titleMedium,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 4),
-                        // 作者信息
-                        if (videoData.authorName != null)
-                          Row(
-                            children: [
-                              if (videoData.authorAvatar != null && !isSmallScreen)
-                                Container(
-                                  width: 24,
-                                  height: 24,
-                                  margin: const EdgeInsets.only(right: 8),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(12),
-                                    child: CachedNetworkImage(
-                                      imageUrl: videoData.authorAvatar!,
-                                      fit: BoxFit.cover,
-                                      placeholder: (context, url) => Container(
-                                        color: Colors.grey[300],
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // 视频标题
+                          Text(
+                            videoData.title ?? task.fileName,
+                            style: Theme.of(context).textTheme.titleMedium,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          // 作者信息
+                          if (videoData.authorName != null)
+                            Row(
+                              children: [
+                                if (videoData.authorAvatar != null &&
+                                    !isSmallScreen)
+                                  MouseRegion(
+                                    cursor: SystemMouseCursors.click,
+                                    child: GestureDetector(
+                                      onTap: () =>
+                                          _navigateToAuthorProfile(videoData),
+                                      child: Container(
+                                        width: 24,
+                                        height: 24,
+                                        margin: const EdgeInsets.only(right: 8),
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          child: CachedNetworkImage(
+                                            imageUrl: videoData.authorAvatar!,
+                                            fit: BoxFit.cover,
+                                            placeholder: (context, url) =>
+                                                Container(
+                                              color: Colors.grey[300],
+                                            ),
+                                            errorWidget:
+                                                (context, url, error) =>
+                                                    Container(
+                                              color: Colors.grey[300],
+                                              child: const Icon(Icons.person,
+                                                  size: 16),
+                                            ),
+                                          ),
+                                        ),
                                       ),
-                                      errorWidget: (context, url, error) => Container(
-                                        color: Colors.grey[300],
-                                        child: const Icon(Icons.person, size: 16),
+                                    ),
+                                  ),
+                                Expanded(
+                                  child: MouseRegion(
+                                    cursor: SystemMouseCursors.click,
+                                    child: GestureDetector(
+                                      onTap: () =>
+                                          _navigateToAuthorProfile(videoData),
+                                      child: Text(
+                                        videoData.authorName!,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.copyWith(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary,
+                                            ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                   ),
                                 ),
-                              Expanded(
-                                child: Text(
-                                  videoData.authorName!,
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
+                              ],
+                            ),
+                          if (!isSmallScreen) const SizedBox(height: 4),
+                          // 视频时长
+                          if (videoData.duration != null && !isSmallScreen)
+                            Text(
+                              _formatDuration(videoData.duration!),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: Colors.grey[600],
+                                  ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    // 主要操作按钮
+                    _buildMainActionButton(context),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                // 进度条和状态
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildProgressIndicator(),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(_getStatusText()),
+                              if (task.error != null)
+                                Text(
+                                  task.error!,
+                                  style: const TextStyle(color: Colors.red),
                                 ),
-                              ),
                             ],
                           ),
-                        if (!isSmallScreen) const SizedBox(height: 4),
-                        // 视频时长
-                        if (videoData.duration != null && !isSmallScreen)
-                          Text(
-                            _formatDuration(videoData.duration!),
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Colors.grey[600],
-                            ),
+                        ),
+                        // 视频详情跳转按钮
+                        if (videoData.id != null)
+                          IconButton(
+                            icon: const Icon(Icons.video_library),
+                            tooltip: '查看视频详情',
+                            onPressed: () =>
+                                NaviService.navigateToVideoDetailPage(
+                                    videoData.id!),
                           ),
+                        // 更多操作按钮
+                        IconButton(
+                          icon: const Icon(Icons.more_horiz),
+                          onPressed: () => _showMoreOptionsDialog(context),
+                          tooltip: '更多操作',
+                        ),
                       ],
                     ),
-                  ),
-                  if (!isSmallScreen) _buildActionButtons(context),
-                ],
-              ),
-              const SizedBox(height: 8),
-              // 进度条和状态
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildProgressIndicator(),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(_getStatusText()),
-                            if (task.error != null)
-                              Text(
-                                task.error!,
-                                style: const TextStyle(color: Colors.red),
-                              ),
-                          ],
-                        ),
-                      ),
-                      if (isSmallScreen) _buildActionButtons(context),
-                    ],
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildMainActionButton(BuildContext context) {
+    switch (task.status) {
+      case DownloadStatus.downloading:
+        return IconButton(
+          icon: const Icon(Icons.pause),
+          tooltip: '暂停',
+          onPressed: () => DownloadService.to.pauseTask(task.id),
+        );
+      case DownloadStatus.paused:
+        return IconButton(
+          icon: const Icon(Icons.play_arrow),
+          tooltip: '继续',
+          onPressed: () => DownloadService.to.resumeTask(task.id),
+        );
+      case DownloadStatus.failed:
+        return IconButton(
+          icon: const Icon(Icons.refresh),
+          tooltip: '重试',
+          onPressed: () => DownloadService.to.retryTask(task.id),
+        );
+      case DownloadStatus.completed:
+        return IconButton(
+          icon: const Icon(Icons.play_circle_outline),
+          tooltip: '打开',
+          onPressed: () => _openFile(context),
+        );
+      default:
+        return const SizedBox.shrink();
+    }
+  }
+
+  void _showMoreOptionsDialog(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 复制下载链接
+            ListTile(
+              leading: const Icon(Icons.link),
+              title: const Text('复制下载链接'),
+              onTap: () {
+                Navigator.pop(context);
+                _copyDownloadUrl(context);
+              },
+            ),
+            if (task.status == DownloadStatus.completed) ...[
+              ListTile(
+                leading: const Icon(Icons.open_in_new),
+                title: const Text('打开文件'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _openFile(context);
+                },
+              ),
+              if (Platform.isWindows || Platform.isMacOS || Platform.isLinux)
+                ListTile(
+                  leading: const Icon(Icons.folder_open),
+                  title: const Text('在文件夹中显示'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _showInFolder(context);
+                  },
+                ),
+            ],
+            ListTile(
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: const Text('删除任务', style: TextStyle(color: Colors.red)),
+              onTap: () {
+                Navigator.pop(context);
+                _showDeleteConfirmDialog(context);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showContextMenu(BuildContext context, Offset position) {
+    final RenderBox overlay =
+        Overlay.of(context).context.findRenderObject() as RenderBox;
+
+    showMenu(
+      context: context,
+      position: RelativeRect.fromRect(
+        position & const Size(40, 40),
+        Offset.zero & overlay.size,
+      ),
+      items: [
+        PopupMenuItem(
+          child: Row(
+            children: [
+              const Icon(Icons.link, size: 20),
+              const SizedBox(width: 12),
+              const Text('复制下载链接'),
+            ],
+          ),
+          onTap: () => _copyDownloadUrl(context),
+        ),
+        if (task.status == DownloadStatus.completed) ...[
+          if (Platform.isWindows || Platform.isMacOS || Platform.isLinux)
+            PopupMenuItem(
+              child: Row(
+                children: [
+                  const Icon(Icons.folder_open, size: 20),
+                  const SizedBox(width: 12),
+                  const Text('在文件夹中显示'),
+                ],
+              ),
+              onTap: () => _showInFolder(context),
+            ),
+          PopupMenuItem(
+            child: Row(
+              children: [
+                const Icon(Icons.open_in_new, size: 20),
+                const SizedBox(width: 12),
+                const Text('打开文件'),
+              ],
+            ),
+            onTap: () => _openFile(context),
+          ),
+        ],
+        PopupMenuItem(
+          child: Row(
+            children: [
+              const Icon(Icons.delete, size: 20, color: Colors.red),
+              const SizedBox(width: 12),
+              const Text('删除任务', style: TextStyle(color: Colors.red)),
+            ],
+          ),
+          onTap: () => _showDeleteConfirmDialog(context),
+        ),
+      ],
+    );
+  }
+
+  void _navigateToAuthorProfile(VideoDownloadExtData videoData) {
+    if (videoData.authorUsername != null) {
+      NaviService.navigateToAuthorProfilePage(videoData.authorUsername!);
+    }
   }
 
   String _formatDuration(int seconds) {
@@ -244,54 +467,6 @@ class VideoDownloadTaskItem extends StatelessWidget {
     String sizeStr =
         size >= 10 ? size.round().toString() : size.toStringAsFixed(1);
     return '$sizeStr ${units[unitIndex]}';
-  }
-
-  Widget _buildActionButtons(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        IconButton(
-          icon: const Icon(Icons.link),
-          tooltip: '复制下载链接',
-          onPressed: () => _copyDownloadUrl(context),
-        ),
-        if (task.status == DownloadStatus.completed) ...[
-          if (Platform.isWindows || Platform.isMacOS || Platform.isLinux)
-            IconButton(
-              icon: const Icon(Icons.folder_open),
-              tooltip: '在文件夹中显示',
-              onPressed: () => _showInFolder(context),
-            ),
-          IconButton(
-            icon: const Icon(Icons.open_in_new),
-            tooltip: '打开文件',
-            onPressed: () => _openFile(context),
-          ),
-        ] else if (task.status == DownloadStatus.failed)
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: '重试',
-            onPressed: () => DownloadService.to.retryTask(task.id),
-          )
-        else if (task.status == DownloadStatus.downloading)
-          IconButton(
-            icon: const Icon(Icons.pause),
-            tooltip: '暂停',
-            onPressed: () => DownloadService.to.pauseTask(task.id),
-          )
-        else if (task.status == DownloadStatus.paused)
-          IconButton(
-            icon: const Icon(Icons.play_arrow),
-            tooltip: '继续',
-            onPressed: () => DownloadService.to.resumeTask(task.id),
-          ),
-        IconButton(
-          icon: const Icon(Icons.delete),
-          tooltip: '删除',
-          onPressed: () => _showDeleteConfirmDialog(context),
-        ),
-      ],
-    );
   }
 
   Future<void> _copyDownloadUrl(BuildContext context) async {

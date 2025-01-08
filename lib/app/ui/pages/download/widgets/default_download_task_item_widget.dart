@@ -5,50 +5,267 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
+import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:open_file/open_file.dart';
 import 'package:super_clipboard/super_clipboard.dart';
+import 'package:path/path.dart' as path;
 
 class DefaultDownloadTaskItem extends StatelessWidget {
   final DownloadTask task;
 
   const DefaultDownloadTaskItem({super.key, required this.task});
 
+  IconData _getFileIcon() {
+    final extension = path.extension(task.fileName).toLowerCase();
+    
+    // 图片文件
+    if (['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'].contains(extension)) {
+      return Icons.image;
+    }
+    // 音频文件
+    else if (['.mp3', '.wav', '.aac', '.ogg', '.m4a'].contains(extension)) {
+      return Icons.audio_file;
+    }
+    // 视频文件
+    else if (['.mp4', '.mkv', '.avi', '.mov', '.wmv', '.flv'].contains(extension)) {
+      return Icons.video_file;
+    }
+    // 压缩文件
+    else if (['.zip', '.rar', '.7z', '.tar', '.gz'].contains(extension)) {
+      return Icons.folder_zip;
+    }
+    // 文档文件
+    else if (['.pdf', '.doc', '.docx', '.txt', '.md'].contains(extension)) {
+      return Icons.description;
+    }
+    // 默认文件图标
+    return Icons.file_present;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: InkWell(
-        onTap: () => _onTap(context),
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
+    return GestureDetector(
+      onSecondaryTapUp: (details) => _showContextMenu(context, details.globalPosition),
+      child: Card(
+        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: InkWell(
+          onTap: () => _onTap(context),
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              children: [
+                Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      task.fileName,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    _buildProgressIndicator(),
-                    const SizedBox(height: 4),
-                    Text(_getStatusText()),
-                    if (task.error != null)
-                      Text(
-                        task.error!,
-                        style: const TextStyle(color: Colors.red),
+                    // 文件图标
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surfaceVariant,
+                        borderRadius: BorderRadius.circular(8),
                       ),
+                      child: Icon(
+                        _getFileIcon(),
+                        size: 24,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // 文件名
+                          Text(
+                            task.fileName,
+                            style: Theme.of(context).textTheme.titleMedium,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    // 主要操作按钮
+                    _buildMainActionButton(context),
                   ],
                 ),
-              ),
-              _buildActionButtons(context),
-            ],
+                const SizedBox(height: 8),
+                // 进度条和状态
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildProgressIndicator(),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(_getStatusText()),
+                              if (task.error != null)
+                                Text(
+                                  task.error!,
+                                  style: const TextStyle(color: Colors.red),
+                                ),
+                            ],
+                          ),
+                        ),
+                        // 更多操作按钮
+                        IconButton(
+                          icon: const Icon(Icons.more_horiz),
+                          onPressed: () => _showMoreOptionsDialog(context),
+                          tooltip: '更多操作',
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildMainActionButton(BuildContext context) {
+    switch (task.status) {
+      case DownloadStatus.downloading:
+        return IconButton(
+          icon: const Icon(Icons.pause),
+          tooltip: '暂停',
+          onPressed: () => DownloadService.to.pauseTask(task.id),
+        );
+      case DownloadStatus.paused:
+        return IconButton(
+          icon: const Icon(Icons.play_arrow),
+          tooltip: '继续',
+          onPressed: () => DownloadService.to.resumeTask(task.id),
+        );
+      case DownloadStatus.failed:
+        return IconButton(
+          icon: const Icon(Icons.refresh),
+          tooltip: '重试',
+          onPressed: () => DownloadService.to.retryTask(task.id),
+        );
+      case DownloadStatus.completed:
+        return IconButton(
+          icon: const Icon(Icons.play_circle_outline),
+          tooltip: '打开',
+          onPressed: () => _openFile(context),
+        );
+      default:
+        return const SizedBox.shrink();
+    }
+  }
+
+  void _showMoreOptionsDialog(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.link),
+              title: const Text('复制下载链接'),
+              onTap: () {
+                Navigator.pop(context);
+                _copyDownloadUrl(context);
+              },
+            ),
+            if (task.status == DownloadStatus.completed) ...[
+              ListTile(
+                leading: const Icon(Icons.open_in_new),
+                title: const Text('打开文件'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _openFile(context);
+                },
+              ),
+              if (Platform.isWindows || Platform.isMacOS || Platform.isLinux)
+                ListTile(
+                  leading: const Icon(Icons.folder_open),
+                  title: const Text('在文件夹中显示'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _showInFolder(context);
+                  },
+                ),
+            ],
+            ListTile(
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: const Text('删除任务', style: TextStyle(color: Colors.red)),
+              onTap: () {
+                Navigator.pop(context);
+                _showDeleteConfirmDialog(context);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showContextMenu(BuildContext context, Offset position) {
+    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+    
+    showMenu(
+      context: context,
+      position: RelativeRect.fromRect(
+        position & const Size(40, 40),
+        Offset.zero & overlay.size,
+      ),
+      items: [
+        PopupMenuItem(
+          child: Row(
+            children: [
+              const Icon(Icons.link, size: 20),
+              const SizedBox(width: 12),
+              const Text('复制下载链接'),
+            ],
+          ),
+          onTap: () => _copyDownloadUrl(context),
+        ),
+        if (task.status == DownloadStatus.completed) ...[
+          if (Platform.isWindows || Platform.isMacOS || Platform.isLinux)
+            PopupMenuItem(
+              child: Row(
+                children: [
+                  const Icon(Icons.folder_open, size: 20),
+                  const SizedBox(width: 12),
+                  const Text('在文件夹中显示'),
+                ],
+              ),
+              onTap: () => _showInFolder(context),
+            ),
+          PopupMenuItem(
+            child: Row(
+              children: [
+                const Icon(Icons.open_in_new, size: 20),
+                const SizedBox(width: 12),
+                const Text('打开文件'),
+              ],
+            ),
+            onTap: () => _openFile(context),
+          ),
+        ],
+        PopupMenuItem(
+          child: Row(
+            children: [
+              const Icon(Icons.delete, size: 20, color: Colors.red),
+              const SizedBox(width: 12),
+              const Text('删除任务', style: TextStyle(color: Colors.red)),
+            ],
+          ),
+          onTap: () => _showDeleteConfirmDialog(context),
+        ),
+      ],
     );
   }
 
@@ -141,54 +358,6 @@ class DefaultDownloadTaskItem extends StatelessWidget {
     return '$sizeStr ${units[unitIndex]}';
   }
 
-  Widget _buildActionButtons(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        IconButton(
-          icon: const Icon(Icons.link),
-          tooltip: '复制下载链接',
-          onPressed: () => _copyDownloadUrl(context),
-        ),
-        if (task.status == DownloadStatus.completed) ...[
-          if (Platform.isWindows || Platform.isMacOS || Platform.isLinux)
-            IconButton(
-              icon: const Icon(Icons.folder_open),
-              tooltip: '在文件夹中显示',
-              onPressed: () => _showInFolder(context),
-            ),
-          IconButton(
-            icon: const Icon(Icons.open_in_new),
-            tooltip: '打开文件',
-            onPressed: () => _openFile(context),
-          ),
-        ] else if (task.status == DownloadStatus.failed)
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: '重试',
-            onPressed: () => DownloadService.to.retryTask(task.id),
-          )
-        else if (task.status == DownloadStatus.downloading)
-          IconButton(
-            icon: const Icon(Icons.pause),
-            tooltip: '暂停',
-            onPressed: () => DownloadService.to.pauseTask(task.id),
-          )
-        else if (task.status == DownloadStatus.paused)
-          IconButton(
-            icon: const Icon(Icons.play_arrow),
-            tooltip: '继续',
-            onPressed: () => DownloadService.to.resumeTask(task.id),
-          ),
-        IconButton(
-          icon: const Icon(Icons.delete),
-          tooltip: '删除',
-          onPressed: () => _showDeleteConfirmDialog(context),
-        ),
-      ],
-    );
-  }
-
   Future<void> _copyDownloadUrl(BuildContext context) async {
     try {
       final item = DataWriterItem();
@@ -196,14 +365,20 @@ class DefaultDownloadTaskItem extends StatelessWidget {
       await SystemClipboard.instance?.write([item]);
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('已复制下载链接')),
+        showToastWidget(
+          const MDToastWidget(
+            message: '已复制下载链接',
+            type: MDToastType.success,
+          ),
         );
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('复制失败')),
+        showToastWidget(
+          const MDToastWidget(
+            message: '复制失败',
+            type: MDToastType.error,
+          ),
         );
       }
     }
@@ -217,8 +392,11 @@ class DefaultDownloadTaskItem extends StatelessWidget {
       final file = File(filePath);
       if (!await file.exists()) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('文件不存在')),
+          showToastWidget(
+            const MDToastWidget(
+              message: '文件不存在',
+              type: MDToastType.error,
+            ),
           );
         }
         return;
@@ -236,8 +414,11 @@ class DefaultDownloadTaskItem extends StatelessWidget {
     } catch (e) {
       LogUtils.e('打开文件夹失败', tag: 'DownloadTaskItem', error: e);
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('打开文件夹失败')),
+        showToastWidget(
+          const MDToastWidget(
+            message: '打开文件夹失败',
+            type: MDToastType.error,
+          ),
         );
       }
     }
@@ -251,8 +432,11 @@ class DefaultDownloadTaskItem extends StatelessWidget {
       final file = File(filePath);
       if (!await file.exists()) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('文件不存在')),
+          showToastWidget(
+            const MDToastWidget(
+              message: '文件不存在',
+              type: MDToastType.error,
+            ),
           );
         }
         return;
@@ -262,16 +446,22 @@ class DefaultDownloadTaskItem extends StatelessWidget {
       if (result.type != ResultType.done) {
         LogUtils.e('打开文件失败: ${result.message}', tag: 'DownloadTaskItem');
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('打开文件失败: ${result.message}')),
+          showToastWidget(
+            MDToastWidget(
+              message: '打开文件失败: ${result.message}',
+              type: MDToastType.error,
+            ),
           );
         }
       }
     } catch (e) {
       LogUtils.e('打开文件失败', tag: 'DownloadTaskItem', error: e);
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('打开文件失败')),
+        showToastWidget(
+          const MDToastWidget(
+            message: '打开文件失败',
+            type: MDToastType.error,
+          ),
         );
       }
     }
@@ -306,7 +496,10 @@ class DefaultDownloadTaskItem extends StatelessWidget {
               AppService.tryPop();
               DownloadService.to.deleteTask(task.id);
             },
-            child: const Text('确定'),
+            child: const Text(
+              '确定',
+              style: TextStyle(color: Colors.red),
+            ),
           ),
         ],
       ),
