@@ -107,12 +107,12 @@ class _FriendsPageState extends State<FriendsPage>
                   tabs: [
                     Tab(
                       child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.people),
-                            SizedBox(width: 8),
+                            const Icon(Icons.people),
+                            const SizedBox(width: 8),
                             Text(t.friends.friendsList),
                           ],
                         ),
@@ -120,12 +120,12 @@ class _FriendsPageState extends State<FriendsPage>
                     ),
                     Tab(
                       child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.person_add),
-                            SizedBox(width: 8),
+                            const Icon(Icons.person_add),
+                            const SizedBox(width: 8),
                             Text(t.friends.friendRequests),
                           ],
                         ),

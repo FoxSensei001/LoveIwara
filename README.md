@@ -18,7 +18,7 @@
 Love Iwara (also known as i_iwara or 2i) is a third-party mobile application for Iwara built with Flutter. Our goal is to provide users with an excellent experience, supporting multiple platforms and devices including mobile phones, tablets and computers, compatible with Android, Windows and other operating systems.
 
 ### ⚠️ Project Description
-This is my learning record project as a Flutter beginner, and it's my first time developing a mobile and desktop application. Therefore, the code may not be sufficiently standardized and complete, as the implementation of features is primarily for learning purposes.
+As a Flutter beginner, this is my first attempt at developing a cross-platform application. While there may be areas in the project that need improvement and code that could be optimized, the main purpose is to learn and understand Flutter development through hands-on practice.
 
 - **Learning Objectives**
   - Familiarize with Flutter development basics
@@ -34,7 +34,6 @@ This is my learning record project as a Flutter beginner, and it's my first time
   - This project is for learning reference only
   - Not recommended for production environment
   - Welcome discussions with other learners
-  - No commercial promotion allowed
 
 - **Usage Restrictions**
   - Strictly prohibited from promotion on any platform
@@ -81,6 +80,10 @@ Thank you for your understanding and support! If you're also a Flutter beginner,
 - **📝 Posts**
     - Browse/comment
 
+- **💬 Comments**
+    - Comment browsing
+    - Comment reply
+
 - **👤 User System**
     - User authentication
     - Profile management
@@ -94,17 +97,20 @@ Thank you for your understanding and support! If you're also a Flutter beginner,
 
 #### Upcoming Features
 - **Download Management**
+- **In-app Message Notification**
+- **Share**
 - **Forum System**
 - **Enhanced User Experience**
 - **Others**
   
 ### 📱 Screenshots
-<div align="center">
-  <img src="assets/show1.jpg" width="200" alt="Screenshot 1">
-  <img src="assets/show2.jpg" width="200" alt="Screenshot 2">
-  <img src="assets/show3.png" alt="Screenshot 3">
-  <img src="assets/show4.png" alt="Screenshot 4">
-</div>
+| | |
+|:-------------------------:|:-------------------------:|
+|<img src="docs/imgs/show1.jpg" width="200">|<img src="docs/imgs/show2.jpg" width="200">|
+|<img src="docs/imgs/show3.png" width="400">|<img src="docs/imgs/show4.png" width="400">|
+|<img src="docs/imgs/shezhi.png" width="300">|<img src="docs/imgs/dingyue.png" width="300">|
+|<img src="docs/imgs/lishi.png" width="300">|<img src="docs/imgs/guanzhu.png" width="300">|
+|<img src="docs/imgs/sousuo.png" width="300">|<img src="docs/imgs/zuiai.png" width="300">|
 
 ### 🛠️ Development Environment Setup
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:screen_brightness/screen_brightness.dart';
+import 'package:vibration/vibration.dart';
 import 'package:volume_controller/volume_controller.dart';
 
 import '../../../../../services/config_service.dart';
@@ -21,6 +22,7 @@ class GestureArea extends StatefulWidget {
   final VoidCallback? onDoubleTapRight;
   final VoidCallback? onTap;
   final Function(LongPressType?, bool)? setLongPressing;
+  final Function(double)? onVolumeChange;
 
   const GestureArea({
     super.key,
@@ -31,6 +33,7 @@ class GestureArea extends StatefulWidget {
     this.onTap,
     required this.screenSize,
     this.setLongPressing,
+    this.onVolumeChange,
   });
 
   @override
@@ -40,7 +43,6 @@ class GestureArea extends StatefulWidget {
 class _GestureAreaState extends State<GestureArea>
     with SingleTickerProviderStateMixin {
   final ConfigService _configService = Get.find();
-  VolumeController? _volumeController;
   ScreenBrightness? _screenBrightness;
 
   // 提示信息
@@ -58,9 +60,6 @@ class _GestureAreaState extends State<GestureArea>
   void initState() {
     super.initState();
     _initializeInfoMessageController();
-    if (GetPlatform.isAndroid || GetPlatform.isIOS) {
-      _volumeController = VolumeController();
-    }
 
     if (!GetPlatform.isLinux && !GetPlatform.isWeb) {
       _screenBrightness = ScreenBrightness();
@@ -129,7 +128,11 @@ class _GestureAreaState extends State<GestureArea>
     });
   }
 
-  void _onLongPressStart(LongPressStartDetails details) {
+  void _onLongPressStart(LongPressStartDetails details) async {
+    // 添加震动反馈
+    if (await Vibration.hasVibrator() ?? false) {
+      await Vibration.vibrate(duration: 50);
+    }
     // 如果视频在暂停或buffering状态，不处理
     if (!widget.myVideoStateController.videoPlaying.value ||
         widget.myVideoStateController.videoBuffering.value) {
@@ -208,19 +211,9 @@ class _GestureAreaState extends State<GestureArea>
       double rx = _configService[ConfigService.VOLUME_KEY] -
           details.primaryDelta! / max;
       rx = rx.clamp(0.0, 1.0);
-      if (GetPlatform.isAndroid || GetPlatform.isIOS) {
-        _volumeController?.setVolume(rx);
-      } else {
-        widget.myVideoStateController.player.setVolume(rx * 100); // 调整播放器音量
-      }
-      _configService[ConfigService.VOLUME_KEY] = rx;
-
+      widget.onVolumeChange?.call(rx);
       widget.setLongPressing?.call(LongPressType.volume, true); // 显示音量提示
     }
-  }
-
-  void _onHorizontalDragUpdate(DragUpdateDetails details) {
-    // TODO 水平方向拖动调整进度
   }
 
   @override
@@ -246,9 +239,6 @@ class _GestureAreaState extends State<GestureArea>
               widget.region == GestureRegion.right
           ? _onVerticalDragUpdate
           : null,
-      // onHorizontalDragUpdate: widget.region == GestureRegion.center
-      //     ? _onHorizontalDragUpdate
-      //     : null,
       onHorizontalDragStart: widget.region == GestureRegion.center ? (details) {
         _horizontalDragStartX = details.localPosition.dx;
         _horizontalDragStartPosition = widget.myVideoStateController.currentPosition.value;

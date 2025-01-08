@@ -36,20 +36,20 @@ class PlayerSettingsWidget extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Padding(
-              padding: EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16.0),
               child: Row(
                 children: [
                   Icon(
                     Icons.info_outline,
                     color: Get.isDarkMode ? Colors.white : null,
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Expanded(
                     // 使用 Expanded 确保文本不会溢出
                     child: Text(
                       // '此配置决定当你之后播放视频时是否会沿用之前的配置。',
                       t.settings.thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,

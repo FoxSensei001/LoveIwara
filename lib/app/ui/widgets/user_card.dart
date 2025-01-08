@@ -1,6 +1,6 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/models/user.model.dart';
+import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/follow_button_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -112,36 +112,14 @@ class _UserCardState extends State<UserCard> {
   }
 
   Widget _buildAvatar() {
-    Widget avatar = CircleAvatar(
+    return AvatarWidget(
+      avatarUrl: user.avatar?.avatarUrl,
+      defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+      headers: const {'referer': CommonConstants.iwaraBaseUrl},
       radius: 30,
-      backgroundImage: CachedNetworkImageProvider(
-        user.avatar?.avatarUrl ?? CommonConstants.defaultAvatarUrl,
-        headers: const {'referer': CommonConstants.iwaraBaseUrl},
-      ),
+      isPremium: user.premium,
+      isAdmin: user.isAdmin,
     );
-
-    if (user.premium) {
-      return Container(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: LinearGradient(
-            colors: [
-              Colors.purple.shade200,
-              Colors.blue.shade200,
-              Colors.pink.shade200,
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(4.0), // 增加边框宽度
-          child: avatar,
-        ),
-      );
-    }
-
-    return avatar;
   }
 
   Widget _buildUserName() {

@@ -136,22 +136,33 @@ class GlobalSearchService extends GetxService {
   void clearOtherSearchResult() {
     String segment = selectedSegment.value;
     LogUtils.d('清除其他搜索结果: $segment', 'GlobalSearchService');
-    if (segment == 'video') {
-      searchImageResult.clear();
-      searchUserResult.clear();
-      searchPostResult.clear();
-    } else if (segment == 'image') {
+    
+    if (segment != 'video') {
       searchVideoResult.clear();
-      searchUserResult.clear();
-      searchPostResult.clear();
-    } else if (segment == 'user') {
-      searchVideoResult.clear();
+      _videoPage.value = 0;
+      videoPageInitialized = false;
+      _videoHasMore.value = true;
+    }
+    
+    if (segment != 'image') {
       searchImageResult.clear();
-      searchPostResult.clear();
-    } else if (segment == 'post') {
-      searchVideoResult.clear();
-      searchImageResult.clear();
+      _imagePage.value = 0;
+      imagePageInitialized = false;
+      _imageHasMore.value = true;
+    }
+    
+    if (segment != 'user') {
       searchUserResult.clear();
+      _userPage.value = 0;
+      userPageInitialized = false;
+      _userHasMore.value = true;
+    }
+    
+    if (segment != 'post') {
+      searchPostResult.clear();
+      _postPage.value = 0;
+      postPageInitialized = false;
+      _postHasMore.value = true;
     }
   }
 

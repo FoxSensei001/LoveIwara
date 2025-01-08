@@ -25,13 +25,13 @@ class _SignInPageState extends State<SignInPage> {
   void initState() {
     super.initState();
     endDate = DateTime.now();
-    startDate = endDate.subtract(Duration(days: 30));
+    startDate = endDate.subtract(const Duration(days: 30));
   }
 
   Future<void> _selectDateRange() async {
     DateTimeRange? picked = await showDateRangePicker(
       context: context,
-      firstDate: DateTime.now().subtract(Duration(days: 365)),
+      firstDate: DateTime.now().subtract(const Duration(days: 365)),
       lastDate: DateTime.now(),
       initialDateRange: DateTimeRange(start: startDate, end: endDate),
       // 各种text
@@ -84,7 +84,7 @@ class _SignInPageState extends State<SignInPage> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(Icons.date_range),
+            icon: const Icon(Icons.date_range),
             tooltip: t.signIn.selectDateRange,
             onPressed: _selectDateRange,
           ),
@@ -92,7 +92,7 @@ class _SignInPageState extends State<SignInPage> {
       ),
       body: Center(
         child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: 1200),
+          constraints: const BoxConstraints(maxWidth: 1200),
           child: Obx(() {
             if (userService.currentUser.value == null) {
               return Center(
@@ -105,13 +105,13 @@ class _SignInPageState extends State<SignInPage> {
                         t.signIn.pleaseLoginFirst,
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
-                      SizedBox(height: 24),
+                      const SizedBox(height: 24),
                       ElevatedButton.icon(
                         onPressed: () => Get.toNamed(Routes.LOGIN),
-                        icon: Icon(Icons.login),
+                        icon: const Icon(Icons.login),
                         label: Text(t.auth.login),
                         style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                               horizontal: 32, vertical: 16),
                         ),
                       ),
@@ -122,7 +122,7 @@ class _SignInPageState extends State<SignInPage> {
             }
 
             if (controller.isLoading.value) {
-              return Center(child: CircularProgressIndicator());
+              return const Center(child: CircularProgressIndicator());
             }
 
             return SingleChildScrollView(
@@ -140,7 +140,7 @@ class _SignInPageState extends State<SignInPage> {
                           flex: 2,
                           child: _buildMainContent(context),
                         ),
-                        SizedBox(width: 24),
+                        const SizedBox(width: 24),
                         Flexible(
                           flex: 3,
                           child: _buildHeatMapCard(context),
@@ -151,7 +151,7 @@ class _SignInPageState extends State<SignInPage> {
                   return Column(
                     children: [
                       _buildMainContent(context),
-                      SizedBox(height: 24),
+                      const SizedBox(height: 24),
                       _buildHeatMapCard(context),
                     ],
                   );
@@ -175,14 +175,14 @@ class _SignInPageState extends State<SignInPage> {
             if (!controller.hasSignedInToday.value)
               ElevatedButton.icon(
                       onPressed: _showSignInDialog,
-                      icon: Icon(Icons.check_circle_outline),
+                      icon: const Icon(Icons.check_circle_outline),
                       label: Text(t.signIn.signIn),
                       style: ElevatedButton.styleFrom(
                         padding:
-                            EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                            const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                       ),
                     ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             if (useVerticalLayout)
               Column(
                 children: [
@@ -191,7 +191,7 @@ class _SignInPageState extends State<SignInPage> {
                     count: controller.totalSignIns.value,
                     icon: Icons.calendar_today,
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   _buildStatisticCard(
                     title: t.signIn.consecutiveSignIns,
                     count: controller.consecutiveSignIns.value,
@@ -211,7 +211,7 @@ class _SignInPageState extends State<SignInPage> {
                         icon: Icons.calendar_today,
                       ),
                     ),
-                    SizedBox(width: 16),
+                    const SizedBox(width: 16),
                     Expanded(
                       child: _buildStatisticCard(
                         title: t.signIn.consecutiveSignIns,
@@ -232,7 +232,7 @@ class _SignInPageState extends State<SignInPage> {
     final t = slang.Translations.of(context);
     return Card(
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -249,7 +249,7 @@ class _SignInPageState extends State<SignInPage> {
                 ),
               ],
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             SignInHeatMap(
               signInStatus: controller.signInStatus.map(
                 (key, value) => MapEntry(
@@ -275,16 +275,16 @@ class _SignInPageState extends State<SignInPage> {
   }) {
     return Card(
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             Icon(icon, size: 32, color: Theme.of(context).primaryColor),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               count.toString(),
               style: Theme.of(context).textTheme.headlineMedium,
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               title,
               style: Theme.of(context).textTheme.titleSmall,
@@ -304,7 +304,7 @@ class _SignInPageState extends State<SignInPage> {
 class SignInDialog extends StatefulWidget {
   final SignInController controller;
 
-  const SignInDialog({Key? key, required this.controller}) : super(key: key);
+  const SignInDialog({super.key, required this.controller});
 
   @override
   _SignInDialogState createState() => _SignInDialogState();
@@ -319,7 +319,7 @@ class _SignInDialogState extends State<SignInDialog> {
     final t = slang.Translations.of(context);
     return Dialog(
       child: Padding(
-        padding: EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -329,13 +329,13 @@ class _SignInDialogState extends State<SignInDialog> {
               style: Theme.of(context).textTheme.titleLarge,
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               t.signIn.pleaseSelectSignInStatus,
               style: Theme.of(context).textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -362,18 +362,18 @@ class _SignInDialogState extends State<SignInDialog> {
               ],
             ),
             if (!isSuccess) ...[
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               TextField(
                 controller: reasonController,
                 decoration: InputDecoration(
                   labelText: t.signIn.failureReason,
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
                   filled: true,
                 ),
                 maxLines: 3,
               ),
             ],
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -381,7 +381,7 @@ class _SignInDialogState extends State<SignInDialog> {
                   onPressed: () => Navigator.pop(context),
                   child: Text(t.common.cancel),
                 ),
-                SizedBox(width: 16),
+                const SizedBox(width: 16),
                 ElevatedButton(
                   onPressed: () async {
                     Navigator.pop(context);

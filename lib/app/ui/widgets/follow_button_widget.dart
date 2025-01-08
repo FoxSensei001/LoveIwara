@@ -8,6 +8,7 @@ import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:oktoast/oktoast.dart';
+import 'package:vibration/vibration.dart';
 
 class FollowButtonWidget extends StatefulWidget {
   final User user;
@@ -33,42 +34,27 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
   void initState() {
     super.initState();
     _currentUser = widget.user;
-    print('用户： ${_currentUser.name}, 关注状态: ${_currentUser.following}');
   }
 
   // 构建加载中的按钮
   Widget _buildLoadingButton({bool isFollowing = false, required BuildContext context}) {
     final t = slang.Translations.of(context);
-    return ElevatedButton(
+    return ElevatedButton.icon(
       onPressed: null,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isFollowing ? Colors.grey[300] : null,
-        foregroundColor: isFollowing ? Colors.black87 : null,
-      ),
-      child: SizedBox(
-        height: 20,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (isFollowing) ...[
-              const Icon(Icons.check, size: 18),
-              const SizedBox(width: 4),
-            ],
-            SizedBox(
-              width: 12,
-              height: 12,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  isFollowing ? Colors.black87 : Colors.white,
-                ),
-              ),
+      icon: isFollowing ? const Icon(Icons.check, size: 18) : const Icon(Icons.person_add, size: 18),
+      label: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(
+            width: 12,
+            height: 12,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
             ),
-            const SizedBox(width: 4),
-            Text(isFollowing ? t.common.followed : t.common.follow),
-          ],
-        ),
+          ),
+          const SizedBox(width: 4),
+          Text(isFollowing ? t.common.followed : t.common.follow),
+        ],
       ),
     );
   }
@@ -105,7 +91,7 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : null,
-                onTap: () {
+                onTap: () async {
                   final UserService userService = Get.find();
                   if (!userService.isLogin) {
                     showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error));
@@ -124,6 +110,10 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
                   }
                   if (Get.isBottomSheetOpen ?? false) {
                     Get.closeAllBottomSheets();
+                  }
+                  // 震动
+                  if (await Vibration.hasVibrator() ?? false) {
+                    await Vibration.vibrate(pattern: [500]);
                   }
                 },
               ),
@@ -174,6 +164,10 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
                     showToastWidget(MDToastWidget(message: t.errors.failedToOperate, type: MDToastType.error),position: ToastPosition.top);
                   } finally {
                     isProcessing.value = false;
+                    // 震动
+                    if (await Vibration.hasVibrator() ?? false) {
+                      await Vibration.vibrate(pattern: [500]);
+                    }
                   }
                 },
               ),
@@ -199,7 +193,7 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
     }
 
     if (!_currentUser.following) {
-      return ElevatedButton(
+      return ElevatedButton.icon(
         onPressed: () async {
           setState(() {
             _isLoading = true;
@@ -224,7 +218,8 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
             });
           }
         },
-        child: Text(t.common.follow),
+        icon: const Icon(Icons.person_add, size: 18),
+        label: Text(t.common.follow),
       );
     }
 
@@ -232,10 +227,6 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
       onPressed: () => _showFollowOptionsSheet(context),
       icon: const Icon(Icons.check, size: 18),
       label: Text(t.common.followed),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.grey[300],
-        foregroundColor: Colors.black87,
-      ),
     );
   }
 }

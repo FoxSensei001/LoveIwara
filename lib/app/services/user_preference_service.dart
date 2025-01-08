@@ -247,7 +247,15 @@ class UserPreferenceService extends GetxService {
   Future<void> addLikedUser(UserDTO user) async {
     // 通过id搜索
     if (!likedUsers.any((element) => element.id == user.id)) {
-      likedUsers.add(user);
+      // 创建新的UserDTO实例，包含likedTime
+      final userWithTime = UserDTO(
+        id: user.id,
+        name: user.name,
+        username: user.username,
+        avatarUrl: user.avatarUrl,
+        likedTime: DateTime.now(),
+      );
+      likedUsers.add(userWithTime);
       try {
         await CommonsRepository.instance.setData(
           _likedUsers,

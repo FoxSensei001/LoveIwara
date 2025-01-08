@@ -89,15 +89,15 @@ class HomeNavigationLayout extends StatelessWidget {
                     },
                     destinations: [
                       NavigationRailDestination(
-                        icon: Icon(Icons.video_library),
+                        icon: const Icon(Icons.video_library),
                         label: Text(t.common.video),
                       ),
                       NavigationRailDestination(
-                        icon: Icon(Icons.photo),
+                        icon: const Icon(Icons.photo),
                         label: Text(t.common.gallery),
                       ),
                       NavigationRailDestination(
-                        icon: Icon(Icons.subscriptions),
+                        icon: const Icon(Icons.subscriptions),
                         label: Text(t.common.subscriptions),
                       ),
                     ],
@@ -191,15 +191,15 @@ class HomeNavigationLayout extends StatelessWidget {
                         },
                         items: [
                           BottomNavigationBarItem(
-                            icon: Icon(Icons.video_library),
+                            icon: const Icon(Icons.video_library),
                             label: t.common.video,
                           ),
                           BottomNavigationBarItem(
-                            icon: Icon(Icons.photo),
+                            icon: const Icon(Icons.photo),
                             label: t.common.gallery,
                           ),
                           BottomNavigationBarItem(
-                            icon: Icon(Icons.subscriptions),
+                            icon: const Icon(Icons.subscriptions),
                             label: t.common.subscriptions,
                           ),
                         ],
@@ -216,6 +216,7 @@ class HomeNavigationLayout extends StatelessWidget {
   }
 }
 
+/// [TODO_PLACEHOLDER] HOME 页面路由观察器
 class HomeNavigatorObserver extends NavigatorObserver {
   final AppService appService = Get.find();
   var routes = Queue<Route>();

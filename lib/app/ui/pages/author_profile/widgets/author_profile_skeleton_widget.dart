@@ -4,30 +4,33 @@ import 'package:shimmer/shimmer.dart';
 class AuthorProfileSkeleton extends StatelessWidget {
   const AuthorProfileSkeleton({super.key});
 
+  // 定义骨架屏颜色
+  static const _baseColor = Color(0xFFE0E0E0);
+  static const _highlightColor = Color(0xFFF5F5F5);
+  static const _cardRadius = 12.0;
+  static const _avatarSize = 100.0;
+
   @override
   Widget build(BuildContext context) {
-    // 判断是否为宽屏 (>= 600px)
     bool isWideScreen = MediaQuery.of(context).size.width >= 600;
+    return isWideScreen ? _buildWideLayout(context) : _buildNormalLayout(context);
+  }
 
-    if (!isWideScreen) {
-      return _buildNormalLayout(context);
-    }
-
-    // 宽屏布局
+  Widget _buildWideLayout(BuildContext context) {
     return Scaffold(
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 左侧区域 - 基本信息
           SizedBox(
             width: 400,
             child: CustomScrollView(
               slivers: _buildHeaderSliver(context),
             ),
           ),
-          // 分隔线
-          const VerticalDivider(width: 1),
-          // 右侧区域 - 内容骨架
+          Container(
+            width: 1,
+            color: Colors.grey[200],
+          ),
           Expanded(
             child: _buildContentSkeleton(),
           ),
@@ -49,95 +52,99 @@ class AuthorProfileSkeleton extends StatelessWidget {
   }
 
   List<Widget> _buildHeaderSliver(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final bannerHeight = (screenWidth * 0.3).clamp(200.0, 300.0);
+
     return [
-      // Header背景图骨架
       SliverAppBar(
-        expandedHeight: MediaQuery.of(context).size.width * 43 / 150 > 300
-            ? 300
-            : MediaQuery.of(context).size.width * 43 / 150,
+        expandedHeight: bannerHeight,
         pinned: true,
         flexibleSpace: Shimmer.fromColors(
-          baseColor: Colors.grey[300]!,
-          highlightColor: Colors.grey[100]!,
+          baseColor: _baseColor,
+          highlightColor: _highlightColor,
           child: Container(
-            color: Colors.white,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(_cardRadius),
+                bottomRight: Radius.circular(_cardRadius),
+              ),
+            ),
           ),
         ),
       ),
-      // 用户信息骨架
       SliverToBoxAdapter(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(20.0),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 头像骨架
               Shimmer.fromColors(
-                baseColor: Colors.grey[300]!,
-                highlightColor: Colors.grey[100]!,
+                baseColor: _baseColor,
+                highlightColor: _highlightColor,
                 child: Container(
-                  width: 80,
-                  height: 80,
-                  decoration: const BoxDecoration(
+                  width: _avatarSize,
+                  height: _avatarSize,
+                  decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.white,
+                    border: Border.all(color: Colors.grey[100]!, width: 2),
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
-              // 用户信息骨架
+              const SizedBox(width: 20),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // 用户名骨架
                     Shimmer.fromColors(
-                      baseColor: Colors.grey[300]!,
-                      highlightColor: Colors.grey[100]!,
+                      baseColor: _baseColor,
+                      highlightColor: _highlightColor,
                       child: Container(
-                        width: 200,
-                        height: 32,
+                        width: 180,
+                        height: 28,
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: BorderRadius.circular(_cardRadius),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    // 统计信息骨架
+                    const SizedBox(height: 12),
                     Wrap(
-                      spacing: 8,
+                      spacing: 12,
+                      runSpacing: 8,
                       children: List.generate(
                         3,
                         (index) => Shimmer.fromColors(
-                          baseColor: Colors.grey[300]!,
-                          highlightColor: Colors.grey[100]!,
+                          baseColor: _baseColor,
+                          highlightColor: _highlightColor,
                           child: Container(
-                            width: 80,
-                            height: 16,
+                            width: 90,
+                            height: 20,
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(4),
+                              borderRadius: BorderRadius.circular(_cardRadius / 2),
                             ),
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    // 按钮骨架
+                    const SizedBox(height: 20),
                     Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
+                      spacing: 12,
+                      runSpacing: 12,
                       children: List.generate(
                         3,
                         (index) => Shimmer.fromColors(
-                          baseColor: Colors.grey[300]!,
-                          highlightColor: Colors.grey[100]!,
+                          baseColor: _baseColor,
+                          highlightColor: _highlightColor,
                           child: Container(
-                            width: 80,
-                            height: 36,
+                            width: 100,
+                            height: 40,
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(_cardRadius),
+                              border: Border.all(color: Colors.grey[100]!, width: 1),
                             ),
                           ),
                         ),
@@ -150,77 +157,107 @@ class AuthorProfileSkeleton extends StatelessWidget {
           ),
         ),
       ),
-      // 个人简介骨架
       SliverToBoxAdapter(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Shimmer.fromColors(
+                baseColor: _baseColor,
+                highlightColor: _highlightColor,
+                child: Container(
+                  width: 120,
+                  height: 24,
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(_cardRadius / 2),
+                  ),
+                ),
+              ),
+              Shimmer.fromColors(
+                baseColor: _baseColor,
+                highlightColor: _highlightColor,
+                child: Container(
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(_cardRadius),
+                    border: Border.all(color: Colors.grey[100]!, width: 1),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      const SliverToBoxAdapter(child: SizedBox(height: 20)),
+      SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: Shimmer.fromColors(
-            baseColor: Colors.grey[300]!,
-            highlightColor: Colors.grey[100]!,
+            baseColor: _baseColor,
+            highlightColor: _highlightColor,
             child: Container(
-              height: 60,
+              height: 50,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(_cardRadius * 2),
+                border: Border.all(color: Colors.grey[100]!, width: 1),
               ),
             ),
           ),
         ),
       ),
-      // 评论输入框骨架
-      SliverToBoxAdapter(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Shimmer.fromColors(
-            baseColor: Colors.grey[300]!,
-            highlightColor: Colors.grey[100]!,
-            child: Container(
-              height: 48,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-              ),
-            ),
-          ),
-        ),
-      ),
+      const SliverToBoxAdapter(child: SizedBox(height: 20)),
     ];
   }
 
   Widget _buildContentSkeleton() {
     return Column(
       children: [
-        // Tab栏骨架
-        Shimmer.fromColors(
-          baseColor: Colors.grey[300]!,
-          highlightColor: Colors.grey[100]!,
-          child: Container(
-            height: 48,
-            margin: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(4),
+        Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Row(
+            children: List.generate(
+              3,
+              (index) => Expanded(
+                child: Shimmer.fromColors(
+                  baseColor: _baseColor,
+                  highlightColor: _highlightColor,
+                  child: Container(
+                    height: 40,
+                    margin: EdgeInsets.only(right: index < 2 ? 12 : 0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(_cardRadius),
+                      border: Border.all(color: Colors.grey[100]!, width: 1),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         ),
-        // 内容网格骨架
         Expanded(
           child: GridView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(20),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16,
-              childAspectRatio: 16 / 9,
+              mainAxisSpacing: 20,
+              crossAxisSpacing: 20,
+              childAspectRatio: 16 / 10,
             ),
             itemCount: 6,
             itemBuilder: (context, index) => Shimmer.fromColors(
-              baseColor: Colors.grey[300]!,
-              highlightColor: Colors.grey[100]!,
+              baseColor: _baseColor,
+              highlightColor: _highlightColor,
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(_cardRadius),
+                  border: Border.all(color: Colors.grey[100]!, width: 1),
                 ),
               ),
             ),
@@ -232,22 +269,23 @@ class AuthorProfileSkeleton extends StatelessWidget {
 
   Widget _buildContentSkeletonSliver() {
     return SliverPadding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(20.0),
       sliver: SliverGrid(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          mainAxisSpacing: 16,
-          crossAxisSpacing: 16,
-          childAspectRatio: 16 / 9,
+          mainAxisSpacing: 20,
+          crossAxisSpacing: 20,
+          childAspectRatio: 16 / 10,
         ),
         delegate: SliverChildBuilderDelegate(
           (context, index) => Shimmer.fromColors(
-            baseColor: Colors.grey[300]!,
-            highlightColor: Colors.grey[100]!,
+            baseColor: _baseColor,
+            highlightColor: _highlightColor,
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(_cardRadius),
+                border: Border.all(color: Colors.grey[100]!, width: 1),
               ),
             ),
           ),

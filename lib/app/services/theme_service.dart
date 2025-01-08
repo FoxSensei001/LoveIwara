@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import '../models/theme_mode.model.dart';
+import 'package:dynamic_color/dynamic_color.dart';
 
 class ThemeService extends GetxService {
   final _themeMode = AppThemeMode.system.obs;
@@ -35,7 +36,10 @@ class ThemeService extends GetxService {
       case AppThemeMode.system:
         final brightness = MediaQuery.platformBrightnessOf(context);
         if (brightness == Brightness.light) {
-          return _getLightTheme(dynamicLight);
+          return ThemeData(
+            colorScheme: dynamicLight?.harmonized() ?? ColorScheme.fromSeed(seedColor: Colors.orange),
+            useMaterial3: true,
+          );
         } else {
           return _getDarkTheme(dynamicDark);
         }

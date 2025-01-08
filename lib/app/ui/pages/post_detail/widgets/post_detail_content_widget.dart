@@ -1,7 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/follow_button_widget.dart';
+import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -28,16 +29,36 @@ class PostDetailContent extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            controller.postInfo.value?.title ?? '',
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
       ],
+    );
+  }
+
+  Widget _buildTitle() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: SelectableText(
+              controller.postInfo.value?.title ?? '',
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+          ),
+          if (controller.postInfo.value?.title.isNotEmpty == true)
+            IconButton(
+              icon: const Icon(Icons.translate),
+              onPressed: () {
+                Get.dialog(
+                  TranslationDialog(
+                    text: controller.postInfo.value!.title,
+                  ),
+                );
+              },
+            ),
+        ],
+      ),
     );
   }
 
@@ -75,11 +96,13 @@ class PostDetailContent extends StatelessWidget {
           }
         },
         behavior: HitTestBehavior.opaque,
-        child: CircleAvatar(
-          backgroundImage: CachedNetworkImageProvider(
-            user?.avatar?.avatarUrl ?? CommonConstants.defaultAvatarUrl,
-            headers: const {'referer': CommonConstants.iwaraBaseUrl},
-          ),
+        child: AvatarWidget(
+          avatarUrl: user?.avatar?.avatarUrl,
+          defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+          headers: const {'referer': CommonConstants.iwaraBaseUrl},
+          radius: 20,
+          isPremium: user?.premium ?? false,
+          isAdmin: user?.isAdmin ?? false,
         ),
       ),
     );
@@ -191,22 +214,40 @@ class PostDetailContent extends StatelessWidget {
     final t = slang.Translations.of(context);
     final post = controller.postInfo.value;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 23.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '${t.common.publishedAt}: ${CommonUtils.formatFriendlyTimestamp(post?.createdAt)}',
-            style: const TextStyle(color: Colors.grey),
+          Row(
+            children: [
+              const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
+              const SizedBox(width: 4),
+              Text(
+                '${t.common.publishedAt}: ${CommonUtils.formatFriendlyTimestamp(post?.createdAt)}',
+                style: const TextStyle(color: Colors.grey),
+              ),
+            ],
           ),
           if (post?.updatedAt != null && post!.updatedAt != post.createdAt)
-            Text(
-              '${t.common.updatedAt}: ${CommonUtils.formatFriendlyTimestamp(post.updatedAt)}',
-              style: const TextStyle(color: Colors.grey),
+            Row(
+              children: [
+                const Icon(Icons.update, size: 16, color: Colors.grey),
+                const SizedBox(width: 4),
+                Text(
+                  '${t.common.updatedAt}: ${CommonUtils.formatFriendlyTimestamp(post.updatedAt)}',
+                  style: const TextStyle(color: Colors.grey),
+                ),
+              ],
             ),
-          Text(
-            '${t.common.numViews}: ${CommonUtils.formatFriendlyNumber(post?.numViews ?? 0)}',
-            style: const TextStyle(color: Colors.grey),
+          Row(
+            children: [
+              const Icon(Icons.remove_red_eye, size: 16, color: Colors.grey),
+              const SizedBox(width: 4),
+              Text(
+                '${t.common.numViews}: ${CommonUtils.formatFriendlyNumber(post?.numViews ?? 0)}',
+                style: const TextStyle(color: Colors.grey),
+              ),
+            ],
           ),
         ],
       ),
@@ -228,9 +269,9 @@ class PostDetailContent extends StatelessWidget {
               borderRadius: const BorderRadius.horizontal(
                 left: Radius.circular(20),
               ),
-              onTap: controller.isTranslating.value 
-                ? null 
-                : () => controller.handleTranslation(),
+              onTap: controller.isTranslating.value
+                  ? null
+                  : () => controller.handleTranslation(),
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -270,11 +311,11 @@ class PostDetailContent extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Obx(() => Icon(
-                controller.showTranslationMenu.value 
-                  ? Icons.arrow_drop_up 
-                  : Icons.arrow_drop_down,
-                size: 26,
-              )),
+                    controller.showTranslationMenu.value
+                        ? Icons.arrow_drop_up
+                        : Icons.arrow_drop_down,
+                    size: 26,
+                  )),
             ),
           ),
         ],
@@ -310,7 +351,10 @@ class PostDetailContent extends StatelessWidget {
     final t = slang.Translations.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+        color: Theme.of(context)
+            .colorScheme
+            .surfaceContainerHighest
+            .withOpacity(0.3),
         borderRadius: BorderRadius.circular(8),
       ),
       padding: const EdgeInsets.all(12),
@@ -342,7 +386,7 @@ class PostDetailContent extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          if (controller.translatedText.value == 
+          if (controller.translatedText.value ==
               t.errors.translationFailedPleaseTryAgainLater)
             Text(
               controller.translatedText.value!,
@@ -397,18 +441,17 @@ class PostDetailContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      spacing: 8,
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(height: paddingTop),
         _buildHeader(context),
-        const SizedBox(height: 16),
         _buildAuthorInfo(),
-        const SizedBox(height: 8),
-        _buildTimeInfo(context),
-        const SizedBox(height: 16),
+        _buildTitle(),
         _buildContent(context),
+        _buildTimeInfo(context),
       ],
     );
   }
-} 
+}

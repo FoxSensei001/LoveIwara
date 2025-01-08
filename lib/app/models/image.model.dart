@@ -144,7 +144,9 @@ class ImageModel {
   // 头图
   String get thumbnailUrl {
     if (thumbnail != null) {
-      return 'https://i.iwara.tv/image/thumbnail/${thumbnail!.id}/${thumbnail!.name}';
+      String url = 'https://i.iwara.tv/image/thumbnail/${thumbnail!.id}/${thumbnail!.name}';
+      // 将最后的.文件类型 换为 .jpg
+      return url.replaceAll('.${thumbnail!.name.split('.').last}', '.jpg');
     } else {
       return CommonConstants.defaultThumbnailUrl;
     }

@@ -112,8 +112,8 @@ class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
         Tab(
           child: Row(
             children: [
-              Icon(Icons.calendar_today),
-              SizedBox(width: 8),
+              const Icon(Icons.calendar_today),
+              const SizedBox(width: 8),
               Text(t.common.latest),
             ],
           ),
@@ -122,8 +122,8 @@ class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
         Tab(
           child: Row(
             children: [
-              Icon(Icons.favorite),
-              SizedBox(width: 8),
+              const Icon(Icons.favorite),
+              const SizedBox(width: 8),
               Text(t.common.likesCount),
             ],
           ),
@@ -132,8 +132,8 @@ class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
         Tab(
           child: Row(
             children: [
-              Icon(Icons.remove_red_eye),
-              SizedBox(width: 8),
+              const Icon(Icons.remove_red_eye),
+              const SizedBox(width: 8),
               Text(t.common.viewsCount),
             ],
           ),
@@ -142,8 +142,8 @@ class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
         Tab(
           child: Row(
             children: [
-              Icon(Icons.star),
-              SizedBox(width: 8),
+              const Icon(Icons.star),
+              const SizedBox(width: 8),
               Text(t.common.popular),
             ],
           ),
@@ -152,8 +152,8 @@ class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
         Tab(
           child: Row(
             children: [
-              Icon(Icons.trending_up),
-              SizedBox(width: 8),
+              const Icon(Icons.trending_up),
+              const SizedBox(width: 8),
               Text(t.common.trending),
             ],
           ),
@@ -253,11 +253,11 @@ class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
       );
     } else {
       return Padding(
-        padding: EdgeInsets.symmetric(vertical: 16.0),
+        padding: const EdgeInsets.symmetric(vertical: 16.0),
         child: Center(
           child: Text(
             t.authorProfile.noMoreDatas,
-            style: TextStyle(color: Colors.grey),
+            style: const TextStyle(color: Colors.grey),
           ),
         ),
       );

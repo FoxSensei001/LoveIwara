@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../../../common/constants.dart';
 import '../../../../models/video.model.dart';
-import 'animated_preview_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 class VideoPreviewDetailModal extends StatelessWidget {
   final Video video;
@@ -72,20 +72,10 @@ class VideoPreviewDetailModal extends StatelessWidget {
                                                       color: Colors.grey[300],
                                                     ),
                                                   ),
-                                              errorWidget: (context, url, error) {
-                                                if (video.file?.numThumbnails != null &&
-                                                    video.file!.numThumbnails! > 0) {
-                                                  return AnimatedPreview(
-                                                    videoId: video.file!.id,
-                                                    numThumbnails: video.file!.numThumbnails!,
-                                                    width: double.infinity,
-                                                    height: double.infinity,
-                                                    fit: BoxFit.cover,
-                                                  );
-                                                } else {
-                                                  return const Icon(Icons.error, size: 50);
-                                                }
-                                              },
+                                              errorWidget: (context, url, error) => Container(
+                                                color: Colors.grey[200],
+                                                child: Icon(Icons.image_not_supported, size: 40, color: Colors.grey[600])
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -110,6 +100,7 @@ class VideoPreviewDetailModal extends StatelessWidget {
                                               backgroundColor: Colors.black54,
                                               textColor: colorScheme.onPrimary,
                                               theme: theme,
+                                              icon: Icons.lock,
                                             ),
                                           ),
                                         if (video.minutesDuration != null)
@@ -118,6 +109,17 @@ class VideoPreviewDetailModal extends StatelessWidget {
                                             bottom: 0,
                                             child: _buildDurationTag(
                                               duration: video.minutesDuration!,
+                                              backgroundColor: Colors.black54,
+                                              textColor: Colors.white,
+                                              theme: theme,
+                                            ),
+                                          ),
+                                        if (video.isExternalVideo)
+                                          Positioned(
+                                            right: 0,
+                                            bottom: 0,
+                                            child: _buildExternalVideoTag(
+                                              label: t.common.externalVideo,
                                               backgroundColor: Colors.black54,
                                               textColor: Colors.white,
                                               theme: theme,
@@ -150,32 +152,13 @@ class VideoPreviewDetailModal extends StatelessWidget {
                               highlightColor: Colors.transparent,
                               child: Row(
                                 children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(24),
-                                    child: CachedNetworkImage(
-                                      imageUrl: video.user?.avatar?.avatarUrl ?? '',
-                                      httpHeaders: const {
-                                        'referer': CommonConstants.iwaraBaseUrl
-                                      },
-                                      fit: BoxFit.cover,
-                                      width: 48,
-                                      height: 48,
-                                      placeholder: (context, url) =>
-                                          Shimmer.fromColors(
-                                            baseColor: colorScheme.onSurface,
-                                            highlightColor: colorScheme.onSurfaceVariant,
-                                            child: Container(
-                                              width: 24,
-                                              height: 24,
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: colorScheme.onSurface,
-                                              ),
-                                            ),
-                                          ),
-                                      errorWidget: (context, url, error) =>
-                                      const Icon(Icons.error, size: 24),
-                                    ),
+                                  AvatarWidget(
+                                    avatarUrl: video.user?.avatar?.avatarUrl,
+                                    defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+                                    headers: const {'referer': CommonConstants.iwaraBaseUrl},
+                                    radius: 14,
+                                    isPremium: video.user?.premium ?? false,
+                                    isAdmin: video.user?.isAdmin ?? false,
                                   ),
                                   const SizedBox(width: 8),
                                   Flexible(
@@ -189,57 +172,58 @@ class VideoPreviewDetailModal extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Row(
+                            Container(
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.all(12),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                                     children: [
-                                      const Icon(
-                                        Icons.remove_red_eye,
-                                        size: 16,
+                                      _buildStatItem(
+                                        icon: Icons.remove_red_eye,
+                                        value: CommonUtils.formatFriendlyNumber(video.numViews),
+                                        colorScheme: colorScheme,
+                                        textTheme: textTheme,
                                       ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        CommonUtils.formatFriendlyNumber(video.numViews),
-                                        style: textTheme.bodySmall?.copyWith(
-                                          color: colorScheme.onSurfaceVariant,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
+                                      _buildStatItem(
+                                        icon: Icons.thumb_up,
+                                        value: CommonUtils.formatFriendlyNumber(video.numLikes),
+                                        colorScheme: colorScheme,
+                                        textTheme: textTheme,
                                       ),
-                                      const SizedBox(width: 16),
-                                      const Icon(
-                                        Icons.thumb_up,
-                                        size: 16,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        CommonUtils.formatFriendlyNumber(video.numLikes),
-                                        style: textTheme.bodySmall?.copyWith(
-                                          color: colorScheme.onSurfaceVariant,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      const SizedBox(width: 16),
-                                      const Icon(
-                                        Icons.comment,
-                                        size: 16,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        CommonUtils.formatFriendlyNumber(video.numComments),
-                                        style: textTheme.bodySmall?.copyWith(
-                                          color: colorScheme.onSurfaceVariant,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
+                                      _buildStatItem(
+                                        icon: Icons.comment,
+                                        value: CommonUtils.formatFriendlyNumber(video.numComments),
+                                        colorScheme: colorScheme,
+                                        textTheme: textTheme,
                                       ),
                                     ],
                                   ),
-                                ),
-                                Text(
-                                  CommonUtils.formatFriendlyTimestamp(video.createdAt),
-                                  style: textTheme.bodySmall,
-                                ),
-                              ],
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Icon(
+                                        Icons.access_time,
+                                        size: 14,
+                                        color: colorScheme.onSurfaceVariant.withOpacity(0.8),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        CommonUtils.formatFriendlyTimestamp(video.createdAt),
+                                        style: textTheme.bodySmall?.copyWith(
+                                          color: colorScheme.onSurfaceVariant.withOpacity(0.8),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -288,9 +272,9 @@ class VideoPreviewDetailModal extends StatelessWidget {
     required Color backgroundColor,
     required Color textColor,
     required ThemeData theme,
+    required IconData icon,
   }) {
     return Container(
-      width: 100,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: backgroundColor,
@@ -299,14 +283,20 @@ class VideoPreviewDetailModal extends StatelessWidget {
           topLeft: Radius.circular(12),
         ),
       ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: textColor,
-          fontWeight: FontWeight.bold,
-          fontSize: theme.textTheme.bodySmall?.fontSize,
-        ),
-        textAlign: TextAlign.center,
+      child: Row(
+        children: [
+            Icon(icon, size: 16, color: textColor),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: TextStyle(
+              color: textColor,
+              fontWeight: FontWeight.bold,
+              fontSize: theme.textTheme.bodySmall?.fontSize,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }
@@ -347,4 +337,69 @@ class VideoPreviewDetailModal extends StatelessWidget {
       ),
     );
   }
+
+  /// 构建外部视频标签
+Widget _buildExternalVideoTag({
+  required String label,
+  required Color backgroundColor,
+  required Color textColor,
+  required ThemeData theme,
+}) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    decoration: BoxDecoration(
+      color: backgroundColor,
+      borderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(12),
+        bottomRight: Radius.circular(12),
+      ),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Icon(
+          Icons.link,
+          size: 16,
+          color: Colors.white,
+        ),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: TextStyle(
+            color: textColor,
+            fontWeight: FontWeight.bold,
+            fontSize: theme.textTheme.bodySmall?.fontSize,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+  /// 构建统计项
+  Widget _buildStatItem({
+    required IconData icon,
+    required String value,
+    required ColorScheme colorScheme,
+    required TextTheme textTheme,
+  }) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          icon,
+          size: 16,
+          color: colorScheme.onSurfaceVariant,
+        ),
+        const SizedBox(width: 4),
+        Text(
+          value,
+          style: textTheme.bodySmall?.copyWith(
+            color: colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
+  }
+
 }

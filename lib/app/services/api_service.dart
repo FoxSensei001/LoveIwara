@@ -10,7 +10,6 @@ import 'package:oktoast/oktoast.dart';
 
 import '../../common/constants.dart';
 import '../../utils/logger_utils.dart';
-import '../routes/app_routes.dart';
 import 'auth_service.dart';
 
 class ApiService extends GetxService {
@@ -46,12 +45,11 @@ class ApiService extends GetxService {
       },
     ));
 
-    // 添加拦截器
+    // 修改拦截器
     _dio.interceptors.add(d_dio.InterceptorsWrapper(
-      onRequest: (options, handler) {
+      onRequest: (options, handler) async {
         if (CommonConstants.enableR18) {
-          // 移除rating参数
-          options.queryParameters.remove('rating');
+          // do nothing
         } else {
           options.queryParameters = {
             ...options.queryParameters,
@@ -62,36 +60,53 @@ class ApiService extends GetxService {
         LogUtils.d(
             '请求: Method: ${options.method} Path: ${options.path} Params: ${options.queryParameters} Body: ${options.data}',
             _tag);
-        if (_authService.accessToken != null) {
-          options.headers['Authorization'] =
-              'Bearer ${_authService.accessToken}';
+            
+        // 检查 token 是否需要刷新
+        if (_authService.isAuthenticated) {
+          if (_authService.isAccessTokenExpired) {
+            LogUtils.d('$_tag Token已过期，尝试刷新');
+            final success = await _authService.refreshAccessToken();
+            if (!success) {
+              return handler.reject(
+                d_dio.DioException(
+                  requestOptions: options,
+                  error: 'Token refresh failed',
+                ),
+              );
+            }
+          }
+          options.headers['Authorization'] = 'Bearer ${_authService.accessToken}';
         }
+        
         return handler.next(options);
       },
       onError: (d_dio.DioException error, handler) async {
-        // 如果返回401，尝试刷新token
         if (error.response?.statusCode == 401) {
           LogUtils.e('遭遇401错误，尝试刷新token', tag: _tag);
+          
           try {
-            await _authService.refreshAccessToken();
-            final options = error.requestOptions;
-            options.headers['Authorization'] =
-                'Bearer ${_authService.accessToken}';
-
-            final response = await _dio.fetch(options);
-            return handler.resolve(response);
-          } on UnauthorizedException {
-            await _authService.logout();
-            Get.offAllNamed(Routes.LOGIN);
-            return;
-          } on AuthServiceException catch (e) {
-            LogUtils.e(
-              '认证服务异常: ${e.message}',
-              tag: _tag,
-              error: e,
-            );
-            await _authService.logout();
-            Get.offAllNamed(Routes.LOGIN);
+            // 尝试刷新 token
+            final success = await _authService.refreshAccessToken();
+            if (success) {
+              // 重试原请求
+              final opts = d_dio.Options(
+                method: error.requestOptions.method,
+                headers: {
+                  ...error.requestOptions.headers,
+                  'Authorization': 'Bearer ${_authService.accessToken}'
+                },
+              );
+              
+              final cloneReq = await _dio.request(
+                error.requestOptions.path,
+                options: opts,
+                data: error.requestOptions.data,
+                queryParameters: error.requestOptions.queryParameters,
+              );
+              return handler.resolve(cloneReq);
+            }
+          } catch (e) {
+            // token 刷新失败的处理已经在 AuthService 中统一处理
             return handler.next(error);
           }
         } else if (error.response?.statusCode == 403) {

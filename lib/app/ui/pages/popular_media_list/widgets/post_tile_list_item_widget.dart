@@ -1,8 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 
@@ -98,36 +98,14 @@ class PostTileListItemWidget extends StatelessWidget {
   }
 
   Widget _buildAvatar(User user) {
-    Widget avatar = CircleAvatar(
+    return AvatarWidget(
+      avatarUrl: user.avatar?.avatarUrl,
+      defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+      headers: const {'referer': CommonConstants.iwaraBaseUrl},
       radius: 20,
-      backgroundImage: CachedNetworkImageProvider(
-        user.avatar?.avatarUrl ?? CommonConstants.defaultAvatarUrl,
-        headers: const {'referer': CommonConstants.iwaraBaseUrl},
-      ),
+      isPremium: user.premium ?? false,
+      isAdmin: user.isAdmin ?? false,
     );
-
-    if (user.premium) {
-      return Container(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: LinearGradient(
-            colors: [
-              Colors.purple.shade200,
-              Colors.blue.shade200,
-              Colors.pink.shade200,
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(2.0),
-          child: avatar,
-        ),
-      );
-    }
-
-    return avatar;
   }
 
   Widget _buildDisplayName(User user) {

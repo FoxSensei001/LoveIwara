@@ -53,6 +53,7 @@ class MyVideoStateController extends GetxController
   final RxBool sliderDragLoadFinished = true.obs; // 拖动进度条加载完成
   final RxDouble playerPlaybackSpeed = 1.0.obs; // 播放速度
   final RxBool isDesktopAppFullScreen = false.obs; // 是否是应用全屏
+  bool _isSettingVolume = false; // 是否正在通过手势设置音量
 
   // 工具栏可见性
   final RxBool areToolbarsVisible = true.obs;
@@ -91,6 +92,7 @@ class MyVideoStateController extends GetxController
   Timer? _autoHideTimer;
   final _autoHideDelay = const Duration(seconds: 3); // 3秒后自动隐藏
   final RxBool _isInteracting = false.obs; // 是否正在交互（如拖动进度条）
+  final RxBool _isHoveringToolbar = false.obs; // 是否正在悬浮在工具栏上
 
   // 是否显示进度预览
   final RxBool isSeekPreviewVisible = false.obs;
@@ -100,11 +102,39 @@ class MyVideoStateController extends GetxController
   // 历史记录
   final HistoryRepository _historyRepository = HistoryRepository();
 
+  // 添加一个新的变量来跟踪是否正在等待seek完成
+  final RxBool isWaitingForSeek = false.obs;
+
   MyVideoStateController(this.videoId);
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
+    // 动画
+    animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+
+    topBarAnimation = Tween<Offset>(
+      begin: const Offset(0, -1),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: animationController,
+      curve: Curves.easeOut,
+    ));
+
+    bottomBarAnimation = Tween<Offset>(
+      begin: const Offset(0, 1),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: animationController,
+      curve: Curves.easeOut,
+    ));
+
+    // 初始状态显示工具栏
+    animationController.forward();
+
     // 初始化 VideoController
     player = Player();
     videoController = VideoController(player);
@@ -141,7 +171,13 @@ class MyVideoStateController extends GetxController
       if (GetPlatform.isAndroid || GetPlatform.isIOS) {
         volumeController?.setVolume(lastVolume);
       } else {
-        player.setVolume(lastVolume * 100);
+        setVolume(lastVolume);
+      }
+    } else {
+      if (GetPlatform.isAndroid || GetPlatform.isIOS) {
+        // 更新配置为当前的系统音量
+        double currentVolume = await volumeController?.getVolume() ?? 0.0;
+        _configService[ConfigService.VOLUME_KEY] = currentVolume;
       }
     }
 
@@ -158,28 +194,6 @@ class MyVideoStateController extends GetxController
         }
       }
     }
-
-    // 动画
-    animationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-
-    topBarAnimation = Tween<Offset>(
-      begin: const Offset(0, -1),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: animationController,
-      curve: Curves.easeOut,
-    ));
-
-    bottomBarAnimation = Tween<Offset>(
-      begin: const Offset(0, 1),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: animationController,
-      curve: Curves.easeOut,
-    ));
 
     // 想办法让native player默认走系统代理
     if (player.platform is NativePlayer &&
@@ -332,7 +346,14 @@ class MyVideoStateController extends GetxController
             filterPreview: true),
       );
     } catch (e) {
+      // 如果是个 404 的DioException 
+      if (e is DioException && e.response?.statusCode == 404) {
+        videoErrorMessage.value = 'resource_404';
+        return;
+      }
+
       // 处理错误
+      LogUtils.e('获取视频源失败: $e', tag: 'MyVideoStateController', error: e);
       videoErrorMessage.value = slang.t.videoDetail.getVideoInfoFailed;
     } finally {
       // 无论成功还是失败，都将加载状态设置为 false
@@ -377,11 +398,11 @@ class MyVideoStateController extends GetxController
 
     videoIsReady.value = false;
     _configService[ConfigService.DEFAULT_QUALITY_KEY] = resolutionTag;
-    this.videoResolutions.value = videoResolutions; // 确保赋值为 List
+    this.videoResolutions.value = videoResolutions;
     currentPosition.value = position;
     currentResolutionTag.value = resolutionTag;
     sliderDragLoadFinished.value = true;
-    buffers.clear();
+    _clearBuffers(); // 清空缓冲区
 
     // 通过tag找出对应的视频源
     String? url =
@@ -416,19 +437,24 @@ class MyVideoStateController extends GetxController
     positionSubscription = player.stream.position.listen((position) async {
       if (!videoIsReady.value) return;
 
-      if (videoIsReady.value &&
-          totalDuration.value.inMilliseconds > 0 &&
-          position.inMilliseconds > 0 &&
-          position >= totalDuration.value) {
-        bool repeat = _configService[ConfigService.REPEAT_KEY];
-        if (repeat) {
-          LogUtils.d('[视频播放完成]，尝试重播', 'MyVideoStateController');
-          await player.seek(Duration.zero);
-          await player.play();
+      // 只有在不是等待seek完成的状态下才更新位置
+      if (!isWaitingForSeek.value) {
+        if (videoIsReady.value &&
+            totalDuration.value.inMilliseconds > 0 &&
+            position.inMilliseconds > 0 &&
+            (position.inMilliseconds >= totalDuration.value.inMilliseconds - 100)) {
+          bool repeat = _configService[ConfigService.REPEAT_KEY];
+          if (repeat) {
+            LogUtils.d('[视频播放完成]，尝试重播', 'MyVideoStateController');
+            // 清空缓冲区
+            _clearBuffers();
+            await player.seek(Duration.zero);
+            await player.play();
+          }
         }
-      }
 
-      currentPosition.value = position;
+        currentPosition.value = position;
+      }
       sliderDragLoadFinished.value = true;
     });
 
@@ -461,10 +487,8 @@ class MyVideoStateController extends GetxController
     });
 
     // 缓冲进度
-    // 监听缓冲进度
     bufferSubscription = player.stream.buffer.listen((bufferDuration) {
-      // logger.d('[缓冲进度] $bufferDuration');
-      // _addBufferRange(bufferDuration);
+      _addBufferRange(bufferDuration);
     });
   }
 
@@ -501,12 +525,12 @@ class MyVideoStateController extends GetxController
   void _resetAutoHideTimer() {
     _autoHideTimer?.cancel();
     
-    // 如果正在交互，不启动定时器
-    if (_isInteracting.value) return;
+    // 如果正在交互或悬浮在工具栏上，不启动定时器
+    if (_isInteracting.value || _isHoveringToolbar.value) return;
     
     _autoHideTimer = Timer(_autoHideDelay, () {
-      // 如果正在交互，不执行隐藏
-      if (!_isInteracting.value && animationController.value == 1.0) {
+      // 如果正在交互或悬浮在工具栏上，不执行隐藏
+      if (!_isInteracting.value && !_isHoveringToolbar.value && animationController.value == 1.0) {
         animationController.reverse();
       }
     });
@@ -521,6 +545,18 @@ class MyVideoStateController extends GetxController
     } else {
       // 交互开始时取消定时器
       _autoHideTimer?.cancel();
+    }
+  }
+
+  // 设置工具栏悬浮状态
+  void setToolbarHovering(bool value) {
+    _isHoveringToolbar.value = value;
+    if (value) {
+      // 悬浮时取消定时器
+      _autoHideTimer?.cancel();
+    } else {
+      // 离开时重置定时器
+      _resetAutoHideTimer();
     }
   }
 
@@ -556,94 +592,100 @@ class MyVideoStateController extends GetxController
     player.setRate(speed);
   }
 
-  void addVolume(double d) {
-    double configVolume = _configService[ConfigService.VOLUME_KEY];
-    double newVolume = (configVolume + d).clamp(0.0, 1.0);
+  /// 设置音量
+  /// volume: 0.0-1.0
+  void setVolume(double volume) {
+    _isSettingVolume = true;
     if (GetPlatform.isAndroid || GetPlatform.isIOS) {
-      volumeController?.setVolume(newVolume);
-      LogUtils.d('[音量] $newVolume, $d, $configVolume', 'MyVideoStateController');
+      volumeController?.setVolume(volume);
     } else {
-      player.setVolume(newVolume * 100);
-      LogUtils.d('[音量] ${newVolume * 100}, $d, $configVolume', 'MyVideoStateController');
+      player.setVolume(volume * 100);
     }
-    _configService[ConfigService.VOLUME_KEY] = newVolume;
+    _configService[ConfigService.VOLUME_KEY] = volume;
+    Future.delayed(const Duration(milliseconds: 50), () {
+      _isSettingVolume = false;
+    });
   }
 
-  void setVolume(double d) {
-    d = d.clamp(0.0, 1.0);
-    if (GetPlatform.isAndroid || GetPlatform.isIOS) {
-      volumeController?.setVolume(d);
-    } else {
-      player.setVolume(d * 100);
+  bool get isSettingVolume => _isSettingVolume;
+
+  void _addBufferRange(Duration bufferDuration) {
+    // 如果总时长为0，说明视频还未加载，不处理缓冲
+    if (totalDuration.value.inMilliseconds == 0) return;
+    
+    final Duration start = currentPosition.value;
+    final Duration end = bufferDuration;
+
+    // 如果缓冲时长小于等于当前播放位置，或大于总时长，则忽略
+    if (end <= start || end > totalDuration.value) {
+      return;
     }
-    _configService[ConfigService.VOLUME_KEY] = d;
+
+    BufferRange newRange = BufferRange(start: start, end: end);
+    List<BufferRange> updatedBuffers = List<BufferRange>.from(buffers);
+
+    // 尝试合并重叠的缓冲区
+    bool merged = false;
+    for (int i = 0; i < updatedBuffers.length; i++) {
+      BufferRange existingRange = updatedBuffers[i];
+      if (existingRange.overlapsOrAdjacent(newRange)) {
+        updatedBuffers[i] = existingRange.merge(newRange);
+        merged = true;
+        break;
+      }
+    }
+
+    if (!merged) {
+      updatedBuffers.add(newRange);
+    }
+
+    // 对缓冲区进行排序并移除无效的缓冲区
+    updatedBuffers.sort((a, b) => a.start.compareTo(b.start));
+    updatedBuffers.removeWhere((range) => 
+      range.end <= currentPosition.value || 
+      range.start >= totalDuration.value
+    );
+
+    // 合并相邻的缓冲区
+    for (int i = updatedBuffers.length - 2; i >= 0; i--) {
+      if (updatedBuffers[i].overlapsOrAdjacent(updatedBuffers[i + 1])) {
+        updatedBuffers[i] = updatedBuffers[i].merge(updatedBuffers[i + 1]);
+        updatedBuffers.removeAt(i + 1);
+      }
+    }
+
+    buffers.value = updatedBuffers;
   }
 
-// TODO 合并缓冲区的代码暂时不用，以后看看怎么改合适
-// void _addBufferRange(Duration bufferDuration) {
-//   final Duration start = currentPosition.value;
-//   final Duration end = bufferDuration;
-//
-//   // 如果 bufferDuration 小于或等于当前播放位置，缓冲段无效，直接返回
-//   if (end <= start) {
-//     return;
-//   }
-//
-//   BufferRange newRange = BufferRange(start: start, end: end);
-//
-//   List<BufferRange> updatedBuffers = buffers.toList();
-//
-//   // 合并新缓冲段与现有的缓冲段
-//   bool merged = false;
-//   for (int i = 0; i < updatedBuffers.length; i++) {
-//     BufferRange existingRange = updatedBuffers[i];
-//     if (existingRange.overlapsOrAdjacent(newRange)) {
-//       // 合并缓冲段
-//       BufferRange mergedRange = existingRange.merge(newRange);
-//       updatedBuffers[i] = mergedRange;
-//       merged = true;
-//
-//       // 检查合并后的缓冲段是否与其他缓冲段重叠或相邻
-//       newRange = mergedRange;
-//       i = -1; // 重置循环，从头开始检查
-//     }
-//   }
-//
-//   if (!merged) {
-//     // 如果没有合并，直接添加新的缓冲段
-//     updatedBuffers.add(newRange);
-//   }
-//
-//   // 对缓冲段列表进行排序
-//   updatedBuffers.sort((a, b) => a.start.compareTo(b.start));
-//
-//   buffers.value = updatedBuffers;
-// }
-//
-// void _handleSeek(Duration newPosition) {
-//   currentPosition.value = newPosition;
-//
-//   // 根据新的播放位置更新缓冲段列表
-//   // 假设在 Seek 操作后，之前的缓冲段仍然有效，我们只需保留与新位置重叠或相邻的缓冲段
-//   List<BufferRange> updatedBuffers = buffers.where((range) {
-//     // 保留与新位置相邻或重叠的缓冲段
-//     return range.overlapsOrAdjacent(BufferRange(
-//       start: newPosition,
-//       end: newPosition + Duration(seconds: 1), // 给一个小范围的区间
-//     ));
-//   }).toList();
-//
-//   buffers.value = updatedBuffers;
-// }
-//
-// void _updateBufferRanges(Duration position) {
-//   List<BufferRange> updatedBuffers = buffers.where((range) {
-//     // 保留结束位置在当前播放位置之后的缓冲段
-//     return range.end > position;
-//   }).toList();
-//
-//   buffers.value = updatedBuffers;
-// }
+  void _handleSeek(Duration newPosition) async {
+    // 标记正在等待seek完成
+    isWaitingForSeek.value = true;
+    
+    // 如果是回退进度，则清空缓冲区
+    if (newPosition < currentPosition.value) {
+      _clearBuffers();
+    } else {
+      // 清理失效的缓冲区
+      List<BufferRange> updatedBuffers = buffers.where((range) {
+        return range.end > newPosition && range.start < totalDuration.value;
+      }).toList();
+
+      buffers.value = updatedBuffers;
+    }
+    
+    // 先更新UI位置
+    currentPosition.value = newPosition;
+    
+    // 执行实际的seek操作
+    await player.seek(newPosition);
+    
+    // seek完成后标记状态
+    isWaitingForSeek.value = false;
+  }
+
+  void _clearBuffers() {
+    buffers.clear();
+  }
 
   /// 显示/隐藏进度预
   void showSeekPreview(bool show) {
@@ -653,6 +695,10 @@ class MyVideoStateController extends GetxController
   /// 更新预览位置
   void updateSeekPreview(Duration position) {
     previewPosition.value = position;
+  }
+
+  void handleSeek(Duration newPosition) {
+    _handleSeek(newPosition);
   }
 }
 

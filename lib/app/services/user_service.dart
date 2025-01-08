@@ -1,10 +1,7 @@
-import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/dto/user_request_dto.dart';
 import 'package:i_iwara/app/models/page_data.model.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
-import 'package:oktoast/oktoast.dart';
 
 import '../../common/constants.dart';
 import '../../utils/logger_utils.dart';
@@ -31,17 +28,11 @@ class UserService extends GetxService {
     LogUtils.d('$_tag 初始化用户服务');
     if (_authService.hasToken) {
       try {
-        LogUtils.d('$_tag 存在TOKEN，尝试获取用户资料');
-        fetchUserProfile();
-      } on UnauthorizedException {
-        LogUtils.d('$_tag TOKEN失效，重新登录');
-        _authService.logout();
-        Get.offAllNamed(Routes.LOGIN);
-      } on AuthServiceException catch (e) {
+        LogUtils.d('$_tag 存在有效TOKEN，尝试获取用户资料');
+        await fetchUserProfile();
+      } catch (e) {
         LogUtils.e('$_tag 初始化用户失败', error: e);
-        showToastWidget(MDToastWidget(message: e.message, type: MDToastType.error));
-        _authService.logout();
-        Get.offAllNamed(Routes.LOGIN);
+        // 错误处理已经在 AuthService 中统一处理
       }
     } else {
       LogUtils.d('$_tag 未登录');
@@ -52,20 +43,16 @@ class UserService extends GetxService {
   // 抓取用户资料
   Future<void> fetchUserProfile() async {
     try {
-      LogUtils.d('$_tag 抓取用户资料'); // 替换 logger.d
+      LogUtils.d('$_tag 抓取用户资料');
       final response = await _apiService.get<Map<String, dynamic>>('/user');
       currentUser.value = User.fromJson(response.data!['user']);
       LogUtils.d('$_tag 用户资料: ${currentUser.value}');
-    } on dio.DioException catch (e) {
-      LogUtils.e('遭遇网络错误', error: e);
-      if (e.response?.statusCode == 401) {
-        throw UnauthorizedException(t.errors.sessionExpired);
-      } else {
-        throw AuthServiceException(t.errors.failedToFetchData);
-      }
     } catch (e) {
       LogUtils.e('抓取用户资料失败', error: e);
-      throw AuthServiceException(t.errors.failedToOperate);
+      if (e is! UnauthorizedException) {
+        throw AuthServiceException(t.errors.failedToOperate);
+      }
+      rethrow;
     }
   }
 
@@ -288,5 +275,10 @@ class UserService extends GetxService {
       LogUtils.e('获取粉丝列表失败', error: e);
       return ApiResult.fail(t.errors.failedToFetchData);
     }
+  }
+
+  // 添加处理登出的方法
+  void handleLogout() {
+    currentUser.value = null;
   }
 }

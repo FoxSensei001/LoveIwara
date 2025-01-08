@@ -7,10 +7,13 @@ import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/video_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/video_description_widget.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../../../common/constants.dart';
 import '../../../../widgets/error_widget.dart';
 import '../../controllers/my_video_state_controller.dart';
@@ -53,20 +56,130 @@ class VideoDetailContent extends StatelessWidget {
               Obx(() {
                 // 如果视频加载出错，显示错误组件
                 if (controller.videoErrorMessage.value != null) {
-                  return CommonErrorWidget(
-                    text: controller.videoErrorMessage.value ??
-                        t.videoDetail.errorLoadingVideo,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () => AppService.tryPop(),
-                        child: Text(t.common.back),
-                      ),
-                      ElevatedButton(
-                        onPressed: () => controller
-                            .fetchVideoDetail(controller.videoId ?? ''),
-                        child: Text(t.common.retry),
-                      ),
-                    ],
+                  return SizedBox(
+                    width: videoWidth,
+                    height: (videoHeight ?? (MediaQuery.sizeOf(context).width / 1.7)) + paddingTop,
+                    child: Stack(
+                      children: [
+                        // 添加背景图片
+                        if (controller.videoInfo.value?.previewUrl != null)
+                          Positioned.fill(
+                            child: CachedNetworkImage(
+                              imageUrl: controller.videoInfo.value!.previewUrl,
+                              fit: BoxFit.cover,
+                              errorWidget: (context, url, error) => Container(
+                                color: Colors.black,
+                                child: const Icon(Icons.error_outline, size: 48, color: Colors.white54),
+                              ),
+                            ),
+                          ),
+                        // 添加半透明遮罩
+                        Positioned.fill(
+                          child: Container(
+                            color: Colors.black.withOpacity(0.7),
+                          ),
+                        ),
+                        // 错误提示内容
+                        Center(
+                          child: controller.videoErrorMessage.value == 'resource_404'
+                            ? Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Icons.not_interested, size: 48, color: Colors.white),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    t.videoDetail.resourceDeleted,
+                                    style: const TextStyle(fontSize: 18, color: Colors.white),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  ElevatedButton.icon(
+                                    onPressed: () => AppService.tryPop(),
+                                    icon: const Icon(Icons.arrow_back),
+                                    label: Text(t.common.back),
+                                  ),
+                                ],
+                              )
+                            : CommonErrorWidget(
+                                text: controller.videoErrorMessage.value ?? t.videoDetail.errorLoadingVideo,
+                                children: [
+                                  ElevatedButton.icon(
+                                    onPressed: () => AppService.tryPop(),
+                                    icon: const Icon(Icons.arrow_back),
+                                    label: Text(t.common.back),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  ElevatedButton.icon(
+                                    onPressed: () => controller.fetchVideoDetail(controller.videoId ?? ''),
+                                    icon: const Icon(Icons.refresh),
+                                    label: Text(t.common.retry),
+                                  ),
+                                ],
+                              ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                // 如果是站外视频，显示站外视频提示
+                else if (controller.videoInfo.value?.isExternalVideo == true) {
+                  return SizedBox(
+                    width: videoWidth,
+                    height: (videoHeight ?? (MediaQuery.sizeOf(context).width / 1.7)) + paddingTop,
+                    child: Stack(
+                      children: [
+                        // 添加背景图片
+                        if (controller.videoInfo.value?.previewUrl != null)
+                          Positioned.fill(
+                            child: CachedNetworkImage(
+                              imageUrl: controller.videoInfo.value!.previewUrl,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        // 添加半透明遮罩
+                        Positioned.fill(
+                          child: Container(
+                            color: Colors.black.withOpacity(0.7),
+                          ),
+                        ),
+                        // 原有的提示内容
+                        Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.link, size: 48, color: Colors.white),
+                              const SizedBox(height: 16),
+                              Text(
+                                '${t.videoDetail.externalVideo}: ${controller.videoInfo.value?.externalVideoDomain}',
+                                style: const TextStyle(fontSize: 18, color: Colors.white),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                spacing: 16,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  ElevatedButton.icon(
+                                    onPressed: () => AppService.tryPop(),
+                                    icon: const Icon(Icons.arrow_back),
+                                    label: Text(t.common.back),
+                                  ),
+                                  ElevatedButton.icon(
+                                    onPressed: () {
+                                      if (controller.videoInfo.value?.embedUrl != null) {
+                                        launchUrl(Uri.parse(controller.videoInfo.value!.embedUrl!));
+                                      }
+                                    },
+                                    icon: const Icon(Icons.open_in_new),
+                                    label: Text(t.videoDetail.openInBrowser),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   );
                 }
                 // 如果不是全屏模式，显示视频播放器
@@ -110,24 +223,51 @@ class VideoDetailContent extends StatelessWidget {
                 // 视频标题
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: SelectableText.rich(
-                    TextSpan(
-                      text: controller.videoInfo.value?.title ?? '',
-                      style: const TextStyle(
-                          fontSize: 24, fontWeight: FontWeight.bold),
-                    ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 标题文本
+                      Expanded(
+                        child: SelectableText(
+                          controller.videoInfo.value?.title ?? '',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            height: 1.3,
+                          ),
+                        ),
+                      ),
+                      // 翻译按钮
+                      if (controller.videoInfo.value?.title?.isNotEmpty == true)
+                        IconButton(
+                          icon: const Icon(Icons.translate, size: 20),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          onPressed: () {
+                            Get.dialog(
+                              TranslationDialog(
+                                text: controller.videoInfo.value?.title ?? '',
+                              ),
+                            );
+                          },
+                        ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 // 作者信息区域，包括头像和用户名
                 _buildAuthorInfo(),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 // 视频发布时间和观看次数
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Obx(() => Text(
                         '${t.galleryDetail.publishedAt}：${CommonUtils.formatFriendlyTimestamp(controller.videoInfo.value?.createdAt)}    ${t.galleryDetail.viewsCount}：${CommonUtils.formatFriendlyNumber(controller.videoInfo.value?.numViews)}',
-                        style: const TextStyle(color: Colors.grey),
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 13,
+                        ),
                       )),
                 ),
                 const SizedBox(height: 16),
@@ -175,99 +315,92 @@ class VideoDetailContent extends StatelessWidget {
                 Obx(() {
                   final videoInfo = controller.videoInfo.value;
                   if (videoInfo != null) {
-                    return Padding(
+                    return Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          spacing: 8,
-                          children: [
-                            LikeButtonWidget(
-                              mediaId: videoInfo.id,
-                              liked: videoInfo.liked ?? false,
-                              likeCount: videoInfo.numLikes ?? 0,
-                              onLike: (id) async {
-                                final result = await Get.find<VideoService>()
-                                    .likeVideo(id);
-                                return result.isSuccess;
-                              },
-                              onUnlike: (id) async {
-                                final result = await Get.find<VideoService>()
-                                    .unlikeVideo(id);
-                                return result.isSuccess;
-                              },
-                              onLikeChanged: (liked) {
-                                controller.videoInfo.value =
-                                    controller.videoInfo.value?.copyWith(
-                                  liked: liked,
-                                  numLikes:
-                                      (controller.videoInfo.value?.numLikes ??
-                                              0) +
-                                          (liked ? 1 : -1),
+                      child: Row(
+                        spacing: 12,
+                        children: [
+                          LikeButtonWidget(
+                            mediaId: videoInfo.id,
+                            liked: videoInfo.liked ?? false,
+                            likeCount: videoInfo.numLikes ?? 0,
+                            onLike: (id) async {
+                              final result = await Get.find<VideoService>().likeVideo(id);
+                              return result.isSuccess;
+                            },
+                            onUnlike: (id) async {
+                              final result = await Get.find<VideoService>().unlikeVideo(id);
+                              return result.isSuccess;
+                            },
+                            onLikeChanged: (liked) {
+                              controller.videoInfo.value = controller.videoInfo.value?.copyWith(
+                                liked: liked,
+                                numLikes: (controller.videoInfo.value?.numLikes ?? 0) + (liked ? 1 : -1),
+                              );
+                            },
+                          ),
+                          Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(20),
+                              onTap: () {
+                                final UserService userService = Get.find();
+                                if (!userService.isLogin) {
+                                  showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error));
+                                  Get.toNamed(Routes.LOGIN);
+                                  return;
+                                }
+                                showModalBottomSheet(
+                                  backgroundColor: Colors.transparent,
+                                  isScrollControlled: true,
+                                  builder: (context) => AddVideoToPlayListDialog(
+                                    videoId: controller.videoInfo.value?.id ?? '',
+                                  ), context: context,
                                 );
                               },
-                            ),
-                            Material(
-                              color: Colors.transparent,
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(16),
-                                onTap: () {
-                                  final UserService userService = Get.find();
-                                  if (!userService.isLogin) {
-                                    showToastWidget(MDToastWidget(
-                                        message: t.errors.pleaseLoginFirst,
-                                        type: MDToastType.error));
-                                    Get.toNamed(Routes.LOGIN);
-                                    return;
-                                  }
-                                  showModalBottomSheet(
-                                    backgroundColor: Colors.transparent,
-                                    isScrollControlled: true,
-                                    builder: (context) =>
-                                        AddVideoToPlayListDialog(
-                                      videoId:
-                                          controller.videoInfo.value?.id ?? '',
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.playlist_add,
+                                      size: 20,
+                                      color: Theme.of(context).iconTheme.color
                                     ),
-                                    context: context,
-                                  );
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Icon(Icons.playlist_add),
-                                      const SizedBox(width: 4),
-                                      Text(slang.Translations.of(context)
-                                          .playList
-                                          .myPlayList),
-                                    ],
-                                  ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      slang.Translations.of(context).playList.myPlayList,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Theme.of(context).textTheme.bodyMedium?.color
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
-                            Material(
-                              color: Colors.transparent,
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(16),
-                                onTap: () {
-                                  _showDownloadDialog(context);
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Icon(Icons.download),
-                                      const SizedBox(width: 4),
-                                      Text(t.common.download),
-                                    ],
-                                  ),
+                          ),
+                          Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(16),
+                              onTap: () {
+                                _showDownloadDialog(context);
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.download),
+                                    const SizedBox(width: 4),
+                                    Text(t.common.download),
+                                  ],
                                 ),
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     );
                   } else {
@@ -296,12 +429,13 @@ class VideoDetailContent extends StatelessWidget {
           }
         },
         behavior: HitTestBehavior.opaque,
-        child: CircleAvatar(
-          backgroundImage: CachedNetworkImageProvider(
-            controller.videoInfo.value?.user?.avatar?.avatarUrl ??
-                CommonConstants.defaultAvatarUrl,
-            headers: const {'referer': CommonConstants.iwaraBaseUrl},
-          ),
+        child: AvatarWidget(
+          avatarUrl: controller.videoInfo.value?.user?.avatar?.avatarUrl,
+          defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+          headers: const {'referer': CommonConstants.iwaraBaseUrl},
+          radius: 20,
+          isPremium: controller.videoInfo.value?.user?.premium ?? false,
+          isAdmin: controller.videoInfo.value?.user?.isAdmin ?? false,
         ),
       ),
     );
@@ -356,8 +490,8 @@ class VideoDetailContent extends StatelessWidget {
                 child: Text(
                   user?.name ?? '',
                   style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
                     color: Colors.white,
                   ),
                   maxLines: 1,
@@ -367,8 +501,9 @@ class VideoDetailContent extends StatelessWidget {
               Text(
                 '@${user?.username ?? ''}',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 13,
                   color: Colors.grey[600],
+                  height: 1.2,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -390,15 +525,19 @@ class VideoDetailContent extends StatelessWidget {
           children: [
             Text(
               user?.name ?? '',
-              style: const TextStyle(fontSize: 16),
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
             Text(
               '@${user?.username ?? ''}',
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 13,
                 color: Colors.grey[600],
+                height: 1.2,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -410,24 +549,26 @@ class VideoDetailContent extends StatelessWidget {
   }
 
   Widget _buildAuthorInfo() {
-    return Padding(
+    return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Row(
         children: [
           _buildAuthorAvatar(),
-          const SizedBox(width: 8),
+          const SizedBox(width: 12),
           Expanded(
             child: _buildAuthorNameButton(),
           ),
           if (controller.videoInfo.value?.user != null)
-            FollowButtonWidget(
-              user: controller.videoInfo.value!.user!,
-              onUserUpdated: (updatedUser) {
-                controller.videoInfo.value =
-                    controller.videoInfo.value?.copyWith(
-                  user: updatedUser,
-                );
-              },
+            Container(
+              height: 32,
+              child: FollowButtonWidget(
+                user: controller.videoInfo.value!.user!,
+                onUserUpdated: (updatedUser) {
+                  controller.videoInfo.value = controller.videoInfo.value?.copyWith(
+                    user: updatedUser,
+                  );
+                },
+              ),
             ),
         ],
       ),

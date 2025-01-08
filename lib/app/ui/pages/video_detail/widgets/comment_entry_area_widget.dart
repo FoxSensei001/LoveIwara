@@ -1,6 +1,6 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../../common/constants.dart';
@@ -53,22 +53,19 @@ class CommentEntryAreaButtonWidget extends StatelessWidget {
                   // 第二行：根据是否有评论显示不同内容
                   Row(
                     children: [
-                      CircleAvatar(
-                        backgroundImage: commentController.comments.isNotEmpty
-                            ? CachedNetworkImageProvider(
-                                commentController.comments.first.user?.avatar
-                                        ?.avatarUrl ??
-                                    userService.userAvatar,
-                                headers: const {
-                                  'referer': CommonConstants.iwaraBaseUrl
-                                },
-                              )
-                            : CachedNetworkImageProvider(
-                                userService.userAvatar,
-                                headers: const {
-                                  'referer': CommonConstants.iwaraBaseUrl
-                                },
-                              ),
+                      AvatarWidget(
+                        avatarUrl: commentController.comments.isNotEmpty
+                            ? commentController.comments.first.user?.avatar?.avatarUrl
+                            : userService.userAvatar,
+                        defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+                        headers: const {'referer': CommonConstants.iwaraBaseUrl},
+                        radius: 20,
+                        isPremium: commentController.comments.isNotEmpty
+                            ? commentController.comments.first.user?.premium ?? false
+                            : userService.currentUser.value?.premium ?? false,
+                        isAdmin: commentController.comments.isNotEmpty
+                            ? commentController.comments.first.user?.isAdmin ?? false
+                            : userService.currentUser.value?.isAdmin ?? false,
                       ),
                       const SizedBox(width: 8),
                       Expanded(

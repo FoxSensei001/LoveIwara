@@ -160,14 +160,14 @@ class _AddSearchTagDialogState extends State<AddSearchTagDialog> {
         if (tag.type == MediaRating.ECCHI.value) ...[
           const Icon(Icons.local_offer, size: 16, color: Colors.red),
           const SizedBox(width: 4),
-          Text(t.common.r18, style: TextStyle(fontSize: 12, color: Colors.red)),
+          Text(t.common.r18, style: const TextStyle(fontSize: 12, color: Colors.red)),
         ],
         // 敏感标签
         if (sensitive) ...[
           const SizedBox(width: 8),
           const Icon(Icons.warning, size: 16, color: Colors.red),
           const SizedBox(width: 4),
-          Text(t.common.sensitive, style: TextStyle(fontSize: 12, color: Colors.red)),
+          Text(t.common.sensitive, style: const TextStyle(fontSize: 12, color: Colors.red)),
         ]
       ],
     );

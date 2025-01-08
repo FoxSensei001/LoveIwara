@@ -16,6 +16,7 @@ import 'package:i_iwara/app/services/post_service.dart';
 import 'package:i_iwara/app/services/search_service.dart';
 import 'package:i_iwara/app/services/tag_service.dart';
 import 'package:i_iwara/app/services/video_service.dart';
+import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/proxy/proxy_util.dart';
 import 'package:media_kit/media_kit.dart';
@@ -59,8 +60,8 @@ void main() {
     Get.put(deepLinkService);
     // 现在有 简中、英文、日文
     // 获取系统语言，如果是支持的语言，则使用，如果不是，则使用英文；
-    String systemLanguage = Get.deviceLocale?.languageCode ?? 'en';
-    if (systemLanguage == 'zh' || systemLanguage == 'ja' || systemLanguage == 'zh-TW') {
+    String systemLanguage = CommonUtils.getDeviceLocale();
+    if (systemLanguage == 'zh' || systemLanguage == 'zh-CN' || systemLanguage == 'ja' || systemLanguage == 'zh-TW') {
       LocaleSettings.useDeviceLocale();
     } else if (systemLanguage == 'zh-HK') {
       LocaleSettings.setLocaleRaw('zh-TW');

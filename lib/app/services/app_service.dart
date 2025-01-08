@@ -5,21 +5,26 @@ import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/ui/pages/favorites/my_favorites.dart';
 import 'package:i_iwara/app/ui/pages/follows/follows_page.dart';
 import 'package:i_iwara/app/ui/pages/friends/friends_page.dart';
+import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
+import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/my_gallery_photo_view_wrapper.dart';
 import 'package:i_iwara/app/ui/pages/history/history_list_page.dart';
 import 'package:i_iwara/app/ui/pages/play_list/play_list.dart';
 import 'package:i_iwara/app/ui/pages/play_list/play_list_detail.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/video_detail_page_v2.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/my_video_screen.dart';
+import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
+import 'package:oktoast/oktoast.dart';
 
 import '../routes/app_routes.dart';
 import '../ui/pages/author_profile/author_profile_page.dart';
 import '../ui/pages/gallery_detail/gallery_detail_page.dart';
 import '../ui/pages/search/search_result.dart';
 import '../ui/pages/post_detail/post_detail_page.dart';
-
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 class AppService extends GetxService {
   // 默认标题栏高度
   static const double titleBarHeight = 26.0;
@@ -81,6 +86,10 @@ class AppService extends GetxService {
 
   static void tryPop() {
     LogUtils.d('tryPop', 'AppService');
+    if (CommonConstants.isForceUpdate) {
+      showToastWidget(MDToastWidget(message: slang.t.errors.forceUpdateNotPermittedToGoBack, type: MDToastType.error));
+      return;
+    }
     if (AppService.globalDrawerKey.currentState!.isDrawerOpen) {
       AppService.globalDrawerKey.currentState!.openEndDrawer();
       LogUtils.d('关闭Drawer', 'AppService');
@@ -205,7 +214,7 @@ class NaviService {
     AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
       settings: const RouteSettings(name: Routes.SEARCH_RESULT),
       pageBuilder: (context, animation, secondaryAnimation) {
-        return SearchResult();
+        return const SearchResult();
       },
       transitionDuration: const Duration(milliseconds: 200),
       // 从右到左的原生动画
@@ -391,6 +400,20 @@ class NaviService {
             end: Offset.zero,
           ).animate(animation),
           child: child,
+        );
+      },
+    ));
+  }
+
+  /// 跳转到图片详情页
+  static void navigateToPhotoViewWrapper({required List<ImageItem> imageItems, required int initialIndex, required List<MenuItem> Function(dynamic context, dynamic item) menuItemsBuilder}) {
+    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
+      settings: const RouteSettings(name: Routes.PHOTO_VIEW_WRAPPER),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return MyGalleryPhotoViewWrapper(
+          galleryItems: imageItems,
+          initialIndex: initialIndex,
+          menuItemsBuilder: menuItemsBuilder,
         );
       },
     ));

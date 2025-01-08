@@ -185,8 +185,8 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
                 value: 'edit',
                 child: Row(
                   children: [
-                    Icon(Icons.edit),
-                    SizedBox(width: 8),
+                    const Icon(Icons.edit),
+                    const SizedBox(width: 8),
                     Text(t.common.editTitle),
                   ],
                 ),
@@ -196,8 +196,8 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
                 value: 'multiSelect',
                 child: Row(
                   children: [
-                    Icon(Icons.checklist),
-                    SizedBox(width: 8),
+                    const Icon(Icons.checklist),
+                    const SizedBox(width: 8),
                     Text(t.common.editMode),
                   ],
                 ),
@@ -218,8 +218,8 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
               value: 'share',
               child: Row(
                 children: [
-                  Icon(Icons.share),
-                  SizedBox(width: 8),
+                  const Icon(Icons.share),
+                  const SizedBox(width: 8),
                   Text(t.common.share),
                 ],
               ),
@@ -242,7 +242,7 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
           controller: textController,
           decoration: InputDecoration(
             hintText: slang.t.common.pleaseEnterNewTitle,
-            border: OutlineInputBorder(),
+            border: const OutlineInputBorder(),
           ),
           autofocus: true,
         ),

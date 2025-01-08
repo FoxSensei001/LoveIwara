@@ -32,10 +32,13 @@ class ConfigService extends GetxService {
   static const String DEFAULT_LANGUAGE_KEY = 'default_language'; // 默认语言
   static const String THEME_MODE_KEY = 'theme_mode'; // 添加主题模式配置键
   static const String _TRANSLATION_LANGUAGE = 'translation_language';
-  static const String REMOTE_REPO_PUB_SPEC_YAML_URL = 'remote_repo_pub_spec_yaml_url'; // 远程仓库的 pubspec.yaml 地址
   static const String REMOTE_REPO_RELEASE_URL = 'remote_repo_release_url'; // 远程仓库的 release 地址
   static const String REMOTE_REPO_URL = 'remote_repo_url'; // 远程仓库的 url
   static const String SETTINGS_SELECTED_INDEX_KEY = 'settings_selected_index';
+  static const String REMOTE_REPO_UPDATE_LOGS_YAML_URL = 'remote_repo_update_logs_yaml_url';
+  static const String IGNORED_VERSION = 'ignored_version';
+  static const String LAST_CHECK_UPDATE_TIME = 'last_check_update_time';
+  static const String AUTO_CHECK_UPDATE = 'auto_check_update';
 
   // 所有配置项的 Map
   final settings = <String, dynamic>{
@@ -57,10 +60,13 @@ class ConfigService extends GetxService {
     ACTIVE_BACKGROUND_PRIVACY_MODE: false.obs,
     DEFAULT_LANGUAGE_KEY: 'zh-CN'.obs,
     THEME_MODE_KEY: 4.obs, // 添加主题模式配置，默认为0(system)
-    REMOTE_REPO_PUB_SPEC_YAML_URL: 'https://raw.githubusercontent.com/FoxSensei001/i_iwara/master/pubspec.yaml'.obs,
     REMOTE_REPO_RELEASE_URL: 'https://github.com/FoxSensei001/i_iwara/releases'.obs,
     REMOTE_REPO_URL: 'https://github.com/FoxSensei001/i_iwara'.obs,
     SETTINGS_SELECTED_INDEX_KEY: 0.obs,
+    REMOTE_REPO_UPDATE_LOGS_YAML_URL: 'https://raw.githubusercontent.com/FoxSensei001/i_iwara/master/update_logs.yaml'.obs,
+    IGNORED_VERSION: ''.obs,
+    LAST_CHECK_UPDATE_TIME: 0.obs,
+    AUTO_CHECK_UPDATE: true.obs,
   }.obs;
 
   late final Rx<Sort> _currentTranslationSort;

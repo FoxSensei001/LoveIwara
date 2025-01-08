@@ -6,7 +6,13 @@ class CommonConstants {
   CommonConstants._internal();
 
   // 应用版本
-  static const String VERSION = '0.0.1';
+  static const String VERSION = '0.1.0';
+
+  // 应用图标路径
+  static String launcherIconPath = 'assets/icon/launcher_icon_v2.png';
+
+  // 是否强制更新
+  static bool isForceUpdate = false;
 
   // 网站基础URL
   static const String iwaraBaseUrl = 'https://www.iwara.tv';
@@ -26,11 +32,11 @@ class CommonConstants {
       '$iwaraBaseUrl/images/default-background.jpg';
 
   static List<Sort> mediaSorts = [
-    Sort(id: SortId.trending, label: t.common.trending, icon: Icon(Icons.trending_up)),
-    Sort(id: SortId.date, label: t.common.latest, icon: Icon(Icons.new_releases)),
-    Sort(id: SortId.popularity, label: t.common.popular, icon: Icon(Icons.star)),
-    Sort(id: SortId.likes, label: t.common.likesCount, icon: Icon(Icons.thumb_up)),
-    Sort(id: SortId.views, label: t.common.viewsCount, icon: Icon(Icons.remove_red_eye)),
+    Sort(id: SortId.trending, label: t.common.trending, icon: const Icon(Icons.trending_up)),
+    Sort(id: SortId.date, label: t.common.latest, icon: const Icon(Icons.new_releases)),
+    Sort(id: SortId.popularity, label: t.common.popular, icon: const Icon(Icons.star)),
+    Sort(id: SortId.likes, label: t.common.likesCount, icon: const Icon(Icons.thumb_up)),
+    Sort(id: SortId.views, label: t.common.viewsCount, icon: const Icon(Icons.remove_red_eye)),
   ];
 
   static const List<Sort> translationSorts = [

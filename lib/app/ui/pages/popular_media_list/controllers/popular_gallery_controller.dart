@@ -32,19 +32,28 @@ class PopularGalleryController extends GetxController {
 
   PopularGalleryController({required this.sortId});
 
+  /// 重置控制器状态
+  void reset() {
+    page = 0;
+    hasMore.value = true;
+    isInit.value = true;
+    images.clear();
+    errorWidget.value = null;
+  }
+
   /// 获取图片列表
   /// [refresh] 是否刷新
   Future<void> fetchImageModels({bool refresh = false}) async {
     if (refresh) {
-      // 刷新时重置分页和清空数据
-      page = 0;
-      hasMore.value = true;
+      // 刷新时重置所有状态
+      reset();
     }
+    
     if (!hasMore.value || isLoading.value) return;
 
     isLoading.value = true;
 
-    LogUtils.d('当前的查询参数: $searchTagIds, $searchDate, $searchRating', 'PopularImageModelController');
+    LogUtils.d('当前的查询参数: tags: $searchTagIds, date: $searchDate, rating: $searchRating', 'PopularImageModelController');
     try {
       ApiResult<PageData<ImageModel>> result =
           await _galleryService.fetchImageModelsByParams(
@@ -63,13 +72,7 @@ class PopularGalleryController extends GetxController {
       }
 
       List<ImageModel> newImageModels = result.data!.results;
-
-      if (refresh) {
-        images.value = newImageModels;
-      } else {
-        images.addAll(newImageModels);
-      }
-      page++;
+      images.addAll(newImageModels);
 
       if (newImageModels.length < pageSize) {
         hasMore.value = false;

@@ -186,8 +186,8 @@ class _MyFavoritesState extends State<MyFavorites>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.video_library),
-                  SizedBox(width: 8),
+                  const Icon(Icons.video_library),
+                  const SizedBox(width: 8),
                   Text(t.common.video),
                 ],
               ),
@@ -199,8 +199,8 @@ class _MyFavoritesState extends State<MyFavorites>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.photo_library),
-                  SizedBox(width: 8),
+                  const Icon(Icons.photo_library),
+                  const SizedBox(width: 8),
                   Text(t.common.gallery),
                 ],
               ),

@@ -32,29 +32,38 @@ class PopularVideoController extends GetxController {
 
   PopularVideoController({required this.sortId});
 
+  /// 重置控制器状态
+  void reset() {
+    page = 0;
+    hasMore.value = true;
+    isInit.value = true;
+    videos.clear();
+    errorWidget.value = null;
+  }
+
   /// 获取视频列表
   /// [refresh] 是否刷新
   Future<void> fetchVideos({bool refresh = false}) async {
     if (refresh) {
-      // 刷新时重置分页和清空数据
-      page = 0;
-      hasMore.value = true;
+      // 刷新时重置所有状态
+      reset();
     }
+    
     if (!hasMore.value || isLoading.value) return;
 
     isLoading.value = true;
 
-    LogUtils.d('当前的查询参数: $searchTagIds, $searchDate, $searchRating',
-        'PopularVideoController');
     try {
+      final params = {
+        'sort': sortId,
+        'tags': searchTagIds.join(','),
+        'date': searchDate,
+        'rating': searchRating,
+      };
+
       ApiResult<PageData<Video>> result =
           await _videoService.fetchVideosByParams(
-        params: {
-          'sort': sortId,
-          'tags': searchTagIds.join(','),
-          'date': searchDate,
-          'rating': searchRating,
-        },
+        params: params,
         page: page,
         limit: pageSize,
       );
@@ -63,14 +72,10 @@ class PopularVideoController extends GetxController {
         throw result.message;
       }
 
-      List<Video> newVideos = result.data!.results;
+      LogUtils.d('获取视频列表成功', 'PopularVideoController');
 
-      if (refresh) {
-        videos.value = newVideos;
-      } else {
-        videos.addAll(newVideos);
-      }
-      page++;
+      List<Video> newVideos = result.data!.results;
+      videos.addAll(newVideos);
 
       if (newVideos.length < pageSize) {
         hasMore.value = false;

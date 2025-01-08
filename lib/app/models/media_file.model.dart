@@ -69,6 +69,13 @@ class MediaFile {
     };
   }
 
-  String getLargeImageUrl() => '${CommonConstants.iwaraImageBaseUrl}/image/large/$id/$name';
+  String getLargeImageUrl()  {
+    String largeUrl = '${CommonConstants.iwaraImageBaseUrl}/image/large/$id/$name';
+    // 在i站里，gif图没有large版，只有original版
+    if (mime == 'image/gif') {
+      return '${CommonConstants.iwaraImageBaseUrl}/image/original/$id/$name';
+    }
+    return largeUrl;
+  }
   String getOriginalImageUrl() => '${CommonConstants.iwaraImageBaseUrl}/image/original/$id/$name';
 }

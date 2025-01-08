@@ -23,6 +23,8 @@ common:
   friend: 朋友
   video: 视频
   following: 关注
+  expand: 展开
+  collapse: 收起
   cancelFriendRequest: 取消申请
   cancelSpecialFollow: 取消特别关注
   addFriend: 添加朋友
@@ -52,7 +54,7 @@ common:
   minutesAgo: '${num}分钟前'
   hoursAgo: '${num}小时前'
   daysAgo: '${num}天前'
-  editedAt: '编辑于${num}前'
+  editedAt: '${num}编辑'
   editComment: 编辑评论
   commentUpdated: 评论已更新
   replyComment: 回复评论
@@ -111,7 +113,7 @@ common:
   paused: 已暂停
   clear: 清除
   user: 用户
-  post: 帖子
+  post: 投稿
   seconds: 秒
   comingSoon: 敬请期待
   confirm: 确认
@@ -138,6 +140,11 @@ common:
   numViews: 观看次数
   updatedAt: 更新时间
   publishedAt: 发布时间
+  externalVideo: 站外视频
+  originalText: 原文
+  showOriginalText: 显示原始文本
+  showProcessedText: 显示处理后文本
+
   download: 下载
   selectQuality: 选择画质
 auth:
@@ -161,6 +168,10 @@ auth:
   logoutConfirmation: 你确定要退出登录吗？
   logoutSuccess: 退出登录成功
   logoutFailed: 退出登录失败
+  usernameOrEmail: 用户名或邮箱
+  pleaseEnterUsernameOrEmail: 请输入用户名或邮箱
+  username: 用户名或邮箱
+  pleaseEnterUsername: 请输入用户名或邮箱
 
 errors:
   error: 错误
@@ -199,9 +210,13 @@ errors:
   failedToFetchData: 获取数据失败
   invalidParameter: 无效的参数
   pleaseLoginFirst: 请先登录
-  errorWhileLoadingPost: 载入帖子时出错
-  errorWhileLoadingPostDetail: 载入帖子详情时出错
-  invalidPostId: 无效的帖子ID
+  errorWhileLoadingPost: 载入投稿内容时出错
+  errorWhileLoadingPostDetail: 载入投稿详情时出错
+  invalidPostId: 无效的投稿ID
+  forceUpdateNotPermittedToGoBack: 目前处于强制更新状态，无法返回
+  pleaseLoginAgain: 请重新登录
+  invalidLogin: 登录失败，请检查邮箱和密码
+  tooManyRequests: 请求过多，请稍后再试
 friends:
   clickToRestoreFriend: 点击恢复好友
   friendsList: 好友列表
@@ -233,6 +248,7 @@ galleryDetail:
   moreFeaturesToBeDiscovered: 更多功能待发现...
   authorOtherGalleries: 作者的其他图库
   relatedGalleries: 相关图库
+  clickLeftAndRightEdgeToSwitchImage: 点击左右边缘以切换图片
 
 playList:
   myPlayList: 我的播放列表
@@ -328,6 +344,14 @@ settings:
   issueReport: 问题反馈
   openSourceLicense: 开源许可
   checkForUpdatesFailed: 检查更新失败，请稍后重试
+  autoCheckUpdate: "自动检查更新"
+  updateContent: "更新内容："
+  releaseDate: "发布日期"
+  ignoreThisVersion: "忽略此版本"
+  minVersionUpdateRequired: "当前版本过低，请尽快更新"
+  forceUpdateTip: "此版本为强制更新，请尽快更新到最新版本"
+  viewChangelog: 查看更新日志
+  alreadyLatestVersion: 已是最新版本
 
 signIn:
   pleaseLoginFirst: 请先登录后再签到
@@ -397,6 +421,9 @@ videoDetail:
   authorOtherVideos: 作者的其他视频
   relatedVideos: 相关视频
   privateVideo: 这是一个私密视频
+  externalVideo: 这是一个站外视频
+  openInBrowser: 在浏览器中打开
+  resourceDeleted: 这个视频貌似被删除了 :/
   noDownloadUrl: 没有下载链接
   startDownloading: 开始下载
   downloadFailed: 下载失败，请稍后再试

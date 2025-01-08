@@ -185,25 +185,37 @@ class AuthorProfileController extends GetxController {
   Future<void> sendFriendRequest() async {
     if (author.value == null) return;
     String userId = author.value!.id;
-    isFriendLoading.value = true;
-    ApiResult res = await _userService.addFriend(userId);
-    isFriendLoading.value = false;
-    if (!res.isSuccess) {
-      showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error));
-      return;
+    try {
+      isFriendLoading.value = true;
+      ApiResult res = await _userService.addFriend(userId);
+      if (!res.isSuccess) {
+        showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error));
+        return;
+      }
+      isFriendRequestPending.value = true;
+    } finally {
+      isFriendLoading.value = false;
     }
-    isFriendRequestPending.value = true;
   }
 
   /// 取消朋友申请
   Future<void> cancelFriendRequest() async {
     if (author.value == null) return;
     String userId = author.value!.id;
-    ApiResult res = await _userService.removeFriend(userId);
-    isFriendRequestPending.value = false;
-    if (!res.isSuccess) {
-      showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error));
-      return;
+    try {
+      isFriendLoading.value = true;
+      ApiResult res = await _userService.removeFriend(userId);
+      if (!res.isSuccess) {
+        showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error));
+        return;
+      }
+      isFriendRequestPending.value = false;
+      // 更新朋友状态
+      if (author.value?.friend == true) {
+        author.value = author.value?.copyWith(friend: false);
+      }
+    } finally {
+      isFriendLoading.value = false;
     }
   }
 }

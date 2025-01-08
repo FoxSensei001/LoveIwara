@@ -59,7 +59,7 @@ class _CommentInputDialogState extends State<CommentInputDialog> {
               maxLines: 5,
               decoration: InputDecoration(
                 hintText: t.common.writeYourCommentHere,
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 16),

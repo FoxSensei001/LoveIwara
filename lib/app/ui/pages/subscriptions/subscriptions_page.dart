@@ -3,17 +3,16 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_routes.dart';
 import 'package:i_iwara/app/services/user_preference_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
-import 'package:i_iwara/app/ui/pages/subscriptions/controllers/subscription_image_controller.dart';
-import 'package:i_iwara/app/ui/pages/subscriptions/controllers/subscription_video_controller.dart';
 import 'package:i_iwara/app/ui/pages/subscriptions/widgets/subscription_image_list.dart';
+import 'package:i_iwara/app/ui/pages/subscriptions/widgets/subscription_post_list.dart';
 import 'package:i_iwara/app/ui/pages/subscriptions/widgets/subscription_select_list_widget.dart';
 import 'package:i_iwara/app/ui/pages/subscriptions/widgets/subscription_video_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import '../../../models/dto/user_dto.dart';
 import '../../../services/app_service.dart';
 import '../../widgets/top_padding_height_widget.dart';
-import 'package:i_iwara/app/ui/pages/subscriptions/controllers/subscription_post_controller.dart';
-import 'package:i_iwara/app/ui/pages/subscriptions/widgets/subscription_post_list.dart';
+import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/common/constants.dart';
 
 class SubscriptionsPage extends StatefulWidget {
   const SubscriptionsPage({super.key});
@@ -27,9 +26,6 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
   final UserService userService = Get.find<UserService>();
   final UserPreferenceService userPreferenceService =
       Get.find<UserPreferenceService>();
-  late SubscriptionVideoController videoController;
-  late SubscriptionImageController imageController;
-  late SubscriptionPostController postController;
 
   late TabController _tabController;
   String selectedId = '';
@@ -37,13 +33,17 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
   final ScrollController _scrollController = ScrollController();
   bool _showBackToTop = false;
   late AnimationController _refreshIconController;
+  
+  // 为每个列表保存一个GlobalKey，用于调用刷新方法
+  final Map<int, GlobalKey<State>> _listStateKeys = {
+    0: GlobalKey<SubscriptionVideoListState>(),
+    1: GlobalKey<SubscriptionImageListState>(),
+    2: GlobalKey<SubscriptionPostListState>(),
+  };
 
   @override
   void initState() {
     super.initState();
-    videoController = Get.put(SubscriptionVideoController());
-    imageController = Get.put(SubscriptionImageController());
-    postController = Get.put(SubscriptionPostController());
     _tabController = TabController(length: 3, vsync: this);
     _scrollController.addListener(_scrollListener);
     _tabController.addListener(() {
@@ -58,7 +58,6 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
   }
 
   void _scrollListener() {
-    // 返回顶部按钮逻辑
     bool shouldShow =
         _scrollController.hasClients && _scrollController.offset > 200;
     if (shouldShow != _showBackToTop) {
@@ -66,52 +65,46 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
         _showBackToTop = shouldShow;
       });
     }
-
-    // 检查是否需要加载更多
-    if (!_scrollController.hasClients ||
-        _scrollController.position.outOfRange ||
-        _scrollController.position.pixels <
-            _scrollController.position.maxScrollExtent - 500) {
-      return;
-    }
-
-    // 直接触发加载
-    if (_tabController.index == 0) {
-      videoController.loadVideos();
-    } else if (_tabController.index == 1) {
-      imageController.loadImages();
-    } else {
-      postController.loadPosts();
-    }
   }
 
   void _onIdSelected(String id) {
-    selectedId = id;
-    setState(() {});
-    videoController.updateSelectedUserId(id);
-    imageController.updateSelectedUserId(id);
-    postController.updateSelectedUserId(id);
+    if (selectedId != id) {
+      setState(() {
+        selectedId = id;
+        // 为所有列表生成新的key
+        _listStateKeys[0] = GlobalKey<SubscriptionVideoListState>();
+        _listStateKeys[1] = GlobalKey<SubscriptionImageListState>();
+        _listStateKeys[2] = GlobalKey<SubscriptionPostListState>();
+      });
+    }
+  }
+
+  // 刷新当前列表
+  Future<void> _refreshCurrentList() async {
+    _refreshIconController.repeat();
+    try {
+      final currentKey = _listStateKeys[_tabController.index];
+      if (currentKey?.currentState != null) {
+        if (_tabController.index == 0) {
+          await (currentKey!.currentState as SubscriptionVideoListState).refresh();
+        } else if (_tabController.index == 1) {
+          await (currentKey!.currentState as SubscriptionImageListState).refresh();
+        } else {
+          await (currentKey!.currentState as SubscriptionPostListState).refresh();
+        }
+      }
+    } finally {
+      _refreshIconController.stop();
+      _refreshIconController.reset();
+    }
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     _scrollController.dispose();
-    Get.delete<SubscriptionVideoController>();
-    Get.delete<SubscriptionImageController>();
-    Get.delete<SubscriptionPostController>();
     _refreshIconController.dispose();
     super.dispose();
-  }
-
-  void _scrollToTop() {
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        0,
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeOut,
-      );
-    }
   }
 
   @override
@@ -127,90 +120,119 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
 
   Widget _buildContent(BuildContext context) {
     final t = slang.Translations.of(context);
-    return NestedScrollView(
-      controller: _scrollController,
-      headerSliverBuilder: (context, innerBoxIsScrolled) => [
-        SliverToBoxAdapter(
-          child: Column(
-            children: [
-              TopPaddingHeightWidget(),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.account_circle),
-                      onPressed: () {
-                        AppService.switchGlobalDrawer();
-                      },
-                    ),
-                    Expanded(
-                      child: Text(
-                        t.common.subscriptions,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
+    return Column(
+      children: [
+        TopPaddingHeightWidget(),
+        Row(
+          children: [
+            Obx(() {
+              if (userService.isLogin) {
+                return IconButton(
+                  icon: AvatarWidget(
+                    avatarUrl: userService.userAvatar,
+                    radius: 14,
+                    defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+                    isPremium: userService.currentUser.value?.premium ?? false,
+                    isAdmin: userService.currentUser.value?.isAdmin ?? false,
+                  ),
+                  onPressed: () {
+                    AppService.switchGlobalDrawer();
+                  },
+                );
+              } else {
+                return IconButton(
+                  icon: const Icon(Icons.account_circle),
+                  onPressed: () {
+                    AppService.switchGlobalDrawer();
+                  },
+                );
+              }
+            }),
+            Expanded(
+              child: Text(
+                t.common.subscriptions,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              Obx(() {
-                RxSet<UserDTO> likedUsers = userPreferenceService.likedUsers;
-                List<SubscriptionSelectItem> selectionList = likedUsers
-                    .map((userDto) => SubscriptionSelectItem(
-                          id: userDto.id,
-                          label: userDto.name,
-                          avatarUrl: userDto.avatarUrl,
-                        ))
-                    .toList();
-                return SubscriptionSelectList(
-                  selectionList: selectionList,
-                  selectedId: selectedId,
-                  onIdSelected: _onIdSelected,
-                );
-              }),
-              Row(
-                children: [
-                  TabBar(
-                    isScrollable: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    overlayColor: WidgetStateProperty.all(Colors.transparent),
-                    tabAlignment: TabAlignment.start,
-                    dividerColor: Colors.transparent,
-                    controller: _tabController,
-                    labelStyle: const TextStyle(
-                      fontSize: 14, // 设置你想要的字体大小
-                      fontWeight: FontWeight.w500, // 设置字重
-                    ),
-                    unselectedLabelStyle: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                    ),
-                    tabs: [
-                      Tab(text: t.common.video),
-                      Tab(text: t.common.gallery),
-                      Tab(text: t.common.post),
-                    ],
-                  ),
-                  const Spacer(),
-                  _buildRefreshButton(),
-                  const SizedBox(width: 16),
+            ),
+          ],
+        ),
+        Obx(() {
+          RxSet<UserDTO> likedUsers = userPreferenceService.likedUsers;
+          List<UserDTO> sortedUsers = likedUsers.toList()
+            ..sort((a, b) => 
+              (b.likedTime ?? DateTime.fromMillisecondsSinceEpoch(0))
+              .compareTo(a.likedTime ?? DateTime.fromMillisecondsSinceEpoch(0)));
+          List<SubscriptionSelectItem> selectionList = sortedUsers
+              .map((userDto) => SubscriptionSelectItem(
+                    id: userDto.id,
+                    label: userDto.name,
+                    avatarUrl: userDto.avatarUrl,
+                    onLongPress: () => NaviService.navigateToAuthorProfilePage(userDto.username),
+                  ))
+              .toList();
+          return SubscriptionSelectList(
+            selectionList: selectionList,
+            selectedId: selectedId,
+            onIdSelected: _onIdSelected,
+          );
+        }),
+        Row(
+          children: [
+            Expanded(
+              child: TabBar(
+                isScrollable: true,
+                physics: const NeverScrollableScrollPhysics(),
+                overlayColor: WidgetStateProperty.all(Colors.transparent),
+                tabAlignment: TabAlignment.start,
+                dividerColor: Colors.transparent,
+                controller: _tabController,
+                labelStyle: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+                unselectedLabelStyle: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                ),
+                tabs: [
+                  Tab(text: t.common.video),
+                  Tab(text: t.common.gallery),
+                  Tab(text: t.common.post),
                 ],
-              )
+              ),
+            ),
+            RotationTransition(
+              turns: _refreshIconController,
+              child: IconButton(
+                icon: const Icon(Icons.refresh),
+                onPressed: _refreshCurrentList,
+              ),
+            ),
+          ],
+        ),
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              SubscriptionVideoList(
+                key: _listStateKeys[0],
+                userId: selectedId,
+              ),
+              SubscriptionImageList(
+                key: _listStateKeys[1],
+                userId: selectedId,
+              ),
+              SubscriptionPostList(
+                key: _listStateKeys[2],
+                userId: selectedId,
+              ),
             ],
           ),
         ),
       ],
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          SubscriptionVideoList(controller: videoController),
-          SubscriptionImageList(controller: imageController),
-          SubscriptionPostList(controller: postController),
-        ],
-      ),
     );
   }
 
@@ -224,7 +246,13 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
           opacity: _showBackToTop ? 1.0 : 0.0,
           duration: const Duration(milliseconds: 200),
           child: FloatingActionButton.small(
-            onPressed: _scrollToTop,
+            onPressed: () {
+              _scrollController.animateTo(
+                0,
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeOut,
+              );
+            },
             child: const Icon(Icons.arrow_upward),
           ),
         ),
@@ -295,48 +323,5 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
         ),
       ),
     );
-  }
-
-  Widget _buildRefreshButton() {
-    return Obx(() {
-      if (_tabController.index == 0) {
-        if (videoController.isLoading.value) {
-          _refreshIconController.repeat();
-        } else {
-          _refreshIconController.stop();
-          _refreshIconController.reset();
-        }
-      } else if (_tabController.index == 1) {
-        if (imageController.isLoading.value) {
-          _refreshIconController.repeat();
-        } else {
-          _refreshIconController.stop();
-          _refreshIconController.reset();
-        }
-      } else {
-        if (postController.isLoading.value) {
-          _refreshIconController.repeat();
-        } else {
-          _refreshIconController.stop();
-          _refreshIconController.reset();
-        }
-      }
-
-      return IconButton(
-        icon: RotationTransition(
-          turns: _refreshIconController,
-          child: const Icon(Icons.refresh),
-        ),
-        onPressed: () {
-          if (_tabController.index == 0) {
-            videoController.loadVideos(refresh: true);
-          } else if (_tabController.index == 1) {
-            imageController.loadImages(refresh: true);
-          } else {
-            postController.loadPosts(refresh: true);
-          }
-        },
-      );
-    });
   }
 }

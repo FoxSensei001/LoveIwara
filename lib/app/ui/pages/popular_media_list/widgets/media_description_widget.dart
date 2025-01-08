@@ -28,14 +28,33 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
   bool _showTranslationMenu = false;
   bool _isTranslating = false;
   String? _translatedText;
+  final GlobalKey _contentKey = GlobalKey();
+  bool _hasOverflow = false;
 
   final TranslationService _translationService = Get.find();
   final ConfigService _configService = Get.find();
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkOverflow();
+    });
+  }
+
+  void _checkOverflow() {
+    final RenderBox? renderBox = _contentKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox != null) {
+      setState(() {
+        _hasOverflow = renderBox.size.height > 200;
+      });
+    }
+  }
+
   Widget _buildTranslationButton(BuildContext context) {
     final t = slang.Translations.of(context);
     return Card(
-      elevation: 2,
+      elevation: 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
       ),
@@ -63,7 +82,7 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
                     const SizedBox(width: 4),
                     Text(
                       t.common.translate,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
                       ),
                     ),
@@ -143,7 +162,7 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
     final t = slang.Translations.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+        color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
         borderRadius: BorderRadius.circular(8),
       ),
       padding: const EdgeInsets.all(12),
@@ -189,9 +208,6 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // 获取当前主题的文本样式，以动态计算行高
-    final textStyle = Theme.of(context).textTheme.bodyMedium ?? const TextStyle(fontSize: 14.0);
-    final lineHeight = textStyle.height ?? 1.2; // 默认行高为1.2
     final t = slang.Translations.of(context);
 
     return Obx(() {
@@ -219,40 +235,108 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
               child: _buildTranslationMenu(),
             ),
           const SizedBox(height: 8),
-          // 使用 ClipRect 和 AnimatedContainer 来限制高度并裁剪内容
           ClipRect(
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              // 根据是否展开，设置高度
-              height: expanded ? null : (textStyle.fontSize ?? 14.0) * lineHeight * widget.defaultMaxLines,
-              child: SingleChildScrollView(
-                // 禁用滚动，以防止展开状态下出现滚动条
-                physics: expanded ? null : const NeverScrollableScrollPhysics(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            child: Stack(
+              children: [
+                AnimatedSize(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  alignment: Alignment.topCenter,
+                  child: Container(
+                    width: double.infinity,
+                    constraints: BoxConstraints(
+                      maxHeight: expanded ? double.infinity : 200,
+                    ),
+                    child: SingleChildScrollView(
+                      physics: const NeverScrollableScrollPhysics(),
+                      key: _contentKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          CustomMarkdownBody(data: widget.description ?? ''),
+                          if (_translatedText != null) ...[
+                            const SizedBox(height: 12),
+                            _buildTranslatedContent(context),
+                          ],
+                          if (!expanded) 
+                            const SizedBox(height: 60),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                if (!expanded)
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          widget.isDescriptionExpanded.value = true;
+                          _checkOverflow();
+                        },
+                        child: Container(
+                          height: 80,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Theme.of(context).colorScheme.surface.withOpacity(0),
+                                Theme.of(context).colorScheme.surface.withOpacity(0.8),
+                                Theme.of(context).colorScheme.surface,
+                              ],
+                              stops: const [0.0, 0.5, 0.8],
+                            ),
+                          ),
+                          child: Center(
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 30),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    t.common.expand,
+                                    style: TextStyle(
+                                      color: Theme.of(context).colorScheme.primary,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Icon(
+                                    Icons.keyboard_arrow_down,
+                                    size: 16,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          if (expanded)
+            Center(
+              child: TextButton(
+                onPressed: () {
+                  widget.isDescriptionExpanded.value = false;
+                  _checkOverflow();
+                },
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    CustomMarkdownBody(data: widget.description ?? ''),
-                    if (_translatedText != null) ...[
-                      const SizedBox(height: 12),
-                      _buildTranslatedContent(context),
-                    ],
+                    Text(t.common.collapse),
+                    const SizedBox(width: 4),
+                    const Icon(Icons.keyboard_arrow_up, size: 16),
                   ],
                 ),
               ),
             ),
-          ),
-          // 展开/收起按钮
-          Align(
-            alignment: Alignment.centerRight,
-            child: IconButton(
-              icon: AnimatedRotation(
-                turns: expanded ? 0.5 : 0.0, // 旋转图标
-                duration: const Duration(milliseconds: 300),
-                child: const Icon(Icons.keyboard_arrow_down),
-              ),
-              onPressed: widget.isDescriptionExpanded.toggle,
-            ),
-          ),
         ],
       );
     });

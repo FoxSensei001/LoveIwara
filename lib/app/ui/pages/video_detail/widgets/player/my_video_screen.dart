@@ -21,7 +21,7 @@ class MyVideoScreen extends StatefulWidget {
   final bool isFullScreen;
   final MyVideoStateController myVideoStateController;
 
-  MyVideoScreen({
+  const MyVideoScreen({
     super.key,
     this.isFullScreen = false,
     required this.myVideoStateController,
@@ -149,12 +149,13 @@ class _MyVideoScreenState extends State<MyVideoScreen>
         LogUtils.d('[键盘事件] 右键', 'MyVideoScreen');
         // 右键
         _triggerRightRipple();
-      } else if (event.logicalKey.keyLabel ==
-              LogicalKeyboardKey.enter.keyLabel &&
-          !widget.isFullScreen) {
-        // 应用全屏切换
-        widget.myVideoStateController.isDesktopAppFullScreen.toggle();
       }
+      // } else if (event.logicalKey.keyLabel ==
+      //         LogicalKeyboardKey.enter.keyLabel &&
+      //     !widget.isFullScreen) {
+      //   // 应用全屏切换
+      //   widget.myVideoStateController.isDesktopAppFullScreen.toggle();
+      // }
     }
   }
 
@@ -326,6 +327,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
               myVideoStateController: widget.myVideoStateController,
               onDoubleTapRight: _triggerRightRipple,
               screenSize: screenSize,
+              onVolumeChange: widget.myVideoStateController.setVolume,
             ),
           )),
       Obx(() {
@@ -502,12 +504,6 @@ class _MyVideoScreenState extends State<MyVideoScreen>
 
   void _setLongPressing(LongPressType? longPressType, bool value) async {
     if (value) {
-      // 当开始长按时触发震动等逻辑
-      if (await Vibration.hasVibrator() ?? false) {
-        // 使用更短的震动时间，并确保震动完成
-        await Vibration.vibrate(duration: 50);
-      }
-
       // 根据长按类型更新UI
       switch (longPressType) {
         case LongPressType.brightness:
@@ -699,16 +695,21 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     });
   }
 
-  Widget _buildSeekPreview() {
+ Widget _buildSeekPreview() {
     return Obx(() {
       if (!widget.myVideoStateController.isSeekPreviewVisible.value) {
         return const SizedBox.shrink();
       }
 
-      Duration previewPosition =
+      Duration previewPosition = 
           widget.myVideoStateController.previewPosition.value;
-      Duration totalDuration =
+      Duration totalDuration = 
           widget.myVideoStateController.totalDuration.value;
+      
+      // 计算进度百分比
+      double progress = totalDuration.inMilliseconds > 0 
+          ? previewPosition.inMilliseconds / totalDuration.inMilliseconds 
+          : 0.0;
 
       return Positioned(
         top: MediaQuery.of(context).padding.top + 20,
@@ -716,18 +717,36 @@ class _MyVideoScreenState extends State<MyVideoScreen>
         right: 0,
         child: Center(
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            width: 200, // 设置固定宽度
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               color: Colors.black.withOpacity(0.8),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Text(
-              '${CommonUtils.formatDuration(previewPosition)} / ${CommonUtils.formatDuration(totalDuration)}',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // 进度条
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(2),
+                  child: LinearProgressIndicator(
+                    value: progress,
+                    backgroundColor: Colors.grey[700],
+                    valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                    minHeight: 4,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                // 时间对比
+                Text(
+                  '${CommonUtils.formatDuration(previewPosition)} / ${CommonUtils.formatDuration(totalDuration)}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
           ),
         ),

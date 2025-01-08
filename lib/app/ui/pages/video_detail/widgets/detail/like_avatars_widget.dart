@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/services/video_service.dart';
+import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -124,35 +125,14 @@ class _LikeAvatarsWidgetState extends State<LikeAvatarsWidget> {
   }
 
   Widget _buildAvatarCircle(User user) {
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-      ),
-      child: ClipOval(
-        child: CachedNetworkImage(
-          imageUrl: user.avatar?.avatarUrl ?? CommonConstants.defaultAvatarUrl,
-          httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
-          fit: BoxFit.cover,
-          placeholder: (context, url) => Shimmer.fromColors(
-            baseColor: Colors.grey[300]!,
-            highlightColor: Colors.grey[100]!,
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.grey,
-              ),
-            ),
-          ),
-          errorWidget: (context, url, error) => const Icon(
-            Icons.error,
-            color: Colors.red,
-          ),
-        ),
-      ),
-    );
+    return AvatarWidget(
+        avatarUrl: user.avatar?.avatarUrl,
+        defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+        headers: const {'referer': CommonConstants.iwaraBaseUrl},
+        radius: 20,
+        isPremium: user.premium,
+        isAdmin: user.isAdmin,
+        onTap: () => NaviService.navigateToAuthorProfilePage(user.username));
   }
 }
+

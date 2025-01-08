@@ -48,7 +48,6 @@ class TranslationsJa implements Translations {
 	@override late final _TranslationsSubscriptionsJa subscriptions = _TranslationsSubscriptionsJa._(_root);
 	@override late final _TranslationsVideoDetailJa videoDetail = _TranslationsVideoDetailJa._(_root);
 	@override late final _TranslationsShareJa share = _TranslationsShareJa._(_root);
-	@override late final _TranslationsDownloadJa download = _TranslationsDownloadJa._(_root);
 }
 
 // Path: common
@@ -79,6 +78,8 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get friend => '友達';
 	@override String get video => 'ビデオ';
 	@override String get following => 'フォロー中';
+	@override String get expand => '展開';
+	@override String get collapse => '收起';
 	@override String get cancelFriendRequest => '友達申請を取り消す';
 	@override String get cancelSpecialFollow => '特別フォローを解除';
 	@override String get addFriend => '友達を追加';
@@ -108,7 +109,7 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String minutesAgo({required Object num}) => '${num} 分前';
 	@override String hoursAgo({required Object num}) => '${num} 時間前';
 	@override String daysAgo({required Object num}) => '${num} 日前';
-	@override String editedAt({required Object num}) => '${num} 前に編集';
+	@override String editedAt({required Object num}) => '${num} 編集';
 	@override String get editComment => 'コメントを編集';
 	@override String get commentUpdated => 'コメントが更新されました';
 	@override String get replyComment => 'コメントに返信';
@@ -193,8 +194,10 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get numViews => '視聴回数';
 	@override String get updatedAt => '更新時間';
 	@override String get publishedAt => '発表時間';
-	@override String get download => 'ダウンロード';
-	@override String get selectQuality => '画質を選択';
+	@override String get externalVideo => '站外動画';
+	@override String get originalText => '原文';
+	@override String get showOriginalText => '原文を表示';
+	@override String get showProcessedText => '処理後の原文を表示';
 }
 
 // Path: auth
@@ -224,6 +227,8 @@ class _TranslationsAuthJa implements TranslationsAuthEn {
 	@override String get logoutConfirmation => '本当にログアウトしますか？';
 	@override String get logoutSuccess => 'ログアウトに成功しました';
 	@override String get logoutFailed => 'ログアウトに失敗しました';
+	@override String get usernameOrEmail => 'ユーザー名またはメールアドレス';
+	@override String get pleaseEnterUsernameOrEmail => 'ユーザー名またはメールアドレスを入力してください';
 }
 
 // Path: errors
@@ -272,6 +277,10 @@ class _TranslationsErrorsJa implements TranslationsErrorsEn {
 	@override String get errorWhileLoadingPost => '投稿の取得中にエラーが発生しました';
 	@override String get errorWhileLoadingPostDetail => '投稿詳細の取得中にエラーが発生しました';
 	@override String get invalidPostId => '無効な投稿IDです';
+	@override String get forceUpdateNotPermittedToGoBack => '現在強制更新状態です。戻ることはできません';
+	@override String get pleaseLoginAgain => 'ログインしてください';
+	@override String get invalidLogin => 'ログインに失敗しました。メールアドレスとパスワードを確認してください';
+	@override String get tooManyRequests => 'リクエストが多すぎます。後でもう一度お試しください';
 }
 
 // Path: friends
@@ -332,6 +341,7 @@ class _TranslationsGalleryDetailJa implements TranslationsGalleryDetailEn {
 	@override String get moreFeaturesToBeDiscovered => 'さらに機能が発見されます...';
 	@override String get authorOtherGalleries => '作者の他のギャラリー';
 	@override String get relatedGalleries => '関連ギャラリー';
+	@override String get clickLeftAndRightEdgeToSwitchImage => '左端と右端をクリックして切り替え';
 }
 
 // Path: playList
@@ -455,6 +465,14 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get issueReport => '問題報告';
 	@override String get openSourceLicense => 'オープンソースライセンス';
 	@override String get checkForUpdatesFailed => '更新のチェックに失敗しました。後でもう一度お試しください';
+	@override String get autoCheckUpdate => '自動更新';
+	@override String get updateContent => '更新内容';
+	@override String get releaseDate => 'リリース日';
+	@override String get ignoreThisVersion => 'このバージョンを無視';
+	@override String get minVersionUpdateRequired => '現在のバージョンが低すぎます。すぐに更新してください';
+	@override String get forceUpdateTip => 'これは必須アップデートです。できるだけ早く最新バージョンにアップデートしてください';
+	@override String get viewChangelog => '更新内容を表示';
+	@override String get alreadyLatestVersion => 'すでに最新バージョンです';
 }
 
 // Path: signIn
@@ -545,12 +563,9 @@ class _TranslationsVideoDetailJa implements TranslationsVideoDetailEn {
 	@override String get authorOtherVideos => '作者の他のビデオ';
 	@override String get relatedVideos => '関連ビデオ';
 	@override String get privateVideo => 'これはプライベートビデオです';
-	@override String get noDownloadUrl => 'ダウンロードURLがありません';
-	@override String get startDownloading => 'ダウンロードを開始';
-	@override String get downloadFailed => 'ダウンロードに失敗しました。後でもう一度お試しください';
-	@override String get downloadSuccess => 'ダウンロードに成功しました';
-	@override String get download => 'ダウンロード';
-	@override String get downloadManager => 'ダウンロード管理';
+	@override String get externalVideo => 'これは站外ビデオです';
+	@override String get openInBrowser => 'ブラウザで開く';
+	@override String get resourceDeleted => 'このビデオは削除されたようです :/';
 }
 
 // Path: share
@@ -567,16 +582,6 @@ class _TranslationsShareJa implements TranslationsShareEn {
 	@override String get iReallyLikeThis => '本当に好きです';
 	@override String get shareFailed => '共有に失敗しました。後でもう一度お試しください';
 	@override String get share => '共有';
-}
-
-// Path: download
-class _TranslationsDownloadJa implements TranslationsDownloadEn {
-	_TranslationsDownloadJa._(this._root);
-
-	final TranslationsJa _root; // ignore: unused_field
-
-	// Translations
-	@override String get downloadList => 'ダウンロードリスト';
 }
 
 /// Flat map(s) containing all translations.
@@ -605,6 +610,8 @@ extension on TranslationsJa {
 			case 'common.friend': return '友達';
 			case 'common.video': return 'ビデオ';
 			case 'common.following': return 'フォロー中';
+			case 'common.expand': return '展開';
+			case 'common.collapse': return '收起';
 			case 'common.cancelFriendRequest': return '友達申請を取り消す';
 			case 'common.cancelSpecialFollow': return '特別フォローを解除';
 			case 'common.addFriend': return '友達を追加';
@@ -634,7 +641,7 @@ extension on TranslationsJa {
 			case 'common.minutesAgo': return ({required Object num}) => '${num} 分前';
 			case 'common.hoursAgo': return ({required Object num}) => '${num} 時間前';
 			case 'common.daysAgo': return ({required Object num}) => '${num} 日前';
-			case 'common.editedAt': return ({required Object num}) => '${num} 前に編集';
+			case 'common.editedAt': return ({required Object num}) => '${num} 編集';
 			case 'common.editComment': return 'コメントを編集';
 			case 'common.commentUpdated': return 'コメントが更新されました';
 			case 'common.replyComment': return 'コメントに返信';
@@ -719,8 +726,10 @@ extension on TranslationsJa {
 			case 'common.numViews': return '視聴回数';
 			case 'common.updatedAt': return '更新時間';
 			case 'common.publishedAt': return '発表時間';
-			case 'common.download': return 'ダウンロード';
-			case 'common.selectQuality': return '画質を選択';
+			case 'common.externalVideo': return '站外動画';
+			case 'common.originalText': return '原文';
+			case 'common.showOriginalText': return '原文を表示';
+			case 'common.showProcessedText': return '処理後の原文を表示';
 			case 'auth.login': return 'ログイン';
 			case 'auth.logout': return 'ログアウト';
 			case 'auth.email': return 'メールアドレス';
@@ -741,6 +750,8 @@ extension on TranslationsJa {
 			case 'auth.logoutConfirmation': return '本当にログアウトしますか？';
 			case 'auth.logoutSuccess': return 'ログアウトに成功しました';
 			case 'auth.logoutFailed': return 'ログアウトに失敗しました';
+			case 'auth.usernameOrEmail': return 'ユーザー名またはメールアドレス';
+			case 'auth.pleaseEnterUsernameOrEmail': return 'ユーザー名またはメールアドレスを入力してください';
 			case 'errors.error': return 'エラー';
 			case 'errors.required': return 'この項目は必須です';
 			case 'errors.invalidEmail': return 'メールアドレスの形式が正しくありません';
@@ -780,6 +791,10 @@ extension on TranslationsJa {
 			case 'errors.errorWhileLoadingPost': return '投稿の取得中にエラーが発生しました';
 			case 'errors.errorWhileLoadingPostDetail': return '投稿詳細の取得中にエラーが発生しました';
 			case 'errors.invalidPostId': return '無効な投稿IDです';
+			case 'errors.forceUpdateNotPermittedToGoBack': return '現在強制更新状態です。戻ることはできません';
+			case 'errors.pleaseLoginAgain': return 'ログインしてください';
+			case 'errors.invalidLogin': return 'ログインに失敗しました。メールアドレスとパスワードを確認してください';
+			case 'errors.tooManyRequests': return 'リクエストが多すぎます。後でもう一度お試しください';
 			case 'friends.clickToRestoreFriend': return '友達を復元するにはクリックしてください';
 			case 'friends.friendsList': return '友達リスト';
 			case 'friends.friendRequests': return '友達リクエスト';
@@ -804,6 +819,7 @@ extension on TranslationsJa {
 			case 'galleryDetail.moreFeaturesToBeDiscovered': return 'さらに機能が発見されます...';
 			case 'galleryDetail.authorOtherGalleries': return '作者の他のギャラリー';
 			case 'galleryDetail.relatedGalleries': return '関連ギャラリー';
+			case 'galleryDetail.clickLeftAndRightEdgeToSwitchImage': return '左端と右端をクリックして切り替え';
 			case 'playList.myPlayList': return '私のプレイリスト';
 			case 'playList.friendlyTips': return 'フレンドリーティップス';
 			case 'playList.dearUser': return '親愛なるユーザー';
@@ -891,6 +907,14 @@ extension on TranslationsJa {
 			case 'settings.issueReport': return '問題報告';
 			case 'settings.openSourceLicense': return 'オープンソースライセンス';
 			case 'settings.checkForUpdatesFailed': return '更新のチェックに失敗しました。後でもう一度お試しください';
+			case 'settings.autoCheckUpdate': return '自動更新';
+			case 'settings.updateContent': return '更新内容';
+			case 'settings.releaseDate': return 'リリース日';
+			case 'settings.ignoreThisVersion': return 'このバージョンを無視';
+			case 'settings.minVersionUpdateRequired': return '現在のバージョンが低すぎます。すぐに更新してください';
+			case 'settings.forceUpdateTip': return 'これは必須アップデートです。できるだけ早く最新バージョンにアップデートしてください';
+			case 'settings.viewChangelog': return '更新内容を表示';
+			case 'settings.alreadyLatestVersion': return 'すでに最新バージョンです';
 			case 'signIn.pleaseLoginFirst': return 'サインインする前にログインしてください';
 			case 'signIn.alreadySignedInToday': return '今日は既にサインインしています！';
 			case 'signIn.youDidNotStickToTheSignIn': return 'サインインを続けることができませんでした。';
@@ -954,12 +978,9 @@ extension on TranslationsJa {
 			case 'videoDetail.authorOtherVideos': return '作者の他のビデオ';
 			case 'videoDetail.relatedVideos': return '関連ビデオ';
 			case 'videoDetail.privateVideo': return 'これはプライベートビデオです';
-			case 'videoDetail.noDownloadUrl': return 'ダウンロードURLがありません';
-			case 'videoDetail.startDownloading': return 'ダウンロードを開始';
-			case 'videoDetail.downloadFailed': return 'ダウンロードに失敗しました。後でもう一度お試しください';
-			case 'videoDetail.downloadSuccess': return 'ダウンロードに成功しました';
-			case 'videoDetail.download': return 'ダウンロード';
-			case 'videoDetail.downloadManager': return 'ダウンロード管理';
+			case 'videoDetail.externalVideo': return 'これは站外ビデオです';
+			case 'videoDetail.openInBrowser': return 'ブラウザで開く';
+			case 'videoDetail.resourceDeleted': return 'このビデオは削除されたようです :/';
 			case 'share.sharePlayList': return 'プレイリストを共有';
 			case 'share.wowDidYouSeeThis': return 'ああ、見たの？';
 			case 'share.nameIs': return '名前は';
@@ -967,7 +988,6 @@ extension on TranslationsJa {
 			case 'share.iReallyLikeThis': return '本当に好きです';
 			case 'share.shareFailed': return '共有に失敗しました。後でもう一度お試しください';
 			case 'share.share': return '共有';
-			case 'download.downloadList': return 'ダウンロードリスト';
 			default: return null;
 		}
 	}

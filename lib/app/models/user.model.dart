@@ -17,6 +17,8 @@ class User {
   final DateTime createdAt;
   final DateTime updatedAt;
 
+  bool get isAdmin => role == 'admin';
+
   User({
     required this.id,
     this.name = '',

@@ -2,9 +2,13 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/popular_media_search_config_widget.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/common/constants.dart';
+import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../../models/sort.model.dart';
 import '../../../models/tag.model.dart';
@@ -28,6 +32,10 @@ class _PopularVideoListPageState extends State<PopularVideoListPage>
   late ScrollController _tabBarScrollController;
   final List<GlobalKey> _tabKeys = [];
 
+  final UserService userService = Get.find<UserService>();
+
+  final Map<SortId, PopularVideoController> _controllers = {};
+
   // 查询参数
   List<Tag> tags = [];
   String year = '';
@@ -36,22 +44,33 @@ class _PopularVideoListPageState extends State<PopularVideoListPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: widget.sorts.length, vsync: this);
-    _tabBarScrollController = ScrollController();
-
     for (var sort in widget.sorts) {
       _tabKeys.add(GlobalKey());
-      Get.put(PopularVideoController(sortId: sort.id.name), tag: sort.id.name);
+      _controllers[sort.id] = PopularVideoController(sortId: sort.id.name);
     }
-
+    _tabController = TabController(length: widget.sorts.length, vsync: this);
+    _tabBarScrollController = ScrollController();
     // 取出初始标签页的controller
     var initialSortId = widget.sorts[_tabController.index].id;
-    var initialController =
-        Get.find<PopularVideoController>(tag: initialSortId.name);
+    var initialController = _controllers[initialSortId]!;
     initialController.fetchVideos();
 
     // 添加切换标签页的监听器
     _tabController.addListener(_onTabChange);
+  }
+
+  
+  @override
+  void dispose() {
+    super.dispose();
+    _tabController.removeListener(_onTabChange);
+    _tabController.dispose();
+    _tabBarScrollController.dispose();
+    // 清理所有的PopularVideoController
+    for (var controller in _controllers.values) {
+      controller.dispose();
+    }
+    _controllers.clear();
   }
 
   // 设置查询参数
@@ -61,19 +80,27 @@ class _PopularVideoListPageState extends State<PopularVideoListPage>
     this.year = year;
     this.rating = rating;
 
-    // 设置每个controller的查询参数
+    LogUtils.d('设置查询参数: tags: $tags, year: $year, rating: $rating', 'PopularVideoListPage');
+
+    // 设置每个controller的查询参数并重置数据
     for (var sort in widget.sorts) {
-      var controller = Get.find<PopularVideoController>(tag: sort.id.name);
+      var controller = _controllers[sort.id]!;
       controller.searchTagIds = tags.map((e) => e.id).toList();
       controller.searchDate = year;
       controller.searchRating = rating;
+      // 重置controller状态
+      controller.reset();
+      // 如果是当前显示的tab，则立即加载新数据
+      if (sort.id == widget.sorts[_tabController.index].id) {
+        controller.fetchVideos();
+      }
     }
   }
 
   void _onTabChange() {
     // 加载数据
     var sortId = widget.sorts[_tabController.index].id;
-    var controller = Get.find<PopularVideoController>(tag: sortId.name);
+    var controller = _controllers[sortId]!;
     // 如果是在初始化状态并且不是正在加载，则加载数据
     if (controller.isInit.value && !controller.isLoading.value) {
       controller.fetchVideos(refresh: true);
@@ -133,18 +160,6 @@ class _PopularVideoListPageState extends State<PopularVideoListPage>
     }
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    _tabController.removeListener(_onTabChange);
-    _tabController.dispose();
-    _tabBarScrollController.dispose();
-    // 清理所有的controller
-    for (var sort in widget.sorts) {
-      Get.delete<PopularVideoController>(tag: sort.id.name);
-    }
-  }
-
   // 打开搜索配置弹窗
   void _openParamsModal() {
     Get.dialog(PopularMediaSearchConfig(
@@ -168,12 +183,29 @@ class _PopularVideoListPageState extends State<PopularVideoListPage>
           Row(
             children: [
               // 用户头像
-              IconButton(
-                icon: const Icon(Icons.account_circle),
-                onPressed: () {
-                  AppService.switchGlobalDrawer();
-                },
-              ),
+              Obx(() {
+                    if (userService.isLogin) {
+                      return IconButton(
+                        icon: AvatarWidget(
+                          avatarUrl: userService.userAvatar,
+                          radius: 14,
+                          defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+                          isPremium: userService.currentUser.value?.premium ?? false,
+                          isAdmin: userService.currentUser.value?.isAdmin ?? false,
+                        ),
+                        onPressed: () {
+                          AppService.switchGlobalDrawer();
+                        },
+                      );
+                    } else {
+                      return IconButton(
+                        icon: const Icon(Icons.account_circle),
+                        onPressed: () {
+                          AppService.switchGlobalDrawer();
+                        },
+                      );
+                    }
+                  }),
               // 搜索框
               Expanded(
                 child: TextField(
@@ -247,8 +279,7 @@ class _PopularVideoListPageState extends State<PopularVideoListPage>
                 icon: const Icon(Icons.refresh),
                 onPressed: () {
                   var sortId = widget.sorts[_tabController.index].id;
-                  var controller =
-                      Get.find<PopularVideoController>(tag: sortId.name);
+                  var controller = _controllers[sortId]!;
                   controller.fetchVideos(refresh: true);
                 },
               ),
@@ -264,8 +295,7 @@ class _PopularVideoListPageState extends State<PopularVideoListPage>
               controller: _tabController,
               children: widget.sorts.map((sort) {
                 return KeepAliveTabView(
-                  controller:
-                      Get.find<PopularVideoController>(tag: sort.id.name),
+                  controller: _controllers[sort.id]!,
                 );
               }).toList(),
             ),
@@ -315,7 +345,7 @@ class _KeepAliveTabViewState extends State<KeepAliveTabView>
                 return widget.controller.errorWidget.value!;
               } else if (widget.controller.isLoading.value &&
                   widget.controller.videos.isEmpty) {
-                return const Center(child: CircularProgressIndicator());
+                return _buildShimmerLoading(columns, constraints.maxWidth);
               } else if (!widget.controller.isInit.value &&
                   widget.controller.videos.isEmpty) {
                 return _buildEmptyView(context);
@@ -430,6 +460,75 @@ class _KeepAliveTabViewState extends State<KeepAliveTabView>
           ),
         ),
       ],
+    );
+  }
+
+  // 添加shimmer加载效果组件
+  Widget _buildShimmerLoading(int columns, double maxWidth) {
+    return ListView.builder(
+      padding: EdgeInsets.zero,
+      itemCount: 3, // 显示3行shimmer效果
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: List.generate(
+              columns,
+              (colIndex) => Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  child: _buildShimmerItem(maxWidth / columns - 8),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildShimmerItem(double width) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: SizedBox(
+        width: width,
+        height: width * 9 / 16 + 72, // 16:9的视频比例 + 标题和信息的高度
+        child: Column(
+          spacing: 8,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 缩略图区域
+            Container(
+              width: width,
+              height: width * 9 / 16,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            // 标题区域
+            Container(
+              width: width * 0.8,
+              height: 16,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            // 信息区域
+            Container(
+              width: width * 0.6,
+              height: 12,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

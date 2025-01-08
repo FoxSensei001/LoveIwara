@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../../common/constants.dart';
 import '../../routes/app_routes.dart';
@@ -223,8 +224,22 @@ class GlobalDrawerColumns extends StatelessWidget {
           width: 80,
           height: 80,
           fit: BoxFit.cover,
-          placeholder: (context, url) => const CircularProgressIndicator(),
-          errorWidget: (context, url, error) => const Icon(Icons.error),
+          placeholder: (context, url) => Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: const CircleAvatar(
+                          radius: 20,
+                          backgroundColor: Colors.white,
+                        ),
+                      ),
+          errorWidget: (context, url, error) => CircleAvatar(
+                        radius: 20,
+                        backgroundImage: const NetworkImage(CommonConstants.defaultAvatarUrl),
+                        onBackgroundImageError: (exception, stackTrace) => const Icon(
+                          Icons.person,
+                          size: 20,
+                        ),
+                      ),
         ),
       ),
     );

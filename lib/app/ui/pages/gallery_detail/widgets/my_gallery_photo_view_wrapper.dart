@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -5,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:photo_view/photo_view.dart';
@@ -36,6 +38,7 @@ class MyGalleryPhotoViewWrapper extends StatefulWidget {
 }
 
 class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
+  static const platform = MethodChannel('i_iwara/volume_key');
   late int currentIndex = widget.initialIndex;
   late PageController pageController;
   bool isDragging = false;
@@ -59,10 +62,40 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
       widget.galleryItems.length,
       (index) => PhotoViewController(),
     );
+    
+    // 仅在移动平台添加音量键监听
+    if (Platform.isAndroid || Platform.isIOS) {
+      _initVolumeKeyListener();
+    }
+  }
+
+  Future<void> _initVolumeKeyListener() async {
+    try {
+      // 设置方法调用处理器
+      platform.setMethodCallHandler((call) async {
+        switch (call.method) {
+          case 'onVolumeKeyUp':
+            goToPreviousPage();
+            break;
+          case 'onVolumeKeyDown':
+            goToNextPage();
+            break;
+        }
+      });
+      
+      // 启用音量键监听
+      await platform.invokeMethod('enableVolumeKeyListener');
+    } catch (e) {
+      LogUtils.e('音量键监听初始化失败: $e', tag: 'MyGalleryPhotoViewWrapper');
+    }
   }
 
   @override
   void dispose() {
+    // 移除音量键监听
+    if (Platform.isAndroid || Platform.isIOS) {
+      platform.invokeMethod('disableVolumeKeyListener');
+    }
     appService.showSystemUI();
     pageController.dispose();
     for (var controller in controllers) {
@@ -148,66 +181,75 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
         content: SingleChildScrollView(
           child: ListBody(
             children: [
+              // 点击左右边缘以切换图片
+              Row(
+                children: [
+                  const Icon(Icons.arrow_right_alt),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(slang.t.galleryDetail.clickLeftAndRightEdgeToSwitchImage)),
+                ],
+              ),
+              const SizedBox(height: 8),
               // 右键保存单张图片
               Row(
                 children: [
-                  Icon(Icons.save),
-                  SizedBox(width: 8),
+                  const Icon(Icons.save),
+                  const SizedBox(width: 8),
                   Expanded(child: Text(slang.t.galleryDetail.rightClickToSaveSingleImage)),
                 ],
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               // 批量保存
               Row(
                 children: [
-                  Icon(Icons.save_alt),
-                  SizedBox(width: 8),
+                  const Icon(Icons.save_alt),
+                  const SizedBox(width: 8),
                   // TODO 批量保存功能还未实现
                   Expanded(child: Text(slang.t.galleryDetail.batchSave)),
                 ],
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               // 键盘的左右控制切换
               Row(
                 children: [
-                  Icon(Icons.keyboard_arrow_left),
-                  SizedBox(width: 8),
+                  const Icon(Icons.keyboard_arrow_left),
+                  const SizedBox(width: 8),
                   Expanded(child: Text(slang.t.galleryDetail.keyboardLeftAndRightToSwitch)),
                 ],
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               // 键盘的上下控制缩放
               Row(
                 children: [
-                  Icon(Icons.keyboard_arrow_up),
-                  SizedBox(width: 8),
+                  const Icon(Icons.keyboard_arrow_up),
+                  const SizedBox(width: 8),
                   Expanded(child: Text(slang.t.galleryDetail.keyboardUpAndDownToZoom)),
                 ],
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               // 鼠标的滚轮滑动控制切换
               Row(
                 children: [
-                  Icon(Icons.swap_vert),
-                  SizedBox(width: 8),
+                  const Icon(Icons.swap_vert),
+                  const SizedBox(width: 8),
                   Expanded(child: Text(slang.t.galleryDetail.mouseWheelToSwitch)),
                 ],
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               // CTRL + 鼠标滚轮控制缩放
               Row(
                 children: [
-                  Icon(Icons.zoom_in),
-                  SizedBox(width: 8),
+                  const Icon(Icons.zoom_in),
+                  const SizedBox(width: 8),
                   Expanded(child: Text(slang.t.galleryDetail.ctrlAndMouseWheelToZoom)),
                 ],
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               // 更多功能待发现
               Row(
                 children: [
-                  Icon(Icons.thumb_up),
-                  SizedBox(width: 8),
+                  const Icon(Icons.thumb_up),
+                  const SizedBox(width: 8),
                   Expanded(child: Text(slang.t.galleryDetail.moreFeaturesToBeDiscovered)),
                 ],
               ),
@@ -231,16 +273,6 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
     _overlayEntry = null;
   }
 
-  String _getFileExtension(String url) {
-    try {
-      final uri = Uri.parse(url);
-      final path = uri.path;
-      return path.substring(path.lastIndexOf('.') + 1).toLowerCase();
-    } catch (e) {
-      return 'unknown';
-    }
-  }
-
   void _showImageMenu(BuildContext context, ImageItem item, Offset position) {
     _hideMenu();
     // 计算菜单显示位置
@@ -257,7 +289,7 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
       item: item,
       onDismiss: _hideMenu,
       customBuilder: widget.menuBuilder,
-      constraints: BoxConstraints(
+      constraints: const BoxConstraints(
         maxWidth: 300,
         maxHeight: 400,
       ),
@@ -300,8 +332,29 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
     }
   }
 
+  // 添加新的方法来构建点击区域
+  Widget _buildTapArea({
+    required bool isLeft,
+    required double width,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: width,
+        height: double.infinity,
+        color: Colors.transparent,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    // 获取屏幕宽度
+    final screenWidth = MediaQuery.of(context).size.width;
+    // 计算点击区域宽度，宽屏和窄屏使用不同的比例
+    final tapAreaWidth = screenWidth > 600 ? screenWidth * 0.2 : screenWidth * 0.25;
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: KeyboardListener(
@@ -396,7 +449,7 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                           errorBuilder: (context, error, stackTrace) {
                             // 如果是Invalid image data错误，说明图片格式不支持
                             // 获取文件扩展名
-                            final fileExtension = _getFileExtension(imageUrl);
+                            final fileExtension = CommonUtils.getFileExtension(imageUrl);
 
                             if (error is Exception &&
                                 error
@@ -479,6 +532,35 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                       currentIndex = index;
                     });
                   },
+                ),
+                // 添加左右点击区域
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  bottom: 0,
+                  child: _buildTapArea(
+                    isLeft: true,
+                    width: tapAreaWidth,
+                    onTap: () {
+                      if (currentIndex > 0) {
+                        goToPreviousPage();
+                      }
+                    },
+                  ),
+                ),
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                  child: _buildTapArea(
+                    isLeft: false,
+                    width: tapAreaWidth,
+                    onTap: () {
+                      if (currentIndex < widget.galleryItems.length - 1) {
+                        goToNextPage();
+                      }
+                    },
+                  ),
                 ),
                 SafeArea(
                   child: Container(

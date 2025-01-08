@@ -1,6 +1,6 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../../common/constants.dart';
@@ -44,7 +44,7 @@ class CommentEntryAreaButtonWidget extends StatelessWidget {
                   // 第一行：评论数量
                   Text(
                     t.common.totalComments(count: commentController.totalComments.value),
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -53,43 +53,27 @@ class CommentEntryAreaButtonWidget extends StatelessWidget {
                   // 第二行：根据是否有评论显示不同内容
                   Row(
                     children: [
-                      Builder(builder: (context) {
-                        Widget avatar = CircleAvatar(
-                          backgroundImage: commentController.comments.isNotEmpty
-                              ? CachedNetworkImageProvider(
-                                  commentController.comments.first.user?.avatar?.avatarUrl ?? 
-                                      userService.userAvatar,
-                                  headers: const {'referer': CommonConstants.iwaraBaseUrl},
-                                )
-                              : CachedNetworkImageProvider(
-                                  userService.userAvatar,
-                                  headers: const {'referer': CommonConstants.iwaraBaseUrl},
-                                ),
-                        );
-
-                        if (commentController.comments.isNotEmpty && 
-                            commentController.comments.first.user?.premium == true) {
-                          avatar = Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: LinearGradient(
-                                colors: [
-                                  Colors.purple.shade200,
-                                  Colors.blue.shade200,
-                                  Colors.pink.shade200,
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(4.0),
-                              child: avatar,
-                            ),
-                          );
+                      Obx(() {
+                        String avatarUrl;
+                        bool isPremium;
+                        bool isAdmin;
+                        if (commentController.comments.isNotEmpty) {
+                          avatarUrl = commentController.comments.first.user?.avatar?.avatarUrl ?? CommonConstants.defaultAvatarUrl;
+                          isPremium = commentController.comments.first.user?.premium ?? false;
+                          isAdmin = commentController.comments.first.user?.isAdmin ?? false;
+                        } else {
+                          avatarUrl = userService.userAvatar;
+                          isPremium = userService.currentUser.value?.premium ?? false;
+                          isAdmin = userService.currentUser.value?.isAdmin ?? false;
                         }
-
-                        return avatar;
+                        return AvatarWidget(
+                          avatarUrl: avatarUrl,
+                          defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+                          headers: const {'referer': CommonConstants.iwaraBaseUrl},
+                          radius: 20,
+                          isPremium: isPremium,
+                          isAdmin: isAdmin,
+                        );
                       }),
                       const SizedBox(width: 8),
                       Expanded(
@@ -97,7 +81,7 @@ class CommentEntryAreaButtonWidget extends StatelessWidget {
                           commentController.comments.isNotEmpty
                               ? _filterMarkdownImages(commentController.comments.first.body)
                               : t.common.writeYourCommentHere,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 14,
                           ),
                           maxLines: 1,

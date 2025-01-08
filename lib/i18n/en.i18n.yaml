@@ -21,6 +21,8 @@ common:
   friend: Friend
   video: Video
   following: Following
+  expand: Expand
+  collapse: Collapse
   cancelFriendRequest: Cancel Request
   cancelSpecialFollow: Cancel Special Follow
   addFriend: Add Friend
@@ -50,7 +52,7 @@ common:
   minutesAgo: '${num} minutes ago'
   hoursAgo: '${num} hours ago'
   daysAgo: '${num} days ago'
-  editedAt: 'Edited at ${num} ago'
+  editedAt: '${num} edited'
   editComment: Edit Comment
   commentUpdated: Comment Updated
   replyComment: Reply Comment
@@ -135,6 +137,10 @@ common:
   numViews: Views
   updatedAt: Updated At
   publishedAt: Published At
+  externalVideo: External Video
+  originalText: Original Text
+  showOriginalText: Show Original Text
+  showProcessedText: Show Processed Text
   download: Download
   selectQuality: Select Quality
 auth:
@@ -158,6 +164,8 @@ auth:
   logoutConfirmation: Are you sure you want to logout?
   logoutSuccess: Logout Success
   logoutFailed: Logout Failed
+  usernameOrEmail: Username or Email
+  pleaseEnterUsernameOrEmail: Please enter username or email
 
 errors:
   error: Error
@@ -199,6 +207,10 @@ errors:
   errorWhileLoadingPost: Error while loading post
   errorWhileLoadingPostDetail: Error while loading post detail
   invalidPostId: Invalid post ID
+  forceUpdateNotPermittedToGoBack: Currently in force update state, cannot go back
+  pleaseLoginAgain: Please login again
+  invalidLogin: Invalid login, Please check your email and password
+  tooManyRequests: Too many requests, please try again later
 friends:
   clickToRestoreFriend: Click to restore friend
   friendsList: Friends List
@@ -230,6 +242,7 @@ galleryDetail:
   moreFeaturesToBeDiscovered: More Features to Be Discovered...
   authorOtherGalleries: Author's Other Galleries
   relatedGalleries: Related Galleries
+  clickLeftAndRightEdgeToSwitchImage: Click Left and Right Edge to Switch Image
 
 playList:
   myPlayList: My Play List
@@ -324,6 +337,14 @@ settings:
   issueReport: Issue Report
   openSourceLicense: Open Source License
   checkForUpdatesFailed: Check for updates failed, please try again later
+  autoCheckUpdate: Auto Check Update
+  updateContent: Update Content
+  releaseDate: Release Date
+  ignoreThisVersion: Ignore This Version
+  minVersionUpdateRequired: Current version is too low, please update as soon as possible
+  forceUpdateTip: "This is a mandatory update. Please update to the latest version as soon as possible"
+  viewChangelog: View Changelog
+  alreadyLatestVersion: Already the latest version
 
 signIn:
   pleaseLoginFirst: Please login first
@@ -393,6 +414,9 @@ videoDetail:
   authorOtherVideos: Author's Other Videos
   relatedVideos: Related Videos
   privateVideo: This is a private video
+  externalVideo: This is an external video
+  openInBrowser: Open in Browser
+  resourceDeleted: This video seems to have been deleted :/
   noDownloadUrl: No download URL
   startDownloading: Start downloading
   downloadFailed: Download failed, please try again later

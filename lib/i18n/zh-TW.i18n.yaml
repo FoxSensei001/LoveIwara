@@ -21,6 +21,8 @@ common:
   friend: 朋友
   video: 影片
   following: 追蹤中
+  expand: 展開
+  collapse: 收起
   cancelFriendRequest: 取消申請
   cancelSpecialFollow: 取消特別關注
   addFriend: 加為朋友
@@ -50,7 +52,7 @@ common:
   minutesAgo: '${num} 分鐘前'
   hoursAgo: '${num} 小時前'
   daysAgo: '${num} 天前'
-  editedAt: '編輯於 ${num} 前'
+  editedAt: '${num} 編輯'
   editComment: 編輯評論
   commentUpdated: 評論已更新
   replyComment: 回覆評論
@@ -109,7 +111,7 @@ common:
   paused: 已暫停
   clear: 清除
   user: 使用者
-  post: 帖子
+  post: 投稿
   seconds: 秒
   comingSoon: 敬請期待
   confirm: 確認
@@ -137,6 +139,11 @@ common:
   publishedAt: 發布時間
   download: 下載
   selectQuality: 選擇畫質
+  externalVideo: 站外影片
+  originalText: 原文
+  showOriginalText: 顯示原始文本
+  showProcessedText: 顯示處理後文本
+
 auth:
   login: 登入
   logout: 登出
@@ -158,6 +165,8 @@ auth:
   logoutConfirmation: 你確定要登出嗎？
   logoutSuccess: 登出成功
   logoutFailed: 登出失敗
+  usernameOrEmail: 用戶名或電子郵件
+  pleaseEnterUsernameOrEmail: 請輸入用戶名或電子郵件
 
 errors:
   error: 錯誤
@@ -196,9 +205,13 @@ errors:
   failedToFetchData: 獲取資料失敗
   invalidParameter: 無效的參數
   pleaseLoginFirst: 請先登入
-  errorWhileLoadingPost: 載入帖子時出錯
-  errorWhileLoadingPostDetail: 載入帖子詳情時出錯
-  invalidPostId: 無效的帖子ID
+  errorWhileLoadingPost: 載入投稿內容時出錯
+  errorWhileLoadingPostDetail: 載入投稿詳情時出錯
+  invalidPostId: 無效的投稿ID
+  forceUpdateNotPermittedToGoBack: 目前處於強制更新狀態，無法返回
+  pleaseLoginAgain: 請重新登入
+  invalidLogin: 登入失敗，請檢查電子郵件和密碼
+  tooManyRequests: 請求過多，請稍後再試
 friends:
   clickToRestoreFriend: 點擊恢復朋友
   friendsList: 朋友列表
@@ -230,6 +243,7 @@ galleryDetail:
   moreFeaturesToBeDiscovered: 更多功能待發掘...
   authorOtherGalleries: 作者的其他圖庫
   relatedGalleries: 相關圖庫
+  clickLeftAndRightEdgeToSwitchImage: 點擊左右邊緣以切換圖片
 
 playList:
   myPlayList: 我的播放清單
@@ -325,6 +339,14 @@ settings:
   issueReport: 問題回報
   openSourceLicense: 開源許可
   checkForUpdatesFailed: 檢查更新失敗，請稍後重試
+  autoCheckUpdate: 自動檢查更新
+  updateContent: 更新內容
+  releaseDate: 發布日期
+  ignoreThisVersion: 忽略此版本
+  minVersionUpdateRequired: 當前版本過低，請盡快更新
+  forceUpdateTip: "此版本為強制更新，請盡快更新到最新版本"
+  viewChangelog: 查看更新日誌
+  alreadyLatestVersion: 已是最新版本
 
 
 signIn:
@@ -395,6 +417,9 @@ videoDetail:
   authorOtherVideos: 作者的其他影片
   relatedVideos: 相關影片
   privateVideo: 這是一個私密影片
+  externalVideo: 這是一個站外影片
+  openInBrowser: 在瀏覽器中打開
+  resourceDeleted: 這個影片貌似被刪除了 :/
   noDownloadUrl: 沒有下載連結
   startDownloading: 開始下載
   downloadFailed: 下載失敗，請稍後再試

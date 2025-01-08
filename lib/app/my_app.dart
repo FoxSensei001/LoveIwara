@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_routes.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/version_service.dart';
 import 'package:i_iwara/app/ui/pages/home/home_navigation_layout.dart';
 import 'package:i_iwara/app/ui/pages/login/login_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/about_page.dart';
@@ -22,10 +23,21 @@ import '../utils/proxy/proxy_util.dart';
 import 'models/dto/escape_intent.dart';
 import 'services/theme_service.dart';
 
-final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+class MyApp extends StatefulWidget {
 
-class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+
+  @override
+  void initState() {
+    super.initState();
+    Get.find<VersionService>().doAutoCheckUpdate();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +114,7 @@ class PrivacyOverlay extends StatelessWidget {
         child: Center(
           child: Text(
             t.common.privacyHint,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),

@@ -3,9 +3,14 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/volume_control_widget.dart';
+import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/app/ui/widgets/follow_button_widget.dart';
+import 'package:i_iwara/common/constants.dart';
 import 'package:logger/logger.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:vibration/vibration.dart';
+import 'package:i_iwara/app/ui/widgets/like_button_widget.dart';
+import 'package:i_iwara/app/services/video_service.dart';
 
 import '../../../../../../utils/common_utils.dart';
 import '../../../../../services/config_service.dart';
@@ -29,181 +34,311 @@ class BottomToolbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    return SlideTransition(
-      position: myVideoStateController.bottomBarAnimation,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Colors.transparent,
-              Colors.black.withOpacity(0.7),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.5), // 阴影颜色
-              offset: const Offset(0, 60), // 阴影偏移，向上偏移60像素
-              blurRadius: 60.0, // 阴影模糊半径
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // 第一行：进度条
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0), // 添加水平内边距
-              child: CustomVideoProgressbar(
-                controller: myVideoStateController,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // 添加顶部互动控制层
+        if (currentScreenIsFullScreen)
+          SlideTransition(
+            position: myVideoStateController.bottomBarAnimation,
+            child: FadeTransition(
+              opacity: myVideoStateController.animationController,
+              child: MouseRegion(
+                onEnter: (_) => myVideoStateController.setToolbarHovering(true),
+                onExit: (_) => myVideoStateController.setToolbarHovering(false),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      // 点赞按钮
+                      Obx(() {
+                        final videoInfo = myVideoStateController.videoInfo.value;
+                        if (videoInfo == null) return const SizedBox.shrink();
+                        
+                        return LikeButtonWidget(
+                          mediaId: videoInfo.id,
+                          liked: videoInfo.liked ?? false,
+                          likeCount: videoInfo.numLikes ?? 0,
+                          onLike: (id) async {
+                            final result = await Get.find<VideoService>().likeVideo(id);
+                            return result.isSuccess;
+                          },
+                          onUnlike: (id) async {
+                            final result = await Get.find<VideoService>().unlikeVideo(id);
+                            return result.isSuccess;
+                          },
+                          onLikeChanged: (liked) {
+                            myVideoStateController.videoInfo.value = 
+                              myVideoStateController.videoInfo.value?.copyWith(
+                                liked: liked,
+                                numLikes: (myVideoStateController.videoInfo.value?.numLikes ?? 0) + 
+                                  (liked ? 1 : -1),
+                              );
+                          },
+                        );
+                      }),
+                      const SizedBox(width: 16),
+                      // 关注按钮
+                      Obx(() {
+                        final videoInfo = myVideoStateController.videoInfo.value;
+                        if (videoInfo?.user == null) return const SizedBox.shrink();
+                        
+                        return SizedBox(
+                          height: 32,
+                          child: FollowButtonWidget(
+                            user: videoInfo!.user!,
+                            onUserUpdated: (updatedUser) {
+                              myVideoStateController.videoInfo.value = 
+                                myVideoStateController.videoInfo.value?.copyWith(
+                                  user: updatedUser,
+                                );
+                            },
+                          ),
+                        );
+                      }),
+                      const SizedBox(width: 16),
+                      // 作者头像和名称
+                      Obx(() {
+                        final videoInfo = myVideoStateController.videoInfo.value;
+                        if (videoInfo?.user == null) return const SizedBox.shrink();
+                        
+                        return Row(
+                          children: [
+                            AvatarWidget(
+                              avatarUrl: videoInfo?.user?.avatar?.avatarUrl,
+                              defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+                              headers: const {'referer': CommonConstants.iwaraBaseUrl},
+                              radius: 16,
+                              isPremium: videoInfo?.user?.premium ?? false,
+                              isAdmin: videoInfo?.user?.isAdmin ?? false,
+                            ),
+                            const SizedBox(width: 8),
+                            ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 200),
+                              child: videoInfo?.user?.premium == true
+                                ? ShaderMask(
+                                    shaderCallback: (bounds) => LinearGradient(
+                                      colors: [
+                                        Colors.purple.shade300,
+                                        Colors.blue.shade300,
+                                        Colors.pink.shade300,
+                                      ],
+                                    ).createShader(bounds),
+                                    child: Text(
+                                      videoInfo?.user?.name ?? '',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  )
+                                : Text(
+                                    videoInfo?.user?.name ?? '',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                            ),
+                          ],
+                        );
+                      }),
+                    ],
+                  ),
+                ),
               ),
             ),
-            // 第二行：播放按钮、进度信息和其他控制按钮
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // 左侧：播放/暂停按钮、音量控制和进度信息
-                Row(
-                  children: [
-                    // 播放/暂停按钮
-                    Obx(() => _buildSwitchIconButton(
-                          tooltip: myVideoStateController.videoPlaying.value
-                              ? slang.t.videoDetail.pause
-                              : slang.t.videoDetail.play,
-                          icon: myVideoStateController.videoPlaying.value
-                              ? const Icon(
-                                  Icons.pause,
-                                  key: ValueKey('pause'),
-                                  color: Colors.white,
-                                )
-                              : const Icon(
-                                  Icons.play_arrow,
-                                  key: ValueKey('play'),
-                                  color: Colors.white,
-                                ),
-                          onPressed: () async {
-                            // 添加震动反馈
-                            if (await Vibration.hasVibrator() ?? false) {
-                              await Vibration.vibrate(duration: 50);
-                            }
-                            
-                            if (myVideoStateController.videoPlaying.value) {
-                              myVideoStateController.videoController.player
-                                  .pause();
-                            } else {
-                              myVideoStateController.videoController.player
-                                  .play();
-                            }
-                          },
-                        )),
-                    // 仅在桌面平台显示音量控制
-                    if (GetPlatform.isDesktop)
-                      VolumeControl(
-                        configService: _configService,
-                        myVideoStateController: myVideoStateController,
-                      ),
+          ),
+        // 原有的底部工具栏
+        SlideTransition(
+          position: myVideoStateController.bottomBarAnimation,
+          child: MouseRegion(
+            onEnter: (_) => myVideoStateController.setToolbarHovering(true),
+            onExit: (_) => myVideoStateController.setToolbarHovering(false),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withOpacity(0.7),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.5), // 阴影颜色
+                    offset: const Offset(0, 60), // 阴影偏移，向上偏移60像素
+                    blurRadius: 60.0, // 阴影模糊半径
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 第一行：进度条
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0), // 添加水平内边距
+                    child: CustomVideoProgressbar(
+                      controller: myVideoStateController,
+                    ),
+                  ),
+                  // 第二行：播放按钮、进度信息和其他控制按钮
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // 左侧：播放/暂停按钮、音量控制和进度信息
+                      Row(
+                        children: [
+                          // 播放/暂停按钮
+                          Obx(() => _buildSwitchIconButton(
+                                tooltip: myVideoStateController.videoPlaying.value
+                                    ? slang.t.videoDetail.pause
+                                    : slang.t.videoDetail.play,
+                                icon: myVideoStateController.videoPlaying.value
+                                    ? const Icon(
+                                        Icons.pause,
+                                        key: ValueKey('pause'),
+                                        color: Colors.white,
+                                      )
+                                    : const Icon(
+                                        Icons.play_arrow,
+                                        key: ValueKey('play'),
+                                        color: Colors.white,
+                                      ),
+                                onPressed: () async {
+                                  // 添加震动反馈
+                                  if (await Vibration.hasVibrator() ?? false) {
+                                    await Vibration.vibrate(duration: 50);
+                                  }
+                                  
+                                  if (myVideoStateController.videoPlaying.value) {
+                                    myVideoStateController.videoController.player
+                                        .pause();
+                                  } else {
+                                    myVideoStateController.videoController.player
+                                        .play();
+                                  }
+                                },
+                              )),
+                          // 仅在桌面平台显示音量控制
+                          if (GetPlatform.isDesktop)
+                            VolumeControl(
+                              configService: _configService,
+                              myVideoStateController: myVideoStateController,
+                            ),
 
-                    const SizedBox(width: 8.0), // 播放按钮与进度信息之间的间距
-                    // 进度信息，并添加点击事件
-                    TextButton(
-                      onPressed: () {
-                        _showSeekDialog(context);
-                      },
-                      child: Obx(
-                        () => Text(
-                          '${CommonUtils.formatDuration(myVideoStateController.currentPosition.value)} / ${CommonUtils.formatDuration(myVideoStateController.totalDuration.value)}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
+                          const SizedBox(width: 8.0), // 播放按钮与进度信息之间的间距
+                          // 进度信息，并添加点击事件
+                          TextButton(
+                            onPressed: () {
+                              _showSeekDialog(context);
+                            },
+                            child: Obx(
+                              () => Text(
+                                '${CommonUtils.formatDuration(myVideoStateController.currentPosition.value)} / ${CommonUtils.formatDuration(myVideoStateController.totalDuration.value)}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
-                // 右侧：播放速度切换、分辨率切换和全屏按钮
-                Row(
-                  children: [
-                    // 播放速度切换按钮
-                    _buildPlaybackSpeedSwitcher(context),
-                    // 分辨率切换按钮
-                    _buildResolutionSwitcher(context),
-                    // 桌面端的应用全屏
-                    if (GetPlatform.isDesktop && !currentScreenIsFullScreen)
-                      _buildIconButton(
-                        tooltip:
-                            myVideoStateController.isDesktopAppFullScreen.value
-                                ? t.videoDetail.exitAppFullscreen
-                                : t.videoDetail.enterAppFullscreen,
-                        icon: Obx(() {
-                          return SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: (myVideoStateController
-                                    .isDesktopAppFullScreen.value)
-                                ? SvgPicture.asset(
-                                    'assets/svg/app_exit_fullscreen.svg',
-                                    colorFilter: const ColorFilter.mode(
-                                        Colors.white, BlendMode.srcIn),
-                                    semanticsLabel: myVideoStateController
-                                            .isDesktopAppFullScreen.value
-                                        ? t.videoDetail.exitAppFullscreen
-                                        : t.videoDetail.enterAppFullscreen,
-                                  )
-                                : SvgPicture.asset(
-                                    'assets/svg/app_enter_fullscreen.svg',
-                                    colorFilter: const ColorFilter.mode(
-                                        Colors.white, BlendMode.srcIn),
-                                    semanticsLabel: myVideoStateController
-                                            .isDesktopAppFullScreen.value
-                                        ? t.videoDetail.exitAppFullscreen
-                                        : t.videoDetail.enterAppFullscreen,
-                                  ),
-                          );
-                        }),
-                        onPressed: () {
-                          if (myVideoStateController
-                              .isDesktopAppFullScreen.value) {
-                            myVideoStateController
-                                .isDesktopAppFullScreen.value = false;
-                            appService.showSystemUI();
-                          } else {
-                            appService.hideSystemUI();
-                            myVideoStateController.isDesktopAppFullScreen.value =
-                                true;
-                          }
-                        },
+                      // 右侧：播放速度切换、分辨率切换和全屏按钮
+                      Row(
+                        children: [
+                          // 播放速度切换按钮
+                          _buildPlaybackSpeedSwitcher(context),
+                          // 分辨率切换按钮
+                          _buildResolutionSwitcher(context),
+                          // 桌面端的应用全屏
+                          if (GetPlatform.isDesktop && !currentScreenIsFullScreen)
+                            _buildIconButton(
+                              tooltip:
+                                  myVideoStateController.isDesktopAppFullScreen.value
+                                      ? t.videoDetail.exitAppFullscreen
+                                      : t.videoDetail.enterAppFullscreen,
+                              icon: Obx(() {
+                                return SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: (myVideoStateController
+                                          .isDesktopAppFullScreen.value)
+                                      ? SvgPicture.asset(
+                                          'assets/svg/app_exit_fullscreen.svg',
+                                          colorFilter: const ColorFilter.mode(
+                                              Colors.white, BlendMode.srcIn),
+                                          semanticsLabel: myVideoStateController
+                                                  .isDesktopAppFullScreen.value
+                                              ? t.videoDetail.exitAppFullscreen
+                                              : t.videoDetail.enterAppFullscreen,
+                                        )
+                                      : SvgPicture.asset(
+                                          'assets/svg/app_enter_fullscreen.svg',
+                                          colorFilter: const ColorFilter.mode(
+                                              Colors.white, BlendMode.srcIn),
+                                          semanticsLabel: myVideoStateController
+                                                  .isDesktopAppFullScreen.value
+                                              ? t.videoDetail.exitAppFullscreen
+                                              : t.videoDetail.enterAppFullscreen,
+                                        ),
+                                );
+                              }),
+                              onPressed: () {
+                                if (myVideoStateController
+                                    .isDesktopAppFullScreen.value) {
+                                  myVideoStateController
+                                      .isDesktopAppFullScreen.value = false;
+                                  appService.showSystemUI();
+                                } else {
+                                  appService.hideSystemUI();
+                                  myVideoStateController.isDesktopAppFullScreen.value =
+                                      true;
+                                }
+                              },
+                            ),
+                          // 全屏按钮
+                          if (!myVideoStateController.isDesktopAppFullScreen.value)
+                            _buildIconButton(
+                              tooltip: currentScreenIsFullScreen
+                                  ? t.videoDetail.exitSystemFullscreen
+                                  : t.videoDetail.enterSystemFullscreen,
+                              icon: Icon(
+                                currentScreenIsFullScreen
+                                    ? Icons.fullscreen_exit
+                                    : Icons.fullscreen,
+                                color: Colors.white,
+                              ),
+                              onPressed: () {
+                                if (currentScreenIsFullScreen) {
+                                  // 退出系统全屏
+                                  myVideoStateController.exitFullscreen();
+                                } else {
+                                  // 进入系统全屏
+                                  myVideoStateController.enterFullscreen();
+                                  // 关闭toolbar
+                                  myVideoStateController.setToolbarHovering(false);
+                                }
+                              },
+                            ),
+                        ],
                       ),
-                    // 全屏按钮
-                    _buildIconButton(
-                      tooltip: currentScreenIsFullScreen
-                          ? t.videoDetail.exitSystemFullscreen
-                          : t.videoDetail.enterSystemFullscreen,
-                      icon: Icon(
-                        currentScreenIsFullScreen
-                            ? Icons.fullscreen_exit
-                            : Icons.fullscreen,
-                        color: Colors.white,
-                      ),
-                      onPressed: () {
-                        if (currentScreenIsFullScreen) {
-                          // 退出系统全屏
-                          myVideoStateController.exitFullscreen();
-                        } else {
-                          // 进入系统全屏
-                          myVideoStateController.enterFullscreen();
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 

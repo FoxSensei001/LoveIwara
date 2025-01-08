@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/follows/repositories/followers_list_repository.dart';
 import 'package:i_iwara/app/ui/pages/follows/repositories/following_list_repository.dart';
 import 'package:i_iwara/app/services/app_service.dart';
-import 'package:i_iwara/i18n/strings.g.dart';
 
 class FollowsController extends GetxController {
   final String userId;

@@ -116,7 +116,7 @@ class CommentSection extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Text(
           t.common.tmpNoComments,
-          style: TextStyle(fontSize: 16, color: Colors.grey),
+          style: const TextStyle(fontSize: 16, color: Colors.grey),
         ),
       ),
     );

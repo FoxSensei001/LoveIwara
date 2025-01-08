@@ -1,0 +1,49 @@
+# 最新版本
+currentVersion: "0.1.0"
+# 更新日志
+# 格式介绍
+# 1. version: 版本号
+# 2. date: 更新日期
+# 3. changes: 更新内容
+# 4. forceUpdate: 是否强制更新
+# 5. minVersion: 最小版本号
+updates:
+  - version: "0.1.0"
+    date: "2025-01-04"
+    forceUpdate: false
+    minVersion: "0.1.0"
+    changes:
+      zh-CN:
+        - "新增自动更新检查功能"
+        - "新增帖子和相关功能"
+        - "提高软件稳定性"
+        - "优化软件流畅度"
+      en:
+        - "Added automatic update check"
+        - "Added posts and related features"
+        - "Improved app stability"
+        - "Enhanced app performance"
+      ja:
+        - "自動更新チェック機能を追加"
+        - "投稿と関連機能を追加"
+        - "アプリの安定性を向上"
+        - "アプリのパフォーマンスを改善"
+      zh-TW:
+        - "新增自動更新檢查功能"
+        - "新增貼文和相關功能"
+        - "提高軟體穩定性"
+        - "優化軟體流暢度"
+    
+  - version: "0.0.1"
+    date: "2025-01-01"
+    forceUpdate: false
+    minVersion: "0.0.1"
+    changes:
+      zh-CN:
+        - "初始版本发布"
+      en:
+        - "Initial release"
+      ja:
+        - "初期バージョンリリース"
+      zh-TW:
+        - "初始版本發布" 

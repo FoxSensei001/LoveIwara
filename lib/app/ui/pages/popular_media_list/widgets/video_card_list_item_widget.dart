@@ -4,8 +4,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_preview_modal.dart';
+import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
-import 'package:vibration/vibration.dart';
 
 import '../../../../../common/constants.dart';
 import '../../../../models/video.model.dart';
@@ -23,7 +23,8 @@ class VideoCardListItemWidget extends StatefulWidget {
   });
 
   @override
-  State<VideoCardListItemWidget> createState() => _VideoCardListItemWidgetState();
+  State<VideoCardListItemWidget> createState() =>
+      _VideoCardListItemWidgetState();
 }
 
 class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
@@ -32,7 +33,6 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final double imageHeight = (widget.width * 160) / 220;
     final TextTheme textTheme = Theme.of(context).textTheme;
 
     return SizedBox(
@@ -42,23 +42,25 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         child: InkWell(
           onTap: () => _navigateToDetailPage(context),
-          onSecondaryTap: () => _showDetailsModalWithVibration(context),
-          onLongPress: () => _showDetailsModalWithVibration(context),
+          onSecondaryTap: () => _showDetailsModal(context),
+          onLongPress: () => _showDetailsModal(context),
           hoverColor: Theme.of(context).hoverColor.withOpacity(0.1),
           splashColor: Theme.of(context).splashColor.withOpacity(0.2),
           highlightColor: Theme.of(context).highlightColor.withOpacity(0.1),
-          child: _buildCardContent(imageHeight, textTheme, context),
+          child: _buildCardContent(textTheme, context),
         ),
       ),
     );
   }
 
-  Widget _buildCardContent(
-      double imageHeight, TextTheme textTheme, BuildContext context) {
+  Widget _buildCardContent(TextTheme textTheme, BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildThumbnail(imageHeight, context),
+        AspectRatio(
+          aspectRatio: 220 / 160,
+          child: _buildThumbnail(context),
+        ),
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -76,35 +78,32 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
   }
 
   // 视频缩略图
-  Widget _buildThumbnail(double imageHeight, BuildContext context) {
-    return SizedBox(
-      height: imageHeight,
-      width: double.infinity,
-      child: MouseRegion(
-        onEnter: (_) {
-          _hoverTimer?.cancel();
-          _hoverTimer = Timer(const Duration(seconds: 1), () {
-            if (mounted) {
-              setState(() {
-                _showAnimatedPreview = true;
-              });
-            }
-          });
-        },
-        onExit: (_) {
-          _hoverTimer?.cancel();
+  Widget _buildThumbnail(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) {
+        _hoverTimer?.cancel();
+        _hoverTimer = Timer(const Duration(seconds: 1), () {
           if (mounted) {
             setState(() {
-              _showAnimatedPreview = false;
+              _showAnimatedPreview = true;
             });
           }
-        },
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: _showAnimatedPreview
+        });
+      },
+      onExit: (_) {
+        _hoverTimer?.cancel();
+        if (mounted) {
+          setState(() {
+            _showAnimatedPreview = false;
+          });
+        }
+      },
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: _showAnimatedPreview
                 ? CachedNetworkImage(
                     imageUrl: widget.video.previewUrl,
                     fit: BoxFit.cover,
@@ -120,7 +119,10 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
                           fit: BoxFit.cover,
                         );
                       } else {
-                        return const Center(child: Icon(Icons.error, size: 50));
+                        return Container(
+                            color: Colors.grey[200],
+                            child: Icon(Icons.image_not_supported,
+                                size: 40, color: Colors.grey[600]));
                       }
                     },
                   )
@@ -128,30 +130,37 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
                     imageUrl: widget.video.thumbnailUrl,
                     fit: BoxFit.cover,
                     placeholder: (context, url) => _buildPlaceholder(),
-                    errorWidget: (context, url, error) =>
-                        const Center(child: Icon(Icons.error, size: 50)),
+                    errorWidget: (context, url, error) => Container(
+                        color: Colors.grey[200],
+                        child: Icon(Icons.image_not_supported,
+                            size: 40, color: Colors.grey[600])),
                   ),
+          ),
+          if (widget.video.rating == 'ecchi')
+            Positioned(
+              left: 0,
+              bottom: 0,
+              child: _buildRatingTag(context),
             ),
-            if (widget.video.rating == 'ecchi')
-              Positioned(
-                left: 0,
-                bottom: 0,
-                child: _buildRatingTag(context),
-              ),
-            if (widget.video.private == true)
-              Positioned(
-                left: 0,
-                top: 0,
-                child: _buildPrivateTag(context),
-              ),
-            if (widget.video.minutesDuration != null)
-              Positioned(
-                right: 0,
-                bottom: 0,
-                child: _buildDurationTag(context),
-              ),
-          ],
-        ),
+          if (widget.video.private == true)
+            Positioned(
+              left: 0,
+              top: 0,
+              child: _buildPrivateTag(context),
+            ),
+          if (widget.video.minutesDuration != null)
+            Positioned(
+              right: 0,
+              bottom: 0,
+              child: _buildDurationTag(context),
+            ),
+          if (widget.video.isExternalVideo)
+            Positioned(
+              right: 0,
+              bottom: 0,
+              child: _buildExternalVideoTag(context),
+            ),
+        ],
       ),
     );
   }
@@ -190,19 +199,29 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
         bottomRight: Radius.circular(12),
       ),
       child: Container(
-        width: 100,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: const BoxDecoration(
           color: Colors.black54,
         ),
-        child: Text(
-          t.common.private,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onPrimary,
-            fontWeight: FontWeight.bold,
-            fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
-            decoration: TextDecoration.none,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.lock,
+              size: 16,
+              color: Colors.white,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              t.common.private,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onPrimary,
+                fontWeight: FontWeight.bold,
+                fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
+                decoration: TextDecoration.none,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -243,6 +262,42 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
     );
   }
 
+  Widget _buildExternalVideoTag(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return ClipRRect(
+      borderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(12),
+        bottomRight: Radius.circular(8),
+      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: const BoxDecoration(
+          color: Colors.black54,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.link,
+              size: 16,
+              color: Colors.white,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              t.common.externalVideo,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
+                decoration: TextDecoration.none,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildTitle(TextTheme textTheme) {
     return SizedBox(
       height: textTheme.bodyLarge!.fontSize! * 3.5,
@@ -268,38 +323,39 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
   Widget _buildAuthorInfo(TextTheme textTheme, BuildContext context) {
     final t = slang.Translations.of(context);
     return GestureDetector(
-      onTap: () => NaviService.navigateToAuthorProfilePage(widget.video.user?.username ?? ''),
+      onTap: () => NaviService.navigateToAuthorProfilePage(
+          widget.video.user?.username ?? ''),
       child: Row(
         children: [
           _buildAvatar(),
           const SizedBox(width: 8),
           Expanded(
             child: widget.video.user?.premium == true
-              ? ShaderMask(
-                  shaderCallback: (bounds) => LinearGradient(
-                    colors: [
-                      Colors.purple.shade300,
-                      Colors.blue.shade300,
-                      Colors.pink.shade300,
-                    ],
-                  ).createShader(bounds),
-                  child: Text(
-                    widget.video.user?.name ?? t.common.unknownUser,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
+                ? ShaderMask(
+                    shaderCallback: (bounds) => LinearGradient(
+                      colors: [
+                        Colors.purple.shade300,
+                        Colors.blue.shade300,
+                        Colors.pink.shade300,
+                      ],
+                    ).createShader(bounds),
+                    child: Text(
+                      widget.video.user?.name ?? t.common.unknownUser,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
+                  )
+                : Text(
+                    widget.video.user?.name ?? t.common.unknownUser,
+                    style: textTheme.bodySmall,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                )
-              : Text(
-                  widget.video.user?.name ?? t.common.unknownUser,
-                  style: textTheme.bodySmall,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
           ),
         ],
       ),
@@ -307,55 +363,21 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
   }
 
   Widget _buildAvatar() {
-    Widget avatar = SizedBox(
-      width: 24,
-      height: 24,
-      child: ClipOval(
-        child: CachedNetworkImage(
-          imageUrl: widget.video.user?.avatar?.avatarUrl ?? '',
-          httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
-          fit: BoxFit.cover,
-          placeholder: (context, url) => _buildPlaceholder(),
-          errorWidget: (context, url, error) =>
-              const Icon(Icons.person, size: 24),
-        ),
-      ),
+    return AvatarWidget(
+      avatarUrl: widget.video.user?.avatar?.avatarUrl,
+      defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+      headers: const {'referer': CommonConstants.iwaraBaseUrl},
+      radius: 14,
+      isPremium: widget.video.user?.premium ?? false,
+      isAdmin: widget.video.user?.isAdmin ?? false,
     );
-
-    if (widget.video.user?.premium == true) {
-      return Container(
-        width: 32,
-        height: 32,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: LinearGradient(
-            colors: [
-              Colors.purple.shade200,
-              Colors.blue.shade200,
-              Colors.pink.shade200,
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: avatar,
-        ),
-      );
-    }
-
-    return avatar;
   }
 
   void _navigateToDetailPage(BuildContext context) {
     NaviService.navigateToVideoDetailPage(widget.video.id);
   }
 
-  void _showDetailsModalWithVibration(BuildContext context) async {
-    if (await Vibration.hasVibrator() ?? false) {
-      await Vibration.vibrate(pattern: [500]);
-    }
+  void _showDetailsModal(BuildContext context) async {
 
     if (context.mounted) {
       // 显示预览模态框

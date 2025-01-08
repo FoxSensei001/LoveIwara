@@ -123,7 +123,7 @@ class SignInRepository extends BaseRepository {
 
         if (difference == 0) {
           streak += 1;
-          currentDay = currentDay.subtract(Duration(days: 1));
+          currentDay = currentDay.subtract(const Duration(days: 1));
         } else {
           break;
         }

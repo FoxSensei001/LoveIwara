@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
@@ -10,6 +9,7 @@ import 'package:i_iwara/app/services/comment_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/controllers/comment_controller.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_remove_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
@@ -173,10 +173,16 @@ class _CommentItemState extends State<CommentItem> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ListView.builder(
+        ListView.separated(
           physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
           itemCount: _replies.length + (_hasMoreReplies ? 1 : 0),
+          separatorBuilder: (context, index) => Divider(
+            height: 1,
+            indent: 48.0,
+            endIndent: 16.0,
+            color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.2),
+          ),
           itemBuilder: (context, index) {
             if (index < _replies.length) {
               return CommentItem(
@@ -314,10 +320,10 @@ class _CommentItemState extends State<CommentItem> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Text(
                   slang.t.common.selectTranslationLanguage,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -362,7 +368,7 @@ class _CommentItemState extends State<CommentItem> {
     final t = slang.Translations.of(context);
     return Material(
       borderRadius: BorderRadius.circular(20),
-      elevation: 2,
+      color: Theme.of(context).colorScheme.surfaceContainerLowest.withOpacity(0.5),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -376,18 +382,28 @@ class _CommentItemState extends State<CommentItem> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (_isTranslating)
-                    const SizedBox(
+                    SizedBox(
                       width: 14,
                       height: 14,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
                     )
                   else
-                    const Icon(Icons.translate, size: 16),
+                    Icon(
+                      Icons.translate,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
                   const SizedBox(width: 4),
                   Text(
                     t.common.translate,
                     style: TextStyle(
                       fontSize: 12,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                 ],
@@ -398,7 +414,7 @@ class _CommentItemState extends State<CommentItem> {
           Container(
             height: 24,
             width: 1,
-            color: Colors.grey.withOpacity(0.2),
+            color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.2),
           ),
           // 右侧下拉按钮
           InkWell(
@@ -409,6 +425,7 @@ class _CommentItemState extends State<CommentItem> {
               child: Icon(
                 Icons.arrow_drop_down,
                 size: 26,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
           ),
@@ -495,26 +512,60 @@ class _CommentItemState extends State<CommentItem> {
   }
 
   // 添加这个方法来构建标签
-  Widget _buildCommentTag(String text, Color color) {
-    return Container(
-      margin: const EdgeInsets.only(right: 4),
-      padding: CommentItem._tagPadding,
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: color.withOpacity(0.5),
-          width: 1,
-        ),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: color,
-          fontSize: CommentItem._tagFontSize,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
+  Widget _buildCommentTag(String text, Color color, IconData icon) {
+    return Builder(
+      builder: (context) {
+        final colorScheme = Theme.of(context).colorScheme;
+        Color tagColor;
+        switch (text) {
+          case String t when t == slang.t.common.me:
+            tagColor = colorScheme.primary;
+            break;
+          case String t when t == slang.t.common.premium:
+            tagColor = colorScheme.tertiary;
+            break;
+          case String t when t == slang.t.common.author:
+            tagColor = colorScheme.secondary;
+            break;
+          case String t when t == slang.t.common.admin:
+            tagColor = colorScheme.error;
+            break;
+          default:
+            tagColor = colorScheme.primary;
+        }
+
+        return Container(
+          margin: const EdgeInsets.only(right: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          decoration: BoxDecoration(
+            color: tagColor.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: tagColor.withOpacity(0.12),
+              width: 0.5,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 10,
+                color: tagColor.withOpacity(0.8),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                text,
+                style: TextStyle(
+                  color: tagColor.withOpacity(0.8),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -532,21 +583,83 @@ class _CommentItemState extends State<CommentItem> {
       color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.75),
     );
 
-    return DefaultTextStyle(
-      style: timeTextStyle,
-      child: Wrap(
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: [
-          Text(CommonUtils.formatFriendlyTimestamp(comment.createdAt)),
-          if (hasEdit) ...[
-            const Text(' · '),
-            Text(
-              t.common.editedAt(num: CommonUtils.formatFriendlyTimestamp(comment.updatedAt)),
-              style: timeTextStyle.copyWith(),
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 创建时间
+              Row(
+                children: [
+                  Icon(
+                    Icons.access_time,
+                    size: 14,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.75),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    CommonUtils.formatFriendlyTimestamp(comment.createdAt),
+                    style: timeTextStyle,
+                  ),
+                ],
+              ),
+              // 编辑时间
+              if (hasEdit)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.edit_calendar,
+                        size: 14,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.75),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        t.common.editedAt(num: CommonUtils.formatFriendlyTimestamp(comment.updatedAt)),
+                        style: timeTextStyle,
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+        // 回复数量指示器
+        if (widget.comment.numReplies > 0)
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(20),
+              onTap: _handleViewReplies,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Badge.count(
+                      count: widget.comment.numReplies,
+                      child: Icon(
+                        Icons.comment_outlined,
+                        size: 20,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(
+                      _isRepliesExpanded
+                          ? Icons.keyboard_arrow_up
+                          : Icons.keyboard_arrow_down,
+                      size: 20,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ],
-        ],
-      ),
+          ),
+      ],
     );
   }
 
@@ -656,9 +769,9 @@ class _CommentItemState extends State<CommentItem> {
             value: 'reply',
             child: Row(
               children: [
-                Icon(Icons.reply, size: 16),
-                SizedBox(width: 8),
-                Text(t.common.reply, style: TextStyle(fontSize: 14)),
+                const Icon(Icons.reply, size: 16),
+                const SizedBox(width: 8),
+                Text(t.common.reply, style: const TextStyle(fontSize: 14)),
               ],
             ),
           ),
@@ -667,9 +780,9 @@ class _CommentItemState extends State<CommentItem> {
             value: 'edit',
             child: Row(
               children: [
-                Icon(Icons.edit, size: 16),
-                SizedBox(width: 8),
-                Text(t.common.edit, style: TextStyle(fontSize: 14)),
+                const Icon(Icons.edit, size: 16),
+                const SizedBox(width: 8),
+                Text(t.common.edit, style: const TextStyle(fontSize: 14)),
               ],
             ),
           ),
@@ -677,9 +790,9 @@ class _CommentItemState extends State<CommentItem> {
             value: 'delete',
             child: Row(
               children: [
-                Icon(Icons.delete, size: 16),
-                SizedBox(width: 8),
-                Text(t.common.delete, style: TextStyle(fontSize: 14)),
+                const Icon(Icons.delete, size: 16),
+                const SizedBox(width: 8),
+                Text(t.common.delete, style: const TextStyle(fontSize: 14)),
               ],
             ),
           ),
@@ -734,6 +847,7 @@ class _CommentItemState extends State<CommentItem> {
                       children: [
                         // 用户名行
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             // 会员用户名
                             Flexible(
@@ -767,17 +881,24 @@ class _CommentItemState extends State<CommentItem> {
                                     overflow: TextOverflow.ellipsis,
                                   ),
                             ),
-                            const SizedBox(width: 4),
-                            // 各种标签
-                            if (comment.user?.id == _userService.currentUser.value?.id)
-                              _buildCommentTag(t.common.me, Colors.blue),
-                            if (comment.user?.premium == true)
-                              _buildCommentTag(t.common.premium, Colors.purple),
-                            if (comment.user?.id == widget.authorUserId)
-                              _buildCommentTag(t.common.author, Colors.green),
-                            if (comment.user?.role.contains('admin') == true)
-                              _buildCommentTag(t.common.admin, Colors.red),
                           ],
+                        ),
+                        // 标签行
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (comment.user?.id == _userService.currentUser.value?.id)
+                                _buildCommentTag(t.common.me, Colors.blue, Icons.person),
+                              if (comment.user?.premium == true)
+                                _buildCommentTag(t.common.premium, Colors.purple, Icons.star),
+                              if (comment.user?.id == widget.authorUserId)
+                                _buildCommentTag(t.common.author, Colors.green, Icons.verified_user),
+                              if (comment.user?.role.contains('admin') == true)
+                                _buildCommentTag(t.common.admin, Colors.red, Icons.admin_panel_settings),
+                            ],
+                          ),
                         ),
                         // @用户名
                         Text(
@@ -804,9 +925,14 @@ class _CommentItemState extends State<CommentItem> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // 评论内容 - 添加点击回复功能
-                InkWell(
-                  onTap: widget.comment.parent == null ? _showReplyDialog : null,
-                  child: CustomMarkdownBody(data: comment.body),
+                Material(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(8),
+                  clipBehavior: Clip.antiAlias,
+                  child: InkWell(
+                    onTap: widget.comment.parent == null ? _showReplyDialog : null,
+                    child: CustomMarkdownBody(data: comment.body),
+                  ),
                 ),
                 if (_translatedText != null) ...[
                   const SizedBox(height: 8),
@@ -816,6 +942,9 @@ class _CommentItemState extends State<CommentItem> {
                 // 回复、翻译和操作按钮行
                 Row(
                   children: [
+                    // 翻译按钮
+                    _buildTranslationButton(context),
+                    const Spacer(),
                     // 回复按钮 - 只在非回复评论中显示
                     if (comment.parent == null)
                       IconButton(
@@ -827,38 +956,12 @@ class _CommentItemState extends State<CommentItem> {
                           foregroundColor: Theme.of(context).colorScheme.primary,
                         ),
                       ),
-                    const Spacer(),
-                    _buildTranslationButton(context),
                     _buildActionMenu(context),
                   ],
                 ),
                 const SizedBox(height: 4),
                 // 时间和查看回复按钮行
                 _buildTimeInfo(comment, context),
-                if (widget.comment.numReplies > 0)
-                  TextButton(
-                    onPressed: _handleViewReplies,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          _isRepliesExpanded ? t.common.hideReplies : t.common.viewReplies(num: widget.comment.numReplies),
-                          style: TextStyle(
-                            color: Theme.of(context).primaryColor,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        Icon(
-                          _isRepliesExpanded
-                              ? Icons.keyboard_arrow_up
-                              : Icons.keyboard_arrow_down,
-                          size: 16,
-                          color: Theme.of(context).primaryColor,
-                        ),
-                      ],
-                    ),
-                  ),
               ],
             ),
           ),
@@ -871,36 +974,14 @@ class _CommentItemState extends State<CommentItem> {
 
   // 构建用户头像
   Widget _buildUserAvatar(Comment comment) {
-    Widget avatar = CircleAvatar(
+    return AvatarWidget(
+      avatarUrl: comment.user?.avatar?.avatarUrl, 
+      defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+      headers: const {'referer': CommonConstants.iwaraBaseUrl},
       radius: 20,
-      backgroundImage: CachedNetworkImageProvider(
-        comment.user?.avatar?.avatarUrl ?? CommonConstants.defaultAvatarUrl,
-        headers: const {'referer': CommonConstants.iwaraBaseUrl},
-      ),
+      isPremium: comment.user?.premium ?? false,
+      isAdmin: comment.user?.isAdmin ?? false,
     );
-
-    if (comment.user?.premium == true) {
-      return Container(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: LinearGradient(
-            colors: [
-              Colors.purple.shade200,
-              Colors.blue.shade200,
-              Colors.pink.shade200,
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(2.0),
-          child: avatar,
-        ),
-      );
-    }
-
-    return avatar;
   }
 
 }

@@ -22,6 +22,8 @@ common:
   friend: 友達
   video: ビデオ
   following: フォロー中
+  expand: 展開
+  collapse: 收起
   cancelFriendRequest: 友達申請を取り消す
   cancelSpecialFollow: 特別フォローを解除
   addFriend: 友達を追加
@@ -51,7 +53,7 @@ common:
   minutesAgo: '${num} 分前'
   hoursAgo: '${num} 時間前'
   daysAgo: '${num} 日前'
-  editedAt: '${num} 前に編集'
+  editedAt: '${num} 編集'
   editComment: コメントを編集
   commentUpdated: コメントが更新されました
   replyComment: コメントに返信
@@ -136,6 +138,11 @@ common:
   numViews: 視聴回数
   updatedAt: 更新時間
   publishedAt: 発表時間
+  externalVideo: 站外動画
+  originalText: 原文
+  showOriginalText: 原文を表示
+  showProcessedText: 処理後の原文を表示
+
   download: ダウンロード
   selectQuality: 画質を選択
 auth:
@@ -159,6 +166,8 @@ auth:
   logoutConfirmation: 本当にログアウトしますか？
   logoutSuccess: ログアウトに成功しました
   logoutFailed: ログアウトに失敗しました
+  usernameOrEmail: ユーザー名またはメールアドレス
+  pleaseEnterUsernameOrEmail: ユーザー名またはメールアドレスを入力してください
 
 errors:
   error: エラー
@@ -200,6 +209,10 @@ errors:
   errorWhileLoadingPost: 投稿の取得中にエラーが発生しました
   errorWhileLoadingPostDetail: 投稿詳細の取得中にエラーが発生しました
   invalidPostId: 無効な投稿IDです
+  forceUpdateNotPermittedToGoBack: 現在強制更新状態です。戻ることはできません
+  pleaseLoginAgain: ログインしてください
+  invalidLogin: ログインに失敗しました。メールアドレスとパスワードを確認してください
+  tooManyRequests: リクエストが多すぎます。後でもう一度お試しください
 friends:
   clickToRestoreFriend: 友達を復元するにはクリックしてください
   friendsList: 友達リスト
@@ -231,6 +244,7 @@ galleryDetail:
   moreFeaturesToBeDiscovered: さらに機能が発見されます...
   authorOtherGalleries: 作者の他のギャラリー
   relatedGalleries: 関連ギャラリー
+  clickLeftAndRightEdgeToSwitchImage: 左端と右端をクリックして切り替え
 
 playList:
   myPlayList: 私のプレイリスト
@@ -325,6 +339,14 @@ settings:
   issueReport: 問題報告
   openSourceLicense: オープンソースライセンス
   checkForUpdatesFailed: 更新のチェックに失敗しました。後でもう一度お試しください
+  autoCheckUpdate: 自動更新
+  updateContent: 更新内容
+  releaseDate: リリース日
+  ignoreThisVersion: このバージョンを無視
+  minVersionUpdateRequired: 現在のバージョンが低すぎます。すぐに更新してください
+  forceUpdateTip: "これは必須アップデートです。できるだけ早く最新バージョンにアップデートしてください"
+  viewChangelog: 更新内容を表示
+  alreadyLatestVersion: すでに最新バージョンです
 
 signIn:
   pleaseLoginFirst: サインインする前にログインしてください
@@ -394,6 +416,9 @@ videoDetail:
   authorOtherVideos: 作者の他のビデオ
   relatedVideos: 関連ビデオ
   privateVideo: これはプライベートビデオです
+  externalVideo: これは站外ビデオです
+  openInBrowser: ブラウザで開く
+  resourceDeleted: このビデオは削除されたようです :/
   noDownloadUrl: ダウンロードURLがありません
   startDownloading: ダウンロードを開始
   downloadFailed: ダウンロードに失敗しました。後でもう一度お試しください

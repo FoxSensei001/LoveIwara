@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:vibration/vibration.dart';
+import 'package:i_iwara/utils/logger_utils.dart';
 
 import '../../../../../../utils/common_utils.dart';
 import '../../controllers/my_video_state_controller.dart';
@@ -33,70 +34,43 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
   bool get isMobile =>
       GetPlatform.isAndroid || GetPlatform.isIOS || GetPlatform.isFuchsia;
 
+  // 将平台判断逻辑提取为getter
+  bool get _shouldHandleHover => !isMobile;
+
+  // 添加计算值的getter
+  double get _currentValue {
+    if ((widget.controller.videoBuffering.value && 
+         !widget.controller.sliderDragLoadFinished.value) || 
+        _dragging) {
+      return _draggingValue ?? 0.0;
+    }
+    return widget.controller.currentPosition.value.inSeconds.toDouble();
+  }
+
+  double get _maxValue => 
+      widget.controller.totalDuration.value.inSeconds.toDouble();
+
+  @override
+  void dispose() {
+    _draggingValue = null;
+    _hoverValue = null;
+    _hoverPosition = null;
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         return GestureDetector(
-          // 仅在移动端处理长按事件
-          onLongPressStart: isMobile
-              ? (details) async {
-                  // 添加震动反馈
-                  if (await Vibration.hasVibrator() ?? false) {
-                    await Vibration.vibrate(duration: 50);
-                  }
-                  _handleLongPress(details.globalPosition);
-                }
-              : null,
-          onLongPressMoveUpdate: isMobile
-              ? (details) {
-                  _handleLongPress(details.globalPosition);
-                }
-              : null,
-          onLongPressEnd: isMobile
-              ? (details) {
-                  setState(() {
-                    _hoverValue = null;
-                    _hoverPosition = null;
-                  });
-                }
-              : null,
+          onLongPressStart: isMobile ? _handleLongPress : null,
+          onLongPressMoveUpdate: isMobile ? _handleLongPressMoveUpdate : null,
+          onLongPressEnd: isMobile ? _handleLongPressEnd : null,
           child: MouseRegion(
-            // 当鼠标进入滑动条区域时
-            onEnter: isMobile
-                ? null
-                : (event) {
-                    // 可以选择在进入时执行某些操作
-                  },
-            // 当鼠标离开滑动条区域时
-            onExit: isMobile
-                ? null
-                : (event) {
-                    setState(() {
-                      _hoverValue = null;
-                      _hoverPosition = null;
-                    });
-                  },
-            // 当鼠标在滑动条上移动时
-            onHover: isMobile
-                ? null
-                : (event) {
-                    _handleMouseHover(event.position);
-                  },
+            onEnter: _shouldHandleHover ? _handleMouseEnter : null,
+            onExit: _shouldHandleHover ? _handleMouseExit : null,
+            onHover: _shouldHandleHover ? _handleMouseHover : null,
             child: Obx(() {
-              // 计���当前播放位置（秒）
-              double? current = (widget.controller.videoBuffering.value &&
-                          !widget.controller.sliderDragLoadFinished.value ||
-                      _dragging)
-                  ? _draggingValue
-                  : widget.controller.currentPosition.value.inSeconds
-                      .toDouble();
-              double max =
-                  widget.controller.totalDuration.value.inSeconds.toDouble();
-
-              // 获取缓冲区段
-              List<BufferRange> buffers = widget.controller.buffers.toList();
-
               return Stack(
                 alignment: Alignment.centerLeft,
                 clipBehavior: Clip.none,
@@ -113,9 +87,9 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
                       // 使用自定义的轨道形状，并传入缓冲区段列表
                       trackShape: CustomSliderTrackShape(
                         hoverValue: _hoverValue,
-                        currentValue: current ?? 0.0,
-                        bufferRanges: buffers, // 传入缓冲区段
-                        maxValue: max,
+                        currentValue: _currentValue,
+                        bufferRanges: widget.controller.buffers,
+                        maxValue: _maxValue,
                       ),
                       activeTrackColor: Colors.white,
                       inactiveTrackColor: Colors.white.withOpacity(0.3),
@@ -128,9 +102,9 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
                     ),
                     child: Slider(
                       key: _sliderKey,
-                      value: current?.clamp(0.0, max > 0 ? max : 1.0) ?? 0.0,
+                      value: _currentValue.clamp(0.0, _maxValue > 0 ? _maxValue : 1.0),
                       min: 0.0,
-                      max: max > 0 ? max : 1.0,
+                      max: _maxValue > 0 ? _maxValue : 1.0,
                       onChangeStart: (value) {
                         setState(() {
                           _draggingValue = value;
@@ -143,21 +117,22 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
                           _draggingValue = value;
                         });
                       },
-                      onChangeEnd: (value) {
+                      onChangeEnd: (value) async {
                         setState(() {
                           _dragging = false;
                         });
+                        if (isMobile) {
+                          await HapticFeedback.lightImpact();
+                        }
                         widget.controller.sliderDragLoadFinished.value = false;
-                        widget.controller.player.play();
-                        widget.controller.player
-                            .seek(Duration(seconds: value.toInt()));
+                        widget.controller.handleSeek(Duration(seconds: value.toInt()));
                         widget.controller.setInteracting(false);
                       },
                       // 计算总时长和当前播放位置的百分比
-                      divisions: max > 0 ? max.toInt() : 1,
+                      divisions: _maxValue > 0 ? _maxValue.toInt() : 1,
                       label: CommonUtils.formatDuration(Duration(
                         seconds:
-                            _draggingValue?.toInt() ?? current?.toInt() ?? 0,
+                            _draggingValue?.toInt() ?? _currentValue.toInt() ?? 0,
                       )),
                     ),
                   ),
@@ -193,14 +168,34 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
   }
 
   /// 处理鼠标悬停事件
-  void _handleMouseHover(Offset globalPosition) {
-    RenderBox? box =
-        _sliderKey.currentContext?.findRenderObject() as RenderBox?;
+  void _handleMouseHover(PointerHoverEvent event) {
+    _handleMouseHoverUpdate(event.position);
+  }
+
+  /// 处理移动端的长按事件
+  void _handleLongPress(LongPressStartDetails details) {
+    _handleLongPressUpdate(details.globalPosition);
+  }
+
+  void _handleLongPressMoveUpdate(LongPressMoveUpdateDetails details) {
+    _handleLongPressUpdate(details.globalPosition);
+  }
+
+  void _handleLongPressEnd(LongPressEndDetails details) {
+    setState(() {
+      _hoverValue = null;
+      _hoverPosition = null;
+    });
+  }
+
+  void _handleLongPressUpdate(Offset globalPosition) {
+    if (!isMobile) return;
+
+    RenderBox? box = _sliderKey.currentContext?.findRenderObject() as RenderBox?;
     if (box != null) {
       Offset localPosition = box.globalToLocal(globalPosition);
       double relative = localPosition.dx / box.size.width;
-      // 获取当前的最大值
-      double max = widget.controller.totalDuration.value.inSeconds.toDouble();
+      double max = _maxValue;
       double hoverValue = (relative * max).clamp(0.0, max);
       double hoverPosition = localPosition.dx.clamp(0.0, box.size.width);
 
@@ -211,17 +206,28 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
     }
   }
 
-  /// 处理移动端的长按事件
-  void _handleLongPress(Offset globalPosition) {
-    if (!isMobile) return;
+  void _handleMouseEnter(PointerEnterEvent event) {
+    // 可以在这里添加鼠标进入时的逻辑
+  }
 
-    RenderBox? box =
-        _sliderKey.currentContext?.findRenderObject() as RenderBox?;
-    if (box != null) {
+  void _handleMouseExit(PointerExitEvent event) {
+    setState(() {
+      _hoverValue = null;
+      _hoverPosition = null;
+    });
+  }
+
+  void _handleMouseHoverUpdate(Offset globalPosition) {
+    RenderBox? box = _sliderKey.currentContext?.findRenderObject() as RenderBox?;
+    if (box == null) return;
+
+    try {
       Offset localPosition = box.globalToLocal(globalPosition);
       double relative = localPosition.dx / box.size.width;
-      // 获取当前的最大值
-      double max = widget.controller.totalDuration.value.inSeconds.toDouble();
+      double max = _maxValue;
+      
+      if (max <= 0) return;
+      
       double hoverValue = (relative * max).clamp(0.0, max);
       double hoverPosition = localPosition.dx.clamp(0.0, box.size.width);
 
@@ -229,6 +235,8 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
         _hoverValue = hoverValue;
         _hoverPosition = hoverPosition;
       });
+    } catch (e) {
+      LogUtils.e('处理鼠标悬停失败', error: e, tag: 'CustomVideoProgressbar');
     }
   }
 }

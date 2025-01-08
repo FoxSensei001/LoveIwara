@@ -5,7 +5,6 @@ import 'package:i_iwara/app/ui/pages/author_profile/controllers/userz_post_list_
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
 import 'package:i_iwara/utils/widget_extensions.dart';
 import 'package:loading_more_list/loading_more_list.dart';
-import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/post_tile_list_item_widget.dart';
 
 class ProfilePostTabListWidget extends StatefulWidget {

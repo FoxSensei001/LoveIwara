@@ -227,7 +227,7 @@ class _PlayListPageState extends State<PlayListPage> {
     Get.dialog(
       AlertDialog(
         title: Text('💡 ${slang.t.playList.friendlyTips}',
-            style: TextStyle(fontSize: 18)),
+            style: const TextStyle(fontSize: 18)),
         content: ExtendedText(
           '${slang.t.playList.dearUser}:\n\n'
           '⚠️ ${slang.t.playList.iwaraPlayListSystemIsNotPerfectYet}\n'
@@ -237,13 +237,13 @@ class _PlayListPageState extends State<PlayListPage> {
           '${slang.t.playList.yesCreateListWillAlwaysExistAndVisibleToEveryone}😅\n\n'
           '💡 ${slang.t.playList.smallSuggestion}: ${slang.t.playList.useLikeToCollectContent}\n\n'
           '🤝 ${slang.t.playList.welcomeToDiscussOnGitHub}',
-          style: TextStyle(fontSize: 15, height: 1.5),
+          style: const TextStyle(fontSize: 15, height: 1.5),
         ),
         actions: [
           TextButton(
             onPressed: () => AppService.tryPop(),
             child: Text(slang.t.playList.iUnderstand,
-                style: TextStyle(fontSize: 16)),
+                style: const TextStyle(fontSize: 16)),
           ),
         ],
       ),

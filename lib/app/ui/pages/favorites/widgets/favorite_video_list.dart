@@ -36,7 +36,7 @@ class _FavoriteVideoListState extends State<FavoriteVideoList>
           SliverListConfig<Video>(
             extendedListDelegate:
                 const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 300,
+              maxCrossAxisExtent: 220,
               crossAxisSpacing: 5,
               mainAxisSpacing: 5,
             ),
@@ -48,7 +48,7 @@ class _FavoriteVideoListState extends State<FavoriteVideoList>
                   children: [
                     VideoCardListItemWidget(
                       video: video,
-                      width: 300,
+                      width: 220,
                     ),
                     if (isCanceled)
                       Positioned.fill(

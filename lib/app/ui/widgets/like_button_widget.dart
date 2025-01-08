@@ -6,6 +6,7 @@ import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:vibration/vibration.dart';
+import 'package:shimmer/shimmer.dart';
 
 class LikeButtonWidget extends StatefulWidget {
   final String mediaId;
@@ -90,14 +91,12 @@ class _LikeButtonWidgetState extends State<LikeButtonWidget> {
     return TextButton.icon(
       onPressed: _isLoading ? null : _handleLikeToggle,
       icon: _isLoading 
-          ? SizedBox(
-              // width: 16,
-              // height: 16,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  _isLiked ? Colors.pink : Colors.grey,
-                ),
+          ? Shimmer.fromColors(
+              baseColor: _isLiked ? Colors.pink.shade200 : Colors.grey.shade300,
+              highlightColor: _isLiked ? Colors.pink.shade100 : Colors.grey.shade100,
+              child: Icon(
+                _isLiked ? Icons.favorite : Icons.favorite_border,
+                color: _isLiked ? Colors.pink : null,
               ),
             )
           : Icon(

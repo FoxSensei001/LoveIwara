@@ -8,15 +8,14 @@ class SignInHeatMap extends StatelessWidget {
   final Map<DateTime, String> failureReasons; // 新增破戒原因映射
 
   SignInHeatMap({
-    Key? key,
+    super.key,
     required this.signInStatus,
     required this.consecutiveSignIns,
     required this.failureReasons, // 新增参数
     DateTime? startDate,
     DateTime? endDate,
-  })  : startDate = startDate ?? DateTime.now().subtract(Duration(days: 90)),
-        endDate = endDate ?? DateTime.now(),
-        super(key: key);
+  })  : startDate = startDate ?? DateTime.now().subtract(const Duration(days: 90)),
+        endDate = endDate ?? DateTime.now();
 
   // 生成日期列表
   List<DateTime> _generateDateList() {
@@ -26,7 +25,7 @@ class SignInHeatMap extends StatelessWidget {
 
     while (currentDate.isBefore(finalDate) || currentDate.isAtSameMomentAs(finalDate)) {
       dates.add(currentDate);
-      currentDate = currentDate.add(Duration(days: 1));
+      currentDate = currentDate.add(const Duration(days: 1));
     }
 
     return dates;
@@ -48,7 +47,7 @@ class SignInHeatMap extends StatelessWidget {
 
     while (signInStatus[currentDay] == true) {
       streak++;
-      currentDay = currentDay.subtract(Duration(days: 1));
+      currentDay = currentDay.subtract(const Duration(days: 1));
       if (currentDay.isBefore(startDate)) break;
     }
 

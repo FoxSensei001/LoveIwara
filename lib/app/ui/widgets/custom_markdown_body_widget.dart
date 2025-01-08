@@ -16,8 +16,13 @@ import '../../../common/constants.dart';
 
 class CustomMarkdownBody extends StatefulWidget {
   final String data;
+  final bool? initialShowUnprocessedText;
 
-  const CustomMarkdownBody({super.key, required this.data});
+  const CustomMarkdownBody({
+    super.key, 
+    required this.data, 
+    this.initialShowUnprocessedText,
+  });
 
   @override
   State<CustomMarkdownBody> createState() => _CustomMarkdownBodyState();
@@ -25,11 +30,20 @@ class CustomMarkdownBody extends StatefulWidget {
 
 class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
   String _displayData = "";
+  bool _isProcessing = false;
+  bool _showOriginal = false;
+
+  @override
+  void dispose() {
+    _isProcessing = false;
+    super.dispose();
+  }
 
   @override
   void initState() {
     super.initState();
-    _displayData = widget.data; // 初始显示原始数据
+    _displayData = widget.data;
+    _showOriginal = widget.initialShowUnprocessedText ?? false;
     _processMarkdown(widget.data);
   }
 
@@ -37,46 +51,56 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
   void didUpdateWidget(CustomMarkdownBody oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.data != widget.data) {
-      setState(() {
-        _displayData = widget.data;
-      });
+      if (mounted) {
+        setState(() {
+          _displayData = widget.data;
+        });
+      }
       _processMarkdown(widget.data);
     }
   }
 
   Future<void> _processMarkdown(String data) async {
+    if (!mounted) return;
+    _isProcessing = true;
     String processed = data;
 
-    // 分步骤处理，每步单独捕获错误
     try {
       processed = await _formatLinks(processed);
+      if (!mounted || !_isProcessing) return;
     } catch (e) {
       LogUtils.e('格式化链接时发生错误', error: e, tag: 'CustomMarkdownBody');
     }
 
     try {
       processed = _formatMarkdownLinks(processed);
-      setState(() {
-        _displayData = processed;
-      });
+      if (mounted && _isProcessing) {
+        setState(() {
+          _displayData = processed;
+        });
+      }
     } catch (e) {
       LogUtils.e('格式化 Markdown 链接时发生错误', error: e, tag: 'CustomMarkdownBody');
     }
 
     try {
       processed = _formatMentions(processed);
-      setState(() {
-        _displayData = processed;
-      });
+      if (mounted && _isProcessing) {
+        setState(() {
+          _displayData = processed;
+        });
+      }
     } catch (e) {
       LogUtils.e('格式化提及时发生错误', error: e, tag: 'CustomMarkdownBody');
     }
 
     try {
       processed = _replaceNewlines(processed);
-      setState(() {
-        _displayData = processed;
-      });
+      if (mounted && _isProcessing) {
+        setState(() {
+          _displayData = processed;
+        });
+      }
     } catch (e) {
       LogUtils.e('替换换行符时发生错误', error: e, tag: 'CustomMarkdownBody');
     }
@@ -97,6 +121,8 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
       'playlist': RegExp(
           r'https?://(?:www\.)?iwara\.tv/playlist/([a-zA-Z0-9-]+)',
           caseSensitive: false),
+      'post': RegExp(r'https?://(?:www\.)?iwara\.tv/post/([a-zA-Z0-9-]+)',
+          caseSensitive: false),
     };
 
     for (var entry in patterns.entries) {
@@ -112,6 +138,8 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     if (matches.isEmpty) return data;
 
     for (final match in matches) {
+      if (!mounted || !_isProcessing) return data;
+      
       final id = match.group(1)!;
       final originalUrl = match.group(0)!;
 
@@ -124,10 +152,11 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
 
       data = data.replaceAll(originalUrl, replacement);
 
-      // 每处理一个链接后更新显示数据
-      setState(() {
-        _displayData = data;
-      });
+      if (mounted && _isProcessing) {
+        setState(() {
+          _displayData = data;
+        });
+      }
     }
 
     return data;
@@ -183,6 +212,8 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
         return '👤';
       case 'playlist':
         return '🎵';
+      case 'post':
+        return '💬';
       default:
         return '❓';
     }
@@ -220,7 +251,6 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
   }
 
   void _onTapLink(String text, String? href, String title) async {
-    print('senko 点击的链接是：$href');
     if (href == null) return;
 
     try {
@@ -241,6 +271,10 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
           '${CommonConstants.iwaraBaseUrl}/playlist/')) {
         final playlistId = uri.pathSegments.last;
         NaviService.navigateToPlayListDetail(playlistId, isMine: false);
+      } else if (href.startsWith(
+          '${CommonConstants.iwaraBaseUrl}/post/')) {
+        final postId = uri.pathSegments.last;
+        NaviService.navigateToPostDetailPage(postId, null);
       } else {
         if (await canLaunchUrl(uri)) {
           await launchUrl(uri);
@@ -267,40 +301,71 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
           ),
     );
 
-    return MarkdownBody(
-      data: _displayData,
-      styleSheet: markdownStyleSheet,
-      onTapLink: _onTapLink,
-      selectable: true,
-      imageBuilder: (uri, title, alt) {
-        try {
-          final imageUrl = uri.toString();
-          final parsedUri = Uri.tryParse(imageUrl);
-          if (parsedUri == null || !parsedUri.hasAbsolutePath) {
-            throw FormatException(t.errors.invalidUrl);
-          }
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: CachedNetworkImage(
-              imageUrl: imageUrl,
-              placeholder: (context, url) => Shimmer.fromColors(
-                baseColor: Colors.grey[300]!,
-                highlightColor: Colors.grey[100]!,
-                child: Container(
-                  width: double.infinity,
-                  height: 200.0,
-                  color: Colors.white,
-                ),
-              ),
-              errorWidget: (context, url, error) => const Icon(Icons.error),
-              fit: BoxFit.cover,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: SizedBox(
+            width: double.infinity,
+            child: MarkdownBody(
+              data: _showOriginal ? widget.data : _displayData,
+              styleSheet: markdownStyleSheet,
+              onTapLink: _onTapLink,
+              selectable: true,
+              imageBuilder: (uri, title, alt) {
+                try {
+                  final imageUrl = uri.toString();
+                  final parsedUri = Uri.tryParse(imageUrl);
+                  if (parsedUri == null || !parsedUri.hasAbsolutePath) {
+                    throw FormatException(t.errors.invalidUrl);
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: CachedNetworkImage(
+                      imageUrl: imageUrl,
+                      placeholder: (context, url) => Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(
+                          width: double.infinity,
+                          height: 200.0,
+                          color: Colors.white,
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => const Icon(Icons.error),
+                      fit: BoxFit.cover,
+                    ),
+                  );
+                } catch (e) {
+                  LogUtils.e('图片加载失败', tag: 'CustomMarkdownBody', error: e);
+                  return const Icon(Icons.error);
+                }
+              },
             ),
-          );
-        } catch (e) {
-          LogUtils.e('图片加载失败', tag: 'CustomMarkdownBody', error: e);
-          return const Icon(Icons.error);
-        }
-      },
+          ),
+        ),
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton.icon(
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            ),
+            icon: Icon(
+              _showOriginal ? Icons.format_paint : Icons.format_paint_outlined,
+              size: 14,
+            ),
+            iconAlignment: IconAlignment.end,
+            label: Text(_showOriginal ? t.common.showProcessedText : t.common.showOriginalText, style: const TextStyle(fontSize: 12)),
+            onPressed: () {
+              setState(() {
+                _showOriginal = !_showOriginal;
+              });
+            },
+          ),
+        ),
+      ],
     );
   }
 }

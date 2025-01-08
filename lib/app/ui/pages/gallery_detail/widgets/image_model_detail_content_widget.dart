@@ -1,21 +1,14 @@
-import 'dart:io';
-
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:dio/dio.dart';
-import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_routes.dart';
-import 'package:i_iwara/app/services/api_service.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
+import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
+import 'package:i_iwara/utils/image_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/widget_extensions.dart';
-import 'package:oktoast/oktoast.dart';
-import 'package:super_clipboard/super_clipboard.dart';
 
 import '../../../../../common/constants.dart';
 import '../../../../../common/enums/media_enums.dart';
@@ -27,7 +20,6 @@ import '../../video_detail/widgets/detail/expandable_tags_widget.dart';
 import '../../video_detail/widgets/detail/like_avatars_widget.dart';
 import '../controllers/gallery_detail_controller.dart';
 import 'horizontial_image_list.dart';
-import 'my_gallery_photo_view_wrapper.dart';
 import '../../../widgets/follow_button_widget.dart';
 import '../../../widgets/like_button_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -199,16 +191,7 @@ class ImageModelDetailContent extends StatelessWidget {
     if (index == -1) {
       index = imageItems.indexWhere((element) => element.data.id == iid.id);
     }
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => MyGalleryPhotoViewWrapper(
-          galleryItems: imageItems,
-          initialIndex: index,
-          menuItemsBuilder: (context, item) => _buildImageMenuItems(context, item),
-        ),
-      ),
-    );
+    NaviService.navigateToPhotoViewWrapper(imageItems: imageItems, initialIndex: index, menuItemsBuilder: (context, item) => _buildImageMenuItems(context, item));
   }
 
   // 构建图片的菜单项
@@ -218,99 +201,26 @@ class ImageModelDetailContent extends StatelessWidget {
       MenuItem(
         title: t.galleryDetail.copyLink,
         icon: Icons.copy,
-        onTap: () => _copyLink(item),
+        onTap: () => ImageUtils.copyLink(item),
       ),
       MenuItem(
         title: t.galleryDetail.copyImage,
         icon: Icons.copy,
-        onTap: () => _copyImage(item),
+        onTap: () => ImageUtils.copyImage(item),
       ),
       if (GetPlatform.isDesktop && !GetPlatform.isWeb)
         MenuItem(
           title: t.galleryDetail.saveAs,
           icon: Icons.download,
-          onTap: () => _downloadImageForDesktop(item),
+          onTap: () => ImageUtils.downloadImageForDesktop(item),
         ),
       if (GetPlatform.isIOS || GetPlatform.isAndroid)
         MenuItem(
           title: t.galleryDetail.saveToAlbum,
           icon: Icons.save,
-          onTap: () => _downloadImageForMobile(item),
+          onTap: () => ImageUtils.downloadImageForMobile(item),
         ),
     ];
-  }
-
-  // 复制链接到剪贴板
-  void _copyLink(ImageItem item) {
-    String url =
-        item.data.originalUrl.isEmpty ? item.data.url : item.data.originalUrl;
-    if (url.isEmpty) {
-      showToastWidget(MDToastWidget(message: slang.t.common.linkIsEmpty, type: MDToastType.error));
-      return;
-    }
-    final data = DataWriterItem();
-    data.add(Formats.plainText(url));
-    SystemClipboard.instance?.write([data]);
-    showToastWidget(MDToastWidget(message: slang.t.common.linkCopiedToClipboard, type: MDToastType.success));
-  }
-
-  // 复制图片到剪贴板
-  void _copyImage(ImageItem item) async {
-    String url =
-        item.data.originalUrl.isEmpty ? item.data.url : item.data.originalUrl;
-    if (url.isEmpty) {
-      showToastWidget(MDToastWidget(message: slang.t.common.linkIsEmpty, type: MDToastType.error));
-      return;
-    }
-
-    try {
-      var apiService = await ApiService.getInstance();
-      Uint8List bytes = (await apiService.dio
-              .get(url, options: Options(responseType: ResponseType.bytes)))
-          .data;
-      final dataWriterItem =
-          DataWriterItem(suggestedName: '${item.data.id}.png');
-      dataWriterItem.add(Formats.png(bytes));
-      SystemClipboard.instance?.write([dataWriterItem]);
-      showToastWidget(MDToastWidget(message: slang.t.common.imageCopiedToClipboard, type: MDToastType.success));
-    } catch (e) {
-      showToastWidget(MDToastWidget(message: slang.t.common.copyImageFailed, type: MDToastType.error));
-    }
-  }
-
-  // 下载图片: 移动端
-  void _downloadImageForMobile(ImageItem item) async {
-    // TODO: 移动端的保存图片功能还在开发中
-    showToastWidget(MDToastWidget(message: slang.t.common.mobileSaveImageIsUnderDevelopment, type: MDToastType.info));
-  }
-
-  // 下载图片: 桌面
-  void _downloadImageForDesktop(ImageItem item) async {
-    final String? directoryPath = await getDirectoryPath();
-    LogUtils.d('选择的目录：$directoryPath', 'ImageModelDetailContent');
-    if (directoryPath == null) {
-      LogUtils.d('用户取消了选择目录', 'ImageModelDetailContent');
-      return;
-    } else {
-      String url =
-          item.data.originalUrl.isEmpty ? item.data.url : item.data.originalUrl;
-      if (url.isEmpty) {
-        showToastWidget(MDToastWidget(message: slang.t.common.linkIsEmpty, type: MDToastType.error));
-        return;
-      }
-
-      try {
-        var apiService = await ApiService.getInstance();
-        Uint8List bytes = (await apiService.dio
-                .get(url, options: Options(responseType: ResponseType.bytes)))
-            .data;
-        final String filePath = '$directoryPath/${item.data.id}.png';
-        await File(filePath).writeAsBytes(bytes);
-        showToastWidget(MDToastWidget(message: '${slang.t.common.imageSavedTo}: $filePath', type: MDToastType.success));
-      } catch (e) {
-        showToastWidget(MDToastWidget(message: slang.t.common.saveImageFailed, type: MDToastType.error));
-      }
-    }
   }
 
   // 构建图库详情区域
@@ -344,31 +254,62 @@ class ImageModelDetailContent extends StatelessWidget {
   Widget _buildGalleryTitle() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: SelectableText(
-        controller.imageModelInfo.value?.title ?? '',
-        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 标题文本
+          Expanded(
+            child: SelectableText(
+              controller.imageModelInfo.value?.title ?? '',
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                height: 1.3,
+              ),
+            ),
+          ),
+          // 翻译按钮
+          if (controller.imageModelInfo.value?.title.isNotEmpty == true)
+            IconButton(
+              icon: const Icon(Icons.translate, size: 20),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              onPressed: () {
+                Get.dialog(
+                  TranslationDialog(
+                    text: controller.imageModelInfo.value!.title,
+                  ),
+                );
+              },
+            ),
+        ],
       ),
     );
   }
 
   // 构建作者信息区域
   Widget _buildAuthorInfo() {
-    return Padding(
+    return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Row(
         children: [
           _buildAuthorAvatar(),
-          const SizedBox(width: 8),
-          _buildAuthorNameButton(),
-          const Spacer(),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _buildAuthorNameButton(),
+          ),
           if (controller.imageModelInfo.value?.user != null)
-            FollowButtonWidget(
-              user: controller.imageModelInfo.value!.user!,
-              onUserUpdated: (updatedUser) {
-                controller.imageModelInfo.value = controller.imageModelInfo.value?.copyWith(
-                  user: updatedUser,
-                );
-              },
+            Container(
+              height: 32,
+              child: FollowButtonWidget(
+                user: controller.imageModelInfo.value!.user!,
+                onUserUpdated: (updatedUser) {
+                  controller.imageModelInfo.value = controller.imageModelInfo.value?.copyWith(
+                    user: updatedUser,
+                  );
+                },
+              ),
             ),
         ],
       ),
@@ -386,12 +327,13 @@ class ImageModelDetailContent extends StatelessWidget {
           }
         },
         behavior: HitTestBehavior.opaque,
-        child: CircleAvatar(
-          backgroundImage: CachedNetworkImageProvider(
-            controller.imageModelInfo.value?.user?.avatar?.avatarUrl ??
-                CommonConstants.defaultAvatarUrl,
-            headers: const {'referer': CommonConstants.iwaraBaseUrl},
-          ),
+        child: AvatarWidget(
+          avatarUrl: controller.imageModelInfo.value?.user?.avatar?.avatarUrl,
+          defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+          headers: const {'referer': CommonConstants.iwaraBaseUrl},
+          radius: 20,
+          isPremium: controller.imageModelInfo.value?.user?.premium ?? false,
+          isAdmin: controller.imageModelInfo.value?.user?.isAdmin ?? false,
         ),
       ),
     );
@@ -447,8 +389,8 @@ class ImageModelDetailContent extends StatelessWidget {
                 child: Text(
                   user?.name ?? '',
                   style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
                     color: Colors.white,
                   ),
                   maxLines: 1,
@@ -458,8 +400,9 @@ class ImageModelDetailContent extends StatelessWidget {
               Text(
                 '@${user?.username ?? ''}',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 13,
                   color: Colors.grey[600],
+                  height: 1.2,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -481,15 +424,19 @@ class ImageModelDetailContent extends StatelessWidget {
           children: [
             Text(
               user?.name ?? '',
-              style: const TextStyle(fontSize: 16),
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
             Text(
               '@${user?.username ?? ''}',
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 13,
                 color: Colors.grey[600],
+                height: 1.2,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -505,8 +452,11 @@ class ImageModelDetailContent extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Text(
-        '${slang.t.galleryDetail.publishedAt}: ${CommonUtils.formatFriendlyTimestamp(controller.imageModelInfo.value?.createdAt)}    ${slang.t.galleryDetail.viewsCount}: ${CommonUtils.formatFriendlyNumber(controller.imageModelInfo.value?.numViews?.toInt() ?? 0)}',
-        style: const TextStyle(color: Colors.grey),
+        '${slang.t.galleryDetail.publishedAt}: ${CommonUtils.formatFriendlyTimestamp(controller.imageModelInfo.value?.createdAt)}    ${slang.t.galleryDetail.viewsCount}: ${CommonUtils.formatFriendlyNumber(controller.imageModelInfo.value?.numViews.toInt() ?? 0)}',
+        style: TextStyle(
+          color: Colors.grey.shade600,
+          fontSize: 13,
+        ),
       ),
     );
   }
@@ -551,42 +501,56 @@ class ImageModelDetailContent extends StatelessWidget {
   Widget _buildLikeAndCommentButtons() {
     final imageModelInfo = controller.imageModelInfo.value;
     if (imageModelInfo != null) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                LikeButtonWidget(
-                  mediaId: imageModelInfo.id,
-                  liked: imageModelInfo.liked ?? false,
-                  likeCount: imageModelInfo.numLikes ?? 0,
-                  onLike: (id) async {
-                    final result = await Get.find<GalleryService>().likeImage(id);
-                    return result.isSuccess;
-                  },
-                  onUnlike: (id) async {
-                    final result = await Get.find<GalleryService>().unlikeImage(id);
-                    return result.isSuccess;
-                  },
-                  onLikeChanged: (liked) {
-                    controller.imageModelInfo.value = controller.imageModelInfo.value?.copyWith(
-                      liked: liked,
-                      numLikes: (controller.imageModelInfo.value?.numLikes ?? 0) + (liked ? 1 : -1),
-                    );
-                  },
+      return Builder(
+        builder: (context) => Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              LikeButtonWidget(
+                mediaId: imageModelInfo.id,
+                liked: imageModelInfo.liked ?? false,
+                likeCount: imageModelInfo.numLikes ?? 0,
+                onLike: (id) async {
+                  final result = await Get.find<GalleryService>().likeImage(id);
+                  return result.isSuccess;
+                },
+                onUnlike: (id) async {
+                  final result = await Get.find<GalleryService>().unlikeImage(id);
+                  return result.isSuccess;
+                },
+                onLikeChanged: (liked) {
+                  controller.imageModelInfo.value = controller.imageModelInfo.value?.copyWith(
+                    liked: liked,
+                    numLikes: (controller.imageModelInfo.value?.numLikes ?? 0) + (liked ? 1 : -1),
+                  );
+                },
+              ),
+              Material(
+                color: Colors.transparent,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.comment, 
+                        size: 20,
+                        color: Theme.of(context).iconTheme.color
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${imageModelInfo.numComments}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Theme.of(context).textTheme.bodyMedium?.color
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            ),
-            Row(
-              children: [
-                const Icon(Icons.comment),
-                const SizedBox(width: 4),
-                Text('${imageModelInfo.numComments}'),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       );
     }

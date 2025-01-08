@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -302,13 +303,61 @@ class _HorizontalImageListState extends State<HorizontalImageList> {
                   placeholder: (context, url) =>
                       widget.placeholderBuilder?.call(context, url) ??
                       _buildPlaceholder(context, url),
+                  fit: widget.imageFit,
                   errorWidget: (context, url, error) {
                     LogUtils.e('加载图片失败: $url', tag: 'ImageList', error: error);
+
+                    final fileExtension = CommonUtils.getFileExtension(url);
+                    final isUnsupportedFormat = error is Exception &&
+                        error.toString().contains('Invalid image data');
+
                     return widget.errorBuilder?.call(context, url, error) ??
-                        Icon(Icons.error,
-                            color: Theme.of(context).colorScheme.error);
+                        Center(
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .errorContainer
+                                  .withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.broken_image_rounded,
+                                  color: Theme.of(context).colorScheme.error,
+                                  size: 48,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  isUnsupportedFormat
+                                      ? '不支持的文件格式: ${fileExtension.toUpperCase()}'
+                                      : '图片加载失败',
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.error,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                if (isUnsupportedFormat) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    '请尝试使用其他查看器打开',
+                                    style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .error
+                                          .withOpacity(0.7),
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        );
                   },
-                  fit: widget.imageFit,
                   imageBuilder: (context, imageProvider) {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       _updateImageSize(imageProvider, imageItem.url);

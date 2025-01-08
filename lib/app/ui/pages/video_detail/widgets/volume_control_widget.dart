@@ -55,22 +55,22 @@ class _VolumeControlState extends State<VolumeControl>
 
   Widget _getVolumeIcon(double volume) {
     if (volume == 0) {
-      return Icon(
+      return const Icon(
         Icons.volume_off,
         color: Colors.white,
       );
     } else if (volume < 0.33) {
-      return Icon(
+      return const Icon(
         Icons.volume_mute,
         color: Colors.white,
       );
     } else if (volume < 0.66) {
-      return Icon(
+      return const Icon(
         Icons.volume_down,
         color: Colors.white,
       );
     } else {
-      return Icon(
+      return const Icon(
         Icons.volume_up,
         color: Colors.white,
       );

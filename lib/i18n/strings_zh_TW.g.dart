@@ -48,7 +48,6 @@ class TranslationsZhTw implements Translations {
 	@override late final _TranslationsSubscriptionsZhTw subscriptions = _TranslationsSubscriptionsZhTw._(_root);
 	@override late final _TranslationsVideoDetailZhTw videoDetail = _TranslationsVideoDetailZhTw._(_root);
 	@override late final _TranslationsShareZhTw share = _TranslationsShareZhTw._(_root);
-	@override late final _TranslationsDownloadZhTw download = _TranslationsDownloadZhTw._(_root);
 }
 
 // Path: common
@@ -79,6 +78,8 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get friend => '朋友';
 	@override String get video => '影片';
 	@override String get following => '追蹤中';
+	@override String get expand => '展開';
+	@override String get collapse => '收起';
 	@override String get cancelFriendRequest => '取消申請';
 	@override String get cancelSpecialFollow => '取消特別關注';
 	@override String get addFriend => '加為朋友';
@@ -108,7 +109,7 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String minutesAgo({required Object num}) => '${num} 分鐘前';
 	@override String hoursAgo({required Object num}) => '${num} 小時前';
 	@override String daysAgo({required Object num}) => '${num} 天前';
-	@override String editedAt({required Object num}) => '編輯於 ${num} 前';
+	@override String editedAt({required Object num}) => '${num} 編輯';
 	@override String get editComment => '編輯評論';
 	@override String get commentUpdated => '評論已更新';
 	@override String get replyComment => '回覆評論';
@@ -167,7 +168,7 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get paused => '已暫停';
 	@override String get clear => '清除';
 	@override String get user => '使用者';
-	@override String get post => '帖子';
+	@override String get post => '投稿';
 	@override String get seconds => '秒';
 	@override String get comingSoon => '敬請期待';
 	@override String get confirm => '確認';
@@ -193,8 +194,10 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get numViews => '觀看次數';
 	@override String get updatedAt => '更新時間';
 	@override String get publishedAt => '發布時間';
-	@override String get download => '下載';
-	@override String get selectQuality => '選擇畫質';
+	@override String get externalVideo => '站外影片';
+	@override String get originalText => '原文';
+	@override String get showOriginalText => '顯示原始文本';
+	@override String get showProcessedText => '顯示處理後文本';
 }
 
 // Path: auth
@@ -224,6 +227,8 @@ class _TranslationsAuthZhTw implements TranslationsAuthEn {
 	@override String get logoutConfirmation => '你確定要登出嗎？';
 	@override String get logoutSuccess => '登出成功';
 	@override String get logoutFailed => '登出失敗';
+	@override String get usernameOrEmail => '用戶名或電子郵件';
+	@override String get pleaseEnterUsernameOrEmail => '請輸入用戶名或電子郵件';
 }
 
 // Path: errors
@@ -269,9 +274,13 @@ class _TranslationsErrorsZhTw implements TranslationsErrorsEn {
 	@override String get failedToFetchData => '獲取資料失敗';
 	@override String get invalidParameter => '無效的參數';
 	@override String get pleaseLoginFirst => '請先登入';
-	@override String get errorWhileLoadingPost => '載入帖子時出錯';
-	@override String get errorWhileLoadingPostDetail => '載入帖子詳情時出錯';
-	@override String get invalidPostId => '無效的帖子ID';
+	@override String get errorWhileLoadingPost => '載入投稿內容時出錯';
+	@override String get errorWhileLoadingPostDetail => '載入投稿詳情時出錯';
+	@override String get invalidPostId => '無效的投稿ID';
+	@override String get forceUpdateNotPermittedToGoBack => '目前處於強制更新狀態，無法返回';
+	@override String get pleaseLoginAgain => '請重新登入';
+	@override String get invalidLogin => '登入失敗，請檢查電子郵件和密碼';
+	@override String get tooManyRequests => '請求過多，請稍後再試';
 }
 
 // Path: friends
@@ -332,6 +341,7 @@ class _TranslationsGalleryDetailZhTw implements TranslationsGalleryDetailEn {
 	@override String get moreFeaturesToBeDiscovered => '更多功能待發掘...';
 	@override String get authorOtherGalleries => '作者的其他圖庫';
 	@override String get relatedGalleries => '相關圖庫';
+	@override String get clickLeftAndRightEdgeToSwitchImage => '點擊左右邊緣以切換圖片';
 }
 
 // Path: playList
@@ -455,6 +465,14 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get issueReport => '問題回報';
 	@override String get openSourceLicense => '開源許可';
 	@override String get checkForUpdatesFailed => '檢查更新失敗，請稍後重試';
+	@override String get autoCheckUpdate => '自動檢查更新';
+	@override String get updateContent => '更新內容';
+	@override String get releaseDate => '發布日期';
+	@override String get ignoreThisVersion => '忽略此版本';
+	@override String get minVersionUpdateRequired => '當前版本過低，請盡快更新';
+	@override String get forceUpdateTip => '此版本為強制更新，請盡快更新到最新版本';
+	@override String get viewChangelog => '查看更新日誌';
+	@override String get alreadyLatestVersion => '已是最新版本';
 }
 
 // Path: signIn
@@ -545,12 +563,9 @@ class _TranslationsVideoDetailZhTw implements TranslationsVideoDetailEn {
 	@override String get authorOtherVideos => '作者的其他影片';
 	@override String get relatedVideos => '相關影片';
 	@override String get privateVideo => '這是一個私密影片';
-	@override String get noDownloadUrl => '沒有下載連結';
-	@override String get startDownloading => '開始下載';
-	@override String get downloadFailed => '下載失敗，請稍後再試';
-	@override String get downloadSuccess => '下載成功';
-	@override String get download => '下載';
-	@override String get downloadManager => '下載管理';
+	@override String get externalVideo => '這是一個站外影片';
+	@override String get openInBrowser => '在瀏覽器中打開';
+	@override String get resourceDeleted => '這個影片貌似被刪除了 :/';
 }
 
 // Path: share
@@ -567,16 +582,6 @@ class _TranslationsShareZhTw implements TranslationsShareEn {
 	@override String get iReallyLikeThis => '我真的是太喜歡這個了，你也來看看吧！';
 	@override String get shareFailed => '分享失敗，請稍後再試';
 	@override String get share => '分享';
-}
-
-// Path: download
-class _TranslationsDownloadZhTw implements TranslationsDownloadEn {
-	_TranslationsDownloadZhTw._(this._root);
-
-	final TranslationsZhTw _root; // ignore: unused_field
-
-	// Translations
-	@override String get downloadList => '下載列表';
 }
 
 /// Flat map(s) containing all translations.
@@ -605,6 +610,8 @@ extension on TranslationsZhTw {
 			case 'common.friend': return '朋友';
 			case 'common.video': return '影片';
 			case 'common.following': return '追蹤中';
+			case 'common.expand': return '展開';
+			case 'common.collapse': return '收起';
 			case 'common.cancelFriendRequest': return '取消申請';
 			case 'common.cancelSpecialFollow': return '取消特別關注';
 			case 'common.addFriend': return '加為朋友';
@@ -634,7 +641,7 @@ extension on TranslationsZhTw {
 			case 'common.minutesAgo': return ({required Object num}) => '${num} 分鐘前';
 			case 'common.hoursAgo': return ({required Object num}) => '${num} 小時前';
 			case 'common.daysAgo': return ({required Object num}) => '${num} 天前';
-			case 'common.editedAt': return ({required Object num}) => '編輯於 ${num} 前';
+			case 'common.editedAt': return ({required Object num}) => '${num} 編輯';
 			case 'common.editComment': return '編輯評論';
 			case 'common.commentUpdated': return '評論已更新';
 			case 'common.replyComment': return '回覆評論';
@@ -693,7 +700,7 @@ extension on TranslationsZhTw {
 			case 'common.paused': return '已暫停';
 			case 'common.clear': return '清除';
 			case 'common.user': return '使用者';
-			case 'common.post': return '帖子';
+			case 'common.post': return '投稿';
 			case 'common.seconds': return '秒';
 			case 'common.comingSoon': return '敬請期待';
 			case 'common.confirm': return '確認';
@@ -719,8 +726,10 @@ extension on TranslationsZhTw {
 			case 'common.numViews': return '觀看次數';
 			case 'common.updatedAt': return '更新時間';
 			case 'common.publishedAt': return '發布時間';
-			case 'common.download': return '下載';
-			case 'common.selectQuality': return '選擇畫質';
+			case 'common.externalVideo': return '站外影片';
+			case 'common.originalText': return '原文';
+			case 'common.showOriginalText': return '顯示原始文本';
+			case 'common.showProcessedText': return '顯示處理後文本';
 			case 'auth.login': return '登入';
 			case 'auth.logout': return '登出';
 			case 'auth.email': return '電子郵件';
@@ -741,6 +750,8 @@ extension on TranslationsZhTw {
 			case 'auth.logoutConfirmation': return '你確定要登出嗎？';
 			case 'auth.logoutSuccess': return '登出成功';
 			case 'auth.logoutFailed': return '登出失敗';
+			case 'auth.usernameOrEmail': return '用戶名或電子郵件';
+			case 'auth.pleaseEnterUsernameOrEmail': return '請輸入用戶名或電子郵件';
 			case 'errors.error': return '錯誤';
 			case 'errors.required': return '此項為必填';
 			case 'errors.invalidEmail': return '電子郵件格式錯誤';
@@ -777,9 +788,13 @@ extension on TranslationsZhTw {
 			case 'errors.failedToFetchData': return '獲取資料失敗';
 			case 'errors.invalidParameter': return '無效的參數';
 			case 'errors.pleaseLoginFirst': return '請先登入';
-			case 'errors.errorWhileLoadingPost': return '載入帖子時出錯';
-			case 'errors.errorWhileLoadingPostDetail': return '載入帖子詳情時出錯';
-			case 'errors.invalidPostId': return '無效的帖子ID';
+			case 'errors.errorWhileLoadingPost': return '載入投稿內容時出錯';
+			case 'errors.errorWhileLoadingPostDetail': return '載入投稿詳情時出錯';
+			case 'errors.invalidPostId': return '無效的投稿ID';
+			case 'errors.forceUpdateNotPermittedToGoBack': return '目前處於強制更新狀態，無法返回';
+			case 'errors.pleaseLoginAgain': return '請重新登入';
+			case 'errors.invalidLogin': return '登入失敗，請檢查電子郵件和密碼';
+			case 'errors.tooManyRequests': return '請求過多，請稍後再試';
 			case 'friends.clickToRestoreFriend': return '點擊恢復朋友';
 			case 'friends.friendsList': return '朋友列表';
 			case 'friends.friendRequests': return '朋友請求';
@@ -804,6 +819,7 @@ extension on TranslationsZhTw {
 			case 'galleryDetail.moreFeaturesToBeDiscovered': return '更多功能待發掘...';
 			case 'galleryDetail.authorOtherGalleries': return '作者的其他圖庫';
 			case 'galleryDetail.relatedGalleries': return '相關圖庫';
+			case 'galleryDetail.clickLeftAndRightEdgeToSwitchImage': return '點擊左右邊緣以切換圖片';
 			case 'playList.myPlayList': return '我的播放清單';
 			case 'playList.friendlyTips': return '友情提示';
 			case 'playList.dearUser': return '親愛的使用者';
@@ -891,6 +907,14 @@ extension on TranslationsZhTw {
 			case 'settings.issueReport': return '問題回報';
 			case 'settings.openSourceLicense': return '開源許可';
 			case 'settings.checkForUpdatesFailed': return '檢查更新失敗，請稍後重試';
+			case 'settings.autoCheckUpdate': return '自動檢查更新';
+			case 'settings.updateContent': return '更新內容';
+			case 'settings.releaseDate': return '發布日期';
+			case 'settings.ignoreThisVersion': return '忽略此版本';
+			case 'settings.minVersionUpdateRequired': return '當前版本過低，請盡快更新';
+			case 'settings.forceUpdateTip': return '此版本為強制更新，請盡快更新到最新版本';
+			case 'settings.viewChangelog': return '查看更新日誌';
+			case 'settings.alreadyLatestVersion': return '已是最新版本';
 			case 'signIn.pleaseLoginFirst': return '請先登入後再簽到';
 			case 'signIn.alreadySignedInToday': return '您今天已經簽到過了！';
 			case 'signIn.youDidNotStickToTheSignIn': return '您未能持續簽到。';
@@ -954,12 +978,9 @@ extension on TranslationsZhTw {
 			case 'videoDetail.authorOtherVideos': return '作者的其他影片';
 			case 'videoDetail.relatedVideos': return '相關影片';
 			case 'videoDetail.privateVideo': return '這是一個私密影片';
-			case 'videoDetail.noDownloadUrl': return '沒有下載連結';
-			case 'videoDetail.startDownloading': return '開始下載';
-			case 'videoDetail.downloadFailed': return '下載失敗，請稍後再試';
-			case 'videoDetail.downloadSuccess': return '下載成功';
-			case 'videoDetail.download': return '下載';
-			case 'videoDetail.downloadManager': return '下載管理';
+			case 'videoDetail.externalVideo': return '這是一個站外影片';
+			case 'videoDetail.openInBrowser': return '在瀏覽器中打開';
+			case 'videoDetail.resourceDeleted': return '這個影片貌似被刪除了 :/';
 			case 'share.sharePlayList': return '分享播放列表';
 			case 'share.wowDidYouSeeThis': return '哇哦，你看过这个吗？';
 			case 'share.nameIs': return '名字叫做';
@@ -967,7 +988,6 @@ extension on TranslationsZhTw {
 			case 'share.iReallyLikeThis': return '我真的是太喜歡這個了，你也來看看吧！';
 			case 'share.shareFailed': return '分享失敗，請稍後再試';
 			case 'share.share': return '分享';
-			case 'download.downloadList': return '下載列表';
 			default: return null;
 		}
 	}

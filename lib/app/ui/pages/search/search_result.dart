@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/global_search_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/image_model_card_list_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/media_tile_list_loading_widget.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
-import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_card.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:loading_more_list/loading_more_list.dart';
 
 import 'search_dialog.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/post_card_list_item_widget.dart';
@@ -407,9 +404,19 @@ class _SearchResultState extends State<SearchResult> {
                     onSearch: (searchInfo, segment) {
                       // 更新搜索关键词和片段
                       globalSearchService.currentSearch.value = searchInfo;
-                      globalSearchService.selectedSegment.value = segment;
+                      
+                      // 如果搜索类型改变了，先清除其他搜索结果
+                      if (globalSearchService.selectedSegment.value != segment) {
+                        globalSearchService.selectedSegment.value = segment;
+                        globalSearchService.clearOtherSearchResult();
+                      } else {
+                        globalSearchService.selectedSegment.value = segment;
+                      }
+                      
+                      // 强制刷新搜索结果
                       globalSearchService.fetchSearchResult(refresh: true);
                       _searchController.text = searchInfo;
+                      
                       // 关闭对话框
                       Get.back();
                     },
@@ -425,43 +432,47 @@ class _SearchResultState extends State<SearchResult> {
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Obx(() => Row(
                   children: [
-                    SegmentedButton<String>(
-                      segments: [
-                        ButtonSegment(
-                          value: 'video',
-                          icon: const Icon(Icons.video_library),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: SegmentedButton<String>(
+                          segments: const [
+                            ButtonSegment(
+                              value: 'video',
+                              icon: Icon(Icons.video_library),
+                            ),
+                            ButtonSegment(
+                              value: 'image',
+                              icon: Icon(Icons.image),
+                            ),
+                            ButtonSegment(
+                              value: 'post',
+                              icon: Icon(Icons.article),
+                            ),
+                            ButtonSegment(
+                              value: 'user',
+                              icon: Icon(Icons.person),
+                            ),
+                          ],
+                          selected: {globalSearchService.selectedSegment.value},
+                          onSelectionChanged: (Set<String> selection) {
+                            if (selection.isNotEmpty) {
+                              globalSearchService.selectedSegment.value =
+                                  selection.first;
+                              _safeScrollToTop();
+                              if (!globalSearchService.isCurrentResultInitialized) {
+                                globalSearchService.fetchSearchResult();
+                              }
+                            }
+                          },
+                          multiSelectionEnabled: false,
+                          style: const ButtonStyle(
+                            visualDensity: VisualDensity.compact,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
                         ),
-                        ButtonSegment(
-                          value: 'image',
-                          icon: const Icon(Icons.image),
-                        ),
-                        ButtonSegment(
-                          value: 'post',
-                          icon: const Icon(Icons.article),
-                        ),
-                        ButtonSegment(
-                          value: 'user',
-                          icon: const Icon(Icons.person),
-                        ),
-                      ],
-                      selected: {globalSearchService.selectedSegment.value},
-                      onSelectionChanged: (Set<String> selection) {
-                        if (selection.isNotEmpty) {
-                          globalSearchService.selectedSegment.value =
-                              selection.first;
-                          _safeScrollToTop();
-                          if (!globalSearchService.isCurrentResultInitialized) {
-                            globalSearchService.fetchSearchResult();
-                          }
-                        }
-                      },
-                      multiSelectionEnabled: false,
-                      style: const ButtonStyle(
-                        visualDensity: VisualDensity.compact,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
                     ),
-                    const Spacer(),
                     IconButton(
                       icon: const Icon(Icons.refresh),
                       onPressed: () {

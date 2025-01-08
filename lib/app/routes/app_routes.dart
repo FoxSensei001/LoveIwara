@@ -8,6 +8,7 @@ abstract class Routes {
   static const GALLERY = _Paths.HOME + _Paths.GALLERY;
   static const SUBSCRIPTIONS = _Paths.HOME + _Paths.SUBSCRIPTIONS;
   static String VIDEO_DETAIL(String videoId) => _Paths.HOME + _Paths.VIDEO_DETAIL.replaceAll(':videoId', videoId);
+  static String VIDEO_DETAIL_PREFIX = _Paths.HOME + _Paths.VIDEO_DETAIL;
   static String AUTHOR_PROFILE(String userName) => _Paths.HOME + _Paths.AUTHOR_PROFILE.replaceAll(':userName', userName);
   static String GALLERY_DETAIL(String galleryId) => _Paths.HOME + _Paths.GALLERY_DETAIL.replaceAll(':galleryId', galleryId);
 
@@ -42,6 +43,8 @@ abstract class Routes {
   static const ABOUT_PAGE = '/settings/about';
 
   static const DOWNLOAD_TASK_LIST = '/download_task_list';
+
+  static const PHOTO_VIEW_WRAPPER = '/photo_view_wrapper';
 
   static String POST_DETAIL(String id) => '/post/$id';
 }

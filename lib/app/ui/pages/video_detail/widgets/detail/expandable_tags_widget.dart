@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:super_clipboard/super_clipboard.dart';
@@ -125,7 +124,7 @@ class _ExpandableTagsWidgetState extends State<ExpandableTagsWidget>
           ),
           child: Text(
             tag.id,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 13,
               height: 1.2,
             ),

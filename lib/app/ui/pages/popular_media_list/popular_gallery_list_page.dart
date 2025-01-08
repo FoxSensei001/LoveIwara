@@ -2,8 +2,12 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/image_model_card_list_item_widget.dart';
+import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/common/constants.dart';
+import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../../models/sort.model.dart';
 import '../../../models/tag.model.dart';
@@ -27,6 +31,7 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
   late TabController _tabController;
   late ScrollController _tabBarScrollController;
   final List<GlobalKey> _tabKeys = [];
+  final UserService userService = Get.find<UserService>();
 
   // 查询参数
   List<Tag> tags = [];
@@ -62,12 +67,20 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
     this.year = year;
     this.rating = rating;
 
-    // 设置每个controller的查询参数
+    LogUtils.d('设置查询参数: tags: $tags, year: $year, rating: $rating', 'PopularGalleryListPage');
+
+    // 设置每个controller的查询参数并重置数据
     for (var sort in widget.sorts) {
       var controller = Get.find<PopularGalleryController>(tag: sort.id.name);
       controller.searchTagIds = tags.map((e) => e.id).toList();
       controller.searchDate = year;
       controller.searchRating = rating;
+      // 重置controller状态
+      controller.reset();
+      // 如果是当前显示的tab，则立即加载新数据
+      if (sort.id == widget.sorts[_tabController.index].id) {
+        controller.fetchImageModels();
+      }
     }
   }
 
@@ -169,15 +182,33 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
           Row(
             children: [
               // 用户头像
-              IconButton(
-                icon: const Icon(Icons.account_circle),
-                onPressed: () {
-                  AppService.switchGlobalDrawer();
-                },
-              ),
+              Obx(() {
+                    if (userService.isLogin) {
+                      return IconButton(
+                        icon: AvatarWidget(
+                          avatarUrl: userService.userAvatar,
+                          radius: 14,
+                          defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+                          isPremium: userService.currentUser.value?.premium ?? false,
+                          isAdmin: userService.currentUser.value?.isAdmin ?? false,
+                        ),
+                        onPressed: () {
+                          AppService.switchGlobalDrawer();
+                        },
+                      );
+                    } else {
+                      return IconButton(
+                        icon: const Icon(Icons.account_circle),
+                        onPressed: () {
+                          AppService.switchGlobalDrawer();
+                        },
+                      );
+                    }
+                  }),
               // 搜索框
               Expanded(
                 child: TextField(
+                  readOnly: true,
                   decoration: InputDecoration(
                     hintText: t.common.search,
                     prefixIcon: const Icon(Icons.search),
@@ -314,7 +345,7 @@ class _KeepAliveTabViewState extends State<KeepAliveTabView>
                 return widget.controller.errorWidget.value!;
               } else if (widget.controller.isLoading.value &&
                   widget.controller.images.isEmpty) {
-                return const Center(child: CircularProgressIndicator());
+                return _buildShimmerLoading(columns, constraints.maxWidth);
               } else if (!widget.controller.isInit.value &&
                   widget.controller.images.isEmpty) {
                 return _buildEmptyView(context);
@@ -428,6 +459,75 @@ class _KeepAliveTabViewState extends State<KeepAliveTabView>
           ),
         ),
       ],
+    );
+  }
+
+  // 添加 shimmer 相关的组件方法
+  Widget _buildShimmerLoading(int columns, double maxWidth) {
+    return ListView.builder(
+      padding: EdgeInsets.zero,
+      itemCount: 3, // 显示3行shimmer效果
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: List.generate(
+              columns,
+              (colIndex) => Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  child: _buildShimmerItem(maxWidth / columns - 8),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildShimmerItem(double width) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: SizedBox(
+        width: width,
+        height: width * 9 / 16 + 72, // 16:9的图片比例 + 标题和信息的高度
+        child: Column(
+          spacing: 8,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 缩略图区域
+            Container(
+              width: width,
+              height: width * 9 / 16,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            // 标题区域
+            Container(
+              width: width * 0.8,
+              height: 16,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            // 信息区域
+            Container(
+              width: width * 0.6,
+              height: 12,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

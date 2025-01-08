@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
 
 import '../../../models/captcha.model.dart';
@@ -180,20 +181,17 @@ class _LoginPageState extends State<LoginPage>
                       TextFormField(
                         controller: _loginEmailController,
                         decoration: InputDecoration(
-                          labelText: t.auth.email,
-                          prefixIcon: const Icon(Icons.email),
+                          labelText: t.auth.usernameOrEmail,
+                          prefixIcon: const Icon(Icons.person),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        keyboardType: TextInputType.emailAddress,
+                        keyboardType: TextInputType.text,
                         textInputAction: TextInputAction.next,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return t.auth.pleaseEnterEmail;
-                          }
-                          if (!GetUtils.isEmail(value.trim())) {
-                            return t.errors.invalidEmail;
+                            return t.auth.pleaseEnterUsernameOrEmail;
                           }
                           return null;
                         },
@@ -405,7 +403,7 @@ class _LoginPageState extends State<LoginPage>
   }
 
   void _login() async {
-    final email = _loginEmailController.text.trim();
+    final usernameOrEmail = _loginEmailController.text.trim();
     final password = _loginPasswordController.text;
 
     setState(() {
@@ -413,7 +411,7 @@ class _LoginPageState extends State<LoginPage>
     });
 
     try {
-      ApiResult result = await _authService.login(email, password);
+      ApiResult result = await _authService.login(usernameOrEmail, password);
 
       if (result.isSuccess) {
         await _userService.fetchUserProfile();
@@ -426,6 +424,9 @@ class _LoginPageState extends State<LoginPage>
       } else {
         showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error));
       }
+    } catch (e) {
+      LogUtils.e('登录过程中发生意外错误: $e', tag: 'LoginPage');
+      showToastWidget(MDToastWidget(message: slang.t.errors.unknownError, type: MDToastType.error));
     } finally {
       setState(() {
         _isLoading = false;

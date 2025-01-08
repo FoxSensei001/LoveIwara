@@ -170,8 +170,8 @@ class TopToolbar extends StatelessWidget {
               // 自动重播
               Row(
                 children: [
-                  Icon(Icons.repeat),
-                  SizedBox(width: 8),
+                  const Icon(Icons.repeat),
+                  const SizedBox(width: 8),
                   Expanded(child: Text(slang.t.videoDetail.autoRewind)),
                 ],
               ),
@@ -179,8 +179,8 @@ class TopToolbar extends StatelessWidget {
               // 左右两侧双击快进或后退
               Row(
                 children: [
-                  Icon(Icons.fast_forward),
-                  SizedBox(width: 8),
+                  const Icon(Icons.fast_forward),
+                  const SizedBox(width: 8),
                   Expanded(child: Text(slang.t.videoDetail.rewindAndFastForward)),
                 ],
               ),
@@ -188,8 +188,8 @@ class TopToolbar extends StatelessWidget {
               // 左右两侧垂直滑动调整音量、亮度
               Row(
                 children: [
-                  Icon(Icons.volume_up),
-                  SizedBox(width: 8),
+                  const Icon(Icons.volume_up),
+                  const SizedBox(width: 8),
                   Expanded(child: Text(slang.t.videoDetail.volumeAndBrightness)),
                 ],
               ),
@@ -197,8 +197,8 @@ class TopToolbar extends StatelessWidget {
               // 中心区域双击暂停或播放
               Row(
                 children: [
-                  Icon(Icons.pause_circle_filled),
-                  SizedBox(width: 8),
+                  const Icon(Icons.pause_circle_filled),
+                  const SizedBox(width: 8),
                   Expanded(child: Text(slang.t.videoDetail.centerAreaDoubleTapPauseOrPlay)),
                 ],
               ),
@@ -207,8 +207,8 @@ class TopToolbar extends StatelessWidget {
               if (GetPlatform.isAndroid || GetPlatform.isIOS)
                 Row(
                   children: [
-                    Icon(Icons.screen_rotation),
-                    SizedBox(width: 8),
+                    const Icon(Icons.screen_rotation),
+                    const SizedBox(width: 8),
                     Expanded(child: Text(slang.t.videoDetail.showVerticalVideoInFullScreen)),
                   ],
                 ),
@@ -217,8 +217,8 @@ class TopToolbar extends StatelessWidget {
               // 保持上次调整的音量、亮度
               Row(
                 children: [
-                  Icon(Icons.settings_backup_restore),
-                  SizedBox(width: 8),
+                  const Icon(Icons.settings_backup_restore),
+                  const SizedBox(width: 8),
                   Expanded(child: Text(slang.t.videoDetail.keepLastVolumeAndBrightness)),
                 ],
               ),
@@ -227,8 +227,8 @@ class TopToolbar extends StatelessWidget {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    Icon(Icons.laptop),
-                    SizedBox(width: 8),
+                    const Icon(Icons.laptop),
+                    const SizedBox(width: 8),
                     Expanded(child: Text(slang.t.videoDetail.setProxy)),
                   ],
                 ),
@@ -236,8 +236,8 @@ class TopToolbar extends StatelessWidget {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  Icon(Icons.thumb_up),
-                  SizedBox(width: 8),
+                  const Icon(Icons.thumb_up),
+                  const SizedBox(width: 8),
                   Expanded(child: Text(slang.t.videoDetail.moreFeaturesToBeDiscovered)),
                 ],
               ),

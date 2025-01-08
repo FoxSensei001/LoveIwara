@@ -37,7 +37,7 @@ class _FavoriteImageListState extends State<FavoriteImageList>
           SliverListConfig<ImageModel>(
             extendedListDelegate:
                 const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 300,
+              maxCrossAxisExtent: 220,
               crossAxisSpacing: 5,
               mainAxisSpacing: 5,
             ),
@@ -49,7 +49,7 @@ class _FavoriteImageListState extends State<FavoriteImageList>
                   children: [
                     ImageModelCardListItemWidget(
                       imageModel: image,
-                      width: 300,
+                      width: 220,
                     ),
                     if (isCanceled)
                       Positioned.fill(

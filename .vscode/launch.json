@@ -1,0 +1,56 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "i_iwara_sensei (Chrome)",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "-d",
+                "chrome",
+                "--web-browser-flag=--disable-web-security"
+            ]
+        },
+        {
+            "name": "i_iwara_sensei (Windows)",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "-d",
+                "windows",
+                "--release"
+            ]
+        },
+        {
+            "name": "i_iwara_sensei (macOS)",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "-d",
+                "macos",
+                "--release"
+            ]
+        },
+        {
+            "name": "i_iwara_sensei (Linux)",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "-d",
+                "linux",
+                "--release"
+            ]
+        },
+        {
+            "name": "i_iwara_sensei (Web)",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "-d",
+                "web-server",
+                "--web-port=8000",
+                "--web-hostname=0.0.0.0"
+            ]
+        }
+    ]
+}

@@ -83,6 +83,8 @@ class TranslationsCommonEn {
 	String get friend => 'Friend';
 	String get video => 'Video';
 	String get following => 'Following';
+	String get expand => 'Expand';
+	String get collapse => 'Collapse';
 	String get cancelFriendRequest => 'Cancel Request';
 	String get cancelSpecialFollow => 'Cancel Special Follow';
 	String get addFriend => 'Add Friend';
@@ -112,7 +114,7 @@ class TranslationsCommonEn {
 	String minutesAgo({required Object num}) => '${num} minutes ago';
 	String hoursAgo({required Object num}) => '${num} hours ago';
 	String daysAgo({required Object num}) => '${num} days ago';
-	String editedAt({required Object num}) => 'Edited at ${num} ago';
+	String editedAt({required Object num}) => '${num} edited';
 	String get editComment => 'Edit Comment';
 	String get commentUpdated => 'Comment Updated';
 	String get replyComment => 'Reply Comment';
@@ -199,6 +201,10 @@ class TranslationsCommonEn {
 	String get publishedAt => 'Published At';
 	String get download => 'Download';
 	String get selectQuality => 'Select Quality';
+	String get externalVideo => 'External Video';
+	String get originalText => 'Original Text';
+	String get showOriginalText => 'Show Original Text';
+	String get showProcessedText => 'Show Processed Text';
 }
 
 // Path: auth
@@ -228,6 +234,8 @@ class TranslationsAuthEn {
 	String get logoutConfirmation => 'Are you sure you want to logout?';
 	String get logoutSuccess => 'Logout Success';
 	String get logoutFailed => 'Logout Failed';
+	String get usernameOrEmail => 'Username or Email';
+	String get pleaseEnterUsernameOrEmail => 'Please enter username or email';
 }
 
 // Path: errors
@@ -276,6 +284,10 @@ class TranslationsErrorsEn {
 	String get errorWhileLoadingPost => 'Error while loading post';
 	String get errorWhileLoadingPostDetail => 'Error while loading post detail';
 	String get invalidPostId => 'Invalid post ID';
+	String get forceUpdateNotPermittedToGoBack => 'Currently in force update state, cannot go back';
+	String get pleaseLoginAgain => 'Please login again';
+	String get invalidLogin => 'Invalid login, Please check your email and password';
+	String get tooManyRequests => 'Too many requests, please try again later';
 }
 
 // Path: friends
@@ -336,6 +348,7 @@ class TranslationsGalleryDetailEn {
 	String get moreFeaturesToBeDiscovered => 'More Features to Be Discovered...';
 	String get authorOtherGalleries => 'Author\'s Other Galleries';
 	String get relatedGalleries => 'Related Galleries';
+	String get clickLeftAndRightEdgeToSwitchImage => 'Click Left and Right Edge to Switch Image';
 }
 
 // Path: playList
@@ -459,6 +472,14 @@ class TranslationsSettingsEn {
 	String get issueReport => 'Issue Report';
 	String get openSourceLicense => 'Open Source License';
 	String get checkForUpdatesFailed => 'Check for updates failed, please try again later';
+	String get autoCheckUpdate => 'Auto Check Update';
+	String get updateContent => 'Update Content';
+	String get releaseDate => 'Release Date';
+	String get ignoreThisVersion => 'Ignore This Version';
+	String get minVersionUpdateRequired => 'Current version is too low, please update as soon as possible';
+	String get forceUpdateTip => 'This is a mandatory update. Please update to the latest version as soon as possible';
+	String get viewChangelog => 'View Changelog';
+	String get alreadyLatestVersion => 'Already the latest version';
 }
 
 // Path: signIn
@@ -549,6 +570,9 @@ class TranslationsVideoDetailEn {
 	String get authorOtherVideos => 'Author\'s Other Videos';
 	String get relatedVideos => 'Related Videos';
 	String get privateVideo => 'This is a private video';
+	String get externalVideo => 'This is an external video';
+	String get openInBrowser => 'Open in Browser';
+	String get resourceDeleted => 'This video seems to have been deleted :/';
 	String get noDownloadUrl => 'No download URL';
 	String get startDownloading => 'Start downloading';
 	String get downloadFailed => 'Download failed, please try again later';
@@ -609,6 +633,8 @@ extension on Translations {
 			case 'common.friend': return 'Friend';
 			case 'common.video': return 'Video';
 			case 'common.following': return 'Following';
+			case 'common.expand': return 'Expand';
+			case 'common.collapse': return 'Collapse';
 			case 'common.cancelFriendRequest': return 'Cancel Request';
 			case 'common.cancelSpecialFollow': return 'Cancel Special Follow';
 			case 'common.addFriend': return 'Add Friend';
@@ -638,7 +664,7 @@ extension on Translations {
 			case 'common.minutesAgo': return ({required Object num}) => '${num} minutes ago';
 			case 'common.hoursAgo': return ({required Object num}) => '${num} hours ago';
 			case 'common.daysAgo': return ({required Object num}) => '${num} days ago';
-			case 'common.editedAt': return ({required Object num}) => 'Edited at ${num} ago';
+			case 'common.editedAt': return ({required Object num}) => '${num} edited';
 			case 'common.editComment': return 'Edit Comment';
 			case 'common.commentUpdated': return 'Comment Updated';
 			case 'common.replyComment': return 'Reply Comment';
@@ -723,6 +749,10 @@ extension on Translations {
 			case 'common.numViews': return 'Views';
 			case 'common.updatedAt': return 'Updated At';
 			case 'common.publishedAt': return 'Published At';
+			case 'common.externalVideo': return 'External Video';
+			case 'common.originalText': return 'Original Text';
+			case 'common.showOriginalText': return 'Show Original Text';
+			case 'common.showProcessedText': return 'Show Processed Text';
 			case 'common.download': return 'Download';
 			case 'common.selectQuality': return 'Select Quality';
 			case 'auth.login': return 'Login';
@@ -745,6 +775,8 @@ extension on Translations {
 			case 'auth.logoutConfirmation': return 'Are you sure you want to logout?';
 			case 'auth.logoutSuccess': return 'Logout Success';
 			case 'auth.logoutFailed': return 'Logout Failed';
+			case 'auth.usernameOrEmail': return 'Username or Email';
+			case 'auth.pleaseEnterUsernameOrEmail': return 'Please enter username or email';
 			case 'errors.error': return 'Error';
 			case 'errors.required': return 'This field is required';
 			case 'errors.invalidEmail': return 'Invalid email address';
@@ -784,6 +816,10 @@ extension on Translations {
 			case 'errors.errorWhileLoadingPost': return 'Error while loading post';
 			case 'errors.errorWhileLoadingPostDetail': return 'Error while loading post detail';
 			case 'errors.invalidPostId': return 'Invalid post ID';
+			case 'errors.forceUpdateNotPermittedToGoBack': return 'Currently in force update state, cannot go back';
+			case 'errors.pleaseLoginAgain': return 'Please login again';
+			case 'errors.invalidLogin': return 'Invalid login, Please check your email and password';
+			case 'errors.tooManyRequests': return 'Too many requests, please try again later';
 			case 'friends.clickToRestoreFriend': return 'Click to restore friend';
 			case 'friends.friendsList': return 'Friends List';
 			case 'friends.friendRequests': return 'Friend Requests';
@@ -808,6 +844,7 @@ extension on Translations {
 			case 'galleryDetail.moreFeaturesToBeDiscovered': return 'More Features to Be Discovered...';
 			case 'galleryDetail.authorOtherGalleries': return 'Author\'s Other Galleries';
 			case 'galleryDetail.relatedGalleries': return 'Related Galleries';
+			case 'galleryDetail.clickLeftAndRightEdgeToSwitchImage': return 'Click Left and Right Edge to Switch Image';
 			case 'playList.myPlayList': return 'My Play List';
 			case 'playList.friendlyTips': return 'Friendly Tips';
 			case 'playList.dearUser': return 'Dear User';
@@ -895,6 +932,14 @@ extension on Translations {
 			case 'settings.issueReport': return 'Issue Report';
 			case 'settings.openSourceLicense': return 'Open Source License';
 			case 'settings.checkForUpdatesFailed': return 'Check for updates failed, please try again later';
+			case 'settings.autoCheckUpdate': return 'Auto Check Update';
+			case 'settings.updateContent': return 'Update Content';
+			case 'settings.releaseDate': return 'Release Date';
+			case 'settings.ignoreThisVersion': return 'Ignore This Version';
+			case 'settings.minVersionUpdateRequired': return 'Current version is too low, please update as soon as possible';
+			case 'settings.forceUpdateTip': return 'This is a mandatory update. Please update to the latest version as soon as possible';
+			case 'settings.viewChangelog': return 'View Changelog';
+			case 'settings.alreadyLatestVersion': return 'Already the latest version';
 			case 'signIn.pleaseLoginFirst': return 'Please login first';
 			case 'signIn.alreadySignedInToday': return 'You have already signed in today!';
 			case 'signIn.youDidNotStickToTheSignIn': return 'You did not stick to the sign in.';
@@ -958,6 +1003,9 @@ extension on Translations {
 			case 'videoDetail.authorOtherVideos': return 'Author\'s Other Videos';
 			case 'videoDetail.relatedVideos': return 'Related Videos';
 			case 'videoDetail.privateVideo': return 'This is a private video';
+			case 'videoDetail.externalVideo': return 'This is an external video';
+			case 'videoDetail.openInBrowser': return 'Open in Browser';
+			case 'videoDetail.resourceDeleted': return 'This video seems to have been deleted :/';
 			case 'videoDetail.noDownloadUrl': return 'No download URL';
 			case 'videoDetail.startDownloading': return 'Start downloading';
 			case 'videoDetail.downloadFailed': return 'Download failed, please try again later';

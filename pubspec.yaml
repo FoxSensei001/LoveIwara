@@ -4,7 +4,7 @@ description: "A new Flutter project."
 # Prevent accidental publishing to pub.dev.
 publish_to: 'none'
 
-version: 0.0.1+1
+version: 0.1.0+1
 
 environment:
   sdk: ^3.5.4
@@ -41,6 +41,7 @@ dependencies:
   sqlite3_flutter_libs: ^0.5.26
   table_calendar: ^3.1.2
   path_provider: ^2.1.5
+  path: ^1.9.0
   loading_more_list: ^7.1.0
   waterfall_flow: ^3.1.0
   share_plus: ^10.1.2
@@ -49,6 +50,10 @@ dependencies:
   dynamic_color: ^1.7.0
   oktoast: ^3.4.0
   app_links: ^6.3.3
+
+  yaml: any
+  screen_brightness: any
+  volume_controller: any
   open_file: ^3.5.10
 dev_dependencies:
   flutter_test:

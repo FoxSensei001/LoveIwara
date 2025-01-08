@@ -2,10 +2,12 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:i_iwara/app/models/video_source.model.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:path_provider/path_provider.dart';
+import 'package:i_iwara/utils/logger_utils.dart';
 import '../app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:path/path.dart' as p;
 class CommonUtils {
@@ -179,5 +181,29 @@ class CommonUtils {
       await dir.create(recursive: true);
     }
     return dir;
+  }
+
+  /// 获取文件扩展名
+  static String getFileExtension(String url) {
+    try {
+      final uri = Uri.parse(url);
+      final path = uri.path;
+      return path.substring(path.lastIndexOf('.') + 1).toLowerCase();
+    } catch (e) {
+      LogUtils.e('获取文件扩展名失败', tag: 'CommonUtils', error: e);
+      return 'unknown';
+    }
+  }
+
+  static String getDeviceLocale() {
+    final locale = Get.deviceLocale?.languageCode ?? 'en';
+    switch (locale) {
+      case 'zh':
+        return 'zh-CN';
+      case 'zh-HK':
+      case 'zh-TW':
+        return 'zh-TW';
+    }
+    return locale;
   }
 }

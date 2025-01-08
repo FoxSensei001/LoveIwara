@@ -1,112 +1,84 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
-import 'package:i_iwara/app/ui/pages/subscriptions/controllers/subscription_video_controller.dart';
-import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
-import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
+import 'package:loading_more_list/loading_more_list.dart';
+import '../controllers/subscription_video_repository.dart';
 
-class SubscriptionVideoList extends StatelessWidget {
-  final SubscriptionVideoController controller;
+class SubscriptionVideoList extends StatefulWidget {
+  final String userId;
 
   const SubscriptionVideoList({
     super.key,
-    required this.controller,
+    required this.userId,
   });
 
   @override
+  SubscriptionVideoListState createState() => SubscriptionVideoListState();
+}
+
+class SubscriptionVideoListState extends State<SubscriptionVideoList> with AutomaticKeepAliveClientMixin {
+  late SubscriptionVideoRepository listSourceRepository;
+
+  @override
+  void initState() {
+    super.initState();
+    listSourceRepository = SubscriptionVideoRepository(userId: widget.userId);
+  }
+
+  @override
+  void dispose() {
+    listSourceRepository.dispose();
+    super.dispose();
+  }
+
+  Future<void> refresh() async {
+    await listSourceRepository.refresh(true);
+  }
+
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
-    return NotificationListener<ScrollNotification>(
-      onNotification: (scrollInfo) {
-        if (!controller.isLoading.value &&
-            scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent - 100 &&
-            controller.hasMore.value) {
-          controller.loadVideos();
-        }
-        return false;
-      },
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final columns = _calculateColumns(constraints.maxWidth);
-          
-          return Obx(() {
-            if (controller.errorWidget.value != null) {
-              return controller.errorWidget.value!;
-            }
-            if (controller.videos.isEmpty && !controller.isLoading.value) {
-              return MyEmptyWidget(
-                message: slang.t.common.noMoreDatas,
-                onRefresh: () => controller.loadVideos(),
+    super.build(context);
+    return LoadingMoreCustomScrollView(
+      slivers: <Widget>[
+        LoadingMoreSliverList(
+          SliverListConfig<Video>(
+            extendedListDelegate:
+                const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 200,
+              crossAxisSpacing: 5,
+              mainAxisSpacing: 5,
+            ),
+            itemBuilder: (BuildContext context, Video video, int index) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 0),
+                child: VideoCardListItemWidget(
+                  video: video,
+                  width: 200,
+                ),
               );
-            }
-
-            final itemCount = (controller.videos.length / columns).ceil() + 1;
-            
-            return ListView.builder(
-              padding: EdgeInsets.zero,
-              physics: const AlwaysScrollableScrollPhysics(),
-              itemCount: itemCount,
-              itemBuilder: (context, index) {
-                if (index < itemCount - 1) {
-                  return _buildRow(index, columns, constraints.maxWidth);
-                } else {
-                  return Obx(() => _buildLoadMoreIndicator());
-                }
-              },
-            );
-          });
-        },
-      ),
-    );
-  }
-
-  Widget _buildRow(int index, int columns, double maxWidth) {
-    final startIndex = index * columns;
-    final endIndex = (startIndex + columns).clamp(0, controller.videos.length);
-    final rowItems = controller.videos.sublist(startIndex, endIndex);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: rowItems
-            .map((video) => Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                    child: VideoCardListItemWidget(
-                      video: video,
-                      width: maxWidth / columns - 8,
-                    ),
-                  ),
-                ))
-            .toList(),
-      ),
-    );
-  }
-
-  int _calculateColumns(double availableWidth) {
-    if (availableWidth > 1200) return 5;
-    if (availableWidth > 900) return 4;
-    if (availableWidth > 600) return 3;
-    if (availableWidth > 300) return 2;
-    return 1;
-  }
-
-  Widget _buildLoadMoreIndicator() {
-    return controller.hasMore.value
-        ? const Padding(
-            padding: EdgeInsets.symmetric(vertical: 16.0),
-            child: Center(
-              child: CircularProgressIndicator(),
+            },
+            sourceList: listSourceRepository,
+            padding: EdgeInsets.only(
+              left: 5.0,
+              right: 5.0,
+              top: 5.0,
+              bottom: Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0,
             ),
-          )
-        : Padding(
-            padding: EdgeInsets.symmetric(vertical: 16.0),
-            child: Center(
-              child: Text(
-                slang.t.common.noMoreDatas,
-                style: TextStyle(color: Colors.grey),
-              ),
+            lastChildLayoutType: LastChildLayoutType.foot,
+            indicatorBuilder: (context, status) => myLoadingMoreIndicator(
+              context,
+              status,
+              isSliver: true,
+              loadingMoreBase: listSourceRepository,
             ),
-          );
+          ),
+        ),
+      ],
+    );
   }
 }

@@ -14,7 +14,6 @@ import 'package:oktoast/oktoast.dart';
 import '../../../../../common/enums/media_enums.dart';
 import '../../../../models/user.model.dart';
 import '../../video_detail/controllers/related_media_controller.dart';
-import 'package:i_iwara/i18n/strings.g.dart' as slang;
 class GalleryDetailController extends GetxController {
   final String imageModelId;
   final GalleryService _galleryService = Get.find();

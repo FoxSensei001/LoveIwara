@@ -18,7 +18,7 @@
 Love Iwara（又名 i_iwara 或 2i）是一个使用 Flutter 构建的 Iwara 第三方移动应用。我们的目标是为用户提供出色的使用体验，支持多种平台和设备，包括手机、平板电脑和计算机，兼容安卓、Windows等操作系统。
 
 ### ⚠️ 项目说明
-这是我作为 Flutter 初学者的学习记录项目，且是我第一次开发的移动端和桌面端应用，因此代码可能不够规范完善，功能实现以学习为主要目的。
+作为一名 Flutter 新手，这是我第一次尝试开发跨平台应用。项目中可能存在不少不规范的地方，代码也有待优化，但主要目的是通过实践来学习和理解 Flutter 开发。
 
 - **学习目的**
   - 熟悉 Flutter 开发基础
@@ -34,7 +34,6 @@ Love Iwara（又名 i_iwara 或 2i）是一个使用 Flutter 构建的 Iwara 第
   - 本项目仅供学习参考
   - 不建议用于生产环境
   - 欢迎其他学习者交流讨论
-  - 请勿进行商业推广
 
 - **使用限制**
   - 严禁在任何平台进行宣传推广
@@ -81,6 +80,10 @@ Love Iwara（又名 i_iwara 或 2i）是一个使用 Flutter 构建的 Iwara 第
 - **📝 帖子**
     - 浏览/评论
 
+- **💬 评论**
+    - 评论浏览
+    - 评论回复
+
 - **👤 用户系统**
     - 用户认证
     - 个人资料管理
@@ -94,18 +97,21 @@ Love Iwara（又名 i_iwara 或 2i）是一个使用 Flutter 构建的 Iwara 第
 
 #### 即将推出的功能
 - **下载管理**
+- **站内消息通知**
+- **分享**
 - **论坛系统**
 - **增强用户体验**
 - **其他**
 
 
 ### 📱 截图展示
-<div align="center">
-  <img src="assets/show1.jpg" width="200" alt="截图 1">
-  <img src="assets/show2.jpg" width="200" alt="截图 2">
-  <img src="assets/show3.png" alt="截图 3">
-  <img src="assets/show4.png" alt="截图 4">
-</div>
+| | |
+|:-------------------------:|:-------------------------:|
+|<img src="docs/imgs/show1.jpg" width="200">|<img src="docs/imgs/show2.jpg" width="200">|
+|<img src="docs/imgs/show3.png" width="400">|<img src="docs/imgs/show4.png" width="400">|
+|<img src="docs/imgs/shezhi.png" width="300">|<img src="docs/imgs/dingyue.png" width="300">|
+|<img src="docs/imgs/lishi.png" width="300">|<img src="docs/imgs/guanzhu.png" width="300">|
+|<img src="docs/imgs/sousuo.png" width="300">|<img src="docs/imgs/zuiai.png" width="300">|
 
 ### 🛠️ 开发环境设置
 
