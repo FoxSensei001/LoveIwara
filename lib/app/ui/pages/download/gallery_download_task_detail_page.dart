@@ -9,6 +9,7 @@ import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:path/path.dart' as path;
+import 'package:waterfall_flow/waterfall_flow.dart';
 
 class GalleryDownloadTaskDetailPage extends StatelessWidget {
   final String taskId;
@@ -158,37 +159,43 @@ class GalleryDownloadTaskDetailPage extends StatelessWidget {
             Obx(() {
               final currentTask = DownloadService.to.tasks[taskId];
               if (currentTask == null) return const SizedBox.shrink();
-              
-              return GridView.builder(
-                padding: const EdgeInsets.all(16),
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 1.0,
-                  crossAxisSpacing: 8,
-                  mainAxisSpacing: 8,
-                ),
-                itemCount: extData.imageList.length,
-                itemBuilder: (context, index) {
-                  final imageInfo = extData.imageList[index];
-                  final imageId = imageInfo['id']!;
-                  final imageUrl = imageInfo['url']!;
-                  final imagePath = path.join(
-                    savePath,
-                    '$imageId${path.extension(imageUrl)}',
-                  );
-                  final isDownloaded = isImageDownloaded(imagePath);
 
-                  return _buildImageItem(
-                    context,
-                    imageUrl: imageUrl,
-                    imagePath: imagePath,
-                    isDownloaded: isDownloaded,
-                    onRetry: () {
-                      if (currentTask.status == DownloadStatus.failed) {
-                        DownloadService.to.retryGalleryImageDownload(taskId, imageId);
-                      }
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  // 计算列数，最少两列
+                  final columnCount = (constraints.maxWidth / 200).floor().clamp(2, 4); // 200 是每列的最小宽度
+
+                  return WaterfallFlow.builder(
+                    padding: const EdgeInsets.all(16),
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: columnCount,
+                      crossAxisSpacing: 8,
+                      mainAxisSpacing: 8,
+                    ),
+                    itemCount: extData.imageList.length,
+                    itemBuilder: (context, index) {
+                      final imageInfo = extData.imageList[index];
+                      final imageId = imageInfo['id']!;
+                      final imageUrl = imageInfo['url']!;
+                      final imagePath = path.join(
+                        savePath,
+                        '$imageId${path.extension(imageUrl)}',
+                      );
+                      final isDownloaded = isImageDownloaded(imagePath);
+
+                      return _buildImageItem(
+                        context,
+                        imageUrl: imageUrl,
+                        imagePath: imagePath,
+                        isDownloaded: isDownloaded,
+                        onRetry: () {
+                          if (currentTask.status == DownloadStatus.failed) {
+                            DownloadService.to.retryGalleryImageDownload(taskId, imageId);
+                          }
+                        },
+                      );
                     },
                   );
                 },
@@ -212,7 +219,7 @@ class GalleryDownloadTaskDetailPage extends StatelessWidget {
         // 图片容器
         Container(
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceVariant,
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(8),
           ),
           child: ClipRRect(
