@@ -7,9 +7,7 @@ import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:open_file/open_file.dart';
 import 'package:super_clipboard/super_clipboard.dart';
 
@@ -381,26 +379,27 @@ class VideoDownloadTaskItem extends StatelessWidget {
   }
 
   Widget _buildProgressIndicator() {
-    if (task.status == DownloadStatus.downloading) {
-      if (task.totalBytes > 0) {
-        return LinearProgressIndicator(
-          value: task.downloadedBytes / task.totalBytes,
-          backgroundColor: Colors.grey[200],
-          valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
-        );
-      } else {
-        return const LinearProgressIndicator(
-          backgroundColor: Colors.grey,
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-        );
-      }
-    } else {
+    // 如果有总大小，显示具体进度
+    if (task.totalBytes > 0) {
+      return LinearProgressIndicator(
+        value: task.downloadedBytes / task.totalBytes,
+        backgroundColor: Colors.grey[200],
+        valueColor: AlwaysStoppedAnimation<Color>(_getProgressColor(task.status)),
+      );
+    }
+    // 如果没有总大小但正在下载，显示不确定进度
+    else if (task.status == DownloadStatus.downloading) {
+      return const LinearProgressIndicator(
+        backgroundColor: Colors.grey,
+        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+      );
+    }
+    // 其他状态（完成/失败）
+    else {
       return LinearProgressIndicator(
         value: task.status == DownloadStatus.completed ? 1.0 : 0.0,
         backgroundColor: Colors.grey[200],
-        valueColor: AlwaysStoppedAnimation<Color>(
-          _getProgressColor(task.status),
-        ),
+        valueColor: AlwaysStoppedAnimation<Color>(_getProgressColor(task.status)),
       );
     }
   }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:i_iwara/utils/logger_utils.dart';
 import 'download_task_ext_data.model.dart';
 
 class DownloadTask {
@@ -31,6 +32,18 @@ class DownloadTask {
 
   // 从数据库行转换
   factory DownloadTask.fromRow(Map<String, dynamic> row) {
+    DownloadTaskExtData? extData;
+    try {
+      if (row['ext_data'] != null) {
+        // 尝试解析JSON字符串
+        final jsonStr = row['ext_data'].toString().trim();
+        final jsonMap = jsonDecode(jsonStr);
+        extData = DownloadTaskExtData.fromJson(jsonMap);
+      }
+    } catch (e) {
+      LogUtils.e('解析下载任务扩展数据失败', error: e);
+    }
+
     return DownloadTask(
       id: row['id'],
       url: row['url'],
@@ -41,9 +54,7 @@ class DownloadTask {
       status: DownloadStatus.values.byName(row['status']),
       supportsRange: row['supports_range'] == 1,
       error: row['error'],
-      extData: row['ext_data'] != null 
-        ? DownloadTaskExtData.fromJson(jsonDecode(row['ext_data']))
-        : null,
+      extData: extData,
     );
   }
 

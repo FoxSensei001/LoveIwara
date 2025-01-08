@@ -4,8 +4,10 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
+import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/repositories/download_task_repository.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:path/path.dart' as path_lib;
 
 class DownloadService extends GetxService {
   static DownloadService get to => Get.find<DownloadService>();
@@ -54,6 +56,77 @@ class DownloadService extends GetxService {
   List<DownloadTask> get pendingTasks => 
       _activeTasks.values.where((task) => task.status == DownloadStatus.pending).toList();
   
+  // 添加图库下载相关的字段
+  final _galleryDownloadProgress = <String, Map<String, bool>>{}.obs;
+  
+  // 获取图库下载进度
+  Map<String, bool>? getGalleryDownloadProgress(String taskId) {
+    return _galleryDownloadProgress[taskId];
+  }
+
+  // 重试下载图库中失败的图片
+  Future<void> retryGalleryImageDownload(String taskId, String imageId) async {
+    final task = _activeTasks[taskId];
+    if (task == null || task.extData?.type != 'gallery') return;
+    
+    final galleryData = GalleryDownloadExtData.fromJson(task.extData!.data);
+    final imageInfo = galleryData.imageList.firstWhere((img) => img['id'] == imageId);
+    if (imageInfo == null) return;
+    
+    // 更新状态为未下载
+    _galleryDownloadProgress[taskId]?[imageId] = false;
+    
+    // 开始下载这个图片
+    await _downloadGalleryImage(
+      task,
+      imageInfo['url']!,
+      imageId,
+      galleryData.imageList.length,
+    );
+  }
+
+  // 下载单张图片
+  Future<bool> _downloadGalleryImage(
+    DownloadTask task,
+    String url,
+    String imageId,
+    int totalImages,
+  ) async {
+    final fileName = '${imageId}${path_lib.extension(url)}';
+    final savePath = path_lib.normalize(path_lib.join(task.savePath, fileName));
+    
+    try {
+      final response = await dio.get(
+        url,
+        options: Options(
+          responseType: ResponseType.bytes,
+          followRedirects: true,
+        ),
+      );
+
+      final file = File(savePath);
+      await file.writeAsBytes(response.data);
+      
+      // 更新进度
+      _galleryDownloadProgress[task.id]?[imageId] = true;
+      
+      // 计算总进度
+      final downloadedCount = _galleryDownloadProgress[task.id]?.values
+          .where((downloaded) => downloaded).length ?? 0;
+      
+      // 更新任务进度
+      task.downloadedBytes = downloadedCount;
+      task.totalBytes = totalImages;
+      await _repository.updateTask(task);
+      
+      return true;
+    } catch (e) {
+      LogUtils.e('下载图片失败: $url', tag: 'DownloadService', error: e);
+      _galleryDownloadProgress[task.id]?[imageId] = false;
+      return false;
+    }
+  }
+
   @override
   Future<void> onInit() async {
     super.onInit();
@@ -143,7 +216,7 @@ class DownloadService extends GetxService {
         
         // 如果任务已完成，提示用户
         if (existingTask.status == DownloadStatus.completed) {
-          throw Exception('该视频已下载');
+          return;
         }
         
         // 如果任务失败或暂停，则恢复下载
@@ -205,6 +278,7 @@ class DownloadService extends GetxService {
   }
   
   Future<void> deleteTask(String taskId) async {
+    LogUtils.i('开始删除下载任务: $taskId, ${_activeTasks}', 'DownloadService');
     final task = _activeTasks[taskId];
     if(task == null) return;
     
@@ -279,6 +353,13 @@ class DownloadService extends GetxService {
   }
   
   Future<void> _startDownload(DownloadTask task) async {
+    // 如果是图库下载
+    if (task.extData?.type == 'gallery') {
+      await _startGalleryDownload(task);
+      return;
+    }
+    
+    // 原有的下载逻辑保持不变
     final cancelToken = CancelToken();
     _activeDownloads[task.id] = cancelToken;
 
@@ -564,5 +645,57 @@ class DownloadService extends GetxService {
         backgroundColor: Colors.red,
       ),
     );
+  }
+
+  // 添加图库下载的方法
+  Future<void> _startGalleryDownload(DownloadTask task) async {
+    try {
+      final galleryData = GalleryDownloadExtData.fromJson(task.extData!.data);
+      
+      // 格式化保存路径，统一使用平台特定的路径分隔符
+      final savePath = path_lib.normalize(task.savePath);
+      
+      // 创建保存目录
+      final directory = Directory(savePath);
+      if (await directory.exists()) {
+        // 如果目录已存在，先删除它
+        await directory.delete(recursive: true);
+      }
+      await directory.create(recursive: true);
+      
+      // 初始化下载进度跟踪
+      _galleryDownloadProgress[task.id] = {
+        for (var image in galleryData.imageList)
+          image['id']!: false
+      };
+      
+      task.status = DownloadStatus.downloading;
+      await _updateTaskStatus(task);
+      
+      // 并发下载所有图片
+      final futures = galleryData.imageList.map((image) =>
+        _downloadGalleryImage(
+          task,
+          image['url']!,
+          image['id']!,
+          galleryData.imageList.length,
+        )
+      ).toList();
+      
+      final results = await Future.wait(futures);
+      
+      // 检查是否所有图片都下载成功
+      final allSuccess = results.every((success) => success);
+      
+      task.status = allSuccess ? DownloadStatus.completed : DownloadStatus.failed;
+      task.error = allSuccess ? null : '部分图片下载失败';
+      await _updateTaskStatus(task);
+      
+    } catch (e) {
+      LogUtils.e('下载图库失败', tag: 'DownloadService', error: e);
+      task.status = DownloadStatus.failed;
+      task.error = e.toString();
+      await _updateTaskStatus(task);
+    }
   }
 } 

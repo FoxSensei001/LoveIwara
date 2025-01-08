@@ -2,6 +2,7 @@ import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/db/database_service.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:sqlite3/common.dart';
+import 'dart:convert';
 
 class DownloadTaskRepository {
   late final CommonDatabase _db;
@@ -23,49 +24,66 @@ class DownloadTaskRepository {
 
   // 插入任务
   Future<void> insertTask(DownloadTask task) async {
-    _db.prepare('''
-      INSERT INTO download_tasks 
-      (id, url, save_path, file_name, total_bytes, downloaded_bytes, status, supports_range, error)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''').execute([
-      task.id,
-      task.url,
-      task.savePath,
-      task.fileName,
-      task.totalBytes,
-      task.downloadedBytes,
-      task.status.name,
-      task.supportsRange ? 1 : 0,
-      task.error
-    ]);
+    try {
+      final extDataJson = task.extData != null ? jsonEncode(task.extData!.toJson()) : null;
+      
+      _db.prepare('''
+        INSERT INTO download_tasks 
+        (id, url, save_path, file_name, total_bytes, downloaded_bytes, status, supports_range, error, ext_data)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ''').execute([
+        task.id,
+        task.url,
+        task.savePath,
+        task.fileName,
+        task.totalBytes,
+        task.downloadedBytes,
+        task.status.name,
+        task.supportsRange ? 1 : 0,
+        task.error,
+        extDataJson
+      ]);
+    } catch (e) {
+      LogUtils.e('插入下载任务失败', tag: 'DownloadTaskRepository', error: e);
+      rethrow;
+    }
   }
 
   // 更新任务
   Future<void> updateTask(DownloadTask task) async {
-    _db.prepare('''
-      UPDATE download_tasks 
-      SET url = ?, 
-          save_path = ?, 
-          file_name = ?, 
-          total_bytes = ?, 
-          downloaded_bytes = ?, 
-          status = ?, 
-          supports_range = ?, 
-          error = ?, 
-          updated_at = ?
-      WHERE id = ?
-    ''').execute([
-      task.url,
-      task.savePath,
-      task.fileName,
-      task.totalBytes,
-      task.downloadedBytes,
-      task.status.name,
-      task.supportsRange ? 1 : 0,
-      task.error,
-      DateTime.now().millisecondsSinceEpoch,
-      task.id
-    ]);
+    try {
+      final extDataJson = task.extData != null ? jsonEncode(task.extData!.toJson()) : null;
+      
+      _db.prepare('''
+        UPDATE download_tasks 
+        SET url = ?, 
+            save_path = ?, 
+            file_name = ?, 
+            total_bytes = ?, 
+            downloaded_bytes = ?, 
+            status = ?, 
+            supports_range = ?, 
+            error = ?, 
+            ext_data = ?,
+            updated_at = ?
+        WHERE id = ?
+      ''').execute([
+        task.url,
+        task.savePath,
+        task.fileName,
+        task.totalBytes,
+        task.downloadedBytes,
+        task.status.name,
+        task.supportsRange ? 1 : 0,
+        task.error,
+        extDataJson,
+        DateTime.now().millisecondsSinceEpoch,
+        task.id
+      ]);
+    } catch (e) {
+      LogUtils.e('更新下载任务失败', tag: 'DownloadTaskRepository', error: e);
+      rethrow;
+    }
   }
 
   // 删除任务

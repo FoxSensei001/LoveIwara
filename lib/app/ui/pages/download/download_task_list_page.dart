@@ -4,6 +4,7 @@ import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/default_download_task_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/video_download_task_item_widget.dart';
+import 'package:i_iwara/app/ui/pages/download/widgets/gallery_download_task_item_widget.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:oktoast/oktoast.dart';
 
@@ -88,6 +89,8 @@ class DownloadTaskListPage extends StatelessWidget {
                     final task = tasks[index];
                     if (task.extData?.type == 'video') {
                       return VideoDownloadTaskItem(task: task);
+                    } else if (task.extData?.type == 'gallery') {
+                      return GalleryDownloadTaskItem(task: task);
                     }
                     return DefaultDownloadTaskItem(task: task);
                   },

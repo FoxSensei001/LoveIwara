@@ -43,6 +43,7 @@ abstract class Routes {
   static const ABOUT_PAGE = '/settings/about';
 
   static const DOWNLOAD_TASK_LIST = '/download_task_list';
+  static const GALLERY_DOWNLOAD_TASK_DETAIL = '/gallery_download_task_detail';
 
   static const PHOTO_VIEW_WRAPPER = '/photo_view_wrapper';
 

@@ -44,6 +44,12 @@ class DefaultDownloadTaskItem extends StatelessWidget {
     return Icons.file_present;
   }
 
+  bool _isImageFile() {
+    if (task.status != DownloadStatus.completed) return false;
+    final extension = path.extension(task.fileName).toLowerCase();
+    return ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'].contains(extension);
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -68,11 +74,24 @@ class DefaultDownloadTaskItem extends StatelessWidget {
                         color: Theme.of(context).colorScheme.surfaceVariant,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Icon(
-                        _getFileIcon(),
-                        size: 24,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+                      child: _isImageFile() ? 
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.file(
+                            File(task.savePath),
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => Icon(
+                              _getFileIcon(),
+                              size: 24,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                        )
+                        : Icon(
+                          _getFileIcon(),
+                          size: 24,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -270,26 +289,27 @@ class DefaultDownloadTaskItem extends StatelessWidget {
   }
 
   Widget _buildProgressIndicator() {
-    if (task.status == DownloadStatus.downloading) {
-      if (task.totalBytes > 0) {
-        return LinearProgressIndicator(
-          value: task.downloadedBytes / task.totalBytes,
-          backgroundColor: Colors.grey[200],
-          valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
-        );
-      } else {
-        return const LinearProgressIndicator(
-          backgroundColor: Colors.grey,
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-        );
-      }
-    } else {
+    // 如果有总大小，显示具体进度
+    if (task.totalBytes > 0) {
+      return LinearProgressIndicator(
+        value: task.downloadedBytes / task.totalBytes,
+        backgroundColor: Colors.grey[200],
+        valueColor: AlwaysStoppedAnimation<Color>(_getProgressColor(task.status)),
+      );
+    }
+    // 如果没有总大小但正在下载，显示不确定进度
+    else if (task.status == DownloadStatus.downloading) {
+      return const LinearProgressIndicator(
+        backgroundColor: Colors.grey,
+        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+      );
+    }
+    // 其他状态（完成/失败）
+    else {
       return LinearProgressIndicator(
         value: task.status == DownloadStatus.completed ? 1.0 : 0.0,
         backgroundColor: Colors.grey[200],
-        valueColor: AlwaysStoppedAnimation<Color>(
-          _getProgressColor(task.status),
-        ),
+        valueColor: AlwaysStoppedAnimation<Color>(_getProgressColor(task.status)),
       );
     }
   }

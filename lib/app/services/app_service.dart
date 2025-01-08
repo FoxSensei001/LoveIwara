@@ -18,6 +18,7 @@ import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:i_iwara/app/ui/pages/download/gallery_download_task_detail_page.dart';
 
 import '../routes/app_routes.dart';
 import '../ui/pages/author_profile/author_profile_page.dart';
@@ -425,6 +426,26 @@ class NaviService {
       settings: const RouteSettings(name: Routes.DOWNLOAD_TASK_LIST),
       pageBuilder: (context, animation, secondaryAnimation) {
         return const DownloadTaskListPage();
+      },
+      transitionDuration: const Duration(milliseconds: 200),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return SlideTransition(
+          position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(animation),
+          child: child,
+        );
+      },
+    ));
+  }
+
+  // 跳转到图库下载任务详情页
+  static void navigateToGalleryDownloadTaskDetailPage(String taskId) {
+    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
+      settings: RouteSettings(
+        name: Routes.GALLERY_DOWNLOAD_TASK_DETAIL,
+        arguments: taskId,
+      ),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return GalleryDownloadTaskDetailPage(taskId: taskId);
       },
       transitionDuration: const Duration(milliseconds: 200),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
