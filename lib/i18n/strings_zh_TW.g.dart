@@ -638,6 +638,9 @@ class _TranslationsDownloadZhTw implements TranslationsDownloadEn {
 	@override String get copyDownloadUrlSuccess => '已複製下載連結';
 	@override String totalImageNums({required Object num}) => '${num}張';
 	@override String downloadingDownloadedTotalProgressSpeed({required Object downloaded, required Object total, required Object progress, required Object speed}) => '下載中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
+	@override String get downloading => '下載中';
+	@override String get failed => '失敗';
+	@override String get completed => '已完成';
 }
 
 // Path: download.errors
@@ -676,6 +679,9 @@ class _TranslationsDownloadErrorsZhTw implements TranslationsDownloadErrorsEn {
 	@override String openFileFailedWithMessage({required Object message}) => '打開文件失敗: ${message}';
 	@override String get noDownloadSource => '沒有下載源';
 	@override String get noDownloadSourceNowPleaseWaitInfoLoaded => '暫無下載源，請等待信息加載完成後重試';
+	@override String get noActiveDownloadTask => '暫無正在下載的任務';
+	@override String get noFailedDownloadTask => '暫無失敗的任務';
+	@override String get noCompletedDownloadTask => '暫無已完成的任務';
 }
 
 /// Flat map(s) containing all translations.
@@ -1121,6 +1127,9 @@ extension on TranslationsZhTw {
 			case 'download.errors.openFileFailedWithMessage': return ({required Object message}) => '打開文件失敗: ${message}';
 			case 'download.errors.noDownloadSource': return '沒有下載源';
 			case 'download.errors.noDownloadSourceNowPleaseWaitInfoLoaded': return '暫無下載源，請等待信息加載完成後重試';
+			case 'download.errors.noActiveDownloadTask': return '暫無正在下載的任務';
+			case 'download.errors.noFailedDownloadTask': return '暫無失敗的任務';
+			case 'download.errors.noCompletedDownloadTask': return '暫無已完成的任務';
 			case 'download.downloadList': return '下載列表';
 			case 'download.download': return '下載';
 			case 'download.startDownloading': return '開始下載...';
@@ -1156,6 +1165,9 @@ extension on TranslationsZhTw {
 			case 'download.copyDownloadUrlSuccess': return '已複製下載連結';
 			case 'download.totalImageNums': return ({required Object num}) => '${num}張';
 			case 'download.downloadingDownloadedTotalProgressSpeed': return ({required Object downloaded, required Object total, required Object progress, required Object speed}) => '下載中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
+			case 'download.downloading': return '下載中';
+			case 'download.failed': return '失敗';
+			case 'download.completed': return '已完成';
 			default: return null;
 		}
 	}

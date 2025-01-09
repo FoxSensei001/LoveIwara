@@ -8,8 +8,29 @@ import 'package:i_iwara/app/ui/pages/download/widgets/gallery_download_task_item
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-class DownloadTaskListPage extends StatelessWidget {
+
+class DownloadTaskListPage extends StatefulWidget {
   const DownloadTaskListPage({super.key});
+
+  @override
+  State<DownloadTaskListPage> createState() => _DownloadTaskListPageState();
+}
+
+class _DownloadTaskListPageState extends State<DownloadTaskListPage>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,90 +38,134 @@ class DownloadTaskListPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(t.download.downloadList),
+        bottom: TabBar(
+          controller: _tabController,
+          overlayColor: WidgetStateProperty.all(Colors.transparent),
+          isScrollable: true,
+          tabAlignment: TabAlignment.start,
+          dividerColor: Colors.transparent,
+          padding: EdgeInsets.zero,
+          tabs: [
+            Tab(text: t.download.downloading),
+            Tab(text: t.download.completed),
+          ],
+        ),
       ),
       body: Obx(() {
-        final tasks = DownloadService.to.tasks.values.toList()
+        final allTasks = DownloadService.to.tasks.values.toList();
+
+        // 按状态分类任务
+        final activeTasks = allTasks
+            .where((task) =>
+                task.status == DownloadStatus.downloading ||
+                task.status == DownloadStatus.pending ||
+                task.status == DownloadStatus.paused ||
+                task.status == DownloadStatus.failed)
+            .toList()
           ..sort((a, b) {
-            // 首先按状态排序：下载中 > 等待中 > 暂停 > 失败 > 已完成
             final statusOrder = {
               DownloadStatus.downloading: 0,
               DownloadStatus.pending: 1,
               DownloadStatus.paused: 2,
               DownloadStatus.failed: 3,
-              DownloadStatus.completed: 4,
             };
-
-            final statusCompare =
-                statusOrder[a.status]!.compareTo(statusOrder[b.status]!);
-            if (statusCompare != 0) return statusCompare;
-
-            // 状态相同时
-            return -a.id.compareTo(b.id);
+            return statusOrder[a.status]!.compareTo(statusOrder[b.status]!);
           });
 
-        // 计算失败的任务数量
-        final failedTasksCount = tasks.where((task) => task.status == DownloadStatus.failed).length;
+        final completedTasks = allTasks
+            .where((task) => task.status == DownloadStatus.completed)
+            .toList()
+          ..sort((a, b) => -a.id.compareTo(b.id));
 
-        if (tasks.isEmpty) {
-          return Center(
-            child: Text(t.download.errors.noDownloadTask),
-          );
-        }
-
-        return Column(
+        return TabBarView(
+          controller: _tabController,
           children: [
-            // 清除失败任务按钮
-            if (failedTasksCount > 0)
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () => _showClearFailedTasksDialog(context),
-                        icon: const Icon(Icons.delete_sweep),
-                        label: Text('${t.download.clearAllFailedTasks} ($failedTasksCount)'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            // 任务列表
-            Expanded(
-              child: NotificationListener<ScrollNotification>(
-                onNotification: (ScrollNotification scrollInfo) {
-                  if (scrollInfo is ScrollEndNotification &&
-                      scrollInfo.metrics.pixels >=
-                          scrollInfo.metrics.maxScrollExtent * 0.9) {
-                    // 当滚动到接近底部时，加载更多已完成的任务
-                    if (DownloadService.to.hasMoreCompletedTasks) {
-                      DownloadService.to.loadMoreCompletedTasks();
-                    }
-                  }
-                  return true;
-                },
-                child: ListView.builder(
-                  itemCount: tasks.length,
-                  itemBuilder: (context, index) {
-                    final task = tasks[index];
-                    if (task.extData?.type == 'video') {
-                      return VideoDownloadTaskItem(task: task);
-                    } else if (task.extData?.type == 'gallery') {
-                      return GalleryDownloadTaskItem(task: task);
-                    }
-                    return DefaultDownloadTaskItem(task: task);
-                  },
-                ),
-              ),
+            // 进行中和失败的任务列表
+            _buildTaskList(
+              tasks: activeTasks,
+              emptyText: t.download.errors.noActiveDownloadTask,
+              showClearButton: true,
+              clearButtonText: t.download.clearAllFailedTasks,
+              onClearPressed: () => _showClearFailedTasksDialog(context),
+            ),
+
+            // 已完成的任务列表
+            _buildTaskList(
+              tasks: completedTasks,
+              emptyText: t.download.errors.noCompletedDownloadTask,
+              showClearButton: false,
+              enableLoadMore: true,
             ),
           ],
         );
       }),
+    );
+  }
+
+  Widget _buildTaskList({
+    required List<DownloadTask> tasks,
+    required String emptyText,
+    bool showClearButton = false,
+    String? clearButtonText,
+    VoidCallback? onClearPressed,
+    bool enableLoadMore = false,
+  }) {
+    if (tasks.isEmpty) {
+      return Center(
+        child: Text(emptyText),
+      );
+    }
+
+    return Column(
+      children: [
+        if (showClearButton && tasks.isNotEmpty)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: onClearPressed,
+                    icon: const Icon(Icons.delete_sweep),
+                    label: Text('$clearButtonText (${tasks.length})'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        Expanded(
+          child: NotificationListener<ScrollNotification>(
+            onNotification: (ScrollNotification scrollInfo) {
+              if (enableLoadMore &&
+                  scrollInfo is ScrollEndNotification &&
+                  scrollInfo.metrics.pixels >=
+                      scrollInfo.metrics.maxScrollExtent * 0.9) {
+                if (DownloadService.to.hasMoreCompletedTasks) {
+                  DownloadService.to.loadMoreCompletedTasks();
+                }
+              }
+              return true;
+            },
+            child: ListView.builder(
+              itemCount: tasks.length,
+              itemBuilder: (context, index) {
+                final task = tasks[index];
+                if (task.extData?.type == 'video') {
+                  return VideoDownloadTaskItem(task: task);
+                } else if (task.extData?.type == 'gallery') {
+                  return GalleryDownloadTaskItem(task: task);
+                }
+                return DefaultDownloadTaskItem(task: task);
+              },
+            ),
+          ),
+        ),
+      ],
     );
   }
 

@@ -312,96 +312,101 @@ class VideoDetailContent extends StatelessWidget {
                   }
                 }),
                 const SizedBox(height: 16),
-                // 点赞和评论按钮区域
                 Obx(() {
                   final videoInfo = controller.videoInfo.value;
                   if (videoInfo != null) {
                     return Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Row(
-                        spacing: 12,
-                        children: [
-                          LikeButtonWidget(
-                            mediaId: videoInfo.id,
-                            liked: videoInfo.liked ?? false,
-                            likeCount: videoInfo.numLikes ?? 0,
-                            onLike: (id) async {
-                              final result = await Get.find<VideoService>().likeVideo(id);
-                              return result.isSuccess;
-                            },
-                            onUnlike: (id) async {
-                              final result = await Get.find<VideoService>().unlikeVideo(id);
-                              return result.isSuccess;
-                            },
-                            onLikeChanged: (liked) {
-                              controller.videoInfo.value = controller.videoInfo.value?.copyWith(
-                                liked: liked,
-                                numLikes: (controller.videoInfo.value?.numLikes ?? 0) + (liked ? 1 : -1),
-                              );
-                            },
-                          ),
-                          Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(20),
-                              onTap: () {
-                                final UserService userService = Get.find();
-                                if (!userService.isLogin) {
-                                  showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error));
-                                  Get.toNamed(Routes.LOGIN);
-                                  return;
-                                }
-                                showModalBottomSheet(
-                                  backgroundColor: Colors.transparent,
-                                  isScrollControlled: true,
-                                  builder: (context) => AddVideoToPlayListDialog(
-                                    videoId: controller.videoInfo.value?.id ?? '',
-                                  ), context: context,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          spacing: 12,
+                          children: [
+                            // 点赞按钮
+                            LikeButtonWidget(
+                              mediaId: videoInfo.id,
+                              liked: videoInfo.liked ?? false,
+                              likeCount: videoInfo.numLikes ?? 0,
+                              onLike: (id) async {
+                                final result = await Get.find<VideoService>().likeVideo(id);
+                                return result.isSuccess;
+                              },
+                              onUnlike: (id) async {
+                                final result = await Get.find<VideoService>().unlikeVideo(id);
+                                return result.isSuccess;
+                              },
+                              onLikeChanged: (liked) {
+                                controller.videoInfo.value = controller.videoInfo.value?.copyWith(
+                                  liked: liked,
+                                  numLikes: (controller.videoInfo.value?.numLikes ?? 0) + (liked ? 1 : -1),
                                 );
                               },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.playlist_add,
-                                      size: 20,
-                                      color: Theme.of(context).iconTheme.color
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      slang.Translations.of(context).playList.myPlayList,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Theme.of(context).textTheme.bodyMedium?.color
+                            ),
+                            // 添加到播放列表按钮
+                            Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(20),
+                                onTap: () {
+                                  final UserService userService = Get.find();
+                                  if (!userService.isLogin) {
+                                    showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error));
+                                    Get.toNamed(Routes.LOGIN);
+                                    return;
+                                  }
+                                  showModalBottomSheet(
+                                    backgroundColor: Colors.transparent,
+                                    isScrollControlled: true,
+                                    builder: (context) => AddVideoToPlayListDialog(
+                                      videoId: controller.videoInfo.value?.id ?? '',
+                                    ), context: context,
+                                  );
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.playlist_add,
+                                        size: 20,
+                                        color: Theme.of(context).iconTheme.color
                                       ),
-                                    ),
-                                  ],
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        slang.Translations.of(context).playList.myPlayList,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Theme.of(context).textTheme.bodyMedium?.color
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(16),
-                              onTap: () {
-                                _showDownloadDialog(context);
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(Icons.download),
-                                    const SizedBox(width: 4),
-                                    Text(t.common.download),
-                                  ],
+                            // 下载按钮
+                            Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(16),
+                                onTap: () {
+                                  _showDownloadDialog(context);
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.download),
+                                      const SizedBox(width: 4),
+                                      Text(t.common.download),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     );
                   } else {

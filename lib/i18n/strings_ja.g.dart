@@ -638,6 +638,9 @@ class _TranslationsDownloadJa implements TranslationsDownloadEn {
 	@override String get copyDownloadUrlSuccess => 'ダウンロードリンクをコピーしました';
 	@override String totalImageNums({required Object num}) => '${num}枚';
 	@override String downloadingDownloadedTotalProgressSpeed({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'ダウンロード中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
+	@override String get downloading => 'ダウンロード中';
+	@override String get failed => '失敗';
+	@override String get completed => '完了';
 }
 
 // Path: download.errors
@@ -676,6 +679,9 @@ class _TranslationsDownloadErrorsJa implements TranslationsDownloadErrorsEn {
 	@override String openFileFailedWithMessage({required Object message}) => 'ファイルを開くのに失敗しました: ${message}';
 	@override String get noDownloadSource => 'ダウンロードソースがありません';
 	@override String get noDownloadSourceNowPleaseWaitInfoLoaded => 'ダウンロードソースがありません。情報を読み込んだ後、もう一度お試しください。';
+	@override String get noActiveDownloadTask => 'ダウンロード中のタスクがありません';
+	@override String get noFailedDownloadTask => '失敗したタスクがありません';
+	@override String get noCompletedDownloadTask => '完了したタスクがありません';
 }
 
 /// Flat map(s) containing all translations.
@@ -1121,6 +1127,9 @@ extension on TranslationsJa {
 			case 'download.errors.openFileFailedWithMessage': return ({required Object message}) => 'ファイルを開くのに失敗しました: ${message}';
 			case 'download.errors.noDownloadSource': return 'ダウンロードソースがありません';
 			case 'download.errors.noDownloadSourceNowPleaseWaitInfoLoaded': return 'ダウンロードソースがありません。情報を読み込んだ後、もう一度お試しください。';
+			case 'download.errors.noActiveDownloadTask': return 'ダウンロード中のタスクがありません';
+			case 'download.errors.noFailedDownloadTask': return '失敗したタスクがありません';
+			case 'download.errors.noCompletedDownloadTask': return '完了したタスクがありません';
 			case 'download.downloadList': return 'ダウンロードリスト';
 			case 'download.download': return 'ダウンロード';
 			case 'download.startDownloading': return 'ダウンロードを開始';
@@ -1156,6 +1165,9 @@ extension on TranslationsJa {
 			case 'download.copyDownloadUrlSuccess': return 'ダウンロードリンクをコピーしました';
 			case 'download.totalImageNums': return ({required Object num}) => '${num}枚';
 			case 'download.downloadingDownloadedTotalProgressSpeed': return ({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'ダウンロード中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
+			case 'download.downloading': return 'ダウンロード中';
+			case 'download.failed': return '失敗';
+			case 'download.completed': return '完了';
 			default: return null;
 		}
 	}

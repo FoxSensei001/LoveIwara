@@ -642,6 +642,9 @@ class TranslationsDownloadEn {
 	String get copyDownloadUrlSuccess => 'Download URL copied';
 	String totalImageNums({required Object num}) => '${num} images';
 	String downloadingDownloadedTotalProgressSpeed({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'Downloading ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
+	String get downloading => 'Downloading';
+	String get failed => 'Failed';
+	String get completed => 'Completed';
 }
 
 // Path: download.errors
@@ -680,6 +683,9 @@ class TranslationsDownloadErrorsEn {
 	String openFileFailedWithMessage({required Object message}) => 'Failed to open file: ${message}';
 	String get noDownloadSource => 'No download source';
 	String get noDownloadSourceNowPleaseWaitInfoLoaded => 'No download source, please wait for information loading to be completed and try again';
+	String get noActiveDownloadTask => 'No active download task';
+	String get noFailedDownloadTask => 'No failed download task';
+	String get noCompletedDownloadTask => 'No completed download task';
 }
 
 /// Flat map(s) containing all translations.
@@ -1125,6 +1131,9 @@ extension on Translations {
 			case 'download.errors.openFileFailedWithMessage': return ({required Object message}) => 'Failed to open file: ${message}';
 			case 'download.errors.noDownloadSource': return 'No download source';
 			case 'download.errors.noDownloadSourceNowPleaseWaitInfoLoaded': return 'No download source, please wait for information loading to be completed and try again';
+			case 'download.errors.noActiveDownloadTask': return 'No active download task';
+			case 'download.errors.noFailedDownloadTask': return 'No failed download task';
+			case 'download.errors.noCompletedDownloadTask': return 'No completed download task';
 			case 'download.downloadList': return 'Download List';
 			case 'download.download': return 'Download';
 			case 'download.startDownloading': return 'Start Downloading';
@@ -1160,6 +1169,9 @@ extension on Translations {
 			case 'download.copyDownloadUrlSuccess': return 'Download URL copied';
 			case 'download.totalImageNums': return ({required Object num}) => '${num} images';
 			case 'download.downloadingDownloadedTotalProgressSpeed': return ({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'Downloading ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
+			case 'download.downloading': return 'Downloading';
+			case 'download.failed': return 'Failed';
+			case 'download.completed': return 'Completed';
 			default: return null;
 		}
 	}

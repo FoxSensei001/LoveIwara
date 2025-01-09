@@ -466,6 +466,9 @@ download:
     openFileFailedWithMessage: 'Failed to open file: ${message}'
     noDownloadSource: No download source
     noDownloadSourceNowPleaseWaitInfoLoaded: No download source, please wait for information loading to be completed and try again
+    noActiveDownloadTask: No active download task 
+    noFailedDownloadTask: No failed download task
+    noCompletedDownloadTask: No completed download task
   downloadList: Download List
   download: Download
   startDownloading: Start Downloading
@@ -501,5 +504,7 @@ download:
   copyDownloadUrlSuccess: 'Download URL copied'
   totalImageNums: '${num} images'
   downloadingDownloadedTotalProgressSpeed: 'Downloading ${downloaded}/${total} (${progress}%) • ${speed}MB/s'
-  
+  downloading: Downloading
+  failed: Failed
+  completed: Completed
 

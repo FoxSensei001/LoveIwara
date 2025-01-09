@@ -473,6 +473,9 @@ download:
     openFileFailedWithMessage: '打开文件失败: ${message}'
     noDownloadSource: 没有下载源
     noDownloadSourceNowPleaseWaitInfoLoaded: 暂无下载源，请等待信息加载完成后重试
+    noActiveDownloadTask: 暂无正在下载的任务
+    noFailedDownloadTask: 暂无失败的任务
+    noCompletedDownloadTask: 暂无已完成的任务
   downloadList: 下载列表
   download: 下载
   startDownloading: 开始下载...
@@ -508,4 +511,7 @@ download:
   copyDownloadUrlSuccess: '已复制下载链接'
   totalImageNums: '${num}张'
   downloadingDownloadedTotalProgressSpeed: '下载中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s'
+  downloading: 下载中
+  failed: 失败
+  completed: 已完成
 
