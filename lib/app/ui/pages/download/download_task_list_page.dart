@@ -7,15 +7,16 @@ import 'package:i_iwara/app/ui/pages/download/widgets/video_download_task_item_w
 import 'package:i_iwara/app/ui/pages/download/widgets/gallery_download_task_item_widget.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:oktoast/oktoast.dart';
-
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 class DownloadTaskListPage extends StatelessWidget {
   const DownloadTaskListPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final t = slang.Translations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('下载管理'),
+        title: Text(t.download.downloadList),
       ),
       body: Obx(() {
         final tasks = DownloadService.to.tasks.values.toList()
@@ -41,8 +42,8 @@ class DownloadTaskListPage extends StatelessWidget {
         final failedTasksCount = tasks.where((task) => task.status == DownloadStatus.failed).length;
 
         if (tasks.isEmpty) {
-          return const Center(
-            child: Text('暂无下载任务'),
+          return Center(
+            child: Text(t.download.errors.noDownloadTask),
           );
         }
 
@@ -59,7 +60,7 @@ class DownloadTaskListPage extends StatelessWidget {
                       child: ElevatedButton.icon(
                         onPressed: () => _showClearFailedTasksDialog(context),
                         icon: const Icon(Icons.delete_sweep),
-                        label: Text('清除全部失败任务 ($failedTasksCount)'),
+                        label: Text('${t.download.clearAllFailedTasks} ($failedTasksCount)'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,
                           foregroundColor: Colors.white,
@@ -104,15 +105,16 @@ class DownloadTaskListPage extends StatelessWidget {
   }
 
   void _showClearFailedTasksDialog(BuildContext context) {
+    final t = slang.Translations.of(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('清除失败任务'),
-        content: const Text('确定要清除所有失败的下载任务吗？\n这些任务的文件也会被删除。'),
+        title: Text(t.download.clearAllFailedTasks),
+        content: Text(t.download.clearAllFailedTasksConfirmation),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('取消'),
+            child: Text(t.common.cancel),
           ),
           TextButton(
             onPressed: () async {
@@ -121,8 +123,8 @@ class DownloadTaskListPage extends StatelessWidget {
                 await DownloadService.to.clearFailedTasks();
                 if (context.mounted) {
                   showToastWidget(
-                    const MDToastWidget(
-                      message: '已清除所有失败任务',
+                    MDToastWidget(
+                      message: t.download.clearAllFailedTasksSuccess,
                       type: MDToastType.success,
                     ),
                   );
@@ -130,17 +132,17 @@ class DownloadTaskListPage extends StatelessWidget {
               } catch (e) {
                 if (context.mounted) {
                   showToastWidget(
-                    const MDToastWidget(
-                      message: '清除失败任务时出错',
+                    MDToastWidget(
+                      message: t.download.clearAllFailedTasksError,
                       type: MDToastType.error,
                     ),
                   );
                 }
               }
             },
-            child: const Text(
-              '确定',
-              style: TextStyle(color: Colors.red),
+            child: Text(
+              t.common.confirm,
+              style: const TextStyle(color: Colors.red),
             ),
           ),
         ],

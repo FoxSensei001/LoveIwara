@@ -11,6 +11,7 @@ import 'package:oktoast/oktoast.dart';
 import 'package:open_file/open_file.dart';
 import 'package:super_clipboard/super_clipboard.dart';
 import 'package:path/path.dart' as path;
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class DefaultDownloadTaskItem extends StatelessWidget {
   final DownloadTask task;
@@ -52,6 +53,7 @@ class DefaultDownloadTaskItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = slang.Translations.of(context);
     return GestureDetector(
       onSecondaryTapUp: (details) => _showContextMenu(context, details.globalPosition),
       child: Card(
@@ -71,7 +73,7 @@ class DefaultDownloadTaskItem extends StatelessWidget {
                       width: 48,
                       height: 48,
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surfaceVariant,
+                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: _isImageFile() ? 
@@ -125,7 +127,7 @@ class DefaultDownloadTaskItem extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(_getStatusText()),
+                              Text(_getStatusText(context)),
                               if (task.error != null)
                                 Text(
                                   task.error!,
@@ -138,7 +140,7 @@ class DefaultDownloadTaskItem extends StatelessWidget {
                         IconButton(
                           icon: const Icon(Icons.more_horiz),
                           onPressed: () => _showMoreOptionsDialog(context),
-                          tooltip: '更多操作',
+                          tooltip: t.common.more,
                         ),
                       ],
                     ),
@@ -153,29 +155,30 @@ class DefaultDownloadTaskItem extends StatelessWidget {
   }
 
   Widget _buildMainActionButton(BuildContext context) {
+    final t = slang.Translations.of(context);
     switch (task.status) {
       case DownloadStatus.downloading:
         return IconButton(
           icon: const Icon(Icons.pause),
-          tooltip: '暂停',
+          tooltip: t.download.pause,
           onPressed: () => DownloadService.to.pauseTask(task.id),
         );
       case DownloadStatus.paused:
         return IconButton(
           icon: const Icon(Icons.play_arrow),
-          tooltip: '继续',
+          tooltip: t.download.resume,
           onPressed: () => DownloadService.to.resumeTask(task.id),
         );
       case DownloadStatus.failed:
         return IconButton(
           icon: const Icon(Icons.refresh),
-          tooltip: '重试',
+          tooltip: t.common.retry,
           onPressed: () => DownloadService.to.retryTask(task.id),
         );
       case DownloadStatus.completed:
         return IconButton(
           icon: const Icon(Icons.play_circle_outline),
-          tooltip: '打开',
+          tooltip: t.download.openFile,
           onPressed: () => _openFile(context),
         );
       default:
@@ -184,6 +187,7 @@ class DefaultDownloadTaskItem extends StatelessWidget {
   }
 
   void _showMoreOptionsDialog(BuildContext context) {
+    final t = slang.Translations.of(context);
     showModalBottomSheet(
       context: context,
       builder: (context) => SafeArea(
@@ -192,7 +196,7 @@ class DefaultDownloadTaskItem extends StatelessWidget {
           children: [
             ListTile(
               leading: const Icon(Icons.link),
-              title: const Text('复制下载链接'),
+              title: Text(t.download.copyDownloadUrl),
               onTap: () {
                 Navigator.pop(context);
                 _copyDownloadUrl(context);
@@ -201,7 +205,7 @@ class DefaultDownloadTaskItem extends StatelessWidget {
             if (task.status == DownloadStatus.completed) ...[
               ListTile(
                 leading: const Icon(Icons.open_in_new),
-                title: const Text('打开文件'),
+                title: Text(t.download.openFile),
                 onTap: () {
                   Navigator.pop(context);
                   _openFile(context);
@@ -210,7 +214,7 @@ class DefaultDownloadTaskItem extends StatelessWidget {
               if (Platform.isWindows || Platform.isMacOS || Platform.isLinux)
                 ListTile(
                   leading: const Icon(Icons.folder_open),
-                  title: const Text('在文件夹中显示'),
+                  title: Text(t.download.showInFolder),
                   onTap: () {
                     Navigator.pop(context);
                     _showInFolder(context);
@@ -219,7 +223,7 @@ class DefaultDownloadTaskItem extends StatelessWidget {
             ],
             ListTile(
               leading: const Icon(Icons.delete, color: Colors.red),
-              title: const Text('删除任务', style: TextStyle(color: Colors.red)),
+              title: Text(t.download.deleteTask, style: const TextStyle(color: Colors.red)),
               onTap: () {
                 Navigator.pop(context);
                 _showDeleteConfirmDialog(context);
@@ -232,6 +236,7 @@ class DefaultDownloadTaskItem extends StatelessWidget {
   }
 
   void _showContextMenu(BuildContext context, Offset position) {
+    final t = slang.Translations.of(context);
     final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
     
     showMenu(
@@ -246,7 +251,7 @@ class DefaultDownloadTaskItem extends StatelessWidget {
             children: [
               const Icon(Icons.link, size: 20),
               const SizedBox(width: 12),
-              const Text('复制下载链接'),
+              Text(t.download.copyDownloadUrl),
             ],
           ),
           onTap: () => _copyDownloadUrl(context),
@@ -258,7 +263,7 @@ class DefaultDownloadTaskItem extends StatelessWidget {
                 children: [
                   const Icon(Icons.folder_open, size: 20),
                   const SizedBox(width: 12),
-                  const Text('在文件夹中显示'),
+                  Text(t.download.showInFolder),
                 ],
               ),
               onTap: () => _showInFolder(context),
@@ -268,7 +273,7 @@ class DefaultDownloadTaskItem extends StatelessWidget {
               children: [
                 const Icon(Icons.open_in_new, size: 20),
                 const SizedBox(width: 12),
-                const Text('打开文件'),
+                Text(t.download.openFile),
               ],
             ),
             onTap: () => _openFile(context),
@@ -279,7 +284,7 @@ class DefaultDownloadTaskItem extends StatelessWidget {
             children: [
               const Icon(Icons.delete, size: 20, color: Colors.red),
               const SizedBox(width: 12),
-              const Text('删除任务', style: TextStyle(color: Colors.red)),
+              Text(t.download.deleteTask, style: const TextStyle(color: Colors.red)),
             ],
           ),
           onTap: () => _showDeleteConfirmDialog(context),
@@ -327,10 +332,11 @@ class DefaultDownloadTaskItem extends StatelessWidget {
     }
   }
 
-  String _getStatusText() {
+  String _getStatusText(BuildContext context) {
+    final t = slang.Translations.of(context);
     switch (task.status) {
       case DownloadStatus.pending:
-        return '等待下载...';
+        return t.download.waitingForDownload;
       case DownloadStatus.downloading:
         if (task.totalBytes > 0) {
           final progress =
@@ -338,11 +344,13 @@ class DefaultDownloadTaskItem extends StatelessWidget {
           final downloaded = _formatFileSize(task.downloadedBytes);
           final total = _formatFileSize(task.totalBytes);
           final speed = (task.speed / 1024 / 1024).toStringAsFixed(2);
-          return '下载中 $downloaded/$total ($progress%) • ${speed}MB/s';
+          // return '下载中 $downloaded/$total ($progress%) • ${speed}MB/s';
+          return t.download.downloadingDownloadedTotalProgressSpeed(downloaded: downloaded, total: total, progress: progress, speed: speed);
         } else {
           final downloaded = _formatFileSize(task.downloadedBytes);
           final speed = (task.speed / 1024 / 1024).toStringAsFixed(2);
-          return '下载中 $downloaded • ${speed}MB/s';
+          // return '下载中 $downloaded • ${speed}MB/s';
+          return t.download.downloadingOnlyDownloadedAndSpeed(downloaded: downloaded, speed: speed);
         }
       case DownloadStatus.paused:
         if (task.totalBytes > 0) {
@@ -350,16 +358,19 @@ class DefaultDownloadTaskItem extends StatelessWidget {
               (task.downloadedBytes / task.totalBytes * 100).toStringAsFixed(1);
           final downloaded = _formatFileSize(task.downloadedBytes);
           final total = _formatFileSize(task.totalBytes);
-          return '已暂停 • $downloaded/$total ($progress%)';
+          // return '已暂停 • $downloaded/$total ($progress%)';
+          return t.download.pausedForDownloadedAndTotal(downloaded: downloaded, total: total, progress: progress);
         } else {
           final downloaded = _formatFileSize(task.downloadedBytes);
-          return '已暂停 • 已下载 $downloaded';
+          // return '已暂停 • 已下载 $downloaded';
+          return t.download.pausedAndDownloaded(downloaded: downloaded);
         }
       case DownloadStatus.completed:
         final size = _formatFileSize(task.downloadedBytes);
-        return '下载完成 • $size';
+        // return '下载完成 • $size';
+        return t.download.downloadedWithSize(size: size);
       case DownloadStatus.failed:
-        return '下载失败';
+        return t.download.errors.downloadFailed;
     }
   }
 
@@ -379,6 +390,7 @@ class DefaultDownloadTaskItem extends StatelessWidget {
   }
 
   Future<void> _copyDownloadUrl(BuildContext context) async {
+    final t = slang.Translations.of(context);
     try {
       final item = DataWriterItem();
       item.add(Formats.plainText(task.url));
@@ -386,8 +398,8 @@ class DefaultDownloadTaskItem extends StatelessWidget {
 
       if (context.mounted) {
         showToastWidget(
-          const MDToastWidget(
-            message: '已复制下载链接',
+          MDToastWidget(
+            message: t.download.copyDownloadUrlSuccess,
             type: MDToastType.success,
           ),
         );
@@ -395,8 +407,8 @@ class DefaultDownloadTaskItem extends StatelessWidget {
     } catch (e) {
       if (context.mounted) {
         showToastWidget(
-          const MDToastWidget(
-            message: '复制失败',
+          MDToastWidget(
+            message: t.download.errors.copyFailed,
             type: MDToastType.error,
           ),
         );
@@ -405,6 +417,7 @@ class DefaultDownloadTaskItem extends StatelessWidget {
   }
 
   Future<void> _showInFolder(BuildContext context) async {
+    final t = slang.Translations.of(context);
     try {
       final filePath = _normalizePath(task.savePath);
       LogUtils.d('显示文件夹: $filePath', 'DownloadTaskItem');
@@ -413,8 +426,8 @@ class DefaultDownloadTaskItem extends StatelessWidget {
       if (!await file.exists()) {
         if (context.mounted) {
           showToastWidget(
-            const MDToastWidget(
-              message: '文件不存在',
+            MDToastWidget(
+              message: t.download.errors.fileNotFound,
               type: MDToastType.error,
             ),
           );
@@ -435,8 +448,8 @@ class DefaultDownloadTaskItem extends StatelessWidget {
       LogUtils.e('打开文件夹失败', tag: 'DownloadTaskItem', error: e);
       if (context.mounted) {
         showToastWidget(
-          const MDToastWidget(
-            message: '打开文件夹失败',
+          MDToastWidget(
+            message: t.download.errors.openFolderFailed,
             type: MDToastType.error,
           ),
         );
@@ -445,6 +458,7 @@ class DefaultDownloadTaskItem extends StatelessWidget {
   }
 
   Future<void> _openFile(BuildContext context) async {
+    final t = slang.Translations.of(context);
     try {
       final filePath = _normalizePath(task.savePath);
       LogUtils.d('打开文件: $filePath', 'DownloadTaskItem');
@@ -453,8 +467,8 @@ class DefaultDownloadTaskItem extends StatelessWidget {
       if (!await file.exists()) {
         if (context.mounted) {
           showToastWidget(
-            const MDToastWidget(
-              message: '文件不存在',
+            MDToastWidget(
+              message: t.download.errors.fileNotFound,
               type: MDToastType.error,
             ),
           );
@@ -468,7 +482,7 @@ class DefaultDownloadTaskItem extends StatelessWidget {
         if (context.mounted) {
           showToastWidget(
             MDToastWidget(
-              message: '打开文件失败: ${result.message}',
+              message: t.download.errors.openFileFailedWithMessage(message: result.message),
               type: MDToastType.error,
             ),
           );
@@ -478,8 +492,8 @@ class DefaultDownloadTaskItem extends StatelessWidget {
       LogUtils.e('打开文件失败', tag: 'DownloadTaskItem', error: e);
       if (context.mounted) {
         showToastWidget(
-          const MDToastWidget(
-            message: '打开文件失败',
+          MDToastWidget(
+            message: t.download.errors.openFileFailed,
             type: MDToastType.error,
           ),
         );
@@ -502,23 +516,24 @@ class DefaultDownloadTaskItem extends StatelessWidget {
   }
 
   void _showDeleteConfirmDialog(BuildContext context) {
+    final t = slang.Translations.of(context);
     Get.dialog(
       AlertDialog(
-        title: const Text('删除下载任务'),
-        content: const Text('确定要删除该下载任务吗?已下载的文件也会被删除。'),
+        title: Text(t.download.deleteTask),
+        content: Text(t.download.clearAllFailedTasksConfirmation),
         actions: [
           TextButton(
             onPressed: () => AppService.tryPop(),
-            child: const Text('取消'),
+            child: Text(t.common.cancel),
           ),
           TextButton(
             onPressed: () {
               AppService.tryPop();
               DownloadService.to.deleteTask(task.id);
             },
-            child: const Text(
-              '确定',
-              style: TextStyle(color: Colors.red),
+            child: Text(
+              t.common.confirm,
+              style: const TextStyle(color: Colors.red),
             ),
           ),
         ],

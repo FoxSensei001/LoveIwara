@@ -587,7 +587,7 @@ class VideoDetailContent extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: sources.map((source) {
             return ListTile(
-              title: Text(source.name ?? 'Unknown'),
+              title: Text(source.name ?? t.download.errors.unknown),
               onTap: () async {
                 AppService.tryPop();
 
@@ -605,7 +605,7 @@ class VideoDetailContent extends StatelessWidget {
                 try {
                   final videoInfo = controller.videoInfo.value;
                   if (videoInfo == null) {
-                    throw Exception('视频信息为空');
+                    throw Exception(t.download.errors.videoInfoNotFound);
                   }
 
                   // 创建视频下载的额外信息
@@ -650,12 +650,12 @@ class VideoDetailContent extends StatelessWidget {
                   LogUtils.e('添加下载任务失败: $e',
                       tag: 'VideoDetailContent', error: e);
                   String message;
-                  if (e.toString().contains('下载任务已存在')) {
-                    message = 'Download task already exists';
-                  } else if (e.toString().contains('该视频已下载')) {
-                    message = 'The video has already been downloaded';
+                  if (e.toString().contains(t.download.errors.downloadTaskAlreadyExists)) {
+                    message = t.download.errors.downloadTaskAlreadyExists;
+                  } else if (e.toString().contains(t.download.errors.videoAlreadyDownloaded)) {
+                    message = t.download.errors.videoAlreadyDownloaded;
                   } else {
-                    message = 'Download failed';
+                    message = t.download.errors.downloadFailed;
                   }
 
                   showToastWidget(

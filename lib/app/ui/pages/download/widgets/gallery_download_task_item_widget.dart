@@ -10,7 +10,7 @@ import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:path/path.dart' as path;
-
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 class GalleryDownloadTaskItem extends StatelessWidget {
   final DownloadTask task;
 
@@ -29,6 +29,7 @@ class GalleryDownloadTaskItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = slang.Translations.of(context);
     final extData = galleryData;
     if (extData == null) return const SizedBox.shrink();
 
@@ -52,7 +53,7 @@ class GalleryDownloadTaskItem extends StatelessWidget {
                       color: Theme.of(context).colorScheme.surfaceVariant,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: _buildPreviewImages(extData),
+                    child: _buildPreviewImages(context, extData),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -61,7 +62,7 @@ class GalleryDownloadTaskItem extends StatelessWidget {
                       children: [
                         // 标题
                         Text(
-                          extData.title ?? '未知标题',
+                          extData.title ?? t.download.errors.unknown,
                           style: Theme.of(context).textTheme.titleMedium,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -77,7 +78,7 @@ class GalleryDownloadTaskItem extends StatelessWidget {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              extData.authorName ?? '未知作者',
+                              extData.authorName ?? t.download.errors.unknown,
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
                           ],
@@ -102,7 +103,7 @@ class GalleryDownloadTaskItem extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(_getStatusText()),
+                            Text(_getStatusText(context)),
                             if (task.error != null)
                               Text(
                                 task.error!,
@@ -116,13 +117,13 @@ class GalleryDownloadTaskItem extends StatelessWidget {
                         IconButton(
                           icon: const Icon(Icons.photo_library),
                           onPressed: () => NaviService.navigateToGalleryDetailPage(extData.id!),
-                          tooltip: '查看图库详情',
+                          tooltip: t.download.viewGalleryDetail,
                         ),
                       // 更多操作按钮
                       IconButton(
                         icon: const Icon(Icons.more_horiz),
                         onPressed: () => _showMoreOptionsDialog(context),
-                        tooltip: '更多操作',
+                        tooltip: t.download.moreOptions,
                       ),
                     ],
                   ),
@@ -135,7 +136,8 @@ class GalleryDownloadTaskItem extends StatelessWidget {
     );
   }
 
-  Widget _buildPreviewImages(GalleryDownloadExtData extData) {
+  Widget _buildPreviewImages(BuildContext context, GalleryDownloadExtData extData) {
+    final t = slang.Translations.of(context);
     if (extData.previewUrls.isEmpty) {
       return const Center(
         child: Icon(Icons.image_not_supported, size: 32),
@@ -171,7 +173,7 @@ class GalleryDownloadTaskItem extends StatelessWidget {
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
-                '${extData.totalImages}张',
+                t.download.totalImageNums(num: extData.totalImages),
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 12,
@@ -185,29 +187,30 @@ class GalleryDownloadTaskItem extends StatelessWidget {
   }
 
   Widget _buildMainActionButton(BuildContext context) {
+    final t = slang.Translations.of(context);
     switch (task.status) {
       case DownloadStatus.downloading:
         return IconButton(
           icon: const Icon(Icons.pause),
-          tooltip: '暂停',
+          tooltip: t.download.pause,
           onPressed: () => DownloadService.to.pauseTask(task.id),
         );
       case DownloadStatus.paused:
         return IconButton(
           icon: const Icon(Icons.play_arrow),
-          tooltip: '继续',
+          tooltip: t.download.resume,
           onPressed: () => DownloadService.to.resumeTask(task.id),
         );
       case DownloadStatus.failed:
         return IconButton(
           icon: const Icon(Icons.refresh),
-          tooltip: '重试',
+          tooltip: t.common.retry,
           onPressed: () => DownloadService.to.retryTask(task.id),
         );
       case DownloadStatus.completed:
         return IconButton(
           icon: const Icon(Icons.folder_open),
-          tooltip: '打开文件夹',
+          tooltip: t.download.openFile,
           onPressed: () => _showInFolder(context),
         );
       default:
@@ -254,10 +257,11 @@ class GalleryDownloadTaskItem extends StatelessWidget {
     }
   }
 
-  String _getStatusText() {
+  String _getStatusText(BuildContext context) {
+    final t = slang.Translations.of(context);
     switch (task.status) {
       case DownloadStatus.pending:
-        return '等待下载...';
+        return t.download.waitingForDownload;
       case DownloadStatus.downloading:
         if (task.totalBytes > 0) {
           final progress =
@@ -265,11 +269,13 @@ class GalleryDownloadTaskItem extends StatelessWidget {
           final downloaded = _formatFileSize(task.downloadedBytes);
           final total = _formatFileSize(task.totalBytes);
           final speed = (task.speed / 1024 / 1024).toStringAsFixed(2);
-          return '下载中 $downloaded/$total ($progress%) • ${speed}MB/s';
+          // return '下载中 $downloaded/$total ($progress%) • ${speed}MB/s';
+          return t.download.downloadingProgressForVideoTask(downloaded: downloaded, total: total, progress: progress, speed: speed);
         } else {
           final downloaded = _formatFileSize(task.downloadedBytes);
           final speed = (task.speed / 1024 / 1024).toStringAsFixed(2);
-          return '下载中 $downloaded • ${speed}MB/s';
+          // return '下载中 $downloaded • ${speed}MB/s';
+          return t.download.downloadingOnlyDownloadedAndSpeed(downloaded: downloaded, speed: speed);
         }
       case DownloadStatus.paused:
         if (task.totalBytes > 0) {
@@ -277,16 +283,19 @@ class GalleryDownloadTaskItem extends StatelessWidget {
               (task.downloadedBytes / task.totalBytes * 100).toStringAsFixed(1);
           final downloaded = _formatFileSize(task.downloadedBytes);
           final total = _formatFileSize(task.totalBytes);
-          return '已暂停 • $downloaded/$total ($progress%)';
+          // return '已暂停 • $downloaded/$total ($progress%)';
+          return t.download.pausedForDownloadedAndTotal(downloaded: downloaded, total: total, progress: progress);
         } else {
           final downloaded = _formatFileSize(task.downloadedBytes);
-          return '已暂停 • 已下载 $downloaded';
+          // return '已暂停 • 已下载 $downloaded';
+          return t.download.pausedAndDownloaded(downloaded: downloaded);
         }
       case DownloadStatus.completed:
         final size = _formatFileSize(task.downloadedBytes);
-        return '下载完成 • $size';
+        // return '下载完成 • $size';
+        return t.download.downloadedWithSize(size: size);
       case DownloadStatus.failed:
-        return '下载失败';
+        return t.download.errors.downloadFailed;
     }
   }
 
@@ -306,6 +315,7 @@ class GalleryDownloadTaskItem extends StatelessWidget {
   }
 
   void _showMoreOptionsDialog(BuildContext context) {
+    final t = slang.Translations.of(context);
     showModalBottomSheet(
       context: context,
       builder: (context) => SafeArea(
@@ -315,7 +325,7 @@ class GalleryDownloadTaskItem extends StatelessWidget {
             if (task.status == DownloadStatus.completed) ...[
               ListTile(
                 leading: const Icon(Icons.folder_open),
-                title: const Text('在文件夹中显示'),
+                title: Text(t.download.showInFolder),
                 onTap: () {
                   Navigator.pop(context);
                   _showInFolder(context);
@@ -324,7 +334,7 @@ class GalleryDownloadTaskItem extends StatelessWidget {
             ],
             ListTile(
               leading: const Icon(Icons.delete, color: Colors.red),
-              title: const Text('删除任务', style: TextStyle(color: Colors.red)),
+              title: Text(t.download.deleteTask, style: const TextStyle(color: Colors.red)),
               onTap: () {
                 Navigator.pop(context);
                 _showDeleteConfirmDialog(context);
@@ -337,13 +347,14 @@ class GalleryDownloadTaskItem extends StatelessWidget {
   }
 
   Future<void> _showInFolder(BuildContext context) async {
+    final t = slang.Translations.of(context);
     try {
       final filePath = _normalizePath(task.savePath);
       LogUtils.d('显示文件夹: $filePath', 'GalleryDownloadTaskItem');
 
       final directory = path.dirname(filePath);
       if (!await Directory(directory).exists()) {
-        throw Exception('目录不存在');
+        throw Exception(t.download.errors.directoryNotFound);
       }
 
       if (Platform.isWindows) {
@@ -358,7 +369,7 @@ class GalleryDownloadTaskItem extends StatelessWidget {
       LogUtils.e('打开文件夹失败', tag: 'GalleryDownloadTaskItem', error: e);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('打开文件夹失败')),
+          SnackBar(content: Text(t.download.errors.openFolderFailed)),
         );
       }
     }
@@ -377,23 +388,24 @@ class GalleryDownloadTaskItem extends StatelessWidget {
   }
 
   void _showDeleteConfirmDialog(BuildContext context) {
+    final t = slang.Translations.of(context);
     Get.dialog(
       AlertDialog(
-        title: const Text('删除下载任务'),
-        content: const Text('确定要删除该下载任务吗?已下载的文件也会被删除。'),
+        title: Text(t.download.deleteTask),
+        content: Text(t.download.clearAllFailedTasksConfirmation),
         actions: [
           TextButton(
             onPressed: () => AppService.tryPop(),
-            child: const Text('取消'),
+            child: Text(t.common.cancel),
           ),
           TextButton(
             onPressed: () {
               AppService.tryPop();
               DownloadService.to.deleteTask(task.id);
             },
-            child: const Text(
-              '确定',
-              style: TextStyle(color: Colors.red),
+            child: Text(
+              t.common.confirm,
+              style: const TextStyle(color: Colors.red),
             ),
           ),
         ],

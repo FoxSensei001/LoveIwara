@@ -10,6 +10,7 @@ import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:open_file/open_file.dart';
 import 'package:super_clipboard/super_clipboard.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class VideoDownloadTaskItem extends StatelessWidget {
   final DownloadTask task;
@@ -18,10 +19,11 @@ class VideoDownloadTaskItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = slang.Translations.of(context);
     final videoData = VideoDownloadExtData.fromJson(task.extData!.data);
     final width = MediaQuery.of(context).size.width;
     final isSmallScreen = width < 600;
-    
+
     // 从任务ID中提取清晰度信息
     final quality = task.id.split('_').last;
 
@@ -191,7 +193,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(_getStatusText()),
+                              Text(_getStatusText(context)),
                               if (task.error != null)
                                 Text(
                                   task.error!,
@@ -204,7 +206,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
                         if (videoData.id != null)
                           IconButton(
                             icon: const Icon(Icons.video_library),
-                            tooltip: '查看视频详情',
+                            tooltip: t.download.viewVideoDetail,
                             onPressed: () =>
                                 NaviService.navigateToVideoDetailPage(
                                     videoData.id!),
@@ -213,7 +215,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
                         IconButton(
                           icon: const Icon(Icons.more_horiz),
                           onPressed: () => _showMoreOptionsDialog(context),
-                          tooltip: '更多操作',
+                          tooltip: t.download.moreOptions,
                         ),
                       ],
                     ),
@@ -228,29 +230,30 @@ class VideoDownloadTaskItem extends StatelessWidget {
   }
 
   Widget _buildMainActionButton(BuildContext context) {
+    final t = slang.Translations.of(context);
     switch (task.status) {
       case DownloadStatus.downloading:
         return IconButton(
           icon: const Icon(Icons.pause),
-          tooltip: '暂停',
+          tooltip: t.download.pause,
           onPressed: () => DownloadService.to.pauseTask(task.id),
         );
       case DownloadStatus.paused:
         return IconButton(
           icon: const Icon(Icons.play_arrow),
-          tooltip: '继续',
+          tooltip: t.download.resume,
           onPressed: () => DownloadService.to.resumeTask(task.id),
         );
       case DownloadStatus.failed:
         return IconButton(
           icon: const Icon(Icons.refresh),
-          tooltip: '重试',
+          tooltip: t.download.retryDownload,
           onPressed: () => DownloadService.to.retryTask(task.id),
         );
       case DownloadStatus.completed:
         return IconButton(
           icon: const Icon(Icons.play_circle_outline),
-          tooltip: '打开',
+          tooltip: t.download.openFile,
           onPressed: () => _openFile(context),
         );
       default:
@@ -259,6 +262,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
   }
 
   void _showMoreOptionsDialog(BuildContext context) {
+    final t = slang.Translations.of(context);
     showModalBottomSheet(
       context: context,
       builder: (context) => SafeArea(
@@ -268,7 +272,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
             // 复制下载链接
             ListTile(
               leading: const Icon(Icons.link),
-              title: const Text('复制下载链接'),
+              title: Text(t.download.copyDownloadUrl),
               onTap: () {
                 Navigator.pop(context);
                 _copyDownloadUrl(context);
@@ -277,7 +281,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
             if (task.status == DownloadStatus.completed) ...[
               ListTile(
                 leading: const Icon(Icons.open_in_new),
-                title: const Text('打开文件'),
+                title: Text(t.download.openFile),
                 onTap: () {
                   Navigator.pop(context);
                   _openFile(context);
@@ -286,7 +290,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
               if (Platform.isWindows || Platform.isMacOS || Platform.isLinux)
                 ListTile(
                   leading: const Icon(Icons.folder_open),
-                  title: const Text('在文件夹中显示'),
+                  title: Text(t.download.showInFolder),
                   onTap: () {
                     Navigator.pop(context);
                     _showInFolder(context);
@@ -295,7 +299,8 @@ class VideoDownloadTaskItem extends StatelessWidget {
             ],
             ListTile(
               leading: const Icon(Icons.delete, color: Colors.red),
-              title: const Text('删除任务', style: TextStyle(color: Colors.red)),
+              title: Text(t.download.deleteTask,
+                  style: const TextStyle(color: Colors.red)),
               onTap: () {
                 Navigator.pop(context);
                 _showDeleteConfirmDialog(context);
@@ -310,6 +315,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
   void _showContextMenu(BuildContext context, Offset position) {
     final RenderBox overlay =
         Overlay.of(context).context.findRenderObject() as RenderBox;
+    final t = slang.Translations.of(context);
 
     showMenu(
       context: context,
@@ -323,7 +329,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
             children: [
               const Icon(Icons.link, size: 20),
               const SizedBox(width: 12),
-              const Text('复制下载链接'),
+              Text(t.download.copyDownloadUrl),
             ],
           ),
           onTap: () => _copyDownloadUrl(context),
@@ -335,7 +341,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
                 children: [
                   const Icon(Icons.folder_open, size: 20),
                   const SizedBox(width: 12),
-                  const Text('在文件夹中显示'),
+                  Text(t.download.showInFolder),
                 ],
               ),
               onTap: () => _showInFolder(context),
@@ -345,7 +351,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
               children: [
                 const Icon(Icons.open_in_new, size: 20),
                 const SizedBox(width: 12),
-                const Text('打开文件'),
+                Text(t.download.openFile),
               ],
             ),
             onTap: () => _openFile(context),
@@ -356,7 +362,8 @@ class VideoDownloadTaskItem extends StatelessWidget {
             children: [
               const Icon(Icons.delete, size: 20, color: Colors.red),
               const SizedBox(width: 12),
-              const Text('删除任务', style: TextStyle(color: Colors.red)),
+              Text(t.download.deleteTask,
+                  style: const TextStyle(color: Colors.red)),
             ],
           ),
           onTap: () => _showDeleteConfirmDialog(context),
@@ -384,7 +391,8 @@ class VideoDownloadTaskItem extends StatelessWidget {
       return LinearProgressIndicator(
         value: task.downloadedBytes / task.totalBytes,
         backgroundColor: Colors.grey[200],
-        valueColor: AlwaysStoppedAnimation<Color>(_getProgressColor(task.status)),
+        valueColor:
+            AlwaysStoppedAnimation<Color>(_getProgressColor(task.status)),
       );
     }
     // 如果没有总大小但正在下载，显示不确定进度
@@ -399,7 +407,8 @@ class VideoDownloadTaskItem extends StatelessWidget {
       return LinearProgressIndicator(
         value: task.status == DownloadStatus.completed ? 1.0 : 0.0,
         backgroundColor: Colors.grey[200],
-        valueColor: AlwaysStoppedAnimation<Color>(_getProgressColor(task.status)),
+        valueColor:
+            AlwaysStoppedAnimation<Color>(_getProgressColor(task.status)),
       );
     }
   }
@@ -417,10 +426,11 @@ class VideoDownloadTaskItem extends StatelessWidget {
     }
   }
 
-  String _getStatusText() {
+  String _getStatusText(BuildContext context) {
+    final t = slang.Translations.of(context);
     switch (task.status) {
       case DownloadStatus.pending:
-        return '等待下载...';
+        return t.download.waitingForDownload;
       case DownloadStatus.downloading:
         if (task.totalBytes > 0) {
           final progress =
@@ -428,11 +438,18 @@ class VideoDownloadTaskItem extends StatelessWidget {
           final downloaded = _formatFileSize(task.downloadedBytes);
           final total = _formatFileSize(task.totalBytes);
           final speed = (task.speed / 1024 / 1024).toStringAsFixed(2);
-          return '下载中 $downloaded/$total ($progress%) • ${speed}MB/s';
+          // return '下载中 $downloaded/$total ($progress%) • ${speed}MB/s';
+          return t.download.downloadingProgressForVideoTask(
+              downloaded: downloaded,
+              total: total,
+              progress: progress,
+              speed: speed);
         } else {
           final downloaded = _formatFileSize(task.downloadedBytes);
           final speed = (task.speed / 1024 / 1024).toStringAsFixed(2);
-          return '下载中 $downloaded • ${speed}MB/s';
+          // return '下载中 $downloaded • ${speed}MB/s';
+          return t.download.downloadingOnlyDownloadedAndSpeed(
+              downloaded: downloaded, speed: speed);
         }
       case DownloadStatus.paused:
         if (task.totalBytes > 0) {
@@ -440,16 +457,21 @@ class VideoDownloadTaskItem extends StatelessWidget {
               (task.downloadedBytes / task.totalBytes * 100).toStringAsFixed(1);
           final downloaded = _formatFileSize(task.downloadedBytes);
           final total = _formatFileSize(task.totalBytes);
-          return '已暂停 • $downloaded/$total ($progress%)';
+          // return '已暂停 • $downloaded/$total ($progress%)';
+          return t.download.pausedForDownloadedAndTotal(
+              downloaded: downloaded, total: total, progress: progress);
         } else {
           final downloaded = _formatFileSize(task.downloadedBytes);
-          return '已暂停 • 已下载 $downloaded';
+          // return '已暂停 • 已下载 $downloaded';
+          return t.download.pausedAndDownloaded(downloaded: downloaded);
         }
       case DownloadStatus.completed:
         final size = _formatFileSize(task.downloadedBytes);
-        return '下载完成 • $size';
+        // return '下载完成 • $size';
+        return t.download.downloadedWithSize(size: size);
       case DownloadStatus.failed:
-        return '下载失败';
+        // return '下载失败';
+        return t.download.errors.downloadFailed;
     }
   }
 
@@ -469,6 +491,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
   }
 
   Future<void> _copyDownloadUrl(BuildContext context) async {
+    final t = slang.Translations.of(context);
     try {
       final item = DataWriterItem();
       item.add(Formats.plainText(task.url));
@@ -476,19 +499,20 @@ class VideoDownloadTaskItem extends StatelessWidget {
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('已复制下载链接')),
+          SnackBar(content: Text(t.download.copyDownloadUrlSuccess)),
         );
       }
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('复制失败')),
+          SnackBar(content: Text(t.download.errors.copyDownloadUrlFailed)),
         );
       }
     }
   }
 
   Future<void> _showInFolder(BuildContext context) async {
+    final t = slang.Translations.of(context);
     try {
       final filePath = _normalizePath(task.savePath);
       LogUtils.d('显示文件夹: $filePath', 'DownloadTaskItem');
@@ -497,7 +521,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
       if (!await file.exists()) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('文件不存在')),
+            SnackBar(content: Text(t.download.errors.fileNotFound)),
           );
         }
         return;
@@ -516,13 +540,14 @@ class VideoDownloadTaskItem extends StatelessWidget {
       LogUtils.e('打开文件夹失败', tag: 'DownloadTaskItem', error: e);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('打开文件夹失败')),
+          SnackBar(content: Text(t.download.errors.openFolderFailed)),
         );
       }
     }
   }
 
   Future<void> _openFile(BuildContext context) async {
+    final t = slang.Translations.of(context);
     try {
       final filePath = _normalizePath(task.savePath);
       LogUtils.d('打开文件: $filePath', 'DownloadTaskItem');
@@ -531,7 +556,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
       if (!await file.exists()) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('文件不存在')),
+            SnackBar(content: Text(t.download.errors.fileNotFound)),
           );
         }
         return;
@@ -542,7 +567,10 @@ class VideoDownloadTaskItem extends StatelessWidget {
         LogUtils.e('打开文件失败: ${result.message}', tag: 'DownloadTaskItem');
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('打开文件失败: ${result.message}')),
+            // SnackBar(content: Text('打开文件失败: ${result.message}')),
+            SnackBar(
+                content: Text(t.download.errors
+                    .openFolderFailedWithMessage(message: result.message))),
           );
         }
       }
@@ -550,7 +578,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
       LogUtils.e('打开文件失败', tag: 'DownloadTaskItem', error: e);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('打开文件失败')),
+          SnackBar(content: Text(t.download.errors.openFolderFailed)),
         );
       }
     }
@@ -577,21 +605,22 @@ class VideoDownloadTaskItem extends StatelessWidget {
   }
 
   void _showDeleteConfirmDialog(BuildContext context) {
+    final t = slang.Translations.of(context);
     Get.dialog(
       AlertDialog(
-        title: const Text('删除下载任务'),
-        content: const Text('确定要删除该下载任务吗?已下载的文件也会被删除。'),
+        title: Text(t.download.deleteTask),
+        content: Text(t.download.clearAllFailedTasksConfirmation),
         actions: [
           TextButton(
             onPressed: () => AppService.tryPop(),
-            child: const Text('取消'),
+            child: Text(t.common.cancel),
           ),
           TextButton(
             onPressed: () {
               AppService.tryPop();
               DownloadService.to.deleteTask(task.id);
             },
-            child: const Text('确定'),
+            child: Text(t.common.confirm),
           ),
         ],
       ),

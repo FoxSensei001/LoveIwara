@@ -8,7 +8,7 @@ import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/repositories/download_task_repository.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:path/path.dart' as path_lib;
-
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 class DownloadService extends GetxService {
   static DownloadService get to => Get.find<DownloadService>();
   
@@ -71,7 +71,6 @@ class DownloadService extends GetxService {
     
     final galleryData = GalleryDownloadExtData.fromJson(task.extData!.data);
     final imageInfo = galleryData.imageList.firstWhere((img) => img['id'] == imageId);
-    if (imageInfo == null) return;
     
     // 更新状态为未下载
     _galleryDownloadProgress[taskId]?[imageId] = false;
@@ -92,7 +91,7 @@ class DownloadService extends GetxService {
     String imageId,
     int totalImages,
   ) async {
-    final fileName = '${imageId}${path_lib.extension(url)}';
+    final fileName = '$imageId${path_lib.extension(url)}';
     final savePath = path_lib.normalize(path_lib.join(task.savePath, fileName));
     
     try {
@@ -227,7 +226,7 @@ class DownloadService extends GetxService {
         }
         
         // 如果任务正在下载或等待下载，提示用户
-        throw Exception('下载任务已存在');
+        throw Exception(slang.t.download.errors.downloadTaskAlreadyExists);
       }
 
       // 使用事务插入任务
@@ -241,7 +240,8 @@ class DownloadService extends GetxService {
       
     } catch (e) {
       LogUtils.e('添加下载任务失败', tag: 'DownloadService', error: e);
-      _showError('添加下载任务失败: ${_getErrorMessage(e)}');
+      // _showError('添加下载任务失败: ${_getErrorMessage(e)}');
+      _showError(slang.t.download.errors.downloadFailedForMessage(errorInfo: _getErrorMessage(e)));
       rethrow;
     }
   }
@@ -252,7 +252,7 @@ class DownloadService extends GetxService {
     
     if (task.status == DownloadStatus.downloading) {
       LogUtils.i('暂停下载任务: ${task.fileName}', 'DownloadService');
-      _activeDownloads[taskId]?.cancel('用户暂停下载');
+      _activeDownloads[taskId]?.cancel(slang.t.download.errors.userPausedDownload);
       _activeDownloads.remove(taskId);
       
       task.status = DownloadStatus.paused;
@@ -515,12 +515,12 @@ class DownloadService extends GetxService {
         _showError(errorMsg);
         
       } else if (e is FileSystemException) {
-        final errorMsg = '文件系统错误: ${e.message}';
+        final errorMsg = slang.t.download.errors.fileSystemError(errorInfo: e.message);
         LogUtils.e(errorMsg, tag: 'DownloadService', error: e);
         _showError(errorMsg);
         
       } else {
-        final errorMsg = '未知错误: $e';
+        final errorMsg = slang.t.download.errors.unknownError(errorInfo: e.toString());
         LogUtils.e(errorMsg, tag: 'DownloadService', error: e);
         _showError(errorMsg);
       }
@@ -573,18 +573,18 @@ class DownloadService extends GetxService {
     if(error is DioException) {
       switch(error.type) {
         case DioExceptionType.connectionTimeout:
-          return '连接超时';
+          return slang.t.download.errors.connectionTimeout;
         case DioExceptionType.sendTimeout:
-          return '发送超时';
+          return slang.t.download.errors.sendTimeout;
         case DioExceptionType.receiveTimeout:
-          return '接收超时';
+          return slang.t.download.errors.receiveTimeout;
         case DioExceptionType.badResponse:
-          return '服务器错误(${error.response?.statusCode})';
+          return slang.t.download.errors.serverError(errorInfo: error.response?.statusCode.toString() ?? '');
         default:
-          return error.message ?? '未知网络错误';
+          return error.message ?? slang.t.download.errors.unknownNetworkError;
       }
     } else if(error is FileSystemException) {
-      return '文件系统错误: ${error.message}';
+      return slang.t.download.errors.fileSystemError(errorInfo: error.message);
     }
     return error.toString();
   }
@@ -619,7 +619,7 @@ class DownloadService extends GetxService {
   void onClose() {
     // 取消所有下载
     for (var cancelToken in _activeDownloads.values) {
-      cancelToken.cancel('Service is closing');
+      cancelToken.cancel(slang.t.download.errors.serviceIsClosing);
     }
     _activeDownloads.clear();
 
@@ -688,7 +688,7 @@ class DownloadService extends GetxService {
       final allSuccess = results.every((success) => success);
       
       task.status = allSuccess ? DownloadStatus.completed : DownloadStatus.failed;
-      task.error = allSuccess ? null : '部分图片下载失败';
+      task.error = allSuccess ? null : slang.t.download.errors.partialDownloadFailed;
       await _updateTaskStatus(task);
       
     } catch (e) {

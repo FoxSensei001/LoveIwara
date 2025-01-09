@@ -328,6 +328,8 @@ class _TranslationsGalleryDetailZhTw implements TranslationsGalleryDetailEn {
 	final TranslationsZhTw _root; // ignore: unused_field
 
 	// Translations
+	@override String get galleryDetail => '圖庫詳情';
+	@override String get viewGalleryDetail => '查看圖庫詳情';
 	@override String get copyLink => '複製連結地址';
 	@override String get copyImage => '複製圖片';
 	@override String get saveAs => '另存為';
@@ -600,7 +602,78 @@ class _TranslationsDownloadZhTw implements TranslationsDownloadEn {
 	final TranslationsZhTw _root; // ignore: unused_field
 
 	// Translations
+	@override late final _TranslationsDownloadErrorsZhTw errors = _TranslationsDownloadErrorsZhTw._(_root);
 	@override String get downloadList => '下載列表';
+	@override String get download => '下載';
+	@override String get startDownloading => '開始下載...';
+	@override String get clearAllFailedTasks => '清除全部失敗任務';
+	@override String get clearAllFailedTasksConfirmation => '確定要清除所有失敗的下載任務嗎？\n這些任務的文件也會被刪除。';
+	@override String get clearAllFailedTasksSuccess => '已清除所有失敗任務';
+	@override String get clearAllFailedTasksError => '清除失敗任務時出錯';
+	@override String get downloadStatus => '下載狀態';
+	@override String get imageList => '圖片列表';
+	@override String get retryDownload => '重試下載';
+	@override String get notDownloaded => '未下載';
+	@override String get downloaded => '已下載';
+	@override String get waitingForDownload => '等待下載...';
+	@override String downloadingProgressForImageProgress({required Object downloaded, required Object total, required Object progress}) => '下載中 (${downloaded}/${total}張 ${progress}%)';
+	@override String downloadingSingleImageProgress({required Object downloaded}) => '下載中 (${downloaded}張)';
+	@override String pausedProgressForImageProgress({required Object downloaded, required Object total, required Object progress}) => '已暫停 (${downloaded}/${total}張 ${progress}%)';
+	@override String pausedSingleImageProgress({required Object downloaded}) => '已暫停 (已下載${downloaded}張)';
+	@override String downloadedProgressForImageProgress({required Object total}) => '下載完成 (共${total}張)';
+	@override String get viewVideoDetail => '查看影片詳情';
+	@override String get viewGalleryDetail => '查看圖庫詳情';
+	@override String get moreOptions => '更多操作';
+	@override String get openFile => '打開文件';
+	@override String get pause => '暫停';
+	@override String get resume => '繼續';
+	@override String get copyDownloadUrl => '複製下載連結';
+	@override String get showInFolder => '在文件夾中顯示';
+	@override String get deleteTask => '刪除任務';
+	@override String downloadingProgressForVideoTask({required Object downloaded, required Object total, required Object progress, required Object speed}) => '下載中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
+	@override String downloadingOnlyDownloadedAndSpeed({required Object downloaded, required Object speed}) => '下載中 ${downloaded} • ${speed}MB/s';
+	@override String pausedForDownloadedAndTotal({required Object downloaded, required Object total, required Object progress}) => '已暫停 • ${downloaded}/${total} (${progress}%)';
+	@override String pausedAndDownloaded({required Object downloaded}) => '已暫停 • 已下載 ${downloaded}';
+	@override String downloadedWithSize({required Object size}) => '下載完成 • ${size}';
+	@override String get copyDownloadUrlSuccess => '已複製下載連結';
+	@override String totalImageNums({required Object num}) => '${num}張';
+	@override String downloadingDownloadedTotalProgressSpeed({required Object downloaded, required Object total, required Object progress, required Object speed}) => '下載中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
+}
+
+// Path: download.errors
+class _TranslationsDownloadErrorsZhTw implements TranslationsDownloadErrorsEn {
+	_TranslationsDownloadErrorsZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get imageModelNotFound => '圖庫信息不存在';
+	@override String get downloadFailed => '下載失敗';
+	@override String get videoInfoNotFound => '影片信息不存在';
+	@override String get unknown => '未知';
+	@override String get downloadTaskAlreadyExists => '下載任務已存在';
+	@override String get videoAlreadyDownloaded => '該影片已下載';
+	@override String downloadFailedForMessage({required Object errorInfo}) => '添加下載任務失敗: ${errorInfo}';
+	@override String get userPausedDownload => '用戶暫停下載';
+	@override String fileSystemError({required Object errorInfo}) => '文件系統錯誤: ${errorInfo}';
+	@override String unknownError({required Object errorInfo}) => '未知錯誤: ${errorInfo}';
+	@override String get connectionTimeout => '連接超時';
+	@override String get sendTimeout => '發送超時';
+	@override String get receiveTimeout => '接收超時';
+	@override String serverError({required Object errorInfo}) => '伺服器錯誤: ${errorInfo}';
+	@override String get unknownNetworkError => '未知網路錯誤';
+	@override String get serviceIsClosing => '下載服務正在關閉';
+	@override String get partialDownloadFailed => '部分內容下載失敗';
+	@override String get noDownloadTask => '暫無下載任務';
+	@override String get taskNotFoundOrDataError => '任務不存在或資料錯誤';
+	@override String get copyDownloadUrlFailed => '複製下載連結失敗';
+	@override String get fileNotFound => '文件不存在';
+	@override String get openFolderFailed => '打開文件夾失敗';
+	@override String openFolderFailedWithMessage({required Object message}) => '打開文件夾失敗: ${message}';
+	@override String get directoryNotFound => '目錄不存在';
+	@override String get copyFailed => '複製失敗';
+	@override String get openFileFailed => '打開文件失敗';
+	@override String openFileFailedWithMessage({required Object message}) => '打開文件失敗: ${message}';
 }
 
 /// Flat map(s) containing all translations.
@@ -824,6 +897,8 @@ extension on TranslationsZhTw {
 			case 'authorProfile.userProfile': return '使用者資料';
 			case 'favorites.clickToRestoreFavorite': return '點擊恢復最愛';
 			case 'favorites.myFavorites': return '我的最愛';
+			case 'galleryDetail.galleryDetail': return '圖庫詳情';
+			case 'galleryDetail.viewGalleryDetail': return '查看圖庫詳情';
 			case 'galleryDetail.copyLink': return '複製連結地址';
 			case 'galleryDetail.copyImage': return '複製圖片';
 			case 'galleryDetail.saveAs': return '另存為';
@@ -1015,7 +1090,68 @@ extension on TranslationsZhTw {
 			case 'share.iReallyLikeThis': return '我真的是太喜歡這個了，你也來看看吧！';
 			case 'share.shareFailed': return '分享失敗，請稍後再試';
 			case 'share.share': return '分享';
+			case 'download.errors.imageModelNotFound': return '圖庫信息不存在';
+			case 'download.errors.downloadFailed': return '下載失敗';
+			case 'download.errors.videoInfoNotFound': return '影片信息不存在';
+			case 'download.errors.unknown': return '未知';
+			case 'download.errors.downloadTaskAlreadyExists': return '下載任務已存在';
+			case 'download.errors.videoAlreadyDownloaded': return '該影片已下載';
+			case 'download.errors.downloadFailedForMessage': return ({required Object errorInfo}) => '添加下載任務失敗: ${errorInfo}';
+			case 'download.errors.userPausedDownload': return '用戶暫停下載';
+			case 'download.errors.fileSystemError': return ({required Object errorInfo}) => '文件系統錯誤: ${errorInfo}';
+			case 'download.errors.unknownError': return ({required Object errorInfo}) => '未知錯誤: ${errorInfo}';
+			case 'download.errors.connectionTimeout': return '連接超時';
+			case 'download.errors.sendTimeout': return '發送超時';
+			case 'download.errors.receiveTimeout': return '接收超時';
+			case 'download.errors.serverError': return ({required Object errorInfo}) => '伺服器錯誤: ${errorInfo}';
+			case 'download.errors.unknownNetworkError': return '未知網路錯誤';
+			case 'download.errors.serviceIsClosing': return '下載服務正在關閉';
+			case 'download.errors.partialDownloadFailed': return '部分內容下載失敗';
+			case 'download.errors.noDownloadTask': return '暫無下載任務';
+			case 'download.errors.taskNotFoundOrDataError': return '任務不存在或資料錯誤';
+			case 'download.errors.copyDownloadUrlFailed': return '複製下載連結失敗';
+			case 'download.errors.fileNotFound': return '文件不存在';
+			case 'download.errors.openFolderFailed': return '打開文件夾失敗';
+			case 'download.errors.openFolderFailedWithMessage': return ({required Object message}) => '打開文件夾失敗: ${message}';
+			case 'download.errors.directoryNotFound': return '目錄不存在';
+			case 'download.errors.copyFailed': return '複製失敗';
+			case 'download.errors.openFileFailed': return '打開文件失敗';
+			case 'download.errors.openFileFailedWithMessage': return ({required Object message}) => '打開文件失敗: ${message}';
 			case 'download.downloadList': return '下載列表';
+			case 'download.download': return '下載';
+			case 'download.startDownloading': return '開始下載...';
+			case 'download.clearAllFailedTasks': return '清除全部失敗任務';
+			case 'download.clearAllFailedTasksConfirmation': return '確定要清除所有失敗的下載任務嗎？\n這些任務的文件也會被刪除。';
+			case 'download.clearAllFailedTasksSuccess': return '已清除所有失敗任務';
+			case 'download.clearAllFailedTasksError': return '清除失敗任務時出錯';
+			case 'download.downloadStatus': return '下載狀態';
+			case 'download.imageList': return '圖片列表';
+			case 'download.retryDownload': return '重試下載';
+			case 'download.notDownloaded': return '未下載';
+			case 'download.downloaded': return '已下載';
+			case 'download.waitingForDownload': return '等待下載...';
+			case 'download.downloadingProgressForImageProgress': return ({required Object downloaded, required Object total, required Object progress}) => '下載中 (${downloaded}/${total}張 ${progress}%)';
+			case 'download.downloadingSingleImageProgress': return ({required Object downloaded}) => '下載中 (${downloaded}張)';
+			case 'download.pausedProgressForImageProgress': return ({required Object downloaded, required Object total, required Object progress}) => '已暫停 (${downloaded}/${total}張 ${progress}%)';
+			case 'download.pausedSingleImageProgress': return ({required Object downloaded}) => '已暫停 (已下載${downloaded}張)';
+			case 'download.downloadedProgressForImageProgress': return ({required Object total}) => '下載完成 (共${total}張)';
+			case 'download.viewVideoDetail': return '查看影片詳情';
+			case 'download.viewGalleryDetail': return '查看圖庫詳情';
+			case 'download.moreOptions': return '更多操作';
+			case 'download.openFile': return '打開文件';
+			case 'download.pause': return '暫停';
+			case 'download.resume': return '繼續';
+			case 'download.copyDownloadUrl': return '複製下載連結';
+			case 'download.showInFolder': return '在文件夾中顯示';
+			case 'download.deleteTask': return '刪除任務';
+			case 'download.downloadingProgressForVideoTask': return ({required Object downloaded, required Object total, required Object progress, required Object speed}) => '下載中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
+			case 'download.downloadingOnlyDownloadedAndSpeed': return ({required Object downloaded, required Object speed}) => '下載中 ${downloaded} • ${speed}MB/s';
+			case 'download.pausedForDownloadedAndTotal': return ({required Object downloaded, required Object total, required Object progress}) => '已暫停 • ${downloaded}/${total} (${progress}%)';
+			case 'download.pausedAndDownloaded': return ({required Object downloaded}) => '已暫停 • 已下載 ${downloaded}';
+			case 'download.downloadedWithSize': return ({required Object size}) => '下載完成 • ${size}';
+			case 'download.copyDownloadUrlSuccess': return '已複製下載連結';
+			case 'download.totalImageNums': return ({required Object num}) => '${num}張';
+			case 'download.downloadingDownloadedTotalProgressSpeed': return ({required Object downloaded, required Object total, required Object progress, required Object speed}) => '下載中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
 			default: return null;
 		}
 	}

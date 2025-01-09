@@ -199,16 +199,6 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                 ],
               ),
               const SizedBox(height: 8),
-              // 批量保存
-              Row(
-                children: [
-                  const Icon(Icons.save_alt),
-                  const SizedBox(width: 8),
-                  // TODO 批量保存功能还未实现
-                  Expanded(child: Text(slang.t.galleryDetail.batchSave)),
-                ],
-              ),
-              const SizedBox(height: 8),
               // 键盘的左右控制切换
               Row(
                 children: [
@@ -404,7 +394,9 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                         key: ValueKey(
                             '${widget.galleryItems[index]}_${_reloadTimestamps[index] ?? 0}'),
                         child: Image(
-                          image: NetworkImage(imageUrl),
+                          image: widget.galleryItems[index].data.url.startsWith('file://')
+                              ? FileImage(File(widget.galleryItems[index].data.url.replaceFirst('file://', '')))
+                              : NetworkImage(imageUrl) as ImageProvider,
                           fit: BoxFit.contain,
                           loadingBuilder: (BuildContext context, Widget child,
                               ImageChunkEvent? loadingProgress) {
@@ -584,16 +576,6 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                               },
                             ),
                             // 更多设置按钮
-                            const SizedBox(width: 8),
-                            IconButton(
-                              tooltip: slang.t.common.more,
-                              icon: const Icon(Icons.more_vert,
-                                  color: Colors.white),
-                              onPressed: () {
-                                // TODO 还未实现
-                                showToastWidget(MDToastWidget(message: slang.t.common.moreFeaturesToBeDeveloped, type: MDToastType.info));
-                              },
-                            ),
                             const SizedBox(width: 8),
                             Text(
                               '${currentIndex + 1}/${widget.galleryItems.length}',

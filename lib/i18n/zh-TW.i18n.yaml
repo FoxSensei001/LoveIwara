@@ -227,6 +227,8 @@ favorites:
   myFavorites: 我的最愛
 
 galleryDetail:
+  galleryDetail: 圖庫詳情
+  viewGalleryDetail: 查看圖庫詳情
   copyLink: 複製連結地址
   copyImage: 複製圖片
   saveAs: 另存為
@@ -437,4 +439,67 @@ share:
   share: 分享
 
 download:
+  errors:
+    imageModelNotFound: 圖庫信息不存在
+    downloadFailed: 下載失敗
+    videoInfoNotFound: 影片信息不存在
+    unknown: 未知
+    downloadTaskAlreadyExists: 下載任務已存在
+    videoAlreadyDownloaded: 該影片已下載
+    downloadFailedForMessage: '添加下載任務失敗: ${errorInfo}'
+    userPausedDownload: 用戶暫停下載
+    fileSystemError: '文件系統錯誤: ${errorInfo}'
+    unknownError: '未知錯誤: ${errorInfo}'
+    connectionTimeout: 連接超時
+    sendTimeout: 發送超時
+    receiveTimeout: 接收超時
+    serverError: '伺服器錯誤: ${errorInfo}'
+    unknownNetworkError: 未知網路錯誤
+    serviceIsClosing: 下載服務正在關閉
+    partialDownloadFailed: 部分內容下載失敗
+    noDownloadTask: 暫無下載任務
+    taskNotFoundOrDataError: 任務不存在或資料錯誤
+    copyDownloadUrlFailed: '複製下載連結失敗'
+    fileNotFound: '文件不存在'
+    openFolderFailed: '打開文件夾失敗'
+    openFolderFailedWithMessage: '打開文件夾失敗: ${message}'
+    directoryNotFound: '目錄不存在'
+    copyFailed: '複製失敗'
+    openFileFailed: '打開文件失敗'
+    openFileFailedWithMessage: '打開文件失敗: ${message}'
   downloadList: 下載列表
+  download: 下載
+  startDownloading: 開始下載...
+  clearAllFailedTasks: 清除全部失敗任務
+  clearAllFailedTasksConfirmation: '確定要清除所有失敗的下載任務嗎？\n這些任務的文件也會被刪除。'
+  clearAllFailedTasksSuccess: 已清除所有失敗任務
+  clearAllFailedTasksError: 清除失敗任務時出錯
+  downloadStatus: 下載狀態
+  imageList: 圖片列表
+  retryDownload: 重試下載
+  notDownloaded: 未下載
+  downloaded: 已下載
+  waitingForDownload: 等待下載...
+  downloadingProgressForImageProgress: '下載中 (${downloaded}/${total}張 ${progress}%)'
+  downloadingSingleImageProgress: '下載中 (${downloaded}張)'
+  pausedProgressForImageProgress: '已暫停 (${downloaded}/${total}張 ${progress}%)'
+  pausedSingleImageProgress: '已暫停 (已下載${downloaded}張)'
+  downloadedProgressForImageProgress: '下載完成 (共${total}張)'
+  viewVideoDetail: 查看影片詳情
+  viewGalleryDetail: 查看圖庫詳情
+  moreOptions: 更多操作
+  openFile: 打開文件
+  pause: 暫停
+  resume: 繼續
+  copyDownloadUrl: 複製下載連結
+  showInFolder: 在文件夾中顯示
+  deleteTask: 刪除任務
+  downloadingProgressForVideoTask: '下載中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s'
+  downloadingOnlyDownloadedAndSpeed: '下載中 ${downloaded} • ${speed}MB/s'
+  pausedForDownloadedAndTotal: '已暫停 • ${downloaded}/${total} (${progress}%)'
+  pausedAndDownloaded: '已暫停 • 已下載 ${downloaded}'
+  downloadedWithSize: '下載完成 • ${size}'
+  copyDownloadUrlSuccess: '已複製下載連結'
+  totalImageNums: '${num}張'
+  downloadingDownloadedTotalProgressSpeed: '下載中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s'
+

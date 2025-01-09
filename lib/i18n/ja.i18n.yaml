@@ -228,6 +228,8 @@ favorites:
   myFavorites: 私のお気に入り
 
 galleryDetail:
+  galleryDetail: ギャラリー詳細
+  viewGalleryDetail: ギャラリー詳細を表示
   copyLink: リンクをコピー
   copyImage: 画像をコピー
   saveAs: 名前を付けて保存
@@ -436,4 +438,68 @@ share:
   share: 共有
 
 download:
+  errors:
+    imageModelNotFound: 画像モデルが見つかりません
+    downloadFailed: ダウンロードに失敗しました
+    videoInfoNotFound: ビデオ情報が見つかりません
+    unknown: 不明
+    downloadTaskAlreadyExists: ダウンロードタスクが既に存在します
+    videoAlreadyDownloaded: ビデオはすでにダウンロードされています
+    downloadFailedForMessage: 'ダウンロードタスクの追加に失敗しました: ${errorInfo}'
+    userPausedDownload: ユーザーがダウンロードを一時停止
+    fileSystemError: 'ファイルシステムエラー: ${errorInfo}'
+    unknownError: '不明なエラー: ${errorInfo}'
+    connectionTimeout: 接続タイムアウト
+    sendTimeout: 送信タイムアウト
+    receiveTimeout: 受信タイムアウト
+    serverError: 'サーバーエラー: ${errorInfo}'
+    unknownNetworkError: 不明なネットワークエラー
+    serviceIsClosing: ダウンロードサービスが閉じています
+    partialDownloadFailed: 部分内容ダウンロード失敗
+    noDownloadTask: ダウンロードタスクがありません
+    taskNotFoundOrDataError: タスクが見つかりませんまたはデータが正しくありません
+    copyDownloadUrlFailed: 'ダウンロードリンクのコピーに失敗しました'
+    fileNotFound: 'ファイルが見つかりません'
+    openFolderFailed: 'ファイルフォルダーを開くのに失敗しました'
+    openFolderFailedWithMessage: 'ファイルフォルダーを開くのに失敗しました: ${message}'
+    directoryNotFound: 'ディレクトリが見つかりません'
+    copyFailed: 'コピーに失敗しました'
+    openFileFailed: 'ファイルを開くのに失敗しました'
+    openFileFailedWithMessage: 'ファイルを開くのに失敗しました: ${message}'
   downloadList: ダウンロードリスト
+  download: ダウンロード
+  startDownloading: ダウンロードを開始
+  clearAllFailedTasks: すべての失敗タスクをクリア
+  clearAllFailedTasksConfirmation: 'すべての失敗タスクをクリアしますか？\nこれらのタスクのファイルも削除されます。'
+  clearAllFailedTasksSuccess: すべての失敗タスクをクリアしました
+  clearAllFailedTasksError: 失敗タスクのクリア中にエラーが発生しました
+  downloadStatus: ダウンロード状態
+  imageList: 画像リスト
+  retryDownload: 再試行ダウンロード
+  notDownloaded: 未ダウンロード
+  downloaded: ダウンロード済み
+  waitingForDownload: ダウンロード待機中
+  downloadingProgressForImageProgress: 'ダウンロード中 (${downloaded}/${total}枚 ${progress}%)'
+  downloadingSingleImageProgress: 'ダウンロード中 (${downloaded}枚)'
+  pausedProgressForImageProgress: 'ダウンロード一時停止中 (${downloaded}/${total}枚 ${progress}%)'
+  pausedSingleImageProgress: 'ダウンロード一時停止中 (${downloaded}枚)'
+  downloadedProgressForImageProgress: 'ダウンロード完了 (合計${total}枚)'
+  viewVideoDetail: ビデオ詳細を表示
+  viewGalleryDetail: ギャラリー詳細を表示
+  moreOptions: もっと操作
+  openFile: ファイルを開く
+  pause: 一時停止
+  resume: 継続
+  copyDownloadUrl: ダウンロードリンクをコピー
+  showInFolder: フォルダーで表示
+  deleteTask: タスクを削除
+  downloadingProgressForVideoTask: 'ダウンロード中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s'
+  downloadingOnlyDownloadedAndSpeed: 'ダウンロード中 ${downloaded} • ${speed}MB/s'
+  pausedForDownloadedAndTotal: '一時停止中 ${downloaded}/${total} (${progress}%)'
+  pausedAndDownloaded: '一時停止中 • ダウンロード済み ${downloaded}'
+  downloadedWithSize: 'ダウンロード完了 • ${size}'
+  copyDownloadUrlSuccess: 'ダウンロードリンクをコピーしました'
+  totalImageNums: '${num}枚'
+  downloadingDownloadedTotalProgressSpeed: 'ダウンロード中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s'
+  
+

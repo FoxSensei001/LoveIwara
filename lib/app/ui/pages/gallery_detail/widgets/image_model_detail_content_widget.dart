@@ -116,17 +116,6 @@ class ImageModelDetailContent extends StatelessWidget {
       children: [
         _buildGalleryArea(context),
         _buildGalleryDetails(context),
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ElevatedButton.icon(
-            onPressed: () => _downloadGallery(context),
-            icon: const Icon(Icons.download),
-            label: const Text('下载图库'),
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 48),
-            ),
-          ),
-        ),
       ],
     );
   }
@@ -261,7 +250,7 @@ class ImageModelDetailContent extends StatelessWidget {
           const SizedBox(height: 16),
           _buildLikeAvatars(),
           const SizedBox(height: 16),
-          _buildLikeAndCommentButtons(),
+          _buildLikeAndCommentButtons(context),
         ],
       );
     });
@@ -317,7 +306,7 @@ class ImageModelDetailContent extends StatelessWidget {
             child: _buildAuthorNameButton(),
           ),
           if (controller.imageModelInfo.value?.user != null)
-            Container(
+            SizedBox(
               height: 32,
               child: FollowButtonWidget(
                 user: controller.imageModelInfo.value!.user!,
@@ -515,7 +504,8 @@ class ImageModelDetailContent extends StatelessWidget {
   }
 
   // 构建点赞和评论按钮区域
-  Widget _buildLikeAndCommentButtons() {
+  Widget _buildLikeAndCommentButtons(BuildContext context) {
+    final t = slang.Translations.of(context);
     final imageModelInfo = controller.imageModelInfo.value;
     if (imageModelInfo != null) {
       return Builder(
@@ -524,24 +514,56 @@ class ImageModelDetailContent extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              LikeButtonWidget(
-                mediaId: imageModelInfo.id,
-                liked: imageModelInfo.liked ?? false,
-                likeCount: imageModelInfo.numLikes ?? 0,
-                onLike: (id) async {
-                  final result = await Get.find<GalleryService>().likeImage(id);
-                  return result.isSuccess;
-                },
-                onUnlike: (id) async {
-                  final result = await Get.find<GalleryService>().unlikeImage(id);
-                  return result.isSuccess;
-                },
-                onLikeChanged: (liked) {
-                  controller.imageModelInfo.value = controller.imageModelInfo.value?.copyWith(
-                    liked: liked,
-                    numLikes: (controller.imageModelInfo.value?.numLikes ?? 0) + (liked ? 1 : -1),
-                  );
-                },
+              Row(
+                children: [
+                  LikeButtonWidget(
+                    mediaId: imageModelInfo.id,
+                    liked: imageModelInfo.liked ?? false,
+                    likeCount: imageModelInfo.numLikes ?? 0,
+                    onLike: (id) async {
+                      final result = await Get.find<GalleryService>().likeImage(id);
+                      return result.isSuccess;
+                    },
+                    onUnlike: (id) async {
+                      final result = await Get.find<GalleryService>().unlikeImage(id);
+                      return result.isSuccess;
+                    },
+                    onLikeChanged: (liked) {
+                      controller.imageModelInfo.value = controller.imageModelInfo.value?.copyWith(
+                        liked: liked,
+                        numLikes: (controller.imageModelInfo.value?.numLikes ?? 0) + (liked ? 1 : -1),
+                      );
+                    },
+                  ),
+                  const SizedBox(width: 16),
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => _downloadGallery(context),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.download, 
+                              size: 20,
+                              color: Theme.of(context).iconTheme.color
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              t.download.download,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Theme.of(context).textTheme.bodyMedium?.color
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               Material(
                 color: Colors.transparent,
@@ -576,11 +598,12 @@ class ImageModelDetailContent extends StatelessWidget {
 
   // 下载图库
   void _downloadGallery(BuildContext context) async {
+    final t = slang.Translations.of(context);
     try {
       final imageModel = controller.imageModelInfo.value;
       if (imageModel == null) {
         showToastWidget(MDToastWidget(
-            message: '图库信息不存在',
+            message: t.download.errors.imageModelNotFound,
             type: MDToastType.error));
         return;
       }
@@ -616,7 +639,7 @@ class ImageModelDetailContent extends StatelessWidget {
       await DownloadService.to.addTask(task);
 
       showToastWidget(MDToastWidget(
-          message: '开始下载...',
+          message: t.download.startDownloading,
           type: MDToastType.success));
 
       // 打开下载管理页面
@@ -624,7 +647,7 @@ class ImageModelDetailContent extends StatelessWidget {
     } catch (e) {
       LogUtils.e('添加下载任务失败', tag: 'ImageModelDetailContent', error: e);
       showToastWidget(MDToastWidget(
-          message: '下载失败',
+          message: t.download.errors.downloadFailed,
           type: MDToastType.error));
     }
   }

@@ -226,6 +226,8 @@ favorites:
   myFavorites: My Favorites
 
 galleryDetail:
+  galleryDetail: Gallery Detail
+  viewGalleryDetail: View Gallery Detail
   copyLink: Copy Link
   copyImage: Copy Image
   saveAs: Save As
@@ -434,4 +436,68 @@ share:
   share: Share
 
 download:
+  errors:
+    imageModelNotFound: Image model not found
+    downloadFailed: Download failed
+    videoInfoNotFound: Video info not found
+    downloadTaskAlreadyExists: Download task already exists
+    videoAlreadyDownloaded: Video already downloaded
+    downloadFailedForMessage: 'Add download task failed: ${errorInfo}'
+    userPausedDownload: User paused download
+    unknown: Unknown
+    fileSystemError: 'File system error: ${errorInfo}'
+    unknownError: 'Unknown error: ${errorInfo}'
+    connectionTimeout: Connection timeout
+    sendTimeout: Send timeout
+    receiveTimeout: Receive timeout
+    serverError: 'Server error: ${errorInfo}'
+    unknownNetworkError: Unknown network error
+    serviceIsClosing: Download service is closing
+    partialDownloadFailed: Partial content download failed
+    noDownloadTask: No download task
+    taskNotFoundOrDataError: Task not found or data error
+    fileNotFound: File not found
+    openFolderFailed: Failed to open folder
+    copyDownloadUrlFailed: 'Failed to copy download URL'
+    openFolderFailedWithMessage: 'Failed to open folder: ${message}'
+    directoryNotFound: Directory not found
+    copyFailed: Copy failed
+    openFileFailed: Failed to open file
+    openFileFailedWithMessage: 'Failed to open file: ${message}'
   downloadList: Download List
+  download: Download
+  startDownloading: Start Downloading
+  clearAllFailedTasks: Clear All Failed Tasks
+  clearAllFailedTasksConfirmation: 'Are you sure you want to clear all failed download tasks? The files of these tasks will also be deleted.'
+  clearAllFailedTasksSuccess: Cleared all failed tasks
+  clearAllFailedTasksError: Error occurred while clearing failed tasks
+  downloadStatus: Download Status
+  imageList: Image List
+  retryDownload: Retry Download
+  notDownloaded: Not Downloaded
+  downloaded: Downloaded
+  waitingForDownload: Waiting for Download
+  downloadingProgressForImageProgress: 'Downloading (${downloaded}/${total} images ${progress}%)'
+  downloadingSingleImageProgress: 'Downloading (${downloaded} images)'
+  pausedProgressForImageProgress: 'Paused (${downloaded}/${total} images ${progress}%)'
+  pausedSingleImageProgress: 'Paused (${downloaded} images)'
+  downloadedProgressForImageProgress: 'Downloaded (Total ${total} images)'
+  viewVideoDetail: View Video Detail
+  viewGalleryDetail: View Gallery Detail
+  moreOptions: More Options
+  openFile: Open File
+  pause: Pause
+  resume: Resume
+  copyDownloadUrl: Copy Download URL
+  showInFolder: Show in Folder
+  deleteTask: Delete Task
+  downloadingProgressForVideoTask: 'Downloading ${downloaded}/${total} (${progress}%) • ${speed}MB/s'
+  downloadingOnlyDownloadedAndSpeed: 'Downloading ${downloaded} • ${speed}MB/s'
+  pausedForDownloadedAndTotal: 'Paused ${downloaded}/${total} (${progress}%)'
+  pausedAndDownloaded: 'Paused • Downloaded ${downloaded}'
+  downloadedWithSize: 'Downloaded • ${size}'
+  copyDownloadUrlSuccess: 'Download URL copied'
+  totalImageNums: '${num} images'
+  downloadingDownloadedTotalProgressSpeed: 'Downloading ${downloaded}/${total} (${progress}%) • ${speed}MB/s'
+  
+

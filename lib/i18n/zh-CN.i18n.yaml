@@ -232,6 +232,8 @@ favorites:
   myFavorites: 我的最爱
 
 galleryDetail:
+  galleryDetail: 图库详情
+  viewGalleryDetail: 查看图库详情
   copyLink: 复制链接地址
   copyImage: 复制图片
   saveAs: 另存为
@@ -441,5 +443,67 @@ share:
   share: 分享
 
 download:
+  errors:
+    imageModelNotFound: 图库信息不存在
+    downloadFailed: 下载失败
+    videoInfoNotFound: 视频信息不存在
+    unknown: 未知
+    downloadTaskAlreadyExists: 下载任务已存在
+    videoAlreadyDownloaded: 该视频已下载
+    downloadFailedForMessage: '添加下载任务失败: ${errorInfo}'
+    userPausedDownload: 用户暂停下载
+    fileSystemError: '文件系统错误: ${errorInfo}'
+    unknownError: '未知错误: ${errorInfo}'
+    connectionTimeout: 连接超时
+    sendTimeout: 发送超时
+    receiveTimeout: 接收超时
+    serverError: '服务器错误: ${errorInfo}'
+    unknownNetworkError: 未知网络错误
+    serviceIsClosing: 下载服务正在关闭
+    partialDownloadFailed: 部分内容下载失败
+    noDownloadTask: 暂无下载任务
+    taskNotFoundOrDataError: 任务不存在或数据错误
+    copyDownloadUrlFailed: '复制下载链接失败'
+    fileNotFound: '文件不存在'
+    openFolderFailed: '打开文件夹失败'
+    openFolderFailedWithMessage: '打开文件夹失败: ${message}'
+    directoryNotFound: '目录不存在'
+    copyFailed: '复制失败'
+    openFileFailed: '打开文件失败'
+    openFileFailedWithMessage: '打开文件失败: ${message}'
   downloadList: 下载列表
+  download: 下载
+  startDownloading: 开始下载...
+  clearAllFailedTasks: 清除全部失败任务
+  clearAllFailedTasksConfirmation: '确定要清除所有失败的下载任务吗？\n这些任务的文件也会被删除。'
+  clearAllFailedTasksSuccess: 已清除所有失败任务
+  clearAllFailedTasksError: 清除失败任务时出错
+  downloadStatus: 下载状态
+  imageList: 图片列表
+  retryDownload: 重试下载
+  notDownloaded: 未下载
+  downloaded: 已下载
+  waitingForDownload: 等待下载...
+  downloadingProgressForImageProgress: '下载中 (${downloaded}/${total}张 ${progress}%)'
+  downloadingSingleImageProgress: '下载中 (${downloaded}张)'
+  pausedProgressForImageProgress: '已暂停 (${downloaded}/${total}张 ${progress}%)'
+  pausedSingleImageProgress: '已暂停 (已下载${downloaded}张)'
+  downloadedProgressForImageProgress: '下载完成 (共${total}张)'
+  viewVideoDetail: 查看视频详情
+  viewGalleryDetail: 查看图库详情
+  moreOptions: 更多操作
+  openFile: 打开文件
+  pause: 暂停
+  resume: 继续
+  copyDownloadUrl: 复制下载链接
+  showInFolder: 在文件夹中显示
+  deleteTask: 删除任务
+  downloadingProgressForVideoTask: '下载中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s'
+  downloadingOnlyDownloadedAndSpeed: '下载中 ${downloaded} • ${speed}MB/s'
+  pausedForDownloadedAndTotal: '已暂停 • ${downloaded}/${total} (${progress}%)'
+  pausedAndDownloaded: '已暂停 • 已下载 ${downloaded}'
+  downloadedWithSize: '下载完成 • ${size}'
+  copyDownloadUrlSuccess: '已复制下载链接'
+  totalImageNums: '${num}张'
+  downloadingDownloadedTotalProgressSpeed: '下载中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s'
 
