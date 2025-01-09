@@ -678,6 +678,8 @@ class TranslationsDownloadErrorsEn {
 	String get copyFailed => 'Copy failed';
 	String get openFileFailed => 'Failed to open file';
 	String openFileFailedWithMessage({required Object message}) => 'Failed to open file: ${message}';
+	String get noDownloadSource => 'No download source';
+	String get noDownloadSourceNowPleaseWaitInfoLoaded => 'No download source, please wait for information loading to be completed and try again';
 }
 
 /// Flat map(s) containing all translations.
@@ -1121,6 +1123,8 @@ extension on Translations {
 			case 'download.errors.copyFailed': return 'Copy failed';
 			case 'download.errors.openFileFailed': return 'Failed to open file';
 			case 'download.errors.openFileFailedWithMessage': return ({required Object message}) => 'Failed to open file: ${message}';
+			case 'download.errors.noDownloadSource': return 'No download source';
+			case 'download.errors.noDownloadSourceNowPleaseWaitInfoLoaded': return 'No download source, please wait for information loading to be completed and try again';
 			case 'download.downloadList': return 'Download List';
 			case 'download.download': return 'Download';
 			case 'download.startDownloading': return 'Start Downloading';

@@ -471,6 +471,8 @@ download:
     copyFailed: '复制失败'
     openFileFailed: '打开文件失败'
     openFileFailedWithMessage: '打开文件失败: ${message}'
+    noDownloadSource: 没有下载源
+    noDownloadSourceNowPleaseWaitInfoLoaded: 暂无下载源，请等待信息加载完成后重试
   downloadList: 下载列表
   download: 下载
   startDownloading: 开始下载...

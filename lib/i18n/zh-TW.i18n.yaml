@@ -467,6 +467,8 @@ download:
     copyFailed: '複製失敗'
     openFileFailed: '打開文件失敗'
     openFileFailedWithMessage: '打開文件失敗: ${message}'
+    noDownloadSource: 沒有下載源
+    noDownloadSourceNowPleaseWaitInfoLoaded: 暫無下載源，請等待信息加載完成後重試
   downloadList: 下載列表
   download: 下載
   startDownloading: 開始下載...

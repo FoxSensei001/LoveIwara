@@ -464,6 +464,8 @@ download:
     copyFailed: Copy failed
     openFileFailed: Failed to open file
     openFileFailedWithMessage: 'Failed to open file: ${message}'
+    noDownloadSource: No download source
+    noDownloadSourceNowPleaseWaitInfoLoaded: No download source, please wait for information loading to be completed and try again
   downloadList: Download List
   download: Download
   startDownloading: Start Downloading

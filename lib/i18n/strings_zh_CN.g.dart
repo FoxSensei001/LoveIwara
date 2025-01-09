@@ -677,6 +677,8 @@ class _TranslationsDownloadErrorsZhCn implements TranslationsDownloadErrorsEn {
 	@override String get copyFailed => '复制失败';
 	@override String get openFileFailed => '打开文件失败';
 	@override String openFileFailedWithMessage({required Object message}) => '打开文件失败: ${message}';
+	@override String get noDownloadSource => '没有下载源';
+	@override String get noDownloadSourceNowPleaseWaitInfoLoaded => '暂无下载源，请等待信息加载完成后重试';
 }
 
 /// Flat map(s) containing all translations.
@@ -1123,6 +1125,8 @@ extension on TranslationsZhCn {
 			case 'download.errors.copyFailed': return '复制失败';
 			case 'download.errors.openFileFailed': return '打开文件失败';
 			case 'download.errors.openFileFailedWithMessage': return ({required Object message}) => '打开文件失败: ${message}';
+			case 'download.errors.noDownloadSource': return '没有下载源';
+			case 'download.errors.noDownloadSourceNowPleaseWaitInfoLoaded': return '暂无下载源，请等待信息加载完成后重试';
 			case 'download.downloadList': return '下载列表';
 			case 'download.download': return '下载';
 			case 'download.startDownloading': return '开始下载...';

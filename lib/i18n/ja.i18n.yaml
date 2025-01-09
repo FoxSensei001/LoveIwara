@@ -466,6 +466,8 @@ download:
     copyFailed: 'コピーに失敗しました'
     openFileFailed: 'ファイルを開くのに失敗しました'
     openFileFailedWithMessage: 'ファイルを開くのに失敗しました: ${message}'
+    noDownloadSource: ダウンロードソースがありません
+    noDownloadSourceNowPleaseWaitInfoLoaded: ダウンロードソースがありません。情報を読み込んだ後、もう一度お試しください。
   downloadList: ダウンロードリスト
   download: ダウンロード
   startDownloading: ダウンロードを開始

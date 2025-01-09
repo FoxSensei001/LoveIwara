@@ -580,6 +580,17 @@ class VideoDetailContent extends StatelessWidget {
     final t = slang.Translations.of(context);
     final sources = controller.currentVideoSourceList;
 
+    if (sources.isEmpty) {
+      showToastWidget(MDToastWidget(message: t.download.errors.noDownloadSourceNowPleaseWaitInfoLoaded, type: MDToastType.error));
+      return;
+    }
+    final UserService userService = Get.find();
+    if (!userService.isLogin) {
+      showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error));
+      Get.toNamed(Routes.LOGIN);
+      return;
+    }
+
     Get.dialog(
       AlertDialog(
         title: Text(t.common.selectQuality),

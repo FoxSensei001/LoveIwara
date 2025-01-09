@@ -674,6 +674,8 @@ class _TranslationsDownloadErrorsJa implements TranslationsDownloadErrorsEn {
 	@override String get copyFailed => 'コピーに失敗しました';
 	@override String get openFileFailed => 'ファイルを開くのに失敗しました';
 	@override String openFileFailedWithMessage({required Object message}) => 'ファイルを開くのに失敗しました: ${message}';
+	@override String get noDownloadSource => 'ダウンロードソースがありません';
+	@override String get noDownloadSourceNowPleaseWaitInfoLoaded => 'ダウンロードソースがありません。情報を読み込んだ後、もう一度お試しください。';
 }
 
 /// Flat map(s) containing all translations.
@@ -1117,6 +1119,8 @@ extension on TranslationsJa {
 			case 'download.errors.copyFailed': return 'コピーに失敗しました';
 			case 'download.errors.openFileFailed': return 'ファイルを開くのに失敗しました';
 			case 'download.errors.openFileFailedWithMessage': return ({required Object message}) => 'ファイルを開くのに失敗しました: ${message}';
+			case 'download.errors.noDownloadSource': return 'ダウンロードソースがありません';
+			case 'download.errors.noDownloadSourceNowPleaseWaitInfoLoaded': return 'ダウンロードソースがありません。情報を読み込んだ後、もう一度お試しください。';
 			case 'download.downloadList': return 'ダウンロードリスト';
 			case 'download.download': return 'ダウンロード';
 			case 'download.startDownloading': return 'ダウンロードを開始';
