@@ -641,6 +641,9 @@ class _TranslationsDownloadJa implements TranslationsDownloadEn {
 	@override String get downloading => 'ダウンロード中';
 	@override String get failed => '失敗';
 	@override String get completed => '完了';
+	@override String get downloadDetail => 'ダウンロード詳細';
+	@override String get copy => 'コピー';
+	@override String get copySuccess => 'コピーしました';
 }
 
 // Path: download.errors
@@ -682,6 +685,11 @@ class _TranslationsDownloadErrorsJa implements TranslationsDownloadErrorsEn {
 	@override String get noActiveDownloadTask => 'ダウンロード中のタスクがありません';
 	@override String get noFailedDownloadTask => '失敗したタスクがありません';
 	@override String get noCompletedDownloadTask => '完了したタスクがありません';
+	@override String get taskAlreadyCompletedDoNotAdd => 'タスクはすでに完了しています。再度追加しないでください';
+	@override String get linkExpiredTryAgain => 'リンクが期限切れです。新しいダウンロードリンクを取得しています';
+	@override String get linkExpiredTryAgainSuccess => 'リンクが期限切れです。新しいダウンロードリンクを取得しました';
+	@override String get linkExpiredTryAgainFailed => 'リンクが期限切れです。新しいダウンロードリンクを取得に失敗しました';
+	@override String get taskDeleted => 'タスクが削除されました';
 }
 
 /// Flat map(s) containing all translations.
@@ -1130,6 +1138,11 @@ extension on TranslationsJa {
 			case 'download.errors.noActiveDownloadTask': return 'ダウンロード中のタスクがありません';
 			case 'download.errors.noFailedDownloadTask': return '失敗したタスクがありません';
 			case 'download.errors.noCompletedDownloadTask': return '完了したタスクがありません';
+			case 'download.errors.taskAlreadyCompletedDoNotAdd': return 'タスクはすでに完了しています。再度追加しないでください';
+			case 'download.errors.linkExpiredTryAgain': return 'リンクが期限切れです。新しいダウンロードリンクを取得しています';
+			case 'download.errors.linkExpiredTryAgainSuccess': return 'リンクが期限切れです。新しいダウンロードリンクを取得しました';
+			case 'download.errors.linkExpiredTryAgainFailed': return 'リンクが期限切れです。新しいダウンロードリンクを取得に失敗しました';
+			case 'download.errors.taskDeleted': return 'タスクが削除されました';
 			case 'download.downloadList': return 'ダウンロードリスト';
 			case 'download.download': return 'ダウンロード';
 			case 'download.startDownloading': return 'ダウンロードを開始';
@@ -1168,6 +1181,9 @@ extension on TranslationsJa {
 			case 'download.downloading': return 'ダウンロード中';
 			case 'download.failed': return '失敗';
 			case 'download.completed': return '完了';
+			case 'download.downloadDetail': return 'ダウンロード詳細';
+			case 'download.copy': return 'コピー';
+			case 'download.copySuccess': return 'コピーしました';
 			default: return null;
 		}
 	}

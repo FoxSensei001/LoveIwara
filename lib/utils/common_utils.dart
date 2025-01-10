@@ -206,4 +206,47 @@ class CommonUtils {
     }
     return locale;
   }
+
+  /// 获取视频链接的过期时间
+  static DateTime? getVideoLinkExpireTime(String videoLink) {
+    final uri = Uri.parse(videoLink);
+    final expires = uri.queryParameters['expires'];
+    if (expires == null) {
+      return null;
+    }
+    return DateTime.parse(expires);
+  }
+
+  // 通过path来格式化uri
+  static String formatSavePathUriByPath(String path) {
+    if (path.isEmpty) return '';
+    
+    try {
+      // 统一处理路径分隔符
+      String formattedPath = path;
+      if (Platform.isWindows) {
+        // Windows系统：统一使用反斜杠，处理可能混合的正斜杠
+        formattedPath = path.replaceAll('/', '\\');
+        // 处理可能的多个连续反斜杠
+        formattedPath = formattedPath.replaceAll(RegExp(r'\\+'), '\\');
+        // 处理Windows路径中的特殊字符
+        formattedPath = formattedPath.replaceAll(RegExp(r'[<>"|?*]'), '_');
+      } else {
+        // Unix系统（Linux/macOS）：统一使用正斜杠
+        formattedPath = path.replaceAll('\\', '/');
+        // 处理可能的多个连续正斜杠
+        formattedPath = formattedPath.replaceAll(RegExp(r'/+'), '/');
+      }
+      
+      // 处理空格和其他特殊字符
+      formattedPath = formattedPath
+          .replaceAll(RegExp(r'\s+'), '_')  // 空白字符替换为下划线
+          .replaceAll(RegExp(r'_{2,}'), '_');  // 多个连续下划线替换为单个
+      
+      return formattedPath;
+    } catch (e) {
+      LogUtils.e('格式化URI失败', tag: 'CommonUtils', error: e);
+      return path;
+    }
+  }
 }

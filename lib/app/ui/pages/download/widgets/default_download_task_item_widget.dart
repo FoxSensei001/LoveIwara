@@ -5,7 +5,9 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
+import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:open_file/open_file.dart';
@@ -127,11 +129,17 @@ class DefaultDownloadTaskItem extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(_getStatusText(context)),
+                              Text(
+                                _getStatusText(context),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                               if (task.error != null)
                                 Text(
                                   task.error!,
                                   style: const TextStyle(color: Colors.red),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                             ],
                           ),
@@ -194,6 +202,13 @@ class DefaultDownloadTaskItem extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // 查看下载详情
+            ListTile(
+              leading: const Icon(Icons.info),
+              title: Text(t.download.downloadDetail),
+              onTap: () => showDownloadDetailDialog(context, task),
+            ),
+            // 复制下载链接
             ListTile(
               leading: const Icon(Icons.link),
               title: Text(t.download.copyDownloadUrl),
@@ -477,6 +492,7 @@ class DefaultDownloadTaskItem extends StatelessWidget {
       }
 
       final result = await OpenFile.open(filePath);
+      LogUtils.d('打开文件结果: ${result.type}, ${result.message}', 'DownloadTaskItem');
       if (result.type != ResultType.done) {
         LogUtils.e('打开文件失败: ${result.message}', tag: 'DownloadTaskItem');
         if (context.mounted) {
@@ -502,11 +518,7 @@ class DefaultDownloadTaskItem extends StatelessWidget {
   }
 
   String _normalizePath(String path) {
-    if (Platform.isWindows) {
-      return path.replaceAll('/', '\\');
-    } else {
-      return path.replaceAll('\\', '/');
-    }
+    return CommonUtils.formatSavePathUriByPath(path);
   }
 
   void _onTap(BuildContext context) {

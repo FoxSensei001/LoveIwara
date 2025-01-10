@@ -476,6 +476,11 @@ download:
     noActiveDownloadTask: 暂无正在下载的任务
     noFailedDownloadTask: 暂无失败的任务
     noCompletedDownloadTask: 暂无已完成的任务
+    taskAlreadyCompletedDoNotAdd: 任务已完成，请勿重复添加
+    linkExpiredTryAgain: 链接已过期，正在重新获取下载链接
+    linkExpiredTryAgainSuccess: 链接已过期，正在重新获取下载链接成功
+    linkExpiredTryAgainFailed: 链接已过期，正在重新获取下载链接失败
+    taskDeleted: 任务已删除
   downloadList: 下载列表
   download: 下载
   startDownloading: 开始下载...
@@ -514,4 +519,7 @@ download:
   downloading: 下载中
   failed: 失败
   completed: 已完成
+  downloadDetail: 下载详情
+  copy: 复制
+  copySuccess: 已复制
 

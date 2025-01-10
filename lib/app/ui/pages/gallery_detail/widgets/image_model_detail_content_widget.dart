@@ -625,13 +625,13 @@ class ImageModelDetailContent extends StatelessWidget {
 
       // 创建下载任务
       final task = DownloadTask(
-        id: imageModel.id,
+        id: GalleryDownloadExtData.genExtDataIdByGalleryInfo(imageModel.id),
         url: imageModel.files.first.getOriginalImageUrl(), // 使用第一张图片的URL
         savePath: await _getSavePath(imageModel.title, imageModel.id),
         fileName: '${imageModel.title}_${imageModel.id}',
         supportsRange: true,
         extData: DownloadTaskExtData(
-          type: 'gallery',
+          type: DownloadTaskExtDataType.gallery,
           data: extData.toJson(),
         ),
       );

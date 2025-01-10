@@ -4,8 +4,8 @@ import 'download_task_ext_data.model.dart';
 
 class DownloadTask {
   final String id;
-  final String url; // 下载链接
-  final String savePath; // 保存路径
+  String url; // 下载链接
+  String savePath; // 保存路径
   final String fileName; // 文件名
   int totalBytes; // 文件总大小
   int downloadedBytes; // 已下载大小
@@ -59,7 +59,7 @@ class DownloadTask {
   }
 
   // 转换为数据库行
-  Map<String, dynamic> toRow() {
+  Map<String, dynamic> toJson() {
     return {
       'id': id,
       'url': url,

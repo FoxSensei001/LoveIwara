@@ -77,7 +77,7 @@ class ImageUtils {
 
       // 创建下载任务
       final task = DownloadTask(
-        id: item.data.id,
+        id: 'single_image_${item.data.id}',
         url: url,
         savePath: await _getSavePath(item.data.title ?? 'image', item.data.id),
         fileName: '${item.data.title ?? 'image'}_${item.data.id}.jpg',
@@ -130,10 +130,9 @@ class ImageUtils {
     try {
       String? directoryPath = await getDirectoryPath();
 
-      // 如果用户取消选择，使用默认下载路径
+      // 取消选择
       if (directoryPath == null) {
-        directoryPath = await _getDefaultDownloadPath();
-        LogUtils.d('使用默认下载目录：$directoryPath', 'ImageModelDetailContent');
+        return;
       }
 
       String url =

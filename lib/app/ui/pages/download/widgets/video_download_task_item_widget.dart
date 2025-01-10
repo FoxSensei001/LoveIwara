@@ -7,10 +7,12 @@ import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
+import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:open_file/open_file.dart';
 import 'package:super_clipboard/super_clipboard.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:path/path.dart' as path;
 
 class VideoDownloadTaskItem extends StatelessWidget {
   final DownloadTask task;
@@ -25,7 +27,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
     final isSmallScreen = width < 600;
 
     // 从任务ID中提取清晰度信息
-    final quality = task.id.split('_').last;
+    final quality = videoData.quality;
 
     return GestureDetector(
       onSecondaryTapUp: (details) =>
@@ -44,48 +46,75 @@ class VideoDownloadTaskItem extends StatelessWidget {
                   children: [
                     // 视频缩略图
                     if (videoData.thumbnail != null)
-                      Stack(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: CachedNetworkImage(
-                              imageUrl: videoData.thumbnail!,
-                              width: isSmallScreen ? 120 : 160,
-                              height: isSmallScreen ? 68 : 90,
-                              fit: BoxFit.cover,
-                              placeholder: (context, url) => Container(
-                                color: Colors.grey[300],
-                                child: const Center(
-                                    child: CircularProgressIndicator()),
-                              ),
-                              errorWidget: (context, url, error) => Container(
-                                color: Colors.grey[300],
-                                child: const Icon(Icons.error),
-                              ),
-                            ),
-                          ),
-                          // 清晰度标签
-                          Positioned(
-                            left: 4,
-                            top: 4,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: Colors.black54,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                quality,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
+                      SizedBox(
+                        width: isSmallScreen ? 120 : 160,
+                        height: isSmallScreen ? 68 : 90,
+                        child: Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: CachedNetworkImage(
+                                imageUrl: videoData.thumbnail!,
+                                width: isSmallScreen ? 120 : 160,
+                                height: isSmallScreen ? 68 : 90,
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) => Container(
+                                  color: Colors.grey[300],
+                                  child: const Center(
+                                      child: CircularProgressIndicator()),
+                                ),
+                                errorWidget: (context, url, error) => Container(
+                                  color: Colors.grey[300],
+                                  child: const Icon(Icons.error),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                            // 清晰度标签
+                            if (quality != null)
+                              Positioned(
+                                left: 4,
+                                top: 4,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black54,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    quality,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            // 时长标签
+                            if (videoData.duration != null)
+                              Positioned(
+                                right: 4,
+                                bottom: 4,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black54,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    _formatDuration(videoData.duration!),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -104,8 +133,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
                           if (videoData.authorName != null)
                             Row(
                               children: [
-                                if (videoData.authorAvatar != null &&
-                                    !isSmallScreen)
+                                if (videoData.authorAvatar != null)
                                   MouseRegion(
                                     cursor: SystemMouseCursors.click,
                                     child: GestureDetector(
@@ -162,17 +190,6 @@ class VideoDownloadTaskItem extends StatelessWidget {
                               ],
                             ),
                           if (!isSmallScreen) const SizedBox(height: 4),
-                          // 视频时长
-                          if (videoData.duration != null && !isSmallScreen)
-                            Text(
-                              _formatDuration(videoData.duration!),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(
-                                    color: Colors.grey[600],
-                                  ),
-                            ),
                         ],
                       ),
                     ),
@@ -193,11 +210,17 @@ class VideoDownloadTaskItem extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(_getStatusText(context)),
+                              Text(
+                                _getStatusText(context),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                               if (task.error != null)
                                 Text(
                                   task.error!,
                                   style: const TextStyle(color: Colors.red),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                             ],
                           ),
@@ -269,6 +292,12 @@ class VideoDownloadTaskItem extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // 查看下载详情
+            ListTile(
+              leading: const Icon(Icons.info),
+              title: Text(t.download.downloadDetail),
+              onTap: () => showDownloadDetailDialog(context, task),
+            ),
             // 复制下载链接
             ListTile(
               leading: const Icon(Icons.link),
@@ -514,7 +543,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
   Future<void> _showInFolder(BuildContext context) async {
     final t = slang.Translations.of(context);
     try {
-      final filePath = _normalizePath(task.savePath);
+      final filePath = path.normalize(task.savePath);
       LogUtils.d('显示文件夹: $filePath', 'DownloadTaskItem');
 
       final file = File(filePath);
@@ -528,12 +557,11 @@ class VideoDownloadTaskItem extends StatelessWidget {
       }
 
       if (Platform.isWindows) {
-        final windowsPath = filePath.replaceAll('/', '\\');
-        await Process.run('explorer.exe', ['/select,', windowsPath]);
+        await Process.run('explorer.exe', ['/select,', filePath]);
       } else if (Platform.isMacOS) {
         await Process.run('open', ['-R', filePath]);
       } else if (Platform.isLinux) {
-        final directory = File(filePath).parent.path;
+        final directory = path.dirname(filePath);
         await Process.run('xdg-open', [directory]);
       }
     } catch (e) {
@@ -549,7 +577,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
   Future<void> _openFile(BuildContext context) async {
     final t = slang.Translations.of(context);
     try {
-      final filePath = _normalizePath(task.savePath);
+      final filePath = path.normalize(task.savePath);
       LogUtils.d('打开文件: $filePath', 'DownloadTaskItem');
 
       final file = File(filePath);
@@ -567,7 +595,6 @@ class VideoDownloadTaskItem extends StatelessWidget {
         LogUtils.e('打开文件失败: ${result.message}', tag: 'DownloadTaskItem');
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            // SnackBar(content: Text('打开文件失败: ${result.message}')),
             SnackBar(
                 content: Text(t.download.errors
                     .openFolderFailedWithMessage(message: result.message))),
@@ -581,14 +608,6 @@ class VideoDownloadTaskItem extends StatelessWidget {
           SnackBar(content: Text(t.download.errors.openFolderFailed)),
         );
       }
-    }
-  }
-
-  String _normalizePath(String path) {
-    if (Platform.isWindows) {
-      return path.replaceAll('/', '\\');
-    } else {
-      return path.replaceAll('\\', '/');
     }
   }
 

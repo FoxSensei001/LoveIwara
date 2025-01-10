@@ -194,6 +194,9 @@ class ApiConstants {
 
   // 帖子详情
   static String post(String id) => '/post/$id';
+
+  // 视频详情
+  static String video(String videoId) => '/video/$videoId';
 }
 
 // 视频接口的排序方式

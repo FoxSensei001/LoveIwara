@@ -14,20 +14,49 @@ import 'package:waterfall_flow/waterfall_flow.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
-class GalleryDownloadTaskDetailPage extends StatelessWidget {
+class GalleryDownloadTaskDetailPage extends StatefulWidget {
   final String taskId;
-
   const GalleryDownloadTaskDetailPage({super.key, required this.taskId});
 
-  DownloadTask? get task => DownloadService.to.tasks[taskId];
+  @override
+  State<GalleryDownloadTaskDetailPage> createState() => _GalleryDownloadTaskDetailPageState();
+}
 
-  GalleryDownloadExtData? get galleryData {
+class _GalleryDownloadTaskDetailPageState extends State<GalleryDownloadTaskDetailPage> {
+  GalleryDownloadExtData? galleryData;
+  
+  @override
+  void initState() {
+    super.initState();
+    _loadGalleryData();
+  }
+
+  Future<void> _loadGalleryData() async {
+    final data = await getGalleryData();
+    if (mounted) {
+      setState(() {
+        galleryData = data;
+      });
+    }
+  }
+
+  DownloadTask? get task => DownloadService.to.tasks[widget.taskId];
+
+  Future<GalleryDownloadExtData?> getGalleryData() async {
+    if (task == null) {
+      // 从数据库中获取
+      final task = await DownloadService.to.repository.getTaskById(widget.taskId);
+      if (task != null) {
+        return GalleryDownloadExtData.fromJson(task.extData!.data);
+      }
+    }
     try {
-      if (task?.extData?.type == 'gallery') {
+      if (task?.extData?.type == DownloadTaskExtDataType.gallery) {
         return GalleryDownloadExtData.fromJson(task!.extData!.data);
       }
     } catch (e) {
-      LogUtils.e('解析图库下载任务数据失败', tag: 'GalleryDownloadTaskDetailPage', error: e);
+      LogUtils.e('解析图库下载任务数据失败',
+          tag: 'GalleryDownloadTaskDetailPage', error: e);
     }
     return null;
   }
@@ -75,13 +104,15 @@ class GalleryDownloadTaskDetailPage extends StatelessWidget {
   }
 
   // 处理图片点击事件
-  void _onImageTap(BuildContext context, ImageItem item, List<ImageItem> imageItems) {
+  void _onImageTap(
+      BuildContext context, ImageItem item, List<ImageItem> imageItems) {
     int index = imageItems.indexWhere((element) => element.url == item.url);
     if (index == -1) {
-      index = imageItems.indexWhere((element) => element.data.id == item.data.id);
+      index =
+          imageItems.indexWhere((element) => element.data.id == item.data.id);
     }
     NaviService.navigateToPhotoViewWrapper(
-      imageItems: imageItems, 
+      imageItems: imageItems,
       initialIndex: index,
       menuItemsBuilder: (context, item) => _buildImageMenuItems(context, item),
     );
@@ -91,30 +122,33 @@ class GalleryDownloadTaskDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
     final extData = galleryData;
-    if (task == null || extData == null) {
+    final currentTask = task;
+
+    // 如果数据还没加载完成，显示加载中
+    if (extData == null) {
       return Scaffold(
-        body: Center(
-          child: Text(t.download.errors.taskNotFoundOrDataError),
+        appBar: AppBar(
+          title: Text(t.galleryDetail.galleryDetail),
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(),
         ),
       );
     }
-
-    // 格式化保存路径
-    final savePath = path.normalize(task!.savePath);
 
     // 构建图片列表
     final List<ImageItem> imageItems = extData.imageList.map((imageInfo) {
       final imageId = imageInfo['id']!;
       final imageUrl = imageInfo['url']!;
-      final imagePath = path.join(savePath, '$imageId${path.extension(imageUrl)}');
-      final isDownloaded = isImageDownloaded(imagePath);
+      final localPath = extData.localPaths[imageId];
+      final isDownloaded = localPath != null && isImageDownloaded(localPath);
 
       return ImageItem(
-        url: isDownloaded ? 'file://$imagePath' : imageUrl,
+        url: isDownloaded ? 'file://$localPath' : imageUrl,
         data: ImageItemData(
           id: imageId,
-          url: isDownloaded ? 'file://$imagePath' : imageUrl,
-          originalUrl: isDownloaded ? 'file://$imagePath' : imageUrl,
+          url: isDownloaded ? 'file://$localPath' : imageUrl,
+          originalUrl: isDownloaded ? 'file://$localPath' : imageUrl,
         ),
       );
     }).toList();
@@ -126,7 +160,8 @@ class GalleryDownloadTaskDetailPage extends StatelessWidget {
           if (extData.id != null)
             IconButton(
               icon: const Icon(Icons.photo_library),
-              onPressed: () => NaviService.navigateToGalleryDetailPage(extData.id!),
+              onPressed: () =>
+                  NaviService.navigateToGalleryDetailPage(extData.id!),
               tooltip: t.galleryDetail.viewGalleryDetail,
             ),
         ],
@@ -147,10 +182,13 @@ class GalleryDownloadTaskDetailPage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: MouseRegion(
-                cursor: extData.authorUsername != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
+                cursor: extData.authorUsername != null
+                    ? SystemMouseCursors.click
+                    : SystemMouseCursors.basic,
                 child: GestureDetector(
                   onTap: extData.authorUsername != null
-                      ? () => NaviService.navigateToAuthorProfilePage(extData.authorUsername!)
+                      ? () => NaviService.navigateToAuthorProfilePage(
+                          extData.authorUsername!)
                       : null,
                   child: Row(
                     children: [
@@ -182,7 +220,7 @@ class GalleryDownloadTaskDetailPage extends StatelessWidget {
             const SizedBox(height: 16),
             // 下载状态
             Obx(() {
-              final currentTask = DownloadService.to.tasks[taskId];
+              final currentTask = DownloadService.to.tasks[widget.taskId];
               if (currentTask == null) return const SizedBox.shrink();
 
               return Padding(
@@ -199,7 +237,8 @@ class GalleryDownloadTaskDetailPage extends StatelessWidget {
                       value: currentTask.status == DownloadStatus.completed
                           ? 1.0
                           : currentTask.totalBytes > 0
-                              ? currentTask.downloadedBytes / currentTask.totalBytes
+                              ? currentTask.downloadedBytes /
+                                  currentTask.totalBytes
                               : null,
                     ),
                     const SizedBox(height: 8),
@@ -224,19 +263,22 @@ class GalleryDownloadTaskDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Obx(() {
-              final currentTask = DownloadService.to.tasks[taskId];
+              final currentTask = DownloadService.to.tasks[widget.taskId];
               if (currentTask == null) return const SizedBox.shrink();
 
               return LayoutBuilder(
                 builder: (context, constraints) {
                   // 计算列数，最少两列
-                  final columnCount = (constraints.maxWidth / 200).floor().clamp(2, 4); // 200 是每列的最小宽度
+                  final columnCount = (constraints.maxWidth / 200)
+                      .floor()
+                      .clamp(2, 4); // 200 是每列的最小宽度
 
                   return WaterfallFlow.builder(
                     padding: const EdgeInsets.all(16),
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
                       crossAxisCount: columnCount,
                       crossAxisSpacing: 8,
                       mainAxisSpacing: 8,
@@ -251,7 +293,9 @@ class GalleryDownloadTaskDetailPage extends StatelessWidget {
                           // 图片容器
                           Container(
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerHighest,
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: ClipRRect(
@@ -259,19 +303,25 @@ class GalleryDownloadTaskDetailPage extends StatelessWidget {
                               child: Material(
                                 color: Colors.transparent,
                                 child: InkWell(
-                                  onTap: () => _onImageTap(context, item, imageItems),
+                                  onTap: () =>
+                                      _onImageTap(context, item, imageItems),
                                   child: isDownloaded
                                       ? Image.file(
-                                          File(item.url.replaceFirst('file://', '')),
+                                          File(item.url
+                                              .replaceFirst('file://', '')),
                                           fit: BoxFit.cover,
-                                          errorBuilder: (context, error, stackTrace) => const Center(
+                                          errorBuilder:
+                                              (context, error, stackTrace) =>
+                                                  const Center(
                                             child: Icon(Icons.error_outline),
                                           ),
                                         )
                                       : Image.network(
                                           item.url,
                                           fit: BoxFit.cover,
-                                          errorBuilder: (context, error, stackTrace) => const Center(
+                                          errorBuilder:
+                                              (context, error, stackTrace) =>
+                                                  const Center(
                                             child: Icon(Icons.error_outline),
                                           ),
                                         ),
@@ -280,7 +330,8 @@ class GalleryDownloadTaskDetailPage extends StatelessWidget {
                             ),
                           ),
                           // 状态指示器
-                          if (!isDownloaded && currentTask.status == DownloadStatus.failed)
+                          if (!isDownloaded &&
+                              currentTask.status == DownloadStatus.failed)
                             Positioned.fill(
                               child: Container(
                                 decoration: BoxDecoration(
@@ -289,11 +340,15 @@ class GalleryDownloadTaskDetailPage extends StatelessWidget {
                                 ),
                                 child: Center(
                                   child: IconButton(
-                                    icon: const Icon(Icons.refresh, color: Colors.white),
+                                    icon: const Icon(Icons.refresh,
+                                        color: Colors.white),
                                     onPressed: () {
-                                      if (currentTask.status == DownloadStatus.failed) {
+                                      if (currentTask.status ==
+                                          DownloadStatus.failed) {
                                         final imageId = item.data.id;
-                                        DownloadService.to.retryGalleryImageDownload(taskId, imageId);
+                                        DownloadService.to
+                                            .retryGalleryImageDownload(
+                                                widget.taskId, imageId);
                                       }
                                     },
                                     tooltip: t.download.retryDownload,
@@ -306,13 +361,17 @@ class GalleryDownloadTaskDetailPage extends StatelessWidget {
                             right: 8,
                             bottom: 8,
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
-                                color: isDownloaded ? Colors.green : Colors.grey,
+                                color:
+                                    isDownloaded ? Colors.green : Colors.grey,
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
-                                isDownloaded ? t.download.downloaded : t.download.notDownloaded,
+                                isDownloaded
+                                    ? t.download.downloaded
+                                    : t.download.notDownloaded,
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 12,
@@ -343,27 +402,36 @@ class GalleryDownloadTaskDetailPage extends StatelessWidget {
           final progress =
               (task.downloadedBytes / task.totalBytes * 100).toStringAsFixed(1);
           // return '下载中 (${task.downloadedBytes}/${task.totalBytes}张 $progress%)';
-          return t.download.downloadingProgressForImageProgress(downloaded: task.downloadedBytes, total: task.totalBytes, progress: progress);
+          return t.download.downloadingProgressForImageProgress(
+              downloaded: task.downloadedBytes,
+              total: task.totalBytes,
+              progress: progress);
         } else {
           // return '下载中 (${task.downloadedBytes}张)';
-          return t.download.downloadingSingleImageProgress(downloaded: task.downloadedBytes);
+          return t.download
+              .downloadingSingleImageProgress(downloaded: task.downloadedBytes);
         }
       case DownloadStatus.paused:
         if (task.totalBytes > 0) {
           final progress =
               (task.downloadedBytes / task.totalBytes * 100).toStringAsFixed(1);
           // return '已暂停 (${task.downloadedBytes}/${task.totalBytes}张 $progress%)';
-          return t.download.pausedProgressForImageProgress(downloaded: task.downloadedBytes, total: task.totalBytes, progress: progress);
+          return t.download.pausedProgressForImageProgress(
+              downloaded: task.downloadedBytes,
+              total: task.totalBytes,
+              progress: progress);
         } else {
           // return '已暂停 (已下载${task.downloadedBytes}张)';
-          return t.download.pausedSingleImageProgress(downloaded: task.downloadedBytes);
+          return t.download
+              .pausedSingleImageProgress(downloaded: task.downloadedBytes);
         }
       case DownloadStatus.completed:
         // return '下载完成 (共${task.totalBytes}张)';
-        return t.download.downloadedProgressForImageProgress(total: task.totalBytes);
+        return t.download
+            .downloadedProgressForImageProgress(total: task.totalBytes);
       case DownloadStatus.failed:
         // return '下载失败';
         return t.download.errors.downloadFailed;
     }
   }
-} 
+}

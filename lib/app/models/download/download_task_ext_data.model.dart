@@ -1,5 +1,12 @@
+import 'package:i_iwara/app/models/video.model.dart';
+
+enum DownloadTaskExtDataType {
+  video,
+  gallery,;
+}
+
 class DownloadTaskExtData {
-  final String type; // 下载任务类型，例如 'video', 'image', etc.
+  final DownloadTaskExtDataType type; // 下载任务类型，例如 'video', 'image', etc.
   final Map<String, dynamic> data; // 具体的数据
 
   DownloadTaskExtData({
@@ -9,18 +16,19 @@ class DownloadTaskExtData {
 
   factory DownloadTaskExtData.fromJson(Map<String, dynamic> json) {
     return DownloadTaskExtData(
-      type: json['type'] as String,
+      type: DownloadTaskExtDataType.values.byName(json['type']), // 解析时也需要将字符串转换回枚举
       data: json['data'] as Map<String, dynamic>,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'type': type,
+      'type': type.name, // 将枚举类型转换为字符串
       'data': data,
     };
   }
 }
+
 
 class VideoDownloadExtData {
   final String? id;
@@ -30,6 +38,7 @@ class VideoDownloadExtData {
   final String? authorUsername;
   final String? authorAvatar;
   final int? duration;
+  final String? quality;
 
   VideoDownloadExtData({
     this.id,
@@ -39,6 +48,7 @@ class VideoDownloadExtData {
     this.authorUsername,
     this.authorAvatar,
     this.duration,
+    this.quality,
   });
 
   factory VideoDownloadExtData.fromJson(Map<String, dynamic> json) {
@@ -50,6 +60,7 @@ class VideoDownloadExtData {
       authorUsername: json['author_username'] as String?,
       authorAvatar: json['author_avatar'] as String?,
       duration: json['duration'] as int?,
+      quality: json['quality'] as String?,
     );
   }
 
@@ -62,7 +73,12 @@ class VideoDownloadExtData {
       'author_username': authorUsername,
       'author_avatar': authorAvatar,
       'duration': duration,
+      'quality': quality,
     };
+  }
+
+  static String genExtDataIdByVideoInfo(Video videoInfo, String sourceName) {
+    return '${videoInfo.id}_$sourceName';
   }
 }
 
@@ -75,6 +91,7 @@ class GalleryDownloadExtData {
   final String? authorAvatar;
   final int totalImages; // 图片总数
   final List<Map<String, String>> imageList; // 所有图片的信息列表，包含id、url等
+  final Map<String, String> localPaths; // 新增：存储下载后的本地文件路径，key为imageId，value为本地路径
 
   GalleryDownloadExtData({
     this.id,
@@ -85,6 +102,7 @@ class GalleryDownloadExtData {
     this.authorAvatar,
     this.totalImages = 0,
     this.imageList = const [],
+    this.localPaths = const {}, // 新增字段的默认值
   });
 
   factory GalleryDownloadExtData.fromJson(Map<String, dynamic> json) {
@@ -100,6 +118,7 @@ class GalleryDownloadExtData {
               ?.map((e) => Map<String, String>.from(e as Map))
               .toList() ??
           [],
+      localPaths: (json['local_paths'] as Map<String, dynamic>?)?.cast<String, String>() ?? {}, // 新增：从JSON解析localPaths
     );
   }
 
@@ -113,6 +132,11 @@ class GalleryDownloadExtData {
       'author_avatar': authorAvatar,
       'total_images': totalImages,
       'image_list': imageList,
+      'local_paths': localPaths, // 新增：将localPaths添加到JSON中
     };
+  }
+
+  static String genExtDataIdByGalleryInfo(String id) {
+    return '${DownloadTaskExtDataType.gallery}_$id';
   }
 } 

@@ -471,6 +471,11 @@ download:
     noActiveDownloadTask: ダウンロード中のタスクがありません
     noFailedDownloadTask: 失敗したタスクがありません
     noCompletedDownloadTask: 完了したタスクがありません
+    taskAlreadyCompletedDoNotAdd: タスクはすでに完了しています。再度追加しないでください
+    linkExpiredTryAgain: リンクが期限切れです。新しいダウンロードリンクを取得しています
+    linkExpiredTryAgainSuccess: リンクが期限切れです。新しいダウンロードリンクを取得しました
+    linkExpiredTryAgainFailed: リンクが期限切れです。新しいダウンロードリンクを取得に失敗しました
+    taskDeleted: タスクが削除されました
   downloadList: ダウンロードリスト
   download: ダウンロード
   startDownloading: ダウンロードを開始
@@ -509,4 +514,7 @@ download:
   downloading: ダウンロード中
   failed: 失敗
   completed: 完了
+  downloadDetail: ダウンロード詳細
+  copy: コピー
+  copySuccess: コピーしました
 

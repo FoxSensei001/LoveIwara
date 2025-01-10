@@ -469,6 +469,11 @@ download:
     noActiveDownloadTask: No active download task 
     noFailedDownloadTask: No failed download task
     noCompletedDownloadTask: No completed download task
+    taskAlreadyCompletedDoNotAdd: Task already completed, do not add again
+    linkExpiredTryAgain: Link expired, trying to get new download link
+    linkExpiredTryAgainSuccess: Link expired, trying to get new download link success
+    linkExpiredTryAgainFailed: Link expired, trying to get new download link failed
+    taskDeleted: Task deleted
   downloadList: Download List
   download: Download
   startDownloading: Start Downloading
@@ -507,4 +512,7 @@ download:
   downloading: Downloading
   failed: Failed
   completed: Completed
+  downloadDetail: Download Detail
+  copy: Copy
+  copySuccess: Copied
 

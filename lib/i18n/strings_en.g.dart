@@ -645,6 +645,9 @@ class TranslationsDownloadEn {
 	String get downloading => 'Downloading';
 	String get failed => 'Failed';
 	String get completed => 'Completed';
+	String get downloadDetail => 'Download Detail';
+	String get copy => 'Copy';
+	String get copySuccess => 'Copied';
 }
 
 // Path: download.errors
@@ -686,6 +689,11 @@ class TranslationsDownloadErrorsEn {
 	String get noActiveDownloadTask => 'No active download task';
 	String get noFailedDownloadTask => 'No failed download task';
 	String get noCompletedDownloadTask => 'No completed download task';
+	String get taskAlreadyCompletedDoNotAdd => 'Task already completed, do not add again';
+	String get linkExpiredTryAgain => 'Link expired, trying to get new download link';
+	String get linkExpiredTryAgainSuccess => 'Link expired, trying to get new download link success';
+	String get linkExpiredTryAgainFailed => 'Link expired, trying to get new download link failed';
+	String get taskDeleted => 'Task deleted';
 }
 
 /// Flat map(s) containing all translations.
@@ -1134,6 +1142,11 @@ extension on Translations {
 			case 'download.errors.noActiveDownloadTask': return 'No active download task';
 			case 'download.errors.noFailedDownloadTask': return 'No failed download task';
 			case 'download.errors.noCompletedDownloadTask': return 'No completed download task';
+			case 'download.errors.taskAlreadyCompletedDoNotAdd': return 'Task already completed, do not add again';
+			case 'download.errors.linkExpiredTryAgain': return 'Link expired, trying to get new download link';
+			case 'download.errors.linkExpiredTryAgainSuccess': return 'Link expired, trying to get new download link success';
+			case 'download.errors.linkExpiredTryAgainFailed': return 'Link expired, trying to get new download link failed';
+			case 'download.errors.taskDeleted': return 'Task deleted';
 			case 'download.downloadList': return 'Download List';
 			case 'download.download': return 'Download';
 			case 'download.startDownloading': return 'Start Downloading';
@@ -1172,6 +1185,9 @@ extension on Translations {
 			case 'download.downloading': return 'Downloading';
 			case 'download.failed': return 'Failed';
 			case 'download.completed': return 'Completed';
+			case 'download.downloadDetail': return 'Download Detail';
+			case 'download.copy': return 'Copy';
+			case 'download.copySuccess': return 'Copied';
 			default: return null;
 		}
 	}

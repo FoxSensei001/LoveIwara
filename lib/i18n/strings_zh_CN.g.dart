@@ -644,6 +644,9 @@ class _TranslationsDownloadZhCn implements TranslationsDownloadEn {
 	@override String get downloading => '下载中';
 	@override String get failed => '失败';
 	@override String get completed => '已完成';
+	@override String get downloadDetail => '下载详情';
+	@override String get copy => '复制';
+	@override String get copySuccess => '已复制';
 }
 
 // Path: download.errors
@@ -685,6 +688,11 @@ class _TranslationsDownloadErrorsZhCn implements TranslationsDownloadErrorsEn {
 	@override String get noActiveDownloadTask => '暂无正在下载的任务';
 	@override String get noFailedDownloadTask => '暂无失败的任务';
 	@override String get noCompletedDownloadTask => '暂无已完成的任务';
+	@override String get taskAlreadyCompletedDoNotAdd => '任务已完成，请勿重复添加';
+	@override String get linkExpiredTryAgain => '链接已过期，正在重新获取下载链接';
+	@override String get linkExpiredTryAgainSuccess => '链接已过期，正在重新获取下载链接成功';
+	@override String get linkExpiredTryAgainFailed => '链接已过期，正在重新获取下载链接失败';
+	@override String get taskDeleted => '任务已删除';
 }
 
 /// Flat map(s) containing all translations.
@@ -1136,6 +1144,11 @@ extension on TranslationsZhCn {
 			case 'download.errors.noActiveDownloadTask': return '暂无正在下载的任务';
 			case 'download.errors.noFailedDownloadTask': return '暂无失败的任务';
 			case 'download.errors.noCompletedDownloadTask': return '暂无已完成的任务';
+			case 'download.errors.taskAlreadyCompletedDoNotAdd': return '任务已完成，请勿重复添加';
+			case 'download.errors.linkExpiredTryAgain': return '链接已过期，正在重新获取下载链接';
+			case 'download.errors.linkExpiredTryAgainSuccess': return '链接已过期，正在重新获取下载链接成功';
+			case 'download.errors.linkExpiredTryAgainFailed': return '链接已过期，正在重新获取下载链接失败';
+			case 'download.errors.taskDeleted': return '任务已删除';
 			case 'download.downloadList': return '下载列表';
 			case 'download.download': return '下载';
 			case 'download.startDownloading': return '开始下载...';
@@ -1174,6 +1187,9 @@ extension on TranslationsZhCn {
 			case 'download.downloading': return '下载中';
 			case 'download.failed': return '失败';
 			case 'download.completed': return '已完成';
+			case 'download.downloadDetail': return '下载详情';
+			case 'download.copy': return '复制';
+			case 'download.copySuccess': return '已复制';
 			default: return null;
 		}
 	}

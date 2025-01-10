@@ -633,10 +633,11 @@ class VideoDetailContent extends StatelessWidget {
                     authorUsername: videoInfo.user?.username,
                     authorAvatar: videoInfo.user?.avatar?.avatarUrl,
                     duration: videoInfo.file?.duration,
+                    quality: source.name,
                   );
 
                   final task = DownloadTask(
-                    id: '${videoInfo.id}_${source.name}',
+                    id: VideoDownloadExtData.genExtDataIdByVideoInfo(videoInfo, source.name ?? 'unknown'),
                     url: source.download!,
                     savePath: await _getSavePath(
                       videoInfo.title ?? 'video',
@@ -645,7 +646,7 @@ class VideoDetailContent extends StatelessWidget {
                     fileName: '${videoInfo.title ?? 'video'}_${source.name}.mp4',
                     supportsRange: true,
                     extData: DownloadTaskExtData(
-                      type: 'video',
+                      type: DownloadTaskExtDataType.video,
                       data: videoExtData.toJson(),
                     ),
                   );

@@ -6,6 +6,7 @@ import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
+import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -18,7 +19,7 @@ class GalleryDownloadTaskItem extends StatelessWidget {
 
   GalleryDownloadExtData? get galleryData {
     try {
-      if (task.extData?.type == 'gallery') {
+      if (task.extData?.type == DownloadTaskExtDataType.gallery) {
         return GalleryDownloadExtData.fromJson(task.extData!.data);
       }
     } catch (e) {
@@ -50,7 +51,7 @@ class GalleryDownloadTaskItem extends StatelessWidget {
                     width: 120,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceVariant,
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: _buildPreviewImages(context, extData),
@@ -71,15 +72,27 @@ class GalleryDownloadTaskItem extends StatelessWidget {
                         // 作者信息
                         Row(
                           children: [
-                            AvatarWidget(
-                              avatarUrl: extData.authorAvatar,
-                              defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-                              radius: 12,
+                            MouseRegion(
+                              cursor: extData.authorUsername != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
+                              child: GestureDetector(
+                                onTap: extData.authorUsername != null
+                                    ? () => NaviService.navigateToAuthorProfilePage(extData.authorUsername!)
+                                    : null,
+                                child: AvatarWidget(
+                                  avatarUrl: extData.authorAvatar,
+                                  defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+                                  radius: 12,
+                                ),
+                              ),
                             ),
                             const SizedBox(width: 8),
-                            Text(
-                              extData.authorName ?? t.download.errors.unknown,
-                              style: Theme.of(context).textTheme.bodyMedium,
+                            Expanded(
+                              child: Text(
+                                extData.authorName ?? t.download.errors.unknown,
+                                style: Theme.of(context).textTheme.bodyMedium,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                           ],
                         ),
@@ -95,19 +108,23 @@ class GalleryDownloadTaskItem extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildProgressIndicator(),
-                  const SizedBox(height: 4),
                   Row(
                     children: [
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(_getStatusText(context)),
+                            Text(
+                              _getStatusText(context),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                             if (task.error != null)
                               Text(
                                 task.error!,
                                 style: const TextStyle(color: Colors.red),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                               ),
                           ],
                         ),
@@ -218,45 +235,6 @@ class GalleryDownloadTaskItem extends StatelessWidget {
     }
   }
 
-  Widget _buildProgressIndicator() {
-    // 如果有总大小，显示具体进度
-    if (task.totalBytes > 0) {
-      return LinearProgressIndicator(
-        value: task.downloadedBytes / task.totalBytes,
-        backgroundColor: Colors.grey[200],
-        valueColor: AlwaysStoppedAnimation<Color>(_getProgressColor(task.status)),
-      );
-    }
-    // 如果没有总大小但正在下载，显示不确定进度
-    else if (task.status == DownloadStatus.downloading) {
-      return const LinearProgressIndicator(
-        backgroundColor: Colors.grey,
-        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-      );
-    }
-    // 其他状态（完成/失败）
-    else {
-      return LinearProgressIndicator(
-        value: task.status == DownloadStatus.completed ? 1.0 : 0.0,
-        backgroundColor: Colors.grey[200],
-        valueColor: AlwaysStoppedAnimation<Color>(_getProgressColor(task.status)),
-      );
-    }
-  }
-
-  Color _getProgressColor(DownloadStatus status) {
-    switch (status) {
-      case DownloadStatus.completed:
-        return Colors.green;
-      case DownloadStatus.failed:
-        return Colors.red;
-      case DownloadStatus.paused:
-        return Colors.orange;
-      default:
-        return Colors.blue;
-    }
-  }
-
   String _getStatusText(BuildContext context) {
     final t = slang.Translations.of(context);
     switch (task.status) {
@@ -322,6 +300,12 @@ class GalleryDownloadTaskItem extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // 查看下载详情
+            ListTile(
+              leading: const Icon(Icons.info),
+              title: Text(t.download.downloadDetail),
+              onTap: () => showDownloadDetailDialog(context, task),
+            ),
             if (task.status == DownloadStatus.completed) ...[
               ListTile(
                 leading: const Icon(Icons.folder_open),

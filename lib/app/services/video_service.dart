@@ -3,14 +3,18 @@ import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/models/page_data.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
+import 'package:i_iwara/app/models/video_source.model.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:i_iwara/utils/x_version_calculator_utils.dart';
 
 import '../../common/constants.dart';
 import 'api_service.dart';
 
 class VideoService extends GetxService {
   final ApiService _apiService = Get.find<ApiService>();
+
+  static VideoService get to => Get.find<VideoService>();
 
   /// 根据提供的查询参数获取视频列表。
   ///
@@ -189,6 +193,58 @@ class VideoService extends GetxService {
     } catch (e) {
       LogUtils.e('取消点赞视频失败', tag: 'VideoService', error: e);
       return ApiResult.fail(t.errors.failedToOperate);
+    }
+  }
+
+  /// 获取视频详情
+  Future<Video?> getVideoInfoByVideoId(String? videoId) async {
+    if (videoId == null) {
+      return null;
+    }
+    try {
+      final response = await _apiService.get(ApiConstants.video(videoId));
+      return Video.fromJson(response.data);
+    } catch (e) {
+      LogUtils.e('获取视频详情失败', tag: 'VideoService', error: e);
+      return null;
+    }
+  }
+
+  /// 获取视频源
+  Future<List<VideoSource>> getVideoSourcesBy(String? fileUrl) async {
+    if (fileUrl == null) {
+      return [];
+    }
+    try {
+      final response = await _apiService.get(fileUrl!, headers: {
+        'X-Version':
+            XVersionCalculatorUtil.calculateXVersion(fileUrl),
+      });
+      return (response.data as List).map((item) => VideoSource.fromJson(item)).toList();
+    } catch (e) {
+      LogUtils.e('获取视频源失败', tag: 'VideoService', error: e);
+      return [];
+    }
+  }
+
+  Future<String?> getVideoDownloadUrlByIdAndQuality(String id, String quality) async {
+    if (id.isEmpty) {
+      return null;
+    }
+    try {
+      Video? videoInfo = await getVideoInfoByVideoId(id);
+      if (videoInfo == null) {
+        return null;
+      }
+      List<VideoSource> sources = await getVideoSourcesBy(videoInfo.fileUrl);
+      VideoSource? source = sources.firstWhereOrNull((source) => source.name == quality);
+      if (source == null) {
+        return null;
+      }
+      return source.download;
+    } catch (e) {
+      LogUtils.e('获取视频下载链接失败', tag: 'VideoService', error: e);
+      return null;
     }
   }
 }
