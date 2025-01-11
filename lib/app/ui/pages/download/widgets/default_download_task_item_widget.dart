@@ -6,6 +6,7 @@ import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
+import 'package:i_iwara/app/ui/pages/download/widgets/status_label_widget.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -129,11 +130,7 @@ class DefaultDownloadTaskItem extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                _getStatusText(context),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                              StatusLabel(status: task.status, text: _getStatusText(context)),
                               if (task.error != null)
                                 Text(
                                   task.error!,

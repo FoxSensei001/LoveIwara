@@ -476,6 +476,9 @@ download:
     linkExpiredTryAgainSuccess: リンクが期限切れです。新しいダウンロードリンクを取得しました
     linkExpiredTryAgainFailed: リンクが期限切れです。新しいダウンロードリンクを取得に失敗しました
     taskDeleted: タスクが削除されました
+    unsupportedImageFormat: 'サポートされていない画像形式: ${format}'
+    deleteFileError: 'ファイルの削除に失敗しました。ファイルが他のプロセスによって使用されている可能性があります'
+    deleteTaskError: 'タスクの削除に失敗しました'
   downloadList: ダウンロードリスト
   download: ダウンロード
   startDownloading: ダウンロードを開始
@@ -519,3 +522,4 @@ download:
   copySuccess: コピーしました
   waiting: 待機中
   paused: 一時停止中
+  downloadingOnlyDownloaded: 'ダウンロード中 ${downloaded}'

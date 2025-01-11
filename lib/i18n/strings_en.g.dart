@@ -650,6 +650,7 @@ class TranslationsDownloadEn {
 	String get copySuccess => 'Copied';
 	String get waiting => 'Waiting';
 	String get paused => 'Paused';
+	String downloadingOnlyDownloaded({required Object downloaded}) => 'Downloading ${downloaded}';
 }
 
 // Path: download.errors
@@ -696,6 +697,9 @@ class TranslationsDownloadErrorsEn {
 	String get linkExpiredTryAgainSuccess => 'Link expired, trying to get new download link success';
 	String get linkExpiredTryAgainFailed => 'Link expired, trying to get new download link failed';
 	String get taskDeleted => 'Task deleted';
+	String unsupportedImageFormat({required Object format}) => 'Unsupported image format: ${format}';
+	String get deleteFileError => 'Failed to delete file, possibly because the file is being used by another process';
+	String get deleteTaskError => 'Failed to delete task';
 }
 
 /// Flat map(s) containing all translations.
@@ -1149,6 +1153,9 @@ extension on Translations {
 			case 'download.errors.linkExpiredTryAgainSuccess': return 'Link expired, trying to get new download link success';
 			case 'download.errors.linkExpiredTryAgainFailed': return 'Link expired, trying to get new download link failed';
 			case 'download.errors.taskDeleted': return 'Task deleted';
+			case 'download.errors.unsupportedImageFormat': return ({required Object format}) => 'Unsupported image format: ${format}';
+			case 'download.errors.deleteFileError': return 'Failed to delete file, possibly because the file is being used by another process';
+			case 'download.errors.deleteTaskError': return 'Failed to delete task';
 			case 'download.downloadList': return 'Download List';
 			case 'download.download': return 'Download';
 			case 'download.startDownloading': return 'Start Downloading';
@@ -1192,6 +1199,7 @@ extension on Translations {
 			case 'download.copySuccess': return 'Copied';
 			case 'download.waiting': return 'Waiting';
 			case 'download.paused': return 'Paused';
+			case 'download.downloadingOnlyDownloaded': return ({required Object downloaded}) => 'Downloading ${downloaded}';
 			default: return null;
 		}
 	}

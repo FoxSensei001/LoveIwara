@@ -14,6 +14,8 @@ class DownloadTaskRepository {
     _db = DatabaseService().database;
   }
 
+  CommonDatabase get db => _db;
+
   // 获取所有任务
   Future<List<DownloadTask>> getAllTasks() async {
     final stmt = _db.prepare('''

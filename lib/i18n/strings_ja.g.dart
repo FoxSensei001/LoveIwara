@@ -646,6 +646,7 @@ class _TranslationsDownloadJa implements TranslationsDownloadEn {
 	@override String get copySuccess => 'コピーしました';
 	@override String get waiting => '待機中';
 	@override String get paused => '一時停止中';
+	@override String downloadingOnlyDownloaded({required Object downloaded}) => 'ダウンロード中 ${downloaded}';
 }
 
 // Path: download.errors
@@ -692,6 +693,9 @@ class _TranslationsDownloadErrorsJa implements TranslationsDownloadErrorsEn {
 	@override String get linkExpiredTryAgainSuccess => 'リンクが期限切れです。新しいダウンロードリンクを取得しました';
 	@override String get linkExpiredTryAgainFailed => 'リンクが期限切れです。新しいダウンロードリンクを取得に失敗しました';
 	@override String get taskDeleted => 'タスクが削除されました';
+	@override String unsupportedImageFormat({required Object format}) => 'サポートされていない画像形式: ${format}';
+	@override String get deleteFileError => 'ファイルの削除に失敗しました。ファイルが他のプロセスによって使用されている可能性があります';
+	@override String get deleteTaskError => 'タスクの削除に失敗しました';
 }
 
 /// Flat map(s) containing all translations.
@@ -1145,6 +1149,9 @@ extension on TranslationsJa {
 			case 'download.errors.linkExpiredTryAgainSuccess': return 'リンクが期限切れです。新しいダウンロードリンクを取得しました';
 			case 'download.errors.linkExpiredTryAgainFailed': return 'リンクが期限切れです。新しいダウンロードリンクを取得に失敗しました';
 			case 'download.errors.taskDeleted': return 'タスクが削除されました';
+			case 'download.errors.unsupportedImageFormat': return ({required Object format}) => 'サポートされていない画像形式: ${format}';
+			case 'download.errors.deleteFileError': return 'ファイルの削除に失敗しました。ファイルが他のプロセスによって使用されている可能性があります';
+			case 'download.errors.deleteTaskError': return 'タスクの削除に失敗しました';
 			case 'download.downloadList': return 'ダウンロードリスト';
 			case 'download.download': return 'ダウンロード';
 			case 'download.startDownloading': return 'ダウンロードを開始';
@@ -1188,6 +1195,7 @@ extension on TranslationsJa {
 			case 'download.copySuccess': return 'コピーしました';
 			case 'download.waiting': return '待機中';
 			case 'download.paused': return '一時停止中';
+			case 'download.downloadingOnlyDownloaded': return ({required Object downloaded}) => 'ダウンロード中 ${downloaded}';
 			default: return null;
 		}
 	}

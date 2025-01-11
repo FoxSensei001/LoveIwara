@@ -12,7 +12,7 @@ import 'package:i_iwara/utils/image_utils.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-
+import 'package:path/path.dart' as path_lib;
 class GalleryDownloadTaskDetailPage extends StatefulWidget {
   final String taskId;
   const GalleryDownloadTaskDetailPage({super.key, required this.taskId});
@@ -136,21 +136,40 @@ class _GalleryDownloadTaskDetailPageState extends State<GalleryDownloadTaskDetai
     }
 
     // 构建图片列表
-    final List<ImageItem> imageItems = extData.imageList.map((imageInfo) {
-      final imageId = imageInfo['id']!;
-      final imageUrl = imageInfo['url']!;
-      final localPath = extData.localPaths[imageId];
-      final isDownloaded = localPath != null && isImageDownloaded(localPath);
+    List<ImageItem> buildImageItems(GalleryDownloadExtData extData, DownloadTask? currentTask) {
+      return extData.imageList.map((imageInfo) {
+        final imageId = imageInfo['id']!;
+        final imageUrl = imageInfo['url']!;
+        final localPath = extData.localPaths[imageId];
+        final isDownloaded = localPath != null && isImageDownloaded(localPath);
 
-      return ImageItem(
-        url: isDownloaded ? 'file://$localPath' : imageUrl,
-        data: ImageItemData(
-          id: imageId,
+        // 如果是活跃任务，从内存中获取下载状态
+        if (currentTask != null && currentTask.status == DownloadStatus.downloading) {
+          final progress = DownloadService.to.getGalleryDownloadProgress(currentTask.id);
+          if (progress != null && progress[imageId] == true && localPath != null) {
+            return ImageItem(
+              url: 'file://$localPath',
+              data: ImageItemData(
+                id: imageId,
+                url: 'file://$localPath',
+                originalUrl: 'file://$localPath',
+              ),
+            );
+          }
+        }
+
+        return ImageItem(
           url: isDownloaded ? 'file://$localPath' : imageUrl,
-          originalUrl: isDownloaded ? 'file://$localPath' : imageUrl,
-        ),
-      );
-    }).toList();
+          data: ImageItemData(
+            id: imageId,
+            url: isDownloaded ? 'file://$localPath' : imageUrl,
+            originalUrl: isDownloaded ? 'file://$localPath' : imageUrl,
+          ),
+        );
+      }).toList();
+    }
+
+    final imageItems = buildImageItems(extData, currentTask);
 
     return Scaffold(
       appBar: AppBar(
@@ -219,8 +238,12 @@ class _GalleryDownloadTaskDetailPageState extends State<GalleryDownloadTaskDetai
             const SizedBox(height: 16),
             // 下载状态
             Obx(() {
+              // 优先从活跃任务获取，如果不存在则从数据库获取
               final currentTask = DownloadService.to.tasks[widget.taskId];
-              if (currentTask == null) return const SizedBox.shrink();
+              if (currentTask == null) {
+                // 如果不是活跃任务，则不显示进度条等动态UI
+                return const SizedBox.shrink();
+              }
 
               return Padding(
                 padding: const EdgeInsets.all(16),
@@ -232,21 +255,15 @@ class _GalleryDownloadTaskDetailPageState extends State<GalleryDownloadTaskDetai
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 8),
-                    LinearProgressIndicator(
-                      value: currentTask.status == DownloadStatus.completed
-                          ? 1.0
-                          : currentTask.totalBytes > 0
-                              ? currentTask.downloadedBytes /
-                                  currentTask.totalBytes
-                              : null,
-                    ),
-                    const SizedBox(height: 8),
                     Text(_getStatusText(context, currentTask)),
                     if (currentTask.error != null)
                       Text(
                         currentTask.error!,
                         style: const TextStyle(color: Colors.red),
                       ),
+                    // 添加图片下载进度指示器
+                    if (currentTask.status == DownloadStatus.downloading)
+                      _buildGalleryProgressIndicator(context, currentTask),
                   ],
                 ),
               );
@@ -262,8 +279,8 @@ class _GalleryDownloadTaskDetailPageState extends State<GalleryDownloadTaskDetai
             ),
             const SizedBox(height: 8),
             Obx(() {
-              final currentTask = DownloadService.to.tasks[widget.taskId];
-              if (currentTask == null) return const SizedBox.shrink();
+              // 优先从活跃任务获取，如果不存在则使用已加载的数据
+              DownloadTask? currentTask = DownloadService.to.tasks[widget.taskId];
 
               return LayoutBuilder(
                 builder: (context, constraints) {
@@ -286,15 +303,17 @@ class _GalleryDownloadTaskDetailPageState extends State<GalleryDownloadTaskDetai
                     itemBuilder: (context, index) {
                       final item = imageItems[index];
                       final isDownloaded = item.url.startsWith('file://');
+                      final imageId = item.data.id;
+                      final extension = path_lib.extension(item.url).toLowerCase();
+                      final isUnsupportedFormat = ['.webm', '.gif'].contains(extension);
 
                       return Stack(
                         children: [
                           // 图片容器
                           Container(
+                            height: 200, // 设置固定高度
                             decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .surfaceContainerHighest,
+                              color: Theme.of(context).colorScheme.surfaceContainerHighest,
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: ClipRRect(
@@ -302,25 +321,36 @@ class _GalleryDownloadTaskDetailPageState extends State<GalleryDownloadTaskDetai
                               child: Material(
                                 color: Colors.transparent,
                                 child: InkWell(
-                                  onTap: () =>
-                                      _onImageTap(context, item, imageItems),
+                                  onTap: () => _onImageTap(context, item, imageItems),
                                   child: isDownloaded
-                                      ? Image.file(
-                                          File(item.url
-                                              .replaceFirst('file://', '')),
-                                          fit: BoxFit.cover,
-                                          errorBuilder:
-                                              (context, error, stackTrace) =>
+                                      ? isUnsupportedFormat
+                                          ? Center(
+                                              child: Column(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: [
+                                                  const Icon(Icons.image_not_supported),
+                                                  const SizedBox(height: 8),
+                                                  Text(
+                                                    t.download.errors.unsupportedImageFormat(format: extension),
+                                                    textAlign: TextAlign.center,
+                                                    style: Theme.of(context).textTheme.bodySmall,
+                                                  ),
+                                                ],
+                                              ),
+                                            )
+                                          : Image.file(
+                                              File(item.url.replaceFirst('file://', '')),
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (context, error, stackTrace) =>
                                                   const Center(
-                                            child: Icon(Icons.error_outline),
-                                          ),
-                                        )
+                                                child: Icon(Icons.error_outline),
+                                              ),
+                                            )
                                       : Image.network(
                                           item.url,
                                           fit: BoxFit.cover,
-                                          errorBuilder:
-                                              (context, error, stackTrace) =>
-                                                  const Center(
+                                          errorBuilder: (context, error, stackTrace) =>
+                                              const Center(
                                             child: Icon(Icons.error_outline),
                                           ),
                                         ),
@@ -328,9 +358,33 @@ class _GalleryDownloadTaskDetailPageState extends State<GalleryDownloadTaskDetai
                               ),
                             ),
                           ),
-                          // 状态指示器
-                          if (!isDownloaded &&
-                              currentTask.status == DownloadStatus.failed)
+                          // 下载进度指示器
+                          if (!isDownloaded && currentTask?.status == DownloadStatus.downloading)
+                            Positioned.fill(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.5),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Obx(() {
+                                        if (currentTask == null) return const SizedBox.shrink();
+                                        final progress = DownloadService.to.getGalleryImageProgress(currentTask.id)?[imageId] ?? 0;
+                                        return Text(
+                                          '${(progress * 100).toStringAsFixed(1)}%',
+                                          style: const TextStyle(color: Colors.white),
+                                        );
+                                      }),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          // 重试按钮
+                          if (!isDownloaded && currentTask?.status == DownloadStatus.failed)
                             Positioned.fill(
                               child: Container(
                                 decoration: BoxDecoration(
@@ -339,15 +393,12 @@ class _GalleryDownloadTaskDetailPageState extends State<GalleryDownloadTaskDetai
                                 ),
                                 child: Center(
                                   child: IconButton(
-                                    icon: const Icon(Icons.refresh,
-                                        color: Colors.white),
+                                    icon: const Icon(Icons.refresh, color: Colors.white),
                                     onPressed: () {
-                                      if (currentTask.status ==
-                                          DownloadStatus.failed) {
+                                      if (currentTask?.status == DownloadStatus.failed) {
                                         final imageId = item.data.id;
-                                        DownloadService.to
-                                            .retryGalleryImageDownload(
-                                                widget.taskId, imageId);
+                                        DownloadService.to.retryGalleryImageDownload(
+                                            widget.taskId, imageId);
                                       }
                                     },
                                     tooltip: t.download.retryDownload,
@@ -363,8 +414,7 @@ class _GalleryDownloadTaskDetailPageState extends State<GalleryDownloadTaskDetai
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
-                                color:
-                                    isDownloaded ? Colors.green : Colors.grey,
+                                color: isDownloaded ? Colors.green : Colors.grey,
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
@@ -388,6 +438,40 @@ class _GalleryDownloadTaskDetailPageState extends State<GalleryDownloadTaskDetai
           ],
         ),
       ),
+    );
+  }
+
+  // 构建图库下载进度指示器
+  Widget _buildGalleryProgressIndicator(BuildContext context, DownloadTask task) {
+    final progress = DownloadService.to.getGalleryDownloadProgress(task.id);
+    if (progress == null) return const SizedBox.shrink();
+
+    final totalImages = progress.length;
+    final downloadedImages = progress.values.where((downloaded) => downloaded).length;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: totalImages > 0 ? downloadedImages / totalImages : 0,
+                  minHeight: 8,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              '$downloadedImages/$totalImages',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
+      ],
     );
   }
 

@@ -7,6 +7,7 @@ import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
+import 'package:i_iwara/app/ui/pages/download/widgets/status_label_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -114,11 +115,7 @@ class GalleryDownloadTaskItem extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              _getStatusText(context),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                            StatusLabel(status: task.status, text: _getStatusText(context)),
                             if (task.error != null)
                               Text(
                                 task.error!,
@@ -126,6 +123,9 @@ class GalleryDownloadTaskItem extends StatelessWidget {
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
+                            // 添加图片下载进度指示器
+                            if (task.status == DownloadStatus.downloading)
+                              _buildGalleryProgressIndicator(context),
                           ],
                         ),
                       ),
@@ -179,6 +179,43 @@ class GalleryDownloadTaskItem extends StatelessWidget {
               ),
             ),
           ),
+          // 下载进度指示器
+          if (task.status == DownloadStatus.downloading)
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.5),
+                ),
+                child: Center(
+                  child: Obx(() {
+                    final progress = DownloadService.to.getGalleryDownloadProgress(task.id);
+                    if (progress == null) return const SizedBox.shrink();
+                    
+                    final totalImages = progress.length;
+                    final downloadedImages = progress.values.where((downloaded) => downloaded).length;
+                    final currentProgress = totalImages > 0 ? downloadedImages / totalImages : 0;
+
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(
+                          value: currentProgress.toDouble(),
+                          color: Colors.white,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '$downloadedImages/$totalImages',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
+                ),
+              ),
+            ),
           // 图片数量指示器
           Positioned(
             right: 4,
@@ -246,14 +283,11 @@ class GalleryDownloadTaskItem extends StatelessWidget {
               (task.downloadedBytes / task.totalBytes * 100).toStringAsFixed(1);
           final downloaded = _formatFileSize(task.downloadedBytes);
           final total = _formatFileSize(task.totalBytes);
-          final speed = (task.speed / 1024 / 1024).toStringAsFixed(2);
-          // return '下载中 $downloaded/$total ($progress%) • ${speed}MB/s';
-          return t.download.downloadingProgressForVideoTask(downloaded: downloaded, total: total, progress: progress, speed: speed);
+          return t.download.downloadingProgressForImageProgress(downloaded: downloaded, total: total, progress: progress);
+
         } else {
           final downloaded = _formatFileSize(task.downloadedBytes);
-          final speed = (task.speed / 1024 / 1024).toStringAsFixed(2);
-          // return '下载中 $downloaded • ${speed}MB/s';
-          return t.download.downloadingOnlyDownloadedAndSpeed(downloaded: downloaded, speed: speed);
+          return t.download.downloadingOnlyDownloaded(downloaded: downloaded);
         }
       case DownloadStatus.paused:
         if (task.totalBytes > 0) {
@@ -278,18 +312,11 @@ class GalleryDownloadTaskItem extends StatelessWidget {
   }
 
   String _formatFileSize(int bytes) {
-    const units = ['B', 'KB', 'MB', 'GB'];
     double size = bytes.toDouble();
-    int unitIndex = 0;
-
-    while (size >= 1024 && unitIndex < units.length - 1) {
-      size /= 1024;
-      unitIndex++;
-    }
 
     String sizeStr =
         size >= 10 ? size.round().toString() : size.toStringAsFixed(1);
-    return '$sizeStr ${units[unitIndex]}';
+    return sizeStr;
   }
 
   void _showMoreOptionsDialog(BuildContext context) {
@@ -365,6 +392,40 @@ class GalleryDownloadTaskItem extends StatelessWidget {
     } else {
       return path.replaceAll('\\', '/');
     }
+  }
+
+  // 构建图库下载进度指示器
+  Widget _buildGalleryProgressIndicator(BuildContext context) {
+    final progress = DownloadService.to.getGalleryDownloadProgress(task.id);
+    if (progress == null) return const SizedBox.shrink();
+
+    final totalImages = progress.length;
+    final downloadedImages = progress.values.where((downloaded) => downloaded).length;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 4),
+        Row(
+          children: [
+            Expanded(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: totalImages > 0 ? downloadedImages / totalImages : 0,
+                  minHeight: 8,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              '$downloadedImages/$totalImages',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
+      ],
+    );
   }
 
   void _onTap(BuildContext context) {

@@ -474,6 +474,9 @@ download:
     linkExpiredTryAgainSuccess: Link expired, trying to get new download link success
     linkExpiredTryAgainFailed: Link expired, trying to get new download link failed
     taskDeleted: Task deleted
+    unsupportedImageFormat: 'Unsupported image format: ${format}'
+    deleteFileError: 'Failed to delete file, possibly because the file is being used by another process'
+    deleteTaskError: 'Failed to delete task'
   downloadList: Download List
   download: Download
   startDownloading: Start Downloading
@@ -517,4 +520,4 @@ download:
   copySuccess: Copied
   waiting: Waiting
   paused: Paused
-
+  downloadingOnlyDownloaded: 'Downloading ${downloaded}'

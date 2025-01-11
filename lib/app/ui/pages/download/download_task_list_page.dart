@@ -1,11 +1,8 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/repositories/download_task_repository.dart';
-import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/default_download_task_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/video_download_task_item_widget.dart';
@@ -15,7 +12,6 @@ import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:super_clipboard/super_clipboard.dart';
 
 class DownloadTaskListPage extends StatefulWidget {
   const DownloadTaskListPage({super.key});
@@ -93,8 +89,11 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage>
           final statusOrder = {
             DownloadStatus.downloading: 0,
             DownloadStatus.pending: 1,
+            DownloadStatus.completed: 2,
+            DownloadStatus.failed: 3,
+            DownloadStatus.paused: 4,
           };
-          return statusOrder[a.status]!.compareTo(statusOrder[b.status]!);
+          return (statusOrder[a.status] ?? 999).compareTo(statusOrder[b.status] ?? 999);
         });
 
       if (activeTasks.isEmpty) {

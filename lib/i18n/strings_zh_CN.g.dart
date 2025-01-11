@@ -649,6 +649,7 @@ class _TranslationsDownloadZhCn implements TranslationsDownloadEn {
 	@override String get copySuccess => '已复制';
 	@override String get waiting => '等待中';
 	@override String get paused => '暂停中';
+	@override String downloadingOnlyDownloaded({required Object downloaded}) => '下载中 ${downloaded}';
 }
 
 // Path: download.errors
@@ -695,6 +696,9 @@ class _TranslationsDownloadErrorsZhCn implements TranslationsDownloadErrorsEn {
 	@override String get linkExpiredTryAgainSuccess => '链接已过期，正在重新获取下载链接成功';
 	@override String get linkExpiredTryAgainFailed => '链接已过期，正在重新获取下载链接失败';
 	@override String get taskDeleted => '任务已删除';
+	@override String unsupportedImageFormat({required Object format}) => '不支持的图片格式: ${format}';
+	@override String get deleteFileError => '文件删除失败，可能是因为文件被占用';
+	@override String get deleteTaskError => '任务删除失败';
 }
 
 /// Flat map(s) containing all translations.
@@ -1151,6 +1155,9 @@ extension on TranslationsZhCn {
 			case 'download.errors.linkExpiredTryAgainSuccess': return '链接已过期，正在重新获取下载链接成功';
 			case 'download.errors.linkExpiredTryAgainFailed': return '链接已过期，正在重新获取下载链接失败';
 			case 'download.errors.taskDeleted': return '任务已删除';
+			case 'download.errors.unsupportedImageFormat': return ({required Object format}) => '不支持的图片格式: ${format}';
+			case 'download.errors.deleteFileError': return '文件删除失败，可能是因为文件被占用';
+			case 'download.errors.deleteTaskError': return '任务删除失败';
 			case 'download.downloadList': return '下载列表';
 			case 'download.download': return '下载';
 			case 'download.startDownloading': return '开始下载...';
@@ -1194,6 +1201,7 @@ extension on TranslationsZhCn {
 			case 'download.copySuccess': return '已复制';
 			case 'download.waiting': return '等待中';
 			case 'download.paused': return '暂停中';
+			case 'download.downloadingOnlyDownloaded': return ({required Object downloaded}) => '下载中 ${downloaded}';
 			default: return null;
 		}
 	}

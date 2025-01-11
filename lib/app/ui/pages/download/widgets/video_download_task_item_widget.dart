@@ -8,6 +8,9 @@ import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
+import 'package:i_iwara/app/ui/pages/download/widgets/status_label_widget.dart';
+import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:open_file/open_file.dart';
 import 'package:super_clipboard/super_clipboard.dart';
@@ -146,20 +149,9 @@ class VideoDownloadTaskItem extends StatelessWidget {
                                         child: ClipRRect(
                                           borderRadius:
                                               BorderRadius.circular(12),
-                                          child: CachedNetworkImage(
-                                            imageUrl: videoData.authorAvatar!,
-                                            fit: BoxFit.cover,
-                                            placeholder: (context, url) =>
-                                                Container(
-                                              color: Colors.grey[300],
-                                            ),
-                                            errorWidget:
-                                                (context, url, error) =>
-                                                    Container(
-                                              color: Colors.grey[300],
-                                              child: const Icon(Icons.person,
-                                                  size: 16),
-                                            ),
+                                          child: AvatarWidget(
+                                            avatarUrl: videoData.authorAvatar,
+                                            defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
                                           ),
                                         ),
                                       ),
@@ -173,14 +165,6 @@ class VideoDownloadTaskItem extends StatelessWidget {
                                           _navigateToAuthorProfile(videoData),
                                       child: Text(
                                         videoData.authorName!,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall
-                                            ?.copyWith(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .primary,
-                                            ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -197,7 +181,6 @@ class VideoDownloadTaskItem extends StatelessWidget {
                     _buildMainActionButton(context),
                   ],
                 ),
-                const SizedBox(height: 8),
                 // 进度条和状态
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -210,11 +193,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                _getStatusText(context),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                              StatusLabel(status: task.status, text: _getStatusText(context)),
                               if (task.error != null)
                                 Text(
                                   task.error!,
@@ -415,6 +394,9 @@ class VideoDownloadTaskItem extends StatelessWidget {
   }
 
   Widget _buildProgressIndicator() {
+    if (task.status == DownloadStatus.completed) {
+      return const SizedBox.shrink();
+    }
     // 如果有总大小，显示具体进度
     if (task.totalBytes > 0) {
       return LinearProgressIndicator(
@@ -431,7 +413,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
         valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
       );
     }
-    // 其他状态（完成/失败）
+    // 其他状态（失败...）
     else {
       return LinearProgressIndicator(
         value: task.status == DownloadStatus.completed ? 1.0 : 0.0,
@@ -467,7 +449,6 @@ class VideoDownloadTaskItem extends StatelessWidget {
           final downloaded = _formatFileSize(task.downloadedBytes);
           final total = _formatFileSize(task.totalBytes);
           final speed = (task.speed / 1024 / 1024).toStringAsFixed(2);
-          // return '下载中 $downloaded/$total ($progress%) • ${speed}MB/s';
           return t.download.downloadingProgressForVideoTask(
               downloaded: downloaded,
               total: total,
@@ -476,7 +457,6 @@ class VideoDownloadTaskItem extends StatelessWidget {
         } else {
           final downloaded = _formatFileSize(task.downloadedBytes);
           final speed = (task.speed / 1024 / 1024).toStringAsFixed(2);
-          // return '下载中 $downloaded • ${speed}MB/s';
           return t.download.downloadingOnlyDownloadedAndSpeed(
               downloaded: downloaded, speed: speed);
         }
@@ -591,6 +571,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
       }
 
       final result = await OpenFile.open(filePath);
+      LogUtils.d('打开文件结果: ${result.type}', 'DownloadTaskItem');
       if (result.type != ResultType.done) {
         LogUtils.e('打开文件失败: ${result.message}', tag: 'DownloadTaskItem');
         if (context.mounted) {

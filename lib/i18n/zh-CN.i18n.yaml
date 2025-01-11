@@ -481,6 +481,9 @@ download:
     linkExpiredTryAgainSuccess: 链接已过期，正在重新获取下载链接成功
     linkExpiredTryAgainFailed: 链接已过期，正在重新获取下载链接失败
     taskDeleted: 任务已删除
+    unsupportedImageFormat: '不支持的图片格式: ${format}'
+    deleteFileError: '文件删除失败，可能是因为文件被占用'
+    deleteTaskError: '任务删除失败'
   downloadList: 下载列表
   download: 下载
   startDownloading: 开始下载...
@@ -524,4 +527,5 @@ download:
   copySuccess: 已复制
   waiting: 等待中
   paused: 暂停中
+  downloadingOnlyDownloaded: '下载中 ${downloaded}'
 
