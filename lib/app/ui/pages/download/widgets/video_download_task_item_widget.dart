@@ -43,6 +43,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
+              spacing: 8,
               children: [
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,

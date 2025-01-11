@@ -70,6 +70,7 @@ class DefaultDownloadTaskItem extends StatelessWidget {
               children: [
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 8,
                   children: [
                     // 文件图标
                     Container(
@@ -117,7 +118,6 @@ class DefaultDownloadTaskItem extends StatelessWidget {
                     _buildMainActionButton(context),
                   ],
                 ),
-                const SizedBox(height: 8),
                 // 进度条和状态
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

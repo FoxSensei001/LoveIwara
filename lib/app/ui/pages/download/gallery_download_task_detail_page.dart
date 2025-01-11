@@ -305,7 +305,7 @@ class _GalleryDownloadTaskDetailPageState extends State<GalleryDownloadTaskDetai
                       final isDownloaded = item.url.startsWith('file://');
                       final imageId = item.data.id;
                       final extension = path_lib.extension(item.url).toLowerCase();
-                      final isUnsupportedFormat = ['.webm', '.gif'].contains(extension);
+                      final isUnsupportedFormat = ['.webm'].contains(extension);
 
                       return Stack(
                         children: [

@@ -44,6 +44,7 @@ class GalleryDownloadTaskItem extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Column(
+            spacing: 8,
             children: [
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,7 +109,6 @@ class GalleryDownloadTaskItem extends StatelessWidget {
                   _buildMainActionButton(context),
                 ],
               ),
-              const SizedBox(height: 8),
               // 进度条和状态
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
