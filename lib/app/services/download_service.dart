@@ -22,6 +22,10 @@ class DownloadService extends GetxService {
   final _activeDownloads = <String, CancelToken>{};
   final _downloadQueue = <String>[].obs;
 
+   List<String> getQueueIds() {
+    return _downloadQueue.toList();
+  }
+
   // 添加任务专用的计时器映射
   final _taskTimers = <String, Timer>{};
 
@@ -392,11 +396,19 @@ class DownloadService extends GetxService {
     try {
       // 获取任务信息
       task = _activeTasks[taskId] ?? await _repository.getTaskById(taskId);
-      if (task == null) return;
+
+      if (task == null) {
+        LogUtils.e('任务不存在: $taskId', tag: 'DownloadService');
+        return;
+      };
 
       // 如果正在下载,先取消下载
       if (task.status == DownloadStatus.downloading) {
-        await pauseTask(taskId);
+        try {
+          await pauseTask(taskId);
+        } catch (e) {
+          LogUtils.e('暂停下载任务失败: $taskId', tag: 'DownloadService', error: e);
+        }
       }
 
       // 先尝试删除文件

@@ -311,7 +311,6 @@ class _GalleryDownloadTaskDetailPageState extends State<GalleryDownloadTaskDetai
                         children: [
                           // 图片容器
                           Container(
-                            height: 200, // 设置固定高度
                             decoration: BoxDecoration(
                               color: Theme.of(context).colorScheme.surfaceContainerHighest,
                               borderRadius: BorderRadius.circular(8),
@@ -324,35 +323,44 @@ class _GalleryDownloadTaskDetailPageState extends State<GalleryDownloadTaskDetai
                                   onTap: () => _onImageTap(context, item, imageItems),
                                   child: isDownloaded
                                       ? isUnsupportedFormat
-                                          ? Center(
-                                              child: Column(
-                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                children: [
-                                                  const Icon(Icons.image_not_supported),
-                                                  const SizedBox(height: 8),
-                                                  Text(
-                                                    t.download.errors.unsupportedImageFormat(format: extension),
-                                                    textAlign: TextAlign.center,
-                                                    style: Theme.of(context).textTheme.bodySmall,
-                                                  ),
-                                                ],
+                                          ? Container(
+                                              height: 200,
+                                              child: Center(
+                                                child: Column(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    const Icon(Icons.image_not_supported),
+                                                    const SizedBox(height: 8),
+                                                    Text(
+                                                      t.download.errors.unsupportedImageFormat(format: extension),
+                                                      textAlign: TextAlign.center,
+                                                      style: Theme.of(context).textTheme.bodySmall,
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
                                             )
                                           : Image.file(
                                               File(item.url.replaceFirst('file://', '')),
                                               fit: BoxFit.cover,
                                               errorBuilder: (context, error, stackTrace) =>
-                                                  const Center(
-                                                child: Icon(Icons.error_outline),
-                                              ),
+                                                  Container(
+                                                    height: 200,
+                                                    child: const Center(
+                                                      child: Icon(Icons.error_outline),
+                                                    ),
+                                                  ),
                                             )
                                       : Image.network(
                                           item.url,
                                           fit: BoxFit.cover,
                                           errorBuilder: (context, error, stackTrace) =>
-                                              const Center(
-                                            child: Icon(Icons.error_outline),
-                                          ),
+                                              Container(
+                                                height: 200,
+                                                child: const Center(
+                                                  child: Icon(Icons.error_outline),
+                                                ),
+                                              ),
                                         ),
                                 ),
                               ),
@@ -379,29 +387,6 @@ class _GalleryDownloadTaskDetailPageState extends State<GalleryDownloadTaskDetai
                                         );
                                       }),
                                     ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          // 重试按钮
-                          if (!isDownloaded && currentTask?.status == DownloadStatus.failed)
-                            Positioned.fill(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.5),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Center(
-                                  child: IconButton(
-                                    icon: const Icon(Icons.refresh, color: Colors.white),
-                                    onPressed: () {
-                                      if (currentTask?.status == DownloadStatus.failed) {
-                                        final imageId = item.data.id;
-                                        DownloadService.to.retryGalleryImageDownload(
-                                            widget.taskId, imageId);
-                                      }
-                                    },
-                                    tooltip: t.download.retryDownload,
                                   ),
                                 ),
                               ),

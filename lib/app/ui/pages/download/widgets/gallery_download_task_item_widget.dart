@@ -13,6 +13,7 @@ import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:path/path.dart' as path;
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+
 class GalleryDownloadTaskItem extends StatelessWidget {
   final DownloadTask task;
 
@@ -52,7 +53,8 @@ class GalleryDownloadTaskItem extends StatelessWidget {
                     width: 120,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                      color:
+                          Theme.of(context).colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: _buildPreviewImages(context, extData),
@@ -71,31 +73,33 @@ class GalleryDownloadTaskItem extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         // 作者信息
-                        Row(
-                          children: [
-                            MouseRegion(
-                              cursor: extData.authorUsername != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
-                              child: GestureDetector(
-                                onTap: extData.authorUsername != null
-                                    ? () => NaviService.navigateToAuthorProfilePage(extData.authorUsername!)
-                                    : null,
-                                child: AvatarWidget(
+                        MouseRegion(
+                          cursor: extData.authorUsername != null
+                              ? SystemMouseCursors.click
+                              : SystemMouseCursors.basic,
+                          child: GestureDetector(
+                            onTap: extData.authorUsername != null
+                                ? () => NaviService.navigateToAuthorProfilePage(
+                                    extData.authorUsername!)
+                                : null,
+                            child: Row(
+                              children: [
+                                AvatarWidget(
                                   avatarUrl: extData.authorAvatar,
-                                  defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+                                  defaultAvatarUrl:
+                                      CommonConstants.defaultAvatarUrl,
                                   radius: 12,
                                 ),
-                              ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  extData.authorName ??
+                                      t.download.errors.unknown,
+                                  style:
+                                      Theme.of(context).textTheme.titleMedium,
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                extData.authorName ?? t.download.errors.unknown,
-                                style: Theme.of(context).textTheme.bodyMedium,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ],
                     ),
@@ -115,7 +119,9 @@ class GalleryDownloadTaskItem extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            StatusLabel(status: task.status, text: _getStatusText(context)),
+                            StatusLabel(
+                                status: task.status,
+                                text: _getStatusText(context)),
                             if (task.error != null)
                               Text(
                                 task.error!,
@@ -133,7 +139,9 @@ class GalleryDownloadTaskItem extends StatelessWidget {
                       if (extData.id != null)
                         IconButton(
                           icon: const Icon(Icons.photo_library),
-                          onPressed: () => NaviService.navigateToGalleryDetailPage(extData.id!),
+                          onPressed: () =>
+                              NaviService.navigateToGalleryDetailPage(
+                                  extData.id!),
                           tooltip: t.download.viewGalleryDetail,
                         ),
                       // 更多操作按钮
@@ -153,7 +161,8 @@ class GalleryDownloadTaskItem extends StatelessWidget {
     );
   }
 
-  Widget _buildPreviewImages(BuildContext context, GalleryDownloadExtData extData) {
+  Widget _buildPreviewImages(
+      BuildContext context, GalleryDownloadExtData extData) {
     final t = slang.Translations.of(context);
     if (extData.previewUrls.isEmpty) {
       return const Center(
@@ -188,12 +197,16 @@ class GalleryDownloadTaskItem extends StatelessWidget {
                 ),
                 child: Center(
                   child: Obx(() {
-                    final progress = DownloadService.to.getGalleryDownloadProgress(task.id);
+                    final progress =
+                        DownloadService.to.getGalleryDownloadProgress(task.id);
                     if (progress == null) return const SizedBox.shrink();
-                    
+
                     final totalImages = progress.length;
-                    final downloadedImages = progress.values.where((downloaded) => downloaded).length;
-                    final currentProgress = totalImages > 0 ? downloadedImages / totalImages : 0;
+                    final downloadedImages = progress.values
+                        .where((downloaded) => downloaded)
+                        .length;
+                    final currentProgress =
+                        totalImages > 0 ? downloadedImages / totalImages : 0;
 
                     return Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -283,8 +296,8 @@ class GalleryDownloadTaskItem extends StatelessWidget {
               (task.downloadedBytes / task.totalBytes * 100).toStringAsFixed(1);
           final downloaded = _formatFileSize(task.downloadedBytes);
           final total = _formatFileSize(task.totalBytes);
-          return t.download.downloadingProgressForImageProgress(downloaded: downloaded, total: total, progress: progress);
-
+          return t.download.downloadingProgressForImageProgress(
+              downloaded: downloaded, total: total, progress: progress);
         } else {
           final downloaded = _formatFileSize(task.downloadedBytes);
           return t.download.downloadingOnlyDownloaded(downloaded: downloaded);
@@ -296,7 +309,8 @@ class GalleryDownloadTaskItem extends StatelessWidget {
           final downloaded = _formatFileSize(task.downloadedBytes);
           final total = _formatFileSize(task.totalBytes);
           // return '已暂停 • $downloaded/$total ($progress%)';
-          return t.download.pausedForDownloadedAndTotal(downloaded: downloaded, total: total, progress: progress);
+          return t.download.pausedForDownloadedAndTotal(
+              downloaded: downloaded, total: total, progress: progress);
         } else {
           final downloaded = _formatFileSize(task.downloadedBytes);
           // return '已暂停 • 已下载 $downloaded';
@@ -345,7 +359,8 @@ class GalleryDownloadTaskItem extends StatelessWidget {
             ],
             ListTile(
               leading: const Icon(Icons.delete, color: Colors.red),
-              title: Text(t.download.deleteTask, style: const TextStyle(color: Colors.red)),
+              title: Text(t.download.deleteTask,
+                  style: const TextStyle(color: Colors.red)),
               onTap: () {
                 Navigator.pop(context);
                 _showDeleteConfirmDialog(context);
@@ -400,7 +415,8 @@ class GalleryDownloadTaskItem extends StatelessWidget {
     if (progress == null) return const SizedBox.shrink();
 
     final totalImages = progress.length;
-    final downloadedImages = progress.values.where((downloaded) => downloaded).length;
+    final downloadedImages =
+        progress.values.where((downloaded) => downloaded).length;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -457,4 +473,4 @@ class GalleryDownloadTaskItem extends StatelessWidget {
       ),
     );
   }
-} 
+}

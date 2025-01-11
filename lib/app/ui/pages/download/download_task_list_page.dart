@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/repositories/download_task_repository.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/default_download_task_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/video_download_task_item_widget.dart';
@@ -12,6 +15,7 @@ import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:super_clipboard/super_clipboard.dart';
 
 class DownloadTaskListPage extends StatefulWidget {
   const DownloadTaskListPage({super.key});
@@ -331,80 +335,80 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage>
 
 
  void showDownloadDetailDialog(BuildContext context, DownloadTask task) async {
-    // final t = slang.Translations.of(context);
+    final t = slang.Translations.of(context);
 
-    // // 获取相关任务信息
-    // final DownloadService downloadService = DownloadService.to;
-    // DownloadTask? currentActiveTask = downloadService.getActiveTaskById(task.id);
-    // DownloadTask? currentCompletedTask = await DownloadService.to.repository.getTaskById(task.id);
-    // List<String> currentQueueIds = downloadService.getQueueIds();
+    // 获取相关任务信息
+    final DownloadService downloadService = DownloadService.to;
+    DownloadTask? currentActiveTask = downloadService.getActiveTaskById(task.id);
+    DownloadTask? currentCompletedTask = await DownloadService.to.repository.getTaskById(task.id);
+    List<String> currentQueueIds = downloadService.getQueueIds();
 
-    // // 构建完整的任务信息
-    // final Map<String, dynamic> fullTaskInfo = {
-    //   'mainTask': task.toJson(),
-    //   'currentActiveTask': currentActiveTask?.toJson(),
-    //   'currentCompletedTask': currentCompletedTask?.toJson(),
-    //   'queueStatus': {
-    //     'isInQueue': currentQueueIds.contains(task.id),
-    //     'queuePosition': currentQueueIds.indexOf(task.id),
-    //     'totalQueueSize': currentQueueIds.length,
-    //     'queueIds': currentQueueIds,
-    //   }
-    // };
+    // 构建完整的任务信息
+    final Map<String, dynamic> fullTaskInfo = {
+      'mainTask': task.toJson(),
+      'currentActiveTask': currentActiveTask?.toJson(),
+      'currentCompletedTask': currentCompletedTask?.toJson(),
+      'queueStatus': {
+        'isInQueue': currentQueueIds.contains(task.id),
+        'queuePosition': currentQueueIds.indexOf(task.id),
+        'totalQueueSize': currentQueueIds.length,
+        'queueIds': currentQueueIds,
+      }
+    };
 
-    // final String prettyJson = const JsonEncoder.withIndent('  ').convert(fullTaskInfo);
+    final String prettyJson = const JsonEncoder.withIndent('  ').convert(fullTaskInfo);
 
-    // Get.dialog(
-    //   AlertDialog(
-    //     title: Text(t.download.downloadDetail),
-    //     content: SizedBox(
-    //       width: double.maxFinite,
-    //       child: SingleChildScrollView(
-    //         child: Column(
-    //           mainAxisSize: MainAxisSize.min,
-    //           crossAxisAlignment: CrossAxisAlignment.start,
-    //           children: [
-    //             Container(
-    //               padding: const EdgeInsets.all(8),
-    //               decoration: BoxDecoration(
-    //                 color: Theme.of(context).colorScheme.surfaceContainerHighest,
-    //                 borderRadius: BorderRadius.circular(8),
-    //               ),
-    //               child: SelectableText(
-    //                 prettyJson,
-    //                 style: const TextStyle(
-    //                   fontFamily: 'monospace',
-    //                   fontSize: 12,
-    //                 ),
-    //               ),
-    //             ),
-    //           ],
-    //         ),
-    //       ),
-    //     ),
-    //     actions: [
-    //       TextButton(
-    //         onPressed: () async {
-    //           final item = DataWriterItem();
-    //           item.add(Formats.plainText(prettyJson));
-    //           await SystemClipboard.instance?.write([item]);
+    Get.dialog(
+      AlertDialog(
+        title: Text(t.download.downloadDetail),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: SelectableText(
+                    prettyJson,
+                    style: const TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              final item = DataWriterItem();
+              item.add(Formats.plainText(prettyJson));
+              await SystemClipboard.instance?.write([item]);
 
-    //           if (context.mounted) {
-    //             showToastWidget(
-    //               MDToastWidget(
-    //                 message: t.download.copySuccess,
-    //                 type: MDToastType.success,
-    //               ),
-    //             );
-    //           }
-    //         },
-    //         child: Text(t.download.copy),
-    //       ),
-    //       TextButton(
-    //         onPressed: () => AppService.tryPop(),
-    //         child: Text(t.common.close),
-    //       ),
-    //     ],
-    //   ),
-    // );
+              if (context.mounted) {
+                showToastWidget(
+                  MDToastWidget(
+                    message: t.download.copySuccess,
+                    type: MDToastType.success,
+                  ),
+                );
+              }
+            },
+            child: Text(t.download.copy),
+          ),
+          TextButton(
+            onPressed: () => AppService.tryPop(),
+            child: Text(t.common.close),
+          ),
+        ],
+      ),
+    );
   }
