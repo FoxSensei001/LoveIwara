@@ -518,4 +518,6 @@ download:
   downloadDetail: 下載詳情
   copy: 複製
   copySuccess: 已複製
+  waiting: 等待中
+  paused: 暫停中
 

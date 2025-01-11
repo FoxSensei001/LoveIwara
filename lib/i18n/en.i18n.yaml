@@ -515,4 +515,6 @@ download:
   downloadDetail: Download Detail
   copy: Copy
   copySuccess: Copied
+  waiting: Waiting
+  paused: Paused
 

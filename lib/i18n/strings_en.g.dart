@@ -648,6 +648,8 @@ class TranslationsDownloadEn {
 	String get downloadDetail => 'Download Detail';
 	String get copy => 'Copy';
 	String get copySuccess => 'Copied';
+	String get waiting => 'Waiting';
+	String get paused => 'Paused';
 }
 
 // Path: download.errors
@@ -1188,6 +1190,8 @@ extension on Translations {
 			case 'download.downloadDetail': return 'Download Detail';
 			case 'download.copy': return 'Copy';
 			case 'download.copySuccess': return 'Copied';
+			case 'download.waiting': return 'Waiting';
+			case 'download.paused': return 'Paused';
 			default: return null;
 		}
 	}

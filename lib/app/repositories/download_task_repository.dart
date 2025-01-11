@@ -112,20 +112,27 @@ class DownloadTaskRepository {
       return false;
     }
   }
-
-  // 获取活跃任务（下载中、暂停、等待中、失败的任务）
-  Future<List<DownloadTask>> getActiveTasks() async {
+  Future<List<DownloadTask>> getTasksByStatus(
+    DownloadStatus? status, {
+    int offset = 0,
+    int limit = 20,
+  }) async {
+    String whereConditions = '';
+    if (status != null) {
+      whereConditions = "WHERE status = '${status.name}'";
+    }
     try {
       final stmt = _db.prepare('''
         SELECT * FROM download_tasks 
-        WHERE status IN ('downloading', 'paused', 'pending', 'failed')
+        $whereConditions
         ORDER BY created_at DESC
+        LIMIT ? OFFSET ?
       ''');
 
-      final results = stmt.select([]);
+      final results = stmt.select([limit, offset]);
       return results.map((row) => DownloadTask.fromRow(row)).toList();
     } catch (e) {
-      LogUtils.e('获取活跃任务失败', tag: 'DownloadTaskRepository', error: e);
+      LogUtils.e('获取下载任务失败', tag: 'DownloadTaskRepository', error: e);
       rethrow;
     }
   }
@@ -232,6 +239,106 @@ class CompletedDownloadTaskRepository extends LoadingMoreBase<DownloadTask> {
       isSuccess = true;
     } catch (e) {
       isSuccess = false;
+    }
+    return isSuccess;
+  }
+}
+
+class PausedDownloadTaskRepository extends LoadingMoreBase<DownloadTask> {
+  final DownloadTaskRepository _repository = DownloadTaskRepository();
+  
+  int _pageIndex = 0;
+  bool _hasMore = true;
+  bool forceRefresh = false;
+  
+  static const int pageSize = 20;
+  
+  @override
+  bool get hasMore => _hasMore || forceRefresh;
+
+  @override
+  Future<bool> refresh([bool notifyStateChanged = false]) async {
+    _hasMore = true;
+    _pageIndex = 0;
+    forceRefresh = !notifyStateChanged;
+    clear();
+    final bool result = await super.refresh(notifyStateChanged);
+    forceRefresh = false;
+    return result;
+  }
+
+  @override
+  Future<bool> loadData([bool isLoadMoreAction = false]) async {
+    bool isSuccess = false;
+    try {
+      final tasks = await _repository.getTasksByStatus(
+        DownloadStatus.paused,
+        offset: _pageIndex * pageSize,
+        limit: pageSize,
+      );
+
+      if (_pageIndex == 0) {
+        clear();
+      }
+
+      addAll(tasks);
+
+      _hasMore = tasks.length >= pageSize;
+      _pageIndex++;
+      isSuccess = true;
+    } catch (e) {
+      isSuccess = false;
+      LogUtils.e('加载暂停任务失败', tag: 'PausedDownloadTaskRepository', error: e);
+    }
+    return isSuccess;
+  }
+}
+
+class FailedDownloadTaskRepository extends LoadingMoreBase<DownloadTask> {
+  final DownloadTaskRepository _repository = DownloadTaskRepository();
+  
+  int _pageIndex = 0;
+  bool _hasMore = true;
+  bool forceRefresh = false;
+  
+  static const int pageSize = 20;
+  
+  @override
+  bool get hasMore => _hasMore || forceRefresh;
+
+  @override
+  Future<bool> refresh([bool notifyStateChanged = false]) async {
+    _hasMore = true;
+    _pageIndex = 0;
+    forceRefresh = !notifyStateChanged;
+    clear();
+    final bool result = await super.refresh(notifyStateChanged);
+    forceRefresh = false;
+    return result;
+  }
+
+  @override
+  Future<bool> loadData([bool isLoadMoreAction = false]) async {
+    bool isSuccess = false;
+    try {
+      final tasks = await _repository.getTasksByStatus(
+        DownloadStatus.failed,
+        offset: _pageIndex * pageSize,
+        limit: pageSize,
+      );
+
+      if (_pageIndex == 0) {
+        clear();
+      }
+
+      addAll(tasks);
+
+      _hasMore = tasks.length >= pageSize;
+      _pageIndex++;
+      isSuccess = true;
+    } catch (e) {
+      isSuccess = false;
+      LogUtils.e('加载失败任务失败', tag: 'FailedDownloadTaskRepository', error: e);
     }
     return isSuccess;
   }

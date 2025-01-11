@@ -517,4 +517,5 @@ download:
   downloadDetail: ダウンロード詳細
   copy: コピー
   copySuccess: コピーしました
-
+  waiting: 待機中
+  paused: 一時停止中

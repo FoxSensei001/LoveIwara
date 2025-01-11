@@ -17,11 +17,8 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 class DownloadService extends GetxService {
   static DownloadService get to => Get.find<DownloadService>();
 
-  static const int _pageSize = 3;
-
-  // 活跃任务列表，需获取系统中全部的 异常、暂停、等待中、进行中的任务
+  // 活跃任务列表，只包含等待中和下载中的任务
   final _activeTasks = <String, DownloadTask>{}.obs;
-  final _completedTasks = <String, DownloadTask>{}.obs;
   final _activeDownloads = <String, CancelToken>{};
   final _downloadQueue = <String>[].obs;
 
@@ -31,45 +28,42 @@ class DownloadService extends GetxService {
   // 添加图库下载相关的字段
   final _galleryDownloadProgress = <String, Map<String, bool>>{}.obs;
 
-  // 获取所有任务（包括活跃和已加载的已完成任务）
-  Map<String, DownloadTask> get tasks => {
-        ..._activeTasks,
-      };
+  // 用于通知任务状态变更的 RxInt
+  final _taskStatusChangedNotifier = 0.obs;
+
+  // 获取所有活跃任务（仅包含等待中和下载中的任务）
+  Map<String, DownloadTask> get tasks => _activeTasks;
+
+  // 获取任务状态变更通知器 [仅在任务状态变更时，进行通知，用于刷新UI列表数据]
+  RxInt get taskStatusChangedNotifier => _taskStatusChangedNotifier;
 
   final _repository = DownloadTaskRepository();
 
-  static const maxConcurrentDownloads = 20;
+  static const maxConcurrentDownloads = 3;
   final dio = Dio();
-
-  List<String> get downloadQueue => _downloadQueue;
 
   DownloadTaskRepository get repository => _repository;
 
   @override
   Future<void> onInit() async {
     super.onInit();
-    await _loadAllTasks();
+    await _loadActiveTasks();
   }
 
-  /// 加载所有非完成任务
-  Future<void> _loadAllTasks() async {
+  /// 加载活跃任务（仅加载下载中的任务）
+  Future<void> _loadActiveTasks() async {
     try {
-      // 加载活跃任务（下载中、暂停、等待中、失败的任务）
-      final activeTasks = await _repository.getActiveTasks();
-      _activeTasks.clear();
-      _activeTasks.addAll({for (var task in activeTasks) task.id: task});
-
-      // 恢复未完成的任务
-      for (var task in activeTasks) {
-        // 只将downloading状态的任务重置为pending并加入队列
-        if (task.status == DownloadStatus.downloading) {
-          task.status = DownloadStatus.pending;
-          _downloadQueue.add(task.id);
-        }
+      // 只加载下载中的任务，将其重置为等待状态
+      final downloadingTasks = await _repository.getTasksByStatus(DownloadStatus.downloading);
+      
+      for (var task in downloadingTasks) {
+        task.status = DownloadStatus.pending;
+        _activeTasks[task.id] = task;
+        _downloadQueue.add(task.id);
       }
 
       LogUtils.i(
-          '已加载 ${activeTasks.length} 个活跃任务（包括失败任务）',
+          '已加载 ${downloadingTasks.length} 个下载中任务',
           'DownloadService');
 
       _processQueue();
@@ -78,16 +72,20 @@ class DownloadService extends GetxService {
     }
   }
 
+  // 获取内存中的活跃任务
   DownloadTask? getActiveTaskById(String taskId) {
     return _activeTasks[taskId];
   }
 
-  DownloadTask? getCompletedTaskById(String taskId) {
-    return _completedTasks[taskId];
-  }
-
-  List<String> getQueueIds() {
-    return _downloadQueue.toList();
+  // 从数据库获取任务
+  Future<DownloadTask?> getTaskById(String taskId) async {
+    // 先检查内存中是否存在
+    final activeTask = _activeTasks[taskId];
+    if (activeTask != null) {
+      return activeTask;
+    }
+    // 否则从数据库加载
+    return await _repository.getTaskById(taskId);
   }
 
   // 重试下载图库中失败的图片
@@ -188,32 +186,27 @@ class DownloadService extends GetxService {
     task.savePath = CommonUtils.formatSavePathUriByPath(task.savePath);
     try {
       // 先从数据库中查询任务是否存在
-      DownloadTask? existingRepoTask = await _repository.getTaskById(task.id);
-      DownloadTask? existingActiveTask = _activeTasks[task.id];
-
-      // 判断是否在数据库中存在
-      if (existingRepoTask != null) {
+      DownloadTask? existingTask = await _repository.getTaskById(task.id);
+      
+      if (existingTask != null) {
         // 如果任务已存在且已完成，直接拒绝并提示用户
-        if (existingRepoTask.status == DownloadStatus.completed) {
+        if (existingTask.status == DownloadStatus.completed) {
           _showError(slang.t.download.errors.taskAlreadyCompletedDoNotAdd);
           return;
         }
 
-        // 如果任务已存在且为暂停、等待中、失败状态，则尝试恢复任务
-        if (existingRepoTask.status == DownloadStatus.paused ||
-            existingRepoTask.status == DownloadStatus.pending ||
-            existingRepoTask.status == DownloadStatus.failed) {
-          // 如果是 视频 的任务，需要做链接有效性校验，否则需要重新获取下载链接以断点续传
-          if (existingRepoTask.extData?.type == DownloadTaskExtDataType.video) {
+        // 如果任务已存在且为暂停或失败状态，则更新状态为等待中
+        if (existingTask.status == DownloadStatus.paused ||
+            existingTask.status == DownloadStatus.failed) {
+          // 如果是视频任务，需要验证链接有效性
+          if (existingTask.extData?.type == DownloadTaskExtDataType.video) {
             VideoDownloadExtData videoExtData =
-                VideoDownloadExtData.fromJson(existingRepoTask.extData!.data);
-            // 获取下载链接
+                VideoDownloadExtData.fromJson(existingTask.extData!.data);
             final videoLink = task.url;
             final expireTime = CommonUtils.getVideoLinkExpireTime(videoLink);
             if (expireTime != null) {
               if (DateTime.now()
                   .isAfter(expireTime.subtract(const Duration(minutes: 1)))) {
-                // 如果链接已过期，则重新获取下载链接
                 showToastWidget(MDToastWidget(
                     message: slang.t.download.errors.linkExpiredTryAgain,
                     type: MDToastType.error));
@@ -221,9 +214,10 @@ class DownloadService extends GetxService {
                     .getVideoDownloadUrlByIdAndQuality(
                         videoExtData.id ?? '', videoExtData.quality!);
                 if (newVideoDownloadUrl != null) {
-                  existingRepoTask.url = newVideoDownloadUrl;
-                  await _repository.updateTask(existingRepoTask); // 更新老数据的状态
-                  task = existingRepoTask;
+                  existingTask.url = newVideoDownloadUrl;
+                  existingTask.status = DownloadStatus.pending;
+                  await _repository.updateTask(existingTask);
+                  task = existingTask;
                   showToastWidget(MDToastWidget(
                       message: slang.t.download.errors.linkExpiredTryAgainSuccess,
                       type: MDToastType.success));
@@ -234,26 +228,25 @@ class DownloadService extends GetxService {
                   return;
                 }
               } else {
-                // 如果链接未过期，则直接恢复任务
-                if (existingActiveTask != null) {
-                  // 如果活跃任务存在，则重新赋值，后面会重新 _activeTasks[task.id] = task;
-                  task = existingActiveTask;
-                } else {
-                  // 如果任务不存在，则插入数据库
-                  await _repository.insertTask(task);
-                }
+                existingTask.status = DownloadStatus.pending;
+                await _repository.updateTask(existingTask);
+                task = existingTask;
               }
             }
+          } else {
+            existingTask.status = DownloadStatus.pending;
+            await _repository.updateTask(existingTask);
+            task = existingTask;
           }
         }
       } else {
         // 如果数据库任务不存在，则插入数据库
+        task.status = DownloadStatus.pending;
         await _repository.insertTask(task);
       }
 
-      // 添加到活跃任务列表
+      // 添加到活跃任务列表和下载队列
       _activeTasks[task.id] = task;
-      // 添加到下载队列
       _downloadQueue.add(task.id);
 
       LogUtils.i('添加下载任务: ${task.fileName}', 'DownloadService');
@@ -266,35 +259,47 @@ class DownloadService extends GetxService {
     }
   }
 
-  // 暂停任务，并更新持久化信息
+  // 暂停任务
   Future<void> pauseTask(String taskId) async {
     final task = _activeTasks[taskId];
     if (task == null) return;
 
     if (task.status == DownloadStatus.downloading) {
       LogUtils.i('暂停下载任务: ${task.fileName}', 'DownloadService');
-      _activeDownloads[taskId]
-          ?.cancel(slang.t.download.errors.userPausedDownload);
+      _activeDownloads[taskId]?.cancel(slang.t.download.errors.userPausedDownload);
       _activeDownloads.remove(taskId);
 
       task.status = DownloadStatus.paused;
-      _activeTasks[taskId] = task;
       await _repository.updateTask(task);
+      
+      // 从内存中移除
+      _activeTasks.remove(taskId);
+      _downloadQueue.remove(taskId);
+
+      // 通知任务状态变更
+      _taskStatusChangedNotifier.value++;
 
       // 处理等待队列中的下一个任务
       _processQueue();
     }
   }
 
-  // 恢复任务，并更新持久化信息
+  // 恢复任务
   Future<void> resumeTask(String taskId) async {
-    final task = _activeTasks[taskId];
+    // 从数据库加载任务
+    final task = await _repository.getTaskById(taskId);
     if (task == null) return;
 
-    if (task.status == DownloadStatus.paused) {
+    if (task.status == DownloadStatus.paused || task.status == DownloadStatus.failed) {
       task.status = DownloadStatus.pending;
-      _downloadQueue.add(taskId);
+      await _repository.updateTask(task);
+      
+      // 添加到内存中的活跃任务
       _activeTasks[taskId] = task;
+      _downloadQueue.add(taskId);
+
+      // 通知任务状态变更
+      _taskStatusChangedNotifier.value++;
 
       _processQueue();
     }
@@ -344,7 +349,6 @@ class DownloadService extends GetxService {
     // 从内存中移除任务
     _activeTasks.remove(taskId);
     _downloadQueue.remove(taskId);
-    _completedTasks.remove(taskId);
 
     // cancel
     _activeDownloads[taskId]?.cancel(slang.t.download.errors.taskDeleted);
@@ -585,17 +589,26 @@ class DownloadService extends GetxService {
     // 清理任务专用的计时器
     _taskTimers[task.id]?.cancel();
     _taskTimers.remove(task.id);
+
+    // 从内存中移除任务
+    _activeTasks.remove(task.id);
+    _downloadQueue.remove(task.id);
+
+    // 通知任务状态变更
+    _taskStatusChangedNotifier.value++;
   }
 
   Future<void> _updateTaskStatus(DownloadTask task) async {
     if (task.status == DownloadStatus.completed) {
       // 如果任务完成，从活跃任务移到已完成任务
       _activeTasks.remove(task.id);
-      _completedTasks[task.id] = task;
     } else {
       _activeTasks[task.id] = task;
     }
     await _repository.updateTaskStatusById(task.id, task.status);
+
+    // 通知任务状态变更
+    _taskStatusChangedNotifier.value++;
   }
 
   String _getErrorMessage(dynamic error) {
@@ -638,13 +651,12 @@ class DownloadService extends GetxService {
 
   // 清除所有失败的任务
   Future<void> clearFailedTasks() async {
-    final failedTasks = _activeTasks.values
-        .where((task) => task.status == DownloadStatus.failed)
-        .toList();
-
+    final failedTasks = await _repository.getTasksByStatus(DownloadStatus.failed);
     for (var task in failedTasks) {
       await deleteTask(task.id);
     }
+    // 通知任务状态变更
+    _taskStatusChangedNotifier.value++;
   }
 
   // 获取已完成的任务（分页）
@@ -674,7 +686,6 @@ class DownloadService extends GetxService {
 
     // 清理其他资源
     _activeTasks.clear();
-    _completedTasks.clear();
     _downloadQueue.clear();
 
     super.onClose();

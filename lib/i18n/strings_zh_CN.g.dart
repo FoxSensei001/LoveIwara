@@ -647,6 +647,8 @@ class _TranslationsDownloadZhCn implements TranslationsDownloadEn {
 	@override String get downloadDetail => '下载详情';
 	@override String get copy => '复制';
 	@override String get copySuccess => '已复制';
+	@override String get waiting => '等待中';
+	@override String get paused => '暂停中';
 }
 
 // Path: download.errors
@@ -1190,6 +1192,8 @@ extension on TranslationsZhCn {
 			case 'download.downloadDetail': return '下载详情';
 			case 'download.copy': return '复制';
 			case 'download.copySuccess': return '已复制';
+			case 'download.waiting': return '等待中';
+			case 'download.paused': return '暂停中';
 			default: return null;
 		}
 	}

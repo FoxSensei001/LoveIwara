@@ -644,6 +644,8 @@ class _TranslationsDownloadJa implements TranslationsDownloadEn {
 	@override String get downloadDetail => 'ダウンロード詳細';
 	@override String get copy => 'コピー';
 	@override String get copySuccess => 'コピーしました';
+	@override String get waiting => '待機中';
+	@override String get paused => '一時停止中';
 }
 
 // Path: download.errors
@@ -1184,6 +1186,8 @@ extension on TranslationsJa {
 			case 'download.downloadDetail': return 'ダウンロード詳細';
 			case 'download.copy': return 'コピー';
 			case 'download.copySuccess': return 'コピーしました';
+			case 'download.waiting': return '待機中';
+			case 'download.paused': return '一時停止中';
 			default: return null;
 		}
 	}
