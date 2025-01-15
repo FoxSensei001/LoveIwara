@@ -33,6 +33,7 @@ class ConfigService extends GetxService {
       'active_background_privacy_mode'; // 激活隐私模式
   static const String DEFAULT_LANGUAGE_KEY = 'default_language'; // 默认语言
   static const String THEME_MODE_KEY = 'theme_mode'; // 添加主题模式配置键
+  static const String THEATER_MODE_KEY = 'theater_mode'; // 剧院模式
   static const String _TRANSLATION_LANGUAGE = 'translation_language';
   static const String REMOTE_REPO_RELEASE_URL = 'remote_repo_release_url'; // 远程仓库的 release 地址
   static const String REMOTE_REPO_URL = 'remote_repo_url'; // 远程仓库的 url
@@ -66,6 +67,7 @@ class ConfigService extends GetxService {
     ACTIVE_BACKGROUND_PRIVACY_MODE: false.obs,
     DEFAULT_LANGUAGE_KEY: 'zh-CN'.obs,
     THEME_MODE_KEY: 0.obs, // 添加主题模式配置，默认为0(system)
+    THEATER_MODE_KEY: true.obs, // 默认开启剧院模式
     REMOTE_REPO_RELEASE_URL: 'https://github.com/FoxSensei001/i_iwara/releases'.obs,
     REMOTE_REPO_URL: 'https://github.com/FoxSensei001/i_iwara'.obs,
     SETTINGS_SELECTED_INDEX_KEY: 0.obs,

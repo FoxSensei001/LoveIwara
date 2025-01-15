@@ -519,6 +519,8 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get forum => '論壇';
 	@override String get disableForumReplyQuote => '禁用論壇回覆引用';
 	@override String get disableForumReplyQuoteDesc => '禁用論壇回覆時攜帶被回覆樓層資訊';
+	@override String get theaterMode => '劇院模式';
+	@override String get theaterModeDesc => '開啟後，播放器背景會被設置為影片封面的模糊版本';
 }
 
 // Path: signIn
@@ -1260,6 +1262,8 @@ extension on TranslationsZhTw {
 			case 'settings.forum': return '論壇';
 			case 'settings.disableForumReplyQuote': return '禁用論壇回覆引用';
 			case 'settings.disableForumReplyQuoteDesc': return '禁用論壇回覆時攜帶被回覆樓層資訊';
+			case 'settings.theaterMode': return '劇院模式';
+			case 'settings.theaterModeDesc': return '開啟後，播放器背景會被設置為影片封面的模糊版本';
 			case 'signIn.pleaseLoginFirst': return '請先登入後再簽到';
 			case 'signIn.alreadySignedInToday': return '您今天已經簽到過了！';
 			case 'signIn.youDidNotStickToTheSignIn': return '您未能持續簽到。';

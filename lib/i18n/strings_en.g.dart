@@ -523,6 +523,8 @@ class TranslationsSettingsEn {
 	String get forum => 'Forum';
 	String get disableForumReplyQuote => 'Disable Forum Reply Quote';
 	String get disableForumReplyQuoteDesc => 'Disable carrying replied floor information when replying in forum';
+	String get theaterMode => 'Theater Mode';
+	String get theaterModeDesc => 'After opening, the player background will be set to the blurred version of the video cover';
 }
 
 // Path: signIn
@@ -1261,6 +1263,8 @@ extension on Translations {
 			case 'settings.forum': return 'Forum';
 			case 'settings.disableForumReplyQuote': return 'Disable Forum Reply Quote';
 			case 'settings.disableForumReplyQuoteDesc': return 'Disable carrying replied floor information when replying in forum';
+			case 'settings.theaterMode': return 'Theater Mode';
+			case 'settings.theaterModeDesc': return 'After opening, the player background will be set to the blurred version of the video cover';
 			case 'signIn.pleaseLoginFirst': return 'Please login first';
 			case 'signIn.alreadySignedInToday': return 'You have already signed in today!';
 			case 'signIn.youDidNotStickToTheSignIn': return 'You did not stick to the sign in.';

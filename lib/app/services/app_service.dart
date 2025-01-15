@@ -89,40 +89,40 @@ class AppService extends GetxService {
   }
 
   static void tryPop() {
-    LogUtils.d('tryPop', 'AppService');
+    // LogUtils.d('tryPop', 'AppService');
     if (CommonConstants.isForceUpdate) {
       showToastWidget(MDToastWidget(message: slang.t.errors.forceUpdateNotPermittedToGoBack, type: MDToastType.error));
       return;
     }
     if (AppService.globalDrawerKey.currentState!.isDrawerOpen) {
       AppService.globalDrawerKey.currentState!.openEndDrawer();
-      LogUtils.d('关闭Drawer', 'AppService');
+      // LogUtils.d('关闭Drawer', 'AppService');
     } else {
       // 先判断是否有打开的对话框或底部表单
       if (Get.isDialogOpen ?? false) {
         Get.closeAllDialogs();
-        LogUtils.d('关闭Get.isDialogOpen', 'AppService');
+        // LogUtils.d('关闭Get.isDialogOpen', 'AppService');
       } else if (Get.isBottomSheetOpen ?? false) {
         Get.closeAllBottomSheets();
-        LogUtils.d('关闭Get.isBottomSheetOpen', 'AppService');
+        // LogUtils.d('关闭Get.isBottomSheetOpen', 'AppService');
       } else {
         GetDelegate? homeDele = Get.nestedKey(Routes.HOME);
         GetDelegate? rootDele = Get.nestedKey(null);
 
         if (homeDele?.canBack ?? false) {
           homeDele?.back();
-          LogUtils.d('关闭homeDele?.canBack', 'AppService');
+          // LogUtils.d('关闭homeDele?.canBack', 'AppService');
         } else if (homeDele?.navigatorKey.currentState?.canPop() ?? false) {
           homeDele?.navigatorKey.currentState?.pop();
-          LogUtils.d(
-              '关闭homeDele?.navigatorKey.currentState?.canPop()', 'AppService');
+          // LogUtils.d(
+              // '关闭homeDele?.navigatorKey.currentState?.canPop()', 'AppService');
         } else if (rootDele?.canBack ?? false) {
           rootDele?.back();
-          LogUtils.d('关闭rootDele?.canBack', 'AppService');
+          //  LogUtils.d('关闭rootDele?.canBack', 'AppService');
         } else {
           // 退出应用
           SystemNavigator.pop();
-          LogUtils.d('关闭Get.back()', 'AppService');
+          // LogUtils.d('关闭Get.back()', 'AppService');
         }
       }
     }

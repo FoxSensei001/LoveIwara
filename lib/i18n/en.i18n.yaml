@@ -385,6 +385,8 @@ settings:
   forum: Forum
   disableForumReplyQuote: Disable Forum Reply Quote
   disableForumReplyQuoteDesc: Disable carrying replied floor information when replying in forum
+  theaterMode: Theater Mode
+  theaterModeDesc: After opening, the player background will be set to the blurred version of the video cover
 
 signIn:
   pleaseLoginFirst: Please login first

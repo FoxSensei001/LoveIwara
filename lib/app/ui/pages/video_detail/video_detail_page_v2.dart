@@ -76,13 +76,13 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
   /// - `route`: 当前路由
   /// - `previousRoute`: 上一个路由
   void _onRouteChange(Route? route, Route? previousRoute) {
-    LogUtils.d(
-        "[详情页路由监听]route: ${route?.settings.name}, previousRoute: ${previousRoute?.settings.name}",
-        'video_detail_page_v2');
+    // LogUtils.d(
+    //     "[详情页路由监听]route: ${route?.settings.name}, previousRoute: ${previousRoute?.settings.name}",
+    //     'video_detail_page_v2');
     // 当前页面被覆盖时暂停视频
     if (route != null && route.settings.name != Routes.VIDEO_DETAIL(videoId)) {
-      LogUtils.d(
-          "[详情页路由监听]跳转到其他页面: ${route.settings.name}", 'video_detail_page_v2');
+      // LogUtils.d(
+          // "[详情页路由监听]跳转到其他页面: ${route.settings.name}", 'video_detail_page_v2');
       controller.player.pause();
     }
     // 如果是从detail到其他页面，且当前为 应用全屏状态，则恢复UI

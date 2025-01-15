@@ -386,7 +386,8 @@ settings:
   forum: フォーラム
   disableForumReplyQuote: フォーラム返信引用を無効にする
   disableForumReplyQuoteDesc: フォーラム返信時の返信階層情報の携帯を無効にする
-
+  theaterMode: 劇院モード
+  theaterModeDesc: 開啟後、プレーヤー背景がビデオカバーのぼかしバージョンに設定されます
 signIn:
   pleaseLoginFirst: サインインする前にログインしてください
   alreadySignedInToday: 今日は既にサインインしています！

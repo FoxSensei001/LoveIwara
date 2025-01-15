@@ -524,6 +524,8 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get forum => '论坛';
 	@override String get disableForumReplyQuote => '禁用论坛回复引用';
 	@override String get disableForumReplyQuoteDesc => '禁用论坛回复时携带被回复楼层信息';
+	@override String get theaterMode => '剧院模式';
+	@override String get theaterModeDesc => '开启后，播放器背景会被设置为视频封面的模糊版本';
 }
 
 // Path: signIn
@@ -1267,6 +1269,8 @@ extension on TranslationsZhCn {
 			case 'settings.forum': return '论坛';
 			case 'settings.disableForumReplyQuote': return '禁用论坛回复引用';
 			case 'settings.disableForumReplyQuoteDesc': return '禁用论坛回复时携带被回复楼层信息';
+			case 'settings.theaterMode': return '剧院模式';
+			case 'settings.theaterModeDesc': return '开启后，播放器背景会被设置为视频封面的模糊版本';
 			case 'signIn.pleaseLoginFirst': return '请先登录后再签到';
 			case 'signIn.alreadySignedInToday': return '您今天已经签到过了！';
 			case 'signIn.youDidNotStickToTheSignIn': return '您未能坚持签到。';

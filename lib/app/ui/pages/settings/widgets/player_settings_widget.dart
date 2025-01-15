@@ -111,6 +111,19 @@ class PlayerSettingsWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // 剧院模式开关
+          _buildSwitchSetting(
+            context: context,
+            iconData: Icons.theater_comedy,
+            label: t.settings.theaterMode,
+            showInfoCard: true,
+            infoMessage: t.settings.theaterModeDesc,
+            rxValue: _configService.settings[ConfigService.THEATER_MODE_KEY],
+            onChanged: (value) {
+              _configService[ConfigService.THEATER_MODE_KEY] = value;
+            },
+          ),
+          const Divider(),
           // 播放控制部分
           Text(
             t.settings.playControl,

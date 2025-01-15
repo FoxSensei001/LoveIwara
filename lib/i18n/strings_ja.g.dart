@@ -519,6 +519,8 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get forum => 'フォーラム';
 	@override String get disableForumReplyQuote => 'フォーラム返信引用を無効にする';
 	@override String get disableForumReplyQuoteDesc => 'フォーラム返信時の返信階層情報の携帯を無効にする';
+	@override String get theaterMode => '劇院モード';
+	@override String get theaterModeDesc => '開啟後、プレーヤー背景がビデオカバーのぼかしバージョンに設定されます';
 }
 
 // Path: signIn
@@ -1257,6 +1259,8 @@ extension on TranslationsJa {
 			case 'settings.forum': return 'フォーラム';
 			case 'settings.disableForumReplyQuote': return 'フォーラム返信引用を無効にする';
 			case 'settings.disableForumReplyQuoteDesc': return 'フォーラム返信時の返信階層情報の携帯を無効にする';
+			case 'settings.theaterMode': return '劇院モード';
+			case 'settings.theaterModeDesc': return '開啟後、プレーヤー背景がビデオカバーのぼかしバージョンに設定されます';
 			case 'signIn.pleaseLoginFirst': return 'サインインする前にログインしてください';
 			case 'signIn.alreadySignedInToday': return '今日は既にサインインしています！';
 			case 'signIn.youDidNotStickToTheSignIn': return 'サインインを続けることができませんでした。';

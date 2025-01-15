@@ -393,6 +393,8 @@ settings:
   forum: 论坛
   disableForumReplyQuote: 禁用论坛回复引用
   disableForumReplyQuoteDesc: 禁用论坛回复时携带被回复楼层信息
+  theaterMode: 剧院模式
+  theaterModeDesc: 开启后，播放器背景会被设置为视频封面的模糊版本
 
 signIn:
   pleaseLoginFirst: 请先登录后再签到

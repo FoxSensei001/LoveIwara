@@ -1,17 +1,18 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/rapple_painter.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:vibration/vibration.dart';
 
-import '../../../../../services/config_service.dart';
 import '../video_rating_animation.dart';
 import 'bottom_toolbar_widget.dart';
 import 'gesture_area_widget.dart';
@@ -275,86 +276,111 @@ class _MyVideoScreenState extends State<MyVideoScreen>
         }
       },
       child: Scaffold(
-        // 临时使用黑色背景 TODO: 播放器背景：剧院模式，以及自定义背景色
-        backgroundColor: const Color(0xFF000000),
-        body: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-            // paddingTop
-            double paddingTop = MediaQuery.paddingOf(context).top;
-            // 获取视频部分的尺寸
-            final screenSize =
-                Size(constraints.maxWidth, constraints.maxHeight);
-            // 根据屏幕宽度计算图标大小
-            // 使用屏幕宽度的15%作为基准，但设置最小和最大值限制
-            final playPauseIconSize = (screenSize.width * 0.15).clamp(
-              40.0, // 最小尺寸
-              100.0, // 最大尺寸
-            );
-
-            // 缓冲动画稍微小一点，使用图标尺寸的80%
-            final bufferingSize = playPauseIconSize * 0.8;
-
-            final maxRadius = (screenSize.height - paddingTop) * 2 / 3;
-
-            return FocusScope(
-              autofocus: true,
-              canRequestFocus: true,
-              child: KeyboardListener(
-                focusNode: _focusNode,
-                onKeyEvent: (KeyEvent event) {
-                  if (event is KeyDownEvent) {
-                    if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-                      _handleLeftKeyPress();
-                    } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
-                      _handleRightKeyPress();
-                    } else if (event.logicalKey == LogicalKeyboardKey.space) {
-                      if (widget.myVideoStateController.videoPlaying.value) {
-                        widget.myVideoStateController.player.pause();
-                      } else {
-                        widget.myVideoStateController.player.play();
-                      }
-                    } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
-                      // 获取当前音量
-                      double currentVolume = _configService[ConfigService.VOLUME_KEY];
-                      // 增加音量，每次增加0.1，最大为1.0
-                      double newVolume = (currentVolume + 0.1).clamp(0.0, 1.0);
-                      widget.myVideoStateController.setVolume(newVolume);
-                      // 显示音量提示
-                      _showVolumeInfo();
-                    } else if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
-                      // 获取当前音量
-                      double currentVolume = _configService[ConfigService.VOLUME_KEY];
-                      // 减少音量，每次减少0.1，最小为0.0
-                      double newVolume = (currentVolume - 0.1).clamp(0.0, 1.0);
-                      widget.myVideoStateController.setVolume(newVolume);
-                      // 显示音量提示
-                      _showVolumeInfo();
-                    }
-                  }
-                },
-                child: Container(
-                  padding: EdgeInsets.only(top: paddingTop),
-                  child: Stack(
-                    children: [
-                      // 视频播放区域
-                      _buildVideoPlayer(),
-                      // 手势监听
-                      ..._buildGestureAreas(screenSize),
-                      // 工具栏
-                      ..._buildToolbars(),
-                      // 左右的双击波纹动画
-                      _buildRippleEffects(screenSize, maxRadius),
-                      // loading、暂停和播放等居中控件
-                      _buildVideoControlOverlay(playPauseIconSize, bufferingSize),
-                      // InfoMessage
-                      _buildInfoMessage(),
-                      _buildSeekPreview(),
-                    ],
+        backgroundColor: _configService[ConfigService.THEATER_MODE_KEY] 
+          ? Colors.black 
+          : const Color(0xFF000000),
+        body: Stack(
+          children: [
+            // 剧院模式背景 - 移到最外层
+            if (_configService[ConfigService.THEATER_MODE_KEY])
+              Positioned.fill(
+                child: Image.network(
+                  widget.myVideoStateController.videoInfo.value?.thumbnailUrl ?? '',
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    color: Colors.black,
                   ),
                 ),
               ),
-            );
-          },
+            // 模糊效果 - 移到最外层
+            if (_configService[ConfigService.THEATER_MODE_KEY])
+              Positioned.fill(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                  child: Container(
+                    color: Colors.black.withOpacity(0.5),
+                  ),
+                ),
+              ),
+            // 主要内容
+            LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) {
+                // paddingTop
+                double paddingTop = MediaQuery.paddingOf(context).top;
+                // 获取视频部分的尺寸
+                final screenSize = Size(constraints.maxWidth, constraints.maxHeight);
+                // 根据屏幕宽度计算图标大小
+                final playPauseIconSize = (screenSize.width * 0.15).clamp(
+                  40.0, // 最小尺寸
+                  100.0, // 最大尺寸
+                );
+
+                // 缓冲动画稍微小一点，使用图标尺寸的80%
+                final bufferingSize = playPauseIconSize * 0.8;
+
+                final maxRadius = (screenSize.height - paddingTop) * 2 / 3;
+
+                return FocusScope(
+                  autofocus: true,
+                  canRequestFocus: true,
+                  child: KeyboardListener(
+                    focusNode: _focusNode,
+                    onKeyEvent: (KeyEvent event) {
+                      if (event is KeyDownEvent) {
+                        if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+                          _handleLeftKeyPress();
+                        } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+                          _handleRightKeyPress();
+                        } else if (event.logicalKey == LogicalKeyboardKey.space) {
+                          if (widget.myVideoStateController.videoPlaying.value) {
+                            widget.myVideoStateController.player.pause();
+                          } else {
+                            widget.myVideoStateController.player.play();
+                          }
+                        } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+                          // 获取当前音量
+                          double currentVolume = _configService[ConfigService.VOLUME_KEY];
+                          // 增加音量，每次增加0.1，最大为1.0
+                          double newVolume = (currentVolume + 0.1).clamp(0.0, 1.0);
+                          widget.myVideoStateController.setVolume(newVolume);
+                          // 显示音量提示
+                          _showVolumeInfo();
+                        } else if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+                          // 获取当前音量
+                          double currentVolume = _configService[ConfigService.VOLUME_KEY];
+                          // 减少音量，每次减少0.1，最小为0.0
+                          double newVolume = (currentVolume - 0.1).clamp(0.0, 1.0);
+                          widget.myVideoStateController.setVolume(newVolume);
+                          // 显示音量提示
+                          _showVolumeInfo();
+                        }
+                      }
+                    },
+                    child: Container(
+                      padding: EdgeInsets.only(top: paddingTop),
+                      child: Stack(
+                        children: [
+                          // 视频播放区域
+                          _buildVideoPlayer(),
+                          // 手势监听
+                          ..._buildGestureAreas(screenSize),
+                          // 工具栏
+                          ..._buildToolbars(),
+                          // 左右的双击波纹动画
+                          _buildRippleEffects(screenSize, maxRadius),
+                          // loading、暂停和播放等居中控件
+                          _buildVideoControlOverlay(playPauseIconSize, bufferingSize),
+                          // InfoMessage
+                          _buildInfoMessage(),
+                          _buildSeekPreview(),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
       ),
     );

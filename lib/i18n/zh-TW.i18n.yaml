@@ -387,6 +387,8 @@ settings:
   forum: 論壇
   disableForumReplyQuote: 禁用論壇回覆引用
   disableForumReplyQuoteDesc: 禁用論壇回覆時攜帶被回覆樓層資訊
+  theaterMode: 劇院模式
+  theaterModeDesc: 開啟後，播放器背景會被設置為影片封面的模糊版本
 
 
 signIn:
