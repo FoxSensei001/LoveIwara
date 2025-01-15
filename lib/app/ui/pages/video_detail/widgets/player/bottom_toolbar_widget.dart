@@ -39,93 +39,105 @@ class BottomToolbar extends StatelessWidget {
       children: [
         // 添加顶部互动控制层
         if (currentScreenIsFullScreen)
-          SlideTransition(
-            position: myVideoStateController.bottomBarAnimation,
-            child: FadeTransition(
-              opacity: myVideoStateController.animationController,
-              child: MouseRegion(
-                onEnter: (_) => myVideoStateController.setToolbarHovering(true),
-                onExit: (_) => myVideoStateController.setToolbarHovering(false),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      // 点赞按钮
-                      Obx(() {
-                        final videoInfo = myVideoStateController.videoInfo.value;
-                        if (videoInfo == null) return const SizedBox.shrink();
-                        
-                        return LikeButtonWidget(
-                          mediaId: videoInfo.id,
-                          liked: videoInfo.liked ?? false,
-                          likeCount: videoInfo.numLikes ?? 0,
-                          onLike: (id) async {
-                            final result = await Get.find<VideoService>().likeVideo(id);
-                            return result.isSuccess;
-                          },
-                          onUnlike: (id) async {
-                            final result = await Get.find<VideoService>().unlikeVideo(id);
-                            return result.isSuccess;
-                          },
-                          onLikeChanged: (liked) {
-                            myVideoStateController.videoInfo.value = 
-                              myVideoStateController.videoInfo.value?.copyWith(
-                                liked: liked,
-                                numLikes: (myVideoStateController.videoInfo.value?.numLikes ?? 0) + 
-                                  (liked ? 1 : -1),
-                              );
-                          },
-                        );
-                      }),
-                      const SizedBox(width: 16),
-                      // 关注按钮
-                      Obx(() {
-                        final videoInfo = myVideoStateController.videoInfo.value;
-                        if (videoInfo?.user == null) return const SizedBox.shrink();
-                        
-                        return SizedBox(
-                          height: 32,
-                          child: FollowButtonWidget(
-                            user: videoInfo!.user!,
-                            onUserUpdated: (updatedUser) {
+          IgnorePointer(
+            ignoring: !myVideoStateController.animationController.value.isGreaterThan(0),
+            child: SlideTransition(
+              position: myVideoStateController.bottomBarAnimation,
+              child: FadeTransition(
+                opacity: myVideoStateController.animationController,
+                child: MouseRegion(
+                  onEnter: (_) => myVideoStateController.setToolbarHovering(true),
+                  onExit: (_) => myVideoStateController.setToolbarHovering(false),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        // 点赞按钮
+                        Obx(() {
+                          final videoInfo = myVideoStateController.videoInfo.value;
+                          if (videoInfo == null) return const SizedBox.shrink();
+                          
+                          return LikeButtonWidget(
+                            mediaId: videoInfo.id,
+                            liked: videoInfo.liked ?? false,
+                            likeCount: videoInfo.numLikes ?? 0,
+                            onLike: (id) async {
+                              final result = await Get.find<VideoService>().likeVideo(id);
+                              return result.isSuccess;
+                            },
+                            onUnlike: (id) async {
+                              final result = await Get.find<VideoService>().unlikeVideo(id);
+                              return result.isSuccess;
+                            },
+                            onLikeChanged: (liked) {
                               myVideoStateController.videoInfo.value = 
                                 myVideoStateController.videoInfo.value?.copyWith(
-                                  user: updatedUser,
+                                  liked: liked,
+                                  numLikes: (myVideoStateController.videoInfo.value?.numLikes ?? 0) + 
+                                    (liked ? 1 : -1),
                                 );
                             },
-                          ),
-                        );
-                      }),
-                      const SizedBox(width: 16),
-                      // 作者头像和名称
-                      Obx(() {
-                        final videoInfo = myVideoStateController.videoInfo.value;
-                        if (videoInfo?.user == null) return const SizedBox.shrink();
-                        
-                        return Row(
-                          children: [
-                            AvatarWidget(
-                              avatarUrl: videoInfo?.user?.avatar?.avatarUrl,
-                              defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-                              headers: const {'referer': CommonConstants.iwaraBaseUrl},
-                              radius: 16,
-                              isPremium: videoInfo?.user?.premium ?? false,
-                              isAdmin: videoInfo?.user?.isAdmin ?? false,
+                          );
+                        }),
+                        const SizedBox(width: 16),
+                        // 关注按钮
+                        Obx(() {
+                          final videoInfo = myVideoStateController.videoInfo.value;
+                          if (videoInfo?.user == null) return const SizedBox.shrink();
+                          
+                          return SizedBox(
+                            height: 32,
+                            child: FollowButtonWidget(
+                              user: videoInfo!.user!,
+                              onUserUpdated: (updatedUser) {
+                                myVideoStateController.videoInfo.value = 
+                                  myVideoStateController.videoInfo.value?.copyWith(
+                                    user: updatedUser,
+                                  );
+                              },
                             ),
-                            const SizedBox(width: 8),
-                            ConstrainedBox(
-                              constraints: const BoxConstraints(maxWidth: 200),
-                              child: videoInfo?.user?.premium == true
-                                ? ShaderMask(
-                                    shaderCallback: (bounds) => LinearGradient(
-                                      colors: [
-                                        Colors.purple.shade300,
-                                        Colors.blue.shade300,
-                                        Colors.pink.shade300,
-                                      ],
-                                    ).createShader(bounds),
-                                    child: Text(
+                          );
+                        }),
+                        const SizedBox(width: 16),
+                        // 作者头像和名称
+                        Obx(() {
+                          final videoInfo = myVideoStateController.videoInfo.value;
+                          if (videoInfo?.user == null) return const SizedBox.shrink();
+                          
+                          return Row(
+                            children: [
+                              AvatarWidget(
+                                avatarUrl: videoInfo?.user?.avatar?.avatarUrl,
+                                defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+                                headers: const {'referer': CommonConstants.iwaraBaseUrl},
+                                radius: 16,
+                                isPremium: videoInfo?.user?.premium ?? false,
+                                isAdmin: videoInfo?.user?.isAdmin ?? false,
+                              ),
+                              const SizedBox(width: 8),
+                              ConstrainedBox(
+                                constraints: const BoxConstraints(maxWidth: 200),
+                                child: videoInfo?.user?.premium == true
+                                  ? ShaderMask(
+                                      shaderCallback: (bounds) => LinearGradient(
+                                        colors: [
+                                          Colors.purple.shade300,
+                                          Colors.blue.shade300,
+                                          Colors.pink.shade300,
+                                        ],
+                                      ).createShader(bounds),
+                                      child: Text(
+                                        videoInfo?.user?.name ?? '',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    )
+                                  : Text(
                                       videoInfo?.user?.name ?? '',
                                       style: const TextStyle(
                                         color: Colors.white,
@@ -134,21 +146,12 @@ class BottomToolbar extends StatelessWidget {
                                       ),
                                       overflow: TextOverflow.ellipsis,
                                     ),
-                                  )
-                                : Text(
-                                    videoInfo?.user?.name ?? '',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                            ),
-                          ],
-                        );
-                      }),
-                    ],
+                              ),
+                            ],
+                          );
+                        }),
+                      ],
+                    ),
                   ),
                 ),
               ),

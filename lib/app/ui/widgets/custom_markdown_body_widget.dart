@@ -1,28 +1,27 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:markdown_widget/markdown_widget.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/light_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/utils/url_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../common/constants.dart';
-
 class CustomMarkdownBody extends StatefulWidget {
   final String data;
   final bool? initialShowUnprocessedText;
-  final bool clickInternalLinkByUrlLaunch;  // 当为true时，内部链接也使用urllaunch打开
+  final bool clickInternalLinkByUrlLaunch; // 当为true时，内部链接也使用urllaunch打开
 
   const CustomMarkdownBody({
-    super.key, 
-    required this.data, 
+    super.key,
+    required this.data,
     this.initialShowUnprocessedText,
     this.clickInternalLinkByUrlLaunch = false,
   });
@@ -36,6 +35,9 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
   bool _isProcessing = false;
   bool _showOriginal = false;
   late final ConfigService _configService;
+  final _markdownGenerator = MarkdownGenerator(
+    linesMargin: const EdgeInsets.symmetric(vertical: 4),
+  );
 
   @override
   void dispose() {
@@ -48,7 +50,8 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     super.initState();
     _configService = Get.find<ConfigService>();
     _displayData = widget.data;
-    _showOriginal = widget.initialShowUnprocessedText ?? _configService[ConfigService.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
+    _showOriginal = widget.initialShowUnprocessedText ??
+        _configService[ConfigService.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
     _processMarkdown(widget.data);
   }
 
@@ -113,20 +116,23 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
 
   Future<String> _formatLinks(String data) async {
     final patterns = {
-      'video': RegExp(
-          r'https?://(?:www\.)?iwara\.tv/video/([a-zA-Z0-9]+)(?:/[^\s]*)?',
+      IwaraUrlType.video: RegExp(
+          r'(?<!\]\()https?://(?:www\.)?iwara\.tv/video/([a-zA-Z0-9]+)(?:/[^\s]*)?',
           caseSensitive: false),
-      'forum': RegExp(
-          r'https?://(?:www\.)?iwara\.tv/forum/[^/\s]+/([a-zA-Z0-9-]+)',
+      IwaraUrlType.forum: RegExp(
+          r'(?<!\]\()https?://(?:www\.)?iwara\.tv/forum/[^/\s]+/([a-zA-Z0-9-]+)',
           caseSensitive: false),
-      'image': RegExp(r'https?://(?:www\.)?iwara\.tv/image/([a-zA-Z0-9]+)',
+      IwaraUrlType.image: RegExp(
+          r'(?<!\]\()https?://(?:www\.)?iwara\.tv/image/([a-zA-Z0-9]+)',
           caseSensitive: false),
-      'profile': RegExp(r'https?://(?:www\.)?iwara\.tv/profile/([^/\s]+)',
+      IwaraUrlType.profile: RegExp(
+          r'(?<!\]\()https?://(?:www\.)?iwara\.tv/profile/([^/\s]+)',
           caseSensitive: false),
-      'playlist': RegExp(
-          r'https?://(?:www\.)?iwara\.tv/playlist/([a-zA-Z0-9-]+)',
+      IwaraUrlType.playlist: RegExp(
+          r'(?<!\]\()https?://(?:www\.)?iwara\.tv/playlist/([a-zA-Z0-9-]+)',
           caseSensitive: false),
-      'post': RegExp(r'https?://(?:www\.)?iwara\.tv/post/([a-zA-Z0-9-]+)',
+      IwaraUrlType.post: RegExp(
+          r'(?<!\]\()https?://(?:www\.)?iwara\.tv/post/([a-zA-Z0-9-]+)',
           caseSensitive: false),
     };
 
@@ -138,22 +144,22 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
   }
 
   Future<String> _formatLinkType(
-      String data, String type, RegExp pattern) async {
+      String data, IwaraUrlType type, RegExp pattern) async {
     final matches = pattern.allMatches(data).toList();
     if (matches.isEmpty) return data;
 
     for (final match in matches) {
       if (!mounted || !_isProcessing) return data;
-      
+
       final id = match.group(1)!;
       final originalUrl = match.group(0)!;
 
       final info = await _fetchInfo(type, id);
-
-      final emoji = _getEmoji(type);
+      final emoji = UrlUtils.getIwaraTypeEmoji(type);
+      
       final replacement = info.isSuccess
           ? '[$emoji ${info.data}]($originalUrl)'
-          : '[$emoji ${type.capitalize} $id]($originalUrl)';
+          : '[$emoji ${type.name.capitalize} $id]($originalUrl)';
 
       data = data.replaceAll(originalUrl, replacement);
 
@@ -167,7 +173,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     return data;
   }
 
-  Future<ApiResult<String>> _fetchInfo(String type, String id) async {
+  Future<ApiResult<String>> _fetchInfo(IwaraUrlType type, String id) async {
     LightService? lightService;
     try {
       lightService = Get.find<LightService>();
@@ -178,19 +184,19 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
 
     try {
       switch (type) {
-        case 'video':
+        case IwaraUrlType.video:
           return lightService.fetchLightVideoTitle(id);
-        case 'forum':
+        case IwaraUrlType.forum:
           return lightService.fetchLightForumTitle(id);
-        case 'image':
+        case IwaraUrlType.image:
           return lightService.fetchLightImageTitle(id);
-        case 'profile':
+        case IwaraUrlType.profile:
           final result = await lightService.fetchLightProfile(id);
           if (result.isSuccess && result.data != null) {
             return ApiResult.success(data: result.data!['name'] as String);
           }
           return ApiResult.fail(result.message);
-        case 'playlist':
+        case IwaraUrlType.playlist:
           final result = await lightService.fetchPlaylistInfo(id);
           if (result.isSuccess && result.data != null) {
             return ApiResult.success(data: result.data.toString());
@@ -205,37 +211,29 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     }
   }
 
-  String _getEmoji(String type) {
-    switch (type) {
-      case 'video':
-        return '🎬';
-      case 'forum':
-        return '📌';
-      case 'image':
-        return '🖼️';
-      case 'profile':
-        return '👤';
-      case 'playlist':
-        return '🎵';
-      case 'post':
-        return '💬';
-      default:
-        return '❓';
-    }
-  }
-
   /// 将文本中的链接格式化为 Markdown 链接
   String _formatMarkdownLinks(String data) {
-    // 负向前瞻，确保URL前面不是[文本](
+    // 匹配URL，但不包括结尾的标点符号和括号
     final linkPattern = RegExp(
-      r'(?<!\]\()(\bhttps?://[^\s<]+)',
+      r'(?<!\]\()(?<!https?://(?:www\.)?iwara\.tv/)\b'
+      r'(https?://[^\s<\)"]+?)' // 非贪婪匹配，排除结尾的)和"
+      r'(?=[\s\)"<]|$)', // 正向前瞻确保URL边界正确
       caseSensitive: false,
     );
 
-    return data.replaceAllMapped(linkPattern, (match) {
-      final url = match.group(0);
-      return '[$url]($url)';
+    String processed = data;
+
+    // 处理所有URL
+    processed = processed.replaceAllMapped(linkPattern, (match) {
+      final url = match.group(1)!;
+      final emoji = UrlUtils.getDomainEmoji(url);
+      return '[$emoji $url]($url)';
     });
+
+    // 确保链接后的文本正确换行
+    processed = processed.replaceAll(RegExp(r'\)\s+(?=[a-zA-Z])'), ')\n');
+
+    return processed;
   }
 
   /// 将文本中的换行符替换为两个空格和换行符
@@ -255,51 +253,61 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     });
   }
 
-  void _onTapLink(String text, String? href, String title) async {
-    if (href == null) return;
-
+  void _onTapLink(String url) async {
     try {
-      Uri uri = Uri.parse(href);
+      final urlInfo = UrlUtils.parseUrl(url);
       
-      if (!widget.clickInternalLinkByUrlLaunch && href.startsWith(CommonConstants.iwaraBaseUrl)) {
-        if (href.startsWith('${CommonConstants.iwaraBaseUrl}${ApiConstants.profilePrefix()}')) {
-          final userName = uri.pathSegments.last;
-          NaviService.navigateToAuthorProfilePage(userName);
-        } else if (href.startsWith('${CommonConstants.iwaraBaseUrl}${ApiConstants.galleryDetail()}')) {
-          final imageId = uri.pathSegments.last;
-          NaviService.navigateToGalleryDetailPage(imageId);
-        } else if (href.startsWith('${CommonConstants.iwaraBaseUrl}/video/')) {
-          final videoId = uri.pathSegments[1];
-          NaviService.navigateToVideoDetailPage(videoId);
-        } else if (href.startsWith('${CommonConstants.iwaraBaseUrl}/playlist/')) {
-          final playlistId = uri.pathSegments.last;
-          NaviService.navigateToPlayListDetail(playlistId, isMine: false);
-        } else if (href.startsWith('${CommonConstants.iwaraBaseUrl}/post/')) {
-          final postId = uri.pathSegments.last;
-          NaviService.navigateToPostDetailPage(postId, null);
-        } else if (href.startsWith('${CommonConstants.iwaraBaseUrl}/forum/')) {
-          // 处理论坛链接
-          final segments = uri.pathSegments;
-          if (segments.length >= 2) {
-            final categoryId = segments[1];
-            if (segments.length == 2) {
-              // 只有一段，跳转到列表页
-              NaviService.navigateToForumThreadListPage(categoryId);
-            } else if (segments.length >= 3) {
-              // 有两段或更多，跳转到详情页
-              final threadId = segments[2];
-              NaviService.navigateToForumThreadDetailPage(categoryId, threadId);
+      if (!widget.clickInternalLinkByUrlLaunch && urlInfo.isIwaraUrl) {
+        switch (urlInfo.type) {
+          case IwaraUrlType.profile:
+            if (urlInfo.id != null) {
+              NaviService.navigateToAuthorProfilePage(urlInfo.id!);
             }
-          }
-        } else {
-          await _launchUrl(uri, href);
+            break;
+          case IwaraUrlType.image:
+            if (urlInfo.id != null) {
+              NaviService.navigateToGalleryDetailPage(urlInfo.id!);
+            }
+            break;
+          case IwaraUrlType.video:
+            if (urlInfo.id != null) {
+              NaviService.navigateToVideoDetailPage(urlInfo.id!);
+            }
+            break;
+          case IwaraUrlType.playlist:
+            if (urlInfo.id != null) {
+              NaviService.navigateToPlayListDetail(urlInfo.id!, isMine: false);
+            }
+            break;
+          case IwaraUrlType.post:
+            if (urlInfo.id != null) {
+              NaviService.navigateToPostDetailPage(urlInfo.id!, null);
+            }
+            break;
+          case IwaraUrlType.forum:
+            if (urlInfo.id != null) {
+              NaviService.navigateToForumThreadListPage(urlInfo.id!);
+            }
+            break;
+          case IwaraUrlType.forumThread:
+            if (urlInfo.id != null && urlInfo.secondaryId != null) {
+              NaviService.navigateToForumThreadDetailPage(urlInfo.id!, urlInfo.secondaryId!);
+            }
+            break;
+          case IwaraUrlType.unknown:
+            await _launchUrl(Uri.parse(url), url);
+            break;
         }
       } else {
-        await _launchUrl(uri, href);
+        await _launchUrl(Uri.parse(url), url);
       }
     } catch (e) {
       LogUtils.e('处理链接点击时发生错误', tag: 'CustomMarkdownBody', error: e);
-      showToastWidget(MDToastWidget(message: t.errors.errorWhileOpeningLink(link: href), type: MDToastType.error),position: ToastPosition.top);
+      showToastWidget(
+          MDToastWidget(
+              message: t.errors.errorWhileOpeningLink(link: url),
+              type: MDToastType.error),
+          position: ToastPosition.top);
     }
   }
 
@@ -308,87 +316,108 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
       await launchUrl(uri);
     } else {
       LogUtils.e('无法打开链接: $href', tag: 'CustomMarkdownBody');
-      showToastWidget(MDToastWidget(message: t.errors.errorWhileOpeningLink(link: href), type: MDToastType.error),position: ToastPosition.top);
+      showToastWidget(
+          MDToastWidget(
+              message: t.errors.errorWhileOpeningLink(link: href),
+              type: MDToastType.error),
+          position: ToastPosition.top);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final markdownStyleSheet = MarkdownStyleSheet.fromTheme(
-      Theme.of(context),
-    ).copyWith(
-      p: Theme.of(context).textTheme.bodyMedium,
-      a: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Colors.blue,
-            decoration: TextDecoration.underline,
-          ),
-    );
+    final isDark = Get.theme.brightness == Brightness.dark;
+    final config =
+        isDark ? MarkdownConfig.darkConfig : MarkdownConfig.defaultConfig;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: SizedBox(
-            width: double.infinity,
-            child: MarkdownBody(
-              data: _showOriginal ? widget.data : _displayData,
-              styleSheet: markdownStyleSheet,
-              onTapLink: _onTapLink,
-              selectable: true,
-              imageBuilder: (uri, title, alt) {
-                try {
-                  final imageUrl = uri.toString();
-                  final parsedUri = Uri.tryParse(imageUrl);
-                  if (parsedUri == null || !parsedUri.hasAbsolutePath) {
-                    throw FormatException(t.errors.invalidUrl);
-                  }
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: CachedNetworkImage(
-                      imageUrl: imageUrl,
-                      placeholder: (context, url) => Shimmer.fromColors(
-                        baseColor: Colors.grey[300]!,
-                        highlightColor: Colors.grey[100]!,
-                        child: Container(
-                          width: double.infinity,
-                          height: 200.0,
-                          color: Colors.white,
-                        ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SelectionArea(
+                child: Column(
+                  // start
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: _markdownGenerator.buildWidgets(
+                    _showOriginal ? widget.data : _displayData,
+                    config: config.copy(configs: [
+                      LinkConfig(
+                        onTap: _onTapLink,
                       ),
-                      errorWidget: (context, url, error) => const Icon(Icons.error),
-                      fit: BoxFit.cover,
-                    ),
-                  );
-                } catch (e) {
-                  LogUtils.e('图片加载失败', tag: 'CustomMarkdownBody', error: e);
-                  return const Icon(Icons.error);
-                }
-              },
-            ),
+                      ImgConfig(
+                        builder: (url, attributes) {
+                          try {
+                            final parsedUri = Uri.tryParse(url);
+                            if (parsedUri == null ||
+                                !parsedUri.hasAbsolutePath) {
+                              throw FormatException(t.errors.invalidUrl);
+                            }
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8.0),
+                              child: CachedNetworkImage(
+                                imageUrl: url,
+                                placeholder: (context, url) =>
+                                    Shimmer.fromColors(
+                                  baseColor: Colors.grey[300]!,
+                                  highlightColor: Colors.grey[100]!,
+                                  child: Container(
+                                    width: double.infinity,
+                                    height: 200.0,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                errorWidget: (context, url, error) =>
+                                    const Icon(Icons.error),
+                                fit: BoxFit.cover,
+                              ),
+                            );
+                          } catch (e) {
+                            LogUtils.e('图片加载失败',
+                                tag: 'CustomMarkdownBody', error: e);
+                            return const Icon(Icons.error);
+                          }
+                        },
+                      ),
+                    ]),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  ),
+                  icon: Icon(
+                    _showOriginal
+                        ? Icons.format_paint
+                        : Icons.format_paint_outlined,
+                    size: 14,
+                  ),
+                  iconAlignment: IconAlignment.end,
+                  label: Text(
+                      _showOriginal
+                          ? t.common.showProcessedText
+                          : t.common.showOriginalText,
+                      style: const TextStyle(fontSize: 12)),
+                  onPressed: () {
+                    setState(() {
+                      _showOriginal = !_showOriginal;
+                    });
+                  },
+                ),
+              ),
+            ],
           ),
-        ),
-        const SizedBox(height: 8),
-        Align(
-          alignment: Alignment.centerRight,
-          child: TextButton.icon(
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            ),
-            icon: Icon(
-              _showOriginal ? Icons.format_paint : Icons.format_paint_outlined,
-              size: 14,
-            ),
-            iconAlignment: IconAlignment.end,
-            label: Text(_showOriginal ? t.common.showProcessedText : t.common.showOriginalText, style: const TextStyle(fontSize: 12)),
-            onPressed: () {
-              setState(() {
-                _showOriginal = !_showOriginal;
-              });
-            },
-          ),
-        ),
-      ],
+        );
+      },
     );
   }
 }

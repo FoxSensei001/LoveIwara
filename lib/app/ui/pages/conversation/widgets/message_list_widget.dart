@@ -413,6 +413,46 @@ class _MessageListWidgetState extends State<MessageListWidget> {
                           color: Theme.of(context).hintColor,
                         ),
                       ),
+                      if (!isMe) IconButton(
+                        icon: Icon(
+                          Icons.translate,
+                          size: 18,
+                          color: Theme.of(context).hintColor,
+                        ),
+                        onPressed: showTranslationDialog,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(
+                          minWidth: 24,
+                          minHeight: 24,
+                        ),
+                      ),
+                      if (isMe) const SizedBox(width: 8),
+                      if (isMe) IconButton(
+                        icon: Icon(
+                          Icons.delete_outline,
+                          size: 18,
+                          color: Theme.of(context).hintColor,
+                        ),
+                        onPressed: showDeleteConfirmation,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(
+                          minWidth: 24,
+                          minHeight: 24,
+                        ),
+                      ),
+                      if (isMe) IconButton(
+                        icon: Icon(
+                          Icons.translate,
+                          size: 18,
+                          color: Theme.of(context).hintColor,
+                        ),
+                        onPressed: showTranslationDialog,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(
+                          minWidth: 24,
+                          minHeight: 24,
+                        ),
+                      ),
                       if (isMe) const SizedBox(width: 8),
                       if (isMe) Flexible(
                         child: MouseRegion(
@@ -431,34 +471,6 @@ class _MessageListWidgetState extends State<MessageListWidget> {
                   mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    if (isMe) ...[
-                      IconButton(
-                        icon: Icon(
-                          Icons.delete_outline,
-                          size: 18,
-                          color: Theme.of(context).hintColor,
-                        ),
-                        onPressed: showDeleteConfirmation,
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(
-                          minWidth: 24,
-                          minHeight: 24,
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(
-                          Icons.translate,
-                          size: 18,
-                          color: Theme.of(context).hintColor,
-                        ),
-                        onPressed: showTranslationDialog,
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(
-                          minWidth: 24,
-                          minHeight: 24,
-                        ),
-                      ),
-                    ],
                     Flexible(
                       child: Container(
                         padding: const EdgeInsets.all(12),
@@ -477,19 +489,6 @@ class _MessageListWidgetState extends State<MessageListWidget> {
                           initialShowUnprocessedText: false,
                           clickInternalLinkByUrlLaunch: false,
                         ),
-                      ),
-                    ),
-                    if (!isMe) IconButton(
-                      icon: Icon(
-                        Icons.translate,
-                        size: 18,
-                        color: Theme.of(context).hintColor,
-                      ),
-                      onPressed: showTranslationDialog,
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(
-                        minWidth: 24,
-                        minHeight: 24,
                       ),
                     ),
                   ],

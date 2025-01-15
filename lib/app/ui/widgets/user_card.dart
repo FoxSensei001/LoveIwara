@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/follow_button_widget.dart';
+import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -71,7 +72,7 @@ class _UserCardState extends State<UserCard> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildDisplayName(),
+                    buildUserName(context, user, fontSize: 16),
                     if (user.name.isNotEmpty) ...[
                       const SizedBox(height: 4),
                       _buildUserName(),
@@ -142,40 +143,6 @@ class _UserCardState extends State<UserCard> {
       ),
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-    );
-  }
-
-  Widget _buildDisplayName() {
-    if (!user.premium) {
-      return Text(
-        user.name,
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-        ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      );
-    }
-
-    return ShaderMask(
-      shaderCallback: (bounds) => LinearGradient(
-        colors: [
-          Colors.purple.shade300,
-          Colors.blue.shade300,
-          Colors.pink.shade300,
-        ],
-      ).createShader(bounds),
-      child: Text(
-        user.name,
-        style: const TextStyle(
-          fontSize: 16,
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-        ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
     );
   }
 

@@ -28,7 +28,7 @@ dependencies:
   shimmer: ^3.0.0
   vibration: ^2.0.1
   extended_nested_scroll_view: ^6.2.1
-  flutter_markdown: ^0.7.4+3
+  markdown_widget: ^2.3.2+6
   url_launcher: ^6.3.1
   flutter_animate: ^4.5.2
   photo_view: ^0.15.0

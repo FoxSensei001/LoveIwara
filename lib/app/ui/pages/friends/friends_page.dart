@@ -40,7 +40,7 @@ class _FriendsPageState extends State<FriendsPage>
     _userService.refreshNotificationCount();
 
     _tabController.dispose();
-    _controller.dispose();
+    Get.delete<FriendsController>();
     super.dispose();
   }
 
@@ -145,6 +145,8 @@ class _FriendsPageState extends State<FriendsPage>
       ),
       body: TabBarView(
         controller: _tabController,
+        // 禁用滑动切换
+        physics: const NeverScrollableScrollPhysics(),
         children: [
           FriendList(
             scrollController: _controller.friendListScrollController,
