@@ -54,6 +54,7 @@ dependencies:
   yaml: any
   screen_brightness: any
   volume_controller: any
+  flutter_displaymode: ^0.6.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

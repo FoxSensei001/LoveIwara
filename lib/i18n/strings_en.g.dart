@@ -517,8 +517,8 @@ class TranslationsSettingsEn {
 	String get showUnprocessedMarkdownText => 'Show Unprocessed Markdown Text';
 	String get showUnprocessedMarkdownTextDesc => 'Show the original text of the markdown';
 	String get markdown => 'Markdown';
-	String get activeBackgroundPrivacyMode => 'Active Background Privacy Mode';
-	String get activeBackgroundPrivacyModeDesc => 'Active background privacy mode';
+	String get activeBackgroundPrivacyMode => 'Privacy Mode';
+	String get activeBackgroundPrivacyModeDesc => 'Prevent screenshots, hide screen when running in the background...';
 	String get privacy => 'Privacy';
 	String get forum => 'Forum';
 	String get disableForumReplyQuote => 'Disable Forum Reply Quote';
@@ -1255,8 +1255,8 @@ extension on Translations {
 			case 'settings.showUnprocessedMarkdownText': return 'Show Unprocessed Markdown Text';
 			case 'settings.showUnprocessedMarkdownTextDesc': return 'Show the original text of the markdown';
 			case 'settings.markdown': return 'Markdown';
-			case 'settings.activeBackgroundPrivacyMode': return 'Active Background Privacy Mode';
-			case 'settings.activeBackgroundPrivacyModeDesc': return 'Active background privacy mode';
+			case 'settings.activeBackgroundPrivacyMode': return 'Privacy Mode';
+			case 'settings.activeBackgroundPrivacyModeDesc': return 'Prevent screenshots, hide screen when running in the background...';
 			case 'settings.privacy': return 'Privacy';
 			case 'settings.forum': return 'Forum';
 			case 'settings.disableForumReplyQuote': return 'Disable Forum Reply Quote';

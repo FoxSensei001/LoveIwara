@@ -381,8 +381,8 @@ settings:
   showUnprocessedMarkdownText: 顯示未處理文本
   showUnprocessedMarkdownTextDesc: 顯示Markdown的原始文本
   markdown: Markdown
-  activeBackgroundPrivacyMode: 激活後台隱私模式
-  activeBackgroundPrivacyModeDesc: 激活後台隱私模式
+  activeBackgroundPrivacyMode: 隱私模式
+  activeBackgroundPrivacyModeDesc: 禁止截圖、後台運行時隱藏畫面...
   privacy: 隱私
   forum: 論壇
   disableForumReplyQuote: 禁用論壇回覆引用

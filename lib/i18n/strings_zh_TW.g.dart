@@ -513,8 +513,8 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get showUnprocessedMarkdownText => '顯示未處理文本';
 	@override String get showUnprocessedMarkdownTextDesc => '顯示Markdown的原始文本';
 	@override String get markdown => 'Markdown';
-	@override String get activeBackgroundPrivacyMode => '激活後台隱私模式';
-	@override String get activeBackgroundPrivacyModeDesc => '激活後台隱私模式';
+	@override String get activeBackgroundPrivacyMode => '隱私模式';
+	@override String get activeBackgroundPrivacyModeDesc => '禁止截圖、後台運行時隱藏畫面...';
 	@override String get privacy => '隱私';
 	@override String get forum => '論壇';
 	@override String get disableForumReplyQuote => '禁用論壇回覆引用';
@@ -1254,8 +1254,8 @@ extension on TranslationsZhTw {
 			case 'settings.showUnprocessedMarkdownText': return '顯示未處理文本';
 			case 'settings.showUnprocessedMarkdownTextDesc': return '顯示Markdown的原始文本';
 			case 'settings.markdown': return 'Markdown';
-			case 'settings.activeBackgroundPrivacyMode': return '激活後台隱私模式';
-			case 'settings.activeBackgroundPrivacyModeDesc': return '激活後台隱私模式';
+			case 'settings.activeBackgroundPrivacyMode': return '隱私模式';
+			case 'settings.activeBackgroundPrivacyModeDesc': return '禁止截圖、後台運行時隱藏畫面...';
 			case 'settings.privacy': return '隱私';
 			case 'settings.forum': return '論壇';
 			case 'settings.disableForumReplyQuote': return '禁用論壇回覆引用';

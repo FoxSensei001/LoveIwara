@@ -20,6 +20,7 @@ import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_li
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/top_padding_height_widget.dart';
+import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/image_utils.dart';
 import 'package:oktoast/oktoast.dart';
@@ -410,342 +411,357 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
       SliverToBoxAdapter(
         child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                AvatarWidget(
-                  avatarUrl: profileController.author.value?.avatar?.avatarUrl,
-                  defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-                  headers: const {'referer': CommonConstants.iwaraBaseUrl},
-                  radius: 40,
-                  isPremium: profileController.author.value?.premium ?? false,
-                  isAdmin: profileController.author.value?.isAdmin ?? false,
-                ),
-                const SizedBox(width: 16),
-                // 用户名、粉丝数、关注数
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          // 修改名称样式，使用主题色并加粗
-                          Obx(() {
-                            bool isPremium =
-                                profileController.author.value?.premium == true;
-                            if (!isPremium) {
-                              return SelectableText(
-                                profileController.author.value?.name ?? '',
-                                style: TextStyle(
-                                  fontSize: Theme.of(context)
-                                      .textTheme
-                                      .headlineMedium
-                                      ?.fontSize,
-                                  fontWeight: FontWeight.bold,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                              );
-                            }
-
-                            return ShaderMask(
-                              shaderCallback: (bounds) => LinearGradient(
-                                colors: [
-                                  Colors.purple.shade300,
-                                  Colors.blue.shade300,
-                                  Colors.pink.shade300,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isNarrowScreen = constraints.maxWidth < 400;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AvatarWidget(
+                          avatarUrl: profileController.author.value?.avatar?.avatarUrl,
+                          defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+                          headers: const {'referer': CommonConstants.iwaraBaseUrl},
+                          radius: isNarrowScreen ? 30 : 40,
+                          isPremium: profileController.author.value?.premium ?? false,
+                          isAdmin: profileController.author.value?.isAdmin ?? false,
+                        ),
+                        const SizedBox(width: 16),
+                        // 用户名、粉丝数、关注数
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Wrap(
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                children: [
+                                  // 修改名称样式，使用主题色并加粗
+                                  Obx(() {
+                                    return SelectionArea(child: buildUserName(
+                                      context, 
+                                      profileController.author.value!, 
+                                      fontSize: isNarrowScreen ? 16 : 20, 
+                                      bold: true,
+                                      overflowLines: 4,
+                                    ));
+                                  }),
+                                  const SizedBox(width: 8),
+                                  Obx(() {
+                                    bool isPremium =
+                                        profileController.author.value?.premium == true;
+                                    return isPremium
+                                        ? Tooltip(
+                                            triggerMode: TooltipTriggerMode.tap,
+                                            message: t.common.premium,
+                                            preferBelow: false,
+                                            child: Icon(
+                                              Icons.stars,
+                                              color:
+                                                  Theme.of(context).colorScheme.primary,
+                                            ),
+                                          )
+                                        : const SizedBox.shrink();
+                                  }),
+                                  Obx(() {
+                                    // 是粉丝
+                                    bool isFollower =
+                                        profileController.author.value?.followedBy ??
+                                            false;
+                                    return isFollower
+                                        ? Tooltip(
+                                            triggerMode: TooltipTriggerMode.tap,
+                                            message: t.common.follower,
+                                            preferBelow: false,
+                                            child: Icon(
+                                              Icons.person_add,
+                                              color:
+                                                  Theme.of(context).colorScheme.primary,
+                                            ),
+                                          )
+                                        : const SizedBox.shrink();
+                                  }),
+                                  Obx(() {
+                                    // 是朋友
+                                    bool isFriend =
+                                        profileController.author.value?.friend ?? false;
+                                    return isFriend
+                                        ? Tooltip(
+                                            triggerMode: TooltipTriggerMode.tap,
+                                            message: t.common.friend,
+                                            preferBelow: false,
+                                            child: Icon(
+                                              Icons.favorite,
+                                              color:
+                                                  Theme.of(context).colorScheme.primary,
+                                            ),
+                                          )
+                                        : const SizedBox.shrink();
+                                  })
                                 ],
-                              ).createShader(bounds),
-                              child: SelectableText(
-                                profileController.author.value?.name ?? '',
-                                style: const TextStyle(
-                                  fontSize: 32,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
                               ),
-                            );
-                          }),
-                          const SizedBox(width: 8),
-                          Obx(() {
-                            bool isPremium =
-                                profileController.author.value?.premium == true;
-                            return isPremium
-                                ? Tooltip(
-                                    triggerMode: TooltipTriggerMode.tap,
-                                    message: t.common.premium,
-                                    preferBelow: false,
-                                    child: Icon(
-                                      Icons.stars,
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                    ),
-                                  )
-                                : const SizedBox.shrink();
-                          }),
-                          Obx(() {
-                            // 是粉丝
-                            bool isFollower =
-                                profileController.author.value?.followedBy ??
-                                    false;
-                            return isFollower
-                                ? Tooltip(
-                                    triggerMode: TooltipTriggerMode.tap,
-                                    message: t.common.follower,
-                                    preferBelow: false,
-                                    child: Icon(
-                                      Icons.person_add,
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                    ),
-                                  )
-                                : const SizedBox.shrink();
-                          }),
-                          Obx(() {
-                            // 是朋友
-                            bool isFriend =
-                                profileController.author.value?.friend ?? false;
-                            return isFriend
-                                ? Tooltip(
-                                    triggerMode: TooltipTriggerMode.tap,
-                                    message: t.common.friend,
-                                    preferBelow: false,
-                                    child: Icon(
-                                      Icons.favorite,
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                    ),
-                                  )
-                                : const SizedBox.shrink();
-                          })
-                        ],
-                      ),
-                      Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        spacing: 8.0,
-                        runSpacing: 4.0,
-                        children: [
-                          // 用户名
-                          Obx(() {
-                            final username =
-                                profileController.author.value?.username;
-                            if (username != null && username.isNotEmpty) {
-                              return SelectableText(
-                                '@$username',
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.fontSize,
-                                ),
-                              );
-                            } else {
-                              return const SizedBox.shrink();
-                            }
-                          }),
-                          MouseRegion(
-                            cursor: SystemMouseCursors.click, // 设置鼠标光标为点击效果
-                            child: Obx(() {
-                              final followerCount =
-                                  CommonUtils.formatFriendlyNumber(
-                                      profileController.followerCounts.value
-                                          .toInt());
-                              return GestureDetector(
-                                onTap: () {
-                                  NaviService.navigateToFollowersListPage(
-                                    profileController.author.value?.id ?? '',
-                                    profileController.author.value?.name ?? '',
-                                    profileController.author.value?.username ??
-                                        '',
-                                  );
-                                },
-                                child: Text(
-                                  '$followerCount ${t.common.follower}',
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.fontSize,
+                              Wrap(
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                spacing: 8.0,
+                                runSpacing: 4.0,
+                                children: [
+                                  // 用户名
+                                  Obx(() {
+                                    final username =
+                                        profileController.author.value?.username;
+                                    if (username != null && username.isNotEmpty) {
+                                      return SelectableText(
+                                        '@$username',
+                                        style: TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: isNarrowScreen 
+                                              ? Theme.of(context).textTheme.bodySmall?.fontSize
+                                              : Theme.of(context).textTheme.bodyMedium?.fontSize,
+                                        ),
+                                      );
+                                    } else {
+                                      return const SizedBox.shrink();
+                                    }
+                                  }),
+                                  MouseRegion(
+                                    cursor: SystemMouseCursors.click, // 设置鼠标光标为点击效果
+                                    child: Obx(() {
+                                      final followerCount =
+                                          CommonUtils.formatFriendlyNumber(
+                                              profileController.followerCounts.value
+                                                  .toInt());
+                                      return GestureDetector(
+                                        onTap: () {
+                                          NaviService.navigateToFollowersListPage(
+                                            profileController.author.value?.id ?? '',
+                                            profileController.author.value?.name ?? '',
+                                            profileController.author.value?.username ??
+                                                '',
+                                          );
+                                        },
+                                        child: Text(
+                                          '$followerCount ${t.common.follower}',
+                                          style: TextStyle(
+                                            color: Colors.grey,
+                                            fontSize: isNarrowScreen 
+                                                ? Theme.of(context).textTheme.bodySmall?.fontSize
+                                                : Theme.of(context).textTheme.bodyMedium?.fontSize,
+                                          ),
+                                        ),
+                                      );
+                                    }),
                                   ),
-                                ),
-                              );
-                            }),
-                          ),
 
-                          MouseRegion(
-                            cursor: SystemMouseCursors.click, // 设置鼠标光标为点击效果
-                            child: Obx(() {
-                              final followingCount =
-                                  CommonUtils.formatFriendlyNumber(
-                                      profileController.followingCounts.value
-                                          .toInt());
-                              return GestureDetector(
-                                onTap: () {
-                                  NaviService.navigateToFollowingListPage(
-                                      profileController.author.value?.id ?? '',
-                                      profileController.author.value?.name ??
-                                          '',
-                                      profileController
-                                              .author.value?.username ??
-                                          '');
-                                },
-                                child: Text(
-                                  '$followingCount ${t.common.following}',
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.fontSize,
+                                  MouseRegion(
+                                    cursor: SystemMouseCursors.click, // 设置鼠标光标为点击效果
+                                    child: Obx(() {
+                                      final followingCount =
+                                          CommonUtils.formatFriendlyNumber(
+                                              profileController.followingCounts.value
+                                                  .toInt());
+                                      return GestureDetector(
+                                        onTap: () {
+                                          NaviService.navigateToFollowingListPage(
+                                              profileController.author.value?.id ?? '',
+                                              profileController.author.value?.name ??
+                                                  '',
+                                              profileController
+                                                      .author.value?.username ??
+                                                  '');
+                                        },
+                                        child: Text(
+                                          '$followingCount ${t.common.following}',
+                                          style: TextStyle(
+                                            color: Colors.grey,
+                                            fontSize: isNarrowScreen 
+                                                ? Theme.of(context).textTheme.bodySmall?.fontSize
+                                                : Theme.of(context).textTheme.bodyMedium?.fontSize,
+                                          ),
+                                        ),
+                                      );
+                                    }),
                                   ),
-                                ),
-                              );
-                            }),
-                          ),
 
-                          // 视频数
-                          Obx(() {
-                            final videoCount = CommonUtils.formatFriendlyNumber(
-                                profileController.videoCounts.value?.toInt() ??
-                                    0);
-                            return Text(
-                              '$videoCount ${t.common.video}',
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontSize: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.fontSize,
-                              ),
-                            );
-                          }),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 16.0,
-                        runSpacing: 8.0,
-                        children: [
-                          // 朋友
-                          Obx(() {
-                            // 如果是本人，则不显示按钮
-                            if (userService.currentUser.value?.id ==
-                                profileController.author.value?.id) {
-                              return const SizedBox.shrink();
-                            }
-
-                            // 加载中状态
-                            if (profileController.isFriendLoading.value) {
-                              return ElevatedButton.icon(
-                                onPressed: null,
-                                icon: const Icon(Icons.person_add, size: 18),
-                                label: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const SizedBox(
-                                      width: 12,
-                                      height: 12,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
+                                  // 视频数
+                                  Obx(() {
+                                    final videoCount = CommonUtils.formatFriendlyNumber(
+                                        profileController.videoCounts.value?.toInt() ??
+                                            0);
+                                    return Text(
+                                      '$videoCount ${t.common.video}',
+                                      style: TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: isNarrowScreen 
+                                            ? Theme.of(context).textTheme.bodySmall?.fontSize
+                                            : Theme.of(context).textTheme.bodyMedium?.fontSize,
                                       ),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(t.common.loading),
+                                    );
+                                  }),
+                                ],
+                              ),
+                              SizedBox(height: isNarrowScreen ? 4 : 8),
+                              SizedBox(
+                                width: double.infinity,
+                                child: Wrap(
+                                  spacing: isNarrowScreen ? 8.0 : 16.0,
+                                  runSpacing: isNarrowScreen ? 4.0 : 8.0,
+                                  alignment: WrapAlignment.start,
+                                  children: [
+                                    // 朋友按钮
+                                    Obx(() {
+                                      // 如果是本人，则不显示按钮
+                                      if (userService.currentUser.value?.id ==
+                                          profileController.author.value?.id) {
+                                        return const SizedBox.shrink();
+                                      }
+
+                                      // 加载中状态
+                                      if (profileController.isFriendLoading.value) {
+                                        return SizedBox(
+                                          height: isNarrowScreen ? 32 : 36,
+                                          child: ElevatedButton.icon(
+                                            onPressed: null,
+                                            icon: const Icon(Icons.person_add, size: 16),
+                                            label: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                const SizedBox(
+                                                  width: 12,
+                                                  height: 12,
+                                                  child: CircularProgressIndicator(
+                                                    strokeWidth: 2,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 4),
+                                                Text(t.common.loading, 
+                                                  style: TextStyle(
+                                                    fontSize: isNarrowScreen ? 12 : 14
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      }
+
+                                      // 处于代办状态
+                                      Widget button;
+                                      if (profileController.isFriendRequestPending.value) {
+                                        button = ElevatedButton.icon(
+                                          onPressed: () {
+                                            // 取消朋友申请
+                                            profileController.cancelFriendRequest();
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.orange,
+                                          ),
+                                          icon: Icon(Icons.person_remove, size: isNarrowScreen ? 16 : 18),
+                                          label: Text(
+                                            t.common.cancelFriendRequest,
+                                            style: TextStyle(fontSize: isNarrowScreen ? 12 : 14),
+                                          ),
+                                        );
+                                      } else if (profileController.author.value?.friend == true) {
+                                        button = ElevatedButton.icon(
+                                          onPressed: () {
+                                            // 取消朋友
+                                            profileController.cancelFriendRequest();
+                                          },
+                                          icon: Icon(Icons.person_remove, size: isNarrowScreen ? 16 : 18),
+                                          label: Text(
+                                            t.common.removeFriend,
+                                            style: TextStyle(fontSize: isNarrowScreen ? 12 : 14),
+                                          ),
+                                        );
+                                      } else {
+                                        button = ElevatedButton.icon(
+                                          onPressed: () {
+                                            // 发送朋友申请
+                                            profileController.sendFriendRequest();
+                                          },
+                                          icon: Icon(Icons.person_add, size: isNarrowScreen ? 16 : 18),
+                                          label: Text(
+                                            t.common.addFriend,
+                                            style: TextStyle(fontSize: isNarrowScreen ? 12 : 14),
+                                          ),
+                                        );
+                                      }
+                                      
+                                      return SizedBox(
+                                        height: isNarrowScreen ? 32 : 36,
+                                        child: button,
+                                      );
+                                    }),
+                                    // 关注按钮
+                                    Obx(() {
+                                      // 如果是本人，则不显示按钮
+                                      if (userService.currentUser.value?.id ==
+                                          profileController.author.value?.id) {
+                                        return const SizedBox.shrink();
+                                      }
+
+                                      if (profileController.author.value == null) {
+                                        return const SizedBox.shrink();
+                                      }
+
+                                      return SizedBox(
+                                        height: isNarrowScreen ? 32 : 36,
+                                        child: FollowButtonWidget(
+                                          user: profileController.author.value!,
+                                          onUserUpdated: (updatedUser) {
+                                            profileController.author.value = updatedUser;
+                                          },
+                                        ),
+                                      );
+                                    }),
                                   ],
                                 ),
-                              );
-                            }
-
-                            // 处于代办状态
-                            if (profileController
-                                .isFriendRequestPending.value) {
-                              return ElevatedButton.icon(
-                                onPressed: () {
-                                  // 取消朋友申请
-                                  profileController.cancelFriendRequest();
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.orange,
-                                ),
-                                icon: const Icon(Icons.person_remove, size: 18),
-                                label: Text(t.common.cancelFriendRequest),
-                              );
-                              // 是朋友
-                            } else if (profileController.author.value?.friend ==
-                                true) {
-                              return ElevatedButton.icon(
-                                onPressed: () {
-                                  // 取消朋友
-                                  profileController.cancelFriendRequest();
-                                },
-                                icon: const Icon(Icons.person_remove, size: 18),
-                                label: Text(t.common.removeFriend),
-                              );
-                            } else {
-                              return ElevatedButton.icon(
-                                onPressed: () {
-                                  // 发送朋友申请
-                                  profileController.sendFriendRequest();
-                                },
-                                icon: const Icon(Icons.person_add, size: 18),
-                                label: Text(t.common.addFriend),
-                              );
-                            }
-                          }),
-                          // 关注
-                          Obx(() {
-                            // 如果是本人，则不显示按钮
-                            if (userService.currentUser.value?.id ==
-                                profileController.author.value?.id) {
-                              return const SizedBox.shrink();
-                            }
-
-                            if (profileController.author.value == null) {
-                              return const SizedBox.shrink();
-                            }
-
-                            return FollowButtonWidget(
-                              user: profileController.author.value!,
-                              onUserUpdated: (updatedUser) {
-                                profileController.author.value = updatedUser;
-                              },
-                            );
-                          }),
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-              ],
+                              )
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: isNarrowScreen ? 4 : 8),
+                    Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: isNarrowScreen ? 4.0 : 8.0,
+                      runSpacing: isNarrowScreen ? 2.0 : 4.0,
+                      children: [
+                        // 个人简介
+                        Obx(() {
+                          return MediaDescriptionWidget(
+                            defaultMaxLines: 1,
+                            description: profileController.authorDescription.value,
+                            isDescriptionExpanded: profileController.isDescriptionExpanded,
+                          );
+                        }),
+                        SizedBox(
+                          height: isNarrowScreen ? 4 : 8,
+                          child: const SizedBox.shrink(),
+                        ),
+                        CommentEntryAreaButtonWidget(
+                          commentController: profileController.commentController,
+                          onClickButton: () {
+                            showCommentModal(context);
+                          },
+                        ),
+                        SizedBox(
+                          height: isNarrowScreen ? 4 : 8,
+                          child: const SizedBox.shrink(),
+                        ),
+                        SizedBox(
+                          height: Get.context != null
+                              ? MediaQuery.of(Get.context!).padding.bottom
+                              : 0,
+                        ),
+                      ],
+                    ),
+                  ],
+                );
+              },
             )),
-      ),
-      // 个人简介
-      SliverToBoxAdapter(
-        child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: MediaDescriptionWidget(
-              defaultMaxLines: 1,
-              description: profileController.authorDescription.value,
-              isDescriptionExpanded: profileController.isDescriptionExpanded,
-            )),
-      ),
-      SliverToBoxAdapter(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: CommentEntryAreaButtonWidget(
-            commentController: profileController.commentController,
-            onClickButton: () {
-              showCommentModal(context);
-            },
-          ),
-        ),
-      ),
-      SliverToBoxAdapter(
-        child: SizedBox(
-            height: Get.context != null
-                ? MediaQuery.of(Get.context!).padding.bottom
-                : 0),
       ),
       // TabBar
     ];

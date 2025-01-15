@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:flutter/services.dart';
 import 'package:i_iwara/app/models/sort.model.dart';
 import 'package:i_iwara/app/services/storage_service.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -6,6 +7,7 @@ import 'package:i_iwara/utils/logger_utils.dart';
 
 class ConfigService extends GetxService {
   late final StorageService storage;
+  static const screenshotChannel = MethodChannel('i_iwara/screenshot');
 
   // 配置的键
   static const String AUTO_PLAY_KEY = 'auto_play'; // 自动播放
@@ -28,7 +30,7 @@ class ConfigService extends GetxService {
   static const String RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN =
       'render_vertical_video_in_vertical_screen'; // 在竖屏中渲染竖向视频
   static const String ACTIVE_BACKGROUND_PRIVACY_MODE =
-      'active_background_privacy_mode'; // 激活后台隐私模式
+      'active_background_privacy_mode'; // 激活隐私模式
   static const String DEFAULT_LANGUAGE_KEY = 'default_language'; // 默认语言
   static const String THEME_MODE_KEY = 'theme_mode'; // 添加主题模式配置键
   static const String _TRANSLATION_LANGUAGE = 'translation_language';
@@ -87,6 +89,11 @@ class ConfigService extends GetxService {
     storage = StorageService();
     await _loadSettings();
 
+    // 检查是否需要激活隐私模式
+    if (settings[ACTIVE_BACKGROUND_PRIVACY_MODE]!.value == true) {
+      await screenshotChannel.invokeMethod('preventScreenshot');
+    }
+
     // 单独初始化翻译语言
     final savedLanguage = storage.readData(_TRANSLATION_LANGUAGE) ?? settings[DEFAULT_LANGUAGE_KEY]!.value;
     _currentTranslationSort = (CommonConstants.translationSorts.firstWhere(
@@ -130,6 +137,18 @@ class ConfigService extends GetxService {
     if (settings.containsKey(key)) {
       settings[key]!.value = value;
       await _saveSetting(key, value);
+
+      // 处理隐私模式的变更
+      // 如果是安卓模式
+      if (GetPlatform.isAndroid) {
+        if (key == ACTIVE_BACKGROUND_PRIVACY_MODE) {
+          if (value == true) {
+            await screenshotChannel.invokeMethod('preventScreenshot');
+          } else {
+            await screenshotChannel.invokeMethod('allowScreenshot');
+          }
+        }
+      }
     } else {
       throw Exception("未知的配置键: $key");
     }

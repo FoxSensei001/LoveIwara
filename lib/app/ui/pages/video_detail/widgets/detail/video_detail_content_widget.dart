@@ -9,6 +9,7 @@ import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/video_descripti
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
+import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:oktoast/oktoast.dart';
@@ -253,7 +254,7 @@ class VideoDetailContent extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 // 作者信息区域，包括头像和用户名
-                _buildAuthorInfo(),
+                _buildAuthorInfo(context),
                 const SizedBox(height: 12),
                 // 视频发布时间和观看次数
                 Padding(
@@ -440,7 +441,7 @@ class VideoDetailContent extends StatelessWidget {
     return avatar;
   }
 
-  Widget _buildAuthorNameButton() {
+  Widget _buildAuthorNameButton(BuildContext context) {
     final user = controller.videoInfo.value?.user;
     if (user?.premium == true) {
       return MouseRegion(
@@ -452,25 +453,7 @@ class VideoDetailContent extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ShaderMask(
-                shaderCallback: (bounds) => LinearGradient(
-                  colors: [
-                    Colors.purple.shade300,
-                    Colors.blue.shade300,
-                    Colors.pink.shade300,
-                  ],
-                ).createShader(bounds),
-                child: Text(
-                  user?.name ?? '',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
+              buildUserName(context, user, fontSize: 16, bold: true),
               Text(
                 '@${user?.username ?? ''}',
                 style: TextStyle(
@@ -521,7 +504,7 @@ class VideoDetailContent extends StatelessWidget {
     );
   }
 
-  Widget _buildAuthorInfo() {
+  Widget _buildAuthorInfo(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Row(
@@ -529,7 +512,7 @@ class VideoDetailContent extends StatelessWidget {
           _buildAuthorAvatar(),
           const SizedBox(width: 12),
           Expanded(
-            child: _buildAuthorNameButton(),
+            child: _buildAuthorNameButton(context),
           ),
           if (controller.videoInfo.value?.user != null)
             Container(

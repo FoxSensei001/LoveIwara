@@ -518,8 +518,8 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get showUnprocessedMarkdownText => '显示未处理文本';
 	@override String get showUnprocessedMarkdownTextDesc => '显示Markdown的原始文本';
 	@override String get markdown => 'Markdown';
-	@override String get activeBackgroundPrivacyMode => '激活后台隐私模式';
-	@override String get activeBackgroundPrivacyModeDesc => '激活后台隐私模式';
+	@override String get activeBackgroundPrivacyMode => '隐私模式';
+	@override String get activeBackgroundPrivacyModeDesc => '禁止截图、后台运行时隐藏画面...';
 	@override String get privacy => '隐私';
 	@override String get forum => '论坛';
 	@override String get disableForumReplyQuote => '禁用论坛回复引用';
@@ -1261,8 +1261,8 @@ extension on TranslationsZhCn {
 			case 'settings.showUnprocessedMarkdownText': return '显示未处理文本';
 			case 'settings.showUnprocessedMarkdownTextDesc': return '显示Markdown的原始文本';
 			case 'settings.markdown': return 'Markdown';
-			case 'settings.activeBackgroundPrivacyMode': return '激活后台隐私模式';
-			case 'settings.activeBackgroundPrivacyModeDesc': return '激活后台隐私模式';
+			case 'settings.activeBackgroundPrivacyMode': return '隐私模式';
+			case 'settings.activeBackgroundPrivacyModeDesc': return '禁止截图、后台运行时隐藏画面...';
 			case 'settings.privacy': return '隐私';
 			case 'settings.forum': return '论坛';
 			case 'settings.disableForumReplyQuote': return '禁用论坛回复引用';

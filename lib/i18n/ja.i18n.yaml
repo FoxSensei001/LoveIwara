@@ -376,12 +376,12 @@ settings:
   configureYourAppSettings: アプリ設定を設定
   history: 履歴
   autoRecordHistory: 自動記録履歴
-  autoRecordHistoryDesc: 自動記録您觀看過的影片和圖庫等信息
+  autoRecordHistoryDesc: 視聴した動画やギャラリーなどの情報を自動的に記録します
   showUnprocessedMarkdownText: 未処理のMarkdownテキストを表示
   showUnprocessedMarkdownTextDesc: Markdownの元のテキストを表示
   markdown: Markdown
-  activeBackgroundPrivacyMode: バックグラウンドプライバシーモードを有効にする
-  activeBackgroundPrivacyModeDesc: バックグラウンドプライバシーモードを有効にする
+  activeBackgroundPrivacyMode: プライバシーモード
+  activeBackgroundPrivacyModeDesc: スクリーンショットを禁止し、バックグラウンド実行時に画面を隠す...
   privacy: プライバシー
   forum: フォーラム
   disableForumReplyQuote: フォーラム返信引用を無効にする

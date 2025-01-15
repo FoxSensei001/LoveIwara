@@ -213,7 +213,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
 
   /// 将文本中的链接格式化为 Markdown 链接
   String _formatMarkdownLinks(String data) {
-    // 匹配URL，但不包括结尾的标点符号和括号
+    // 匹配URL，但不包括结尾的标点符号和括号，且排除已经是markdown格式的链接
     final linkPattern = RegExp(
       r'(?<!\]\()(?<!https?://(?:www\.)?iwara\.tv/)\b'
       r'(https?://[^\s<\)"]+?)' // 非贪婪匹配，排除结尾的)和"
@@ -227,7 +227,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     processed = processed.replaceAllMapped(linkPattern, (match) {
       final url = match.group(1)!;
       final emoji = UrlUtils.getDomainEmoji(url);
-      return '[$emoji $url]($url)';
+      return '$emoji [$url]($url)';
     });
 
     // 确保链接后的文本正确换行

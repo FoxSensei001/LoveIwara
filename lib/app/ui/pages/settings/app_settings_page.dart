@@ -179,6 +179,7 @@ class AppSettingsPage extends StatelessWidget {
               ],
             ),
           ),
+          const SafeArea(child: SizedBox.shrink()),
         ],
       ),
     );

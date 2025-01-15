@@ -379,8 +379,8 @@ settings:
   showUnprocessedMarkdownText: Show Unprocessed Markdown Text
   showUnprocessedMarkdownTextDesc: Show the original text of the markdown
   markdown: Markdown
-  activeBackgroundPrivacyMode: Active Background Privacy Mode
-  activeBackgroundPrivacyModeDesc: Active background privacy mode
+  activeBackgroundPrivacyMode: Privacy Mode
+  activeBackgroundPrivacyModeDesc: Prevent screenshots, hide screen when running in the background...
   privacy: Privacy
   forum: Forum
   disableForumReplyQuote: Disable Forum Reply Quote

@@ -387,8 +387,8 @@ settings:
   showUnprocessedMarkdownText: 显示未处理文本
   showUnprocessedMarkdownTextDesc: 显示Markdown的原始文本
   markdown: Markdown
-  activeBackgroundPrivacyMode: 激活后台隐私模式
-  activeBackgroundPrivacyModeDesc: 激活后台隐私模式
+  activeBackgroundPrivacyMode: 隐私模式
+  activeBackgroundPrivacyModeDesc: 禁止截图、后台运行时隐藏画面...
   privacy: 隐私
   forum: 论坛
   disableForumReplyQuote: 禁用论坛回复引用

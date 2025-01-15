@@ -22,6 +22,7 @@ import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/proxy/proxy_util.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:flutter_displaymode/flutter_displaymode.dart';
 
 import 'app/my_app.dart';
 import 'app/services/api_service.dart';
@@ -55,6 +56,17 @@ void main() {
 
     // 确保Flutter初始化
     WidgetsFlutterBinding.ensureInitialized();
+
+    // 设置最高刷新率(仅Android)
+    if (Platform.isAndroid) {
+      try {
+        await FlutterDisplayMode.setHighRefreshRate();
+        LogUtils.i('已设置最高刷新率', '启动初始化');
+      } catch (e) {
+        LogUtils.e('设置刷新率失败', tag: '启动初始化', error: e);
+      }
+    }
+
     // 初始化深度链接服务
     final deepLinkService = DeepLinkService();
     await deepLinkService.init();
