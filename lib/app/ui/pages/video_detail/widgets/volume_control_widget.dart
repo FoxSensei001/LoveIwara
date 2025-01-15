@@ -130,6 +130,8 @@ class _VolumeControlState extends State<VolumeControl>
                     value: volume,
                     min: 0.0,
                     max: 1.0,
+                    focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
+                    autofocus: false,
                     onChanged: (double newVolume) {
                       widget.myVideoStateController.setVolume(newVolume);
                     },

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -37,6 +39,12 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   final ConfigService _configService = Get.find();
   final AppService _appService = Get.find();
 
+  Timer? _autoHideTimer;
+  Timer? _volumeInfoTimer; // 添加音量提示计时器
+  DateTime? _lastLeftKeyPressTime;
+  DateTime? _lastRightKeyPressTime;
+  static const Duration _debounceTime = Duration(milliseconds: 300);
+
   late AnimationController _leftRippleController1;
   late AnimationController _leftRippleController2;
   bool _isLeftRippleActive1 = false;
@@ -63,13 +71,21 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       _appService.hideSystemUI();
       // 继续播放
       widget.myVideoStateController.player.play();
+      // 确保在全屏状态下获取焦点
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _focusNode.requestFocus();
+      });
     }
-
-    // 请求焦点以监听键盘事件
-    _focusNode.requestFocus();
 
     _initializeAnimationControllers();
     _initializeInfoMessageController();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // 在依赖变化时重新请求焦点
+    _focusNode.requestFocus();
   }
 
   void _initializeAnimationControllers() {
@@ -123,40 +139,45 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     _rightRippleController1.dispose();
     _rightRippleController2.dispose();
     _infoMessageFadeController.dispose();
+    _autoHideTimer?.cancel();
+    _volumeInfoTimer?.cancel(); // 取消音量提示计时器
     super.dispose();
   }
 
-  /// 处理键盘事件
-  /// TODO: [不会修] 当连续按下时，会导致这里监听不到消息，但播放器却自己进行了回退进度的操作，疑似是被media_kit的原生按键监听给拦截了
-  void _handleKeyEvent(KeyEvent event) {
-    LogUtils.d('[键盘输入事件] ${event.logicalKey.keyLabel} ${event.runtimeType}',
-        'MyVideoScreen');
-    if (event is KeyDownEvent) {
-      if (event.logicalKey.keyLabel == LogicalKeyboardKey.space.keyLabel) {
-        // 空格键播放/暂停切换
-        if (widget.myVideoStateController.videoPlaying.value) {
-          widget.myVideoStateController.player.pause();
-        } else {
-          widget.myVideoStateController.player.play();
-        }
-      } else if (event.logicalKey.keyLabel ==
-          LogicalKeyboardKey.arrowLeft.keyLabel) {
-        LogUtils.d('[键盘事件] 左键', 'MyVideoScreen');
-        // 左键
-        _triggerLeftRipple();
-      } else if (event.logicalKey.keyLabel ==
-          LogicalKeyboardKey.arrowRight.keyLabel) {
-        LogUtils.d('[键盘事件] 右键', 'MyVideoScreen');
-        // 右键
-        _triggerRightRipple();
+  /// 处理左键按下
+  void _handleLeftKeyPress() {
+    // 检查是否需要防抖
+    if (_lastLeftKeyPressTime != null) {
+      final timeDiff = DateTime.now().difference(_lastLeftKeyPressTime!);
+      if (timeDiff < _debounceTime) {
+        // 如果距离上次按键时间太短，则忽略此次按键
+        return;
       }
-      // } else if (event.logicalKey.keyLabel ==
-      //         LogicalKeyboardKey.enter.keyLabel &&
-      //     !widget.isFullScreen) {
-      //   // 应用全屏切换
-      //   widget.myVideoStateController.isDesktopAppFullScreen.toggle();
-      // }
     }
+    
+    // 更新最后按键时间
+    _lastLeftKeyPressTime = DateTime.now();
+    
+    // 触发后退效果
+    _triggerLeftRipple();
+  }
+
+  /// 处理右键按下
+  void _handleRightKeyPress() {
+    // 检查是否需要防抖
+    if (_lastRightKeyPressTime != null) {
+      final timeDiff = DateTime.now().difference(_lastRightKeyPressTime!);
+      if (timeDiff < _debounceTime) {
+        // 如果距离上次按键时间太短，则忽略此次按键
+        return;
+      }
+    }
+    
+    // 更新最后按键时间
+    _lastRightKeyPressTime = DateTime.now();
+    
+    // 触发快进效果
+    _triggerRightRipple();
   }
 
   void _triggerLeftRipple() {
@@ -222,6 +243,28 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     widget.myVideoStateController.toggleToolbars();
   }
 
+  // 添加显示音量提示的方法
+  void _showVolumeInfo() {
+    // 取消之前的计时器
+    _volumeInfoTimer?.cancel();
+    
+    setState(() {
+      isSlidingVolumeZone = true;
+    });
+    _infoMessageFadeController.forward();
+    
+    // 设置新的计时器
+    _volumeInfoTimer = Timer(const Duration(seconds: 3), () {
+      if (mounted) {
+        _infoMessageFadeController.reverse().whenComplete(() {
+          setState(() {
+            isSlidingVolumeZone = false;
+          });
+        });
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -253,27 +296,61 @@ class _MyVideoScreenState extends State<MyVideoScreen>
 
             final maxRadius = (screenSize.height - paddingTop) * 2 / 3;
 
-            return KeyboardListener(
-              focusNode: _focusNode,
-              onKeyEvent: _handleKeyEvent,
-              child: Container(
-                padding: EdgeInsets.only(top: paddingTop),
-                child: Stack(
-                  children: [
-                    // 视频播放区域
-                    _buildVideoPlayer(),
-                    // 手势监听
-                    ..._buildGestureAreas(screenSize),
-                    // 工具栏
-                    ..._buildToolbars(),
-                    // 左右的双击波纹动画
-                    _buildRippleEffects(screenSize, maxRadius),
-                    // loading、暂停和播放等居中控件
-                    _buildVideoControlOverlay(playPauseIconSize, bufferingSize),
-                    // InfoMessage
-                    _buildInfoMessage(),
-                    _buildSeekPreview(),
-                  ],
+            return FocusScope(
+              autofocus: true,
+              canRequestFocus: true,
+              child: KeyboardListener(
+                focusNode: _focusNode,
+                onKeyEvent: (KeyEvent event) {
+                  if (event is KeyDownEvent) {
+                    if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+                      _handleLeftKeyPress();
+                    } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+                      _handleRightKeyPress();
+                    } else if (event.logicalKey == LogicalKeyboardKey.space) {
+                      if (widget.myVideoStateController.videoPlaying.value) {
+                        widget.myVideoStateController.player.pause();
+                      } else {
+                        widget.myVideoStateController.player.play();
+                      }
+                    } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+                      // 获取当前音量
+                      double currentVolume = _configService[ConfigService.VOLUME_KEY];
+                      // 增加音量，每次增加0.1，最大为1.0
+                      double newVolume = (currentVolume + 0.1).clamp(0.0, 1.0);
+                      widget.myVideoStateController.setVolume(newVolume);
+                      // 显示音量提示
+                      _showVolumeInfo();
+                    } else if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+                      // 获取当前音量
+                      double currentVolume = _configService[ConfigService.VOLUME_KEY];
+                      // 减少音量，每次减少0.1，最小为0.0
+                      double newVolume = (currentVolume - 0.1).clamp(0.0, 1.0);
+                      widget.myVideoStateController.setVolume(newVolume);
+                      // 显示音量提示
+                      _showVolumeInfo();
+                    }
+                  }
+                },
+                child: Container(
+                  padding: EdgeInsets.only(top: paddingTop),
+                  child: Stack(
+                    children: [
+                      // 视频播放区域
+                      _buildVideoPlayer(),
+                      // 手势监听
+                      ..._buildGestureAreas(screenSize),
+                      // 工具栏
+                      ..._buildToolbars(),
+                      // 左右的双击波纹动画
+                      _buildRippleEffects(screenSize, maxRadius),
+                      // loading、暂停和播放等居中控件
+                      _buildVideoControlOverlay(playPauseIconSize, bufferingSize),
+                      // InfoMessage
+                      _buildInfoMessage(),
+                      _buildSeekPreview(),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -377,30 +454,30 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       child: Stack(
         children: [
           if (_isLeftRippleActive1)
-            _buildRipple(_leftRippleController1, Colors.blue,
+            _buildRipple(_leftRippleController1,
                 Offset(0, screenSize.height / 2), maxRadius),
           if (_isLeftRippleActive2)
-            _buildRipple(_leftRippleController2, Colors.blue,
+            _buildRipple(_leftRippleController2,
                 Offset(0, screenSize.height / 2), maxRadius),
           if (_isRightRippleActive1)
-            _buildRipple(_rightRippleController1, Colors.blue,
+            _buildRipple(_rightRippleController1,
                 Offset(screenSize.width, screenSize.height / 2), maxRadius),
           if (_isRightRippleActive2)
-            _buildRipple(_rightRippleController2, Colors.blue,
+            _buildRipple(_rightRippleController2,
                 Offset(screenSize.width, screenSize.height / 2), maxRadius),
         ],
       ),
     );
   }
 
-  Widget _buildRipple(AnimationController controller, Color color,
+  Widget _buildRipple(AnimationController controller,
       Offset origin, double maxRadius) {
     return AnimatedBuilder(
       animation: controller,
       builder: (context, child) {
         return CustomPaint(
           painter: RipplePainter(
-            color: color.withOpacity(0.3),
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
             animationValue: controller.value,
             origin: origin,
             maxRadius: maxRadius,

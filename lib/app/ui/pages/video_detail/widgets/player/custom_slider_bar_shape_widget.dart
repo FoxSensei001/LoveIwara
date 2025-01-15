@@ -101,6 +101,8 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
                       value: _currentValue.clamp(0.0, _maxValue > 0 ? _maxValue : 1.0),
                       min: 0.0,
                       max: _maxValue > 0 ? _maxValue : 1.0,
+                      focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
+                      autofocus: false,
                       onChangeStart: (value) {
                         setState(() {
                           _draggingValue = value;
