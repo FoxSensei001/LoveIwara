@@ -18,6 +18,11 @@ on:
         required: true
         type: boolean
         default: true
+      build_ios:
+        description: 'Build iOS'
+        required: true
+        type: boolean
+        default: true
 
 jobs:
   build-android:
@@ -117,4 +122,38 @@ jobs:
         with:
           name: macos-release
           path: build/macos/Build/Products/Release/macos-release.zip
+          compression-level: 9
+
+  build-ios:
+    if: ${{ inputs.build_ios }}
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.1'
+          channel: 'stable'
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build iOS
+        run: flutter build ios --release --no-codesign
+
+      - name: Create IPA
+        run: |
+          cd build/ios/iphoneos
+          mkdir Payload
+          cp -r Runner.app Payload
+          zip -r app-release.ipa Payload
+
+      - name: Upload iOS build
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-release
+          path: build/ios/iphoneos/app-release.ipa
           compression-level: 9
