@@ -140,6 +140,7 @@ class GlobalDrawerColumns extends StatelessWidget {
                       ],
                     )
                   : const SizedBox.shrink()),
+              const SafeArea(child: SizedBox.shrink()),
             ],
           ),
         ),

@@ -111,7 +111,7 @@ class _MessageListWidgetState extends State<MessageListWidget> {
         StreamBuilder<Iterable<MessageModel>>(
           stream: _messageListRepository.rebuild,
           builder: (context, snapshot) {
-            final isLoading = _messageListRepository.isLoading && _messageListRepository.length == 0;
+            final isLoading = _messageListRepository.isLoading && _messageListRepository.isEmpty;
             return IconButton(
               onPressed: isLoading ? null : () => _messageListRepository.refresh(true),
               icon: isLoading
@@ -523,7 +523,12 @@ class _MessageListWidgetState extends State<MessageListWidget> {
   Widget _buildBottomBar() {
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+        padding: EdgeInsets.fromLTRB(
+          8.0,
+          4.0,
+          8.0,
+          4.0 + (Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0),
+        ),
         child: Row(
           children: [
             Expanded(

@@ -304,7 +304,7 @@ class _HistoryListPageState extends State<HistoryListPage>
                 );
               },
               child: const Icon(Icons.arrow_upward),
-            )
+            ).paddingOnly(bottom: Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0)
           : const SizedBox()),
     );
   }

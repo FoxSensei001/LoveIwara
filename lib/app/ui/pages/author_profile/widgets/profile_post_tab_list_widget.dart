@@ -197,7 +197,7 @@ class _ProfilePostTabListWidgetState extends State<ProfilePostTabListWidget>
           ),
         ),
       ],
-    );
+    ).paddingOnly(bottom: Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0);
   }
 
   Widget buildItem(BuildContext context, PostModel post, int index) {

@@ -81,8 +81,8 @@ class ApiService extends GetxService {
         return handler.next(options);
       },
       onError: (d_dio.DioException error, handler) async {
-        if (error.response?.statusCode == 401) {
-          LogUtils.e('遭遇401错误，尝试刷新token', tag: _tag);
+        if (error.response?.statusCode == 401 || error.response?.statusCode == 403) {
+          LogUtils.e('遭遇${error.response?.statusCode}错误，尝试刷新token', tag: _tag);
           
           try {
             // 尝试刷新 token
@@ -109,10 +109,6 @@ class ApiService extends GetxService {
             // token 刷新失败的处理已经在 AuthService 中统一处理
             return handler.next(error);
           }
-        } else if (error.response?.statusCode == 403) {
-          LogUtils.e('遭遇403错误，权限不足', tag: _tag);
-          showToastWidget(MDToastWidget(message: t.errors.youDoNotHavePermissionToAccessThisResource, type: MDToastType.error));
-          return handler.next(error);
         }
         LogUtils.e('请求失败', tag: _tag, error: error);
         return handler.next(error);

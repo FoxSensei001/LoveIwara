@@ -217,7 +217,6 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
       return Stack(
         children: [
           Scaffold(
-            floatingActionButton: _buildScrollToTopButton(),
             body: ExtendedNestedScrollView(
               key: _key,
               headerSliverBuilder:
@@ -280,19 +279,6 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
           )
         ],
       ),
-    );
-  }
-
-  Widget _buildScrollToTopButton() {
-    return FloatingActionButton(
-      child: const Icon(Icons.file_upload),
-      onPressed: () {
-        _key.currentState?.outerController.animateTo(
-          0.0,
-          duration: const Duration(seconds: 1),
-          curve: Curves.easeIn,
-        );
-      },
     );
   }
 

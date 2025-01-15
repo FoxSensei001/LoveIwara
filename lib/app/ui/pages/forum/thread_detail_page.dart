@@ -617,7 +617,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
               ),
             const SafeArea(child: SizedBox()),
           ],
-        ).paddingBottom(MediaQuery.of(context).padding.bottom) : const SizedBox()),
+        ).paddingBottom(Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0) : const SizedBox()),
     );
   }
 
