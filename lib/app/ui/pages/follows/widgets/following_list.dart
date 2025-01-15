@@ -6,7 +6,7 @@ import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_card.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 
-class FollowingList extends StatelessWidget {
+class FollowingList extends StatefulWidget {
   final ScrollController scrollController;
   final FollowsController controller;
 
@@ -17,20 +17,30 @@ class FollowingList extends StatelessWidget {
   });
 
   @override
+  State<FollowingList> createState() => _FollowingListState();
+}
+
+class _FollowingListState extends State<FollowingList> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
+    
     return LoadingMoreCustomScrollView(
-      controller: scrollController,
+      controller: widget.scrollController,
       slivers: [
         LoadingMoreSliverList<User>(
           SliverListConfig<User>(
             itemBuilder: (context, user, index) {
               return UserCard(
                 user: user,
-                onTap: () => controller.navigateToUserProfile(user.username),
+                onTap: () => widget.controller.navigateToUserProfile(user.username),
                 showFollowButton: false,
               );
             },
-            sourceList: controller.followingRepository,
+            sourceList: widget.controller.followingRepository,
             padding: EdgeInsets.fromLTRB(
               5.0,
               5.0,
@@ -41,7 +51,7 @@ class FollowingList extends StatelessWidget {
               context,
               status,
               isSliver: true,
-              loadingMoreBase: controller.followingRepository,
+              loadingMoreBase: widget.controller.followingRepository,
             ),
           ),
         ),

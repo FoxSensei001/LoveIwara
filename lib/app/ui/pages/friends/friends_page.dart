@@ -30,7 +30,6 @@ class _FriendsPageState extends State<FriendsPage>
   void _handleTabChange() {
     if (!_tabController.indexIsChanging) {
       setState(() {});
-      // 切换标签时刷新列表
       _controller.refreshCurrentTab(_tabController.index);
     }
   }

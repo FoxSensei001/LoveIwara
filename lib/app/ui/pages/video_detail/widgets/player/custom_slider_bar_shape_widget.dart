@@ -78,12 +78,10 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
                   SliderTheme(
                     data: SliderTheme.of(context).copyWith(
                       trackHeight: 4.0,
-                      thumbShape: const RoundSliderThumbShape(
-                        enabledThumbRadius: 6.0,
-                      ),
-                      overlayShape: const RoundSliderOverlayShape(
-                        overlayRadius: 12.0,
-                      ),
+                      // 移除圆形滑块，使用自定义的空滑块
+                      thumbShape: SliderComponentShape.noThumb,
+                      // 移除滑块的覆盖效果
+                      overlayShape: SliderComponentShape.noOverlay,
                       // 使用自定义的轨道形状，并传入缓冲区段列表
                       trackShape: CustomSliderTrackShape(
                         hoverValue: _hoverValue,
@@ -93,8 +91,6 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
                       ),
                       activeTrackColor: Colors.white,
                       inactiveTrackColor: Colors.white.withOpacity(0.3),
-                      thumbColor: Colors.white,
-                      overlayColor: Colors.white.withOpacity(0.1),
                       valueIndicatorColor: Colors.white,
                       valueIndicatorTextStyle: const TextStyle(
                         color: Colors.black,

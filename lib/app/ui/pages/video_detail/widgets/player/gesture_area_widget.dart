@@ -170,8 +170,12 @@ class _GestureAreaState extends State<GestureArea>
     LongPressType? type;
     if (widget.region == GestureRegion.left) {
       type = LongPressType.brightness;
+      // 在亮度调节结束时保存设置
+      _configService.setSetting(ConfigService.BRIGHTNESS_KEY, _configService[ConfigService.BRIGHTNESS_KEY], save: true);
     } else if (widget.region == GestureRegion.right) {
       type = LongPressType.volume;
+      // 在音量调节结束时保存设置
+      _configService.setSetting(ConfigService.VOLUME_KEY, _configService[ConfigService.VOLUME_KEY], save: true);
     }
 
     widget.setLongPressing?.call(type, false); // 确保结束时调用淡出动画
@@ -202,7 +206,7 @@ class _GestureAreaState extends State<GestureArea>
       double rx = _configService[ConfigService.BRIGHTNESS_KEY] -
           details.primaryDelta! / max;
       rx = rx.clamp(0.0, 1.0);
-      _configService[ConfigService.BRIGHTNESS_KEY] = rx;
+      _configService.setSetting(ConfigService.BRIGHTNESS_KEY, rx, save: false);
       _screenBrightness?.setScreenBrightness(rx); // 调整系统亮度
 
       widget.setLongPressing?.call(LongPressType.brightness, true); // 显示亮度提示

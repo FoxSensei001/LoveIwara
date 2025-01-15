@@ -95,7 +95,7 @@ class _VolumeControlState extends State<VolumeControl>
           children: [
             IconButton(
               onPressed: () {
-                widget.myVideoStateController.setVolume(0);
+                widget.myVideoStateController.setVolume(0, save: false);
               },
               icon: _getVolumeIcon(volume),
               tooltip: '${t.videoDetail.volume}: ${(volume * 100).toInt()}%',

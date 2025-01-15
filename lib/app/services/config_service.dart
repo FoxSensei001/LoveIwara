@@ -65,7 +65,7 @@ class ConfigService extends GetxService {
     RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN: true.obs,
     ACTIVE_BACKGROUND_PRIVACY_MODE: false.obs,
     DEFAULT_LANGUAGE_KEY: 'zh-CN'.obs,
-    THEME_MODE_KEY: 4.obs, // 添加主题模式配置，默认为0(system)
+    THEME_MODE_KEY: 0.obs, // 添加主题模式配置，默认为0(system)
     REMOTE_REPO_RELEASE_URL: 'https://github.com/FoxSensei001/i_iwara/releases'.obs,
     REMOTE_REPO_URL: 'https://github.com/FoxSensei001/i_iwara'.obs,
     SETTINGS_SELECTED_INDEX_KEY: 0.obs,
@@ -75,7 +75,7 @@ class ConfigService extends GetxService {
     AUTO_CHECK_UPDATE: true.obs,
     RULES_AGREEMENT_KEY: false.obs,
     AUTO_RECORD_HISTORY_KEY: true.obs,
-    SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY: true.obs,
+    SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY: false.obs,
     DISABLE_FORUM_REPLY_QUOTE_KEY: false.obs,
   }.obs;
 
@@ -90,7 +90,7 @@ class ConfigService extends GetxService {
     await _loadSettings();
 
     // 检查是否需要激活隐私模式
-    if (settings[ACTIVE_BACKGROUND_PRIVACY_MODE]!.value == true) {
+    if (settings[ACTIVE_BACKGROUND_PRIVACY_MODE]!.value == true && GetPlatform.isAndroid) {
       await screenshotChannel.invokeMethod('preventScreenshot');
     }
 
@@ -133,10 +133,12 @@ class ConfigService extends GetxService {
   }
 
   // 设置配置时自动更新 Map 和存储
-  Future<void> setSetting(String key, dynamic value) async {
+  Future<void> setSetting(String key, dynamic value, {bool save = true}) async {
     if (settings.containsKey(key)) {
       settings[key]!.value = value;
-      await _saveSetting(key, value);
+      if (save) {
+        await _saveSetting(key, value);
+      }
 
       // 处理隐私模式的变更
       // 如果是安卓模式

@@ -49,7 +49,7 @@ class BottomToolbar extends StatelessWidget {
                   onEnter: (_) => myVideoStateController.setToolbarHovering(true),
                   onExit: (_) => myVideoStateController.setToolbarHovering(false),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -80,14 +80,14 @@ class BottomToolbar extends StatelessWidget {
                             },
                           );
                         }),
-                        const SizedBox(width: 16),
+                        const SizedBox(width: 8),
                         // 关注按钮
                         Obx(() {
                           final videoInfo = myVideoStateController.videoInfo.value;
                           if (videoInfo?.user == null) return const SizedBox.shrink();
                           
                           return SizedBox(
-                            height: 32,
+                            height: 28,
                             child: FollowButtonWidget(
                               user: videoInfo!.user!,
                               onUserUpdated: (updatedUser) {
@@ -99,7 +99,7 @@ class BottomToolbar extends StatelessWidget {
                             ),
                           );
                         }),
-                        const SizedBox(width: 16),
+                        const SizedBox(width: 8),
                         // 作者头像和名称
                         Obx(() {
                           final videoInfo = myVideoStateController.videoInfo.value;
@@ -111,11 +111,11 @@ class BottomToolbar extends StatelessWidget {
                                 avatarUrl: videoInfo?.user?.avatar?.avatarUrl,
                                 defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
                                 headers: const {'referer': CommonConstants.iwaraBaseUrl},
-                                radius: 16,
+                                radius: 14,
                                 isPremium: videoInfo?.user?.premium ?? false,
                                 isAdmin: videoInfo?.user?.isAdmin ?? false,
                               ),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: 6),
                               ConstrainedBox(
                                 constraints: const BoxConstraints(maxWidth: 200),
                                 child: videoInfo?.user?.premium == true
@@ -131,7 +131,7 @@ class BottomToolbar extends StatelessWidget {
                                         videoInfo?.user?.name ?? '',
                                         style: const TextStyle(
                                           color: Colors.white,
-                                          fontSize: 14,
+                                          fontSize: 13,
                                           fontWeight: FontWeight.w500,
                                         ),
                                         overflow: TextOverflow.ellipsis,
@@ -141,7 +141,7 @@ class BottomToolbar extends StatelessWidget {
                                       videoInfo?.user?.name ?? '',
                                       style: const TextStyle(
                                         color: Colors.white,
-                                        fontSize: 14,
+                                        fontSize: 13,
                                         fontWeight: FontWeight.w500,
                                       ),
                                       overflow: TextOverflow.ellipsis,
@@ -164,7 +164,7 @@ class BottomToolbar extends StatelessWidget {
             onEnter: (_) => myVideoStateController.setToolbarHovering(true),
             onExit: (_) => myVideoStateController.setToolbarHovering(false),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
@@ -176,9 +176,9 @@ class BottomToolbar extends StatelessWidget {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.5), // 阴影颜色
-                    offset: const Offset(0, 60), // 阴影偏移，向上偏移60像素
-                    blurRadius: 60.0, // 阴影模糊半径
+                    color: Colors.black.withOpacity(0.5),
+                    offset: const Offset(0, 60),
+                    blurRadius: 60.0,
                   ),
                 ],
               ),
@@ -187,7 +187,7 @@ class BottomToolbar extends StatelessWidget {
                 children: [
                   // 第一行：进度条
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0), // 添加水平内边距
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
                     child: CustomVideoProgressbar(
                       controller: myVideoStateController,
                     ),
@@ -204,19 +204,17 @@ class BottomToolbar extends StatelessWidget {
                                 tooltip: myVideoStateController.videoPlaying.value
                                     ? slang.t.videoDetail.pause
                                     : slang.t.videoDetail.play,
-                                icon: myVideoStateController.videoPlaying.value
-                                    ? const Icon(
-                                        Icons.pause,
-                                        key: ValueKey('pause'),
-                                        color: Colors.white,
-                                      )
-                                    : const Icon(
-                                        Icons.play_arrow,
-                                        key: ValueKey('play'),
-                                        color: Colors.white,
-                                      ),
+                                icon: Icon(
+                                  myVideoStateController.videoPlaying.value
+                                      ? Icons.pause
+                                      : Icons.play_arrow,
+                                  key: ValueKey(myVideoStateController.videoPlaying.value
+                                      ? 'pause'
+                                      : 'play'),
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
                                 onPressed: () async {
-                                  // 添加震动反馈
                                   if (await Vibration.hasVibrator() ?? false) {
                                     await Vibration.vibrate(duration: 50);
                                   }
@@ -236,13 +234,17 @@ class BottomToolbar extends StatelessWidget {
                               configService: _configService,
                               myVideoStateController: myVideoStateController,
                             ),
-
-                          const SizedBox(width: 8.0), // 播放按钮与进度信息之间的间距
+                          const SizedBox(width: 4.0),
                           // 进度信息，并添加点击事件
                           TextButton(
                             onPressed: () {
                               _showSeekDialog(context);
                             },
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
                             child: Obx(
                               () => Text(
                                 '${CommonUtils.formatDuration(myVideoStateController.currentPosition.value)} / ${CommonUtils.formatDuration(myVideoStateController.totalDuration.value)}',
@@ -257,6 +259,7 @@ class BottomToolbar extends StatelessWidget {
                       ),
                       // 右侧：播放速度切换、分辨率切换和全屏按钮
                       Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           // 播放速度切换按钮
                           _buildPlaybackSpeedSwitcher(context),
@@ -271,8 +274,8 @@ class BottomToolbar extends StatelessWidget {
                                       : t.videoDetail.enterAppFullscreen,
                               icon: Obx(() {
                                 return SizedBox(
-                                  width: 24,
-                                  height: 24,
+                                  width: 20,
+                                  height: 20,
                                   child: (myVideoStateController
                                           .isDesktopAppFullScreen.value)
                                       ? SvgPicture.asset(
@@ -319,15 +322,13 @@ class BottomToolbar extends StatelessWidget {
                                     ? Icons.fullscreen_exit
                                     : Icons.fullscreen,
                                 color: Colors.white,
+                                size: 20,
                               ),
                               onPressed: () {
                                 if (currentScreenIsFullScreen) {
-                                  // 退出系统全屏
                                   myVideoStateController.exitFullscreen();
                                 } else {
-                                  // 进入系统全屏
                                   myVideoStateController.enterFullscreen();
-                                  // 关闭toolbar
                                   myVideoStateController.setToolbarHovering(false);
                                 }
                               },
@@ -509,11 +510,11 @@ class BottomToolbar extends StatelessWidget {
   }) {
     Widget button = InkWell(
       onTap: onPressed,
-      borderRadius: BorderRadius.circular(24.0),
+      borderRadius: BorderRadius.circular(16.0),
       splashColor: Colors.white24,
       highlightColor: Colors.white10,
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(4.0),
         child: icon,
       ),
     );
@@ -537,20 +538,16 @@ class BottomToolbar extends StatelessWidget {
     String? tooltip, // 添加tooltip参数
   }) {
     return Tooltip(
-      triggerMode: TooltipTriggerMode.tap, // 设置触发模式为点击
+      triggerMode: TooltipTriggerMode.tap,
       preferBelow: true,
-      message: tooltip, // 提示信息
+      message: tooltip,
       child: Material(
-        color: Colors.transparent, // 使背景透明以显示水波纹效果
+        color: Colors.transparent,
         child: InkWell(
           onTap: onPressed,
-          onLongPress: () {
-            // 可选：在此处添加长按时的逻辑
-            // 例如显示更多选项或执行其他操作
-          },
-          borderRadius: BorderRadius.circular(32.0), // 设置圆角以匹配按钮形状
+          borderRadius: BorderRadius.circular(16.0),
           child: Padding(
-            padding: const EdgeInsets.all(12.0), // 增加内边距以增大点击区域
+            padding: const EdgeInsets.all(6.0),
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
               transitionBuilder: (Widget child, Animation<double> animation) {

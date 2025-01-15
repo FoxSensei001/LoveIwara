@@ -40,7 +40,6 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
   late MyVideoStateController controller;
   late CommentController commentController;
   late RelatedMediasController relatedVideoController;
-  VolumeController? _volumeController;
 
   @override
   void initState() {
@@ -70,10 +69,6 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
     // 注册路由变化回调
     HomeNavigationLayout.homeNavigatorObserver
         .addRouteChangeCallback(_onRouteChange);
-
-    if (GetPlatform.isAndroid || GetPlatform.isIOS) {
-      _initVolumeListener();
-    }
   }
 
   /// 添加路由变化回调
@@ -101,18 +96,6 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
     }
   }
 
-  void _initVolumeListener() {
-    _volumeController = VolumeController();
-    _volumeController?.listener((volume) {
-      // 如果是通过手势设置音量，则跳过
-      if (controller.isSettingVolume) return;
-      
-      controller.setVolume(volume);
-    });
-    // 初始化并关闭系统音量UI
-    _volumeController?.showSystemUI = false;
-  }
-
   @override
   void dispose() {
     // 移除路由变化回调
@@ -128,7 +111,6 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
       LogUtils.e('删除控制器失败', error: e, tag: 'video_detail_page_v2');
     }
 
-    _volumeController?.removeListener();
     super.dispose();
   }
 

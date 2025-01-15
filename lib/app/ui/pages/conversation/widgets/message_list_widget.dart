@@ -92,6 +92,7 @@ class _MessageListWidgetState extends State<MessageListWidget> {
         onPressed: () => AppService.tryPop(),
         icon: const Icon(Icons.arrow_back),
       ) : const SizedBox.shrink(),
+      centerTitle: true,
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,

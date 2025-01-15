@@ -327,7 +327,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
               myVideoStateController: widget.myVideoStateController,
               onDoubleTapRight: _triggerRightRipple,
               screenSize: screenSize,
-              onVolumeChange: widget.myVideoStateController.setVolume,
+              onVolumeChange: (volume) => widget.myVideoStateController.setVolume(volume, save: false),
             ),
           )),
       Obx(() {

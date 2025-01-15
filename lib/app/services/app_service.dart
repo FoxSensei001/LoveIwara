@@ -75,10 +75,8 @@ class AppService extends GetxService {
   static void switchGlobalDrawer() {
     if (globalDrawerKey.currentState!.isDrawerOpen) {
       globalDrawerKey.currentState!.openEndDrawer();
-      LogUtils.d('关闭Drawer', 'AppService');
     } else {
       globalDrawerKey.currentState!.openDrawer();
-      LogUtils.d('打开Drawer', 'AppService');
     }
   }
 
