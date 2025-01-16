@@ -64,7 +64,7 @@ class _MyAppState extends State<MyApp> {
               ),
               GetPage(
                 name: Routes.HOME,
-                page: () => HomeNavigationLayout(),
+                page: () => const HomeNavigationLayout(),
               ),
               GetPage(
                   name: Routes.SETTINGS_PAGE,

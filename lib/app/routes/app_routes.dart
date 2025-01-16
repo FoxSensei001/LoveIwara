@@ -67,7 +67,7 @@ abstract class Routes {
 abstract class _Paths {
   _Paths._();
 
-  static const HOME = '/home';
+  static const HOME = '/';
   static const LOGIN = '/login';
   static const VIDEO_DETAIL = '/video_detail/:videoId';
   static const SETTINGS_PAGE = '/settings_page';
