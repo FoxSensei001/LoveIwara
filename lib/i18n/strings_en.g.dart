@@ -317,6 +317,7 @@ class TranslationsErrorsEn {
 	String remainingSeconds({required Object num}) => '${num} seconds';
 	String tagLimitExceeded({required Object limit}) => 'Tag limit exceeded, limit: ${limit}';
 	String get failedToRefresh => 'Failed to refresh';
+	String get noPermission => 'No permission';
 }
 
 // Path: friends
@@ -1129,6 +1130,7 @@ extension on Translations {
 			case 'errors.remainingSeconds': return ({required Object num}) => '${num} seconds';
 			case 'errors.tagLimitExceeded': return ({required Object limit}) => 'Tag limit exceeded, limit: ${limit}';
 			case 'errors.failedToRefresh': return 'Failed to refresh';
+			case 'errors.noPermission': return 'No permission';
 			case 'friends.clickToRestoreFriend': return 'Click to restore friend';
 			case 'friends.friendsList': return 'Friends List';
 			case 'friends.friendRequests': return 'Friend Requests';

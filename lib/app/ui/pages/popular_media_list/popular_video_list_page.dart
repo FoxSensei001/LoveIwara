@@ -230,22 +230,43 @@ class _PopularVideoListPageState extends State<PopularVideoListPage>
                   }),
               // 搜索框
               Expanded(
-                child: TextField(
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    hintText: t.common.search,
-                    prefixIcon: const Icon(Icons.search),
+                child: Material(
+                  elevation: 0,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(12),
+                  child: TextField(
+                    readOnly: true,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: t.common.search,
+                      hintStyle: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      border: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      prefixIcon: Icon(
+                        Icons.search,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      filled: true,
+                      fillColor: Colors.transparent,
+                    ),
+                    onTap: () {
+                      Get.dialog(SearchDialog(
+                        initialSearch: '',
+                        initialSegment: SearchSegment.video,
+                        onSearch: (searchInfo, segment) {
+                          NaviService.toSearchPage(
+                              searchInfo: searchInfo, segment: segment);
+                        },
+                      ));
+                    },
                   ),
-                  onTap: () {
-                    Get.dialog(SearchDialog(
-                      initialSearch: '',
-                      initialSegment: SearchSegment.video,
-                      onSearch: (searchInfo, segment) {
-                        NaviService.toSearchPage(
-                            searchInfo: searchInfo, segment: segment);
-                      },
-                    ));
-                  },
                 ),
               ),
             ],

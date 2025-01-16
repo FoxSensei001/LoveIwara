@@ -238,6 +238,7 @@ errors:
   remainingSeconds: "${num}秒"
   tagLimitExceeded: '標籤上限超出，上限: ${limit}'
   failedToRefresh: 更新失敗
+  noPermission: 權限不足
 friends:
   clickToRestoreFriend: 點擊恢復朋友
   friendsList: 朋友列表

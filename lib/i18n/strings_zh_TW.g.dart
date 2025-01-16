@@ -313,6 +313,7 @@ class _TranslationsErrorsZhTw implements TranslationsErrorsEn {
 	@override String remainingSeconds({required Object num}) => '${num}秒';
 	@override String tagLimitExceeded({required Object limit}) => '標籤上限超出，上限: ${limit}';
 	@override String get failedToRefresh => '更新失敗';
+	@override String get noPermission => '權限不足';
 }
 
 // Path: friends
@@ -1128,6 +1129,7 @@ extension on TranslationsZhTw {
 			case 'errors.remainingSeconds': return ({required Object num}) => '${num}秒';
 			case 'errors.tagLimitExceeded': return ({required Object limit}) => '標籤上限超出，上限: ${limit}';
 			case 'errors.failedToRefresh': return '更新失敗';
+			case 'errors.noPermission': return '權限不足';
 			case 'friends.clickToRestoreFriend': return '點擊恢復朋友';
 			case 'friends.friendsList': return '朋友列表';
 			case 'friends.friendRequests': return '朋友請求';

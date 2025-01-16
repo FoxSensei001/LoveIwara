@@ -4,9 +4,11 @@ import 'package:i_iwara/app/models/forum.model.dart';
 import 'package:i_iwara/app/models/history_record.dart';
 import 'package:i_iwara/app/repositories/history_repository.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/forum/controllers/thread_list_repository.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_post_dialog.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/thread_list_item_widget.dart';
+import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
@@ -106,6 +108,26 @@ class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProvid
         )
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              Get.dialog(SearchDialog(
+                initialSearch: '',
+                initialSegment: SearchSegment.forum,
+                onSearch: (searchInfo, segment) {
+                  NaviService.toSearchPage(
+                    searchInfo: searchInfo,
+                    segment: segment,
+                  );
+                },
+              ));
+            },
+            tooltip: t.common.search,
+            style: IconButton.styleFrom(
+              padding: const EdgeInsets.all(8),
+              visualDensity: VisualDensity.compact,
+            ),
+          ),
           Obx(() => IconButton(
             icon: Icon(_enableFloatingButton.value ? Icons.vertical_align_top : Icons.vertical_align_top_outlined),
             onPressed: () {
@@ -118,6 +140,7 @@ class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProvid
             },
             tooltip: _enableFloatingButton.value ? t.common.disableFloatingButtons : t.common.enableFloatingButtons,
             style: IconButton.styleFrom(
+              visualDensity: VisualDensity.compact,
               backgroundColor: !_enableFloatingButton.value 
                 ? Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5)
                 : null,
@@ -129,10 +152,16 @@ class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProvid
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () => listSourceRepository.refresh(),
+            style: IconButton.styleFrom(
+              visualDensity: VisualDensity.compact,
+            ),
           ),
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () => _showCreateThreadDialog(context, widget.categoryId),
+            style: IconButton.styleFrom(
+              visualDensity: VisualDensity.compact,
+            ),
           ),
         ],
       ),
@@ -187,6 +216,12 @@ class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProvid
   }
 
   void _showCreateThreadDialog(BuildContext context, String categoryId) {
+    UserService userService = Get.find<UserService>();
+    if (!userService.isLogin) {
+      AppService.switchGlobalDrawer();
+      showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.warning));
+      return;
+    }
     Get.dialog(
       ForumPostDialog(
         onSubmit: () {

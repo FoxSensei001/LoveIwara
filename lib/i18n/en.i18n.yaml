@@ -237,6 +237,7 @@ errors:
   remainingSeconds: "${num} seconds"
   tagLimitExceeded: 'Tag limit exceeded, limit: ${limit}'
   failedToRefresh: Failed to refresh
+  noPermission: No permission
 friends:
   clickToRestoreFriend: Click to restore friend
   friendsList: Friends List

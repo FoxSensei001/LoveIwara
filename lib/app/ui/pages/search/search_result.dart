@@ -75,10 +75,10 @@ class _SearchResultState extends State<SearchResult> {
           child = _buildVideoResult();
           break;
         case 'image':
-          child = _buildImageResult(); // New case for image results
+          child = _buildImageResult();
           break;
         case 'user':
-          child = _buildUserResult(); // Add user case
+          child = _buildUserResult();
           break;
         case 'post':
           child = _buildPostResult();
@@ -91,10 +91,7 @@ class _SearchResultState extends State<SearchResult> {
             t.search.notSupportCurrentSearchType(searchType: globalSearchService.selectedSegment.value));
       }
 
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: child,
-      );
+      return child;
     });
   }
 
@@ -434,133 +431,178 @@ class _SearchResultState extends State<SearchResult> {
       appBar: AppBar(
         title: Text(t.search.searchResult),
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          // 输入框
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Material(
-              elevation: 2,
-              borderRadius: BorderRadius.circular(8),
-              child: TextField(
-                controller: _searchController,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black87,
-                ),
-                decoration: InputDecoration(
-                  hintText: globalSearchService.searchPlaceholder.value.isEmpty
-                      ? t.search.pleaseEnterSearchContent
-                      : globalSearchService.searchPlaceholder.value,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).primaryColor,
-                      width: 2,
+      body: SafeArea(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            // 搜索框和刷新按钮区域
+            Container(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Material(
+                      elevation: 0,
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(12),
+                      child: TextField(
+                        controller: _searchController,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: globalSearchService.searchPlaceholder.value.isEmpty
+                              ? t.search.pleaseEnterSearchContent
+                              : globalSearchService.searchPlaceholder.value,
+                          hintStyle: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          border: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          prefixIcon: Icon(
+                            Icons.search,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                          filled: true,
+                          fillColor: Colors.transparent,
+                        ),
+                        onTap: () {
+                          Get.dialog(SearchDialog(
+                            initialSearch: globalSearchService.currentSearch.value,
+                            initialSegment: SearchSegment.fromValue(
+                                globalSearchService.selectedSegment.value),
+                            onSearch: (searchInfo, segment) {
+                              if (globalSearchService.selectedSegment.value != segment) {
+                                globalSearchService.selectedSegment.value = segment;
+                                globalSearchService.clearOtherSearchResult();
+                              } else {
+                                globalSearchService.selectedSegment.value = segment;
+                              }
+                              globalSearchService.fetchSearchResult(refresh: true);
+                              _searchController.text = searchInfo;
+                              Get.back();
+                            },
+                          ));
+                        },
+                      ),
                     ),
                   ),
-                ),
-                onTap: () {
-                  Get.dialog(SearchDialog(
-                    initialSearch: globalSearchService.currentSearch.value,
-                    initialSegment: SearchSegment.fromValue(
-                        globalSearchService.selectedSegment.value),
-                    onSearch: (searchInfo, segment) {
-                      // 更新搜索关键词和片段
-                      globalSearchService.currentSearch.value = searchInfo;
-                      
-                      // 如果搜索类型改变了，先清除其他搜索结果
-                      if (globalSearchService.selectedSegment.value != segment) {
-                        globalSearchService.selectedSegment.value = segment;
-                        globalSearchService.clearOtherSearchResult();
-                      } else {
-                        globalSearchService.selectedSegment.value = segment;
-                      }
-                      
-                      // 强制刷新搜索结果
-                      globalSearchService.fetchSearchResult(refresh: true);
-                      _searchController.text = searchInfo;
-                      
-                      // 关闭对话框
-                      Get.back();
-                    },
-                  ));
-                },
-                // 不再需要 onChanged，因为已通过控制器监听
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          // SegmentedButton
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Obx(() => Row(
-                  children: [
-                    Expanded(
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: SegmentedButton<String>(
-                          segments: const [
-                            ButtonSegment(
-                              value: 'video',
-                              icon: Icon(Icons.video_library),
-                            ),
-                            ButtonSegment(
-                              value: 'image',
-                              icon: Icon(Icons.image),
-                            ),
-                            ButtonSegment(
-                              value: 'post',
-                              icon: Icon(Icons.article),
-                            ),
-                            ButtonSegment(
-                              value: 'user',
-                              icon: Icon(Icons.person),
-                            ),
-                            ButtonSegment(
-                              value: 'forum',
-                              icon: Icon(Icons.forum),
-                            )
-                          ],
-                          selected: {globalSearchService.selectedSegment.value},
-                          onSelectionChanged: (Set<String> selection) {
-                            if (selection.isNotEmpty) {
-                              globalSearchService.selectedSegment.value =
-                                  selection.first;
-                              _safeScrollToTop();
-                              if (!globalSearchService.isCurrentResultInitialized) {
-                                globalSearchService.fetchSearchResult();
-                              }
-                            }
-                          },
-                          multiSelectionEnabled: false,
-                          style: const ButtonStyle(
-                            visualDensity: VisualDensity.compact,
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
+                  const SizedBox(width: 8),
+                  Material(
+                    borderRadius: BorderRadius.circular(12),
+                    color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () {
+                        globalSearchService.fetchSearchResult(refresh: true);
+                      },
+                      child: Container(
+                        width: 44,
+                        height: 44,
+                        alignment: Alignment.center,
+                        child: Icon(
+                          Icons.refresh,
+                          size: 20,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.refresh),
-                      onPressed: () {
-                        globalSearchService.fetchSearchResult(refresh: true);
-                      },
+                  ),
+                ],
+              ),
+            ),
+            
+            // 分段控制器区域
+            Container(
+              height: 48,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              child: Obx(() => Row(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: SegmentedButton<String>(
+                        segments: [
+                          ButtonSegment(
+                            value: 'video',
+                            icon: const Icon(Icons.video_library, size: 20),
+                            label: MediaQuery.of(context).size.width > 360 
+                              ? Text(t.common.video) 
+                              : null,
+                          ),
+                          ButtonSegment(
+                            value: 'image',
+                            icon: const Icon(Icons.image, size: 20),
+                            label: MediaQuery.of(context).size.width > 360 
+                              ? Text(t.common.gallery) 
+                              : null,
+                          ),
+                          ButtonSegment(
+                            value: 'post',
+                            icon: const Icon(Icons.article, size: 20),
+                            label: MediaQuery.of(context).size.width > 360 
+                              ? Text(t.common.post) 
+                              : null,
+                          ),
+                          ButtonSegment(
+                            value: 'user',
+                            icon: const Icon(Icons.person, size: 20),
+                            label: MediaQuery.of(context).size.width > 360 
+                              ? Text(t.common.user) 
+                              : null,
+                          ),
+                          ButtonSegment(
+                            value: 'forum',
+                            icon: const Icon(Icons.forum, size: 20),
+                            label: MediaQuery.of(context).size.width > 360 
+                              ? Text(t.forum.forum) 
+                              : null,
+                          ),
+                        ],
+                        selected: {globalSearchService.selectedSegment.value},
+                        onSelectionChanged: (Set<String> selection) {
+                          if (selection.isNotEmpty) {
+                            globalSearchService.selectedSegment.value =
+                                selection.first;
+                            _safeScrollToTop();
+                            if (!globalSearchService.isCurrentResultInitialized) {
+                              globalSearchService.fetchSearchResult();
+                            }
+                          }
+                        },
+                        multiSelectionEnabled: false,
+                        style: ButtonStyle(
+                          visualDensity: VisualDensity.compact,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          backgroundColor: WidgetStateProperty.resolveWith((states) {
+                            if (states.contains(WidgetState.selected)) {
+                              return Theme.of(context).colorScheme.primaryContainer;
+                            }
+                            return null;
+                          }),
+                          foregroundColor: WidgetStateProperty.resolveWith((states) {
+                            if (states.contains(WidgetState.selected)) {
+                              return Theme.of(context).colorScheme.onPrimaryContainer;
+                            }
+                            return Theme.of(context).colorScheme.onSurfaceVariant;
+                          }),
+                        ),
+                      ),
                     ),
-                  ],
-                )),
-          ),
-          const SizedBox(height: 20),
-          // 搜索结果
-          Expanded(
-            child: _buildSearchResult(context),
-          ),
-        ],
+                  ),
+                ],
+              )),
+            ),
+
+            // 搜索结果区域
+            Expanded(
+              child: _buildSearchResult(context),
+            ),
+          ],
+        ),
       ),
     );
   }

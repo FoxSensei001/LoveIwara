@@ -313,6 +313,7 @@ class _TranslationsErrorsJa implements TranslationsErrorsEn {
 	@override String remainingSeconds({required Object num}) => '${num}秒';
 	@override String tagLimitExceeded({required Object limit}) => 'タグの上限を超えています。上限: ${limit}';
 	@override String get failedToRefresh => '更新に失敗しました';
+	@override String get noPermission => '権限がありません';
 }
 
 // Path: friends
@@ -1125,6 +1126,7 @@ extension on TranslationsJa {
 			case 'errors.remainingSeconds': return ({required Object num}) => '${num}秒';
 			case 'errors.tagLimitExceeded': return ({required Object limit}) => 'タグの上限を超えています。上限: ${limit}';
 			case 'errors.failedToRefresh': return '更新に失敗しました';
+			case 'errors.noPermission': return '権限がありません';
 			case 'friends.clickToRestoreFriend': return '友達を復元するにはクリックしてください';
 			case 'friends.friendsList': return '友達リスト';
 			case 'friends.friendRequests': return '友達リクエスト';

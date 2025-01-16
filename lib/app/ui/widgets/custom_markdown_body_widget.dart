@@ -34,6 +34,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
   String _displayData = "";
   bool _isProcessing = false;
   bool _showOriginal = false;
+  bool _hasProcessedContent = false;
   late final ConfigService _configService;
   final _markdownGenerator = MarkdownGenerator(
     linesMargin: const EdgeInsets.symmetric(vertical: 4),
@@ -72,16 +73,21 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     if (!mounted) return;
     _isProcessing = true;
     String processed = data;
+    bool hasChanges = false;
 
     try {
-      processed = await _formatLinks(processed);
+      String newProcessed = await _formatLinks(processed);
+      if (newProcessed != processed) hasChanges = true;
+      processed = newProcessed;
       if (!mounted || !_isProcessing) return;
     } catch (e) {
       LogUtils.e('格式化链接时发生错误', error: e, tag: 'CustomMarkdownBody');
     }
 
     try {
-      processed = _formatMarkdownLinks(processed);
+      String newProcessed = _formatMarkdownLinks(processed);
+      if (newProcessed != processed) hasChanges = true;
+      processed = newProcessed;
       if (mounted && _isProcessing) {
         setState(() {
           _displayData = processed;
@@ -92,7 +98,9 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     }
 
     try {
-      processed = _formatMentions(processed);
+      String newProcessed = _formatMentions(processed);
+      if (newProcessed != processed) hasChanges = true;
+      processed = newProcessed;
       if (mounted && _isProcessing) {
         setState(() {
           _displayData = processed;
@@ -103,10 +111,13 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     }
 
     try {
-      processed = _replaceNewlines(processed);
+      String newProcessed = _replaceNewlines(processed);
+      if (newProcessed != processed) hasChanges = true;
+      processed = newProcessed;
       if (mounted && _isProcessing) {
         setState(() {
           _displayData = processed;
+          _hasProcessedContent = hasChanges;
         });
       }
     } catch (e) {
@@ -340,7 +351,6 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
             children: [
               SelectionArea(
                 child: Column(
-                  // start
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: _markdownGenerator.buildWidgets(
@@ -388,32 +398,34 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton.icon(
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  ),
-                  icon: Icon(
-                    _showOriginal
-                        ? Icons.format_paint
-                        : Icons.format_paint_outlined,
-                    size: 14,
-                  ),
-                  iconAlignment: IconAlignment.end,
-                  label: Text(
+              if (_hasProcessedContent) ...[
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton.icon(
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    ),
+                    icon: Icon(
                       _showOriginal
-                          ? t.common.showProcessedText
-                          : t.common.showOriginalText,
-                      style: const TextStyle(fontSize: 12)),
-                  onPressed: () {
-                    setState(() {
-                      _showOriginal = !_showOriginal;
-                    });
-                  },
+                          ? Icons.format_paint
+                          : Icons.format_paint_outlined,
+                      size: 14,
+                    ),
+                    iconAlignment: IconAlignment.end,
+                    label: Text(
+                        _showOriginal
+                            ? t.common.showProcessedText
+                            : t.common.showOriginalText,
+                        style: const TextStyle(fontSize: 12)),
+                    onPressed: () {
+                      setState(() {
+                        _showOriginal = !_showOriginal;
+                      });
+                    },
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         );

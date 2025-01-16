@@ -282,26 +282,28 @@ class _MyVideoScreenState extends State<MyVideoScreen>
         body: Stack(
           children: [
             // 剧院模式背景 - 移到最外层
-            if (_configService[ConfigService.THEATER_MODE_KEY])
-              Positioned.fill(
-                child: Image.network(
-                  widget.myVideoStateController.videoInfo.value?.thumbnailUrl ?? '',
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    color: Colors.black,
+            Obx(() => _configService[ConfigService.THEATER_MODE_KEY] 
+              ? Positioned.fill(
+                  child: Image.network(
+                    widget.myVideoStateController.videoInfo.value?.thumbnailUrl ?? '',
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: Colors.black,
+                    ),
                   ),
-                ),
-              ),
+                )
+              : const SizedBox.shrink()),
             // 模糊效果 - 移到最外层
-            if (_configService[ConfigService.THEATER_MODE_KEY])
-              Positioned.fill(
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                  child: Container(
-                    color: Colors.black.withOpacity(0.5),
+            Obx(() => _configService[ConfigService.THEATER_MODE_KEY]
+              ? Positioned.fill(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                    child: Container(
+                      color: Colors.black.withOpacity(0.5),
+                    ),
                   ),
-                ),
-              ),
+                )
+              : const SizedBox.shrink()),
             // 主要内容
             LayoutBuilder(
               builder: (BuildContext context, BoxConstraints constraints) {

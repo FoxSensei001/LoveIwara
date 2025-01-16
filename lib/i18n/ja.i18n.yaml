@@ -238,6 +238,7 @@ errors:
   remainingSeconds: "${num}秒"
   tagLimitExceeded: 'タグの上限を超えています。上限: ${limit}'
   failedToRefresh: 更新に失敗しました
+  noPermission: 権限がありません
 friends:
   clickToRestoreFriend: 友達を復元するにはクリックしてください
   friendsList: 友達リスト

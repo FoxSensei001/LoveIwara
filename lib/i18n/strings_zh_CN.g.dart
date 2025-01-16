@@ -318,6 +318,7 @@ class _TranslationsErrorsZhCn implements TranslationsErrorsEn {
 	@override String remainingSeconds({required Object num}) => '${num}秒';
 	@override String tagLimitExceeded({required Object limit}) => '标签上限超出，上限: ${limit}';
 	@override String get failedToRefresh => '更新失败';
+	@override String get noPermission => '权限不足';
 }
 
 // Path: friends
@@ -1135,6 +1136,7 @@ extension on TranslationsZhCn {
 			case 'errors.remainingSeconds': return ({required Object num}) => '${num}秒';
 			case 'errors.tagLimitExceeded': return ({required Object limit}) => '标签上限超出，上限: ${limit}';
 			case 'errors.failedToRefresh': return '更新失败';
+			case 'errors.noPermission': return '权限不足';
 			case 'friends.clickToRestoreFriend': return '点击恢复好友';
 			case 'friends.friendsList': return '好友列表';
 			case 'friends.friendRequests': return '好友请求';

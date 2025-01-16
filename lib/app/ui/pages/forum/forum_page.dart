@@ -7,11 +7,14 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_post_dialog.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_shimmer_widget.dart';
+import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
+import 'package:oktoast/oktoast.dart';
 
 class ForumPage extends StatefulWidget {
   const ForumPage({super.key});
@@ -54,6 +57,12 @@ class _ForumPageState extends State<ForumPage> {
   }
 
   void _showPostDialog() {
+    UserService userService = Get.find<UserService>();
+    if (!userService.isLogin) {
+      AppService.switchGlobalDrawer();
+      showToastWidget(MDToastWidget(message: slang.t.errors.pleaseLoginFirst, type: MDToastType.warning));
+      return;
+    }
     Get.dialog(
       ForumPostDialog(
         onSubmit: () {
@@ -118,14 +127,42 @@ class _ForumPageState extends State<ForumPage> {
         ),
         actions: [
           IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              Get.dialog(SearchDialog(
+                initialSearch: '',
+                initialSegment: SearchSegment.forum,
+                onSearch: (searchInfo, segment) {
+                  NaviService.toSearchPage(
+                    searchInfo: searchInfo,
+                    segment: segment,
+                  );
+                },
+              ));
+            },
+            tooltip: t.common.search,
+            style: IconButton.styleFrom(
+              padding: const EdgeInsets.all(8),
+              visualDensity: VisualDensity.compact,
+            ),
+          ),
+          IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loadCategories,
             tooltip: t.common.refresh,
+            style: IconButton.styleFrom(
+              padding: const EdgeInsets.all(8),
+              visualDensity: VisualDensity.compact,
+            ),
           ),
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: _showPostDialog,
             tooltip: t.forum.createThread,
+            style: IconButton.styleFrom(
+              padding: const EdgeInsets.all(8),
+              visualDensity: VisualDensity.compact,
+            ),
           ),
         ],
       ),

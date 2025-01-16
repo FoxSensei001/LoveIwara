@@ -541,6 +541,12 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
                         icon: const Icon(Icons.edit),
                         tooltip: slang.t.common.edit,
                         onPressed: () {
+                          UserService userService = Get.find<UserService>();
+                          if (!userService.isLogin) {
+                            AppService.switchGlobalDrawer();
+                            showToastWidget(MDToastWidget(message: slang.t.errors.pleaseLoginFirst, type: MDToastType.warning));
+                            return;
+                          }
                           Get.dialog(ForumEditReplyDialog(
                             postId: widget.comment.id,
                             initialContent: widget.comment.body,
@@ -559,6 +565,12 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
                         icon: const Icon(Icons.reply),
                       tooltip: slang.t.forum.reply,
                       onPressed: () {
+                        UserService userService = Get.find<UserService>();
+                        if (!userService.isLogin) {
+                          AppService.switchGlobalDrawer();
+                          showToastWidget(MDToastWidget(message: slang.t.errors.pleaseLoginFirst, type: MDToastType.warning));
+                          return;
+                        }
                         // 生成回复模板文本
                         final replyTemplate = 'Reply #${widget.comment.replyNum + 1}: @${widget.comment.user.username}\n---\n';
                         

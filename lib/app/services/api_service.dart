@@ -61,28 +61,94 @@ class ApiService extends GetxService {
             '请求: Method: ${options.method} Path: ${options.path} Params: ${options.queryParameters} Body: ${options.data}',
             _tag);
             
-        // 检查 token 是否需要刷新
-        if (_authService.isAuthenticated) {
-          if (_authService.isAccessTokenExpired) {
-            LogUtils.d('$_tag Token已过期，尝试刷新');
-            final success = await _authService.refreshAccessToken();
-            if (!success) {
-              return handler.reject(
-                d_dio.DioException(
+        // 检查是否已登录
+        if (!_authService.hasToken || !_authService.isAuthenticated) {
+          // 如果是需要认证的接口,直接返回错误
+          if (_isAuthRequiredPath(options.path)) {
+            // 显示友好提示
+            showToastWidget(MDToastWidget(
+              message: t.errors.pleaseLoginFirst,
+              type: MDToastType.warning
+            ));
+            
+            return handler.reject(
+              d_dio.DioException(
+                requestOptions: options,
+                error: 'Authentication required',
+                type: d_dio.DioExceptionType.badResponse,
+                response: d_dio.Response(
+                  statusCode: 401,
                   requestOptions: options,
-                  error: 'Token refresh failed',
+                  data: {'message': 'Please login first'}
                 ),
-              );
-            }
+              ),
+            );
           }
+          // 非认证接口继续请求
+          return handler.next(options);
+        }
+            
+        // 检查 token 是否需要刷新
+        if (_authService.isAccessTokenExpired) {
+          LogUtils.d('$_tag Token已过期，尝试刷新');
+          // 对于特定路径使用静默刷新
+          final silent = _isSilentRefreshPath(options.path);
+          final success = await _authService.refreshAccessToken(silent: silent);
+          if (!success) {
+            if (!silent) {
+              // 显示友好提示
+              showToastWidget(MDToastWidget(
+                message: t.errors.sessionExpired,
+                type: MDToastType.warning
+              ));
+            }
+            
+            return handler.reject(
+              d_dio.DioException(
+                requestOptions: options,
+                error: 'Token refresh failed',
+                type: d_dio.DioExceptionType.badResponse,
+                response: d_dio.Response(
+                  statusCode: 401,
+                  requestOptions: options,
+                  data: {'message': 'Session expired'}
+                ),
+              ),
+            );
+          }
+        }
+        
+        // 添加认证头
+        if (_authService.accessToken != null) {
           options.headers['Authorization'] = 'Bearer ${_authService.accessToken}';
         }
         
         return handler.next(options);
       },
       onError: (d_dio.DioException error, handler) async {
-        if (error.response?.statusCode == 401 || error.response?.statusCode == 403) {
-          LogUtils.e('遭遇${error.response?.statusCode}错误，尝试刷新token', tag: _tag);
+        // 处理网络错误
+        if (error.type == d_dio.DioExceptionType.connectionTimeout ||
+            error.type == d_dio.DioExceptionType.receiveTimeout ||
+            error.type == d_dio.DioExceptionType.sendTimeout) {
+          showToastWidget(MDToastWidget(
+            message: t.errors.networkError,
+            type: MDToastType.error
+          ));
+          return handler.next(error);
+        }
+        
+        // 处理认证相关错误
+        if (error.response?.statusCode == 401) {
+          // 如果未登录,直接返回错误
+          if (!_authService.hasToken || !_authService.isAuthenticated) {
+            showToastWidget(MDToastWidget(
+              message: t.errors.pleaseLoginFirst,
+              type: MDToastType.warning
+            ));
+            return handler.next(error);
+          }
+
+          LogUtils.e('遭遇401错误，尝试刷新token', tag: _tag);
           
           try {
             // 尝试刷新 token
@@ -105,11 +171,37 @@ class ApiService extends GetxService {
               );
               return handler.resolve(cloneReq);
             }
+            
+            // 刷新失败，显示会话过期提示
+            showToastWidget(MDToastWidget(
+              message: t.errors.sessionExpired,
+              type: MDToastType.warning
+            ));
           } catch (e) {
-            // token 刷新失败的处理已经在 AuthService 中统一处理
-            return handler.next(error);
+            LogUtils.e('刷新token失败', tag: _tag, error: e);
+            showToastWidget(MDToastWidget(
+              message: t.errors.sessionExpired,
+              type: MDToastType.warning
+            ));
           }
+        } else if (error.response?.statusCode == 403) {
+          // 403通常表示权限问题
+          if (_authService.isAuthenticated) {
+            await _authService.handleTokenExpired();
+            showToastWidget(MDToastWidget(
+              message: t.errors.noPermission,
+              type: MDToastType.error
+            ));
+          }
+        } else {
+          // 其他错误显示服务器返回的错误信息
+          final message = error.response?.data?['message'] ?? t.errors.unknownError;
+          showToastWidget(MDToastWidget(
+            message: message,
+            type: MDToastType.error
+          ));
         }
+        
         LogUtils.e('请求失败', tag: _tag, error: error);
         return handler.next(error);
       },
@@ -168,6 +260,35 @@ class ApiService extends GetxService {
   // resetProxy
   void resetProxy() {
     _dio.httpClientAdapter = IOHttpClientAdapter();
+  }
+
+  // 判断是否是需要认证的路径
+  bool _isAuthRequiredPath(String path) {
+    // 这里添加所有需要认证的路径前缀
+    final authRequiredPaths = [
+      '/user/',
+      '/forum/',
+      '/comment/',
+      '/video/like',
+      '/video/follow',
+      '/playlist/',
+      '/conversation/',
+      '/notifications/',
+    ];
+    
+    return authRequiredPaths.any((prefix) => path.startsWith(prefix));
+  }
+
+  // 判断是否需要静默刷新的路径
+  bool _isSilentRefreshPath(String path) {
+    // 这些路径的token刷新不需要显示提示
+    final silentPaths = [
+      '/user/counts',  // 通知计数
+      '/user/notifications',  // 通知列表
+      '/user/profile',  // 用户资料
+    ];
+    
+    return silentPaths.any((prefix) => path.startsWith(prefix));
   }
 
 }
