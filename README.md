@@ -20,6 +20,13 @@ Love Iwara (also known as i_iwara or 2i) is a third-party mobile application for
 ### ⚠️ Project Description
 As a Flutter beginner, this is my first attempt at developing a cross-platform application. While there may be areas in the project that need improvement and code that could be optimized, the main purpose is to learn and understand Flutter development through hands-on practice.
 
+### ❗ Known Issues
+> When adapting DeepLink, I noticed that Getx also listens for link events and triggers route navigation (treating https links as routes for navigation, which is very strange behavior). I don't know how to disable this behavior, so the DeepLink adaptation work cannot be performed. If someone knows how to solve this, please tell me.
+> Some examples:
+> [GETX] GetInformationParser: route location: https://iwara.tv/profile/admin
+> [GETX] GOING TO ROUTE /404
+Maybe it's time to say goodbye to Getx :C
+
 - **Learning Objectives**
   - Familiarize with Flutter development basics
   - Understand cross-platform application development processes
@@ -111,7 +118,7 @@ Thank you for your understanding and support! If you're also a Flutter beginner,
 
 #### Upcoming Features
 - **Download Management**
-- **Share**
+- **Share** (Due to [DeepLink Adaptation](#-known-issues) cannot be implemented, if someone knows how to solve this, please tell me)
 - **Enhanced User Experience**
 - **Others**
   
