@@ -396,6 +396,9 @@ settings:
   disableForumReplyQuoteDesc: 禁用论坛回复时携带被回复楼层信息
   theaterMode: 剧院模式
   theaterModeDesc: 开启后，播放器背景会被设置为视频封面的模糊版本
+  appLinks: 应用链接
+  defaultBrowser: 默认浏览
+  defaultBrowserDesc: 请在系统设置中打开默认链接配置项，并添加网站链接
 
 signIn:
   pleaseLoginFirst: 请先登录后再签到

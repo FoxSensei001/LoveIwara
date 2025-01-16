@@ -8,6 +8,13 @@ class CommonConstants {
   // 应用版本
   static const String VERSION = '0.1.0';
 
+  // 应用名称
+  static String? applicationName = 'i_iwara';
+
+  // 应用包名
+  static String packageName = 'm.c.g.a.i_iwara';
+
+
   // 应用图标路径
   static String launcherIconPath = 'assets/icon/launcher_icon_v2.png';
 
@@ -74,8 +81,6 @@ class CommonConstants {
 
   // 是否记录历史记录
   static bool enableHistory = true;
-
-  static String? applicationName = 'i_iwara';
 
   static String defaultPlaylistThumbnailUrl =
       '$iwaraBaseUrl/images/default-thumbnail.jpg';

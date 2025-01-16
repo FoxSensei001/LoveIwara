@@ -1,3 +1,4 @@
+import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
@@ -104,6 +105,58 @@ class AppSettingsPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
+          if (GetPlatform.isAndroid)
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(
+                      slang.t.settings.appLinks,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    title: Text(slang.t.settings.defaultBrowser),
+                    subtitle: Text(slang.t.settings.defaultBrowserDesc),
+                    trailing: const Icon(Icons.open_in_new),
+                    onTap: () async {
+                      final packageName = CommonConstants.packageName;
+                      try {
+                        // 首先尝试使用APP_LINKS_SETTINGS
+                        final AndroidIntent intent = AndroidIntent(
+                          action: 'android.settings.APP_LINKS_SETTINGS',
+                          data: 'package:$packageName',
+                        );
+                        await intent.launch();
+                      } catch (e) {
+                        // 如果失败，尝试使用APPLICATION_DETAILS_SETTINGS
+                        final AndroidIntent intent = AndroidIntent(
+                          action: 'android.settings.APPLICATION_DETAILS_SETTINGS',
+                          data: 'package:$packageName',
+                        );
+                        await intent.launch();
+                      }
+                    },
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(16),
+                        bottomRight: Radius.circular(16),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
           Card(
             elevation: 2,
             shape: RoundedRectangleBorder(
@@ -184,4 +237,4 @@ class AppSettingsPage extends StatelessWidget {
       ),
     );
   }
-} 
+}

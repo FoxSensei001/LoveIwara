@@ -389,6 +389,9 @@ settings:
   disableForumReplyQuoteDesc: フォーラム返信時の返信階層情報の携帯を無効にする
   theaterMode: 劇院モード
   theaterModeDesc: 開啟後、プレーヤー背景がビデオカバーのぼかしバージョンに設定されます
+  appLinks: アプリリンク
+  defaultBrowser: デフォルトブラウザ
+  defaultBrowserDesc: システム設定でデフォルトリンク設定項目を開き、iwara.tvサイトリンクを追加してください
 signIn:
   pleaseLoginFirst: サインインする前にログインしてください
   alreadySignedInToday: 今日は既にサインインしています！

@@ -20,14 +20,6 @@ Love Iwara（又名 i_iwara 或 2i）是一个使用 Flutter 构建的 Iwara 第
 ### ⚠️ 项目说明
 作为一名 Flutter 新手，这是我第一次尝试开发跨平台应用。项目中可能存在不少不规范的地方，代码也有待优化，但主要目的是通过实践来学习和理解 Flutter 开发。
 
-### ❗ 暂时无法解决的问题
-> 在适配DeepLink时，我注意到Getx也会监听链接事件，并触发路由跳转(将https链接视作Route进行跳转，很邪门)，而我不知如何禁用此行为，导致DeepLink适配工作无法进行，如果有人知道如何解决，请告诉我。
-> 比如：
-> [GETX] GetInformationParser: route location: https://iwara.tv/profile/admin
-[GETX] GOING TO ROUTE /404
-也许是时候对Getx说再见了 :C
-
-
 - **学习目的**
   - 熟悉 Flutter 开发基础
   - 理解跨平台应用开发流程

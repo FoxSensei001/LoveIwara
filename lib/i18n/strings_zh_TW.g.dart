@@ -523,6 +523,9 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get disableForumReplyQuoteDesc => '禁用論壇回覆時攜帶被回覆樓層資訊';
 	@override String get theaterMode => '劇院模式';
 	@override String get theaterModeDesc => '開啟後，播放器背景會被設置為影片封面的模糊版本';
+	@override String get appLinks => '應用鏈接';
+	@override String get defaultBrowser => '預設瀏覽';
+	@override String get defaultBrowserDesc => '請在系統設定中打開預設鏈接配置項，並添加iwara.tv網站鏈接';
 }
 
 // Path: signIn
@@ -1292,6 +1295,9 @@ extension on TranslationsZhTw {
 			case 'settings.disableForumReplyQuoteDesc': return '禁用論壇回覆時攜帶被回覆樓層資訊';
 			case 'settings.theaterMode': return '劇院模式';
 			case 'settings.theaterModeDesc': return '開啟後，播放器背景會被設置為影片封面的模糊版本';
+			case 'settings.appLinks': return '應用鏈接';
+			case 'settings.defaultBrowser': return '預設瀏覽';
+			case 'settings.defaultBrowserDesc': return '請在系統設定中打開預設鏈接配置項，並添加iwara.tv網站鏈接';
 			case 'signIn.pleaseLoginFirst': return '請先登入後再簽到';
 			case 'signIn.alreadySignedInToday': return '您今天已經簽到過了！';
 			case 'signIn.youDidNotStickToTheSignIn': return '您未能持續簽到。';

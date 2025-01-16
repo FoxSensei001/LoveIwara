@@ -523,6 +523,9 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get disableForumReplyQuoteDesc => 'フォーラム返信時の返信階層情報の携帯を無効にする';
 	@override String get theaterMode => '劇院モード';
 	@override String get theaterModeDesc => '開啟後、プレーヤー背景がビデオカバーのぼかしバージョンに設定されます';
+	@override String get appLinks => 'アプリリンク';
+	@override String get defaultBrowser => 'デフォルトブラウザ';
+	@override String get defaultBrowserDesc => 'システム設定でデフォルトリンク設定項目を開き、iwara.tvサイトリンクを追加してください';
 }
 
 // Path: signIn
@@ -1289,6 +1292,9 @@ extension on TranslationsJa {
 			case 'settings.disableForumReplyQuoteDesc': return 'フォーラム返信時の返信階層情報の携帯を無効にする';
 			case 'settings.theaterMode': return '劇院モード';
 			case 'settings.theaterModeDesc': return '開啟後、プレーヤー背景がビデオカバーのぼかしバージョンに設定されます';
+			case 'settings.appLinks': return 'アプリリンク';
+			case 'settings.defaultBrowser': return 'デフォルトブラウザ';
+			case 'settings.defaultBrowserDesc': return 'システム設定でデフォルトリンク設定項目を開き、iwara.tvサイトリンクを追加してください';
 			case 'signIn.pleaseLoginFirst': return 'サインインする前にログインしてください';
 			case 'signIn.alreadySignedInToday': return '今日は既にサインインしています！';
 			case 'signIn.youDidNotStickToTheSignIn': return 'サインインを続けることができませんでした。';

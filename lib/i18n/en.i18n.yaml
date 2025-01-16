@@ -388,7 +388,9 @@ settings:
   disableForumReplyQuoteDesc: Disable carrying replied floor information when replying in forum
   theaterMode: Theater Mode
   theaterModeDesc: After opening, the player background will be set to the blurred version of the video cover
-
+  appLinks: App Links
+  defaultBrowser: Default Browse
+  defaultBrowserDesc: Please open the default link configuration item in the system settings and add the iwara.tv website link
 signIn:
   pleaseLoginFirst: Please login first
   alreadySignedInToday: You have already signed in today!

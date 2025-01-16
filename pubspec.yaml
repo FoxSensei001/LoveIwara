@@ -55,6 +55,7 @@ dependencies:
   screen_brightness: any
   volume_controller: any
   flutter_displaymode: ^0.6.0
+  android_intent_plus: ^5.2.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

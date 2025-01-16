@@ -527,6 +527,9 @@ class TranslationsSettingsEn {
 	String get disableForumReplyQuoteDesc => 'Disable carrying replied floor information when replying in forum';
 	String get theaterMode => 'Theater Mode';
 	String get theaterModeDesc => 'After opening, the player background will be set to the blurred version of the video cover';
+	String get appLinks => 'App Links';
+	String get defaultBrowser => 'Default Browse';
+	String get defaultBrowserDesc => 'Please open the default link configuration item in the system settings and add the iwara.tv website link';
 }
 
 // Path: signIn
@@ -1293,6 +1296,9 @@ extension on Translations {
 			case 'settings.disableForumReplyQuoteDesc': return 'Disable carrying replied floor information when replying in forum';
 			case 'settings.theaterMode': return 'Theater Mode';
 			case 'settings.theaterModeDesc': return 'After opening, the player background will be set to the blurred version of the video cover';
+			case 'settings.appLinks': return 'App Links';
+			case 'settings.defaultBrowser': return 'Default Browse';
+			case 'settings.defaultBrowserDesc': return 'Please open the default link configuration item in the system settings and add the iwara.tv website link';
 			case 'signIn.pleaseLoginFirst': return 'Please login first';
 			case 'signIn.alreadySignedInToday': return 'You have already signed in today!';
 			case 'signIn.youDidNotStickToTheSignIn': return 'You did not stick to the sign in.';

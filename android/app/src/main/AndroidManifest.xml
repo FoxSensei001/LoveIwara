@@ -28,25 +28,34 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
             <!-- Deep Links -->
-            <!--<intent-filter>
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="iwara" />
-            </intent-filter>-->
+            </intent-filter>
             
             <!-- App Links -->
-            <!--<intent-filter android:autoVerify="true">
+            <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https" />
                 <data android:host="iwara.tv" />
+                <data android:host="www.iwara.tv" />
                 <data android:pathPattern="/video/.*" />
+                <data android:pathPattern="/video/.*/.*" />
                 <data android:pathPattern="/profile/.*" />
+                <data android:pathPattern="/profile/.*/playlists" />
                 <data android:pathPattern="/playlist/.*" />
+                <data android:pathPattern="/playlist/.*/.*" />
                 <data android:pathPattern="/image/.*" />
-            </intent-filter>-->
+                <data android:pathPattern="/image/.*/.*" />
+                <data android:pathPattern="/forum/.*" />
+                <data android:pathPattern="/forum/.*/support/.*" />
+                <data android:pathPattern="/post/.*" />
+                <data android:pathPattern="/post/.*/.*" />
+            </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
