@@ -6,6 +6,7 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/forum/controllers/thread_detail_repository.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_reply_dialog.dart';
+import 'package:i_iwara/app/ui/pages/forum/widgets/share_thread_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
@@ -164,6 +165,23 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
             icon: const Icon(Icons.refresh),
             onPressed: () => listSourceRepository.refresh(),
           ),
+          // 添加分享按钮
+          Obx(() {
+            if (_thread.value == null) return const SizedBox.shrink();
+            return IconButton(
+              icon: const Icon(Icons.share),
+              onPressed: () {
+                showModalBottomSheet(
+                  backgroundColor: Colors.transparent,
+                  isScrollControlled: true,
+                  builder: (context) => ShareThreadBottomSheet(
+                    thread: _thread.value!,
+                  ),
+                  context: context,
+                );
+              },
+            );
+          }),
         ],
       ),
       body: LayoutBuilder(

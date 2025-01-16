@@ -100,6 +100,8 @@ Thank you for your understanding and support! If you're also a Flutter beginner,
     - User authentication
     - Profile management
     - Following system
+- **🔗 Share**
+    - Share video/gallery/post/thread/user
 
 - **🌍 Multi-language Support**
     - English
@@ -111,7 +113,6 @@ Thank you for your understanding and support! If you're also a Flutter beginner,
 
 #### Upcoming Features
 - **Download Management**
-- **Share** (Due to [DeepLink Adaptation](#-known-issues) cannot be implemented, if someone knows how to solve this, please tell me)
 - **Enhanced User Experience**
 - **Others**
   

@@ -5,6 +5,7 @@ import 'package:i_iwara/app/routes/app_routes.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_dialog.dart';
 import 'package:i_iwara/app/ui/pages/post_detail/widgets/post_detail_content_widget.dart';
+import 'package:i_iwara/app/ui/pages/post_detail/widgets/share_post_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/utils/widget_extensions.dart';
@@ -226,6 +227,16 @@ class _PostDetailPageState extends State<PostDetailPage> {
                       PostDetailContent(
                         controller: detailController,
                         paddingTop: paddingTop,
+                        onShare: () {
+                          showModalBottomSheet(
+                            backgroundColor: Colors.transparent,
+                            isScrollControlled: true,
+                            builder: (context) => SharePostBottomSheet(
+                              post: detailController.postInfo.value!,
+                            ),
+                            context: context,
+                          );
+                        },
                       ),
                       Container(
                         padding: EdgeInsets.symmetric(

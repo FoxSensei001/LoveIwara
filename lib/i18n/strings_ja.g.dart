@@ -635,6 +635,26 @@ class _TranslationsShareJa implements TranslationsShareEn {
 	@override String get iReallyLikeThis => '本当に好きです';
 	@override String get shareFailed => '共有に失敗しました。後でもう一度お試しください';
 	@override String get share => '共有';
+	@override String get shareAsImage => '画像として共有';
+	@override String get shareAsText => 'テキストとして共有';
+	@override String get shareAsImageDesc => '動画のサムネイルを画像として共有';
+	@override String get shareAsTextDesc => '動画の詳細をテキストとして共有';
+	@override String get shareAsImageFailed => 'サムネイルの共有に失敗しました。後でもう一度お試しください';
+	@override String get shareAsTextFailed => '詳細の共有に失敗しました。後でもう一度お試しください';
+	@override String get shareVideo => '動画を共有';
+	@override String get authorIs => '作者は';
+	@override String get shareGallery => 'ギャラリーを共有';
+	@override String get galleryTitleIs => 'ギャラリーのタイトルは';
+	@override String get galleryAuthorIs => 'ギャラリーの作者は';
+	@override String get shareUser => 'ユーザーを共有';
+	@override String get userNameIs => 'ユーザーの名前は';
+	@override String get userAuthorIs => 'ユーザーの作者は';
+	@override String get comments => 'コメント';
+	@override String get shareThread => 'スレッドを共有';
+	@override String get views => '閲覧';
+	@override String get sharePost => '投稿を共有';
+	@override String get postTitleIs => '投稿のタイトルは';
+	@override String get postAuthorIs => '投稿の作者は';
 }
 
 // Path: markdown
@@ -1368,6 +1388,26 @@ extension on TranslationsJa {
 			case 'share.iReallyLikeThis': return '本当に好きです';
 			case 'share.shareFailed': return '共有に失敗しました。後でもう一度お試しください';
 			case 'share.share': return '共有';
+			case 'share.shareAsImage': return '画像として共有';
+			case 'share.shareAsText': return 'テキストとして共有';
+			case 'share.shareAsImageDesc': return '動画のサムネイルを画像として共有';
+			case 'share.shareAsTextDesc': return '動画の詳細をテキストとして共有';
+			case 'share.shareAsImageFailed': return 'サムネイルの共有に失敗しました。後でもう一度お試しください';
+			case 'share.shareAsTextFailed': return '詳細の共有に失敗しました。後でもう一度お試しください';
+			case 'share.shareVideo': return '動画を共有';
+			case 'share.authorIs': return '作者は';
+			case 'share.shareGallery': return 'ギャラリーを共有';
+			case 'share.galleryTitleIs': return 'ギャラリーのタイトルは';
+			case 'share.galleryAuthorIs': return 'ギャラリーの作者は';
+			case 'share.shareUser': return 'ユーザーを共有';
+			case 'share.userNameIs': return 'ユーザーの名前は';
+			case 'share.userAuthorIs': return 'ユーザーの作者は';
+			case 'share.comments': return 'コメント';
+			case 'share.shareThread': return 'スレッドを共有';
+			case 'share.views': return '閲覧';
+			case 'share.sharePost': return '投稿を共有';
+			case 'share.postTitleIs': return '投稿のタイトルは';
+			case 'share.postAuthorIs': return '投稿の作者は';
 			case 'markdown.markdownSyntax': return 'Markdown 構文';
 			case 'markdown.iwaraSpecialMarkdownSyntax': return 'Iwara 専用構文';
 			case 'markdown.internalLink': return '站内鏈接';

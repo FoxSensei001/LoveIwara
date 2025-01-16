@@ -56,6 +56,7 @@ dependencies:
   volume_controller: any
   flutter_displaymode: ^0.6.0
   android_intent_plus: ^5.2.2
+  qr_flutter: ^4.1.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

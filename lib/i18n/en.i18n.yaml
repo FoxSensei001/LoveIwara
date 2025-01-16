@@ -471,7 +471,26 @@ share:
   iReallyLikeThis: I really like this
   shareFailed: Share failed, please try again later
   share: Share
-
+  shareAsImage: Share as Image
+  shareAsText: Share as Text
+  shareAsImageDesc: Share the video cover as an image
+  shareAsTextDesc: Share the video details as text
+  shareAsImageFailed: Share the video cover as an image failed, please try again later
+  shareAsTextFailed: Share the video details as text failed, please try again later
+  shareVideo: Share Video
+  authorIs: Author is
+  shareGallery: Share Gallery
+  galleryTitleIs: Gallery title is
+  galleryAuthorIs: Gallery author is
+  shareUser: Share User
+  userNameIs: User name is
+  userAuthorIs: User author is
+  comments: Comments
+  shareThread: Share Thread
+  views: Views
+  sharePost: Share Post
+  postTitleIs: Post title is
+  postAuthorIs: Post author is
 markdown:
   markdownSyntax: Markdown Syntax
   iwaraSpecialMarkdownSyntax: Iwara Special Markdown Syntax

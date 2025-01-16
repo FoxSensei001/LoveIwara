@@ -5,6 +5,7 @@ import 'package:i_iwara/app/routes/app_routes.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/video_service.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/share_video_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/video_description_widget.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
@@ -364,6 +365,45 @@ class VideoDetailContent extends StatelessWidget {
                                     const SizedBox(width: 4),
                                     Text(
                                       slang.Translations.of(context).playList.myPlayList,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Theme.of(context).textTheme.bodyMedium?.color
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(20),
+                              onTap: () {
+                                showModalBottomSheet(
+                                  backgroundColor: Colors.transparent,
+                                  isScrollControlled: true,
+                                  builder: (context) => ShareVideoBottomSheet(
+                                    videoId: controller.videoInfo.value?.id ?? '',
+                                    videoTitle: controller.videoInfo.value?.title ?? '',
+                                    authorName: controller.videoInfo.value?.user?.name ?? '',
+                                    previewUrl: controller.videoInfo.value?.previewUrl ?? '',
+                                  ), 
+                                  context: context,
+                                );
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.share, 
+                                      size: 20,
+                                      color: Theme.of(context).iconTheme.color
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      slang.Translations.of(context).common.share,
                                       style: TextStyle(
                                         fontSize: 14,
                                         color: Theme.of(context).textTheme.bodyMedium?.color

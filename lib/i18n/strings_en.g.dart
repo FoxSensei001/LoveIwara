@@ -639,6 +639,26 @@ class TranslationsShareEn {
 	String get iReallyLikeThis => 'I really like this';
 	String get shareFailed => 'Share failed, please try again later';
 	String get share => 'Share';
+	String get shareAsImage => 'Share as Image';
+	String get shareAsText => 'Share as Text';
+	String get shareAsImageDesc => 'Share the video cover as an image';
+	String get shareAsTextDesc => 'Share the video details as text';
+	String get shareAsImageFailed => 'Share the video cover as an image failed, please try again later';
+	String get shareAsTextFailed => 'Share the video details as text failed, please try again later';
+	String get shareVideo => 'Share Video';
+	String get authorIs => 'Author is';
+	String get shareGallery => 'Share Gallery';
+	String get galleryTitleIs => 'Gallery title is';
+	String get galleryAuthorIs => 'Gallery author is';
+	String get shareUser => 'Share User';
+	String get userNameIs => 'User name is';
+	String get userAuthorIs => 'User author is';
+	String get comments => 'Comments';
+	String get shareThread => 'Share Thread';
+	String get views => 'Views';
+	String get sharePost => 'Share Post';
+	String get postTitleIs => 'Post title is';
+	String get postAuthorIs => 'Post author is';
 }
 
 // Path: markdown
@@ -1372,6 +1392,26 @@ extension on Translations {
 			case 'share.iReallyLikeThis': return 'I really like this';
 			case 'share.shareFailed': return 'Share failed, please try again later';
 			case 'share.share': return 'Share';
+			case 'share.shareAsImage': return 'Share as Image';
+			case 'share.shareAsText': return 'Share as Text';
+			case 'share.shareAsImageDesc': return 'Share the video cover as an image';
+			case 'share.shareAsTextDesc': return 'Share the video details as text';
+			case 'share.shareAsImageFailed': return 'Share the video cover as an image failed, please try again later';
+			case 'share.shareAsTextFailed': return 'Share the video details as text failed, please try again later';
+			case 'share.shareVideo': return 'Share Video';
+			case 'share.authorIs': return 'Author is';
+			case 'share.shareGallery': return 'Share Gallery';
+			case 'share.galleryTitleIs': return 'Gallery title is';
+			case 'share.galleryAuthorIs': return 'Gallery author is';
+			case 'share.shareUser': return 'Share User';
+			case 'share.userNameIs': return 'User name is';
+			case 'share.userAuthorIs': return 'User author is';
+			case 'share.comments': return 'Comments';
+			case 'share.shareThread': return 'Share Thread';
+			case 'share.views': return 'Views';
+			case 'share.sharePost': return 'Share Post';
+			case 'share.postTitleIs': return 'Post title is';
+			case 'share.postAuthorIs': return 'Post author is';
 			case 'markdown.markdownSyntax': return 'Markdown Syntax';
 			case 'markdown.iwaraSpecialMarkdownSyntax': return 'Iwara Special Markdown Syntax';
 			case 'markdown.internalLink': return 'Internal Link';

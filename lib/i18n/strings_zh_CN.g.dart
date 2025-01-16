@@ -640,6 +640,26 @@ class _TranslationsShareZhCn implements TranslationsShareEn {
 	@override String get iReallyLikeThis => '我真的是太喜欢这个了，你也来看看吧！';
 	@override String get shareFailed => '分享失败，请稍后再试';
 	@override String get share => '分享';
+	@override String get shareAsImage => '分享为图片';
+	@override String get shareAsText => '分享为文本';
+	@override String get shareAsImageDesc => '将视频封面分享为图片';
+	@override String get shareAsTextDesc => '将视频详情分享为文本';
+	@override String get shareAsImageFailed => '分享视频封面为图片失败，请稍后再试';
+	@override String get shareAsTextFailed => '分享视频详情为文本失败，请稍后再试';
+	@override String get shareVideo => '分享视频';
+	@override String get authorIs => '作者是';
+	@override String get shareGallery => '分享图库';
+	@override String get galleryTitleIs => '图库名字叫做';
+	@override String get galleryAuthorIs => '图库作者是';
+	@override String get shareUser => '分享用户';
+	@override String get userNameIs => '用户名字叫做';
+	@override String get userAuthorIs => '用户作者是';
+	@override String get comments => '评论';
+	@override String get shareThread => '分享帖子';
+	@override String get views => '浏览';
+	@override String get sharePost => '分享投稿';
+	@override String get postTitleIs => '投稿名字叫做';
+	@override String get postAuthorIs => '投稿作者是';
 }
 
 // Path: markdown
@@ -1378,6 +1398,26 @@ extension on TranslationsZhCn {
 			case 'share.iReallyLikeThis': return '我真的是太喜欢这个了，你也来看看吧！';
 			case 'share.shareFailed': return '分享失败，请稍后再试';
 			case 'share.share': return '分享';
+			case 'share.shareAsImage': return '分享为图片';
+			case 'share.shareAsText': return '分享为文本';
+			case 'share.shareAsImageDesc': return '将视频封面分享为图片';
+			case 'share.shareAsTextDesc': return '将视频详情分享为文本';
+			case 'share.shareAsImageFailed': return '分享视频封面为图片失败，请稍后再试';
+			case 'share.shareAsTextFailed': return '分享视频详情为文本失败，请稍后再试';
+			case 'share.shareVideo': return '分享视频';
+			case 'share.authorIs': return '作者是';
+			case 'share.shareGallery': return '分享图库';
+			case 'share.galleryTitleIs': return '图库名字叫做';
+			case 'share.galleryAuthorIs': return '图库作者是';
+			case 'share.shareUser': return '分享用户';
+			case 'share.userNameIs': return '用户名字叫做';
+			case 'share.userAuthorIs': return '用户作者是';
+			case 'share.comments': return '评论';
+			case 'share.shareThread': return '分享帖子';
+			case 'share.views': return '浏览';
+			case 'share.sharePost': return '分享投稿';
+			case 'share.postTitleIs': return '投稿名字叫做';
+			case 'share.postAuthorIs': return '投稿作者是';
 			case 'markdown.markdownSyntax': return 'Markdown 语法';
 			case 'markdown.iwaraSpecialMarkdownSyntax': return 'Iwara 专用语法';
 			case 'markdown.internalLink': return '站内链接';

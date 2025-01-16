@@ -472,6 +472,27 @@ share:
   iReallyLikeThis: 本当に好きです
   shareFailed: 共有に失敗しました。後でもう一度お試しください
   share: 共有
+  shareAsImage: 画像として共有
+  shareAsText: テキストとして共有
+  shareAsImageDesc: 動画のサムネイルを画像として共有
+  shareAsTextDesc: 動画の詳細をテキストとして共有
+  shareAsImageFailed: サムネイルの共有に失敗しました。後でもう一度お試しください
+  shareAsTextFailed: 詳細の共有に失敗しました。後でもう一度お試しください
+  shareVideo: 動画を共有
+  authorIs: 作者は
+  shareGallery: ギャラリーを共有
+  galleryTitleIs: ギャラリーのタイトルは
+  galleryAuthorIs: ギャラリーの作者は
+  shareUser: ユーザーを共有
+  userNameIs: ユーザーの名前は
+  userAuthorIs: ユーザーの作者は
+  comments: コメント
+  shareThread: スレッドを共有
+  views: 閲覧
+  sharePost: 投稿を共有
+  postTitleIs: 投稿のタイトルは
+  postAuthorIs: 投稿の作者は
+
 
 markdown:
   markdownSyntax: Markdown 構文

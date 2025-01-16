@@ -480,6 +480,26 @@ share:
   iReallyLikeThis: 我真的是太喜欢这个了，你也来看看吧！
   shareFailed: 分享失败，请稍后再试
   share: 分享
+  shareAsImage: 分享为图片
+  shareAsText: 分享为文本
+  shareAsImageDesc: 将视频封面分享为图片
+  shareAsTextDesc: 将视频详情分享为文本
+  shareAsImageFailed: 分享视频封面为图片失败，请稍后再试
+  shareAsTextFailed: 分享视频详情为文本失败，请稍后再试
+  shareVideo: 分享视频
+  authorIs: 作者是
+  shareGallery: 分享图库
+  galleryTitleIs: 图库名字叫做
+  galleryAuthorIs: 图库作者是
+  shareUser: 分享用户
+  userNameIs: 用户名字叫做
+  userAuthorIs: 用户作者是
+  comments: 评论
+  shareThread: 分享帖子
+  views: 浏览
+  sharePost: 分享投稿
+  postTitleIs: 投稿名字叫做
+  postAuthorIs: 投稿作者是
 
 markdown:
   markdownSyntax: Markdown 语法

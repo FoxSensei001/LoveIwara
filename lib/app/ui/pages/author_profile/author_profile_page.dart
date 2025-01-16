@@ -35,6 +35,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/widgets/follow_button_widget.dart';
 import 'package:i_iwara/app/ui/pages/author_profile/widgets/post_input_dialog.dart';
 import 'package:i_iwara/app/ui/pages/conversation/widgets/new_conversation_dialog.dart';
+import 'package:i_iwara/app/ui/pages/author_profile/widgets/share_user_bottom_sheet.dart';
 
 class AuthorProfilePage extends StatefulWidget {
   final String username;
@@ -326,6 +327,22 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
               );
             }
 
+            // 添加分享选项
+            if (profileController.author.value != null) {
+              popupMenuItems.add(
+                PopupMenuItem(
+                  value: 'share',
+                  child: Row(
+                    children: [
+                      const Icon(Icons.share),
+                      const SizedBox(width: 8),
+                      Text(t.common.share),
+                    ],
+                  ),
+                ),
+              );
+            }
+
             // 如果没有可选项，则不显示
             if (popupMenuItems.isEmpty) {
               return const SizedBox.shrink();
@@ -346,6 +363,26 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                     ),
                     barrierDismissible: true,
                   );
+                } else if (value == 'share') {
+                  // 分享用户主页
+                  final username = profileController.author.value?.username;
+                  if (username != null) {
+                    showModalBottomSheet(
+                      backgroundColor: Colors.transparent,
+                      isScrollControlled: true,
+                      builder: (context) => ShareUserBottomSheet(
+                        username: username,
+                        authorName: profileController.author.value?.name ?? '',
+                        previewUrl: profileController.headerBackgroundUrl.value ?? CommonConstants.defaultProfileHeaderUrl,
+                        avatarUrl: profileController.author.value?.avatar?.avatarUrl,
+                        followerCount: profileController.followerCounts.value,
+                        followingCount: profileController.followingCounts.value,
+                        videoCount: profileController.videoCounts.value,
+                        commentCount: profileController.commentController.comments.value.length,
+                      ), 
+                      context: context,
+                    );
+                  }
                 }
               },
               itemBuilder: (context) => popupMenuItems,

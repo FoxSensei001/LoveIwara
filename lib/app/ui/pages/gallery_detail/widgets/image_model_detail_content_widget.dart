@@ -10,6 +10,7 @@ import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/image_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/widget_extensions.dart';
+import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/share_gallery_bottom_sheet.dart';
 
 import '../../../../../common/constants.dart';
 import '../../../../../common/enums/media_enums.dart';
@@ -480,27 +481,74 @@ class ImageModelDetailContent extends StatelessWidget {
         builder: (context) => Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              LikeButtonWidget(
-                mediaId: imageModelInfo.id,
-                liked: imageModelInfo.liked ?? false,
-                likeCount: imageModelInfo.numLikes ?? 0,
-                onLike: (id) async {
-                  final result = await Get.find<GalleryService>().likeImage(id);
-                  return result.isSuccess;
-                },
-                onUnlike: (id) async {
-                  final result = await Get.find<GalleryService>().unlikeImage(id);
-                  return result.isSuccess;
-                },
-                onLikeChanged: (liked) {
-                  controller.imageModelInfo.value = controller.imageModelInfo.value?.copyWith(
-                    liked: liked,
-                    numLikes: (controller.imageModelInfo.value?.numLikes ?? 0) + (liked ? 1 : -1),
-                  );
-                },
+              // 左侧按钮组(点赞和分享)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  LikeButtonWidget(
+                    mediaId: imageModelInfo.id,
+                    liked: imageModelInfo.liked ?? false,
+                    likeCount: imageModelInfo.numLikes ?? 0,
+                    onLike: (id) async {
+                      final result = await Get.find<GalleryService>().likeImage(id);
+                      return result.isSuccess;
+                    },
+                    onUnlike: (id) async {
+                      final result = await Get.find<GalleryService>().unlikeImage(id);
+                      return result.isSuccess;
+                    },
+                    onLikeChanged: (liked) {
+                      controller.imageModelInfo.value = controller.imageModelInfo.value?.copyWith(
+                        liked: liked,
+                        numLikes: (controller.imageModelInfo.value?.numLikes ?? 0) + (liked ? 1 : -1),
+                      );
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(20),
+                      onTap: () {
+                        showModalBottomSheet(
+                          backgroundColor: Colors.transparent,
+                          isScrollControlled: true,
+                          builder: (context) => ShareGalleryBottomSheet(
+                            galleryId: imageModelInfo.id,
+                            galleryTitle: imageModelInfo.title,
+                            authorName: imageModelInfo.user?.name ?? '',
+                            previewUrl: imageModelInfo.thumbnailUrl,
+                          ), 
+                          context: context,
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.share, 
+                              size: 20,
+                              color: Theme.of(context).iconTheme.color
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              slang.t.common.share,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Theme.of(context).textTheme.bodyMedium?.color
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
+              const Spacer(),
+              // 评论按钮
               Material(
                 color: Colors.transparent,
                 child: Container(

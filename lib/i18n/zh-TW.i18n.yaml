@@ -475,6 +475,26 @@ share:
   iReallyLikeThis: 我真的是太喜歡這個了，你也來看看吧！
   shareFailed: 分享失敗，請稍後再試
   share: 分享
+  shareAsImage: 分享為圖片
+  shareAsText: 分享為文本
+  shareAsImageDesc: 將影片封面分享為圖片
+  shareAsTextDesc: 將影片詳情分享為文本
+  shareAsImageFailed: 分享影片封面為圖片失敗，請稍後再試
+  shareAsTextFailed: 分享影片詳情為文本失敗，請稍後再試
+  shareVideo: 分享影片
+  authorIs: 作者是
+  shareGallery: 分享圖庫
+  galleryTitleIs: 圖庫名字叫做
+  galleryAuthorIs: 圖庫作者是
+  shareUser: 分享用戶
+  userNameIs: 用戶名字叫做
+  userAuthorIs: 用戶作者是
+  comments: 評論
+  shareThread: 分享帖子
+  views: 瀏覽
+  sharePost: 分享投稿
+  postTitleIs: 投稿名字叫做
+  postAuthorIs: 投稿作者是
 
 markdown:
   markdownSyntax: Markdown 語法
