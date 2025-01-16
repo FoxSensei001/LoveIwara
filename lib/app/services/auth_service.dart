@@ -243,21 +243,26 @@ class AuthService extends GetxService {
         // 处理不同的验证结果
         if (authTokenResult == TokenValidationResult.malformed || 
             authTokenResult == TokenValidationResult.invalid ||
-            authTokenResult == TokenValidationResult.wrongType) {
-          // token格式错误或类型错误，直接清理
+            authTokenResult == TokenValidationResult.wrongType ||
+            authTokenResult == TokenValidationResult.expired) {
+          // token格式错误、类型错误或已过期，直接清理
+          LogUtils.i('Auth token已失效，状态: $authTokenResult', _tag);
           await _handleTokenExpiredSilently();
           return this;
         }
         
         if (accessTokenResult == TokenValidationResult.malformed || 
             accessTokenResult == TokenValidationResult.invalid ||
-            accessTokenResult == TokenValidationResult.wrongType) {
+            accessTokenResult == TokenValidationResult.wrongType ||
+            accessTokenResult == TokenValidationResult.expired) {
           // access token有问题，尝试刷新
           if (authTokenResult == TokenValidationResult.valid) {
+            LogUtils.i('Access token已失效，尝试刷新', _tag);
             _updateTokenExpireTime(_authToken!, true);
             final success = await refreshAccessToken();
             if (success) {
               _isAuthenticated.value = true;
+              _startTokenRefreshTimer();
             } else {
               await _handleTokenExpiredSilently();
             }
@@ -273,9 +278,11 @@ class AuthService extends GetxService {
         
         // 检查是否需要刷新
         if (isAccessTokenExpired && !isAuthTokenExpired) {
+          LogUtils.i('Access token即将过期，尝试刷新', _tag);
           final success = await refreshAccessToken();
           if (success) {
             _isAuthenticated.value = true;
+            _startTokenRefreshTimer();
           } else {
             await _handleTokenExpiredSilently();
           }
@@ -296,7 +303,7 @@ class AuthService extends GetxService {
   static const Duration refreshRetryDelay = Duration(seconds: 1);
   
   Future<bool> refreshAccessToken() async {
-    if (!hasToken) {
+    if (_authToken == null) {
       LogUtils.w('用户未登录，无法刷新token', _tag);
       return false;
     }
@@ -313,7 +320,7 @@ class AuthService extends GetxService {
       try {
         LogUtils.i('等待当前刷新完成...', _tag);
         await _refreshTokenCompleter?.future;
-        return hasToken && isTokenValid;
+        return _accessToken != null && !isAccessTokenExpired;
       } catch (e) {
         LogUtils.e('等待token刷新失败', tag: _tag, error: e);
         return false;
@@ -350,6 +357,7 @@ class AuthService extends GetxService {
             
             LogUtils.d('Access token 刷新成功', _tag);
             _refreshTokenCompleter?.complete();
+            _isRefreshing = false;
             return true;
           } else {
             LogUtils.e('刷新获取的token无效，状态: $tokenResult', tag: _tag);
@@ -381,6 +389,7 @@ class AuthService extends GetxService {
     }
 
     _refreshTokenCompleter?.completeError('Failed after $maxRefreshRetries retries');
+    _isRefreshing = false;
     await handleTokenExpired();
     return false;
   }
@@ -458,7 +467,7 @@ class AuthService extends GetxService {
   // 登录方法
   Future<ApiResult> login(String email, String password) async {
     try {
-      LogUtils.i('开始登录流程...', _tag);
+      LogUtils.d('开始登录流程...', _tag);
 
       final response = await _dio.post('/user/login', data: {
         'email': email,
@@ -466,20 +475,23 @@ class AuthService extends GetxService {
       });
 
       if (response.statusCode == 200 && response.data['token'] != null) {
-        LogUtils.i('登录成功，保存token...', _tag);
+        // 打印返回信息
+        LogUtils.d('登录成功: ${response.data}', _tag);
         
-        // 使用 _saveTokens 来保存和更新 token
-        await _saveTokens(response.data['token'], response.data['accessToken'] ?? '');
+        // 先保存 auth token
+        _authToken = response.data['token'];
+        _updateTokenExpireTime(_authToken!, true);
+        await _storage.writeSecureData(KeyConstants.authToken, _authToken!);
         
-        // 如果没有 accessToken,需要刷新获取
-        if (response.data['accessToken'] == null) {
-          LogUtils.i('需要刷新token...', _tag);
-          
-          final refreshResult = await refreshAccessToken();
-          if (!refreshResult) {
-            return ApiResult.fail(t.errors.loginFailed);
-          }
+        // 刷新获取 access token
+        LogUtils.d('开始获取access token...', _tag);
+        final refreshResult = await refreshAccessToken();
+        if (!refreshResult) {
+          return ApiResult.fail(t.errors.loginFailed);
         }
+        
+        // 更新认证状态
+        _isAuthenticated.value = true;
         
         LogUtils.i('登录流程完成', _tag);
         return ApiResult.success();
