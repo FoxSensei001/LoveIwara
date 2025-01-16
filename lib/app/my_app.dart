@@ -213,6 +213,7 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
     return Scaffold(
         key: AppService.globalDrawerKey,
         drawer: _buildDrawer(),
+        drawerEnableOpenDragGesture: false,
         body: WindowTitleBarLayout(child));
   }
 

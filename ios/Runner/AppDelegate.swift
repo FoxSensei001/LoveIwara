@@ -2,7 +2,7 @@ import Flutter
 import UIKit
 import MediaPlayer
 
-@UIApplicationMain
+@main
 @objc class AppDelegate: FlutterAppDelegate {
   private var volumeKeyEnabled = false
   private var volumeView: MPVolumeView?

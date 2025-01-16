@@ -50,7 +50,7 @@ class SubscriptionImageListState extends State<SubscriptionImageList> with Autom
           SliverListConfig<ImageModel>(
             extendedListDelegate:
                 SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: MediaQuery.of(context).size.width <= 600 ? 180 : 200,
+              maxCrossAxisExtent: MediaQuery.of(context).size.width <= 600 ? MediaQuery.of(context).size.width / 2 : 200,
               crossAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
               mainAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
             ),
@@ -62,7 +62,7 @@ class SubscriptionImageListState extends State<SubscriptionImageList> with Autom
                 ),
                 child: ImageModelCardListItemWidget(
                   imageModel: image,
-                  width: MediaQuery.of(context).size.width <= 600 ? 180 : 200,
+                  width: MediaQuery.of(context).size.width <= 600 ? MediaQuery.of(context).size.width / 2 - 8 : 200,
                 ),
               );
             },

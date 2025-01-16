@@ -50,7 +50,7 @@ class SubscriptionVideoListState extends State<SubscriptionVideoList> with Autom
           SliverListConfig<Video>(
             extendedListDelegate:
                 SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: MediaQuery.of(context).size.width <= 600 ? 180 : 200,
+              maxCrossAxisExtent: MediaQuery.of(context).size.width <= 600 ? MediaQuery.of(context).size.width / 2 : 200,
               crossAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
               mainAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
             ),
@@ -62,7 +62,7 @@ class SubscriptionVideoListState extends State<SubscriptionVideoList> with Autom
                 ),
                 child: VideoCardListItemWidget(
                   video: video,
-                  width: MediaQuery.of(context).size.width <= 600 ? 180 : 200,
+                  width: MediaQuery.of(context).size.width <= 600 ? MediaQuery.of(context).size.width / 2 - 8 : 200,
                 ),
               );
             },
