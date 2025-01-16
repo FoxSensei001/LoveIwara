@@ -234,6 +234,7 @@ class _PopularVideoListPageState extends State<PopularVideoListPage>
                   elevation: 0,
                   color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(12),
+                  clipBehavior: Clip.antiAlias,
                   child: TextField(
                     readOnly: true,
                     style: TextStyle(

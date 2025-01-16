@@ -6,17 +6,22 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
-import 'package:oktoast/oktoast.dart';
 
 import '../../common/constants.dart';
 import '../../utils/logger_utils.dart';
 import 'auth_service.dart';
+import 'message_service.dart';
 
 class ApiService extends GetxService {
   static ApiService? _instance;
   late d_dio.Dio _dio;
   final AuthService _authService = Get.find<AuthService>();
+  final MessageService _messageService = Get.find<MessageService>();
   final String _tag = 'ApiService';
+  
+  // 重试相关配置
+  static const int maxRetries = 3;
+  static const Duration baseRetryDelay = Duration(seconds: 1);
 
   // 构造函数返回的是同一个
   ApiService._();
@@ -39,7 +44,6 @@ class ApiService extends GetxService {
         'User-Agent':
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
         'Accept': 'application/json, text/plain, */*',
-        // 'Accept-Language': 'en-US,en;q=0.9',
         'Connection': 'keep-alive',
         'Referer': CommonConstants.iwaraApiBaseUrl,
       },
@@ -61,65 +65,19 @@ class ApiService extends GetxService {
             '请求: Method: ${options.method} Path: ${options.path} Params: ${options.queryParameters} Body: ${options.data}',
             _tag);
             
-        // 检查是否已登录
-        if (!_authService.hasToken || !_authService.isAuthenticated) {
-          // 如果是需要认证的接口,直接返回错误
-          if (_isAuthRequiredPath(options.path)) {
-            // 显示友好提示
-            showToastWidget(MDToastWidget(
-              message: t.errors.pleaseLoginFirst,
-              type: MDToastType.warning
-            ));
-            
-            return handler.reject(
-              d_dio.DioException(
-                requestOptions: options,
-                error: 'Authentication required',
-                type: d_dio.DioExceptionType.badResponse,
-                response: d_dio.Response(
-                  statusCode: 401,
-                  requestOptions: options,
-                  data: {'message': 'Please login first'}
-                ),
-              ),
-            );
-          }
-          // 非认证接口继续请求
-          return handler.next(options);
+        // 请求预处理
+        if (!await _preProcessRequest()) {
+          return handler.reject(
+            d_dio.DioException(
+              requestOptions: options,
+              error: 'Token refresh failed',
+              type: d_dio.DioExceptionType.badResponse,
+            ),
+          );
         }
             
-        // 检查 token 是否需要刷新
-        if (_authService.isAccessTokenExpired) {
-          LogUtils.d('$_tag Token已过期，尝试刷新');
-          // 对于特定路径使用静默刷新
-          final silent = _isSilentRefreshPath(options.path);
-          final success = await _authService.refreshAccessToken(silent: silent);
-          if (!success) {
-            if (!silent) {
-              // 显示友好提示
-              showToastWidget(MDToastWidget(
-                message: t.errors.sessionExpired,
-                type: MDToastType.warning
-              ));
-            }
-            
-            return handler.reject(
-              d_dio.DioException(
-                requestOptions: options,
-                error: 'Token refresh failed',
-                type: d_dio.DioExceptionType.badResponse,
-                response: d_dio.Response(
-                  statusCode: 401,
-                  requestOptions: options,
-                  data: {'message': 'Session expired'}
-                ),
-              ),
-            );
-          }
-        }
-        
-        // 添加认证头
-        if (_authService.accessToken != null) {
+        // 如果有token，添加到请求头
+        if (_authService.hasToken) {
           options.headers['Authorization'] = 'Bearer ${_authService.accessToken}';
         }
         
@@ -130,84 +88,129 @@ class ApiService extends GetxService {
         if (error.type == d_dio.DioExceptionType.connectionTimeout ||
             error.type == d_dio.DioExceptionType.receiveTimeout ||
             error.type == d_dio.DioExceptionType.sendTimeout) {
-          showToastWidget(MDToastWidget(
-            message: t.errors.networkError,
-            type: MDToastType.error
-          ));
+          _handleNetworkError(error);
           return handler.next(error);
         }
         
-        // 处理认证相关错误
-        if (error.response?.statusCode == 401) {
-          // 如果未登录,直接返回错误
-          if (!_authService.hasToken || !_authService.isAuthenticated) {
-            showToastWidget(MDToastWidget(
-              message: t.errors.pleaseLoginFirst,
-              type: MDToastType.warning
-            ));
-            return handler.next(error);
-          }
-
-          LogUtils.e('遭遇401错误，尝试刷新token', tag: _tag);
-          
-          try {
-            // 尝试刷新 token
-            final success = await _authService.refreshAccessToken();
-            if (success) {
-              // 重试原请求
-              final opts = d_dio.Options(
-                method: error.requestOptions.method,
-                headers: {
-                  ...error.requestOptions.headers,
-                  'Authorization': 'Bearer ${_authService.accessToken}'
-                },
-              );
-              
-              final cloneReq = await _dio.request(
-                error.requestOptions.path,
-                options: opts,
-                data: error.requestOptions.data,
-                queryParameters: error.requestOptions.queryParameters,
-              );
-              return handler.resolve(cloneReq);
+        switch (error.response?.statusCode) {
+          case 401: // Unauthorized - 未认证或认证已过期
+            // 如果未登录，直接返回错误
+            if (!_authService.hasToken) {
+              _handleAuthError(error);
+              return handler.next(error);
             }
+
+            LogUtils.d('$_tag 遇到401错误（未认证或认证已过期），尝试刷新token');
             
-            // 刷新失败，显示会话过期提示
-            showToastWidget(MDToastWidget(
-              message: t.errors.sessionExpired,
-              type: MDToastType.warning
-            ));
-          } catch (e) {
-            LogUtils.e('刷新token失败', tag: _tag, error: e);
-            showToastWidget(MDToastWidget(
-              message: t.errors.sessionExpired,
-              type: MDToastType.warning
-            ));
-          }
-        } else if (error.response?.statusCode == 403) {
-          // 403通常表示权限问题
-          if (_authService.isAuthenticated) {
-            await _authService.handleTokenExpired();
-            showToastWidget(MDToastWidget(
-              message: t.errors.noPermission,
-              type: MDToastType.error
-            ));
-          }
-        } else {
-          // 其他错误显示服务器返回的错误信息
-          final message = error.response?.data?['message'] ?? t.errors.unknownError;
-          showToastWidget(MDToastWidget(
-            message: message,
-            type: MDToastType.error
-          ));
+            try {
+              // 尝试刷新token
+              final success = await _authService.refreshAccessToken();
+              
+              if (success) {
+                // 重试原请求
+                return handler.resolve(await _retryRequest(error.requestOptions));
+              }
+            } catch (e) {
+              LogUtils.e('刷新token失败', tag: _tag, error: e);
+            }
+            _handleAuthError(error);
+            break;
+            
+          case 403: // Forbidden - 已认证但无权限
+            LogUtils.e('$_tag 遇到403错误（无权限访问）', error: error);
+            _handleAuthError(error);
+            break;
+            
+          default:
+            _handleGeneralError(error);
         }
         
-        LogUtils.e('请求失败', tag: _tag, error: error);
         return handler.next(error);
       },
     ));
 
     return this;
+  }
+
+  // 请求预处理
+  Future<bool> _preProcessRequest() async {
+    if (!_authService.hasToken) return true;
+    
+    // 检查token是否即将过期
+    if (_authService.isAccessTokenExpired) {
+      return await _authService.refreshAccessToken();
+    }
+    return true;
+  }
+
+  // 重试请求
+  Future<d_dio.Response<T>> _retryRequest<T>(d_dio.RequestOptions options, {int currentRetry = 0}) async {
+    try {
+      final opts = d_dio.Options(
+        method: options.method,
+        headers: {
+          ...options.headers,
+          'Authorization': 'Bearer ${_authService.accessToken}'
+        },
+      );
+      
+      return await _dio.request<T>(
+        options.path,
+        options: opts,
+        data: options.data,
+        queryParameters: options.queryParameters,
+      );
+    } catch (e) {
+      if (currentRetry < maxRetries - 1) {
+        // 计算递增的重试延迟
+        final delay = baseRetryDelay * (currentRetry + 1);
+        await Future.delayed(delay);
+        return _retryRequest(options, currentRetry: currentRetry + 1);
+      }
+      rethrow;
+    }
+  }
+
+  // 处理认证错误
+  void _handleAuthError(d_dio.DioException error) {
+    switch (error.response?.statusCode) {
+      case 401:
+        if (!_authService.hasToken) {
+          _messageService.showMessage(
+            t.errors.pleaseLoginFirst,
+            MDToastType.warning,
+          );
+        } else {
+          _messageService.showMessage(
+            t.errors.sessionExpired,
+            MDToastType.warning,
+          );
+        }
+        break;
+      case 403:
+        _messageService.showMessage(
+          t.errors.noPermission,
+          MDToastType.warning,
+        );
+        break;
+    }
+  }
+
+  // 处理网络错误
+  void _handleNetworkError(d_dio.DioException error) {
+    _messageService.showMessage(
+      t.errors.networkError,
+      MDToastType.error,
+    );
+  }
+
+  // 处理一般错误
+  void _handleGeneralError(d_dio.DioException error) {
+    final message = error.response?.data?['message'] ?? t.errors.unknownError;
+    _messageService.showMessage(
+      message,
+      MDToastType.error,
+    );
   }
 
   Future<d_dio.Response<T>> get<T>(String path,
@@ -260,35 +263,6 @@ class ApiService extends GetxService {
   // resetProxy
   void resetProxy() {
     _dio.httpClientAdapter = IOHttpClientAdapter();
-  }
-
-  // 判断是否是需要认证的路径
-  bool _isAuthRequiredPath(String path) {
-    // 这里添加所有需要认证的路径前缀
-    final authRequiredPaths = [
-      '/user/',
-      '/forum/',
-      '/comment/',
-      '/video/like',
-      '/video/follow',
-      '/playlist/',
-      '/conversation/',
-      '/notifications/',
-    ];
-    
-    return authRequiredPaths.any((prefix) => path.startsWith(prefix));
-  }
-
-  // 判断是否需要静默刷新的路径
-  bool _isSilentRefreshPath(String path) {
-    // 这些路径的token刷新不需要显示提示
-    final silentPaths = [
-      '/user/counts',  // 通知计数
-      '/user/notifications',  // 通知列表
-      '/user/profile',  // 用户资料
-    ];
-    
-    return silentPaths.any((prefix) => path.startsWith(prefix));
   }
 
 }

@@ -52,6 +52,7 @@ class TranslationsZhTw implements Translations {
 	@override late final _TranslationsForumZhTw forum = _TranslationsForumZhTw._(_root);
 	@override late final _TranslationsNotificationsZhTw notifications = _TranslationsNotificationsZhTw._(_root);
 	@override late final _TranslationsConversationZhTw conversation = _TranslationsConversationZhTw._(_root);
+	@override late final _TranslationsSplashZhTw splash = _TranslationsSplashZhTw._(_root);
 }
 
 // Path: common
@@ -781,6 +782,21 @@ class _TranslationsConversationZhTw implements TranslationsConversationEn {
 	@override String get sendMessage => '發送消息';
 }
 
+// Path: splash
+class _TranslationsSplashZhTw implements TranslationsSplashEn {
+	_TranslationsSplashZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override late final _TranslationsSplashErrorsZhTw errors = _TranslationsSplashErrorsZhTw._(_root);
+	@override String get preparing => '準備中...';
+	@override String get initializing => '初始化中...';
+	@override String get loading => '加載中...';
+	@override String get ready => '準備完成';
+	@override String get initializingMessageService => '初始化消息服務中...';
+}
+
 // Path: forum.errors
 class _TranslationsForumErrorsZhTw implements TranslationsForumErrorsEn {
 	_TranslationsForumErrorsZhTw._(this._root);
@@ -888,6 +904,16 @@ class _TranslationsConversationErrorsZhTw implements TranslationsConversationErr
 	@override String get loadFailed => '加載失敗';
 	@override String get clickToRetry => '點擊重試';
 	@override String get noMoreConversations => '沒有更多消息了';
+}
+
+// Path: splash.errors
+class _TranslationsSplashErrorsZhTw implements TranslationsSplashErrorsEn {
+	_TranslationsSplashErrorsZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get initializationFailed => '初始化失敗，請重啟應用';
 }
 
 /// Flat map(s) containing all translations.
@@ -1500,6 +1526,12 @@ extension on TranslationsZhTw {
 			case 'conversation.deleteThisMessageSubtitle': return '此操作不可撤銷';
 			case 'conversation.writeMessageHere': return '在此處輸入消息';
 			case 'conversation.sendMessage': return '發送消息';
+			case 'splash.errors.initializationFailed': return '初始化失敗，請重啟應用';
+			case 'splash.preparing': return '準備中...';
+			case 'splash.initializing': return '初始化中...';
+			case 'splash.loading': return '加載中...';
+			case 'splash.ready': return '準備完成';
+			case 'splash.initializingMessageService': return '初始化消息服務中...';
 			default: return null;
 		}
 	}

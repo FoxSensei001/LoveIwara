@@ -56,6 +56,7 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final TranslationsForumEn forum = TranslationsForumEn._(_root);
 	late final TranslationsNotificationsEn notifications = TranslationsNotificationsEn._(_root);
 	late final TranslationsConversationEn conversation = TranslationsConversationEn._(_root);
+	late final TranslationsSplashEn splash = TranslationsSplashEn._(_root);
 }
 
 // Path: common
@@ -782,6 +783,21 @@ class TranslationsConversationEn {
 	String get sendMessage => 'Send message';
 }
 
+// Path: splash
+class TranslationsSplashEn {
+	TranslationsSplashEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	late final TranslationsSplashErrorsEn errors = TranslationsSplashErrorsEn._(_root);
+	String get preparing => 'Preparing...';
+	String get initializing => 'Initializing...';
+	String get loading => 'Loading...';
+	String get ready => 'Ready';
+	String get initializingMessageService => 'Initializing message service...';
+}
+
 // Path: forum.errors
 class TranslationsForumErrorsEn {
 	TranslationsForumErrorsEn._(this._root);
@@ -889,6 +905,16 @@ class TranslationsConversationErrorsEn {
 	String get loadFailed => 'Load failed';
 	String get clickToRetry => 'Click to retry';
 	String get noMoreConversations => 'No more conversations';
+}
+
+// Path: splash.errors
+class TranslationsSplashErrorsEn {
+	TranslationsSplashErrorsEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get initializationFailed => 'Initialization failed, please restart the app';
 }
 
 /// Flat map(s) containing all translations.
@@ -1498,6 +1524,12 @@ extension on Translations {
 			case 'conversation.deleteThisMessageSubtitle': return 'This operation cannot be undone';
 			case 'conversation.writeMessageHere': return 'Write message here...';
 			case 'conversation.sendMessage': return 'Send message';
+			case 'splash.errors.initializationFailed': return 'Initialization failed, please restart the app';
+			case 'splash.preparing': return 'Preparing...';
+			case 'splash.initializing': return 'Initializing...';
+			case 'splash.loading': return 'Loading...';
+			case 'splash.ready': return 'Ready';
+			case 'splash.initializingMessageService': return 'Initializing message service...';
 			default: return null;
 		}
 	}

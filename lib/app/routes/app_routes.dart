@@ -21,6 +21,7 @@ abstract class Routes {
   static const SIGN_IN = _Paths.SIGN_IN;
 
   static const ROOT = _Paths.ROOT;
+  static const SPLASH = '/splash';
 
   static const SEARCH_RESULT = _Paths.SEARCH_RESULT;
 

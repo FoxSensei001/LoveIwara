@@ -14,6 +14,7 @@ import 'package:i_iwara/app/ui/pages/settings/proxy_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/theme_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/sign_in/sing_in_page.dart';
+import 'package:i_iwara/app/ui/pages/splash/splash_page.dart';
 import 'package:i_iwara/app/ui/widgets/global_drawer_content_widget.dart';
 import 'package:i_iwara/app/ui/widgets/privacy_over_lay_widget.dart';
 import 'package:i_iwara/app/ui/widgets/window_layout_widget.dart';
@@ -24,6 +25,7 @@ import 'package:oktoast/oktoast.dart';
 import '../utils/proxy/proxy_util.dart';
 import 'models/dto/escape_intent.dart';
 import 'services/theme_service.dart';
+import 'services/message_service.dart';
 
 class MyApp extends StatefulWidget {
 
@@ -39,6 +41,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     Get.find<VersionService>().doAutoCheckUpdate();
+    Get.find<MessageService>().markReady();
   }
 
   @override
@@ -55,6 +58,10 @@ class _MyAppState extends State<MyApp> {
               dynamicDark: darkDynamic,
             ),
             getPages: [
+              GetPage(
+                name: Routes.SPLASH,
+                page: () => const SplashPage(),
+              ),
               GetPage(
                 name: Routes.HOME,
                 page: () => HomeNavigationLayout(),
@@ -95,7 +102,7 @@ class _MyAppState extends State<MyApp> {
                 transition: Transition.cupertino,
               ),
             ],
-            initialRoute: Routes.HOME,
+            initialRoute: Routes.SPLASH,
             builder: (context, child) {
               if (null == child) {
                 return const SizedBox.shrink();

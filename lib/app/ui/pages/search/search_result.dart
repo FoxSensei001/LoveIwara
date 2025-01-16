@@ -445,8 +445,10 @@ class _SearchResultState extends State<SearchResult> {
                       elevation: 0,
                       color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
                       borderRadius: BorderRadius.circular(12),
+                      clipBehavior: Clip.antiAlias,
                       child: TextField(
                         controller: _searchController,
+                        readOnly: true,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -494,6 +496,7 @@ class _SearchResultState extends State<SearchResult> {
                   Material(
                     borderRadius: BorderRadius.circular(12),
                     color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5),
+                    clipBehavior: Clip.antiAlias,
                     child: InkWell(
                       borderRadius: BorderRadius.circular(12),
                       onTap: () {

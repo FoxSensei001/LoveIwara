@@ -15,9 +15,11 @@ import '../../utils/logger_utils.dart';
 import '../models/api_result.model.dart';
 import '../models/captcha.model.dart';
 import 'storage_service.dart';
+import 'message_service.dart';
 
 class AuthService extends GetxService {
   final StorageService _storage = StorageService();
+  final MessageService _messageService = Get.find<MessageService>();
   final dio.Dio _dio = dio.Dio(dio.BaseOptions(
     baseUrl: CommonConstants.iwaraApiBaseUrl,
     headers: {'Content-Type': 'application/json'},
@@ -141,21 +143,22 @@ class AuthService extends GetxService {
   }
 
   // 修改刷新 token 的逻辑
-  Future<bool> refreshAccessToken({bool silent = false}) async {
+  Future<bool> refreshAccessToken() async {
     // 先检查是否已登录
-    if (!hasToken || !_isAuthenticated.value) {
+    if (!hasToken) {
       LogUtils.w('用户未登录，无法刷新token', _tag);
       return false;
     }
 
-    LogUtils.d('刷新 access token', _tag);
+    LogUtils.i('开始刷新token...', _tag);
 
     // 如果已经在刷新中，等待当前刷新完成
     if (_isRefreshing) {
       try {
+        LogUtils.i('等待当前刷新完成...', _tag);
         await _refreshTokenCompleter?.future;
         // 再次检查登录状态,因为等待过程中可能已登出
-        return hasToken && _isAuthenticated.value;
+        return hasToken && isTokenValid;
       } catch (e) {
         LogUtils.e('等待token刷新失败', tag: _tag, error: e);
         return false;
@@ -165,11 +168,7 @@ class AuthService extends GetxService {
     // 检查 auth token
     if (isAuthTokenExpired) {
       LogUtils.w('Auth token 已过期', _tag);
-      if (silent) {
-        await _handleTokenExpiredSilently();
-      } else {
-        await handleTokenExpired();
-      }
+      await handleTokenExpired();
       return false;
     }
 
@@ -177,10 +176,14 @@ class AuthService extends GetxService {
     _refreshTokenCompleter = Completer<void>();
 
     try {
+      LogUtils.i('发送刷新请求...', _tag);
+      
       final response = await _dio.post('/user/token',
           options: dio.Options(headers: {'Authorization': 'Bearer $_authToken'}));
 
       if (response.statusCode == 200 && response.data['accessToken'] != null) {
+        LogUtils.i('刷新成功，更新token...', _tag);
+        
         // 使用 _saveTokens 更新 token
         await _saveTokens(_authToken!, response.data['accessToken']);
         LogUtils.d('Access token 刷新成功', _tag);
@@ -191,20 +194,12 @@ class AuthService extends GetxService {
       // 刷新失败
       LogUtils.e('刷新token失败：响应无效', tag: _tag);
       _refreshTokenCompleter?.completeError('Invalid response');
-      if (silent) {
-        await _handleTokenExpiredSilently();
-      } else {
-        await handleTokenExpired();
-      }
+      await handleTokenExpired();
       return false;
     } catch (e) {
       LogUtils.e('刷新token失败', tag: _tag, error: e);
       _refreshTokenCompleter?.completeError(e);
-      if (silent) {
-        await _handleTokenExpiredSilently();
-      } else {
-        await handleTokenExpired();
-      }
+      await handleTokenExpired();
       return false;
     } finally {
       _isRefreshing = false;
@@ -239,10 +234,10 @@ class AuthService extends GetxService {
     }
     
     // 显示提示
-    showToastWidget(MDToastWidget(
-      message: t.errors.pleaseLoginAgain,
-      type: MDToastType.warning
-    ));
+    _messageService.showMessage(
+      t.errors.pleaseLoginAgain,
+      MDToastType.warning,
+    );
 
     LogUtils.d('用户已登出', _tag);
   }
@@ -270,7 +265,7 @@ class AuthService extends GetxService {
         // 检查是否需要刷新
         if (isAccessTokenExpired && !isAuthTokenExpired) {
           // 启动时静默刷新，失败不显示提示
-          final success = await refreshAccessToken(silent: true);
+          final success = await refreshAccessToken();
           if (success) {
             _isAuthenticated.value = true;
           } else {
@@ -330,23 +325,30 @@ class AuthService extends GetxService {
   // 修改登录方法
   Future<ApiResult> login(String email, String password) async {
     try {
+      LogUtils.i('开始登录流程...', _tag);
+
       final response = await _dio.post('/user/login', data: {
         'email': email,
         'password': password,
       });
 
       if (response.statusCode == 200 && response.data['token'] != null) {
+        LogUtils.i('登录成功，保存token...', _tag);
+        
         // 使用 _saveTokens 来保存和更新 token
         await _saveTokens(response.data['token'], response.data['accessToken'] ?? '');
         
         // 如果没有 accessToken,需要刷新获取
         if (response.data['accessToken'] == null) {
+          LogUtils.i('需要刷新token...', _tag);
+          
           final refreshResult = await refreshAccessToken();
           if (!refreshResult) {
             return ApiResult.fail(t.errors.loginFailed);
           }
         }
         
+        LogUtils.i('登录流程完成', _tag);
         return ApiResult.success();
       }
       return ApiResult.fail(response.data['message'] ?? t.errors.loginFailed);

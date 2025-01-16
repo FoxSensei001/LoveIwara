@@ -52,6 +52,7 @@ class TranslationsJa implements Translations {
 	@override late final _TranslationsForumJa forum = _TranslationsForumJa._(_root);
 	@override late final _TranslationsNotificationsJa notifications = _TranslationsNotificationsJa._(_root);
 	@override late final _TranslationsConversationJa conversation = _TranslationsConversationJa._(_root);
+	@override late final _TranslationsSplashJa splash = _TranslationsSplashJa._(_root);
 }
 
 // Path: common
@@ -778,6 +779,21 @@ class _TranslationsConversationJa implements TranslationsConversationEn {
 	@override String get sendMessage => 'メッセージを送信';
 }
 
+// Path: splash
+class _TranslationsSplashJa implements TranslationsSplashEn {
+	_TranslationsSplashJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override late final _TranslationsSplashErrorsJa errors = _TranslationsSplashErrorsJa._(_root);
+	@override String get preparing => '準備中...';
+	@override String get initializing => '初期化中...';
+	@override String get loading => '読み込み中...';
+	@override String get ready => '準備完了';
+	@override String get initializingMessageService => 'メッセージサービスを初期化中...';
+}
+
 // Path: forum.errors
 class _TranslationsForumErrorsJa implements TranslationsForumErrorsEn {
 	_TranslationsForumErrorsJa._(this._root);
@@ -885,6 +901,16 @@ class _TranslationsConversationErrorsJa implements TranslationsConversationError
 	@override String get loadFailed => '読み込みに失敗しました';
 	@override String get clickToRetry => 'クリックして再試行';
 	@override String get noMoreConversations => 'もう会話がありません';
+}
+
+// Path: splash.errors
+class _TranslationsSplashErrorsJa implements TranslationsSplashErrorsEn {
+	_TranslationsSplashErrorsJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get initializationFailed => '初期化に失敗しました。アプリを再起動してください';
 }
 
 /// Flat map(s) containing all translations.
@@ -1494,6 +1520,12 @@ extension on TranslationsJa {
 			case 'conversation.deleteThisMessageSubtitle': return 'この操作は取り消せません';
 			case 'conversation.writeMessageHere': return 'ここにメッセージを入力...';
 			case 'conversation.sendMessage': return 'メッセージを送信';
+			case 'splash.errors.initializationFailed': return '初期化に失敗しました。アプリを再起動してください';
+			case 'splash.preparing': return '準備中...';
+			case 'splash.initializing': return '初期化中...';
+			case 'splash.loading': return '読み込み中...';
+			case 'splash.ready': return '準備完了';
+			case 'splash.initializingMessageService': return 'メッセージサービスを初期化中...';
 			default: return null;
 		}
 	}

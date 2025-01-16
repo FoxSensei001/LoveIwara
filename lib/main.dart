@@ -38,9 +38,9 @@ import 'i18n/strings.g.dart';
 import 'app/services/theme_service.dart';
 import 'app/services/version_service.dart';
 import 'app/repositories/history_repository.dart';
+import 'app/services/message_service.dart';
 
 void main() {
-
   // 确保Flutter初始化
   runZonedGuarded(() async {
     // 日志初始化
@@ -67,98 +67,154 @@ void main() {
       }
     }
 
-    // 初始化深度链接服务
-    final deepLinkService = DeepLinkService();
-    await deepLinkService.init();
-    Get.put(deepLinkService);
-    // 现在有 简中、英文、日文
-    // 获取系统语言，如果是支持的语言，则使用，如果不是，则使用英文；
-    String systemLanguage = CommonUtils.getDeviceLocale();
-    if (systemLanguage == 'zh' || systemLanguage == 'zh-CN' || systemLanguage == 'ja' || systemLanguage == 'zh-TW') {
-      LocaleSettings.useDeviceLocale();
-    } else if (systemLanguage == 'zh-HK') {
-      LocaleSettings.setLocaleRaw('zh-TW');
-    } else {
-      LocaleSettings.setLocaleRaw('en');
-    }
-
-    final dbService = DatabaseService();
-    await dbService.init();
-
-    // 初始化Getx和视频组件
-    await GetStorage.init();
-    await StorageService().init();
-    Get.put(AppService());
-    var configService = await ConfigService().init();
-    Get.put(configService);
-
-    // 尝试设置代理
-    if (ProxyUtil.isSupportedPlatform()) {
-      bool useProxy = configService.settings[ConfigService.USE_PROXY].value;
-      if (useProxy) {
-        // 先从配置中获取代理信息
-        String proxyUrl = configService.settings[ConfigService.PROXY_URL].value;
-        HttpOverrides.global = MyHttpOverrides(proxyUrl);
-        LogUtils.i('设置代理: $proxyUrl', '启动初始化');
-      } else {
-        LogUtils.i('未启用代理', '启动初始化');
-      }
-    }
-
-    var userPreferenceService = await UserPreferenceService().init();
-    Get.put(userPreferenceService);
-    AuthService authService = await AuthService().init();
-    Get.put(authService);
-    ApiService apiService = await ApiService.getInstance();
-    Get.put(apiService);
-    UserService userService = await UserService().init();
-    Get.put(userService);
-        // 在 main() 函数中初始化服务
-    var versionService = await VersionService().init();
-    Get.put(versionService);
-    var themeService = await ThemeService().init();
-    Get.put(themeService);
-    Get.lazyPut(() => VideoService());
-    Get.lazyPut(() => CommentService());
-    Get.lazyPut(() => SearchService());
-    Get.lazyPut(() => GalleryService());
-    Get.lazyPut(() => PostService());
-    Get.lazyPut(() => TagService());
-    Get.lazyPut(() => LightService());
-    Get.lazyPut(() => GlobalSearchService());
-    Get.lazyPut(() => PlayListService());
-    Get.lazyPut(() => ForumService());
-    Get.lazyPut(() => ConversationService());
-    Get.put(TranslationService());
-    // 初始化 MediaKit
-    MediaKit.ensureInitialized();
-
-    // 注册 HistoryRepository 为单例
-    Get.put(HistoryRepository());
+    // 初始化基础服务
+    await _initializeBaseServices();
+    
+    // 初始化业务服务
+    await _initializeBusinessServices();
 
     // 运行应用
     runApp(TranslationProvider(child: const MyApp()));
 
     if (GetPlatform.isDesktop && !GetPlatform.isWeb) {
-      await windowManager.ensureInitialized();
-      windowManager.waitUntilReadyToShow().then((_) async {
-        await windowManager.setTitleBarStyle(
-          TitleBarStyle.hidden,
-          windowButtonVisibility: GetPlatform.isMacOS,
-        );
-        if (GetPlatform.isLinux) {
-          await windowManager.setBackgroundColor(Colors.transparent);
-        }
-        await windowManager.setMinimumSize(const Size(500, 600));
-        await windowManager.show();
-        await windowManager.focus();
-      });
+      await _initializeDesktop();
     }
 
   }, (error, stackTrace) {
     // 在这里处理未捕获的异常
     LogUtils.e('未捕获的异常: $error', tag: '全局异常处理', stackTrace: stackTrace);
   });
+}
+
+/// 初始化基础服务
+Future<void> _initializeBaseServices() async {
+  LogUtils.i('开始初始化基础服务...', '启动初始化');
+
+  // 初始化深度链接服务
+  final deepLinkService = DeepLinkService();
+  await deepLinkService.init();
+  Get.put(deepLinkService);
+  LogUtils.i('深度链接服务初始化完成', '启动初始化');
+
+  // 初始化语言设置
+  String systemLanguage = CommonUtils.getDeviceLocale();
+  if (systemLanguage == 'zh' || systemLanguage == 'zh-CN' || systemLanguage == 'ja' || systemLanguage == 'zh-TW') {
+    LocaleSettings.useDeviceLocale();
+  } else if (systemLanguage == 'zh-HK') {
+    LocaleSettings.setLocaleRaw('zh-TW');
+  } else {
+    LocaleSettings.setLocaleRaw('en');
+  }
+  LogUtils.i('语言设置初始化完成', '启动初始化');
+
+  // 初始化数据库
+  final dbService = DatabaseService();
+  await dbService.init();
+  LogUtils.i('数据库初始化完成', '启动初始化');
+
+  // 初始化存储服务
+  await GetStorage.init();
+  await StorageService().init();
+  LogUtils.i('存储服务初始化完成', '启动初始化');
+
+  // 初始化消息服务
+  Get.put(MessageService());
+  LogUtils.i('消息服务初始化完成', '启动初始化');
+
+  LogUtils.i('基础服务初始化完成', '启动初始化');
+}
+
+/// 初始化业务服务
+Future<void> _initializeBusinessServices() async {
+  LogUtils.i('开始初始化业务服务...', '启动初始化');
+
+  // 初始化应用服务
+  Get.put(AppService());
+  LogUtils.i('应用服务初始化完成', '启动初始化');
+  
+  // 初始化配置服务
+  var configService = await ConfigService().init();
+  Get.put(configService);
+  LogUtils.i('配置服务初始化完成', '启动初始化');
+
+  // 设置代理
+  if (ProxyUtil.isSupportedPlatform()) {
+    bool useProxy = configService.settings[ConfigService.USE_PROXY].value;
+    if (useProxy) {
+      String proxyUrl = configService.settings[ConfigService.PROXY_URL].value;
+      HttpOverrides.global = MyHttpOverrides(proxyUrl);
+      LogUtils.i('代理设置完成: $proxyUrl', '启动初始化');
+    } else {
+      LogUtils.i('未启用代理', '启动初始化');
+    }
+  }
+
+  // 初始化用户相关服务
+  var userPreferenceService = await UserPreferenceService().init();
+  Get.put(userPreferenceService);
+  LogUtils.i('用户偏好服务初始化完成', '启动初始化');
+  
+  AuthService authService = await AuthService().init();
+  Get.put(authService);
+  LogUtils.i('认证服务初始化完成', '启动初始化');
+  
+  ApiService apiService = await ApiService.getInstance();
+  Get.put(apiService);
+  LogUtils.i('API服务初始化完成', '启动初始化');
+  
+  UserService userService = await UserService().init();
+  Get.put(userService);
+  LogUtils.i('用户服务初始化完成', '启动初始化');
+
+  // 初始化其他服务
+  var versionService = await VersionService().init();
+  Get.put(versionService);
+  LogUtils.i('版本服务初始化完成', '启动初始化');
+  
+  var themeService = await ThemeService().init();
+  Get.put(themeService);
+  LogUtils.i('主题服务初始化完成', '启动初始化');
+
+  // 初始化懒加载服务
+  Get.lazyPut(() => VideoService());
+  Get.lazyPut(() => CommentService());
+  Get.lazyPut(() => SearchService());
+  Get.lazyPut(() => GalleryService());
+  Get.lazyPut(() => PostService());
+  Get.lazyPut(() => TagService());
+  Get.lazyPut(() => LightService());
+  Get.lazyPut(() => GlobalSearchService());
+  Get.lazyPut(() => PlayListService());
+  Get.lazyPut(() => ForumService());
+  Get.lazyPut(() => ConversationService());
+  Get.put(TranslationService());
+  LogUtils.i('懒加载服务注册完成', '启动初始化');
+
+  // 初始化媒体服务
+  MediaKit.ensureInitialized();
+  LogUtils.i('媒体服务初始化完成', '启动初始化');
+
+  // 注册历史记录仓库
+  Get.put(HistoryRepository());
+  LogUtils.i('历史记录仓库注册完成', '启动初始化');
+
+  LogUtils.i('业务服务初始化完成', '启动初始化');
+}
+
+/// 初始化桌面端设置
+Future<void> _initializeDesktop() async {
+  await windowManager.ensureInitialized();
+  await windowManager.waitUntilReadyToShow();
+  await windowManager.setTitleBarStyle(
+    TitleBarStyle.hidden,
+    windowButtonVisibility: GetPlatform.isMacOS,
+  );
+  if (GetPlatform.isLinux) {
+    await windowManager.setBackgroundColor(Colors.transparent);
+  }
+  await windowManager.setMinimumSize(const Size(500, 600));
+  await windowManager.show();
+  await windowManager.focus();
 }
 
 /// 代理设置
