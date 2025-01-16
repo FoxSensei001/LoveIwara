@@ -444,6 +444,18 @@ class UserService extends GetxService {
 
   // 添加处理登出的方法
   void handleLogout() {
+    // 清理用户信息
     currentUser.value = null;
+    
+    // 清理通知状态
+    clearAllNotificationCounts();
+    stopNotificationTimer();
+    
+    // 清理其他状态
+    notificationCount.value = 0;
+    friendRequestsCount.value = 0;
+    messagesCount.value = 0;
+
+    LogUtils.d('用户服务状态已清理', _tag);
   }
 }

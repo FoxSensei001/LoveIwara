@@ -153,18 +153,44 @@ Future<void> _initializeBusinessServices() async {
   var userPreferenceService = await UserPreferenceService().init();
   Get.put(userPreferenceService);
   LogUtils.i('用户偏好服务初始化完成', '启动初始化');
-  
-  AuthService authService = await AuthService().init();
-  Get.put(authService);
-  LogUtils.i('认证服务初始化完成', '启动初始化');
-  
-  ApiService apiService = await ApiService.getInstance();
-  Get.put(apiService);
-  LogUtils.i('API服务初始化完成', '启动初始化');
-  
-  UserService userService = await UserService().init();
-  Get.put(userService);
-  LogUtils.i('用户服务初始化完成', '启动初始化');
+
+  // 初始化认证服务和API服务
+  try {
+    AuthService authService = await AuthService().init();
+    Get.put(authService);
+    LogUtils.i('认证服务初始化完成', '启动初始化');
+    
+    ApiService apiService = await ApiService.getInstance();
+    Get.put(apiService);
+    LogUtils.i('API服务初始化完成', '启动初始化');
+    
+    // 只有在认证服务初始化成功后才初始化用户服务
+    if (authService.isAuthenticated) {
+      try {
+        UserService userService = await UserService().init();
+        Get.put(userService);
+        LogUtils.i('用户服务初始化完成', '启动初始化');
+      } catch (e) {
+        LogUtils.e('用户服务初始化失败', tag: '启动初始化', error: e);
+        // 用户服务初始化失败，清理认证状态
+        await authService.handleTokenExpired();
+        Get.put(UserService());
+      }
+    } else {
+      // 如果未认证，仍然注册服务但不初始化
+      Get.put(UserService());
+      LogUtils.i('用户未认证，跳过用户服务初始化', '启动初始化');
+    }
+  } catch (e) {
+    LogUtils.e('认证相关服务初始化失败', tag: '启动初始化', error: e);
+    // 即使认证失败，也要注册基本服务
+    Get.put(UserService());
+    // 确保清理任何可能的部分认证状态
+    try {
+      final authService = Get.find<AuthService>();
+      await authService.handleTokenExpired();
+    } catch (_) {}
+  }
 
   // 初始化其他服务
   var versionService = await VersionService().init();

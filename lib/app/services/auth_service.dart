@@ -8,7 +8,6 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
-import 'package:oktoast/oktoast.dart';
 
 import '../../common/constants.dart';
 import '../../utils/logger_utils.dart';
@@ -16,6 +15,15 @@ import '../models/api_result.model.dart';
 import '../models/captcha.model.dart';
 import 'storage_service.dart';
 import 'message_service.dart';
+
+// 添加token验证结果枚举
+enum TokenValidationResult {
+  valid,  // 有效
+  expired,  // 过期
+  invalid,  // 无效
+  wrongType,  // 类型错误
+  malformed // 格式错误
+}
 
 class AuthService extends GetxService {
   final StorageService _storage = StorageService();
@@ -27,11 +35,11 @@ class AuthService extends GetxService {
 
   static const String _tag = '认证服务';
 
+  /// access_token 有效期约1小时（1736997366 - 1736993766 = 3600秒），用于访问API
+  /// refresh_token(auth_token) 有效期约30天（1739268222 - 1736676222 = 2592000秒）, 用于刷新access_token
   String? _authToken;
-
   String? get authToken => _authToken;
   String? _accessToken;
-
   String? get accessToken => _accessToken;
 
   bool get hasToken => _authToken != null && _accessToken != null;
@@ -53,7 +61,7 @@ class AuthService extends GetxService {
     return DateTime.now().isAfter(_tokenExpireTime!);
   }
 
-  // 添加token过期时间解析
+  // token过期时间解析, 此处返回的是秒级的时间戳
   int? _getTokenExpiration(String token) {
     try {
       final parts = token.split('.');
@@ -65,6 +73,22 @@ class AuthService extends GetxService {
       return payload['exp'] as int?;
     } catch (e) {
       LogUtils.e('Token解析失败', tag: _tag, error: e);
+      return null;
+    }
+  }
+
+  // token类型检查
+  String? _getTokenType(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return null;
+      
+      final payload = jsonDecode(
+        utf8.decode(base64Url.decode(base64Url.normalize(parts[1])))
+      );
+      return payload['type'] as String?;
+    } catch (e) {
+      LogUtils.e('Token类型解析失败', tag: _tag, error: e);
       return null;
     }
   }
@@ -92,14 +116,30 @@ class AuthService extends GetxService {
   // 更新 token 解析和保存逻辑
   void _updateTokenExpireTime(String token, bool isAuthToken) {
     try {
+      final type = _getTokenType(token);
+      if (type == null) {
+        LogUtils.e('Token类型解析失败', tag: _tag);
+        return;
+      }
+
+      // 验证token类型是否正确
+      if (isAuthToken && type != 'refresh_token') {
+        LogUtils.e('Auth token类型错误: $type', tag: _tag);
+        return;
+      }
+      if (!isAuthToken && type != 'access_token') {
+        LogUtils.e('Access token类型错误: $type', tag: _tag);
+        return;
+      }
+
       final expiration = _getTokenExpiration(token);
+      // 秒级的时间戳, 对应最终的过期时间
       if (expiration != null) {
-        final expireTime = DateTime.fromMillisecondsSinceEpoch(expiration * 1000);
         if (isAuthToken) {
-          _authTokenExpireTime = expireTime;
+          _authTokenExpireTime = DateTime.fromMillisecondsSinceEpoch(expiration * 1000);
           LogUtils.d('$_tag Auth token 过期时间: $_authTokenExpireTime');
         } else {
-          _accessTokenExpireTime = expireTime;
+          _accessTokenExpireTime = DateTime.fromMillisecondsSinceEpoch(expiration * 1000);
           LogUtils.d('$_tag Access token 过期时间: $_accessTokenExpireTime');
         }
       }
@@ -110,6 +150,19 @@ class AuthService extends GetxService {
 
   // 修改 token 保存逻辑
   Future<void> _saveTokens(String authToken, String accessToken) async {
+    // 验证token类型
+    final authType = _getTokenType(authToken);
+    final accessType = _getTokenType(accessToken);
+
+    if (authType != 'refresh_token') {
+      LogUtils.e('Auth token类型错误: $authType', tag: _tag);
+      throw AuthServiceException('Invalid auth token type');
+    }
+    if (accessType != 'access_token') {
+      LogUtils.e('Access token类型错误: $accessType', tag: _tag);
+      throw AuthServiceException('Invalid access token type');
+    }
+
     _authToken = authToken;
     _accessToken = accessToken;
     
@@ -142,22 +195,124 @@ class AuthService extends GetxService {
     return valid;
   }
 
-  // 修改刷新 token 的逻辑
+  // 添加token验证方法
+  TokenValidationResult validateToken(String token, bool isAuthToken) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return TokenValidationResult.malformed;
+      
+      final payload = jsonDecode(
+        utf8.decode(base64Url.decode(base64Url.normalize(parts[1])))
+      );
+      
+      final type = payload['type'] as String?;
+      if (type == null) return TokenValidationResult.invalid;
+      
+      if (isAuthToken && type != 'refresh_token') return TokenValidationResult.wrongType;
+      if (!isAuthToken && type != 'access_token') return TokenValidationResult.wrongType;
+      
+      final exp = payload['exp'] as int?;
+      if (exp == null) return TokenValidationResult.invalid;
+      
+      final expireTime = DateTime.fromMillisecondsSinceEpoch(exp * 1000);
+      if (DateTime.now().isAfter(expireTime)) return TokenValidationResult.expired;
+      
+      return TokenValidationResult.valid;
+    } catch (e) {
+      LogUtils.e('Token验证失败', tag: _tag, error: e);
+      return TokenValidationResult.malformed;
+    }
+  }
+
+  // 初始化方法
+  Future<AuthService> init() async {
+    try {
+      _authToken = await _storage.readSecureData(KeyConstants.authToken);
+      _accessToken = await _storage.readSecureData(KeyConstants.accessToken);
+
+      if (_authToken != null && _accessToken != null) {
+        // 验证两个token
+        final authTokenResult = validateToken(_authToken!, true);
+        final accessTokenResult = validateToken(_accessToken!, false);
+        
+        // 记录验证结果
+        LogUtils.d('$_tag Token验证结果:\n'
+            'Auth token: $authTokenResult\n'
+            'Access token: $accessTokenResult');
+        
+        // 处理不同的验证结果
+        if (authTokenResult == TokenValidationResult.malformed || 
+            authTokenResult == TokenValidationResult.invalid ||
+            authTokenResult == TokenValidationResult.wrongType) {
+          // token格式错误或类型错误，直接清理
+          await _handleTokenExpiredSilently();
+          return this;
+        }
+        
+        if (accessTokenResult == TokenValidationResult.malformed || 
+            accessTokenResult == TokenValidationResult.invalid ||
+            accessTokenResult == TokenValidationResult.wrongType) {
+          // access token有问题，尝试刷新
+          if (authTokenResult == TokenValidationResult.valid) {
+            _updateTokenExpireTime(_authToken!, true);
+            final success = await refreshAccessToken();
+            if (success) {
+              _isAuthenticated.value = true;
+            } else {
+              await _handleTokenExpiredSilently();
+            }
+          } else {
+            await _handleTokenExpiredSilently();
+          }
+          return this;
+        }
+        
+        // 更新过期时间
+        _updateTokenExpireTime(_authToken!, true);
+        _updateTokenExpireTime(_accessToken!, false);
+        
+        // 检查是否需要刷新
+        if (isAccessTokenExpired && !isAuthTokenExpired) {
+          final success = await refreshAccessToken();
+          if (success) {
+            _isAuthenticated.value = true;
+          } else {
+            await _handleTokenExpiredSilently();
+          }
+        } else if (!isAccessTokenExpired) {
+          _startTokenRefreshTimer();
+          _isAuthenticated.value = true;
+        }
+      }
+    } catch (e) {
+      LogUtils.e('认证服务初始化失败', tag: _tag, error: e);
+      await _handleTokenExpiredSilently();
+    }
+    return this;
+  }
+
+  // token刷新逻辑
+  static const int maxRefreshRetries = 3;
+  static const Duration refreshRetryDelay = Duration(seconds: 1);
+  
   Future<bool> refreshAccessToken() async {
-    // 先检查是否已登录
     if (!hasToken) {
       LogUtils.w('用户未登录，无法刷新token', _tag);
       return false;
     }
 
-    LogUtils.i('开始刷新token...', _tag);
+    // 验证auth token
+    final authTokenResult = validateToken(_authToken!, true);
+    if (authTokenResult != TokenValidationResult.valid) {
+      LogUtils.w('Auth token无效，状态: $authTokenResult', _tag);
+      await handleTokenExpired();
+      return false;
+    }
 
-    // 如果已经在刷新中，等待当前刷新完成
     if (_isRefreshing) {
       try {
         LogUtils.i('等待当前刷新完成...', _tag);
         await _refreshTokenCompleter?.future;
-        // 再次检查登录状态,因为等待过程中可能已登出
         return hasToken && isTokenValid;
       } catch (e) {
         LogUtils.e('等待token刷新失败', tag: _tag, error: e);
@@ -165,51 +320,73 @@ class AuthService extends GetxService {
       }
     }
 
-    // 检查 auth token
-    if (isAuthTokenExpired) {
-      LogUtils.w('Auth token 已过期', _tag);
-      await handleTokenExpired();
-      return false;
-    }
-
     _isRefreshing = true;
     _refreshTokenCompleter = Completer<void>();
 
-    try {
-      LogUtils.i('发送刷新请求...', _tag);
-      
-      final response = await _dio.post('/user/token',
-          options: dio.Options(headers: {'Authorization': 'Bearer $_authToken'}));
+    for (int retry = 0; retry < maxRefreshRetries; retry++) {
+      try {
+        if (retry > 0) {
+          LogUtils.i('第${retry + 1}次尝试刷新token...', _tag);
+          await Future.delayed(refreshRetryDelay * retry);
+        }
 
-      if (response.statusCode == 200 && response.data['accessToken'] != null) {
-        LogUtils.i('刷新成功，更新token...', _tag);
+        final response = await _dio.post(
+          '/user/token',
+          options: dio.Options(
+            headers: {'Authorization': 'Bearer $_authToken'},
+            sendTimeout: const Duration(seconds: 10),
+            receiveTimeout: const Duration(seconds: 10),
+          ),
+        );
+
+        if (response.statusCode == 200 && response.data['accessToken'] != null) {
+          final newAccessToken = response.data['accessToken'];
+          final tokenResult = validateToken(newAccessToken, false);
+          
+          if (tokenResult == TokenValidationResult.valid) {
+            _accessToken = newAccessToken;
+            _updateTokenExpireTime(newAccessToken, false);
+            await _storage.writeSecureData(KeyConstants.accessToken, newAccessToken);
+            
+            LogUtils.d('Access token 刷新成功', _tag);
+            _refreshTokenCompleter?.complete();
+            return true;
+          } else {
+            LogUtils.e('刷新获取的token无效，状态: $tokenResult', tag: _tag);
+            continue;
+          }
+        }
         
-        // 使用 _saveTokens 更新 token
-        await _saveTokens(_authToken!, response.data['accessToken']);
-        LogUtils.d('Access token 刷新成功', _tag);
-        _refreshTokenCompleter?.complete();
-        return true;
+        LogUtils.e('刷新token失败：响应无效', tag: _tag);
+        continue;
+      } on dio.DioException catch (e) {
+        if (e.type == dio.DioExceptionType.connectionTimeout ||
+            e.type == dio.DioExceptionType.sendTimeout ||
+            e.type == dio.DioExceptionType.receiveTimeout) {
+          LogUtils.w('刷新token超时，将重试', _tag);
+          continue;
+        }
+        
+        if (e.response?.statusCode == 401) {
+          LogUtils.e('刷新token失败：auth token已失效', tag: _tag);
+          break;
+        }
+        
+        LogUtils.e('刷新token失败', tag: _tag, error: e);
+        continue;
+      } catch (e) {
+        LogUtils.e('刷新token失败', tag: _tag, error: e);
+        continue;
       }
-      
-      // 刷新失败
-      LogUtils.e('刷新token失败：响应无效', tag: _tag);
-      _refreshTokenCompleter?.completeError('Invalid response');
-      await handleTokenExpired();
-      return false;
-    } catch (e) {
-      LogUtils.e('刷新token失败', tag: _tag, error: e);
-      _refreshTokenCompleter?.completeError(e);
-      await handleTokenExpired();
-      return false;
-    } finally {
-      _isRefreshing = false;
-      _refreshTokenCompleter = null;
     }
+
+    _refreshTokenCompleter?.completeError('Failed after $maxRefreshRetries retries');
+    await handleTokenExpired();
+    return false;
   }
 
-  // 将token过期处理改为public方法
+  // 错误处理方法
   Future<void> handleTokenExpired() async {
-    // 如果已经是未登录状态,直接返回
     if (!_isAuthenticated.value) return;
     
     _isAuthenticated.value = false;
@@ -218,22 +395,18 @@ class AuthService extends GetxService {
     _authTokenExpireTime = null;
     _accessTokenExpireTime = null;
     
-    // 停止定时器
     _tokenRefreshTimer?.cancel();
     _tokenRefreshTimer = null;
 
-    // 清除存储的token
     await _storage.deleteSecureData(KeyConstants.authToken);
     await _storage.deleteSecureData(KeyConstants.accessToken);
     
-    // 通知其他服务
     try {
       Get.find<UserService>().handleLogout();
     } catch (e) {
       LogUtils.e('通知用户服务登出失败', tag: _tag, error: e);
     }
     
-    // 显示提示
     _messageService.showMessage(
       t.errors.pleaseLoginAgain,
       MDToastType.warning,
@@ -245,46 +418,6 @@ class AuthService extends GetxService {
   // resetProxy
   void resetProxy() {
     _dio.httpClientAdapter = IOHttpClientAdapter();
-  }
-
-  // 初始化
-  Future<AuthService> init() async {
-    try {
-      _authToken = await _storage.readSecureData(KeyConstants.authToken);
-      _accessToken = await _storage.readSecureData(KeyConstants.accessToken);
-
-      if (_authToken != null && _accessToken != null) {
-        // 更新过期时间
-        _updateTokenExpireTime(_authToken!, true);
-        _updateTokenExpireTime(_accessToken!, false);
-        
-        LogUtils.d('$_tag 初始化完成\n'
-            'Auth token 过期时间: $_authTokenExpireTime\n'
-            'Access token 过期时间: $_accessTokenExpireTime');
-
-        // 检查是否需要刷新
-        if (isAccessTokenExpired && !isAuthTokenExpired) {
-          // 启动时静默刷新，失败不显示提示
-          final success = await refreshAccessToken();
-          if (success) {
-            _isAuthenticated.value = true;
-          } else {
-            // 刷新失败，清理token但不显示提示
-            await _handleTokenExpiredSilently();
-          }
-        } else if (!isAccessTokenExpired) {
-          _startTokenRefreshTimer();
-          _isAuthenticated.value = true;
-        }
-      } else {
-        LogUtils.w('$_tag token读取失败，执行清理');
-        await _handleTokenExpiredSilently();
-      }
-    } catch (e) {
-      LogUtils.e('认证服务初始化失败', tag: _tag, error: e);
-      await _handleTokenExpiredSilently();
-    }
-    return this;
   }
 
   // 优化刷新定时器逻辑
@@ -322,7 +455,7 @@ class AuthService extends GetxService {
     super.onClose();
   }
 
-  // 修改登录方法
+  // 登录方法
   Future<ApiResult> login(String email, String password) async {
     try {
       LogUtils.i('开始登录流程...', _tag);
@@ -358,7 +491,7 @@ class AuthService extends GetxService {
     }
   }
 
-  // 添加错误处理方法
+  // 错误处理方法
   String _getErrorMessage(Object e) {
     if (e is dio.DioException) {
       String message = e.response?.data['message'];
@@ -376,7 +509,7 @@ class AuthService extends GetxService {
     return t.errors.unknownError;
   }
 
-  // 修改登出方法
+  // 登出方法
   Future<void> logout() async {
     try {
       _authToken = null;
