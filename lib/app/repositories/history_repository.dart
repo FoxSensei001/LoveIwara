@@ -143,4 +143,32 @@ class HistoryRepository {
     final results = stmt.select(params);
     return results.map((row) => HistoryRecord.fromJson(row)).toList();
   }
+
+  // 添加新方法
+  Future<void> addRecordWithCheck(HistoryRecord record) async {
+    if (!CommonConstants.enableHistory) return;
+    
+    try {
+      final existing = _db.prepare(
+        'SELECT updated_at FROM history_records WHERE item_id = ? AND item_type = ?'
+      ).select([record.itemId, record.itemType]);
+      
+      if (existing.isEmpty) {
+        // 使用原有的添加方法
+        await addRecord(record);
+      } else {
+        // 仅更新时间
+        _db.prepare(
+          'UPDATE history_records SET updated_at = ? WHERE item_id = ? AND item_type = ?'
+        ).execute([
+          DateTime.now().toIso8601String(),
+          record.itemId,
+          record.itemType
+        ]);
+      }
+    } catch (e) {
+      // 出错时回退到原有方法
+      await addRecord(record);
+    }
+  }
 }

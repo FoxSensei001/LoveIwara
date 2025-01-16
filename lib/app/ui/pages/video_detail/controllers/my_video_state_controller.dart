@@ -270,7 +270,7 @@ class MyVideoStateController extends GetxController
         if (videoInfo.value != null) {
           final historyRecord = HistoryRecord.fromVideo(videoInfo.value!);
           LogUtils.d('添加历史记录: ${historyRecord.toJson()}', 'MyVideoStateController');
-          await _historyRepository.addRecord(historyRecord);
+          await _historyRepository.addRecordWithCheck(historyRecord);
         }
       } catch (e) {
         LogUtils.e('添加历史记录失败', error: e, tag: 'MyVideoStateController');

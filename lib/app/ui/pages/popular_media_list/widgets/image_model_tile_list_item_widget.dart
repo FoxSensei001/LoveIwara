@@ -85,7 +85,7 @@ class ImageModelTileListItem extends StatelessWidget {
       top: 0,
       child: _buildTag(
         label: '$numImages',
-        icon: const Icon(Icons.image, size: 12, color: Colors.white),
+        icon: const Icon(Icons.image, size: 10, color: Colors.white),
         backgroundColor: Colors.black54,
       ),
     );
@@ -98,7 +98,7 @@ class ImageModelTileListItem extends StatelessWidget {
       bottom: 0,
       child: _buildTag(
         label: CommonUtils.formatFriendlyNumber(views),
-        icon: const Icon(Icons.remove_red_eye, size: 12, color: Colors.white),
+        icon: const Icon(Icons.remove_red_eye, size: 10, color: Colors.white),
         backgroundColor: Colors.black54,
       ),
     );
@@ -111,7 +111,7 @@ class ImageModelTileListItem extends StatelessWidget {
       top: 0,
       child: _buildTag(
         label: '$likes',
-        icon: const Icon(Icons.favorite, size: 12, color: Colors.white),
+        icon: const Icon(Icons.favorite, size: 10, color: Colors.white),
         backgroundColor: Colors.black54,
       ),
     );
@@ -121,7 +121,7 @@ class ImageModelTileListItem extends StatelessWidget {
   Widget _buildTag(
       {required String label, required Color backgroundColor, Widget? icon}) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(4),
@@ -131,11 +131,15 @@ class ImageModelTileListItem extends StatelessWidget {
         children: [
           if (icon != null) ...[
             icon,
-            const SizedBox(width: 4),
+            const SizedBox(width: 2),
           ],
           Text(
             label,
-            style: const TextStyle(color: Colors.white, fontSize: 12),
+            style: const TextStyle(
+              color: Colors.white, 
+              fontSize: 10,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),

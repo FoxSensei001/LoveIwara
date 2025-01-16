@@ -235,7 +235,7 @@ class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProvid
 
   void _navigateToThreadDetail(ForumThreadModel thread) {
     // 记录浏览历史
-    _historyRepository.addRecord(HistoryRecord.fromThread(thread));
+    _historyRepository.addRecordWithCheck(HistoryRecord.fromThread(thread));
     // 导航到帖子详情页
     NaviService.navigateToForumThreadDetailPage(widget.categoryId, thread.id);
   }
