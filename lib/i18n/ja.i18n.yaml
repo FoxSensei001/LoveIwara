@@ -774,3 +774,6 @@ download:
   waiting: 待機中
   paused: 一時停止中
   downloadingOnlyDownloaded: 'ダウンロード中 ${downloaded}'
+  galleryDownloadCompletedWithName: 'ギャラリーのダウンロードが完了しました: ${galleryName}'
+  downloadCompletedWithName: 'ダウンロードが完了しました: ${fileName}'
+

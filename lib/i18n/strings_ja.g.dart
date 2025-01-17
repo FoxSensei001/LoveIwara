@@ -53,6 +53,7 @@ class TranslationsJa implements Translations {
 	@override late final _TranslationsNotificationsJa notifications = _TranslationsNotificationsJa._(_root);
 	@override late final _TranslationsConversationJa conversation = _TranslationsConversationJa._(_root);
 	@override late final _TranslationsSplashJa splash = _TranslationsSplashJa._(_root);
+	@override late final _TranslationsDownloadJa download = _TranslationsDownloadJa._(_root);
 }
 
 // Path: common
@@ -223,6 +224,8 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get disabledFloatingButtons => 'フローティングボタンが無効';
 	@override String get pendingCommentCount => '未審核コメント';
 	@override String joined({required Object str}) => '${str} に参加';
+	@override String get download => 'ダウンロード';
+	@override String get selectQuality => '画質を選択';
 }
 
 // Path: auth
@@ -360,6 +363,8 @@ class _TranslationsGalleryDetailJa implements TranslationsGalleryDetailEn {
 	final TranslationsJa _root; // ignore: unused_field
 
 	// Translations
+	@override String get galleryDetail => 'ギャラリー詳細';
+	@override String get viewGalleryDetail => 'ギャラリー詳細を表示';
 	@override String get copyLink => 'リンクをコピー';
 	@override String get copyImage => '画像をコピー';
 	@override String get saveAs => '名前を付けて保存';
@@ -620,6 +625,12 @@ class _TranslationsVideoDetailJa implements TranslationsVideoDetailEn {
 	@override String get externalVideo => 'これは站外ビデオです';
 	@override String get openInBrowser => 'ブラウザで開く';
 	@override String get resourceDeleted => 'このビデオは削除されたようです :/';
+	@override String get noDownloadUrl => 'ダウンロードURLがありません';
+	@override String get startDownloading => 'ダウンロードを開始';
+	@override String get downloadFailed => 'ダウンロードに失敗しました。後でもう一度お試しください';
+	@override String get downloadSuccess => 'ダウンロードに成功しました';
+	@override String get download => 'ダウンロード';
+	@override String get downloadManager => 'ダウンロード管理';
 }
 
 // Path: share
@@ -818,6 +829,62 @@ class _TranslationsSplashJa implements TranslationsSplashEn {
 	@override String get initializingMessageService => 'メッセージサービスを初期化中...';
 }
 
+// Path: download
+class _TranslationsDownloadJa implements TranslationsDownloadEn {
+	_TranslationsDownloadJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override late final _TranslationsDownloadErrorsJa errors = _TranslationsDownloadErrorsJa._(_root);
+	@override String get downloadList => 'ダウンロードリスト';
+	@override String get download => 'ダウンロード';
+	@override String get startDownloading => 'ダウンロードを開始';
+	@override String get clearAllFailedTasks => 'すべての失敗タスクをクリア';
+	@override String get clearAllFailedTasksConfirmation => 'すべての失敗タスクをクリアしますか？\nこれらのタスクのファイルも削除されます。';
+	@override String get clearAllFailedTasksSuccess => 'すべての失敗タスクをクリアしました';
+	@override String get clearAllFailedTasksError => '失敗タスクのクリア中にエラーが発生しました';
+	@override String get downloadStatus => 'ダウンロード状態';
+	@override String get imageList => '画像リスト';
+	@override String get retryDownload => '再試行ダウンロード';
+	@override String get notDownloaded => '未ダウンロード';
+	@override String get downloaded => 'ダウンロード済み';
+	@override String get waitingForDownload => 'ダウンロード待機中';
+	@override String downloadingProgressForImageProgress({required Object downloaded, required Object total, required Object progress}) => 'ダウンロード中 (${downloaded}/${total}枚 ${progress}%)';
+	@override String downloadingSingleImageProgress({required Object downloaded}) => 'ダウンロード中 (${downloaded}枚)';
+	@override String pausedProgressForImageProgress({required Object downloaded, required Object total, required Object progress}) => 'ダウンロード一時停止中 (${downloaded}/${total}枚 ${progress}%)';
+	@override String pausedSingleImageProgress({required Object downloaded}) => 'ダウンロード一時停止中 (${downloaded}枚)';
+	@override String downloadedProgressForImageProgress({required Object total}) => 'ダウンロード完了 (合計${total}枚)';
+	@override String get viewVideoDetail => 'ビデオ詳細を表示';
+	@override String get viewGalleryDetail => 'ギャラリー詳細を表示';
+	@override String get moreOptions => 'もっと操作';
+	@override String get openFile => 'ファイルを開く';
+	@override String get pause => '一時停止';
+	@override String get resume => '継続';
+	@override String get copyDownloadUrl => 'ダウンロードリンクをコピー';
+	@override String get showInFolder => 'フォルダーで表示';
+	@override String get deleteTask => 'タスクを削除';
+	@override String downloadingProgressForVideoTask({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'ダウンロード中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
+	@override String downloadingOnlyDownloadedAndSpeed({required Object downloaded, required Object speed}) => 'ダウンロード中 ${downloaded} • ${speed}MB/s';
+	@override String pausedForDownloadedAndTotal({required Object downloaded, required Object total, required Object progress}) => '一時停止中 ${downloaded}/${total} (${progress}%)';
+	@override String pausedAndDownloaded({required Object downloaded}) => '一時停止中 • ダウンロード済み ${downloaded}';
+	@override String downloadedWithSize({required Object size}) => 'ダウンロード完了 • ${size}';
+	@override String get copyDownloadUrlSuccess => 'ダウンロードリンクをコピーしました';
+	@override String totalImageNums({required Object num}) => '${num}枚';
+	@override String downloadingDownloadedTotalProgressSpeed({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'ダウンロード中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
+	@override String get downloading => 'ダウンロード中';
+	@override String get failed => '失敗';
+	@override String get completed => '完了';
+	@override String get downloadDetail => 'ダウンロード詳細';
+	@override String get copy => 'コピー';
+	@override String get copySuccess => 'コピーしました';
+	@override String get waiting => '待機中';
+	@override String get paused => '一時停止中';
+	@override String downloadingOnlyDownloaded({required Object downloaded}) => 'ダウンロード中 ${downloaded}';
+	@override String galleryDownloadCompletedWithName({required Object galleryName}) => 'ギャラリーのダウンロードが完了しました: ${galleryName}';
+	@override String downloadCompletedWithName({required Object fileName}) => 'ダウンロードが完了しました: ${fileName}';
+}
+
 // Path: forum.errors
 class _TranslationsForumErrorsJa implements TranslationsForumErrorsEn {
 	_TranslationsForumErrorsJa._(this._root);
@@ -935,6 +1002,55 @@ class _TranslationsSplashErrorsJa implements TranslationsSplashErrorsEn {
 
 	// Translations
 	@override String get initializationFailed => '初期化に失敗しました。アプリを再起動してください';
+}
+
+// Path: download.errors
+class _TranslationsDownloadErrorsJa implements TranslationsDownloadErrorsEn {
+	_TranslationsDownloadErrorsJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get imageModelNotFound => '画像モデルが見つかりません';
+	@override String get downloadFailed => 'ダウンロードに失敗しました';
+	@override String get videoInfoNotFound => 'ビデオ情報が見つかりません';
+	@override String get unknown => '不明';
+	@override String get downloadTaskAlreadyExists => 'ダウンロードタスクが既に存在します';
+	@override String get videoAlreadyDownloaded => 'ビデオはすでにダウンロードされています';
+	@override String downloadFailedForMessage({required Object errorInfo}) => 'ダウンロードタスクの追加に失敗しました: ${errorInfo}';
+	@override String get userPausedDownload => 'ユーザーがダウンロードを一時停止';
+	@override String fileSystemError({required Object errorInfo}) => 'ファイルシステムエラー: ${errorInfo}';
+	@override String unknownError({required Object errorInfo}) => '不明なエラー: ${errorInfo}';
+	@override String get connectionTimeout => '接続タイムアウト';
+	@override String get sendTimeout => '送信タイムアウト';
+	@override String get receiveTimeout => '受信タイムアウト';
+	@override String serverError({required Object errorInfo}) => 'サーバーエラー: ${errorInfo}';
+	@override String get unknownNetworkError => '不明なネットワークエラー';
+	@override String get serviceIsClosing => 'ダウンロードサービスが閉じています';
+	@override String get partialDownloadFailed => '部分内容ダウンロード失敗';
+	@override String get noDownloadTask => 'ダウンロードタスクがありません';
+	@override String get taskNotFoundOrDataError => 'タスクが見つかりませんまたはデータが正しくありません';
+	@override String get copyDownloadUrlFailed => 'ダウンロードリンクのコピーに失敗しました';
+	@override String get fileNotFound => 'ファイルが見つかりません';
+	@override String get openFolderFailed => 'ファイルフォルダーを開くのに失敗しました';
+	@override String openFolderFailedWithMessage({required Object message}) => 'ファイルフォルダーを開くのに失敗しました: ${message}';
+	@override String get directoryNotFound => 'ディレクトリが見つかりません';
+	@override String get copyFailed => 'コピーに失敗しました';
+	@override String get openFileFailed => 'ファイルを開くのに失敗しました';
+	@override String openFileFailedWithMessage({required Object message}) => 'ファイルを開くのに失敗しました: ${message}';
+	@override String get noDownloadSource => 'ダウンロードソースがありません';
+	@override String get noDownloadSourceNowPleaseWaitInfoLoaded => 'ダウンロードソースがありません。情報を読み込んだ後、もう一度お試しください。';
+	@override String get noActiveDownloadTask => 'ダウンロード中のタスクがありません';
+	@override String get noFailedDownloadTask => '失敗したタスクがありません';
+	@override String get noCompletedDownloadTask => '完了したタスクがありません';
+	@override String get taskAlreadyCompletedDoNotAdd => 'タスクはすでに完了しています。再度追加しないでください';
+	@override String get linkExpiredTryAgain => 'リンクが期限切れです。新しいダウンロードリンクを取得しています';
+	@override String get linkExpiredTryAgainSuccess => 'リンクが期限切れです。新しいダウンロードリンクを取得しました';
+	@override String get linkExpiredTryAgainFailed => 'リンクが期限切れです。新しいダウンロードリンクを取得に失敗しました';
+	@override String get taskDeleted => 'タスクが削除されました';
+	@override String unsupportedImageFormat({required Object format}) => 'サポートされていない画像形式: ${format}';
+	@override String get deleteFileError => 'ファイルの削除に失敗しました。ファイルが他のプロセスによって使用されている可能性があります';
+	@override String get deleteTaskError => 'タスクの削除に失敗しました';
 }
 
 /// Flat map(s) containing all translations.
@@ -1103,6 +1219,8 @@ extension on TranslationsJa {
 			case 'common.disabledFloatingButtons': return 'フローティングボタンが無効';
 			case 'common.pendingCommentCount': return '未審核コメント';
 			case 'common.joined': return ({required Object str}) => '${str} に参加';
+			case 'common.download': return 'ダウンロード';
+			case 'common.selectQuality': return '画質を選択';
 			case 'auth.login': return 'ログイン';
 			case 'auth.logout': return 'ログアウト';
 			case 'auth.email': return 'メールアドレス';
@@ -1186,6 +1304,8 @@ extension on TranslationsJa {
 			case 'authorProfile.userProfile': return 'ユーザープロフィール';
 			case 'favorites.clickToRestoreFavorite': return 'お気に入りを復元するにはクリックしてください';
 			case 'favorites.myFavorites': return '私のお気に入り';
+			case 'galleryDetail.galleryDetail': return 'ギャラリー詳細';
+			case 'galleryDetail.viewGalleryDetail': return 'ギャラリー詳細を表示';
 			case 'galleryDetail.copyLink': return 'リンクをコピー';
 			case 'galleryDetail.copyImage': return '画像をコピー';
 			case 'galleryDetail.saveAs': return '名前を付けて保存';
@@ -1383,6 +1503,12 @@ extension on TranslationsJa {
 			case 'videoDetail.externalVideo': return 'これは站外ビデオです';
 			case 'videoDetail.openInBrowser': return 'ブラウザで開く';
 			case 'videoDetail.resourceDeleted': return 'このビデオは削除されたようです :/';
+			case 'videoDetail.noDownloadUrl': return 'ダウンロードURLがありません';
+			case 'videoDetail.startDownloading': return 'ダウンロードを開始';
+			case 'videoDetail.downloadFailed': return 'ダウンロードに失敗しました。後でもう一度お試しください';
+			case 'videoDetail.downloadSuccess': return 'ダウンロードに成功しました';
+			case 'videoDetail.download': return 'ダウンロード';
+			case 'videoDetail.downloadManager': return 'ダウンロード管理';
 			case 'share.sharePlayList': return 'プレイリストを共有';
 			case 'share.wowDidYouSeeThis': return 'ああ、見たの？';
 			case 'share.nameIs': return '名前は';
@@ -1574,6 +1700,92 @@ extension on TranslationsJa {
 			case 'splash.loading': return '読み込み中...';
 			case 'splash.ready': return '準備完了';
 			case 'splash.initializingMessageService': return 'メッセージサービスを初期化中...';
+			case 'download.errors.imageModelNotFound': return '画像モデルが見つかりません';
+			case 'download.errors.downloadFailed': return 'ダウンロードに失敗しました';
+			case 'download.errors.videoInfoNotFound': return 'ビデオ情報が見つかりません';
+			case 'download.errors.unknown': return '不明';
+			case 'download.errors.downloadTaskAlreadyExists': return 'ダウンロードタスクが既に存在します';
+			case 'download.errors.videoAlreadyDownloaded': return 'ビデオはすでにダウンロードされています';
+			case 'download.errors.downloadFailedForMessage': return ({required Object errorInfo}) => 'ダウンロードタスクの追加に失敗しました: ${errorInfo}';
+			case 'download.errors.userPausedDownload': return 'ユーザーがダウンロードを一時停止';
+			case 'download.errors.fileSystemError': return ({required Object errorInfo}) => 'ファイルシステムエラー: ${errorInfo}';
+			case 'download.errors.unknownError': return ({required Object errorInfo}) => '不明なエラー: ${errorInfo}';
+			case 'download.errors.connectionTimeout': return '接続タイムアウト';
+			case 'download.errors.sendTimeout': return '送信タイムアウト';
+			case 'download.errors.receiveTimeout': return '受信タイムアウト';
+			case 'download.errors.serverError': return ({required Object errorInfo}) => 'サーバーエラー: ${errorInfo}';
+			case 'download.errors.unknownNetworkError': return '不明なネットワークエラー';
+			case 'download.errors.serviceIsClosing': return 'ダウンロードサービスが閉じています';
+			case 'download.errors.partialDownloadFailed': return '部分内容ダウンロード失敗';
+			case 'download.errors.noDownloadTask': return 'ダウンロードタスクがありません';
+			case 'download.errors.taskNotFoundOrDataError': return 'タスクが見つかりませんまたはデータが正しくありません';
+			case 'download.errors.copyDownloadUrlFailed': return 'ダウンロードリンクのコピーに失敗しました';
+			case 'download.errors.fileNotFound': return 'ファイルが見つかりません';
+			case 'download.errors.openFolderFailed': return 'ファイルフォルダーを開くのに失敗しました';
+			case 'download.errors.openFolderFailedWithMessage': return ({required Object message}) => 'ファイルフォルダーを開くのに失敗しました: ${message}';
+			case 'download.errors.directoryNotFound': return 'ディレクトリが見つかりません';
+			case 'download.errors.copyFailed': return 'コピーに失敗しました';
+			case 'download.errors.openFileFailed': return 'ファイルを開くのに失敗しました';
+			case 'download.errors.openFileFailedWithMessage': return ({required Object message}) => 'ファイルを開くのに失敗しました: ${message}';
+			case 'download.errors.noDownloadSource': return 'ダウンロードソースがありません';
+			case 'download.errors.noDownloadSourceNowPleaseWaitInfoLoaded': return 'ダウンロードソースがありません。情報を読み込んだ後、もう一度お試しください。';
+			case 'download.errors.noActiveDownloadTask': return 'ダウンロード中のタスクがありません';
+			case 'download.errors.noFailedDownloadTask': return '失敗したタスクがありません';
+			case 'download.errors.noCompletedDownloadTask': return '完了したタスクがありません';
+			case 'download.errors.taskAlreadyCompletedDoNotAdd': return 'タスクはすでに完了しています。再度追加しないでください';
+			case 'download.errors.linkExpiredTryAgain': return 'リンクが期限切れです。新しいダウンロードリンクを取得しています';
+			case 'download.errors.linkExpiredTryAgainSuccess': return 'リンクが期限切れです。新しいダウンロードリンクを取得しました';
+			case 'download.errors.linkExpiredTryAgainFailed': return 'リンクが期限切れです。新しいダウンロードリンクを取得に失敗しました';
+			case 'download.errors.taskDeleted': return 'タスクが削除されました';
+			case 'download.errors.unsupportedImageFormat': return ({required Object format}) => 'サポートされていない画像形式: ${format}';
+			case 'download.errors.deleteFileError': return 'ファイルの削除に失敗しました。ファイルが他のプロセスによって使用されている可能性があります';
+			case 'download.errors.deleteTaskError': return 'タスクの削除に失敗しました';
+			case 'download.downloadList': return 'ダウンロードリスト';
+			case 'download.download': return 'ダウンロード';
+			case 'download.startDownloading': return 'ダウンロードを開始';
+			case 'download.clearAllFailedTasks': return 'すべての失敗タスクをクリア';
+			case 'download.clearAllFailedTasksConfirmation': return 'すべての失敗タスクをクリアしますか？\nこれらのタスクのファイルも削除されます。';
+			case 'download.clearAllFailedTasksSuccess': return 'すべての失敗タスクをクリアしました';
+			case 'download.clearAllFailedTasksError': return '失敗タスクのクリア中にエラーが発生しました';
+			case 'download.downloadStatus': return 'ダウンロード状態';
+			case 'download.imageList': return '画像リスト';
+			case 'download.retryDownload': return '再試行ダウンロード';
+			case 'download.notDownloaded': return '未ダウンロード';
+			case 'download.downloaded': return 'ダウンロード済み';
+			case 'download.waitingForDownload': return 'ダウンロード待機中';
+			case 'download.downloadingProgressForImageProgress': return ({required Object downloaded, required Object total, required Object progress}) => 'ダウンロード中 (${downloaded}/${total}枚 ${progress}%)';
+			case 'download.downloadingSingleImageProgress': return ({required Object downloaded}) => 'ダウンロード中 (${downloaded}枚)';
+			case 'download.pausedProgressForImageProgress': return ({required Object downloaded, required Object total, required Object progress}) => 'ダウンロード一時停止中 (${downloaded}/${total}枚 ${progress}%)';
+			case 'download.pausedSingleImageProgress': return ({required Object downloaded}) => 'ダウンロード一時停止中 (${downloaded}枚)';
+			case 'download.downloadedProgressForImageProgress': return ({required Object total}) => 'ダウンロード完了 (合計${total}枚)';
+			case 'download.viewVideoDetail': return 'ビデオ詳細を表示';
+			case 'download.viewGalleryDetail': return 'ギャラリー詳細を表示';
+			case 'download.moreOptions': return 'もっと操作';
+			case 'download.openFile': return 'ファイルを開く';
+			case 'download.pause': return '一時停止';
+			case 'download.resume': return '継続';
+			case 'download.copyDownloadUrl': return 'ダウンロードリンクをコピー';
+			case 'download.showInFolder': return 'フォルダーで表示';
+			case 'download.deleteTask': return 'タスクを削除';
+			case 'download.downloadingProgressForVideoTask': return ({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'ダウンロード中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
+			case 'download.downloadingOnlyDownloadedAndSpeed': return ({required Object downloaded, required Object speed}) => 'ダウンロード中 ${downloaded} • ${speed}MB/s';
+			case 'download.pausedForDownloadedAndTotal': return ({required Object downloaded, required Object total, required Object progress}) => '一時停止中 ${downloaded}/${total} (${progress}%)';
+			case 'download.pausedAndDownloaded': return ({required Object downloaded}) => '一時停止中 • ダウンロード済み ${downloaded}';
+			case 'download.downloadedWithSize': return ({required Object size}) => 'ダウンロード完了 • ${size}';
+			case 'download.copyDownloadUrlSuccess': return 'ダウンロードリンクをコピーしました';
+			case 'download.totalImageNums': return ({required Object num}) => '${num}枚';
+			case 'download.downloadingDownloadedTotalProgressSpeed': return ({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'ダウンロード中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
+			case 'download.downloading': return 'ダウンロード中';
+			case 'download.failed': return '失敗';
+			case 'download.completed': return '完了';
+			case 'download.downloadDetail': return 'ダウンロード詳細';
+			case 'download.copy': return 'コピー';
+			case 'download.copySuccess': return 'コピーしました';
+			case 'download.waiting': return '待機中';
+			case 'download.paused': return '一時停止中';
+			case 'download.downloadingOnlyDownloaded': return ({required Object downloaded}) => 'ダウンロード中 ${downloaded}';
+			case 'download.galleryDownloadCompletedWithName': return ({required Object galleryName}) => 'ギャラリーのダウンロードが完了しました: ${galleryName}';
+			case 'download.downloadCompletedWithName': return ({required Object fileName}) => 'ダウンロードが完了しました: ${fileName}';
 			default: return null;
 		}
 	}

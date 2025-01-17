@@ -780,4 +780,5 @@ download:
   waiting: 等待中
   paused: 暂停中
   downloadingOnlyDownloaded: '下载中 ${downloaded}'
-
+  galleryDownloadCompletedWithName: '图库下载完成: ${galleryName}'
+  downloadCompletedWithName: '下载完成: ${fileName}'

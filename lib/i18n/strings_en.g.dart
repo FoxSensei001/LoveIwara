@@ -57,6 +57,7 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final TranslationsNotificationsEn notifications = TranslationsNotificationsEn._(_root);
 	late final TranslationsConversationEn conversation = TranslationsConversationEn._(_root);
 	late final TranslationsSplashEn splash = TranslationsSplashEn._(_root);
+	late final TranslationsDownloadEn download = TranslationsDownloadEn._(_root);
 }
 
 // Path: common
@@ -227,6 +228,8 @@ class TranslationsCommonEn {
 	String get disabledFloatingButtons => 'Disabled Floating Buttons';
 	String get pendingCommentCount => 'Pending Comment Count';
 	String joined({required Object str}) => 'Joined at ${str}';
+	String get download => 'Download';
+	String get selectQuality => 'Select Quality';
 }
 
 // Path: auth
@@ -364,6 +367,8 @@ class TranslationsGalleryDetailEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+	String get galleryDetail => 'Gallery Detail';
+	String get viewGalleryDetail => 'View Gallery Detail';
 	String get copyLink => 'Copy Link';
 	String get copyImage => 'Copy Image';
 	String get saveAs => 'Save As';
@@ -624,6 +629,12 @@ class TranslationsVideoDetailEn {
 	String get externalVideo => 'This is an external video';
 	String get openInBrowser => 'Open in Browser';
 	String get resourceDeleted => 'This video seems to have been deleted :/';
+	String get noDownloadUrl => 'No download URL';
+	String get startDownloading => 'Start downloading';
+	String get downloadFailed => 'Download failed, please try again later';
+	String get downloadSuccess => 'Download success';
+	String get download => 'Download';
+	String get downloadManager => 'Download Manager';
 }
 
 // Path: share
@@ -822,6 +833,62 @@ class TranslationsSplashEn {
 	String get initializingMessageService => 'Initializing message service...';
 }
 
+// Path: download
+class TranslationsDownloadEn {
+	TranslationsDownloadEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	late final TranslationsDownloadErrorsEn errors = TranslationsDownloadErrorsEn._(_root);
+	String get downloadList => 'Download List';
+	String get download => 'Download';
+	String get startDownloading => 'Start Downloading';
+	String get clearAllFailedTasks => 'Clear All Failed Tasks';
+	String get clearAllFailedTasksConfirmation => 'Are you sure you want to clear all failed download tasks? The files of these tasks will also be deleted.';
+	String get clearAllFailedTasksSuccess => 'Cleared all failed tasks';
+	String get clearAllFailedTasksError => 'Error occurred while clearing failed tasks';
+	String get downloadStatus => 'Download Status';
+	String get imageList => 'Image List';
+	String get retryDownload => 'Retry Download';
+	String get notDownloaded => 'Not Downloaded';
+	String get downloaded => 'Downloaded';
+	String get waitingForDownload => 'Waiting for Download';
+	String downloadingProgressForImageProgress({required Object downloaded, required Object total, required Object progress}) => 'Downloading (${downloaded}/${total} images ${progress}%)';
+	String downloadingSingleImageProgress({required Object downloaded}) => 'Downloading (${downloaded} images)';
+	String pausedProgressForImageProgress({required Object downloaded, required Object total, required Object progress}) => 'Paused (${downloaded}/${total} images ${progress}%)';
+	String pausedSingleImageProgress({required Object downloaded}) => 'Paused (${downloaded} images)';
+	String downloadedProgressForImageProgress({required Object total}) => 'Downloaded (Total ${total} images)';
+	String get viewVideoDetail => 'View Video Detail';
+	String get viewGalleryDetail => 'View Gallery Detail';
+	String get moreOptions => 'More Options';
+	String get openFile => 'Open File';
+	String get pause => 'Pause';
+	String get resume => 'Resume';
+	String get copyDownloadUrl => 'Copy Download URL';
+	String get showInFolder => 'Show in Folder';
+	String get deleteTask => 'Delete Task';
+	String downloadingProgressForVideoTask({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'Downloading ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
+	String downloadingOnlyDownloadedAndSpeed({required Object downloaded, required Object speed}) => 'Downloading ${downloaded} • ${speed}MB/s';
+	String pausedForDownloadedAndTotal({required Object downloaded, required Object total, required Object progress}) => 'Paused ${downloaded}/${total} (${progress}%)';
+	String pausedAndDownloaded({required Object downloaded}) => 'Paused • Downloaded ${downloaded}';
+	String downloadedWithSize({required Object size}) => 'Downloaded • ${size}';
+	String get copyDownloadUrlSuccess => 'Download URL copied';
+	String totalImageNums({required Object num}) => '${num} images';
+	String downloadingDownloadedTotalProgressSpeed({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'Downloading ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
+	String get downloading => 'Downloading';
+	String get failed => 'Failed';
+	String get completed => 'Completed';
+	String get downloadDetail => 'Download Detail';
+	String get copy => 'Copy';
+	String get copySuccess => 'Copied';
+	String get waiting => 'Waiting';
+	String get paused => 'Paused';
+	String downloadingOnlyDownloaded({required Object downloaded}) => 'Downloading ${downloaded}';
+	String galleryDownloadCompletedWithName({required Object galleryName}) => 'Gallery Download Completed: ${galleryName}';
+	String downloadCompletedWithName({required Object fileName}) => 'Download Completed: ${fileName}';
+}
+
 // Path: forum.errors
 class TranslationsForumErrorsEn {
 	TranslationsForumErrorsEn._(this._root);
@@ -939,6 +1006,55 @@ class TranslationsSplashErrorsEn {
 
 	// Translations
 	String get initializationFailed => 'Initialization failed, please restart the app';
+}
+
+// Path: download.errors
+class TranslationsDownloadErrorsEn {
+	TranslationsDownloadErrorsEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get imageModelNotFound => 'Image model not found';
+	String get downloadFailed => 'Download failed';
+	String get videoInfoNotFound => 'Video info not found';
+	String get downloadTaskAlreadyExists => 'Download task already exists';
+	String get videoAlreadyDownloaded => 'Video already downloaded';
+	String downloadFailedForMessage({required Object errorInfo}) => 'Add download task failed: ${errorInfo}';
+	String get userPausedDownload => 'User paused download';
+	String get unknown => 'Unknown';
+	String fileSystemError({required Object errorInfo}) => 'File system error: ${errorInfo}';
+	String unknownError({required Object errorInfo}) => 'Unknown error: ${errorInfo}';
+	String get connectionTimeout => 'Connection timeout';
+	String get sendTimeout => 'Send timeout';
+	String get receiveTimeout => 'Receive timeout';
+	String serverError({required Object errorInfo}) => 'Server error: ${errorInfo}';
+	String get unknownNetworkError => 'Unknown network error';
+	String get serviceIsClosing => 'Download service is closing';
+	String get partialDownloadFailed => 'Partial content download failed';
+	String get noDownloadTask => 'No download task';
+	String get taskNotFoundOrDataError => 'Task not found or data error';
+	String get fileNotFound => 'File not found';
+	String get openFolderFailed => 'Failed to open folder';
+	String get copyDownloadUrlFailed => 'Failed to copy download URL';
+	String openFolderFailedWithMessage({required Object message}) => 'Failed to open folder: ${message}';
+	String get directoryNotFound => 'Directory not found';
+	String get copyFailed => 'Copy failed';
+	String get openFileFailed => 'Failed to open file';
+	String openFileFailedWithMessage({required Object message}) => 'Failed to open file: ${message}';
+	String get noDownloadSource => 'No download source';
+	String get noDownloadSourceNowPleaseWaitInfoLoaded => 'No download source, please wait for information loading to be completed and try again';
+	String get noActiveDownloadTask => 'No active download task';
+	String get noFailedDownloadTask => 'No failed download task';
+	String get noCompletedDownloadTask => 'No completed download task';
+	String get taskAlreadyCompletedDoNotAdd => 'Task already completed, do not add again';
+	String get linkExpiredTryAgain => 'Link expired, trying to get new download link';
+	String get linkExpiredTryAgainSuccess => 'Link expired, trying to get new download link success';
+	String get linkExpiredTryAgainFailed => 'Link expired, trying to get new download link failed';
+	String get taskDeleted => 'Task deleted';
+	String unsupportedImageFormat({required Object format}) => 'Unsupported image format: ${format}';
+	String get deleteFileError => 'Failed to delete file, possibly because the file is being used by another process';
+	String get deleteTaskError => 'Failed to delete task';
 }
 
 /// Flat map(s) containing all translations.
@@ -1107,6 +1223,8 @@ extension on Translations {
 			case 'common.disabledFloatingButtons': return 'Disabled Floating Buttons';
 			case 'common.pendingCommentCount': return 'Pending Comment Count';
 			case 'common.joined': return ({required Object str}) => 'Joined at ${str}';
+			case 'common.download': return 'Download';
+			case 'common.selectQuality': return 'Select Quality';
 			case 'auth.login': return 'Login';
 			case 'auth.logout': return 'Logout';
 			case 'auth.email': return 'Email';
@@ -1190,6 +1308,8 @@ extension on Translations {
 			case 'authorProfile.userProfile': return 'User Profile';
 			case 'favorites.clickToRestoreFavorite': return 'Click to restore favorite';
 			case 'favorites.myFavorites': return 'My Favorites';
+			case 'galleryDetail.galleryDetail': return 'Gallery Detail';
+			case 'galleryDetail.viewGalleryDetail': return 'View Gallery Detail';
 			case 'galleryDetail.copyLink': return 'Copy Link';
 			case 'galleryDetail.copyImage': return 'Copy Image';
 			case 'galleryDetail.saveAs': return 'Save As';
@@ -1387,6 +1507,12 @@ extension on Translations {
 			case 'videoDetail.externalVideo': return 'This is an external video';
 			case 'videoDetail.openInBrowser': return 'Open in Browser';
 			case 'videoDetail.resourceDeleted': return 'This video seems to have been deleted :/';
+			case 'videoDetail.noDownloadUrl': return 'No download URL';
+			case 'videoDetail.startDownloading': return 'Start downloading';
+			case 'videoDetail.downloadFailed': return 'Download failed, please try again later';
+			case 'videoDetail.downloadSuccess': return 'Download success';
+			case 'videoDetail.download': return 'Download';
+			case 'videoDetail.downloadManager': return 'Download Manager';
 			case 'share.sharePlayList': return 'Share Play List';
 			case 'share.wowDidYouSeeThis': return 'Wow, did you see this?';
 			case 'share.nameIs': return 'Name is';
@@ -1578,6 +1704,92 @@ extension on Translations {
 			case 'splash.loading': return 'Loading...';
 			case 'splash.ready': return 'Ready';
 			case 'splash.initializingMessageService': return 'Initializing message service...';
+			case 'download.errors.imageModelNotFound': return 'Image model not found';
+			case 'download.errors.downloadFailed': return 'Download failed';
+			case 'download.errors.videoInfoNotFound': return 'Video info not found';
+			case 'download.errors.downloadTaskAlreadyExists': return 'Download task already exists';
+			case 'download.errors.videoAlreadyDownloaded': return 'Video already downloaded';
+			case 'download.errors.downloadFailedForMessage': return ({required Object errorInfo}) => 'Add download task failed: ${errorInfo}';
+			case 'download.errors.userPausedDownload': return 'User paused download';
+			case 'download.errors.unknown': return 'Unknown';
+			case 'download.errors.fileSystemError': return ({required Object errorInfo}) => 'File system error: ${errorInfo}';
+			case 'download.errors.unknownError': return ({required Object errorInfo}) => 'Unknown error: ${errorInfo}';
+			case 'download.errors.connectionTimeout': return 'Connection timeout';
+			case 'download.errors.sendTimeout': return 'Send timeout';
+			case 'download.errors.receiveTimeout': return 'Receive timeout';
+			case 'download.errors.serverError': return ({required Object errorInfo}) => 'Server error: ${errorInfo}';
+			case 'download.errors.unknownNetworkError': return 'Unknown network error';
+			case 'download.errors.serviceIsClosing': return 'Download service is closing';
+			case 'download.errors.partialDownloadFailed': return 'Partial content download failed';
+			case 'download.errors.noDownloadTask': return 'No download task';
+			case 'download.errors.taskNotFoundOrDataError': return 'Task not found or data error';
+			case 'download.errors.fileNotFound': return 'File not found';
+			case 'download.errors.openFolderFailed': return 'Failed to open folder';
+			case 'download.errors.copyDownloadUrlFailed': return 'Failed to copy download URL';
+			case 'download.errors.openFolderFailedWithMessage': return ({required Object message}) => 'Failed to open folder: ${message}';
+			case 'download.errors.directoryNotFound': return 'Directory not found';
+			case 'download.errors.copyFailed': return 'Copy failed';
+			case 'download.errors.openFileFailed': return 'Failed to open file';
+			case 'download.errors.openFileFailedWithMessage': return ({required Object message}) => 'Failed to open file: ${message}';
+			case 'download.errors.noDownloadSource': return 'No download source';
+			case 'download.errors.noDownloadSourceNowPleaseWaitInfoLoaded': return 'No download source, please wait for information loading to be completed and try again';
+			case 'download.errors.noActiveDownloadTask': return 'No active download task';
+			case 'download.errors.noFailedDownloadTask': return 'No failed download task';
+			case 'download.errors.noCompletedDownloadTask': return 'No completed download task';
+			case 'download.errors.taskAlreadyCompletedDoNotAdd': return 'Task already completed, do not add again';
+			case 'download.errors.linkExpiredTryAgain': return 'Link expired, trying to get new download link';
+			case 'download.errors.linkExpiredTryAgainSuccess': return 'Link expired, trying to get new download link success';
+			case 'download.errors.linkExpiredTryAgainFailed': return 'Link expired, trying to get new download link failed';
+			case 'download.errors.taskDeleted': return 'Task deleted';
+			case 'download.errors.unsupportedImageFormat': return ({required Object format}) => 'Unsupported image format: ${format}';
+			case 'download.errors.deleteFileError': return 'Failed to delete file, possibly because the file is being used by another process';
+			case 'download.errors.deleteTaskError': return 'Failed to delete task';
+			case 'download.downloadList': return 'Download List';
+			case 'download.download': return 'Download';
+			case 'download.startDownloading': return 'Start Downloading';
+			case 'download.clearAllFailedTasks': return 'Clear All Failed Tasks';
+			case 'download.clearAllFailedTasksConfirmation': return 'Are you sure you want to clear all failed download tasks? The files of these tasks will also be deleted.';
+			case 'download.clearAllFailedTasksSuccess': return 'Cleared all failed tasks';
+			case 'download.clearAllFailedTasksError': return 'Error occurred while clearing failed tasks';
+			case 'download.downloadStatus': return 'Download Status';
+			case 'download.imageList': return 'Image List';
+			case 'download.retryDownload': return 'Retry Download';
+			case 'download.notDownloaded': return 'Not Downloaded';
+			case 'download.downloaded': return 'Downloaded';
+			case 'download.waitingForDownload': return 'Waiting for Download';
+			case 'download.downloadingProgressForImageProgress': return ({required Object downloaded, required Object total, required Object progress}) => 'Downloading (${downloaded}/${total} images ${progress}%)';
+			case 'download.downloadingSingleImageProgress': return ({required Object downloaded}) => 'Downloading (${downloaded} images)';
+			case 'download.pausedProgressForImageProgress': return ({required Object downloaded, required Object total, required Object progress}) => 'Paused (${downloaded}/${total} images ${progress}%)';
+			case 'download.pausedSingleImageProgress': return ({required Object downloaded}) => 'Paused (${downloaded} images)';
+			case 'download.downloadedProgressForImageProgress': return ({required Object total}) => 'Downloaded (Total ${total} images)';
+			case 'download.viewVideoDetail': return 'View Video Detail';
+			case 'download.viewGalleryDetail': return 'View Gallery Detail';
+			case 'download.moreOptions': return 'More Options';
+			case 'download.openFile': return 'Open File';
+			case 'download.pause': return 'Pause';
+			case 'download.resume': return 'Resume';
+			case 'download.copyDownloadUrl': return 'Copy Download URL';
+			case 'download.showInFolder': return 'Show in Folder';
+			case 'download.deleteTask': return 'Delete Task';
+			case 'download.downloadingProgressForVideoTask': return ({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'Downloading ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
+			case 'download.downloadingOnlyDownloadedAndSpeed': return ({required Object downloaded, required Object speed}) => 'Downloading ${downloaded} • ${speed}MB/s';
+			case 'download.pausedForDownloadedAndTotal': return ({required Object downloaded, required Object total, required Object progress}) => 'Paused ${downloaded}/${total} (${progress}%)';
+			case 'download.pausedAndDownloaded': return ({required Object downloaded}) => 'Paused • Downloaded ${downloaded}';
+			case 'download.downloadedWithSize': return ({required Object size}) => 'Downloaded • ${size}';
+			case 'download.copyDownloadUrlSuccess': return 'Download URL copied';
+			case 'download.totalImageNums': return ({required Object num}) => '${num} images';
+			case 'download.downloadingDownloadedTotalProgressSpeed': return ({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'Downloading ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
+			case 'download.downloading': return 'Downloading';
+			case 'download.failed': return 'Failed';
+			case 'download.completed': return 'Completed';
+			case 'download.downloadDetail': return 'Download Detail';
+			case 'download.copy': return 'Copy';
+			case 'download.copySuccess': return 'Copied';
+			case 'download.waiting': return 'Waiting';
+			case 'download.paused': return 'Paused';
+			case 'download.downloadingOnlyDownloaded': return ({required Object downloaded}) => 'Downloading ${downloaded}';
+			case 'download.galleryDownloadCompletedWithName': return ({required Object galleryName}) => 'Gallery Download Completed: ${galleryName}';
+			case 'download.downloadCompletedWithName': return ({required Object fileName}) => 'Download Completed: ${fileName}';
 			default: return null;
 		}
 	}

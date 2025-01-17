@@ -53,6 +53,7 @@ class TranslationsZhCn implements Translations {
 	@override late final _TranslationsNotificationsZhCn notifications = _TranslationsNotificationsZhCn._(_root);
 	@override late final _TranslationsConversationZhCn conversation = _TranslationsConversationZhCn._(_root);
 	@override late final _TranslationsSplashZhCn splash = _TranslationsSplashZhCn._(_root);
+	@override late final _TranslationsDownloadZhCn download = _TranslationsDownloadZhCn._(_root);
 }
 
 // Path: common
@@ -225,6 +226,8 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String get disabledFloatingButtons => '已禁用浮动按钮';
 	@override String get pendingCommentCount => '待审核评论';
 	@override String joined({required Object str}) => '加入于 ${str}';
+	@override String get download => '下载';
+	@override String get selectQuality => '选择画质';
 }
 
 // Path: auth
@@ -365,6 +368,8 @@ class _TranslationsGalleryDetailZhCn implements TranslationsGalleryDetailEn {
 	final TranslationsZhCn _root; // ignore: unused_field
 
 	// Translations
+	@override String get galleryDetail => '图库详情';
+	@override String get viewGalleryDetail => '查看图库详情';
 	@override String get copyLink => '复制链接地址';
 	@override String get copyImage => '复制图片';
 	@override String get saveAs => '另存为';
@@ -625,6 +630,12 @@ class _TranslationsVideoDetailZhCn implements TranslationsVideoDetailEn {
 	@override String get externalVideo => '这是一个站外视频';
 	@override String get openInBrowser => '在浏览器中打开';
 	@override String get resourceDeleted => '这个视频貌似被删除了 :/';
+	@override String get noDownloadUrl => '没有下载链接';
+	@override String get startDownloading => '开始下载';
+	@override String get downloadFailed => '下载失败，请稍后再试';
+	@override String get downloadSuccess => '下载成功';
+	@override String get download => '下载';
+	@override String get downloadManager => '下载管理';
 }
 
 // Path: share
@@ -823,6 +834,62 @@ class _TranslationsSplashZhCn implements TranslationsSplashEn {
 	@override String get initializingMessageService => '初始化消息服务中...';
 }
 
+// Path: download
+class _TranslationsDownloadZhCn implements TranslationsDownloadEn {
+	_TranslationsDownloadZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override late final _TranslationsDownloadErrorsZhCn errors = _TranslationsDownloadErrorsZhCn._(_root);
+	@override String get downloadList => '下载列表';
+	@override String get download => '下载';
+	@override String get startDownloading => '开始下载...';
+	@override String get clearAllFailedTasks => '清除全部失败任务';
+	@override String get clearAllFailedTasksConfirmation => '确定要清除所有失败的下载任务吗？\n这些任务的文件也会被删除。';
+	@override String get clearAllFailedTasksSuccess => '已清除所有失败任务';
+	@override String get clearAllFailedTasksError => '清除失败任务时出错';
+	@override String get downloadStatus => '下载状态';
+	@override String get imageList => '图片列表';
+	@override String get retryDownload => '重试下载';
+	@override String get notDownloaded => '未下载';
+	@override String get downloaded => '已下载';
+	@override String get waitingForDownload => '等待下载...';
+	@override String downloadingProgressForImageProgress({required Object downloaded, required Object total, required Object progress}) => '下载中 (${downloaded}/${total}张 ${progress}%)';
+	@override String downloadingSingleImageProgress({required Object downloaded}) => '下载中 (${downloaded}张)';
+	@override String pausedProgressForImageProgress({required Object downloaded, required Object total, required Object progress}) => '已暂停 (${downloaded}/${total}张 ${progress}%)';
+	@override String pausedSingleImageProgress({required Object downloaded}) => '已暂停 (已下载${downloaded}张)';
+	@override String downloadedProgressForImageProgress({required Object total}) => '下载完成 (共${total}张)';
+	@override String get viewVideoDetail => '查看视频详情';
+	@override String get viewGalleryDetail => '查看图库详情';
+	@override String get moreOptions => '更多操作';
+	@override String get openFile => '打开文件';
+	@override String get pause => '暂停';
+	@override String get resume => '继续';
+	@override String get copyDownloadUrl => '复制下载链接';
+	@override String get showInFolder => '在文件夹中显示';
+	@override String get deleteTask => '删除任务';
+	@override String downloadingProgressForVideoTask({required Object downloaded, required Object total, required Object progress, required Object speed}) => '下载中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
+	@override String downloadingOnlyDownloadedAndSpeed({required Object downloaded, required Object speed}) => '下载中 ${downloaded} • ${speed}MB/s';
+	@override String pausedForDownloadedAndTotal({required Object downloaded, required Object total, required Object progress}) => '已暂停 • ${downloaded}/${total} (${progress}%)';
+	@override String pausedAndDownloaded({required Object downloaded}) => '已暂停 • 已下载 ${downloaded}';
+	@override String downloadedWithSize({required Object size}) => '下载完成 • ${size}';
+	@override String get copyDownloadUrlSuccess => '已复制下载链接';
+	@override String totalImageNums({required Object num}) => '${num}张';
+	@override String downloadingDownloadedTotalProgressSpeed({required Object downloaded, required Object total, required Object progress, required Object speed}) => '下载中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
+	@override String get downloading => '下载中';
+	@override String get failed => '失败';
+	@override String get completed => '已完成';
+	@override String get downloadDetail => '下载详情';
+	@override String get copy => '复制';
+	@override String get copySuccess => '已复制';
+	@override String get waiting => '等待中';
+	@override String get paused => '暂停中';
+	@override String downloadingOnlyDownloaded({required Object downloaded}) => '下载中 ${downloaded}';
+	@override String galleryDownloadCompletedWithName({required Object galleryName}) => '图库下载完成: ${galleryName}';
+	@override String downloadCompletedWithName({required Object fileName}) => '下载完成: ${fileName}';
+}
+
 // Path: forum.errors
 class _TranslationsForumErrorsZhCn implements TranslationsForumErrorsEn {
 	_TranslationsForumErrorsZhCn._(this._root);
@@ -940,6 +1007,55 @@ class _TranslationsSplashErrorsZhCn implements TranslationsSplashErrorsEn {
 
 	// Translations
 	@override String get initializationFailed => '初始化失败，请重启应用';
+}
+
+// Path: download.errors
+class _TranslationsDownloadErrorsZhCn implements TranslationsDownloadErrorsEn {
+	_TranslationsDownloadErrorsZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get imageModelNotFound => '图库信息不存在';
+	@override String get downloadFailed => '下载失败';
+	@override String get videoInfoNotFound => '视频信息不存在';
+	@override String get unknown => '未知';
+	@override String get downloadTaskAlreadyExists => '下载任务已存在';
+	@override String get videoAlreadyDownloaded => '该视频已下载';
+	@override String downloadFailedForMessage({required Object errorInfo}) => '添加下载任务失败: ${errorInfo}';
+	@override String get userPausedDownload => '用户暂停下载';
+	@override String fileSystemError({required Object errorInfo}) => '文件系统错误: ${errorInfo}';
+	@override String unknownError({required Object errorInfo}) => '未知错误: ${errorInfo}';
+	@override String get connectionTimeout => '连接超时';
+	@override String get sendTimeout => '发送超时';
+	@override String get receiveTimeout => '接收超时';
+	@override String serverError({required Object errorInfo}) => '服务器错误: ${errorInfo}';
+	@override String get unknownNetworkError => '未知网络错误';
+	@override String get serviceIsClosing => '下载服务正在关闭';
+	@override String get partialDownloadFailed => '部分内容下载失败';
+	@override String get noDownloadTask => '暂无下载任务';
+	@override String get taskNotFoundOrDataError => '任务不存在或数据错误';
+	@override String get copyDownloadUrlFailed => '复制下载链接失败';
+	@override String get fileNotFound => '文件不存在';
+	@override String get openFolderFailed => '打开文件夹失败';
+	@override String openFolderFailedWithMessage({required Object message}) => '打开文件夹失败: ${message}';
+	@override String get directoryNotFound => '目录不存在';
+	@override String get copyFailed => '复制失败';
+	@override String get openFileFailed => '打开文件失败';
+	@override String openFileFailedWithMessage({required Object message}) => '打开文件失败: ${message}';
+	@override String get noDownloadSource => '没有下载源';
+	@override String get noDownloadSourceNowPleaseWaitInfoLoaded => '暂无下载源，请等待信息加载完成后重试';
+	@override String get noActiveDownloadTask => '暂无正在下载的任务';
+	@override String get noFailedDownloadTask => '暂无失败的任务';
+	@override String get noCompletedDownloadTask => '暂无已完成的任务';
+	@override String get taskAlreadyCompletedDoNotAdd => '任务已完成，请勿重复添加';
+	@override String get linkExpiredTryAgain => '链接已过期，正在重新获取下载链接';
+	@override String get linkExpiredTryAgainSuccess => '链接已过期，正在重新获取下载链接成功';
+	@override String get linkExpiredTryAgainFailed => '链接已过期，正在重新获取下载链接失败';
+	@override String get taskDeleted => '任务已删除';
+	@override String unsupportedImageFormat({required Object format}) => '不支持的图片格式: ${format}';
+	@override String get deleteFileError => '文件删除失败，可能是因为文件被占用';
+	@override String get deleteTaskError => '任务删除失败';
 }
 
 /// Flat map(s) containing all translations.
@@ -1110,6 +1226,8 @@ extension on TranslationsZhCn {
 			case 'common.disabledFloatingButtons': return '已禁用浮动按钮';
 			case 'common.pendingCommentCount': return '待审核评论';
 			case 'common.joined': return ({required Object str}) => '加入于 ${str}';
+			case 'common.download': return '下载';
+			case 'common.selectQuality': return '选择画质';
 			case 'auth.tagLimit': return '标签上限';
 			case 'auth.login': return '登录';
 			case 'auth.logout': return '退出登录';
@@ -1196,6 +1314,8 @@ extension on TranslationsZhCn {
 			case 'authorProfile.userProfile': return '用户资料';
 			case 'favorites.clickToRestoreFavorite': return '点击恢复最爱';
 			case 'favorites.myFavorites': return '我的最爱';
+			case 'galleryDetail.galleryDetail': return '图库详情';
+			case 'galleryDetail.viewGalleryDetail': return '查看图库详情';
 			case 'galleryDetail.copyLink': return '复制链接地址';
 			case 'galleryDetail.copyImage': return '复制图片';
 			case 'galleryDetail.saveAs': return '另存为';
@@ -1393,6 +1513,12 @@ extension on TranslationsZhCn {
 			case 'videoDetail.externalVideo': return '这是一个站外视频';
 			case 'videoDetail.openInBrowser': return '在浏览器中打开';
 			case 'videoDetail.resourceDeleted': return '这个视频貌似被删除了 :/';
+			case 'videoDetail.noDownloadUrl': return '没有下载链接';
+			case 'videoDetail.startDownloading': return '开始下载';
+			case 'videoDetail.downloadFailed': return '下载失败，请稍后再试';
+			case 'videoDetail.downloadSuccess': return '下载成功';
+			case 'videoDetail.download': return '下载';
+			case 'videoDetail.downloadManager': return '下载管理';
 			case 'share.sharePlayList': return '分享播放列表';
 			case 'share.wowDidYouSeeThis': return '哇哦，你看过这个吗？';
 			case 'share.nameIs': return '名字叫做';
@@ -1584,6 +1710,92 @@ extension on TranslationsZhCn {
 			case 'splash.loading': return '加载中...';
 			case 'splash.ready': return '准备完成';
 			case 'splash.initializingMessageService': return '初始化消息服务中...';
+			case 'download.errors.imageModelNotFound': return '图库信息不存在';
+			case 'download.errors.downloadFailed': return '下载失败';
+			case 'download.errors.videoInfoNotFound': return '视频信息不存在';
+			case 'download.errors.unknown': return '未知';
+			case 'download.errors.downloadTaskAlreadyExists': return '下载任务已存在';
+			case 'download.errors.videoAlreadyDownloaded': return '该视频已下载';
+			case 'download.errors.downloadFailedForMessage': return ({required Object errorInfo}) => '添加下载任务失败: ${errorInfo}';
+			case 'download.errors.userPausedDownload': return '用户暂停下载';
+			case 'download.errors.fileSystemError': return ({required Object errorInfo}) => '文件系统错误: ${errorInfo}';
+			case 'download.errors.unknownError': return ({required Object errorInfo}) => '未知错误: ${errorInfo}';
+			case 'download.errors.connectionTimeout': return '连接超时';
+			case 'download.errors.sendTimeout': return '发送超时';
+			case 'download.errors.receiveTimeout': return '接收超时';
+			case 'download.errors.serverError': return ({required Object errorInfo}) => '服务器错误: ${errorInfo}';
+			case 'download.errors.unknownNetworkError': return '未知网络错误';
+			case 'download.errors.serviceIsClosing': return '下载服务正在关闭';
+			case 'download.errors.partialDownloadFailed': return '部分内容下载失败';
+			case 'download.errors.noDownloadTask': return '暂无下载任务';
+			case 'download.errors.taskNotFoundOrDataError': return '任务不存在或数据错误';
+			case 'download.errors.copyDownloadUrlFailed': return '复制下载链接失败';
+			case 'download.errors.fileNotFound': return '文件不存在';
+			case 'download.errors.openFolderFailed': return '打开文件夹失败';
+			case 'download.errors.openFolderFailedWithMessage': return ({required Object message}) => '打开文件夹失败: ${message}';
+			case 'download.errors.directoryNotFound': return '目录不存在';
+			case 'download.errors.copyFailed': return '复制失败';
+			case 'download.errors.openFileFailed': return '打开文件失败';
+			case 'download.errors.openFileFailedWithMessage': return ({required Object message}) => '打开文件失败: ${message}';
+			case 'download.errors.noDownloadSource': return '没有下载源';
+			case 'download.errors.noDownloadSourceNowPleaseWaitInfoLoaded': return '暂无下载源，请等待信息加载完成后重试';
+			case 'download.errors.noActiveDownloadTask': return '暂无正在下载的任务';
+			case 'download.errors.noFailedDownloadTask': return '暂无失败的任务';
+			case 'download.errors.noCompletedDownloadTask': return '暂无已完成的任务';
+			case 'download.errors.taskAlreadyCompletedDoNotAdd': return '任务已完成，请勿重复添加';
+			case 'download.errors.linkExpiredTryAgain': return '链接已过期，正在重新获取下载链接';
+			case 'download.errors.linkExpiredTryAgainSuccess': return '链接已过期，正在重新获取下载链接成功';
+			case 'download.errors.linkExpiredTryAgainFailed': return '链接已过期，正在重新获取下载链接失败';
+			case 'download.errors.taskDeleted': return '任务已删除';
+			case 'download.errors.unsupportedImageFormat': return ({required Object format}) => '不支持的图片格式: ${format}';
+			case 'download.errors.deleteFileError': return '文件删除失败，可能是因为文件被占用';
+			case 'download.errors.deleteTaskError': return '任务删除失败';
+			case 'download.downloadList': return '下载列表';
+			case 'download.download': return '下载';
+			case 'download.startDownloading': return '开始下载...';
+			case 'download.clearAllFailedTasks': return '清除全部失败任务';
+			case 'download.clearAllFailedTasksConfirmation': return '确定要清除所有失败的下载任务吗？\n这些任务的文件也会被删除。';
+			case 'download.clearAllFailedTasksSuccess': return '已清除所有失败任务';
+			case 'download.clearAllFailedTasksError': return '清除失败任务时出错';
+			case 'download.downloadStatus': return '下载状态';
+			case 'download.imageList': return '图片列表';
+			case 'download.retryDownload': return '重试下载';
+			case 'download.notDownloaded': return '未下载';
+			case 'download.downloaded': return '已下载';
+			case 'download.waitingForDownload': return '等待下载...';
+			case 'download.downloadingProgressForImageProgress': return ({required Object downloaded, required Object total, required Object progress}) => '下载中 (${downloaded}/${total}张 ${progress}%)';
+			case 'download.downloadingSingleImageProgress': return ({required Object downloaded}) => '下载中 (${downloaded}张)';
+			case 'download.pausedProgressForImageProgress': return ({required Object downloaded, required Object total, required Object progress}) => '已暂停 (${downloaded}/${total}张 ${progress}%)';
+			case 'download.pausedSingleImageProgress': return ({required Object downloaded}) => '已暂停 (已下载${downloaded}张)';
+			case 'download.downloadedProgressForImageProgress': return ({required Object total}) => '下载完成 (共${total}张)';
+			case 'download.viewVideoDetail': return '查看视频详情';
+			case 'download.viewGalleryDetail': return '查看图库详情';
+			case 'download.moreOptions': return '更多操作';
+			case 'download.openFile': return '打开文件';
+			case 'download.pause': return '暂停';
+			case 'download.resume': return '继续';
+			case 'download.copyDownloadUrl': return '复制下载链接';
+			case 'download.showInFolder': return '在文件夹中显示';
+			case 'download.deleteTask': return '删除任务';
+			case 'download.downloadingProgressForVideoTask': return ({required Object downloaded, required Object total, required Object progress, required Object speed}) => '下载中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
+			case 'download.downloadingOnlyDownloadedAndSpeed': return ({required Object downloaded, required Object speed}) => '下载中 ${downloaded} • ${speed}MB/s';
+			case 'download.pausedForDownloadedAndTotal': return ({required Object downloaded, required Object total, required Object progress}) => '已暂停 • ${downloaded}/${total} (${progress}%)';
+			case 'download.pausedAndDownloaded': return ({required Object downloaded}) => '已暂停 • 已下载 ${downloaded}';
+			case 'download.downloadedWithSize': return ({required Object size}) => '下载完成 • ${size}';
+			case 'download.copyDownloadUrlSuccess': return '已复制下载链接';
+			case 'download.totalImageNums': return ({required Object num}) => '${num}张';
+			case 'download.downloadingDownloadedTotalProgressSpeed': return ({required Object downloaded, required Object total, required Object progress, required Object speed}) => '下载中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
+			case 'download.downloading': return '下载中';
+			case 'download.failed': return '失败';
+			case 'download.completed': return '已完成';
+			case 'download.downloadDetail': return '下载详情';
+			case 'download.copy': return '复制';
+			case 'download.copySuccess': return '已复制';
+			case 'download.waiting': return '等待中';
+			case 'download.paused': return '暂停中';
+			case 'download.downloadingOnlyDownloaded': return ({required Object downloaded}) => '下载中 ${downloaded}';
+			case 'download.galleryDownloadCompletedWithName': return ({required Object galleryName}) => '图库下载完成: ${galleryName}';
+			case 'download.downloadCompletedWithName': return ({required Object fileName}) => '下载完成: ${fileName}';
 			default: return null;
 		}
 	}

@@ -777,3 +777,5 @@ download:
   waiting: 等待中
   paused: 暫停中
   downloadingOnlyDownloaded: '下載中 ${downloaded}'
+  galleryDownloadCompletedWithName: '圖庫下載完成: ${galleryName}'
+  downloadCompletedWithName: '下載完成: ${fileName}'

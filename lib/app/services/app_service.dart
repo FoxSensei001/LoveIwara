@@ -555,7 +555,6 @@ class NaviService {
       },
     ));
   }
-}
 
   /// 跳转到消息详情页
   static void navigateToMessagePage(ConversationModel conversation) {

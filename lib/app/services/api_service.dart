@@ -177,10 +177,10 @@ class ApiService extends GetxService {
           }
         } catch (e) {
           LogUtils.e('Token刷新失败', tag: _tag, error: e);
-          _handleGeneralError(d_dio.DioException(
-            requestOptions: response.requestOptions,
-            error: e.toString(),
-          ));
+          // _handleGeneralError(d_dio.DioException(
+          //   requestOptions: response.requestOptions,
+          //   error: e.toString(),
+          // ));
         }
         return handler.next(response);
       },
@@ -234,7 +234,7 @@ class ApiService extends GetxService {
             break;
             
           default:
-            _handleGeneralError(error);
+            // _handleGeneralError(error);
         }
         
         return handler.next(error);
@@ -359,15 +359,6 @@ class ApiService extends GetxService {
         MDToastType.error,
       );
     }
-  }
-
-  // 处理一般错误
-  void _handleGeneralError(d_dio.DioException error) {
-    final message = error.response?.data?['message'] ?? t.errors.unknownError;
-    _messageService.showMessage(
-      message,
-      MDToastType.error,
-    );
   }
 
   Future<d_dio.Response<T>> get<T>(String path,
