@@ -883,6 +883,7 @@ class _TranslationsDownloadJa implements TranslationsDownloadEn {
 	@override String downloadingOnlyDownloaded({required Object downloaded}) => 'ダウンロード中 ${downloaded}';
 	@override String galleryDownloadCompletedWithName({required Object galleryName}) => 'ギャラリーのダウンロードが完了しました: ${galleryName}';
 	@override String downloadCompletedWithName({required Object fileName}) => 'ダウンロードが完了しました: ${fileName}';
+	@override String get stillInDevelopment => '開発中';
 }
 
 // Path: forum.errors
@@ -1051,6 +1052,9 @@ class _TranslationsDownloadErrorsJa implements TranslationsDownloadErrorsEn {
 	@override String unsupportedImageFormat({required Object format}) => 'サポートされていない画像形式: ${format}';
 	@override String get deleteFileError => 'ファイルの削除に失敗しました。ファイルが他のプロセスによって使用されている可能性があります';
 	@override String get deleteTaskError => 'タスクの削除に失敗しました';
+	@override String get taskNotFound => 'タスクが見つかりません';
+	@override String get canNotRefreshVideoTask => 'ビデオタスクの更新に失敗しました';
+	@override String get taskAlreadyProcessing => 'タスクはすでに処理中です';
 }
 
 /// Flat map(s) containing all translations.
@@ -1740,6 +1744,9 @@ extension on TranslationsJa {
 			case 'download.errors.unsupportedImageFormat': return ({required Object format}) => 'サポートされていない画像形式: ${format}';
 			case 'download.errors.deleteFileError': return 'ファイルの削除に失敗しました。ファイルが他のプロセスによって使用されている可能性があります';
 			case 'download.errors.deleteTaskError': return 'タスクの削除に失敗しました';
+			case 'download.errors.taskNotFound': return 'タスクが見つかりません';
+			case 'download.errors.canNotRefreshVideoTask': return 'ビデオタスクの更新に失敗しました';
+			case 'download.errors.taskAlreadyProcessing': return 'タスクはすでに処理中です';
 			case 'download.downloadList': return 'ダウンロードリスト';
 			case 'download.download': return 'ダウンロード';
 			case 'download.startDownloading': return 'ダウンロードを開始';
@@ -1786,6 +1793,7 @@ extension on TranslationsJa {
 			case 'download.downloadingOnlyDownloaded': return ({required Object downloaded}) => 'ダウンロード中 ${downloaded}';
 			case 'download.galleryDownloadCompletedWithName': return ({required Object galleryName}) => 'ギャラリーのダウンロードが完了しました: ${galleryName}';
 			case 'download.downloadCompletedWithName': return ({required Object fileName}) => 'ダウンロードが完了しました: ${fileName}';
+			case 'download.stillInDevelopment': return '開発中';
 			default: return null;
 		}
 	}

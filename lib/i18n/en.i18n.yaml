@@ -726,6 +726,9 @@ download:
     unsupportedImageFormat: 'Unsupported image format: ${format}'
     deleteFileError: 'Failed to delete file, possibly because the file is being used by another process'
     deleteTaskError: 'Failed to delete task'
+    canNotRefreshVideoTask: 'Failed to refresh video task'
+    taskAlreadyProcessing: 'Task already processing'
+    taskNotFound: 'Task not found'
   downloadList: Download List
   download: Download
   startDownloading: Start Downloading
@@ -772,3 +775,4 @@ download:
   downloadingOnlyDownloaded: 'Downloading ${downloaded}'
   galleryDownloadCompletedWithName: 'Gallery Download Completed: ${galleryName}'
   downloadCompletedWithName: 'Download Completed: ${fileName}'
+  stillInDevelopment: Still in development

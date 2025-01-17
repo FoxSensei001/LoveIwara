@@ -886,6 +886,7 @@ class _TranslationsDownloadZhTw implements TranslationsDownloadEn {
 	@override String downloadingOnlyDownloaded({required Object downloaded}) => '下載中 ${downloaded}';
 	@override String galleryDownloadCompletedWithName({required Object galleryName}) => '圖庫下載完成: ${galleryName}';
 	@override String downloadCompletedWithName({required Object fileName}) => '下載完成: ${fileName}';
+	@override String get stillInDevelopment => '開發中';
 }
 
 // Path: forum.errors
@@ -1054,6 +1055,9 @@ class _TranslationsDownloadErrorsZhTw implements TranslationsDownloadErrorsEn {
 	@override String unsupportedImageFormat({required Object format}) => '不支持的圖片格式: ${format}';
 	@override String get deleteFileError => '文件删除失败，可能是因为文件被占用';
 	@override String get deleteTaskError => '任务删除失败';
+	@override String get taskNotFound => '任务未找到';
+	@override String get canNotRefreshVideoTask => '無法刷新視頻任務';
+	@override String get taskAlreadyProcessing => '任務已處理中';
 }
 
 /// Flat map(s) containing all translations.
@@ -1746,6 +1750,9 @@ extension on TranslationsZhTw {
 			case 'download.errors.unsupportedImageFormat': return ({required Object format}) => '不支持的圖片格式: ${format}';
 			case 'download.errors.deleteFileError': return '文件删除失败，可能是因为文件被占用';
 			case 'download.errors.deleteTaskError': return '任务删除失败';
+			case 'download.errors.taskNotFound': return '任务未找到';
+			case 'download.errors.canNotRefreshVideoTask': return '無法刷新視頻任務';
+			case 'download.errors.taskAlreadyProcessing': return '任務已處理中';
 			case 'download.downloadList': return '下載列表';
 			case 'download.download': return '下載';
 			case 'download.startDownloading': return '開始下載...';
@@ -1792,6 +1799,7 @@ extension on TranslationsZhTw {
 			case 'download.downloadingOnlyDownloaded': return ({required Object downloaded}) => '下載中 ${downloaded}';
 			case 'download.galleryDownloadCompletedWithName': return ({required Object galleryName}) => '圖庫下載完成: ${galleryName}';
 			case 'download.downloadCompletedWithName': return ({required Object fileName}) => '下載完成: ${fileName}';
+			case 'download.stillInDevelopment': return '開發中';
 			default: return null;
 		}
 	}

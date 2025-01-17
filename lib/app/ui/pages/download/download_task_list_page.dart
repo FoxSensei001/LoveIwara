@@ -339,7 +339,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage>
 
     // 获取相关任务信息
     final DownloadService downloadService = DownloadService.to;
-    DownloadTask? currentActiveTask = downloadService.getActiveTaskById(task.id);
+    DownloadTask? currentActiveTask = downloadService.getMemoryActiveTaskById(task.id);
     DownloadTask? currentCompletedTask = await DownloadService.to.repository.getTaskById(task.id);
     List<String> currentQueueIds = downloadService.getQueueIds();
 

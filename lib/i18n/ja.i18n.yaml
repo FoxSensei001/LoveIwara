@@ -730,6 +730,9 @@ download:
     unsupportedImageFormat: 'サポートされていない画像形式: ${format}'
     deleteFileError: 'ファイルの削除に失敗しました。ファイルが他のプロセスによって使用されている可能性があります'
     deleteTaskError: 'タスクの削除に失敗しました'
+    taskNotFound: 'タスクが見つかりません'
+    canNotRefreshVideoTask: 'ビデオタスクの更新に失敗しました'
+    taskAlreadyProcessing: 'タスクはすでに処理中です'
   downloadList: ダウンロードリスト
   download: ダウンロード
   startDownloading: ダウンロードを開始
@@ -776,4 +779,5 @@ download:
   downloadingOnlyDownloaded: 'ダウンロード中 ${downloaded}'
   galleryDownloadCompletedWithName: 'ギャラリーのダウンロードが完了しました: ${galleryName}'
   downloadCompletedWithName: 'ダウンロードが完了しました: ${fileName}'
+  stillInDevelopment: 開発中
 

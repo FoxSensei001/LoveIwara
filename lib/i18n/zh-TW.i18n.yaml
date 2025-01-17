@@ -733,6 +733,9 @@ download:
     unsupportedImageFormat: '不支持的圖片格式: ${format}'
     deleteFileError: '文件删除失败，可能是因为文件被占用'
     deleteTaskError: '任务删除失败'
+    taskNotFound: '任务未找到'
+    canNotRefreshVideoTask: '無法刷新視頻任務'
+    taskAlreadyProcessing: '任務已處理中'
   downloadList: 下載列表
   download: 下載
   startDownloading: 開始下載...
@@ -779,3 +782,4 @@ download:
   downloadingOnlyDownloaded: '下載中 ${downloaded}'
   galleryDownloadCompletedWithName: '圖庫下載完成: ${galleryName}'
   downloadCompletedWithName: '下載完成: ${fileName}'
+  stillInDevelopment: 開發中

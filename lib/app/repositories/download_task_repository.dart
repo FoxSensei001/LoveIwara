@@ -27,6 +27,15 @@ class DownloadTaskRepository {
     return results.map((row) => DownloadTask.fromRow(row)).toList();
   }
 
+  // 获取某状态的全部任务
+  Future<List<DownloadTask>> getAllTasksByStatus(DownloadStatus status) async {
+    final stmt = _db.prepare('''
+      SELECT * FROM download_tasks WHERE status = ?
+    ''');
+    final results = stmt.select([status.name]);
+    return results.map((row) => DownloadTask.fromRow(row)).toList();
+  }
+
   // 插入任务
   Future<void> insertTask(DownloadTask task) async {
     try {

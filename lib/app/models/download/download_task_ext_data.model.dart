@@ -78,7 +78,7 @@ class VideoDownloadExtData {
   }
 
   static String genExtDataIdByVideoInfo(Video videoInfo, String sourceName) {
-    return '${videoInfo.id}_$sourceName';
+    return '${DownloadTaskExtDataType.video.name}_${videoInfo.id}_$sourceName';
   }
 }
 
@@ -137,6 +137,6 @@ class GalleryDownloadExtData {
   }
 
   static String genExtDataIdByGalleryInfo(String id) {
-    return '${DownloadTaskExtDataType.gallery}_$id';
+    return '${DownloadTaskExtDataType.gallery.name}_$id';
   }
 } 

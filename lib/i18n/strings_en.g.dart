@@ -887,6 +887,7 @@ class TranslationsDownloadEn {
 	String downloadingOnlyDownloaded({required Object downloaded}) => 'Downloading ${downloaded}';
 	String galleryDownloadCompletedWithName({required Object galleryName}) => 'Gallery Download Completed: ${galleryName}';
 	String downloadCompletedWithName({required Object fileName}) => 'Download Completed: ${fileName}';
+	String get stillInDevelopment => 'Still in development';
 }
 
 // Path: forum.errors
@@ -1055,6 +1056,9 @@ class TranslationsDownloadErrorsEn {
 	String unsupportedImageFormat({required Object format}) => 'Unsupported image format: ${format}';
 	String get deleteFileError => 'Failed to delete file, possibly because the file is being used by another process';
 	String get deleteTaskError => 'Failed to delete task';
+	String get canNotRefreshVideoTask => 'Failed to refresh video task';
+	String get taskAlreadyProcessing => 'Task already processing';
+	String get taskNotFound => 'Task not found';
 }
 
 /// Flat map(s) containing all translations.
@@ -1744,6 +1748,9 @@ extension on Translations {
 			case 'download.errors.unsupportedImageFormat': return ({required Object format}) => 'Unsupported image format: ${format}';
 			case 'download.errors.deleteFileError': return 'Failed to delete file, possibly because the file is being used by another process';
 			case 'download.errors.deleteTaskError': return 'Failed to delete task';
+			case 'download.errors.canNotRefreshVideoTask': return 'Failed to refresh video task';
+			case 'download.errors.taskAlreadyProcessing': return 'Task already processing';
+			case 'download.errors.taskNotFound': return 'Task not found';
 			case 'download.downloadList': return 'Download List';
 			case 'download.download': return 'Download';
 			case 'download.startDownloading': return 'Start Downloading';
@@ -1790,6 +1797,7 @@ extension on Translations {
 			case 'download.downloadingOnlyDownloaded': return ({required Object downloaded}) => 'Downloading ${downloaded}';
 			case 'download.galleryDownloadCompletedWithName': return ({required Object galleryName}) => 'Gallery Download Completed: ${galleryName}';
 			case 'download.downloadCompletedWithName': return ({required Object fileName}) => 'Download Completed: ${fileName}';
+			case 'download.stillInDevelopment': return 'Still in development';
 			default: return null;
 		}
 	}

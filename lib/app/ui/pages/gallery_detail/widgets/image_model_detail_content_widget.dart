@@ -613,58 +613,63 @@ class ImageModelDetailContent extends StatelessWidget {
 
   // 下载图库
   void _downloadGallery(BuildContext context) async {
-    final t = slang.Translations.of(context);
-    try {
-      final imageModel = controller.imageModelInfo.value;
-      if (imageModel == null) {
-        showToastWidget(MDToastWidget(
-            message: t.download.errors.imageModelNotFound,
-            type: MDToastType.error));
-        return;
-      }
 
-      // 创建下载任务的扩展数据
-      final extData = GalleryDownloadExtData(
-        id: imageModel.id,
-        title: imageModel.title,
-        previewUrls: imageModel.files.take(3).map((e) => e.getLargeImageUrl()).toList(),
-        authorName: imageModel.user?.name,
-        authorUsername: imageModel.user?.username,
-        authorAvatar: imageModel.user?.avatar?.avatarUrl,
-        totalImages: imageModel.files.length,
-        imageList: imageModel.files.map((e) => {
-          'id': e.id,
-          'url': e.getOriginalImageUrl(),
-        }).toList(),
-      );
+    showToastWidget(MDToastWidget(
+        message: slang.t.download.stillInDevelopment,
+        type: MDToastType.success));
+    return;
+    // final t = slang.Translations.of(context);
+    // try {
+    //   final imageModel = controller.imageModelInfo.value;
+    //   if (imageModel == null) {
+    //     showToastWidget(MDToastWidget(
+    //         message: t.download.errors.imageModelNotFound,
+    //         type: MDToastType.error));
+    //     return;
+    //   }
 
-      // 创建下载任务
-      final task = DownloadTask(
-        id: GalleryDownloadExtData.genExtDataIdByGalleryInfo(imageModel.id),
-        url: imageModel.files.first.getOriginalImageUrl(), // 使用第一张图片的URL
-        savePath: await _getSavePath(imageModel.title, imageModel.id),
-        fileName: '${imageModel.title}_${imageModel.id}',
-        supportsRange: true,
-        extData: DownloadTaskExtData(
-          type: DownloadTaskExtDataType.gallery,
-          data: extData.toJson(),
-        ),
-      );
+    //   // 创建下载任务的扩展数据
+    //   final extData = GalleryDownloadExtData(
+    //     id: imageModel.id,
+    //     title: imageModel.title,
+    //     previewUrls: imageModel.files.take(3).map((e) => e.getLargeImageUrl()).toList(),
+    //     authorName: imageModel.user?.name,
+    //     authorUsername: imageModel.user?.username,
+    //     authorAvatar: imageModel.user?.avatar?.avatarUrl,
+    //     totalImages: imageModel.files.length,
+    //     imageList: imageModel.files.map((e) => {
+    //       'id': e.id,
+    //       'url': e.getOriginalImageUrl(),
+    //     }).toList(),
+    //   );
 
-      await DownloadService.to.addTask(task);
+    //   // 创建下载任务
+    //   final task = DownloadTask(
+    //     id: GalleryDownloadExtData.genExtDataIdByGalleryInfo(imageModel.id),
+    //     url: imageModel.files.first.getOriginalImageUrl(), // 使用第一张图片的URL
+    //     savePath: await _getSavePath(imageModel.title, imageModel.id),
+    //     fileName: '${imageModel.title}_${imageModel.id}',
+    //     supportsRange: true,
+    //     extData: DownloadTaskExtData(
+    //       type: DownloadTaskExtDataType.gallery,
+    //       data: extData.toJson(),
+    //     ),
+    //   );
 
-      showToastWidget(MDToastWidget(
-          message: t.download.startDownloading,
-          type: MDToastType.success));
+    //   await DownloadService.to.addTask(task);
 
-      // 打开下载管理页面
-      NaviService.navigateToDownloadTaskListPage();
-    } catch (e) {
-      LogUtils.e('添加下载任务失败', tag: 'ImageModelDetailContent', error: e);
-      showToastWidget(MDToastWidget(
-          message: t.download.errors.downloadFailed,
-          type: MDToastType.error));
-    }
+    //   showToastWidget(MDToastWidget(
+    //       message: t.download.startDownloading,
+    //       type: MDToastType.success));
+
+    //   // 打开下载管理页面
+    //   NaviService.navigateToDownloadTaskListPage();
+    // } catch (e) {
+    //   LogUtils.e('添加下载任务失败', tag: 'ImageModelDetailContent', error: e);
+    //   showToastWidget(MDToastWidget(
+    //       message: t.download.errors.downloadFailed,
+    //       type: MDToastType.error));
+    // }
   }
 
   // 获取保存路径
