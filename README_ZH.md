@@ -288,5 +288,3 @@ flutter config --clear-features
 
 项目中的许多实现方式和最佳实践都是从这些仓库中学习得来。 
 ```
-
-</rewritten_file>

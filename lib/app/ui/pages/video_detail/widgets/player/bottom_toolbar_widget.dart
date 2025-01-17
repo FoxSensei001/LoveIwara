@@ -40,7 +40,7 @@ class BottomToolbar extends StatelessWidget {
         // 添加顶部互动控制层
         if (currentScreenIsFullScreen)
           IgnorePointer(
-            ignoring: !myVideoStateController.animationController.value.isGreaterThan(0),
+            ignoring: myVideoStateController.animationController.value == 0,
             child: SlideTransition(
               position: myVideoStateController.bottomBarAnimation,
               child: FadeTransition(
