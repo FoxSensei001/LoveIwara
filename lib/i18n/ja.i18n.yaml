@@ -161,6 +161,7 @@ common:
   enabledFloatingButtons: フローティングボタンが有効
   disabledFloatingButtons: フローティングボタンが無効
   pendingCommentCount: 未審核コメント
+  joined: '${str} に参加'
 auth:
   login: ログイン
   logout: ログアウト

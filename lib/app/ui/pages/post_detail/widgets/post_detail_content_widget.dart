@@ -104,12 +104,9 @@ class PostDetailContent extends StatelessWidget {
         },
         behavior: HitTestBehavior.opaque,
         child: AvatarWidget(
-          avatarUrl: user?.avatar?.avatarUrl,
+          user: user,
           defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-          headers: const {'referer': CommonConstants.iwaraBaseUrl},
           radius: 20,
-          isPremium: user?.premium ?? false,
-          isAdmin: user?.isAdmin ?? false,
         ),
       ),
     );

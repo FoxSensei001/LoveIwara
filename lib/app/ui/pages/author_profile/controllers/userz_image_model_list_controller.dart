@@ -60,7 +60,7 @@ class UserzImageModelListController extends GetxController {
           '[图片搜索controller] 查询参数: userId: ${userId.value}, sort: ${sort.value}, page: $tempPage');
 
       if (!response.isSuccess) {
-        showToastWidget(MDToastWidget(message: response.message, type: MDToastType.error));
+        showToastWidget(MDToastWidget(message: response.message, type: MDToastType.error), position: ToastPosition.bottom);
         return;
       }
       final newImageModels = response.data!.results;

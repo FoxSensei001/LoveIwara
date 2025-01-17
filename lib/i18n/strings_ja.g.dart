@@ -222,6 +222,7 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get enabledFloatingButtons => 'フローティングボタンが有効';
 	@override String get disabledFloatingButtons => 'フローティングボタンが無効';
 	@override String get pendingCommentCount => '未審核コメント';
+	@override String joined({required Object str}) => '${str} に参加';
 }
 
 // Path: auth
@@ -1101,6 +1102,7 @@ extension on TranslationsJa {
 			case 'common.enabledFloatingButtons': return 'フローティングボタンが有効';
 			case 'common.disabledFloatingButtons': return 'フローティングボタンが無効';
 			case 'common.pendingCommentCount': return '未審核コメント';
+			case 'common.joined': return ({required Object str}) => '${str} に参加';
 			case 'auth.login': return 'ログイン';
 			case 'auth.logout': return 'ログアウト';
 			case 'auth.email': return 'メールアドレス';

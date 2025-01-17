@@ -188,11 +188,9 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
                         children: [
                           IconButton(
                             icon: AvatarWidget(
-                              avatarUrl: userService.userAvatar,
+                              user: userService.currentUser.value,
                               radius: 14,
                               defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-                              isPremium: userService.currentUser.value?.premium ?? false,
-                              isAdmin: userService.currentUser.value?.isAdmin ?? false,
                             ),
                             onPressed: () {
                               AppService.switchGlobalDrawer();

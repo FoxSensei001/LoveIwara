@@ -108,12 +108,9 @@ class BottomToolbar extends StatelessWidget {
                           return Row(
                             children: [
                               AvatarWidget(
-                                avatarUrl: videoInfo?.user?.avatar?.avatarUrl,
+                                user: videoInfo?.user,
                                 defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-                                headers: const {'referer': CommonConstants.iwaraBaseUrl},
                                 radius: 14,
-                                isPremium: videoInfo?.user?.premium ?? false,
-                                isAdmin: videoInfo?.user?.isAdmin ?? false,
                               ),
                               const SizedBox(width: 6),
                               ConstrainedBox(

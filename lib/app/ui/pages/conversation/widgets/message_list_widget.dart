@@ -512,12 +512,9 @@ class _MessageListWidgetState extends State<MessageListWidget> {
 
   Widget _buildAvatar(User user) {
     return AvatarWidget(
-      avatarUrl: user.avatar?.avatarUrl,
+      user: user,
       defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
       radius: 20,
-      isPremium: user.premium,
-      isAdmin: user.isAdmin,
-      role: user.role,
     );
   }
 

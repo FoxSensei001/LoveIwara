@@ -147,14 +147,14 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                                 if (text.trim().isEmpty) {
                                   showToastWidget(MDToastWidget(
                                       message: t.errors.commentCanNotBeEmpty,
-                                      type: MDToastType.error));
+                                      type: MDToastType.error), position: ToastPosition.bottom);
                                   return;
                                 }
                                 final UserService userService = Get.find();
                                 if (!userService.isLogin) {
                                   showToastWidget(MDToastWidget(
                                       message: t.errors.pleaseLoginFirst,
-                                      type: MDToastType.error));
+                                      type: MDToastType.error), position: ToastPosition.bottom);
                                   Get.toNamed(Routes.LOGIN);
                                   return;
                                 }
@@ -390,57 +390,100 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
           }),
         ],
         flexibleSpace: FlexibleSpaceBar(
-          background: GestureDetector(
-            onTap: () {
-              // 进入图片详情页
-              ImageItem item = ImageItem(
-                  url: profileController.headerBackgroundUrl.value ??
-                      CommonConstants.defaultProfileHeaderUrl,
-                  data: ImageItemData(
-                      id: profileController.author.value?.id ?? '',
+          background: Stack(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  // 进入图片详情页
+                  ImageItem item = ImageItem(
                       url: profileController.headerBackgroundUrl.value ??
                           CommonConstants.defaultProfileHeaderUrl,
-                      originalUrl:
-                          profileController.headerBackgroundUrl.value ??
-                              CommonConstants.defaultProfileHeaderUrl));
-              final t = slang.Translations.of(context);
-              final menuItems = [
-                MenuItem(
-                  title: t.galleryDetail.copyLink,
-                  icon: Icons.copy,
-                  onTap: () => ImageUtils.copyLink(item),
-                ),
-                MenuItem(
-                  title: t.galleryDetail.copyImage,
-                  icon: Icons.copy,
-                  onTap: () => ImageUtils.copyImage(item),
-                ),
-                if (GetPlatform.isDesktop && !GetPlatform.isWeb)
-                  MenuItem(
-                    title: t.galleryDetail.saveAs,
-                    icon: Icons.download,
-                    onTap: () => ImageUtils.downloadImageForDesktop(item),
+                      data: ImageItemData(
+                          id: profileController.author.value?.id ?? '',
+                          url: profileController.headerBackgroundUrl.value ??
+                              CommonConstants.defaultProfileHeaderUrl,
+                          originalUrl:
+                              profileController.headerBackgroundUrl.value ??
+                                  CommonConstants.defaultProfileHeaderUrl));
+                  final t = slang.Translations.of(context);
+                  final menuItems = [
+                    MenuItem(
+                      title: t.galleryDetail.copyLink,
+                      icon: Icons.copy,
+                      onTap: () => ImageUtils.copyLink(item),
+                    ),
+                    MenuItem(
+                      title: t.galleryDetail.copyImage,
+                      icon: Icons.copy,
+                      onTap: () => ImageUtils.copyImage(item),
+                    ),
+                    if (GetPlatform.isDesktop && !GetPlatform.isWeb)
+                      MenuItem(
+                        title: t.galleryDetail.saveAs,
+                        icon: Icons.download,
+                        onTap: () => ImageUtils.downloadImageForDesktop(item),
+                      ),
+                    if (GetPlatform.isIOS || GetPlatform.isAndroid)
+                      MenuItem(
+                        title: t.galleryDetail.saveToAlbum,
+                        icon: Icons.save,
+                        onTap: () => ImageUtils.downloadImageForMobile(item),
+                      ),
+                  ];
+                  NaviService.navigateToPhotoViewWrapper(
+                      imageItems: [item],
+                      initialIndex: 0,
+                      menuItemsBuilder: (context, item) => menuItems);
+                },
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: CachedNetworkImage(
+                    imageUrl: profileController.headerBackgroundUrl.value ??
+                        CommonConstants.defaultProfileHeaderUrl,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
                   ),
-                if (GetPlatform.isIOS || GetPlatform.isAndroid)
-                  MenuItem(
-                    title: t.galleryDetail.saveToAlbum,
-                    icon: Icons.save,
-                    onTap: () => ImageUtils.downloadImageForMobile(item),
-                  ),
-              ];
-              NaviService.navigateToPhotoViewWrapper(
-                  imageItems: [item],
-                  initialIndex: 0,
-                  menuItemsBuilder: (context, item) => menuItems);
-            },
-            child: MouseRegion(
-              cursor: SystemMouseCursors.click, // 添加鼠标悬浮效果
-              child: CachedNetworkImage(
-                imageUrl: profileController.headerBackgroundUrl.value ??
-                    CommonConstants.defaultProfileHeaderUrl,
-                fit: BoxFit.cover,
+                ),
               ),
-            ),
+              // 加入时间标签
+              Positioned(
+                right: 8,
+                bottom: 8,
+                child: Obx(() {
+                  if (profileController.author.value?.createdAt == null) {
+                    return const SizedBox.shrink();
+                  }
+                  final joinDate = profileController.author.value!.createdAt;
+                  final t = slang.Translations.of(context);
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.6),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.calendar_today,
+                          size: 14,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          t.common.joined(str: CommonUtils.formatFriendlyTimestamp(joinDate)),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              ),
+            ],
           ),
         ),
       ),
@@ -458,12 +501,9 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         AvatarWidget(
-                          avatarUrl: profileController.author.value?.avatar?.avatarUrl,
+                          user: profileController.author.value,
                           defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-                          headers: const {'referer': CommonConstants.iwaraBaseUrl},
                           radius: isNarrowScreen ? 30 : 40,
-                          isPremium: profileController.author.value?.premium ?? false,
-                          isAdmin: profileController.author.value?.isAdmin ?? false,
                         ),
                         const SizedBox(width: 16),
                         // 用户名、粉丝数、关注数

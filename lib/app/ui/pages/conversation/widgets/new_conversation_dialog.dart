@@ -302,12 +302,9 @@ class _NewConversationDialogState extends State<NewConversationDialog> {
                             : Row(
                                 children: [
                                   AvatarWidget(
-                                    avatarUrl: _selectedUser?.avatar?.avatarUrl,
+                                    user: _selectedUser,
                                     defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
                                     radius: 16,
-                                    isPremium: _selectedUser?.premium ?? false,
-                                    isAdmin: _selectedUser?.isAdmin ?? false,
-                                    role: _selectedUser?.role,
                                   ),
                                   const SizedBox(width: 8),
                                   Expanded(
@@ -513,12 +510,9 @@ class _UserSearchSheetState extends State<_UserSearchSheet> {
                 final user = _searchResults[index];
                 return ListTile(
                   leading: AvatarWidget(
-                    avatarUrl: user.avatar?.avatarUrl,
+                    user: user,
                     defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
                     radius: 20,
-                    isPremium: user.premium,
-                    isAdmin: user.isAdmin,
-                    role: user.role,
                   ),
                   title: buildUserName(context, user, fontSize: 14),
                   subtitle: Text('@${user.username}'),

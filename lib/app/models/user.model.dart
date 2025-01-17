@@ -12,7 +12,7 @@ class User {
   final bool premium;
   final bool creatorProgram;
   final String? locale;
-  final DateTime seenAt;
+  final DateTime? seenAt;
   final UserAvatar? avatar;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -31,12 +31,11 @@ class User {
     this.premium = false,
     this.creatorProgram = false,
     this.locale,
-    DateTime? seenAt,
+    this.seenAt,
     this.avatar,
     DateTime? createdAt,
     DateTime? updatedAt,
-  })  : seenAt = seenAt ?? DateTime.now(),
-        createdAt = createdAt ?? DateTime.now(),
+  })  : createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now();
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -75,7 +74,7 @@ class User {
       'premium': premium,
       'creatorProgram': creatorProgram,
       'locale': locale,
-      'seenAt': seenAt.toIso8601String(),
+      'seenAt': seenAt?.toIso8601String(),
       'avatar': avatar?.toJson(),
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),

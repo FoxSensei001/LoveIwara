@@ -189,14 +189,14 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
                                 if (text.trim().isEmpty) {
                                   showToastWidget(MDToastWidget(
                                       message: t.errors.commentCanNotBeEmpty,
-                                      type: MDToastType.error));
+                                      type: MDToastType.error), position: ToastPosition.bottom);
                                   return;
                                 }
                                 final UserService userService = Get.find();
                                 if (!userService.isLogin) {
                                   showToastWidget(MDToastWidget(
                                       message: t.errors.pleaseLoginFirst,
-                                      type: MDToastType.error));
+                                      type: MDToastType.error), position: ToastPosition.bottom);
                                   Get.toNamed(Routes.LOGIN);
                                   return;
                                 }
@@ -430,7 +430,7 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
                                                 showToastWidget(MDToastWidget(
                                                     message: t.errors
                                                         .commentCanNotBeEmpty,
-                                                    type: MDToastType.error));
+                                                    type: MDToastType.error), position: ToastPosition.bottom);
                                                 return;
                                               }
                                               final UserService userService =
@@ -439,7 +439,7 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
                                                 showToastWidget(MDToastWidget(
                                                     message:
                                                         t.errors.pleaseLoginFirst,
-                                                    type: MDToastType.error));
+                                                    type: MDToastType.error), position: ToastPosition.bottom);
                                                 Get.toNamed(Routes.LOGIN);
                                                 return;
                                               }
@@ -592,7 +592,7 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
                                           showToastWidget(MDToastWidget(
                                               message:
                                                   t.errors.commentCanNotBeEmpty,
-                                              type: MDToastType.error));
+                                              type: MDToastType.error), position: ToastPosition.bottom);
                                           return;
                                         }
                                         final UserService userService =
@@ -601,7 +601,7 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
                                           showToastWidget(MDToastWidget(
                                               message:
                                                   t.errors.pleaseLoginFirst,
-                                              type: MDToastType.error));
+                                              type: MDToastType.error), position: ToastPosition.bottom);
                                           Get.toNamed(Routes.LOGIN);
                                           return;
                                         }

@@ -324,13 +324,9 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
                           widget.comment.user.username);
                     },
                     child: AvatarWidget(
-                      avatarUrl: widget.comment.user.avatar?.avatarUrl,
+                      user: widget.comment.user,
                       radius: 24,
-                      headers: const {'referer': CommonConstants.iwaraBaseUrl},
                       defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-                      isPremium: widget.comment.user.premium,
-                      isAdmin: widget.comment.user.isAdmin,
-                      role: widget.comment.user.role,
                     ),
                   ),
                 ),

@@ -23,7 +23,7 @@ class ShareService {
       );
     } catch (e) {
       LogUtils.e('分享播放列表详情失败', error: e, tag: 'ShareService');
-      showToastWidget(MDToastWidget(message: t.errors.failedToOperate, type: MDToastType.error));
+      showToastWidget(MDToastWidget(message: t.errors.failedToOperate, type: MDToastType.error), position: ToastPosition.bottom);
     }
   }
 
@@ -44,7 +44,7 @@ class ShareService {
       );
     } catch (e) {
       LogUtils.e('分享视频详情失败', error: e, tag: 'ShareService');
-      showToastWidget(MDToastWidget(message: t.errors.failedToOperate, type: MDToastType.error));
+      showToastWidget(MDToastWidget(message: t.errors.failedToOperate, type: MDToastType.error), position: ToastPosition.bottom);
     }
   }
 
@@ -65,7 +65,7 @@ class ShareService {
       );
     } catch (e) {
       LogUtils.e('分享图库详情失败', error: e, tag: 'ShareService');
-      showToastWidget(MDToastWidget(message: t.errors.failedToOperate, type: MDToastType.error));
+      showToastWidget(MDToastWidget(message: t.errors.failedToOperate, type: MDToastType.error), position: ToastPosition.bottom);
     }
   }
 
@@ -85,13 +85,13 @@ class ShareService {
       );
     } catch (e) {
       LogUtils.e('分享失败', tag: 'ShareService', error: e);
-      showToastWidget(MDToastWidget(message: t.share.shareFailed, type: MDToastType.error));
+      showToastWidget(MDToastWidget(message: t.share.shareFailed, type: MDToastType.error), position: ToastPosition.bottom);
     }
   }
 
   /// TODO: 分享播放列表
   static sharePlayList(String userId) {
-    showToastWidget(MDToastWidget(message: t.common.comingSoon, type: MDToastType.error));
+    showToastWidget(MDToastWidget(message: t.common.comingSoon, type: MDToastType.error), position: ToastPosition.bottom);
   }
 
   /// 分享帖子详情
@@ -108,7 +108,7 @@ class ShareService {
       await Share.share(text, subject: title);
     } catch (e) {
       LogUtils.e('分享失败', tag: 'ShareService', error: e);
-      showToastWidget(MDToastWidget(message: t.share.shareFailed, type: MDToastType.error));
+      showToastWidget(MDToastWidget(message: t.share.shareFailed, type: MDToastType.error), position: ToastPosition.bottom);
     }
   }
 
@@ -126,7 +126,7 @@ class ShareService {
       await Share.share(text, subject: title);
     } catch (e) {
       LogUtils.e('分享失败', tag: 'ShareService', error: e);
-      showToastWidget(MDToastWidget(message: t.share.shareFailed, type: MDToastType.error));
+      showToastWidget(MDToastWidget(message: t.share.shareFailed, type: MDToastType.error), position: ToastPosition.bottom);
     }
   }
 }

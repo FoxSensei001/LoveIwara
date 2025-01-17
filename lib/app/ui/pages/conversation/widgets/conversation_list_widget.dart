@@ -345,12 +345,9 @@ class _ConversationListWidgetState extends State<ConversationListWidget> {
                 NaviService.navigateToAuthorProfilePage(otherParticipant.username);
               },
               child: AvatarWidget(
-                avatarUrl: otherParticipant.avatar?.avatarUrl,
+                user: otherParticipant,
                 defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
                 radius: 25,
-                isPremium: otherParticipant.premium,
-                isAdmin: otherParticipant.isAdmin,
-                role: otherParticipant.role,
               ),
             ),
             const SizedBox(width: 6),

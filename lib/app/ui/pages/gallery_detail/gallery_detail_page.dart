@@ -159,12 +159,12 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
                               submitText: slang.t.common.send,
                               onSubmit: (text) async {
                                 if (text.trim().isEmpty) {
-                                  showToastWidget(MDToastWidget(message: slang.t.errors.commentCanNotBeEmpty, type: MDToastType.error));
+                                  showToastWidget(MDToastWidget(message: slang.t.errors.commentCanNotBeEmpty, type: MDToastType.error), position: ToastPosition.bottom);
                                   return;
                                 }
                                 final UserService userService = Get.find();
                                 if (!userService.isLogin) {
-                                  showToastWidget(MDToastWidget(message: slang.t.errors.pleaseLoginFirst, type: MDToastType.error));
+                                  showToastWidget(MDToastWidget(message: slang.t.errors.pleaseLoginFirst, type: MDToastType.error), position: ToastPosition.bottom);
                                   Get.toNamed(Routes.LOGIN);
                                   return;
                                 }
@@ -399,7 +399,7 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
                                   onPressed: () {
                                     final UserService userService = Get.find();
                                     if (!userService.isLogin) {
-                                      showToastWidget(MDToastWidget(message: slang.t.errors.pleaseLoginFirst, type: MDToastType.error));
+                                      showToastWidget(MDToastWidget(message: slang.t.errors.pleaseLoginFirst, type: MDToastType.error), position: ToastPosition.bottom);
                                       Get.toNamed(Routes.LOGIN);
                                       return;
                                     }
@@ -533,7 +533,7 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
                             onPressed: () {
                               final UserService userService = Get.find();
                               if (!userService.isLogin) {
-                                showToastWidget(MDToastWidget(message: slang.t.errors.pleaseLoginFirst, type: MDToastType.error));
+                                showToastWidget(MDToastWidget(message: slang.t.errors.pleaseLoginFirst, type: MDToastType.error), position: ToastPosition.bottom);
                                 Get.toNamed(Routes.LOGIN);
                                 return;
                               }

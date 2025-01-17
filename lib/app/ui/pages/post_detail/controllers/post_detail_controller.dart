@@ -45,7 +45,7 @@ class PostDetailController extends GetxController {
       ApiResult<PostModel> res = await _postService.fetchPostDetail(postId);
       if (!res.isSuccess) {
         errorMessage.value = res.message;
-        showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error));
+        showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error), position: ToastPosition.bottom);
         return;
       }
 

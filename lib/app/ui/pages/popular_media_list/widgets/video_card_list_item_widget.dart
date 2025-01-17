@@ -380,12 +380,9 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
 
   Widget _buildAvatar(bool isNarrowScreen) {
     return AvatarWidget(
-      avatarUrl: widget.video.user?.avatar?.avatarUrl,
+      user: widget.video.user,
       defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-      headers: const {'referer': CommonConstants.iwaraBaseUrl},
       radius: isNarrowScreen ? 12 : 14,
-      isPremium: widget.video.user?.premium ?? false,
-      isAdmin: widget.video.user?.isAdmin ?? false,
     );
   }
 

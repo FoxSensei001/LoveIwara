@@ -341,7 +341,7 @@ class VideoDetailContent extends StatelessWidget {
                               onTap: () {
                                 final UserService userService = Get.find();
                                 if (!userService.isLogin) {
-                                  showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error));
+                                  showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error), position: ToastPosition.bottom);
                                   Get.toNamed(Routes.LOGIN);
                                   return;
                                 }
@@ -444,12 +444,9 @@ class VideoDetailContent extends StatelessWidget {
         },
         behavior: HitTestBehavior.opaque,
         child: AvatarWidget(
-          avatarUrl: controller.videoInfo.value?.user?.avatar?.avatarUrl,
+          user: controller.videoInfo.value?.user,
           defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-          headers: const {'referer': CommonConstants.iwaraBaseUrl},
           radius: 20,
-          isPremium: controller.videoInfo.value?.user?.premium ?? false,
-          isAdmin: controller.videoInfo.value?.user?.isAdmin ?? false,
         ),
       ),
     );

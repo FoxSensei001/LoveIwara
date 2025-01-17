@@ -132,12 +132,10 @@ class _PrivateVideoWidgetState extends State<PrivateVideoWidget> {
                         ? const EdgeInsets.all(4.0)
                         : EdgeInsets.zero,
                     child: AvatarWidget(
-                      avatarUrl: widget.author.avatar?.avatarUrl,
+                      user: widget.author,
                       defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
                       headers: const {'referer': CommonConstants.iwaraBaseUrl},
                       radius: 40,
-                      isPremium: widget.author.premium,
-                      isAdmin: widget.author.isAdmin,
                     ),
                   ),
                 ),

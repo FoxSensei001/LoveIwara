@@ -164,6 +164,7 @@ common:
   enabledFloatingButtons: 已启用浮动按钮
   disabledFloatingButtons: 已禁用浮动按钮
   pendingCommentCount: 待审核评论
+  joined: '加入于 ${str}'
 auth:
   tagLimit: 标签上限
   login: 登录

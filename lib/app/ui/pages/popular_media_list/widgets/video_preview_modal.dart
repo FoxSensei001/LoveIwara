@@ -153,12 +153,9 @@ class VideoPreviewDetailModal extends StatelessWidget {
                               child: Row(
                                 children: [
                                   AvatarWidget(
-                                    avatarUrl: video.user?.avatar?.avatarUrl,
+                                    user: video.user,
                                     defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-                                    headers: const {'referer': CommonConstants.iwaraBaseUrl},
                                     radius: 14,
-                                    isPremium: video.user?.premium ?? false,
-                                    isAdmin: video.user?.isAdmin ?? false,
                                   ),
                                   const SizedBox(width: 8),
                                   Flexible(

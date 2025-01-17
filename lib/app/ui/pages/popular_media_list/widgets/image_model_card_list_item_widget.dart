@@ -338,12 +338,9 @@ class ImageModelCardListItemWidget extends StatelessWidget {
 
   Widget _buildAvatar(bool isNarrowScreen) {
     return AvatarWidget(
-      avatarUrl: imageModel.user?.avatar?.avatarUrl,
+      user: imageModel.user,
       defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-      headers: const {'referer': CommonConstants.iwaraBaseUrl},
       radius: isNarrowScreen ? 12 : 14,
-      isPremium: imageModel.user?.premium ?? false,
-      isAdmin: imageModel.user?.isAdmin ?? false,
     );
   }
 

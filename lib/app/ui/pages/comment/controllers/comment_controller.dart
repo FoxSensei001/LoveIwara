@@ -139,7 +139,7 @@ class CommentController<T extends CommentType> extends GetxController {
       showToastWidget(MDToastWidget(message: t.common.commentPostedSuccessfully, type: MDToastType.success));
       AppService.tryPop();
     } else {
-      showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error));
+      showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
     }
     
     return result;
@@ -153,7 +153,7 @@ class CommentController<T extends CommentType> extends GetxController {
       totalComments.value--;
       showToastWidget(MDToastWidget(message: t.common.commentDeletedSuccessfully, type: MDToastType.success));
     } else {
-      showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error));
+      showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
     }
   }
 
@@ -171,7 +171,7 @@ class CommentController<T extends CommentType> extends GetxController {
         AppService.tryPop();
       }
     } else {
-      showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error));
+      showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
     }
   }
 }

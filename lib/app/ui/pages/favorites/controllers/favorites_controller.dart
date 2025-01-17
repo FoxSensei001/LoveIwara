@@ -35,7 +35,7 @@ class FavoritesController extends GetxController {
         if (!result.isSuccess) {
           // 如果失败，恢复状态
           canceledFavoriteVideoIds.add(video.id);
-          showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error));
+          showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
         }
       });
     } else {
@@ -46,7 +46,7 @@ class FavoritesController extends GetxController {
         if (!result.isSuccess) {
           // 如果失败，恢复状态
           canceledFavoriteVideoIds.remove(video.id);
-          showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error));
+          showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
         }
       });
     }
@@ -62,7 +62,7 @@ class FavoritesController extends GetxController {
         if (!result.isSuccess) {
           // 如果失败，恢复状态
           canceledFavoriteGalleryIds.add(image.id);
-          showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error));
+          showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
         }
       });
     } else {
@@ -73,7 +73,7 @@ class FavoritesController extends GetxController {
         if (!result.isSuccess) {
           // 如果失败，恢复状态
           canceledFavoriteGalleryIds.remove(image.id);
-          showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error));
+          showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
         }
       });
     }

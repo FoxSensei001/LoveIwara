@@ -218,12 +218,8 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
                                         _thread.value!.user.username);
                                   },
                                   child: AvatarWidget(
-                                    avatarUrl:
-                                        _thread.value!.user.avatar?.avatarUrl,
+                                    user: _thread.value!.user,
                                     radius: 20,
-                                    headers: const {
-                                      'referer': CommonConstants.iwaraBaseUrl
-                                    },
                                     defaultAvatarUrl:
                                         CommonConstants.defaultAvatarUrl,
                                     isPremium: _thread.value!.user.premium,

@@ -88,11 +88,9 @@ class _ForumPageState extends State<ForumPage> {
                     clipBehavior: Clip.none,
                     children: [
                       AvatarWidget(
-                        avatarUrl: userService.userAvatar,
-                        radius: 14,
+                        user: userService.currentUser.value,
                         defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-                        isPremium: userService.currentUser.value?.premium ?? false,
-                        isAdmin: userService.currentUser.value?.isAdmin ?? false,
+                        radius: 14,
                       ),
                       Positioned(
                         right: 0,
@@ -418,13 +416,9 @@ class _ForumPageState extends State<ForumPage> {
                             NaviService.navigateToAuthorProfilePage(subCategory.lastThread!.lastPost!.user.username);
                           },
                           child: AvatarWidget(
-                            avatarUrl: subCategory.lastThread!.lastPost?.user.avatar?.avatarUrl,
+                            user: subCategory.lastThread!.lastPost?.user,
                             radius: 16,
-                            headers: const {'referer': CommonConstants.iwaraBaseUrl},
                             defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-                            isPremium: subCategory.lastThread!.lastPost?.user.premium ?? false,
-                            isAdmin: subCategory.lastThread!.lastPost?.user.isAdmin ?? false,
-                            role: subCategory.lastThread!.lastPost?.user.role,
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -585,13 +579,9 @@ class _ForumPageState extends State<ForumPage> {
                     width: 32,
                     child: Center(
                       child: AvatarWidget(
-                        avatarUrl: subCategory.lastThread!.lastPost?.user.avatar?.avatarUrl,
+                        user: subCategory.lastThread!.lastPost?.user,
                         radius: 16,
-                        headers: const {'referer': CommonConstants.iwaraBaseUrl},
                         defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-                        isPremium: subCategory.lastThread!.lastPost?.user.premium ?? false,
-                        isAdmin: subCategory.lastThread!.lastPost?.user.isAdmin ?? false,
-                        role: subCategory.lastThread!.lastPost?.user.role,
                       ),
                     ),
                   ),

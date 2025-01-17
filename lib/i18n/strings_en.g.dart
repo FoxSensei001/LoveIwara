@@ -226,6 +226,7 @@ class TranslationsCommonEn {
 	String get enabledFloatingButtons => 'Enabled Floating Buttons';
 	String get disabledFloatingButtons => 'Disabled Floating Buttons';
 	String get pendingCommentCount => 'Pending Comment Count';
+	String joined({required Object str}) => 'Joined at ${str}';
 }
 
 // Path: auth
@@ -1105,6 +1106,7 @@ extension on Translations {
 			case 'common.enabledFloatingButtons': return 'Enabled Floating Buttons';
 			case 'common.disabledFloatingButtons': return 'Disabled Floating Buttons';
 			case 'common.pendingCommentCount': return 'Pending Comment Count';
+			case 'common.joined': return ({required Object str}) => 'Joined at ${str}';
 			case 'auth.login': return 'Login';
 			case 'auth.logout': return 'Logout';
 			case 'auth.email': return 'Email';

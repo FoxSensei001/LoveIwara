@@ -150,7 +150,7 @@ class AuthorProfileController extends GetxController {
       isFollowLoading.value = true;
       ApiResult res = await _userService.followUser(userId);
       if (!res.isSuccess) {
-        showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error));
+        showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error), position: ToastPosition.bottom);
         return;
       }
       final authorData =
@@ -170,7 +170,7 @@ class AuthorProfileController extends GetxController {
       isFollowLoading.value = true;
       ApiResult res = await _userService.unfollowUser(userId);
       if (!res.isSuccess) {
-        showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error));
+        showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error), position: ToastPosition.bottom);
         return;
       }
       // 刷新页面
@@ -191,7 +191,7 @@ class AuthorProfileController extends GetxController {
       isFriendLoading.value = true;
       ApiResult res = await _userService.addFriend(userId);
       if (!res.isSuccess) {
-        showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error));
+        showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error), position: ToastPosition.bottom);
         return;
       }
       isFriendRequestPending.value = true;
@@ -208,7 +208,7 @@ class AuthorProfileController extends GetxController {
       isFriendLoading.value = true;
       ApiResult res = await _userService.removeFriend(userId);
       if (!res.isSuccess) {
-        showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error));
+        showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error), position: ToastPosition.bottom);
         return;
       }
       isFriendRequestPending.value = false;

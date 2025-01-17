@@ -40,13 +40,9 @@ class ThreadListItemWidget extends StatelessWidget {
                       NaviService.navigateToAuthorProfilePage(thread.user.username);
                     },
                     child: AvatarWidget(
-                      avatarUrl: thread.user.avatar?.avatarUrl,
+                      user: thread.user,
                       radius: 16,
-                      headers: const {'referer': CommonConstants.iwaraBaseUrl},
                       defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-                      isPremium: thread.user.premium,
-                      isAdmin: thread.user.isAdmin,
-                      role: thread.user.role,
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -165,13 +161,9 @@ class ThreadListItemWidget extends StatelessWidget {
                         NaviService.navigateToAuthorProfilePage(thread.lastPost!.user.username);
                       },
                       child: AvatarWidget(
-                        avatarUrl: thread.lastPost!.user.avatar?.avatarUrl,
+                        user: thread.lastPost!.user,
                         radius: 12,
-                        headers: const {'referer': CommonConstants.iwaraBaseUrl},
                         defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-                        isPremium: thread.lastPost!.user.premium,
-                        isAdmin: thread.lastPost!.user.isAdmin,
-                        role: thread.lastPost!.user.role,
                       ),
                     ),
                     const SizedBox(width: 8),

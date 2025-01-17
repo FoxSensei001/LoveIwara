@@ -330,12 +330,9 @@ class ImageModelDetailContent extends StatelessWidget {
         },
         behavior: HitTestBehavior.opaque,
         child: AvatarWidget(
-          avatarUrl: controller.imageModelInfo.value?.user?.avatar?.avatarUrl,
+          user: controller.imageModelInfo.value?.user,
           defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-          headers: const {'referer': CommonConstants.iwaraBaseUrl},
           radius: 20,
-          isPremium: controller.imageModelInfo.value?.user?.premium ?? false,
-          isAdmin: controller.imageModelInfo.value?.user?.isAdmin ?? false,
         ),
       ),
     );

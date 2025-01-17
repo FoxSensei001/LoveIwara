@@ -224,6 +224,7 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String get enabledFloatingButtons => '已启用浮动按钮';
 	@override String get disabledFloatingButtons => '已禁用浮动按钮';
 	@override String get pendingCommentCount => '待审核评论';
+	@override String joined({required Object str}) => '加入于 ${str}';
 }
 
 // Path: auth
@@ -1108,6 +1109,7 @@ extension on TranslationsZhCn {
 			case 'common.enabledFloatingButtons': return '已启用浮动按钮';
 			case 'common.disabledFloatingButtons': return '已禁用浮动按钮';
 			case 'common.pendingCommentCount': return '待审核评论';
+			case 'common.joined': return ({required Object str}) => '加入于 ${str}';
 			case 'auth.tagLimit': return '标签上限';
 			case 'auth.login': return '登录';
 			case 'auth.logout': return '退出登录';

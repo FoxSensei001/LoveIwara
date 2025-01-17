@@ -67,7 +67,7 @@ class GalleryDetailController extends GetxController {
           await _galleryService.fetchGalleryDetail(imageModelId);
       if (!res.isSuccess) {
         errorMessage.value = res.message;
-        showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error));
+        showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error), position: ToastPosition.bottom);
         return;
       }
 

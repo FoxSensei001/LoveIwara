@@ -160,6 +160,7 @@ common:
   enabledFloatingButtons: 已啟用浮動按鈕
   disabledFloatingButtons: 已禁用浮動按鈕
   pendingCommentCount: 待審核評論
+  joined: '加入於 ${str}'
 
 auth:
   login: 登入

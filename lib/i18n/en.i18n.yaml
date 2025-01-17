@@ -160,6 +160,7 @@ common:
   enabledFloatingButtons: Enabled Floating Buttons
   disabledFloatingButtons: Disabled Floating Buttons
   pendingCommentCount: Pending Comment Count
+  joined: 'Joined at ${str}'
 auth:
   login: Login
   logout: Logout

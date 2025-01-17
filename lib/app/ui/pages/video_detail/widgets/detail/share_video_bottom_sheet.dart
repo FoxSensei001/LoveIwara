@@ -60,7 +60,7 @@ class _ShareVideoBottomSheetState extends State<ShareVideoBottomSheet> {
       }
     } catch (e) {
       LogUtils.e('生成分享图片失败', error: e, tag: 'ShareVideoBottomSheet');
-      showToastWidget(MDToastWidget(message: slang.t.errors.failedToOperate, type: MDToastType.error));
+      showToastWidget(MDToastWidget(message: slang.t.errors.failedToOperate, type: MDToastType.error), position: ToastPosition.bottom);
     } finally {
       setState(() {
         _isGeneratingImage = false;

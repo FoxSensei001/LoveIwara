@@ -114,12 +114,9 @@ class _UserCardState extends State<UserCard> {
 
   Widget _buildAvatar() {
     return AvatarWidget(
-      avatarUrl: user.avatar?.avatarUrl,
+      user: user,
       defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-      headers: const {'referer': CommonConstants.iwaraBaseUrl},
       radius: 30,
-      isPremium: user.premium,
-      isAdmin: user.isAdmin,
     );
   }
 

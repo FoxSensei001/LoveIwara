@@ -81,7 +81,7 @@ class _LoginPageState extends State<LoginPage>
       if (res.isSuccess) {
         _captcha.value = res.data;
       } else {
-        showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error));
+        showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error), position: ToastPosition.bottom);
       }
     } finally {
       setState(() {
@@ -423,11 +423,11 @@ class _LoginPageState extends State<LoginPage>
           Get.back();
         }
       } else {
-        showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error));
+        showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
       }
     } catch (e) {
       LogUtils.e('登录过程中发生意外错误: $e', tag: 'LoginPage');
-      showToastWidget(MDToastWidget(message: slang.t.errors.unknownError, type: MDToastType.error));
+      showToastWidget(MDToastWidget(message: slang.t.errors.unknownError, type: MDToastType.error), position: ToastPosition.bottom);
     } finally {
       setState(() {
         _isLoading = false;
@@ -440,7 +440,7 @@ class _LoginPageState extends State<LoginPage>
     final captchaAnswer = _captchaController.text.trim();
 
     if (_captcha.value == null) {
-      showToastWidget(MDToastWidget(message: slang.t.auth.captchaNotLoaded, type: MDToastType.error));
+      showToastWidget(MDToastWidget(message: slang.t.auth.captchaNotLoaded, type: MDToastType.error), position: ToastPosition.bottom);
       return;
     }
 
@@ -456,7 +456,7 @@ class _LoginPageState extends State<LoginPage>
         // 切换回登录标签
         _tabController.index = 0;
       } else {
-        showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error));
+        showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
         // 发生错误时刷新验证码
         _fetchCaptcha();
       }
