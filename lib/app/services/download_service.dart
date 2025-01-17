@@ -7,10 +7,8 @@ import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/repositories/download_task_repository.dart';
 import 'package:i_iwara/app/services/video_service.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:path/path.dart' as path_lib;
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -409,78 +407,54 @@ class DownloadService extends GetxService {
       return;
     }
 
-    // 原有的下载逻辑保持不变
     final cancelToken = CancelToken();
     _activeDownloads[task.id] = cancelToken;
 
     RandomAccessFile? raf;
     StreamSubscription? subscription;
+    int retryCount = 0;
+    const maxRetries = 3;
+    const retryDelay = Duration(seconds: 3);
 
-    try {
-      LogUtils.i('开始下载任务: ${task.fileName}', 'DownloadService');
-      
-      // 验证已下载的部分
-      final file = File(task.savePath);
-      if (await file.exists()) {
-        final fileSize = await file.length();
-        if (fileSize > task.downloadedBytes) {
-          // 已下载的文件比记录的大，说明可能有问题，重新下载
-          task.downloadedBytes = 0;
-          await file.delete();
-        } else if (fileSize < task.downloadedBytes) {
-          // 实际文件比记录的小，更新已下载大小
-          task.downloadedBytes = fileSize;
-        }
-      } else {
-        task.downloadedBytes = 0;
-      }
-
-      task.status = DownloadStatus.downloading;
-      await _updateTaskStatus(task);
-
-      // 获取文件大小
+    while (retryCount < maxRetries) {
       try {
-        // 先尝试发送 HEAD 请求
-        final headResponse = await dio.head(task.url, cancelToken: cancelToken);
-        final contentLength = headResponse.headers.value('content-length');
-        if (contentLength != null) {
-          task.totalBytes = int.parse(contentLength);
-          LogUtils.d(
-              '从content-length获取文件大小: ${task.totalBytes}', 'DownloadService');
-        }
-      } catch (e) {
-        // 如果是取消操作，直接返回
-        if (e is DioException && e.type == DioExceptionType.cancel) {
-          // 取消操作，更新状态
-          task.status = DownloadStatus.paused; // [更新内存状态]
-          await _updateTaskStatus(task); // [更新持久化信息]
-          return;
+        LogUtils.i('开始下载任务: ${task.fileName} (重试次数: $retryCount)', 'DownloadService');
+        
+        // 验证已下载的部分
+        final file = File(task.savePath);
+        if (await file.exists()) {
+          final fileSize = await file.length();
+          if (fileSize > task.downloadedBytes) {
+            // 已下载的文件比记录的大，说明可能有问题，重新下载
+            task.downloadedBytes = 0;
+            await file.delete();
+          } else if (fileSize < task.downloadedBytes) {
+            // 实际文件比记录的小，更新已下载大小
+            task.downloadedBytes = fileSize;
+          }
+        } else {
+          task.downloadedBytes = 0;
         }
 
-        LogUtils.w('HEAD请求获取文件大小失败: $e', 'DownloadService');
+        task.status = DownloadStatus.downloading;
+        await _updateTaskStatus(task);
 
-        // HEAD 请求失败,尝试发送 GET range 请求
+        // 获取文件大小
         try {
-          final rangeResponse = await dio.get(
-            task.url,
+          // 先尝试发送 HEAD 请求
+          final headResponse = await dio.head(
+            task.url, 
             cancelToken: cancelToken,
             options: Options(
-                responseType: ResponseType.stream,
-                headers: {'Range': 'bytes=0-0'} // 只请求第一个字节
-                ),
+              sendTimeout: const Duration(seconds: 30),
+              receiveTimeout: const Duration(seconds: 30),
+            ),
           );
-
-          // 从 content-range 头获取总大小
-          final contentRange = rangeResponse.headers.value('content-range');
-          if (contentRange != null) {
-            // 格式: bytes 0-0/total_size
-            final match =
-                RegExp(r'bytes \d+-\d+/(\d+)').firstMatch(contentRange);
-            if (match != null) {
-              task.totalBytes = int.parse(match.group(1)!);
-              LogUtils.d('从content-range获取文件大小: ${task.totalBytes}',
-                  'DownloadService');
-            }
+          final contentLength = headResponse.headers.value('content-length');
+          if (contentLength != null) {
+            task.totalBytes = int.parse(contentLength);
+            LogUtils.d(
+                '从content-length获取文件大小: ${task.totalBytes}', 'DownloadService');
           }
         } catch (e) {
           // 如果是取消操作，直接返回
@@ -490,170 +464,237 @@ class DownloadService extends GetxService {
             await _updateTaskStatus(task); // [更新持久化信息]
             return;
           }
-          LogUtils.w('Range请求获取文件大小失败: $e', 'DownloadService');
-        }
-      }
 
-      final response = await dio.get(
-        task.url,
-        cancelToken: cancelToken,
-        options: Options(
-          responseType: ResponseType.stream,
-          followRedirects: true,
-          validateStatus: (status) => status! < 500, // 添加状态码验证
-          headers: task.downloadedBytes > 0 ? {
-            'Range': 'bytes=${task.downloadedBytes}-',
-            'Accept-Encoding': 'identity', // 禁用压缩
-          } : {
-            'Accept-Encoding': 'identity', // 禁用压缩
-          }
-        ),
-      );
+          LogUtils.w('HEAD请求获取文件大小失败: $e', 'DownloadService');
 
-      // 验证服务器是否支持断点续传
-      if (task.downloadedBytes > 0) {
-        final contentRange = response.headers.value('content-range');
-        if (contentRange == null || response.statusCode != 206) {
-          // 服务器不支持断点续传，需要重新下载
-          task.downloadedBytes = 0;
-          await file.delete();
-          throw DioException(
-            requestOptions: response.requestOptions,
-            error: '服务器不支持断点续传，需要重新下载',
-          );
-        }
-      }
-
-      // 如果还没获取到总大小,尝试从响应头获取
-      if (task.totalBytes == 0) {
-        final contentLength = response.headers.value('content-length');
-        if (contentLength != null) {
-          task.totalBytes = int.parse(contentLength);
-          LogUtils.d('从下载响应获取文件大小: ${task.totalBytes}', 'DownloadService');
-        }
-      }
-
-      await file.parent.create(recursive: true);
-      raf = await file.open(
-        mode: task.downloadedBytes > 0 ? FileMode.writeOnlyAppend : FileMode.writeOnly
-      );
-
-      LogUtils.d('开始接收数据流', 'DownloadService');
-
-      // 为当前任务创建专用的计时器
-      _taskTimers[task.id]?.cancel();
-      _taskTimers[task.id] = Timer.periodic(const Duration(seconds: 1), (_) {
-        task.updateSpeed(); // [更新下载速度]
-        _repository.updateTask(task); // 每隔1秒 [更新一次持久化信息]
-        // if (task.totalBytes > 0) {
-        //   LogUtils.d(
-        //       '[${task.fileName}] 下载进度: ${task.downloadedBytes}/${task.totalBytes} '
-        //           '(${(task.downloadedBytes / task.totalBytes * 100).toStringAsFixed(2)}%), '
-        //           '速度: ${(task.speed / 1024 / 1024).toStringAsFixed(2)}MB/s',
-        //       'DownloadService');
-        // } else {
-        //   LogUtils.d(
-        //       '[${task.fileName}] 已下载: ${task.downloadedBytes} bytes, '
-        //           '速度: ${(task.speed / 1024 / 1024).toStringAsFixed(2)}MB/s',
-        //       'DownloadService');
-        // }
-      });
-
-      final completer = Completer();
-
-      // 数据流处理
-      subscription = response.data.stream.listen(
-        (chunk) {
+          // HEAD 请求失败,尝试发送 GET range 请求
           try {
-            raf?.writeFromSync(chunk);
-            task.downloadedBytes = (task.downloadedBytes + chunk.length) as int;
-            _activeTasks[task.id] = task;
+            final rangeResponse = await dio.get(
+              task.url,
+              cancelToken: cancelToken,
+              options: Options(
+                  responseType: ResponseType.stream,
+                  headers: {'Range': 'bytes=0-0'}, // 只请求第一个字节
+                  sendTimeout: const Duration(seconds: 30),
+                  receiveTimeout: const Duration(seconds: 30),
+              ),
+            );
+
+            // 从 content-range 头获取总大小
+            final contentRange = rangeResponse.headers.value('content-range');
+            if (contentRange != null) {
+              // 格式: bytes 0-0/total_size
+              final match =
+                  RegExp(r'bytes \d+-\d+/(\d+)').firstMatch(contentRange);
+              if (match != null) {
+                task.totalBytes = int.parse(match.group(1)!);
+                LogUtils.d('从content-range获取文件大小: ${task.totalBytes}',
+                    'DownloadService');
+              }
+            }
           } catch (e) {
-            LogUtils.e('写入文件失败: $e', tag: 'DownloadService', error: e);
-            subscription?.cancel();
-            throw FileSystemException(
-              message: '写入文件失败: $e',
-              type: FileErrorType.ioError,
+            // 如果是取消操作，直接返回
+            if (e is DioException && e.type == DioExceptionType.cancel) {
+              // 取消操作，更新状态
+              task.status = DownloadStatus.paused; // [更新内存状态]
+              await _updateTaskStatus(task); // [更新持久化信息]
+              return;
+            }
+            LogUtils.w('Range请求获取文件大小失败: $e', 'DownloadService');
+          }
+        }
+
+        final response = await dio.get(
+          task.url,
+          cancelToken: cancelToken,
+          options: Options(
+            responseType: ResponseType.stream,
+            followRedirects: true,
+            validateStatus: (status) => status! < 500, // 添加状态码验证
+            headers: task.downloadedBytes > 0 ? {
+              'Range': 'bytes=${task.downloadedBytes}-',
+              'Accept-Encoding': 'identity', // 禁用压缩
+            } : {
+              'Accept-Encoding': 'identity', // 禁用压缩
+            },
+            sendTimeout: const Duration(seconds: 30),
+            receiveTimeout: const Duration(seconds: 30),
+          ),
+        );
+
+        // 验证服务器是否支持断点续传
+        if (task.downloadedBytes > 0) {
+          final contentRange = response.headers.value('content-range');
+          if (contentRange == null || response.statusCode != 206) {
+            // 服务器不支持断点续传，需要重新下载
+            task.downloadedBytes = 0;
+            await file.delete();
+            throw DioException(
+              requestOptions: response.requestOptions,
+              error: '服务器不支持断点续传，需要重新下载',
             );
           }
-        },
-        onDone: () async {
-          LogUtils.i('下载完成: ${task.fileName}', 'DownloadService');
-          
-          // 验证文件完整性
-          final finalSize = await file.length();
-          if (task.totalBytes > 0 && finalSize != task.totalBytes) {
-            throw FileSystemException(
-              message: '文件大小不匹配，预期: ${task.totalBytes}，实际: $finalSize',
-              type: FileErrorType.ioError,
-            );
+        }
+
+        // 如果还没获取到总大小,尝试从响应头获取
+        if (task.totalBytes == 0) {
+          final contentLength = response.headers.value('content-length');
+          if (contentLength != null) {
+            task.totalBytes = int.parse(contentLength);
+            LogUtils.d('从下载响应获取文件大小: ${task.totalBytes}', 'DownloadService');
           }
-          
+        }
+
+        await file.parent.create(recursive: true);
+        raf = await file.open(
+          mode: task.downloadedBytes > 0 ? FileMode.writeOnlyAppend : FileMode.writeOnly
+        );
+
+        LogUtils.d('开始接收数据流', 'DownloadService');
+
+        // 为当前任务创建专用的计时器
+        _taskTimers[task.id]?.cancel();
+        _taskTimers[task.id] = Timer.periodic(const Duration(seconds: 1), (_) {
+          task.updateSpeed(); // [更新下载速度]
+          _repository.updateTask(task); // 每隔1秒 [更新一次持久化信息]
+        });
+
+        final completer = Completer();
+
+        // 数据流处理
+        subscription = response.data.stream.listen(
+          (chunk) {
+            try {
+              if (raf != null) {
+                raf.writeFromSync(chunk);
+                task.downloadedBytes = (task.downloadedBytes + chunk.length) as int;
+                _activeTasks[task.id] = task;
+              }
+            } catch (e) {
+              LogUtils.e('写入文件失败: $e', tag: 'DownloadService', error: e);
+              subscription?.cancel();
+              throw FileSystemException(
+                message: '写入文件失败: $e',
+                type: FileErrorType.ioError,
+              );
+            }
+          },
+          onDone: () async {
+            LogUtils.i('下载完成: ${task.fileName}', 'DownloadService');
+            
+            // 验证文件完整性
+            final finalSize = await file.length();
+            if (task.totalBytes > 0 && finalSize != task.totalBytes) {
+              throw FileSystemException(
+                message: '文件大小不匹配，预期: ${task.totalBytes}，实际: $finalSize',
+                type: FileErrorType.ioError,
+              );
+            }
+            
+            await _cleanupDownload(task, raf, subscription);
+            task.status = DownloadStatus.completed;
+            task.downloadedBytes = task.totalBytes;
+            await _updateTaskStatus(task);
+            completer.complete();
+            _processQueue();
+          },
+          onError: (error) async {
+            LogUtils.e('下载出错: $error', tag: 'DownloadService', error: error);
+            try {
+              await _cleanupDownload(task, raf, subscription);
+              
+              // 如果是连接中断错误，尝试重试
+              if (error is HttpException && error.message.contains('Connection closed')) {
+                if (retryCount < maxRetries - 1) {
+                  retryCount++;
+                  await Future.delayed(retryDelay);
+                  completer.completeError(error); // 通过completer传递错误
+                  return;
+                }
+              }
+              
+              task.status = DownloadStatus.failed;
+              task.error = _getErrorMessage(error);
+              await _updateTaskStatus(task);
+              completer.completeError(error);
+            } catch (e) {
+              LogUtils.e('处理下载错误时发生异常: $e', tag: 'DownloadService', error: e);
+              task.status = DownloadStatus.failed;
+              task.error = _getErrorMessage(e);
+              await _updateTaskStatus(task);
+              completer.completeError(e);
+            } finally {
+              _processQueue();
+            }
+          },
+          cancelOnError: true,
+        );
+
+        cancelToken.whenCancel.then((_) async {
+          LogUtils.i('下载已取消: ${task.fileName}', 'DownloadService');
           await _cleanupDownload(task, raf, subscription);
-          task.status = DownloadStatus.completed;
-          task.downloadedBytes = task.totalBytes;
-          await _updateTaskStatus(task);
-          completer.complete();
-          _processQueue();
-        },
-        onError: (error) async {
-          LogUtils.e('下载出错: $error', tag: 'DownloadService', error: error);
+          task.status = DownloadStatus.paused; // [更新内存状态]
+          await _updateTaskStatus(task); // [更新持久化信息]
+        });
+
+        try {
+          await completer.future;
+          break; // 下载成功，跳出重试循环
+        } catch (e) {
+          // 如果是取消操作，completer.future会抛出DioException(cancel)
+          // 但我们已经在whenCancel中处理了取消操作，这里直接返回
+          if (e is DioException && e.type == DioExceptionType.cancel) {
+            return;
+          }
+          
+          // 如果是最后一次重试或不是连接中断错误，则抛出错误
+          if (retryCount >= maxRetries - 1 || 
+              !(e is HttpException && e.message.contains('Connection closed'))) {
+            rethrow;
+          }
+          
+          // 否则继续重试
+          retryCount++;
+          await Future.delayed(retryDelay);
+          continue;
+        }
+      } catch (e) {
+        if (retryCount >= maxRetries - 1) {
+          if (e is DioException) {
+            final errorMsg = _getErrorMessage(e);
+            LogUtils.e('下载失败: $errorMsg', tag: 'DownloadService', error: e);
+            _showMessage(errorMsg, Colors.red );
+          } else if (e is FileSystemException) {
+            final errorMsg =
+                slang.t.download.errors.fileSystemError(errorInfo: e.message);
+            LogUtils.e(errorMsg, tag: 'DownloadService', error: e);
+            _showMessage(errorMsg, Colors.red);
+          } else {
+            final errorMsg =
+                slang.t.download.errors.unknownError(errorInfo: e.toString());
+            LogUtils.e(errorMsg, tag: 'DownloadService', error: e);
+            _showMessage(errorMsg, Colors.red);
+          }
+
           await _cleanupDownload(task, raf, subscription);
           task.status = DownloadStatus.failed;
-          task.error = _getErrorMessage(error);
-          await _updateTaskStatus(task); // [更新持久化信息]
-          completer.completeError(error);
+          task.error = _getErrorMessage(e);
+          await _updateTaskStatus(task);
           _processQueue();
-        },
-        cancelOnError: true,
-      );
-
-      cancelToken.whenCancel.then((_) async {
-        LogUtils.i('下载已取消: ${task.fileName}', 'DownloadService');
-        await _cleanupDownload(task, raf, subscription);
-        task.status = DownloadStatus.paused; // [更新内存状态]
-        await _updateTaskStatus(task); // [更新持久化信息]
-      });
-
-      try {
-        await completer.future;
-      } catch (e) {
-        // 如果是取消操作，completer.future会抛出DioException(cancel)
-        // 但我们已经在whenCancel中处理了取消操作，这里直接返回
-        if (e is DioException && e.type == DioExceptionType.cancel) {
           return;
         }
-        // 其他错误需要继续抛出
-        rethrow;
+        
+        // 继续重试
+        retryCount++;
+        await Future.delayed(retryDelay);
+        continue;
       }
-    } catch (e) {
-      if (e is DioException) {
-        final errorMsg = _getErrorMessage(e);
-        LogUtils.e('下载失败: $errorMsg', tag: 'DownloadService', error: e);
-        _showMessage(errorMsg, Colors.red );
-      } else if (e is FileSystemException) {
-        final errorMsg =
-            slang.t.download.errors.fileSystemError(errorInfo: e.message);
-        LogUtils.e(errorMsg, tag: 'DownloadService', error: e);
-        _showMessage(errorMsg, Colors.red);
-      } else {
-        final errorMsg =
-            slang.t.download.errors.unknownError(errorInfo: e.toString());
-        LogUtils.e(errorMsg, tag: 'DownloadService', error: e);
-        _showMessage(errorMsg, Colors.red);
-      }
+    }
 
-      await _cleanupDownload(task, raf, subscription);
-      task.status = DownloadStatus.failed;
-      task.error = _getErrorMessage(e);
-      await _updateTaskStatus(task);
+    // 确保在任务结束时（无论成功还是失败）都会检查队列
+    if (_activeDownloads.length < maxConcurrentDownloads &&
+        _downloadQueue.isNotEmpty) {
       _processQueue();
-    } finally {
-      // 确保在任务结束时（无论成功还是失败）都会检查队列
-      if (_activeDownloads.length < maxConcurrentDownloads &&
-          _downloadQueue.isNotEmpty) {
-        _processQueue();
-      }
     }
   }
 
@@ -661,11 +702,15 @@ class DownloadService extends GetxService {
   Future<void> _cleanupDownload(DownloadTask task, RandomAccessFile? raf,
       StreamSubscription? subscription) async {
     await subscription?.cancel();
-    try {
-      await raf?.close();
-    } catch (e) {
-      LogUtils.e('关闭文件失败: $e', tag: 'DownloadService', error: e);
+    
+    if (raf != null) {
+      try {
+        await raf.close();
+      } catch (e) {
+        LogUtils.e('关闭文件失败: $e', tag: 'DownloadService', error: e);
+      }
     }
+    
     _activeDownloads.remove(task.id);
 
     // 清理任务专用的计时器
