@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/models/message_and_conversation.model.dart';
 import 'package:i_iwara/app/models/post.model.dart';
+import 'package:i_iwara/app/ui/pages/conversation/conversation_page.dart';
+import 'package:i_iwara/app/ui/pages/conversation/widgets/message_list_widget.dart';
 import 'package:i_iwara/app/ui/pages/favorites/my_favorites.dart';
 import 'package:i_iwara/app/ui/pages/follows/follows_page.dart';
+import 'package:i_iwara/app/ui/pages/forum/thread_detail_page.dart';
+import 'package:i_iwara/app/ui/pages/forum/thread_list_page.dart';
 import 'package:i_iwara/app/ui/pages/friends/friends_page.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/my_gallery_photo_view_wrapper.dart';
 import 'package:i_iwara/app/ui/pages/history/history_list_page.dart';
+import 'package:i_iwara/app/ui/pages/notifications/notification_list_page.dart';
 import 'package:i_iwara/app/ui/pages/play_list/play_list.dart';
 import 'package:i_iwara/app/ui/pages/play_list/play_list_detail.dart';
+import 'package:i_iwara/app/ui/pages/tag_blacklist/tag_blacklist_page.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/video_detail_page_v2.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/my_video_screen.dart';
@@ -70,10 +77,8 @@ class AppService extends GetxService {
   static void switchGlobalDrawer() {
     if (globalDrawerKey.currentState!.isDrawerOpen) {
       globalDrawerKey.currentState!.openEndDrawer();
-      LogUtils.d('关闭Drawer', 'AppService');
     } else {
       globalDrawerKey.currentState!.openDrawer();
-      LogUtils.d('打开Drawer', 'AppService');
     }
   }
 
@@ -86,40 +91,40 @@ class AppService extends GetxService {
   }
 
   static void tryPop() {
-    LogUtils.d('tryPop', 'AppService');
+    // LogUtils.d('tryPop', 'AppService');
     if (CommonConstants.isForceUpdate) {
-      showToastWidget(MDToastWidget(message: slang.t.errors.forceUpdateNotPermittedToGoBack, type: MDToastType.error));
+      showToastWidget(MDToastWidget(message: slang.t.errors.forceUpdateNotPermittedToGoBack, type: MDToastType.error), position: ToastPosition.bottom);
       return;
     }
     if (AppService.globalDrawerKey.currentState!.isDrawerOpen) {
       AppService.globalDrawerKey.currentState!.openEndDrawer();
-      LogUtils.d('关闭Drawer', 'AppService');
+      // LogUtils.d('关闭Drawer', 'AppService');
     } else {
       // 先判断是否有打开的对话框或底部表单
       if (Get.isDialogOpen ?? false) {
         Get.closeAllDialogs();
-        LogUtils.d('关闭Get.isDialogOpen', 'AppService');
+        // LogUtils.d('关闭Get.isDialogOpen', 'AppService');
       } else if (Get.isBottomSheetOpen ?? false) {
         Get.closeAllBottomSheets();
-        LogUtils.d('关闭Get.isBottomSheetOpen', 'AppService');
+        // LogUtils.d('关闭Get.isBottomSheetOpen', 'AppService');
       } else {
         GetDelegate? homeDele = Get.nestedKey(Routes.HOME);
         GetDelegate? rootDele = Get.nestedKey(null);
 
         if (homeDele?.canBack ?? false) {
           homeDele?.back();
-          LogUtils.d('关闭homeDele?.canBack', 'AppService');
+          // LogUtils.d('关闭homeDele?.canBack', 'AppService');
         } else if (homeDele?.navigatorKey.currentState?.canPop() ?? false) {
           homeDele?.navigatorKey.currentState?.pop();
-          LogUtils.d(
-              '关闭homeDele?.navigatorKey.currentState?.canPop()', 'AppService');
+          // LogUtils.d(
+              // '关闭homeDele?.navigatorKey.currentState?.canPop()', 'AppService');
         } else if (rootDele?.canBack ?? false) {
           rootDele?.back();
-          LogUtils.d('关闭rootDele?.canBack', 'AppService');
+          //  LogUtils.d('关闭rootDele?.canBack', 'AppService');
         } else {
           // 退出应用
           SystemNavigator.pop();
-          LogUtils.d('关闭Get.back()', 'AppService');
+          // LogUtils.d('关闭Get.back()', 'AppService');
         }
       }
     }
@@ -420,6 +425,100 @@ class NaviService {
     ));
   }
 
+  /// 跳转到标签黑名单页
+  static void navigateToTagBlacklistPage() {
+    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
+      settings: const RouteSettings(name: Routes.TAG_BLACKLIST),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return const TagBlacklistPage();
+      },
+      transitionDuration: const Duration(milliseconds: 200),
+      // 从右到左的原生动画
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return SlideTransition(
+          position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(animation),
+          child: child,
+        );
+      },
+    ));
+  }
+
+  /// 跳转到论坛帖子列表页
+  static void navigateToForumThreadListPage(String categoryId) {
+    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
+      settings: RouteSettings(name: Routes.FORUM_THREAD_LIST(categoryId)),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return ThreadListPage(
+          categoryId: categoryId,
+        );
+      },
+      transitionDuration: const Duration(milliseconds: 200),
+      // 从右到左的原生动画
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return SlideTransition(
+          position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(animation),
+          child: child,
+        );
+      },
+    ));
+  }
+
+  /// 跳转到论坛帖子详情页
+  static void navigateToForumThreadDetailPage(String categoryId, String threadId) {
+    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
+      settings: RouteSettings(name: Routes.FORUM_THREAD_DETAIL(categoryId, threadId)),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return ThreadDetailPage(categoryId: categoryId, threadId: threadId);
+      },
+      transitionDuration: const Duration(milliseconds: 200),
+      // 从右到左的原生动画
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return SlideTransition(
+          position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(animation),
+          child: child,
+        );
+      },
+    ));
+  }
+
+  /// 跳转到通知列表页
+  static void navigateToNotificationListPage() {
+    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
+      settings: const RouteSettings(name: Routes.NOTIFICATION_LIST),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return const NotificationListPage();
+      },
+      transitionDuration: const Duration(milliseconds: 200),
+      // 从右到左的原生动画
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return SlideTransition(
+          position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(animation),
+          child: child,
+        );
+      },
+    ));
+  }
+
+  /// 跳转到会话列表页
+  static void navigateToConversationPage() {
+    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
+      settings: const RouteSettings(name: Routes.CONVERSATION),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return const ConversationPage();
+      },
+      transitionDuration: const Duration(milliseconds: 200),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(1, 0),
+            end: Offset.zero,
+          ).animate(animation),
+          child: child,
+        );
+      },
+    ));
+  }
+
   // 跳转到下载任务列表页
   static void navigateToDownloadTaskListPage() {
     AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
@@ -457,3 +556,28 @@ class NaviService {
     ));
   }
 }
+
+  /// 跳转到消息详情页
+  static void navigateToMessagePage(ConversationModel conversation) {
+    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
+      settings: RouteSettings(name: Routes.MESSAGE_DETAIL(conversation.id)),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return MessageListWidget(
+          conversation: conversation,
+          fromNarrowScreen: true,
+        );
+      },
+      transitionDuration: const Duration(milliseconds: 200),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(1, 0),
+            end: Offset.zero,
+          ).animate(animation),
+          child: child,
+        );
+      },
+    ));
+  }
+}
+

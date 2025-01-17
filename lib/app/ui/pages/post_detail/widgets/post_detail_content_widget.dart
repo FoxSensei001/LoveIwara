@@ -15,11 +15,13 @@ import '../controllers/post_detail_controller.dart';
 class PostDetailContent extends StatelessWidget {
   final PostDetailController controller;
   final double paddingTop;
+  final VoidCallback onShare;
 
   const PostDetailContent({
     super.key,
     required this.controller,
     required this.paddingTop,
+    required this.onShare,
   });
 
   Widget _buildHeader(BuildContext context) {
@@ -28,6 +30,11 @@ class PostDetailContent extends StatelessWidget {
         IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
+        ),
+        const Spacer(),
+        IconButton(
+          icon: const Icon(Icons.share),
+          onPressed: onShare,
         ),
       ],
     );
@@ -97,12 +104,9 @@ class PostDetailContent extends StatelessWidget {
         },
         behavior: HitTestBehavior.opaque,
         child: AvatarWidget(
-          avatarUrl: user?.avatar?.avatarUrl,
+          user: user,
           defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-          headers: const {'referer': CommonConstants.iwaraBaseUrl},
           radius: 20,
-          isPremium: user?.premium ?? false,
-          isAdmin: user?.isAdmin ?? false,
         ),
       ),
     );
@@ -441,7 +445,6 @@ class PostDetailContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      spacing: 8,
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [

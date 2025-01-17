@@ -30,6 +30,7 @@ class _TranslationDialogState extends State<TranslationDialog> {
   Future<void> _handleTranslation() async {
     if (_isTranslating) return;
 
+    if (!mounted) return;
     setState(() {
       _isTranslating = true;
       _error = null;
@@ -37,6 +38,7 @@ class _TranslationDialogState extends State<TranslationDialog> {
 
     ApiResult<String> result = await _translationService.translate(widget.text);
 
+    if (!mounted) return;
     setState(() {
       _isTranslating = false;
       if (result.isSuccess) {

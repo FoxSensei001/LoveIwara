@@ -34,11 +34,10 @@ class MyVideoStateController extends GetxController
   final AppService appS = Get.find();
   late Player player;
   late VideoController videoController;
-  VolumeController? volumeController;
+  late VolumeController? volumeController;
 
   final ApiService _apiService = Get.find();
   final ConfigService _configService = Get.find();
-  VolumeController? _volumeController;
 
   // 视频详情页信息
   RxBool isCommentSheetVisible = false.obs; // 评论面板是否可见
@@ -53,7 +52,6 @@ class MyVideoStateController extends GetxController
   final RxBool sliderDragLoadFinished = true.obs; // 拖动进度条加载完成
   final RxDouble playerPlaybackSpeed = 1.0.obs; // 播放速度
   final RxBool isDesktopAppFullScreen = false.obs; // 是否是应用全屏
-  bool _isSettingVolume = false; // 是否正在通过手势设置音量
 
   // 工具栏可见性
   final RxBool areToolbarsVisible = true.obs;
@@ -105,6 +103,11 @@ class MyVideoStateController extends GetxController
   // 添加一个新的变量来跟踪是否正在等待seek完成
   final RxBool isWaitingForSeek = false.obs;
 
+  // 添加一个标志位，表示是否正在通过手势调节音量
+  bool _isAdjustingVolumeByGesture = false;
+  // 添加音量监听器的取消函数
+  StreamSubscription<double>? _volumeListenerDisposer;
+
   MyVideoStateController(this.videoId);
 
   @override
@@ -140,9 +143,15 @@ class MyVideoStateController extends GetxController
     videoController = VideoController(player);
 
     if (GetPlatform.isAndroid || GetPlatform.isIOS) {
-      _volumeController = VolumeController();
       // 初始化并关闭系统音量UI
-      _volumeController?.showSystemUI = false;
+      volumeController = VolumeController();
+      volumeController?.showSystemUI = false;
+      // 添加音量监听
+      _volumeListenerDisposer = volumeController?.listener((volume) {
+        if (!_isAdjustingVolumeByGesture) {
+          _configService.setSetting(ConfigService.VOLUME_KEY, volume, save: true);
+        }
+      });
     }
 
     if (videoId == null) {
@@ -158,21 +167,12 @@ class MyVideoStateController extends GetxController
       return;
     }
 
-    if (GetPlatform.isAndroid || GetPlatform.isIOS) {
-      volumeController = VolumeController();
-      // 初始化并关闭系统音量UI
-      volumeController?.showSystemUI = false;
-    }
-
     // 是否沿用之前的音量
     bool keepLastVolumeKey = _configService[ConfigService.KEEP_LAST_VOLUME_KEY];
     if (keepLastVolumeKey) {
+      // 保持之前的音量
       double lastVolume = _configService[ConfigService.VOLUME_KEY];
-      if (GetPlatform.isAndroid || GetPlatform.isIOS) {
-        volumeController?.setVolume(lastVolume);
-      } else {
-        setVolume(lastVolume);
-      }
+      setVolume(lastVolume, save: false);
     } else {
       if (GetPlatform.isAndroid || GetPlatform.isIOS) {
         // 更新配置为当前的系统音量
@@ -225,6 +225,7 @@ class MyVideoStateController extends GetxController
   void onClose() {
     _autoHideTimer?.cancel();
     _cancelSubscriptions();
+    _volumeListenerDisposer?.cancel(); // 取消音量监听
     player.dispose();
     super.onClose();
   }
@@ -270,7 +271,7 @@ class MyVideoStateController extends GetxController
         if (videoInfo.value != null) {
           final historyRecord = HistoryRecord.fromVideo(videoInfo.value!);
           LogUtils.d('添加历史记录: ${historyRecord.toJson()}', 'MyVideoStateController');
-          await _historyRepository.addRecord(historyRecord);
+          await _historyRepository.addRecordWithCheck(historyRecord);
         }
       } catch (e) {
         LogUtils.e('添加历史记录失败', error: e, tag: 'MyVideoStateController');
@@ -593,21 +594,19 @@ class MyVideoStateController extends GetxController
   }
 
   /// 设置音量
+  /// [安卓、IOS] 使用系统volumeController
+  /// 其他平台使用player.setVolume
   /// volume: 0.0-1.0
-  void setVolume(double volume) {
-    _isSettingVolume = true;
+  void setVolume(double volume, {bool save = true}) {
+    _isAdjustingVolumeByGesture = true;
     if (GetPlatform.isAndroid || GetPlatform.isIOS) {
       volumeController?.setVolume(volume);
     } else {
       player.setVolume(volume * 100);
     }
-    _configService[ConfigService.VOLUME_KEY] = volume;
-    Future.delayed(const Duration(milliseconds: 50), () {
-      _isSettingVolume = false;
-    });
+    _configService.setSetting(ConfigService.VOLUME_KEY, volume, save: save);
+    _isAdjustingVolumeByGesture = false;
   }
-
-  bool get isSettingVolume => _isSettingVolume;
 
   void _addBufferRange(Duration bufferDuration) {
     // 如果总时长为0，说明视频还未加载，不处理缓冲

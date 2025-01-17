@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
+import 'package:i_iwara/app/models/forum.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/page_data.model.dart';
 import 'package:i_iwara/app/models/post.model.dart';
@@ -101,5 +102,18 @@ class SearchService extends GetxController {
     query: query,
     type: SearchSegment.post.name,
     fromJson: PostModel.fromJson,
+  );
+
+  /// 获取论坛
+  Future<ApiResult<PageData<ForumThreadModel>>> fetchForumByQuery({
+    int page = 0,
+    int limit = 20,
+    String query = '',
+  }) => fetchDataByType<ForumThreadModel>(
+    page: page,
+    limit: limit,
+    query: query,
+    type: SearchSegment.forum.name,
+    fromJson: ForumThreadModel.fromJson,
   );
 }

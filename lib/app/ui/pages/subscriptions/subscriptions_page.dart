@@ -127,17 +127,37 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
           children: [
             Obx(() {
               if (userService.isLogin) {
-                return IconButton(
-                  icon: AvatarWidget(
-                    avatarUrl: userService.userAvatar,
-                    radius: 14,
-                    defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-                    isPremium: userService.currentUser.value?.premium ?? false,
-                    isAdmin: userService.currentUser.value?.isAdmin ?? false,
-                  ),
-                  onPressed: () {
-                    AppService.switchGlobalDrawer();
-                  },
+                return Stack(
+                  children: [
+                    IconButton(
+                      icon: AvatarWidget(
+                        user: userService.currentUser.value,
+                        radius: 14,
+                        defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+                      ),
+                      onPressed: () {
+                        AppService.switchGlobalDrawer();
+                      },
+                    ),
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Obx(() {
+                        final count = userService.notificationCount.value + userService.messagesCount.value;
+                        if (count > 0) {
+                          return Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.error,
+                              shape: BoxShape.circle,
+                            ),
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      }),
+                    ),
+                  ],
                 );
               } else {
                 return IconButton(

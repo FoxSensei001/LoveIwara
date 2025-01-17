@@ -5,10 +5,12 @@ import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
+import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/image_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/widget_extensions.dart';
+import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/share_gallery_bottom_sheet.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/services/download_service.dart';
@@ -220,7 +222,7 @@ class ImageModelDetailContent extends StatelessWidget {
           icon: Icons.download,
           onTap: () => ImageUtils.downloadImageForDesktop(item),
         ),
-      // if (GetPlatform.isIOS || GetPlatform.isAndroid)
+      if (GetPlatform.isIOS || GetPlatform.isAndroid)
         MenuItem(
           title: t.galleryDetail.saveToAlbum,
           icon: Icons.save,
@@ -240,7 +242,7 @@ class ImageModelDetailContent extends StatelessWidget {
           const SizedBox(height: 16),
           _buildGalleryTitle(),
           const SizedBox(height: 8),
-          _buildAuthorInfo(),
+          _buildAuthorInfo(context),
           const SizedBox(height: 8),
           _buildPublishInfo(),
           const SizedBox(height: 16),
@@ -295,15 +297,15 @@ class ImageModelDetailContent extends StatelessWidget {
   }
 
   // 构建作者信息区域
-  Widget _buildAuthorInfo() {
+  Widget _buildAuthorInfo(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Row(
         children: [
-          _buildAuthorAvatar(),
+          _buildAuthorAvatar(context),
           const SizedBox(width: 12),
           Expanded(
-            child: _buildAuthorNameButton(),
+            child: _buildAuthorNameButton(context),
           ),
           if (controller.imageModelInfo.value?.user != null)
             SizedBox(
@@ -322,7 +324,7 @@ class ImageModelDetailContent extends StatelessWidget {
     );
   }
 
-  Widget _buildAuthorAvatar() {
+  Widget _buildAuthorAvatar(BuildContext context) {
     Widget avatar = MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
@@ -334,12 +336,9 @@ class ImageModelDetailContent extends StatelessWidget {
         },
         behavior: HitTestBehavior.opaque,
         child: AvatarWidget(
-          avatarUrl: controller.imageModelInfo.value?.user?.avatar?.avatarUrl,
+          user: controller.imageModelInfo.value?.user,
           defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-          headers: const {'referer': CommonConstants.iwaraBaseUrl},
           radius: 20,
-          isPremium: controller.imageModelInfo.value?.user?.premium ?? false,
-          isAdmin: controller.imageModelInfo.value?.user?.isAdmin ?? false,
         ),
       ),
     );
@@ -372,7 +371,7 @@ class ImageModelDetailContent extends StatelessWidget {
   }
 
   // 构建作者名字按钮
-  Widget _buildAuthorNameButton() {
+  Widget _buildAuthorNameButton(BuildContext context) {
     final user = controller.imageModelInfo.value?.user;
     if (user?.premium == true) {
       return MouseRegion(
@@ -384,25 +383,7 @@ class ImageModelDetailContent extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ShaderMask(
-                shaderCallback: (bounds) => LinearGradient(
-                  colors: [
-                    Colors.purple.shade300,
-                    Colors.blue.shade300,
-                    Colors.pink.shade300,
-                  ],
-                ).createShader(bounds),
-                child: Text(
-                  user?.name ?? '',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
+              buildUserName(context, user, fontSize: 16, bold: true),
               Text(
                 '@${user?.username ?? ''}',
                 style: TextStyle(
@@ -428,15 +409,7 @@ class ImageModelDetailContent extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              user?.name ?? '',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
+            buildUserName(context, user, fontSize: 16, bold: true),
             Text(
               '@${user?.username ?? ''}',
               style: TextStyle(
@@ -512,9 +485,10 @@ class ImageModelDetailContent extends StatelessWidget {
         builder: (context) => Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              // 左侧按钮组(点赞和分享)
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   LikeButtonWidget(
                     mediaId: imageModelInfo.id,
@@ -535,7 +509,6 @@ class ImageModelDetailContent extends StatelessWidget {
                       );
                     },
                   ),
-                  const SizedBox(width: 16),
                   Material(
                     color: Colors.transparent,
                     child: InkWell(
@@ -546,13 +519,53 @@ class ImageModelDetailContent extends StatelessWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.download, 
+                            Icon(Icons.download,
+                                size: 20,
+                                color: Theme.of(context).iconTheme.color
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              t.download.download,
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Theme.of(context).textTheme.bodyMedium?.color
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(20),
+                      onTap: () {
+                        showModalBottomSheet(
+                          backgroundColor: Colors.transparent,
+                          isScrollControlled: true,
+                          builder: (context) => ShareGalleryBottomSheet(
+                            galleryId: imageModelInfo.id,
+                            galleryTitle: imageModelInfo.title,
+                            authorName: imageModelInfo.user?.name ?? '',
+                            previewUrl: imageModelInfo.thumbnailUrl,
+                          ),
+                          context: context,
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.share,
                               size: 20,
                               color: Theme.of(context).iconTheme.color
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              t.download.download,
+                              slang.t.common.share,
                               style: TextStyle(
                                 fontSize: 14,
                                 color: Theme.of(context).textTheme.bodyMedium?.color
@@ -565,6 +578,8 @@ class ImageModelDetailContent extends StatelessWidget {
                   ),
                 ],
               ),
+              const Spacer(),
+              // 评论按钮
               Material(
                 color: Colors.transparent,
                 child: Container(

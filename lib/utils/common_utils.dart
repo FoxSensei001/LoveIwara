@@ -89,11 +89,20 @@ class CommonUtils {
     if (videoResolutions == null || resolutionTag == null) {
       return null;
     }
+
+    // 如果videoResolutions非空，先挑出第一个作为兜底
+    String fallbackUrl = '';
+    String fallbackLabel = '';
+    if (videoResolutions.isNotEmpty) {
+      fallbackUrl = videoResolutions.first.url;
+      fallbackLabel = videoResolutions.first.label;
+    }
+
     return videoResolutions
         .firstWhere(
           (element) =>
               element.label.toLowerCase() == resolutionTag.toLowerCase(),
-          orElse: () => VideoResolution(label: '', url: ''),
+          orElse: () => VideoResolution(label: fallbackLabel, url: fallbackUrl),
         )
         .url;
   }

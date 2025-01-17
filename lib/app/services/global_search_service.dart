@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
+import 'package:i_iwara/app/models/forum.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/search_record.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
@@ -30,6 +31,7 @@ class GlobalSearchService extends GetxService {
   final RxList<User> searchUserResult = <User>[].obs;
   final RxList<PostModel> searchPostResult = <PostModel>[].obs;
   final Rxn<Widget> errorWidget = Rxn<Widget>();
+  final RxList<ForumThreadModel> searchForumResult = <ForumThreadModel>[].obs;
 
   final RxBool isLoading = false.obs;
 
@@ -43,6 +45,8 @@ class GlobalSearchService extends GetxService {
       return searchUserResult.isEmpty;
     } else if (segment == 'post') {
       return searchPostResult.isEmpty;
+    } else if (segment == 'forum') {
+      return searchForumResult.isEmpty;
     }
     return true;
   }
@@ -57,6 +61,8 @@ class GlobalSearchService extends GetxService {
       return userPageInitialized;
     } else if (segment == 'post') {
       return postPageInitialized;
+    } else if (segment == 'forum') {
+      return forumPageInitialized;
     }
     return false;
   }
@@ -73,11 +79,14 @@ class GlobalSearchService extends GetxService {
   bool userPageInitialized = false;
   final _postPage = 0.obs;
   bool postPageInitialized = false;
+  final _forumPage = 0.obs;
+  bool forumPageInitialized = false;
 
   final _videoHasMore = true.obs;
   final _imageHasMore = true.obs;
   final _userHasMore = true.obs;
   final _postHasMore = true.obs;
+  final _forumHasMore = true.obs;
 
   // Helper getters for current segment's state
   int get currentPage {
@@ -90,6 +99,8 @@ class GlobalSearchService extends GetxService {
         return _userPage.value;
       case 'post':
         return _postPage.value;
+      case 'forum':
+        return _forumPage.value;
       default:
         return 0;
     }
@@ -105,6 +116,8 @@ class GlobalSearchService extends GetxService {
         return _userHasMore.value;
       case 'post':
         return _postHasMore.value;
+      case 'forum':
+        return _forumHasMore.value;
       default:
         return false;
     }
@@ -124,6 +137,9 @@ class GlobalSearchService extends GetxService {
       case 'post':
         _postPage.value = newPage;
         break;
+      case 'forum':
+        _forumPage.value = newPage;
+        break;
     }
   }
 
@@ -131,7 +147,8 @@ class GlobalSearchService extends GetxService {
       searchVideoResult.isEmpty && 
       searchImageResult.isEmpty && 
       searchUserResult.isEmpty &&
-      searchPostResult.isEmpty;
+      searchPostResult.isEmpty &&
+      searchForumResult.isEmpty;
 
   void clearOtherSearchResult() {
     String segment = selectedSegment.value;
@@ -164,6 +181,13 @@ class GlobalSearchService extends GetxService {
       postPageInitialized = false;
       _postHasMore.value = true;
     }
+
+    if (segment != 'forum') {
+      searchForumResult.clear();
+      _forumPage.value = 0;
+      forumPageInitialized = false;
+      _forumHasMore.value = true;
+    }
   }
 
   void fetchSearchResult({bool refresh = false}) async {
@@ -189,6 +213,12 @@ class GlobalSearchService extends GetxService {
             page: tmpPage, limit: limit, query: keyword);
       } else if (segment == 'post') {
         response = await searchService.fetchPostByQuery(
+          page: tmpPage,
+          limit: limit,
+          query: keyword,
+        );
+      } else if (segment == 'forum') {
+        response = await searchService.fetchForumByQuery(
           page: tmpPage,
           limit: limit,
           query: keyword,
@@ -222,6 +252,8 @@ class GlobalSearchService extends GetxService {
           searchUserResult.clear();
         } else if (segment == 'post') {
           searchPostResult.clear();
+        } else if (segment == 'forum') {
+          searchForumResult.clear();
         }
       }
 
@@ -237,6 +269,9 @@ class GlobalSearchService extends GetxService {
       } else if (segment == 'post') {
         searchPostResult.addAll(results as List<PostModel>);
         _postHasMore.value = response.data!.count > searchPostResult.length;
+      } else if (segment == 'forum') {
+        searchForumResult.addAll(results as List<ForumThreadModel>);
+        _forumHasMore.value = response.data!.count > searchForumResult.length;
       }
 
       _updatePage(tmpPage + 1);
@@ -250,6 +285,8 @@ class GlobalSearchService extends GetxService {
         userPageInitialized = true;
       } else if (segment == 'post') {
         postPageInitialized = true;
+      } else if (segment == 'forum') {
+        forumPageInitialized = true;
       }
     }
   }
@@ -302,10 +339,12 @@ class GlobalSearchService extends GetxService {
     searchImageResult.clear();
     searchUserResult.clear();
     searchPostResult.clear();
+    searchForumResult.clear();
     searchErrorText.value = '';
     searchPlaceholder.value = '';
     currentSearch.value = '';
     selectedSegment.value = 'video';
+
     _videoPage.value = 0;
     videoPageInitialized = false;
     _imagePage.value = 0;
@@ -314,10 +353,15 @@ class GlobalSearchService extends GetxService {
     userPageInitialized = false;
     _postPage.value = 0;
     postPageInitialized = false;
+    _forumPage.value = 0;
+    forumPageInitialized = false;
+
     _videoHasMore.value = true;
     _imageHasMore.value = true;
     _userHasMore.value = true;
     _postHasMore.value = true;
+    _forumHasMore.value = true;
+    
     isLoading.value = false;
     errorWidget.value = null;
   }

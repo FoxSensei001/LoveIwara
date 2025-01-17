@@ -5,6 +5,7 @@ import 'package:i_iwara/app/routes/app_routes.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_dialog.dart';
 import 'package:i_iwara/app/ui/pages/post_detail/widgets/post_detail_content_widget.dart';
+import 'package:i_iwara/app/ui/pages/post_detail/widgets/share_post_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/utils/widget_extensions.dart';
@@ -62,6 +63,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
   }
 
   void showCommentModal(BuildContext context) {
+    final bool isSmallScreen = MediaQuery.of(context).size.width <= 600;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -70,21 +72,24 @@ class _PostDetailPageState extends State<PostDetailPage> {
       ),
       builder: (BuildContext context) {
         return DraggableScrollableSheet(
-          initialChildSize: 0.8,
+          initialChildSize: isSmallScreen ? 0.9 : 0.8,
           minChildSize: 0.2,
-          maxChildSize: 0.8,
+          maxChildSize: 0.9,
           expand: false,
           builder: (context, scrollController) {
             return Column(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isSmallScreen ? 12 : 16,
+                    vertical: isSmallScreen ? 12 : 16,
+                  ),
                   child: Row(
                     children: [
                       Text(
                         slang.t.common.commentList,
-                        style: const TextStyle(
-                          fontSize: 18,
+                        style: TextStyle(
+                          fontSize: isSmallScreen ? 16 : 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -118,11 +123,22 @@ class _PostDetailPageState extends State<PostDetailPage> {
                             barrierDismissible: true,
                           );
                         },
-                        icon: const Icon(Icons.add_comment),
-                        label: Text(slang.t.common.sendComment),
+                        icon: Icon(
+                          Icons.add_comment,
+                          size: isSmallScreen ? 18 : 20,
+                        ),
+                        label: Text(
+                          slang.t.common.sendComment,
+                          style: TextStyle(
+                            fontSize: isSmallScreen ? 13 : 14,
+                          ),
+                        ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.close),
+                        icon: Icon(
+                          Icons.close,
+                          size: isSmallScreen ? 20 : 24,
+                        ),
                         onPressed: () => Navigator.pop(context),
                       ),
                     ],
@@ -145,6 +161,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
+    final bool isSmallScreen = MediaQuery.of(context).size.width <= 600;
+    
     if (postId.isEmpty) {
       return CommonErrorWidget(
         text: t.errors.invalidPostId,
@@ -209,15 +227,28 @@ class _PostDetailPageState extends State<PostDetailPage> {
                       PostDetailContent(
                         controller: detailController,
                         paddingTop: paddingTop,
+                        onShare: () {
+                          showModalBottomSheet(
+                            backgroundColor: Colors.transparent,
+                            isScrollControlled: true,
+                            builder: (context) => SharePostBottomSheet(
+                              post: detailController.postInfo.value!,
+                            ),
+                            context: context,
+                          );
+                        },
                       ),
                       Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isSmallScreen ? 12 : 16,
+                          vertical: isSmallScreen ? 8 : 16,
+                        ),
                         child: CommentEntryAreaButtonWidget(
                           commentController: commentController,
                           onClickButton: () {
                             showCommentModal(context);
                           },
-                        ).paddingVertical(16),
+                        ),
                       ),
                       const SafeArea(child: SizedBox.shrink()),
                     ],
@@ -227,13 +258,15 @@ class _PostDetailPageState extends State<PostDetailPage> {
                   isVisible: detailController.isCommentSheetVisible.value,
                   onDismiss: () => detailController.isCommentSheetVisible.toggle(),
                   title: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isSmallScreen ? 12 : 16,
+                    ),
                     child: Row(
                       children: [
                         Text(
                           t.common.commentList,
-                          style: const TextStyle(
-                            fontSize: 18,
+                          style: TextStyle(
+                            fontSize: isSmallScreen ? 16 : 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -251,11 +284,22 @@ class _PostDetailPageState extends State<PostDetailPage> {
                             }
                             showCommentModal(context);
                           },
-                          icon: const Icon(Icons.add_comment),
-                          label: Text(t.common.sendComment),
+                          icon: Icon(
+                            Icons.add_comment,
+                            size: isSmallScreen ? 18 : 20,
+                          ),
+                          label: Text(
+                            t.common.sendComment,
+                            style: TextStyle(
+                              fontSize: isSmallScreen ? 13 : 14,
+                            ),
+                          ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.close),
+                          icon: Icon(
+                            Icons.close,
+                            size: isSmallScreen ? 20 : 24,
+                          ),
                           onPressed: () =>
                               detailController.isCommentSheetVisible.toggle(),
                         ),

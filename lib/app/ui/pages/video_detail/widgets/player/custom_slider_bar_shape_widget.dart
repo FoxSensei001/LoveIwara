@@ -78,11 +78,14 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
                   SliderTheme(
                     data: SliderTheme.of(context).copyWith(
                       trackHeight: 4.0,
+                      // 使用自定义的圆形滑块
                       thumbShape: const RoundSliderThumbShape(
                         enabledThumbRadius: 6.0,
+                        pressedElevation: 4.0,
                       ),
+                      // 设置滑块的覆盖效果
                       overlayShape: const RoundSliderOverlayShape(
-                        overlayRadius: 12.0,
+                        overlayRadius: 16.0,
                       ),
                       // 使用自定义的轨道形状，并传入缓冲区段列表
                       trackShape: CustomSliderTrackShape(
@@ -94,7 +97,7 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
                       activeTrackColor: Colors.white,
                       inactiveTrackColor: Colors.white.withOpacity(0.3),
                       thumbColor: Colors.white,
-                      overlayColor: Colors.white.withOpacity(0.1),
+                      overlayColor: Colors.white.withOpacity(0.3),
                       valueIndicatorColor: Colors.white,
                       valueIndicatorTextStyle: const TextStyle(
                         color: Colors.black,
@@ -105,6 +108,8 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
                       value: _currentValue.clamp(0.0, _maxValue > 0 ? _maxValue : 1.0),
                       min: 0.0,
                       max: _maxValue > 0 ? _maxValue : 1.0,
+                      focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
+                      autofocus: false,
                       onChangeStart: (value) {
                         setState(() {
                           _draggingValue = value;

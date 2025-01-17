@@ -177,10 +177,15 @@ class _ProxySettingsWidgetState extends State<ProxySettingsWidget> {
         HttpOverrides.global = MyHttpOverrides(proxyUrl);
         LogUtils.d('已设置 Flutter 全局代理为: $proxyUrl', _tag);
       }
-      _apiService.resetProxy();
-      _authService.resetProxy();
-      _translationService.resetProxy();
-      LogUtils.d('重置 ApiService 和 AuthService 代理', _tag);
+      // 显示需要重启的提示
+      showToastWidget(
+        MDToastWidget(
+          message: slang.t.settings.needRestartToApply,
+          type: MDToastType.info,
+        ),
+        position: ToastPosition.bottom,
+      );
+      LogUtils.i('代理设置已更改，需要重启应用生效', _tag);
     } else {
       LogUtils.e('当前平台不支持设置代理', tag: _tag);
     }

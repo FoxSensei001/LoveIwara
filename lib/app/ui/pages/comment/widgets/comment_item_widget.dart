@@ -10,6 +10,7 @@ import 'package:i_iwara/app/ui/pages/comment/controllers/comment_controller.dart
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_remove_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
@@ -25,10 +26,6 @@ class CommentItem extends StatefulWidget {
   final Comment comment;
   final String? authorUserId;
   final CommentController? controller;
-
-  static const double _tagFontSize = 11.0;
-  static const EdgeInsets _tagPadding =
-      EdgeInsets.symmetric(horizontal: 6, vertical: 2);
 
   const CommentItem({
     super.key, 
@@ -665,7 +662,7 @@ class _CommentItemState extends State<CommentItem> {
 
   void _showDeleteConfirmDialog() {
     if (widget.controller == null) {
-      showToastWidget(MDToastWidget(message: slang.t.errors.canNotFindCommentController, type: MDToastType.error));
+      showToastWidget(MDToastWidget(message: slang.t.errors.canNotFindCommentController, type: MDToastType.error), position: ToastPosition.bottom);
       return;
     }
 
@@ -681,7 +678,7 @@ class _CommentItemState extends State<CommentItem> {
 
   void _showEditDialog() {
     if (widget.controller == null) {
-      showToastWidget(MDToastWidget(message: slang.t.errors.canNotFindCommentController, type: MDToastType.error));
+      showToastWidget(MDToastWidget(message: slang.t.errors.canNotFindCommentController, type: MDToastType.error), position: ToastPosition.bottom );
       return;
     }
 
@@ -692,7 +689,7 @@ class _CommentItemState extends State<CommentItem> {
         submitText: slang.t.common.save,
         onSubmit: (text) async {
           if (text.trim().isEmpty) {
-            showToastWidget(MDToastWidget(message: slang.t.errors.commentCanNotBeEmpty, type: MDToastType.error));
+            showToastWidget(MDToastWidget(message: slang.t.errors.commentCanNotBeEmpty, type: MDToastType.error), position: ToastPosition.bottom);
             return;
           }
 
@@ -716,7 +713,7 @@ class _CommentItemState extends State<CommentItem> {
               showToastWidget(MDToastWidget(message: slang.t.common.commentUpdated, type: MDToastType.success));
               AppService.tryPop();
             } else {
-              showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error));
+              showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
             }
           }
         },
@@ -727,7 +724,7 @@ class _CommentItemState extends State<CommentItem> {
 
   void _showReplyDialog() {
     if (widget.controller == null) {
-      showToastWidget(MDToastWidget(message: slang.t.errors.canNotFindCommentController, type: MDToastType.error));
+      showToastWidget(MDToastWidget(message: slang.t.errors.canNotFindCommentController, type: MDToastType.error), position: ToastPosition.bottom);
       return;
     }
 
@@ -737,7 +734,7 @@ class _CommentItemState extends State<CommentItem> {
         submitText: slang.t.common.reply,
         onSubmit: (text) async {
           if (text.trim().isEmpty) {
-            showToastWidget(MDToastWidget(message: slang.t.errors.commentCanNotBeEmpty, type: MDToastType.error));
+            showToastWidget(MDToastWidget(message: slang.t.errors.commentCanNotBeEmpty, type: MDToastType.error), position: ToastPosition.bottom);
             return;
           }
           final result = await widget.controller!.postComment(
@@ -851,35 +848,7 @@ class _CommentItemState extends State<CommentItem> {
                           children: [
                             // 会员用户名
                             Flexible(
-                              child: comment.user?.premium == true
-                                ? ShaderMask(
-                                    shaderCallback: (bounds) => LinearGradient(
-                                      colors: [
-                                        Colors.purple.shade300,
-                                        Colors.blue.shade300,
-                                        Colors.pink.shade300,
-                                      ],
-                                    ).createShader(bounds),
-                                    child: Text(
-                                      comment.user?.name ?? slang.t.common.unknownUser,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                        color: Colors.white,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  )
-                                : Text(
-                                    comment.user?.name ?? slang.t.common.unknownUser,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
+                              child: buildUserName(context, comment.user!, fontSize: 14, bold: true),
                             ),
                           ],
                         ),
@@ -975,12 +944,10 @@ class _CommentItemState extends State<CommentItem> {
   // 构建用户头像
   Widget _buildUserAvatar(Comment comment) {
     return AvatarWidget(
-      avatarUrl: comment.user?.avatar?.avatarUrl, 
+      user: comment.user,
       defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
       headers: const {'referer': CommonConstants.iwaraBaseUrl},
       radius: 20,
-      isPremium: comment.user?.premium ?? false,
-      isAdmin: comment.user?.isAdmin ?? false,
     );
   }
 

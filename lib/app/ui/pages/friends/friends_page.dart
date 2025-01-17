@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/friends/controllers/friends_controller.dart';
 import 'package:i_iwara/app/ui/pages/friends/widgets/friend_list.dart';
 import 'package:i_iwara/app/ui/pages/friends/widgets/friend_request_list.dart';
@@ -15,6 +16,7 @@ class _FriendsPageState extends State<FriendsPage>
     with SingleTickerProviderStateMixin {
   late FriendsController _controller;
   late TabController _tabController;
+  late UserService _userService;
 
   @override
   void initState() {
@@ -22,20 +24,22 @@ class _FriendsPageState extends State<FriendsPage>
     _controller = Get.put(FriendsController());
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_handleTabChange);
+    _userService = Get.find<UserService>();
   }
 
   void _handleTabChange() {
     if (!_tabController.indexIsChanging) {
       setState(() {});
-      // 切换标签时刷新列表
       _controller.refreshCurrentTab(_tabController.index);
     }
   }
 
   @override
   void dispose() {
+    _userService.refreshNotificationCount();
+
     _tabController.dispose();
-    _controller.dispose();
+    Get.delete<FriendsController>();
     super.dispose();
   }
 
@@ -140,6 +144,8 @@ class _FriendsPageState extends State<FriendsPage>
       ),
       body: TabBarView(
         controller: _tabController,
+        // 禁用滑动切换
+        physics: const NeverScrollableScrollPhysics(),
         children: [
           FriendList(
             scrollController: _controller.friendListScrollController,

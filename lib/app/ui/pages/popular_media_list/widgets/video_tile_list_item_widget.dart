@@ -211,18 +211,22 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
       right: 0,
       bottom: 0,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
         decoration: BoxDecoration(
           color: Colors.black54,
           borderRadius: BorderRadius.circular(4),
         ),
         child: Row(
           children: [
-            const Icon(Icons.access_time, size: 12, color: Colors.white),
+            const Icon(Icons.access_time, size: 10, color: Colors.white),
             const SizedBox(width: 2),
             Text(
               widget.video.minutesDuration!,
-              style: const TextStyle(color: Colors.white, fontSize: 12),
+              style: const TextStyle(
+                color: Colors.white, 
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ],
         ),
@@ -233,18 +237,23 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
   /// 通用标签构建方法
   Widget _buildTag({required String label, required Color backgroundColor, IconData? icon}) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(4),
       ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          if (icon != null) Icon(icon, size: 12, color: Colors.white),
-          const SizedBox(width: 2),
+          if (icon != null) Icon(icon, size: 10, color: Colors.white),
+          if (icon != null) const SizedBox(width: 2),
           Text(
             label,
-            style: const TextStyle(color: Colors.white, fontSize: 12),
+            style: const TextStyle(
+              color: Colors.white, 
+              fontSize: 10,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),

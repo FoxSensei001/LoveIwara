@@ -1,3 +1,4 @@
+import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/db/database_service.dart';
 import 'package:sqlite3/common.dart';
 import 'package:i_iwara/app/models/history_record.dart';
@@ -11,6 +12,7 @@ class HistoryRepository {
 
   // 添加单条记录
   Future<void> addRecord(HistoryRecord record) async {
+    if (!CommonConstants.enableHistory) return;
     _db.prepare(
       '''
       INSERT OR REPLACE INTO history_records 
@@ -140,5 +142,33 @@ class HistoryRepository {
     final stmt = _db.prepare(sql);
     final results = stmt.select(params);
     return results.map((row) => HistoryRecord.fromJson(row)).toList();
+  }
+
+  // 添加新方法
+  Future<void> addRecordWithCheck(HistoryRecord record) async {
+    if (!CommonConstants.enableHistory) return;
+    
+    try {
+      final existing = _db.prepare(
+        'SELECT updated_at FROM history_records WHERE item_id = ? AND item_type = ?'
+      ).select([record.itemId, record.itemType]);
+      
+      if (existing.isEmpty) {
+        // 使用原有的添加方法
+        await addRecord(record);
+      } else {
+        // 仅更新时间
+        _db.prepare(
+          'UPDATE history_records SET updated_at = ? WHERE item_id = ? AND item_type = ?'
+        ).execute([
+          DateTime.now().toIso8601String(),
+          record.itemId,
+          record.itemType
+        ]);
+      }
+    } catch (e) {
+      // 出错时回退到原有方法
+      await addRecord(record);
+    }
   }
 }

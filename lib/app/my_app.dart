@@ -8,12 +8,15 @@ import 'package:i_iwara/app/services/version_service.dart';
 import 'package:i_iwara/app/ui/pages/home/home_navigation_layout.dart';
 import 'package:i_iwara/app/ui/pages/login/login_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/about_page.dart';
+import 'package:i_iwara/app/ui/pages/settings/app_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/player_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/proxy_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/theme_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/sign_in/sing_in_page.dart';
+import 'package:i_iwara/app/ui/pages/splash/splash_page.dart';
 import 'package:i_iwara/app/ui/widgets/global_drawer_content_widget.dart';
+import 'package:i_iwara/app/ui/widgets/privacy_over_lay_widget.dart';
 import 'package:i_iwara/app/ui/widgets/window_layout_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:dynamic_color/dynamic_color.dart';
@@ -22,6 +25,8 @@ import 'package:oktoast/oktoast.dart';
 import '../utils/proxy/proxy_util.dart';
 import 'models/dto/escape_intent.dart';
 import 'services/theme_service.dart';
+import 'services/message_service.dart';
+import 'services/deep_link_service.dart';
 
 class MyApp extends StatefulWidget {
 
@@ -37,6 +42,8 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     Get.find<VersionService>().doAutoCheckUpdate();
+    Get.find<MessageService>().markReady();
+    Get.find<DeepLinkService>().markReady();
   }
 
   @override
@@ -54,8 +61,12 @@ class _MyAppState extends State<MyApp> {
             ),
             getPages: [
               GetPage(
+                name: Routes.SPLASH,
+                page: () => const SplashPage(),
+              ),
+              GetPage(
                 name: Routes.HOME,
-                page: () => HomeNavigationLayout(),
+                page: () => const HomeNavigationLayout(),
               ),
               GetPage(
                   name: Routes.SETTINGS_PAGE,
@@ -75,6 +86,10 @@ class _MyAppState extends State<MyApp> {
                   page: () => const ThemeSettingsPage(),
                   transition: Transition.rightToLeft),
               GetPage(
+                  name: Routes.APP_SETTINGS_PAGE,
+                  page: () => const AppSettingsPage(),
+                  transition: Transition.rightToLeft),  
+              GetPage(
                   name: Routes.ABOUT_PAGE,
                   page: () => const AboutPage(),
                   transition: Transition.rightToLeft),
@@ -89,7 +104,7 @@ class _MyAppState extends State<MyApp> {
                 transition: Transition.cupertino,
               ),
             ],
-            initialRoute: Routes.HOME,
+            initialRoute: Routes.SPLASH,
             builder: (context, child) {
               if (null == child) {
                 return const SizedBox.shrink();
@@ -99,28 +114,6 @@ class _MyAppState extends State<MyApp> {
           ),
         );
       },
-    );
-  }
-}
-
-class PrivacyOverlay extends StatelessWidget {
-  const PrivacyOverlay({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      child: Container(
-        color: Colors.white, // 白色背景
-        child: Center(
-          child: Text(
-            t.common.privacyHint,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ),
     );
   }
 }
@@ -222,6 +215,7 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
     return Scaffold(
         key: AppService.globalDrawerKey,
         drawer: _buildDrawer(),
+        drawerEnableOpenDragGesture: false,
         body: WindowTitleBarLayout(child));
   }
 

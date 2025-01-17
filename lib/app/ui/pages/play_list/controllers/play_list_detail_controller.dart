@@ -41,7 +41,7 @@ class PlayListDetailController extends GetxController {
     if (result.isSuccess) {
       playlistTitle.value = newTitle;
     } else {
-      showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error));
+      showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
     }
   }
   
@@ -83,7 +83,7 @@ class PlayListDetailController extends GetxController {
       if (result.isSuccess) {
         showToastWidget(MDToastWidget(message: slang.t.common.success, type: MDToastType.success));
       } else {
-        showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error));
+        showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
       }
     });
   }

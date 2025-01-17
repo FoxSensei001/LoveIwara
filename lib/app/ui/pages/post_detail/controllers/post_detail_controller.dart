@@ -45,7 +45,7 @@ class PostDetailController extends GetxController {
       ApiResult<PostModel> res = await _postService.fetchPostDetail(postId);
       if (!res.isSuccess) {
         errorMessage.value = res.message;
-        showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error));
+        showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error), position: ToastPosition.bottom);
         return;
       }
 
@@ -53,7 +53,7 @@ class PostDetailController extends GetxController {
 
       try {
           final HistoryRepository historyRepository = HistoryRepository();
-          await historyRepository.addRecord(HistoryRecord.fromPost(postInfo.value!));
+          await historyRepository.addRecordWithCheck(HistoryRecord.fromPost(postInfo.value!));
       } catch (e) {
         LogUtils.e('添加历史记录失败', error: e, tag: 'PostDetailController');
       }

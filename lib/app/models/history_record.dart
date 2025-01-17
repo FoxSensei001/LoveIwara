@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:i_iwara/app/models/forum.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/post.model.dart';
@@ -77,6 +78,22 @@ class HistoryRecord {
     );
   }
 
+  // 从ForumThreadModel创建历史记录
+  factory HistoryRecord.fromThread(ForumThreadModel thread) {
+    return HistoryRecord(
+      id: 0,
+      itemId: thread.id,
+      itemType: 'thread',
+      title: thread.title,
+      thumbnailUrl: null, // 帖子没有缩略图
+      author: thread.user.name,
+      authorId: thread.user.id,
+      data: jsonEncode(thread.toJson()),
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+  }
+
   // 获取原始数据对象
   dynamic getOriginalData() {
     final Map<String, dynamic> jsonData = jsonDecode(data);
@@ -87,6 +104,8 @@ class HistoryRecord {
         return ImageModel.fromJson(jsonData);
       case 'post':
         return PostModel.fromJson(jsonData);
+      case 'thread':
+        return ForumThreadModel.fromJson(jsonData);
       default:
         throw Exception('未知的记录类型: $itemType');
     }

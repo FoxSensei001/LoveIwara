@@ -48,7 +48,11 @@ class TranslationsZhTw implements Translations {
 	@override late final _TranslationsSubscriptionsZhTw subscriptions = _TranslationsSubscriptionsZhTw._(_root);
 	@override late final _TranslationsVideoDetailZhTw videoDetail = _TranslationsVideoDetailZhTw._(_root);
 	@override late final _TranslationsShareZhTw share = _TranslationsShareZhTw._(_root);
-	@override late final _TranslationsDownloadZhTw download = _TranslationsDownloadZhTw._(_root);
+	@override late final _TranslationsMarkdownZhTw markdown = _TranslationsMarkdownZhTw._(_root);
+	@override late final _TranslationsForumZhTw forum = _TranslationsForumZhTw._(_root);
+	@override late final _TranslationsNotificationsZhTw notifications = _TranslationsNotificationsZhTw._(_root);
+	@override late final _TranslationsConversationZhTw conversation = _TranslationsConversationZhTw._(_root);
+	@override late final _TranslationsSplashZhTw splash = _TranslationsSplashZhTw._(_root);
 }
 
 // Path: common
@@ -195,12 +199,30 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get numViews => '觀看次數';
 	@override String get updatedAt => '更新時間';
 	@override String get publishedAt => '發布時間';
-	@override String get download => '下載';
-	@override String get selectQuality => '選擇畫質';
 	@override String get externalVideo => '站外影片';
 	@override String get originalText => '原文';
 	@override String get showOriginalText => '顯示原始文本';
 	@override String get showProcessedText => '顯示處理後文本';
+	@override String get preview => '預覽';
+	@override String get rules => '規則';
+	@override String get agree => '同意';
+	@override String get disagree => '不同意';
+	@override String get agreeToRules => '同意規則';
+	@override String get createPost => '創建投稿';
+	@override String get title => '標題';
+	@override String get enterTitle => '請輸入標題';
+	@override String get content => '內容';
+	@override String get enterContent => '請輸入內容';
+	@override String get writeYourContentHere => '請輸入內容...';
+	@override String get tagBlacklist => '黑名單標籤';
+	@override String get noData => '沒有資料';
+	@override String get tagLimit => '標籤上限';
+	@override String get enableFloatingButtons => '啟用浮動按鈕';
+	@override String get disableFloatingButtons => '禁用浮動按鈕';
+	@override String get enabledFloatingButtons => '已啟用浮動按鈕';
+	@override String get disabledFloatingButtons => '已禁用浮動按鈕';
+	@override String get pendingCommentCount => '待審核評論';
+	@override String joined({required Object str}) => '加入於 ${str}';
 }
 
 // Path: auth
@@ -284,6 +306,16 @@ class _TranslationsErrorsZhTw implements TranslationsErrorsEn {
 	@override String get pleaseLoginAgain => '請重新登入';
 	@override String get invalidLogin => '登入失敗，請檢查電子郵件和密碼';
 	@override String get tooManyRequests => '請求過多，請稍後再試';
+	@override String exceedsMaxLength({required Object max}) => '超出最大長度: ${max}';
+	@override String get contentCanNotBeEmpty => '內容不能為空';
+	@override String get titleCanNotBeEmpty => '標題不能為空';
+	@override String get tooManyRequestsPleaseTryAgainLaterText => '請求過多，請稍後再試，剩餘時間';
+	@override String remainingHours({required Object num}) => '${num}小時';
+	@override String remainingMinutes({required Object num}) => '${num}分';
+	@override String remainingSeconds({required Object num}) => '${num}秒';
+	@override String tagLimitExceeded({required Object limit}) => '標籤上限超出，上限: ${limit}';
+	@override String get failedToRefresh => '更新失敗';
+	@override String get noPermission => '權限不足';
 }
 
 // Path: friends
@@ -328,8 +360,6 @@ class _TranslationsGalleryDetailZhTw implements TranslationsGalleryDetailEn {
 	final TranslationsZhTw _root; // ignore: unused_field
 
 	// Translations
-	@override String get galleryDetail => '圖庫詳情';
-	@override String get viewGalleryDetail => '查看圖庫詳情';
 	@override String get copyLink => '複製連結地址';
 	@override String get copyImage => '複製圖片';
 	@override String get saveAs => '另存為';
@@ -478,6 +508,25 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get forceUpdateTip => '此版本為強制更新，請盡快更新到最新版本';
 	@override String get viewChangelog => '查看更新日誌';
 	@override String get alreadyLatestVersion => '已是最新版本';
+	@override String get appSettings => '應用設定';
+	@override String get configureYourAppSettings => '配置您的應用程式設定';
+	@override String get history => '歷史記錄';
+	@override String get autoRecordHistory => '自動記錄歷史記錄';
+	@override String get autoRecordHistoryDesc => '自動記錄您觀看過的影片和圖庫等信息';
+	@override String get showUnprocessedMarkdownText => '顯示未處理文本';
+	@override String get showUnprocessedMarkdownTextDesc => '顯示Markdown的原始文本';
+	@override String get markdown => 'Markdown';
+	@override String get activeBackgroundPrivacyMode => '隱私模式';
+	@override String get activeBackgroundPrivacyModeDesc => '禁止截圖、後台運行時隱藏畫面...';
+	@override String get privacy => '隱私';
+	@override String get forum => '論壇';
+	@override String get disableForumReplyQuote => '禁用論壇回覆引用';
+	@override String get disableForumReplyQuoteDesc => '禁用論壇回覆時攜帶被回覆樓層資訊';
+	@override String get theaterMode => '劇院模式';
+	@override String get theaterModeDesc => '開啟後，播放器背景會被設置為影片封面的模糊版本';
+	@override String get appLinks => '應用鏈接';
+	@override String get defaultBrowser => '預設瀏覽';
+	@override String get defaultBrowserDesc => '請在系統設定中打開預設鏈接配置項，並添加iwara.tv網站鏈接';
 }
 
 // Path: signIn
@@ -571,12 +620,6 @@ class _TranslationsVideoDetailZhTw implements TranslationsVideoDetailEn {
 	@override String get externalVideo => '這是一個站外影片';
 	@override String get openInBrowser => '在瀏覽器中打開';
 	@override String get resourceDeleted => '這個影片貌似被刪除了 :/';
-	@override String get noDownloadUrl => '沒有下載連結';
-	@override String get startDownloading => '開始下載';
-	@override String get downloadFailed => '下載失敗，請稍後再試';
-	@override String get downloadSuccess => '下載成功';
-	@override String get download => '下載';
-	@override String get downloadManager => '下載管理';
 }
 
 // Path: share
@@ -593,109 +636,308 @@ class _TranslationsShareZhTw implements TranslationsShareEn {
 	@override String get iReallyLikeThis => '我真的是太喜歡這個了，你也來看看吧！';
 	@override String get shareFailed => '分享失敗，請稍後再試';
 	@override String get share => '分享';
+	@override String get shareAsImage => '分享為圖片';
+	@override String get shareAsText => '分享為文本';
+	@override String get shareAsImageDesc => '將影片封面分享為圖片';
+	@override String get shareAsTextDesc => '將影片詳情分享為文本';
+	@override String get shareAsImageFailed => '分享影片封面為圖片失敗，請稍後再試';
+	@override String get shareAsTextFailed => '分享影片詳情為文本失敗，請稍後再試';
+	@override String get shareVideo => '分享影片';
+	@override String get authorIs => '作者是';
+	@override String get shareGallery => '分享圖庫';
+	@override String get galleryTitleIs => '圖庫名字叫做';
+	@override String get galleryAuthorIs => '圖庫作者是';
+	@override String get shareUser => '分享用戶';
+	@override String get userNameIs => '用戶名字叫做';
+	@override String get userAuthorIs => '用戶作者是';
+	@override String get comments => '評論';
+	@override String get shareThread => '分享帖子';
+	@override String get views => '瀏覽';
+	@override String get sharePost => '分享投稿';
+	@override String get postTitleIs => '投稿名字叫做';
+	@override String get postAuthorIs => '投稿作者是';
 }
 
-// Path: download
-class _TranslationsDownloadZhTw implements TranslationsDownloadEn {
-	_TranslationsDownloadZhTw._(this._root);
+// Path: markdown
+class _TranslationsMarkdownZhTw implements TranslationsMarkdownEn {
+	_TranslationsMarkdownZhTw._(this._root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
 	// Translations
-	@override late final _TranslationsDownloadErrorsZhTw errors = _TranslationsDownloadErrorsZhTw._(_root);
-	@override String get downloadList => '下載列表';
-	@override String get download => '下載';
-	@override String get startDownloading => '開始下載...';
-	@override String get clearAllFailedTasks => '清除全部失敗任務';
-	@override String get clearAllFailedTasksConfirmation => '確定要清除所有失敗的下載任務嗎？\n這些任務的文件也會被刪除。';
-	@override String get clearAllFailedTasksSuccess => '已清除所有失敗任務';
-	@override String get clearAllFailedTasksError => '清除失敗任務時出錯';
-	@override String get downloadStatus => '下載狀態';
-	@override String get imageList => '圖片列表';
-	@override String get retryDownload => '重試下載';
-	@override String get notDownloaded => '未下載';
-	@override String get downloaded => '已下載';
-	@override String get waitingForDownload => '等待下載...';
-	@override String downloadingProgressForImageProgress({required Object downloaded, required Object total, required Object progress}) => '下載中 (${downloaded}/${total}張 ${progress}%)';
-	@override String downloadingSingleImageProgress({required Object downloaded}) => '下載中 (${downloaded}張)';
-	@override String pausedProgressForImageProgress({required Object downloaded, required Object total, required Object progress}) => '已暫停 (${downloaded}/${total}張 ${progress}%)';
-	@override String pausedSingleImageProgress({required Object downloaded}) => '已暫停 (已下載${downloaded}張)';
-	@override String downloadedProgressForImageProgress({required Object total}) => '下載完成 (共${total}張)';
-	@override String get viewVideoDetail => '查看影片詳情';
-	@override String get viewGalleryDetail => '查看圖庫詳情';
-	@override String get moreOptions => '更多操作';
-	@override String get openFile => '打開文件';
-	@override String get pause => '暫停';
-	@override String get resume => '繼續';
-	@override String get copyDownloadUrl => '複製下載連結';
-	@override String get showInFolder => '在文件夾中顯示';
-	@override String get deleteTask => '刪除任務';
-	@override String downloadingProgressForVideoTask({required Object downloaded, required Object total, required Object progress, required Object speed}) => '下載中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
-	@override String downloadingOnlyDownloadedAndSpeed({required Object downloaded, required Object speed}) => '下載中 ${downloaded} • ${speed}MB/s';
-	@override String pausedForDownloadedAndTotal({required Object downloaded, required Object total, required Object progress}) => '已暫停 • ${downloaded}/${total} (${progress}%)';
-	@override String pausedAndDownloaded({required Object downloaded}) => '已暫停 • 已下載 ${downloaded}';
-	@override String downloadedWithSize({required Object size}) => '下載完成 • ${size}';
-	@override String get copyDownloadUrlSuccess => '已複製下載連結';
-	@override String totalImageNums({required Object num}) => '${num}張';
-	@override String downloadingDownloadedTotalProgressSpeed({required Object downloaded, required Object total, required Object progress, required Object speed}) => '下載中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
-	@override String get downloading => '下載中';
-	@override String get failed => '失敗';
-	@override String get completed => '已完成';
-	@override String get downloadDetail => '下載詳情';
+	@override String get markdownSyntax => 'Markdown 語法';
+	@override String get iwaraSpecialMarkdownSyntax => 'Iwara 專用語法';
+	@override String get internalLink => '站內鏈接';
+	@override String get supportAutoConvertLinkBelow => '支持自動轉換以下類型的鏈接：';
+	@override String get convertLinkExample => '🎬 影片鏈接\n🖼️ 圖片鏈接\n👤 用戶鏈接\n📌 論壇鏈接\n🎵 播放列表鏈接\n💬 帖子鏈接';
+	@override String get mentionUser => '提及用戶';
+	@override String get mentionUserDescription => '輸入@後跟用戶名，將自動轉換為用戶鏈接';
+	@override String get markdownBasicSyntax => 'Markdown 基本語法';
+	@override String get paragraphAndLineBreak => '段落與換行';
+	@override String get paragraphAndLineBreakDescription => '段落之間空一行，行末加兩個空格實現換行';
+	@override String get paragraphAndLineBreakSyntax => '這是第一段文字\n\n這是第二段文字\n這一行後面加兩個空格  \n就能換行了';
+	@override String get textStyle => '文本樣式';
+	@override String get textStyleDescription => '使用特殊符號包圍文本来改變樣式';
+	@override String get textStyleSyntax => '**粗體文本**\n*斜體文本*\n~~刪除線文本~~\n`代碼文本`';
+	@override String get quote => '引用';
+	@override String get quoteDescription => '使用 > 符號創建引用，多個 > 創建多級引用';
+	@override String get quoteSyntax => '> 這是一級引用\n>> 這是二級引用';
+	@override String get list => '列表';
+	@override String get listDescription => '使用數字+點號創建有序列表，使用 - 創建無序列表';
+	@override String get listSyntax => '1. 第一項\n2. 第二項\n\n- 無序項\n  - 子項\n  - 另一個子項';
+	@override String get linkAndImage => '鏈接與圖片';
+	@override String get linkAndImageDescription => '鏈接格式：[文字](URL)\n圖片格式：![描述](URL)';
+	@override String linkAndImageSyntax({required Object link, required Object imgUrl}) => '[鏈接文字](${link})\n![圖片描述](${imgUrl})';
+	@override String get title => '標題';
+	@override String get titleDescription => '使用 # 號創建標題，數量表示級別';
+	@override String get titleSyntax => '# 一級標題\n## 二級標題\n### 三級標題';
+	@override String get separator => '分隔線';
+	@override String get separatorDescription => '使用三個或更多 - 號創建分隔線';
+	@override String get separatorSyntax => '---';
+	@override String get syntax => '語法';
+}
+
+// Path: forum
+class _TranslationsForumZhTw implements TranslationsForumEn {
+	_TranslationsForumZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override late final _TranslationsForumErrorsZhTw errors = _TranslationsForumErrorsZhTw._(_root);
+	@override String get createPost => '創建帖子';
+	@override String get title => '標題';
+	@override String get enterTitle => '輸入標題';
+	@override String get content => '內容';
+	@override String get enterContent => '輸入內容';
+	@override String get writeYourContentHere => '在此輸入內容...';
+	@override String get posts => '帖子';
+	@override String get threads => '主題';
+	@override String get forum => '論壇';
+	@override String get createThread => '創建主題';
+	@override String get selectCategory => '選擇分類';
+	@override String cooldownRemaining({required Object minutes, required Object seconds}) => '冷卻剩餘時間 ${minutes} 分 ${seconds} 秒';
+	@override late final _TranslationsForumGroupsZhTw groups = _TranslationsForumGroupsZhTw._(_root);
+	@override late final _TranslationsForumLeafNamesZhTw leafNames = _TranslationsForumLeafNamesZhTw._(_root);
+	@override late final _TranslationsForumLeafDescriptionsZhTw leafDescriptions = _TranslationsForumLeafDescriptionsZhTw._(_root);
+	@override String get reply => '回覆';
+	@override String get pendingReview => '審核中';
+	@override String get editedAt => '編輯時間';
+	@override String get copySuccess => '已複製到剪貼簿';
+	@override String copySuccessForMessage({required Object str}) => '已複製到剪貼簿: ${str}';
+	@override String get editReply => '編輯回覆';
+	@override String get editTitle => '編輯標題';
+	@override String get submit => '提交';
+}
+
+// Path: notifications
+class _TranslationsNotificationsZhTw implements TranslationsNotificationsEn {
+	_TranslationsNotificationsZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override late final _TranslationsNotificationsErrorsZhTw errors = _TranslationsNotificationsErrorsZhTw._(_root);
+	@override String get notifications => '通知';
+	@override String get profile => '個人主頁';
+	@override String get postedNewComment => '發表了評論';
+	@override String get notifiedOn => '在您的個人主頁上發表了評論';
+	@override String get inYour => '在您的';
+	@override String get video => '影片';
+	@override String get repliedYourVideoComment => '回覆了您的影片評論';
+	@override String get copyInfoToClipboard => '複製通知信息到剪貼簿';
+	@override String get copySuccess => '已複製到剪貼簿';
+	@override String copySuccessForMessage({required Object str}) => '已複製到剪貼簿: ${str}';
+	@override String get markAllAsRead => '全部標記已讀';
+	@override String get markAllAsReadSuccess => '所有通知已標記為已讀';
+	@override String get markAllAsReadFailed => '全部標記已讀失敗';
+	@override String markAllAsReadFailedWithException({required Object exception}) => '全部標記已讀失敗: ${exception}';
+	@override String get markSelectedAsRead => '標記已讀';
+	@override String get markSelectedAsReadSuccess => '已標記為已讀';
+	@override String get markSelectedAsReadFailed => '標記已讀失敗';
+	@override String markSelectedAsReadFailedWithException({required Object exception}) => '標記已讀失敗: ${exception}';
+	@override String get markAsRead => '標記已讀';
+	@override String get markAsReadSuccess => '已標記為已讀';
+	@override String get markAsReadFailed => '標記已讀失敗';
+	@override String get notificationTypeHelp => '通知類型幫助';
+	@override String get dueToLackOfNotificationTypeDetails => '通知類型的詳細信息不足，目前支持的類型可能沒有覆蓋到您當前收到的消息';
+	@override String get helpUsImproveNotificationTypeSupport => '如果您願意幫助我們完善通知類型的支持：';
+	@override String get helpUsImproveNotificationTypeSupportLongText => '1. 📋 複製通知信息\n2. 🐞 前往項目倉庫提交 issue\n\n⚠️ 注意：通知信息可能包含個人隱私，如果你不想公開，也可以通過郵件發送給項目作者。';
+	@override String get goToRepository => '前往項目倉庫';
 	@override String get copy => '複製';
-	@override String get copySuccess => '已複製';
-	@override String get waiting => '等待中';
-	@override String get paused => '暫停中';
-	@override String downloadingOnlyDownloaded({required Object downloaded}) => '下載中 ${downloaded}';
+	@override String get commentApproved => '評論已通過';
+	@override String get repliedYourProfileComment => '回覆了您的個人主頁評論';
+	@override String get kReplied => '回覆了您在';
+	@override String get kCommented => '評論了您的';
+	@override String get kVideo => '影片';
+	@override String get kGallery => '圖庫';
+	@override String get kProfile => '主頁';
+	@override String get kThread => '主題';
+	@override String get kPost => '投稿';
+	@override String get kCommentSection => '下的評論';
+	@override String get kApprovedComment => '評論已通過';
+	@override String get kApprovedVideo => '影片已通過';
+	@override String get kApprovedGallery => '圖庫已通過';
+	@override String get kApprovedThread => '主題已審核';
+	@override String get kApprovedPost => '投稿已審核';
+	@override String get kUnknownType => '未知通知類型';
 }
 
-// Path: download.errors
-class _TranslationsDownloadErrorsZhTw implements TranslationsDownloadErrorsEn {
-	_TranslationsDownloadErrorsZhTw._(this._root);
+// Path: conversation
+class _TranslationsConversationZhTw implements TranslationsConversationEn {
+	_TranslationsConversationZhTw._(this._root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
 	// Translations
-	@override String get imageModelNotFound => '圖庫信息不存在';
-	@override String get downloadFailed => '下載失敗';
-	@override String get videoInfoNotFound => '影片信息不存在';
-	@override String get unknown => '未知';
-	@override String get downloadTaskAlreadyExists => '下載任務已存在';
-	@override String get videoAlreadyDownloaded => '該影片已下載';
-	@override String downloadFailedForMessage({required Object errorInfo}) => '添加下載任務失敗: ${errorInfo}';
-	@override String get userPausedDownload => '用戶暫停下載';
-	@override String fileSystemError({required Object errorInfo}) => '文件系統錯誤: ${errorInfo}';
-	@override String unknownError({required Object errorInfo}) => '未知錯誤: ${errorInfo}';
-	@override String get connectionTimeout => '連接超時';
-	@override String get sendTimeout => '發送超時';
-	@override String get receiveTimeout => '接收超時';
-	@override String serverError({required Object errorInfo}) => '伺服器錯誤: ${errorInfo}';
-	@override String get unknownNetworkError => '未知網路錯誤';
-	@override String get serviceIsClosing => '下載服務正在關閉';
-	@override String get partialDownloadFailed => '部分內容下載失敗';
-	@override String get noDownloadTask => '暫無下載任務';
-	@override String get taskNotFoundOrDataError => '任務不存在或資料錯誤';
-	@override String get copyDownloadUrlFailed => '複製下載連結失敗';
-	@override String get fileNotFound => '文件不存在';
-	@override String get openFolderFailed => '打開文件夾失敗';
-	@override String openFolderFailedWithMessage({required Object message}) => '打開文件夾失敗: ${message}';
-	@override String get directoryNotFound => '目錄不存在';
-	@override String get copyFailed => '複製失敗';
-	@override String get openFileFailed => '打開文件失敗';
-	@override String openFileFailedWithMessage({required Object message}) => '打開文件失敗: ${message}';
-	@override String get noDownloadSource => '沒有下載源';
-	@override String get noDownloadSourceNowPleaseWaitInfoLoaded => '暫無下載源，請等待信息加載完成後重試';
-	@override String get noActiveDownloadTask => '暫無正在下載的任務';
-	@override String get noFailedDownloadTask => '暫無失敗的任務';
-	@override String get noCompletedDownloadTask => '暫無已完成的任務';
-	@override String get taskAlreadyCompletedDoNotAdd => '任務已完成，請勿重複添加';
-	@override String get linkExpiredTryAgain => '連結已過期，正在重新獲取下載連結';
-	@override String get linkExpiredTryAgainSuccess => '連結已過期，正在重新獲取下載連結成功';
-	@override String get linkExpiredTryAgainFailed => '連結已過期，正在重新獲取下載連結失敗';
-	@override String get taskDeleted => '任務已刪除';
-	@override String unsupportedImageFormat({required Object format}) => '不支持的圖片格式: ${format}';
-	@override String get deleteFileError => '文件删除失败，可能是因为文件被占用';
-	@override String get deleteTaskError => '任务删除失败';
+	@override late final _TranslationsConversationErrorsZhTw errors = _TranslationsConversationErrorsZhTw._(_root);
+	@override String get conversation => '會話';
+	@override String get startConversation => '發起會話';
+	@override String get noConversation => '暫無會話';
+	@override String get selectFromLeftListAndStartConversation => '從左側列表選擇一個會話開始聊天';
+	@override String get title => '標題';
+	@override String get body => '內容';
+	@override String get selectAUser => '選擇用戶';
+	@override String get searchUsers => '搜索用戶...';
+	@override String get tmpNoConversions => '暫無會話';
+	@override String get deleteThisMessage => '刪除此消息';
+	@override String get deleteThisMessageSubtitle => '此操作不可撤銷';
+	@override String get writeMessageHere => '在此處輸入消息';
+	@override String get sendMessage => '發送消息';
+}
+
+// Path: splash
+class _TranslationsSplashZhTw implements TranslationsSplashEn {
+	_TranslationsSplashZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override late final _TranslationsSplashErrorsZhTw errors = _TranslationsSplashErrorsZhTw._(_root);
+	@override String get preparing => '準備中...';
+	@override String get initializing => '初始化中...';
+	@override String get loading => '加載中...';
+	@override String get ready => '準備完成';
+	@override String get initializingMessageService => '初始化消息服務中...';
+}
+
+// Path: forum.errors
+class _TranslationsForumErrorsZhTw implements TranslationsForumErrorsEn {
+	_TranslationsForumErrorsZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get pleaseSelectCategory => '請選擇分類';
+	@override String get threadLocked => '該主題已鎖定，無法回覆';
+}
+
+// Path: forum.groups
+class _TranslationsForumGroupsZhTw implements TranslationsForumGroupsEn {
+	_TranslationsForumGroupsZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get administration => '管理';
+	@override String get global => '全球';
+	@override String get chinese => '中文';
+	@override String get japanese => '日語';
+	@override String get korean => '韓語';
+	@override String get other => '其他';
+}
+
+// Path: forum.leafNames
+class _TranslationsForumLeafNamesZhTw implements TranslationsForumLeafNamesEn {
+	_TranslationsForumLeafNamesZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get announcements => '公告';
+	@override String get feedback => '反饋';
+	@override String get support => '幫助';
+	@override String get general => '一般';
+	@override String get guides => '指南';
+	@override String get questions => '問題';
+	@override String get requests => '請求';
+	@override String get sharing => '分享';
+	@override String get general_zh => '一般';
+	@override String get questions_zh => '問題';
+	@override String get requests_zh => '請求';
+	@override String get support_zh => '幫助';
+	@override String get general_ja => '一般';
+	@override String get questions_ja => '問題';
+	@override String get requests_ja => '請求';
+	@override String get support_ja => '幫助';
+	@override String get korean => '韓語';
+	@override String get other => '其他';
+}
+
+// Path: forum.leafDescriptions
+class _TranslationsForumLeafDescriptionsZhTw implements TranslationsForumLeafDescriptionsEn {
+	_TranslationsForumLeafDescriptionsZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get announcements => '官方重要通知和公告';
+	@override String get feedback => '對網站功能和服務的反饋';
+	@override String get support => '幫助解決網站相關問題';
+	@override String get general => '討論任何話題';
+	@override String get guides => '分享你的經驗和教程';
+	@override String get questions => '提出你的疑問';
+	@override String get requests => '發布你的請求';
+	@override String get sharing => '分享有趣的內容';
+	@override String get general_zh => '討論任何話題';
+	@override String get questions_zh => '提出你的疑問';
+	@override String get requests_zh => '發布你的請求';
+	@override String get support_zh => '幫助解決網站相關問題';
+	@override String get general_ja => '討論任何話題';
+	@override String get questions_ja => '提出你的疑問';
+	@override String get requests_ja => '發布你的請求';
+	@override String get support_ja => '幫助解決網站相關問題';
+	@override String get korean => '韓語相關討論';
+	@override String get other => '其他未分類的內容';
+}
+
+// Path: notifications.errors
+class _TranslationsNotificationsErrorsZhTw implements TranslationsNotificationsErrorsEn {
+	_TranslationsNotificationsErrorsZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get unsupportedNotificationType => '暫不支持的通知類型';
+	@override String get unknownUser => '未知用戶';
+	@override String unsupportedNotificationTypeWithType({required Object type}) => '暫不支持的通知類型: ${type}';
+	@override String get unknownNotificationType => '未知通知類型';
+}
+
+// Path: conversation.errors
+class _TranslationsConversationErrorsZhTw implements TranslationsConversationErrorsEn {
+	_TranslationsConversationErrorsZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get pleaseSelectAUser => '請選擇一個用戶';
+	@override String get pleaseEnterATitle => '請輸入標題';
+	@override String get clickToSelectAUser => '點擊選擇用戶';
+	@override String get loadFailedClickToRetry => '加載失敗,點擊重試';
+	@override String get loadFailed => '加載失敗';
+	@override String get clickToRetry => '點擊重試';
+	@override String get noMoreConversations => '沒有更多消息了';
+}
+
+// Path: splash.errors
+class _TranslationsSplashErrorsZhTw implements TranslationsSplashErrorsEn {
+	_TranslationsSplashErrorsZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get initializationFailed => '初始化失敗，請重啟應用';
 }
 
 /// Flat map(s) containing all translations.
@@ -840,12 +1082,30 @@ extension on TranslationsZhTw {
 			case 'common.numViews': return '觀看次數';
 			case 'common.updatedAt': return '更新時間';
 			case 'common.publishedAt': return '發布時間';
-			case 'common.download': return '下載';
-			case 'common.selectQuality': return '選擇畫質';
 			case 'common.externalVideo': return '站外影片';
 			case 'common.originalText': return '原文';
 			case 'common.showOriginalText': return '顯示原始文本';
 			case 'common.showProcessedText': return '顯示處理後文本';
+			case 'common.preview': return '預覽';
+			case 'common.rules': return '規則';
+			case 'common.agree': return '同意';
+			case 'common.disagree': return '不同意';
+			case 'common.agreeToRules': return '同意規則';
+			case 'common.createPost': return '創建投稿';
+			case 'common.title': return '標題';
+			case 'common.enterTitle': return '請輸入標題';
+			case 'common.content': return '內容';
+			case 'common.enterContent': return '請輸入內容';
+			case 'common.writeYourContentHere': return '請輸入內容...';
+			case 'common.tagBlacklist': return '黑名單標籤';
+			case 'common.noData': return '沒有資料';
+			case 'common.tagLimit': return '標籤上限';
+			case 'common.enableFloatingButtons': return '啟用浮動按鈕';
+			case 'common.disableFloatingButtons': return '禁用浮動按鈕';
+			case 'common.enabledFloatingButtons': return '已啟用浮動按鈕';
+			case 'common.disabledFloatingButtons': return '已禁用浮動按鈕';
+			case 'common.pendingCommentCount': return '待審核評論';
+			case 'common.joined': return ({required Object str}) => '加入於 ${str}';
 			case 'auth.login': return '登入';
 			case 'auth.logout': return '登出';
 			case 'auth.email': return '電子郵件';
@@ -911,6 +1171,16 @@ extension on TranslationsZhTw {
 			case 'errors.pleaseLoginAgain': return '請重新登入';
 			case 'errors.invalidLogin': return '登入失敗，請檢查電子郵件和密碼';
 			case 'errors.tooManyRequests': return '請求過多，請稍後再試';
+			case 'errors.exceedsMaxLength': return ({required Object max}) => '超出最大長度: ${max}';
+			case 'errors.contentCanNotBeEmpty': return '內容不能為空';
+			case 'errors.titleCanNotBeEmpty': return '標題不能為空';
+			case 'errors.tooManyRequestsPleaseTryAgainLaterText': return '請求過多，請稍後再試，剩餘時間';
+			case 'errors.remainingHours': return ({required Object num}) => '${num}小時';
+			case 'errors.remainingMinutes': return ({required Object num}) => '${num}分';
+			case 'errors.remainingSeconds': return ({required Object num}) => '${num}秒';
+			case 'errors.tagLimitExceeded': return ({required Object limit}) => '標籤上限超出，上限: ${limit}';
+			case 'errors.failedToRefresh': return '更新失敗';
+			case 'errors.noPermission': return '權限不足';
 			case 'friends.clickToRestoreFriend': return '點擊恢復朋友';
 			case 'friends.friendsList': return '朋友列表';
 			case 'friends.friendRequests': return '朋友請求';
@@ -919,8 +1189,6 @@ extension on TranslationsZhTw {
 			case 'authorProfile.userProfile': return '使用者資料';
 			case 'favorites.clickToRestoreFavorite': return '點擊恢復最愛';
 			case 'favorites.myFavorites': return '我的最愛';
-			case 'galleryDetail.galleryDetail': return '圖庫詳情';
-			case 'galleryDetail.viewGalleryDetail': return '查看圖庫詳情';
 			case 'galleryDetail.copyLink': return '複製連結地址';
 			case 'galleryDetail.copyImage': return '複製圖片';
 			case 'galleryDetail.saveAs': return '另存為';
@@ -1033,6 +1301,25 @@ extension on TranslationsZhTw {
 			case 'settings.forceUpdateTip': return '此版本為強制更新，請盡快更新到最新版本';
 			case 'settings.viewChangelog': return '查看更新日誌';
 			case 'settings.alreadyLatestVersion': return '已是最新版本';
+			case 'settings.appSettings': return '應用設定';
+			case 'settings.configureYourAppSettings': return '配置您的應用程式設定';
+			case 'settings.history': return '歷史記錄';
+			case 'settings.autoRecordHistory': return '自動記錄歷史記錄';
+			case 'settings.autoRecordHistoryDesc': return '自動記錄您觀看過的影片和圖庫等信息';
+			case 'settings.showUnprocessedMarkdownText': return '顯示未處理文本';
+			case 'settings.showUnprocessedMarkdownTextDesc': return '顯示Markdown的原始文本';
+			case 'settings.markdown': return 'Markdown';
+			case 'settings.activeBackgroundPrivacyMode': return '隱私模式';
+			case 'settings.activeBackgroundPrivacyModeDesc': return '禁止截圖、後台運行時隱藏畫面...';
+			case 'settings.privacy': return '隱私';
+			case 'settings.forum': return '論壇';
+			case 'settings.disableForumReplyQuote': return '禁用論壇回覆引用';
+			case 'settings.disableForumReplyQuoteDesc': return '禁用論壇回覆時攜帶被回覆樓層資訊';
+			case 'settings.theaterMode': return '劇院模式';
+			case 'settings.theaterModeDesc': return '開啟後，播放器背景會被設置為影片封面的模糊版本';
+			case 'settings.appLinks': return '應用鏈接';
+			case 'settings.defaultBrowser': return '預設瀏覽';
+			case 'settings.defaultBrowserDesc': return '請在系統設定中打開預設鏈接配置項，並添加iwara.tv網站鏈接';
 			case 'signIn.pleaseLoginFirst': return '請先登入後再簽到';
 			case 'signIn.alreadySignedInToday': return '您今天已經簽到過了！';
 			case 'signIn.youDidNotStickToTheSignIn': return '您未能持續簽到。';
@@ -1099,12 +1386,6 @@ extension on TranslationsZhTw {
 			case 'videoDetail.externalVideo': return '這是一個站外影片';
 			case 'videoDetail.openInBrowser': return '在瀏覽器中打開';
 			case 'videoDetail.resourceDeleted': return '這個影片貌似被刪除了 :/';
-			case 'videoDetail.noDownloadUrl': return '沒有下載連結';
-			case 'videoDetail.startDownloading': return '開始下載';
-			case 'videoDetail.downloadFailed': return '下載失敗，請稍後再試';
-			case 'videoDetail.downloadSuccess': return '下載成功';
-			case 'videoDetail.download': return '下載';
-			case 'videoDetail.downloadManager': return '下載管理';
 			case 'share.sharePlayList': return '分享播放列表';
 			case 'share.wowDidYouSeeThis': return '哇哦，你看过这个吗？';
 			case 'share.nameIs': return '名字叫做';
@@ -1112,90 +1393,193 @@ extension on TranslationsZhTw {
 			case 'share.iReallyLikeThis': return '我真的是太喜歡這個了，你也來看看吧！';
 			case 'share.shareFailed': return '分享失敗，請稍後再試';
 			case 'share.share': return '分享';
-			case 'download.errors.imageModelNotFound': return '圖庫信息不存在';
-			case 'download.errors.downloadFailed': return '下載失敗';
-			case 'download.errors.videoInfoNotFound': return '影片信息不存在';
-			case 'download.errors.unknown': return '未知';
-			case 'download.errors.downloadTaskAlreadyExists': return '下載任務已存在';
-			case 'download.errors.videoAlreadyDownloaded': return '該影片已下載';
-			case 'download.errors.downloadFailedForMessage': return ({required Object errorInfo}) => '添加下載任務失敗: ${errorInfo}';
-			case 'download.errors.userPausedDownload': return '用戶暫停下載';
-			case 'download.errors.fileSystemError': return ({required Object errorInfo}) => '文件系統錯誤: ${errorInfo}';
-			case 'download.errors.unknownError': return ({required Object errorInfo}) => '未知錯誤: ${errorInfo}';
-			case 'download.errors.connectionTimeout': return '連接超時';
-			case 'download.errors.sendTimeout': return '發送超時';
-			case 'download.errors.receiveTimeout': return '接收超時';
-			case 'download.errors.serverError': return ({required Object errorInfo}) => '伺服器錯誤: ${errorInfo}';
-			case 'download.errors.unknownNetworkError': return '未知網路錯誤';
-			case 'download.errors.serviceIsClosing': return '下載服務正在關閉';
-			case 'download.errors.partialDownloadFailed': return '部分內容下載失敗';
-			case 'download.errors.noDownloadTask': return '暫無下載任務';
-			case 'download.errors.taskNotFoundOrDataError': return '任務不存在或資料錯誤';
-			case 'download.errors.copyDownloadUrlFailed': return '複製下載連結失敗';
-			case 'download.errors.fileNotFound': return '文件不存在';
-			case 'download.errors.openFolderFailed': return '打開文件夾失敗';
-			case 'download.errors.openFolderFailedWithMessage': return ({required Object message}) => '打開文件夾失敗: ${message}';
-			case 'download.errors.directoryNotFound': return '目錄不存在';
-			case 'download.errors.copyFailed': return '複製失敗';
-			case 'download.errors.openFileFailed': return '打開文件失敗';
-			case 'download.errors.openFileFailedWithMessage': return ({required Object message}) => '打開文件失敗: ${message}';
-			case 'download.errors.noDownloadSource': return '沒有下載源';
-			case 'download.errors.noDownloadSourceNowPleaseWaitInfoLoaded': return '暫無下載源，請等待信息加載完成後重試';
-			case 'download.errors.noActiveDownloadTask': return '暫無正在下載的任務';
-			case 'download.errors.noFailedDownloadTask': return '暫無失敗的任務';
-			case 'download.errors.noCompletedDownloadTask': return '暫無已完成的任務';
-			case 'download.errors.taskAlreadyCompletedDoNotAdd': return '任務已完成，請勿重複添加';
-			case 'download.errors.linkExpiredTryAgain': return '連結已過期，正在重新獲取下載連結';
-			case 'download.errors.linkExpiredTryAgainSuccess': return '連結已過期，正在重新獲取下載連結成功';
-			case 'download.errors.linkExpiredTryAgainFailed': return '連結已過期，正在重新獲取下載連結失敗';
-			case 'download.errors.taskDeleted': return '任務已刪除';
-			case 'download.errors.unsupportedImageFormat': return ({required Object format}) => '不支持的圖片格式: ${format}';
-			case 'download.errors.deleteFileError': return '文件删除失败，可能是因为文件被占用';
-			case 'download.errors.deleteTaskError': return '任务删除失败';
-			case 'download.downloadList': return '下載列表';
-			case 'download.download': return '下載';
-			case 'download.startDownloading': return '開始下載...';
-			case 'download.clearAllFailedTasks': return '清除全部失敗任務';
-			case 'download.clearAllFailedTasksConfirmation': return '確定要清除所有失敗的下載任務嗎？\n這些任務的文件也會被刪除。';
-			case 'download.clearAllFailedTasksSuccess': return '已清除所有失敗任務';
-			case 'download.clearAllFailedTasksError': return '清除失敗任務時出錯';
-			case 'download.downloadStatus': return '下載狀態';
-			case 'download.imageList': return '圖片列表';
-			case 'download.retryDownload': return '重試下載';
-			case 'download.notDownloaded': return '未下載';
-			case 'download.downloaded': return '已下載';
-			case 'download.waitingForDownload': return '等待下載...';
-			case 'download.downloadingProgressForImageProgress': return ({required Object downloaded, required Object total, required Object progress}) => '下載中 (${downloaded}/${total}張 ${progress}%)';
-			case 'download.downloadingSingleImageProgress': return ({required Object downloaded}) => '下載中 (${downloaded}張)';
-			case 'download.pausedProgressForImageProgress': return ({required Object downloaded, required Object total, required Object progress}) => '已暫停 (${downloaded}/${total}張 ${progress}%)';
-			case 'download.pausedSingleImageProgress': return ({required Object downloaded}) => '已暫停 (已下載${downloaded}張)';
-			case 'download.downloadedProgressForImageProgress': return ({required Object total}) => '下載完成 (共${total}張)';
-			case 'download.viewVideoDetail': return '查看影片詳情';
-			case 'download.viewGalleryDetail': return '查看圖庫詳情';
-			case 'download.moreOptions': return '更多操作';
-			case 'download.openFile': return '打開文件';
-			case 'download.pause': return '暫停';
-			case 'download.resume': return '繼續';
-			case 'download.copyDownloadUrl': return '複製下載連結';
-			case 'download.showInFolder': return '在文件夾中顯示';
-			case 'download.deleteTask': return '刪除任務';
-			case 'download.downloadingProgressForVideoTask': return ({required Object downloaded, required Object total, required Object progress, required Object speed}) => '下載中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
-			case 'download.downloadingOnlyDownloadedAndSpeed': return ({required Object downloaded, required Object speed}) => '下載中 ${downloaded} • ${speed}MB/s';
-			case 'download.pausedForDownloadedAndTotal': return ({required Object downloaded, required Object total, required Object progress}) => '已暫停 • ${downloaded}/${total} (${progress}%)';
-			case 'download.pausedAndDownloaded': return ({required Object downloaded}) => '已暫停 • 已下載 ${downloaded}';
-			case 'download.downloadedWithSize': return ({required Object size}) => '下載完成 • ${size}';
-			case 'download.copyDownloadUrlSuccess': return '已複製下載連結';
-			case 'download.totalImageNums': return ({required Object num}) => '${num}張';
-			case 'download.downloadingDownloadedTotalProgressSpeed': return ({required Object downloaded, required Object total, required Object progress, required Object speed}) => '下載中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
-			case 'download.downloading': return '下載中';
-			case 'download.failed': return '失敗';
-			case 'download.completed': return '已完成';
-			case 'download.downloadDetail': return '下載詳情';
-			case 'download.copy': return '複製';
-			case 'download.copySuccess': return '已複製';
-			case 'download.waiting': return '等待中';
-			case 'download.paused': return '暫停中';
-			case 'download.downloadingOnlyDownloaded': return ({required Object downloaded}) => '下載中 ${downloaded}';
+			case 'share.shareAsImage': return '分享為圖片';
+			case 'share.shareAsText': return '分享為文本';
+			case 'share.shareAsImageDesc': return '將影片封面分享為圖片';
+			case 'share.shareAsTextDesc': return '將影片詳情分享為文本';
+			case 'share.shareAsImageFailed': return '分享影片封面為圖片失敗，請稍後再試';
+			case 'share.shareAsTextFailed': return '分享影片詳情為文本失敗，請稍後再試';
+			case 'share.shareVideo': return '分享影片';
+			case 'share.authorIs': return '作者是';
+			case 'share.shareGallery': return '分享圖庫';
+			case 'share.galleryTitleIs': return '圖庫名字叫做';
+			case 'share.galleryAuthorIs': return '圖庫作者是';
+			case 'share.shareUser': return '分享用戶';
+			case 'share.userNameIs': return '用戶名字叫做';
+			case 'share.userAuthorIs': return '用戶作者是';
+			case 'share.comments': return '評論';
+			case 'share.shareThread': return '分享帖子';
+			case 'share.views': return '瀏覽';
+			case 'share.sharePost': return '分享投稿';
+			case 'share.postTitleIs': return '投稿名字叫做';
+			case 'share.postAuthorIs': return '投稿作者是';
+			case 'markdown.markdownSyntax': return 'Markdown 語法';
+			case 'markdown.iwaraSpecialMarkdownSyntax': return 'Iwara 專用語法';
+			case 'markdown.internalLink': return '站內鏈接';
+			case 'markdown.supportAutoConvertLinkBelow': return '支持自動轉換以下類型的鏈接：';
+			case 'markdown.convertLinkExample': return '🎬 影片鏈接\n🖼️ 圖片鏈接\n👤 用戶鏈接\n📌 論壇鏈接\n🎵 播放列表鏈接\n💬 帖子鏈接';
+			case 'markdown.mentionUser': return '提及用戶';
+			case 'markdown.mentionUserDescription': return '輸入@後跟用戶名，將自動轉換為用戶鏈接';
+			case 'markdown.markdownBasicSyntax': return 'Markdown 基本語法';
+			case 'markdown.paragraphAndLineBreak': return '段落與換行';
+			case 'markdown.paragraphAndLineBreakDescription': return '段落之間空一行，行末加兩個空格實現換行';
+			case 'markdown.paragraphAndLineBreakSyntax': return '這是第一段文字\n\n這是第二段文字\n這一行後面加兩個空格  \n就能換行了';
+			case 'markdown.textStyle': return '文本樣式';
+			case 'markdown.textStyleDescription': return '使用特殊符號包圍文本来改變樣式';
+			case 'markdown.textStyleSyntax': return '**粗體文本**\n*斜體文本*\n~~刪除線文本~~\n`代碼文本`';
+			case 'markdown.quote': return '引用';
+			case 'markdown.quoteDescription': return '使用 > 符號創建引用，多個 > 創建多級引用';
+			case 'markdown.quoteSyntax': return '> 這是一級引用\n>> 這是二級引用';
+			case 'markdown.list': return '列表';
+			case 'markdown.listDescription': return '使用數字+點號創建有序列表，使用 - 創建無序列表';
+			case 'markdown.listSyntax': return '1. 第一項\n2. 第二項\n\n- 無序項\n  - 子項\n  - 另一個子項';
+			case 'markdown.linkAndImage': return '鏈接與圖片';
+			case 'markdown.linkAndImageDescription': return '鏈接格式：[文字](URL)\n圖片格式：![描述](URL)';
+			case 'markdown.linkAndImageSyntax': return ({required Object link, required Object imgUrl}) => '[鏈接文字](${link})\n![圖片描述](${imgUrl})';
+			case 'markdown.title': return '標題';
+			case 'markdown.titleDescription': return '使用 # 號創建標題，數量表示級別';
+			case 'markdown.titleSyntax': return '# 一級標題\n## 二級標題\n### 三級標題';
+			case 'markdown.separator': return '分隔線';
+			case 'markdown.separatorDescription': return '使用三個或更多 - 號創建分隔線';
+			case 'markdown.separatorSyntax': return '---';
+			case 'markdown.syntax': return '語法';
+			case 'forum.errors.pleaseSelectCategory': return '請選擇分類';
+			case 'forum.errors.threadLocked': return '該主題已鎖定，無法回覆';
+			case 'forum.createPost': return '創建帖子';
+			case 'forum.title': return '標題';
+			case 'forum.enterTitle': return '輸入標題';
+			case 'forum.content': return '內容';
+			case 'forum.enterContent': return '輸入內容';
+			case 'forum.writeYourContentHere': return '在此輸入內容...';
+			case 'forum.posts': return '帖子';
+			case 'forum.threads': return '主題';
+			case 'forum.forum': return '論壇';
+			case 'forum.createThread': return '創建主題';
+			case 'forum.selectCategory': return '選擇分類';
+			case 'forum.cooldownRemaining': return ({required Object minutes, required Object seconds}) => '冷卻剩餘時間 ${minutes} 分 ${seconds} 秒';
+			case 'forum.groups.administration': return '管理';
+			case 'forum.groups.global': return '全球';
+			case 'forum.groups.chinese': return '中文';
+			case 'forum.groups.japanese': return '日語';
+			case 'forum.groups.korean': return '韓語';
+			case 'forum.groups.other': return '其他';
+			case 'forum.leafNames.announcements': return '公告';
+			case 'forum.leafNames.feedback': return '反饋';
+			case 'forum.leafNames.support': return '幫助';
+			case 'forum.leafNames.general': return '一般';
+			case 'forum.leafNames.guides': return '指南';
+			case 'forum.leafNames.questions': return '問題';
+			case 'forum.leafNames.requests': return '請求';
+			case 'forum.leafNames.sharing': return '分享';
+			case 'forum.leafNames.general_zh': return '一般';
+			case 'forum.leafNames.questions_zh': return '問題';
+			case 'forum.leafNames.requests_zh': return '請求';
+			case 'forum.leafNames.support_zh': return '幫助';
+			case 'forum.leafNames.general_ja': return '一般';
+			case 'forum.leafNames.questions_ja': return '問題';
+			case 'forum.leafNames.requests_ja': return '請求';
+			case 'forum.leafNames.support_ja': return '幫助';
+			case 'forum.leafNames.korean': return '韓語';
+			case 'forum.leafNames.other': return '其他';
+			case 'forum.leafDescriptions.announcements': return '官方重要通知和公告';
+			case 'forum.leafDescriptions.feedback': return '對網站功能和服務的反饋';
+			case 'forum.leafDescriptions.support': return '幫助解決網站相關問題';
+			case 'forum.leafDescriptions.general': return '討論任何話題';
+			case 'forum.leafDescriptions.guides': return '分享你的經驗和教程';
+			case 'forum.leafDescriptions.questions': return '提出你的疑問';
+			case 'forum.leafDescriptions.requests': return '發布你的請求';
+			case 'forum.leafDescriptions.sharing': return '分享有趣的內容';
+			case 'forum.leafDescriptions.general_zh': return '討論任何話題';
+			case 'forum.leafDescriptions.questions_zh': return '提出你的疑問';
+			case 'forum.leafDescriptions.requests_zh': return '發布你的請求';
+			case 'forum.leafDescriptions.support_zh': return '幫助解決網站相關問題';
+			case 'forum.leafDescriptions.general_ja': return '討論任何話題';
+			case 'forum.leafDescriptions.questions_ja': return '提出你的疑問';
+			case 'forum.leafDescriptions.requests_ja': return '發布你的請求';
+			case 'forum.leafDescriptions.support_ja': return '幫助解決網站相關問題';
+			case 'forum.leafDescriptions.korean': return '韓語相關討論';
+			case 'forum.leafDescriptions.other': return '其他未分類的內容';
+			case 'forum.reply': return '回覆';
+			case 'forum.pendingReview': return '審核中';
+			case 'forum.editedAt': return '編輯時間';
+			case 'forum.copySuccess': return '已複製到剪貼簿';
+			case 'forum.copySuccessForMessage': return ({required Object str}) => '已複製到剪貼簿: ${str}';
+			case 'forum.editReply': return '編輯回覆';
+			case 'forum.editTitle': return '編輯標題';
+			case 'forum.submit': return '提交';
+			case 'notifications.errors.unsupportedNotificationType': return '暫不支持的通知類型';
+			case 'notifications.errors.unknownUser': return '未知用戶';
+			case 'notifications.errors.unsupportedNotificationTypeWithType': return ({required Object type}) => '暫不支持的通知類型: ${type}';
+			case 'notifications.errors.unknownNotificationType': return '未知通知類型';
+			case 'notifications.notifications': return '通知';
+			case 'notifications.profile': return '個人主頁';
+			case 'notifications.postedNewComment': return '發表了評論';
+			case 'notifications.notifiedOn': return '在您的個人主頁上發表了評論';
+			case 'notifications.inYour': return '在您的';
+			case 'notifications.video': return '影片';
+			case 'notifications.repliedYourVideoComment': return '回覆了您的影片評論';
+			case 'notifications.copyInfoToClipboard': return '複製通知信息到剪貼簿';
+			case 'notifications.copySuccess': return '已複製到剪貼簿';
+			case 'notifications.copySuccessForMessage': return ({required Object str}) => '已複製到剪貼簿: ${str}';
+			case 'notifications.markAllAsRead': return '全部標記已讀';
+			case 'notifications.markAllAsReadSuccess': return '所有通知已標記為已讀';
+			case 'notifications.markAllAsReadFailed': return '全部標記已讀失敗';
+			case 'notifications.markAllAsReadFailedWithException': return ({required Object exception}) => '全部標記已讀失敗: ${exception}';
+			case 'notifications.markSelectedAsRead': return '標記已讀';
+			case 'notifications.markSelectedAsReadSuccess': return '已標記為已讀';
+			case 'notifications.markSelectedAsReadFailed': return '標記已讀失敗';
+			case 'notifications.markSelectedAsReadFailedWithException': return ({required Object exception}) => '標記已讀失敗: ${exception}';
+			case 'notifications.markAsRead': return '標記已讀';
+			case 'notifications.markAsReadSuccess': return '已標記為已讀';
+			case 'notifications.markAsReadFailed': return '標記已讀失敗';
+			case 'notifications.notificationTypeHelp': return '通知類型幫助';
+			case 'notifications.dueToLackOfNotificationTypeDetails': return '通知類型的詳細信息不足，目前支持的類型可能沒有覆蓋到您當前收到的消息';
+			case 'notifications.helpUsImproveNotificationTypeSupport': return '如果您願意幫助我們完善通知類型的支持：';
+			case 'notifications.helpUsImproveNotificationTypeSupportLongText': return '1. 📋 複製通知信息\n2. 🐞 前往項目倉庫提交 issue\n\n⚠️ 注意：通知信息可能包含個人隱私，如果你不想公開，也可以通過郵件發送給項目作者。';
+			case 'notifications.goToRepository': return '前往項目倉庫';
+			case 'notifications.copy': return '複製';
+			case 'notifications.commentApproved': return '評論已通過';
+			case 'notifications.repliedYourProfileComment': return '回覆了您的個人主頁評論';
+			case 'notifications.kReplied': return '回覆了您在';
+			case 'notifications.kCommented': return '評論了您的';
+			case 'notifications.kVideo': return '影片';
+			case 'notifications.kGallery': return '圖庫';
+			case 'notifications.kProfile': return '主頁';
+			case 'notifications.kThread': return '主題';
+			case 'notifications.kPost': return '投稿';
+			case 'notifications.kCommentSection': return '下的評論';
+			case 'notifications.kApprovedComment': return '評論已通過';
+			case 'notifications.kApprovedVideo': return '影片已通過';
+			case 'notifications.kApprovedGallery': return '圖庫已通過';
+			case 'notifications.kApprovedThread': return '主題已審核';
+			case 'notifications.kApprovedPost': return '投稿已審核';
+			case 'notifications.kUnknownType': return '未知通知類型';
+			case 'conversation.errors.pleaseSelectAUser': return '請選擇一個用戶';
+			case 'conversation.errors.pleaseEnterATitle': return '請輸入標題';
+			case 'conversation.errors.clickToSelectAUser': return '點擊選擇用戶';
+			case 'conversation.errors.loadFailedClickToRetry': return '加載失敗,點擊重試';
+			case 'conversation.errors.loadFailed': return '加載失敗';
+			case 'conversation.errors.clickToRetry': return '點擊重試';
+			case 'conversation.errors.noMoreConversations': return '沒有更多消息了';
+			case 'conversation.conversation': return '會話';
+			case 'conversation.startConversation': return '發起會話';
+			case 'conversation.noConversation': return '暫無會話';
+			case 'conversation.selectFromLeftListAndStartConversation': return '從左側列表選擇一個會話開始聊天';
+			case 'conversation.title': return '標題';
+			case 'conversation.body': return '內容';
+			case 'conversation.selectAUser': return '選擇用戶';
+			case 'conversation.searchUsers': return '搜索用戶...';
+			case 'conversation.tmpNoConversions': return '暫無會話';
+			case 'conversation.deleteThisMessage': return '刪除此消息';
+			case 'conversation.deleteThisMessageSubtitle': return '此操作不可撤銷';
+			case 'conversation.writeMessageHere': return '在此處輸入消息';
+			case 'conversation.sendMessage': return '發送消息';
+			case 'splash.errors.initializationFailed': return '初始化失敗，請重啟應用';
+			case 'splash.preparing': return '準備中...';
+			case 'splash.initializing': return '初始化中...';
+			case 'splash.loading': return '加載中...';
+			case 'splash.ready': return '準備完成';
+			case 'splash.initializingMessageService': return '初始化消息服務中...';
 			default: return null;
 		}
 	}

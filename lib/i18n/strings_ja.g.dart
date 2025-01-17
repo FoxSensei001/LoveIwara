@@ -48,7 +48,11 @@ class TranslationsJa implements Translations {
 	@override late final _TranslationsSubscriptionsJa subscriptions = _TranslationsSubscriptionsJa._(_root);
 	@override late final _TranslationsVideoDetailJa videoDetail = _TranslationsVideoDetailJa._(_root);
 	@override late final _TranslationsShareJa share = _TranslationsShareJa._(_root);
-	@override late final _TranslationsDownloadJa download = _TranslationsDownloadJa._(_root);
+	@override late final _TranslationsMarkdownJa markdown = _TranslationsMarkdownJa._(_root);
+	@override late final _TranslationsForumJa forum = _TranslationsForumJa._(_root);
+	@override late final _TranslationsNotificationsJa notifications = _TranslationsNotificationsJa._(_root);
+	@override late final _TranslationsConversationJa conversation = _TranslationsConversationJa._(_root);
+	@override late final _TranslationsSplashJa splash = _TranslationsSplashJa._(_root);
 }
 
 // Path: common
@@ -199,8 +203,26 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get originalText => '原文';
 	@override String get showOriginalText => '原文を表示';
 	@override String get showProcessedText => '処理後の原文を表示';
-	@override String get download => 'ダウンロード';
-	@override String get selectQuality => '画質を選択';
+	@override String get preview => 'プレビュー';
+	@override String get rules => 'ルール';
+	@override String get agree => '同意';
+	@override String get disagree => '不同意';
+	@override String get agreeToRules => '同意ルール';
+	@override String get createPost => '投稿を作成';
+	@override String get title => 'タイトル';
+	@override String get enterTitle => 'タイトルを入力してください';
+	@override String get content => '内容';
+	@override String get enterContent => '内容を入力してください';
+	@override String get writeYourContentHere => '内容を入力してください...';
+	@override String get tagBlacklist => 'ブラックリストタグ';
+	@override String get noData => 'データがありません';
+	@override String get tagLimit => 'タグ上限';
+	@override String get enableFloatingButtons => 'フローティングボタンを有効';
+	@override String get disableFloatingButtons => 'フローティングボタンを無効';
+	@override String get enabledFloatingButtons => 'フローティングボタンが有効';
+	@override String get disabledFloatingButtons => 'フローティングボタンが無効';
+	@override String get pendingCommentCount => '未審核コメント';
+	@override String joined({required Object str}) => '${str} に参加';
 }
 
 // Path: auth
@@ -284,6 +306,16 @@ class _TranslationsErrorsJa implements TranslationsErrorsEn {
 	@override String get pleaseLoginAgain => 'ログインしてください';
 	@override String get invalidLogin => 'ログインに失敗しました。メールアドレスとパスワードを確認してください';
 	@override String get tooManyRequests => 'リクエストが多すぎます。後でもう一度お試しください';
+	@override String exceedsMaxLength({required Object max}) => '最大長さを超えています: ${max}';
+	@override String get contentCanNotBeEmpty => 'コンテンツは空にできません';
+	@override String get titleCanNotBeEmpty => 'タイトルは空にできません';
+	@override String get tooManyRequestsPleaseTryAgainLaterText => 'リクエストが多すぎます。後でもう一度お試しください。残り時間';
+	@override String remainingHours({required Object num}) => '${num}時間';
+	@override String remainingMinutes({required Object num}) => '${num}分';
+	@override String remainingSeconds({required Object num}) => '${num}秒';
+	@override String tagLimitExceeded({required Object limit}) => 'タグの上限を超えています。上限: ${limit}';
+	@override String get failedToRefresh => '更新に失敗しました';
+	@override String get noPermission => '権限がありません';
 }
 
 // Path: friends
@@ -328,8 +360,6 @@ class _TranslationsGalleryDetailJa implements TranslationsGalleryDetailEn {
 	final TranslationsJa _root; // ignore: unused_field
 
 	// Translations
-	@override String get galleryDetail => 'ギャラリー詳細';
-	@override String get viewGalleryDetail => 'ギャラリー詳細を表示';
 	@override String get copyLink => 'リンクをコピー';
 	@override String get copyImage => '画像をコピー';
 	@override String get saveAs => '名前を付けて保存';
@@ -478,6 +508,25 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get forceUpdateTip => 'これは必須アップデートです。できるだけ早く最新バージョンにアップデートしてください';
 	@override String get viewChangelog => '更新内容を表示';
 	@override String get alreadyLatestVersion => 'すでに最新バージョンです';
+	@override String get appSettings => 'アプリ設定';
+	@override String get configureYourAppSettings => 'アプリ設定を設定';
+	@override String get history => '履歴';
+	@override String get autoRecordHistory => '自動記録履歴';
+	@override String get autoRecordHistoryDesc => '視聴した動画やギャラリーなどの情報を自動的に記録します';
+	@override String get showUnprocessedMarkdownText => '未処理のMarkdownテキストを表示';
+	@override String get showUnprocessedMarkdownTextDesc => 'Markdownの元のテキストを表示';
+	@override String get markdown => 'Markdown';
+	@override String get activeBackgroundPrivacyMode => 'プライバシーモード';
+	@override String get activeBackgroundPrivacyModeDesc => 'スクリーンショットを禁止し、バックグラウンド実行時に画面を隠す...';
+	@override String get privacy => 'プライバシー';
+	@override String get forum => 'フォーラム';
+	@override String get disableForumReplyQuote => 'フォーラム返信引用を無効にする';
+	@override String get disableForumReplyQuoteDesc => 'フォーラム返信時の返信階層情報の携帯を無効にする';
+	@override String get theaterMode => '劇院モード';
+	@override String get theaterModeDesc => '開啟後、プレーヤー背景がビデオカバーのぼかしバージョンに設定されます';
+	@override String get appLinks => 'アプリリンク';
+	@override String get defaultBrowser => 'デフォルトブラウザ';
+	@override String get defaultBrowserDesc => 'システム設定でデフォルトリンク設定項目を開き、iwara.tvサイトリンクを追加してください';
 }
 
 // Path: signIn
@@ -571,12 +620,6 @@ class _TranslationsVideoDetailJa implements TranslationsVideoDetailEn {
 	@override String get externalVideo => 'これは站外ビデオです';
 	@override String get openInBrowser => 'ブラウザで開く';
 	@override String get resourceDeleted => 'このビデオは削除されたようです :/';
-	@override String get noDownloadUrl => 'ダウンロードURLがありません';
-	@override String get startDownloading => 'ダウンロードを開始';
-	@override String get downloadFailed => 'ダウンロードに失敗しました。後でもう一度お試しください';
-	@override String get downloadSuccess => 'ダウンロードに成功しました';
-	@override String get download => 'ダウンロード';
-	@override String get downloadManager => 'ダウンロード管理';
 }
 
 // Path: share
@@ -593,109 +636,305 @@ class _TranslationsShareJa implements TranslationsShareEn {
 	@override String get iReallyLikeThis => '本当に好きです';
 	@override String get shareFailed => '共有に失敗しました。後でもう一度お試しください';
 	@override String get share => '共有';
+	@override String get shareAsImage => '画像として共有';
+	@override String get shareAsText => 'テキストとして共有';
+	@override String get shareAsImageDesc => '動画のサムネイルを画像として共有';
+	@override String get shareAsTextDesc => '動画の詳細をテキストとして共有';
+	@override String get shareAsImageFailed => 'サムネイルの共有に失敗しました。後でもう一度お試しください';
+	@override String get shareAsTextFailed => '詳細の共有に失敗しました。後でもう一度お試しください';
+	@override String get shareVideo => '動画を共有';
+	@override String get authorIs => '作者は';
+	@override String get shareGallery => 'ギャラリーを共有';
+	@override String get galleryTitleIs => 'ギャラリーのタイトルは';
+	@override String get galleryAuthorIs => 'ギャラリーの作者は';
+	@override String get shareUser => 'ユーザーを共有';
+	@override String get userNameIs => 'ユーザーの名前は';
+	@override String get userAuthorIs => 'ユーザーの作者は';
+	@override String get comments => 'コメント';
+	@override String get shareThread => 'スレッドを共有';
+	@override String get views => '閲覧';
+	@override String get sharePost => '投稿を共有';
+	@override String get postTitleIs => '投稿のタイトルは';
+	@override String get postAuthorIs => '投稿の作者は';
 }
 
-// Path: download
-class _TranslationsDownloadJa implements TranslationsDownloadEn {
-	_TranslationsDownloadJa._(this._root);
+// Path: markdown
+class _TranslationsMarkdownJa implements TranslationsMarkdownEn {
+	_TranslationsMarkdownJa._(this._root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
 	// Translations
-	@override late final _TranslationsDownloadErrorsJa errors = _TranslationsDownloadErrorsJa._(_root);
-	@override String get downloadList => 'ダウンロードリスト';
-	@override String get download => 'ダウンロード';
-	@override String get startDownloading => 'ダウンロードを開始';
-	@override String get clearAllFailedTasks => 'すべての失敗タスクをクリア';
-	@override String get clearAllFailedTasksConfirmation => 'すべての失敗タスクをクリアしますか？\nこれらのタスクのファイルも削除されます。';
-	@override String get clearAllFailedTasksSuccess => 'すべての失敗タスクをクリアしました';
-	@override String get clearAllFailedTasksError => '失敗タスクのクリア中にエラーが発生しました';
-	@override String get downloadStatus => 'ダウンロード状態';
-	@override String get imageList => '画像リスト';
-	@override String get retryDownload => '再試行ダウンロード';
-	@override String get notDownloaded => '未ダウンロード';
-	@override String get downloaded => 'ダウンロード済み';
-	@override String get waitingForDownload => 'ダウンロード待機中';
-	@override String downloadingProgressForImageProgress({required Object downloaded, required Object total, required Object progress}) => 'ダウンロード中 (${downloaded}/${total}枚 ${progress}%)';
-	@override String downloadingSingleImageProgress({required Object downloaded}) => 'ダウンロード中 (${downloaded}枚)';
-	@override String pausedProgressForImageProgress({required Object downloaded, required Object total, required Object progress}) => 'ダウンロード一時停止中 (${downloaded}/${total}枚 ${progress}%)';
-	@override String pausedSingleImageProgress({required Object downloaded}) => 'ダウンロード一時停止中 (${downloaded}枚)';
-	@override String downloadedProgressForImageProgress({required Object total}) => 'ダウンロード完了 (合計${total}枚)';
-	@override String get viewVideoDetail => 'ビデオ詳細を表示';
-	@override String get viewGalleryDetail => 'ギャラリー詳細を表示';
-	@override String get moreOptions => 'もっと操作';
-	@override String get openFile => 'ファイルを開く';
-	@override String get pause => '一時停止';
-	@override String get resume => '継続';
-	@override String get copyDownloadUrl => 'ダウンロードリンクをコピー';
-	@override String get showInFolder => 'フォルダーで表示';
-	@override String get deleteTask => 'タスクを削除';
-	@override String downloadingProgressForVideoTask({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'ダウンロード中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
-	@override String downloadingOnlyDownloadedAndSpeed({required Object downloaded, required Object speed}) => 'ダウンロード中 ${downloaded} • ${speed}MB/s';
-	@override String pausedForDownloadedAndTotal({required Object downloaded, required Object total, required Object progress}) => '一時停止中 ${downloaded}/${total} (${progress}%)';
-	@override String pausedAndDownloaded({required Object downloaded}) => '一時停止中 • ダウンロード済み ${downloaded}';
-	@override String downloadedWithSize({required Object size}) => 'ダウンロード完了 • ${size}';
-	@override String get copyDownloadUrlSuccess => 'ダウンロードリンクをコピーしました';
-	@override String totalImageNums({required Object num}) => '${num}枚';
-	@override String downloadingDownloadedTotalProgressSpeed({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'ダウンロード中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
-	@override String get downloading => 'ダウンロード中';
-	@override String get failed => '失敗';
-	@override String get completed => '完了';
-	@override String get downloadDetail => 'ダウンロード詳細';
+	@override String get markdownSyntax => 'Markdown 構文';
+	@override String get iwaraSpecialMarkdownSyntax => 'Iwara 専用構文';
+	@override String get internalLink => '站内鏈接';
+	@override String get supportAutoConvertLinkBelow => '以下のタイプのリンクを自動変換します：';
+	@override String get convertLinkExample => '🎬 ビデオリンク\n🖼️ 画像リンク\n👤 ユーザーリンク\n📌 フォーラムリンク\n🎵 プレイリストリンク\n💬 スレッドリンク';
+	@override String get mentionUser => 'ユーザーを言及';
+	@override String get mentionUserDescription => '@後にユーザー名を入力すると、ユーザーリンクに自動変換されます';
+	@override String get markdownBasicSyntax => 'Markdown 基本構文';
+	@override String get paragraphAndLineBreak => '段落と改行';
+	@override String get paragraphAndLineBreakDescription => '段落間に空行を入れ、行末に2つのスペースを追加すると改行されます';
+	@override String get paragraphAndLineBreakSyntax => 'これは第一段落です\n\nこれは第二段落です\nこの行の後に2つのスペースを追加して  \n改行されます';
+	@override String get textStyle => 'テキストスタイル';
+	@override String get textStyleDescription => '特殊記号でテキストのスタイルを変更';
+	@override String get textStyleSyntax => '**太字テキスト**\n*斜体テキスト*\n~~削除線テキスト~~\n`コードテキスト`';
+	@override String get quote => '引用';
+	@override String get quoteDescription => '> 符号で引用を作成し、複数の > で多段引用を作成';
+	@override String get quoteSyntax => '> これは一階引用です\n>> これは二階引用です';
+	@override String get list => 'リスト';
+	@override String get listDescription => '数字+点号で順序付きリストを作成し、- で順序なしリストを作成';
+	@override String get listSyntax => '1. 第一項\n2. 第二項\n\n- 順序なし項\n  - 子項\n  - 別の子項';
+	@override String get linkAndImage => 'リンクと画像';
+	@override String get linkAndImageDescription => 'リンク形式：[テキスト](URL)\n画像形式：![説明](URL)';
+	@override String linkAndImageSyntax({required Object link, required Object imgUrl}) => '[リンクテキスト](${link})\n![画像説明](${imgUrl})';
+	@override String get title => 'タイトル';
+	@override String get titleDescription => '＃ 号でタイトルを作成し、数でレベルを表示';
+	@override String get titleSyntax => '# 一階タイトル\n## 二階タイトル\n### 三階タイトル';
+	@override String get separator => '分隔線';
+	@override String get separatorDescription => '三個以上の - 号で分隔線を作成';
+	@override String get separatorSyntax => '---';
+	@override String get syntax => '語法';
+}
+
+// Path: forum
+class _TranslationsForumJa implements TranslationsForumEn {
+	_TranslationsForumJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override late final _TranslationsForumErrorsJa errors = _TranslationsForumErrorsJa._(_root);
+	@override String get title => 'タイトル';
+	@override String get createPost => '投稿を作成';
+	@override String get enterTitle => 'タイトルを入力してください';
+	@override String get content => 'コンテンツ';
+	@override String get enterContent => 'コンテンツを入力してください';
+	@override String get writeYourContentHere => 'ここにコンテンツを入力...';
+	@override String get posts => '投稿';
+	@override String get threads => 'スレッド';
+	@override String get forum => 'フォーラム';
+	@override String get createThread => 'スレッドを作成';
+	@override String get selectCategory => 'カテゴリを選択';
+	@override String cooldownRemaining({required Object minutes, required Object seconds}) => 'クールダウン残り時間 ${minutes} 分 ${seconds} 秒';
+	@override late final _TranslationsForumGroupsJa groups = _TranslationsForumGroupsJa._(_root);
+	@override late final _TranslationsForumLeafNamesJa leafNames = _TranslationsForumLeafNamesJa._(_root);
+	@override late final _TranslationsForumLeafDescriptionsJa leafDescriptions = _TranslationsForumLeafDescriptionsJa._(_root);
+	@override String get reply => '回覆';
+	@override String get pendingReview => '審査中';
+	@override String get editedAt => '編集日時';
+	@override String get copySuccess => 'クリップボードにコピーされました';
+	@override String copySuccessForMessage({required Object str}) => 'クリップボードにコピーされました: ${str}';
+	@override String get editReply => '編集回覆';
+	@override String get editTitle => '編集タイトル';
+	@override String get submit => '提出';
+}
+
+// Path: notifications
+class _TranslationsNotificationsJa implements TranslationsNotificationsEn {
+	_TranslationsNotificationsJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override late final _TranslationsNotificationsErrorsJa errors = _TranslationsNotificationsErrorsJa._(_root);
+	@override String get notifications => '通知';
+	@override String get profile => '個人主頁';
+	@override String get postedNewComment => '新しいコメントを投稿';
+	@override String get inYour => 'あなたの';
+	@override String get video => 'ビデオ';
+	@override String get repliedYourVideoComment => 'あなたのビデオコメントに返信しました';
+	@override String get copyInfoToClipboard => '通知情報をクリップボードにコピー';
+	@override String get copySuccess => 'クリップボードにコピーされました';
+	@override String copySuccessForMessage({required Object str}) => 'クリップボードにコピーされました: ${str}';
+	@override String get markAllAsRead => '全てを既読にする';
+	@override String get markAllAsReadSuccess => '全ての通知が既読になりました';
+	@override String get markAllAsReadFailed => '全てを既読にするに失敗しました';
+	@override String get markSelectedAsRead => '選択した通知を既読にする';
+	@override String get markSelectedAsReadSuccess => '選択した通知が既読になりました';
+	@override String get markSelectedAsReadFailed => '選択した通知を既読にするに失敗しました';
+	@override String get markAsRead => '既読にする';
+	@override String get markAsReadSuccess => '通知が既読になりました';
+	@override String get markAsReadFailed => '通知を既読にするに失敗しました';
+	@override String get notificationTypeHelp => '通知タイプのヘルプ';
+	@override String get dueToLackOfNotificationTypeDetails => '通知タイプの詳細情報が不足しているため、現在サポートされているタイプが受信したメッセージをカバーしていない可能性があります';
+	@override String get helpUsImproveNotificationTypeSupport => '通知タイプのサポート改善にご協力いただける場合';
+	@override String get helpUsImproveNotificationTypeSupportLongText => '1. 📋 通知情報をコピー\n2. 🐞 プロジェクトリポジトリに issue を提出\n\n⚠️ 注意：通知情報には個人情報が含まれている場合があります。公開したくない場合は、プロジェクト作者にメールで送信することもできます。';
+	@override String get goToRepository => 'リポジトリに移動';
 	@override String get copy => 'コピー';
-	@override String get copySuccess => 'コピーしました';
-	@override String get waiting => '待機中';
-	@override String get paused => '一時停止中';
-	@override String downloadingOnlyDownloaded({required Object downloaded}) => 'ダウンロード中 ${downloaded}';
+	@override String get commentApproved => 'コメントが承認されました';
+	@override String get repliedYourProfileComment => 'あなたの個人主頁コメントに返信しました';
+	@override String get kReplied => 'さんが';
+	@override String get kCommented => 'さんが';
+	@override String get kVideo => 'ビデオ';
+	@override String get kGallery => 'ギャラリー';
+	@override String get kProfile => 'プロフィール';
+	@override String get kThread => 'スレッド';
+	@override String get kPost => '投稿';
+	@override String get kCommentSection => '';
+	@override String get kApprovedComment => 'コメントが承認されました';
+	@override String get kApprovedVideo => '動画が承認されました';
+	@override String get kApprovedGallery => 'ギャラリーが承認されました';
+	@override String get kApprovedThread => 'スレッドが承認されました';
+	@override String get kApprovedPost => '投稿が承認されました';
+	@override String get kUnknownType => '不明な通知タイプ';
 }
 
-// Path: download.errors
-class _TranslationsDownloadErrorsJa implements TranslationsDownloadErrorsEn {
-	_TranslationsDownloadErrorsJa._(this._root);
+// Path: conversation
+class _TranslationsConversationJa implements TranslationsConversationEn {
+	_TranslationsConversationJa._(this._root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
 	// Translations
-	@override String get imageModelNotFound => '画像モデルが見つかりません';
-	@override String get downloadFailed => 'ダウンロードに失敗しました';
-	@override String get videoInfoNotFound => 'ビデオ情報が見つかりません';
-	@override String get unknown => '不明';
-	@override String get downloadTaskAlreadyExists => 'ダウンロードタスクが既に存在します';
-	@override String get videoAlreadyDownloaded => 'ビデオはすでにダウンロードされています';
-	@override String downloadFailedForMessage({required Object errorInfo}) => 'ダウンロードタスクの追加に失敗しました: ${errorInfo}';
-	@override String get userPausedDownload => 'ユーザーがダウンロードを一時停止';
-	@override String fileSystemError({required Object errorInfo}) => 'ファイルシステムエラー: ${errorInfo}';
-	@override String unknownError({required Object errorInfo}) => '不明なエラー: ${errorInfo}';
-	@override String get connectionTimeout => '接続タイムアウト';
-	@override String get sendTimeout => '送信タイムアウト';
-	@override String get receiveTimeout => '受信タイムアウト';
-	@override String serverError({required Object errorInfo}) => 'サーバーエラー: ${errorInfo}';
-	@override String get unknownNetworkError => '不明なネットワークエラー';
-	@override String get serviceIsClosing => 'ダウンロードサービスが閉じています';
-	@override String get partialDownloadFailed => '部分内容ダウンロード失敗';
-	@override String get noDownloadTask => 'ダウンロードタスクがありません';
-	@override String get taskNotFoundOrDataError => 'タスクが見つかりませんまたはデータが正しくありません';
-	@override String get copyDownloadUrlFailed => 'ダウンロードリンクのコピーに失敗しました';
-	@override String get fileNotFound => 'ファイルが見つかりません';
-	@override String get openFolderFailed => 'ファイルフォルダーを開くのに失敗しました';
-	@override String openFolderFailedWithMessage({required Object message}) => 'ファイルフォルダーを開くのに失敗しました: ${message}';
-	@override String get directoryNotFound => 'ディレクトリが見つかりません';
-	@override String get copyFailed => 'コピーに失敗しました';
-	@override String get openFileFailed => 'ファイルを開くのに失敗しました';
-	@override String openFileFailedWithMessage({required Object message}) => 'ファイルを開くのに失敗しました: ${message}';
-	@override String get noDownloadSource => 'ダウンロードソースがありません';
-	@override String get noDownloadSourceNowPleaseWaitInfoLoaded => 'ダウンロードソースがありません。情報を読み込んだ後、もう一度お試しください。';
-	@override String get noActiveDownloadTask => 'ダウンロード中のタスクがありません';
-	@override String get noFailedDownloadTask => '失敗したタスクがありません';
-	@override String get noCompletedDownloadTask => '完了したタスクがありません';
-	@override String get taskAlreadyCompletedDoNotAdd => 'タスクはすでに完了しています。再度追加しないでください';
-	@override String get linkExpiredTryAgain => 'リンクが期限切れです。新しいダウンロードリンクを取得しています';
-	@override String get linkExpiredTryAgainSuccess => 'リンクが期限切れです。新しいダウンロードリンクを取得しました';
-	@override String get linkExpiredTryAgainFailed => 'リンクが期限切れです。新しいダウンロードリンクを取得に失敗しました';
-	@override String get taskDeleted => 'タスクが削除されました';
-	@override String unsupportedImageFormat({required Object format}) => 'サポートされていない画像形式: ${format}';
-	@override String get deleteFileError => 'ファイルの削除に失敗しました。ファイルが他のプロセスによって使用されている可能性があります';
-	@override String get deleteTaskError => 'タスクの削除に失敗しました';
+	@override late final _TranslationsConversationErrorsJa errors = _TranslationsConversationErrorsJa._(_root);
+	@override String get conversation => '会話';
+	@override String get startConversation => '会話を開始';
+	@override String get noConversation => '会話がありません';
+	@override String get selectFromLeftListAndStartConversation => '左側の会話リストから会話を選択して開始';
+	@override String get title => 'タイトル';
+	@override String get body => '内容';
+	@override String get selectAUser => 'ユーザーを選択';
+	@override String get searchUsers => 'ユーザーを検索...';
+	@override String get tmpNoConversions => '会話がありません';
+	@override String get deleteThisMessage => 'このメッセージを削除';
+	@override String get deleteThisMessageSubtitle => 'この操作は取り消せません';
+	@override String get writeMessageHere => 'ここにメッセージを入力...';
+	@override String get sendMessage => 'メッセージを送信';
+}
+
+// Path: splash
+class _TranslationsSplashJa implements TranslationsSplashEn {
+	_TranslationsSplashJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override late final _TranslationsSplashErrorsJa errors = _TranslationsSplashErrorsJa._(_root);
+	@override String get preparing => '準備中...';
+	@override String get initializing => '初期化中...';
+	@override String get loading => '読み込み中...';
+	@override String get ready => '準備完了';
+	@override String get initializingMessageService => 'メッセージサービスを初期化中...';
+}
+
+// Path: forum.errors
+class _TranslationsForumErrorsJa implements TranslationsForumErrorsEn {
+	_TranslationsForumErrorsJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get pleaseSelectCategory => 'カテゴリを選択してください';
+	@override String get threadLocked => 'このスレッドはロックされています。';
+}
+
+// Path: forum.groups
+class _TranslationsForumGroupsJa implements TranslationsForumGroupsEn {
+	_TranslationsForumGroupsJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get administration => '管理';
+	@override String get global => 'グローバル';
+	@override String get chinese => '中国語';
+	@override String get japanese => '日本語';
+	@override String get korean => '韓国語';
+	@override String get other => 'その他';
+}
+
+// Path: forum.leafNames
+class _TranslationsForumLeafNamesJa implements TranslationsForumLeafNamesEn {
+	_TranslationsForumLeafNamesJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get announcements => 'お知らせ';
+	@override String get feedback => 'フィードバック';
+	@override String get support => 'サポート';
+	@override String get general => '一般';
+	@override String get guides => 'ガイド';
+	@override String get questions => '質問';
+	@override String get requests => 'リクエスト';
+	@override String get sharing => 'シェア';
+	@override String get general_zh => '一般';
+	@override String get questions_zh => '質問';
+	@override String get requests_zh => 'リクエスト';
+	@override String get support_zh => 'サポート';
+	@override String get general_ja => '一般';
+	@override String get questions_ja => '質問';
+	@override String get requests_ja => 'リクエスト';
+	@override String get support_ja => 'サポート';
+	@override String get korean => '韓国語';
+	@override String get other => 'その他';
+}
+
+// Path: forum.leafDescriptions
+class _TranslationsForumLeafDescriptionsJa implements TranslationsForumLeafDescriptionsEn {
+	_TranslationsForumLeafDescriptionsJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get announcements => '公式の重要なお知らせと通知';
+	@override String get feedback => 'サイトの機能やサービスに対するフィードバック';
+	@override String get support => 'サイト関連の問題を解決する手助け';
+	@override String get general => 'あらゆる話題を議論する';
+	@override String get guides => '経験やチュートリアルを共有する';
+	@override String get questions => '疑問を提起する';
+	@override String get requests => 'リクエストを投稿する';
+	@override String get sharing => '面白いコンテンツを共有する';
+	@override String get general_zh => 'あらゆる話題を議論する';
+	@override String get questions_zh => '疑問を提起する';
+	@override String get requests_zh => 'リクエストを投稿する';
+	@override String get support_zh => 'サイト関連の問題を解決する手助け';
+	@override String get general_ja => 'あらゆる話題を議論する';
+	@override String get questions_ja => '疑問を提起する';
+	@override String get requests_ja => 'リクエストを投稿する';
+	@override String get support_ja => 'サイト関連の問題を解決する手助け';
+	@override String get korean => '韓国語に関する議論';
+	@override String get other => 'その他の未分類のコンテンツ';
+}
+
+// Path: notifications.errors
+class _TranslationsNotificationsErrorsJa implements TranslationsNotificationsErrorsEn {
+	_TranslationsNotificationsErrorsJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get unsupportedNotificationType => 'サポートされていない通知タイプ';
+	@override String get unknownUser => '未知ユーザー';
+	@override String unsupportedNotificationTypeWithType({required Object type}) => 'サポートされていない通知タイプ: ${type}';
+	@override String get unknownNotificationType => '未知通知タイプ';
+}
+
+// Path: conversation.errors
+class _TranslationsConversationErrorsJa implements TranslationsConversationErrorsEn {
+	_TranslationsConversationErrorsJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get pleaseSelectAUser => 'ユーザーを選択してください';
+	@override String get pleaseEnterATitle => 'タイトルを入力してください';
+	@override String get clickToSelectAUser => 'ユーザーを選択してください';
+	@override String get loadFailedClickToRetry => '読み込みに失敗しました。クリックして再試行';
+	@override String get loadFailed => '読み込みに失敗しました';
+	@override String get clickToRetry => 'クリックして再試行';
+	@override String get noMoreConversations => 'もう会話がありません';
+}
+
+// Path: splash.errors
+class _TranslationsSplashErrorsJa implements TranslationsSplashErrorsEn {
+	_TranslationsSplashErrorsJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get initializationFailed => '初期化に失敗しました。アプリを再起動してください';
 }
 
 /// Flat map(s) containing all translations.
@@ -844,8 +1083,26 @@ extension on TranslationsJa {
 			case 'common.originalText': return '原文';
 			case 'common.showOriginalText': return '原文を表示';
 			case 'common.showProcessedText': return '処理後の原文を表示';
-			case 'common.download': return 'ダウンロード';
-			case 'common.selectQuality': return '画質を選択';
+			case 'common.preview': return 'プレビュー';
+			case 'common.rules': return 'ルール';
+			case 'common.agree': return '同意';
+			case 'common.disagree': return '不同意';
+			case 'common.agreeToRules': return '同意ルール';
+			case 'common.createPost': return '投稿を作成';
+			case 'common.title': return 'タイトル';
+			case 'common.enterTitle': return 'タイトルを入力してください';
+			case 'common.content': return '内容';
+			case 'common.enterContent': return '内容を入力してください';
+			case 'common.writeYourContentHere': return '内容を入力してください...';
+			case 'common.tagBlacklist': return 'ブラックリストタグ';
+			case 'common.noData': return 'データがありません';
+			case 'common.tagLimit': return 'タグ上限';
+			case 'common.enableFloatingButtons': return 'フローティングボタンを有効';
+			case 'common.disableFloatingButtons': return 'フローティングボタンを無効';
+			case 'common.enabledFloatingButtons': return 'フローティングボタンが有効';
+			case 'common.disabledFloatingButtons': return 'フローティングボタンが無効';
+			case 'common.pendingCommentCount': return '未審核コメント';
+			case 'common.joined': return ({required Object str}) => '${str} に参加';
 			case 'auth.login': return 'ログイン';
 			case 'auth.logout': return 'ログアウト';
 			case 'auth.email': return 'メールアドレス';
@@ -911,6 +1168,16 @@ extension on TranslationsJa {
 			case 'errors.pleaseLoginAgain': return 'ログインしてください';
 			case 'errors.invalidLogin': return 'ログインに失敗しました。メールアドレスとパスワードを確認してください';
 			case 'errors.tooManyRequests': return 'リクエストが多すぎます。後でもう一度お試しください';
+			case 'errors.exceedsMaxLength': return ({required Object max}) => '最大長さを超えています: ${max}';
+			case 'errors.contentCanNotBeEmpty': return 'コンテンツは空にできません';
+			case 'errors.titleCanNotBeEmpty': return 'タイトルは空にできません';
+			case 'errors.tooManyRequestsPleaseTryAgainLaterText': return 'リクエストが多すぎます。後でもう一度お試しください。残り時間';
+			case 'errors.remainingHours': return ({required Object num}) => '${num}時間';
+			case 'errors.remainingMinutes': return ({required Object num}) => '${num}分';
+			case 'errors.remainingSeconds': return ({required Object num}) => '${num}秒';
+			case 'errors.tagLimitExceeded': return ({required Object limit}) => 'タグの上限を超えています。上限: ${limit}';
+			case 'errors.failedToRefresh': return '更新に失敗しました';
+			case 'errors.noPermission': return '権限がありません';
 			case 'friends.clickToRestoreFriend': return '友達を復元するにはクリックしてください';
 			case 'friends.friendsList': return '友達リスト';
 			case 'friends.friendRequests': return '友達リクエスト';
@@ -919,8 +1186,6 @@ extension on TranslationsJa {
 			case 'authorProfile.userProfile': return 'ユーザープロフィール';
 			case 'favorites.clickToRestoreFavorite': return 'お気に入りを復元するにはクリックしてください';
 			case 'favorites.myFavorites': return '私のお気に入り';
-			case 'galleryDetail.galleryDetail': return 'ギャラリー詳細';
-			case 'galleryDetail.viewGalleryDetail': return 'ギャラリー詳細を表示';
 			case 'galleryDetail.copyLink': return 'リンクをコピー';
 			case 'galleryDetail.copyImage': return '画像をコピー';
 			case 'galleryDetail.saveAs': return '名前を付けて保存';
@@ -1033,6 +1298,25 @@ extension on TranslationsJa {
 			case 'settings.forceUpdateTip': return 'これは必須アップデートです。できるだけ早く最新バージョンにアップデートしてください';
 			case 'settings.viewChangelog': return '更新内容を表示';
 			case 'settings.alreadyLatestVersion': return 'すでに最新バージョンです';
+			case 'settings.appSettings': return 'アプリ設定';
+			case 'settings.configureYourAppSettings': return 'アプリ設定を設定';
+			case 'settings.history': return '履歴';
+			case 'settings.autoRecordHistory': return '自動記録履歴';
+			case 'settings.autoRecordHistoryDesc': return '視聴した動画やギャラリーなどの情報を自動的に記録します';
+			case 'settings.showUnprocessedMarkdownText': return '未処理のMarkdownテキストを表示';
+			case 'settings.showUnprocessedMarkdownTextDesc': return 'Markdownの元のテキストを表示';
+			case 'settings.markdown': return 'Markdown';
+			case 'settings.activeBackgroundPrivacyMode': return 'プライバシーモード';
+			case 'settings.activeBackgroundPrivacyModeDesc': return 'スクリーンショットを禁止し、バックグラウンド実行時に画面を隠す...';
+			case 'settings.privacy': return 'プライバシー';
+			case 'settings.forum': return 'フォーラム';
+			case 'settings.disableForumReplyQuote': return 'フォーラム返信引用を無効にする';
+			case 'settings.disableForumReplyQuoteDesc': return 'フォーラム返信時の返信階層情報の携帯を無効にする';
+			case 'settings.theaterMode': return '劇院モード';
+			case 'settings.theaterModeDesc': return '開啟後、プレーヤー背景がビデオカバーのぼかしバージョンに設定されます';
+			case 'settings.appLinks': return 'アプリリンク';
+			case 'settings.defaultBrowser': return 'デフォルトブラウザ';
+			case 'settings.defaultBrowserDesc': return 'システム設定でデフォルトリンク設定項目を開き、iwara.tvサイトリンクを追加してください';
 			case 'signIn.pleaseLoginFirst': return 'サインインする前にログインしてください';
 			case 'signIn.alreadySignedInToday': return '今日は既にサインインしています！';
 			case 'signIn.youDidNotStickToTheSignIn': return 'サインインを続けることができませんでした。';
@@ -1099,12 +1383,6 @@ extension on TranslationsJa {
 			case 'videoDetail.externalVideo': return 'これは站外ビデオです';
 			case 'videoDetail.openInBrowser': return 'ブラウザで開く';
 			case 'videoDetail.resourceDeleted': return 'このビデオは削除されたようです :/';
-			case 'videoDetail.noDownloadUrl': return 'ダウンロードURLがありません';
-			case 'videoDetail.startDownloading': return 'ダウンロードを開始';
-			case 'videoDetail.downloadFailed': return 'ダウンロードに失敗しました。後でもう一度お試しください';
-			case 'videoDetail.downloadSuccess': return 'ダウンロードに成功しました';
-			case 'videoDetail.download': return 'ダウンロード';
-			case 'videoDetail.downloadManager': return 'ダウンロード管理';
 			case 'share.sharePlayList': return 'プレイリストを共有';
 			case 'share.wowDidYouSeeThis': return 'ああ、見たの？';
 			case 'share.nameIs': return '名前は';
@@ -1112,90 +1390,190 @@ extension on TranslationsJa {
 			case 'share.iReallyLikeThis': return '本当に好きです';
 			case 'share.shareFailed': return '共有に失敗しました。後でもう一度お試しください';
 			case 'share.share': return '共有';
-			case 'download.errors.imageModelNotFound': return '画像モデルが見つかりません';
-			case 'download.errors.downloadFailed': return 'ダウンロードに失敗しました';
-			case 'download.errors.videoInfoNotFound': return 'ビデオ情報が見つかりません';
-			case 'download.errors.unknown': return '不明';
-			case 'download.errors.downloadTaskAlreadyExists': return 'ダウンロードタスクが既に存在します';
-			case 'download.errors.videoAlreadyDownloaded': return 'ビデオはすでにダウンロードされています';
-			case 'download.errors.downloadFailedForMessage': return ({required Object errorInfo}) => 'ダウンロードタスクの追加に失敗しました: ${errorInfo}';
-			case 'download.errors.userPausedDownload': return 'ユーザーがダウンロードを一時停止';
-			case 'download.errors.fileSystemError': return ({required Object errorInfo}) => 'ファイルシステムエラー: ${errorInfo}';
-			case 'download.errors.unknownError': return ({required Object errorInfo}) => '不明なエラー: ${errorInfo}';
-			case 'download.errors.connectionTimeout': return '接続タイムアウト';
-			case 'download.errors.sendTimeout': return '送信タイムアウト';
-			case 'download.errors.receiveTimeout': return '受信タイムアウト';
-			case 'download.errors.serverError': return ({required Object errorInfo}) => 'サーバーエラー: ${errorInfo}';
-			case 'download.errors.unknownNetworkError': return '不明なネットワークエラー';
-			case 'download.errors.serviceIsClosing': return 'ダウンロードサービスが閉じています';
-			case 'download.errors.partialDownloadFailed': return '部分内容ダウンロード失敗';
-			case 'download.errors.noDownloadTask': return 'ダウンロードタスクがありません';
-			case 'download.errors.taskNotFoundOrDataError': return 'タスクが見つかりませんまたはデータが正しくありません';
-			case 'download.errors.copyDownloadUrlFailed': return 'ダウンロードリンクのコピーに失敗しました';
-			case 'download.errors.fileNotFound': return 'ファイルが見つかりません';
-			case 'download.errors.openFolderFailed': return 'ファイルフォルダーを開くのに失敗しました';
-			case 'download.errors.openFolderFailedWithMessage': return ({required Object message}) => 'ファイルフォルダーを開くのに失敗しました: ${message}';
-			case 'download.errors.directoryNotFound': return 'ディレクトリが見つかりません';
-			case 'download.errors.copyFailed': return 'コピーに失敗しました';
-			case 'download.errors.openFileFailed': return 'ファイルを開くのに失敗しました';
-			case 'download.errors.openFileFailedWithMessage': return ({required Object message}) => 'ファイルを開くのに失敗しました: ${message}';
-			case 'download.errors.noDownloadSource': return 'ダウンロードソースがありません';
-			case 'download.errors.noDownloadSourceNowPleaseWaitInfoLoaded': return 'ダウンロードソースがありません。情報を読み込んだ後、もう一度お試しください。';
-			case 'download.errors.noActiveDownloadTask': return 'ダウンロード中のタスクがありません';
-			case 'download.errors.noFailedDownloadTask': return '失敗したタスクがありません';
-			case 'download.errors.noCompletedDownloadTask': return '完了したタスクがありません';
-			case 'download.errors.taskAlreadyCompletedDoNotAdd': return 'タスクはすでに完了しています。再度追加しないでください';
-			case 'download.errors.linkExpiredTryAgain': return 'リンクが期限切れです。新しいダウンロードリンクを取得しています';
-			case 'download.errors.linkExpiredTryAgainSuccess': return 'リンクが期限切れです。新しいダウンロードリンクを取得しました';
-			case 'download.errors.linkExpiredTryAgainFailed': return 'リンクが期限切れです。新しいダウンロードリンクを取得に失敗しました';
-			case 'download.errors.taskDeleted': return 'タスクが削除されました';
-			case 'download.errors.unsupportedImageFormat': return ({required Object format}) => 'サポートされていない画像形式: ${format}';
-			case 'download.errors.deleteFileError': return 'ファイルの削除に失敗しました。ファイルが他のプロセスによって使用されている可能性があります';
-			case 'download.errors.deleteTaskError': return 'タスクの削除に失敗しました';
-			case 'download.downloadList': return 'ダウンロードリスト';
-			case 'download.download': return 'ダウンロード';
-			case 'download.startDownloading': return 'ダウンロードを開始';
-			case 'download.clearAllFailedTasks': return 'すべての失敗タスクをクリア';
-			case 'download.clearAllFailedTasksConfirmation': return 'すべての失敗タスクをクリアしますか？\nこれらのタスクのファイルも削除されます。';
-			case 'download.clearAllFailedTasksSuccess': return 'すべての失敗タスクをクリアしました';
-			case 'download.clearAllFailedTasksError': return '失敗タスクのクリア中にエラーが発生しました';
-			case 'download.downloadStatus': return 'ダウンロード状態';
-			case 'download.imageList': return '画像リスト';
-			case 'download.retryDownload': return '再試行ダウンロード';
-			case 'download.notDownloaded': return '未ダウンロード';
-			case 'download.downloaded': return 'ダウンロード済み';
-			case 'download.waitingForDownload': return 'ダウンロード待機中';
-			case 'download.downloadingProgressForImageProgress': return ({required Object downloaded, required Object total, required Object progress}) => 'ダウンロード中 (${downloaded}/${total}枚 ${progress}%)';
-			case 'download.downloadingSingleImageProgress': return ({required Object downloaded}) => 'ダウンロード中 (${downloaded}枚)';
-			case 'download.pausedProgressForImageProgress': return ({required Object downloaded, required Object total, required Object progress}) => 'ダウンロード一時停止中 (${downloaded}/${total}枚 ${progress}%)';
-			case 'download.pausedSingleImageProgress': return ({required Object downloaded}) => 'ダウンロード一時停止中 (${downloaded}枚)';
-			case 'download.downloadedProgressForImageProgress': return ({required Object total}) => 'ダウンロード完了 (合計${total}枚)';
-			case 'download.viewVideoDetail': return 'ビデオ詳細を表示';
-			case 'download.viewGalleryDetail': return 'ギャラリー詳細を表示';
-			case 'download.moreOptions': return 'もっと操作';
-			case 'download.openFile': return 'ファイルを開く';
-			case 'download.pause': return '一時停止';
-			case 'download.resume': return '継続';
-			case 'download.copyDownloadUrl': return 'ダウンロードリンクをコピー';
-			case 'download.showInFolder': return 'フォルダーで表示';
-			case 'download.deleteTask': return 'タスクを削除';
-			case 'download.downloadingProgressForVideoTask': return ({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'ダウンロード中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
-			case 'download.downloadingOnlyDownloadedAndSpeed': return ({required Object downloaded, required Object speed}) => 'ダウンロード中 ${downloaded} • ${speed}MB/s';
-			case 'download.pausedForDownloadedAndTotal': return ({required Object downloaded, required Object total, required Object progress}) => '一時停止中 ${downloaded}/${total} (${progress}%)';
-			case 'download.pausedAndDownloaded': return ({required Object downloaded}) => '一時停止中 • ダウンロード済み ${downloaded}';
-			case 'download.downloadedWithSize': return ({required Object size}) => 'ダウンロード完了 • ${size}';
-			case 'download.copyDownloadUrlSuccess': return 'ダウンロードリンクをコピーしました';
-			case 'download.totalImageNums': return ({required Object num}) => '${num}枚';
-			case 'download.downloadingDownloadedTotalProgressSpeed': return ({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'ダウンロード中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
-			case 'download.downloading': return 'ダウンロード中';
-			case 'download.failed': return '失敗';
-			case 'download.completed': return '完了';
-			case 'download.downloadDetail': return 'ダウンロード詳細';
-			case 'download.copy': return 'コピー';
-			case 'download.copySuccess': return 'コピーしました';
-			case 'download.waiting': return '待機中';
-			case 'download.paused': return '一時停止中';
-			case 'download.downloadingOnlyDownloaded': return ({required Object downloaded}) => 'ダウンロード中 ${downloaded}';
+			case 'share.shareAsImage': return '画像として共有';
+			case 'share.shareAsText': return 'テキストとして共有';
+			case 'share.shareAsImageDesc': return '動画のサムネイルを画像として共有';
+			case 'share.shareAsTextDesc': return '動画の詳細をテキストとして共有';
+			case 'share.shareAsImageFailed': return 'サムネイルの共有に失敗しました。後でもう一度お試しください';
+			case 'share.shareAsTextFailed': return '詳細の共有に失敗しました。後でもう一度お試しください';
+			case 'share.shareVideo': return '動画を共有';
+			case 'share.authorIs': return '作者は';
+			case 'share.shareGallery': return 'ギャラリーを共有';
+			case 'share.galleryTitleIs': return 'ギャラリーのタイトルは';
+			case 'share.galleryAuthorIs': return 'ギャラリーの作者は';
+			case 'share.shareUser': return 'ユーザーを共有';
+			case 'share.userNameIs': return 'ユーザーの名前は';
+			case 'share.userAuthorIs': return 'ユーザーの作者は';
+			case 'share.comments': return 'コメント';
+			case 'share.shareThread': return 'スレッドを共有';
+			case 'share.views': return '閲覧';
+			case 'share.sharePost': return '投稿を共有';
+			case 'share.postTitleIs': return '投稿のタイトルは';
+			case 'share.postAuthorIs': return '投稿の作者は';
+			case 'markdown.markdownSyntax': return 'Markdown 構文';
+			case 'markdown.iwaraSpecialMarkdownSyntax': return 'Iwara 専用構文';
+			case 'markdown.internalLink': return '站内鏈接';
+			case 'markdown.supportAutoConvertLinkBelow': return '以下のタイプのリンクを自動変換します：';
+			case 'markdown.convertLinkExample': return '🎬 ビデオリンク\n🖼️ 画像リンク\n👤 ユーザーリンク\n📌 フォーラムリンク\n🎵 プレイリストリンク\n💬 スレッドリンク';
+			case 'markdown.mentionUser': return 'ユーザーを言及';
+			case 'markdown.mentionUserDescription': return '@後にユーザー名を入力すると、ユーザーリンクに自動変換されます';
+			case 'markdown.markdownBasicSyntax': return 'Markdown 基本構文';
+			case 'markdown.paragraphAndLineBreak': return '段落と改行';
+			case 'markdown.paragraphAndLineBreakDescription': return '段落間に空行を入れ、行末に2つのスペースを追加すると改行されます';
+			case 'markdown.paragraphAndLineBreakSyntax': return 'これは第一段落です\n\nこれは第二段落です\nこの行の後に2つのスペースを追加して  \n改行されます';
+			case 'markdown.textStyle': return 'テキストスタイル';
+			case 'markdown.textStyleDescription': return '特殊記号でテキストのスタイルを変更';
+			case 'markdown.textStyleSyntax': return '**太字テキスト**\n*斜体テキスト*\n~~削除線テキスト~~\n`コードテキスト`';
+			case 'markdown.quote': return '引用';
+			case 'markdown.quoteDescription': return '> 符号で引用を作成し、複数の > で多段引用を作成';
+			case 'markdown.quoteSyntax': return '> これは一階引用です\n>> これは二階引用です';
+			case 'markdown.list': return 'リスト';
+			case 'markdown.listDescription': return '数字+点号で順序付きリストを作成し、- で順序なしリストを作成';
+			case 'markdown.listSyntax': return '1. 第一項\n2. 第二項\n\n- 順序なし項\n  - 子項\n  - 別の子項';
+			case 'markdown.linkAndImage': return 'リンクと画像';
+			case 'markdown.linkAndImageDescription': return 'リンク形式：[テキスト](URL)\n画像形式：![説明](URL)';
+			case 'markdown.linkAndImageSyntax': return ({required Object link, required Object imgUrl}) => '[リンクテキスト](${link})\n![画像説明](${imgUrl})';
+			case 'markdown.title': return 'タイトル';
+			case 'markdown.titleDescription': return '＃ 号でタイトルを作成し、数でレベルを表示';
+			case 'markdown.titleSyntax': return '# 一階タイトル\n## 二階タイトル\n### 三階タイトル';
+			case 'markdown.separator': return '分隔線';
+			case 'markdown.separatorDescription': return '三個以上の - 号で分隔線を作成';
+			case 'markdown.separatorSyntax': return '---';
+			case 'markdown.syntax': return '語法';
+			case 'forum.errors.pleaseSelectCategory': return 'カテゴリを選択してください';
+			case 'forum.errors.threadLocked': return 'このスレッドはロックされています。';
+			case 'forum.title': return 'タイトル';
+			case 'forum.createPost': return '投稿を作成';
+			case 'forum.enterTitle': return 'タイトルを入力してください';
+			case 'forum.content': return 'コンテンツ';
+			case 'forum.enterContent': return 'コンテンツを入力してください';
+			case 'forum.writeYourContentHere': return 'ここにコンテンツを入力...';
+			case 'forum.posts': return '投稿';
+			case 'forum.threads': return 'スレッド';
+			case 'forum.forum': return 'フォーラム';
+			case 'forum.createThread': return 'スレッドを作成';
+			case 'forum.selectCategory': return 'カテゴリを選択';
+			case 'forum.cooldownRemaining': return ({required Object minutes, required Object seconds}) => 'クールダウン残り時間 ${minutes} 分 ${seconds} 秒';
+			case 'forum.groups.administration': return '管理';
+			case 'forum.groups.global': return 'グローバル';
+			case 'forum.groups.chinese': return '中国語';
+			case 'forum.groups.japanese': return '日本語';
+			case 'forum.groups.korean': return '韓国語';
+			case 'forum.groups.other': return 'その他';
+			case 'forum.leafNames.announcements': return 'お知らせ';
+			case 'forum.leafNames.feedback': return 'フィードバック';
+			case 'forum.leafNames.support': return 'サポート';
+			case 'forum.leafNames.general': return '一般';
+			case 'forum.leafNames.guides': return 'ガイド';
+			case 'forum.leafNames.questions': return '質問';
+			case 'forum.leafNames.requests': return 'リクエスト';
+			case 'forum.leafNames.sharing': return 'シェア';
+			case 'forum.leafNames.general_zh': return '一般';
+			case 'forum.leafNames.questions_zh': return '質問';
+			case 'forum.leafNames.requests_zh': return 'リクエスト';
+			case 'forum.leafNames.support_zh': return 'サポート';
+			case 'forum.leafNames.general_ja': return '一般';
+			case 'forum.leafNames.questions_ja': return '質問';
+			case 'forum.leafNames.requests_ja': return 'リクエスト';
+			case 'forum.leafNames.support_ja': return 'サポート';
+			case 'forum.leafNames.korean': return '韓国語';
+			case 'forum.leafNames.other': return 'その他';
+			case 'forum.leafDescriptions.announcements': return '公式の重要なお知らせと通知';
+			case 'forum.leafDescriptions.feedback': return 'サイトの機能やサービスに対するフィードバック';
+			case 'forum.leafDescriptions.support': return 'サイト関連の問題を解決する手助け';
+			case 'forum.leafDescriptions.general': return 'あらゆる話題を議論する';
+			case 'forum.leafDescriptions.guides': return '経験やチュートリアルを共有する';
+			case 'forum.leafDescriptions.questions': return '疑問を提起する';
+			case 'forum.leafDescriptions.requests': return 'リクエストを投稿する';
+			case 'forum.leafDescriptions.sharing': return '面白いコンテンツを共有する';
+			case 'forum.leafDescriptions.general_zh': return 'あらゆる話題を議論する';
+			case 'forum.leafDescriptions.questions_zh': return '疑問を提起する';
+			case 'forum.leafDescriptions.requests_zh': return 'リクエストを投稿する';
+			case 'forum.leafDescriptions.support_zh': return 'サイト関連の問題を解決する手助け';
+			case 'forum.leafDescriptions.general_ja': return 'あらゆる話題を議論する';
+			case 'forum.leafDescriptions.questions_ja': return '疑問を提起する';
+			case 'forum.leafDescriptions.requests_ja': return 'リクエストを投稿する';
+			case 'forum.leafDescriptions.support_ja': return 'サイト関連の問題を解決する手助け';
+			case 'forum.leafDescriptions.korean': return '韓国語に関する議論';
+			case 'forum.leafDescriptions.other': return 'その他の未分類のコンテンツ';
+			case 'forum.reply': return '回覆';
+			case 'forum.pendingReview': return '審査中';
+			case 'forum.editedAt': return '編集日時';
+			case 'forum.copySuccess': return 'クリップボードにコピーされました';
+			case 'forum.copySuccessForMessage': return ({required Object str}) => 'クリップボードにコピーされました: ${str}';
+			case 'forum.editReply': return '編集回覆';
+			case 'forum.editTitle': return '編集タイトル';
+			case 'forum.submit': return '提出';
+			case 'notifications.errors.unsupportedNotificationType': return 'サポートされていない通知タイプ';
+			case 'notifications.errors.unknownUser': return '未知ユーザー';
+			case 'notifications.errors.unsupportedNotificationTypeWithType': return ({required Object type}) => 'サポートされていない通知タイプ: ${type}';
+			case 'notifications.errors.unknownNotificationType': return '未知通知タイプ';
+			case 'notifications.notifications': return '通知';
+			case 'notifications.profile': return '個人主頁';
+			case 'notifications.postedNewComment': return '新しいコメントを投稿';
+			case 'notifications.inYour': return 'あなたの';
+			case 'notifications.video': return 'ビデオ';
+			case 'notifications.repliedYourVideoComment': return 'あなたのビデオコメントに返信しました';
+			case 'notifications.copyInfoToClipboard': return '通知情報をクリップボードにコピー';
+			case 'notifications.copySuccess': return 'クリップボードにコピーされました';
+			case 'notifications.copySuccessForMessage': return ({required Object str}) => 'クリップボードにコピーされました: ${str}';
+			case 'notifications.markAllAsRead': return '全てを既読にする';
+			case 'notifications.markAllAsReadSuccess': return '全ての通知が既読になりました';
+			case 'notifications.markAllAsReadFailed': return '全てを既読にするに失敗しました';
+			case 'notifications.markSelectedAsRead': return '選択した通知を既読にする';
+			case 'notifications.markSelectedAsReadSuccess': return '選択した通知が既読になりました';
+			case 'notifications.markSelectedAsReadFailed': return '選択した通知を既読にするに失敗しました';
+			case 'notifications.markAsRead': return '既読にする';
+			case 'notifications.markAsReadSuccess': return '通知が既読になりました';
+			case 'notifications.markAsReadFailed': return '通知を既読にするに失敗しました';
+			case 'notifications.notificationTypeHelp': return '通知タイプのヘルプ';
+			case 'notifications.dueToLackOfNotificationTypeDetails': return '通知タイプの詳細情報が不足しているため、現在サポートされているタイプが受信したメッセージをカバーしていない可能性があります';
+			case 'notifications.helpUsImproveNotificationTypeSupport': return '通知タイプのサポート改善にご協力いただける場合';
+			case 'notifications.helpUsImproveNotificationTypeSupportLongText': return '1. 📋 通知情報をコピー\n2. 🐞 プロジェクトリポジトリに issue を提出\n\n⚠️ 注意：通知情報には個人情報が含まれている場合があります。公開したくない場合は、プロジェクト作者にメールで送信することもできます。';
+			case 'notifications.goToRepository': return 'リポジトリに移動';
+			case 'notifications.copy': return 'コピー';
+			case 'notifications.commentApproved': return 'コメントが承認されました';
+			case 'notifications.repliedYourProfileComment': return 'あなたの個人主頁コメントに返信しました';
+			case 'notifications.kReplied': return 'さんが';
+			case 'notifications.kCommented': return 'さんが';
+			case 'notifications.kVideo': return 'ビデオ';
+			case 'notifications.kGallery': return 'ギャラリー';
+			case 'notifications.kProfile': return 'プロフィール';
+			case 'notifications.kThread': return 'スレッド';
+			case 'notifications.kPost': return '投稿';
+			case 'notifications.kCommentSection': return '';
+			case 'notifications.kApprovedComment': return 'コメントが承認されました';
+			case 'notifications.kApprovedVideo': return '動画が承認されました';
+			case 'notifications.kApprovedGallery': return 'ギャラリーが承認されました';
+			case 'notifications.kApprovedThread': return 'スレッドが承認されました';
+			case 'notifications.kApprovedPost': return '投稿が承認されました';
+			case 'notifications.kUnknownType': return '不明な通知タイプ';
+			case 'conversation.errors.pleaseSelectAUser': return 'ユーザーを選択してください';
+			case 'conversation.errors.pleaseEnterATitle': return 'タイトルを入力してください';
+			case 'conversation.errors.clickToSelectAUser': return 'ユーザーを選択してください';
+			case 'conversation.errors.loadFailedClickToRetry': return '読み込みに失敗しました。クリックして再試行';
+			case 'conversation.errors.loadFailed': return '読み込みに失敗しました';
+			case 'conversation.errors.clickToRetry': return 'クリックして再試行';
+			case 'conversation.errors.noMoreConversations': return 'もう会話がありません';
+			case 'conversation.conversation': return '会話';
+			case 'conversation.startConversation': return '会話を開始';
+			case 'conversation.noConversation': return '会話がありません';
+			case 'conversation.selectFromLeftListAndStartConversation': return '左側の会話リストから会話を選択して開始';
+			case 'conversation.title': return 'タイトル';
+			case 'conversation.body': return '内容';
+			case 'conversation.selectAUser': return 'ユーザーを選択';
+			case 'conversation.searchUsers': return 'ユーザーを検索...';
+			case 'conversation.tmpNoConversions': return '会話がありません';
+			case 'conversation.deleteThisMessage': return 'このメッセージを削除';
+			case 'conversation.deleteThisMessageSubtitle': return 'この操作は取り消せません';
+			case 'conversation.writeMessageHere': return 'ここにメッセージを入力...';
+			case 'conversation.sendMessage': return 'メッセージを送信';
+			case 'splash.errors.initializationFailed': return '初期化に失敗しました。アプリを再起動してください';
+			case 'splash.preparing': return '準備中...';
+			case 'splash.initializing': return '初期化中...';
+			case 'splash.loading': return '読み込み中...';
+			case 'splash.ready': return '準備完了';
+			case 'splash.initializingMessageService': return 'メッセージサービスを初期化中...';
 			default: return null;
 		}
 	}

@@ -173,9 +173,10 @@ class _SubscriptionSelectListState extends State<SubscriptionSelectList> {
     ThemeData theme,
   ) {
     final bool isSelected = widget.selectedId == selectItem.id;
+    final bool isSmallScreen = MediaQuery.of(context).size.width <= 600;
     return Container(
-      width: 70,
-      padding: const EdgeInsets.symmetric(horizontal: 2.0),
+      width: isSmallScreen ? 60 : 70,
+      padding: EdgeInsets.symmetric(horizontal: isSmallScreen ? 1.0 : 2.0),
       child: InkWell(
         onTap: () => {
           if (widget.selectedId != selectItem.id)
@@ -185,7 +186,10 @@ class _SubscriptionSelectListState extends State<SubscriptionSelectList> {
         onSecondaryTap: selectItem.onLongPress,
         borderRadius: BorderRadius.circular(8),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+          padding: EdgeInsets.symmetric(
+            vertical: isSmallScreen ? 6.0 : 8.0, 
+            horizontal: isSmallScreen ? 2.0 : 4.0,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -199,16 +203,16 @@ class _SubscriptionSelectListState extends State<SubscriptionSelectList> {
                     ),
                   ),
                   child: CircleAvatar(
-                    radius: 20,
+                    radius: isSmallScreen ? 16 : 20,
                     backgroundColor: isSelected
                         ? theme.colorScheme.primary
-                        : theme.colorScheme.surfaceVariant,
+                        : theme.colorScheme.surfaceContainerHighest,
                     child: Icon(
                       Icons.cloud,
                       color: isSelected
                           ? theme.colorScheme.onPrimary
                           : theme.colorScheme.onSurfaceVariant,
-                      size: 24,
+                      size: isSmallScreen ? 20 : 24,
                     ),
                   ),
                 )
@@ -224,28 +228,28 @@ class _SubscriptionSelectListState extends State<SubscriptionSelectList> {
                     ),
                   ),
                   child: CircleAvatar(
-                    radius: 20,
+                    radius: isSmallScreen ? 16 : 20,
                     backgroundColor: isSelected
                         ? theme.colorScheme.primary
                         : Colors.transparent,
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(isSmallScreen ? 16 : 20),
                       child: CachedNetworkImage(
                         imageUrl: selectItem.avatarUrl,
                         placeholder: (context, url) => Shimmer.fromColors(
                           baseColor: Colors.grey[300]!,
                           highlightColor: Colors.grey[100]!,
-                          child: const CircleAvatar(
-                            radius: 20,
+                          child: CircleAvatar(
+                            radius: isSmallScreen ? 16 : 20,
                             backgroundColor: Colors.white,
                           ),
                         ),
                         errorWidget: (context, url, error) => CircleAvatar(
-                          radius: 20,
+                          radius: isSmallScreen ? 16 : 20,
                           backgroundImage: const NetworkImage(CommonConstants.defaultAvatarUrl),
-                          onBackgroundImageError: (exception, stackTrace) => const Icon(
+                          onBackgroundImageError: (exception, stackTrace) => Icon(
                             Icons.person,
-                            size: 20,
+                            size: isSmallScreen ? 16 : 20,
                           ),
                         ),
                         httpHeaders: const {
@@ -260,7 +264,7 @@ class _SubscriptionSelectListState extends State<SubscriptionSelectList> {
               Text(
                 selectItem.label,
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: isSmallScreen ? 10 : 12,
                   color: isSelected
                       ? theme.colorScheme.primary
                       : theme.textTheme.bodyMedium?.color,

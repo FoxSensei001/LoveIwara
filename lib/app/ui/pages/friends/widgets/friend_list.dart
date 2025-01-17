@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/user.model.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/friends/controllers/friends_controller.dart';
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_card.dart';
@@ -36,6 +37,7 @@ class FriendList extends StatelessWidget {
                       onRemoveFriend: controller.removeFriend,
                       isRemovingFriend: controller.removingFriendIds[user.id] ?? false,
                       isRestoringFriend: controller.restoringFriendIds[user.id] ?? false,
+                      onTap: () => NaviService.navigateToAuthorProfilePage(user.username),
                     ),
                     if (isRemoved)
                       Positioned.fill(

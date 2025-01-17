@@ -38,8 +38,11 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
     return SizedBox(
       width: widget.width,
       child: Card(
+        margin: EdgeInsets.zero,
         clipBehavior: Clip.antiAlias,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(MediaQuery.of(context).size.width < 600 ? 6 : 8)
+        ),
         child: InkWell(
           onTap: () => _navigateToDetailPage(context),
           onSecondaryTap: () => _showDetailsModal(context),
@@ -54,21 +57,23 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
   }
 
   Widget _buildCardContent(TextTheme textTheme, BuildContext context) {
+    final bool isNarrowScreen = MediaQuery.of(context).size.width < 600;
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AspectRatio(
-          aspectRatio: 220 / 160,
+          aspectRatio: isNarrowScreen ? 16 / 12 : 220 / 160,
           child: _buildThumbnail(context),
         ),
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: EdgeInsets.all(isNarrowScreen ? 6.0 : 8.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildTitle(textTheme),
-              _buildTimeInfo(textTheme),
-              const SizedBox(height: 8),
+              _buildTitle(textTheme, isNarrowScreen),
+              _buildTimeInfo(textTheme, context),
+              SizedBox(height: isNarrowScreen ? 4 : 8),
               _buildAuthorInfo(textTheme, context),
             ],
           ),
@@ -170,11 +175,11 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
   Widget _buildRatingTag(BuildContext context) {
     return ClipRRect(
       borderRadius: const BorderRadius.only(
-        topRight: Radius.circular(14),
-        bottomLeft: Radius.circular(12),
+        topRight: Radius.circular(8),
+        bottomLeft: Radius.circular(6),
       ),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
         decoration: const BoxDecoration(
           color: Colors.red,
         ),
@@ -183,7 +188,7 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSecondary,
             fontWeight: FontWeight.bold,
-            fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
+            fontSize: 10,
             decoration: TextDecoration.none,
           ),
         ),
@@ -195,11 +200,11 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
     final t = slang.Translations.of(context);
     return ClipRRect(
       borderRadius: const BorderRadius.only(
-        topLeft: Radius.circular(12),
-        bottomRight: Radius.circular(12),
+        topLeft: Radius.circular(6),
+        bottomRight: Radius.circular(8),
       ),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
         decoration: const BoxDecoration(
           color: Colors.black54,
         ),
@@ -208,16 +213,16 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
           children: [
             const Icon(
               Icons.lock,
-              size: 16,
+              size: 10,
               color: Colors.white,
             ),
-            const SizedBox(width: 4),
+            const SizedBox(width: 2),
             Text(
               t.common.private,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onPrimary,
-                fontWeight: FontWeight.bold,
-                fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
+                fontWeight: FontWeight.w500,
+                fontSize: 10,
                 decoration: TextDecoration.none,
               ),
             ),
@@ -230,11 +235,11 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
   Widget _buildDurationTag(BuildContext context) {
     return ClipRRect(
       borderRadius: const BorderRadius.only(
-        topLeft: Radius.circular(12),
-        bottomRight: Radius.circular(8),
+        topLeft: Radius.circular(8),
+        bottomRight: Radius.circular(6),
       ),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
         decoration: const BoxDecoration(
           color: Colors.black54,
         ),
@@ -243,16 +248,16 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
           children: [
             const Icon(
               Icons.access_time,
-              size: 16,
+              size: 10,
               color: Colors.white,
             ),
-            const SizedBox(width: 4),
+            const SizedBox(width: 2),
             Text(
               widget.video.minutesDuration!,
               style: TextStyle(
                 color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
+                fontWeight: FontWeight.w500,
+                fontSize: 10,
                 decoration: TextDecoration.none,
               ),
             ),
@@ -266,11 +271,11 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
     final t = slang.Translations.of(context);
     return ClipRRect(
       borderRadius: const BorderRadius.only(
-        topLeft: Radius.circular(12),
-        bottomRight: Radius.circular(8),
+        topLeft: Radius.circular(8),
+        bottomRight: Radius.circular(6),
       ),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
         decoration: const BoxDecoration(
           color: Colors.black54,
         ),
@@ -279,16 +284,16 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
           children: [
             const Icon(
               Icons.link,
-              size: 16,
+              size: 10,
               color: Colors.white,
             ),
-            const SizedBox(width: 4),
+            const SizedBox(width: 2),
             Text(
               t.common.externalVideo,
               style: TextStyle(
                 color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: Theme.of(context).textTheme.bodySmall?.fontSize,
+                fontWeight: FontWeight.w500,
+                fontSize: 10,
                 decoration: TextDecoration.none,
               ),
             ),
@@ -298,37 +303,46 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
     );
   }
 
-  Widget _buildTitle(TextTheme textTheme) {
+  Widget _buildTitle(TextTheme textTheme, bool isNarrowScreen) {
     return SizedBox(
-      height: textTheme.bodyLarge!.fontSize! * 3.5,
+      height: textTheme.bodyLarge!.fontSize! * 3.0,
       child: Text(
         widget.video.title ?? '',
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
-          fontSize: textTheme.bodyLarge!.fontSize,
+          fontSize: isNarrowScreen 
+              ? textTheme.bodyLarge!.fontSize! * 0.9
+              : textTheme.bodyLarge!.fontSize,
           fontWeight: FontWeight.bold,
         ),
       ),
     );
   }
 
-  Widget _buildTimeInfo(TextTheme textTheme) {
+  Widget _buildTimeInfo(TextTheme textTheme, BuildContext context) {
+    final bool isNarrowScreen = MediaQuery.of(context).size.width < 600;
     return Text(
       CommonUtils.formatFriendlyTimestamp(widget.video.createdAt),
-      style: textTheme.bodySmall,
+      style: textTheme.bodySmall?.copyWith(
+        fontSize: isNarrowScreen 
+            ? 11 
+            : textTheme.bodySmall?.fontSize,
+      ),
     );
   }
 
   Widget _buildAuthorInfo(TextTheme textTheme, BuildContext context) {
     final t = slang.Translations.of(context);
+    final bool isNarrowScreen = MediaQuery.of(context).size.width < 600;
+    
     return GestureDetector(
       onTap: () => NaviService.navigateToAuthorProfilePage(
           widget.video.user?.username ?? ''),
       child: Row(
         children: [
-          _buildAvatar(),
-          const SizedBox(width: 8),
+          _buildAvatar(isNarrowScreen),
+          const SizedBox(width: 4),
           Expanded(
             child: widget.video.user?.premium == true
                 ? ShaderMask(
@@ -341,8 +355,8 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
                     ).createShader(bounds),
                     child: Text(
                       widget.video.user?.name ?? t.common.unknownUser,
-                      style: const TextStyle(
-                        fontSize: 14,
+                      style: TextStyle(
+                        fontSize: isNarrowScreen ? 12 : 14,
                         color: Colors.white,
                         fontWeight: FontWeight.w500,
                       ),
@@ -352,7 +366,9 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
                   )
                 : Text(
                     widget.video.user?.name ?? t.common.unknownUser,
-                    style: textTheme.bodySmall,
+                    style: textTheme.bodySmall?.copyWith(
+                      fontSize: isNarrowScreen ? 12 : null,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -362,14 +378,11 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
     );
   }
 
-  Widget _buildAvatar() {
+  Widget _buildAvatar(bool isNarrowScreen) {
     return AvatarWidget(
-      avatarUrl: widget.video.user?.avatar?.avatarUrl,
+      user: widget.video.user,
       defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-      headers: const {'referer': CommonConstants.iwaraBaseUrl},
-      radius: 14,
-      isPremium: widget.video.user?.premium ?? false,
-      isAdmin: widget.video.user?.isAdmin ?? false,
+      radius: isNarrowScreen ? 12 : 14,
     );
   }
 

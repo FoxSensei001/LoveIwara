@@ -5,10 +5,12 @@ import 'package:i_iwara/app/routes/app_routes.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/video_service.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/share_video_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/video_description_widget.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
+import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -258,7 +260,7 @@ class VideoDetailContent extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 // 作者信息区域，包括头像和用户名
-                _buildAuthorInfo(),
+                _buildAuthorInfo(context),
                 const SizedBox(height: 12),
                 // 视频发布时间和观看次数
                 Padding(
@@ -320,9 +322,7 @@ class VideoDetailContent extends StatelessWidget {
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
-                          spacing: 12,
                           children: [
-                            // 点赞按钮
                             LikeButtonWidget(
                               mediaId: videoInfo.id,
                               liked: videoInfo.liked ?? false,
@@ -342,7 +342,6 @@ class VideoDetailContent extends StatelessWidget {
                                 );
                               },
                             ),
-                            // 添加到播放列表按钮
                             Material(
                               color: Colors.transparent,
                               child: InkWell(
@@ -350,7 +349,7 @@ class VideoDetailContent extends StatelessWidget {
                                 onTap: () {
                                   final UserService userService = Get.find();
                                   if (!userService.isLogin) {
-                                    showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error));
+                                    showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error), position: ToastPosition.bottom);
                                     Get.toNamed(Routes.LOGIN);
                                     return;
                                   }
@@ -373,7 +372,7 @@ class VideoDetailContent extends StatelessWidget {
                                       ),
                                       const SizedBox(width: 4),
                                       Text(
-                                        slang.Translations.of(context).playList.myPlayList,
+                                        slang.Translations.of(context).common.playList,
                                         style: TextStyle(
                                           fontSize: 14,
                                           color: Theme.of(context).textTheme.bodyMedium?.color
@@ -384,7 +383,45 @@ class VideoDetailContent extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            // 下载按钮
+                            Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(20),
+                                onTap: () {
+                                  showModalBottomSheet(
+                                    backgroundColor: Colors.transparent,
+                                    isScrollControlled: true,
+                                    builder: (context) => ShareVideoBottomSheet(
+                                      videoId: controller.videoInfo.value?.id ?? '',
+                                      videoTitle: controller.videoInfo.value?.title ?? '',
+                                      authorName: controller.videoInfo.value?.user?.name ?? '',
+                                      previewUrl: controller.videoInfo.value?.previewUrl ?? '',
+                                    ),
+                                    context: context,
+                                  );
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.share,
+                                        size: 20,
+                                        color: Theme.of(context).iconTheme.color
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        slang.Translations.of(context).common.share,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Theme.of(context).textTheme.bodyMedium?.color
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
                             Material(
                               color: Colors.transparent,
                               child: InkWell(
@@ -436,12 +473,9 @@ class VideoDetailContent extends StatelessWidget {
         },
         behavior: HitTestBehavior.opaque,
         child: AvatarWidget(
-          avatarUrl: controller.videoInfo.value?.user?.avatar?.avatarUrl,
+          user: controller.videoInfo.value?.user,
           defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-          headers: const {'referer': CommonConstants.iwaraBaseUrl},
           radius: 20,
-          isPremium: controller.videoInfo.value?.user?.premium ?? false,
-          isAdmin: controller.videoInfo.value?.user?.isAdmin ?? false,
         ),
       ),
     );
@@ -473,7 +507,7 @@ class VideoDetailContent extends StatelessWidget {
     return avatar;
   }
 
-  Widget _buildAuthorNameButton() {
+  Widget _buildAuthorNameButton(BuildContext context) {
     final user = controller.videoInfo.value?.user;
     if (user?.premium == true) {
       return MouseRegion(
@@ -485,25 +519,7 @@ class VideoDetailContent extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ShaderMask(
-                shaderCallback: (bounds) => LinearGradient(
-                  colors: [
-                    Colors.purple.shade300,
-                    Colors.blue.shade300,
-                    Colors.pink.shade300,
-                  ],
-                ).createShader(bounds),
-                child: Text(
-                  user?.name ?? '',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
+              buildUserName(context, user, fontSize: 16, bold: true),
               Text(
                 '@${user?.username ?? ''}',
                 style: TextStyle(
@@ -554,7 +570,7 @@ class VideoDetailContent extends StatelessWidget {
     );
   }
 
-  Widget _buildAuthorInfo() {
+  Widget _buildAuthorInfo(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Row(
@@ -562,7 +578,7 @@ class VideoDetailContent extends StatelessWidget {
           _buildAuthorAvatar(),
           const SizedBox(width: 12),
           Expanded(
-            child: _buildAuthorNameButton(),
+            child: _buildAuthorNameButton(context),
           ),
           if (controller.videoInfo.value?.user != null)
             Container(

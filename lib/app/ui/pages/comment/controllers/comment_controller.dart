@@ -35,6 +35,7 @@ class CommentController<T extends CommentType> extends GetxController {
   final int pageSize = 20;
   var totalComments = 0.obs;
   var hasMore = true.obs;
+  var pendingCount = 0.obs;
 
   // API 服务实例
   final CommentService _commentService = Get.find<CommentService>();
@@ -78,7 +79,7 @@ class CommentController<T extends CommentType> extends GetxController {
       if (result.isSuccess) {
         final pageData = result.data!;
         totalComments.value = pageData.count;
-
+        pendingCount.value = pageData.extras?['pendingCount'] ?? 0;
         final fetchedComments = pageData.results;
 
         if (fetchedComments.isEmpty) {
@@ -138,7 +139,7 @@ class CommentController<T extends CommentType> extends GetxController {
       showToastWidget(MDToastWidget(message: t.common.commentPostedSuccessfully, type: MDToastType.success));
       AppService.tryPop();
     } else {
-      showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error));
+      showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
     }
     
     return result;
@@ -152,7 +153,7 @@ class CommentController<T extends CommentType> extends GetxController {
       totalComments.value--;
       showToastWidget(MDToastWidget(message: t.common.commentDeletedSuccessfully, type: MDToastType.success));
     } else {
-      showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error));
+      showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
     }
   }
 
@@ -170,7 +171,7 @@ class CommentController<T extends CommentType> extends GetxController {
         AppService.tryPop();
       }
     } else {
-      showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error));
+      showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
     }
   }
 }

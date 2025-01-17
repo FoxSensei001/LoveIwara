@@ -35,25 +35,6 @@ class FollowsController extends GetxController {
     followersRepository = FollowersListRepository(userId);
   }
 
-  // 刷新当前标签页
-  Future<void> refreshCurrentTab(int tabIndex) async {
-    if (tabIndex == 0) {
-      isLoadingFollowing.value = true;
-      try {
-        await followingRepository.refresh();
-      } finally {
-        isLoadingFollowing.value = false;
-      }
-    } else {
-      isLoadingFollowers.value = true;
-      try {
-        await followersRepository.refresh();
-      } finally {
-        isLoadingFollowers.value = false;
-      }
-    }
-  }
-
   // 跳转到用户详情页
   void navigateToUserProfile(String username) {
     NaviService.navigateToAuthorProfilePage(username);

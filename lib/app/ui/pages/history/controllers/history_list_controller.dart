@@ -51,6 +51,10 @@ class HistoryListController extends GetxController {
     } else {
       selectedRecords.add(recordId);
     }
+    for (var tag in ['all', 'video', 'image', 'post', 'thread']) {
+      final controller = Get.find<HistoryListController>(tag: tag);
+      controller.selectedRecords.value = Set.from(selectedRecords);
+    }
   }
 
   void selectAll() {
@@ -59,12 +63,20 @@ class HistoryListController extends GetxController {
     } else {
       selectedRecords.addAll(repository.map((record) => record.id));
     }
+    for (var tag in ['all', 'video', 'image', 'post', 'thread']) {
+      final controller = Get.find<HistoryListController>(tag: tag);
+      controller.selectedRecords.value = Set.from(selectedRecords);
+    }
   }
 
   Future<void> deleteSelected() async {
     await _historyRepository.deleteRecords(selectedRecords.toList());
     selectedRecords.clear();
-    repository.refresh();
+    for (var tag in ['all', 'video', 'image', 'post', 'thread']) {
+      final controller = Get.find<HistoryListController>(tag: tag);
+      controller.repository.refresh();
+    }
+    isMultiSelect.value = false;
     showToastWidget(MDToastWidget(message: t.common.success, type: MDToastType.success));
   }
 

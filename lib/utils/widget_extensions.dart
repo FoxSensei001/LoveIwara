@@ -5,6 +5,21 @@ import 'package:get/get.dart';
 /// 提供了一系列便捷的 Widget 包装方法，使布局代码更简洁易读
 extension WidgetExtension on Widget {
 
+  /// 将 Widget 转换为可点击的按钮
+  /// ```dart
+  /// Container(...).asButton(() => print('clicked'))
+  /// ```
+  Widget asButton(VoidCallback? onTap) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: this,
+      ),
+    );
+  }
+
   /// 为 Widget 添加标题栏顶部内边距
   /// ```dart
   /// Text('Hello').titleBarPaddingTop()

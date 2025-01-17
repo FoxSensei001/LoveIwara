@@ -52,7 +52,7 @@ class _SignInPageState extends State<SignInPage> {
     if (picked != null) {
       // 确保日期范围不超过1年
       if (picked.end.difference(picked.start).inDays > 365) {
-        showToastWidget(MDToastWidget(message: slang.t.signIn.dateRangeCantBeMoreThanOneYear, type: MDToastType.error));
+        showToastWidget(MDToastWidget(message: slang.t.signIn.dateRangeCantBeMoreThanOneYear, type: MDToastType.error), position: ToastPosition.bottom);
         return;
       }
       setState(() {

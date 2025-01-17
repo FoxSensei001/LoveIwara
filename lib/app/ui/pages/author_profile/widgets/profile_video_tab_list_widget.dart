@@ -200,7 +200,6 @@ class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
                       videoListController.fetchVideos(refresh: true);
                     },
                   )),
-            const SizedBox(width: 16),
           ],
         ),
         Expanded(

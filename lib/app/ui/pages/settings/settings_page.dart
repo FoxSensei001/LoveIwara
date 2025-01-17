@@ -4,6 +4,7 @@ import 'package:i_iwara/app/services/config_service.dart';
 
 import '../../../../utils/proxy/proxy_util.dart';
 import '../../../routes/app_routes.dart';
+import 'app_settings_page.dart';
 import 'player_settings_page.dart';
 import 'proxy_settings_page.dart';
 import 'theme_settings_page.dart';
@@ -46,6 +47,13 @@ class _SettingsPageState extends State<SettingsPage> {
           page: ProxySettingsPage(isWideScreen: isWideScreen),
           route: Routes.PROXY_SETTINGS_PAGE,
         ),
+      SettingItem(
+        title: t.settings.appSettings,
+        subtitle: t.settings.configureYourAppSettings,
+        icon: Icons.settings,
+        page: AppSettingsPage(isWideScreen: isWideScreen),
+        route: Routes.APP_SETTINGS_PAGE,
+      ),
       SettingItem(
         title: t.settings.playerSettings,
         subtitle: t.settings.customizeYourPlaybackExperience,

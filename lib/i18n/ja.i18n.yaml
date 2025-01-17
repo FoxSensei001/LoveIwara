@@ -142,6 +142,26 @@ common:
   originalText: 原文
   showOriginalText: 原文を表示
   showProcessedText: 処理後の原文を表示
+  preview: プレビュー
+  rules: ルール
+  agree: 同意
+  disagree: 不同意
+  agreeToRules: 同意ルール
+  createPost: 投稿を作成
+  title: タイトル
+  enterTitle: タイトルを入力してください
+  content: 内容
+  enterContent: 内容を入力してください
+  writeYourContentHere: 内容を入力してください...
+  tagBlacklist: ブラックリストタグ
+  noData: データがありません
+  tagLimit: タグ上限
+  enableFloatingButtons: フローティングボタンを有効
+  disableFloatingButtons: フローティングボタンを無効
+  enabledFloatingButtons: フローティングボタンが有効
+  disabledFloatingButtons: フローティングボタンが無効
+  pendingCommentCount: 未審核コメント
+  joined: '${str} に参加'
 
   download: ダウンロード
   selectQuality: 画質を選択
@@ -213,6 +233,16 @@ errors:
   pleaseLoginAgain: ログインしてください
   invalidLogin: ログインに失敗しました。メールアドレスとパスワードを確認してください
   tooManyRequests: リクエストが多すぎます。後でもう一度お試しください
+  exceedsMaxLength: '最大長さを超えています: ${max}'
+  contentCanNotBeEmpty: コンテンツは空にできません
+  titleCanNotBeEmpty: タイトルは空にできません
+  tooManyRequestsPleaseTryAgainLaterText: "リクエストが多すぎます。後でもう一度お試しください。残り時間"
+  remainingHours: "${num}時間"
+  remainingMinutes: "${num}分"
+  remainingSeconds: "${num}秒"
+  tagLimitExceeded: 'タグの上限を超えています。上限: ${limit}'
+  failedToRefresh: 更新に失敗しました
+  noPermission: 権限がありません
 friends:
   clickToRestoreFriend: 友達を復元するにはクリックしてください
   friendsList: 友達リスト
@@ -349,7 +379,25 @@ settings:
   forceUpdateTip: "これは必須アップデートです。できるだけ早く最新バージョンにアップデートしてください"
   viewChangelog: 更新内容を表示
   alreadyLatestVersion: すでに最新バージョンです
-
+  appSettings: アプリ設定
+  configureYourAppSettings: アプリ設定を設定
+  history: 履歴
+  autoRecordHistory: 自動記録履歴
+  autoRecordHistoryDesc: 視聴した動画やギャラリーなどの情報を自動的に記録します
+  showUnprocessedMarkdownText: 未処理のMarkdownテキストを表示
+  showUnprocessedMarkdownTextDesc: Markdownの元のテキストを表示
+  markdown: Markdown
+  activeBackgroundPrivacyMode: プライバシーモード
+  activeBackgroundPrivacyModeDesc: スクリーンショットを禁止し、バックグラウンド実行時に画面を隠す...
+  privacy: プライバシー
+  forum: フォーラム
+  disableForumReplyQuote: フォーラム返信引用を無効にする
+  disableForumReplyQuoteDesc: フォーラム返信時の返信階層情報の携帯を無効にする
+  theaterMode: 劇院モード
+  theaterModeDesc: 開啟後、プレーヤー背景がビデオカバーのぼかしバージョンに設定されます
+  appLinks: アプリリンク
+  defaultBrowser: デフォルトブラウザ
+  defaultBrowserDesc: システム設定でデフォルトリンク設定項目を開き、iwara.tvサイトリンクを追加してください
 signIn:
   pleaseLoginFirst: サインインする前にログインしてください
   alreadySignedInToday: 今日は既にサインインしています！
@@ -436,6 +484,209 @@ share:
   iReallyLikeThis: 本当に好きです
   shareFailed: 共有に失敗しました。後でもう一度お試しください
   share: 共有
+  shareAsImage: 画像として共有
+  shareAsText: テキストとして共有
+  shareAsImageDesc: 動画のサムネイルを画像として共有
+  shareAsTextDesc: 動画の詳細をテキストとして共有
+  shareAsImageFailed: サムネイルの共有に失敗しました。後でもう一度お試しください
+  shareAsTextFailed: 詳細の共有に失敗しました。後でもう一度お試しください
+  shareVideo: 動画を共有
+  authorIs: 作者は
+  shareGallery: ギャラリーを共有
+  galleryTitleIs: ギャラリーのタイトルは
+  galleryAuthorIs: ギャラリーの作者は
+  shareUser: ユーザーを共有
+  userNameIs: ユーザーの名前は
+  userAuthorIs: ユーザーの作者は
+  comments: コメント
+  shareThread: スレッドを共有
+  views: 閲覧
+  sharePost: 投稿を共有
+  postTitleIs: 投稿のタイトルは
+  postAuthorIs: 投稿の作者は
+
+
+markdown:
+  markdownSyntax: Markdown 構文
+  iwaraSpecialMarkdownSyntax: Iwara 専用構文
+  internalLink: 站内鏈接
+  supportAutoConvertLinkBelow: '以下のタイプのリンクを自動変換します：'
+  convertLinkExample: '🎬 ビデオリンク\n🖼️ 画像リンク\n👤 ユーザーリンク\n📌 フォーラムリンク\n🎵 プレイリストリンク\n💬 スレッドリンク'
+  mentionUser: ユーザーを言及
+  mentionUserDescription: '@後にユーザー名を入力すると、ユーザーリンクに自動変換されます'
+  markdownBasicSyntax: Markdown 基本構文
+  paragraphAndLineBreak: 段落と改行
+  paragraphAndLineBreakDescription: '段落間に空行を入れ、行末に2つのスペースを追加すると改行されます'
+  paragraphAndLineBreakSyntax: 'これは第一段落です\n\nこれは第二段落です\nこの行の後に2つのスペースを追加して  \n改行されます'
+  textStyle: テキストスタイル
+  textStyleDescription: '特殊記号でテキストのスタイルを変更'
+  textStyleSyntax: '**太字テキスト**\n*斜体テキスト*\n~~削除線テキスト~~\n`コードテキスト`'
+  quote: 引用
+  quoteDescription: '> 符号で引用を作成し、複数の > で多段引用を作成'
+  quoteSyntax: '> これは一階引用です\n>> これは二階引用です'
+  list: リスト
+  listDescription: '数字+点号で順序付きリストを作成し、- で順序なしリストを作成'
+  listSyntax: '1. 第一項\n2. 第二項\n\n- 順序なし項\n  - 子項\n  - 別の子項'
+  linkAndImage: リンクと画像
+  linkAndImageDescription: 'リンク形式：[テキスト](URL)\n画像形式：![説明](URL)'
+  linkAndImageSyntax: '[リンクテキスト](${link})\n![画像説明](${imgUrl})'
+  title: タイトル
+  titleDescription: '＃ 号でタイトルを作成し、数でレベルを表示'
+  titleSyntax: '# 一階タイトル\n## 二階タイトル\n### 三階タイトル'
+  separator: 分隔線
+  separatorDescription: '三個以上の - 号で分隔線を作成'
+  separatorSyntax: '---'
+  syntax: 語法
+
+forum:
+  errors:
+    pleaseSelectCategory: カテゴリを選択してください
+    threadLocked: このスレッドはロックされています。
+  title: タイトル
+  createPost: 投稿を作成
+  enterTitle: タイトルを入力してください
+  content: コンテンツ
+  enterContent: コンテンツを入力してください
+  writeYourContentHere: ここにコンテンツを入力...
+  posts: 投稿
+  threads: スレッド
+  forum: フォーラム
+  createThread: スレッドを作成
+  selectCategory: カテゴリを選択
+  cooldownRemaining: 'クールダウン残り時間 ${minutes} 分 ${seconds} 秒'
+  groups:
+    administration: 管理
+    global: グローバル
+    chinese: 中国語
+    japanese: 日本語
+    korean: 韓国語
+    other: その他
+  leafNames:
+    announcements: お知らせ
+    feedback: フィードバック
+    support: サポート
+    general: 一般
+    guides: ガイド
+    questions: 質問
+    requests: リクエスト
+    sharing: シェア
+    'general_zh': 一般
+    'questions_zh': 質問
+    'requests_zh': リクエスト
+    'support_zh': サポート
+    'general_ja': 一般
+    'questions_ja': 質問
+    'requests_ja': リクエスト
+    'support_ja': サポート
+    korean: 韓国語
+    other: その他
+  leafDescriptions:
+    announcements: 公式の重要なお知らせと通知
+    feedback: サイトの機能やサービスに対するフィードバック
+    support: サイト関連の問題を解決する手助け
+    general: あらゆる話題を議論する
+    guides: 経験やチュートリアルを共有する
+    questions: 疑問を提起する
+    requests: リクエストを投稿する
+    sharing: 面白いコンテンツを共有する
+    'general_zh': あらゆる話題を議論する
+    'questions_zh': 疑問を提起する
+    'requests_zh': リクエストを投稿する
+    'support_zh': サイト関連の問題を解決する手助け
+    'general_ja': あらゆる話題を議論する
+    'questions_ja': 疑問を提起する
+    'requests_ja': リクエストを投稿する
+    'support_ja': サイト関連の問題を解決する手助け
+    korean: 韓国語に関する議論
+    other: その他の未分類のコンテンツ
+  reply: 回覆
+  pendingReview: 審査中
+  editedAt: 編集日時
+  copySuccess: クリップボードにコピーされました
+  copySuccessForMessage: 'クリップボードにコピーされました: ${str}'
+  editReply: 編集回覆
+  editTitle: 編集タイトル
+  submit: 提出
+
+notifications:
+  errors:
+    unsupportedNotificationType: サポートされていない通知タイプ
+    unknownUser: 未知ユーザー
+    unsupportedNotificationTypeWithType: 'サポートされていない通知タイプ: ${type}'
+    unknownNotificationType: 未知通知タイプ
+  notifications: 通知
+  profile: 個人主頁
+  postedNewComment: 新しいコメントを投稿
+  inYour: あなたの
+  video: ビデオ
+  repliedYourVideoComment: あなたのビデオコメントに返信しました
+  copyInfoToClipboard: 通知情報をクリップボードにコピー
+  copySuccess: クリップボードにコピーされました
+  copySuccessForMessage: 'クリップボードにコピーされました: ${str}'
+  markAllAsRead: 全てを既読にする
+  markAllAsReadSuccess: 全ての通知が既読になりました
+  markAllAsReadFailed: 全てを既読にするに失敗しました
+  markSelectedAsRead: 選択した通知を既読にする
+  markSelectedAsReadSuccess: 選択した通知が既読になりました
+  markSelectedAsReadFailed: 選択した通知を既読にするに失敗しました
+  markAsRead: 既読にする
+  markAsReadSuccess: 通知が既読になりました
+  markAsReadFailed: 通知を既読にするに失敗しました
+  notificationTypeHelp: 通知タイプのヘルプ
+  dueToLackOfNotificationTypeDetails: 通知タイプの詳細情報が不足しているため、現在サポートされているタイプが受信したメッセージをカバーしていない可能性があります
+  helpUsImproveNotificationTypeSupport: 通知タイプのサポート改善にご協力いただける場合
+  helpUsImproveNotificationTypeSupportLongText: '1. 📋 通知情報をコピー\n2. 🐞 プロジェクトリポジトリに issue を提出\n\n⚠️ 注意：通知情報には個人情報が含まれている場合があります。公開したくない場合は、プロジェクト作者にメールで送信することもできます。'
+  goToRepository: リポジトリに移動
+  copy: コピー
+  commentApproved: コメントが承認されました
+  repliedYourProfileComment: あなたの個人主頁コメントに返信しました
+  kReplied: さんが
+  kCommented: さんが
+  kVideo: ビデオ
+  kGallery: ギャラリー
+  kProfile: プロフィール
+  kThread: スレッド
+  kPost: 投稿
+  kCommentSection: ''
+  kApprovedComment: コメントが承認されました
+  kApprovedVideo: 動画が承認されました
+  kApprovedGallery: ギャラリーが承認されました
+  kApprovedThread: スレッドが承認されました
+  kApprovedPost: 投稿が承認されました
+  kUnknownType: 不明な通知タイプ
+
+conversation:
+  errors:
+    pleaseSelectAUser: ユーザーを選択してください
+    pleaseEnterATitle: タイトルを入力してください
+    clickToSelectAUser: ユーザーを選択してください
+    loadFailedClickToRetry: 読み込みに失敗しました。クリックして再試行
+    loadFailed: 読み込みに失敗しました
+    clickToRetry: クリックして再試行
+    noMoreConversations: もう会話がありません
+  conversation: 会話
+  startConversation: 会話を開始
+  noConversation: 会話がありません
+  selectFromLeftListAndStartConversation: 左側の会話リストから会話を選択して開始
+  title: タイトル
+  body: 内容
+  selectAUser: ユーザーを選択
+  searchUsers: ユーザーを検索...
+  tmpNoConversions: 会話がありません
+  deleteThisMessage: このメッセージを削除
+  deleteThisMessageSubtitle: この操作は取り消せません
+  writeMessageHere: ここにメッセージを入力...
+  sendMessage: メッセージを送信
+
+splash:
+  errors:
+    initializationFailed: 初期化に失敗しました。アプリを再起動してください
+  preparing: 準備中...
+  initializing: 初期化中...
+  loading: 読み込み中...
+  ready: 準備完了
+  initializingMessageService: メッセージサービスを初期化中...
+
 
 download:
   errors:

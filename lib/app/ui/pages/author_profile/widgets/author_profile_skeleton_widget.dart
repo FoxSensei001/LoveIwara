@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/top_padding_height_widget.dart';
 import 'package:shimmer/shimmer.dart';
 
 class AuthorProfileSkeleton extends StatelessWidget {
@@ -8,11 +9,10 @@ class AuthorProfileSkeleton extends StatelessWidget {
   static const _baseColor = Color(0xFFE0E0E0);
   static const _highlightColor = Color(0xFFF5F5F5);
   static const _cardRadius = 12.0;
-  static const _avatarSize = 100.0;
 
   @override
   Widget build(BuildContext context) {
-    bool isWideScreen = MediaQuery.of(context).size.width >= 600;
+    bool isWideScreen = MediaQuery.of(context).size.width >= 800;
     return isWideScreen ? _buildWideLayout(context) : _buildNormalLayout(context);
   }
 
@@ -53,7 +53,9 @@ class AuthorProfileSkeleton extends StatelessWidget {
 
   List<Widget> _buildHeaderSliver(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final bannerHeight = (screenWidth * 0.3).clamp(200.0, 300.0);
+    final isNarrowScreen = screenWidth < 400;
+    final bannerHeight = (screenWidth * 43 / 150).clamp(0.0, 300.0);
+    final avatarSize = isNarrowScreen ? 60.0 : 80.0;
 
     return [
       SliverAppBar(
@@ -65,17 +67,13 @@ class AuthorProfileSkeleton extends StatelessWidget {
           child: Container(
             decoration: const BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(_cardRadius),
-                bottomRight: Radius.circular(_cardRadius),
-              ),
             ),
           ),
         ),
       ),
       SliverToBoxAdapter(
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.all(16.0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -83,8 +81,8 @@ class AuthorProfileSkeleton extends StatelessWidget {
                 baseColor: _baseColor,
                 highlightColor: _highlightColor,
                 child: Container(
-                  width: _avatarSize,
-                  height: _avatarSize,
+                  width: avatarSize,
+                  height: avatarSize,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.white,
@@ -92,35 +90,37 @@ class AuthorProfileSkeleton extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 20),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // 用户名
                     Shimmer.fromColors(
                       baseColor: _baseColor,
                       highlightColor: _highlightColor,
                       child: Container(
-                        width: 180,
-                        height: 28,
+                        width: 150,
+                        height: isNarrowScreen ? 20 : 24,
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(_cardRadius),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: isNarrowScreen ? 4 : 8),
+                    // 用户名和统计数据
                     Wrap(
-                      spacing: 12,
-                      runSpacing: 8,
+                      spacing: isNarrowScreen ? 4 : 8,
+                      runSpacing: isNarrowScreen ? 2 : 4,
                       children: List.generate(
-                        3,
+                        4,
                         (index) => Shimmer.fromColors(
                           baseColor: _baseColor,
                           highlightColor: _highlightColor,
                           child: Container(
-                            width: 90,
-                            height: 20,
+                            width: 80,
+                            height: isNarrowScreen ? 16 : 20,
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(_cardRadius / 2),
@@ -129,18 +129,19 @@ class AuthorProfileSkeleton extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: isNarrowScreen ? 4 : 8),
+                    // 按钮组
                     Wrap(
-                      spacing: 12,
-                      runSpacing: 12,
+                      spacing: isNarrowScreen ? 8 : 16,
+                      runSpacing: isNarrowScreen ? 4 : 8,
                       children: List.generate(
-                        3,
+                        2,
                         (index) => Shimmer.fromColors(
                           baseColor: _baseColor,
                           highlightColor: _highlightColor,
                           child: Container(
                             width: 100,
-                            height: 40,
+                            height: isNarrowScreen ? 32 : 36,
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(_cardRadius),
@@ -157,9 +158,10 @@ class AuthorProfileSkeleton extends StatelessWidget {
           ),
         ),
       ),
+      // 个人简介
       SliverToBoxAdapter(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -167,24 +169,23 @@ class AuthorProfileSkeleton extends StatelessWidget {
                 baseColor: _baseColor,
                 highlightColor: _highlightColor,
                 child: Container(
-                  width: 120,
-                  height: 24,
-                  margin: const EdgeInsets.only(bottom: 12),
+                  height: 60,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(_cardRadius / 2),
+                    borderRadius: BorderRadius.circular(_cardRadius),
                   ),
                 ),
               ),
+              SizedBox(height: isNarrowScreen ? 4 : 8),
+              // 评论按钮
               Shimmer.fromColors(
                 baseColor: _baseColor,
                 highlightColor: _highlightColor,
                 child: Container(
-                  height: 80,
+                  height: isNarrowScreen ? 32 : 36,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(_cardRadius),
-                    border: Border.all(color: Colors.grey[100]!, width: 1),
                   ),
                 ),
               ),
@@ -192,47 +193,29 @@ class AuthorProfileSkeleton extends StatelessWidget {
           ),
         ),
       ),
-      const SliverToBoxAdapter(child: SizedBox(height: 20)),
-      SliverToBoxAdapter(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Shimmer.fromColors(
-            baseColor: _baseColor,
-            highlightColor: _highlightColor,
-            child: Container(
-              height: 50,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(_cardRadius * 2),
-                border: Border.all(color: Colors.grey[100]!, width: 1),
-              ),
-            ),
-          ),
-        ),
-      ),
-      const SliverToBoxAdapter(child: SizedBox(height: 20)),
+      const SliverToBoxAdapter(child: SizedBox(height: 16)),
     ];
   }
 
   Widget _buildContentSkeleton() {
     return Column(
       children: [
+        TopPaddingHeightWidget(),
         Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Row(
             children: List.generate(
-              3,
+              4,
               (index) => Expanded(
                 child: Shimmer.fromColors(
                   baseColor: _baseColor,
                   highlightColor: _highlightColor,
                   child: Container(
                     height: 40,
-                    margin: EdgeInsets.only(right: index < 2 ? 12 : 0),
+                    margin: EdgeInsets.only(right: index < 3 ? 12 : 0),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(_cardRadius),
-                      border: Border.all(color: Colors.grey[100]!, width: 1),
                     ),
                   ),
                 ),
@@ -242,11 +225,11 @@ class AuthorProfileSkeleton extends StatelessWidget {
         ),
         Expanded(
           child: GridView.builder(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              mainAxisSpacing: 20,
-              crossAxisSpacing: 20,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 16,
               childAspectRatio: 16 / 10,
             ),
             itemCount: 6,
@@ -257,7 +240,6 @@ class AuthorProfileSkeleton extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(_cardRadius),
-                  border: Border.all(color: Colors.grey[100]!, width: 1),
                 ),
               ),
             ),
@@ -269,12 +251,12 @@ class AuthorProfileSkeleton extends StatelessWidget {
 
   Widget _buildContentSkeletonSliver() {
     return SliverPadding(
-      padding: const EdgeInsets.all(20.0),
+      padding: const EdgeInsets.all(16.0),
       sliver: SliverGrid(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          mainAxisSpacing: 20,
-          crossAxisSpacing: 20,
+          mainAxisSpacing: 16,
+          crossAxisSpacing: 16,
           childAspectRatio: 16 / 10,
         ),
         delegate: SliverChildBuilderDelegate(
@@ -285,7 +267,6 @@ class AuthorProfileSkeleton extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(_cardRadius),
-                border: Border.all(color: Colors.grey[100]!, width: 1),
               ),
             ),
           ),

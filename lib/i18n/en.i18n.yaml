@@ -141,6 +141,26 @@ common:
   originalText: Original Text
   showOriginalText: Show Original Text
   showProcessedText: Show Processed Text
+  preview: Preview
+  rules: Rules
+  agree: Agree
+  disagree: Disagree
+  agreeToRules: Agree to Rules
+  createPost: Create Post
+  title: Title
+  enterTitle: Please enter title
+  content: Content
+  enterContent: Please enter content
+  writeYourContentHere: Please enter content...
+  tagBlacklist: Tag Blacklist
+  noData: No data
+  tagLimit: Tag Limit
+  enableFloatingButtons: Enable Floating Buttons
+  disableFloatingButtons: Disable Floating Buttons
+  enabledFloatingButtons: Enabled Floating Buttons
+  disabledFloatingButtons: Disabled Floating Buttons
+  pendingCommentCount: Pending Comment Count
+  joined: 'Joined at ${str}'
   download: Download
   selectQuality: Select Quality
 auth:
@@ -211,6 +231,16 @@ errors:
   pleaseLoginAgain: Please login again
   invalidLogin: Invalid login, Please check your email and password
   tooManyRequests: Too many requests, please try again later
+  exceedsMaxLength: 'Exceeds max length: ${max}'
+  contentCanNotBeEmpty: Content cannot be empty
+  titleCanNotBeEmpty: Title cannot be empty
+  tooManyRequestsPleaseTryAgainLaterText: "Too many requests, please try again later, remaining"
+  remainingHours: "${num} hours"
+  remainingMinutes: "${num} minutes"
+  remainingSeconds: "${num} seconds"
+  tagLimitExceeded: 'Tag limit exceeded, limit: ${limit}'
+  failedToRefresh: Failed to refresh
+  noPermission: No permission
 friends:
   clickToRestoreFriend: Click to restore friend
   friendsList: Friends List
@@ -347,7 +377,25 @@ settings:
   forceUpdateTip: "This is a mandatory update. Please update to the latest version as soon as possible"
   viewChangelog: View Changelog
   alreadyLatestVersion: Already the latest version
-
+  appSettings: App Settings
+  configureYourAppSettings: Configure Your App Settings
+  history: History
+  autoRecordHistory: Auto Record History
+  autoRecordHistoryDesc: Auto record the videos and images you have watched
+  showUnprocessedMarkdownText: Show Unprocessed Markdown Text
+  showUnprocessedMarkdownTextDesc: Show the original text of the markdown
+  markdown: Markdown
+  activeBackgroundPrivacyMode: Privacy Mode
+  activeBackgroundPrivacyModeDesc: Prevent screenshots, hide screen when running in the background...
+  privacy: Privacy
+  forum: Forum
+  disableForumReplyQuote: Disable Forum Reply Quote
+  disableForumReplyQuoteDesc: Disable carrying replied floor information when replying in forum
+  theaterMode: Theater Mode
+  theaterModeDesc: After opening, the player background will be set to the blurred version of the video cover
+  appLinks: App Links
+  defaultBrowser: Default Browse
+  defaultBrowserDesc: Please open the default link configuration item in the system settings and add the iwara.tv website link
 signIn:
   pleaseLoginFirst: Please login first
   alreadySignedInToday: You have already signed in today!
@@ -434,6 +482,207 @@ share:
   iReallyLikeThis: I really like this
   shareFailed: Share failed, please try again later
   share: Share
+  shareAsImage: Share as Image
+  shareAsText: Share as Text
+  shareAsImageDesc: Share the video cover as an image
+  shareAsTextDesc: Share the video details as text
+  shareAsImageFailed: Share the video cover as an image failed, please try again later
+  shareAsTextFailed: Share the video details as text failed, please try again later
+  shareVideo: Share Video
+  authorIs: Author is
+  shareGallery: Share Gallery
+  galleryTitleIs: Gallery title is
+  galleryAuthorIs: Gallery author is
+  shareUser: Share User
+  userNameIs: User name is
+  userAuthorIs: User author is
+  comments: Comments
+  shareThread: Share Thread
+  views: Views
+  sharePost: Share Post
+  postTitleIs: Post title is
+  postAuthorIs: Post author is
+markdown:
+  markdownSyntax: Markdown Syntax
+  iwaraSpecialMarkdownSyntax: Iwara Special Markdown Syntax
+  internalLink: Internal Link
+  supportAutoConvertLinkBelow: 'Support auto convert link below:'
+  convertLinkExample: '🎬 Video Link\n🖼️ Image Link\n👤 User Link\n📌 Forum Link\n🎵 Playlist Link\n💬 Thread Link'
+  mentionUser: Mention User
+  mentionUserDescription: 'Input @ followed by username, will be automatically converted to user link'
+  markdownBasicSyntax: Markdown Basic Syntax
+  paragraphAndLineBreak: Paragraph and Line Break
+  paragraphAndLineBreakDescription: 'Paragraphs are separated by a line, and two spaces at the end of the line will be converted to a line break'
+  paragraphAndLineBreakSyntax: 'This is the first paragraph\n\nThis is the second paragraph\nThis line ends with two spaces  \nwill be converted to a line break'
+  textStyle: Text Style
+  textStyleDescription: 'Use special symbols to surround text to change style'
+  textStyleSyntax: '**Bold Text**\n*Italic Text*\n~~Strikethrough Text~~\n`Code Text`'
+  quote: Quote
+  quoteDescription: 'Use > symbol to create quote, multiple > to create multi-level quote'
+  quoteSyntax: '> This is a first-level quote\n>> This is a second-level quote'
+  list: List
+  listDescription: 'Create ordered list with number+dot, create unordered list with -'
+  listSyntax: '1. First item\n2. Second item\n\n- Unordered item\n  - Subitem\n  - Another subitem'
+  linkAndImage: Link and Image
+  linkAndImageDescription: 'Link format: [text](URL)\nImage format: ![description](URL)'
+  linkAndImageSyntax: '[link text](${link})\n![image description](${imgUrl})'
+  title: Title
+  titleDescription: 'Use # symbol to create title, number to show level'
+  titleSyntax: '# First-level title\n## Second-level title\n### Third-level title'
+  separator: Separator
+  separatorDescription: 'Create separator with three or more - symbols'
+  separatorSyntax: '---'
+  syntax: Syntax
+
+forum:
+  errors:
+    pleaseSelectCategory: Please select a category
+    threadLocked: This thread is locked, cannot reply
+  createPost: Create Post
+  title: Title
+  enterTitle: Enter Title
+  content: Content
+  enterContent: Enter Content
+  writeYourContentHere: Write your content here...
+  posts: Posts
+  threads: Threads
+  forum: Forum
+  createThread: Create Thread
+  selectCategory: Select Category
+  cooldownRemaining: 'Cooldown remaining ${minutes} minutes ${seconds} seconds'
+  groups:
+    administration: Administration
+    global: Global
+    chinese: Chinese
+    japanese: Japanese
+    korean: Korean
+    other: Other
+  leafNames:
+    announcements: Announcements
+    feedback: Feedback
+    support: Support
+    general: General
+    guides: Guides
+    questions: Questions
+    requests: Requests
+    sharing: Sharing
+    'general_zh': General
+    'questions_zh': Questions
+    'requests_zh': Requests
+    'support_zh': Support
+    'general_ja': General
+    'questions_ja': Questions
+    'requests_ja': Requests
+    'support_ja': Support
+    korean: Korean
+    other: Other
+  leafDescriptions:
+    announcements: Official important notifications and announcements
+    feedback: Feedback on the website's features and services
+    support: Help to resolve website-related issues
+    general: Discuss any topic
+    guides: Share your experiences and tutorials
+    questions: Raise your inquiries
+    requests: Post your requests
+    sharing: Share interesting content
+    'general_zh': Discuss any topic
+    'questions_zh': Raise your inquiries
+    'requests_zh': Post your requests
+    'support_zh': Help to resolve website-related issues
+    'general_ja': Discuss any topic
+    'questions_ja': Raise your inquiries
+    'requests_ja': Post your requests
+    'support_ja': Help to resolve website-related issues
+    korean: Discussions related to Korean
+    other: Other unclassified content
+  reply: Reply
+  pendingReview: Pending Review
+  editedAt: Edited At
+  copySuccess: Copied to clipboard
+  copySuccessForMessage: 'Copied to clipboard: ${str}'
+  editReply: Edit Reply
+  editTitle: Edit Title
+  submit: Submit
+
+notifications:
+  errors:
+    unsupportedNotificationType: Unsupported notification type
+    unknownUser: Unknown user
+    unsupportedNotificationTypeWithType: 'Unsupported notification type: ${type}'
+    unknownNotificationType: Unknown notification type
+  notifications: Notifications
+  profile: Profile
+  postedNewComment: Posted new comment
+  inYour: In your
+  video: Video
+  repliedYourVideoComment: Replied your video comment
+  copyInfoToClipboard: Copy notification info to clipboard
+  copySuccess: Copied to clipboard
+  copySuccessForMessage: 'Copied to clipboard: ${str}'
+  markAllAsRead: Mark all as read
+  markAllAsReadSuccess: All notifications have been marked as read
+  markAllAsReadFailed: Mark all as read failed
+  markSelectedAsRead: Mark selected as read
+  markSelectedAsReadSuccess: Selected notifications have been marked as read
+  markSelectedAsReadFailed: Mark selected as read failed
+  markAsRead: Mark as read
+  markAsReadSuccess: Notification has been marked as read
+  markAsReadFailed: Notification marked as read failed
+  notificationTypeHelp: Notification Type Help
+  dueToLackOfNotificationTypeDetails: Due to the lack of notification type details, the supported types may not cover the messages you currently receive
+  helpUsImproveNotificationTypeSupport: If you are willing to help us improve the support for notification types
+  helpUsImproveNotificationTypeSupportLongText: '1. 📋 Copy the notification information\n2. 🐞 Submit an issue to the project repository\n\n⚠️ Note: Notification information may contain personal privacy, if you do not want to public, you can also send it to the project author by email.'
+  goToRepository: Go to Repository
+  copy: Copy
+  commentApproved: Comment Approved
+  repliedYourProfileComment: Replied your profile comment
+  kReplied: replied to your comment on
+  kCommented: commented on your
+  kVideo: video
+  kGallery: gallery
+  kProfile: profile
+  kThread: thread
+  kPost: post
+  kCommentSection: comment section
+  kApprovedComment: Comment approved
+  kApprovedVideo: Video approved
+  kApprovedGallery: Gallery approved
+  kApprovedThread: Thread approved
+  kApprovedPost: Post approved
+  kUnknownType: Unknown notification type
+
+conversation:
+  errors:
+    pleaseSelectAUser: Please select a user
+    pleaseEnterATitle: Please enter a title
+    clickToSelectAUser: Click to select a user
+    loadFailedClickToRetry: Load failed, click to retry
+    loadFailed: Load failed
+    clickToRetry: Click to retry
+    noMoreConversations: No more conversations
+  conversation: Conversation
+  startConversation: Start Conversation
+  noConversation: No conversation
+  selectFromLeftListAndStartConversation: Select from left list and start conversation
+  title: Title
+  body: Body
+  selectAUser: Select a user
+  searchUsers: Search users...
+  tmpNoConversions: No conversions
+  deleteThisMessage: Delete this message
+  deleteThisMessageSubtitle: This operation cannot be undone
+  writeMessageHere: Write message here...
+  sendMessage: Send message
+
+splash:
+  errors:
+    initializationFailed: Initialization failed, please restart the app
+  preparing: Preparing...
+  initializing: Initializing...
+  loading: Loading...
+  ready: Ready
+  initializingMessageService: Initializing message service...
+
 
 download:
   errors:
@@ -466,7 +715,7 @@ download:
     openFileFailedWithMessage: 'Failed to open file: ${message}'
     noDownloadSource: No download source
     noDownloadSourceNowPleaseWaitInfoLoaded: No download source, please wait for information loading to be completed and try again
-    noActiveDownloadTask: No active download task 
+    noActiveDownloadTask: No active download task
     noFailedDownloadTask: No failed download task
     noCompletedDownloadTask: No completed download task
     taskAlreadyCompletedDoNotAdd: Task already completed, do not add again

@@ -8,6 +8,13 @@ class CommonConstants {
   // 应用版本
   static const String VERSION = '0.1.0';
 
+  // 应用名称
+  static String? applicationName = 'i_iwara';
+
+  // 应用包名
+  static String packageName = 'm.c.g.a.i_iwara';
+
+
   // 应用图标路径
   static String launcherIconPath = 'assets/icon/launcher_icon_v2.png';
 
@@ -69,9 +76,11 @@ class CommonConstants {
   static String defaultThumbnailUrl =
       '$iwaraBaseUrl/images/default-thumbnail.jpg';
 
+  // 是否启用R18内容
   static bool enableR18 = true;
 
-  static String? applicationName = 'i_iwara';
+  // 是否记录历史记录
+  static bool enableHistory = true;
 
   static String defaultPlaylistThumbnailUrl =
       '$iwaraBaseUrl/images/default-thumbnail.jpg';
@@ -94,6 +103,24 @@ class KeyConstants {
 }
 
 class ApiConstants {
+  // 规则
+  static String rules = '/rules';
+
+  // 用户
+  static String user = '/user';
+
+  // 用户消息 count
+  static String userCounts = '/user/counts';
+
+  // 用户消息全部已读
+  static String userNotificationAllRead = '/notifications/all/read';
+
+  // 查找用户
+  static String autocompleteUsers = '/autocomplete/users';
+
+  // 用户WithId
+  static String userWithId(String userId) => '/user/$userId';
+
   // 视频列表
   static String videos() => '/videos';
 
@@ -194,6 +221,45 @@ class ApiConstants {
 
   // 帖子详情
   static String post(String id) => '/post/$id';
+
+  // 用户发帖子冷却时间
+  static String userPostCooldown() => '/user/post/cooldown';
+
+  // 论坛帖子冷却时间
+  static String forumThreadCooldown() => '/user/forumThread/cooldown';
+
+  // 论坛总表
+  static String forum() => '/forum';
+
+  // 论坛帖子
+  static String forumThread(String forumCategoryId) => '/forum/$forumCategoryId';
+
+  // 论坛帖子回复
+  static String forumThreadReply(String threadId) => '/forum/$threadId/reply';
+
+  // 论坛帖子列表
+  static String forumThreads(String categoryId) => '/forum/$categoryId';
+
+  // 论坛帖子回复
+  static String forumPosts(String postId) => '/forum/post/$postId';
+
+  // 论坛帖子详情
+  static String forumThreadDetail(String categoryId, String threadId) => '/forum/$categoryId/$threadId';
+
+  // 用户通知
+  static String userNotifications(String userId) => '/user/$userId/notifications';
+
+  // 标记消息已读
+  static String userNotificationWithId(String notificationId) => '/notifications/$notificationId/read';
+
+  // 用户会话列表
+  static String userConversations(String userId) => '/user/$userId/conversations';
+
+  // 会话消息
+  static String conversationMessages(String conversationId) => '/conversation/$conversationId/messages';
+
+  // 消息
+  static String messageWithId(String messageId) => '/message/$messageId';
 
   // 视频详情
   static String video(String videoId) => '/video/$videoId';

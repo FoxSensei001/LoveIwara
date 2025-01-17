@@ -40,7 +40,6 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
   late MyVideoStateController controller;
   late CommentController commentController;
   late RelatedMediasController relatedVideoController;
-  VolumeController? _volumeController;
 
   @override
   void initState() {
@@ -70,10 +69,6 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
     // 注册路由变化回调
     HomeNavigationLayout.homeNavigatorObserver
         .addRouteChangeCallback(_onRouteChange);
-
-    if (GetPlatform.isAndroid || GetPlatform.isIOS) {
-      _initVolumeListener();
-    }
   }
 
   /// 添加路由变化回调
@@ -81,13 +76,13 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
   /// - `route`: 当前路由
   /// - `previousRoute`: 上一个路由
   void _onRouteChange(Route? route, Route? previousRoute) {
-    LogUtils.d(
-        "[详情页路由监听]route: ${route?.settings.name}, previousRoute: ${previousRoute?.settings.name}",
-        'video_detail_page_v2');
+    // LogUtils.d(
+    //     "[详情页路由监听]route: ${route?.settings.name}, previousRoute: ${previousRoute?.settings.name}",
+    //     'video_detail_page_v2');
     // 当前页面被覆盖时暂停视频
     if (route != null && route.settings.name != Routes.VIDEO_DETAIL(videoId)) {
-      LogUtils.d(
-          "[详情页路由监听]跳转到其他页面: ${route.settings.name}", 'video_detail_page_v2');
+      // LogUtils.d(
+          // "[详情页路由监听]跳转到其他页面: ${route.settings.name}", 'video_detail_page_v2');
       controller.player.pause();
     }
     // 如果是从detail到其他页面，且当前为 应用全屏状态，则恢复UI
@@ -99,18 +94,6 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
         appService.showSystemUI();
       }
     }
-  }
-
-  void _initVolumeListener() {
-    _volumeController = VolumeController();
-    _volumeController?.listener((volume) {
-      // 如果是通过手势设置音量，则跳过
-      if (controller.isSettingVolume) return;
-      
-      controller.setVolume(volume);
-    });
-    // 初始化并关闭系统音量UI
-    _volumeController?.showSystemUI = false;
   }
 
   @override
@@ -128,7 +111,6 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
       LogUtils.e('删除控制器失败', error: e, tag: 'video_detail_page_v2');
     }
 
-    _volumeController?.removeListener();
     super.dispose();
   }
 
@@ -207,14 +189,14 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
                                 if (text.trim().isEmpty) {
                                   showToastWidget(MDToastWidget(
                                       message: t.errors.commentCanNotBeEmpty,
-                                      type: MDToastType.error));
+                                      type: MDToastType.error), position: ToastPosition.bottom);
                                   return;
                                 }
                                 final UserService userService = Get.find();
                                 if (!userService.isLogin) {
                                   showToastWidget(MDToastWidget(
                                       message: t.errors.pleaseLoginFirst,
-                                      type: MDToastType.error));
+                                      type: MDToastType.error), position: ToastPosition.bottom);
                                   Get.toNamed(Routes.LOGIN);
                                   return;
                                 }
@@ -448,7 +430,7 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
                                                 showToastWidget(MDToastWidget(
                                                     message: t.errors
                                                         .commentCanNotBeEmpty,
-                                                    type: MDToastType.error));
+                                                    type: MDToastType.error), position: ToastPosition.bottom);
                                                 return;
                                               }
                                               final UserService userService =
@@ -457,7 +439,7 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
                                                 showToastWidget(MDToastWidget(
                                                     message:
                                                         t.errors.pleaseLoginFirst,
-                                                    type: MDToastType.error));
+                                                    type: MDToastType.error), position: ToastPosition.bottom);
                                                 Get.toNamed(Routes.LOGIN);
                                                 return;
                                               }
@@ -610,7 +592,7 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
                                           showToastWidget(MDToastWidget(
                                               message:
                                                   t.errors.commentCanNotBeEmpty,
-                                              type: MDToastType.error));
+                                              type: MDToastType.error), position: ToastPosition.bottom);
                                           return;
                                         }
                                         final UserService userService =
@@ -619,7 +601,7 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
                                           showToastWidget(MDToastWidget(
                                               message:
                                                   t.errors.pleaseLoginFirst,
-                                              type: MDToastType.error));
+                                              type: MDToastType.error), position: ToastPosition.bottom);
                                           Get.toNamed(Routes.LOGIN);
                                           return;
                                         }

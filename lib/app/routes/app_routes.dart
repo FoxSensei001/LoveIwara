@@ -21,6 +21,7 @@ abstract class Routes {
   static const SIGN_IN = _Paths.SIGN_IN;
 
   static const ROOT = _Paths.ROOT;
+  static const SPLASH = '/splash';
 
   static const SEARCH_RESULT = _Paths.SEARCH_RESULT;
 
@@ -47,13 +48,29 @@ abstract class Routes {
 
   static const PHOTO_VIEW_WRAPPER = '/photo_view_wrapper';
 
+  static const TAG_BLACKLIST = '/tag_blacklist';
+
+  static const FORUM = '/forum';
+
   static String POST_DETAIL(String id) => '/post/$id';
+
+  static FORUM_THREAD_LIST(String categoryId) => '/forum/$categoryId';
+
+  static FORUM_THREAD_DETAIL(String categoryId, String threadId) => '/forum/$categoryId/$threadId';
+
+  static const APP_SETTINGS_PAGE = '/app_settings_page';
+
+  static const NOTIFICATION_LIST = '/notification_list';
+
+  static const CONVERSATION = '/conversation';
+
+  static MESSAGE_DETAIL(String conversationId) => '/message_detail/$conversationId';
 }
 
 abstract class _Paths {
   _Paths._();
 
-  static const HOME = '/home';
+  static const HOME = '/';
   static const LOGIN = '/login';
   static const VIDEO_DETAIL = '/video_detail/:videoId';
   static const SETTINGS_PAGE = '/settings_page';

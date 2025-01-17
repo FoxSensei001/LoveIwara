@@ -143,6 +143,26 @@ common:
   originalText: 原文
   showOriginalText: 顯示原始文本
   showProcessedText: 顯示處理後文本
+  preview: 預覽
+  rules: 規則
+  agree: 同意
+  disagree: 不同意
+  agreeToRules: 同意規則
+  createPost: 創建投稿
+  title: 標題
+  enterTitle: 請輸入標題
+  content: 內容
+  enterContent: 請輸入內容
+  writeYourContentHere: 請輸入內容...
+  tagBlacklist: 黑名單標籤
+  noData: 沒有資料
+  tagLimit: 標籤上限
+  enableFloatingButtons: 啟用浮動按鈕
+  disableFloatingButtons: 禁用浮動按鈕
+  enabledFloatingButtons: 已啟用浮動按鈕
+  disabledFloatingButtons: 已禁用浮動按鈕
+  pendingCommentCount: 待審核評論
+  joined: '加入於 ${str}'
 
 auth:
   login: 登入
@@ -212,6 +232,16 @@ errors:
   pleaseLoginAgain: 請重新登入
   invalidLogin: 登入失敗，請檢查電子郵件和密碼
   tooManyRequests: 請求過多，請稍後再試
+  exceedsMaxLength: '超出最大長度: ${max}'
+  contentCanNotBeEmpty: 內容不能為空
+  titleCanNotBeEmpty: 標題不能為空
+  tooManyRequestsPleaseTryAgainLaterText: "請求過多，請稍後再試，剩餘時間"
+  remainingHours: "${num}小時"
+  remainingMinutes: "${num}分"
+  remainingSeconds: "${num}秒"
+  tagLimitExceeded: '標籤上限超出，上限: ${limit}'
+  failedToRefresh: 更新失敗
+  noPermission: 權限不足
 friends:
   clickToRestoreFriend: 點擊恢復朋友
   friendsList: 朋友列表
@@ -349,6 +379,25 @@ settings:
   forceUpdateTip: "此版本為強制更新，請盡快更新到最新版本"
   viewChangelog: 查看更新日誌
   alreadyLatestVersion: 已是最新版本
+  appSettings: 應用設定
+  configureYourAppSettings: 配置您的應用程式設定
+  history: 歷史記錄
+  autoRecordHistory: 自動記錄歷史記錄
+  autoRecordHistoryDesc: 自動記錄您觀看過的影片和圖庫等信息
+  showUnprocessedMarkdownText: 顯示未處理文本
+  showUnprocessedMarkdownTextDesc: 顯示Markdown的原始文本
+  markdown: Markdown
+  activeBackgroundPrivacyMode: 隱私模式
+  activeBackgroundPrivacyModeDesc: 禁止截圖、後台運行時隱藏畫面...
+  privacy: 隱私
+  forum: 論壇
+  disableForumReplyQuote: 禁用論壇回覆引用
+  disableForumReplyQuoteDesc: 禁用論壇回覆時攜帶被回覆樓層資訊
+  theaterMode: 劇院模式
+  theaterModeDesc: 開啟後，播放器背景會被設置為影片封面的模糊版本
+  appLinks: 應用鏈接
+  defaultBrowser: 預設瀏覽
+  defaultBrowserDesc: 請在系統設定中打開預設鏈接配置項，並添加iwara.tv網站鏈接
 
 
 signIn:
@@ -437,6 +486,210 @@ share:
   iReallyLikeThis: 我真的是太喜歡這個了，你也來看看吧！
   shareFailed: 分享失敗，請稍後再試
   share: 分享
+  shareAsImage: 分享為圖片
+  shareAsText: 分享為文本
+  shareAsImageDesc: 將影片封面分享為圖片
+  shareAsTextDesc: 將影片詳情分享為文本
+  shareAsImageFailed: 分享影片封面為圖片失敗，請稍後再試
+  shareAsTextFailed: 分享影片詳情為文本失敗，請稍後再試
+  shareVideo: 分享影片
+  authorIs: 作者是
+  shareGallery: 分享圖庫
+  galleryTitleIs: 圖庫名字叫做
+  galleryAuthorIs: 圖庫作者是
+  shareUser: 分享用戶
+  userNameIs: 用戶名字叫做
+  userAuthorIs: 用戶作者是
+  comments: 評論
+  shareThread: 分享帖子
+  views: 瀏覽
+  sharePost: 分享投稿
+  postTitleIs: 投稿名字叫做
+  postAuthorIs: 投稿作者是
+
+markdown:
+  markdownSyntax: Markdown 語法
+  iwaraSpecialMarkdownSyntax: Iwara 專用語法
+  internalLink: 站內鏈接
+  supportAutoConvertLinkBelow: '支持自動轉換以下類型的鏈接：'
+  convertLinkExample: '🎬 影片鏈接\n🖼️ 圖片鏈接\n👤 用戶鏈接\n📌 論壇鏈接\n🎵 播放列表鏈接\n💬 帖子鏈接'
+  mentionUser: 提及用戶
+  mentionUserDescription: '輸入@後跟用戶名，將自動轉換為用戶鏈接'
+  markdownBasicSyntax: Markdown 基本語法
+  paragraphAndLineBreak: 段落與換行
+  paragraphAndLineBreakDescription: '段落之間空一行，行末加兩個空格實現換行'
+  paragraphAndLineBreakSyntax: '這是第一段文字\n\n這是第二段文字\n這一行後面加兩個空格  \n就能換行了'
+  textStyle: 文本樣式
+  textStyleDescription: '使用特殊符號包圍文本来改變樣式'
+  textStyleSyntax: '**粗體文本**\n*斜體文本*\n~~刪除線文本~~\n`代碼文本`'
+  quote: 引用
+  quoteDescription: '使用 > 符號創建引用，多個 > 創建多級引用'
+  quoteSyntax: '> 這是一級引用\n>> 這是二級引用'
+  list: 列表
+  listDescription: '使用數字+點號創建有序列表，使用 - 創建無序列表'
+  listSyntax: '1. 第一項\n2. 第二項\n\n- 無序項\n  - 子項\n  - 另一個子項'
+  linkAndImage: 鏈接與圖片
+  linkAndImageDescription: '鏈接格式：[文字](URL)\n圖片格式：![描述](URL)'
+  linkAndImageSyntax: '[鏈接文字](${link})\n![圖片描述](${imgUrl})'
+  title: 標題
+  titleDescription: '使用 # 號創建標題，數量表示級別'
+  titleSyntax: '# 一級標題\n## 二級標題\n### 三級標題'
+  separator: 分隔線
+  separatorDescription: '使用三個或更多 - 號創建分隔線'
+  separatorSyntax: '---'
+  syntax: 語法
+
+forum:
+  errors:
+    pleaseSelectCategory: 請選擇分類
+    threadLocked: 該主題已鎖定，無法回覆
+  createPost: 創建帖子
+  title: 標題
+  enterTitle: 輸入標題
+  content: 內容
+  enterContent: 輸入內容
+  writeYourContentHere: 在此輸入內容...
+  posts: 帖子
+  threads: 主題
+  forum: 論壇
+  createThread: 創建主題
+  selectCategory: 選擇分類
+  cooldownRemaining: '冷卻剩餘時間 ${minutes} 分 ${seconds} 秒'
+  groups:
+    administration: 管理
+    global: 全球
+    chinese: 中文
+    japanese: 日語
+    korean: 韓語
+    other: 其他
+  leafNames:
+    announcements: 公告
+    feedback: 反饋
+    support: 幫助
+    general: 一般
+    guides: 指南
+    questions: 問題
+    requests: 請求
+    sharing: 分享
+    'general_zh': 一般
+    'questions_zh': 問題
+    'requests_zh': 請求
+    'support_zh': 幫助
+    'general_ja': 一般
+    'questions_ja': 問題
+    'requests_ja': 請求
+    'support_ja': 幫助
+    korean: 韓語
+    other: 其他
+  leafDescriptions:
+    announcements: 官方重要通知和公告
+    feedback: 對網站功能和服務的反饋
+    support: 幫助解決網站相關問題
+    general: 討論任何話題
+    guides: 分享你的經驗和教程
+    questions: 提出你的疑問
+    requests: 發布你的請求
+    sharing: 分享有趣的內容
+    'general_zh': 討論任何話題
+    'questions_zh': 提出你的疑問
+    'requests_zh': 發布你的請求
+    'support_zh': 幫助解決網站相關問題
+    'general_ja': 討論任何話題
+    'questions_ja': 提出你的疑問
+    'requests_ja': 發布你的請求
+    'support_ja': 幫助解決網站相關問題
+    korean: 韓語相關討論
+    other: 其他未分類的內容
+  reply: 回覆
+  pendingReview: 審核中
+  editedAt: 編輯時間
+  copySuccess: 已複製到剪貼簿
+  copySuccessForMessage: '已複製到剪貼簿: ${str}'
+  editReply: 編輯回覆
+  editTitle: 編輯標題
+  submit: 提交
+
+notifications:
+  errors:
+    unsupportedNotificationType: 暫不支持的通知類型
+    unknownUser: 未知用戶
+    unsupportedNotificationTypeWithType: '暫不支持的通知類型: ${type}'
+    unknownNotificationType: 未知通知類型
+  notifications: 通知
+  profile: 個人主頁
+  postedNewComment: 發表了評論
+  notifiedOn: 在您的個人主頁上發表了評論
+  inYour: 在您的
+  video: 影片
+  repliedYourVideoComment: 回覆了您的影片評論
+  copyInfoToClipboard: 複製通知信息到剪貼簿
+  copySuccess: 已複製到剪貼簿
+  copySuccessForMessage: '已複製到剪貼簿: ${str}'
+  markAllAsRead: 全部標記已讀
+  markAllAsReadSuccess: 所有通知已標記為已讀
+  markAllAsReadFailed: 全部標記已讀失敗
+  markAllAsReadFailedWithException: '全部標記已讀失敗: ${exception}'
+  markSelectedAsRead: 標記已讀
+  markSelectedAsReadSuccess: 已標記為已讀
+  markSelectedAsReadFailed: 標記已讀失敗
+  markSelectedAsReadFailedWithException: '標記已讀失敗: ${exception}'
+  markAsRead: 標記已讀
+  markAsReadSuccess: 已標記為已讀
+  markAsReadFailed: 標記已讀失敗
+  notificationTypeHelp: 通知類型幫助
+  dueToLackOfNotificationTypeDetails: 通知類型的詳細信息不足，目前支持的類型可能沒有覆蓋到您當前收到的消息
+  helpUsImproveNotificationTypeSupport: 如果您願意幫助我們完善通知類型的支持：
+  helpUsImproveNotificationTypeSupportLongText: '1. 📋 複製通知信息\n2. 🐞 前往項目倉庫提交 issue\n\n⚠️ 注意：通知信息可能包含個人隱私，如果你不想公開，也可以通過郵件發送給項目作者。'
+  goToRepository: 前往項目倉庫
+  copy: 複製
+  commentApproved: 評論已通過
+  repliedYourProfileComment: 回覆了您的個人主頁評論
+  kReplied: 回覆了您在
+  kCommented: 評論了您的
+  kVideo: 影片
+  kGallery: 圖庫
+  kProfile: 主頁
+  kThread: 主題
+  kPost: 投稿
+  kCommentSection: 下的評論
+  kApprovedComment: 評論已通過
+  kApprovedVideo: 影片已通過
+  kApprovedGallery: 圖庫已通過
+  kApprovedThread: 主題已審核
+  kApprovedPost: 投稿已審核
+  kUnknownType: 未知通知類型
+
+conversation:
+  errors:
+    pleaseSelectAUser: 請選擇一個用戶
+    pleaseEnterATitle: 請輸入標題
+    clickToSelectAUser: 點擊選擇用戶
+    loadFailedClickToRetry: 加載失敗,點擊重試
+    loadFailed: 加載失敗
+    clickToRetry: 點擊重試
+    noMoreConversations: 沒有更多消息了
+  conversation: 會話
+  startConversation: 發起會話
+  noConversation: 暫無會話
+  selectFromLeftListAndStartConversation: 從左側列表選擇一個會話開始聊天
+  title: 標題
+  body: 內容
+  selectAUser: 選擇用戶
+  searchUsers: 搜索用戶...
+  tmpNoConversions: 暫無會話
+  deleteThisMessage: 刪除此消息
+  deleteThisMessageSubtitle: 此操作不可撤銷
+  writeMessageHere: 在此處輸入消息
+  sendMessage: 發送消息
+
+splash:
+  errors:
+    initializationFailed: 初始化失敗，請重啟應用
+  preparing: 準備中...
+  initializing: 初始化中...
+  loading: 加載中...
+  ready: 準備完成
+  initializingMessageService: 初始化消息服務中...
 
 download:
   errors:

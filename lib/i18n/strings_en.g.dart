@@ -52,7 +52,11 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final TranslationsSubscriptionsEn subscriptions = TranslationsSubscriptionsEn._(_root);
 	late final TranslationsVideoDetailEn videoDetail = TranslationsVideoDetailEn._(_root);
 	late final TranslationsShareEn share = TranslationsShareEn._(_root);
-	late final TranslationsDownloadEn download = TranslationsDownloadEn._(_root);
+	late final TranslationsMarkdownEn markdown = TranslationsMarkdownEn._(_root);
+	late final TranslationsForumEn forum = TranslationsForumEn._(_root);
+	late final TranslationsNotificationsEn notifications = TranslationsNotificationsEn._(_root);
+	late final TranslationsConversationEn conversation = TranslationsConversationEn._(_root);
+	late final TranslationsSplashEn splash = TranslationsSplashEn._(_root);
 }
 
 // Path: common
@@ -203,8 +207,26 @@ class TranslationsCommonEn {
 	String get originalText => 'Original Text';
 	String get showOriginalText => 'Show Original Text';
 	String get showProcessedText => 'Show Processed Text';
-	String get download => 'Download';
-	String get selectQuality => 'Select Quality';
+	String get preview => 'Preview';
+	String get rules => 'Rules';
+	String get agree => 'Agree';
+	String get disagree => 'Disagree';
+	String get agreeToRules => 'Agree to Rules';
+	String get createPost => 'Create Post';
+	String get title => 'Title';
+	String get enterTitle => 'Please enter title';
+	String get content => 'Content';
+	String get enterContent => 'Please enter content';
+	String get writeYourContentHere => 'Please enter content...';
+	String get tagBlacklist => 'Tag Blacklist';
+	String get noData => 'No data';
+	String get tagLimit => 'Tag Limit';
+	String get enableFloatingButtons => 'Enable Floating Buttons';
+	String get disableFloatingButtons => 'Disable Floating Buttons';
+	String get enabledFloatingButtons => 'Enabled Floating Buttons';
+	String get disabledFloatingButtons => 'Disabled Floating Buttons';
+	String get pendingCommentCount => 'Pending Comment Count';
+	String joined({required Object str}) => 'Joined at ${str}';
 }
 
 // Path: auth
@@ -288,6 +310,16 @@ class TranslationsErrorsEn {
 	String get pleaseLoginAgain => 'Please login again';
 	String get invalidLogin => 'Invalid login, Please check your email and password';
 	String get tooManyRequests => 'Too many requests, please try again later';
+	String exceedsMaxLength({required Object max}) => 'Exceeds max length: ${max}';
+	String get contentCanNotBeEmpty => 'Content cannot be empty';
+	String get titleCanNotBeEmpty => 'Title cannot be empty';
+	String get tooManyRequestsPleaseTryAgainLaterText => 'Too many requests, please try again later, remaining';
+	String remainingHours({required Object num}) => '${num} hours';
+	String remainingMinutes({required Object num}) => '${num} minutes';
+	String remainingSeconds({required Object num}) => '${num} seconds';
+	String tagLimitExceeded({required Object limit}) => 'Tag limit exceeded, limit: ${limit}';
+	String get failedToRefresh => 'Failed to refresh';
+	String get noPermission => 'No permission';
 }
 
 // Path: friends
@@ -332,8 +364,6 @@ class TranslationsGalleryDetailEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
-	String get galleryDetail => 'Gallery Detail';
-	String get viewGalleryDetail => 'View Gallery Detail';
 	String get copyLink => 'Copy Link';
 	String get copyImage => 'Copy Image';
 	String get saveAs => 'Save As';
@@ -482,6 +512,25 @@ class TranslationsSettingsEn {
 	String get forceUpdateTip => 'This is a mandatory update. Please update to the latest version as soon as possible';
 	String get viewChangelog => 'View Changelog';
 	String get alreadyLatestVersion => 'Already the latest version';
+	String get appSettings => 'App Settings';
+	String get configureYourAppSettings => 'Configure Your App Settings';
+	String get history => 'History';
+	String get autoRecordHistory => 'Auto Record History';
+	String get autoRecordHistoryDesc => 'Auto record the videos and images you have watched';
+	String get showUnprocessedMarkdownText => 'Show Unprocessed Markdown Text';
+	String get showUnprocessedMarkdownTextDesc => 'Show the original text of the markdown';
+	String get markdown => 'Markdown';
+	String get activeBackgroundPrivacyMode => 'Privacy Mode';
+	String get activeBackgroundPrivacyModeDesc => 'Prevent screenshots, hide screen when running in the background...';
+	String get privacy => 'Privacy';
+	String get forum => 'Forum';
+	String get disableForumReplyQuote => 'Disable Forum Reply Quote';
+	String get disableForumReplyQuoteDesc => 'Disable carrying replied floor information when replying in forum';
+	String get theaterMode => 'Theater Mode';
+	String get theaterModeDesc => 'After opening, the player background will be set to the blurred version of the video cover';
+	String get appLinks => 'App Links';
+	String get defaultBrowser => 'Default Browse';
+	String get defaultBrowserDesc => 'Please open the default link configuration item in the system settings and add the iwara.tv website link';
 }
 
 // Path: signIn
@@ -575,12 +624,6 @@ class TranslationsVideoDetailEn {
 	String get externalVideo => 'This is an external video';
 	String get openInBrowser => 'Open in Browser';
 	String get resourceDeleted => 'This video seems to have been deleted :/';
-	String get noDownloadUrl => 'No download URL';
-	String get startDownloading => 'Start downloading';
-	String get downloadFailed => 'Download failed, please try again later';
-	String get downloadSuccess => 'Download success';
-	String get download => 'Download';
-	String get downloadManager => 'Download Manager';
 }
 
 // Path: share
@@ -597,109 +640,305 @@ class TranslationsShareEn {
 	String get iReallyLikeThis => 'I really like this';
 	String get shareFailed => 'Share failed, please try again later';
 	String get share => 'Share';
+	String get shareAsImage => 'Share as Image';
+	String get shareAsText => 'Share as Text';
+	String get shareAsImageDesc => 'Share the video cover as an image';
+	String get shareAsTextDesc => 'Share the video details as text';
+	String get shareAsImageFailed => 'Share the video cover as an image failed, please try again later';
+	String get shareAsTextFailed => 'Share the video details as text failed, please try again later';
+	String get shareVideo => 'Share Video';
+	String get authorIs => 'Author is';
+	String get shareGallery => 'Share Gallery';
+	String get galleryTitleIs => 'Gallery title is';
+	String get galleryAuthorIs => 'Gallery author is';
+	String get shareUser => 'Share User';
+	String get userNameIs => 'User name is';
+	String get userAuthorIs => 'User author is';
+	String get comments => 'Comments';
+	String get shareThread => 'Share Thread';
+	String get views => 'Views';
+	String get sharePost => 'Share Post';
+	String get postTitleIs => 'Post title is';
+	String get postAuthorIs => 'Post author is';
 }
 
-// Path: download
-class TranslationsDownloadEn {
-	TranslationsDownloadEn._(this._root);
+// Path: markdown
+class TranslationsMarkdownEn {
+	TranslationsMarkdownEn._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
 	// Translations
-	late final TranslationsDownloadErrorsEn errors = TranslationsDownloadErrorsEn._(_root);
-	String get downloadList => 'Download List';
-	String get download => 'Download';
-	String get startDownloading => 'Start Downloading';
-	String get clearAllFailedTasks => 'Clear All Failed Tasks';
-	String get clearAllFailedTasksConfirmation => 'Are you sure you want to clear all failed download tasks? The files of these tasks will also be deleted.';
-	String get clearAllFailedTasksSuccess => 'Cleared all failed tasks';
-	String get clearAllFailedTasksError => 'Error occurred while clearing failed tasks';
-	String get downloadStatus => 'Download Status';
-	String get imageList => 'Image List';
-	String get retryDownload => 'Retry Download';
-	String get notDownloaded => 'Not Downloaded';
-	String get downloaded => 'Downloaded';
-	String get waitingForDownload => 'Waiting for Download';
-	String downloadingProgressForImageProgress({required Object downloaded, required Object total, required Object progress}) => 'Downloading (${downloaded}/${total} images ${progress}%)';
-	String downloadingSingleImageProgress({required Object downloaded}) => 'Downloading (${downloaded} images)';
-	String pausedProgressForImageProgress({required Object downloaded, required Object total, required Object progress}) => 'Paused (${downloaded}/${total} images ${progress}%)';
-	String pausedSingleImageProgress({required Object downloaded}) => 'Paused (${downloaded} images)';
-	String downloadedProgressForImageProgress({required Object total}) => 'Downloaded (Total ${total} images)';
-	String get viewVideoDetail => 'View Video Detail';
-	String get viewGalleryDetail => 'View Gallery Detail';
-	String get moreOptions => 'More Options';
-	String get openFile => 'Open File';
-	String get pause => 'Pause';
-	String get resume => 'Resume';
-	String get copyDownloadUrl => 'Copy Download URL';
-	String get showInFolder => 'Show in Folder';
-	String get deleteTask => 'Delete Task';
-	String downloadingProgressForVideoTask({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'Downloading ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
-	String downloadingOnlyDownloadedAndSpeed({required Object downloaded, required Object speed}) => 'Downloading ${downloaded} • ${speed}MB/s';
-	String pausedForDownloadedAndTotal({required Object downloaded, required Object total, required Object progress}) => 'Paused ${downloaded}/${total} (${progress}%)';
-	String pausedAndDownloaded({required Object downloaded}) => 'Paused • Downloaded ${downloaded}';
-	String downloadedWithSize({required Object size}) => 'Downloaded • ${size}';
-	String get copyDownloadUrlSuccess => 'Download URL copied';
-	String totalImageNums({required Object num}) => '${num} images';
-	String downloadingDownloadedTotalProgressSpeed({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'Downloading ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
-	String get downloading => 'Downloading';
-	String get failed => 'Failed';
-	String get completed => 'Completed';
-	String get downloadDetail => 'Download Detail';
+	String get markdownSyntax => 'Markdown Syntax';
+	String get iwaraSpecialMarkdownSyntax => 'Iwara Special Markdown Syntax';
+	String get internalLink => 'Internal Link';
+	String get supportAutoConvertLinkBelow => 'Support auto convert link below:';
+	String get convertLinkExample => '🎬 Video Link\n🖼️ Image Link\n👤 User Link\n📌 Forum Link\n🎵 Playlist Link\n💬 Thread Link';
+	String get mentionUser => 'Mention User';
+	String get mentionUserDescription => 'Input @ followed by username, will be automatically converted to user link';
+	String get markdownBasicSyntax => 'Markdown Basic Syntax';
+	String get paragraphAndLineBreak => 'Paragraph and Line Break';
+	String get paragraphAndLineBreakDescription => 'Paragraphs are separated by a line, and two spaces at the end of the line will be converted to a line break';
+	String get paragraphAndLineBreakSyntax => 'This is the first paragraph\n\nThis is the second paragraph\nThis line ends with two spaces  \nwill be converted to a line break';
+	String get textStyle => 'Text Style';
+	String get textStyleDescription => 'Use special symbols to surround text to change style';
+	String get textStyleSyntax => '**Bold Text**\n*Italic Text*\n~~Strikethrough Text~~\n`Code Text`';
+	String get quote => 'Quote';
+	String get quoteDescription => 'Use > symbol to create quote, multiple > to create multi-level quote';
+	String get quoteSyntax => '> This is a first-level quote\n>> This is a second-level quote';
+	String get list => 'List';
+	String get listDescription => 'Create ordered list with number+dot, create unordered list with -';
+	String get listSyntax => '1. First item\n2. Second item\n\n- Unordered item\n  - Subitem\n  - Another subitem';
+	String get linkAndImage => 'Link and Image';
+	String get linkAndImageDescription => 'Link format: [text](URL)\nImage format: ![description](URL)';
+	String linkAndImageSyntax({required Object link, required Object imgUrl}) => '[link text](${link})\n![image description](${imgUrl})';
+	String get title => 'Title';
+	String get titleDescription => 'Use # symbol to create title, number to show level';
+	String get titleSyntax => '# First-level title\n## Second-level title\n### Third-level title';
+	String get separator => 'Separator';
+	String get separatorDescription => 'Create separator with three or more - symbols';
+	String get separatorSyntax => '---';
+	String get syntax => 'Syntax';
+}
+
+// Path: forum
+class TranslationsForumEn {
+	TranslationsForumEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	late final TranslationsForumErrorsEn errors = TranslationsForumErrorsEn._(_root);
+	String get createPost => 'Create Post';
+	String get title => 'Title';
+	String get enterTitle => 'Enter Title';
+	String get content => 'Content';
+	String get enterContent => 'Enter Content';
+	String get writeYourContentHere => 'Write your content here...';
+	String get posts => 'Posts';
+	String get threads => 'Threads';
+	String get forum => 'Forum';
+	String get createThread => 'Create Thread';
+	String get selectCategory => 'Select Category';
+	String cooldownRemaining({required Object minutes, required Object seconds}) => 'Cooldown remaining ${minutes} minutes ${seconds} seconds';
+	late final TranslationsForumGroupsEn groups = TranslationsForumGroupsEn._(_root);
+	late final TranslationsForumLeafNamesEn leafNames = TranslationsForumLeafNamesEn._(_root);
+	late final TranslationsForumLeafDescriptionsEn leafDescriptions = TranslationsForumLeafDescriptionsEn._(_root);
+	String get reply => 'Reply';
+	String get pendingReview => 'Pending Review';
+	String get editedAt => 'Edited At';
+	String get copySuccess => 'Copied to clipboard';
+	String copySuccessForMessage({required Object str}) => 'Copied to clipboard: ${str}';
+	String get editReply => 'Edit Reply';
+	String get editTitle => 'Edit Title';
+	String get submit => 'Submit';
+}
+
+// Path: notifications
+class TranslationsNotificationsEn {
+	TranslationsNotificationsEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	late final TranslationsNotificationsErrorsEn errors = TranslationsNotificationsErrorsEn._(_root);
+	String get notifications => 'Notifications';
+	String get profile => 'Profile';
+	String get postedNewComment => 'Posted new comment';
+	String get inYour => 'In your';
+	String get video => 'Video';
+	String get repliedYourVideoComment => 'Replied your video comment';
+	String get copyInfoToClipboard => 'Copy notification info to clipboard';
+	String get copySuccess => 'Copied to clipboard';
+	String copySuccessForMessage({required Object str}) => 'Copied to clipboard: ${str}';
+	String get markAllAsRead => 'Mark all as read';
+	String get markAllAsReadSuccess => 'All notifications have been marked as read';
+	String get markAllAsReadFailed => 'Mark all as read failed';
+	String get markSelectedAsRead => 'Mark selected as read';
+	String get markSelectedAsReadSuccess => 'Selected notifications have been marked as read';
+	String get markSelectedAsReadFailed => 'Mark selected as read failed';
+	String get markAsRead => 'Mark as read';
+	String get markAsReadSuccess => 'Notification has been marked as read';
+	String get markAsReadFailed => 'Notification marked as read failed';
+	String get notificationTypeHelp => 'Notification Type Help';
+	String get dueToLackOfNotificationTypeDetails => 'Due to the lack of notification type details, the supported types may not cover the messages you currently receive';
+	String get helpUsImproveNotificationTypeSupport => 'If you are willing to help us improve the support for notification types';
+	String get helpUsImproveNotificationTypeSupportLongText => '1. 📋 Copy the notification information\n2. 🐞 Submit an issue to the project repository\n\n⚠️ Note: Notification information may contain personal privacy, if you do not want to public, you can also send it to the project author by email.';
+	String get goToRepository => 'Go to Repository';
 	String get copy => 'Copy';
-	String get copySuccess => 'Copied';
-	String get waiting => 'Waiting';
-	String get paused => 'Paused';
-	String downloadingOnlyDownloaded({required Object downloaded}) => 'Downloading ${downloaded}';
+	String get commentApproved => 'Comment Approved';
+	String get repliedYourProfileComment => 'Replied your profile comment';
+	String get kReplied => 'replied to your comment on';
+	String get kCommented => 'commented on your';
+	String get kVideo => 'video';
+	String get kGallery => 'gallery';
+	String get kProfile => 'profile';
+	String get kThread => 'thread';
+	String get kPost => 'post';
+	String get kCommentSection => 'comment section';
+	String get kApprovedComment => 'Comment approved';
+	String get kApprovedVideo => 'Video approved';
+	String get kApprovedGallery => 'Gallery approved';
+	String get kApprovedThread => 'Thread approved';
+	String get kApprovedPost => 'Post approved';
+	String get kUnknownType => 'Unknown notification type';
 }
 
-// Path: download.errors
-class TranslationsDownloadErrorsEn {
-	TranslationsDownloadErrorsEn._(this._root);
+// Path: conversation
+class TranslationsConversationEn {
+	TranslationsConversationEn._(this._root);
 
 	final Translations _root; // ignore: unused_field
 
 	// Translations
-	String get imageModelNotFound => 'Image model not found';
-	String get downloadFailed => 'Download failed';
-	String get videoInfoNotFound => 'Video info not found';
-	String get downloadTaskAlreadyExists => 'Download task already exists';
-	String get videoAlreadyDownloaded => 'Video already downloaded';
-	String downloadFailedForMessage({required Object errorInfo}) => 'Add download task failed: ${errorInfo}';
-	String get userPausedDownload => 'User paused download';
-	String get unknown => 'Unknown';
-	String fileSystemError({required Object errorInfo}) => 'File system error: ${errorInfo}';
-	String unknownError({required Object errorInfo}) => 'Unknown error: ${errorInfo}';
-	String get connectionTimeout => 'Connection timeout';
-	String get sendTimeout => 'Send timeout';
-	String get receiveTimeout => 'Receive timeout';
-	String serverError({required Object errorInfo}) => 'Server error: ${errorInfo}';
-	String get unknownNetworkError => 'Unknown network error';
-	String get serviceIsClosing => 'Download service is closing';
-	String get partialDownloadFailed => 'Partial content download failed';
-	String get noDownloadTask => 'No download task';
-	String get taskNotFoundOrDataError => 'Task not found or data error';
-	String get fileNotFound => 'File not found';
-	String get openFolderFailed => 'Failed to open folder';
-	String get copyDownloadUrlFailed => 'Failed to copy download URL';
-	String openFolderFailedWithMessage({required Object message}) => 'Failed to open folder: ${message}';
-	String get directoryNotFound => 'Directory not found';
-	String get copyFailed => 'Copy failed';
-	String get openFileFailed => 'Failed to open file';
-	String openFileFailedWithMessage({required Object message}) => 'Failed to open file: ${message}';
-	String get noDownloadSource => 'No download source';
-	String get noDownloadSourceNowPleaseWaitInfoLoaded => 'No download source, please wait for information loading to be completed and try again';
-	String get noActiveDownloadTask => 'No active download task';
-	String get noFailedDownloadTask => 'No failed download task';
-	String get noCompletedDownloadTask => 'No completed download task';
-	String get taskAlreadyCompletedDoNotAdd => 'Task already completed, do not add again';
-	String get linkExpiredTryAgain => 'Link expired, trying to get new download link';
-	String get linkExpiredTryAgainSuccess => 'Link expired, trying to get new download link success';
-	String get linkExpiredTryAgainFailed => 'Link expired, trying to get new download link failed';
-	String get taskDeleted => 'Task deleted';
-	String unsupportedImageFormat({required Object format}) => 'Unsupported image format: ${format}';
-	String get deleteFileError => 'Failed to delete file, possibly because the file is being used by another process';
-	String get deleteTaskError => 'Failed to delete task';
+	late final TranslationsConversationErrorsEn errors = TranslationsConversationErrorsEn._(_root);
+	String get conversation => 'Conversation';
+	String get startConversation => 'Start Conversation';
+	String get noConversation => 'No conversation';
+	String get selectFromLeftListAndStartConversation => 'Select from left list and start conversation';
+	String get title => 'Title';
+	String get body => 'Body';
+	String get selectAUser => 'Select a user';
+	String get searchUsers => 'Search users...';
+	String get tmpNoConversions => 'No conversions';
+	String get deleteThisMessage => 'Delete this message';
+	String get deleteThisMessageSubtitle => 'This operation cannot be undone';
+	String get writeMessageHere => 'Write message here...';
+	String get sendMessage => 'Send message';
+}
+
+// Path: splash
+class TranslationsSplashEn {
+	TranslationsSplashEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	late final TranslationsSplashErrorsEn errors = TranslationsSplashErrorsEn._(_root);
+	String get preparing => 'Preparing...';
+	String get initializing => 'Initializing...';
+	String get loading => 'Loading...';
+	String get ready => 'Ready';
+	String get initializingMessageService => 'Initializing message service...';
+}
+
+// Path: forum.errors
+class TranslationsForumErrorsEn {
+	TranslationsForumErrorsEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get pleaseSelectCategory => 'Please select a category';
+	String get threadLocked => 'This thread is locked, cannot reply';
+}
+
+// Path: forum.groups
+class TranslationsForumGroupsEn {
+	TranslationsForumGroupsEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get administration => 'Administration';
+	String get global => 'Global';
+	String get chinese => 'Chinese';
+	String get japanese => 'Japanese';
+	String get korean => 'Korean';
+	String get other => 'Other';
+}
+
+// Path: forum.leafNames
+class TranslationsForumLeafNamesEn {
+	TranslationsForumLeafNamesEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get announcements => 'Announcements';
+	String get feedback => 'Feedback';
+	String get support => 'Support';
+	String get general => 'General';
+	String get guides => 'Guides';
+	String get questions => 'Questions';
+	String get requests => 'Requests';
+	String get sharing => 'Sharing';
+	String get general_zh => 'General';
+	String get questions_zh => 'Questions';
+	String get requests_zh => 'Requests';
+	String get support_zh => 'Support';
+	String get general_ja => 'General';
+	String get questions_ja => 'Questions';
+	String get requests_ja => 'Requests';
+	String get support_ja => 'Support';
+	String get korean => 'Korean';
+	String get other => 'Other';
+}
+
+// Path: forum.leafDescriptions
+class TranslationsForumLeafDescriptionsEn {
+	TranslationsForumLeafDescriptionsEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get announcements => 'Official important notifications and announcements';
+	String get feedback => 'Feedback on the website\'s features and services';
+	String get support => 'Help to resolve website-related issues';
+	String get general => 'Discuss any topic';
+	String get guides => 'Share your experiences and tutorials';
+	String get questions => 'Raise your inquiries';
+	String get requests => 'Post your requests';
+	String get sharing => 'Share interesting content';
+	String get general_zh => 'Discuss any topic';
+	String get questions_zh => 'Raise your inquiries';
+	String get requests_zh => 'Post your requests';
+	String get support_zh => 'Help to resolve website-related issues';
+	String get general_ja => 'Discuss any topic';
+	String get questions_ja => 'Raise your inquiries';
+	String get requests_ja => 'Post your requests';
+	String get support_ja => 'Help to resolve website-related issues';
+	String get korean => 'Discussions related to Korean';
+	String get other => 'Other unclassified content';
+}
+
+// Path: notifications.errors
+class TranslationsNotificationsErrorsEn {
+	TranslationsNotificationsErrorsEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get unsupportedNotificationType => 'Unsupported notification type';
+	String get unknownUser => 'Unknown user';
+	String unsupportedNotificationTypeWithType({required Object type}) => 'Unsupported notification type: ${type}';
+	String get unknownNotificationType => 'Unknown notification type';
+}
+
+// Path: conversation.errors
+class TranslationsConversationErrorsEn {
+	TranslationsConversationErrorsEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get pleaseSelectAUser => 'Please select a user';
+	String get pleaseEnterATitle => 'Please enter a title';
+	String get clickToSelectAUser => 'Click to select a user';
+	String get loadFailedClickToRetry => 'Load failed, click to retry';
+	String get loadFailed => 'Load failed';
+	String get clickToRetry => 'Click to retry';
+	String get noMoreConversations => 'No more conversations';
+}
+
+// Path: splash.errors
+class TranslationsSplashErrorsEn {
+	TranslationsSplashErrorsEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get initializationFailed => 'Initialization failed, please restart the app';
 }
 
 /// Flat map(s) containing all translations.
@@ -848,8 +1087,26 @@ extension on Translations {
 			case 'common.originalText': return 'Original Text';
 			case 'common.showOriginalText': return 'Show Original Text';
 			case 'common.showProcessedText': return 'Show Processed Text';
-			case 'common.download': return 'Download';
-			case 'common.selectQuality': return 'Select Quality';
+			case 'common.preview': return 'Preview';
+			case 'common.rules': return 'Rules';
+			case 'common.agree': return 'Agree';
+			case 'common.disagree': return 'Disagree';
+			case 'common.agreeToRules': return 'Agree to Rules';
+			case 'common.createPost': return 'Create Post';
+			case 'common.title': return 'Title';
+			case 'common.enterTitle': return 'Please enter title';
+			case 'common.content': return 'Content';
+			case 'common.enterContent': return 'Please enter content';
+			case 'common.writeYourContentHere': return 'Please enter content...';
+			case 'common.tagBlacklist': return 'Tag Blacklist';
+			case 'common.noData': return 'No data';
+			case 'common.tagLimit': return 'Tag Limit';
+			case 'common.enableFloatingButtons': return 'Enable Floating Buttons';
+			case 'common.disableFloatingButtons': return 'Disable Floating Buttons';
+			case 'common.enabledFloatingButtons': return 'Enabled Floating Buttons';
+			case 'common.disabledFloatingButtons': return 'Disabled Floating Buttons';
+			case 'common.pendingCommentCount': return 'Pending Comment Count';
+			case 'common.joined': return ({required Object str}) => 'Joined at ${str}';
 			case 'auth.login': return 'Login';
 			case 'auth.logout': return 'Logout';
 			case 'auth.email': return 'Email';
@@ -915,6 +1172,16 @@ extension on Translations {
 			case 'errors.pleaseLoginAgain': return 'Please login again';
 			case 'errors.invalidLogin': return 'Invalid login, Please check your email and password';
 			case 'errors.tooManyRequests': return 'Too many requests, please try again later';
+			case 'errors.exceedsMaxLength': return ({required Object max}) => 'Exceeds max length: ${max}';
+			case 'errors.contentCanNotBeEmpty': return 'Content cannot be empty';
+			case 'errors.titleCanNotBeEmpty': return 'Title cannot be empty';
+			case 'errors.tooManyRequestsPleaseTryAgainLaterText': return 'Too many requests, please try again later, remaining';
+			case 'errors.remainingHours': return ({required Object num}) => '${num} hours';
+			case 'errors.remainingMinutes': return ({required Object num}) => '${num} minutes';
+			case 'errors.remainingSeconds': return ({required Object num}) => '${num} seconds';
+			case 'errors.tagLimitExceeded': return ({required Object limit}) => 'Tag limit exceeded, limit: ${limit}';
+			case 'errors.failedToRefresh': return 'Failed to refresh';
+			case 'errors.noPermission': return 'No permission';
 			case 'friends.clickToRestoreFriend': return 'Click to restore friend';
 			case 'friends.friendsList': return 'Friends List';
 			case 'friends.friendRequests': return 'Friend Requests';
@@ -923,8 +1190,6 @@ extension on Translations {
 			case 'authorProfile.userProfile': return 'User Profile';
 			case 'favorites.clickToRestoreFavorite': return 'Click to restore favorite';
 			case 'favorites.myFavorites': return 'My Favorites';
-			case 'galleryDetail.galleryDetail': return 'Gallery Detail';
-			case 'galleryDetail.viewGalleryDetail': return 'View Gallery Detail';
 			case 'galleryDetail.copyLink': return 'Copy Link';
 			case 'galleryDetail.copyImage': return 'Copy Image';
 			case 'galleryDetail.saveAs': return 'Save As';
@@ -1037,6 +1302,25 @@ extension on Translations {
 			case 'settings.forceUpdateTip': return 'This is a mandatory update. Please update to the latest version as soon as possible';
 			case 'settings.viewChangelog': return 'View Changelog';
 			case 'settings.alreadyLatestVersion': return 'Already the latest version';
+			case 'settings.appSettings': return 'App Settings';
+			case 'settings.configureYourAppSettings': return 'Configure Your App Settings';
+			case 'settings.history': return 'History';
+			case 'settings.autoRecordHistory': return 'Auto Record History';
+			case 'settings.autoRecordHistoryDesc': return 'Auto record the videos and images you have watched';
+			case 'settings.showUnprocessedMarkdownText': return 'Show Unprocessed Markdown Text';
+			case 'settings.showUnprocessedMarkdownTextDesc': return 'Show the original text of the markdown';
+			case 'settings.markdown': return 'Markdown';
+			case 'settings.activeBackgroundPrivacyMode': return 'Privacy Mode';
+			case 'settings.activeBackgroundPrivacyModeDesc': return 'Prevent screenshots, hide screen when running in the background...';
+			case 'settings.privacy': return 'Privacy';
+			case 'settings.forum': return 'Forum';
+			case 'settings.disableForumReplyQuote': return 'Disable Forum Reply Quote';
+			case 'settings.disableForumReplyQuoteDesc': return 'Disable carrying replied floor information when replying in forum';
+			case 'settings.theaterMode': return 'Theater Mode';
+			case 'settings.theaterModeDesc': return 'After opening, the player background will be set to the blurred version of the video cover';
+			case 'settings.appLinks': return 'App Links';
+			case 'settings.defaultBrowser': return 'Default Browse';
+			case 'settings.defaultBrowserDesc': return 'Please open the default link configuration item in the system settings and add the iwara.tv website link';
 			case 'signIn.pleaseLoginFirst': return 'Please login first';
 			case 'signIn.alreadySignedInToday': return 'You have already signed in today!';
 			case 'signIn.youDidNotStickToTheSignIn': return 'You did not stick to the sign in.';
@@ -1103,12 +1387,6 @@ extension on Translations {
 			case 'videoDetail.externalVideo': return 'This is an external video';
 			case 'videoDetail.openInBrowser': return 'Open in Browser';
 			case 'videoDetail.resourceDeleted': return 'This video seems to have been deleted :/';
-			case 'videoDetail.noDownloadUrl': return 'No download URL';
-			case 'videoDetail.startDownloading': return 'Start downloading';
-			case 'videoDetail.downloadFailed': return 'Download failed, please try again later';
-			case 'videoDetail.downloadSuccess': return 'Download success';
-			case 'videoDetail.download': return 'Download';
-			case 'videoDetail.downloadManager': return 'Download Manager';
 			case 'share.sharePlayList': return 'Share Play List';
 			case 'share.wowDidYouSeeThis': return 'Wow, did you see this?';
 			case 'share.nameIs': return 'Name is';
@@ -1116,90 +1394,190 @@ extension on Translations {
 			case 'share.iReallyLikeThis': return 'I really like this';
 			case 'share.shareFailed': return 'Share failed, please try again later';
 			case 'share.share': return 'Share';
-			case 'download.errors.imageModelNotFound': return 'Image model not found';
-			case 'download.errors.downloadFailed': return 'Download failed';
-			case 'download.errors.videoInfoNotFound': return 'Video info not found';
-			case 'download.errors.downloadTaskAlreadyExists': return 'Download task already exists';
-			case 'download.errors.videoAlreadyDownloaded': return 'Video already downloaded';
-			case 'download.errors.downloadFailedForMessage': return ({required Object errorInfo}) => 'Add download task failed: ${errorInfo}';
-			case 'download.errors.userPausedDownload': return 'User paused download';
-			case 'download.errors.unknown': return 'Unknown';
-			case 'download.errors.fileSystemError': return ({required Object errorInfo}) => 'File system error: ${errorInfo}';
-			case 'download.errors.unknownError': return ({required Object errorInfo}) => 'Unknown error: ${errorInfo}';
-			case 'download.errors.connectionTimeout': return 'Connection timeout';
-			case 'download.errors.sendTimeout': return 'Send timeout';
-			case 'download.errors.receiveTimeout': return 'Receive timeout';
-			case 'download.errors.serverError': return ({required Object errorInfo}) => 'Server error: ${errorInfo}';
-			case 'download.errors.unknownNetworkError': return 'Unknown network error';
-			case 'download.errors.serviceIsClosing': return 'Download service is closing';
-			case 'download.errors.partialDownloadFailed': return 'Partial content download failed';
-			case 'download.errors.noDownloadTask': return 'No download task';
-			case 'download.errors.taskNotFoundOrDataError': return 'Task not found or data error';
-			case 'download.errors.fileNotFound': return 'File not found';
-			case 'download.errors.openFolderFailed': return 'Failed to open folder';
-			case 'download.errors.copyDownloadUrlFailed': return 'Failed to copy download URL';
-			case 'download.errors.openFolderFailedWithMessage': return ({required Object message}) => 'Failed to open folder: ${message}';
-			case 'download.errors.directoryNotFound': return 'Directory not found';
-			case 'download.errors.copyFailed': return 'Copy failed';
-			case 'download.errors.openFileFailed': return 'Failed to open file';
-			case 'download.errors.openFileFailedWithMessage': return ({required Object message}) => 'Failed to open file: ${message}';
-			case 'download.errors.noDownloadSource': return 'No download source';
-			case 'download.errors.noDownloadSourceNowPleaseWaitInfoLoaded': return 'No download source, please wait for information loading to be completed and try again';
-			case 'download.errors.noActiveDownloadTask': return 'No active download task';
-			case 'download.errors.noFailedDownloadTask': return 'No failed download task';
-			case 'download.errors.noCompletedDownloadTask': return 'No completed download task';
-			case 'download.errors.taskAlreadyCompletedDoNotAdd': return 'Task already completed, do not add again';
-			case 'download.errors.linkExpiredTryAgain': return 'Link expired, trying to get new download link';
-			case 'download.errors.linkExpiredTryAgainSuccess': return 'Link expired, trying to get new download link success';
-			case 'download.errors.linkExpiredTryAgainFailed': return 'Link expired, trying to get new download link failed';
-			case 'download.errors.taskDeleted': return 'Task deleted';
-			case 'download.errors.unsupportedImageFormat': return ({required Object format}) => 'Unsupported image format: ${format}';
-			case 'download.errors.deleteFileError': return 'Failed to delete file, possibly because the file is being used by another process';
-			case 'download.errors.deleteTaskError': return 'Failed to delete task';
-			case 'download.downloadList': return 'Download List';
-			case 'download.download': return 'Download';
-			case 'download.startDownloading': return 'Start Downloading';
-			case 'download.clearAllFailedTasks': return 'Clear All Failed Tasks';
-			case 'download.clearAllFailedTasksConfirmation': return 'Are you sure you want to clear all failed download tasks? The files of these tasks will also be deleted.';
-			case 'download.clearAllFailedTasksSuccess': return 'Cleared all failed tasks';
-			case 'download.clearAllFailedTasksError': return 'Error occurred while clearing failed tasks';
-			case 'download.downloadStatus': return 'Download Status';
-			case 'download.imageList': return 'Image List';
-			case 'download.retryDownload': return 'Retry Download';
-			case 'download.notDownloaded': return 'Not Downloaded';
-			case 'download.downloaded': return 'Downloaded';
-			case 'download.waitingForDownload': return 'Waiting for Download';
-			case 'download.downloadingProgressForImageProgress': return ({required Object downloaded, required Object total, required Object progress}) => 'Downloading (${downloaded}/${total} images ${progress}%)';
-			case 'download.downloadingSingleImageProgress': return ({required Object downloaded}) => 'Downloading (${downloaded} images)';
-			case 'download.pausedProgressForImageProgress': return ({required Object downloaded, required Object total, required Object progress}) => 'Paused (${downloaded}/${total} images ${progress}%)';
-			case 'download.pausedSingleImageProgress': return ({required Object downloaded}) => 'Paused (${downloaded} images)';
-			case 'download.downloadedProgressForImageProgress': return ({required Object total}) => 'Downloaded (Total ${total} images)';
-			case 'download.viewVideoDetail': return 'View Video Detail';
-			case 'download.viewGalleryDetail': return 'View Gallery Detail';
-			case 'download.moreOptions': return 'More Options';
-			case 'download.openFile': return 'Open File';
-			case 'download.pause': return 'Pause';
-			case 'download.resume': return 'Resume';
-			case 'download.copyDownloadUrl': return 'Copy Download URL';
-			case 'download.showInFolder': return 'Show in Folder';
-			case 'download.deleteTask': return 'Delete Task';
-			case 'download.downloadingProgressForVideoTask': return ({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'Downloading ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
-			case 'download.downloadingOnlyDownloadedAndSpeed': return ({required Object downloaded, required Object speed}) => 'Downloading ${downloaded} • ${speed}MB/s';
-			case 'download.pausedForDownloadedAndTotal': return ({required Object downloaded, required Object total, required Object progress}) => 'Paused ${downloaded}/${total} (${progress}%)';
-			case 'download.pausedAndDownloaded': return ({required Object downloaded}) => 'Paused • Downloaded ${downloaded}';
-			case 'download.downloadedWithSize': return ({required Object size}) => 'Downloaded • ${size}';
-			case 'download.copyDownloadUrlSuccess': return 'Download URL copied';
-			case 'download.totalImageNums': return ({required Object num}) => '${num} images';
-			case 'download.downloadingDownloadedTotalProgressSpeed': return ({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'Downloading ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
-			case 'download.downloading': return 'Downloading';
-			case 'download.failed': return 'Failed';
-			case 'download.completed': return 'Completed';
-			case 'download.downloadDetail': return 'Download Detail';
-			case 'download.copy': return 'Copy';
-			case 'download.copySuccess': return 'Copied';
-			case 'download.waiting': return 'Waiting';
-			case 'download.paused': return 'Paused';
-			case 'download.downloadingOnlyDownloaded': return ({required Object downloaded}) => 'Downloading ${downloaded}';
+			case 'share.shareAsImage': return 'Share as Image';
+			case 'share.shareAsText': return 'Share as Text';
+			case 'share.shareAsImageDesc': return 'Share the video cover as an image';
+			case 'share.shareAsTextDesc': return 'Share the video details as text';
+			case 'share.shareAsImageFailed': return 'Share the video cover as an image failed, please try again later';
+			case 'share.shareAsTextFailed': return 'Share the video details as text failed, please try again later';
+			case 'share.shareVideo': return 'Share Video';
+			case 'share.authorIs': return 'Author is';
+			case 'share.shareGallery': return 'Share Gallery';
+			case 'share.galleryTitleIs': return 'Gallery title is';
+			case 'share.galleryAuthorIs': return 'Gallery author is';
+			case 'share.shareUser': return 'Share User';
+			case 'share.userNameIs': return 'User name is';
+			case 'share.userAuthorIs': return 'User author is';
+			case 'share.comments': return 'Comments';
+			case 'share.shareThread': return 'Share Thread';
+			case 'share.views': return 'Views';
+			case 'share.sharePost': return 'Share Post';
+			case 'share.postTitleIs': return 'Post title is';
+			case 'share.postAuthorIs': return 'Post author is';
+			case 'markdown.markdownSyntax': return 'Markdown Syntax';
+			case 'markdown.iwaraSpecialMarkdownSyntax': return 'Iwara Special Markdown Syntax';
+			case 'markdown.internalLink': return 'Internal Link';
+			case 'markdown.supportAutoConvertLinkBelow': return 'Support auto convert link below:';
+			case 'markdown.convertLinkExample': return '🎬 Video Link\n🖼️ Image Link\n👤 User Link\n📌 Forum Link\n🎵 Playlist Link\n💬 Thread Link';
+			case 'markdown.mentionUser': return 'Mention User';
+			case 'markdown.mentionUserDescription': return 'Input @ followed by username, will be automatically converted to user link';
+			case 'markdown.markdownBasicSyntax': return 'Markdown Basic Syntax';
+			case 'markdown.paragraphAndLineBreak': return 'Paragraph and Line Break';
+			case 'markdown.paragraphAndLineBreakDescription': return 'Paragraphs are separated by a line, and two spaces at the end of the line will be converted to a line break';
+			case 'markdown.paragraphAndLineBreakSyntax': return 'This is the first paragraph\n\nThis is the second paragraph\nThis line ends with two spaces  \nwill be converted to a line break';
+			case 'markdown.textStyle': return 'Text Style';
+			case 'markdown.textStyleDescription': return 'Use special symbols to surround text to change style';
+			case 'markdown.textStyleSyntax': return '**Bold Text**\n*Italic Text*\n~~Strikethrough Text~~\n`Code Text`';
+			case 'markdown.quote': return 'Quote';
+			case 'markdown.quoteDescription': return 'Use > symbol to create quote, multiple > to create multi-level quote';
+			case 'markdown.quoteSyntax': return '> This is a first-level quote\n>> This is a second-level quote';
+			case 'markdown.list': return 'List';
+			case 'markdown.listDescription': return 'Create ordered list with number+dot, create unordered list with -';
+			case 'markdown.listSyntax': return '1. First item\n2. Second item\n\n- Unordered item\n  - Subitem\n  - Another subitem';
+			case 'markdown.linkAndImage': return 'Link and Image';
+			case 'markdown.linkAndImageDescription': return 'Link format: [text](URL)\nImage format: ![description](URL)';
+			case 'markdown.linkAndImageSyntax': return ({required Object link, required Object imgUrl}) => '[link text](${link})\n![image description](${imgUrl})';
+			case 'markdown.title': return 'Title';
+			case 'markdown.titleDescription': return 'Use # symbol to create title, number to show level';
+			case 'markdown.titleSyntax': return '# First-level title\n## Second-level title\n### Third-level title';
+			case 'markdown.separator': return 'Separator';
+			case 'markdown.separatorDescription': return 'Create separator with three or more - symbols';
+			case 'markdown.separatorSyntax': return '---';
+			case 'markdown.syntax': return 'Syntax';
+			case 'forum.errors.pleaseSelectCategory': return 'Please select a category';
+			case 'forum.errors.threadLocked': return 'This thread is locked, cannot reply';
+			case 'forum.createPost': return 'Create Post';
+			case 'forum.title': return 'Title';
+			case 'forum.enterTitle': return 'Enter Title';
+			case 'forum.content': return 'Content';
+			case 'forum.enterContent': return 'Enter Content';
+			case 'forum.writeYourContentHere': return 'Write your content here...';
+			case 'forum.posts': return 'Posts';
+			case 'forum.threads': return 'Threads';
+			case 'forum.forum': return 'Forum';
+			case 'forum.createThread': return 'Create Thread';
+			case 'forum.selectCategory': return 'Select Category';
+			case 'forum.cooldownRemaining': return ({required Object minutes, required Object seconds}) => 'Cooldown remaining ${minutes} minutes ${seconds} seconds';
+			case 'forum.groups.administration': return 'Administration';
+			case 'forum.groups.global': return 'Global';
+			case 'forum.groups.chinese': return 'Chinese';
+			case 'forum.groups.japanese': return 'Japanese';
+			case 'forum.groups.korean': return 'Korean';
+			case 'forum.groups.other': return 'Other';
+			case 'forum.leafNames.announcements': return 'Announcements';
+			case 'forum.leafNames.feedback': return 'Feedback';
+			case 'forum.leafNames.support': return 'Support';
+			case 'forum.leafNames.general': return 'General';
+			case 'forum.leafNames.guides': return 'Guides';
+			case 'forum.leafNames.questions': return 'Questions';
+			case 'forum.leafNames.requests': return 'Requests';
+			case 'forum.leafNames.sharing': return 'Sharing';
+			case 'forum.leafNames.general_zh': return 'General';
+			case 'forum.leafNames.questions_zh': return 'Questions';
+			case 'forum.leafNames.requests_zh': return 'Requests';
+			case 'forum.leafNames.support_zh': return 'Support';
+			case 'forum.leafNames.general_ja': return 'General';
+			case 'forum.leafNames.questions_ja': return 'Questions';
+			case 'forum.leafNames.requests_ja': return 'Requests';
+			case 'forum.leafNames.support_ja': return 'Support';
+			case 'forum.leafNames.korean': return 'Korean';
+			case 'forum.leafNames.other': return 'Other';
+			case 'forum.leafDescriptions.announcements': return 'Official important notifications and announcements';
+			case 'forum.leafDescriptions.feedback': return 'Feedback on the website\'s features and services';
+			case 'forum.leafDescriptions.support': return 'Help to resolve website-related issues';
+			case 'forum.leafDescriptions.general': return 'Discuss any topic';
+			case 'forum.leafDescriptions.guides': return 'Share your experiences and tutorials';
+			case 'forum.leafDescriptions.questions': return 'Raise your inquiries';
+			case 'forum.leafDescriptions.requests': return 'Post your requests';
+			case 'forum.leafDescriptions.sharing': return 'Share interesting content';
+			case 'forum.leafDescriptions.general_zh': return 'Discuss any topic';
+			case 'forum.leafDescriptions.questions_zh': return 'Raise your inquiries';
+			case 'forum.leafDescriptions.requests_zh': return 'Post your requests';
+			case 'forum.leafDescriptions.support_zh': return 'Help to resolve website-related issues';
+			case 'forum.leafDescriptions.general_ja': return 'Discuss any topic';
+			case 'forum.leafDescriptions.questions_ja': return 'Raise your inquiries';
+			case 'forum.leafDescriptions.requests_ja': return 'Post your requests';
+			case 'forum.leafDescriptions.support_ja': return 'Help to resolve website-related issues';
+			case 'forum.leafDescriptions.korean': return 'Discussions related to Korean';
+			case 'forum.leafDescriptions.other': return 'Other unclassified content';
+			case 'forum.reply': return 'Reply';
+			case 'forum.pendingReview': return 'Pending Review';
+			case 'forum.editedAt': return 'Edited At';
+			case 'forum.copySuccess': return 'Copied to clipboard';
+			case 'forum.copySuccessForMessage': return ({required Object str}) => 'Copied to clipboard: ${str}';
+			case 'forum.editReply': return 'Edit Reply';
+			case 'forum.editTitle': return 'Edit Title';
+			case 'forum.submit': return 'Submit';
+			case 'notifications.errors.unsupportedNotificationType': return 'Unsupported notification type';
+			case 'notifications.errors.unknownUser': return 'Unknown user';
+			case 'notifications.errors.unsupportedNotificationTypeWithType': return ({required Object type}) => 'Unsupported notification type: ${type}';
+			case 'notifications.errors.unknownNotificationType': return 'Unknown notification type';
+			case 'notifications.notifications': return 'Notifications';
+			case 'notifications.profile': return 'Profile';
+			case 'notifications.postedNewComment': return 'Posted new comment';
+			case 'notifications.inYour': return 'In your';
+			case 'notifications.video': return 'Video';
+			case 'notifications.repliedYourVideoComment': return 'Replied your video comment';
+			case 'notifications.copyInfoToClipboard': return 'Copy notification info to clipboard';
+			case 'notifications.copySuccess': return 'Copied to clipboard';
+			case 'notifications.copySuccessForMessage': return ({required Object str}) => 'Copied to clipboard: ${str}';
+			case 'notifications.markAllAsRead': return 'Mark all as read';
+			case 'notifications.markAllAsReadSuccess': return 'All notifications have been marked as read';
+			case 'notifications.markAllAsReadFailed': return 'Mark all as read failed';
+			case 'notifications.markSelectedAsRead': return 'Mark selected as read';
+			case 'notifications.markSelectedAsReadSuccess': return 'Selected notifications have been marked as read';
+			case 'notifications.markSelectedAsReadFailed': return 'Mark selected as read failed';
+			case 'notifications.markAsRead': return 'Mark as read';
+			case 'notifications.markAsReadSuccess': return 'Notification has been marked as read';
+			case 'notifications.markAsReadFailed': return 'Notification marked as read failed';
+			case 'notifications.notificationTypeHelp': return 'Notification Type Help';
+			case 'notifications.dueToLackOfNotificationTypeDetails': return 'Due to the lack of notification type details, the supported types may not cover the messages you currently receive';
+			case 'notifications.helpUsImproveNotificationTypeSupport': return 'If you are willing to help us improve the support for notification types';
+			case 'notifications.helpUsImproveNotificationTypeSupportLongText': return '1. 📋 Copy the notification information\n2. 🐞 Submit an issue to the project repository\n\n⚠️ Note: Notification information may contain personal privacy, if you do not want to public, you can also send it to the project author by email.';
+			case 'notifications.goToRepository': return 'Go to Repository';
+			case 'notifications.copy': return 'Copy';
+			case 'notifications.commentApproved': return 'Comment Approved';
+			case 'notifications.repliedYourProfileComment': return 'Replied your profile comment';
+			case 'notifications.kReplied': return 'replied to your comment on';
+			case 'notifications.kCommented': return 'commented on your';
+			case 'notifications.kVideo': return 'video';
+			case 'notifications.kGallery': return 'gallery';
+			case 'notifications.kProfile': return 'profile';
+			case 'notifications.kThread': return 'thread';
+			case 'notifications.kPost': return 'post';
+			case 'notifications.kCommentSection': return 'comment section';
+			case 'notifications.kApprovedComment': return 'Comment approved';
+			case 'notifications.kApprovedVideo': return 'Video approved';
+			case 'notifications.kApprovedGallery': return 'Gallery approved';
+			case 'notifications.kApprovedThread': return 'Thread approved';
+			case 'notifications.kApprovedPost': return 'Post approved';
+			case 'notifications.kUnknownType': return 'Unknown notification type';
+			case 'conversation.errors.pleaseSelectAUser': return 'Please select a user';
+			case 'conversation.errors.pleaseEnterATitle': return 'Please enter a title';
+			case 'conversation.errors.clickToSelectAUser': return 'Click to select a user';
+			case 'conversation.errors.loadFailedClickToRetry': return 'Load failed, click to retry';
+			case 'conversation.errors.loadFailed': return 'Load failed';
+			case 'conversation.errors.clickToRetry': return 'Click to retry';
+			case 'conversation.errors.noMoreConversations': return 'No more conversations';
+			case 'conversation.conversation': return 'Conversation';
+			case 'conversation.startConversation': return 'Start Conversation';
+			case 'conversation.noConversation': return 'No conversation';
+			case 'conversation.selectFromLeftListAndStartConversation': return 'Select from left list and start conversation';
+			case 'conversation.title': return 'Title';
+			case 'conversation.body': return 'Body';
+			case 'conversation.selectAUser': return 'Select a user';
+			case 'conversation.searchUsers': return 'Search users...';
+			case 'conversation.tmpNoConversions': return 'No conversions';
+			case 'conversation.deleteThisMessage': return 'Delete this message';
+			case 'conversation.deleteThisMessageSubtitle': return 'This operation cannot be undone';
+			case 'conversation.writeMessageHere': return 'Write message here...';
+			case 'conversation.sendMessage': return 'Send message';
+			case 'splash.errors.initializationFailed': return 'Initialization failed, please restart the app';
+			case 'splash.preparing': return 'Preparing...';
+			case 'splash.initializing': return 'Initializing...';
+			case 'splash.loading': return 'Loading...';
+			case 'splash.ready': return 'Ready';
+			case 'splash.initializingMessageService': return 'Initializing message service...';
 			default: return null;
 		}
 	}

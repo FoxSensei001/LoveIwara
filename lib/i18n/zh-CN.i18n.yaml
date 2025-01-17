@@ -42,7 +42,7 @@ common:
   commentDeletedSuccessfully: 评论已删除
   commentUpdatedSuccessfully: 评论已更新
   totalComments: '评论 ${count} 条'
-  writeYourCommentHere: 写下你的评论...
+  writeYourCommentHere: 在此输入评论...
   tmpNoReplies: 暂无回复
   loadMore: 加载更多
   noMoreDatas: 没有更多数据了
@@ -144,10 +144,32 @@ common:
   originalText: 原文
   showOriginalText: 显示原始文本
   showProcessedText: 显示处理后文本
+  preview: 预览
+  markdownSyntax: Markdown 语法
+  rules: 规则
+  agree: 同意
+  disagree: 不同意
+  agreeToRules: 同意规则
+  createPost: 创建投稿
+  title: 标题
+  enterTitle: 请输入标题
+  content: 内容
+  enterContent: 请输入内容
+  writeYourContentHere: 请输入内容...
+  tagBlacklist: 黑名单标签
+  noData: 没有数据
+  tagLimit: 标签上限
+  enableFloatingButtons: 启用浮动按钮
+  disableFloatingButtons: 禁用浮动按钮
+  enabledFloatingButtons: 已启用浮动按钮
+  disabledFloatingButtons: 已禁用浮动按钮
+  pendingCommentCount: 待审核评论
+  joined: '加入于 ${str}'
 
   download: 下载
   selectQuality: 选择画质
 auth:
+  tagLimit: 标签上限
   login: 登录
   logout: 退出登录
   email: 邮箱
@@ -217,6 +239,16 @@ errors:
   pleaseLoginAgain: 请重新登录
   invalidLogin: 登录失败，请检查邮箱和密码
   tooManyRequests: 请求过多，请稍后再试
+  exceedsMaxLength: '超出最大长度: ${max} 个字符'
+  contentCanNotBeEmpty: 内容不能为空
+  titleCanNotBeEmpty: 标题不能为空
+  tooManyRequestsPleaseTryAgainLaterText: "请求过多，请稍后再试，剩余时间"
+  remainingHours: "${num}小时"
+  remainingMinutes: "${num}分钟"
+  remainingSeconds: "${num}秒"
+  tagLimitExceeded: '标签上限超出，上限: ${limit}'
+  failedToRefresh: 更新失败
+  noPermission: 权限不足
 friends:
   clickToRestoreFriend: 点击恢复好友
   friendsList: 好友列表
@@ -354,6 +386,25 @@ settings:
   forceUpdateTip: "此版本为强制更新，请尽快更新到最新版本"
   viewChangelog: 查看更新日志
   alreadyLatestVersion: 已是最新版本
+  appSettings: 应用设置
+  configureYourAppSettings: 配置您的应用程序设置
+  history: 历史记录
+  autoRecordHistory: 自动记录历史记录
+  autoRecordHistoryDesc: 自动记录您观看过的视频和图库等信息
+  showUnprocessedMarkdownText: 显示未处理文本
+  showUnprocessedMarkdownTextDesc: 显示Markdown的原始文本
+  markdown: Markdown
+  activeBackgroundPrivacyMode: 隐私模式
+  activeBackgroundPrivacyModeDesc: 禁止截图、后台运行时隐藏画面...
+  privacy: 隐私
+  forum: 论坛
+  disableForumReplyQuote: 禁用论坛回复引用
+  disableForumReplyQuoteDesc: 禁用论坛回复时携带被回复楼层信息
+  theaterMode: 剧院模式
+  theaterModeDesc: 开启后，播放器背景会被设置为视频封面的模糊版本
+  appLinks: 应用链接
+  defaultBrowser: 默认浏览
+  defaultBrowserDesc: 请在系统设置中打开默认链接配置项，并添加网站链接
 
 signIn:
   pleaseLoginFirst: 请先登录后再签到
@@ -441,6 +492,207 @@ share:
   iReallyLikeThis: 我真的是太喜欢这个了，你也来看看吧！
   shareFailed: 分享失败，请稍后再试
   share: 分享
+  shareAsImage: 分享为图片
+  shareAsText: 分享为文本
+  shareAsImageDesc: 将视频封面分享为图片
+  shareAsTextDesc: 将视频详情分享为文本
+  shareAsImageFailed: 分享视频封面为图片失败，请稍后再试
+  shareAsTextFailed: 分享视频详情为文本失败，请稍后再试
+  shareVideo: 分享视频
+  authorIs: 作者是
+  shareGallery: 分享图库
+  galleryTitleIs: 图库名字叫做
+  galleryAuthorIs: 图库作者是
+  shareUser: 分享用户
+  userNameIs: 用户名字叫做
+  userAuthorIs: 用户作者是
+  comments: 评论
+  shareThread: 分享帖子
+  views: 浏览
+  sharePost: 分享投稿
+  postTitleIs: 投稿名字叫做
+  postAuthorIs: 投稿作者是
+
+markdown:
+  markdownSyntax: Markdown 语法
+  iwaraSpecialMarkdownSyntax: Iwara 专用语法
+  internalLink: 站内链接
+  supportAutoConvertLinkBelow: '支持自动转换以下类型的链接：'
+  convertLinkExample: '🎬 视频链接\n🖼️ 图片链接\n👤 用户链接\n📌 论坛链接\n🎵 播放列表链接\n💬 投稿链接'
+  mentionUser: 提及用户
+  mentionUserDescription: '输入@后跟用户名，将自动转换为用户链接'
+  markdownBasicSyntax: Markdown 基本语法
+  paragraphAndLineBreak: 段落与换行
+  paragraphAndLineBreakDescription: '段落之间空一行，行末加两个空格实现换行'
+  paragraphAndLineBreakSyntax: '这是第一段文字\n\n这是第二段文字\n这一行后面加两个空格  \n就能换行了'
+  textStyle: 文本样式
+  textStyleDescription: '使用特殊符号包围文本来改变样式'
+  textStyleSyntax: '**粗体文本**\n*斜体文本*\n~~删除线文本~~\n`代码文本`'
+  quote: 引用
+  quoteDescription: '使用 > 符号创建引用，多个 > 创建多级引用'
+  quoteSyntax: '> 这是一级引用\n>> 这是二级引用'
+  list: 列表
+  listDescription: '使用数字+点号创建有序列表，使用 - 创建无序列表'
+  listSyntax: '1. 第一项\n2. 第二项\n\n- 无序项\n  - 子项\n  - 另一个子项'
+  linkAndImage: 链接与图片
+  linkAndImageDescription: '链接格式：[文字](URL)\n图片格式：![描述](URL)'
+  linkAndImageSyntax: '[链接文字](${link})\n![图片描述](${imgUrl})'
+  title: 标题
+  titleDescription: '使用 # 号创建标题，数量表示级别'
+  titleSyntax: '# 一级标题\n## 二级标题\n### 三级标题'
+  separator: 分隔线
+  separatorDescription: '使用三个或更多 - 号创建分隔线'
+  separatorSyntax: '---'
+  syntax: 语法
+
+forum:
+  errors:
+    pleaseSelectCategory: 请选择分类
+    threadLocked: 该主题已锁定，无法回复
+  createPost: 创建帖子
+  title: 标题
+  enterTitle: 输入标题
+  content: 内容
+  enterContent: 输入内容
+  writeYourContentHere: 在此输入内容...
+  posts: 帖子
+  threads: 主题
+  forum: 论坛
+  createThread: 创建主题
+  selectCategory: 选择分类
+  cooldownRemaining: '冷却剩余时间 ${minutes} 分 ${seconds} 秒'
+  groups:
+    administration: 管理
+    global: 全球
+    chinese: 中文
+    japanese: 日语
+    korean: 韩语
+    other: 其他
+  leafNames:
+    announcements: 公告
+    feedback: 反馈
+    support: 帮助
+    general: 一般
+    guides: 指南
+    questions: 问题
+    requests: 请求
+    sharing: 分享
+    'general_zh': 一般
+    'questions_zh': 问题
+    'requests_zh': 请求
+    'support_zh': 帮助
+    'general_ja': 一般
+    'questions_ja': 问题
+    'requests_ja': 请求
+    'support_ja': 帮助
+    korean: 韩语
+    other: 其他
+  leafDescriptions:
+    announcements: 官方重要通知和公告
+    feedback: 对网站功能和服务的反馈
+    support: 帮助解决网站相关问题
+    general: 讨论任何话题
+    guides: 分享你的经验和教程
+    questions: 提出你的疑问
+    requests: 发布你的请求
+    sharing: 分享有趣的内容
+    'general_zh': 讨论任何话题
+    'questions_zh': 提出你的疑问
+    'requests_zh': 发布你的请求
+    'support_zh': 帮助解决网站相关问题
+    'general_ja': 讨论任何话题
+    'questions_ja': 提出你的疑问
+    'requests_ja': 发布你的请求
+    'support_ja': 帮助解决网站相关问题
+    korean: 韩语相关讨论
+    other: 其他未分类的内容
+  reply: 回覆
+  pendingReview: 审核中
+  editedAt: 编辑时间
+  copySuccess: 已复制到剪贴板
+  copySuccessForMessage: '已复制到剪贴板: ${str}'
+  editReply: 编辑回覆
+  editTitle: 编辑标题
+  submit: 提交
+
+notifications:
+  errors:
+    unsupportedNotificationType: 暂不支持的通知类型
+    unknownUser: 未知用户
+    unsupportedNotificationTypeWithType: '暂不支持的通知类型: ${type}'
+    unknownNotificationType: 未知通知类型
+  notifications: 通知
+  video: 视频
+  profile: 个人主页
+  postedNewComment: 发表了评论
+  inYour: 在您的
+  copyInfoToClipboard: 复制通知信息到剪贴簿
+  copySuccess: 已复制到剪贴板
+  copySuccessForMessage: '已复制到剪贴板: ${str}'
+  markAllAsRead: 全部标记已读
+  markAllAsReadSuccess: 所有通知已标记为已读
+  markAllAsReadFailed: 全部标记已读失败
+  markSelectedAsRead: 标记选中项为已读
+  markSelectedAsReadSuccess: 选中的通知已标记为已读
+  markSelectedAsReadFailed: 标记选中项为已读失败
+  markAsRead: 标记已读
+  markAsReadSuccess: 已标记为已读
+  markAsReadFailed: 标记已读失败
+  notificationTypeHelp: 通知类型帮助
+  dueToLackOfNotificationTypeDetails: 通知类型的详细信息不足，目前支持的类型可能没有覆盖到您当前收到的消息
+  helpUsImproveNotificationTypeSupport: 如果您愿意帮助我们完善通知类型的支持
+  helpUsImproveNotificationTypeSupportLongText: '1. 📋 复制通知信息\n2. 🐞 前往项目仓库提交 issue\n\n⚠️ 注意：通知信息可能包含个人隐私，如果你不想公开，也可以通过邮件发送给项目作者。'
+  goToRepository: 前往项目仓库
+  copy: 复制
+  commentApproved: 评论已通过审核
+  repliedYourProfileComment: 回复了您的个人主页评论
+  repliedYourVideoComment: 回复了您的视频评论
+  kReplied: 回复了您在
+  kCommented: 评论了您的
+  kVideo: 视频
+  kGallery: 图库
+  kProfile: 主页
+  kThread: 主题
+  kPost: 投稿
+  kCommentSection: 下的评论
+  kApprovedComment: 评论审核通过
+  kApprovedVideo: 视频审核通过
+  kApprovedGallery: 图库审核通过
+  kApprovedThread: 帖子审核通过
+  kApprovedPost: 投稿审核通过
+  kUnknownType: 未知通知类型
+
+conversation:
+  errors:
+    pleaseSelectAUser: 请选择一个用户
+    pleaseEnterATitle: 请输入标题
+    clickToSelectAUser: 点击选择用户
+    loadFailedClickToRetry: 加载失败,点击重试
+    loadFailed: 加载失败
+    clickToRetry: 点击重试
+    noMoreConversations: 没有更多消息了
+  conversation: 会话
+  startConversation: 发起会话
+  noConversation: 暂无会话
+  selectFromLeftListAndStartConversation: 从左侧的会话列表选择一个对话开始聊天
+  title: 标题
+  body: 内容
+  selectAUser: 选择用户
+  searchUsers: 搜索用户...
+  tmpNoConversions: 暂无会话
+  deleteThisMessage: 删除此消息
+  deleteThisMessageSubtitle: 此操作不可撤销
+  writeMessageHere: 在此处输入消息
+  sendMessage: 发送消息
+
+splash:
+  errors:
+    initializationFailed: 初始化失败，请重启应用
+  preparing: 准备中...
+  initializing: 初始化中...
+  loading: 加载中...
+  ready: 准备完成
+  initializingMessageService: 初始化消息服务中...
 
 download:
   errors:

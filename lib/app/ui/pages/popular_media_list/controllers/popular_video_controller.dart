@@ -84,7 +84,7 @@ class PopularVideoController extends GetxController {
       page++;
     } catch (e) {
       LogUtils.e('获取视频列表失败', tag: 'PopularVideoController', error: e);
-      showToastWidget(MDToastWidget(message: t.errors.errorWhileFetching, type: MDToastType.error));
+      showToastWidget(MDToastWidget(message: t.errors.errorWhileFetching, type: MDToastType.error), position: ToastPosition.bottom);
       errorWidget.value = CommonErrorWidget(
         text: t.errors.errorWhileFetching,
         children: [

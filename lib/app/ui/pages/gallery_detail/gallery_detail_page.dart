@@ -38,7 +38,6 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
   late GalleryDetailController detailController;
   late CommentController commentController;
   late RelatedMediasController relatedMediasController;
-  late OtherAuthorzMediasController otherAuthorzMediasController;
   late String uniqueTag;
 
   // 分配图库详情与附列表的宽度
@@ -55,7 +54,6 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
     Get.delete<GalleryDetailController>(tag: uniqueTag);
     Get.delete<CommentController>(tag: uniqueTag);
     Get.delete<RelatedMediasController>(tag: uniqueTag);
-    Get.delete<OtherAuthorzMediasController>(tag: uniqueTag);
 
     LogUtils.d('图库ID: $imageModelId 已销毁', 'GalleryDetailPage');
     super.dispose();
@@ -161,12 +159,12 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
                               submitText: slang.t.common.send,
                               onSubmit: (text) async {
                                 if (text.trim().isEmpty) {
-                                  showToastWidget(MDToastWidget(message: slang.t.errors.commentCanNotBeEmpty, type: MDToastType.error));
+                                  showToastWidget(MDToastWidget(message: slang.t.errors.commentCanNotBeEmpty, type: MDToastType.error), position: ToastPosition.bottom);
                                   return;
                                 }
                                 final UserService userService = Get.find();
                                 if (!userService.isLogin) {
-                                  showToastWidget(MDToastWidget(message: slang.t.errors.pleaseLoginFirst, type: MDToastType.error));
+                                  showToastWidget(MDToastWidget(message: slang.t.errors.pleaseLoginFirst, type: MDToastType.error), position: ToastPosition.bottom);
                                   Get.toNamed(Routes.LOGIN);
                                   return;
                                 }
@@ -401,7 +399,7 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
                                   onPressed: () {
                                     final UserService userService = Get.find();
                                     if (!userService.isLogin) {
-                                      showToastWidget(MDToastWidget(message: slang.t.errors.pleaseLoginFirst, type: MDToastType.error));
+                                      showToastWidget(MDToastWidget(message: slang.t.errors.pleaseLoginFirst, type: MDToastType.error), position: ToastPosition.bottom);
                                       Get.toNamed(Routes.LOGIN);
                                       return;
                                     }
@@ -535,7 +533,7 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
                             onPressed: () {
                               final UserService userService = Get.find();
                               if (!userService.isLogin) {
-                                showToastWidget(MDToastWidget(message: slang.t.errors.pleaseLoginFirst, type: MDToastType.error));
+                                showToastWidget(MDToastWidget(message: slang.t.errors.pleaseLoginFirst, type: MDToastType.error), position: ToastPosition.bottom);
                                 Get.toNamed(Routes.LOGIN);
                                 return;
                               }

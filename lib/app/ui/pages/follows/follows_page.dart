@@ -40,9 +40,6 @@ class _FollowsPageState extends State<FollowsPage>
       vsync: this,
       initialIndex: widget.initIsFollowing ? 0 : 1,
     );
-    _tabController.addListener(() {
-      controller.refreshCurrentTab(_tabController.index);
-    });
   }
 
   @override

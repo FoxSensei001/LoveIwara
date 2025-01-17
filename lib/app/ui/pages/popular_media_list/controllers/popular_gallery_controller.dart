@@ -81,7 +81,7 @@ class PopularGalleryController extends GetxController {
       page++;
     } catch (e) {
       LogUtils.e('获取图片列表失败', tag: 'PopularImageModelController', error: e);
-      showToastWidget(MDToastWidget(message: t.errors.errorWhileFetching, type: MDToastType.error));
+      showToastWidget(MDToastWidget(message: t.errors.errorWhileFetching, type: MDToastType.error), position: ToastPosition.bottom);
       errorWidget.value = CommonErrorWidget(
         text: t.errors.errorWhileFetching,
         children: [

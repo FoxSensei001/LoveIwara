@@ -57,13 +57,13 @@ Thank you for your understanding and support! If you're also a Flutter beginner,
     - 🌐 Web (Development only)
 
 - **🔍 Search**
-    - Search videos/galleries/posts/users
+    - Search videos/galleries/posts/users/forums
 
 - **📜 History**
-    - Browsing history: videos/galleries/posts
+    - Browsing history: videos/galleries/posts/forums
 
 - **🔄 Translation**
-    - Translate video descriptions/gallery descriptions/posts/comments
+    - Translate video descriptions/gallery descriptions/posts/comments/forums/conversations, etc.
 
 - **🎥 Video**
     - Video playback
@@ -80,14 +80,28 @@ Thank you for your understanding and support! If you're also a Flutter beginner,
 - **📝 Posts**
     - Browse/comment
 
-- **💬 Comments**
+- **🗣️ Forum System**
+    - Publish/edit posts
+    - Publish/edit replies
+
+- **📜 Comments**
     - Comment browsing
     - Comment reply
+
+- **📩 Private Messages**
+    - Private message browsing
+    - Private message reply
+
+- **🔔 In-app Message Notifications**
+    - Message notification browsing
+    - Message notification reply
 
 - **👤 User System**
     - User authentication
     - Profile management
     - Following system
+- **🔗 Share**
+    - Share video/gallery/post/thread/user
 
 - **🌍 Multi-language Support**
     - English
@@ -95,22 +109,25 @@ Thank you for your understanding and support! If you're also a Flutter beginner,
     - Traditional Chinese
     - Japanese
 
+- **🔍 More features to be discovered**
+
 #### Upcoming Features
 - **Download Management**
-- **In-app Message Notification**
-- **Share**
-- **Forum System**
 - **Enhanced User Experience**
 - **Others**
   
 ### 📱 Screenshots
 | | |
 |:-------------------------:|:-------------------------:|
-|<img src="docs/imgs/show1.jpg" width="200">|<img src="docs/imgs/show2.jpg" width="200">|
-|<img src="docs/imgs/show3.png" width="400">|<img src="docs/imgs/show4.png" width="400">|
-|<img src="docs/imgs/shezhi.png" width="300">|<img src="docs/imgs/dingyue.png" width="300">|
-|<img src="docs/imgs/lishi.png" width="300">|<img src="docs/imgs/guanzhu.png" width="300">|
-|<img src="docs/imgs/sousuo.png" width="300">|<img src="docs/imgs/zuiai.png" width="300">|
+|<img src="docs/imgs/all.png" width="300">|<img src="docs/imgs/dingyue.png" width="300">|
+|<img src="docs/imgs/filter.png" width="300">|<img src="docs/imgs/gonggao.png" width="300">|
+|<img src="docs/imgs/huihua.png" width="300">|<img src="docs/imgs/luntan.png" width="300">|
+|<img src="docs/imgs/luntanxaingqing.png" width="300">|<img src="docs/imgs/pinglun.png" width="300">|
+|<img src="docs/imgs/record.png" width="300">|<img src="docs/imgs/shezhi.png" width="300">|
+|<img src="docs/imgs/shipin.png" width="300">|<img src="docs/imgs/shipin2.png" width="300">|
+|<img src="docs/imgs/shipinliebiao.png" width="300">|<img src="docs/imgs/sousuo.png" width="300">|
+|<img src="docs/imgs/tongzhi.png" width="300">|<img src="docs/imgs/tuku.png" width="300">|
+|<img src="docs/imgs/tukuliebiao.png" width="300">|<img src="docs/imgs/zuozhe.png" width="300">|
 
 ### 🛠️ Development Environment Setup
 
@@ -121,6 +138,7 @@ Thank you for your understanding and support! If you're also a Flutter beginner,
 - Recommended IDEs:
   - Android Studio / Cursor
   - VS Code / Cursor + Flutter plugin
+- Check the [pubspec.yaml](pubspec.yaml) for more dependencies. Some of them needs to run some magic commonds to prepare your environment.
 
 #### Platform-Specific Requirements
 

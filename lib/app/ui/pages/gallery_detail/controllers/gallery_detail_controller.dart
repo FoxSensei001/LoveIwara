@@ -43,9 +43,13 @@ class GalleryDetailController extends GetxController {
     // 添加历史记录
     try {
       if (imageModelInfo.value != null) {
-        final historyRecord = HistoryRecord.fromImageModel(imageModelInfo.value!);
-        LogUtils.d('添加历史记录: ${historyRecord.toJson()}', 'GalleryDetailController');
-        await _historyRepository.addRecord(historyRecord);
+        // 延迟3秒后再添加历史记录，确保用户真正在浏览内容
+        await Future.delayed(const Duration(seconds: 3));
+        if (isInfoInitialized) {  // 确保页面还在活跃状态
+          final historyRecord = HistoryRecord.fromImageModel(imageModelInfo.value!);
+          LogUtils.d('添加历史记录: ${historyRecord.toJson()}', 'GalleryDetailController');
+          await _historyRepository.addRecordWithCheck(historyRecord);
+        }
       }
     } catch (e) {
       LogUtils.e('添加历史记录失败', error: e, tag: 'GalleryDetailController');
@@ -63,7 +67,7 @@ class GalleryDetailController extends GetxController {
           await _galleryService.fetchGalleryDetail(imageModelId);
       if (!res.isSuccess) {
         errorMessage.value = res.message;
-        showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error));
+        showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error), position: ToastPosition.bottom);
         return;
       }
 

@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:flutter/services.dart';
 import 'package:i_iwara/app/models/sort.model.dart';
 import 'package:i_iwara/app/services/storage_service.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -6,6 +7,7 @@ import 'package:i_iwara/utils/logger_utils.dart';
 
 class ConfigService extends GetxService {
   late final StorageService storage;
+  static const screenshotChannel = MethodChannel('i_iwara/screenshot');
 
   // 配置的键
   static const String AUTO_PLAY_KEY = 'auto_play'; // 自动播放
@@ -28,9 +30,10 @@ class ConfigService extends GetxService {
   static const String RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN =
       'render_vertical_video_in_vertical_screen'; // 在竖屏中渲染竖向视频
   static const String ACTIVE_BACKGROUND_PRIVACY_MODE =
-      'active_background_privacy_mode'; // 激活后台隐私模式
+      'active_background_privacy_mode'; // 激活隐私模式
   static const String DEFAULT_LANGUAGE_KEY = 'default_language'; // 默认语言
   static const String THEME_MODE_KEY = 'theme_mode'; // 添加主题模式配置键
+  static const String THEATER_MODE_KEY = 'theater_mode'; // 剧院模式
   static const String _TRANSLATION_LANGUAGE = 'translation_language';
   static const String REMOTE_REPO_RELEASE_URL = 'remote_repo_release_url'; // 远程仓库的 release 地址
   static const String REMOTE_REPO_URL = 'remote_repo_url'; // 远程仓库的 url
@@ -39,6 +42,10 @@ class ConfigService extends GetxService {
   static const String IGNORED_VERSION = 'ignored_version';
   static const String LAST_CHECK_UPDATE_TIME = 'last_check_update_time';
   static const String AUTO_CHECK_UPDATE = 'auto_check_update';
+  static const String RULES_AGREEMENT_KEY = 'rules_agreement'; // 规则同意
+  static const String AUTO_RECORD_HISTORY_KEY = 'auto_record_history'; // 自动记录历史记录
+  static const String SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY = 'show_unprocessed_markdown_text'; // 显示未处理的markdown文本
+  static const String DISABLE_FORUM_REPLY_QUOTE_KEY = 'disable_forum_reply_quote'; // 禁用论坛回复引用
 
   // 所有配置项的 Map
   final settings = <String, dynamic>{
@@ -59,7 +66,8 @@ class ConfigService extends GetxService {
     RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN: true.obs,
     ACTIVE_BACKGROUND_PRIVACY_MODE: false.obs,
     DEFAULT_LANGUAGE_KEY: 'zh-CN'.obs,
-    THEME_MODE_KEY: 4.obs, // 添加主题模式配置，默认为0(system)
+    THEME_MODE_KEY: 0.obs, // 添加主题模式配置，默认为0(system)
+    THEATER_MODE_KEY: true.obs, // 默认开启剧院模式
     REMOTE_REPO_RELEASE_URL: 'https://github.com/FoxSensei001/i_iwara/releases'.obs,
     REMOTE_REPO_URL: 'https://github.com/FoxSensei001/i_iwara'.obs,
     SETTINGS_SELECTED_INDEX_KEY: 0.obs,
@@ -67,6 +75,10 @@ class ConfigService extends GetxService {
     IGNORED_VERSION: ''.obs,
     LAST_CHECK_UPDATE_TIME: 0.obs,
     AUTO_CHECK_UPDATE: true.obs,
+    RULES_AGREEMENT_KEY: false.obs,
+    AUTO_RECORD_HISTORY_KEY: true.obs,
+    SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY: false.obs,
+    DISABLE_FORUM_REPLY_QUOTE_KEY: false.obs,
   }.obs;
 
   late final Rx<Sort> _currentTranslationSort;
@@ -79,12 +91,22 @@ class ConfigService extends GetxService {
     storage = StorageService();
     await _loadSettings();
 
+    // 检查是否需要激活隐私模式
+    if (settings[ACTIVE_BACKGROUND_PRIVACY_MODE]!.value == true && GetPlatform.isAndroid) {
+      await screenshotChannel.invokeMethod('preventScreenshot');
+    }
+
     // 单独初始化翻译语言
     final savedLanguage = storage.readData(_TRANSLATION_LANGUAGE) ?? settings[DEFAULT_LANGUAGE_KEY]!.value;
     _currentTranslationSort = (CommonConstants.translationSorts.firstWhere(
       (sort) => sort.extData == savedLanguage,
       orElse: () => CommonConstants.translationSorts.first,
     )).obs;
+
+    // 单独初始化是否记录历史记录
+    final savedAutoRecordHistory = storage.readData(AUTO_RECORD_HISTORY_KEY) ?? settings[AUTO_RECORD_HISTORY_KEY]!.value;
+    CommonConstants.enableHistory = savedAutoRecordHistory;
+
     return this;
   }
 
@@ -113,10 +135,24 @@ class ConfigService extends GetxService {
   }
 
   // 设置配置时自动更新 Map 和存储
-  Future<void> setSetting(String key, dynamic value) async {
+  Future<void> setSetting(String key, dynamic value, {bool save = true}) async {
     if (settings.containsKey(key)) {
       settings[key]!.value = value;
-      await _saveSetting(key, value);
+      if (save) {
+        await _saveSetting(key, value);
+      }
+
+      // 处理隐私模式的变更
+      // 如果是安卓模式
+      if (GetPlatform.isAndroid) {
+        if (key == ACTIVE_BACKGROUND_PRIVACY_MODE) {
+          if (value == true) {
+            await screenshotChannel.invokeMethod('preventScreenshot');
+          } else {
+            await screenshotChannel.invokeMethod('allowScreenshot');
+          }
+        }
+      }
     } else {
       throw Exception("未知的配置键: $key");
     }

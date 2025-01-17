@@ -10,7 +10,7 @@ class PlayListsController extends GetxController {
   Future<bool> createPlaylist(String title) async {
     final result = await _playListService.createPlaylist(title: title);
     if (!result.isSuccess) {
-      showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error));
+      showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
       return false;
     }
     return true;

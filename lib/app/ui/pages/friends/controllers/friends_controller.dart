@@ -68,7 +68,7 @@ class FriendsController extends GetxController {
       if (!result.isSuccess) {
         // 如果失败，恢复状态
         removedFriendIds.remove(userId);
-        showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error));
+        showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
       }
     } finally {
       removingFriendIds.remove(userId);
@@ -86,7 +86,7 @@ class FriendsController extends GetxController {
       final result = await _userService.addFriend(userId);
       if (!result.isSuccess) {
         removedFriendIds.add(userId);
-        showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error));
+        showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
       }
     } finally {
       restoringFriendIds.remove(userId);
@@ -105,7 +105,7 @@ class FriendsController extends GetxController {
         // 刷新好友列表
         friendRepository.refresh();
       } else {
-        showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error));
+        showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
       }
     } finally {
       acceptingRequestIds.remove(requestId);
@@ -122,7 +122,7 @@ class FriendsController extends GetxController {
       if (result.isSuccess) {
         requestRepository.refresh();
       } else {
-        showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error));
+        showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
       }
     } finally {
       rejectingRequestIds.remove(requestId);
@@ -139,7 +139,7 @@ class FriendsController extends GetxController {
       if (result.isSuccess) {
         requestRepository.refresh();
       } else {
-        showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error));
+        showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
       }
     } finally {
       cancelingRequestIds.remove(requestId);

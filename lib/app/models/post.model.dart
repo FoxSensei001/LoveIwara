@@ -63,3 +63,27 @@ class PostModel {
     user: user ?? this.user,
   );
 }
+
+class PostCooldownModel {
+  final bool limited;
+  final int remaining;
+
+  PostCooldownModel({
+    required this.limited,
+    required this.remaining,
+  });
+
+  factory PostCooldownModel.fromJson(Map<String, dynamic> json) {
+    return PostCooldownModel(
+      limited: json['limited'],
+      remaining: json['remaining'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'limited': limited,
+      'remaining': remaining,
+    };
+  }
+}

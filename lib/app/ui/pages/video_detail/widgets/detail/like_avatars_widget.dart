@@ -126,12 +126,9 @@ class _LikeAvatarsWidgetState extends State<LikeAvatarsWidget> {
 
   Widget _buildAvatarCircle(User user) {
     return AvatarWidget(
-        avatarUrl: user.avatar?.avatarUrl,
+        user: user,
         defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-        headers: const {'referer': CommonConstants.iwaraBaseUrl},
         radius: 20,
-        isPremium: user.premium,
-        isAdmin: user.isAdmin,
         onTap: () => NaviService.navigateToAuthorProfilePage(user.username));
   }
 }

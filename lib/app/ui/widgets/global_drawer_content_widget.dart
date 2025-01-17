@@ -29,6 +29,36 @@ class GlobalDrawerColumns extends StatelessWidget {
           child: ListView(
             padding: EdgeInsets.zero,
             children: [
+              // 通知
+              _buildMenuItem(Icons.notifications, t.notifications.notifications, () {
+                if (userService.isLogin) {
+                  NaviService.navigateToNotificationListPage();
+                  AppService.switchGlobalDrawer();
+                } else {
+                  AppService.switchGlobalDrawer();
+                  showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error));
+                }
+              }),
+              // 会话
+              _buildMenuItem(Icons.message, t.conversation.conversation, () {
+                if (userService.isLogin) {
+                  NaviService.navigateToConversationPage();
+                  AppService.switchGlobalDrawer();
+                } else {
+                  AppService.switchGlobalDrawer();
+                  showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error));
+                }
+              }),
+              // Tag黑名单
+              _buildMenuItem(Icons.block, t.common.tagBlacklist, () {
+                if (userService.isLogin) {
+                  NaviService.navigateToTagBlacklistPage();
+                  AppService.switchGlobalDrawer();
+                } else {
+                  AppService.switchGlobalDrawer();
+                  showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error));
+                }
+              }),
               // 下载管理
               _buildMenuItem(Icons.download, t.download.downloadList, () {
                 NaviService.navigateToDownloadTaskListPage();
@@ -115,6 +145,7 @@ class GlobalDrawerColumns extends StatelessWidget {
                       ],
                     )
                   : const SizedBox.shrink()),
+              const SafeArea(child: SizedBox.shrink()),
             ],
           ),
         ),
@@ -278,8 +309,65 @@ class GlobalDrawerColumns extends StatelessWidget {
         leading: Icon(icon, color: Get.isDarkMode ? Colors.white : null),
         title: Text(title, style: const TextStyle(fontSize: 16)),
         onTap: onTap,
+        trailing: _buildMenuItemBadge(title),
       ),
     );
+  }
+
+  Widget? _buildMenuItemBadge(String title) {
+    final t = slang.Translations.of(Get.context!);
+    if (title == t.notifications.notifications) {
+      return Obx(() {
+        final count = userService.notificationCount.value;
+        if (count > 0) {
+          return Badge(
+            backgroundColor: Theme.of(Get.context!).colorScheme.error,
+            label: Text(
+              count.toString(),
+              style: TextStyle(
+                color: Theme.of(Get.context!).colorScheme.onError,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          );
+        }
+        return const SizedBox.shrink();
+      });
+    } else if (title == t.common.friends) {
+      return Obx(() {
+        final count = userService.friendRequestsCount.value;
+        if (count > 0) {
+          return Badge(
+            backgroundColor: Theme.of(Get.context!).colorScheme.error,
+            label: Text(
+              count.toString(),
+              style: TextStyle(
+                color: Theme.of(Get.context!).colorScheme.onError,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          );
+        }
+        return const SizedBox.shrink();
+      });
+    } else if (title == t.conversation.conversation) {
+      return Obx(() {
+        final count = userService.messagesCount.value;
+        if (count > 0) {
+          return Badge(
+            backgroundColor: Theme.of(Get.context!).colorScheme.error,
+            label: Text(count.toString(), style: TextStyle(color: Theme.of(Get.context!).colorScheme.onError, fontSize: 12, fontWeight: FontWeight.w500)),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          );
+        }
+        return const SizedBox.shrink();
+      });
+    }
+    return null;
   }
 
   void _showLogoutDialog(AppService globalDrawerService) {
@@ -312,6 +400,7 @@ class LogoutDialog extends StatelessWidget {
           onPressed: () async {
             Navigator.pop(context);
             try {
+              userService.clearAllNotificationCounts();
               await userService.logout();
               showToast(t.auth.logoutSuccess);
             } catch (e) {

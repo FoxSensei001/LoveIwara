@@ -99,12 +99,9 @@ class PostTileListItemWidget extends StatelessWidget {
 
   Widget _buildAvatar(User user) {
     return AvatarWidget(
-      avatarUrl: user.avatar?.avatarUrl,
+      user: user,
       defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-      headers: const {'referer': CommonConstants.iwaraBaseUrl},
       radius: 20,
-      isPremium: user.premium ?? false,
-      isAdmin: user.isAdmin ?? false,
     );
   }
 

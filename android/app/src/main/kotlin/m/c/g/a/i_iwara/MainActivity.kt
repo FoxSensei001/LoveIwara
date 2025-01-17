@@ -1,12 +1,14 @@
 package m.c.g.a.i_iwara
 
 import android.view.KeyEvent
+import android.view.WindowManager
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity: FlutterActivity() {
     private val CHANNEL = "i_iwara/volume_key"
+    private val SCREENSHOT_CHANNEL = "i_iwara/screenshot"
     private var volumeKeyEnabled = false
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
@@ -20,6 +22,22 @@ class MainActivity: FlutterActivity() {
                 }
                 "disableVolumeKeyListener" -> {
                     volumeKeyEnabled = false
+                    result.success(null)
+                }
+                else -> {
+                    result.notImplemented()
+                }
+            }
+        }
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, SCREENSHOT_CHANNEL).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "preventScreenshot" -> {
+                    window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
+                    result.success(null)
+                }
+                "allowScreenshot" -> {
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
                     result.success(null)
                 }
                 else -> {

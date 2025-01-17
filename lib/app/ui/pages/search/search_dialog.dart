@@ -11,6 +11,7 @@ enum SearchSegment {
   image,
   post,
   user,
+  forum,
   ;
 
   static SearchSegment fromValue(String value) {
@@ -343,40 +344,45 @@ class _SearchContentState extends State<_SearchContent> {
           const SizedBox(height: 16),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Obx(() => SegmentedButton<String>(
-                  // 添加 Obx 包装
-                  segments: [
-                    ButtonSegment(
-                      value: SearchSegment.video.name,
-                      icon: const Icon(Icons.video_library),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Obx(() => SegmentedButton<String>(
+                    segments: [
+                      ButtonSegment(
+                        value: SearchSegment.video.name,
+                        icon: const Icon(Icons.video_library),
+                      ),
+                      ButtonSegment(
+                        value: SearchSegment.image.name,
+                        icon: const Icon(Icons.image),
+                      ),
+                      ButtonSegment(
+                        value: SearchSegment.post.name,
+                        icon: const Icon(Icons.article),
+                      ),
+                      ButtonSegment(
+                        value: SearchSegment.user.name,
+                        icon: const Icon(Icons.person),
+                      ),
+                      ButtonSegment(
+                        value: SearchSegment.forum.name,
+                        icon: const Icon(Icons.forum),
+                      ),
+                    ],
+                    selected: {globalSearchService.selectedSegment.value},
+                    onSelectionChanged: (Set<String> selection) {
+                      if (selection.isNotEmpty) {
+                        globalSearchService.selectedSegment.value =
+                            selection.first;
+                      }
+                    },
+                    multiSelectionEnabled: false,
+                    style: const ButtonStyle(
+                      visualDensity: VisualDensity.compact,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
-                    ButtonSegment(
-                      value: SearchSegment.image.name,
-                      icon: const Icon(Icons.image),
-                    ),
-                    ButtonSegment(
-                      value: SearchSegment.post.name,
-                      icon: const Icon(Icons.article),
-                    ),
-                    ButtonSegment(
-                      value: SearchSegment.user.name,
-                      icon: const Icon(Icons.person),
-                    ),
-                  ],
-                  selected: {globalSearchService.selectedSegment.value},
-                  onSelectionChanged: (Set<String> selection) {
-                    if (selection.isNotEmpty) {
-                      // 添加空值检查
-                      globalSearchService.selectedSegment.value =
-                          selection.first;
-                    }
-                  },
-                  multiSelectionEnabled: false,
-                  style: const ButtonStyle(
-                    visualDensity: VisualDensity.compact,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                )),
+                  )),
+            ),
           ),
           historyHeader,
           Expanded(

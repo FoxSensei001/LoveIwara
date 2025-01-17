@@ -3,21 +3,44 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/ui/pages/forum/forum_page.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
 import '../../../routes/app_routes.dart';
 import '../../../services/app_service.dart';
+import '../../../services/user_service.dart';
 import '../popular_media_list/popular_gallery_list_page.dart';
 import '../popular_media_list/popular_video_list_page.dart';
 import '../subscriptions/subscriptions_page.dart';
-import 'package:i_iwara/i18n/strings.g.dart' as slang;  
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 侧边栏、底部导航栏、主要内容
-class HomeNavigationLayout extends StatelessWidget {
-  HomeNavigationLayout({super.key});
+class HomeNavigationLayout extends StatefulWidget {
+  const HomeNavigationLayout({super.key});
 
-  final AppService appService = Get.find<AppService>();
   static final HomeNavigatorObserver homeNavigatorObserver = HomeNavigatorObserver();
+
+  @override
+  State<HomeNavigationLayout> createState() => _HomeNavigationLayoutState();
+}
+
+class _HomeNavigationLayoutState extends State<HomeNavigationLayout> {
+  final AppService appService = Get.find<AppService>();
+  final UserService userService = Get.find<UserService>();
+
+  @override
+  void initState() {
+    super.initState();
+    // 启动通知计数定时任务
+    userService.startNotificationTimer();
+  }
+
+  @override
+  void dispose() {
+    // 停止通知计数定时任务
+    userService.stopNotificationTimer();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,62 +68,73 @@ class HomeNavigationLayout extends StatelessWidget {
                   if (!appService.showRailNavi) return const SizedBox.shrink();
                   if (!isWide) return const SizedBox.shrink();
 
-                  return NavigationRail(
-                    labelType: NavigationRailLabelType.all,
-                    selectedIndex: appService.currentIndex,
-                    trailing: Expanded(
-                      child: Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.settings),
-                              tooltip: t.common.settings,
-                              onPressed: () {
-                                AppService.switchGlobalDrawer();
-                              },
+                  return SingleChildScrollView(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: MediaQuery.of(context).size.height,
+                      ),
+                      child: IntrinsicHeight(
+                        child: NavigationRail(
+                          labelType: NavigationRailLabelType.all,
+                          selectedIndex: appService.currentIndex,
+                          trailing: Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                               IconButton(
+                                  icon: const Icon(Icons.settings),
+                                  tooltip: t.common.settings,
+                                  onPressed: () {
+                                    AppService.switchGlobalDrawer();
+                                  },
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.exit_to_app),
+                                  tooltip: t.common.back,
+                                  onPressed: () {
+                                    AppService.tryPop();
+                                  },
+                                ),
+                              ],
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.exit_to_app),
-                              tooltip: t.common.back,
-                              onPressed: () {
-                                AppService.tryPop();
-                              },
+                          ),
+                          onDestinationSelected: (value) {
+                            if (appService.currentIndex == value) return;
+                            appService.currentIndex = value;
+                            final routes = [
+                              Routes.POPULAR_VIDEOS,
+                              Routes.GALLERY,
+                              Routes.SUBSCRIPTIONS,
+                              Routes.FORUM,
+                            ];
+                            AppService.homeNavigatorKey.currentState!
+                                .pushNamedAndRemoveUntil(
+                              routes[value],
+                              (route) => false,
+                            );
+                          },
+                          destinations: [
+                            NavigationRailDestination(
+                              icon: const Icon(Icons.video_library),
+                              label: Text(t.common.video),
                             ),
-                            const SizedBox(height: 16),
+                            NavigationRailDestination(
+                              icon: const Icon(Icons.photo),
+                              label: Text(t.common.gallery),
+                            ),
+                            NavigationRailDestination(
+                              icon: const Icon(Icons.subscriptions),
+                              label: Text(t.common.subscriptions),
+                            ),
+                            NavigationRailDestination(
+                              icon: const Icon(Icons.forum),
+                              label: Text(t.forum.forum),
+                            ),
                           ],
                         ),
                       ),
                     ),
-                    onDestinationSelected: (value) {
-                      if (appService.currentIndex == value) return;
-                      appService.currentIndex = value;
-                      final routes = [
-                        Routes.POPULAR_VIDEOS,
-                        Routes.GALLERY,
-                        Routes.SUBSCRIPTIONS,
-                      ];
-                      AppService.homeNavigatorKey.currentState!
-                          .pushNamedAndRemoveUntil(
-                        routes[value],
-                        (route) => false,
-                      );
-                    },
-                    destinations: [
-                      NavigationRailDestination(
-                        icon: const Icon(Icons.video_library),
-                        label: Text(t.common.video),
-                      ),
-                      NavigationRailDestination(
-                        icon: const Icon(Icons.photo),
-                        label: Text(t.common.gallery),
-                      ),
-                      NavigationRailDestination(
-                        icon: const Icon(Icons.subscriptions),
-                        label: Text(t.common.subscriptions),
-                      ),
-                    ],
                   );
                 }),
                 // 主要内容
@@ -109,7 +143,7 @@ class HomeNavigationLayout extends StatelessWidget {
                     body: Navigator(
                       key: AppService.homeNavigatorKey,
                       observers: [
-                        homeNavigatorObserver,
+                        HomeNavigationLayout.homeNavigatorObserver,
                       ],
                       onGenerateRoute: (RouteSettings settings) {
                         WidgetBuilder builder;
@@ -150,6 +184,17 @@ class HomeNavigationLayout extends StatelessWidget {
                               transitionDuration: Duration.zero,
                             );
                             break;
+                          case Routes.FORUM:
+                            builder = (BuildContext context) =>
+                                const ForumPage();
+                            route = PageRouteBuilder(
+                              pageBuilder:
+                                  (context, animation, secondaryAnimation) =>
+                                      builder(context),
+                              settings: settings,
+                              transitionDuration: Duration.zero,
+                            );
+                            break;
                           default:
                             builder = (BuildContext context) =>
                                 const Center(child: Text('404'));
@@ -177,10 +222,15 @@ class HomeNavigationLayout extends StatelessWidget {
                         Routes.POPULAR_VIDEOS,
                         Routes.GALLERY,
                         Routes.SUBSCRIPTIONS,
+                        Routes.FORUM,
                       ];
 
                       return BottomNavigationBar(
                         currentIndex: index,
+                        type: BottomNavigationBarType.fixed,
+                        backgroundColor: Theme.of(context).colorScheme.surface,
+                        selectedItemColor: Theme.of(context).colorScheme.primary,
+                        unselectedItemColor: Theme.of(context).colorScheme.onSurfaceVariant,
                         onTap: (value) {
                           appService.currentIndex = value;
                           AppService.homeNavigatorKey.currentState
@@ -201,6 +251,10 @@ class HomeNavigationLayout extends StatelessWidget {
                           BottomNavigationBarItem(
                             icon: const Icon(Icons.subscriptions),
                             label: t.common.subscriptions,
+                          ),
+                          BottomNavigationBarItem(
+                            icon: const Icon(Icons.forum),
+                            label: t.forum.forum,
                           ),
                         ],
                       );

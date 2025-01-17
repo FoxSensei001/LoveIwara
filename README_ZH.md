@@ -57,13 +57,13 @@ Love Iwara（又名 i_iwara 或 2i）是一个使用 Flutter 构建的 Iwara 第
     - 🌐 Web（仅用于开发）
 
 - **🔍 搜索**
-    - 搜索视频/图库/帖子/用户
+    - 搜索视频/图库/帖子/用户/论坛
 
 - **📜 历史记录**
-    - 浏览历史: 视频/图库/帖子
+    - 浏览历史: 视频/图库/帖子/论坛
 
 - **🔄 翻译**
-    - 翻译视频描述/图库描述/帖子/评论
+    - 翻译视频描述/图库描述/帖子/评论/论坛/会话等
 
 - **🎥 视频**
     - 视频播放
@@ -80,14 +80,29 @@ Love Iwara（又名 i_iwara 或 2i）是一个使用 Flutter 构建的 Iwara 第
 - **📝 帖子**
     - 浏览/评论
 
-- **💬 评论**
+- **🗣️ 论坛系统**
+    - 发布/编辑帖子
+    - 发表/编辑回复
+
+- **📜 评论**
     - 评论浏览
     - 评论回复
+
+- **📩 私信**
+    - 私信浏览
+    - 私信回复
+
+- **🔔 站内消息通知**
+    - 消息通知浏览
+    - 消息通知回复
 
 - **👤 用户系统**
     - 用户认证
     - 个人资料管理
     - 关注系统
+
+- **🌍 分享**
+    - 分享视频/图库/帖子/论坛/用户
 
 - **🌍 多语言支持**
     - 英语
@@ -95,11 +110,10 @@ Love Iwara（又名 i_iwara 或 2i）是一个使用 Flutter 构建的 Iwara 第
     - 繁体中文
     - 日语
 
+- **🔍 更多待发现功能**
+
 #### 即将推出的功能
 - **下载管理**
-- **站内消息通知**
-- **分享**
-- **论坛系统**
 - **增强用户体验**
 - **其他**
 
@@ -107,11 +121,16 @@ Love Iwara（又名 i_iwara 或 2i）是一个使用 Flutter 构建的 Iwara 第
 ### 📱 截图展示
 | | |
 |:-------------------------:|:-------------------------:|
-|<img src="docs/imgs/show1.jpg" width="200">|<img src="docs/imgs/show2.jpg" width="200">|
-|<img src="docs/imgs/show3.png" width="400">|<img src="docs/imgs/show4.png" width="400">|
-|<img src="docs/imgs/shezhi.png" width="300">|<img src="docs/imgs/dingyue.png" width="300">|
-|<img src="docs/imgs/lishi.png" width="300">|<img src="docs/imgs/guanzhu.png" width="300">|
-|<img src="docs/imgs/sousuo.png" width="300">|<img src="docs/imgs/zuiai.png" width="300">|
+|<img src="docs/imgs/all.png" width="300">|<img src="docs/imgs/dingyue.png" width="300">|
+|<img src="docs/imgs/filter.png" width="300">|<img src="docs/imgs/gonggao.png" width="300">|
+|<img src="docs/imgs/huihua.png" width="300">|<img src="docs/imgs/luntan.png" width="300">|
+|<img src="docs/imgs/luntanxaingqing.png" width="300">|<img src="docs/imgs/pinglun.png" width="300">|
+|<img src="docs/imgs/record.png" width="300">|<img src="docs/imgs/shezhi.png" width="300">|
+|<img src="docs/imgs/shipin.png" width="300">|<img src="docs/imgs/shipin2.png" width="300">|
+|<img src="docs/imgs/shipinliebiao.png" width="300">|<img src="docs/imgs/sousuo.png" width="300">|
+|<img src="docs/imgs/tongzhi.png" width="300">|<img src="docs/imgs/tuku.png" width="300">|
+|<img src="docs/imgs/tukuliebiao.png" width="300">|<img src="docs/imgs/zuozhe.png" width="300">|
+
 
 ### 🛠️ 开发环境设置
 
@@ -122,6 +141,7 @@ Love Iwara（又名 i_iwara 或 2i）是一个使用 Flutter 构建的 Iwara 第
 - IDE 推荐:
   - Android Studio / Cursor
   - VS Code / Cursor + Flutter 插件
+- 检查 [pubspec.yaml](pubspec.yaml) 以了解项目里用到了什么依赖，某些依赖项需要运行一些邪门的命令来准备环境。
 
 #### 平台特定要求
 
@@ -252,7 +272,6 @@ flutter emulators --launch <emulator_id>
 # 开发工具重置
 flutter config --clear-features
 ```
-
 这些设置涵盖了 Flutter 全平台开发的主要方面。根据具体项目需求，可能需要额外的配置或工具。建议定期查看 Flutter 官方文档以获取最新的开发指南和最佳实践。
 
 ### 🌍 国际化
@@ -268,3 +287,4 @@ flutter config --clear-features
 - [wgh136/PicaComic](https://github.com/wgh136/PicaComic) - 结构良好的 Flutter 漫画应用
 
 项目中的许多实现方式和最佳实践都是从这些仓库中学习得来。 
+```

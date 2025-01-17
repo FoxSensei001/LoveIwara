@@ -36,7 +36,7 @@ class TagController extends GetxController {
       });
       if (result.isFail) {
         isLoading.value = false;
-        showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error));
+        showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
         return;
       }
       List<Tag> newTags = result.data!.results;
@@ -54,7 +54,7 @@ class TagController extends GetxController {
       isLoading.value = false;
     } catch (e) {
       isLoading.value = false;
-      showToastWidget(MDToastWidget(message: t.errors.errorWhileFetching, type: MDToastType.error));
+      showToastWidget(MDToastWidget(message: t.errors.errorWhileFetching, type: MDToastType.error), position: ToastPosition.bottom);
     }
   }
 
