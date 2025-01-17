@@ -1,5 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
+import 'package:i_iwara/utils/image_utils.dart';
 import 'package:markdown_widget/markdown_widget.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
@@ -370,21 +372,93 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
                             return Padding(
                               padding:
                                   const EdgeInsets.symmetric(vertical: 8.0),
-                              child: CachedNetworkImage(
-                                imageUrl: url,
-                                placeholder: (context, url) =>
-                                    Shimmer.fromColors(
-                                  baseColor: Colors.grey[300]!,
-                                  highlightColor: Colors.grey[100]!,
-                                  child: Container(
-                                    width: double.infinity,
-                                    height: 200.0,
-                                    color: Colors.white,
+                              child: GestureDetector(
+                                onTap: () {
+                                  // 进入图片详情页
+                                  ImageItem item = ImageItem(
+                                      url: url,
+                                      data: ImageItemData(
+                                          id: '',
+                                          url: url,
+                                          originalUrl: url));
+                                  final menuItems = [
+                                    MenuItem(
+                                      title: t.galleryDetail.copyLink,
+                                      icon: Icons.copy,
+                                      onTap: () => ImageUtils.copyLink(item),
+                                    ),
+                                    MenuItem(
+                                      title: t.galleryDetail.copyImage,
+                                      icon: Icons.copy,
+                                      onTap: () => ImageUtils.copyImage(item),
+                                    ),
+                                    if (GetPlatform.isDesktop && !GetPlatform.isWeb)
+                                      MenuItem(
+                                        title: t.galleryDetail.saveAs,
+                                        icon: Icons.download,
+                                        onTap: () => ImageUtils.downloadImageForDesktop(item),
+                                      ),
+                                    if (GetPlatform.isIOS || GetPlatform.isAndroid)
+                                      MenuItem(
+                                        title: t.galleryDetail.saveToAlbum,
+                                        icon: Icons.save,
+                                        onTap: () => ImageUtils.downloadImageForMobile(item),
+                                      ),
+                                  ];
+                                  NaviService.navigateToPhotoViewWrapper(
+                                      imageItems: [item],
+                                      initialIndex: 0,
+                                      menuItemsBuilder: (context, item) => menuItems);
+                                },
+                                child: MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: CachedNetworkImage(
+                                      imageUrl: url,
+                                      placeholder: (context, url) =>
+                                          Shimmer.fromColors(
+                                        baseColor: Colors.grey[300]!,
+                                        highlightColor: Colors.grey[100]!,
+                                        child: Container(
+                                          width: double.infinity,
+                                          height: 200.0,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                        ),
+                                      ),
+                                      errorWidget: (context, url, error) =>
+                                          Container(
+                                            width: double.infinity,
+                                            height: 200.0,
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey[200],
+                                              borderRadius: BorderRadius.circular(12),
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                Icon(Icons.broken_image_outlined, 
+                                                  size: 48, 
+                                                  color: Colors.grey[400],
+                                                ),
+                                                const SizedBox(height: 8),
+                                                Text(
+                                                  '图片加载失败',
+                                                  style: TextStyle(
+                                                    color: Colors.grey[600],
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
                                 ),
-                                errorWidget: (context, url, error) =>
-                                    const Icon(Icons.error),
-                                fit: BoxFit.cover,
                               ),
                             );
                           } catch (e) {

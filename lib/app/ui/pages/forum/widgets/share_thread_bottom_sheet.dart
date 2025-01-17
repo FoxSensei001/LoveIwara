@@ -69,7 +69,6 @@ class _ShareThreadBottomSheetState extends State<ShareThreadBottomSheet> {
               color: Colors.white,
               padding: const EdgeInsets.all(16),
               child: Column(
-                mainAxisSize: MainAxisSize.min,
                 children: [
                   // 头部信息
                   Row(
@@ -83,31 +82,60 @@ class _ShareThreadBottomSheetState extends State<ShareThreadBottomSheet> {
                         radius: 40,
                       ),
                       const SizedBox(width: 16),
-                      // 帖子信息
+                      // 统计信息
                       Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              widget.thread.title,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                t.share.views,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '@${widget.thread.user.username}',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey,
+                              const SizedBox(height: 2),
+                              Text(
+                                CommonUtils.formatFriendlyNumber(widget.thread.numViews),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 8),
+                              Text(
+                                t.share.comments,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                CommonUtils.formatFriendlyNumber(widget.thread.numPosts),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -141,27 +169,31 @@ class _ShareThreadBottomSheetState extends State<ShareThreadBottomSheet> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  // 统计信息
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        _buildStatItem(
-                          CommonUtils.formatFriendlyNumber(widget.thread.numViews),
-                          t.share.views,
+                  // 标题和用户名
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.thread.title,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
                         ),
-                        _buildStatItem(
-                          CommonUtils.formatFriendlyNumber(widget.thread.numPosts),
-                          t.share.comments,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        widget.thread.user.name,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -255,18 +287,22 @@ class _ShareThreadBottomSheetState extends State<ShareThreadBottomSheet> {
         Text(
           value,
           style: const TextStyle(
-            fontSize: 18,
+            fontSize: 16,
             fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 2),
         Text(
           label,
           style: const TextStyle(
-            fontSize: 13,
+            fontSize: 12,
             color: Colors.grey,
           ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
       ],
     );

@@ -87,25 +87,39 @@ class _SharePostBottomSheetState extends State<SharePostBottomSheet> {
                         radius: 40,
                       ),
                       const SizedBox(width: 16),
-                      // 帖子信息
+                      // 统计信息
                       Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              widget.post.title,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                t.share.views,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 4),
-                            buildUserName(context, widget.post.user, bold: true, fontSize: 16),
-                          ],
+                              const SizedBox(height: 2),
+                              Text(
+                                CommonUtils.formatFriendlyNumber(widget.post.numViews ?? 0),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -140,22 +154,23 @@ class _SharePostBottomSheetState extends State<SharePostBottomSheet> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  // 统计信息
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        _buildStatItem(
-                          CommonUtils.formatFriendlyNumber(widget.post.numViews ?? 0),
-                          t.share.views,
+                  // 标题和用户名
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.post.title,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
                         ),
-                      ],
-                    ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      buildUserName(context, widget.post.user, bold: true, fontSize: 14),
+                    ],
                   ),
                 ],
               ),

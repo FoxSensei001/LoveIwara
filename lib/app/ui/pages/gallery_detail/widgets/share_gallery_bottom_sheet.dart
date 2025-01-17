@@ -50,7 +50,7 @@ class _ShareGalleryBottomSheetState extends State<ShareGalleryBottomSheet> {
       
       if (byteData != null) {
         final tempDir = await getTemporaryDirectory();
-        final file = await File('${tempDir.path}/share_image.png').create();
+        final file = await File('${tempDir.path}/share_gallery_${DateTime.now().millisecondsSinceEpoch}.png').create();
         await file.writeAsBytes(byteData.buffer.asUint8List());
         
         await Share.shareXFiles(

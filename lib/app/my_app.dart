@@ -26,6 +26,7 @@ import '../utils/proxy/proxy_util.dart';
 import 'models/dto/escape_intent.dart';
 import 'services/theme_service.dart';
 import 'services/message_service.dart';
+import 'services/deep_link_service.dart';
 
 class MyApp extends StatefulWidget {
 
@@ -42,6 +43,7 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     Get.find<VersionService>().doAutoCheckUpdate();
     Get.find<MessageService>().markReady();
+    Get.find<DeepLinkService>().markReady();
   }
 
   @override

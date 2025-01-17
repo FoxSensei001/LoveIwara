@@ -50,7 +50,7 @@ class _ShareVideoBottomSheetState extends State<ShareVideoBottomSheet> {
       
       if (byteData != null) {
         final tempDir = await getTemporaryDirectory();
-        final file = await File('${tempDir.path}/share_image.png').create();
+        final file = await File('${tempDir.path}/share_video_${DateTime.now().millisecondsSinceEpoch}.png').create();
         await file.writeAsBytes(byteData.buffer.asUint8List());
         
         await Share.shareXFiles(
