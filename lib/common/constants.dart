@@ -85,6 +85,16 @@ class CommonConstants {
   static String defaultPlaylistThumbnailUrl =
       '$iwaraBaseUrl/images/default-thumbnail.jpg';
 
+  static int themeMode = 0; // 0: system(动态主题), 1: light, 2: dark
+  static bool useDynamicColor = true;
+  static bool usePresetColor = true;
+  static int currentPresetIndex = 0;
+  static String currentCustomHex = '';
+  static List<String> customThemeColors = [];
+
+  static ColorScheme? dynamicLightColorScheme;
+  static ColorScheme? dynamicDarkColorScheme;
+
   // 获取用户背景URL
   static userProfileHeaderUrl(String? headerId) {
     if (headerId == null) {

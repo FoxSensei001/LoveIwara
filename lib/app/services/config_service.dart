@@ -32,7 +32,6 @@ class ConfigService extends GetxService {
   static const String ACTIVE_BACKGROUND_PRIVACY_MODE =
       'active_background_privacy_mode'; // 激活隐私模式
   static const String DEFAULT_LANGUAGE_KEY = 'default_language'; // 默认语言
-  static const String THEME_MODE_KEY = 'theme_mode'; // 添加主题模式配置键
   static const String THEATER_MODE_KEY = 'theater_mode'; // 剧院模式
   static const String _TRANSLATION_LANGUAGE = 'translation_language';
   static const String REMOTE_REPO_RELEASE_URL = 'remote_repo_release_url'; // 远程仓库的 release 地址
@@ -46,6 +45,13 @@ class ConfigService extends GetxService {
   static const String AUTO_RECORD_HISTORY_KEY = 'auto_record_history'; // 自动记录历史记录
   static const String SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY = 'show_unprocessed_markdown_text'; // 显示未处理的markdown文本
   static const String DISABLE_FORUM_REPLY_QUOTE_KEY = 'disable_forum_reply_quote'; // 禁用论坛回复引用
+
+  static const String THEME_MODE_KEY = 'current_theme_mode'; // 当前主题模式 0 跟随系统 1 亮色 2 暗色
+  static const String USE_DYNAMIC_COLOR_KEY = 'use_dynamic_color'; // 是否使用动态颜色
+  static const String USE_PRESET_COLOR_KEY = 'use_preset_color'; // 是否使用预设颜色
+  static const String CURRENT_PRESET_INDEX_KEY = 'current_preset_index'; // 当前预设颜色索引
+  static const String CURRENT_CUSTOM_HEX_KEY = 'current_custom_hex'; // 当前自定义颜色
+  static const String CUSTOM_THEME_COLORS_KEY = 'custom_theme_colors'; // 用户自定义的主题颜色列表
 
   // 所有配置项的 Map
   final settings = <String, dynamic>{
@@ -66,7 +72,6 @@ class ConfigService extends GetxService {
     RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN: true.obs,
     ACTIVE_BACKGROUND_PRIVACY_MODE: false.obs,
     DEFAULT_LANGUAGE_KEY: 'zh-CN'.obs,
-    THEME_MODE_KEY: 0.obs, // 添加主题模式配置，默认为0(system)
     THEATER_MODE_KEY: true.obs, // 默认开启剧院模式
     REMOTE_REPO_RELEASE_URL: 'https://github.com/FoxSensei001/i_iwara/releases'.obs,
     REMOTE_REPO_URL: 'https://github.com/FoxSensei001/i_iwara'.obs,
@@ -79,6 +84,13 @@ class ConfigService extends GetxService {
     AUTO_RECORD_HISTORY_KEY: true.obs,
     SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY: false.obs,
     DISABLE_FORUM_REPLY_QUOTE_KEY: false.obs,
+
+    THEME_MODE_KEY: 0.obs,
+    USE_DYNAMIC_COLOR_KEY: true.obs,
+    USE_PRESET_COLOR_KEY: true.obs,
+    CURRENT_PRESET_INDEX_KEY: 0.obs,
+    CURRENT_CUSTOM_HEX_KEY: ''.obs,
+    CUSTOM_THEME_COLORS_KEY: <String>[].obs,
   }.obs;
 
   late final Rx<Sort> _currentTranslationSort;
@@ -96,16 +108,44 @@ class ConfigService extends GetxService {
       await screenshotChannel.invokeMethod('preventScreenshot');
     }
 
-    // 单独初始化翻译语言
+    // [翻译] 单独初始化翻译语言
     final savedLanguage = storage.readData(_TRANSLATION_LANGUAGE) ?? settings[DEFAULT_LANGUAGE_KEY]!.value;
     _currentTranslationSort = (CommonConstants.translationSorts.firstWhere(
       (sort) => sort.extData == savedLanguage,
       orElse: () => CommonConstants.translationSorts.first,
     )).obs;
 
-    // 单独初始化是否记录历史记录
+    // [历史记录] 单独初始化是否记录历史记录
     final savedAutoRecordHistory = storage.readData(AUTO_RECORD_HISTORY_KEY) ?? settings[AUTO_RECORD_HISTORY_KEY]!.value;
     CommonConstants.enableHistory = savedAutoRecordHistory;
+
+    // [主题] 单独初始化主题模式
+    final savedThemeMode = storage.readData(THEME_MODE_KEY) ?? settings[THEME_MODE_KEY]!.value;
+    CommonConstants.themeMode = savedThemeMode;
+
+    // [主题] 单独初始化是否使用动态颜色
+    final savedUseDynamicColor = storage.readData(USE_DYNAMIC_COLOR_KEY) ?? settings[USE_DYNAMIC_COLOR_KEY]!.value;
+    CommonConstants.useDynamicColor = savedUseDynamicColor;
+
+    // [主题] 单独初始化自定义主题颜色
+    final savedCustomThemeColors = storage.readData(CUSTOM_THEME_COLORS_KEY);
+    if (savedCustomThemeColors != null) {
+      final List<String> colorsList = (savedCustomThemeColors as List<dynamic>).map((e) => e.toString()).toList();
+      settings[CUSTOM_THEME_COLORS_KEY]!.value = colorsList;
+      CommonConstants.customThemeColors = colorsList;
+    }
+
+    // [主题] 单独初始化是否使用预设颜色
+    final savedUsePresetColor = storage.readData(USE_PRESET_COLOR_KEY) ?? settings[USE_PRESET_COLOR_KEY]!.value;
+    CommonConstants.usePresetColor = savedUsePresetColor;
+
+    // [主题] 单独初始化预设颜色索引
+    final savedCurrentPresetIndex = storage.readData(CURRENT_PRESET_INDEX_KEY) ?? settings[CURRENT_PRESET_INDEX_KEY]!.value;
+    CommonConstants.currentPresetIndex = savedCurrentPresetIndex;
+
+    // [主题] 单独初始化自定义颜色
+    final savedCurrentCustomHex = storage.readData(CURRENT_CUSTOM_HEX_KEY) ?? settings[CURRENT_CUSTOM_HEX_KEY]!.value;
+    CommonConstants.currentCustomHex = savedCurrentCustomHex;
 
     return this;
   }

@@ -407,7 +407,18 @@ settings:
   appLinks: 应用链接
   defaultBrowser: 默认浏览
   defaultBrowserDesc: 请在系统设置中打开默认链接配置项，并添加网站链接
-
+  themeMode: 主题模式
+  themeModeDesc: 此配置决定应用的主题模式
+  dynamicColor: 动态颜色
+  dynamicColorDesc: 此配置决定应用是否使用动态颜色
+  useDynamicColor: 使用动态颜色
+  useDynamicColorDesc: 此配置决定应用是否使用动态颜色
+  presetColors: 预设颜色
+  customColors: 自定义颜色
+  pickColor: 选择颜色
+  cancel: 取消
+  confirm: 确认
+  noCustomColors: 没有自定义颜色
 signIn:
   pleaseLoginFirst: 请先登录后再签到
   alreadySignedInToday: 您今天已经签到过了！

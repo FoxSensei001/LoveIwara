@@ -401,7 +401,18 @@ settings:
   appLinks: 應用鏈接
   defaultBrowser: 預設瀏覽
   defaultBrowserDesc: 請在系統設定中打開預設鏈接配置項，並添加iwara.tv網站鏈接
-
+  themeMode: 主題模式
+  themeModeDesc: 此配置決定應用的主題模式
+  dynamicColor: 動態顏色
+  dynamicColorDesc: 此配置決定應用是否使用動態顏色
+  useDynamicColor: 使用動態顏色
+  useDynamicColorDesc: 此配置決定應用是否使用動態顏色
+  presetColors: 預設顏色
+  customColors: 自定義顏色
+  pickColor: 選擇顏色
+  cancel: 取消
+  confirm: 確認
+  noCustomColors: 沒有自定義顏色
 
 signIn:
   pleaseLoginFirst: 請先登入後再簽到

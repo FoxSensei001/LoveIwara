@@ -400,6 +400,18 @@ settings:
   appLinks: アプリリンク
   defaultBrowser: デフォルトブラウザ
   defaultBrowserDesc: システム設定でデフォルトリンク設定項目を開き、iwara.tvサイトリンクを追加してください
+  themeMode: テーマモード
+  themeModeDesc: この設定はアプリのテーマモードを決定します
+  dynamicColor: ダイナミックカラー
+  dynamicColorDesc: この設定はアプリがダイナミックカラーを使用するかどうかを決定します
+  useDynamicColor: ダイナミックカラーを使用
+  useDynamicColorDesc: この設定はアプリがダイナミックカラーを使用するかどうかを決定します
+  presetColors: プリセットカラー
+  customColors: カスタムカラー
+  pickColor: カラーを選択
+  cancel: キャンセル
+  confirm: 確認
+  noCustomColors: カスタムカラーがありません
 signIn:
   pleaseLoginFirst: サインインする前にログインしてください
   alreadySignedInToday: 今日は既にサインインしています！

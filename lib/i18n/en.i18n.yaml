@@ -399,6 +399,18 @@ settings:
   appLinks: App Links
   defaultBrowser: Default Browse
   defaultBrowserDesc: Please open the default link configuration item in the system settings and add the iwara.tv website link
+  themeMode: Theme Mode
+  themeModeDesc: This configuration determines the theme mode of the app
+  dynamicColor: Dynamic Color
+  dynamicColorDesc: This configuration determines whether the app uses dynamic color
+  useDynamicColor: Use Dynamic Color
+  useDynamicColorDesc: This configuration determines whether the app uses dynamic color
+  presetColors: Preset Colors
+  customColors: Custom Colors
+  pickColor: Pick Color
+  cancel: Cancel
+  confirm: Confirm
+  noCustomColors: No custom colors
 signIn:
   pleaseLoginFirst: Please login first
   alreadySignedInToday: You have already signed in today!

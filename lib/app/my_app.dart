@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -18,6 +20,7 @@ import 'package:i_iwara/app/ui/pages/splash/splash_page.dart';
 import 'package:i_iwara/app/ui/widgets/global_drawer_content_widget.dart';
 import 'package:i_iwara/app/ui/widgets/privacy_over_lay_widget.dart';
 import 'package:i_iwara/app/ui/widgets/window_layout_widget.dart';
+import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:oktoast/oktoast.dart';
@@ -29,7 +32,6 @@ import 'services/message_service.dart';
 import 'services/deep_link_service.dart';
 
 class MyApp extends StatefulWidget {
-
   const MyApp({super.key});
 
   @override
@@ -37,28 +39,108 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-
+  ColorScheme? lightColorScheme;
+  ColorScheme? darkColorScheme;
   @override
   void initState() {
     super.initState();
     Get.find<VersionService>().doAutoCheckUpdate();
     Get.find<MessageService>().markReady();
     Get.find<DeepLinkService>().markReady();
+
+    // 平台亮度监听
+    WidgetsBinding.instance.addObserver(_ThemeModeObserver(
+      // 当系统亮度发生变化时，更新主题
+      onThemeModeChange: (brightness) {
+        int currentThemeMode = CommonConstants.themeMode; // 0: system(动态主题), 1: light, 2: dark
+        final themeService = Get.find<ThemeService>();
+        final bool useDynamicColor = themeService.useDynamicColor;
+        ColorScheme? colorScheme;
+
+        if (useDynamicColor && (lightColorScheme != null && darkColorScheme != null)) {
+          // 使用动态颜色
+          colorScheme = currentThemeMode == 1 
+              ? lightColorScheme 
+              : currentThemeMode == 2 
+                  ? darkColorScheme 
+                  : brightness == Brightness.light 
+                      ? lightColorScheme 
+                      : darkColorScheme;
+        } else {
+          // 使用自定义颜色
+          final Color seedColor = themeService.getCurrentThemeColor();
+          colorScheme = ColorScheme.fromSeed(
+            seedColor: seedColor,
+            brightness: currentThemeMode == 1 
+                ? Brightness.light 
+                : currentThemeMode == 2 
+                    ? Brightness.dark 
+                    : brightness,
+          );
+        }
+
+        Get.changeTheme(ThemeData(
+          colorScheme: colorScheme,
+          useMaterial3: true,
+        ));
+      },
+    ));
   }
 
   @override
   Widget build(BuildContext context) {
     return DynamicColorBuilder(
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
+        int currentThemeMode = CommonConstants.themeMode; // 0: system(动态主题), 1: light, 2: dark
+        final themeService = Get.find<ThemeService>();
+        final bool useDynamicColor = themeService.useDynamicColor;
+        final Color seedColor = themeService.getCurrentThemeColor();
+
+        // 如果使用动态颜色且系统支持动态颜色
+        if (useDynamicColor && (lightDynamic != null && darkDynamic != null)) {
+          lightColorScheme = lightDynamic.harmonized();
+          darkColorScheme = darkDynamic.harmonized();
+          // 保存到常量中
+          CommonConstants.dynamicLightColorScheme = lightColorScheme;
+          CommonConstants.dynamicDarkColorScheme = darkColorScheme;
+          // 只在非初始化时更新主题
+          if (Get.context != null) {
+            bool systemIsLight = WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.light;
+            Get.changeTheme(ThemeData(
+              colorScheme: currentThemeMode == 1 
+                  ? lightColorScheme 
+                  : currentThemeMode == 2 
+                      ? darkColorScheme 
+                      : systemIsLight ? lightColorScheme : darkColorScheme,
+              useMaterial3: true,
+            ));
+          }
+        } else {
+          // 使用自定义颜色
+          lightColorScheme = ColorScheme.fromSeed(seedColor: seedColor);
+          darkColorScheme = ColorScheme.fromSeed(
+            seedColor: seedColor,
+            brightness: Brightness.dark,
+          );
+        }
+
         return OKToast(
           child: GetMaterialApp(
             debugShowCheckedModeBanner: false,
             title: t.common.appName,
-            theme: Get.find<ThemeService>().getTheme(
-              context,
-              dynamicLight: lightDynamic,
-              dynamicDark: darkDynamic,
+            theme: ThemeData(
+              colorScheme: lightColorScheme,
+              useMaterial3: true,
             ),
+            darkTheme: ThemeData(
+              colorScheme: darkColorScheme,
+              useMaterial3: true,
+            ),
+            themeMode: currentThemeMode == 0 
+                ? ThemeMode.system 
+                : currentThemeMode == 1 
+                    ? ThemeMode.light 
+                    : ThemeMode.dark,
             getPages: [
               GetPage(
                 name: Routes.SPLASH,
@@ -88,7 +170,7 @@ class _MyAppState extends State<MyApp> {
               GetPage(
                   name: Routes.APP_SETTINGS_PAGE,
                   page: () => const AppSettingsPage(),
-                  transition: Transition.rightToLeft),  
+                  transition: Transition.rightToLeft),
               GetPage(
                   name: Routes.ABOUT_PAGE,
                   page: () => const AboutPage(),
@@ -115,6 +197,19 @@ class _MyAppState extends State<MyApp> {
         );
       },
     );
+  }
+}
+
+class _ThemeModeObserver extends WidgetsBindingObserver {
+  final Function(Brightness) onThemeModeChange;
+
+  _ThemeModeObserver({required this.onThemeModeChange});
+
+  @override
+  void didChangePlatformBrightness() {
+    final brightness =
+        WidgetsBinding.instance.platformDispatcher.platformBrightness;
+    onThemeModeChange(brightness);
   }
 }
 

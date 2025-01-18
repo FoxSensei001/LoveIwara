@@ -63,7 +63,6 @@ void main() {
     if (Platform.isAndroid) {
       try {
         await FlutterDisplayMode.setHighRefreshRate();
-        LogUtils.i('已设置最高刷新率', '启动初始化');
       } catch (e) {
         LogUtils.e('设置刷新率失败', tag: '启动初始化', error: e);
       }
@@ -90,13 +89,11 @@ void main() {
 
 /// 初始化基础服务
 Future<void> _initializeBaseServices() async {
-  LogUtils.i('开始初始化基础服务...', '启动初始化');
 
   // 初始化深度链接服务
   final deepLinkService = DeepLinkService();
   await deepLinkService.init();
   Get.put(deepLinkService);
-  LogUtils.i('深度链接服务初始化完成', '启动初始化');
 
   // 初始化语言设置
   String systemLanguage = CommonUtils.getDeviceLocale();
@@ -107,37 +104,28 @@ Future<void> _initializeBaseServices() async {
   } else {
     LocaleSettings.setLocaleRaw('en');
   }
-  LogUtils.i('语言设置初始化完成', '启动初始化');
 
   // 初始化数据库
   final dbService = DatabaseService();
   await dbService.init();
-  LogUtils.i('数据库初始化完成', '启动初始化');
 
   // 初始化存储服务
   await GetStorage.init();
   await StorageService().init();
-  LogUtils.i('存储服务初始化完成', '启动初始化');
 
   // 初始化消息服务
   Get.put(MessageService());
-  LogUtils.i('消息服务初始化完成', '启动初始化');
-
-  LogUtils.i('基础服务初始化完成', '启动初始化');
 }
 
 /// 初始化业务服务
 Future<void> _initializeBusinessServices() async {
-  LogUtils.i('开始初始化业务服务...', '启动初始化');
 
   // 初始化应用服务
   Get.put(AppService());
-  LogUtils.i('应用服务初始化完成', '启动初始化');
 
   // 初始化配置服务
   var configService = await ConfigService().init();
   Get.put(configService);
-  LogUtils.i('配置服务初始化完成', '启动初始化');
 
   // 设置代理
   if (ProxyUtil.isSupportedPlatform()) {
@@ -154,24 +142,20 @@ Future<void> _initializeBusinessServices() async {
   // 初始化用户相关服务
   var userPreferenceService = await UserPreferenceService().init();
   Get.put(userPreferenceService);
-  LogUtils.i('用户偏好服务初始化完成', '启动初始化');
 
   // 初始化认证服务和API服务
   try {
     AuthService authService = await AuthService().init();
     Get.put(authService);
-    LogUtils.i('认证服务初始化完成', '启动初始化');
 
     ApiService apiService = await ApiService.getInstance();
     Get.put(apiService);
-    LogUtils.i('API服务初始化完成', '启动初始化');
 
     // 只有在认证服务初始化成功后才初始化用户服务
     if (authService.isAuthenticated) {
       try {
         UserService userService = await UserService().init();
         Get.put(userService);
-        LogUtils.i('用户服务初始化完成', '启动初始化');
       } catch (e) {
         LogUtils.e('用户服务初始化失败', tag: '启动初始化', error: e);
         // 用户服务初始化失败，清理认证状态
@@ -181,7 +165,6 @@ Future<void> _initializeBusinessServices() async {
     } else {
       // 如果未认证，仍然注册服务但不初始化
       Get.put(UserService());
-      LogUtils.i('用户未认证，跳过用户服务初始化', '启动初始化');
     }
   } catch (e) {
     LogUtils.e('认证相关服务初始化失败', tag: '启动初始化', error: e);
@@ -197,11 +180,9 @@ Future<void> _initializeBusinessServices() async {
   // 初始化其他服务
   var versionService = await VersionService().init();
   Get.put(versionService);
-  LogUtils.i('版本服务初始化完成', '启动初始化');
 
   var themeService = await ThemeService().init();
   Get.put(themeService);
-  LogUtils.i('主题服务初始化完成', '启动初始化');
 
   // 初始化懒加载服务
   Get.lazyPut(() => VideoService());
@@ -218,17 +199,12 @@ Future<void> _initializeBusinessServices() async {
   Get.put(DownloadService());
   Get.put(TranslationService());
   Get.put(FavoriteService());
-  LogUtils.i('懒加载服务注册完成', '启动初始化');
 
   // 初始化媒体服务
   MediaKit.ensureInitialized();
-  LogUtils.i('媒体服务初始化完成', '启动初始化');
 
   // 注册历史记录仓库
   Get.put(HistoryRepository());
-  LogUtils.i('历史记录仓库注册完成', '启动初始化');
-
-  LogUtils.i('业务服务初始化完成', '启动初始化');
 }
 
 /// 初始化桌面端设置

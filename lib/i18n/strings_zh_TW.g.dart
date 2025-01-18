@@ -536,6 +536,18 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get appLinks => '應用鏈接';
 	@override String get defaultBrowser => '預設瀏覽';
 	@override String get defaultBrowserDesc => '請在系統設定中打開預設鏈接配置項，並添加iwara.tv網站鏈接';
+	@override String get themeMode => '主題模式';
+	@override String get themeModeDesc => '此配置決定應用的主題模式';
+	@override String get dynamicColor => '動態顏色';
+	@override String get dynamicColorDesc => '此配置決定應用是否使用動態顏色';
+	@override String get useDynamicColor => '使用動態顏色';
+	@override String get useDynamicColorDesc => '此配置決定應用是否使用動態顏色';
+	@override String get presetColors => '預設顏色';
+	@override String get customColors => '自定義顏色';
+	@override String get pickColor => '選擇顏色';
+	@override String get cancel => '取消';
+	@override String get confirm => '確認';
+	@override String get noCustomColors => '沒有自定義顏色';
 }
 
 // Path: signIn
@@ -1506,6 +1518,18 @@ extension on TranslationsZhTw {
 			case 'settings.appLinks': return '應用鏈接';
 			case 'settings.defaultBrowser': return '預設瀏覽';
 			case 'settings.defaultBrowserDesc': return '請在系統設定中打開預設鏈接配置項，並添加iwara.tv網站鏈接';
+			case 'settings.themeMode': return '主題模式';
+			case 'settings.themeModeDesc': return '此配置決定應用的主題模式';
+			case 'settings.dynamicColor': return '動態顏色';
+			case 'settings.dynamicColorDesc': return '此配置決定應用是否使用動態顏色';
+			case 'settings.useDynamicColor': return '使用動態顏色';
+			case 'settings.useDynamicColorDesc': return '此配置決定應用是否使用動態顏色';
+			case 'settings.presetColors': return '預設顏色';
+			case 'settings.customColors': return '自定義顏色';
+			case 'settings.pickColor': return '選擇顏色';
+			case 'settings.cancel': return '取消';
+			case 'settings.confirm': return '確認';
+			case 'settings.noCustomColors': return '沒有自定義顏色';
 			case 'signIn.pleaseLoginFirst': return '請先登入後再簽到';
 			case 'signIn.alreadySignedInToday': return '您今天已經簽到過了！';
 			case 'signIn.youDidNotStickToTheSignIn': return '您未能持續簽到。';

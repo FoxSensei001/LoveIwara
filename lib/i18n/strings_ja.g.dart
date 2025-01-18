@@ -536,6 +536,18 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get appLinks => 'アプリリンク';
 	@override String get defaultBrowser => 'デフォルトブラウザ';
 	@override String get defaultBrowserDesc => 'システム設定でデフォルトリンク設定項目を開き、iwara.tvサイトリンクを追加してください';
+	@override String get themeMode => 'テーマモード';
+	@override String get themeModeDesc => 'この設定はアプリのテーマモードを決定します';
+	@override String get dynamicColor => 'ダイナミックカラー';
+	@override String get dynamicColorDesc => 'この設定はアプリがダイナミックカラーを使用するかどうかを決定します';
+	@override String get useDynamicColor => 'ダイナミックカラーを使用';
+	@override String get useDynamicColorDesc => 'この設定はアプリがダイナミックカラーを使用するかどうかを決定します';
+	@override String get presetColors => 'プリセットカラー';
+	@override String get customColors => 'カスタムカラー';
+	@override String get pickColor => 'カラーを選択';
+	@override String get cancel => 'キャンセル';
+	@override String get confirm => '確認';
+	@override String get noCustomColors => 'カスタムカラーがありません';
 }
 
 // Path: signIn
@@ -1503,6 +1515,18 @@ extension on TranslationsJa {
 			case 'settings.appLinks': return 'アプリリンク';
 			case 'settings.defaultBrowser': return 'デフォルトブラウザ';
 			case 'settings.defaultBrowserDesc': return 'システム設定でデフォルトリンク設定項目を開き、iwara.tvサイトリンクを追加してください';
+			case 'settings.themeMode': return 'テーマモード';
+			case 'settings.themeModeDesc': return 'この設定はアプリのテーマモードを決定します';
+			case 'settings.dynamicColor': return 'ダイナミックカラー';
+			case 'settings.dynamicColorDesc': return 'この設定はアプリがダイナミックカラーを使用するかどうかを決定します';
+			case 'settings.useDynamicColor': return 'ダイナミックカラーを使用';
+			case 'settings.useDynamicColorDesc': return 'この設定はアプリがダイナミックカラーを使用するかどうかを決定します';
+			case 'settings.presetColors': return 'プリセットカラー';
+			case 'settings.customColors': return 'カスタムカラー';
+			case 'settings.pickColor': return 'カラーを選択';
+			case 'settings.cancel': return 'キャンセル';
+			case 'settings.confirm': return '確認';
+			case 'settings.noCustomColors': return 'カスタムカラーがありません';
 			case 'signIn.pleaseLoginFirst': return 'サインインする前にログインしてください';
 			case 'signIn.alreadySignedInToday': return '今日は既にサインインしています！';
 			case 'signIn.youDidNotStickToTheSignIn': return 'サインインを続けることができませんでした。';

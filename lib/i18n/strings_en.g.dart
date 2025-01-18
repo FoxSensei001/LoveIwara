@@ -540,6 +540,18 @@ class TranslationsSettingsEn {
 	String get appLinks => 'App Links';
 	String get defaultBrowser => 'Default Browse';
 	String get defaultBrowserDesc => 'Please open the default link configuration item in the system settings and add the iwara.tv website link';
+	String get themeMode => 'Theme Mode';
+	String get themeModeDesc => 'This configuration determines the theme mode of the app';
+	String get dynamicColor => 'Dynamic Color';
+	String get dynamicColorDesc => 'This configuration determines whether the app uses dynamic color';
+	String get useDynamicColor => 'Use Dynamic Color';
+	String get useDynamicColorDesc => 'This configuration determines whether the app uses dynamic color';
+	String get presetColors => 'Preset Colors';
+	String get customColors => 'Custom Colors';
+	String get pickColor => 'Pick Color';
+	String get cancel => 'Cancel';
+	String get confirm => 'Confirm';
+	String get noCustomColors => 'No custom colors';
 }
 
 // Path: signIn
@@ -1507,6 +1519,18 @@ extension on Translations {
 			case 'settings.appLinks': return 'App Links';
 			case 'settings.defaultBrowser': return 'Default Browse';
 			case 'settings.defaultBrowserDesc': return 'Please open the default link configuration item in the system settings and add the iwara.tv website link';
+			case 'settings.themeMode': return 'Theme Mode';
+			case 'settings.themeModeDesc': return 'This configuration determines the theme mode of the app';
+			case 'settings.dynamicColor': return 'Dynamic Color';
+			case 'settings.dynamicColorDesc': return 'This configuration determines whether the app uses dynamic color';
+			case 'settings.useDynamicColor': return 'Use Dynamic Color';
+			case 'settings.useDynamicColorDesc': return 'This configuration determines whether the app uses dynamic color';
+			case 'settings.presetColors': return 'Preset Colors';
+			case 'settings.customColors': return 'Custom Colors';
+			case 'settings.pickColor': return 'Pick Color';
+			case 'settings.cancel': return 'Cancel';
+			case 'settings.confirm': return 'Confirm';
+			case 'settings.noCustomColors': return 'No custom colors';
 			case 'signIn.pleaseLoginFirst': return 'Please login first';
 			case 'signIn.alreadySignedInToday': return 'You have already signed in today!';
 			case 'signIn.youDidNotStickToTheSignIn': return 'You did not stick to the sign in.';

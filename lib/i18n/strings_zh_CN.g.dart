@@ -541,6 +541,18 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get appLinks => '应用链接';
 	@override String get defaultBrowser => '默认浏览';
 	@override String get defaultBrowserDesc => '请在系统设置中打开默认链接配置项，并添加网站链接';
+	@override String get themeMode => '主题模式';
+	@override String get themeModeDesc => '此配置决定应用的主题模式';
+	@override String get dynamicColor => '动态颜色';
+	@override String get dynamicColorDesc => '此配置决定应用是否使用动态颜色';
+	@override String get useDynamicColor => '使用动态颜色';
+	@override String get useDynamicColorDesc => '此配置决定应用是否使用动态颜色';
+	@override String get presetColors => '预设颜色';
+	@override String get customColors => '自定义颜色';
+	@override String get pickColor => '选择颜色';
+	@override String get cancel => '取消';
+	@override String get confirm => '确认';
+	@override String get noCustomColors => '没有自定义颜色';
 }
 
 // Path: signIn
@@ -1513,6 +1525,18 @@ extension on TranslationsZhCn {
 			case 'settings.appLinks': return '应用链接';
 			case 'settings.defaultBrowser': return '默认浏览';
 			case 'settings.defaultBrowserDesc': return '请在系统设置中打开默认链接配置项，并添加网站链接';
+			case 'settings.themeMode': return '主题模式';
+			case 'settings.themeModeDesc': return '此配置决定应用的主题模式';
+			case 'settings.dynamicColor': return '动态颜色';
+			case 'settings.dynamicColorDesc': return '此配置决定应用是否使用动态颜色';
+			case 'settings.useDynamicColor': return '使用动态颜色';
+			case 'settings.useDynamicColorDesc': return '此配置决定应用是否使用动态颜色';
+			case 'settings.presetColors': return '预设颜色';
+			case 'settings.customColors': return '自定义颜色';
+			case 'settings.pickColor': return '选择颜色';
+			case 'settings.cancel': return '取消';
+			case 'settings.confirm': return '确认';
+			case 'settings.noCustomColors': return '没有自定义颜色';
 			case 'signIn.pleaseLoginFirst': return '请先登录后再签到';
 			case 'signIn.alreadySignedInToday': return '您今天已经签到过了！';
 			case 'signIn.youDidNotStickToTheSignIn': return '您未能坚持签到。';
