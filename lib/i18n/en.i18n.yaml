@@ -163,6 +163,9 @@ common:
   joined: 'Joined at ${str}'
   download: Download
   selectQuality: Select Quality
+  selectDateRange: Select Date Range
+  selectDateRangeHint: Select date range, default is recent 30 days
+  clearDateRange: Clear Date Range
 auth:
   login: Login
   logout: Logout

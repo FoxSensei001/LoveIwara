@@ -229,6 +229,9 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String joined({required Object str}) => '加入于 ${str}';
 	@override String get download => '下载';
 	@override String get selectQuality => '选择画质';
+	@override String get selectDateRange => '选择日期范围';
+	@override String get selectDateRangeHint => '选择日期范围，默认选择最近30天';
+	@override String get clearDateRange => '清除日期范围';
 }
 
 // Path: auth
@@ -927,7 +930,7 @@ class _TranslationsFavoriteZhCn implements TranslationsFavoriteEn {
 	@override String removeItemConfirmWithTitle({required Object title}) => '确定要删除 ${title} 项目吗？';
 	@override String get removeItemSuccess => '项目已从收藏夹中删除';
 	@override String get removeItemFailed => '删除项目失败';
-	@override String get localizeFavorite => '收藏';
+	@override String get localizeFavorite => '本地收藏';
 	@override String get editFolderTitle => '编辑文件夹';
 	@override String get editFolderSuccess => '文件夹更新成功';
 	@override String get editFolderFailed => '文件夹更新失败';
@@ -1288,6 +1291,9 @@ extension on TranslationsZhCn {
 			case 'common.joined': return ({required Object str}) => '加入于 ${str}';
 			case 'common.download': return '下载';
 			case 'common.selectQuality': return '选择画质';
+			case 'common.selectDateRange': return '选择日期范围';
+			case 'common.selectDateRangeHint': return '选择日期范围，默认选择最近30天';
+			case 'common.clearDateRange': return '清除日期范围';
 			case 'auth.tagLimit': return '标签上限';
 			case 'auth.login': return '登录';
 			case 'auth.logout': return '退出登录';
@@ -1892,7 +1898,7 @@ extension on TranslationsZhCn {
 			case 'favorite.removeItemConfirmWithTitle': return ({required Object title}) => '确定要删除 ${title} 项目吗？';
 			case 'favorite.removeItemSuccess': return '项目已从收藏夹中删除';
 			case 'favorite.removeItemFailed': return '删除项目失败';
-			case 'favorite.localizeFavorite': return '收藏';
+			case 'favorite.localizeFavorite': return '本地收藏';
 			case 'favorite.editFolderTitle': return '编辑文件夹';
 			case 'favorite.editFolderSuccess': return '文件夹更新成功';
 			case 'favorite.editFolderFailed': return '文件夹更新失败';

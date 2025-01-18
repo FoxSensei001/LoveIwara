@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/repositories/history_repository.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
@@ -6,19 +7,20 @@ import 'package:oktoast/oktoast.dart';
 import 'history_list_repository.dart';
 
 class HistoryListController extends GetxController {
-  final HistoryRepository _historyRepository;
+  final HistoryRepository historyDatabaseRepository;
   late HistoryListRepository repository;
   
   final RxBool isMultiSelect = false.obs;
   final RxSet<int> selectedRecords = <int>{}.obs;
   final RxBool showBackToTop = false.obs;
   final RxString searchKeyword = ''.obs;
+  final Rxn<DateTimeRange> selectedDateRange = Rxn<DateTimeRange>();
   final String itemType;
 
   HistoryListController({
     required HistoryRepository historyRepository,
     required this.itemType,
-  }) : _historyRepository = historyRepository {
+  }) : historyDatabaseRepository = historyRepository {
     repository = HistoryListRepository(
       historyRepository: historyRepository,
       itemType: itemType == 'all' ? null : itemType,
@@ -30,9 +32,9 @@ class HistoryListController extends GetxController {
 
   Future<void> clearHistoryByType(String itemType) async {
     if (itemType == 'all') {
-      await _historyRepository.clearHistory();
+      await historyDatabaseRepository.clearHistory();
     } else {
-      await _historyRepository.clearHistoryByType(itemType);
+      await historyDatabaseRepository.clearHistoryByType(itemType);
     }
     repository.refresh();
     showToastWidget(MDToastWidget(message: t.common.success, type: MDToastType.success));
@@ -70,7 +72,7 @@ class HistoryListController extends GetxController {
   }
 
   Future<void> deleteSelected() async {
-    await _historyRepository.deleteRecords(selectedRecords.toList());
+    await historyDatabaseRepository.deleteRecords(selectedRecords.toList());
     selectedRecords.clear();
     for (var tag in ['all', 'video', 'image', 'post', 'thread']) {
       final controller = Get.find<HistoryListController>(tag: tag);
@@ -83,6 +85,12 @@ class HistoryListController extends GetxController {
   void search(String keyword) {
     searchKeyword.value = keyword;
     repository.keyword = keyword;
+    repository.refresh();
+  }
+
+  void setDateRange(DateTimeRange? range) {
+    selectedDateRange.value = range;
+    repository.dateRange = range;
     repository.refresh();
   }
 

@@ -44,6 +44,7 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
     _searchController.addListener(() {
       setState(() {
         _searchText = _searchController.text;
+        _repository.searchText = _searchText;
         _repository.refresh();
       });
     });
@@ -61,15 +62,14 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
       context: context,
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),
-      initialDateRange: _selectedDateRange ?? DateTimeRange(
-        start: DateTime.now().subtract(const Duration(days: 30)),
-        end: DateTime.now(),
-      ),
+      initialDateRange: _selectedDateRange,
     );
 
     if (picked != null && picked != _selectedDateRange) {
       setState(() {
         _selectedDateRange = picked;
+        _repository.startDate = picked.start;
+        _repository.endDate = picked.end;
         _repository.refresh();
       });
     }
@@ -794,6 +794,10 @@ class FavoriteItemRepository extends LoadingMoreBase<FavoriteItem> {
   bool _hasMore = true;
   bool forceRefresh = false;
   
+  String? searchText;
+  DateTime? startDate;
+  DateTime? endDate;
+  
   static const int pageSize = 20;
   
   FavoriteItemRepository(this.folderId);
@@ -819,6 +823,9 @@ class FavoriteItemRepository extends LoadingMoreBase<FavoriteItem> {
         folderId,
         offset: _pageIndex * pageSize,
         limit: pageSize,
+        searchText: searchText,
+        startDate: startDate,
+        endDate: endDate,
       );
 
       if (_pageIndex == 0) {

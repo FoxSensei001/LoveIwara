@@ -171,4 +171,90 @@ class HistoryRepository {
       await addRecord(record);
     }
   }
+
+  // 按时间范围和类型获取记录
+  Future<List<HistoryRecord>> getRecordsByTypeAndTimeRange(
+    String itemType, {
+    DateTime? startDate,
+    DateTime? endDate,
+    int limit = 20,
+    int offset = 0,
+  }) async {
+    String sql;
+    List<Object?> params = [];
+    
+    if (itemType == 'all') {
+      sql = '''
+        SELECT * FROM history_records 
+        WHERE 1=1
+      ''';
+    } else {
+      sql = '''
+        SELECT * FROM history_records 
+        WHERE item_type = ?
+      ''';
+      params.add(itemType);
+    }
+    
+    if (startDate != null) {
+      sql += ' AND created_at >= ?';
+      params.add(startDate.toIso8601String());
+    }
+    
+    if (endDate != null) {
+      sql += ' AND created_at <= ?';
+      params.add(endDate.toIso8601String());
+    }
+    
+    sql += '''
+      ORDER BY created_at DESC
+      LIMIT ? OFFSET ?
+    ''';
+    params.addAll([limit, offset]);
+    
+    final stmt = _db.prepare(sql);
+    final results = stmt.select(params);
+    return results.map((row) => HistoryRecord.fromJson(row)).toList();
+  }
+
+  // 按标题和时间范围搜索记录（分页）
+  Future<List<HistoryRecord>> searchByTitleAndTimeRange(
+    String keyword, {
+    String? itemType,
+    DateTime? startDate,
+    DateTime? endDate,
+    int limit = 20,
+    int offset = 0,
+  }) async {
+    final List<Object?> params = ['%$keyword%'];
+    String sql = '''
+      SELECT * FROM history_records 
+      WHERE title LIKE ? 
+    ''';
+    
+    if (itemType != null) {
+      sql += ' AND item_type = ?';
+      params.add(itemType);
+    }
+    
+    if (startDate != null) {
+      sql += ' AND created_at >= ?';
+      params.add(startDate.toIso8601String());
+    }
+    
+    if (endDate != null) {
+      sql += ' AND created_at <= ?';
+      params.add(endDate.toIso8601String());
+    }
+    
+    sql += '''
+      ORDER BY created_at DESC
+      LIMIT ? OFFSET ?
+    ''';
+    params.addAll([limit, offset]);
+    
+    final stmt = _db.prepare(sql);
+    final results = stmt.select(params);
+    return results.map((row) => HistoryRecord.fromJson(row)).toList();
+  }
 }

@@ -227,6 +227,9 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String joined({required Object str}) => '${str} に参加';
 	@override String get download => 'ダウンロード';
 	@override String get selectQuality => '画質を選択';
+	@override String get selectDateRange => '日付範囲を選択';
+	@override String get selectDateRangeHint => '日付範囲を選択，デフォルトは最近30日';
+	@override String get clearDateRange => '日付範囲をクリア';
 }
 
 // Path: auth
@@ -922,7 +925,7 @@ class _TranslationsFavoriteJa implements TranslationsFavoriteEn {
 	@override String removeItemConfirmWithTitle({required Object title}) => '${title} アイテムを削除しますか？';
 	@override String get removeItemSuccess => 'アイテムがお気に入りから削除されました';
 	@override String get removeItemFailed => 'アイテムをお気に入りから削除に失敗しました';
-	@override String get localizeFavorite => 'お気に入り';
+	@override String get localizeFavorite => 'ローカライズお気に入り';
 	@override String get editFolderTitle => 'フォルダー名を編集';
 	@override String get editFolderSuccess => 'フォルダー名を更新しました';
 	@override String get editFolderFailed => 'フォルダー名の更新に失敗しました';
@@ -1281,6 +1284,9 @@ extension on TranslationsJa {
 			case 'common.joined': return ({required Object str}) => '${str} に参加';
 			case 'common.download': return 'ダウンロード';
 			case 'common.selectQuality': return '画質を選択';
+			case 'common.selectDateRange': return '日付範囲を選択';
+			case 'common.selectDateRangeHint': return '日付範囲を選択，デフォルトは最近30日';
+			case 'common.clearDateRange': return '日付範囲をクリア';
 			case 'auth.login': return 'ログイン';
 			case 'auth.logout': return 'ログアウト';
 			case 'auth.email': return 'メールアドレス';
@@ -1882,7 +1888,7 @@ extension on TranslationsJa {
 			case 'favorite.removeItemConfirmWithTitle': return ({required Object title}) => '${title} アイテムを削除しますか？';
 			case 'favorite.removeItemSuccess': return 'アイテムがお気に入りから削除されました';
 			case 'favorite.removeItemFailed': return 'アイテムをお気に入りから削除に失敗しました';
-			case 'favorite.localizeFavorite': return 'お気に入り';
+			case 'favorite.localizeFavorite': return 'ローカライズお気に入り';
 			case 'favorite.editFolderTitle': return 'フォルダー名を編集';
 			case 'favorite.editFolderSuccess': return 'フォルダー名を更新しました';
 			case 'favorite.editFolderFailed': return 'フォルダー名の更新に失敗しました';

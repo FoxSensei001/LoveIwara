@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:i_iwara/app/models/history_record.dart';
 import 'package:i_iwara/app/repositories/history_repository.dart';
 import 'package:loading_more_list/loading_more_list.dart';
@@ -6,6 +7,7 @@ class HistoryListRepository extends LoadingMoreBase<HistoryRecord> {
   final HistoryRepository _historyRepository;
   final String? itemType;
   String keyword = '';
+  DateTimeRange? dateRange;
   
   int _pageIndex = 0;
   static const int _pageSize = 20;
@@ -37,15 +39,33 @@ class HistoryListRepository extends LoadingMoreBase<HistoryRecord> {
       final List<HistoryRecord> records;
       
       if (keyword.isEmpty) {
-        records = await _historyRepository.getRecordsByType(
+        records = await _historyRepository.getRecordsByTypeAndTimeRange(
           itemType ?? 'all',
+          startDate: dateRange?.start,
+          endDate: dateRange?.end != null ? DateTime(
+            dateRange!.end.year,
+            dateRange!.end.month,
+            dateRange!.end.day,
+            23,
+            59,
+            59,
+          ) : null,
           limit: _pageSize,
           offset: _pageIndex * _pageSize,
         );
       } else {
-        records = await _historyRepository.searchByTitlePaged(
+        records = await _historyRepository.searchByTitleAndTimeRange(
           keyword,
           itemType: itemType == 'all' ? null : itemType,
+          startDate: dateRange?.start,
+          endDate: dateRange?.end != null ? DateTime(
+            dateRange!.end.year,
+            dateRange!.end.month,
+            dateRange!.end.day,
+            23,
+            59,
+            59,
+          ) : null,
           limit: _pageSize,
           offset: _pageIndex * _pageSize,
         );

@@ -93,7 +93,7 @@ class FavoriteService {
       } catch (e) {
         // 如果出错，回滚事务
         _db.execute('ROLLBACK');
-        throw e;
+        rethrow;
       }
     } catch (e) {
       LogUtils.e('删除收藏夹失败', tag: 'FavoriteService', error: e);
@@ -105,16 +105,47 @@ class FavoriteService {
   Future<List<FavoriteItem>> getFolderItems(String folderId, {
     int offset = 0,
     int limit = 20,
+    String? searchText,
+    DateTime? startDate,
+    DateTime? endDate,
   }) async {
     try {
-      final stmt = _db.prepare('''
+      var sql = '''
         SELECT * FROM favorite_items 
         WHERE folder_id = ?
-        ORDER BY created_at DESC
-        LIMIT ? OFFSET ?
-      ''');
+      ''';
       
-      final results = stmt.select([folderId, limit, offset]);
+      final List<dynamic> params = [folderId];
+
+      if (searchText != null && searchText.isNotEmpty) {
+        sql += ' AND title LIKE ?';
+        params.add('%$searchText%');
+      }
+
+      if (startDate != null) {
+        sql += ' AND created_at >= ?';
+        params.add(startDate.millisecondsSinceEpoch ~/ 1000);
+      }
+
+      if (endDate != null) {
+        // 确保包含结束日期的整天
+        final endOfDay = DateTime(
+          endDate.year,
+          endDate.month,
+          endDate.day,
+          23,
+          59,
+          59,
+        );
+        sql += ' AND created_at <= ?';
+        params.add(endOfDay.millisecondsSinceEpoch ~/ 1000);
+      }
+
+      sql += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
+      params.addAll([limit, offset]);
+      
+      final stmt = _db.prepare(sql);
+      final results = stmt.select(params);
       return results.map((row) => FavoriteItem.fromJson(row)).toList();
     } catch (e) {
       LogUtils.e('获取收藏夹内容失败', tag: 'FavoriteService', error: e);

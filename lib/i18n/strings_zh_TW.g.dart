@@ -227,6 +227,9 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get disabledFloatingButtons => '已禁用浮動按鈕';
 	@override String get pendingCommentCount => '待審核評論';
 	@override String joined({required Object str}) => '加入於 ${str}';
+	@override String get selectDateRange => '選擇日期範圍';
+	@override String get selectDateRangeHint => '選擇日期範圍，默認選擇最近30天';
+	@override String get clearDateRange => '清除日期範圍';
 }
 
 // Path: auth
@@ -925,7 +928,7 @@ class _TranslationsFavoriteZhTw implements TranslationsFavoriteEn {
 	@override String removeItemConfirmWithTitle({required Object title}) => '確定要刪除 ${title} 項目嗎？';
 	@override String get removeItemSuccess => '項目已從收藏夾中刪除';
 	@override String get removeItemFailed => '刪除項目失敗';
-	@override String get localizeFavorite => '收藏';
+	@override String get localizeFavorite => '本地收藏';
 	@override String get editFolderTitle => '編輯資料夾';
 	@override String get editFolderSuccess => '資料夾更新成功';
 	@override String get editFolderFailed => '資料夾更新失敗';
@@ -1284,6 +1287,9 @@ extension on TranslationsZhTw {
 			case 'common.disabledFloatingButtons': return '已禁用浮動按鈕';
 			case 'common.pendingCommentCount': return '待審核評論';
 			case 'common.joined': return ({required Object str}) => '加入於 ${str}';
+			case 'common.selectDateRange': return '選擇日期範圍';
+			case 'common.selectDateRangeHint': return '選擇日期範圍，默認選擇最近30天';
+			case 'common.clearDateRange': return '清除日期範圍';
 			case 'auth.login': return '登入';
 			case 'auth.logout': return '登出';
 			case 'auth.email': return '電子郵件';
@@ -1888,7 +1894,7 @@ extension on TranslationsZhTw {
 			case 'favorite.removeItemConfirmWithTitle': return ({required Object title}) => '確定要刪除 ${title} 項目嗎？';
 			case 'favorite.removeItemSuccess': return '項目已從收藏夾中刪除';
 			case 'favorite.removeItemFailed': return '刪除項目失敗';
-			case 'favorite.localizeFavorite': return '收藏';
+			case 'favorite.localizeFavorite': return '本地收藏';
 			case 'favorite.editFolderTitle': return '編輯資料夾';
 			case 'favorite.editFolderSuccess': return '資料夾更新成功';
 			case 'favorite.editFolderFailed': return '資料夾更新失敗';

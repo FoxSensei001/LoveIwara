@@ -165,9 +165,11 @@ common:
   disabledFloatingButtons: 已禁用浮动按钮
   pendingCommentCount: 待审核评论
   joined: '加入于 ${str}'
-
   download: 下载
   selectQuality: 选择画质
+  selectDateRange: 选择日期范围
+  selectDateRangeHint: 选择日期范围，默认选择最近30天
+  clearDateRange: 清除日期范围
 auth:
   tagLimit: 标签上限
   login: 登录

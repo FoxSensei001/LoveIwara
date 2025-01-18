@@ -231,6 +231,9 @@ class TranslationsCommonEn {
 	String joined({required Object str}) => 'Joined at ${str}';
 	String get download => 'Download';
 	String get selectQuality => 'Select Quality';
+	String get selectDateRange => 'Select Date Range';
+	String get selectDateRangeHint => 'Select date range, default is recent 30 days';
+	String get clearDateRange => 'Clear Date Range';
 }
 
 // Path: auth
@@ -926,7 +929,7 @@ class TranslationsFavoriteEn {
 	String removeItemConfirmWithTitle({required Object title}) => 'Are you sure you want to delete ${title} item?';
 	String get removeItemSuccess => 'Item removed from favorites';
 	String get removeItemFailed => 'Failed to remove item from favorites';
-	String get localizeFavorite => 'Favorite';
+	String get localizeFavorite => 'Local Favorite';
 	String get editFolderTitle => 'Edit Folder';
 	String get editFolderSuccess => 'Folder updated successfully';
 	String get editFolderFailed => 'Failed to update folder';
@@ -1285,6 +1288,9 @@ extension on Translations {
 			case 'common.joined': return ({required Object str}) => 'Joined at ${str}';
 			case 'common.download': return 'Download';
 			case 'common.selectQuality': return 'Select Quality';
+			case 'common.selectDateRange': return 'Select Date Range';
+			case 'common.selectDateRangeHint': return 'Select date range, default is recent 30 days';
+			case 'common.clearDateRange': return 'Clear Date Range';
 			case 'auth.login': return 'Login';
 			case 'auth.logout': return 'Logout';
 			case 'auth.email': return 'Email';
@@ -1886,7 +1892,7 @@ extension on Translations {
 			case 'favorite.removeItemConfirmWithTitle': return ({required Object title}) => 'Are you sure you want to delete ${title} item?';
 			case 'favorite.removeItemSuccess': return 'Item removed from favorites';
 			case 'favorite.removeItemFailed': return 'Failed to remove item from favorites';
-			case 'favorite.localizeFavorite': return 'Favorite';
+			case 'favorite.localizeFavorite': return 'Local Favorite';
 			case 'favorite.editFolderTitle': return 'Edit Folder';
 			case 'favorite.editFolderSuccess': return 'Folder updated successfully';
 			case 'favorite.editFolderFailed': return 'Failed to update folder';

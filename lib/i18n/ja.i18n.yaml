@@ -162,9 +162,11 @@ common:
   disabledFloatingButtons: フローティングボタンが無効
   pendingCommentCount: 未審核コメント
   joined: '${str} に参加'
-
   download: ダウンロード
   selectQuality: 画質を選択
+  selectDateRange: 日付範囲を選択
+  selectDateRangeHint: 日付範囲を選択，デフォルトは最近30日
+  clearDateRange: 日付範囲をクリア
 auth:
   login: ログイン
   logout: ログアウト

@@ -6,8 +6,11 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/thread_list_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/image_model_card_list_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
+import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
+import 'package:i_iwara/utils/common_utils.dart';
 import 'package:loading_more_list/loading_more_list.dart';
+import 'package:oktoast/oktoast.dart';
 import 'controllers/history_list_controller.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/post_card_list_item_widget.dart';
@@ -207,6 +210,25 @@ class _HistoryListPageState extends State<HistoryListPage>
     }
   }
 
+  Future<void> _selectDateRange() async {
+    final controller = _getControllerForIndex(_tabController.index);
+    final DateTimeRange? picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+      initialDateRange: controller.selectedDateRange.value,
+    );
+
+    if (picked != null && picked != controller.selectedDateRange.value) {
+      controller.setDateRange(picked);
+    }
+  }
+
+  void _clearDateRange() {
+    final controller = _getControllerForIndex(_tabController.index);
+    controller.setDateRange(null);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -226,6 +248,33 @@ class _HistoryListPageState extends State<HistoryListPage>
                       )
                     : const SizedBox.shrink(),
               )),
+          Obx(() {
+            final controller = _getControllerForIndex(_tabController.index);
+            final dateRange = controller.selectedDateRange.value;
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  onPressed: _selectDateRange,
+                  icon: Icon(
+                    Icons.date_range,
+                    color: dateRange != null 
+                        ? Theme.of(context).colorScheme.primary
+                        : null,
+                  ),
+                  tooltip: dateRange != null
+                      ? '${CommonUtils.formatDate(dateRange.start)} - ${CommonUtils.formatDate(dateRange.end)}'
+                      : slang.t.common.selectDateRange,
+                ),
+                if (dateRange != null)
+                  IconButton(
+                    onPressed: _clearDateRange,
+                    icon: const Icon(Icons.clear),
+                    tooltip: slang.t.common.clearDateRange,
+                  ),
+              ],
+            );
+          }),
           IconButton(
             onPressed: () => _showClearHistoryDialog(),
             icon: const Icon(Icons.delete_sweep),
@@ -398,46 +447,195 @@ class _HistoryListPageState extends State<HistoryListPage>
       final bool isMultiSelect = controller.isMultiSelect.value;
       final dynamic originalData = record.getOriginalData();
 
-      return Stack(
-        children: [
-          if (record.itemType == 'video')
-            VideoCardListItemWidget(
-              video: originalData,
-              width: 200,
-            )
-          else if (record.itemType == 'image')
-            ImageModelCardListItemWidget(
-              imageModel: originalData,
-              width: 200,
-            )
-          else if (record.itemType == 'post')
-            PostCardListItemWidget(
-              post: originalData,
-            )
-          else if (record.itemType == 'thread')
-            ThreadListItemWidget(
-              thread: originalData,
-              categoryId: originalData.section,
-            ),
-          if (isMultiSelect)
-            Positioned.fill(
-              child: Material(
-                color: Colors.black26,
-                child: InkWell(
-                  onTap: () => controller.toggleSelection(record.id),
-                  child: Center(
-                    child: Icon(
-                      isSelected ? Icons.check_circle : Icons.circle_outlined,
-                      color: Colors.white,
-                      size: 40,
+      return SizedBox(
+        width: 200,
+        child: Card(
+          margin: EdgeInsets.zero,
+          clipBehavior: Clip.antiAlias,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(MediaQuery.of(context).size.width < 600 ? 6 : 8)
+          ),
+          child: Stack(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (record.itemType == 'video')
+                    VideoCardListItemWidget(
+                      video: originalData,
+                      width: 200,
+                    )
+                  else if (record.itemType == 'image')
+                    ImageModelCardListItemWidget(
+                      imageModel: originalData,
+                      width: 200,
+                    )
+                  else if (record.itemType == 'post')
+                    PostCardListItemWidget(
+                      post: originalData,
+                    )
+                  else if (record.itemType == 'thread')
+                    ThreadListItemWidget(
+                      thread: originalData,
+                      categoryId: originalData.section,
+                    ),
+                  _buildHistoryItemFooter(record, controller),
+                ],
+              ),
+              if (isMultiSelect)
+                Positioned.fill(
+                  child: Material(
+                    color: Colors.black26,
+                    child: InkWell(
+                      onTap: () => controller.toggleSelection(record.id),
+                      child: Center(
+                        child: Icon(
+                          isSelected ? Icons.check_circle : Icons.circle_outlined,
+                          color: Colors.white,
+                          size: 40,
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
-        ],
+            ],
+          ),
+        ),
       );
     });
+  }
+
+  Widget _buildHistoryItemFooter(HistoryRecord record, HistoryListController controller) {
+    // 获取类型对应的颜色和图标
+    final (color, icon) = _getItemTypeStyle(record.itemType);
+    
+    return Container(
+      padding: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+      ),
+      child: Row(
+        children: [
+          // 显示类型
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(color: color.withOpacity(0.3)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  icon,
+                  size: 12,
+                  color: color,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  _getItemTypeText(record.itemType),
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: color,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          // 显示时间
+          Expanded(
+            child: Text(
+              CommonUtils.formatFriendlyTimestamp(record.createdAt!),
+              style: TextStyle(
+                fontSize: 10,
+                color: Theme.of(context).textTheme.bodySmall?.color,
+              ),
+            ),
+          ),
+          // 删除按钮
+          Material(
+            type: MaterialType.transparency,
+            child: InkWell(
+              onTap: () => _showDeleteRecordDialog(record, controller),
+              borderRadius: BorderRadius.circular(4),
+              child: Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Icon(
+                  Icons.delete_outline,
+                  size: 16,
+                  color: Theme.of(context).colorScheme.error,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  (Color, IconData) _getItemTypeStyle(String type) {
+    switch (type) {
+      case 'video':
+        return (Colors.blue, Icons.play_circle_outline);
+      case 'image':
+        return (Colors.green, Icons.image_outlined);
+      case 'post':
+        return (Colors.orange, Icons.article_outlined);
+      case 'thread':
+        return (Colors.purple, Icons.forum_outlined);
+      default:
+        return (Colors.grey, Icons.help_outline);
+    }
+  }
+
+  String _getItemTypeText(String type) {
+    switch (type) {
+      case 'video':
+        return slang.t.common.video;
+      case 'image':
+        return slang.t.common.gallery;
+      case 'post':
+        return slang.t.common.post;
+      case 'thread':
+        return slang.t.forum.forum;
+      default:
+        return type;
+    }
+  }
+
+  void _showDeleteRecordDialog(HistoryRecord record, HistoryListController controller) {
+    Get.dialog(
+      AlertDialog(
+        title: Text(slang.t.common.confirmDelete),
+        content: Text(slang.t.common.areYouSureYouWantToDeleteSelectedItems(num: 1)),
+        actions: [
+          TextButton(
+            onPressed: () => AppService.tryPop(),
+            child: Text(slang.t.common.cancel),
+          ),
+          TextButton(
+            onPressed: () async {
+              AppService.tryPop();
+              await controller.historyDatabaseRepository.deleteRecord(record.id);
+              controller.repository.refresh();
+              showToastWidget(
+                MDToastWidget(
+                  message: slang.t.common.success,
+                  type: MDToastType.success,
+                ),
+              );
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.red,
+            ),
+            child: Text(slang.t.common.delete),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildMultiSelectBar(HistoryListController controller) {
