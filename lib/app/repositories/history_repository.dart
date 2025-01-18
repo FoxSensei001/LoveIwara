@@ -71,7 +71,6 @@ class HistoryRepository {
     _db.prepare(
       'DELETE FROM history_records WHERE id IN ($placeholders)'
     ).execute(ids);
-    print('成功批量删除: $ids');
   }
 
   // 清空历史记录
@@ -180,36 +179,33 @@ class HistoryRepository {
     int limit = 20,
     int offset = 0,
   }) async {
-    String sql;
-    List<Object?> params = [];
+    final List<Object?> params = [];
+    final List<String> conditions = [];
     
-    if (itemType == 'all') {
-      sql = '''
-        SELECT * FROM history_records 
-        WHERE 1=1
-      ''';
-    } else {
-      sql = '''
-        SELECT * FROM history_records 
-        WHERE item_type = ?
-      ''';
+    // 构建查询条件
+    if (itemType != 'all') {
+      conditions.add('item_type = ?');
       params.add(itemType);
     }
     
     if (startDate != null) {
-      sql += ' AND created_at >= ?';
+      conditions.add('created_at >= ?');
       params.add(startDate.toIso8601String());
     }
     
     if (endDate != null) {
-      sql += ' AND created_at <= ?';
+      conditions.add('created_at <= ?');
       params.add(endDate.toIso8601String());
     }
     
-    sql += '''
+    // 组装SQL语句
+    final String sql = '''
+      SELECT * FROM history_records 
+      ${conditions.isNotEmpty ? 'WHERE ${conditions.join(' AND ')}' : ''}
       ORDER BY created_at DESC
       LIMIT ? OFFSET ?
     ''';
+    
     params.addAll([limit, offset]);
     
     final stmt = _db.prepare(sql);

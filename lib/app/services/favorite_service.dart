@@ -25,9 +25,11 @@ class FavoriteService {
       final stmt = _db.prepare('''
         SELECT 
           f.*,
-          (SELECT COUNT(*) FROM favorite_items WHERE folder_id = f.id) as item_count
+          COUNT(fi.id) as item_count
         FROM favorite_folders f
-        ORDER BY created_at DESC
+        LEFT JOIN favorite_items fi ON fi.folder_id = f.id
+        GROUP BY f.id
+        ORDER BY f.created_at DESC
       ''');
       
       final results = stmt.select();
@@ -110,25 +112,20 @@ class FavoriteService {
     DateTime? endDate,
   }) async {
     try {
-      var sql = '''
-        SELECT * FROM favorite_items 
-        WHERE folder_id = ?
-      ''';
-      
       final List<dynamic> params = [folderId];
+      final List<String> conditions = ['folder_id = ?'];
 
       if (searchText != null && searchText.isNotEmpty) {
-        sql += ' AND title LIKE ?';
+        conditions.add('title LIKE ?');
         params.add('%$searchText%');
       }
 
       if (startDate != null) {
-        sql += ' AND created_at >= ?';
+        conditions.add('created_at >= ?');
         params.add(startDate.millisecondsSinceEpoch ~/ 1000);
       }
 
       if (endDate != null) {
-        // 确保包含结束日期的整天
         final endOfDay = DateTime(
           endDate.year,
           endDate.month,
@@ -137,11 +134,17 @@ class FavoriteService {
           59,
           59,
         );
-        sql += ' AND created_at <= ?';
+        conditions.add('created_at <= ?');
         params.add(endOfDay.millisecondsSinceEpoch ~/ 1000);
       }
 
-      sql += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
+      final sql = '''
+        SELECT * FROM favorite_items 
+        WHERE ${conditions.join(' AND ')}
+        ORDER BY created_at DESC 
+        LIMIT ? OFFSET ?
+      ''';
+      
       params.addAll([limit, offset]);
       
       final stmt = _db.prepare(sql);

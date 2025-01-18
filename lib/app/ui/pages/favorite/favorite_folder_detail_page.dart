@@ -34,7 +34,6 @@ class FavoriteFolderDetailPage extends StatefulWidget {
 class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
   late final FavoriteItemRepository _repository;
   final TextEditingController _searchController = TextEditingController();
-  String _searchText = '';
   DateTimeRange? _selectedDateRange;
 
   @override
@@ -43,8 +42,7 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
     _repository = FavoriteItemRepository(widget.folderId);
     _searchController.addListener(() {
       setState(() {
-        _searchText = _searchController.text;
-        _repository.searchText = _searchText;
+        _repository.searchText = _searchController.text;
         _repository.refresh();
       });
     });
@@ -152,6 +150,8 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
                     onTap: () {
                       setState(() {
                         _selectedDateRange = null;
+                        _repository.startDate = null;
+                        _repository.endDate = null;
                         _repository.refresh();
                       });
                     },
@@ -177,25 +177,6 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
                       mainAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
                     ),
                     itemBuilder: (BuildContext context, FavoriteItem item, int index) {
-                      // 根据搜索文本和时间范围过滤
-                      if (_searchText.isNotEmpty && !item.title.toLowerCase().contains(_searchText.toLowerCase())) {
-                        return const SizedBox.shrink();
-                      }
-                      if (_selectedDateRange != null) {
-                        final itemDate = item.createdAt;
-                        final startDate = _selectedDateRange!.start;
-                        final endDate = DateTime(
-                          _selectedDateRange!.end.year,
-                          _selectedDateRange!.end.month,
-                          _selectedDateRange!.end.day,
-                          23,
-                          59,
-                          59,
-                        );
-                        if (itemDate.isBefore(startDate) || itemDate.isAfter(endDate)) {
-                          return const SizedBox.shrink();
-                        }
-                      }
                       return Padding(
                         padding: EdgeInsets.symmetric(
                           horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
