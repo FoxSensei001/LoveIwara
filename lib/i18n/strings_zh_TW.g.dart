@@ -944,6 +944,7 @@ class _TranslationsFavoriteZhTw implements TranslationsFavoriteEn {
 	@override String get editFolderTitle => '編輯資料夾';
 	@override String get editFolderSuccess => '資料夾更新成功';
 	@override String get editFolderFailed => '資料夾更新失敗';
+	@override String get searchTags => '搜索標籤';
 }
 
 // Path: forum.errors
@@ -1922,6 +1923,7 @@ extension on TranslationsZhTw {
 			case 'favorite.editFolderTitle': return '編輯資料夾';
 			case 'favorite.editFolderSuccess': return '資料夾更新成功';
 			case 'favorite.editFolderFailed': return '資料夾更新失敗';
+			case 'favorite.searchTags': return '搜索標籤';
 			default: return null;
 		}
 	}

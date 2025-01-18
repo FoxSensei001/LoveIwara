@@ -514,62 +514,77 @@ class _HistoryListPageState extends State<HistoryListPage>
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 显示类型
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: color.withOpacity(0.3)),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  icon,
-                  size: 12,
-                  color: color,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  _getItemTypeText(record.itemType),
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: color,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
           // 显示时间
-          Expanded(
-            child: Text(
-              CommonUtils.formatFriendlyTimestamp(record.createdAt!),
-              style: TextStyle(
-                fontSize: 10,
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.access_time,
+                size: 12,
                 color: Theme.of(context).textTheme.bodySmall?.color,
               ),
-            ),
-          ),
-          // 删除按钮
-          Material(
-            type: MaterialType.transparency,
-            child: InkWell(
-              onTap: () => _showDeleteRecordDialog(record, controller),
-              borderRadius: BorderRadius.circular(4),
-              child: Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: Icon(
-                  Icons.delete_outline,
-                  size: 16,
-                  color: Theme.of(context).colorScheme.error,
+              const SizedBox(width: 4),
+              Text(
+                CommonUtils.formatFriendlyTimestamp(record.createdAt!),
+                style: TextStyle(
+                  fontSize: 10,
+                  color: Theme.of(context).textTheme.bodySmall?.color,
                 ),
               ),
-            ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              // 显示类型
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: color.withOpacity(0.3)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      icon,
+                      size: 12,
+                      color: color,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      _getItemTypeText(record.itemType),
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: color,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Spacer(),
+              // 删除按钮
+              Material(
+                type: MaterialType.transparency,
+                child: InkWell(
+                  onTap: () => _showDeleteRecordDialog(record, controller),
+                  borderRadius: BorderRadius.circular(4),
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: Icon(
+                      Icons.delete_outline,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

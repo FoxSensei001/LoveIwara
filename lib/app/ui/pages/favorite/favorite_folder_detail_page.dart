@@ -34,6 +34,7 @@ class FavoriteFolderDetailPage extends StatefulWidget {
 class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
   late final FavoriteItemRepository _repository;
   final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _tagSearchController = TextEditingController();
   DateTimeRange? _selectedDateRange;
 
   @override
@@ -46,11 +47,18 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
         _repository.refresh();
       });
     });
+    _tagSearchController.addListener(() {
+      setState(() {
+        _repository.tagSearch = _tagSearchController.text;
+        _repository.refresh();
+      });
+    });
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _tagSearchController.dispose();
     _repository.dispose();
     super.dispose();
   }
@@ -87,16 +95,32 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
             child: Row(
               children: [
                 Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: slang.t.favorite.searchItems,
-                      prefixIcon: const Icon(Icons.search),
-                      border: const OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(8)),
+                  child: Column(
+                    children: [
+                      TextField(
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                          hintText: slang.t.favorite.searchItems,
+                          prefixIcon: const Icon(Icons.search),
+                          border: const OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(8)),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        ),
                       ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    ),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: _tagSearchController,
+                        decoration: InputDecoration(
+                          hintText: slang.t.favorite.searchTags,
+                          prefixIcon: const Icon(Icons.tag),
+                          border: const OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(8)),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -132,21 +156,18 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
               ],
             ),
           ),
-          // 显示选中的时间范围
-          if (_selectedDateRange != null)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              child: Row(
-                children: [
-                  Text(
-                    '${CommonUtils.formatDate(_selectedDateRange!.start)} - ${CommonUtils.formatDate(_selectedDateRange!.end)}',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  InkWell(
+          // 显示选中的时间范围、搜索文本和标签
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                if (_selectedDateRange != null)
+                  _buildFilterChip(
+                    icon: Icons.date_range,
+                    text: '${CommonUtils.formatDate(_selectedDateRange!.start)} - ${CommonUtils.formatDate(_selectedDateRange!.end)}',
+                    color: Theme.of(context).colorScheme.secondaryContainer,
                     onTap: () {
                       setState(() {
                         _selectedDateRange = null;
@@ -155,15 +176,32 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
                         _repository.refresh();
                       });
                     },
-                    child: Icon(
-                      Icons.clear,
-                      size: 16,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
                   ),
-                ],
-              ),
+                if (_searchController.text.isNotEmpty)
+                  _buildFilterChip(
+                    icon: Icons.search,
+                    text: _searchController.text,
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    onTap: () {
+                      setState(() {
+                        _searchController.clear();
+                      });
+                    },
+                  ),
+                if (_tagSearchController.text.isNotEmpty)
+                  _buildFilterChip(
+                    icon: Icons.tag,
+                    text: _tagSearchController.text,
+                    color: Theme.of(context).colorScheme.tertiaryContainer,
+                    onTap: () {
+                      setState(() {
+                        _tagSearchController.clear();
+                      });
+                    },
+                  ),
+              ],
             ),
+          ),
           // 列表内容
           Expanded(
             child: LoadingMoreCustomScrollView(
@@ -274,62 +312,77 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 显示类型
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: color.withOpacity(0.3)),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  icon,
-                  size: 12,
-                  color: color,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  _getItemTypeText(item.itemType),
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: color,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
           // 显示时间
-          Expanded(
-            child: Text(
-              CommonUtils.formatFriendlyTimestamp(item.createdAt),
-              style: TextStyle(
-                fontSize: 10,
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.access_time,
+                size: 12,
                 color: Theme.of(context).textTheme.bodySmall?.color,
               ),
-            ),
-          ),
-          // 删除按钮
-          Material(
-            type: MaterialType.transparency,
-            child: InkWell(
-              onTap: () => _removeItem(item),
-              borderRadius: BorderRadius.circular(4),
-              child: Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: Icon(
-                  Icons.delete_outline,
-                  size: 16,
-                  color: Theme.of(context).colorScheme.error,
+              const SizedBox(width: 4),
+              Text(
+                CommonUtils.formatFriendlyTimestamp(item.createdAt),
+                style: TextStyle(
+                  fontSize: 10,
+                  color: Theme.of(context).textTheme.bodySmall?.color,
                 ),
               ),
-            ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              // 显示类型
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: color.withOpacity(0.3)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      icon,
+                      size: 12,
+                      color: color,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      _getItemTypeText(item.itemType),
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: color,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Spacer(),
+              // 删除按钮
+              Material(
+                type: MaterialType.transparency,
+                child: InkWell(
+                  onTap: () => _removeItem(item),
+                  borderRadius: BorderRadius.circular(4),
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: Icon(
+                      Icons.delete_outline,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -767,6 +820,63 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
       }
     }
   }
+
+  Widget _buildFilterChip({
+    required IconData icon,
+    required String text,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.3),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: color.withOpacity(0.3),
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 14,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                text,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Container(
+                padding: const EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.close,
+                  size: 12,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class FavoriteItemRepository extends LoadingMoreBase<FavoriteItem> {
@@ -776,6 +886,7 @@ class FavoriteItemRepository extends LoadingMoreBase<FavoriteItem> {
   bool forceRefresh = false;
   
   String? searchText;
+  String? tagSearch;
   DateTime? startDate;
   DateTime? endDate;
   
@@ -805,6 +916,7 @@ class FavoriteItemRepository extends LoadingMoreBase<FavoriteItem> {
         offset: _pageIndex * pageSize,
         limit: pageSize,
         searchText: searchText,
+        tagSearch: tagSearch,
         startDate: startDate,
         endDate: endDate,
       );

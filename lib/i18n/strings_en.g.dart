@@ -945,6 +945,7 @@ class TranslationsFavoriteEn {
 	String get editFolderTitle => 'Edit Folder';
 	String get editFolderSuccess => 'Folder updated successfully';
 	String get editFolderFailed => 'Failed to update folder';
+	String get searchTags => 'Search tags';
 }
 
 // Path: forum.errors
@@ -1920,6 +1921,7 @@ extension on Translations {
 			case 'favorite.editFolderTitle': return 'Edit Folder';
 			case 'favorite.editFolderSuccess': return 'Folder updated successfully';
 			case 'favorite.editFolderFailed': return 'Failed to update folder';
+			case 'favorite.searchTags': return 'Search tags';
 			default: return null;
 		}
 	}

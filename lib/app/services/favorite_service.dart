@@ -110,6 +110,7 @@ class FavoriteService {
     String? searchText,
     DateTime? startDate,
     DateTime? endDate,
+    String? tagSearch,
   }) async {
     try {
       final List<dynamic> params = [folderId];
@@ -138,13 +139,19 @@ class FavoriteService {
         params.add(endOfDay.millisecondsSinceEpoch ~/ 1000);
       }
 
+      if (tagSearch != null && tagSearch.isNotEmpty) {
+        conditions.add('''
+          tags LIKE ?
+        ''');
+        params.add('%"id":"%$tagSearch%"%');
+      }
+
       final sql = '''
         SELECT * FROM favorite_items 
         WHERE ${conditions.join(' AND ')}
         ORDER BY created_at DESC 
         LIMIT ? OFFSET ?
       ''';
-      
       params.addAll([limit, offset]);
       
       final stmt = _db.prepare(sql);
@@ -189,6 +196,9 @@ class FavoriteService {
 
   // 添加视频到收藏夹
   Future<bool> addVideoToFolder(Video video, String folderId) async {
+    // 去除视频的 body、videoSources 字段
+    video = video.copyWith(body: '', videoSources: []);
+
     try {
       // 检查是否已在文件夹中
       final isInFolder = await isItemInFolder(video.id, folderId);
@@ -207,15 +217,16 @@ class FavoriteService {
         authorUsername: video.user?.username,
         authorAvatarUrl: video.user?.avatar?.avatarUrl,
         extData: video.toJson(),
+        tags: video.tags ?? [],
       );
 
       _db.prepare('''
         INSERT INTO favorite_items (
           id, folder_id, item_type, item_id, title, preview_url,
-          author_name, author_username, author_avatar_url, ext_data,
+          author_name, author_username, author_avatar_url, ext_data, tags,
           created_at, updated_at
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ''').execute([
         item.id,
         item.folderId,
@@ -227,6 +238,7 @@ class FavoriteService {
         item.authorUsername,
         item.authorAvatarUrl,
         item.extData != null ? jsonEncode(item.extData) : null,
+        item.tags.isNotEmpty ? jsonEncode(item.tags.map((tag) => tag.toJson()).toList()) : null,
         item.createdAt.millisecondsSinceEpoch ~/ 1000,
         item.updatedAt.millisecondsSinceEpoch ~/ 1000,
       ]);
@@ -241,6 +253,9 @@ class FavoriteService {
 
   // 添加图片到收藏夹
   Future<bool> addImageToFolder(ImageModel image, String folderId) async {
+    // 去除 body、files 字段
+    image = image.copyWith(body: '', files: []);
+
     try {
       // 检查是否已在文件夹中
       final isInFolder = await isItemInFolder(image.id, folderId);
@@ -262,15 +277,16 @@ class FavoriteService {
         authorUsername: image.user?.username,
         authorAvatarUrl: image.user?.avatar?.avatarUrl,
         extData: imageWithoutFiles.toJson(),
+        tags: image.tags,
       );
 
       _db.prepare('''
         INSERT INTO favorite_items (
           id, folder_id, item_type, item_id, title, preview_url,
-          author_name, author_username, author_avatar_url, ext_data,
+          author_name, author_username, author_avatar_url, ext_data, tags,
           created_at, updated_at
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ''').execute([
         item.id,
         item.folderId,
@@ -282,6 +298,7 @@ class FavoriteService {
         item.authorUsername,
         item.authorAvatarUrl,
         item.extData != null ? jsonEncode(item.extData) : null,
+        item.tags.isNotEmpty ? jsonEncode(item.tags.map((tag) => tag.toJson()).toList()) : null,
         item.createdAt.millisecondsSinceEpoch ~/ 1000,
         item.updatedAt.millisecondsSinceEpoch ~/ 1000,
       ]);
@@ -294,7 +311,7 @@ class FavoriteService {
     }
   }
 
-  // 添加用户到收藏夹
+  // 添加用户到收藏夹 [预留？]
   Future<bool> addUserToFolder(User user, String folderId) async {
     try {
       // 检查是否已在文件夹中

@@ -946,6 +946,7 @@ class _TranslationsFavoriteZhCn implements TranslationsFavoriteEn {
 	@override String get editFolderTitle => '编辑文件夹';
 	@override String get editFolderSuccess => '文件夹更新成功';
 	@override String get editFolderFailed => '文件夹更新失败';
+	@override String get searchTags => '搜索标签';
 }
 
 // Path: forum.errors
@@ -1926,6 +1927,7 @@ extension on TranslationsZhCn {
 			case 'favorite.editFolderTitle': return '编辑文件夹';
 			case 'favorite.editFolderSuccess': return '文件夹更新成功';
 			case 'favorite.editFolderFailed': return '文件夹更新失败';
+			case 'favorite.searchTags': return '搜索标签';
 			default: return null;
 		}
 	}

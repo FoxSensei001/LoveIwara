@@ -429,12 +429,6 @@ class VideoDetailContent extends StatelessWidget {
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(20),
                                 onTap: () {
-                                  final UserService userService = Get.find();
-                                  if (!userService.isLogin) {
-                                    showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error), position: ToastPosition.bottom);
-                                    Get.toNamed(Routes.LOGIN);
-                                    return;
-                                  }
                                   _addToFavorite(context);
                                 },
                                 child: Container(

@@ -35,6 +35,7 @@ class MigrationV4Favorites extends Migration {
         author_username TEXT,
         author_avatar_url TEXT,
         ext_data TEXT, -- 额外数据，JSON格式
+        tags TEXT, -- 标签数据，JSON格式
         created_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
         updated_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
         FOREIGN KEY(folder_id) REFERENCES favorite_folders(id) ON DELETE CASCADE
@@ -58,6 +59,12 @@ class MigrationV4Favorites extends Migration {
     db.execute('''
       CREATE INDEX IF NOT EXISTS idx_favorite_items_created_at 
       ON favorite_items(created_at DESC);
+    ''');
+
+    // 4. 标签搜索的索引
+    db.execute('''
+      CREATE INDEX IF NOT EXISTS idx_favorite_items_tags 
+      ON favorite_items(tags);
     ''');
 
     // 创建默认收藏夹

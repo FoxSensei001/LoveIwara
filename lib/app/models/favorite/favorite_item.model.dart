@@ -1,5 +1,6 @@
 import 'package:uuid/uuid.dart';
 import 'dart:convert';
+import 'package:i_iwara/app/models/tag.model.dart';
 
 enum FavoriteItemType {
   video,
@@ -18,6 +19,7 @@ class FavoriteItem {
   final String? authorUsername;
   final String? authorAvatarUrl;
   final Map<String, dynamic>? extData;
+  final List<Tag> tags;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -32,9 +34,11 @@ class FavoriteItem {
     this.authorUsername,
     this.authorAvatarUrl,
     this.extData,
+    List<Tag>? tags,
     DateTime? createdAt,
     DateTime? updatedAt,
   })  : id = id ?? const Uuid().v4(),
+        tags = tags ?? [],
         createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now();
 
@@ -53,6 +57,9 @@ class FavoriteItem {
       authorUsername: json['author_username'],
       authorAvatarUrl: json['author_avatar_url'],
       extData: json['ext_data'] != null ? jsonDecode(json['ext_data']) : null,
+      tags: json['tags'] != null 
+          ? (jsonDecode(json['tags']) as List).map((tag) => Tag.fromJson(tag)).toList()
+          : null,
       createdAt: json['created_at'] != null
           ? DateTime.fromMillisecondsSinceEpoch(json['created_at'] * 1000)
           : null,
@@ -73,7 +80,8 @@ class FavoriteItem {
       'author_name': authorName,
       'author_username': authorUsername,
       'author_avatar_url': authorAvatarUrl,
-      'ext_data': extData,
+      'ext_data': extData != null ? jsonEncode(extData) : null,
+      'tags': tags.isNotEmpty ? jsonEncode(tags.map((tag) => tag.toJson()).toList()) : null,
       'created_at': createdAt.millisecondsSinceEpoch ~/ 1000,
       'updated_at': updatedAt.millisecondsSinceEpoch ~/ 1000,
     };
@@ -90,6 +98,7 @@ class FavoriteItem {
     String? authorUsername,
     String? authorAvatarUrl,
     Map<String, dynamic>? extData,
+    List<Tag>? tags,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -104,6 +113,7 @@ class FavoriteItem {
       authorUsername: authorUsername ?? this.authorUsername,
       authorAvatarUrl: authorAvatarUrl ?? this.authorAvatarUrl,
       extData: extData ?? this.extData,
+      tags: tags ?? this.tags,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

@@ -941,6 +941,7 @@ class _TranslationsFavoriteJa implements TranslationsFavoriteEn {
 	@override String get editFolderTitle => 'フォルダー名を編集';
 	@override String get editFolderSuccess => 'フォルダー名を更新しました';
 	@override String get editFolderFailed => 'フォルダー名の更新に失敗しました';
+	@override String get searchTags => 'タグを検索';
 }
 
 // Path: forum.errors
@@ -1916,6 +1917,7 @@ extension on TranslationsJa {
 			case 'favorite.editFolderTitle': return 'フォルダー名を編集';
 			case 'favorite.editFolderSuccess': return 'フォルダー名を更新しました';
 			case 'favorite.editFolderFailed': return 'フォルダー名の更新に失敗しました';
+			case 'favorite.searchTags': return 'タグを検索';
 			default: return null;
 		}
 	}
