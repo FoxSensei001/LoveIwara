@@ -8,6 +8,7 @@ import 'package:i_iwara/app/services/video_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/share_video_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/video_description_widget.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/widgets/add_to_favorite_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
@@ -30,6 +31,7 @@ import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:path/path.dart' as p;
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
+import 'package:i_iwara/app/services/favorite_service.dart';
 
 class VideoDetailContent extends StatelessWidget {
   final MyVideoStateController controller;
@@ -425,6 +427,41 @@ class VideoDetailContent extends StatelessWidget {
                             Material(
                               color: Colors.transparent,
                               child: InkWell(
+                                borderRadius: BorderRadius.circular(20),
+                                onTap: () {
+                                  final UserService userService = Get.find();
+                                  if (!userService.isLogin) {
+                                    showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error), position: ToastPosition.bottom);
+                                    Get.toNamed(Routes.LOGIN);
+                                    return;
+                                  }
+                                  _addToFavorite(context);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.bookmark_border,
+                                        size: 20,
+                                        color: Theme.of(context).iconTheme.color
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        slang.Translations.of(context).favorite.localizeFavorite,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Theme.of(context).textTheme.bodyMedium?.color
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Material(
+                              color: Colors.transparent,
+                              child: InkWell(
                                 borderRadius: BorderRadius.circular(16),
                                 onTap: () {
                                   _showDownloadDialog(context);
@@ -712,5 +749,23 @@ class VideoDetailContent extends StatelessWidget {
     final dir = await CommonUtils.getAppDirectory(pathSuffix: p.join('downloads', 'videos'));
     final sanitizedTitle = title.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_');
     return '${dir.path}/${sanitizedTitle}_$quality.mp4';
+  }
+
+  // 添加到收藏夹
+  void _addToFavorite(BuildContext context) {
+    final videoInfo = controller.videoInfo.value;
+    if (videoInfo == null) {
+      showToastWidget(MDToastWidget(message: slang.t.errors.failedToFetchData, type: MDToastType.error));
+      return;
+    }
+
+    Get.dialog(
+      AddToFavoriteDialog(
+        itemId: videoInfo.id,
+        onAdd: (folderId) async {
+          return await FavoriteService.to.addVideoToFolder(videoInfo, folderId);
+        },
+      ),
+    );
   }
 }

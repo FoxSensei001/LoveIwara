@@ -87,6 +87,9 @@ Thank you for your understanding and support! If you're also a Flutter beginner,
 - **📜 Comments**
     - Comment browsing
     - Comment reply
+- **📜 Local Favorite**
+    - Favorite folder
+    - Local favorite
 
 - **📩 Private Messages**
     - Private message browsing

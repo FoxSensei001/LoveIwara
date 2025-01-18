@@ -54,6 +54,7 @@ class TranslationsJa implements Translations {
 	@override late final _TranslationsConversationJa conversation = _TranslationsConversationJa._(_root);
 	@override late final _TranslationsSplashJa splash = _TranslationsSplashJa._(_root);
 	@override late final _TranslationsDownloadJa download = _TranslationsDownloadJa._(_root);
+	@override late final _TranslationsFavoriteJa favorite = _TranslationsFavoriteJa._(_root);
 }
 
 // Path: common
@@ -886,6 +887,47 @@ class _TranslationsDownloadJa implements TranslationsDownloadEn {
 	@override String get stillInDevelopment => '開発中';
 }
 
+// Path: favorite
+class _TranslationsFavoriteJa implements TranslationsFavoriteEn {
+	_TranslationsFavoriteJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override late final _TranslationsFavoriteErrorsJa errors = _TranslationsFavoriteErrorsJa._(_root);
+	@override String get add => '追加';
+	@override String get addSuccess => '追加に成功しました';
+	@override String get addFailed => '追加に失敗しました';
+	@override String get remove => '削除';
+	@override String get removeSuccess => '削除に成功しました';
+	@override String get removeFailed => '削除に失敗しました';
+	@override String get removeConfirmation => 'このアイテムをお気に入りから削除しますか？';
+	@override String get removeConfirmationSuccess => 'アイテムがお気に入りから削除されました';
+	@override String get removeConfirmationFailed => 'アイテムをお気に入りから削除に失敗しました';
+	@override String get createFolderSuccess => 'フォルダーが作成されました';
+	@override String get createFolderFailed => 'フォルダーの作成に失敗しました';
+	@override String get createFolder => 'フォルダーを作成';
+	@override String get enterFolderName => 'フォルダー名を入力';
+	@override String get enterFolderNameHere => 'フォルダー名を入力してください...';
+	@override String get create => '作成';
+	@override String get items => 'アイテム';
+	@override String get newFolderName => '新しいフォルダー';
+	@override String get searchFolders => 'フォルダーを検索...';
+	@override String get searchItems => 'アイテムを検索...';
+	@override String get createdAt => '作成日時';
+	@override String get myFavorites => 'お気に入り';
+	@override String get deleteFolderTitle => 'フォルダーを削除';
+	@override String deleteFolderConfirmWithTitle({required Object title}) => '${title} フォルダーを削除しますか？';
+	@override String get removeItemTitle => 'アイテムを削除';
+	@override String removeItemConfirmWithTitle({required Object title}) => '${title} アイテムを削除しますか？';
+	@override String get removeItemSuccess => 'アイテムがお気に入りから削除されました';
+	@override String get removeItemFailed => 'アイテムをお気に入りから削除に失敗しました';
+	@override String get localizeFavorite => 'お気に入り';
+	@override String get editFolderTitle => 'フォルダー名を編集';
+	@override String get editFolderSuccess => 'フォルダー名を更新しました';
+	@override String get editFolderFailed => 'フォルダー名の更新に失敗しました';
+}
+
 // Path: forum.errors
 class _TranslationsForumErrorsJa implements TranslationsForumErrorsEn {
 	_TranslationsForumErrorsJa._(this._root);
@@ -1055,6 +1097,20 @@ class _TranslationsDownloadErrorsJa implements TranslationsDownloadErrorsEn {
 	@override String get taskNotFound => 'タスクが見つかりません';
 	@override String get canNotRefreshVideoTask => 'ビデオタスクの更新に失敗しました';
 	@override String get taskAlreadyProcessing => 'タスクはすでに処理中です';
+}
+
+// Path: favorite.errors
+class _TranslationsFavoriteErrorsJa implements TranslationsFavoriteErrorsEn {
+	_TranslationsFavoriteErrorsJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get addFailed => '追加に失敗しました';
+	@override String get addSuccess => '追加に成功しました';
+	@override String get deleteFolderFailed => 'フォルダーの削除に失敗しました';
+	@override String get deleteFolderSuccess => 'フォルダーの削除に成功しました';
+	@override String get folderNameCannotBeEmpty => 'フォルダー名を入力してください';
 }
 
 /// Flat map(s) containing all translations.
@@ -1794,6 +1850,42 @@ extension on TranslationsJa {
 			case 'download.galleryDownloadCompletedWithName': return ({required Object galleryName}) => 'ギャラリーのダウンロードが完了しました: ${galleryName}';
 			case 'download.downloadCompletedWithName': return ({required Object fileName}) => 'ダウンロードが完了しました: ${fileName}';
 			case 'download.stillInDevelopment': return '開発中';
+			case 'favorite.errors.addFailed': return '追加に失敗しました';
+			case 'favorite.errors.addSuccess': return '追加に成功しました';
+			case 'favorite.errors.deleteFolderFailed': return 'フォルダーの削除に失敗しました';
+			case 'favorite.errors.deleteFolderSuccess': return 'フォルダーの削除に成功しました';
+			case 'favorite.errors.folderNameCannotBeEmpty': return 'フォルダー名を入力してください';
+			case 'favorite.add': return '追加';
+			case 'favorite.addSuccess': return '追加に成功しました';
+			case 'favorite.addFailed': return '追加に失敗しました';
+			case 'favorite.remove': return '削除';
+			case 'favorite.removeSuccess': return '削除に成功しました';
+			case 'favorite.removeFailed': return '削除に失敗しました';
+			case 'favorite.removeConfirmation': return 'このアイテムをお気に入りから削除しますか？';
+			case 'favorite.removeConfirmationSuccess': return 'アイテムがお気に入りから削除されました';
+			case 'favorite.removeConfirmationFailed': return 'アイテムをお気に入りから削除に失敗しました';
+			case 'favorite.createFolderSuccess': return 'フォルダーが作成されました';
+			case 'favorite.createFolderFailed': return 'フォルダーの作成に失敗しました';
+			case 'favorite.createFolder': return 'フォルダーを作成';
+			case 'favorite.enterFolderName': return 'フォルダー名を入力';
+			case 'favorite.enterFolderNameHere': return 'フォルダー名を入力してください...';
+			case 'favorite.create': return '作成';
+			case 'favorite.items': return 'アイテム';
+			case 'favorite.newFolderName': return '新しいフォルダー';
+			case 'favorite.searchFolders': return 'フォルダーを検索...';
+			case 'favorite.searchItems': return 'アイテムを検索...';
+			case 'favorite.createdAt': return '作成日時';
+			case 'favorite.myFavorites': return 'お気に入り';
+			case 'favorite.deleteFolderTitle': return 'フォルダーを削除';
+			case 'favorite.deleteFolderConfirmWithTitle': return ({required Object title}) => '${title} フォルダーを削除しますか？';
+			case 'favorite.removeItemTitle': return 'アイテムを削除';
+			case 'favorite.removeItemConfirmWithTitle': return ({required Object title}) => '${title} アイテムを削除しますか？';
+			case 'favorite.removeItemSuccess': return 'アイテムがお気に入りから削除されました';
+			case 'favorite.removeItemFailed': return 'アイテムをお気に入りから削除に失敗しました';
+			case 'favorite.localizeFavorite': return 'お気に入り';
+			case 'favorite.editFolderTitle': return 'フォルダー名を編集';
+			case 'favorite.editFolderSuccess': return 'フォルダー名を更新しました';
+			case 'favorite.editFolderFailed': return 'フォルダー名の更新に失敗しました';
 			default: return null;
 		}
 	}

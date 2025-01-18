@@ -783,3 +783,42 @@ download:
   galleryDownloadCompletedWithName: '圖庫下載完成: ${galleryName}'
   downloadCompletedWithName: '下載完成: ${fileName}'
   stillInDevelopment: 開發中
+
+favorite:
+  errors:
+    addFailed: 追加失敗
+    addSuccess: 追加成功
+    deleteFolderFailed: 刪除文件夾失敗
+    deleteFolderSuccess: 刪除文件夾成功
+    folderNameCannotBeEmpty: 資料夾名稱不能為空
+  add: 追加
+  addSuccess: 追加成功
+  addFailed: 追加失敗
+  remove: 刪除
+  removeSuccess: 刪除成功
+  removeFailed: 刪除失敗
+  removeConfirmation: '確定要刪除這個項目嗎？'
+  removeConfirmationSuccess: '項目已從收藏夾中刪除'
+  removeConfirmationFailed: '刪除項目失敗'
+  createFolderSuccess: '文件夾創建成功'
+  createFolderFailed: '創建文件夾失敗'
+  createFolder: 創建文件夾
+  enterFolderName: 輸入文件夾名稱
+  enterFolderNameHere: 在此輸入文件夾名稱...
+  create: 創建
+  items: 項目
+  newFolderName: 新文件夾
+  searchFolders: 搜索文件夾...
+  searchItems: 搜索項目...
+  createdAt: 創建時間
+  myFavorites: 我的收藏
+  deleteFolderTitle: 刪除文件夾
+  deleteFolderConfirmWithTitle: '確定要刪除 ${title} 文件夾嗎？'
+  removeItemTitle: 刪除項目
+  removeItemConfirmWithTitle: '確定要刪除 ${title} 項目嗎？'
+  removeItemSuccess: 項目已從收藏夾中刪除
+  removeItemFailed: 刪除項目失敗
+  localizeFavorite: 本地收藏
+  editFolderTitle: 編輯資料夾
+  editFolderSuccess: 資料夾更新成功
+  editFolderFailed: 資料夾更新失敗

@@ -79,6 +79,11 @@ class GlobalDrawerColumns extends StatelessWidget {
                   showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error));
                 }
               }),
+              // 本地收藏
+              _buildMenuItem(Icons.bookmark_border, t.favorite.localizeFavorite, () {
+                NaviService.navigateToLocalFavoritePage();
+                AppService.switchGlobalDrawer();
+              }),
               // 好友
               _buildMenuItem(Icons.face, t.common.friends, () {
                 if (userService.isLogin) {

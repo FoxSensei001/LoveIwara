@@ -31,6 +31,8 @@ import 'horizontial_image_list.dart';
 import '../../../widgets/follow_button_widget.dart';
 import '../../../widgets/like_button_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/services/favorite_service.dart';
+import 'package:i_iwara/app/ui/widgets/add_to_favorite_dialog.dart';
 
 class ImageModelDetailContent extends StatelessWidget {
   final GalleryDetailController controller;
@@ -486,7 +488,7 @@ class ImageModelDetailContent extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Row(
             children: [
-              // 左侧按钮组(点赞和分享)
+              // 左侧按钮组(点赞、收藏和分享)
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -508,6 +510,33 @@ class ImageModelDetailContent extends StatelessWidget {
                         numLikes: (controller.imageModelInfo.value?.numLikes ?? 0) + (liked ? 1 : -1),
                       );
                     },
+                  ),
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => _addToFavorite(context),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.favorite_border,
+                                size: 20,
+                                color: Theme.of(context).iconTheme.color
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              t.favorite.localizeFavorite,
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Theme.of(context).textTheme.bodyMedium?.color
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                   Material(
                     color: Colors.transparent,
@@ -677,5 +706,20 @@ class ImageModelDetailContent extends StatelessWidget {
     final dir = await CommonUtils.getAppDirectory(pathSuffix: path.join('downloads', 'galleries'));
     final sanitizedTitle = title.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_');
     return '${dir.path}/${sanitizedTitle}_$id';
+  }
+
+  // 添加到收藏夹
+  void _addToFavorite(BuildContext context) {
+    final imageModelInfo = controller.imageModelInfo.value;
+    if (imageModelInfo == null) return;
+
+    Get.dialog(
+      AddToFavoriteDialog(
+        itemId: imageModelInfo.id,
+        onAdd: (folderId) async {
+          return await FavoriteService.to.addImageToFolder(imageModelInfo, folderId);
+        },
+      ),
+    );
   }
 }

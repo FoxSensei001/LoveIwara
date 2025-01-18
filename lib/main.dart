@@ -40,6 +40,7 @@ import 'app/services/theme_service.dart';
 import 'app/services/version_service.dart';
 import 'app/repositories/history_repository.dart';
 import 'app/services/message_service.dart';
+import 'app/services/favorite_service.dart';
 
 void main() {
   // 确保Flutter初始化
@@ -216,6 +217,7 @@ Future<void> _initializeBusinessServices() async {
   Get.lazyPut(() => ConversationService());
   Get.put(DownloadService());
   Get.put(TranslationService());
+  Get.put(FavoriteService());
   LogUtils.i('懒加载服务注册完成', '启动初始化');
 
   // 初始化媒体服务

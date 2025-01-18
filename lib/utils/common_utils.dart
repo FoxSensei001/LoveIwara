@@ -258,4 +258,8 @@ class CommonUtils {
       return path;
     }
   }
+
+  static String formatDate(DateTime start) {
+    return '${start.year}-${_twoDigits(start.month)}-${_twoDigits(start.day)}';
+  }
 }

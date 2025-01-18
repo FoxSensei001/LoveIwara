@@ -776,3 +776,43 @@ download:
   galleryDownloadCompletedWithName: 'Gallery Download Completed: ${galleryName}'
   downloadCompletedWithName: 'Download Completed: ${fileName}'
   stillInDevelopment: Still in development
+
+favorite:
+  errors:
+    addFailed: Add failed
+    addSuccess: Add success
+    deleteFolderFailed: Delete folder failed
+    deleteFolderSuccess: Delete folder success
+    folderNameCannotBeEmpty: Folder name cannot be empty
+  add: Add
+  addSuccess: Add success
+  addFailed: Add failed
+  remove: Remove
+  removeSuccess: Remove success
+  removeFailed: Remove failed
+  removeConfirmation: 'Are you sure you want to remove this item from favorites?'
+  removeConfirmationSuccess: 'Item removed from favorites'
+  removeConfirmationFailed: 'Failed to remove item from favorites'
+  createFolderSuccess: 'Folder created successfully'
+  createFolderFailed: 'Failed to create folder'
+  createFolder: Create Folder
+  enterFolderName: Enter folder name
+  enterFolderNameHere: Enter folder name here...
+  create: Create
+  items: Items
+  newFolderName: New Folder
+  searchFolders: Search folders...
+  searchItems: Search items...
+  createdAt: Created At
+  myFavorites: My Favorites
+  deleteFolderTitle: Delete Folder
+  deleteFolderConfirmWithTitle: 'Are you sure you want to delete ${title} folder?'
+  removeItemTitle: Remove Item
+  removeItemConfirmWithTitle: 'Are you sure you want to delete ${title} item?'
+  removeItemSuccess: Item removed from favorites
+  removeItemFailed: Failed to remove item from favorites
+  localizeFavorite: Local Favorite
+  editFolderTitle: Edit Folder
+  editFolderSuccess: Folder updated successfully
+  editFolderFailed: Failed to update folder
+

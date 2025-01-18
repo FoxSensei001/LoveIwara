@@ -64,7 +64,11 @@ abstract class Routes {
 
   static const CONVERSATION = '/conversation';
 
+  static const LOCAL_FAVORITE = '/local_favorite';
+
   static MESSAGE_DETAIL(String conversationId) => '/message_detail/$conversationId';
+
+  static LOCAL_FAVORITE_DETAIL(String folderId) => '/local_favorite_detail/$folderId';
 }
 
 abstract class _Paths {

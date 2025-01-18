@@ -781,3 +781,42 @@ download:
   downloadCompletedWithName: 'ダウンロードが完了しました: ${fileName}'
   stillInDevelopment: 開発中
 
+favorite:
+  errors:
+    addFailed: 追加に失敗しました
+    addSuccess: 追加に成功しました
+    deleteFolderFailed: フォルダーの削除に失敗しました
+    deleteFolderSuccess: フォルダーの削除に成功しました
+    folderNameCannotBeEmpty: フォルダー名を入力してください
+
+  add: 追加
+  addSuccess: 追加に成功しました
+  addFailed: 追加に失敗しました
+  remove: 削除
+  removeSuccess: 削除に成功しました
+  removeFailed: 削除に失敗しました
+  removeConfirmation: 'このアイテムをお気に入りから削除しますか？'
+  removeConfirmationSuccess: 'アイテムがお気に入りから削除されました'
+  removeConfirmationFailed: 'アイテムをお気に入りから削除に失敗しました'
+  createFolderSuccess: 'フォルダーが作成されました'
+  createFolderFailed: 'フォルダーの作成に失敗しました'
+  createFolder: フォルダーを作成
+  enterFolderName: フォルダー名を入力
+  enterFolderNameHere: フォルダー名を入力してください...
+  create: 作成
+  items: アイテム
+  newFolderName: 新しいフォルダー
+  searchFolders: フォルダーを検索...
+  searchItems: アイテムを検索...
+  createdAt: 作成日時
+  myFavorites: お気に入り
+  deleteFolderTitle: フォルダーを削除
+  deleteFolderConfirmWithTitle: '${title} フォルダーを削除しますか？'
+  removeItemTitle: アイテムを削除
+  removeItemConfirmWithTitle: '${title} アイテムを削除しますか？'
+  removeItemSuccess: アイテムがお気に入りから削除されました
+  removeItemFailed: アイテムをお気に入りから削除に失敗しました
+  localizeFavorite: ローカライズお気に入り
+  editFolderTitle: フォルダー名を編集
+  editFolderSuccess: フォルダー名を更新しました
+  editFolderFailed: フォルダー名の更新に失敗しました

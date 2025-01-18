@@ -58,6 +58,7 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final TranslationsConversationEn conversation = TranslationsConversationEn._(_root);
 	late final TranslationsSplashEn splash = TranslationsSplashEn._(_root);
 	late final TranslationsDownloadEn download = TranslationsDownloadEn._(_root);
+	late final TranslationsFavoriteEn favorite = TranslationsFavoriteEn._(_root);
 }
 
 // Path: common
@@ -890,6 +891,47 @@ class TranslationsDownloadEn {
 	String get stillInDevelopment => 'Still in development';
 }
 
+// Path: favorite
+class TranslationsFavoriteEn {
+	TranslationsFavoriteEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	late final TranslationsFavoriteErrorsEn errors = TranslationsFavoriteErrorsEn._(_root);
+	String get add => 'Add';
+	String get addSuccess => 'Add success';
+	String get addFailed => 'Add failed';
+	String get remove => 'Remove';
+	String get removeSuccess => 'Remove success';
+	String get removeFailed => 'Remove failed';
+	String get removeConfirmation => 'Are you sure you want to remove this item from favorites?';
+	String get removeConfirmationSuccess => 'Item removed from favorites';
+	String get removeConfirmationFailed => 'Failed to remove item from favorites';
+	String get createFolderSuccess => 'Folder created successfully';
+	String get createFolderFailed => 'Failed to create folder';
+	String get createFolder => 'Create Folder';
+	String get enterFolderName => 'Enter folder name';
+	String get enterFolderNameHere => 'Enter folder name here...';
+	String get create => 'Create';
+	String get items => 'Items';
+	String get newFolderName => 'New Folder';
+	String get searchFolders => 'Search folders...';
+	String get searchItems => 'Search items...';
+	String get createdAt => 'Created At';
+	String get myFavorites => 'My Favorites';
+	String get deleteFolderTitle => 'Delete Folder';
+	String deleteFolderConfirmWithTitle({required Object title}) => 'Are you sure you want to delete ${title} folder?';
+	String get removeItemTitle => 'Remove Item';
+	String removeItemConfirmWithTitle({required Object title}) => 'Are you sure you want to delete ${title} item?';
+	String get removeItemSuccess => 'Item removed from favorites';
+	String get removeItemFailed => 'Failed to remove item from favorites';
+	String get localizeFavorite => 'Favorite';
+	String get editFolderTitle => 'Edit Folder';
+	String get editFolderSuccess => 'Folder updated successfully';
+	String get editFolderFailed => 'Failed to update folder';
+}
+
 // Path: forum.errors
 class TranslationsForumErrorsEn {
 	TranslationsForumErrorsEn._(this._root);
@@ -1059,6 +1101,20 @@ class TranslationsDownloadErrorsEn {
 	String get canNotRefreshVideoTask => 'Failed to refresh video task';
 	String get taskAlreadyProcessing => 'Task already processing';
 	String get taskNotFound => 'Task not found';
+}
+
+// Path: favorite.errors
+class TranslationsFavoriteErrorsEn {
+	TranslationsFavoriteErrorsEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get addFailed => 'Add failed';
+	String get addSuccess => 'Add success';
+	String get deleteFolderFailed => 'Delete folder failed';
+	String get deleteFolderSuccess => 'Delete folder success';
+	String get folderNameCannotBeEmpty => 'Folder name cannot be empty';
 }
 
 /// Flat map(s) containing all translations.
@@ -1798,6 +1854,42 @@ extension on Translations {
 			case 'download.galleryDownloadCompletedWithName': return ({required Object galleryName}) => 'Gallery Download Completed: ${galleryName}';
 			case 'download.downloadCompletedWithName': return ({required Object fileName}) => 'Download Completed: ${fileName}';
 			case 'download.stillInDevelopment': return 'Still in development';
+			case 'favorite.errors.addFailed': return 'Add failed';
+			case 'favorite.errors.addSuccess': return 'Add success';
+			case 'favorite.errors.deleteFolderFailed': return 'Delete folder failed';
+			case 'favorite.errors.deleteFolderSuccess': return 'Delete folder success';
+			case 'favorite.errors.folderNameCannotBeEmpty': return 'Folder name cannot be empty';
+			case 'favorite.add': return 'Add';
+			case 'favorite.addSuccess': return 'Add success';
+			case 'favorite.addFailed': return 'Add failed';
+			case 'favorite.remove': return 'Remove';
+			case 'favorite.removeSuccess': return 'Remove success';
+			case 'favorite.removeFailed': return 'Remove failed';
+			case 'favorite.removeConfirmation': return 'Are you sure you want to remove this item from favorites?';
+			case 'favorite.removeConfirmationSuccess': return 'Item removed from favorites';
+			case 'favorite.removeConfirmationFailed': return 'Failed to remove item from favorites';
+			case 'favorite.createFolderSuccess': return 'Folder created successfully';
+			case 'favorite.createFolderFailed': return 'Failed to create folder';
+			case 'favorite.createFolder': return 'Create Folder';
+			case 'favorite.enterFolderName': return 'Enter folder name';
+			case 'favorite.enterFolderNameHere': return 'Enter folder name here...';
+			case 'favorite.create': return 'Create';
+			case 'favorite.items': return 'Items';
+			case 'favorite.newFolderName': return 'New Folder';
+			case 'favorite.searchFolders': return 'Search folders...';
+			case 'favorite.searchItems': return 'Search items...';
+			case 'favorite.createdAt': return 'Created At';
+			case 'favorite.myFavorites': return 'My Favorites';
+			case 'favorite.deleteFolderTitle': return 'Delete Folder';
+			case 'favorite.deleteFolderConfirmWithTitle': return ({required Object title}) => 'Are you sure you want to delete ${title} folder?';
+			case 'favorite.removeItemTitle': return 'Remove Item';
+			case 'favorite.removeItemConfirmWithTitle': return ({required Object title}) => 'Are you sure you want to delete ${title} item?';
+			case 'favorite.removeItemSuccess': return 'Item removed from favorites';
+			case 'favorite.removeItemFailed': return 'Failed to remove item from favorites';
+			case 'favorite.localizeFavorite': return 'Favorite';
+			case 'favorite.editFolderTitle': return 'Edit Folder';
+			case 'favorite.editFolderSuccess': return 'Folder updated successfully';
+			case 'favorite.editFolderFailed': return 'Failed to update folder';
 			default: return null;
 		}
 	}

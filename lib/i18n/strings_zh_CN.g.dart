@@ -54,6 +54,7 @@ class TranslationsZhCn implements Translations {
 	@override late final _TranslationsConversationZhCn conversation = _TranslationsConversationZhCn._(_root);
 	@override late final _TranslationsSplashZhCn splash = _TranslationsSplashZhCn._(_root);
 	@override late final _TranslationsDownloadZhCn download = _TranslationsDownloadZhCn._(_root);
+	@override late final _TranslationsFavoriteZhCn favorite = _TranslationsFavoriteZhCn._(_root);
 }
 
 // Path: common
@@ -891,6 +892,47 @@ class _TranslationsDownloadZhCn implements TranslationsDownloadEn {
 	@override String get stillInDevelopment => '开发中';
 }
 
+// Path: favorite
+class _TranslationsFavoriteZhCn implements TranslationsFavoriteEn {
+	_TranslationsFavoriteZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override late final _TranslationsFavoriteErrorsZhCn errors = _TranslationsFavoriteErrorsZhCn._(_root);
+	@override String get add => '追加';
+	@override String get addSuccess => '追加成功';
+	@override String get addFailed => '追加失败';
+	@override String get remove => '删除';
+	@override String get removeSuccess => '删除成功';
+	@override String get removeFailed => '删除失败';
+	@override String get removeConfirmation => '确定要删除这个项目吗？';
+	@override String get removeConfirmationSuccess => '项目已从收藏夹中删除';
+	@override String get removeConfirmationFailed => '删除项目失败';
+	@override String get createFolderSuccess => '文件夹创建成功';
+	@override String get createFolderFailed => '创建文件夹失败';
+	@override String get createFolder => '创建文件夹';
+	@override String get enterFolderName => '输入文件夹名称';
+	@override String get enterFolderNameHere => '在此输入文件夹名称...';
+	@override String get create => '创建';
+	@override String get items => '项目';
+	@override String get newFolderName => '新文件夹';
+	@override String get searchFolders => '搜索文件夹...';
+	@override String get searchItems => '搜索项目...';
+	@override String get createdAt => '创建时间';
+	@override String get myFavorites => '我的收藏';
+	@override String get deleteFolderTitle => '删除文件夹';
+	@override String deleteFolderConfirmWithTitle({required Object title}) => '确定要删除 ${title} 文件夹吗？';
+	@override String get removeItemTitle => '删除项目';
+	@override String removeItemConfirmWithTitle({required Object title}) => '确定要删除 ${title} 项目吗？';
+	@override String get removeItemSuccess => '项目已从收藏夹中删除';
+	@override String get removeItemFailed => '删除项目失败';
+	@override String get localizeFavorite => '收藏';
+	@override String get editFolderTitle => '编辑文件夹';
+	@override String get editFolderSuccess => '文件夹更新成功';
+	@override String get editFolderFailed => '文件夹更新失败';
+}
+
 // Path: forum.errors
 class _TranslationsForumErrorsZhCn implements TranslationsForumErrorsEn {
 	_TranslationsForumErrorsZhCn._(this._root);
@@ -1060,6 +1102,20 @@ class _TranslationsDownloadErrorsZhCn implements TranslationsDownloadErrorsEn {
 	@override String get taskNotFound => '任务未找到';
 	@override String get canNotRefreshVideoTask => '无法刷新视频任务';
 	@override String get taskAlreadyProcessing => '任务已处理中';
+}
+
+// Path: favorite.errors
+class _TranslationsFavoriteErrorsZhCn implements TranslationsFavoriteErrorsEn {
+	_TranslationsFavoriteErrorsZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get addFailed => '追加失败';
+	@override String get addSuccess => '追加成功';
+	@override String get deleteFolderFailed => '删除文件夹失败';
+	@override String get deleteFolderSuccess => '删除文件夹成功';
+	@override String get folderNameCannotBeEmpty => '文件夹名称不能为空';
 }
 
 /// Flat map(s) containing all translations.
@@ -1804,6 +1860,42 @@ extension on TranslationsZhCn {
 			case 'download.galleryDownloadCompletedWithName': return ({required Object galleryName}) => '图库下载完成: ${galleryName}';
 			case 'download.downloadCompletedWithName': return ({required Object fileName}) => '下载完成: ${fileName}';
 			case 'download.stillInDevelopment': return '开发中';
+			case 'favorite.errors.addFailed': return '追加失败';
+			case 'favorite.errors.addSuccess': return '追加成功';
+			case 'favorite.errors.deleteFolderFailed': return '删除文件夹失败';
+			case 'favorite.errors.deleteFolderSuccess': return '删除文件夹成功';
+			case 'favorite.errors.folderNameCannotBeEmpty': return '文件夹名称不能为空';
+			case 'favorite.add': return '追加';
+			case 'favorite.addSuccess': return '追加成功';
+			case 'favorite.addFailed': return '追加失败';
+			case 'favorite.remove': return '删除';
+			case 'favorite.removeSuccess': return '删除成功';
+			case 'favorite.removeFailed': return '删除失败';
+			case 'favorite.removeConfirmation': return '确定要删除这个项目吗？';
+			case 'favorite.removeConfirmationSuccess': return '项目已从收藏夹中删除';
+			case 'favorite.removeConfirmationFailed': return '删除项目失败';
+			case 'favorite.createFolderSuccess': return '文件夹创建成功';
+			case 'favorite.createFolderFailed': return '创建文件夹失败';
+			case 'favorite.createFolder': return '创建文件夹';
+			case 'favorite.enterFolderName': return '输入文件夹名称';
+			case 'favorite.enterFolderNameHere': return '在此输入文件夹名称...';
+			case 'favorite.create': return '创建';
+			case 'favorite.items': return '项目';
+			case 'favorite.newFolderName': return '新文件夹';
+			case 'favorite.searchFolders': return '搜索文件夹...';
+			case 'favorite.searchItems': return '搜索项目...';
+			case 'favorite.createdAt': return '创建时间';
+			case 'favorite.myFavorites': return '我的收藏';
+			case 'favorite.deleteFolderTitle': return '删除文件夹';
+			case 'favorite.deleteFolderConfirmWithTitle': return ({required Object title}) => '确定要删除 ${title} 文件夹吗？';
+			case 'favorite.removeItemTitle': return '删除项目';
+			case 'favorite.removeItemConfirmWithTitle': return ({required Object title}) => '确定要删除 ${title} 项目吗？';
+			case 'favorite.removeItemSuccess': return '项目已从收藏夹中删除';
+			case 'favorite.removeItemFailed': return '删除项目失败';
+			case 'favorite.localizeFavorite': return '收藏';
+			case 'favorite.editFolderTitle': return '编辑文件夹';
+			case 'favorite.editFolderSuccess': return '文件夹更新成功';
+			case 'favorite.editFolderFailed': return '文件夹更新失败';
 			default: return null;
 		}
 	}

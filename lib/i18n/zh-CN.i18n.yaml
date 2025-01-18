@@ -786,3 +786,42 @@ download:
   galleryDownloadCompletedWithName: '图库下载完成: ${galleryName}'
   downloadCompletedWithName: '下载完成: ${fileName}'
   stillInDevelopment: 开发中
+
+favorite:
+  errors:
+    addFailed: 追加失败
+    addSuccess: 追加成功
+    deleteFolderFailed: 删除文件夹失败
+    deleteFolderSuccess: 删除文件夹成功
+    folderNameCannotBeEmpty: 文件夹名称不能为空
+  add: 追加
+  addSuccess: 追加成功
+  addFailed: 追加失败
+  remove: 删除
+  removeSuccess: 删除成功
+  removeFailed: 删除失败
+  removeConfirmation: '确定要删除这个项目吗？'
+  removeConfirmationSuccess: '项目已从收藏夹中删除'
+  removeConfirmationFailed: '删除项目失败'
+  createFolderSuccess: '文件夹创建成功'
+  createFolderFailed: '创建文件夹失败'
+  createFolder: 创建文件夹
+  enterFolderName: 输入文件夹名称
+  enterFolderNameHere: 在此输入文件夹名称...
+  create: 创建
+  items: 项目
+  newFolderName: 新文件夹
+  searchFolders: 搜索文件夹...
+  searchItems: 搜索项目...
+  createdAt: 创建时间
+  myFavorites: 我的收藏
+  deleteFolderTitle: 删除文件夹
+  deleteFolderConfirmWithTitle: '确定要删除 ${title} 文件夹吗？'
+  removeItemTitle: 删除项目
+  removeItemConfirmWithTitle: '确定要删除 ${title} 项目吗？'
+  removeItemSuccess: 项目已从收藏夹中删除
+  removeItemFailed: 删除项目失败
+  localizeFavorite: 本地收藏
+  editFolderTitle: 编辑文件夹
+  editFolderSuccess: 文件夹更新成功
+  editFolderFailed: 文件夹更新失败

@@ -1,6 +1,7 @@
 // lib/migrations/migration_manager.dart
 
 import 'package:i_iwara/db/migrations/migration_v3.dart';
+import 'package:i_iwara/db/migrations/migration_v4.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:sqlite3/common.dart';
 
@@ -16,6 +17,7 @@ class MigrationManager {
     MigrationV1Initial(),
     MigrationV2History(),
     MigrationV3DownloadTask(),
+    MigrationV4Favorites(),
     // [TODO_PLACEHOLDER] 将来新增的迁移在这里添加
   ];
 

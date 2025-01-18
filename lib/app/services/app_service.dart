@@ -5,6 +5,8 @@ import 'package:i_iwara/app/models/message_and_conversation.model.dart';
 import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/ui/pages/conversation/conversation_page.dart';
 import 'package:i_iwara/app/ui/pages/conversation/widgets/message_list_widget.dart';
+import 'package:i_iwara/app/ui/pages/favorite/favorite_folder_detail_page.dart';
+import 'package:i_iwara/app/ui/pages/favorite/favorite_list_page.dart';
 import 'package:i_iwara/app/ui/pages/favorites/my_favorites.dart';
 import 'package:i_iwara/app/ui/pages/follows/follows_page.dart';
 import 'package:i_iwara/app/ui/pages/forum/thread_detail_page.dart';
@@ -22,7 +24,6 @@ import 'package:i_iwara/app/ui/pages/video_detail/video_detail_page_v2.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/my_video_screen.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/common/constants.dart';
-import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/ui/pages/download/gallery_download_task_detail_page.dart';
@@ -573,6 +574,45 @@ class NaviService {
             begin: const Offset(1, 0),
             end: Offset.zero,
           ).animate(animation),
+          child: child,
+        );
+      },
+    ));
+  }
+
+  /// 跳转到本地收藏页
+  static void navigateToLocalFavoritePage() {
+    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
+      settings: const RouteSettings(name: Routes.LOCAL_FAVORITE),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return const FavoriteListPage();
+      },
+      transitionDuration: const Duration(milliseconds: 200),
+      // 从右到左的原生动画
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return SlideTransition(
+          position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(animation),
+          child: child,
+        );
+      },
+    ));
+  }
+
+  /// 跳转到本地收藏夹详情页
+  static void navigateToLocalFavoriteDetailPage(String folderId, String? folderTitle) {
+    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
+      settings: RouteSettings(name: Routes.LOCAL_FAVORITE_DETAIL(folderId)),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return FavoriteFolderDetailPage(
+          folderId: folderId,
+          folderTitle: folderTitle,
+        );
+      },
+      transitionDuration: const Duration(milliseconds: 200),
+      // 从右到左的原生动画
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return SlideTransition(
+          position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(animation),
           child: child,
         );
       },

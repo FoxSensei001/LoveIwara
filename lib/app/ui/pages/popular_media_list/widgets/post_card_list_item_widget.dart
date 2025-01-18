@@ -30,7 +30,10 @@ class PostCardListItemWidget extends StatelessWidget {
         onTap: () {
           // 添加历史记录
           final historyRepo = Get.find<HistoryRepository>();
-          historyRepo.addRecordWithCheck(HistoryRecord.fromPost(post));
+          // post 判断如果body超过200个字符，则截断
+          final body = post.body.length > 200 ? post.body.substring(0, 200) : post.body;
+          final postModel = post.copyWith(body: body);
+          historyRepo.addRecordWithCheck(HistoryRecord.fromPost(postModel));
           
           // 导航到帖子详情页
           NaviService.navigateToPostDetailPage(post.id, post);
