@@ -21,7 +21,6 @@ import '../popular_media_list/widgets/video_tile_list_item_widget.dart';
 import 'controllers/my_video_state_controller.dart';
 import 'controllers/related_media_controller.dart';
 import '../../../../i18n/strings.g.dart' as slang;
-import 'package:volume_controller/volume_controller.dart';
 
 class MyVideoDetailPage extends StatefulWidget {
   final String videoId;

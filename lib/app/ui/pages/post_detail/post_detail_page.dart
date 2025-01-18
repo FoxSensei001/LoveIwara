@@ -8,7 +8,6 @@ import 'package:i_iwara/app/ui/pages/post_detail/widgets/post_detail_content_wid
 import 'package:i_iwara/app/ui/pages/post_detail/widgets/share_post_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
-import 'package:i_iwara/utils/widget_extensions.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 

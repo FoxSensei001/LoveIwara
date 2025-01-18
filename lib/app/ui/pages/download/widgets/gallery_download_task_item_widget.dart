@@ -41,6 +41,8 @@ class GalleryDownloadTaskItem extends StatelessWidget {
       child: InkWell(
         onTap: () => _onTap(context),
         borderRadius: BorderRadius.circular(12),
+        mouseCursor: task.status == DownloadStatus.completed ? SystemMouseCursors.click : SystemMouseCursors.basic,
+        splashFactory: task.status == DownloadStatus.completed ? InkSplash.splashFactory : NoSplash.splashFactory,
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Column(
@@ -347,7 +349,7 @@ class GalleryDownloadTaskItem extends StatelessWidget {
               title: Text(t.download.downloadDetail),
               onTap: () => showDownloadDetailDialog(context, task),
             ),
-            if (task.status == DownloadStatus.completed) ...[
+            if (task.status == DownloadStatus.completed || task.status == DownloadStatus.failed) ...[
               ListTile(
                 leading: const Icon(Icons.folder_open),
                 title: Text(t.download.showInFolder),
@@ -445,7 +447,9 @@ class GalleryDownloadTaskItem extends StatelessWidget {
   }
 
   void _onTap(BuildContext context) {
-    NaviService.navigateToGalleryDownloadTaskDetailPage(task.id);
+    if (task.status == DownloadStatus.completed) {
+      NaviService.navigateToGalleryDownloadTaskDetailPage(task.id);
+    }
   }
 
   void _showDeleteConfirmDialog(BuildContext context) {

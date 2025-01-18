@@ -612,7 +612,7 @@ class VideoDetailContent extends StatelessWidget {
             child: _buildAuthorNameButton(context),
           ),
           if (controller.videoInfo.value?.user != null)
-            Container(
+            SizedBox(
               height: 32,
               child: FollowButtonWidget(
                 user: controller.videoInfo.value!.user!,

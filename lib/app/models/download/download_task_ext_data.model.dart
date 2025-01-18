@@ -90,8 +90,8 @@ class GalleryDownloadExtData {
   final String? authorUsername;
   final String? authorAvatar;
   final int totalImages; // 图片总数
-  final List<Map<String, String>> imageList; // 所有图片的信息列表，包含id、url等
-  final Map<String, String> localPaths; // 新增：存储下载后的本地文件路径，key为imageId，value为本地路径
+  final Map<String, String> imageList; // 所有图片的信息列表，key为imageId，value为url
+  final Map<String, String> localPaths; // 存储下载后的本地文件路径，key为imageId，value为本地路径
 
   GalleryDownloadExtData({
     this.id,
@@ -101,8 +101,8 @@ class GalleryDownloadExtData {
     this.authorUsername,
     this.authorAvatar,
     this.totalImages = 0,
-    this.imageList = const [],
-    this.localPaths = const {}, // 新增字段的默认值
+    this.imageList = const {}, // 默认值改为空Map
+    this.localPaths = const {},
   });
 
   factory GalleryDownloadExtData.fromJson(Map<String, dynamic> json) {
@@ -114,11 +114,8 @@ class GalleryDownloadExtData {
       authorUsername: json['author_username'] as String?,
       authorAvatar: json['author_avatar'] as String?,
       totalImages: json['total_images'] as int? ?? 0,
-      imageList: (json['image_list'] as List<dynamic>?)
-              ?.map((e) => Map<String, String>.from(e as Map))
-              .toList() ??
-          [],
-      localPaths: (json['local_paths'] as Map<String, dynamic>?)?.cast<String, String>() ?? {}, // 新增：从JSON解析localPaths
+      imageList: (json['image_list'] as Map<String, dynamic>?)?.cast<String, String>() ?? {},
+      localPaths: (json['local_paths'] as Map<String, dynamic>?)?.cast<String, String>() ?? {},
     );
   }
 
@@ -132,11 +129,11 @@ class GalleryDownloadExtData {
       'author_avatar': authorAvatar,
       'total_images': totalImages,
       'image_list': imageList,
-      'local_paths': localPaths, // 新增：将localPaths添加到JSON中
+      'local_paths': localPaths,
     };
   }
 
   static String genExtDataIdByGalleryInfo(String id) {
     return '${DownloadTaskExtDataType.gallery.name}_$id';
   }
-} 
+}

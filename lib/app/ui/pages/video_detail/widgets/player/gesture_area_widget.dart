@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:vibration/vibration.dart';
-import 'package:volume_controller/volume_controller.dart';
 
 import '../../../../../services/config_service.dart';
 import '../../controllers/my_video_state_controller.dart';

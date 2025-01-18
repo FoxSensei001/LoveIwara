@@ -161,6 +161,7 @@ class DownloadService extends GetxService {
 
       if (existingTask != null) {
         LogUtils.d('任务成功从数据库中获取: ${existingTask.id}', 'DownloadService');
+
         // 如果任务已存在且已完成，直接拒绝并提示用户
         if (existingTask.status == DownloadStatus.completed) {
           LogUtils.d(
@@ -233,12 +234,13 @@ class DownloadService extends GetxService {
     }
 
     task.status = DownloadStatus.paused;
-    await _repository.updateTask(task); // [优先更新持久化信息]
+    // [优先更新持久化信息]
+    await _repository.updateTask(task); 
 
-    // 从内存中移除
+    // 从内存中移除、取消下载、移除计时器
     _clearMemoryTask(taskId, '用户暂停下载');
 
-    // 通知任务状态变更
+    // 通知UI变更
     _taskStatusChangedNotifier.value++;
 
     // 处理等待队列中的下一个任务
@@ -294,10 +296,13 @@ class DownloadService extends GetxService {
   }
 
   void _clearMemoryTask(String taskId, String message) {
+    // 从内存中移除
     _activeTasks.remove(taskId);
     _downloadQueue.remove(taskId);
+    // 取消下载
     _activeDownloads[taskId]?.cancel(message);
     _activeDownloads.remove(taskId);
+    // 移除计时器
     _taskTimers[taskId]?.cancel();
     _taskTimers.remove(taskId);
   }
@@ -401,19 +406,20 @@ class DownloadService extends GetxService {
 
   // 真正的下载任务
   Future<void> _startRealDownload(DownloadTask task) async {
-    // 如果是图库下载 [TODO:特殊处理]
+    // 向activeDownloads中添加取消令牌用于通知取消
+    final cancelToken = CancelToken();
+    _activeDownloads[task.id] = cancelToken;
+
+      // 如果是图库下载 [TODO:特殊处理]
     if (task.extData?.type == DownloadTaskExtDataType.gallery) {
       await _startGalleryDownload(task);
       return;
     }
 
-    final cancelToken = CancelToken();
-    _activeDownloads[task.id] = cancelToken;
-
     RandomAccessFile? raf;
     StreamSubscription? subscription;
     int retryCount = 0;
-    const maxRetries = 3;
+    const maxRetries = 2;
     const retryDelay = Duration(seconds: 3);
 
     while (retryCount < maxRetries) {
@@ -555,6 +561,10 @@ class DownloadService extends GetxService {
         // 为当前任务创建专用的计时器
         _taskTimers[task.id]?.cancel();
         _taskTimers[task.id] = Timer.periodic(const Duration(seconds: 1), (_) {
+          // 如果是图库类型，则用不到taskTimer，因为图库里的图片下载完成会自动触发数据库的更新和内存状态的更新
+          if (task.extData?.type == DownloadTaskExtDataType.gallery) {
+            return;
+          }
           task.updateSpeed(); // [更新下载速度]
           _repository.updateTask(task); // 每隔1秒 [更新一次持久化信息]
         });
@@ -829,12 +839,10 @@ class DownloadService extends GetxService {
     );
   }
 
-  // 添加图库下载的方法
+  // 图库下载的方法
   Future<void> _startGalleryDownload(DownloadTask task) async {
     try {
       final galleryData = GalleryDownloadExtData.fromJson(task.extData!.data);
-
-      // 格式化保存路径，统一使用平台特定的路径分隔符
       final savePath = path_lib.normalize(task.savePath);
 
       // 创建保存目录
@@ -844,56 +852,150 @@ class DownloadService extends GetxService {
       }
 
       // 初始化下载进度跟踪
+      _galleryDownloadProgress.remove(task.id);
+      _galleryImageProgress.remove(task.id);
+
+      // 初始化进度跟踪状态
       _galleryDownloadProgress[task.id] = {
-        for (var image in galleryData.imageList) image['id']!: false
+        for (var image in galleryData.imageList.entries) image.key: false
       };
       _galleryImageProgress[task.id] = {
-        for (var image in galleryData.imageList) image['id']!: 0
+        for (var image in galleryData.imageList.entries) image.key: 0
       };
 
+      // 更新任务状态为下载中
       task.status = DownloadStatus.downloading;
       task.totalBytes = galleryData.imageList.length;
-      task.downloadedBytes = 0;
+      
+      // 计算已下载的图片数量
+      task.downloadedBytes = galleryData.imageList.entries.where((entry) {
+        final imageId = entry.key;
+        final localPath = galleryData.localPaths[imageId];
+        return localPath != null && File(localPath).existsSync();
+      }).length;
+      
       await _updateTaskStatus(task);
 
-      // 并发下载所有图片
-      final futures = galleryData.imageList
-          .map((image) => _downloadGalleryImage(
-                task,
-                image['url']!,
-                image['id']!,
-                galleryData.imageList.length,
-              ))
-          .toList();
+      // 获取待下载的图片列表
+      final pendingImages = galleryData.imageList.entries.where((entry) {
+        final imageId = entry.key;
+        final localPath = galleryData.localPaths[imageId];
+        // 如果本地路径不存在，或者文件不存在，则需要下载
+        return localPath == null || !File(localPath).existsSync();
+      }).toList();
 
-      final results = await Future.wait(futures);
+      // 串行下载每个图片
+      for (var entry in pendingImages) {
+        // 如果任务被取消，则退出循环
+        if (_activeDownloads[task.id]?.isCancelled ?? true) {
+          LogUtils.i('图库下载任务已取消: ${task.fileName}', 'DownloadService');
+          break;
+        }
 
-      // 检查是否所有图片都下载成功
-      final allSuccess = results.every((success) => success);
+        final imageId = entry.key;
+        final imageUrl = entry.value;
+        
+        // 下载单个图片，支持重试一次
+        bool success = false;
+        for (int retry = 0; retry < 2 && !success; retry++) {
+          try {
+            success = await _downloadGalleryImage(
+              task,
+              imageUrl,
+              imageId,
+              galleryData.imageList.length,
+            );
+            
+            if (success) {
+              // 验证文件确实下载成功
+              final localPath = galleryData.localPaths[imageId];
+              if (localPath != null && File(localPath).existsSync()) {
+                task.downloadedBytes = galleryData.imageList.entries.where((entry) {
+                  final imgId = entry.key;
+                  final path = galleryData.localPaths[imgId];
+                  return path != null && File(path).existsSync();
+                }).length;
+                await _repository.updateTask(task);
+                _activeTasks[task.id] = task;
+              }
+            } else if (retry == 1) {
+              // 第二次尝试也失败，记录错误
+              LogUtils.e('图片下载失败，已重试: $imageUrl', tag: 'DownloadService');
+              task.error = '部分图片下载失败';
+            }
+          } catch (e) {
+            LogUtils.e('下载图片出错: $imageUrl', tag: 'DownloadService', error: e);
+            if (retry == 1) {
+              task.error = '部分图片下载失败: ${_getErrorMessage(e)}';
+            }
+          }
 
-      task.status =
-          allSuccess ? DownloadStatus.completed : DownloadStatus.failed;
-      task.error =
-          allSuccess ? null : slang.t.download.errors.partialDownloadFailed;
+          // 如果是第一次失败，等待后重试
+          if (!success && retry == 0) {
+            await Future.delayed(const Duration(seconds: 3));
+          }
+        }
+      }
 
-      // 更新任务状态前先保存到数据库
+      // 检查最终状态
+      if (_activeDownloads[task.id]?.isCancelled ?? true) {
+        // 任务被取消，更新状态为暂停
+        task.status = DownloadStatus.paused;
+      } else {
+        // 重新获取最新的任务数据（因为可能在下载过程中已经更新）
+        final galleryData = GalleryDownloadExtData.fromJson(task.extData!.data);
+        
+        // 检查是否所有图片都下载成功
+        final allSuccess = galleryData.imageList.entries.every((entry) {
+          final imageId = entry.key;
+          final localPath = galleryData.localPaths[imageId];
+          return localPath != null && File(localPath).existsSync();
+        });
+
+        task.downloadedBytes = galleryData.localPaths.entries
+          .where((entry) => File(entry.value).existsSync())
+          .length;
+        
+        task.status = allSuccess ? DownloadStatus.completed : DownloadStatus.failed;
+        if (!allSuccess) {
+          task.error = '部分图片下载失败';
+          LogUtils.e(
+            '图库下载未完全成功: ${task.downloadedBytes}/${task.totalBytes}',
+            tag: 'DownloadService'
+          );
+        } else {
+          LogUtils.i(
+            '图库下载完成: ${task.downloadedBytes}/${task.totalBytes}',
+            'DownloadService'
+          );
+        }
+      }
+
+      // 更新任务状态
       await _repository.updateTask(task);
-      // 更新内存中的状态
       _activeTasks[task.id] = task;
-      // 通知UI更新
       _taskStatusChangedNotifier.value++;
 
-      // 等待一段时间后再清理进度状态，以确保UI能够显示完成状态
+      // 等待一段时间后清理进度状态
       await Future.delayed(const Duration(seconds: 1));
+      _galleryDownloadProgress.remove(task.id);
+      _galleryImageProgress.remove(task.id);
+      
     } catch (e) {
       LogUtils.e('下载图库失败', tag: 'DownloadService', error: e);
       task.status = DownloadStatus.failed;
-      task.error = e.toString();
+      task.error = _getErrorMessage(e);
       await _updateTaskStatus(task);
-    } finally {
-      // 清理下载进度
+      
+      // 清理进度状态
       _galleryDownloadProgress.remove(task.id);
       _galleryImageProgress.remove(task.id);
+    } finally {
+      // 如果不是暂停状态，清理活跃下载状态
+      if (task.status != DownloadStatus.paused) {
+        _activeDownloads.remove(task.id);
+        _activeTasks.remove(task.id);
+      }
     }
   }
 
@@ -905,8 +1007,7 @@ class DownloadService extends GetxService {
     }
 
     final galleryData = GalleryDownloadExtData.fromJson(task.extData!.data);
-    final imageInfo =
-        galleryData.imageList.firstWhere((img) => img['id'] == imageId);
+    final imageInfo = galleryData.imageList[imageId];
 
     // 更新状态为未下载
     _galleryDownloadProgress[taskId]?[imageId] = false;
@@ -914,7 +1015,7 @@ class DownloadService extends GetxService {
     // 开始下载这个图片
     await _downloadGalleryImage(
       task,
-      imageInfo['url']!,
+      imageInfo!,
       imageId,
       galleryData.imageList.length,
     );
@@ -990,10 +1091,11 @@ class DownloadService extends GetxService {
           type: DownloadTaskExtDataType.gallery,
           data: updatedData.toJson(),
         );
+        
+        // 立即更新到数据库和内存
+        await _repository.updateTask(task);
+        _activeTasks[task.id] = task;
       }
-
-      await _repository.updateTask(task);
-      _activeTasks[task.id] = task; // 更新内存中的任务状态
 
       return true;
     } catch (e) {

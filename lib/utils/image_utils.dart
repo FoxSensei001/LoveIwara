@@ -86,7 +86,7 @@ class ImageUtils {
 
       await DownloadService.to.addTask(task);
 
-      showToastWidget(MDToastWidget(
+      showToastWidget(const MDToastWidget(
           message: '开始下载...',
           type: MDToastType.success));
 
@@ -94,7 +94,7 @@ class ImageUtils {
       NaviService.navigateToDownloadTaskListPage();
     } catch (e) {
       LogUtils.e('添加下载任务失败', tag: 'ImageUtils', error: e);
-      showToastWidget(MDToastWidget(
+      showToastWidget(const MDToastWidget(
           message: '下载失败',
           type: MDToastType.error));
     }

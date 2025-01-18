@@ -7,8 +7,8 @@ class DownloadTask {
   String url; // 下载链接
   String savePath; // 保存路径
   final String fileName; // 文件名
-  int totalBytes; // 文件总大小
-  int downloadedBytes; // 已下载大小
+  int totalBytes; // 文件总大小 [在图库下载中，可以用于表示图库中的图片总数量]
+  int downloadedBytes; // 已下载大小 [在图库下载中，可以用于表示已下载的图片数量]
   DownloadStatus status; // 下载状态
   bool supportsRange; // 是否支持断点续传
   String? error; // 错误信息

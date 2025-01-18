@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/models/download/download_task.model.dart';
+import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/routes/app_routes.dart';
+import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
@@ -11,9 +14,6 @@ import 'package:i_iwara/utils/image_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/widget_extensions.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/share_gallery_bottom_sheet.dart';
-import 'package:i_iwara/app/models/download/download_task.model.dart';
-import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
-import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:path/path.dart' as path;
@@ -615,62 +615,60 @@ class ImageModelDetailContent extends StatelessWidget {
   // 下载图库
   void _downloadGallery(BuildContext context) async {
 
-    showToastWidget(MDToastWidget(
-        message: slang.t.download.stillInDevelopment,
-        type: MDToastType.warning));
-    return;
-    // final t = slang.Translations.of(context);
-    // try {
-    //   final imageModel = controller.imageModelInfo.value;
-    //   if (imageModel == null) {
-    //     showToastWidget(MDToastWidget(
-    //         message: t.download.errors.imageModelNotFound,
-    //         type: MDToastType.error));
-    //     return;
-    //   }
+    final t = slang.Translations.of(context);
+    try {
+      final imageModel = controller.imageModelInfo.value;
+      if (imageModel == null) {
+        showToastWidget(MDToastWidget(
+            message: t.download.errors.imageModelNotFound,
+            type: MDToastType.error));
+        return;
+      }
 
-    //   // 创建下载任务的扩展数据
-    //   final extData = GalleryDownloadExtData(
-    //     id: imageModel.id,
-    //     title: imageModel.title,
-    //     previewUrls: imageModel.files.take(3).map((e) => e.getLargeImageUrl()).toList(),
-    //     authorName: imageModel.user?.name,
-    //     authorUsername: imageModel.user?.username,
-    //     authorAvatar: imageModel.user?.avatar?.avatarUrl,
-    //     totalImages: imageModel.files.length,
-    //     imageList: imageModel.files.map((e) => {
-    //       'id': e.id,
-    //       'url': e.getOriginalImageUrl(),
-    //     }).toList(),
-    //   );
+      // 创建下载任务的扩展数据
+      final extData = GalleryDownloadExtData(
+        id: imageModel.id,
+        title: imageModel.title,
+        previewUrls: imageModel.files.take(3).map((e) => e.getLargeImageUrl()).toList(),
+        authorName: imageModel.user?.name,
+        authorUsername: imageModel.user?.username,
+        authorAvatar: imageModel.user?.avatar?.avatarUrl,
+        totalImages: imageModel.files.length,
+        imageList: {
+          for (var e in imageModel.files) 
+            e.id: e.getOriginalImageUrl(),
+        },
+        localPaths: {},
+      );
 
-    //   // 创建下载任务
-    //   final task = DownloadTask(
-    //     id: GalleryDownloadExtData.genExtDataIdByGalleryInfo(imageModel.id),
-    //     url: imageModel.files.first.getOriginalImageUrl(), // 使用第一张图片的URL
-    //     savePath: await _getSavePath(imageModel.title, imageModel.id),
-    //     fileName: '${imageModel.title}_${imageModel.id}',
-    //     supportsRange: true,
-    //     extData: DownloadTaskExtData(
-    //       type: DownloadTaskExtDataType.gallery,
-    //       data: extData.toJson(),
-    //     ),
-    //   );
+      // 创建下载任务
+      final task = DownloadTask(
+        id: GalleryDownloadExtData.genExtDataIdByGalleryInfo(imageModel.id),
+        url: imageModel.files.first.getOriginalImageUrl(), // 使用第一张图片的URL
+        downloadedBytes: 0, // 已下载图片数量
+        totalBytes: imageModel.files.length, // 总图片数量
+        savePath: await _getSavePath(imageModel.title, imageModel.id),  // 保存路径 [下载文件夹/galleries/图库标题_图库id]
+        fileName: '${imageModel.title}_${imageModel.id}', // 文件名
+        extData: DownloadTaskExtData(
+          type: DownloadTaskExtDataType.gallery,
+          data: extData.toJson(),
+        ),
+      );
 
-    //   await DownloadService.to.addTask(task);
+      await DownloadService.to.addTask(task);
 
-    //   showToastWidget(MDToastWidget(
-    //       message: t.download.startDownloading,
-    //       type: MDToastType.success));
+      showToastWidget(MDToastWidget(
+          message: t.download.startDownloading,
+          type: MDToastType.success));
 
-    //   // 打开下载管理页面
-    //   NaviService.navigateToDownloadTaskListPage();
-    // } catch (e) {
-    //   LogUtils.e('添加下载任务失败', tag: 'ImageModelDetailContent', error: e);
-    //   showToastWidget(MDToastWidget(
-    //       message: t.download.errors.downloadFailed,
-    //       type: MDToastType.error));
-    // }
+      // 打开下载管理页面
+      NaviService.navigateToDownloadTaskListPage();
+    } catch (e) {
+      LogUtils.e('添加下载任务失败', tag: 'ImageModelDetailContent', error: e);
+      showToastWidget(MDToastWidget(
+          message: t.download.errors.downloadFailed,
+          type: MDToastType.error));
+    }
   }
 
   // 获取保存路径

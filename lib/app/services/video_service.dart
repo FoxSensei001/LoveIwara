@@ -216,7 +216,7 @@ class VideoService extends GetxService {
       return [];
     }
     try {
-      final response = await _apiService.get(fileUrl!, headers: {
+      final response = await _apiService.get(fileUrl, headers: {
         'X-Version':
             XVersionCalculatorUtil.calculateXVersion(fileUrl),
       });

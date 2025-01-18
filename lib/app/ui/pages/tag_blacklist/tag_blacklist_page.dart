@@ -69,7 +69,7 @@ class _TagBlacklistPageState extends State<TagBlacklistPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Shimmer.fromColors(
-                  baseColor: Theme.of(context).colorScheme.surfaceVariant,
+                  baseColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                   highlightColor: Theme.of(context).colorScheme.surface,
                   child: Container(
                     width: 150,
@@ -85,7 +85,7 @@ class _TagBlacklistPageState extends State<TagBlacklistPage> {
                   spacing: 8.0,
                   runSpacing: 8.0,
                   children: List.generate(6, (index) => Shimmer.fromColors(
-                    baseColor: Theme.of(context).colorScheme.surfaceVariant,
+                    baseColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                     highlightColor: Theme.of(context).colorScheme.surface,
                     child: Container(
                       width: 80 + (index % 2) * 20,

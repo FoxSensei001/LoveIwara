@@ -254,7 +254,7 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
             const SizedBox(width: 2),
             Text(
               widget.video.minutesDuration!,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w500,
                 fontSize: 10,
@@ -290,7 +290,7 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
             const SizedBox(width: 2),
             Text(
               t.common.externalVideo,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w500,
                 fontSize: 10,

@@ -72,32 +72,13 @@ class _GalleryDownloadTaskDetailPageState extends State<GalleryDownloadTaskDetai
   // 构建图片菜单项
   List<MenuItem> _buildImageMenuItems(BuildContext context, ImageItem item) {
     final t = slang.Translations.of(context);
-    final isLocalFile = item.data.url.startsWith('file://');
-
+    
     return [
-      if (!isLocalFile) ...[
-        MenuItem(
-          title: t.galleryDetail.copyLink,
-          icon: Icons.copy,
-          onTap: () => ImageUtils.copyLink(item),
-        ),
-        MenuItem(
-          title: t.galleryDetail.copyImage,
-          icon: Icons.copy,
-          onTap: () => ImageUtils.copyImage(item),
-        ),
-      ],
       if (GetPlatform.isDesktop && !GetPlatform.isWeb)
         MenuItem(
           title: t.galleryDetail.saveAs,
           icon: Icons.download,
           onTap: () => ImageUtils.downloadImageForDesktop(item),
-        ),
-      if (!isLocalFile)
-        MenuItem(
-          title: t.galleryDetail.saveToAlbum,
-          icon: Icons.save,
-          onTap: () => ImageUtils.downloadImageForMobile(item),
         ),
     ];
   }
@@ -137,36 +118,24 @@ class _GalleryDownloadTaskDetailPageState extends State<GalleryDownloadTaskDetai
 
     // 构建图片列表
     List<ImageItem> buildImageItems(GalleryDownloadExtData extData, DownloadTask? currentTask) {
-      return extData.imageList.map((imageInfo) {
-        final imageId = imageInfo['id']!;
-        final imageUrl = imageInfo['url']!;
+      return extData.imageList.entries.map((entry) {
+        final imageId = entry.key;
         final localPath = extData.localPaths[imageId];
-        final isDownloaded = localPath != null && isImageDownloaded(localPath);
-
-        // 如果是活跃任务，从内存中获取下载状态
-        if (currentTask != null && currentTask.status == DownloadStatus.downloading) {
-          final progress = DownloadService.to.getGalleryDownloadProgress(currentTask.id);
-          if (progress != null && progress[imageId] == true && localPath != null) {
-            return ImageItem(
-              url: 'file://$localPath',
-              data: ImageItemData(
-                id: imageId,
-                url: 'file://$localPath',
-                originalUrl: 'file://$localPath',
-              ),
-            );
-          }
+        
+        if (localPath == null || !File(localPath).existsSync()) {
+          LogUtils.e('图片本地文件不存在: $imageId', tag: 'GalleryDownloadTaskDetailPage');
+          return null;
         }
 
         return ImageItem(
-          url: isDownloaded ? 'file://$localPath' : imageUrl,
+          url: 'file://$localPath',
           data: ImageItemData(
             id: imageId,
-            url: isDownloaded ? 'file://$localPath' : imageUrl,
-            originalUrl: isDownloaded ? 'file://$localPath' : imageUrl,
+            url: 'file://$localPath',
+            originalUrl: 'file://$localPath',
           ),
         );
-      }).toList();
+      }).whereType<ImageItem>().toList();
     }
 
     final imageItems = buildImageItems(extData, currentTask);
@@ -323,7 +292,7 @@ class _GalleryDownloadTaskDetailPageState extends State<GalleryDownloadTaskDetai
                                   onTap: () => _onImageTap(context, item, imageItems),
                                   child: isDownloaded
                                       ? isUnsupportedFormat
-                                          ? Container(
+                                          ? SizedBox(
                                               height: 200,
                                               child: Center(
                                                 child: Column(
@@ -344,7 +313,7 @@ class _GalleryDownloadTaskDetailPageState extends State<GalleryDownloadTaskDetai
                                               File(item.url.replaceFirst('file://', '')),
                                               fit: BoxFit.cover,
                                               errorBuilder: (context, error, stackTrace) =>
-                                                  Container(
+                                                  SizedBox(
                                                     height: 200,
                                                     child: const Center(
                                                       child: Icon(Icons.error_outline),
@@ -355,7 +324,7 @@ class _GalleryDownloadTaskDetailPageState extends State<GalleryDownloadTaskDetai
                                           item.url,
                                           fit: BoxFit.cover,
                                           errorBuilder: (context, error, stackTrace) =>
-                                              Container(
+                                              SizedBox(
                                                 height: 200,
                                                 child: const Center(
                                                   child: Icon(Icons.error_outline),
