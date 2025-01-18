@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
+import 'package:i_iwara/app/models/history_record.dart';
+import 'package:i_iwara/app/repositories/history_repository.dart';
 import 'package:i_iwara/app/services/forum_service.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:loading_more_list/loading_more_list.dart';
@@ -9,6 +11,8 @@ class ThreadDetailRepository extends LoadingMoreBase<ThreadCommentModel> {
   final String categoryId;
   final String threadId;
   final Function(ForumThreadModel thread)? updateThread;
+  bool firstLoad = true;
+  final HistoryRepository _historyRepository = HistoryRepository();
 
   ThreadDetailRepository({
     required this.categoryId,
@@ -51,6 +55,12 @@ class ThreadDetailRepository extends LoadingMoreBase<ThreadCommentModel> {
 
       final thread = result.data?['thread'] as ForumThreadModel;
       updateThread?.call(thread);
+
+      if (firstLoad) {
+        firstLoad = false;
+        // 记录浏览历史
+        _historyRepository.addRecordWithCheck(HistoryRecord.fromThread(thread));
+      }
 
       if (_pageIndex == 0) {
         clear();

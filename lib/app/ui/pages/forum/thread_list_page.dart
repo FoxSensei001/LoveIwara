@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
-import 'package:i_iwara/app/models/history_record.dart';
-import 'package:i_iwara/app/repositories/history_repository.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/forum/controllers/thread_list_repository.dart';
@@ -38,7 +36,6 @@ class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProvid
   final RxString _categoryName = ''.obs;
   final RxString _categoryDescription = ''.obs;
   late AnimationController _floatingButtonController;
-  final HistoryRepository _historyRepository = HistoryRepository();
 
   @override
   void initState() {
@@ -129,12 +126,12 @@ class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProvid
             ),
           ),
           Obx(() => IconButton(
-            icon: Icon(_enableFloatingButton.value ? Icons.vertical_align_top : Icons.vertical_align_top_outlined),
+            icon: Icon(_enableFloatingButton.value ? Icons.visibility : Icons.visibility_off),
             onPressed: () {
               _enableFloatingButton.value = !_enableFloatingButton.value;
 
               showToastWidget(MDToastWidget(
-                message: _enableFloatingButton.value ? t.common.disabledFloatingButtons : t.common.enabledFloatingButtons,
+                message: _enableFloatingButton.value ? t.common.enabledFloatingButtons : t.common.disabledFloatingButtons,
                 type: MDToastType.success
               ));
             },
@@ -200,15 +197,36 @@ class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProvid
       floatingActionButton: ScaleTransition(
         scale: _floatingButtonController,
         child: Obx(() => (_showBackToTop.value && _enableFloatingButton.value)
-            ? FloatingActionButton(
-                onPressed: () {
-                  _scrollController.animateTo(
-                    0,
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeInOut,
-                  );
-                },
-                child: const Icon(Icons.arrow_upward),
+            ? Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 隐藏浮动按钮的按钮
+                  FloatingActionButton(
+                    heroTag: 'hideFloatingButton',
+                    onPressed: () {
+                      _enableFloatingButton.value = false;
+                      showToastWidget(MDToastWidget(
+                        message: t.common.disabledFloatingButtons,
+                        type: MDToastType.success
+                      ));
+                    },
+                    backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                    child: const Icon(Icons.visibility_off),
+                  ).paddingOnly(bottom: 8),
+                  // 回到顶部按钮
+                  FloatingActionButton(
+                    onPressed: () {
+                      _scrollController.animateTo(
+                        0,
+                        duration: const Duration(milliseconds: 500),
+                        curve: Curves.easeInOut,
+                      );
+                    },
+                    child: const Icon(Icons.arrow_upward),
+                  ),
+                  const SafeArea(child: SizedBox()),
+                ],
               ).paddingBottom(Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0)
             : const SizedBox()),
       ),
@@ -234,8 +252,6 @@ class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProvid
   }
 
   void _navigateToThreadDetail(ForumThreadModel thread) {
-    // 记录浏览历史
-    _historyRepository.addRecordWithCheck(HistoryRecord.fromThread(thread));
     // 导航到帖子详情页
     NaviService.navigateToForumThreadDetailPage(widget.categoryId, thread.id);
   }

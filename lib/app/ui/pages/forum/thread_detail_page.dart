@@ -142,12 +142,12 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
             )),
         actions: [
           Obx(() => IconButton(
-            icon: Icon(_enableFloatingButtons.value ? Icons.vertical_align_top : Icons.vertical_align_top_outlined),
+            icon: Icon(_enableFloatingButtons.value ? Icons.visibility : Icons.visibility_off),
             onPressed: () {
               _enableFloatingButtons.value = !_enableFloatingButtons.value;
 
               showToastWidget(MDToastWidget(
-                message: _enableFloatingButtons.value ? t.common.disabledFloatingButtons : t.common.enabledFloatingButtons,
+                message: _enableFloatingButtons.value ? t.common.enabledFloatingButtons : t.common.disabledFloatingButtons,
                 type: MDToastType.success
               ));
             },
@@ -582,6 +582,20 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
       floatingActionButton: Obx(() => _enableFloatingButtons.value ? Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // 隐藏浮动按钮的按钮
+            FloatingActionButton(
+              heroTag: 'hideFloatingButton',
+              onPressed: () {
+                _enableFloatingButtons.value = false;
+                showToastWidget(MDToastWidget(
+                  message: t.common.disabledFloatingButtons,
+                  type: MDToastType.success
+                ));
+              },
+              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+              foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
+              child: const Icon(Icons.visibility_off),
+            ).paddingOnly(bottom: 8),
             // 发帖按钮
             if (_thread.value != null)
               FloatingActionButton(
@@ -611,7 +625,6 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
                     : Theme.of(context).colorScheme.onPrimary,
                 child: Icon(
                   _thread.value!.locked ? Icons.lock : Icons.reply,
-                  size: 20,
                 ),
               ).paddingOnly(bottom: 8),
             // 回到顶部按钮
