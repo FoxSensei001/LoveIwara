@@ -51,9 +51,9 @@ Thank you for your understanding and support! If you're also a Flutter beginner,
 - **🖥️ Supported Platforms**
     - 📱 Android
     - 🪟 Windows
-    - 🍎 MacOS (Due to lack of Mac device, testing and built packages unavailable; UI bugs theoretically same as Windows version but not fully tested)
-    - 🐧 Linux (Due to lack of Linux device, testing and built packages unavailable)
-    - 📱 iOS (Due to lack of iOS device, testing and built packages unavailable)
+    - 🍎 MacOS (Due to lack of Mac device, testing unavailable;)
+    - 🐧 Linux (Due to lack of Linux device, testing unavailable)
+    - 📱 iOS (Due to lack of iOS device, testing unavailable)
     - 🌐 Web (Development only)
 
 - **🔍 Search**
@@ -61,6 +61,11 @@ Thank you for your understanding and support! If you're also a Flutter beginner,
 
 - **📜 History**
     - Browsing history: videos/galleries/posts/forums
+- **📜 Local Favorite**
+    - Favorite folder
+    - Local favorite
+- **🔍 Download (Test Version)**
+    - Download videos/galleries/single files
 
 - **🔄 Translation**
     - Translate video descriptions/gallery descriptions/posts/comments/forums/conversations, etc.
@@ -105,6 +110,7 @@ Thank you for your understanding and support! If you're also a Flutter beginner,
     - Following system
 - **🔗 Share**
     - Share video/gallery/post/thread/user
+    - Android app jump (Only Android, other apps will jump to the app to continue browsing when trying to open the link)
 
 - **🌍 Multi-language Support**
     - English
@@ -115,7 +121,7 @@ Thank you for your understanding and support! If you're also a Flutter beginner,
 - **🔍 More features to be discovered**
 
 #### Upcoming Features
-- **Download Management**
+- **Temporary no new features planned, you can submit your ideas in the [Issues](https://github.com/FoxSensei001/i_iwara/issues) area**
 - **Enhanced User Experience**
 - **Others**
   
@@ -131,6 +137,7 @@ Thank you for your understanding and support! If you're also a Flutter beginner,
 |<img src="docs/imgs/shipinliebiao.png" width="300">|<img src="docs/imgs/sousuo.png" width="300">|
 |<img src="docs/imgs/tongzhi.png" width="300">|<img src="docs/imgs/tuku.png" width="300">|
 |<img src="docs/imgs/tukuliebiao.png" width="300">|<img src="docs/imgs/zuozhe.png" width="300">|
+|<img src="docs/imgs/download.png" width="300">|<img src="docs/imgs/localshoucang.png" width="300">|
 
 ### 🛠️ Development Environment Setup
 

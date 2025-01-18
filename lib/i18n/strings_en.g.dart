@@ -905,6 +905,7 @@ class TranslationsDownloadEn {
 	String galleryDownloadCompletedWithName({required Object galleryName}) => 'Gallery Download Completed: ${galleryName}';
 	String downloadCompletedWithName({required Object fileName}) => 'Download Completed: ${fileName}';
 	String get stillInDevelopment => 'Still in development';
+	String get saveToAppDirectory => 'Save to app directory';
 }
 
 // Path: favorite
@@ -1118,6 +1119,11 @@ class TranslationsDownloadErrorsEn {
 	String get canNotRefreshVideoTask => 'Failed to refresh video task';
 	String get taskAlreadyProcessing => 'Task already processing';
 	String get taskNotFound => 'Task not found';
+	String get failedToLoadTasks => 'Failed to load tasks';
+	String partialDownloadFailedWithMessage({required Object message}) => 'Partial download failed: ${message}';
+	String unsupportedImageFormatWithMessage({required Object extension}) => 'Unsupported image format: ${extension}, you can try to download it to your device to view it';
+	String get imageLoadFailed => 'Image load failed';
+	String get pleaseTryOtherViewer => 'Please try using other viewers to open';
 }
 
 // Path: favorite.errors
@@ -1840,6 +1846,11 @@ extension on Translations {
 			case 'download.errors.canNotRefreshVideoTask': return 'Failed to refresh video task';
 			case 'download.errors.taskAlreadyProcessing': return 'Task already processing';
 			case 'download.errors.taskNotFound': return 'Task not found';
+			case 'download.errors.failedToLoadTasks': return 'Failed to load tasks';
+			case 'download.errors.partialDownloadFailedWithMessage': return ({required Object message}) => 'Partial download failed: ${message}';
+			case 'download.errors.unsupportedImageFormatWithMessage': return ({required Object extension}) => 'Unsupported image format: ${extension}, you can try to download it to your device to view it';
+			case 'download.errors.imageLoadFailed': return 'Image load failed';
+			case 'download.errors.pleaseTryOtherViewer': return 'Please try using other viewers to open';
 			case 'download.downloadList': return 'Download List';
 			case 'download.download': return 'Download';
 			case 'download.startDownloading': return 'Start Downloading';
@@ -1887,6 +1898,7 @@ extension on Translations {
 			case 'download.galleryDownloadCompletedWithName': return ({required Object galleryName}) => 'Gallery Download Completed: ${galleryName}';
 			case 'download.downloadCompletedWithName': return ({required Object fileName}) => 'Download Completed: ${fileName}';
 			case 'download.stillInDevelopment': return 'Still in development';
+			case 'download.saveToAppDirectory': return 'Save to app directory';
 			case 'favorite.errors.addFailed': return 'Add failed';
 			case 'favorite.errors.addSuccess': return 'Add success';
 			case 'favorite.errors.deleteFolderFailed': return 'Delete folder failed';

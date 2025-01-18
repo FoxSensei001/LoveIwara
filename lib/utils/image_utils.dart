@@ -65,65 +65,53 @@ class ImageUtils {
     }
   }
 
-  // 下载图片: 移动端
-  static void downloadImageForMobile(ImageItem item) async {
+  // 下载图片
+  static void downloadImageToAppDirectory(ImageItem item) async {
     try {
       String url = item.data.originalUrl.isEmpty ? item.data.url : item.data.originalUrl;
+      // https://i.iwara.tv/image/original/5d80d601-6689-4728-80bd-b585d83eac9e/5d80d601-6689-4728-80bd-b585d83eac9e.webm
+      print('senko 下载地址: $url');
       if (url.isEmpty) {
         showToastWidget(MDToastWidget(
             message: slang.t.common.linkIsEmpty, type: MDToastType.error));
         return;
       }
 
+      Uri uri = Uri.parse(url);
+      // 通过uri获取文件名和扩展名
+      String fileName = uri.pathSegments.last;
+      String fileExtension = path.extension(fileName);
+
       // 创建下载任务
       final task = DownloadTask(
-        id: 'single_image_${item.data.id}',
+        id: 'single_${item.data.id}_$fileName',
         url: url,
-        savePath: await _getSavePath(item.data.title ?? 'image', item.data.id),
-        fileName: '${item.data.title ?? 'image'}_${item.data.id}.jpg',
+        savePath: await _getSavePath(item.data.title ?? fileExtension.replaceAll('.', ''), fileName),
         supportsRange: true,
+        fileName: fileName,
       );
 
       await DownloadService.to.addTask(task);
 
-      showToastWidget(const MDToastWidget(
-          message: '开始下载...',
+      showToastWidget(MDToastWidget(
+          message: slang.t.download.downloading,
           type: MDToastType.success));
 
       // 打开下载管理页面
       NaviService.navigateToDownloadTaskListPage();
     } catch (e) {
       LogUtils.e('添加下载任务失败', tag: 'ImageUtils', error: e);
-      showToastWidget(const MDToastWidget(
-          message: '下载失败',
+      showToastWidget(MDToastWidget(
+          message: slang.t.download.failed,
           type: MDToastType.error));
     }
   }
 
-  // 获取图片的保存路径
-  static Future<String> _getSavePath(String title, String id) async {
-    final dir = await CommonUtils.getAppDirectory(pathSuffix: path.join('downloads', 'images'));
+  /// title: 可能为空字符串
+  static Future<String> _getSavePath(String title, String fileName) async {
+    final dir = await CommonUtils.getAppDirectory(pathSuffix: path.join('downloads', 'single'));
     final sanitizedTitle = title.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_');
-    return '${dir.path}/${sanitizedTitle}_$id.jpg';
-  }
-
-  // 下载图片: 桌面
-  static Future<String> _getDefaultDownloadPath() async {
-    if (Platform.isWindows || Platform.isLinux) {
-      // Windows/Linux: 使用下载目录
-      return (await getDownloadsDirectory())?.path ??
-          (await getApplicationDocumentsDirectory()).path;
-    } else if (Platform.isMacOS) {
-      // macOS: 优先使用下载目录
-      final downloads = await getDownloadsDirectory();
-      if (downloads != null) return downloads.path;
-
-      // 备选：文档目录
-      return (await getApplicationDocumentsDirectory()).path;
-    } else {
-      // 其他平台：使用应用文档目录
-      return (await getApplicationDocumentsDirectory()).path;
-    }
+    return path.join(dir.path, sanitizedTitle, fileName);
   }
 
   static void downloadImageForDesktop(ImageItem item) async {

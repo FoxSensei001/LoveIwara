@@ -745,6 +745,11 @@ download:
     canNotRefreshVideoTask: 'Failed to refresh video task'
     taskAlreadyProcessing: 'Task already processing'
     taskNotFound: 'Task not found'
+    failedToLoadTasks: 'Failed to load tasks'
+    partialDownloadFailedWithMessage: 'Partial download failed: ${message}'
+    unsupportedImageFormatWithMessage: 'Unsupported image format: ${extension}, you can try to download it to your device to view it'
+    imageLoadFailed: 'Image load failed'
+    pleaseTryOtherViewer: 'Please try using other viewers to open'
   downloadList: Download List
   download: Download
   startDownloading: Start Downloading
@@ -792,6 +797,7 @@ download:
   galleryDownloadCompletedWithName: 'Gallery Download Completed: ${galleryName}'
   downloadCompletedWithName: 'Download Completed: ${fileName}'
   stillInDevelopment: Still in development
+  saveToAppDirectory: Save to app directory
 
 favorite:
   errors:

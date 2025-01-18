@@ -748,6 +748,11 @@ download:
     taskNotFound: 'タスクが見つかりません'
     canNotRefreshVideoTask: 'ビデオタスクの更新に失敗しました'
     taskAlreadyProcessing: 'タスクはすでに処理中です'
+    failedToLoadTasks: 'タスクの読み込みに失敗しました'
+    partialDownloadFailedWithMessage: '部分ダウンロードに失敗しました: ${message}'
+    unsupportedImageFormatWithMessage: 'サポートされていない画像形式: ${extension}, デバイスにダウンロードして表示することができます'
+    imageLoadFailed: '画像の読み込みに失敗しました'
+    pleaseTryOtherViewer: '他のビューアーを使用してみてください'
   downloadList: ダウンロードリスト
   download: ダウンロード
   startDownloading: ダウンロードを開始
@@ -795,6 +800,7 @@ download:
   galleryDownloadCompletedWithName: 'ギャラリーのダウンロードが完了しました: ${galleryName}'
   downloadCompletedWithName: 'ダウンロードが完了しました: ${fileName}'
   stillInDevelopment: 開発中
+  saveToAppDirectory: アプリケーションディレクトリに保存
 
 favorite:
   errors:

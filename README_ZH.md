@@ -51,9 +51,9 @@ Love Iwara（又名 i_iwara 或 2i）是一个使用 Flutter 构建的 Iwara 第
 - **🖥️ 支持平台**
     - 📱 Android
     - 🪟 Windows
-    - 🍎 MacOS（由于没有属于自己的 Mac 设备，暂无法测试以及提供构建好的安装包; 理论上UI Bug与Windows版一致，但未经过完整测试）
-    - 🐧 Linux（由于没有 Linux 设备，暂无法测试以及提供构建好的安装包）
-    - 📱 iOS（由于没有属于自己的 iOS 设备，暂无法测试以及提供构建好的安装包）
+    - 🍎 MacOS（由于没有属于自己的 Mac 设备，暂无法测试）
+    - 🐧 Linux（由于没有 Linux 设备，暂无法测试）
+    - 📱 iOS（由于没有属于自己的 iOS 设备，暂无法测试）
     - 🌐 Web（仅用于开发）
 
 - **🔍 搜索**
@@ -64,6 +64,8 @@ Love Iwara（又名 i_iwara 或 2i）是一个使用 Flutter 构建的 Iwara 第
 - **📜 收藏(仅限本地)**
     - 收藏夹
     - 本地收藏
+- **🔍 下载(测试版)**
+    - 下载视频/图库/单文件
 
 - **🔄 翻译**
     - 翻译视频描述/图库描述/帖子/评论/论坛/会话等
@@ -106,6 +108,7 @@ Love Iwara（又名 i_iwara 或 2i）是一个使用 Flutter 构建的 Iwara 第
 
 - **🌍 分享**
     - 分享视频/图库/帖子/论坛/用户
+    - 安卓应用跳转(仅限安卓, 其他应用尝试打开超链接时会跳转到应用继续浏览)
 
 - **🌍 多语言支持**
     - 英语
@@ -116,7 +119,7 @@ Love Iwara（又名 i_iwara 或 2i）是一个使用 Flutter 构建的 Iwara 第
 - **🔍 更多待发现功能**
 
 #### 即将推出的功能
-- **下载管理**
+- **暂无新功能打算，您可以在 [Issues](https://github.com/FoxSensei001/i_iwara/issues) 区提出您的想法**
 - **增强用户体验**
 - **其他**
 
@@ -133,7 +136,7 @@ Love Iwara（又名 i_iwara 或 2i）是一个使用 Flutter 构建的 Iwara 第
 |<img src="docs/imgs/shipinliebiao.png" width="300">|<img src="docs/imgs/sousuo.png" width="300">|
 |<img src="docs/imgs/tongzhi.png" width="300">|<img src="docs/imgs/tuku.png" width="300">|
 |<img src="docs/imgs/tukuliebiao.png" width="300">|<img src="docs/imgs/zuozhe.png" width="300">|
-
+|<img src="docs/imgs/download.png" width="300">|<img src="docs/imgs/localshoucang.png" width="300">|
 
 ### 🛠️ 开发环境设置
 

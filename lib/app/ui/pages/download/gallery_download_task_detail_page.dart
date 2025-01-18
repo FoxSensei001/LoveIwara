@@ -313,9 +313,9 @@ class _GalleryDownloadTaskDetailPageState extends State<GalleryDownloadTaskDetai
                                               File(item.url.replaceFirst('file://', '')),
                                               fit: BoxFit.cover,
                                               errorBuilder: (context, error, stackTrace) =>
-                                                  SizedBox(
+                                                  const SizedBox(
                                                     height: 200,
-                                                    child: const Center(
+                                                    child: Center(
                                                       child: Icon(Icons.error_outline),
                                                     ),
                                                   ),
@@ -324,9 +324,9 @@ class _GalleryDownloadTaskDetailPageState extends State<GalleryDownloadTaskDetai
                                           item.url,
                                           fit: BoxFit.cover,
                                           errorBuilder: (context, error, stackTrace) =>
-                                              SizedBox(
+                                              const SizedBox(
                                                 height: 200,
-                                                child: const Center(
+                                                child: Center(
                                                   child: Icon(Icons.error_outline),
                                                 ),
                                               ),

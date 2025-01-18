@@ -431,12 +431,11 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                         icon: Icons.download,
                         onTap: () => ImageUtils.downloadImageForDesktop(item),
                       ),
-                    if (GetPlatform.isIOS || GetPlatform.isAndroid)
-                      MenuItem(
-                        title: t.galleryDetail.saveToAlbum,
-                        icon: Icons.save,
-                        onTap: () => ImageUtils.downloadImageForMobile(item),
-                      ),
+                    MenuItem(
+                      title: t.download.saveToAppDirectory,
+                      icon: Icons.save,
+                      onTap: () => ImageUtils.downloadImageToAppDirectory(item),
+                    ),
                   ];
                   NaviService.navigateToPhotoViewWrapper(
                       imageItems: [item],

@@ -58,7 +58,77 @@ class DefaultDownloadTaskItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
     return GestureDetector(
-      onSecondaryTapUp: (details) => _showContextMenu(context, details.globalPosition),
+      onSecondaryTapUp: (details) {
+        final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+        final RelativeRect position = RelativeRect.fromRect(
+          Rect.fromPoints(
+            details.globalPosition,
+            details.globalPosition,
+          ),
+          Offset.zero & overlay.size,
+        );
+        showMenu(
+          context: context,
+          position: position,
+          items: [
+            // 查看下载详情
+            PopupMenuItem(
+              child: Row(
+                children: [
+                  const Icon(Icons.info),
+                  const SizedBox(width: 8),
+                  Text(t.download.downloadDetail),
+                ],
+              ),
+              onTap: () => showDownloadDetailDialog(context, task),
+            ),
+            // 复制下载链接
+            PopupMenuItem(
+              child: Row(
+                children: [
+                  const Icon(Icons.link),
+                  const SizedBox(width: 8),
+                  Text(t.download.copyDownloadUrl),
+                ],
+              ),
+              onTap: () => _copyDownloadUrl(context),
+            ),
+            if (task.status == DownloadStatus.completed) ...[
+              PopupMenuItem(
+                child: Row(
+                  children: [
+                    const Icon(Icons.open_in_new),
+                    const SizedBox(width: 8),
+                    Text(t.download.openFile),
+                  ],
+                ),
+                onTap: () => _openFile(context),
+              ),
+              if (Platform.isWindows || Platform.isMacOS || Platform.isLinux)
+                PopupMenuItem(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.folder_open),
+                      const SizedBox(width: 8),
+                      Text(t.download.showInFolder),
+                    ],
+                  ),
+                  onTap: () => _showInFolder(context),
+                ),
+            ],
+            PopupMenuItem(
+              child: Row(
+                children: [
+                  const Icon(Icons.delete, color: Colors.red),
+                  const SizedBox(width: 8),
+                  Text(t.download.deleteTask, style: const TextStyle(color: Colors.red)),
+                ],
+              ),
+              onTap: () => _showDeleteConfirmDialog(context),
+            ),
+          ],
+        );
+      },
       child: Card(
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         child: InkWell(
@@ -118,10 +188,13 @@ class DefaultDownloadTaskItem extends StatelessWidget {
                     _buildMainActionButton(context),
                   ],
                 ),
+                const SizedBox(height: 4),
                 // 进度条和状态
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // 如果已完成，则不显示indicator
+                    if (task.status != DownloadStatus.completed)
                     _buildProgressIndicator(),
                     const SizedBox(height: 4),
                     Row(
@@ -244,64 +317,6 @@ class DefaultDownloadTaskItem extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  void _showContextMenu(BuildContext context, Offset position) {
-    final t = slang.Translations.of(context);
-    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-    
-    showMenu(
-      context: context,
-      position: RelativeRect.fromRect(
-        position & const Size(40, 40),
-        Offset.zero & overlay.size,
-      ),
-      items: [
-        PopupMenuItem(
-          child: Row(
-            children: [
-              const Icon(Icons.link, size: 20),
-              const SizedBox(width: 12),
-              Text(t.download.copyDownloadUrl),
-            ],
-          ),
-          onTap: () => _copyDownloadUrl(context),
-        ),
-        if (task.status == DownloadStatus.completed) ...[
-          if (Platform.isWindows || Platform.isMacOS || Platform.isLinux)
-            PopupMenuItem(
-              child: Row(
-                children: [
-                  const Icon(Icons.folder_open, size: 20),
-                  const SizedBox(width: 12),
-                  Text(t.download.showInFolder),
-                ],
-              ),
-              onTap: () => _showInFolder(context),
-            ),
-          PopupMenuItem(
-            child: Row(
-              children: [
-                const Icon(Icons.open_in_new, size: 20),
-                const SizedBox(width: 12),
-                Text(t.download.openFile),
-              ],
-            ),
-            onTap: () => _openFile(context),
-          ),
-        ],
-        PopupMenuItem(
-          child: Row(
-            children: [
-              const Icon(Icons.delete, size: 20, color: Colors.red),
-              const SizedBox(width: 12),
-              Text(t.download.deleteTask, style: const TextStyle(color: Colors.red)),
-            ],
-          ),
-          onTap: () => _showDeleteConfirmDialog(context),
-        ),
-      ],
     );
   }
 

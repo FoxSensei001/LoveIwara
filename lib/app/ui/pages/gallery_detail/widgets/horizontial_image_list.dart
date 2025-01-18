@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:shimmer/shimmer.dart';
@@ -333,8 +334,8 @@ class _HorizontalImageListState extends State<HorizontalImageList> {
                                 const SizedBox(height: 8),
                                 Text(
                                   isUnsupportedFormat
-                                      ? '不支持的文件格式: ${fileExtension.toUpperCase()}'
-                                      : '图片加载失败',
+                                      ? t.download.errors.unsupportedImageFormatWithMessage(extension: fileExtension.toUpperCase())
+                                      : t.download.errors.imageLoadFailed,
                                   style: TextStyle(
                                     color: Theme.of(context).colorScheme.error,
                                     fontSize: 14,
@@ -343,7 +344,7 @@ class _HorizontalImageListState extends State<HorizontalImageList> {
                                 if (isUnsupportedFormat) ...[
                                   const SizedBox(height: 4),
                                   Text(
-                                    '请尝试使用其他查看器打开',
+                                    t.download.errors.pleaseTryOtherViewer,
                                     style: TextStyle(
                                       color: Theme.of(context)
                                           .colorScheme

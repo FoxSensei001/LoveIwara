@@ -901,6 +901,7 @@ class _TranslationsDownloadJa implements TranslationsDownloadEn {
 	@override String galleryDownloadCompletedWithName({required Object galleryName}) => 'ギャラリーのダウンロードが完了しました: ${galleryName}';
 	@override String downloadCompletedWithName({required Object fileName}) => 'ダウンロードが完了しました: ${fileName}';
 	@override String get stillInDevelopment => '開発中';
+	@override String get saveToAppDirectory => 'アプリケーションディレクトリに保存';
 }
 
 // Path: favorite
@@ -1114,6 +1115,11 @@ class _TranslationsDownloadErrorsJa implements TranslationsDownloadErrorsEn {
 	@override String get taskNotFound => 'タスクが見つかりません';
 	@override String get canNotRefreshVideoTask => 'ビデオタスクの更新に失敗しました';
 	@override String get taskAlreadyProcessing => 'タスクはすでに処理中です';
+	@override String get failedToLoadTasks => 'タスクの読み込みに失敗しました';
+	@override String partialDownloadFailedWithMessage({required Object message}) => '部分ダウンロードに失敗しました: ${message}';
+	@override String unsupportedImageFormatWithMessage({required Object extension}) => 'サポートされていない画像形式: ${extension}, デバイスにダウンロードして表示することができます';
+	@override String get imageLoadFailed => '画像の読み込みに失敗しました';
+	@override String get pleaseTryOtherViewer => '他のビューアーを使用してみてください';
 }
 
 // Path: favorite.errors
@@ -1836,6 +1842,11 @@ extension on TranslationsJa {
 			case 'download.errors.taskNotFound': return 'タスクが見つかりません';
 			case 'download.errors.canNotRefreshVideoTask': return 'ビデオタスクの更新に失敗しました';
 			case 'download.errors.taskAlreadyProcessing': return 'タスクはすでに処理中です';
+			case 'download.errors.failedToLoadTasks': return 'タスクの読み込みに失敗しました';
+			case 'download.errors.partialDownloadFailedWithMessage': return ({required Object message}) => '部分ダウンロードに失敗しました: ${message}';
+			case 'download.errors.unsupportedImageFormatWithMessage': return ({required Object extension}) => 'サポートされていない画像形式: ${extension}, デバイスにダウンロードして表示することができます';
+			case 'download.errors.imageLoadFailed': return '画像の読み込みに失敗しました';
+			case 'download.errors.pleaseTryOtherViewer': return '他のビューアーを使用してみてください';
 			case 'download.downloadList': return 'ダウンロードリスト';
 			case 'download.download': return 'ダウンロード';
 			case 'download.startDownloading': return 'ダウンロードを開始';
@@ -1883,6 +1894,7 @@ extension on TranslationsJa {
 			case 'download.galleryDownloadCompletedWithName': return ({required Object galleryName}) => 'ギャラリーのダウンロードが完了しました: ${galleryName}';
 			case 'download.downloadCompletedWithName': return ({required Object fileName}) => 'ダウンロードが完了しました: ${fileName}';
 			case 'download.stillInDevelopment': return '開発中';
+			case 'download.saveToAppDirectory': return 'アプリケーションディレクトリに保存';
 			case 'favorite.errors.addFailed': return '追加に失敗しました';
 			case 'favorite.errors.addSuccess': return '追加に成功しました';
 			case 'favorite.errors.deleteFolderFailed': return 'フォルダーの削除に失敗しました';

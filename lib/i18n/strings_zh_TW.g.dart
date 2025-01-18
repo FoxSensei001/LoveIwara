@@ -904,6 +904,7 @@ class _TranslationsDownloadZhTw implements TranslationsDownloadEn {
 	@override String galleryDownloadCompletedWithName({required Object galleryName}) => '圖庫下載完成: ${galleryName}';
 	@override String downloadCompletedWithName({required Object fileName}) => '下載完成: ${fileName}';
 	@override String get stillInDevelopment => '開發中';
+	@override String get saveToAppDirectory => '保存到應用程序目錄';
 }
 
 // Path: favorite
@@ -1117,6 +1118,11 @@ class _TranslationsDownloadErrorsZhTw implements TranslationsDownloadErrorsEn {
 	@override String get taskNotFound => '任务未找到';
 	@override String get canNotRefreshVideoTask => '無法刷新視頻任務';
 	@override String get taskAlreadyProcessing => '任務已處理中';
+	@override String get failedToLoadTasks => '加載任務失敗';
+	@override String partialDownloadFailedWithMessage({required Object message}) => '部分下載失敗: ${message}';
+	@override String get pleaseTryOtherViewer => '請嘗試使用其他查看器打開';
+	@override String unsupportedImageFormatWithMessage({required Object extension}) => '不支持的圖片格式: ${extension}, 可以嘗試下載到設備上查看';
+	@override String get imageLoadFailed => '圖片加載失敗';
 }
 
 // Path: favorite.errors
@@ -1842,6 +1848,11 @@ extension on TranslationsZhTw {
 			case 'download.errors.taskNotFound': return '任务未找到';
 			case 'download.errors.canNotRefreshVideoTask': return '無法刷新視頻任務';
 			case 'download.errors.taskAlreadyProcessing': return '任務已處理中';
+			case 'download.errors.failedToLoadTasks': return '加載任務失敗';
+			case 'download.errors.partialDownloadFailedWithMessage': return ({required Object message}) => '部分下載失敗: ${message}';
+			case 'download.errors.pleaseTryOtherViewer': return '請嘗試使用其他查看器打開';
+			case 'download.errors.unsupportedImageFormatWithMessage': return ({required Object extension}) => '不支持的圖片格式: ${extension}, 可以嘗試下載到設備上查看';
+			case 'download.errors.imageLoadFailed': return '圖片加載失敗';
 			case 'download.downloadList': return '下載列表';
 			case 'download.download': return '下載';
 			case 'download.startDownloading': return '開始下載...';
@@ -1889,6 +1900,7 @@ extension on TranslationsZhTw {
 			case 'download.galleryDownloadCompletedWithName': return ({required Object galleryName}) => '圖庫下載完成: ${galleryName}';
 			case 'download.downloadCompletedWithName': return ({required Object fileName}) => '下載完成: ${fileName}';
 			case 'download.stillInDevelopment': return '開發中';
+			case 'download.saveToAppDirectory': return '保存到應用程序目錄';
 			case 'favorite.errors.addFailed': return '追加失敗';
 			case 'favorite.errors.addSuccess': return '追加成功';
 			case 'favorite.errors.deleteFolderFailed': return '刪除文件夾失敗';

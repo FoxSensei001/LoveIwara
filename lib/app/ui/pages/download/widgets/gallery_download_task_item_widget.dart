@@ -38,125 +38,176 @@ class GalleryDownloadTaskItem extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: InkWell(
-        onTap: () => _onTap(context),
-        borderRadius: BorderRadius.circular(12),
-        mouseCursor: task.status == DownloadStatus.completed ? SystemMouseCursors.click : SystemMouseCursors.basic,
-        splashFactory: task.status == DownloadStatus.completed ? InkSplash.splashFactory : NoSplash.splashFactory,
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            spacing: 8,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 预览图区域
-                  Container(
-                    width: 120,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color:
-                          Theme.of(context).colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: _buildPreviewImages(context, extData),
+      child: GestureDetector(
+        onSecondaryTapUp: (details) {
+          final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+          final RelativeRect position = RelativeRect.fromRect(
+            Rect.fromPoints(
+              details.globalPosition,
+              details.globalPosition,
+            ),
+            Offset.zero & overlay.size,
+          );
+          showMenu(
+            context: context,
+            position: position,
+            items: [
+              // 查看下载详情
+              PopupMenuItem(
+                child: Row(
+                  children: [
+                    const Icon(Icons.info),
+                    const SizedBox(width: 8),
+                    Text(t.download.downloadDetail),
+                  ],
+                ),
+                onTap: () => showDownloadDetailDialog(context, task),
+              ),
+              if (task.status == DownloadStatus.completed || task.status == DownloadStatus.failed) ...[
+                PopupMenuItem(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.folder_open),
+                      const SizedBox(width: 8),
+                      Text(t.download.showInFolder),
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // 标题
-                        Text(
-                          extData.title ?? t.download.errors.unknown,
-                          style: Theme.of(context).textTheme.titleMedium,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 8),
-                        // 作者信息
-                        MouseRegion(
-                          cursor: extData.authorUsername != null
-                              ? SystemMouseCursors.click
-                              : SystemMouseCursors.basic,
-                          child: GestureDetector(
-                            onTap: extData.authorUsername != null
-                                ? () => NaviService.navigateToAuthorProfilePage(
-                                    extData.authorUsername!)
-                                : null,
-                            child: Row(
-                              children: [
-                                AvatarWidget(
-                                  avatarUrl: extData.authorAvatar,
-                                  defaultAvatarUrl:
-                                      CommonConstants.defaultAvatarUrl,
-                                  radius: 12,
-                                ),
-                                const SizedBox(width: 12),
-                                Text(
-                                  extData.authorName ??
-                                      t.download.errors.unknown,
-                                  style:
-                                      Theme.of(context).textTheme.titleMedium,
-                                ),
-                              ],
+                  onTap: () => _showInFolder(context),
+                ),
+              ],
+              PopupMenuItem(
+                child: Row(
+                  children: [
+                    const Icon(Icons.delete, color: Colors.red),
+                    const SizedBox(width: 8),
+                    Text(t.download.deleteTask, style: const TextStyle(color: Colors.red)),
+                  ],
+                ),
+                onTap: () => _showDeleteConfirmDialog(context),
+              ),
+            ],
+          );
+        },
+        child: InkWell(
+          onTap: () => _onTap(context),
+          borderRadius: BorderRadius.circular(12),
+          mouseCursor: task.status == DownloadStatus.completed ? SystemMouseCursors.click : SystemMouseCursors.basic,
+          splashFactory: task.status == DownloadStatus.completed ? InkSplash.splashFactory : NoSplash.splashFactory,
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              spacing: 8,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 预览图区域
+                    Container(
+                      width: 120,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color:
+                            Theme.of(context).colorScheme.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: _buildPreviewImages(context, extData),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // 标题
+                          Text(
+                            extData.title ?? t.download.errors.unknown,
+                            style: Theme.of(context).textTheme.titleMedium,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 8),
+                          // 作者信息
+                          MouseRegion(
+                            cursor: extData.authorUsername != null
+                                ? SystemMouseCursors.click
+                                : SystemMouseCursors.basic,
+                            child: GestureDetector(
+                              onTap: extData.authorUsername != null
+                                  ? () => NaviService.navigateToAuthorProfilePage(
+                                      extData.authorUsername!)
+                                  : null,
+                              child: Row(
+                                children: [
+                                  AvatarWidget(
+                                    avatarUrl: extData.authorAvatar,
+                                    defaultAvatarUrl:
+                                        CommonConstants.defaultAvatarUrl,
+                                    radius: 12,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    extData.authorName ??
+                                        t.download.errors.unknown,
+                                    style:
+                                        Theme.of(context).textTheme.titleMedium,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
+                        ],
+                      ),
+                    ),
+                    // 主要操作按钮
+                    _buildMainActionButton(context),
+                  ],
+                ),
+                // 进度条和状态
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              StatusLabel(
+                                  status: task.status,
+                                  text: _getStatusText(context)),
+                              if (task.error != null)
+                                Text(
+                                  task.error!,
+                                  style: const TextStyle(color: Colors.red),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              // 添加图片下载进度指示器
+                              if (task.status == DownloadStatus.downloading)
+                                _buildGalleryProgressIndicator(context),
+                            ],
+                          ),
+                        ),
+                        // 图库详情按钮
+                        if (extData.id != null)
+                          IconButton(
+                            icon: const Icon(Icons.photo_library),
+                            onPressed: () =>
+                                NaviService.navigateToGalleryDetailPage(
+                                    extData.id!),
+                            tooltip: t.download.viewGalleryDetail,
+                          ),
+                        // 更多操作按钮
+                        IconButton(
+                          icon: const Icon(Icons.more_horiz),
+                          onPressed: () => _showMoreOptionsDialog(context),
+                          tooltip: t.download.moreOptions,
                         ),
                       ],
                     ),
-                  ),
-                  // 主要操作按钮
-                  _buildMainActionButton(context),
-                ],
-              ),
-              // 进度条和状态
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            StatusLabel(
-                                status: task.status,
-                                text: _getStatusText(context)),
-                            if (task.error != null)
-                              Text(
-                                task.error!,
-                                style: const TextStyle(color: Colors.red),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            // 添加图片下载进度指示器
-                            if (task.status == DownloadStatus.downloading)
-                              _buildGalleryProgressIndicator(context),
-                          ],
-                        ),
-                      ),
-                      // 图库详情按钮
-                      if (extData.id != null)
-                        IconButton(
-                          icon: const Icon(Icons.photo_library),
-                          onPressed: () =>
-                              NaviService.navigateToGalleryDetailPage(
-                                  extData.id!),
-                          tooltip: t.download.viewGalleryDetail,
-                        ),
-                      // 更多操作按钮
-                      IconButton(
-                        icon: const Icon(Icons.more_horiz),
-                        onPressed: () => _showMoreOptionsDialog(context),
-                        tooltip: t.download.moreOptions,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -751,6 +751,11 @@ download:
     taskNotFound: '任务未找到'
     canNotRefreshVideoTask: '無法刷新視頻任務'
     taskAlreadyProcessing: '任務已處理中'
+    failedToLoadTasks: '加載任務失敗'
+    partialDownloadFailedWithMessage: '部分下載失敗: ${message}'
+    pleaseTryOtherViewer: '請嘗試使用其他查看器打開'
+    unsupportedImageFormatWithMessage: '不支持的圖片格式: ${extension}, 可以嘗試下載到設備上查看'
+    imageLoadFailed: '圖片加載失敗'
   downloadList: 下載列表
   download: 下載
   startDownloading: 開始下載...
@@ -798,6 +803,7 @@ download:
   galleryDownloadCompletedWithName: '圖庫下載完成: ${galleryName}'
   downloadCompletedWithName: '下載完成: ${fileName}'
   stillInDevelopment: 開發中
+  saveToAppDirectory: 保存到應用程序目錄
 
 favorite:
   errors:

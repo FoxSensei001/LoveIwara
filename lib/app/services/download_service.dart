@@ -121,13 +121,14 @@ class DownloadService extends GetxService {
         _downloadQueue.add(task.id);
       }
 
-      LogUtils.i(
+      LogUtils.d(
           '已加载 ${downloadingTasks.length} 个下载中任务, ${pendingTasks.length} 个等待中任务',
           'DownloadService');
 
       _processQueue();
     } catch (e) {
       LogUtils.e('加载下载任务失败', error: e);
+      _showMessage(slang.t.download.errors.failedToLoadTasks, Colors.red);
     }
   }
 
@@ -921,12 +922,12 @@ class DownloadService extends GetxService {
             } else if (retry == 1) {
               // 第二次尝试也失败，记录错误
               LogUtils.e('图片下载失败，已重试: $imageUrl', tag: 'DownloadService');
-              task.error = '部分图片下载失败';
+              task.error = slang.t.download.errors.partialDownloadFailed;
             }
           } catch (e) {
             LogUtils.e('下载图片出错: $imageUrl', tag: 'DownloadService', error: e);
             if (retry == 1) {
-              task.error = '部分图片下载失败: ${_getErrorMessage(e)}';
+              task.error = slang.t.download.errors.partialDownloadFailedWithMessage(message: _getErrorMessage(e));
             }
           }
 
@@ -958,7 +959,7 @@ class DownloadService extends GetxService {
         
         task.status = allSuccess ? DownloadStatus.completed : DownloadStatus.failed;
         if (!allSuccess) {
-          task.error = '部分图片下载失败';
+          task.error = slang.t.download.errors.partialDownloadFailed;
           LogUtils.e(
             '图库下载未完全成功: ${task.downloadedBytes}/${task.totalBytes}',
             tag: 'DownloadService'
@@ -997,28 +998,6 @@ class DownloadService extends GetxService {
         _activeTasks.remove(task.id);
       }
     }
-  }
-
-  // TODO: 重试下载图库中失败的图片
-  Future<void> retryGalleryImageDownload(String taskId, String imageId) async {
-    final task = _activeTasks[taskId];
-    if (task == null || task.extData?.type != DownloadTaskExtDataType.gallery) {
-      return;
-    }
-
-    final galleryData = GalleryDownloadExtData.fromJson(task.extData!.data);
-    final imageInfo = galleryData.imageList[imageId];
-
-    // 更新状态为未下载
-    _galleryDownloadProgress[taskId]?[imageId] = false;
-
-    // 开始下载这个图片
-    await _downloadGalleryImage(
-      task,
-      imageInfo!,
-      imageId,
-      galleryData.imageList.length,
-    );
   }
 
   // 下载单张图片
