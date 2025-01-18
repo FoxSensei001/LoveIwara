@@ -486,153 +486,125 @@ class ImageModelDetailContent extends StatelessWidget {
       return Builder(
         builder: (context) => Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Row(
-            children: [
-              // 左侧按钮组(点赞、收藏和分享)
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  LikeButtonWidget(
-                    mediaId: imageModelInfo.id,
-                    liked: imageModelInfo.liked ?? false,
-                    likeCount: imageModelInfo.numLikes ?? 0,
-                    onLike: (id) async {
-                      final result = await Get.find<GalleryService>().likeImage(id);
-                      return result.isSuccess;
-                    },
-                    onUnlike: (id) async {
-                      final result = await Get.find<GalleryService>().unlikeImage(id);
-                      return result.isSuccess;
-                    },
-                    onLikeChanged: (liked) {
-                      controller.imageModelInfo.value = controller.imageModelInfo.value?.copyWith(
-                        liked: liked,
-                        numLikes: (controller.imageModelInfo.value?.numLikes ?? 0) + (liked ? 1 : -1),
-                      );
-                    },
-                  ),
-                  Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () => _addToFavorite(context),
-                      borderRadius: BorderRadius.circular(8),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.bookmark_border,
-                                size: 20,
-                                color: Theme.of(context).iconTheme.color
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              t.favorite.localizeFavorite,
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  color: Theme.of(context).textTheme.bodyMedium?.color
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () => _downloadGallery(context),
-                      borderRadius: BorderRadius.circular(8),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.download,
-                                size: 20,
-                                color: Theme.of(context).iconTheme.color
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              t.download.download,
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  color: Theme.of(context).textTheme.bodyMedium?.color
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(20),
-                      onTap: () {
-                        showModalBottomSheet(
-                          backgroundColor: Colors.transparent,
-                          isScrollControlled: true,
-                          builder: (context) => ShareGalleryBottomSheet(
-                            galleryId: imageModelInfo.id,
-                            galleryTitle: imageModelInfo.title,
-                            authorName: imageModelInfo.user?.name ?? '',
-                            previewUrl: imageModelInfo.thumbnailUrl,
-                          ),
-                          context: context,
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.share,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                LikeButtonWidget(
+                  mediaId: imageModelInfo.id,
+                  liked: imageModelInfo.liked,
+                  likeCount: imageModelInfo.numLikes,
+                  onLike: (id) async {
+                    final result = await Get.find<GalleryService>().likeImage(id);
+                    return result.isSuccess;
+                  },
+                  onUnlike: (id) async {
+                    final result = await Get.find<GalleryService>().unlikeImage(id);
+                    return result.isSuccess;
+                  },
+                  onLikeChanged: (liked) {
+                    controller.imageModelInfo.value = controller.imageModelInfo.value?.copyWith(
+                      liked: liked,
+                      numLikes: (controller.imageModelInfo.value?.numLikes ?? 0) + (liked ? 1 : -1),
+                    );
+                  },
+                ),
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => _addToFavorite(context),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.bookmark_border,
                               size: 20,
                               color: Theme.of(context).iconTheme.color
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              slang.t.common.share,
-                              style: TextStyle(
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            t.favorite.localizeFavorite,
+                            style: TextStyle(
                                 fontSize: 14,
                                 color: Theme.of(context).textTheme.bodyMedium?.color
-                              ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ],
-              ),
-              const Spacer(),
-              // 评论按钮
-              Material(
-                color: Colors.transparent,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.comment, 
-                        size: 20,
-                        color: Theme.of(context).iconTheme.color
+                ),
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => _downloadGallery(context),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.download,
+                              size: 20,
+                              color: Theme.of(context).iconTheme.color
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            t.download.download,
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: Theme.of(context).textTheme.bodyMedium?.color
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${imageModelInfo.numComments}',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Theme.of(context).textTheme.bodyMedium?.color
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(20),
+                    onTap: () {
+                      showModalBottomSheet(
+                        backgroundColor: Colors.transparent,
+                        isScrollControlled: true,
+                        builder: (context) => ShareGalleryBottomSheet(
+                          galleryId: imageModelInfo.id,
+                          galleryTitle: imageModelInfo.title,
+                          authorName: imageModelInfo.user?.name ?? '',
+                          previewUrl: imageModelInfo.thumbnailUrl,
+                        ),
+                        context: context,
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.share,
+                            size: 20,
+                            color: Theme.of(context).iconTheme.color
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            slang.t.common.share,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Theme.of(context).textTheme.bodyMedium?.color
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -645,7 +617,7 @@ class ImageModelDetailContent extends StatelessWidget {
 
     showToastWidget(MDToastWidget(
         message: slang.t.download.stillInDevelopment,
-        type: MDToastType.success));
+        type: MDToastType.warning));
     return;
     // final t = slang.Translations.of(context);
     // try {

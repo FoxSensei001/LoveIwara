@@ -166,6 +166,7 @@ common:
   selectDateRange: 選擇日期範圍
   selectDateRangeHint: 選擇日期範圍，默認選擇最近30天
   clearDateRange: 清除日期範圍
+  followSuccessClickAgainToSpecialFollow: 已成功關注，再次點擊以特別關注
 
 auth:
   login: 登入

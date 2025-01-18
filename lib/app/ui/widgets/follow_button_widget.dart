@@ -207,6 +207,13 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
                 _currentUser = updatedUser;
               });
               widget.onUserUpdated?.call(updatedUser);
+              Get.showSnackbar(
+                GetSnackBar(
+                  message: "🔔 ${t.common.followSuccessClickAgainToSpecialFollow}",
+                  duration: const Duration(seconds: 3),
+                  backgroundColor: Colors.green,
+                ),
+              );
             } else {
               showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error),position: ToastPosition.top);
             }

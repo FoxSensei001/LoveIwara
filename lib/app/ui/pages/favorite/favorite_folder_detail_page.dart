@@ -94,37 +94,48 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
+                // 搜索框
                 Expanded(
-                  child: Column(
-                    children: [
-                      TextField(
-                        controller: _searchController,
-                        decoration: InputDecoration(
-                          hintText: slang.t.favorite.searchItems,
-                          prefixIcon: const Icon(Icons.search),
-                          border: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(8)),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: _tagSearchController,
-                        decoration: InputDecoration(
-                          hintText: slang.t.favorite.searchTags,
-                          prefixIcon: const Icon(Icons.tag),
-                          border: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(8)),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        ),
-                      ),
-                    ],
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: slang.t.favorite.searchItems,
+                      prefixIcon: const Icon(Icons.search),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
-                // 时间筛选按钮
+                // 标签搜索按钮
+                Material(
+                  color: Theme.of(context).colorScheme.secondaryContainer,
+                  borderRadius: BorderRadius.circular(8),
+                  child: InkWell(
+                    onTap: () => _showTagSearchBottomSheet(context),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.tag,
+                            size: 24,
+                            color: Theme.of(context).colorScheme.onSecondaryContainer,
+                          ),
+                          if (_repository.tagSearch?.isNotEmpty == true) ...[
+                            const SizedBox(width: 4),
+                            Icon(
+                              Icons.clear,
+                              size: 16,
+                              color: Theme.of(context).colorScheme.onSecondaryContainer,
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // 日期选择按钮
                 Material(
                   color: Theme.of(context).colorScheme.secondaryContainer,
                   borderRadius: BorderRadius.circular(8),
@@ -132,7 +143,7 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
                     onTap: _selectDateRange,
                     borderRadius: BorderRadius.circular(8),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       child: Row(
                         children: [
                           Icon(
@@ -870,6 +881,88 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
                   size: 12,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showTagSearchBottomSheet(BuildContext context) {
+    final t = slang.Translations.of(context);
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      t.favorite.searchTags,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ),
+                  if (_repository.tagSearch?.isNotEmpty == true)
+                    TextButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _tagSearchController.clear();
+                          _repository.tagSearch = null;
+                          _repository.refresh();
+                        });
+                        Navigator.pop(context);
+                      },
+                      icon: const Icon(Icons.clear),
+                      label: Text(t.common.clear),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _tagSearchController,
+                decoration: InputDecoration(
+                  hintText: t.favorite.searchTags,
+                  prefixIcon: const Icon(Icons.tag),
+                ),
+                autofocus: true,
+                onSubmitted: (value) {
+                  setState(() {
+                    _repository.tagSearch = value;
+                    _repository.refresh();
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text(t.common.cancel),
+                  ),
+                  const SizedBox(width: 16),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _repository.tagSearch = _tagSearchController.text;
+                        _repository.refresh();
+                      });
+                      Navigator.pop(context);
+                    },
+                    child: Text(t.common.confirm),
+                  ),
+                ],
               ),
             ],
           ),

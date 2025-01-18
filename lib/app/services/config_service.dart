@@ -133,6 +133,8 @@ class ConfigService extends GetxService {
       final List<String> colorsList = (savedCustomThemeColors as List<dynamic>).map((e) => e.toString()).toList();
       settings[CUSTOM_THEME_COLORS_KEY]!.value = colorsList;
       CommonConstants.customThemeColors = colorsList;
+    } else {
+      CommonConstants.customThemeColors = [];
     }
 
     // [主题] 单独初始化是否使用预设颜色

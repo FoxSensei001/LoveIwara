@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/theme_mode.model.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/theme_service.dart';
+import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 
 class ThemeSettingsPage extends StatelessWidget {
@@ -42,6 +44,7 @@ class ThemeSettingsPage extends StatelessWidget {
   Widget _buildThemeModeSection(BuildContext context, ThemeService themeService) {
     return Card(
       elevation: 2,
+      clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -84,6 +87,7 @@ class ThemeSettingsPage extends StatelessWidget {
   Widget _buildDynamicColorSection(BuildContext context, ThemeService themeService) {
     return Card(
       elevation: 2,
+      clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -115,6 +119,7 @@ class ThemeSettingsPage extends StatelessWidget {
   Widget _buildPresetColorsSection(BuildContext context, ThemeService themeService) {
     return Card(
       elevation: 2,
+      clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -166,6 +171,7 @@ class ThemeSettingsPage extends StatelessWidget {
   Widget _buildCustomColorsSection(BuildContext context, ThemeService themeService) {
     return Card(
       elevation: 2,
+      clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -185,7 +191,12 @@ class ThemeSettingsPage extends StatelessWidget {
                 ),
                 IconButton(
                   icon: const Icon(Icons.add),
-                  onPressed: () => _showColorPicker(context, themeService),
+                  onPressed: () {
+                    if (themeService.useDynamicColor) {
+                      return;
+                    }
+                    _showColorPicker(context, themeService);
+                  }
                 ),
               ],
             ),
@@ -305,10 +316,9 @@ class ThemeSettingsPage extends StatelessWidget {
 
   // 颜色选择器
   void _showColorPicker(BuildContext context, ThemeService themeService) {
-    Color pickerColor = Colors.blue;
-    showBottomSheet(
-      context: context,
-      builder: (context) => AlertDialog(
+    Color pickerColor = CommonConstants.dynamicLightColorScheme?.primary ?? Colors.orange;
+    Get.dialog(
+      AlertDialog(
         title: Text(t.settings.pickColor),
         content: SingleChildScrollView(
           child: ColorPicker(
@@ -319,14 +329,14 @@ class ThemeSettingsPage extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => AppService.tryPop(),
             child: Text(t.common.cancel),
           ),
           TextButton(
             onPressed: () {
               final hex = pickerColor.value.toRadixString(16).substring(2).toUpperCase();
               themeService.addCustomThemeColor(hex);
-              Navigator.of(context).pop();
+              AppService.tryPop();
             },
             child: Text(t.common.confirm),
           ),

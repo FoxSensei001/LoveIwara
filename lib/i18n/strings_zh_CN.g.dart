@@ -232,6 +232,7 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String get selectDateRange => '选择日期范围';
 	@override String get selectDateRangeHint => '选择日期范围，默认选择最近30天';
 	@override String get clearDateRange => '清除日期范围';
+	@override String get followSuccessClickAgainToSpecialFollow => '已成功关注，再次点击以特别关注';
 }
 
 // Path: auth
@@ -1307,6 +1308,7 @@ extension on TranslationsZhCn {
 			case 'common.selectDateRange': return '选择日期范围';
 			case 'common.selectDateRangeHint': return '选择日期范围，默认选择最近30天';
 			case 'common.clearDateRange': return '清除日期范围';
+			case 'common.followSuccessClickAgainToSpecialFollow': return '已成功关注，再次点击以特别关注';
 			case 'auth.tagLimit': return '标签上限';
 			case 'auth.login': return '登录';
 			case 'auth.logout': return '退出登录';

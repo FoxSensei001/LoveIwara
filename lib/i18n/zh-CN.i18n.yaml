@@ -170,6 +170,7 @@ common:
   selectDateRange: 选择日期范围
   selectDateRangeHint: 选择日期范围，默认选择最近30天
   clearDateRange: 清除日期范围
+  followSuccessClickAgainToSpecialFollow: 已成功关注，再次点击以特别关注
 auth:
   tagLimit: 标签上限
   login: 登录

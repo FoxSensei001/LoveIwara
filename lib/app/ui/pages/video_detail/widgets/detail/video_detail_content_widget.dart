@@ -390,45 +390,6 @@ class VideoDetailContent extends StatelessWidget {
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(20),
                                 onTap: () {
-                                  showModalBottomSheet(
-                                    backgroundColor: Colors.transparent,
-                                    isScrollControlled: true,
-                                    builder: (context) => ShareVideoBottomSheet(
-                                      videoId: controller.videoInfo.value?.id ?? '',
-                                      videoTitle: controller.videoInfo.value?.title ?? '',
-                                      authorName: controller.videoInfo.value?.user?.name ?? '',
-                                      previewUrl: controller.videoInfo.value?.previewUrl ?? '',
-                                    ),
-                                    context: context,
-                                  );
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(Icons.share,
-                                        size: 20,
-                                        color: Theme.of(context).iconTheme.color
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        slang.Translations.of(context).common.share,
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: Theme.of(context).textTheme.bodyMedium?.color
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Material(
-                              color: Colors.transparent,
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(20),
-                                onTap: () {
                                   _addToFavorite(context);
                                 },
                                 child: Container(
@@ -468,6 +429,45 @@ class VideoDetailContent extends StatelessWidget {
                                       const Icon(Icons.download),
                                       const SizedBox(width: 4),
                                       Text(t.common.download),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(20),
+                                onTap: () {
+                                  showModalBottomSheet(
+                                    backgroundColor: Colors.transparent,
+                                    isScrollControlled: true,
+                                    builder: (context) => ShareVideoBottomSheet(
+                                      videoId: controller.videoInfo.value?.id ?? '',
+                                      videoTitle: controller.videoInfo.value?.title ?? '',
+                                      authorName: controller.videoInfo.value?.user?.name ?? '',
+                                      previewUrl: controller.videoInfo.value?.previewUrl ?? '',
+                                    ),
+                                    context: context,
+                                  );
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.share,
+                                        size: 20,
+                                        color: Theme.of(context).iconTheme.color
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        slang.Translations.of(context).common.share,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Theme.of(context).textTheme.bodyMedium?.color
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),

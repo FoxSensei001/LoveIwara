@@ -230,6 +230,7 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get selectDateRange => '選擇日期範圍';
 	@override String get selectDateRangeHint => '選擇日期範圍，默認選擇最近30天';
 	@override String get clearDateRange => '清除日期範圍';
+	@override String get followSuccessClickAgainToSpecialFollow => '已成功關注，再次點擊以特別關注';
 }
 
 // Path: auth
@@ -1303,6 +1304,7 @@ extension on TranslationsZhTw {
 			case 'common.selectDateRange': return '選擇日期範圍';
 			case 'common.selectDateRangeHint': return '選擇日期範圍，默認選擇最近30天';
 			case 'common.clearDateRange': return '清除日期範圍';
+			case 'common.followSuccessClickAgainToSpecialFollow': return '已成功關注，再次點擊以特別關注';
 			case 'auth.login': return '登入';
 			case 'auth.logout': return '登出';
 			case 'auth.email': return '電子郵件';

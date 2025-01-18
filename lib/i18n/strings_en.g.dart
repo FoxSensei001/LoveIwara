@@ -234,6 +234,7 @@ class TranslationsCommonEn {
 	String get selectDateRange => 'Select Date Range';
 	String get selectDateRangeHint => 'Select date range, default is recent 30 days';
 	String get clearDateRange => 'Clear Date Range';
+	String get followSuccessClickAgainToSpecialFollow => 'Followed successfully, click again to special follow';
 }
 
 // Path: auth
@@ -1304,6 +1305,7 @@ extension on Translations {
 			case 'common.selectDateRange': return 'Select Date Range';
 			case 'common.selectDateRangeHint': return 'Select date range, default is recent 30 days';
 			case 'common.clearDateRange': return 'Clear Date Range';
+			case 'common.followSuccessClickAgainToSpecialFollow': return 'Followed successfully, click again to special follow';
 			case 'auth.login': return 'Login';
 			case 'auth.logout': return 'Logout';
 			case 'auth.email': return 'Email';

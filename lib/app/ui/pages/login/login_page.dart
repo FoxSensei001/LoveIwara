@@ -73,9 +73,11 @@ class _LoginPageState extends State<LoginPage>
   }
 
   void _fetchCaptcha() async {
-    setState(() {
-      _isCaptchaLoading = true;
-    });
+    if (mounted) {
+      setState(() {
+        _isCaptchaLoading = true;
+      });
+    }
     try {
       ApiResult<Captcha> res = await _authService.fetchCaptcha();
       if (res.isSuccess) {
@@ -84,9 +86,11 @@ class _LoginPageState extends State<LoginPage>
         showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error), position: ToastPosition.bottom);
       }
     } finally {
-      setState(() {
-        _isCaptchaLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isCaptchaLoading = false;
+        });
+      }
     }
   }
 
@@ -211,9 +215,11 @@ class _LoginPageState extends State<LoginPage>
                                 ? Icons.visibility
                                 : Icons.visibility_off),
                             onPressed: () {
-                              setState(() {
-                                _isPasswordVisible = !_isPasswordVisible;
-                              });
+                              if (mounted) {
+                                setState(() {
+                                  _isPasswordVisible = !_isPasswordVisible;
+                                });
+                              }
                             },
                           ),
                           border: OutlineInputBorder(
@@ -406,9 +412,11 @@ class _LoginPageState extends State<LoginPage>
     final usernameOrEmail = _loginEmailController.text.trim();
     final password = _loginPasswordController.text;
 
-    setState(() {
-      _isLoading = true;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
 
     try {
       ApiResult result = await _authService.login(usernameOrEmail, password);
@@ -429,9 +437,11 @@ class _LoginPageState extends State<LoginPage>
       LogUtils.e('登录过程中发生意外错误: $e', tag: 'LoginPage');
       showToastWidget(MDToastWidget(message: slang.t.errors.unknownError, type: MDToastType.error), position: ToastPosition.bottom);
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -444,9 +454,11 @@ class _LoginPageState extends State<LoginPage>
       return;
     }
 
-    setState(() {
-      _isRegistering = true;
-    });
+    if (mounted) {
+      setState(() {
+        _isRegistering = true;
+      });
+    }
 
     try {
       ApiResult result =
@@ -461,9 +473,11 @@ class _LoginPageState extends State<LoginPage>
         _fetchCaptcha();
       }
     } finally {
-      setState(() {
-        _isRegistering = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isRegistering = false;
+        });
+      }
     }
   }
 }
