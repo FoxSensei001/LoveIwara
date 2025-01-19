@@ -473,10 +473,10 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.calendar_today,
                           size: 14,
-                          color: Theme.of(context).colorScheme.primary,
+                          color: Colors.white,
                         ),
                         const SizedBox(width: 4),
                         Text(

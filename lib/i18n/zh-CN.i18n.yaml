@@ -421,7 +421,7 @@ settings:
   confirm: 确认
   noCustomColors: 没有自定义颜色
 signIn:
-  pleaseLoginFirst: 请先登录后再签到
+  pleaseLoginFirst: 请先登录
   alreadySignedInToday: 您今天已经签到过了！
   youDidNotStickToTheSignIn: 您未能坚持签到。
   signInSuccess: 签到成功！

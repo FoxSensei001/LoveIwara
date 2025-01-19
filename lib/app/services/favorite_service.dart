@@ -9,7 +9,7 @@ import 'package:i_iwara/db/database_service.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:sqlite3/common.dart';
 
-class FavoriteService {
+class FavoriteService extends GetxService {
   static FavoriteService get to => Get.find();
   
   late final CommonDatabase _db;

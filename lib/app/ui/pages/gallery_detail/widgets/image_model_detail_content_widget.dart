@@ -489,6 +489,7 @@ class ImageModelDetailContent extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             child: Row(
               mainAxisSize: MainAxisSize.min,
+              spacing: 8,
               children: [
                 LikeButtonWidget(
                   mediaId: imageModelInfo.id,
@@ -510,10 +511,11 @@ class ImageModelDetailContent extends StatelessWidget {
                   },
                 ),
                 Material(
-                  color: Colors.transparent,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(20),
                   child: InkWell(
                     onTap: () => _addToFavorite(context),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(20),
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       child: Row(
@@ -537,10 +539,11 @@ class ImageModelDetailContent extends StatelessWidget {
                   ),
                 ),
                 Material(
-                  color: Colors.transparent,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(20),
                   child: InkWell(
                     onTap: () => _downloadGallery(context),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(20),
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       child: Row(
@@ -564,7 +567,8 @@ class ImageModelDetailContent extends StatelessWidget {
                   ),
                 ),
                 Material(
-                  color: Colors.transparent,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(20),
                   child: InkWell(
                     borderRadius: BorderRadius.circular(20),
                     onTap: () {

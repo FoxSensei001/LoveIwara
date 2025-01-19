@@ -416,7 +416,7 @@ settings:
   noCustomColors: 沒有自定義顏色
 
 signIn:
-  pleaseLoginFirst: 請先登入後再簽到
+  pleaseLoginFirst: 請先登入
   alreadySignedInToday: 您今天已經簽到過了！
   youDidNotStickToTheSignIn: 您未能持續簽到。
   signInSuccess: 簽到成功！

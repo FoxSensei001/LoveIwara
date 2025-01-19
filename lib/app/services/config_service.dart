@@ -53,6 +53,7 @@ class ConfigService extends GetxService {
   static const String CURRENT_CUSTOM_HEX_KEY = 'current_custom_hex'; // 当前自定义颜色
   static const String CUSTOM_THEME_COLORS_KEY = 'custom_theme_colors'; // 用户自定义的主题颜色列表
 
+  static const String RECORD_AND_RESTORE_VIDEO_PROGRESS = 'record_and_restore_video_progress'; // 播放器初始化时恢复播放进度 [同时也决定了是否向数据库中写入播放进度]
   // 所有配置项的 Map
   final settings = <String, dynamic>{
     AUTO_PLAY_KEY: false.obs,
@@ -91,6 +92,8 @@ class ConfigService extends GetxService {
     CURRENT_PRESET_INDEX_KEY: 0.obs,
     CURRENT_CUSTOM_HEX_KEY: ''.obs,
     CUSTOM_THEME_COLORS_KEY: <String>[].obs,
+
+    RECORD_AND_RESTORE_VIDEO_PROGRESS: true.obs,
   }.obs;
 
   late final Rx<Sort> _currentTranslationSort;

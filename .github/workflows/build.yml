@@ -56,7 +56,6 @@ jobs:
         with:
           name: android-release
           path: build/app/outputs/flutter-apk/app-release.apk
-          compression-level: 9
 
   build-windows:
     if: ${{ inputs.build_windows }}

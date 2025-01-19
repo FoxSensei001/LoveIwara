@@ -324,6 +324,7 @@ class VideoDetailContent extends StatelessWidget {
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
+                          spacing: 8,
                           children: [
                             LikeButtonWidget(
                               mediaId: videoInfo.id,
@@ -345,7 +346,8 @@ class VideoDetailContent extends StatelessWidget {
                               },
                             ),
                             Material(
-                              color: Colors.transparent,
+                              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                              borderRadius: BorderRadius.circular(20),
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(20),
                                 onTap: () {
@@ -386,7 +388,8 @@ class VideoDetailContent extends StatelessWidget {
                               ),
                             ),
                             Material(
-                              color: Colors.transparent,
+                              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                              borderRadius: BorderRadius.circular(20),
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(20),
                                 onTap: () {
@@ -415,27 +418,38 @@ class VideoDetailContent extends StatelessWidget {
                               ),
                             ),
                             Material(
-                              color: Colors.transparent,
+                              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                              borderRadius: BorderRadius.circular(20),
                               child: InkWell(
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: BorderRadius.circular(20),
                                 onTap: () {
                                   _showDownloadDialog(context);
                                 },
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      const Icon(Icons.download),
+                                      Icon(Icons.download,
+                                        size: 20,
+                                        color: Theme.of(context).iconTheme.color
+                                      ),
                                       const SizedBox(width: 4),
-                                      Text(t.common.download),
+                                      Text(
+                                        t.common.download,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Theme.of(context).textTheme.bodyMedium?.color
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
                               ),
                             ),
                             Material(
-                              color: Colors.transparent,
+                              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                              borderRadius: BorderRadius.circular(20),
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(20),
                                 onTap: () {
