@@ -1,5 +1,5 @@
 # 最新版本
-currentVersion: "0.1.0"
+currentVersion: "0.2.0"
 # 更新日志
 # 格式介绍
 # 1. version: 版本号
@@ -8,41 +8,43 @@ currentVersion: "0.1.0"
 # 4. forceUpdate: 是否强制更新
 # 5. minVersion: 最小版本号
 updates:
-  # - version: "0.1.9"
-  #   date: "2025-01-14"
-  #   forceUpdate: false
-  #   minVersion: "0.1.0"
-  #   changes:
-  #     zh-CN:
-  #       - "本次更新带来多项新功能和优化✨:"
-  #       - "新增论坛系统"
-  #       - "新增私信系统"
-  #       - "新增站内消息通知系统"
-  #       - "修复已知问题🔧:"
-  #       - "宽屏设备的播放器错误打开了侧边栏UI"
-  #       - "订阅页的部分问题"
-  #       - "More..."
-  #       - "想不出来了，就这样吧 :/"
-  #     en:
-  #       - "This update brings several new features and optimizations✨:"
-  #       - "Added forum system"
-  #       - "Added private messaging system"
-  #       - "Added in-app message notification system"
-  #       - "Fixed known issues🔧:"
-  #       - "Player error on widescreen devices opened the sidebar UI incorrectly"
-  #       - "Some issues on the subscription page"
-  #       - "More..."
-  #       - "Can't think of anything else, that's it :/"
-  #     ja:
-  #       - "このアップデートでは、いくつかの新機能と最適化が追加されました✨:"
-  #       - "フォーラムシステムを追加"
-  #       - "プライベートメッセージシステムを追加"
-  #       - "アプリ内メッセージ通知システムを追加"
-  #       - "既知の問題を修正🔧:"
-  #       - "ワイドスクリーンデバイスのプレーヤーがサイドバーUIを誤って開く問題"
-  #       - "サブスクリプションページのいくつかの問題"
-  #       - "More..."
-  #       - "他に思いつかないので、これで終わりです :/"
+  - version: "0.2.0"
+    date: "2025-01-18"
+    forceUpdate: false
+    minVersion: "0.2.0"
+    changes:
+      zh-CN:
+        - "本次更新带来多项新功能和优化✨:"
+        - "新增论坛系统"
+        - "新增私信系统"
+        - "新增站内消息通知系统"
+        - "新增视频、图库、单个文件的下载功能"
+        - "新增本地收藏功能"
+        - "新增黑名单管理"
+        - "修复已知问题🔧:"
+        - "修复了好多好多问题，想不出来了，就这样吧 :/"
+        - "多项功能和性能优化💻"
+      en:
+        - "新增论坛系统"
+        - "新增私信系统"
+        - "新增站内消息通知系统"
+        - "新增视频、图库、单个文件的下载功能"
+        - "新增本地收藏功能"
+        - "新增黑名单管理"
+        - "修复已知问题🔧:"
+        - "修复了好多好多问题，想不出来了，就这样吧 :/"
+        - "多项功能和性能优化💻"
+      ja:
+        - "新しい機能とパフォーマンスの向上"
+        - "フォーラムシステムを追加"
+        - "プライベートメッセージシステムを追加"
+        - "サイト内メッセージ通知システムを追加"
+        - "ビデオ、ギャラリー、個々のファイルのダウンロード機能を追加"
+        - "ローカルコレクション機能を追加"
+        - "ブラックリスト管理機能を追加"
+        - "既知の問題を修正🔧:"
+        - "多くの問題を修正しました。思いつかないので、これでいいでしょう :/"
+        - "機能とパフォーマンスの向上💻"
   - version: "0.1.0"
     date: "2025-01-04"
     forceUpdate: false
