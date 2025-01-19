@@ -704,7 +704,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       return Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const VideoRatingAnimation(),
+          const Icon(Icons.speed, color: Colors.white),
           const SizedBox(width: 4),
           Text(
             slang.t.videoDetail.playbackSpeedIng(rate: rate),

@@ -25,6 +25,10 @@ class BottomToolbar extends StatelessWidget {
   final ConfigService _configService = Get.find();
   final AppService appService = Get.find();
 
+  // 缓存一些常用的组件
+  final Widget _spacer4 = const SizedBox(width: 4.0);
+  final Widget _spacer8 = const SizedBox(width: 8.0);
+
   BottomToolbar({
     super.key,
     required this.myVideoStateController,
@@ -34,373 +38,97 @@ class BottomToolbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
+    final bool isSmallScreen = MediaQuery.of(context).size.width < 600;
+    final double iconSize = isSmallScreen ? 18 : 20;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // 添加顶部互动控制层
         if (currentScreenIsFullScreen)
-          IgnorePointer(
-            ignoring: myVideoStateController.animationController.value == 0,
-            child: SlideTransition(
-              position: myVideoStateController.bottomBarAnimation,
-              child: FadeTransition(
-                opacity: myVideoStateController.animationController,
-                child: MouseRegion(
-                  onEnter: (_) =>
-                      myVideoStateController.setToolbarHovering(true),
-                  onExit: (_) =>
-                      myVideoStateController.setToolbarHovering(false),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12.0, vertical: 4.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        // 点赞按钮
-                        Obx(() {
-                          final videoInfo =
-                              myVideoStateController.videoInfo.value;
-                          if (videoInfo == null) return const SizedBox.shrink();
+          _buildTopInteractionLayer(context, isSmallScreen),
+        _buildBottomToolbar(context, isSmallScreen, iconSize, t),
+      ],
+    );
+  }
 
-                          return LikeButtonWidget(
-                            mediaId: videoInfo.id,
-                            liked: videoInfo.liked ?? false,
-                            likeCount: videoInfo.numLikes ?? 0,
-                            onLike: (id) async {
-                              final result =
-                                  await Get.find<VideoService>().likeVideo(id);
-                              return result.isSuccess;
-                            },
-                            onUnlike: (id) async {
-                              final result = await Get.find<VideoService>()
-                                  .unlikeVideo(id);
-                              return result.isSuccess;
-                            },
-                            onLikeChanged: (liked) {
-                              myVideoStateController.videoInfo.value =
-                                  myVideoStateController.videoInfo.value
-                                      ?.copyWith(
-                                liked: liked,
-                                numLikes: (myVideoStateController
-                                            .videoInfo.value?.numLikes ??
-                                        0) +
-                                    (liked ? 1 : -1),
-                              );
-                            },
-                          );
-                        }),
-                        const SizedBox(width: 8),
-                        // 关注按钮
-                        Obx(() {
-                          final videoInfo =
-                              myVideoStateController.videoInfo.value;
-                          if (videoInfo?.user == null) {
-                            return const SizedBox.shrink();
-                          }
-
-                          return SizedBox(
-                            height: 28,
-                            child: FollowButtonWidget(
-                              user: videoInfo!.user!,
-                              onUserUpdated: (updatedUser) {
-                                myVideoStateController.videoInfo.value =
-                                    myVideoStateController.videoInfo.value
-                                        ?.copyWith(
-                                  user: updatedUser,
-                                );
-                              },
-                            ),
-                          );
-                        }),
-                        const SizedBox(width: 8),
-                        // 作者头像和名称
-                        Obx(() {
-                          final videoInfo =
-                              myVideoStateController.videoInfo.value;
-                          if (videoInfo?.user == null) {
-                            return const SizedBox.shrink();
-                          }
-                          return Row(
-                            children: [
-                              AvatarWidget(
-                                user: videoInfo?.user,
-                                defaultAvatarUrl:
-                                    CommonConstants.defaultAvatarUrl,
-                                radius: 14,
-                              ),
-                              const SizedBox(width: 6),
-                              ConstrainedBox(
-                                constraints:
-                                    const BoxConstraints(maxWidth: 200),
-                                child: videoInfo?.user?.premium == true
-                                    ? ShaderMask(
-                                        shaderCallback: (bounds) =>
-                                            LinearGradient(
-                                          colors: [
-                                            Colors.purple.shade300,
-                                            Colors.blue.shade300,
-                                            Colors.pink.shade300,
-                                          ],
-                                        ).createShader(bounds),
-                                        child: Text(
-                                          videoInfo?.user?.name ?? '',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      )
-                                    : Text(
-                                        videoInfo?.user?.name ?? '',
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                              ),
-                            ],
-                          );
-                        }),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        // 原有的底部工具栏
-        SlideTransition(
-          position: myVideoStateController.bottomBarAnimation,
+  Widget _buildTopInteractionLayer(BuildContext context, bool isSmallScreen) {
+    return IgnorePointer(
+      ignoring: myVideoStateController.animationController.value == 0,
+      child: SlideTransition(
+        position: myVideoStateController.bottomBarAnimation,
+        child: FadeTransition(
+          opacity: myVideoStateController.animationController,
           child: MouseRegion(
             onEnter: (_) => myVideoStateController.setToolbarHovering(true),
             onExit: (_) => myVideoStateController.setToolbarHovering(false),
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.transparent,
-                    Colors.black.withOpacity(0.7),
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.5),
-                    offset: const Offset(0, 60),
-                    blurRadius: 60.0,
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  // 第一行：进度条
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: MediaQuery.of(context).size.width < 600
-                            ? 0.0
-                            : 4.0),
-                    child: CustomVideoProgressbar(
-                      controller: myVideoStateController,
-                    ),
-                  ),
-                  // 第二行：播放按钮、进度信息和其他控制按钮
-                  SizedBox(
-                    height:
-                        MediaQuery.of(context).size.width < 600 ? 36.0 : 40.0,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // 左侧：播放/暂停按钮、音量控制和进度信息
-                        Row(
-                          children: [
-                            // 播放/暂停按钮
-                            Obx(() => _buildSwitchIconButton(
-                                  tooltip:
-                                      myVideoStateController.videoPlaying.value
-                                          ? slang.t.videoDetail.pause
-                                          : slang.t.videoDetail.play,
-                                  icon: Icon(
-                                    myVideoStateController.videoPlaying.value
-                                        ? Icons.pause
-                                        : Icons.play_arrow,
-                                    key: ValueKey(myVideoStateController
-                                            .videoPlaying.value
-                                        ? 'pause'
-                                        : 'play'),
-                                    color: Colors.white,
-                                    size:
-                                        MediaQuery.of(context).size.width < 600
-                                            ? 18
-                                            : 20,
-                                  ),
-                                  onPressed: () async {
-                                    if (await Vibration.hasVibrator() ??
-                                        false) {
-                                      await Vibration.vibrate(duration: 50);
-                                    }
-
-                                    if (myVideoStateController
-                                        .videoPlaying.value) {
-                                      myVideoStateController
-                                          .videoController.player
-                                          .pause();
-                                    } else {
-                                      myVideoStateController
-                                          .videoController.player
-                                          .play();
-                                    }
-                                  },
-                                )),
-                            // 仅在桌面平台显示音量控制
-                            if (GetPlatform.isDesktop)
-                              VolumeControl(
-                                configService: _configService,
-                                myVideoStateController: myVideoStateController,
-                              ),
-                            const SizedBox(width: 4.0),
-                            // 进度信息，并添加点击事件
-                            TextButton(
-                              onPressed: () {
-                                _showSeekDialog(context);
-                              },
-                              style: TextButton.styleFrom(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal:
-                                        MediaQuery.of(context).size.width < 600
-                                            ? 2.0
-                                            : 4.0),
-                                minimumSize: Size.zero,
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              ),
-                              child: Obx(
-                                () => Text(
-                                  '${CommonUtils.formatDuration(myVideoStateController.currentPosition.value)} / ${CommonUtils.formatDuration(myVideoStateController.totalDuration.value)}',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize:
-                                        MediaQuery.of(context).size.width < 600
-                                            ? 11
-                                            : 12,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        // 右侧：播放速度切换、分辨率切换和全屏按钮
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // 播放速度切换按钮
-                            _buildPlaybackSpeedSwitcher(context),
-                            // 分辨率切换按钮
-                            _buildResolutionSwitcher(context),
-                            // 桌面端的应用全屏
-                            if (GetPlatform.isDesktop &&
-                                !currentScreenIsFullScreen)
-                              _buildIconButton(
-                                tooltip: myVideoStateController
-                                        .isDesktopAppFullScreen.value
-                                    ? t.videoDetail.exitAppFullscreen
-                                    : t.videoDetail.enterAppFullscreen,
-                                icon: Obx(() {
-                                  return SizedBox(
-                                    width:
-                                        MediaQuery.of(context).size.width < 600
-                                            ? 18
-                                            : 20,
-                                    height:
-                                        MediaQuery.of(context).size.width < 600
-                                            ? 18
-                                            : 20,
-                                    child: (myVideoStateController
-                                            .isDesktopAppFullScreen.value)
-                                        ? SvgPicture.asset(
-                                            'assets/svg/app_exit_fullscreen.svg',
-                                            colorFilter: const ColorFilter.mode(
-                                                Colors.white, BlendMode.srcIn),
-                                            semanticsLabel:
-                                                myVideoStateController
-                                                        .isDesktopAppFullScreen
-                                                        .value
-                                                    ? t.videoDetail
-                                                        .exitAppFullscreen
-                                                    : t.videoDetail
-                                                        .enterAppFullscreen,
-                                          )
-                                        : SvgPicture.asset(
-                                            'assets/svg/app_enter_fullscreen.svg',
-                                            colorFilter: const ColorFilter.mode(
-                                                Colors.white, BlendMode.srcIn),
-                                            semanticsLabel:
-                                                myVideoStateController
-                                                        .isDesktopAppFullScreen
-                                                        .value
-                                                    ? t.videoDetail
-                                                        .exitAppFullscreen
-                                                    : t.videoDetail
-                                                        .enterAppFullscreen,
-                                          ),
-                                  );
-                                }),
-                                onPressed: () {
-                                  if (myVideoStateController
-                                      .isDesktopAppFullScreen.value) {
-                                    myVideoStateController
-                                        .isDesktopAppFullScreen.value = false;
-                                    appService.showSystemUI();
-                                  } else {
-                                    appService.hideSystemUI();
-                                    myVideoStateController
-                                        .isDesktopAppFullScreen.value = true;
-                                  }
-                                },
-                              ),
-                            // 全屏按钮
-                            if (!myVideoStateController
-                                .isDesktopAppFullScreen.value)
-                              _buildIconButton(
-                                tooltip: currentScreenIsFullScreen
-                                    ? t.videoDetail.exitSystemFullscreen
-                                    : t.videoDetail.enterSystemFullscreen,
-                                icon: Icon(
-                                  currentScreenIsFullScreen
-                                      ? Icons.fullscreen_exit
-                                      : Icons.fullscreen,
-                                  color: Colors.white,
-                                  size: MediaQuery.of(context).size.width < 600
-                                      ? 18
-                                      : 20,
-                                ),
-                                onPressed: () {
-                                  if (currentScreenIsFullScreen) {
-                                    myVideoStateController.exitFullscreen();
-                                  } else {
-                                    myVideoStateController.enterFullscreen();
-                                    myVideoStateController
-                                        .setToolbarHovering(false);
-                                  }
-                                },
-                              ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+                  _buildLikeButton(),
+                  _spacer8,
+                  _buildFollowButton(),
+                  _spacer8,
+                  _buildAuthorInfo(isSmallScreen),
                 ],
               ),
             ),
           ),
         ),
-      ],
+      ),
+    );
+  }
+
+  Widget _buildBottomToolbar(BuildContext context, bool isSmallScreen, double iconSize, slang.Translations t) {
+    return SlideTransition(
+      position: myVideoStateController.bottomBarAnimation,
+      child: MouseRegion(
+        onEnter: (_) => myVideoStateController.setToolbarHovering(true),
+        onExit: (_) => myVideoStateController.setToolbarHovering(false),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Colors.transparent,
+                Colors.black.withOpacity(0.7),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.5),
+                offset: const Offset(0, 60),
+                blurRadius: 60.0,
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(
+                    horizontal: isSmallScreen ? 0.0 : 4.0),
+                child: CustomVideoProgressbar(
+                  controller: myVideoStateController,
+                ),
+              ),
+              SizedBox(
+                height: isSmallScreen ? 36.0 : 40.0,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildLeftControls(context, isSmallScreen, iconSize, t),
+                    _buildRightControls(context, isSmallScreen, iconSize, t),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -732,5 +460,237 @@ class BottomToolbar extends StatelessWidget {
         },
       );
     });
+  }
+
+  Widget _buildLikeButton() {
+    return Obx(() {
+      final videoInfo = myVideoStateController.videoInfo.value;
+      if (videoInfo == null) return const SizedBox.shrink();
+
+      return LikeButtonWidget(
+        mediaId: videoInfo.id,
+        liked: videoInfo.liked ?? false,
+        likeCount: videoInfo.numLikes ?? 0,
+        onLike: (id) async {
+          final result = await Get.find<VideoService>().likeVideo(id);
+          return result.isSuccess;
+        },
+        onUnlike: (id) async {
+          final result = await Get.find<VideoService>().unlikeVideo(id);
+          return result.isSuccess;
+        },
+        onLikeChanged: (liked) {
+          myVideoStateController.videoInfo.value =
+              myVideoStateController.videoInfo.value?.copyWith(
+            liked: liked,
+            numLikes:
+                (myVideoStateController.videoInfo.value?.numLikes ?? 0) +
+                    (liked ? 1 : -1),
+          );
+        },
+      );
+    });
+  }
+
+  Widget _buildFollowButton() {
+    return Obx(() {
+      final videoInfo = myVideoStateController.videoInfo.value;
+      if (videoInfo?.user == null) {
+        return const SizedBox.shrink();
+      }
+
+      return SizedBox(
+        height: 28,
+        child: FollowButtonWidget(
+          user: videoInfo!.user!,
+          onUserUpdated: (updatedUser) {
+            myVideoStateController.videoInfo.value =
+                myVideoStateController.videoInfo.value?.copyWith(
+              user: updatedUser,
+            );
+          },
+        ),
+      );
+    });
+  }
+
+  Widget _buildAuthorInfo(bool isSmallScreen) {
+    return Obx(() {
+      final videoInfo = myVideoStateController.videoInfo.value;
+      if (videoInfo?.user == null) {
+        return const SizedBox.shrink();
+      }
+      return Row(
+        children: [
+          AvatarWidget(
+            user: videoInfo?.user,
+            defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+            radius: 14,
+          ),
+          const SizedBox(width: 6),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 200),
+            child: videoInfo?.user?.premium == true
+                ? ShaderMask(
+                    shaderCallback: (bounds) => LinearGradient(
+                      colors: [
+                        Colors.purple.shade300,
+                        Colors.blue.shade300,
+                        Colors.pink.shade300,
+                      ],
+                    ).createShader(bounds),
+                    child: Text(
+                      videoInfo?.user?.name ?? '',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  )
+                : Text(
+                    videoInfo?.user?.name ?? '',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+          ),
+        ],
+      );
+    });
+  }
+
+  Widget _buildLeftControls(BuildContext context, bool isSmallScreen, double iconSize, slang.Translations t) {
+    return Row(
+      children: [
+        Obx(() => _buildSwitchIconButton(
+          tooltip: myVideoStateController.videoPlaying.value
+              ? t.videoDetail.pause
+              : t.videoDetail.play,
+          icon: Icon(
+            myVideoStateController.videoPlaying.value
+                ? Icons.pause
+                : Icons.play_arrow,
+            key: ValueKey(myVideoStateController.videoPlaying.value
+                ? 'pause'
+                : 'play'),
+            color: Colors.white,
+            size: iconSize,
+          ),
+          onPressed: () async {
+            if (await Vibration.hasVibrator() ?? false) {
+              await Vibration.vibrate(duration: 50);
+            }
+
+            if (myVideoStateController.videoPlaying.value) {
+              myVideoStateController.videoController.player.pause();
+            } else {
+              myVideoStateController.videoController.player.play();
+            }
+          },
+        )),
+        if (GetPlatform.isDesktop)
+          VolumeControl(
+            configService: _configService,
+            myVideoStateController: myVideoStateController,
+          ),
+        _spacer4,
+        TextButton(
+          onPressed: () {
+            _showSeekDialog(context);
+          },
+          style: TextButton.styleFrom(
+            padding: EdgeInsets.symmetric(
+                horizontal: isSmallScreen ? 2.0 : 4.0),
+            minimumSize: Size.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          child: Obx(
+            () => Text(
+              '${CommonUtils.formatDuration(myVideoStateController.currentPosition.value)} / ${CommonUtils.formatDuration(myVideoStateController.totalDuration.value)}',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: isSmallScreen ? 11 : 12,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRightControls(BuildContext context, bool isSmallScreen, double iconSize, slang.Translations t) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildPlaybackSpeedSwitcher(context),
+        _buildResolutionSwitcher(context),
+        if (GetPlatform.isDesktop && !currentScreenIsFullScreen)
+          _buildIconButton(
+            tooltip: myVideoStateController.isDesktopAppFullScreen.value
+                ? t.videoDetail.exitAppFullscreen
+                : t.videoDetail.enterAppFullscreen,
+            icon: Obx(() {
+              return SizedBox(
+                width: iconSize,
+                height: iconSize,
+                child: (myVideoStateController.isDesktopAppFullScreen.value)
+                    ? SvgPicture.asset(
+                        'assets/svg/app_exit_fullscreen.svg',
+                        colorFilter: const ColorFilter.mode(
+                            Colors.white, BlendMode.srcIn),
+                        semanticsLabel: myVideoStateController
+                                .isDesktopAppFullScreen.value
+                            ? t.videoDetail.exitAppFullscreen
+                            : t.videoDetail.enterAppFullscreen,
+                      )
+                    : SvgPicture.asset(
+                        'assets/svg/app_enter_fullscreen.svg',
+                        colorFilter: const ColorFilter.mode(
+                            Colors.white, BlendMode.srcIn),
+                        semanticsLabel: myVideoStateController
+                                .isDesktopAppFullScreen.value
+                            ? t.videoDetail.exitAppFullscreen
+                            : t.videoDetail.enterAppFullscreen,
+                      ),
+              );
+            }),
+            onPressed: () {
+              if (myVideoStateController.isDesktopAppFullScreen.value) {
+                myVideoStateController.isDesktopAppFullScreen.value = false;
+                appService.showSystemUI();
+              } else {
+                appService.hideSystemUI();
+                myVideoStateController.isDesktopAppFullScreen.value = true;
+              }
+            },
+          ),
+        if (!myVideoStateController.isDesktopAppFullScreen.value)
+          _buildIconButton(
+            tooltip: currentScreenIsFullScreen
+                ? t.videoDetail.exitSystemFullscreen
+                : t.videoDetail.enterSystemFullscreen,
+            icon: Icon(
+              currentScreenIsFullScreen
+                  ? Icons.fullscreen_exit
+                  : Icons.fullscreen,
+              color: Colors.white,
+              size: iconSize,
+            ),
+            onPressed: () {
+              if (currentScreenIsFullScreen) {
+                myVideoStateController.exitFullscreen();
+              } else {
+                myVideoStateController.enterFullscreen();
+                myVideoStateController.setToolbarHovering(false);
+              }
+            },
+          ),
+      ],
+    );
   }
 }

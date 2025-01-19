@@ -3,49 +3,50 @@ import 'package:flutter/material.dart';
 class CommonErrorWidget extends StatelessWidget {
   final String text;
   final List<Widget>? children;
-  final double maxWidth;
+  final double? maxWidth;
 
   const CommonErrorWidget({
     super.key,
     required this.text,
     this.children,
-    this.maxWidth = 400.0, // 默认最大宽度
+    this.maxWidth,
   });
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final spacingUnit = theme.visualDensity.baseSizeAdjustment.dx;
+
     return Center(
       child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: maxWidth),
+        constraints: BoxConstraints(
+            maxWidth: maxWidth ?? theme.buttonTheme.minWidth * 3),
         child: Card(
-          elevation: 1,
-          margin: const EdgeInsets.all(8.0),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(4.0),
-            side: BorderSide(color: Theme.of(context).colorScheme.error, width: 1.0),
-          ),
+          elevation: theme.cardTheme.elevation ?? 0,
+          margin: EdgeInsets.all(spacingUnit + 8),
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(spacingUnit + 16),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
-                    const SizedBox(width: 16.0),
+                    Icon(Icons.error_outline, color: colorScheme.error),
+                    SizedBox(width: spacingUnit + 16),
                     Expanded(
                       child: Text(
                         text,
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: Theme.of(context).colorScheme.error,
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: colorScheme.error,
                         ),
                       ),
                     ),
                   ],
                 ),
                 if (children != null) ...[
-                  const SizedBox(height: 16.0),
+                  SizedBox(height: spacingUnit + 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: children!,

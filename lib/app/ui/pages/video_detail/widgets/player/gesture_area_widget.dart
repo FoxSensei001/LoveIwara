@@ -55,6 +55,9 @@ class _GestureAreaState extends State<GestureArea>
   Duration? _horizontalDragStartPosition;
   static const int MAX_SEEK_SECONDS = 90; // 最大滑动秒数为90秒
 
+  // 缓存计算结果
+  bool? _isVerticalDragProcessable;
+
   @override
   void initState() {
     super.initState();
@@ -63,6 +66,9 @@ class _GestureAreaState extends State<GestureArea>
     if (!GetPlatform.isLinux && !GetPlatform.isWeb) {
       _screenBrightness = ScreenBrightness();
     }
+    
+    // 预计算垂直拖动是否可处理
+    _isVerticalDragProcessable = _checkLeftAndCenterVerticalDragProcessable();
   }
 
   void _onTap() {
@@ -162,7 +168,7 @@ class _GestureAreaState extends State<GestureArea>
   }
 
   void _onVerticalDragEnd(DragEndDetails details) {
-    if (!_checkLeftAndCenterVerticalDragProcessable()) {
+    if (!(_isVerticalDragProcessable ?? false)) {
       return;
     }
 
@@ -177,18 +183,20 @@ class _GestureAreaState extends State<GestureArea>
       _configService.setSetting(ConfigService.VOLUME_KEY, _configService[ConfigService.VOLUME_KEY], save: true);
     }
 
-    widget.setLongPressing?.call(type, false); // 确保结束时调用淡出动画
+    widget.setLongPressing?.call(type, false);
 
     // 结束时让信息提示淡出
     _infoMessageFadeController.reverse().whenComplete(() {
-      setState(() {
-        _infoMessage = null; // 清除提示信息
-      });
+      if (mounted) {  // 添加mounted检查
+        setState(() {
+          _infoMessage = null;
+        });
+      }
     });
   }
 
   void _onVerticalDragUpdate(DragUpdateDetails details) {
-    if (!_checkLeftAndCenterVerticalDragProcessable()) {
+    if (!(_isVerticalDragProcessable ?? false)) {
       return;
     }
 
@@ -206,35 +214,62 @@ class _GestureAreaState extends State<GestureArea>
           details.primaryDelta! / max;
       rx = rx.clamp(0.0, 1.0);
       _configService.setSetting(ConfigService.BRIGHTNESS_KEY, rx, save: false);
-      _screenBrightness?.setScreenBrightness(rx); // 调整系统亮度
+      _screenBrightness?.setScreenBrightness(rx);
 
-      widget.setLongPressing?.call(LongPressType.brightness, true); // 显示亮度提示
+      widget.setLongPressing?.call(LongPressType.brightness, true);
     } else if (widget.region == GestureRegion.right) {
       // 调整音量
       double rx = _configService[ConfigService.VOLUME_KEY] -
           details.primaryDelta! / max;
       rx = rx.clamp(0.0, 1.0);
       widget.onVolumeChange?.call(rx);
-      widget.setLongPressing?.call(LongPressType.volume, true); // 显示音量提示
+      widget.setLongPressing?.call(LongPressType.volume, true);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // 使用const优化子组件
+    final infoMessageWidget = _infoMessage != null
+        ? Positioned(
+            top: 50,
+            left: 0,
+            right: 0,
+            child: FadeTransition(
+              opacity: _infoMessageOpacity,
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.black54,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _infoMessage!,
+                        style: const TextStyle(
+                            color: Colors.white, fontSize: 16),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          )
+        : null;
+
     return GestureDetector(
-      onTap: () {
-        // 单击时显示/隐藏工具栏
-        widget.myVideoStateController.toggleToolbars();
-      },
+      onTap: widget.onTap,
       onDoubleTap: _onDoubleTap,
       onLongPressStart: _onLongPressStart,
       onLongPressEnd: _onLongPressEnd,
       onVerticalDragStart: (_) {
-        // 开始垂直滑动时
         widget.myVideoStateController.setInteracting(true);
       },
       onVerticalDragEnd: (_) {
-        // 结束垂直滑动时
         widget.myVideoStateController.setInteracting(false);
         _onVerticalDragEnd(_);
       },
@@ -248,36 +283,28 @@ class _GestureAreaState extends State<GestureArea>
         widget.myVideoStateController.setInteracting(true);
         widget.myVideoStateController.showSeekPreview(true);
       } : null,
-      
       onHorizontalDragUpdate: widget.region == GestureRegion.center ? (details) {
         if (_horizontalDragStartX == null || _horizontalDragStartPosition == null) return;
         
-        // 计算滑动距离与屏幕宽度的比例
         double dragDistance = details.localPosition.dx - _horizontalDragStartX!;
         double screenWidth = widget.screenSize.width;
         double ratio = dragDistance / screenWidth;
         
-        // 计算时间偏移，最大不超过90秒
         int offsetSeconds = (ratio * MAX_SEEK_SECONDS).round();
         
-        // 计算目标时间
         Duration targetPosition = Duration(
           seconds: (_horizontalDragStartPosition!.inSeconds + offsetSeconds)
               .clamp(0, widget.myVideoStateController.totalDuration.value.inSeconds)
         );
         
-        // 更新预览位置
         widget.myVideoStateController.updateSeekPreview(targetPosition);
       } : null,
-      
       onHorizontalDragEnd: widget.region == GestureRegion.center ? (details) {
         if (_horizontalDragStartPosition != null) {
-          // 执行实际的跳转
           Duration targetPosition = widget.myVideoStateController.previewPosition.value;
           widget.myVideoStateController.player.seek(targetPosition);
         }
         
-        // 重置状态
         _horizontalDragStartX = null;
         _horizontalDragStartPosition = null;
         widget.myVideoStateController.setInteracting(false);
@@ -290,35 +317,7 @@ class _GestureAreaState extends State<GestureArea>
         color: Colors.transparent,
         child: Stack(
           children: [
-            if (_infoMessage != null)
-              Positioned(
-                top: 50,
-                left: 0,
-                right: 0,
-                child: FadeTransition(
-                  opacity: _infoMessageOpacity,
-                  child: Center(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.black54,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            _infoMessage!,
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 16),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+            if (infoMessageWidget != null) infoMessageWidget,
           ],
         ),
       ),

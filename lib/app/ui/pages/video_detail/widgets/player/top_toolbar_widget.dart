@@ -12,10 +12,17 @@ class TopToolbar extends StatelessWidget {
   final MyVideoStateController myVideoStateController;
   final bool currentScreenIsFullScreen;
 
-  const TopToolbar(
-      {super.key,
-      required this.myVideoStateController,
-      required this.currentScreenIsFullScreen});
+  // 缓存常用组件
+  final Widget _backIcon = const Icon(Icons.arrow_back, color: Colors.white);
+  final Widget _homeIcon = const Icon(Icons.home, color: Colors.white);
+  final Widget _helpIcon = const Icon(Icons.help_outline, color: Colors.white);
+  final Widget _moreIcon = const Icon(Icons.more_vert, color: Colors.white);
+
+  const TopToolbar({
+    super.key,
+    required this.myVideoStateController,
+    required this.currentScreenIsFullScreen,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -35,8 +42,8 @@ class TopToolbar extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Colors.black.withOpacity(0.7), // 顶部为不透明黑色
-                Colors.transparent, // 底部为透明
+                Colors.black.withOpacity(0.7),
+                Colors.transparent,
               ],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
@@ -60,7 +67,7 @@ class TopToolbar extends StatelessWidget {
                     // 返回按钮
                     IconButton(
                       tooltip: t.common.back,
-                      icon: const Icon(Icons.arrow_back, color: Colors.white),
+                      icon: _backIcon,
                       onPressed: () {
                         if (currentScreenIsFullScreen) {
                           myVideoStateController.exitFullscreen();
@@ -74,7 +81,7 @@ class TopToolbar extends StatelessWidget {
                     if (!currentScreenIsFullScreen && !myVideoStateController.isDesktopAppFullScreen.value)
                       IconButton(
                         tooltip: t.videoDetail.home,
-                        icon: const Icon(Icons.home, color: Colors.white),
+                        icon: _homeIcon,
                         onPressed: () {
                           AppService appService = Get.find();
                           int currentIndex = appService.currentIndex;
@@ -93,13 +100,15 @@ class TopToolbar extends StatelessWidget {
                     // 使用 Expanded 包裹标题，避免超出
                     Expanded(
                       child: Obx(() => Text(
-                            myVideoStateController.videoInfo.value?.title ??
-                                t.videoDetail.videoPlayer,
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 18),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          )),
+                        myVideoStateController.videoInfo.value?.title ??
+                            t.videoDetail.videoPlayer,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      )),
                     ),
                   ],
                 ),
@@ -110,18 +119,14 @@ class TopToolbar extends StatelessWidget {
                   // 问号信息按钮
                   IconButton(
                     tooltip: t.videoDetail.videoPlayerInfo,
-                    icon: const Icon(Icons.help_outline, color: Colors.white),
-                    onPressed: () {
-                      showInfoModal(context);
-                    },
+                    icon: _helpIcon,
+                    onPressed: () => showInfoModal(context),
                   ),
                   // 更多设置按钮
                   IconButton(
                     tooltip: t.videoDetail.moreSettings,
-                    icon: const Icon(Icons.more_vert, color: Colors.white),
-                    onPressed: () {
-                      showSettingsModal(context);
-                    },
+                    icon: _moreIcon,
+                    onPressed: () => showSettingsModal(context),
                   ),
                 ],
               ),

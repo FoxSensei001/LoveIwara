@@ -30,6 +30,23 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
   // GlobalKey 用于获取滑动条的 RenderBox
   final GlobalKey _sliderKey = GlobalKey();
 
+  // 缓存常用的Paint对象
+  final Paint _activePaint = Paint()
+    ..color = Colors.white
+    ..style = PaintingStyle.fill;
+
+  final Paint _inactivePaint = Paint()
+    ..color = Colors.white.withOpacity(0.3)
+    ..style = PaintingStyle.fill;
+
+  final Paint _bufferedPaint = Paint()
+    ..color = Colors.white.withOpacity(0.5)
+    ..style = PaintingStyle.fill;
+
+  final Paint _hoverPaint = Paint()
+    ..color = Colors.white.withOpacity(0.5)
+    ..style = PaintingStyle.fill;
+
   // 用于判断当前是否为移动端
   bool get isMobile =>
       GetPlatform.isAndroid || GetPlatform.isIOS || GetPlatform.isFuchsia;
@@ -93,6 +110,10 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
                         currentValue: _currentValue,
                         bufferRanges: widget.controller.buffers,
                         maxValue: _maxValue,
+                        activePaint: _activePaint,
+                        inactivePaint: _inactivePaint,
+                        bufferedPaint: _bufferedPaint,
+                        hoverPaint: _hoverPaint,
                       ),
                       activeTrackColor: Colors.white,
                       inactiveTrackColor: Colors.white.withOpacity(0.3),
@@ -143,32 +164,34 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
                   ),
                   // 显示悬停或长按标签
                   if (_hoverValue != null && _hoverPosition != null)
-                    Positioned(
-                      left: _hoverPosition! - 30, // 调整标签位置
-                      bottom: 40, // 标签距离滑动条的距离
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.7),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          CommonUtils.formatDuration(
-                              Duration(seconds: _hoverValue!.toInt())),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                    ),
+                    _buildHoverPreview(),
                 ],
               );
             }),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildHoverPreview() {
+    return Positioned(
+      left: _hoverPosition! - 30,
+      bottom: 40,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.7),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Text(
+          CommonUtils.formatDuration(Duration(seconds: _hoverValue!.toInt())),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 12,
+          ),
+        ),
+      ),
     );
   }
 
@@ -252,12 +275,20 @@ class CustomSliderTrackShape extends SliderTrackShape {
   final double currentValue;
   final List<BufferRange> bufferRanges;
   final double maxValue;
+  final Paint activePaint;
+  final Paint inactivePaint;
+  final Paint bufferedPaint;
+  final Paint hoverPaint;
 
   CustomSliderTrackShape({
     this.hoverValue,
     required this.currentValue,
     required this.bufferRanges,
     required this.maxValue,
+    required this.activePaint,
+    required this.inactivePaint,
+    required this.bufferedPaint,
+    required this.hoverPaint,
   });
 
   @override
@@ -284,18 +315,6 @@ class CustomSliderTrackShape extends SliderTrackShape {
     // 计算当前播放位置的比例
     double currentRatio = (currentValue / maxValue).clamp(0.0, 1.0);
     double currentX = trackRect.left + currentRatio * trackRect.width;
-
-    final Paint activePaint = Paint()
-      ..color = sliderTheme.activeTrackColor ?? Colors.white
-      ..style = PaintingStyle.fill;
-
-    final Paint inactivePaint = Paint()
-      ..color = sliderTheme.inactiveTrackColor ?? Colors.white.withOpacity(0.3)
-      ..style = PaintingStyle.fill;
-
-    final Paint bufferedPaint = Paint()
-      ..color = Colors.white.withOpacity(0.5)
-      ..style = PaintingStyle.fill;
 
     // 绘制未播放部分
     context.canvas.drawRect(
@@ -340,10 +359,6 @@ class CustomSliderTrackShape extends SliderTrackShape {
       hoverX = hoverX.clamp(trackRect.left, trackRect.right);
 
       // 绘制从当前播放位置到hover位置的增强颜色
-      Paint hoverPaint = Paint()
-        ..color = Colors.white.withOpacity(0.5)
-        ..style = PaintingStyle.fill;
-
       context.canvas.drawRect(
         Rect.fromLTRB(currentX, trackRect.top, hoverX, trackRect.bottom),
         hoverPaint,
