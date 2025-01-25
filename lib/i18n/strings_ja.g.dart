@@ -231,6 +231,7 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get selectDateRangeHint => '日付範囲を選択，デフォルトは最近30日';
 	@override String get clearDateRange => '日付範囲をクリア';
 	@override String get followSuccessClickAgainToSpecialFollow => 'フォローに成功しました。再度クリックして特別フォロー';
+	@override String get exitConfirmTip => '本当に退出しますか？';
 }
 
 // Path: auth
@@ -1308,6 +1309,7 @@ extension on TranslationsJa {
 			case 'common.selectDateRangeHint': return '日付範囲を選択，デフォルトは最近30日';
 			case 'common.clearDateRange': return '日付範囲をクリア';
 			case 'common.followSuccessClickAgainToSpecialFollow': return 'フォローに成功しました。再度クリックして特別フォロー';
+			case 'common.exitConfirmTip': return '本当に退出しますか？';
 			case 'auth.login': return 'ログイン';
 			case 'auth.logout': return 'ログアウト';
 			case 'auth.email': return 'メールアドレス';

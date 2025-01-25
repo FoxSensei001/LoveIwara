@@ -231,6 +231,7 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get selectDateRangeHint => '選擇日期範圍，默認選擇最近30天';
 	@override String get clearDateRange => '清除日期範圍';
 	@override String get followSuccessClickAgainToSpecialFollow => '已成功關注，再次點擊以特別關注';
+	@override String get exitConfirmTip => '確定要退出嗎？';
 }
 
 // Path: auth
@@ -558,7 +559,7 @@ class _TranslationsSignInZhTw implements TranslationsSignInEn {
 	final TranslationsZhTw _root; // ignore: unused_field
 
 	// Translations
-	@override String get pleaseLoginFirst => '請先登入後再簽到';
+	@override String get pleaseLoginFirst => '請先登入';
 	@override String get alreadySignedInToday => '您今天已經簽到過了！';
 	@override String get youDidNotStickToTheSignIn => '您未能持續簽到。';
 	@override String get signInSuccess => '簽到成功！';
@@ -1311,6 +1312,7 @@ extension on TranslationsZhTw {
 			case 'common.selectDateRangeHint': return '選擇日期範圍，默認選擇最近30天';
 			case 'common.clearDateRange': return '清除日期範圍';
 			case 'common.followSuccessClickAgainToSpecialFollow': return '已成功關注，再次點擊以特別關注';
+			case 'common.exitConfirmTip': return '確定要退出嗎？';
 			case 'auth.login': return '登入';
 			case 'auth.logout': return '登出';
 			case 'auth.email': return '電子郵件';
@@ -1539,7 +1541,7 @@ extension on TranslationsZhTw {
 			case 'settings.cancel': return '取消';
 			case 'settings.confirm': return '確認';
 			case 'settings.noCustomColors': return '沒有自定義顏色';
-			case 'signIn.pleaseLoginFirst': return '請先登入後再簽到';
+			case 'signIn.pleaseLoginFirst': return '請先登入';
 			case 'signIn.alreadySignedInToday': return '您今天已經簽到過了！';
 			case 'signIn.youDidNotStickToTheSignIn': return '您未能持續簽到。';
 			case 'signIn.signInSuccess': return '簽到成功！';

@@ -13,6 +13,7 @@ import '../popular_media_list/popular_gallery_list_page.dart';
 import '../popular_media_list/popular_video_list_page.dart';
 import '../subscriptions/subscriptions_page.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/utils/exit_confirm_util.dart';
 
 /// 侧边栏、底部导航栏、主要内容
 class HomeNavigationLayout extends StatefulWidget {
@@ -335,8 +336,11 @@ class HomeNavigatorObserver extends NavigatorObserver {
 }
 
 class _NaviPopScope extends StatelessWidget {
-  const _NaviPopScope(
-      {required this.child, this.popGesture = false, required this.action});
+  const _NaviPopScope({
+    required this.child, 
+    this.popGesture = false, 
+    required this.action
+  });
 
   final Widget child;
   final bool popGesture;
@@ -353,10 +357,11 @@ class _NaviPopScope extends StatelessWidget {
             onPopInvokedWithResult: (value, result) {
               LogUtils.i('[顶层Popscope结果, value: $value, result: $result]',
                   'PopScope');
-              action();
+              ExitConfirmUtil.handleExit(context, action);
             },
             child: child,
           );
+
     if (popGesture) {
       res = GestureDetector(
           onPanStart: (details) {
@@ -368,7 +373,7 @@ class _NaviPopScope extends StatelessWidget {
             if (details.velocity.pixelsPerSecond.dx < 0 ||
                 details.velocity.pixelsPerSecond.dx > 0) {
               if (panStartAtEdge) {
-                action();
+                ExitConfirmUtil.handleExit(context, action);
               }
             }
             panStartAtEdge = false;

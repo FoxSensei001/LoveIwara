@@ -233,6 +233,7 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String get selectDateRangeHint => '选择日期范围，默认选择最近30天';
 	@override String get clearDateRange => '清除日期范围';
 	@override String get followSuccessClickAgainToSpecialFollow => '已成功关注，再次点击以特别关注';
+	@override String get exitConfirmTip => '确定要退出吗？';
 }
 
 // Path: auth
@@ -563,7 +564,7 @@ class _TranslationsSignInZhCn implements TranslationsSignInEn {
 	final TranslationsZhCn _root; // ignore: unused_field
 
 	// Translations
-	@override String get pleaseLoginFirst => '请先登录后再签到';
+	@override String get pleaseLoginFirst => '请先登录';
 	@override String get alreadySignedInToday => '您今天已经签到过了！';
 	@override String get youDidNotStickToTheSignIn => '您未能坚持签到。';
 	@override String get signInSuccess => '签到成功！';
@@ -1315,6 +1316,7 @@ extension on TranslationsZhCn {
 			case 'common.selectDateRangeHint': return '选择日期范围，默认选择最近30天';
 			case 'common.clearDateRange': return '清除日期范围';
 			case 'common.followSuccessClickAgainToSpecialFollow': return '已成功关注，再次点击以特别关注';
+			case 'common.exitConfirmTip': return '确定要退出吗？';
 			case 'auth.tagLimit': return '标签上限';
 			case 'auth.login': return '登录';
 			case 'auth.logout': return '退出登录';
@@ -1546,7 +1548,7 @@ extension on TranslationsZhCn {
 			case 'settings.cancel': return '取消';
 			case 'settings.confirm': return '确认';
 			case 'settings.noCustomColors': return '没有自定义颜色';
-			case 'signIn.pleaseLoginFirst': return '请先登录后再签到';
+			case 'signIn.pleaseLoginFirst': return '请先登录';
 			case 'signIn.alreadySignedInToday': return '您今天已经签到过了！';
 			case 'signIn.youDidNotStickToTheSignIn': return '您未能坚持签到。';
 			case 'signIn.signInSuccess': return '签到成功！';

@@ -167,6 +167,7 @@ common:
   selectDateRangeHint: Select date range, default is recent 30 days
   clearDateRange: Clear Date Range
   followSuccessClickAgainToSpecialFollow: Followed successfully, click again to special follow
+  exitConfirmTip: Are you sure you want to exit?
 auth:
   login: Login
   logout: Logout

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -29,6 +28,7 @@ import 'models/dto/escape_intent.dart';
 import 'services/theme_service.dart';
 import 'services/message_service.dart';
 import 'services/deep_link_service.dart';
+import 'utils/exit_confirm_util.dart';
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -295,7 +295,7 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
         actions: {
           EscapeIntent: CallbackAction<EscapeIntent>(
             onInvoke: (intent) {
-              AppService.tryPop();
+              ExitConfirmUtil.handleExit(context, () => AppService.tryPop());
               return null;
             },
           ),

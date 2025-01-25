@@ -168,6 +168,7 @@ common:
   selectDateRangeHint: 日付範囲を選択，デフォルトは最近30日
   clearDateRange: 日付範囲をクリア
   followSuccessClickAgainToSpecialFollow: フォローに成功しました。再度クリックして特別フォロー
+  exitConfirmTip: 本当に退出しますか？
 auth:
   login: ログイン
   logout: ログアウト

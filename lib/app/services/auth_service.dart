@@ -223,7 +223,7 @@ class AuthService extends GetxService {
     }
   }
 
-  // 初始化方法
+  // 修改init方法,让token刷新不阻塞初始化
   Future<AuthService> init() async {
     try {
       _authToken = await _storage.readSecureData(KeyConstants.authToken);
@@ -258,13 +258,9 @@ class AuthService extends GetxService {
           if (authTokenResult == TokenValidationResult.valid) {
             LogUtils.i('Access token已失效，尝试刷新', _tag);
             _updateTokenExpireTime(_authToken!, true);
-            final success = await refreshAccessToken();
-            if (success) {
-              _isAuthenticated.value = true;
-              _startTokenRefreshTimer();
-            } else {
-              await _handleTokenExpiredSilently();
-            }
+            // 将刷新token改为异步,不阻塞初始化
+            _refreshTokenInBackground();
+            _isAuthenticated.value = true;
           } else {
             await _handleTokenExpiredSilently();
           }
@@ -278,13 +274,9 @@ class AuthService extends GetxService {
         // 检查是否需要刷新
         if (isAccessTokenExpired && !isAuthTokenExpired) {
           LogUtils.i('Access token即将过期，尝试刷新', _tag);
-          final success = await refreshAccessToken();
-          if (success) {
-            _isAuthenticated.value = true;
-            _startTokenRefreshTimer();
-          } else {
-            await _handleTokenExpiredSilently();
-          }
+          // 将刷新token改为异步,不阻塞初始化
+          _refreshTokenInBackground();
+          _isAuthenticated.value = true;
         } else if (!isAccessTokenExpired) {
           _startTokenRefreshTimer();
           _isAuthenticated.value = true;
@@ -295,6 +287,26 @@ class AuthService extends GetxService {
       await _handleTokenExpiredSilently();
     }
     return this;
+  }
+
+  // 添加后台刷新token的方法
+  void _refreshTokenInBackground() {
+    Future.microtask(() async {
+      if (hasToken) {
+        try {
+          final success = await refreshAccessToken();
+          if (success) {
+            _startTokenRefreshTimer();
+          } else {
+            LogUtils.w('后台刷新token失败', _tag);
+            await _handleTokenExpiredSilently();
+          }
+        } catch (e) {
+          LogUtils.e('后台刷新token发生错误', tag: _tag, error: e);
+          await _handleTokenExpiredSilently();
+        }
+      }
+    });
   }
 
   // token刷新逻辑
