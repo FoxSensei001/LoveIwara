@@ -32,6 +32,8 @@ class ExitConfirmUtil {
         AppService.homeNavigatorKey.currentState!
             .pushNamedAndRemoveUntil(Routes.POPULAR_VIDEOS, (route) => false);
         _showExitTip(context);
+        AppService appService = Get.find();
+        appService.currentIndex = 0;
         _lastExitTime = DateTime.now();
         return;
       }
@@ -71,6 +73,8 @@ class ExitConfirmUtil {
         margin: const EdgeInsets.all(8),
         borderRadius: 8,
         snackPosition: SnackPosition.bottom,
+        icon: const Icon(Icons.info_outline, color: Colors.white),
+        maxWidth: 400,
       ),
     );
   }

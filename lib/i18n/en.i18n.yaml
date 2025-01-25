@@ -246,6 +246,7 @@ errors:
   tagLimitExceeded: 'Tag limit exceeded, limit: ${limit}'
   failedToRefresh: Failed to refresh
   noPermission: No permission
+  resourceNotFound: Resource not found
 friends:
   clickToRestoreFriend: Click to restore friend
   friendsList: Friends List
@@ -439,6 +440,7 @@ subscriptions:
   pleaseLoginFirstToViewYourSubscriptions: Please login first to view your subscriptions.
 
 videoDetail:
+  resumeFromLastPosition: 'Resume from last position: ${position}'
   videoIdIsEmpty: Video ID is empty
   videoInfoIsEmpty: Video info is empty
   thisIsAPrivateVideo: This is a private video

@@ -95,6 +95,12 @@ class _MyAppState extends State<MyApp> {
         final bool useDynamicColor = themeService.useDynamicColor;
         final Color seedColor = themeService.getCurrentThemeColor();
 
+        if (lightDynamic != null && darkDynamic != null) {
+          // 记录动态颜色到常量
+          CommonConstants.dynamicLightColorScheme = lightDynamic.harmonized();
+          CommonConstants.dynamicDarkColorScheme = darkDynamic.harmonized();
+        }
+
         // 如果使用动态颜色且系统支持动态颜色
         if (useDynamicColor && (lightDynamic != null && darkDynamic != null)) {
           lightColorScheme = lightDynamic.harmonized();
@@ -105,14 +111,13 @@ class _MyAppState extends State<MyApp> {
           // 只在非初始化时更新主题
           if (Get.context != null) {
             bool systemIsLight = WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.light;
-            Get.changeTheme(ThemeData(
-              colorScheme: currentThemeMode == 1 
-                  ? lightColorScheme 
-                  : currentThemeMode == 2 
-                      ? darkColorScheme 
-                      : systemIsLight ? lightColorScheme : darkColorScheme,
-              useMaterial3: true,
-            ));
+            if (currentThemeMode == 1) {
+              Get.changeTheme(ThemeData.from(colorScheme: lightDynamic.harmonized()));
+            } else if (currentThemeMode == 2) {
+              Get.changeTheme(ThemeData.from(colorScheme: darkDynamic.harmonized()));
+            } else {
+              Get.changeTheme(ThemeData.from(colorScheme: systemIsLight ? lightDynamic.harmonized() : darkDynamic.harmonized()));
+            }
           }
         } else {
           // 使用自定义颜色

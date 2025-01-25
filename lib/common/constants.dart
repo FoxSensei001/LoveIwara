@@ -86,11 +86,11 @@ class CommonConstants {
       '$iwaraBaseUrl/images/default-thumbnail.jpg';
 
   static int themeMode = 0; // 0: system(动态主题), 1: light, 2: dark
-  static bool useDynamicColor = true;
-  static bool usePresetColor = true;
-  static int currentPresetIndex = 0;
-  static String currentCustomHex = '';
-  static List<String> customThemeColors = [];
+  static bool useDynamicColor = true; // 使用动态颜色
+  static bool usePresetColor = true; // 使用预设颜色
+  static int currentPresetIndex = 0; // 预设颜色索引
+  static String currentCustomHex = ''; // 自定义颜色
+  static List<String> customThemeColors = []; // 自定义颜色列表
 
   static ColorScheme? dynamicLightColorScheme;
   static ColorScheme? dynamicDarkColorScheme;

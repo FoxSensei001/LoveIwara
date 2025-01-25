@@ -21,7 +21,7 @@ class CommonErrorWidget extends StatelessWidget {
     return Center(
       child: ConstrainedBox(
         constraints: BoxConstraints(
-            maxWidth: maxWidth ?? theme.buttonTheme.minWidth * 3),
+            maxWidth: maxWidth ?? MediaQuery.of(context).size.width * 0.8),
         child: Card(
           elevation: theme.cardTheme.elevation ?? 0,
           margin: EdgeInsets.all(spacingUnit + 8),
@@ -29,12 +29,12 @@ class CommonErrorWidget extends StatelessWidget {
             padding: EdgeInsets.all(spacingUnit + 16),
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Row(
+                  spacing: spacingUnit + 16,
                   children: [
                     Icon(Icons.error_outline, color: colorScheme.error),
-                    SizedBox(width: spacingUnit + 16),
                     Expanded(
                       child: Text(
                         text,
@@ -47,8 +47,11 @@ class CommonErrorWidget extends StatelessWidget {
                 ),
                 if (children != null) ...[
                   SizedBox(height: spacingUnit + 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                  Wrap(
+                    spacing: spacingUnit + 8,
+                    runSpacing: spacingUnit + 8,
+                    alignment: WrapAlignment.end,
+                    textDirection: TextDirection.rtl,
                     children: children!,
                   ),
                 ],

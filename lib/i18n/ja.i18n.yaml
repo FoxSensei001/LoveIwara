@@ -247,6 +247,7 @@ errors:
   tagLimitExceeded: 'タグの上限を超えています。上限: ${limit}'
   failedToRefresh: 更新に失敗しました
   noPermission: 権限がありません
+  resourceNotFound: リソースが見つかりません
 friends:
   clickToRestoreFriend: 友達を復元するにはクリックしてください
   friendsList: 友達リスト
@@ -440,6 +441,7 @@ subscriptions:
   pleaseLoginFirstToViewYourSubscriptions: サブスクリプションを表示するにはログインしてください。
 
 videoDetail:
+  resumeFromLastPosition: '${position} から続けて再生'
   videoIdIsEmpty: ビデオIDが空です
   videoInfoIsEmpty: ビデオ情報が空です
   thisIsAPrivateVideo: これはプライベートビデオです

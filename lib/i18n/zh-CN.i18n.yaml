@@ -253,6 +253,7 @@ errors:
   tagLimitExceeded: '标签上限超出，上限: ${limit}'
   failedToRefresh: 更新失败
   noPermission: 权限不足
+  resourceNotFound: 资源不存在
 friends:
   clickToRestoreFriend: 点击恢复好友
   friendsList: 好友列表
@@ -447,6 +448,7 @@ subscriptions:
   pleaseLoginFirstToViewYourSubscriptions: 请登录以查看您的订阅内容。
 
 videoDetail:
+  resumeFromLastPosition: '从上次播放位置继续播放: ${position}'
   videoIdIsEmpty: 视频ID为空
   videoInfoIsEmpty: 视频信息为空
   thisIsAPrivateVideo: 这是一个私密视频

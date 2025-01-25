@@ -329,6 +329,7 @@ class TranslationsErrorsEn {
 	String tagLimitExceeded({required Object limit}) => 'Tag limit exceeded, limit: ${limit}';
 	String get failedToRefresh => 'Failed to refresh';
 	String get noPermission => 'No permission';
+	String get resourceNotFound => 'Resource not found';
 }
 
 // Path: friends
@@ -602,6 +603,7 @@ class TranslationsVideoDetailEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+	String resumeFromLastPosition({required Object position}) => 'Resume from last position: ${position}';
 	String get videoIdIsEmpty => 'Video ID is empty';
 	String get videoInfoIsEmpty => 'Video info is empty';
 	String get thisIsAPrivateVideo => 'This is a private video';
@@ -1389,6 +1391,7 @@ extension on Translations {
 			case 'errors.tagLimitExceeded': return ({required Object limit}) => 'Tag limit exceeded, limit: ${limit}';
 			case 'errors.failedToRefresh': return 'Failed to refresh';
 			case 'errors.noPermission': return 'No permission';
+			case 'errors.resourceNotFound': return 'Resource not found';
 			case 'friends.clickToRestoreFriend': return 'Click to restore friend';
 			case 'friends.friendsList': return 'Friends List';
 			case 'friends.friendRequests': return 'Friend Requests';
@@ -1563,6 +1566,7 @@ extension on Translations {
 			case 'signIn.totalSignIns': return 'Total Sign Ins';
 			case 'signIn.pleaseSelectSignInStatus': return 'Please select sign in status';
 			case 'subscriptions.pleaseLoginFirstToViewYourSubscriptions': return 'Please login first to view your subscriptions.';
+			case 'videoDetail.resumeFromLastPosition': return ({required Object position}) => 'Resume from last position: ${position}';
 			case 'videoDetail.videoIdIsEmpty': return 'Video ID is empty';
 			case 'videoDetail.videoInfoIsEmpty': return 'Video info is empty';
 			case 'videoDetail.thisIsAPrivateVideo': return 'This is a private video';

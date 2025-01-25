@@ -330,6 +330,7 @@ class _TranslationsErrorsZhCn implements TranslationsErrorsEn {
 	@override String tagLimitExceeded({required Object limit}) => '标签上限超出，上限: ${limit}';
 	@override String get failedToRefresh => '更新失败';
 	@override String get noPermission => '权限不足';
+	@override String get resourceNotFound => '资源不存在';
 }
 
 // Path: friends
@@ -603,6 +604,7 @@ class _TranslationsVideoDetailZhCn implements TranslationsVideoDetailEn {
 	final TranslationsZhCn _root; // ignore: unused_field
 
 	// Translations
+	@override String resumeFromLastPosition({required Object position}) => '从上次播放位置继续播放: ${position}';
 	@override String get videoIdIsEmpty => '视频ID为空';
 	@override String get videoInfoIsEmpty => '视频信息为空';
 	@override String get thisIsAPrivateVideo => '这是一个私密视频';
@@ -1395,6 +1397,7 @@ extension on TranslationsZhCn {
 			case 'errors.tagLimitExceeded': return ({required Object limit}) => '标签上限超出，上限: ${limit}';
 			case 'errors.failedToRefresh': return '更新失败';
 			case 'errors.noPermission': return '权限不足';
+			case 'errors.resourceNotFound': return '资源不存在';
 			case 'friends.clickToRestoreFriend': return '点击恢复好友';
 			case 'friends.friendsList': return '好友列表';
 			case 'friends.friendRequests': return '好友请求';
@@ -1569,6 +1572,7 @@ extension on TranslationsZhCn {
 			case 'signIn.totalSignIns': return '总成功签到';
 			case 'signIn.pleaseSelectSignInStatus': return '请选择签到状态';
 			case 'subscriptions.pleaseLoginFirstToViewYourSubscriptions': return '请登录以查看您的订阅内容。';
+			case 'videoDetail.resumeFromLastPosition': return ({required Object position}) => '从上次播放位置继续播放: ${position}';
 			case 'videoDetail.videoIdIsEmpty': return '视频ID为空';
 			case 'videoDetail.videoInfoIsEmpty': return '视频信息为空';
 			case 'videoDetail.thisIsAPrivateVideo': return '这是一个私密视频';

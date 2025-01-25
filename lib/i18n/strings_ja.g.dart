@@ -325,6 +325,7 @@ class _TranslationsErrorsJa implements TranslationsErrorsEn {
 	@override String tagLimitExceeded({required Object limit}) => 'タグの上限を超えています。上限: ${limit}';
 	@override String get failedToRefresh => '更新に失敗しました';
 	@override String get noPermission => '権限がありません';
+	@override String get resourceNotFound => 'リソースが見つかりません';
 }
 
 // Path: friends
@@ -598,6 +599,7 @@ class _TranslationsVideoDetailJa implements TranslationsVideoDetailEn {
 	final TranslationsJa _root; // ignore: unused_field
 
 	// Translations
+	@override String resumeFromLastPosition({required Object position}) => '${position} から続けて再生';
 	@override String get videoIdIsEmpty => 'ビデオIDが空です';
 	@override String get videoInfoIsEmpty => 'ビデオ情報が空です';
 	@override String get thisIsAPrivateVideo => 'これはプライベートビデオです';
@@ -1385,6 +1387,7 @@ extension on TranslationsJa {
 			case 'errors.tagLimitExceeded': return ({required Object limit}) => 'タグの上限を超えています。上限: ${limit}';
 			case 'errors.failedToRefresh': return '更新に失敗しました';
 			case 'errors.noPermission': return '権限がありません';
+			case 'errors.resourceNotFound': return 'リソースが見つかりません';
 			case 'friends.clickToRestoreFriend': return '友達を復元するにはクリックしてください';
 			case 'friends.friendsList': return '友達リスト';
 			case 'friends.friendRequests': return '友達リクエスト';
@@ -1559,6 +1562,7 @@ extension on TranslationsJa {
 			case 'signIn.totalSignIns': return '合計サインイン数';
 			case 'signIn.pleaseSelectSignInStatus': return 'サインインステータスを選択してください';
 			case 'subscriptions.pleaseLoginFirstToViewYourSubscriptions': return 'サブスクリプションを表示するにはログインしてください。';
+			case 'videoDetail.resumeFromLastPosition': return ({required Object position}) => '${position} から続けて再生';
 			case 'videoDetail.videoIdIsEmpty': return 'ビデオIDが空です';
 			case 'videoDetail.videoInfoIsEmpty': return 'ビデオ情報が空です';
 			case 'videoDetail.thisIsAPrivateVideo': return 'これはプライベートビデオです';
