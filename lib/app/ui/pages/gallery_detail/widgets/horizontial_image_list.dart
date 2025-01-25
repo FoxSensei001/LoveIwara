@@ -14,12 +14,15 @@ class ImageItem {
   final ImageItemData data;
   double? width;
   double? height;
+  // headers
+  Map<String, String>? headers;
 
   ImageItem({
     required this.url,
     this.width,
     this.height,
     required this.data,
+    this.headers,
   });
 }
 

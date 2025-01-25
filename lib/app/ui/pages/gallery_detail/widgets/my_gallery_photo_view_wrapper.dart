@@ -394,7 +394,7 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                         child: Image(
                           image: widget.galleryItems[index].data.url.startsWith('file://')
                               ? FileImage(File(widget.galleryItems[index].data.url.replaceFirst('file://', '')))
-                              : NetworkImage(imageUrl) as ImageProvider,
+                              : NetworkImage(imageUrl, headers: widget.galleryItems[index].headers) as ImageProvider,
                           fit: BoxFit.contain,
                           loadingBuilder: (BuildContext context, Widget child,
                               ImageChunkEvent? loadingProgress) {

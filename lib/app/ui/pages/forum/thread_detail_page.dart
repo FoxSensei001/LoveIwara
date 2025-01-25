@@ -149,7 +149,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
               showToastWidget(MDToastWidget(
                 message: _enableFloatingButtons.value ? t.common.enabledFloatingButtons : t.common.disabledFloatingButtons,
                 type: MDToastType.success
-              ));
+              ), position: ToastPosition.top);
             },
             tooltip: _enableFloatingButtons.value ? t.common.disableFloatingButtons : t.common.enableFloatingButtons,
             style: IconButton.styleFrom(
@@ -590,7 +590,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
                 showToastWidget(MDToastWidget(
                   message: t.common.disabledFloatingButtons,
                   type: MDToastType.success
-                ));
+                ), position: ToastPosition.top);
               },
               backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
               foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,

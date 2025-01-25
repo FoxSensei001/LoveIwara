@@ -514,6 +514,50 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                           user: profileController.author.value,
                           defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
                           radius: isNarrowScreen ? 30 : 40,
+                          onTap: () {
+                            // 进入图片详情页
+                            final avatarUrl = profileController.author.value?.avatar?.avatarUrl;
+                            if (avatarUrl != null) {
+                              ImageItem item = ImageItem(
+                                url: avatarUrl,
+                                data: ImageItemData(
+                                  id: profileController.author.value?.id ?? '',
+                                  url: avatarUrl,
+                                  originalUrl: avatarUrl,
+                                ),
+                                headers: const {'referer': CommonConstants.iwaraBaseUrl},
+                              );
+                              final t = slang.Translations.of(context);
+                              final menuItems = [
+                                MenuItem(
+                                  title: t.galleryDetail.copyLink,
+                                  icon: Icons.copy,
+                                  onTap: () => ImageUtils.copyLink(item),
+                                ),
+                                MenuItem(
+                                  title: t.galleryDetail.copyImage,
+                                  icon: Icons.copy,
+                                  onTap: () => ImageUtils.copyImage(item),
+                                ),
+                                if (GetPlatform.isDesktop && !GetPlatform.isWeb)
+                                  MenuItem(
+                                    title: t.galleryDetail.saveAs,
+                                    icon: Icons.download,
+                                    onTap: () => ImageUtils.downloadImageForDesktop(item),
+                                  ),
+                                MenuItem(
+                                  title: t.download.saveToAppDirectory,
+                                  icon: Icons.save,
+                                  onTap: () => ImageUtils.downloadImageToAppDirectory(item),
+                                ),
+                              ];
+                              NaviService.navigateToPhotoViewWrapper(
+                                imageItems: [item],
+                                initialIndex: 0,
+                                menuItemsBuilder: (context, item) => menuItems,
+                              );
+                            }
+                          },
                         ),
                         const SizedBox(width: 16),
                         // 用户名、粉丝数、关注数

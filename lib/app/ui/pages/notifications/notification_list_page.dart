@@ -142,7 +142,7 @@ class _NotificationListPageState extends State<NotificationListPage> {
                       message: _enableFloatingButton.value
                           ? translations.common.disabledFloatingButtons
                           : translations.common.enabledFloatingButtons,
-                      type: MDToastType.success));
+                      type: MDToastType.success), position: ToastPosition.top);
                 },
                 tooltip: _enableFloatingButton.value
                     ? translations.common.disableFloatingButtons

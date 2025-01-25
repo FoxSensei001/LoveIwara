@@ -195,7 +195,15 @@ class _AvatarWidgetState extends State<AvatarWidget> with SingleTickerProviderSt
           ),
           child: Padding(
             padding: EdgeInsets.all(widget.borderWidth),
-            child: avatar,
+            child: widget.onTap != null
+                ? MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: widget.onTap,
+                      child: avatar,
+                    ),
+                  )
+                : avatar,
           ),
         );
     }
@@ -277,27 +285,44 @@ class _AvatarWidgetState extends State<AvatarWidget> with SingleTickerProviderSt
           ),
           child: Padding(
             padding: EdgeInsets.all(widget.borderWidth),
-            child: avatar,
+            child: widget.onTap != null
+                ? MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: widget.onTap,
+                      child: avatar,
+                    ),
+                  )
+                : avatar,
           ),
         );
     }
   }
 
   Widget _buildBorderedAvatar(Widget avatar, Gradient gradient) {
-    return GestureDetector(
-      onTap: widget.onTap,
-      child: Container(
-        width: widget.radius * 2,
-        height: widget.radius * 2,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: gradient,
-        ),
-        child: Padding(
-          padding: EdgeInsets.all(widget.borderWidth),
-          child: avatar,
-        ),
+    final Widget container = Container(
+      width: widget.radius * 2,
+      height: widget.radius * 2,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: gradient,
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(widget.borderWidth),
+        child: avatar,
       ),
     );
+
+    if (widget.onTap != null) {
+      return MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: widget.onTap,
+          child: container,
+        ),
+      );
+    }
+
+    return container;
   }
 }
