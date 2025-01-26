@@ -71,7 +71,10 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     if (widget.isFullScreen) {
       _appService.hideSystemUI();
       // 继续播放
-      widget.myVideoStateController.player.play();
+      // 如果当前是非全屏，则继续播放
+      if (!widget.myVideoStateController.isFullscreen.value) {
+        widget.myVideoStateController.player.play();
+      }
       // 确保在全屏状态下获取焦点
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _focusNode.requestFocus();
@@ -132,7 +135,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       // 恢复系统UI和竖屏模式
       _appService.showSystemUI();
       // 恢复播放
-      widget.myVideoStateController.player.play();
+      // widget.myVideoStateController.player.play();
     }
     _focusNode.dispose();
     _leftRippleController1.dispose();

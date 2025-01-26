@@ -502,6 +502,8 @@ class MyVideoStateController extends GetxController
 
   /// 进入全屏模式
   Future<void> enterFullscreen() async {
+    // 保存进入全屏前的播放状态
+    final wasPlaying = videoPlaying.value;
     isFullscreen.value = true;
     appS.hideSystemUI();
     bool renderVerticalVideoInVerticalScreen =
@@ -512,14 +514,28 @@ class MyVideoStateController extends GetxController
     } else {
       await defaultEnterNativeFullscreen();
     }
+    // 同步播放状态
+    if (wasPlaying) {
+      await player.play();
+    } else {
+      await player.pause();
+    }
   }
 
   /// 退出全屏模式
   void exitFullscreen() async {
+    // 保存退出全屏前的播放状态
+    final wasPlaying = videoPlaying.value;
     AppService.tryPop();
     appS.showSystemUI();
     await defaultExitNativeFullscreen();
     isFullscreen.value = false;
+    // 同步播放状态
+    if (wasPlaying) {
+      await player.play();
+    } else {
+      await player.pause();
+    }
   }
 
   // 重置自动隐藏定时器
