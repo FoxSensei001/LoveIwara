@@ -14,6 +14,7 @@ import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/services/light_service.dart';
 import 'package:i_iwara/app/services/play_list_service.dart';
+import 'package:i_iwara/app/services/playback_history_service.dart';
 import 'package:i_iwara/app/services/post_service.dart';
 import 'package:i_iwara/app/services/search_service.dart';
 import 'package:i_iwara/app/services/tag_service.dart';
@@ -199,6 +200,7 @@ Future<void> _initializeBusinessServices() async {
   Get.put(DownloadService());
   Get.put(TranslationService());
   Get.put(FavoriteService());
+  Get.put(PlaybackHistoryService());
 
   // 初始化媒体服务
   MediaKit.ensureInitialized();

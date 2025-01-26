@@ -416,6 +416,7 @@ settings:
   cancel: 取消
   confirm: 確認
   noCustomColors: 沒有自定義顏色
+  recordAndRestorePlaybackProgress: 記錄和恢復播放進度
 
 signIn:
   pleaseLoginFirst: 請先登入

@@ -2,6 +2,7 @@
 
 import 'package:i_iwara/db/migrations/migration_v3.dart';
 import 'package:i_iwara/db/migrations/migration_v4.dart';
+import 'package:i_iwara/db/migrations/migration_v5.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:sqlite3/common.dart';
 
@@ -18,6 +19,7 @@ class MigrationManager {
     MigrationV2History(),
     MigrationV3DownloadTask(),
     MigrationV4Favorites(),
+    MigrationV5PlaybackHistory(),
     // [TODO_PLACEHOLDER] 将来新增的迁移在这里添加
   ];
 

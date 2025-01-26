@@ -422,6 +422,7 @@ settings:
   cancel: 取消
   confirm: 确认
   noCustomColors: 没有自定义颜色
+  recordAndRestorePlaybackProgress: 记录和恢复播放进度
 signIn:
   pleaseLoginFirst: 请先登录
   alreadySignedInToday: 您今天已经签到过了！

@@ -414,6 +414,7 @@ settings:
   cancel: Cancel
   confirm: Confirm
   noCustomColors: No custom colors
+  recordAndRestorePlaybackProgress: Record and Restore Playback Progress
 signIn:
   pleaseLoginFirst: Please login first
   alreadySignedInToday: You have already signed in today!

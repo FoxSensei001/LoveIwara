@@ -551,6 +551,7 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get cancel => 'キャンセル';
 	@override String get confirm => '確認';
 	@override String get noCustomColors => 'カスタムカラーがありません';
+	@override String get recordAndRestorePlaybackProgress => '再生進度を記録して復元';
 }
 
 // Path: signIn
@@ -1541,6 +1542,7 @@ extension on TranslationsJa {
 			case 'settings.cancel': return 'キャンセル';
 			case 'settings.confirm': return '確認';
 			case 'settings.noCustomColors': return 'カスタムカラーがありません';
+			case 'settings.recordAndRestorePlaybackProgress': return '再生進度を記録して復元';
 			case 'signIn.pleaseLoginFirst': return 'サインインする前にログインしてください';
 			case 'signIn.alreadySignedInToday': return '今日は既にサインインしています！';
 			case 'signIn.youDidNotStickToTheSignIn': return 'サインインを続けることができませんでした。';

@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/history_record.dart';
 import 'package:i_iwara/app/repositories/history_repository.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/playback_history_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/related_media_controller.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/app/ui/widgets/error_widget.dart';
@@ -35,7 +36,7 @@ class MyVideoStateController extends GetxController
   late Player player;
   late VideoController videoController;
   late VolumeController? volumeController;
-
+  final PlaybackHistoryService _playbackHistoryService = Get.find();
   final ApiService _apiService = Get.find();
   final ConfigService _configService = Get.find();
 
@@ -52,6 +53,7 @@ class MyVideoStateController extends GetxController
   final RxBool sliderDragLoadFinished = true.obs; // 拖动进度条加载完成
   final RxDouble playerPlaybackSpeed = 1.0.obs; // 播放速度
   final RxBool isDesktopAppFullScreen = false.obs; // 是否是应用全屏
+  bool firstLoaded = false;
 
   // 工具栏可见性
   final RxBool areToolbarsVisible = true.obs;
@@ -107,6 +109,11 @@ class MyVideoStateController extends GetxController
   bool _isAdjustingVolumeByGesture = false;
   // 添加音量监听器的取消函数
   StreamSubscription<double>? _volumeListenerDisposer;
+
+  // 在类的成员变量区域添加:
+  final RxBool showResumePositionTip = false.obs;
+  final Rx<Duration> resumePosition = Duration.zero.obs;
+  Timer? _resumeTipTimer;
 
   MyVideoStateController(this.videoId);
 
@@ -223,10 +230,29 @@ class MyVideoStateController extends GetxController
 
   @override
   void onClose() {
+    // 保存播放记录
+    if (videoId != null && totalDuration.value.inMilliseconds > 0) {
+      final currentMs = currentPosition.value.inMilliseconds;
+      final totalMs = totalDuration.value.inMilliseconds;
+      
+      // 如果在开头5秒或结尾5秒,删除记录
+      if (currentMs <= 5000 || currentMs >= (totalMs - 5000)) {
+        _playbackHistoryService.deletePlaybackHistory(videoId!);
+      } else {
+        // 否则保存/更新记录
+        _playbackHistoryService.savePlaybackHistory(
+          videoId!,
+          totalMs,
+          currentMs,
+        );
+      }
+    }
+    
     _autoHideTimer?.cancel();
     _cancelSubscriptions();
     _volumeListenerDisposer?.cancel(); // 取消音量监听
     player.dispose();
+    _resumeTipTimer?.cancel();
     super.onClose();
   }
 
@@ -425,13 +451,8 @@ class MyVideoStateController extends GetxController
 
     // 监听缓冲状态
     bufferingSubscription = player.stream.buffering.listen((buffering) async {
-      // logger.d('[视频缓冲中] $buffering');
+      // LogUtils.d('[视频缓冲中] $buffering', 'MyVideoStateController');
       videoBuffering.value = buffering;
-      if (!videoIsReady.value && !buffering) {
-        LogUtils.d('[视频准备好了], 尝试快进到 $currentPosition', 'MyVideoStateController');
-        videoIsReady.value = true;
-        await player.seek(currentPosition.value);
-      }
     });
 
     // 监听播放位置
@@ -449,12 +470,13 @@ class MyVideoStateController extends GetxController
             LogUtils.d('[视频播放完成]，尝试重播', 'MyVideoStateController');
             // 清空缓冲区
             _clearBuffers();
-            await player.seek(Duration.zero);
-            await player.play();
+            player.setPlaylistMode(PlaylistMode.loop);
+          } else {
+            player.setPlaylistMode(PlaylistMode.single);
           }
         }
 
-        currentPosition.value = position;
+        // currentPosition.value = position;
       }
       sliderDragLoadFinished.value = true;
     });
@@ -484,6 +506,7 @@ class MyVideoStateController extends GetxController
 
     // 正在播放
     playingSubscription = player.stream.playing.listen((playing) {
+      LogUtils.d('[正在播放] $playing', 'MyVideoStateController');
       videoPlaying.value = playing;
     });
 
@@ -494,10 +517,39 @@ class MyVideoStateController extends GetxController
   }
 
   /// 更新视频宽高比
-  void _updateAspectRatio() {
+  void _updateAspectRatio() async {
     aspectRatio.value = sourceVideoWidth.value / sourceVideoHeight.value;
     LogUtils.d(
         '[更新后的宽高比] $aspectRatio, 视频高度: $sourceVideoHeight, 视频宽度: $sourceVideoWidth', 'MyVideoStateController');
+    if (!videoIsReady.value) {
+      videoIsReady.value = true;
+      int targetPosition = 0;
+
+      // 避免初次加载视频时，又被seek到0
+      if (firstLoaded) {
+        // 刷新率切换触发的更新
+        await player.seek(currentPosition.value);
+      } else {
+        // 新视频加载触发的更新
+        if (_configService[ConfigService.RECORD_AND_RESTORE_VIDEO_PROGRESS]) {
+          try {
+            final history = await _playbackHistoryService.getPlaybackHistory(videoId!);
+            if (history != null) {
+              // 设置初始播放位置为历史记录位置减去4秒，但不小于0
+              final playedDuration = history['played_duration'] as int;
+              final totalDuration = history['total_duration'] as int;
+              targetPosition = (playedDuration - 4000).clamp(0, totalDuration);
+              await player.seek(Duration(milliseconds: targetPosition));
+              showResumeFromPositionTip(Duration(milliseconds: targetPosition));
+            }
+            // 如果播放记录不存在，则不显示，不处理
+          } catch (e) {
+            LogUtils.e('获取播放记录失败', tag: 'MyVideoStateController', error: e);
+          }
+        }
+      }
+      firstLoaded = true;
+    }
   }
 
   /// 进入全屏模式
@@ -714,6 +766,24 @@ class MyVideoStateController extends GetxController
 
   void handleSeek(Duration newPosition) {
     _handleSeek(newPosition);
+  }
+
+  // 在类中添加这个方法:
+  void showResumeFromPositionTip(Duration position) {
+    resumePosition.value = position;
+    showResumePositionTip.value = true;
+    
+    // 3秒后自动隐藏
+    _resumeTipTimer?.cancel();
+    _resumeTipTimer = Timer(const Duration(seconds: 3), () {
+      showResumePositionTip.value = false;
+    });
+  }
+
+  // 添加关闭提示的方法:
+  void hideResumePositionTip() {
+    showResumePositionTip.value = false;
+    _resumeTipTimer?.cancel();
   }
 }
 

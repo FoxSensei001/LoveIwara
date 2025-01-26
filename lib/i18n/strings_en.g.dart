@@ -555,6 +555,7 @@ class TranslationsSettingsEn {
 	String get cancel => 'Cancel';
 	String get confirm => 'Confirm';
 	String get noCustomColors => 'No custom colors';
+	String get recordAndRestorePlaybackProgress => 'Record and Restore Playback Progress';
 }
 
 // Path: signIn
@@ -1545,6 +1546,7 @@ extension on Translations {
 			case 'settings.cancel': return 'Cancel';
 			case 'settings.confirm': return 'Confirm';
 			case 'settings.noCustomColors': return 'No custom colors';
+			case 'settings.recordAndRestorePlaybackProgress': return 'Record and Restore Playback Progress';
 			case 'signIn.pleaseLoginFirst': return 'Please login first';
 			case 'signIn.alreadySignedInToday': return 'You have already signed in today!';
 			case 'signIn.youDidNotStickToTheSignIn': return 'You did not stick to the sign in.';

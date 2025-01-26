@@ -108,242 +108,274 @@ class PlayerSettingsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
     return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 剧院模式开关
-          _buildSwitchSetting(
-            context: context,
-            iconData: Icons.theater_comedy,
-            label: t.settings.theaterMode,
-            showInfoCard: true,
-            infoMessage: t.settings.theaterModeDesc,
-            rxValue: _configService.settings[ConfigService.THEATER_MODE_KEY],
-            onChanged: (value) {
-              _configService[ConfigService.THEATER_MODE_KEY] = value;
-            },
-          ),
-          const Divider(),
-          // 播放控制部分
-          Text(
-            t.settings.playControl,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    t.settings.playControl,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // 剧院模式开关
+                  _buildSwitchSetting(
+                    context: context,
+                    iconData: Icons.theater_comedy,
+                    label: t.settings.theaterMode,
+                    showInfoCard: false,
+                    infoMessage: t.settings.theaterModeDesc,
+                    rxValue: _configService.settings[ConfigService.THEATER_MODE_KEY],
+                    onChanged: (value) {
+                      _configService[ConfigService.THEATER_MODE_KEY] = value;
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 16),
-
-          // 快进时间设置
-          Obx(() => SettingItem(
-                label: t.settings.fastForwardTime,
-                initialValue:
-                    _configService[ConfigService.FAST_FORWARD_SECONDS_KEY]
-                        .toString(),
-                validator: (value) {
-                  final parsed = int.tryParse(value);
-                  if (parsed == null || parsed <= 0) {
-                    return t.settings.fastForwardTimeMustBeAPositiveInteger;
-                  }
-                  return null;
-                },
-                onValid: (value) {
-                  final parsed = int.parse(value);
-                  _configService.setSetting(
-                      ConfigService.FAST_FORWARD_SECONDS_KEY, parsed);
-                },
-                icon: Icon(Icons.fast_forward,
-                    color: Get.isDarkMode ? Colors.white : null),
-                inputDecoration: InputDecoration(
-                  suffixText: t.common.seconds,
-                  suffixStyle: TextStyle(color: Get.isDarkMode ? Colors.white : null),
-                  border: const OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
-              )),
-          const SizedBox(height: 16),
-
-          // 后退时间设置
-          Obx(() => SettingItem(
-                label: t.settings.rewindTime,
-                initialValue:
-                    _configService[ConfigService.REWIND_SECONDS_KEY].toString(),
-                validator: (value) {
-                  final parsed = int.tryParse(value);
-                  if (parsed == null || parsed <= 0) {
-                    return t.settings.rewindTimeMustBeAPositiveInteger;
-                  }
-                  return null;
-                },
-                onValid: (value) {
-                  final parsed = int.parse(value);
-                  _configService.setSetting(
-                      ConfigService.REWIND_SECONDS_KEY, parsed);
-                },
-                icon: Icon(Icons.fast_rewind,
-                    color: Get.isDarkMode ? Colors.white : null),
-                inputDecoration: InputDecoration(
-                  suffixText: t.common.seconds,
-                  suffixStyle: TextStyle(color: Get.isDarkMode ? Colors.white : null),
-                  border: const OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
-              )),
-          const SizedBox(height: 16),
-
-          // 长按播放倍速设置
-          Obx(() => SettingItem(
-                label: t.settings.longPressPlaybackSpeed,
-                initialValue:
-                    _configService[ConfigService.LONG_PRESS_PLAYBACK_SPEED_KEY]
-                        .toString(),
-                validator: (value) {
-                  final parsed = double.tryParse(value);
-                  if (parsed == null || parsed <= 0.0) {
-                    return t.settings.longPressPlaybackSpeedMustBeAPositiveNumber;
-                  }
-                  return null;
-                },
-                onValid: (value) {
-                  final parsed = double.parse(value);
-                  _configService[ConfigService.LONG_PRESS_PLAYBACK_SPEED_KEY] =
-                      parsed;
-                },
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                icon: Icon(Icons.speed, color: Get.isDarkMode ? Colors.white : null),
-                inputDecoration: InputDecoration(
-                  suffixText: 'x',
-                  suffixStyle: TextStyle(color: Get.isDarkMode ? Colors.white : null),
-                  border: const OutlineInputBorder(),
-                ),
-              )),
-          const SizedBox(height: 16),
-
-          // 循环播放
-          _buildSwitchSetting(
-            context: context,
-            iconData: Icons.loop,
-            label: t.settings.repeat,
-            showInfoCard: false,
-            infoMessage: null,
-            rxValue: _configService.settings[ConfigService.REPEAT_KEY],
-            onChanged: (value) {
-              _configService[ConfigService.REPEAT_KEY] = value;
-            },
-          ),
-
-          // 以竖屏模式渲染竖屏视频
-          if (GetPlatform.isAndroid || GetPlatform.isIOS)
-            _buildSwitchSetting(
-              context: context,
-              iconData: Icons.smartphone,
-              label: t.settings.renderVerticalVideoInVerticalScreen,
-              showInfoCard: true,
-              infoMessage: t.settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen,
-              rxValue: _configService
-                  .settings[ConfigService.RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN],
-              onChanged: (value) {
-                _configService[
-                    ConfigService.RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN] = value;
-              },
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-
-          // 记住音量
-          _buildSwitchSetting(
-            context: context,
-            iconData: Icons.volume_up,
-            label: t.settings.rememberVolume,
-            showInfoCard: true,
-            infoMessage: t.settings.thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain,
-            rxValue: _configService.settings[ConfigService.KEEP_LAST_VOLUME_KEY],
-            onChanged: (value) {
-              _configService[ConfigService.KEEP_LAST_VOLUME_KEY] = value;
-            },
-          ),
-
-          // 记住亮度（仅限特定平台）
-          if (!GetPlatform.isDesktop && !GetPlatform.isWeb)
-            _buildSwitchSetting(
-              context: context,
-              iconData: Icons.brightness_medium,
-              label: t.settings.rememberBrightness,
-              showInfoCard: true,
-              infoMessage: t.settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain,
-              rxValue:
-                  _configService.settings[ConfigService.KEEP_LAST_BRIGHTNESS_KEY],
-              onChanged: (value) {
-                _configService[ConfigService.KEEP_LAST_BRIGHTNESS_KEY] = value;
-              },
-            ),
-
-          const SizedBox(height: 16),
-
-          // 播放控制区域设置部分
-          Text(
-            t.settings.playControlArea,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    t.settings.playControl,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // 快进时间设置
+                  Obx(() => SettingItem(
+                    label: t.settings.fastForwardTime,
+                    initialValue: _configService[ConfigService.FAST_FORWARD_SECONDS_KEY].toString(),
+                    validator: (value) {
+                      final parsed = int.tryParse(value);
+                      if (parsed == null || parsed <= 0) {
+                        return t.settings.fastForwardTimeMustBeAPositiveInteger;
+                      }
+                      return null;
+                    },
+                    onValid: (value) {
+                      final parsed = int.parse(value);
+                      _configService.setSetting(ConfigService.FAST_FORWARD_SECONDS_KEY, parsed);
+                    },
+                    icon: Icon(Icons.fast_forward, color: Get.isDarkMode ? Colors.white : null),
+                    inputDecoration: InputDecoration(
+                      suffixText: t.common.seconds,
+                      suffixStyle: TextStyle(color: Get.isDarkMode ? Colors.white : null),
+                      border: const OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                  )),
+                  const SizedBox(height: 16),
+                  // 后退时间设置
+                  Obx(() => SettingItem(
+                    label: t.settings.rewindTime,
+                    initialValue: _configService[ConfigService.REWIND_SECONDS_KEY].toString(),
+                    validator: (value) {
+                      final parsed = int.tryParse(value);
+                      if (parsed == null || parsed <= 0) {
+                        return t.settings.rewindTimeMustBeAPositiveInteger;
+                      }
+                      return null;
+                    },
+                    onValid: (value) {
+                      final parsed = int.parse(value);
+                      _configService.setSetting(ConfigService.REWIND_SECONDS_KEY, parsed);
+                    },
+                    icon: Icon(Icons.fast_rewind, color: Get.isDarkMode ? Colors.white : null),
+                    inputDecoration: InputDecoration(
+                      suffixText: t.common.seconds,
+                      suffixStyle: TextStyle(color: Get.isDarkMode ? Colors.white : null),
+                      border: const OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                  )),
+                  const SizedBox(height: 16),
+                  // 长按播放倍速设置
+                  Obx(() => SettingItem(
+                    label: t.settings.longPressPlaybackSpeed,
+                    initialValue: _configService[ConfigService.LONG_PRESS_PLAYBACK_SPEED_KEY].toString(),
+                    validator: (value) {
+                      final parsed = double.tryParse(value);
+                      if (parsed == null || parsed <= 0.0) {
+                        return t.settings.longPressPlaybackSpeedMustBeAPositiveNumber;
+                      }
+                      return null;
+                    },
+                    onValid: (value) {
+                      final parsed = double.parse(value);
+                      _configService[ConfigService.LONG_PRESS_PLAYBACK_SPEED_KEY] = parsed;
+                    },
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    icon: Icon(Icons.speed, color: Get.isDarkMode ? Colors.white : null),
+                    inputDecoration: InputDecoration(
+                      suffixText: 'x',
+                      suffixStyle: TextStyle(color: Get.isDarkMode ? Colors.white : null),
+                      border: const OutlineInputBorder(),
+                    ),
+                  )),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 12,
-                  offset: const Offset(0, 6),
-                ),
-              ],
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 标题和帮助图标
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        t.settings.leftAndRightControlAreaWidth,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    t.settings.playControl,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // 循环播放
+                  _buildSwitchSetting(
+                    context: context,
+                    iconData: Icons.loop,
+                    label: t.settings.repeat,
+                    showInfoCard: false,
+                    infoMessage: null,
+                    rxValue: _configService.settings[ConfigService.REPEAT_KEY],
+                    onChanged: (value) {
+                      _configService[ConfigService.REPEAT_KEY] = value;
+                    },
+                  ),
+                  // 以竖屏模式渲染竖屏视频
+                  if (GetPlatform.isAndroid || GetPlatform.isIOS)
+                    _buildSwitchSetting(
+                      context: context,
+                      iconData: Icons.smartphone,
+                      label: t.settings.renderVerticalVideoInVerticalScreen,
+                      showInfoCard: false,
+                      infoMessage: t.settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen,
+                      rxValue: _configService.settings[ConfigService.RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN],
+                      onChanged: (value) {
+                        _configService[ConfigService.RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN] = value;
+                      },
+                    ),
+                  // 记住音量
+                  _buildSwitchSetting(
+                    context: context,
+                    iconData: Icons.volume_up,
+                    label: t.settings.rememberVolume,
+                    showInfoCard: false,
+                    infoMessage: t.settings.thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain,
+                    rxValue: _configService.settings[ConfigService.KEEP_LAST_VOLUME_KEY],
+                    onChanged: (value) {
+                      _configService[ConfigService.KEEP_LAST_VOLUME_KEY] = value;
+                    },
+                  ),
+                  // 记住亮度（仅限特定平台）
+                  if (!GetPlatform.isDesktop && !GetPlatform.isWeb)
+                    _buildSwitchSetting(
+                      context: context,
+                      iconData: Icons.brightness_medium,
+                      label: t.settings.rememberBrightness,
+                      showInfoCard: false,
+                      infoMessage: t.settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain,
+                      rxValue: _configService.settings[ConfigService.KEEP_LAST_BRIGHTNESS_KEY],
+                      onChanged: (value) {
+                        _configService[ConfigService.KEEP_LAST_BRIGHTNESS_KEY] = value;
+                      },
+                    ),
+                  // 添加记录和恢复播放进度的设置
+                  _buildSwitchSetting(
+                    context: context,
+                    iconData: Icons.play_circle_outline,
+                    label: t.settings.recordAndRestorePlaybackProgress,
+                    showInfoCard: false,
+                    infoMessage: null,
+                    rxValue: _configService.settings[ConfigService.RECORD_AND_RESTORE_VIDEO_PROGRESS],
+                    onChanged: (value) {
+                      _configService[ConfigService.RECORD_AND_RESTORE_VIDEO_PROGRESS] = value;
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    t.settings.playControlArea,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          t.settings.leftAndRightControlAreaWidth,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    ),
-                    Tooltip(
-                      triggerMode: TooltipTriggerMode.tap,
-                      preferBelow: false,
-                      message: t.settings.thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer,
-                      child: Icon(
-                        Icons.help_outline,
-                        size: 20,
-                        color: Theme.of(context).primaryColor,
+                      Tooltip(
+                        triggerMode: TooltipTriggerMode.tap,
+                        preferBelow: false,
+                        message: t.settings.thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer,
+                        child: Icon(
+                          Icons.help_outline,
+                          size: 20,
+                          color: Theme.of(context).primaryColor,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                // 三段滑块设置
-                ThreeSectionSlider(
-                  onSlideChangeCallback: _onThreeSectionSliderChangeFinished,
-                  initialLeftRatio: _configService[
-                      ConfigService.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO],
-                  initialMiddleRatio: (1 -
-                          _configService[ConfigService
-                                  .VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO] *
-                              2)
-                      .toDouble(),
-                  initialRightRatio: _configService[
-                      ConfigService.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO],
-                ),
-              ],
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  ThreeSectionSlider(
+                    onSlideChangeCallback: _onThreeSectionSliderChangeFinished,
+                    initialLeftRatio: _configService[ConfigService.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO],
+                    initialMiddleRatio: (1 - _configService[ConfigService.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO] * 2).toDouble(),
+                    initialRightRatio: _configService[ConfigService.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO],
+                  ),
+                ],
+              ),
             ),
           ),
           SizedBox(height: Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0),

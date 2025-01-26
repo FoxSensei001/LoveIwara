@@ -415,6 +415,7 @@ settings:
   cancel: キャンセル
   confirm: 確認
   noCustomColors: カスタムカラーがありません
+  recordAndRestorePlaybackProgress: 再生進度を記録して復元
 signIn:
   pleaseLoginFirst: サインインする前にログインしてください
   alreadySignedInToday: 今日は既にサインインしています！

@@ -3,15 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
-import 'package:i_iwara/app/services/translation_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/setting_item_widget.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:oktoast/oktoast.dart';
 
 import '../../../../../utils/logger_utils.dart';
 import '../../../../../utils/proxy/proxy_util.dart';
-import '../../../../services/api_service.dart';
-import '../../../../services/auth_service.dart';
 import '../../../../services/config_service.dart';
 
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -46,9 +43,6 @@ class _ProxySettingsWidgetState extends State<ProxySettingsWidget> {
   final TextEditingController _proxyController = TextEditingController();
   final RxBool _isProxyEnabled = false.obs;
   final RxBool _isChecking = false.obs;
-  final ApiService _apiService = Get.find();
-  final AuthService _authService = Get.find();
-  final TranslationService _translationService = Get.find();
 
   // 创建一个全局的 Dio 实例
   final Dio dio = Dio();
@@ -201,132 +195,163 @@ class _ProxySettingsWidgetState extends State<ProxySettingsWidget> {
 
     return Center(
       child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            maxWidth:
-                screenWidth > maxContentWidth ? maxContentWidth : screenWidth,
+            maxWidth: screenWidth > maxContentWidth ? maxContentWidth : screenWidth,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                t.settings.proxyConfig,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
               Card(
-                color: Theme.of(context).primaryColor,
+                elevation: 2,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(
-                        Icons.info_outline,
-                        color: Get.isDarkMode ? Colors.white : null,
+                      Text(
+                        t.settings.proxyConfig,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        // 使用 Expanded 确保文本不会溢出
-                        child: Text(
-                          t.settings.thisIsHttpProxyAddress,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                      const SizedBox(height: 16),
+                      Card(
+                        color: Theme.of(context).primaryColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.info_outline,
+                                color: Get.isDarkMode ? Colors.white : null,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  t.settings.thisIsHttpProxyAddress,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      SettingItem(
+                        label: t.settings.proxyAddress,
+                        labelSuffix: Obx(
+                          () => _isChecking.value
+                              ? SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Theme.of(context).primaryColor),
+                                  ),
+                                )
+                              : ElevatedButton.icon(
+                                  onPressed: _checkProxy,
+                                  icon: const Icon(Icons.search_rounded),
+                                  label: Text(t.settings.checkProxy),
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16, vertical: 12),
+                                  ),
+                                ),
+                        ),
+                        initialValue: _proxyController.text,
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return t.settings.proxyAddressCannotBeEmpty;
+                          }
+                          if (!_isValidProxyAddress(value)) {
+                            return t.settings.invalidProxyAddressFormatPleaseUseTheFormatOfIpPortOrDomainNamePort;
+                          }
+                          return null;
+                        },
+                        onValid: (value) {
+                          widget.configService[ConfigService.PROXY_URL] = value;
+                          LogUtils.d('保存代理地址: $value', _tag);
+                          if (_isProxyEnabled.value) {
+                            _setProxy(value.trim());
+                            _setFlutterEngineProxy(value.trim());
+                          }
+                        },
+                        icon: Icon(Icons.computer, color: Get.isDarkMode ? Colors.white : null),
+                        splitTwoLine: true,
+                        inputDecoration: InputDecoration(
+                          hintText: t.settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080,
+                          border: const OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).cardColor,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.vpn_key,
+                              color: Get.isDarkMode ? Colors.white : null,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                t.settings.enableProxy,
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            Obx(() => Switch(
+                              value: _isProxyEnabled.value,
+                              onChanged: (value) {
+                                LogUtils.d(
+                                    '启用代理: $value, 代理地址: ${widget.configService[ConfigService.PROXY_URL]}',
+                                    _tag);
+                                _isProxyEnabled.value = value;
+                                widget.configService[ConfigService.USE_PROXY] = value;
+                                if (value) {
+                                  _setProxy(_proxyController.text.trim());
+                                  _setFlutterEngineProxy(_proxyController.text.trim());
+                                  LogUtils.i('代理已启用', _tag);
+                                } else {
+                                  dio.httpClientAdapter = IOHttpClientAdapter();
+                                  _setFlutterEngineProxy('');
+                                  LogUtils.i('代理已禁用', _tag);
+                                }
+                              },
+                              activeColor: Get.isDarkMode ? Colors.white : null,
+                            )),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              SettingItem(
-                label: t.settings.proxyAddress,
-                labelSuffix: Obx(
-                  () => _isChecking.value
-                      ? SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                                Theme.of(context).primaryColor),
-                          ),
-                        )
-                      : ElevatedButton.icon(
-                          onPressed: _checkProxy,
-                          icon: const Icon(Icons.search_rounded),
-                          label: Text(t.settings.checkProxy),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 12),
-                          ),
-                        ),
-                ),
-                initialValue: _proxyController.text,
-                validator: (value) {
-                  if (value.isEmpty) {
-                    return t.settings.proxyAddressCannotBeEmpty;
-                  }
-                  if (!_isValidProxyAddress(value)) {
-                    return t.settings.invalidProxyAddressFormatPleaseUseTheFormatOfIpPortOrDomainNamePort;
-                  }
-                  return null;
-                },
-                onValid: (value) {
-                  widget.configService[ConfigService.PROXY_URL] = value;
-                  LogUtils.d('保存代理地址: $value', _tag);
-                  if (_isProxyEnabled.value) {
-                    _setProxy(value.trim());
-                    _setFlutterEngineProxy(value.trim());
-                  }
-                },
-                icon:
-                    Icon(Icons.computer, color: Get.isDarkMode ? Colors.white : null),
-                splitTwoLine: true,
-                inputDecoration: InputDecoration(
-                  hintText: t.settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080,
-                  border: const OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 24),
-              SettingItem(
-                label: t.settings.enableProxy,
-                initialValue: '',
-                validator: (_) => null,
-                onValid: (_) {},
-                icon:
-                    Icon(Icons.vpn_key, color: Get.isDarkMode ? Colors.white : null),
-                splitTwoLine: false,
-                inputDecoration: InputDecoration(
-                  border: InputBorder.none,
-                  suffixIcon: Obx(() => Switch(
-                        value: _isProxyEnabled.value,
-                        onChanged: (value) {
-                          LogUtils.d(
-                              '启用代理: $value, 代理地址: ${widget.configService[ConfigService.PROXY_URL]}',
-                              _tag);
-                          _isProxyEnabled.value = value;
-                          widget.configService[ConfigService.USE_PROXY] = value;
-                          if (value) {
-                            _setProxy(_proxyController.text.trim());
-                            _setFlutterEngineProxy(
-                                _proxyController.text.trim());
-                            LogUtils.i('代理已启用', _tag);
-                          } else {
-                            dio.httpClientAdapter = IOHttpClientAdapter();
-                            _setFlutterEngineProxy('');
-                            LogUtils.i('代理已禁用', _tag);
-                          }
-                        },
-                        activeColor: Get.isDarkMode ? Colors.white : null,
-                      )),
                 ),
               ),
               SizedBox(height: Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0),

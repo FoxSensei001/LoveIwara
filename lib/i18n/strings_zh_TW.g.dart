@@ -551,6 +551,7 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get cancel => '取消';
 	@override String get confirm => '確認';
 	@override String get noCustomColors => '沒有自定義顏色';
+	@override String get recordAndRestorePlaybackProgress => '記錄和恢復播放進度';
 }
 
 // Path: signIn
@@ -1544,6 +1545,7 @@ extension on TranslationsZhTw {
 			case 'settings.cancel': return '取消';
 			case 'settings.confirm': return '確認';
 			case 'settings.noCustomColors': return '沒有自定義顏色';
+			case 'settings.recordAndRestorePlaybackProgress': return '記錄和恢復播放進度';
 			case 'signIn.pleaseLoginFirst': return '請先登入';
 			case 'signIn.alreadySignedInToday': return '您今天已經簽到過了！';
 			case 'signIn.youDidNotStickToTheSignIn': return '您未能持續簽到。';
