@@ -476,7 +476,7 @@ class MyVideoStateController extends GetxController
           }
         }
 
-        // currentPosition.value = position;
+        currentPosition.value = position;
       }
       sliderDragLoadFinished.value = true;
     });

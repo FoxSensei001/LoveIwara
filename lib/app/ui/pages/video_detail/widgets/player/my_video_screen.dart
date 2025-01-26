@@ -63,6 +63,10 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   bool isSlidingVolumeZone = false; // 是否在滑动音量区域
   bool isLongPressing = false; // 是否在长按
 
+  double? _horizontalDragStartX;
+  Duration? _horizontalDragStartPosition;
+  static const int MAX_SEEK_SECONDS = 90;
+
   @override
   void initState() {
     LogUtils.d("[${widget.isFullScreen ? '全屏' : '内嵌'} 初始化]", 'MyVideoScreen');
@@ -419,6 +423,38 @@ class _MyVideoScreenState extends State<MyVideoScreen>
               myVideoStateController: widget.myVideoStateController,
               onDoubleTapLeft: _triggerLeftRipple,
               screenSize: screenSize,
+              onHorizontalDragStart: (details) {
+                _horizontalDragStartX = details.localPosition.dx;
+                _horizontalDragStartPosition = widget.myVideoStateController.currentPosition.value;
+                widget.myVideoStateController.setInteracting(true);
+                widget.myVideoStateController.showSeekPreview(true);
+              },
+              onHorizontalDragUpdate: (details) {
+                if (_horizontalDragStartX == null || _horizontalDragStartPosition == null) return;
+                
+                double dragDistance = details.localPosition.dx - _horizontalDragStartX!;
+                double ratio = dragDistance / screenSize.width;
+                
+                int offsetSeconds = (ratio * MAX_SEEK_SECONDS).round();
+                
+                Duration targetPosition = Duration(
+                  seconds: (_horizontalDragStartPosition!.inSeconds + offsetSeconds)
+                      .clamp(0, widget.myVideoStateController.totalDuration.value.inSeconds)
+                );
+                
+                widget.myVideoStateController.updateSeekPreview(targetPosition);
+              },
+              onHorizontalDragEnd: (details) {
+                if (_horizontalDragStartPosition != null) {
+                  Duration targetPosition = widget.myVideoStateController.previewPosition.value;
+                  widget.myVideoStateController.player.seek(targetPosition);
+                }
+                
+                _horizontalDragStartX = null;
+                _horizontalDragStartPosition = null;
+                widget.myVideoStateController.setInteracting(false);
+                widget.myVideoStateController.showSeekPreview(false);
+              },
             ),
           )),
       Obx(() => Positioned(
@@ -436,6 +472,38 @@ class _MyVideoScreenState extends State<MyVideoScreen>
               onDoubleTapRight: _triggerRightRipple,
               screenSize: screenSize,
               onVolumeChange: (volume) => widget.myVideoStateController.setVolume(volume, save: false),
+              onHorizontalDragStart: (details) {
+                _horizontalDragStartX = details.localPosition.dx;
+                _horizontalDragStartPosition = widget.myVideoStateController.currentPosition.value;
+                widget.myVideoStateController.setInteracting(true);
+                widget.myVideoStateController.showSeekPreview(true);
+              },
+              onHorizontalDragUpdate: (details) {
+                if (_horizontalDragStartX == null || _horizontalDragStartPosition == null) return;
+                
+                double dragDistance = details.localPosition.dx - _horizontalDragStartX!;
+                double ratio = dragDistance / screenSize.width;
+                
+                int offsetSeconds = (ratio * MAX_SEEK_SECONDS).round();
+                
+                Duration targetPosition = Duration(
+                  seconds: (_horizontalDragStartPosition!.inSeconds + offsetSeconds)
+                      .clamp(0, widget.myVideoStateController.totalDuration.value.inSeconds)
+                );
+                
+                widget.myVideoStateController.updateSeekPreview(targetPosition);
+              },
+              onHorizontalDragEnd: (details) {
+                if (_horizontalDragStartPosition != null) {
+                  Duration targetPosition = widget.myVideoStateController.previewPosition.value;
+                  widget.myVideoStateController.player.seek(targetPosition);
+                }
+                
+                _horizontalDragStartX = null;
+                _horizontalDragStartPosition = null;
+                widget.myVideoStateController.setInteracting(false);
+                widget.myVideoStateController.showSeekPreview(false);
+              },
             ),
           )),
       Obx(() {
@@ -453,6 +521,38 @@ class _MyVideoScreenState extends State<MyVideoScreen>
             region: GestureRegion.center,
             myVideoStateController: widget.myVideoStateController,
             screenSize: screenSize,
+            onHorizontalDragStart: (details) {
+              _horizontalDragStartX = details.localPosition.dx;
+              _horizontalDragStartPosition = widget.myVideoStateController.currentPosition.value;
+              widget.myVideoStateController.setInteracting(true);
+              widget.myVideoStateController.showSeekPreview(true);
+            },
+            onHorizontalDragUpdate: (details) {
+              if (_horizontalDragStartX == null || _horizontalDragStartPosition == null) return;
+              
+              double dragDistance = details.localPosition.dx - _horizontalDragStartX!;
+              double ratio = dragDistance / screenSize.width;
+              
+              int offsetSeconds = (ratio * MAX_SEEK_SECONDS).round();
+              
+              Duration targetPosition = Duration(
+                seconds: (_horizontalDragStartPosition!.inSeconds + offsetSeconds)
+                    .clamp(0, widget.myVideoStateController.totalDuration.value.inSeconds)
+              );
+              
+              widget.myVideoStateController.updateSeekPreview(targetPosition);
+            },
+            onHorizontalDragEnd: (details) {
+              if (_horizontalDragStartPosition != null) {
+                Duration targetPosition = widget.myVideoStateController.previewPosition.value;
+                widget.myVideoStateController.player.seek(targetPosition);
+              }
+              
+              _horizontalDragStartX = null;
+              _horizontalDragStartPosition = null;
+              widget.myVideoStateController.setInteracting(false);
+              widget.myVideoStateController.showSeekPreview(false);
+            },
           ),
         );
       }),

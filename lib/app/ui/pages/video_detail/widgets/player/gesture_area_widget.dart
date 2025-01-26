@@ -23,6 +23,11 @@ class GestureArea extends StatefulWidget {
   final Function(LongPressType?, bool)? setLongPressing;
   final Function(double)? onVolumeChange;
 
+  // 添加新的回调
+  final Function(DragStartDetails)? onHorizontalDragStart;
+  final Function(DragUpdateDetails)? onHorizontalDragUpdate;
+  final Function(DragEndDetails)? onHorizontalDragEnd;
+
   const GestureArea({
     super.key,
     required this.region,
@@ -33,6 +38,10 @@ class GestureArea extends StatefulWidget {
     required this.screenSize,
     this.setLongPressing,
     this.onVolumeChange,
+    // 添加新的参数
+    this.onHorizontalDragStart,
+    this.onHorizontalDragUpdate,
+    this.onHorizontalDragEnd,
   });
 
   @override
@@ -51,8 +60,6 @@ class _GestureAreaState extends State<GestureArea>
   late AnimationController _infoMessageFadeController;
   late Animation<double> _infoMessageOpacity;
 
-  double? _horizontalDragStartX;
-  Duration? _horizontalDragStartPosition;
   static const int MAX_SEEK_SECONDS = 90; // 最大滑动秒数为90秒
 
   // 缓存计算结果
@@ -273,43 +280,22 @@ class _GestureAreaState extends State<GestureArea>
         widget.myVideoStateController.setInteracting(false);
         _onVerticalDragEnd(_);
       },
-      onVerticalDragUpdate: widget.region == GestureRegion.left ||
-              widget.region == GestureRegion.right
+      onVerticalDragUpdate: (widget.region == GestureRegion.left ||
+              widget.region == GestureRegion.right)
           ? _onVerticalDragUpdate
           : null,
-      onHorizontalDragStart: widget.region == GestureRegion.center ? (details) {
-        _horizontalDragStartX = details.localPosition.dx;
-        _horizontalDragStartPosition = widget.myVideoStateController.currentPosition.value;
+      // 所有区域都添加横向拖动手势
+      onHorizontalDragStart: (details) {
         widget.myVideoStateController.setInteracting(true);
-        widget.myVideoStateController.showSeekPreview(true);
-      } : null,
-      onHorizontalDragUpdate: widget.region == GestureRegion.center ? (details) {
-        if (_horizontalDragStartX == null || _horizontalDragStartPosition == null) return;
-        
-        double dragDistance = details.localPosition.dx - _horizontalDragStartX!;
-        double screenWidth = widget.screenSize.width;
-        double ratio = dragDistance / screenWidth;
-        
-        int offsetSeconds = (ratio * MAX_SEEK_SECONDS).round();
-        
-        Duration targetPosition = Duration(
-          seconds: (_horizontalDragStartPosition!.inSeconds + offsetSeconds)
-              .clamp(0, widget.myVideoStateController.totalDuration.value.inSeconds)
-        );
-        
-        widget.myVideoStateController.updateSeekPreview(targetPosition);
-      } : null,
-      onHorizontalDragEnd: widget.region == GestureRegion.center ? (details) {
-        if (_horizontalDragStartPosition != null) {
-          Duration targetPosition = widget.myVideoStateController.previewPosition.value;
-          widget.myVideoStateController.player.seek(targetPosition);
-        }
-        
-        _horizontalDragStartX = null;
-        _horizontalDragStartPosition = null;
+        widget.onHorizontalDragStart?.call(details);
+      },
+      onHorizontalDragUpdate: (details) {
+        widget.onHorizontalDragUpdate?.call(details);
+      },
+      onHorizontalDragEnd: (details) {
         widget.myVideoStateController.setInteracting(false);
-        widget.myVideoStateController.showSeekPreview(false);
-      } : null,
+        widget.onHorizontalDragEnd?.call(details);
+      },
       child: Container(
         /// 如果不用transparent的Container包裹，会导致center区域无法触发手势，GTP给出的解释是
         /// "当你使用一个没有颜色（即 color: null）的 Container 时，如果它没有子组件绘制任何内容，Flutter 可能不会为这个区域分配绘制层。这意味这个区域在视觉上是透明的，但在命中测试中也是"不可命中"的，因为没有实际的绘制内容。"
