@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_routes.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_dialog.dart';
 import 'package:i_iwara/app/ui/pages/home/home_navigation_layout.dart';
@@ -11,6 +12,7 @@ import 'package:i_iwara/app/ui/pages/video_detail/widgets/video_detail_info_skel
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:screen_brightness/screen_brightness.dart';
 import '../../../../common/enums/media_enums.dart';
 import '../../widgets/error_widget.dart';
 import '../../widgets/sliding_card_widget.dart';
@@ -35,6 +37,7 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
   final String uniqueTag = UniqueKey().toString();
   late String videoId;
   final AppService appService = Get.find();
+  final ConfigService _configService = Get.find();
 
   late MyVideoStateController controller;
   late CommentController commentController;
@@ -75,18 +78,29 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
   /// - `route`: 当前路由
   /// - `previousRoute`: 上一个路由
   void _onRouteChange(Route? route, Route? previousRoute) {
-    // LogUtils.d(
-    //     "[详情页路由监听]route: ${route?.settings.name}, previousRoute: ${previousRoute?.settings.name}",
-    //     'video_detail_page_v2');
-    // 当前页面被覆盖时暂停视频
-    if (route != null && route.settings.name != Routes.VIDEO_DETAIL(videoId)) {
-      // LogUtils.d(
-          // "[详情页路由监听]跳转到其他页面: ${route.settings.name}", 'video_detail_page_v2');
+    LogUtils.d(
+        "当前路由: ${route?.settings.name}, 上一个路由: ${previousRoute?.settings.name}, 操作类型: ${route?.isActive == true ? "进入" : "离开"}",
+        '详情页路由监听');
+
+     // 如果操作类型是离开，上一个路由contains Routes.VIDEO_DETAIL，则setDefaultBrightness
+    if (route?.isActive == false && previousRoute?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) == true) {
+      controller.setDefaultBrightness();
+    }
+
+    // 如果操作类型是进入，上一个路由contains Routes.VIDEO_DETAIL，则暂停
+    if (route?.isActive == true && previousRoute?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) == true) {
       controller.player.pause();
     }
+
+    // 如果当前路由contains Routes.VIDEO_DETAIL，且操作类型是离开则resetBrightness
+    if (route?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) == true && previousRoute?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) == false) {
+      ScreenBrightness().resetScreenBrightness();
+    }
+    
+
     // 如果是从detail到其他页面，且当前为 应用全屏状态，则恢复UI
     if (previousRoute != null &&
-        previousRoute.settings.name?.startsWith(Routes.VIDEO_DETAIL_PREFIX) ==
+        previousRoute.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) ==
             false &&
         controller.isDesktopAppFullScreen.value) {
       if (route?.settings.name != null) {

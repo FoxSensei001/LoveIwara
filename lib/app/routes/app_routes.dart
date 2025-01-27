@@ -7,8 +7,8 @@ abstract class Routes {
       ROOT; // /home/popular_videos
   static const GALLERY = _Paths.HOME + _Paths.GALLERY;
   static const SUBSCRIPTIONS = _Paths.HOME + _Paths.SUBSCRIPTIONS;
-  static String VIDEO_DETAIL(String videoId) => _Paths.HOME + _Paths.VIDEO_DETAIL.replaceAll(':videoId', videoId);
-  static String VIDEO_DETAIL_PREFIX = _Paths.HOME + _Paths.VIDEO_DETAIL;
+  static String VIDEO_DETAIL(String videoId) => _Paths.VIDEO_DETAIL.replaceAll(':videoId', videoId);
+  static String VIDEO_DETAIL_PREFIX = _Paths.VIDEO_DETAIL_PREFIX;
   static String AUTHOR_PROFILE(String userName) => _Paths.HOME + _Paths.AUTHOR_PROFILE.replaceAll(':userName', userName);
   static String GALLERY_DETAIL(String galleryId) => _Paths.HOME + _Paths.GALLERY_DETAIL.replaceAll(':galleryId', galleryId);
 
@@ -66,6 +66,8 @@ abstract class Routes {
 
   static const LOCAL_FAVORITE = '/local_favorite';
 
+  static const AUTHOR_PROFILE_PREFIX = '/author_profile';
+
   static MESSAGE_DETAIL(String conversationId) => '/message_detail/$conversationId';
 
   static LOCAL_FAVORITE_DETAIL(String folderId) => '/local_favorite_detail/$folderId';
@@ -77,6 +79,7 @@ abstract class _Paths {
   static const HOME = '/';
   static const LOGIN = '/login';
   static const VIDEO_DETAIL = '/video_detail/:videoId';
+  static const VIDEO_DETAIL_PREFIX = '/video_detail';
   static const SETTINGS_PAGE = '/settings_page';
   static const PLAYER_SETTINGS_PAGE = '/player_settings_page';
   static const PROXY_SETTINGS_PAGE = '/proxy_settings_page';

@@ -297,7 +297,7 @@ class PlayerSettingsWidget extends StatelessWidget {
                     },
                   ),
                   // 记住亮度（仅限特定平台）
-                  if (!GetPlatform.isDesktop && !GetPlatform.isWeb)
+                  if (GetPlatform.isAndroid || GetPlatform.isIOS)
                     _buildSwitchSetting(
                       context: context,
                       iconData: Icons.brightness_medium,

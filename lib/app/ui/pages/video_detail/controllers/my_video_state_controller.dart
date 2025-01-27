@@ -30,7 +30,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import '../widgets/private_video_widget.dart';
 
 class MyVideoStateController extends GetxController
-    with GetSingleTickerProviderStateMixin {
+    with GetSingleTickerProviderStateMixin, WidgetsBindingObserver {
   final String? videoId;
   final AppService appS = Get.find();
   late Player player;
@@ -120,6 +120,9 @@ class MyVideoStateController extends GetxController
   @override
   void onInit() async {
     super.onInit();
+    // 添加生命周期观察者
+    WidgetsBinding.instance.addObserver(this);
+    
     // 动画
     animationController = AnimationController(
       duration: const Duration(milliseconds: 300),
@@ -188,19 +191,8 @@ class MyVideoStateController extends GetxController
       }
     }
 
-    // 是否沿用之前的亮度
-    if (!GetPlatform.isWeb && !GetPlatform.isLinux) {
-      bool keepLastBrightnessKey =
-          _configService[ConfigService.KEEP_LAST_BRIGHTNESS_KEY];
-      if (keepLastBrightnessKey) {
-        double lastBrightness = _configService[ConfigService.BRIGHTNESS_KEY];
-        try {
-          ScreenBrightness().setScreenBrightness(lastBrightness);
-        } catch (e) {
-          LogUtils.e('设置亮度失败: $e', tag: 'MyVideoStateController', error: e);
-        }
-      }
-    }
+    // 设置亮度
+    setDefaultBrightness();
 
     // 想办法让native player默认走系统代理
     if (player.platform is NativePlayer &&
@@ -228,8 +220,28 @@ class MyVideoStateController extends GetxController
     fetchVideoDetail(videoId!);
   }
 
+  // 设置亮度
+  void setDefaultBrightness() {
+    if (GetPlatform.isAndroid || GetPlatform.isIOS) {
+      bool keepLastBrightnessKey =
+          _configService[ConfigService.KEEP_LAST_BRIGHTNESS_KEY];
+      if (keepLastBrightnessKey) {
+        double lastBrightness = _configService[ConfigService.BRIGHTNESS_KEY];
+        try {
+          LogUtils.d("设置亮度: $lastBrightness", '详情页路由监听');
+          ScreenBrightness().setScreenBrightness(lastBrightness);
+        } catch (e) {
+          LogUtils.e('设置亮度失败: $e', tag: 'MyVideoStateController', error: e);
+        }
+      }
+    }
+  }
+
   @override
   void onClose() {
+    // 移除生命周期观察者
+    WidgetsBinding.instance.removeObserver(this);
+    
     // 保存播放记录
     if (videoId != null && totalDuration.value.inMilliseconds > 0) {
       final currentMs = currentPosition.value.inMilliseconds;
@@ -254,6 +266,16 @@ class MyVideoStateController extends GetxController
     player.dispose();
     _resumeTipTimer?.cancel();
     super.onClose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    
+    // 当应用从后台恢复到前台时
+    if (state == AppLifecycleState.resumed) {
+      setDefaultBrightness();
+    }
   }
 
   // 取消监听
