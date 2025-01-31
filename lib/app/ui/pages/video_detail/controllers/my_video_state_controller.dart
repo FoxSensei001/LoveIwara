@@ -241,13 +241,15 @@ class MyVideoStateController extends GetxController
   }
 
   void _setupPiPListener() {
-    _pipStatusSubscription = Floating().pipStatusStream.listen((status) {
-      if (status == PiPStatus.enabled) {
-        if (!isPiPMode.value) enterPiPMode();
-      } else {
-        if (isPiPMode.value) exitPiPMode();
-      }
-    });
+    if (GetPlatform.isAndroid) {
+      _pipStatusSubscription = Floating().pipStatusStream.listen((status) {
+        if (status == PiPStatus.enabled) {
+          if (!isPiPMode.value) enterPiPMode();
+        } else {
+          if (isPiPMode.value) exitPiPMode();
+        }
+      });
+    }
   }
 
   // 设置亮度
