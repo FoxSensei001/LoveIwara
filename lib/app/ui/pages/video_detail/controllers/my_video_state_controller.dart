@@ -10,6 +10,7 @@ import 'package:i_iwara/app/services/playback_history_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/related_media_controller.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/app/ui/widgets/error_widget.dart';
+import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:media_kit/media_kit.dart';
@@ -122,6 +123,11 @@ class MyVideoStateController extends GetxController
   // 在类成员变量区域添加
   StreamSubscription<PiPStatus>? _pipStatusSubscription;
 
+  // 在MyVideoStateController类成员变量区域添加
+  final RxBool isSlidingBrightnessZone = false.obs; // 是否在滑动亮度区域
+  final RxBool isSlidingVolumeZone = false.obs;     // 是否在滑动音量区域
+  final RxBool isLongPressing = false.obs;          // 是否在长按
+
   MyVideoStateController(this.videoId);
 
   @override
@@ -165,6 +171,8 @@ class MyVideoStateController extends GetxController
       volumeController?.showSystemUI = false;
       // 添加音量监听
       _volumeListenerDisposer = volumeController?.listener((volume) {
+        // 如果当前在long press状态，则不更新音量
+        if (isLongPressing.value || isSlidingVolumeZone.value || isSlidingBrightnessZone.value) return;
         if (!_isAdjustingVolumeByGesture) {
           _configService.setSetting(ConfigService.VOLUME_KEY, volume, save: true);
         }
@@ -186,15 +194,17 @@ class MyVideoStateController extends GetxController
 
     // 是否沿用之前的音量
     bool keepLastVolumeKey = _configService[ConfigService.KEEP_LAST_VOLUME_KEY];
-    if (keepLastVolumeKey) {
-      // 保持之前的音量
-      double lastVolume = _configService[ConfigService.VOLUME_KEY];
-      setVolume(lastVolume, save: false);
-    } else {
-      if (GetPlatform.isAndroid || GetPlatform.isIOS) {
-        // 更新配置为当前的系统音量
-        double currentVolume = await volumeController?.getVolume() ?? 0.0;
-        _configService[ConfigService.VOLUME_KEY] = currentVolume;
+    if (CommonConstants.isSetVolume) {
+      if (keepLastVolumeKey) {
+        // 保持之前的音量
+        double lastVolume = _configService[ConfigService.VOLUME_KEY];
+        setVolume(lastVolume, save: false);
+      } else {
+        if (GetPlatform.isAndroid || GetPlatform.isIOS) {
+          // 更新配置为当前的系统音量
+          double currentVolume = await volumeController?.getVolume() ?? 0.0;
+          _configService[ConfigService.VOLUME_KEY] = currentVolume;
+        }
       }
     }
 
@@ -232,7 +242,6 @@ class MyVideoStateController extends GetxController
 
   void _setupPiPListener() {
     _pipStatusSubscription = Floating().pipStatusStream.listen((status) {
-      print('[画中画]画中画状态: $status');
       if (status == PiPStatus.enabled) {
         if (!isPiPMode.value) enterPiPMode();
       } else {
@@ -243,6 +252,8 @@ class MyVideoStateController extends GetxController
 
   // 设置亮度
   void setDefaultBrightness() {
+    // 如果没有设置过亮度，则不设置默认值
+    if (!CommonConstants.isSetBrightness) return;
     if (GetPlatform.isAndroid || GetPlatform.isIOS) {
       bool keepLastBrightnessKey =
           _configService[ConfigService.KEEP_LAST_BRIGHTNESS_KEY];
@@ -344,7 +355,7 @@ class MyVideoStateController extends GetxController
           await _historyRepository.addRecordWithCheck(historyRecord);
         }
       } catch (e) {
-        LogUtils.e('添加历史记录失败', error: e, tag: 'MyVideoStateController');
+        LogUtils.e('添加历史记录失败', tag: 'MyVideoStateController', error: e);
       }
 
       String? authorId = videoInfo.value!.user?.id;

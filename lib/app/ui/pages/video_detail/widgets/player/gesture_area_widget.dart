@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/common/constants.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:vibration/vibration.dart';
 
@@ -184,10 +185,14 @@ class _GestureAreaState extends State<GestureArea>
       type = LongPressType.brightness;
       // 在亮度调节结束时保存设置
       _configService.setSetting(ConfigService.BRIGHTNESS_KEY, _configService[ConfigService.BRIGHTNESS_KEY], save: true);
+      // 保存亮度设置
+      CommonConstants.isSetBrightness = true;
     } else if (widget.region == GestureRegion.right) {
       type = LongPressType.volume;
       // 在音量调节结束时保存设置
       _configService.setSetting(ConfigService.VOLUME_KEY, _configService[ConfigService.VOLUME_KEY], save: true);
+      // 保存音量设置
+      CommonConstants.isSetVolume = true;
     }
 
     widget.setLongPressing?.call(type, false);

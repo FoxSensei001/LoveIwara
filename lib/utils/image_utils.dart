@@ -70,7 +70,6 @@ class ImageUtils {
     try {
       String url = item.data.originalUrl.isEmpty ? item.data.url : item.data.originalUrl;
       // https://i.iwara.tv/image/original/5d80d601-6689-4728-80bd-b585d83eac9e/5d80d601-6689-4728-80bd-b585d83eac9e.webm
-      print('senko 下载地址: $url');
       if (url.isEmpty) {
         showToastWidget(MDToastWidget(
             message: slang.t.common.linkIsEmpty, type: MDToastType.error));

@@ -30,6 +30,12 @@ class CommonConstants {
   // 图片资源基础URL
   static const String iwaraImageBaseUrl = 'https://i.iwara.tv';
 
+  // 是否设置过亮度
+  static bool isSetBrightness = false;
+
+  // 是否设置过音量
+  static bool isSetVolume = false;
+
   // 默认用户头像URL
   static const String defaultAvatarUrl =
       '$iwaraBaseUrl/images/default-avatar.jpg';

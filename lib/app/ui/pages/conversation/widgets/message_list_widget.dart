@@ -592,7 +592,6 @@ class MessageListRepository extends LoadingMoreBase<MessageModel> {
 
       if (result.isSuccess && result.data != null) {
         final data = result.data!;
-        // print('加载消息: before=$before, count=${data.count}, first=${data.first}, last=${data.last}, results=${data.results.length}');
         
         if (data.results.isEmpty) {
           _hasMoreMessages = false;
@@ -621,7 +620,6 @@ class MessageListRepository extends LoadingMoreBase<MessageModel> {
       }
       return false;
     } catch (e) {
-      // print('加载消息失败: $e');
       LogUtils.e('加载消息失败', tag: 'MessageListRepository', error: e);
       return false;
     }

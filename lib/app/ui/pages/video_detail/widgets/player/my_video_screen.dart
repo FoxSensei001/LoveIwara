@@ -59,9 +59,6 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   // 控制InfoMessage的显示与淡入淡出动画
   late AnimationController _infoMessageFadeController;
   late Animation<double> _infoMessageOpacity;
-  bool isSlidingBrightnessZone = false; // 是否在滑动亮度区域
-  bool isSlidingVolumeZone = false; // 是否在滑动音量区域
-  bool isLongPressing = false; // 是否在长按
 
   double? _horizontalDragStartX;
   Duration? _horizontalDragStartPosition;
@@ -256,18 +253,14 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     // 取消之前的计时器
     _volumeInfoTimer?.cancel();
     
-    setState(() {
-      isSlidingVolumeZone = true;
-    });
+    widget.myVideoStateController.isSlidingVolumeZone.value = true;
     _infoMessageFadeController.forward();
     
     // 设置新的计时器
     _volumeInfoTimer = Timer(const Duration(seconds: 3), () {
       if (mounted) {
         _infoMessageFadeController.reverse().whenComplete(() {
-          setState(() {
-            isSlidingVolumeZone = false;
-          });
+          widget.myVideoStateController.isSlidingVolumeZone.value = false;
         });
       }
     });
@@ -731,32 +724,24 @@ class _MyVideoScreenState extends State<MyVideoScreen>
 
   void _setLongPressing(LongPressType? longPressType, bool value) async {
     if (value) {
-      // 根据长按类型更新UI
       switch (longPressType) {
         case LongPressType.brightness:
-          setState(() {
-            isSlidingBrightnessZone = true;
-            isSlidingVolumeZone = false;
-            isLongPressing = false;
-          });
+          widget.myVideoStateController.isSlidingBrightnessZone.value = true;
+          widget.myVideoStateController.isSlidingVolumeZone.value = false;
+          widget.myVideoStateController.isLongPressing.value = false;
           _infoMessageFadeController.forward();
           break;
         case LongPressType.volume:
-          setState(() {
-            isSlidingVolumeZone = true;
-            isSlidingBrightnessZone = false;
-            isLongPressing = false;
-          });
+          widget.myVideoStateController.isSlidingVolumeZone.value = true;
+          widget.myVideoStateController.isSlidingBrightnessZone.value = false;
+          widget.myVideoStateController.isLongPressing.value = false;
           _infoMessageFadeController.forward();
           break;
         case LongPressType.normal:
-          setState(() {
-            isLongPressing = true;
-            isSlidingBrightnessZone = false;
-            isSlidingVolumeZone = false;
-          });
-          widget.myVideoStateController
-              .setLongPressPlaybackSpeedByConfiguration();
+          widget.myVideoStateController.isLongPressing.value = true;
+          widget.myVideoStateController.isSlidingBrightnessZone.value = false;
+          widget.myVideoStateController.isSlidingVolumeZone.value = false;
+          widget.myVideoStateController.setLongPressPlaybackSpeedByConfiguration();
           _infoMessageFadeController.forward();
           break;
         default:
@@ -764,13 +749,10 @@ class _MyVideoScreenState extends State<MyVideoScreen>
           break;
       }
     } else {
-      // 当长按结束时，清除提示并反转动画
       _infoMessageFadeController.reverse().whenComplete(() {
-        setState(() {
-          isLongPressing = false;
-          isSlidingBrightnessZone = false;
-          isSlidingVolumeZone = false;
-        });
+        widget.myVideoStateController.isLongPressing.value = false;
+        widget.myVideoStateController.isSlidingBrightnessZone.value = false;
+        widget.myVideoStateController.isSlidingVolumeZone.value = false;
       });
     }
   }
@@ -788,21 +770,17 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   }
 
   Widget _buildInfoContent() {
-    if (isSlidingVolumeZone) {
-      return _buildFadeTransition(
-        child: _buildVolumeInfoMessage(),
-      );
-    } else if (isSlidingBrightnessZone) {
-      return _buildFadeTransition(
-        child: _buildBrightnessInfoMessage(),
-      );
-    } else if (isLongPressing) {
-      return _buildFadeTransition(
-        child: _buildPlaybackSpeedInfoMessage(),
-      );
-    } else {
+    final controller = widget.myVideoStateController;
+    return Obx(() {
+      if (controller.isSlidingVolumeZone.value) {
+        return _buildFadeTransition(child: _buildVolumeInfoMessage());
+      } else if (controller.isSlidingBrightnessZone.value) {
+        return _buildFadeTransition(child: _buildBrightnessInfoMessage());
+      } else if (controller.isLongPressing.value) {
+        return _buildFadeTransition(child: _buildPlaybackSpeedInfoMessage());
+      }
       return const SizedBox.shrink();
-    }
+    });
   }
 
   Widget _buildFadeTransition({required Widget child}) {

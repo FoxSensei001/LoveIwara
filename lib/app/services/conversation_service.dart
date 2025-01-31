@@ -116,7 +116,6 @@ class ConversationService extends GetxService {
 
       final MessageListModel data = MessageListModel.fromJson(response.data);
 
-      // print('获取消息列表成功: ${data.toJson()}, 参数: before=$before, limit=$limit');
       return ApiResult.success(data: data);
     } catch (e) {
       LogUtils.e('获取消息列表失败', tag: 'ConversationService', error: e);
