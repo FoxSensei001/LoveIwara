@@ -10,6 +10,7 @@ import 'package:i_iwara/app/ui/pages/comment/controllers/comment_controller.dart
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_remove_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/app/ui/widgets/translation_powered_by_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -21,6 +22,7 @@ import '../../../../models/comment.model.dart';
 import '../../../widgets/custom_markdown_body_widget.dart';
 import '../widgets/comment_input_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/routes/app_routes.dart';
 
 class CommentItem extends StatefulWidget {
   final Comment comment;
@@ -305,6 +307,9 @@ class _CommentItemState extends State<CommentItem> {
   }
 
   void _showTranslationMenuDialog() {
+    final configService = Get.find<ConfigService>();
+    final t = slang.Translations.of(context);
+
     Get.dialog(
       Dialog(
         shape: RoundedRectangleBorder(
@@ -318,12 +323,57 @@ class _CommentItemState extends State<CommentItem> {
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Text(
-                  slang.t.common.selectTranslationLanguage,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        t.common.selectTranslationLanguage,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    Obx(() {
+                      final isAIEnabled = configService[ConfigService.USE_AI_TRANSLATION] as bool;
+                      if (!isAIEnabled) {
+                        return ElevatedButton.icon(
+                          onPressed: () {
+                            Get.closeAllDialogs();
+                            Get.toNamed(Routes.AI_TRANSLATION_SETTINGS_PAGE);
+                          },
+                          icon: Icon(Icons.auto_awesome, size: 14, color: Theme.of(context).colorScheme.primary),
+                          label: Text(
+                            t.translation.enableAITranslation,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontSize: 12
+                            ),
+                          ),
+                        );
+                      }
+                      return Tooltip(
+                        message: t.translation.disableAITranslation,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.auto_awesome,
+                              size: 18,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            const SizedBox(width: 8),
+                            Switch(
+                              value: true,
+                              onChanged: (value) {
+                                configService[ConfigService.USE_AI_TRANSLATION] = false;
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                  ],
                 ),
               ),
               const Divider(height: 1),
@@ -478,16 +528,7 @@ class _CommentItemState extends State<CommentItem> {
                 ),
               ),
               const Spacer(),
-              Text(
-                'Powered by Google',
-                style: TextStyle(
-                  fontSize: 10,
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurfaceVariant
-                      .withOpacity(0.7),
-                ),
-              ),
+              translationPoweredByWidget(context, fontSize: 10)
             ],
           ),
           const SizedBox(height: 8),

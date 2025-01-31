@@ -898,3 +898,6 @@ translation:
   mustBeGreaterThan: Must be greater than
   invalidAPIResponse: Invalid API response
   connectionFailedForMessage: 'Connection failed: ${message}'
+  aiTranslationNotEnabledHint: AI translation is not enabled, please enable it in settings
+  goToSettings: Go to Settings
+  disableAITranslation: Disable AI Translation

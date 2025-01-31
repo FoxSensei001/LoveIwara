@@ -904,3 +904,6 @@ translation:
   mustBeGreaterThan: 必須大於
   invalidAPIResponse: 無效的API響應
   connectionFailedForMessage: '連接失敗: ${message}'
+  aiTranslationNotEnabledHint: AI翻譯未啟用，請在設定中啟用
+  goToSettings: 前往設定
+  disableAITranslation: 禁用AI翻譯

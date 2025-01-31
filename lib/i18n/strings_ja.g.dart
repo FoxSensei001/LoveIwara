@@ -1012,6 +1012,9 @@ class _TranslationsTranslationJa implements TranslationsTranslationEn {
 	@override String get mustBeGreaterThan => '以上';
 	@override String get invalidAPIResponse => '無効なAPI応答';
 	@override String connectionFailedForMessage({required Object message}) => '接続失敗: ${message}';
+	@override String get aiTranslationNotEnabledHint => 'AI翻訳は有効にされていません。設定で有効にしてください';
+	@override String get goToSettings => '設定に移動';
+	@override String get disableAITranslation => 'AI翻訳を無効にする';
 }
 
 // Path: forum.errors
@@ -2058,6 +2061,9 @@ extension on TranslationsJa {
 			case 'translation.mustBeGreaterThan': return '以上';
 			case 'translation.invalidAPIResponse': return '無効なAPI応答';
 			case 'translation.connectionFailedForMessage': return ({required Object message}) => '接続失敗: ${message}';
+			case 'translation.aiTranslationNotEnabledHint': return 'AI翻訳は有効にされていません。設定で有効にしてください';
+			case 'translation.goToSettings': return '設定に移動';
+			case 'translation.disableAITranslation': return 'AI翻訳を無効にする';
 			default: return null;
 		}
 	}

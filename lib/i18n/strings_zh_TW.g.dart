@@ -1015,6 +1015,9 @@ class _TranslationsTranslationZhTw implements TranslationsTranslationEn {
 	@override String get mustBeGreaterThan => '必須大於';
 	@override String get invalidAPIResponse => '無效的API響應';
 	@override String connectionFailedForMessage({required Object message}) => '連接失敗: ${message}';
+	@override String get aiTranslationNotEnabledHint => 'AI翻譯未啟用，請在設定中啟用';
+	@override String get goToSettings => '前往設定';
+	@override String get disableAITranslation => '禁用AI翻譯';
 }
 
 // Path: forum.errors
@@ -2064,6 +2067,9 @@ extension on TranslationsZhTw {
 			case 'translation.mustBeGreaterThan': return '必須大於';
 			case 'translation.invalidAPIResponse': return '無效的API響應';
 			case 'translation.connectionFailedForMessage': return ({required Object message}) => '連接失敗: ${message}';
+			case 'translation.aiTranslationNotEnabledHint': return 'AI翻譯未啟用，請在設定中啟用';
+			case 'translation.goToSettings': return '前往設定';
+			case 'translation.disableAITranslation': return '禁用AI翻譯';
 			default: return null;
 		}
 	}

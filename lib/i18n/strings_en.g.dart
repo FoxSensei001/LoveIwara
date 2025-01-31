@@ -1016,6 +1016,9 @@ class TranslationsTranslationEn {
 	String get mustBeGreaterThan => 'Must be greater than';
 	String get invalidAPIResponse => 'Invalid API response';
 	String connectionFailedForMessage({required Object message}) => 'Connection failed: ${message}';
+	String get aiTranslationNotEnabledHint => 'AI translation is not enabled, please enable it in settings';
+	String get goToSettings => 'Go to Settings';
+	String get disableAITranslation => 'Disable AI Translation';
 }
 
 // Path: forum.errors
@@ -2062,6 +2065,9 @@ extension on Translations {
 			case 'translation.mustBeGreaterThan': return 'Must be greater than';
 			case 'translation.invalidAPIResponse': return 'Invalid API response';
 			case 'translation.connectionFailedForMessage': return ({required Object message}) => 'Connection failed: ${message}';
+			case 'translation.aiTranslationNotEnabledHint': return 'AI translation is not enabled, please enable it in settings';
+			case 'translation.goToSettings': return 'Go to Settings';
+			case 'translation.disableAITranslation': return 'Disable AI Translation';
 			default: return null;
 		}
 	}

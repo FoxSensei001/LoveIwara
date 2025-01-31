@@ -3,9 +3,11 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/translation_service.dart';
+import 'package:i_iwara/app/ui/widgets/translation_powered_by_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:shimmer/shimmer.dart';
+import 'package:i_iwara/app/routes/app_routes.dart';
 
 class TranslationDialog extends StatefulWidget {
   final String text;
@@ -59,53 +61,103 @@ class _TranslationDialogState extends State<TranslationDialog> {
   }
 
   Widget _buildLanguageSelector() {
-    return PopupMenuButton<String>(
-      initialValue: _configService.currentTranslationLanguage,
-      child: Card(
-        elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                CommonConstants.translationSorts
-                    .firstWhere((sort) =>
-                        sort.extData ==
-                        _configService.currentTranslationLanguage)
-                    .label,
-                style: const TextStyle(fontSize: 14),
+    final configService = Get.find<ConfigService>();
+    final t = slang.Translations.of(context);
+    
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        PopupMenuButton<String>(
+          initialValue: _configService.currentTranslationLanguage,
+          child: Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    CommonConstants.translationSorts
+                        .firstWhere((sort) =>
+                            sort.extData ==
+                            _configService.currentTranslationLanguage)
+                        .label,
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                  const SizedBox(width: 4),
+                  const Icon(
+                    Icons.arrow_drop_down,
+                    size: 24,
+                  ),
+                ],
               ),
-              const SizedBox(width: 4),
-              const Icon(
-                Icons.arrow_drop_down,
-                size: 24,
-              ),
-            ],
+            ),
           ),
+          itemBuilder: (context) {
+            return CommonConstants.translationSorts.map((sort) {
+              return PopupMenuItem<String>(
+                value: sort.extData,
+                child: Text(sort.label),
+              );
+            }).toList();
+          },
+          onSelected: (value) {
+            final sort = CommonConstants.translationSorts.firstWhere(
+              (sort) => sort.extData == value,
+            );
+            _configService.updateTranslationLanguage(sort);
+            setState(() {
+              _translatedText = null;
+            });
+            _handleTranslation();
+          },
         ),
-      ),
-      itemBuilder: (context) {
-        return CommonConstants.translationSorts.map((sort) {
-          return PopupMenuItem<String>(
-            value: sort.extData,
-            child: Text(sort.label),
+        const SizedBox(width: 8),
+        Obx(() {
+          final isAIEnabled = configService[ConfigService.USE_AI_TRANSLATION] as bool;
+          if (!isAIEnabled) {
+            return ElevatedButton.icon(
+              onPressed: () {
+                Get.closeAllDialogs();
+                Get.toNamed(Routes.AI_TRANSLATION_SETTINGS_PAGE);
+              },
+              icon: Icon(Icons.auto_awesome, 
+                size: 14, 
+                color: Theme.of(context).colorScheme.primary),
+              label: Text(
+                t.translation.enableAITranslation,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontSize: 12
+                ),
+              ),
+            );
+          }
+          return Tooltip(
+            message: t.translation.disableAITranslation,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.auto_awesome,
+                  size: 18,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                const SizedBox(width: 8),
+                Switch(
+                  value: true,
+                  onChanged: (value) {
+                    configService[ConfigService.USE_AI_TRANSLATION] = false;
+                  },
+                ),
+              ],
+            ),
           );
-        }).toList();
-      },
-      onSelected: (value) {
-        final sort = CommonConstants.translationSorts.firstWhere(
-          (sort) => sort.extData == value,
-        );
-        _configService.updateTranslationLanguage(sort);
-        setState(() {
-          _translatedText = null;
-        });
-        _handleTranslation();
-      },
+        }),
+      ],
     );
   }
 
@@ -154,14 +206,7 @@ class _TranslationDialogState extends State<TranslationDialog> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     if (title == t.common.translationResult)
-                      Text(
-                        'Powered by Google',
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: theme.colorScheme.onSurfaceVariant
-                              .withOpacity(0.7),
-                        ),
-                      ),
+                      translationPoweredByWidget(context, fontSize: 10)
                   ],
                 ),
               ),
