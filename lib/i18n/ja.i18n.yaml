@@ -442,6 +442,7 @@ subscriptions:
   pleaseLoginFirstToViewYourSubscriptions: サブスクリプションを表示するにはログインしてください。
 
 videoDetail:
+  pipMode: ピプモード
   resumeFromLastPosition: '${position} から続けて再生'
   videoIdIsEmpty: ビデオIDが空です
   videoInfoIsEmpty: ビデオ情報が空です

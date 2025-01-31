@@ -8,6 +8,7 @@ import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_dialog.dart';
 import 'package:i_iwara/app/ui/pages/home/home_navigation_layout.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/media_tile_list_loading_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/video_detail_content_widget.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/my_video_screen.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/video_detail_info_skeleton_widget.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -267,6 +268,13 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
 
     return Scaffold(
       body: Obx(() {
+        // 添加画中画模式判断
+        if (controller.isPiPMode.value) {
+          return MyVideoScreen(
+            myVideoStateController: controller,
+            isFullScreen: false,
+          );
+        }
         if (controller.mainErrorWidget.value != null) {
           return controller.mainErrorWidget.value!;
         }

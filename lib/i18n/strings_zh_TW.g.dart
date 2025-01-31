@@ -600,6 +600,7 @@ class _TranslationsVideoDetailZhTw implements TranslationsVideoDetailEn {
 	final TranslationsZhTw _root; // ignore: unused_field
 
 	// Translations
+	@override String get pipMode => '畫中畫模式';
 	@override String resumeFromLastPosition({required Object position}) => '從上次播放位置繼續播放: ${position}';
 	@override String get videoIdIsEmpty => '影片ID為空';
 	@override String get videoInfoIsEmpty => '影片資訊為空';
@@ -1567,6 +1568,7 @@ extension on TranslationsZhTw {
 			case 'signIn.totalSignIns': return '總簽到次數';
 			case 'signIn.pleaseSelectSignInStatus': return '請選擇簽到狀態';
 			case 'subscriptions.pleaseLoginFirstToViewYourSubscriptions': return '請登入以查看您的訂閱內容。';
+			case 'videoDetail.pipMode': return '畫中畫模式';
 			case 'videoDetail.resumeFromLastPosition': return ({required Object position}) => '從上次播放位置繼續播放: ${position}';
 			case 'videoDetail.videoIdIsEmpty': return '影片ID為空';
 			case 'videoDetail.videoInfoIsEmpty': return '影片資訊為空';

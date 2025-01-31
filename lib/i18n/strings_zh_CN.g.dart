@@ -605,6 +605,7 @@ class _TranslationsVideoDetailZhCn implements TranslationsVideoDetailEn {
 	final TranslationsZhCn _root; // ignore: unused_field
 
 	// Translations
+	@override String get pipMode => '画中画模式';
 	@override String resumeFromLastPosition({required Object position}) => '从上次播放位置继续播放: ${position}';
 	@override String get videoIdIsEmpty => '视频ID为空';
 	@override String get videoInfoIsEmpty => '视频信息为空';
@@ -1574,6 +1575,7 @@ extension on TranslationsZhCn {
 			case 'signIn.totalSignIns': return '总成功签到';
 			case 'signIn.pleaseSelectSignInStatus': return '请选择签到状态';
 			case 'subscriptions.pleaseLoginFirstToViewYourSubscriptions': return '请登录以查看您的订阅内容。';
+			case 'videoDetail.pipMode': return '画中画模式';
 			case 'videoDetail.resumeFromLastPosition': return ({required Object position}) => '从上次播放位置继续播放: ${position}';
 			case 'videoDetail.videoIdIsEmpty': return '视频ID为空';
 			case 'videoDetail.videoInfoIsEmpty': return '视频信息为空';

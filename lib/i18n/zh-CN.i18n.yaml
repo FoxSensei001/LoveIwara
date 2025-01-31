@@ -449,6 +449,7 @@ subscriptions:
   pleaseLoginFirstToViewYourSubscriptions: 请登录以查看您的订阅内容。
 
 videoDetail:
+  pipMode: 画中画模式
   resumeFromLastPosition: '从上次播放位置继续播放: ${position}'
   videoIdIsEmpty: 视频ID为空
   videoInfoIsEmpty: 视频信息为空

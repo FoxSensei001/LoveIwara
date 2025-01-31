@@ -8,6 +8,8 @@ import '../../../settings/widgets/player_settings_widget.dart';
 import '../../../settings/widgets/proxy_setting_widget.dart';
 import '../../controllers/my_video_state_controller.dart';
 import '../../../../../../i18n/strings.g.dart' as slang;
+import 'package:floating/floating.dart';
+
 class TopToolbar extends StatelessWidget {
   final MyVideoStateController myVideoStateController;
   final bool currentScreenIsFullScreen;
@@ -113,9 +115,37 @@ class TopToolbar extends StatelessWidget {
                   ],
                 ),
               ),
-              // 右侧: 问号按钮和更多按钮
+              // 右侧: 画中画按钮、问号按钮和更多按钮
               Row(
                 children: [
+                  if(GetPlatform.isAndroid)
+                    // 画中画按钮
+                    IconButton(
+                      tooltip: t.videoDetail.pipMode,
+                      icon: const Icon(Icons.picture_in_picture_alt, color: Colors.white),
+                      onPressed: () async {
+                        final floating = Floating();
+                        if (await floating.isPipAvailable) {
+                          final status = await floating.pipStatus;
+                          if (status == PiPStatus.disabled || status == PiPStatus.automatic) {
+                            await floating.enable(const ImmediatePiP(
+                              aspectRatio: Rational.square(),
+                            ));
+                            // 关闭全屏和桌面全屏模式
+                            if (currentScreenIsFullScreen) AppService.tryPop();
+                            if (myVideoStateController.isDesktopAppFullScreen.value) {
+                              myVideoStateController.isDesktopAppFullScreen.value = false;
+                            }
+                            myVideoStateController.enterPiPMode();
+                          } else if (status == PiPStatus.enabled) {
+                            await floating.enable(const ImmediatePiP(
+                              aspectRatio: Rational.square(),
+                            ));
+                            myVideoStateController.exitPiPMode();
+                          }
+                        }
+                      },
+                    ),
                   // 问号信息按钮
                   IconButton(
                     tooltip: t.videoDetail.videoPlayerInfo,

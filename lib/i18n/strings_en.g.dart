@@ -604,6 +604,7 @@ class TranslationsVideoDetailEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+	String get pipMode => 'PiP Mode';
 	String resumeFromLastPosition({required Object position}) => 'Resume from last position: ${position}';
 	String get videoIdIsEmpty => 'Video ID is empty';
 	String get videoInfoIsEmpty => 'Video info is empty';
@@ -1568,6 +1569,7 @@ extension on Translations {
 			case 'signIn.totalSignIns': return 'Total Sign Ins';
 			case 'signIn.pleaseSelectSignInStatus': return 'Please select sign in status';
 			case 'subscriptions.pleaseLoginFirstToViewYourSubscriptions': return 'Please login first to view your subscriptions.';
+			case 'videoDetail.pipMode': return 'PiP Mode';
 			case 'videoDetail.resumeFromLastPosition': return ({required Object position}) => 'Resume from last position: ${position}';
 			case 'videoDetail.videoIdIsEmpty': return 'Video ID is empty';
 			case 'videoDetail.videoInfoIsEmpty': return 'Video info is empty';

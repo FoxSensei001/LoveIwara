@@ -108,7 +108,6 @@ class PlayerSettingsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

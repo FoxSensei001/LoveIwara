@@ -441,6 +441,7 @@ subscriptions:
   pleaseLoginFirstToViewYourSubscriptions: Please login first to view your subscriptions.
 
 videoDetail:
+  pipMode: PiP Mode
   resumeFromLastPosition: 'Resume from last position: ${position}'
   videoIdIsEmpty: Video ID is empty
   videoInfoIsEmpty: Video info is empty

@@ -275,6 +275,25 @@ class _MyVideoScreenState extends State<MyVideoScreen>
 
   @override
   Widget build(BuildContext context) {
+    return Obx(() {
+      if (widget.myVideoStateController.isPiPMode.value) {
+        return _buildPiPLayout(context);
+      }
+      return _buildNormalLayout(context);
+    });
+  }
+
+  Widget _buildPiPLayout(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Video(
+            controller: widget.myVideoStateController.videoController,
+            controls: null,
+          ),
+    );
+  }
+
+  Widget _buildNormalLayout(BuildContext context) {
     return PopScope(
       onPopInvokedWithResult: (bool didPop, dynamic result) async {
         if (widget.isFullScreen) {

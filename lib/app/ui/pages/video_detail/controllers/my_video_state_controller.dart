@@ -28,6 +28,7 @@ import '../../../../services/config_service.dart';
 import '../widgets/player/custom_slider_bar_shape_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import '../widgets/private_video_widget.dart';
+import 'package:floating/floating.dart';
 
 class MyVideoStateController extends GetxController
     with GetSingleTickerProviderStateMixin, WidgetsBindingObserver {
@@ -114,6 +115,12 @@ class MyVideoStateController extends GetxController
   final RxBool showResumePositionTip = false.obs;
   final Rx<Duration> resumePosition = Duration.zero.obs;
   Timer? _resumeTipTimer;
+
+  // 在类成员变量区域添加画中画状态标识
+  final RxBool isPiPMode = false.obs;
+
+  // 在类成员变量区域添加
+  StreamSubscription<PiPStatus>? _pipStatusSubscription;
 
   MyVideoStateController(this.videoId);
 
@@ -217,7 +224,21 @@ class MyVideoStateController extends GetxController
       }
     }
 
+    // 添加画中画状态监听
+    _setupPiPListener();
+
     fetchVideoDetail(videoId!);
+  }
+
+  void _setupPiPListener() {
+    _pipStatusSubscription = Floating().pipStatusStream.listen((status) {
+      print('[画中画]画中画状态: $status');
+      if (status == PiPStatus.enabled) {
+        if (!isPiPMode.value) enterPiPMode();
+      } else {
+        if (isPiPMode.value) exitPiPMode();
+      }
+    });
   }
 
   // 设置亮度
@@ -265,6 +286,7 @@ class MyVideoStateController extends GetxController
     _volumeListenerDisposer?.cancel(); // 取消音量监听
     player.dispose();
     _resumeTipTimer?.cancel();
+    _pipStatusSubscription?.cancel(); // 取消监听
     super.onClose();
   }
 
@@ -806,6 +828,17 @@ class MyVideoStateController extends GetxController
   void hideResumePositionTip() {
     showResumePositionTip.value = false;
     _resumeTipTimer?.cancel();
+  }
+
+  /// 进入画中画模式
+  void enterPiPMode() {
+    isPiPMode.value = true;
+    player.play();
+  }
+
+  /// 退出画中画模式
+  void exitPiPMode() {
+    isPiPMode.value = false;
   }
 }
 

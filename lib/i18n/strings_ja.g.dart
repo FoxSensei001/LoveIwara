@@ -600,6 +600,7 @@ class _TranslationsVideoDetailJa implements TranslationsVideoDetailEn {
 	final TranslationsJa _root; // ignore: unused_field
 
 	// Translations
+	@override String get pipMode => 'ピプモード';
 	@override String resumeFromLastPosition({required Object position}) => '${position} から続けて再生';
 	@override String get videoIdIsEmpty => 'ビデオIDが空です';
 	@override String get videoInfoIsEmpty => 'ビデオ情報が空です';
@@ -1564,6 +1565,7 @@ extension on TranslationsJa {
 			case 'signIn.totalSignIns': return '合計サインイン数';
 			case 'signIn.pleaseSelectSignInStatus': return 'サインインステータスを選択してください';
 			case 'subscriptions.pleaseLoginFirstToViewYourSubscriptions': return 'サブスクリプションを表示するにはログインしてください。';
+			case 'videoDetail.pipMode': return 'ピプモード';
 			case 'videoDetail.resumeFromLastPosition': return ({required Object position}) => '${position} から続けて再生';
 			case 'videoDetail.videoIdIsEmpty': return 'ビデオIDが空です';
 			case 'videoDetail.videoInfoIsEmpty': return 'ビデオ情報が空です';

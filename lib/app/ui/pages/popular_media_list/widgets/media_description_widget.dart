@@ -321,8 +321,14 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
             ),
           ),
           if (expanded)
-            Center(
+            Align(
+              alignment: Alignment.center,
               child: TextButton(
+                style: TextButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 48),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  padding: EdgeInsets.zero,
+                ),
                 onPressed: () {
                   widget.isDescriptionExpanded.value = false;
                   _checkOverflow();

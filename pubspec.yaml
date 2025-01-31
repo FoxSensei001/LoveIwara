@@ -50,6 +50,7 @@ dependencies:
   dynamic_color: ^1.7.0
   oktoast: ^3.4.0
   app_links: ^6.3.3
+  floating: ^5.0.1
 
   yaml: any
   screen_brightness: any
