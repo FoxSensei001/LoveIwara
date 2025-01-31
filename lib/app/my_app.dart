@@ -13,6 +13,7 @@ import 'package:i_iwara/app/ui/pages/settings/player_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/proxy_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/theme_settings_page.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/ai_translation_setting_widget.dart';
 import 'package:i_iwara/app/ui/pages/sign_in/sing_in_page.dart';
 import 'package:i_iwara/app/ui/pages/splash/splash_page.dart';
 import 'package:i_iwara/app/ui/widgets/global_drawer_content_widget.dart';
@@ -167,6 +168,10 @@ class _MyAppState extends State<MyApp> {
                     name: Routes.PROXY_SETTINGS_PAGE,
                     page: () => const ProxySettingsPage(),
                     transition: Transition.rightToLeft),
+              GetPage(
+                  name: Routes.AI_TRANSLATION_SETTINGS_PAGE,
+                  page: () => const AITranslationSettingsPage(),
+                  transition: Transition.rightToLeft),
               GetPage(
                   name: Routes.THEME_SETTINGS_PAGE,
                   page: () => const ThemeSettingsPage(),

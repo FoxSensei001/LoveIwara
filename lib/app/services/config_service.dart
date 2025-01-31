@@ -54,6 +54,14 @@ class ConfigService extends GetxService {
   static const String CUSTOM_THEME_COLORS_KEY = 'custom_theme_colors'; // 用户自定义的主题颜色列表
 
   static const String RECORD_AND_RESTORE_VIDEO_PROGRESS = 'record_and_restore_video_progress'; // 播放器初始化时恢复播放进度 [同时也决定了是否向数据库中写入播放进度]
+
+  static const String USE_AI_TRANSLATION = 'use_ai_translation'; // 使用AI翻译
+  static const String AI_TRANSLATION_BASE_URL = 'ai_translation_base_url'; // AI翻译基础地址
+  static const String AI_TRANSLATION_MODEL = 'ai_translation_model'; // AI翻译模型
+  static const String AI_TRANSLATION_API_KEY = 'ai_translation_api_key'; // API密钥
+  static const String AI_TRANSLATION_MAX_TOKENS = 'ai_translation_max_tokens'; // 最大token数
+  static const String AI_TRANSLATION_TEMPERATURE = 'ai_translation_temperature'; // 温度系数
+
   // 所有配置项的 Map
   final settings = <String, dynamic>{
     AUTO_PLAY_KEY: false.obs,
@@ -94,6 +102,13 @@ class ConfigService extends GetxService {
     CUSTOM_THEME_COLORS_KEY: <String>[].obs,
 
     RECORD_AND_RESTORE_VIDEO_PROGRESS: true.obs,
+
+    USE_AI_TRANSLATION: false.obs,
+    AI_TRANSLATION_BASE_URL: ''.obs,
+    AI_TRANSLATION_MODEL: ''.obs,
+    AI_TRANSLATION_API_KEY: ''.obs,
+    AI_TRANSLATION_MAX_TOKENS: 500.obs,
+    AI_TRANSLATION_TEMPERATURE: 0.3.obs,
   }.obs;
 
   late final Rx<Sort> _currentTranslationSort;

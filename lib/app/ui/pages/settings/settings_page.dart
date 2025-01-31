@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/ai_translation_setting_widget.dart';
 
 import '../../../../utils/proxy/proxy_util.dart';
 import '../../../routes/app_routes.dart';
@@ -48,6 +49,13 @@ class _SettingsPageState extends State<SettingsPage> {
           route: Routes.PROXY_SETTINGS_PAGE,
         ),
       SettingItem(
+        title: '翻译',
+        subtitle: '配置翻译策略',
+        icon: Icons.translate,
+        page: AITranslationSettingsPage(isWideScreen: isWideScreen),
+        route: Routes.AI_TRANSLATION_SETTINGS_PAGE,
+      ),
+      SettingItem(
         title: t.settings.appSettings,
         subtitle: t.settings.configureYourAppSettings,
         icon: Icons.settings,
@@ -79,7 +87,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.settings.settings, style: const TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(t.settings.settings,
+            style: const TextStyle(fontWeight: FontWeight.bold)),
         elevation: 2,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         iconTheme: IconThemeData(color: Get.isDarkMode ? Colors.white : null),
@@ -93,9 +102,11 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _buildWideScreenLayout(
       BuildContext context, List<SettingItem> settingItems) {
     // 使用 GetX 管理当前选中的设置项，并从 ConfigService 中获取保存的值
-    final selectedIndex = (Get.find<ConfigService>()
-            [ConfigService.SETTINGS_SELECTED_INDEX_KEY] as int? ?? 0)
-        .obs;
+    final selectedIndex =
+        (Get.find<ConfigService>()[ConfigService.SETTINGS_SELECTED_INDEX_KEY]
+                    as int? ??
+                0)
+            .obs;
 
     // 监听选中索引的变化并保存到 ConfigService
     _selectedIndexWorker?.dispose(); // 确保之前的监听器被清理
@@ -180,7 +191,11 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
         child: Icon(
           item.icon,
-          color: isSelected ? Colors.white : Get.isDarkMode ? Colors.white : null,
+          color: isSelected
+              ? Colors.white
+              : Get.isDarkMode
+                  ? Colors.white
+                  : null,
         ),
       ),
       title: Text(
@@ -205,7 +220,10 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () => Get.toNamed(item.route),
+        onTap: () {
+          print('senko item.route: ${item.route}');
+          Get.toNamed(item.route);
+        },
         child: Container(
           padding: const EdgeInsets.all(16),
           child: Row(
@@ -216,7 +234,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   color: Theme.of(context).primaryColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(item.icon, color: Get.isDarkMode ? Colors.white : null),
+                child: Icon(item.icon,
+                    color: Get.isDarkMode ? Colors.white : null),
               ),
               const SizedBox(width: 16),
               Expanded(

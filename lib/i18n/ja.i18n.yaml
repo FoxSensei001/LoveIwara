@@ -847,3 +847,58 @@ favorite:
   editFolderSuccess: フォルダー名を更新しました
   editFolderFailed: フォルダー名の更新に失敗しました
   searchTags: タグを検索
+
+translation:
+  testConnection: テスト接続
+  testConnectionSuccess: テスト接続成功
+  testConnectionFailed: テスト接続失敗
+  testConnectionFailedWithMessage: 'テスト接続失敗: ${message}'
+  translation: 翻訳
+  needVerification: 検証が必要です
+  needVerificationContent: まず接続テストを行ってからAI翻訳を有効にしてください
+  confirm: 確定
+  disclaimer: 使用須知
+  riskWarning: 風險提示
+  dureToRisk1: 'ユーザーが生成したテキストが原因で、AIサービスプロバイダーのコンテンツポリシーに違反する内容が含まれる場合があります'
+  dureToRisk2: '不当なコンテンツはAPIキーの停止やサービスの終了を引き起こす可能性があります'
+  operationSuggestion: 操作推奨
+  operationSuggestion1: '1. 翻訳前に内容を厳格に審査してください'
+  operationSuggestion2: '2. 暴力、成人向けコンテンツなどを翻訳しないでください'
+  apiConfig: API設定
+  modifyConfigWillAutoCloseAITranslation: '設定を変更するとAI翻訳が自動的に閉じられます。再度開くには接続テストを行ってください'
+  apiAddress: APIアドレス
+  modelName: モデル名
+  modelNameHintText: '例：gpt-4-turbo'
+  maxTokens: 最大トークン数
+  maxTokensHintText: '例：500'
+  temperature: 温度係数
+  temperatureHintText: '0.0-2.0'
+  clickTestButtonToVerifyAPIConnection: 'テストボタンをクリックしてAPI接続を検証'
+  requestPreview: リクエストプレビュー
+  enableAITranslation: AI翻訳を有効にする
+  enabled: 有効
+  disabled: 無効
+  testing: テスト中...
+  testNow: 今すぐテスト
+  connectionStatus: 接続状態
+  success: 成功
+  failed: 失敗
+  information: 情報
+  viewRawResponse: 生の応答を表示
+  pleaseCheckInputParametersFormat: 入力パラメーターの形式を確認してください
+  pleaseFillInAPIAddressModelNameAndKey: APIアドレス、モデル名、およびキーを入力してください
+  pleaseFillInValidConfigurationParameters: 有効な設定パラメーターを入力してください
+  pleaseCompleteConnectionTest: 接続テストを完了してください
+  notConfigured: 未設定
+  apiEndpoint: APIエンドポイント
+  configuredKey: 設定済みキー
+  notConfiguredKey: 未設定キー
+  authenticationStatus: 認証状態
+  thisFieldCannotBeEmpty: このフィールドは空にできません
+  apiKey: APIキー
+  apiKeyCannotBeEmpty: APIキーは空にできません
+  pleaseEnterValidNumber: 有効な数値を入力してください
+  range: 範囲
+  mustBeGreaterThan: 以上
+  invalidAPIResponse: 無効なAPI応答
+  connectionFailedForMessage: '接続失敗: ${message}'

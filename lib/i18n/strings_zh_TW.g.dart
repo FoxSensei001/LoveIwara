@@ -55,6 +55,7 @@ class TranslationsZhTw implements Translations {
 	@override late final _TranslationsSplashZhTw splash = _TranslationsSplashZhTw._(_root);
 	@override late final _TranslationsDownloadZhTw download = _TranslationsDownloadZhTw._(_root);
 	@override late final _TranslationsFavoriteZhTw favorite = _TranslationsFavoriteZhTw._(_root);
+	@override late final _TranslationsTranslationZhTw translation = _TranslationsTranslationZhTw._(_root);
 }
 
 // Path: common
@@ -952,6 +953,68 @@ class _TranslationsFavoriteZhTw implements TranslationsFavoriteEn {
 	@override String get editFolderSuccess => '資料夾更新成功';
 	@override String get editFolderFailed => '資料夾更新失敗';
 	@override String get searchTags => '搜索標籤';
+}
+
+// Path: translation
+class _TranslationsTranslationZhTw implements TranslationsTranslationEn {
+	_TranslationsTranslationZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get testConnection => '測試連接';
+	@override String get testConnectionSuccess => '測試連接成功';
+	@override String get testConnectionFailed => '測試連接失敗';
+	@override String testConnectionFailedWithMessage({required Object message}) => '測試連接失敗: ${message}';
+	@override String get translation => '翻譯';
+	@override String get needVerification => '需要驗證';
+	@override String get needVerificationContent => '請先通過連接測試才能啟用AI翻譯';
+	@override String get confirm => '確定';
+	@override String get disclaimer => '使用須知';
+	@override String get riskWarning => '風險提示';
+	@override String get dureToRisk1 => '由於評論等文本為用戶生成，可能包含違反AI服務商內容政策的內容';
+	@override String get dureToRisk2 => '不當內容可能導致API密鑰封禁或服務終止';
+	@override String get operationSuggestion => '操作建議';
+	@override String get operationSuggestion1 => '1. 使用前請嚴格審核待翻譯內容';
+	@override String get operationSuggestion2 => '2. 避免翻譯涉及暴力、成人等敏感內容';
+	@override String get apiConfig => 'API設定';
+	@override String get modifyConfigWillAutoCloseAITranslation => '修改配置將自動關閉AI翻譯，需重新測試後打開';
+	@override String get apiAddress => 'API地址';
+	@override String get modelName => '模型名稱';
+	@override String get modelNameHintText => '例如：gpt-4-turbo';
+	@override String get maxTokens => '最大Token數';
+	@override String get maxTokensHintText => '例如：500';
+	@override String get temperature => '溫度係數';
+	@override String get temperatureHintText => '0.0-2.0';
+	@override String get clickTestButtonToVerifyAPIConnection => '點擊測試按鈕驗證API連接有效性';
+	@override String get requestPreview => '請求預覽';
+	@override String get enableAITranslation => '啟用AI翻譯';
+	@override String get enabled => '已啟用';
+	@override String get disabled => '已禁用';
+	@override String get testing => '測試中...';
+	@override String get testNow => '立即測試';
+	@override String get connectionStatus => '連接狀態';
+	@override String get success => '成功';
+	@override String get failed => '失敗';
+	@override String get information => '信息';
+	@override String get viewRawResponse => '查看原始響應';
+	@override String get pleaseCheckInputParametersFormat => '請檢查輸入參數格式';
+	@override String get pleaseFillInAPIAddressModelNameAndKey => '請填寫API地址、模型名稱和密鑰';
+	@override String get pleaseFillInValidConfigurationParameters => '請填寫有效的配置參數';
+	@override String get pleaseCompleteConnectionTest => '請完成連接測試';
+	@override String get notConfigured => '未配置';
+	@override String get apiEndpoint => 'API端點';
+	@override String get configuredKey => '已配置密鑰';
+	@override String get notConfiguredKey => '未配置密鑰';
+	@override String get authenticationStatus => '認證狀態';
+	@override String get thisFieldCannotBeEmpty => '此字段不能為空';
+	@override String get apiKey => 'API密鑰';
+	@override String get apiKeyCannotBeEmpty => 'API密鑰不能為空';
+	@override String get range => '範圍';
+	@override String get pleaseEnterValidNumber => '請輸入有效數字';
+	@override String get mustBeGreaterThan => '必須大於';
+	@override String get invalidAPIResponse => '無效的API響應';
+	@override String connectionFailedForMessage({required Object message}) => '連接失敗: ${message}';
 }
 
 // Path: forum.errors
@@ -1948,6 +2011,59 @@ extension on TranslationsZhTw {
 			case 'favorite.editFolderSuccess': return '資料夾更新成功';
 			case 'favorite.editFolderFailed': return '資料夾更新失敗';
 			case 'favorite.searchTags': return '搜索標籤';
+			case 'translation.testConnection': return '測試連接';
+			case 'translation.testConnectionSuccess': return '測試連接成功';
+			case 'translation.testConnectionFailed': return '測試連接失敗';
+			case 'translation.testConnectionFailedWithMessage': return ({required Object message}) => '測試連接失敗: ${message}';
+			case 'translation.translation': return '翻譯';
+			case 'translation.needVerification': return '需要驗證';
+			case 'translation.needVerificationContent': return '請先通過連接測試才能啟用AI翻譯';
+			case 'translation.confirm': return '確定';
+			case 'translation.disclaimer': return '使用須知';
+			case 'translation.riskWarning': return '風險提示';
+			case 'translation.dureToRisk1': return '由於評論等文本為用戶生成，可能包含違反AI服務商內容政策的內容';
+			case 'translation.dureToRisk2': return '不當內容可能導致API密鑰封禁或服務終止';
+			case 'translation.operationSuggestion': return '操作建議';
+			case 'translation.operationSuggestion1': return '1. 使用前請嚴格審核待翻譯內容';
+			case 'translation.operationSuggestion2': return '2. 避免翻譯涉及暴力、成人等敏感內容';
+			case 'translation.apiConfig': return 'API設定';
+			case 'translation.modifyConfigWillAutoCloseAITranslation': return '修改配置將自動關閉AI翻譯，需重新測試後打開';
+			case 'translation.apiAddress': return 'API地址';
+			case 'translation.modelName': return '模型名稱';
+			case 'translation.modelNameHintText': return '例如：gpt-4-turbo';
+			case 'translation.maxTokens': return '最大Token數';
+			case 'translation.maxTokensHintText': return '例如：500';
+			case 'translation.temperature': return '溫度係數';
+			case 'translation.temperatureHintText': return '0.0-2.0';
+			case 'translation.clickTestButtonToVerifyAPIConnection': return '點擊測試按鈕驗證API連接有效性';
+			case 'translation.requestPreview': return '請求預覽';
+			case 'translation.enableAITranslation': return '啟用AI翻譯';
+			case 'translation.enabled': return '已啟用';
+			case 'translation.disabled': return '已禁用';
+			case 'translation.testing': return '測試中...';
+			case 'translation.testNow': return '立即測試';
+			case 'translation.connectionStatus': return '連接狀態';
+			case 'translation.success': return '成功';
+			case 'translation.failed': return '失敗';
+			case 'translation.information': return '信息';
+			case 'translation.viewRawResponse': return '查看原始響應';
+			case 'translation.pleaseCheckInputParametersFormat': return '請檢查輸入參數格式';
+			case 'translation.pleaseFillInAPIAddressModelNameAndKey': return '請填寫API地址、模型名稱和密鑰';
+			case 'translation.pleaseFillInValidConfigurationParameters': return '請填寫有效的配置參數';
+			case 'translation.pleaseCompleteConnectionTest': return '請完成連接測試';
+			case 'translation.notConfigured': return '未配置';
+			case 'translation.apiEndpoint': return 'API端點';
+			case 'translation.configuredKey': return '已配置密鑰';
+			case 'translation.notConfiguredKey': return '未配置密鑰';
+			case 'translation.authenticationStatus': return '認證狀態';
+			case 'translation.thisFieldCannotBeEmpty': return '此字段不能為空';
+			case 'translation.apiKey': return 'API密鑰';
+			case 'translation.apiKeyCannotBeEmpty': return 'API密鑰不能為空';
+			case 'translation.range': return '範圍';
+			case 'translation.pleaseEnterValidNumber': return '請輸入有效數字';
+			case 'translation.mustBeGreaterThan': return '必須大於';
+			case 'translation.invalidAPIResponse': return '無效的API響應';
+			case 'translation.connectionFailedForMessage': return ({required Object message}) => '連接失敗: ${message}';
 			default: return null;
 		}
 	}

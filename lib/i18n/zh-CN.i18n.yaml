@@ -851,3 +851,58 @@ favorite:
   editFolderSuccess: 文件夹更新成功
   editFolderFailed: 文件夹更新失败
   searchTags: 搜索标签
+
+translation:
+  testConnection: 测试连接
+  testConnectionSuccess: 测试连接成功
+  testConnectionFailed: 测试连接失败
+  testConnectionFailedWithMessage: '测试连接失败: ${message}'
+  translation: 翻译
+  needVerification: 需要验证
+  needVerificationContent: 请先通过连接测试才能启用AI翻译
+  confirm: 确定
+  disclaimer: 使用须知
+  riskWarning: 风险提示
+  dureToRisk1: '由于评论等文本为用户生成，可能包含违反AI服务商内容政策的内容'
+  dureToRisk2: '不当内容可能导致API密钥封禁或服务终止'
+  operationSuggestion: 操作建议
+  operationSuggestion1: '1. 使用前请严格审核待翻译内容'
+  operationSuggestion2: '2. 避免翻译涉及暴力、成人等敏感内容'
+  apiConfig: API配置
+  modifyConfigWillAutoCloseAITranslation: '修改配置将自动关闭AI翻译，需重新测试后打开'
+  apiAddress: API地址
+  modelName: 模型名称
+  modelNameHintText: '例如：gpt-4-turbo'
+  maxTokens: 最大Token数
+  maxTokensHintText: '例如：500'
+  temperature: 温度系数
+  temperatureHintText: '0.0-2.0'
+  clickTestButtonToVerifyAPIConnection: '点击测试按钮验证API连接有效性'
+  requestPreview: 请求预览
+  enableAITranslation: 启用AI翻译
+  enabled: 已启用
+  disabled: 已禁用
+  testing: 测试中...
+  testNow: 立即测试
+  connectionStatus: 连接状态
+  success: 成功
+  failed: 失败
+  information: 信息
+  viewRawResponse: 查看原始响应
+  pleaseCheckInputParametersFormat: 请检查输入参数格式
+  pleaseFillInAPIAddressModelNameAndKey: 请填写API地址、模型名称和密钥
+  pleaseFillInValidConfigurationParameters: 请填写有效的配置参数
+  pleaseCompleteConnectionTest: 请完成连接测试
+  notConfigured: 未配置
+  apiEndpoint: API端点
+  configuredKey: 已配置密钥
+  notConfiguredKey: 未配置密钥
+  authenticationStatus: 认证状态
+  thisFieldCannotBeEmpty: 此字段不能为空
+  apiKey: API密钥
+  apiKeyCannotBeEmpty: API密钥不能为空
+  pleaseEnterValidNumber: 请输入有效数字
+  range: 范围
+  mustBeGreaterThan: 必须大于
+  invalidAPIResponse: 无效的API响应
+  connectionFailedForMessage: '连接失败: ${message}'

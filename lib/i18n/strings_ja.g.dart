@@ -55,6 +55,7 @@ class TranslationsJa implements Translations {
 	@override late final _TranslationsSplashJa splash = _TranslationsSplashJa._(_root);
 	@override late final _TranslationsDownloadJa download = _TranslationsDownloadJa._(_root);
 	@override late final _TranslationsFavoriteJa favorite = _TranslationsFavoriteJa._(_root);
+	@override late final _TranslationsTranslationJa translation = _TranslationsTranslationJa._(_root);
 }
 
 // Path: common
@@ -949,6 +950,68 @@ class _TranslationsFavoriteJa implements TranslationsFavoriteEn {
 	@override String get editFolderSuccess => 'フォルダー名を更新しました';
 	@override String get editFolderFailed => 'フォルダー名の更新に失敗しました';
 	@override String get searchTags => 'タグを検索';
+}
+
+// Path: translation
+class _TranslationsTranslationJa implements TranslationsTranslationEn {
+	_TranslationsTranslationJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get testConnection => 'テスト接続';
+	@override String get testConnectionSuccess => 'テスト接続成功';
+	@override String get testConnectionFailed => 'テスト接続失敗';
+	@override String testConnectionFailedWithMessage({required Object message}) => 'テスト接続失敗: ${message}';
+	@override String get translation => '翻訳';
+	@override String get needVerification => '検証が必要です';
+	@override String get needVerificationContent => 'まず接続テストを行ってからAI翻訳を有効にしてください';
+	@override String get confirm => '確定';
+	@override String get disclaimer => '使用須知';
+	@override String get riskWarning => '風險提示';
+	@override String get dureToRisk1 => 'ユーザーが生成したテキストが原因で、AIサービスプロバイダーのコンテンツポリシーに違反する内容が含まれる場合があります';
+	@override String get dureToRisk2 => '不当なコンテンツはAPIキーの停止やサービスの終了を引き起こす可能性があります';
+	@override String get operationSuggestion => '操作推奨';
+	@override String get operationSuggestion1 => '1. 翻訳前に内容を厳格に審査してください';
+	@override String get operationSuggestion2 => '2. 暴力、成人向けコンテンツなどを翻訳しないでください';
+	@override String get apiConfig => 'API設定';
+	@override String get modifyConfigWillAutoCloseAITranslation => '設定を変更するとAI翻訳が自動的に閉じられます。再度開くには接続テストを行ってください';
+	@override String get apiAddress => 'APIアドレス';
+	@override String get modelName => 'モデル名';
+	@override String get modelNameHintText => '例：gpt-4-turbo';
+	@override String get maxTokens => '最大トークン数';
+	@override String get maxTokensHintText => '例：500';
+	@override String get temperature => '温度係数';
+	@override String get temperatureHintText => '0.0-2.0';
+	@override String get clickTestButtonToVerifyAPIConnection => 'テストボタンをクリックしてAPI接続を検証';
+	@override String get requestPreview => 'リクエストプレビュー';
+	@override String get enableAITranslation => 'AI翻訳を有効にする';
+	@override String get enabled => '有効';
+	@override String get disabled => '無効';
+	@override String get testing => 'テスト中...';
+	@override String get testNow => '今すぐテスト';
+	@override String get connectionStatus => '接続状態';
+	@override String get success => '成功';
+	@override String get failed => '失敗';
+	@override String get information => '情報';
+	@override String get viewRawResponse => '生の応答を表示';
+	@override String get pleaseCheckInputParametersFormat => '入力パラメーターの形式を確認してください';
+	@override String get pleaseFillInAPIAddressModelNameAndKey => 'APIアドレス、モデル名、およびキーを入力してください';
+	@override String get pleaseFillInValidConfigurationParameters => '有効な設定パラメーターを入力してください';
+	@override String get pleaseCompleteConnectionTest => '接続テストを完了してください';
+	@override String get notConfigured => '未設定';
+	@override String get apiEndpoint => 'APIエンドポイント';
+	@override String get configuredKey => '設定済みキー';
+	@override String get notConfiguredKey => '未設定キー';
+	@override String get authenticationStatus => '認証状態';
+	@override String get thisFieldCannotBeEmpty => 'このフィールドは空にできません';
+	@override String get apiKey => 'APIキー';
+	@override String get apiKeyCannotBeEmpty => 'APIキーは空にできません';
+	@override String get pleaseEnterValidNumber => '有効な数値を入力してください';
+	@override String get range => '範囲';
+	@override String get mustBeGreaterThan => '以上';
+	@override String get invalidAPIResponse => '無効なAPI応答';
+	@override String connectionFailedForMessage({required Object message}) => '接続失敗: ${message}';
 }
 
 // Path: forum.errors
@@ -1942,6 +2005,59 @@ extension on TranslationsJa {
 			case 'favorite.editFolderSuccess': return 'フォルダー名を更新しました';
 			case 'favorite.editFolderFailed': return 'フォルダー名の更新に失敗しました';
 			case 'favorite.searchTags': return 'タグを検索';
+			case 'translation.testConnection': return 'テスト接続';
+			case 'translation.testConnectionSuccess': return 'テスト接続成功';
+			case 'translation.testConnectionFailed': return 'テスト接続失敗';
+			case 'translation.testConnectionFailedWithMessage': return ({required Object message}) => 'テスト接続失敗: ${message}';
+			case 'translation.translation': return '翻訳';
+			case 'translation.needVerification': return '検証が必要です';
+			case 'translation.needVerificationContent': return 'まず接続テストを行ってからAI翻訳を有効にしてください';
+			case 'translation.confirm': return '確定';
+			case 'translation.disclaimer': return '使用須知';
+			case 'translation.riskWarning': return '風險提示';
+			case 'translation.dureToRisk1': return 'ユーザーが生成したテキストが原因で、AIサービスプロバイダーのコンテンツポリシーに違反する内容が含まれる場合があります';
+			case 'translation.dureToRisk2': return '不当なコンテンツはAPIキーの停止やサービスの終了を引き起こす可能性があります';
+			case 'translation.operationSuggestion': return '操作推奨';
+			case 'translation.operationSuggestion1': return '1. 翻訳前に内容を厳格に審査してください';
+			case 'translation.operationSuggestion2': return '2. 暴力、成人向けコンテンツなどを翻訳しないでください';
+			case 'translation.apiConfig': return 'API設定';
+			case 'translation.modifyConfigWillAutoCloseAITranslation': return '設定を変更するとAI翻訳が自動的に閉じられます。再度開くには接続テストを行ってください';
+			case 'translation.apiAddress': return 'APIアドレス';
+			case 'translation.modelName': return 'モデル名';
+			case 'translation.modelNameHintText': return '例：gpt-4-turbo';
+			case 'translation.maxTokens': return '最大トークン数';
+			case 'translation.maxTokensHintText': return '例：500';
+			case 'translation.temperature': return '温度係数';
+			case 'translation.temperatureHintText': return '0.0-2.0';
+			case 'translation.clickTestButtonToVerifyAPIConnection': return 'テストボタンをクリックしてAPI接続を検証';
+			case 'translation.requestPreview': return 'リクエストプレビュー';
+			case 'translation.enableAITranslation': return 'AI翻訳を有効にする';
+			case 'translation.enabled': return '有効';
+			case 'translation.disabled': return '無効';
+			case 'translation.testing': return 'テスト中...';
+			case 'translation.testNow': return '今すぐテスト';
+			case 'translation.connectionStatus': return '接続状態';
+			case 'translation.success': return '成功';
+			case 'translation.failed': return '失敗';
+			case 'translation.information': return '情報';
+			case 'translation.viewRawResponse': return '生の応答を表示';
+			case 'translation.pleaseCheckInputParametersFormat': return '入力パラメーターの形式を確認してください';
+			case 'translation.pleaseFillInAPIAddressModelNameAndKey': return 'APIアドレス、モデル名、およびキーを入力してください';
+			case 'translation.pleaseFillInValidConfigurationParameters': return '有効な設定パラメーターを入力してください';
+			case 'translation.pleaseCompleteConnectionTest': return '接続テストを完了してください';
+			case 'translation.notConfigured': return '未設定';
+			case 'translation.apiEndpoint': return 'APIエンドポイント';
+			case 'translation.configuredKey': return '設定済みキー';
+			case 'translation.notConfiguredKey': return '未設定キー';
+			case 'translation.authenticationStatus': return '認証状態';
+			case 'translation.thisFieldCannotBeEmpty': return 'このフィールドは空にできません';
+			case 'translation.apiKey': return 'APIキー';
+			case 'translation.apiKeyCannotBeEmpty': return 'APIキーは空にできません';
+			case 'translation.pleaseEnterValidNumber': return '有効な数値を入力してください';
+			case 'translation.range': return '範囲';
+			case 'translation.mustBeGreaterThan': return '以上';
+			case 'translation.invalidAPIResponse': return '無効なAPI応答';
+			case 'translation.connectionFailedForMessage': return ({required Object message}) => '接続失敗: ${message}';
 			default: return null;
 		}
 	}

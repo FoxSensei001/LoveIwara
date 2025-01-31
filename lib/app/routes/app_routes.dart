@@ -15,7 +15,7 @@ abstract class Routes {
   static const LOGIN = _Paths.LOGIN;
   static const SETTINGS_PAGE = _Paths.SETTINGS_PAGE;
   static const PLAYER_SETTINGS_PAGE = _Paths.PLAYER_SETTINGS_PAGE;
-  static const PROXY_SETTINGS_PAGE = _Paths.PROXY_SETTINGS_PAGE;
+  static const PROXY_SETTINGS_PAGE = '/proxy_settings_page';
   static const THEME_SETTINGS_PAGE = _Paths.THEME_SETTINGS_PAGE;
   static const NOT_FOUND = _Paths.NOT_FOUND;
   static const SIGN_IN = _Paths.SIGN_IN;
@@ -71,6 +71,8 @@ abstract class Routes {
   static MESSAGE_DETAIL(String conversationId) => '/message_detail/$conversationId';
 
   static LOCAL_FAVORITE_DETAIL(String folderId) => '/local_favorite_detail/$folderId';
+
+  static const AI_TRANSLATION_SETTINGS_PAGE = _Paths.AI_TRANSLATION_SETTINGS_PAGE;
 }
 
 abstract class _Paths {
@@ -100,4 +102,5 @@ abstract class _Paths {
   static const FOLLOWERS_LIST = '/followers_list/:userId';
   static const ROOT = '/';
   static const HISTORY_LIST = '/history_list';
+  static const AI_TRANSLATION_SETTINGS_PAGE = '/ai_translation_settings';
 }
