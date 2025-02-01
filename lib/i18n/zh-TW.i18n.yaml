@@ -192,6 +192,7 @@ auth:
   logoutFailed: 登出失敗
   usernameOrEmail: 用戶名或電子郵件
   pleaseEnterUsernameOrEmail: 請輸入用戶名或電子郵件
+  rememberMe: 記住帳號密碼
 
 errors:
   error: 錯誤
@@ -248,6 +249,8 @@ errors:
   failedToRefresh: 更新失敗
   noPermission: 權限不足
   resourceNotFound: 資源不存在
+  failedToSaveCredentials: "無法安全保存登入資訊"
+  failedToLoadSavedCredentials: "載入保存的登入資訊失敗"
 friends:
   clickToRestoreFriend: 點擊恢復朋友
   friendsList: 朋友列表
@@ -907,3 +910,5 @@ translation:
   aiTranslationNotEnabledHint: AI翻譯未啟用，請在設定中啟用
   goToSettings: 前往設定
   disableAITranslation: 禁用AI翻譯
+  currentValue: 現在值
+  configureTranslationStrategy: 配置翻譯策略

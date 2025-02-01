@@ -264,6 +264,7 @@ class _TranslationsAuthZhTw implements TranslationsAuthEn {
 	@override String get logoutFailed => '登出失敗';
 	@override String get usernameOrEmail => '用戶名或電子郵件';
 	@override String get pleaseEnterUsernameOrEmail => '請輸入用戶名或電子郵件';
+	@override String get rememberMe => '記住帳號密碼';
 }
 
 // Path: errors
@@ -327,6 +328,8 @@ class _TranslationsErrorsZhTw implements TranslationsErrorsEn {
 	@override String get failedToRefresh => '更新失敗';
 	@override String get noPermission => '權限不足';
 	@override String get resourceNotFound => '資源不存在';
+	@override String get failedToSaveCredentials => '無法安全保存登入資訊';
+	@override String get failedToLoadSavedCredentials => '載入保存的登入資訊失敗';
 }
 
 // Path: friends
@@ -1018,6 +1021,8 @@ class _TranslationsTranslationZhTw implements TranslationsTranslationEn {
 	@override String get aiTranslationNotEnabledHint => 'AI翻譯未啟用，請在設定中啟用';
 	@override String get goToSettings => '前往設定';
 	@override String get disableAITranslation => '禁用AI翻譯';
+	@override String get currentValue => '現在值';
+	@override String get configureTranslationStrategy => '配置翻譯策略';
 }
 
 // Path: forum.errors
@@ -1405,6 +1410,7 @@ extension on TranslationsZhTw {
 			case 'auth.logoutFailed': return '登出失敗';
 			case 'auth.usernameOrEmail': return '用戶名或電子郵件';
 			case 'auth.pleaseEnterUsernameOrEmail': return '請輸入用戶名或電子郵件';
+			case 'auth.rememberMe': return '記住帳號密碼';
 			case 'errors.error': return '錯誤';
 			case 'errors.required': return '此項為必填';
 			case 'errors.invalidEmail': return '電子郵件格式錯誤';
@@ -1459,6 +1465,8 @@ extension on TranslationsZhTw {
 			case 'errors.failedToRefresh': return '更新失敗';
 			case 'errors.noPermission': return '權限不足';
 			case 'errors.resourceNotFound': return '資源不存在';
+			case 'errors.failedToSaveCredentials': return '無法安全保存登入資訊';
+			case 'errors.failedToLoadSavedCredentials': return '載入保存的登入資訊失敗';
 			case 'friends.clickToRestoreFriend': return '點擊恢復朋友';
 			case 'friends.friendsList': return '朋友列表';
 			case 'friends.friendRequests': return '朋友請求';
@@ -2070,6 +2078,8 @@ extension on TranslationsZhTw {
 			case 'translation.aiTranslationNotEnabledHint': return 'AI翻譯未啟用，請在設定中啟用';
 			case 'translation.goToSettings': return '前往設定';
 			case 'translation.disableAITranslation': return '禁用AI翻譯';
+			case 'translation.currentValue': return '現在值';
+			case 'translation.configureTranslationStrategy': return '配置翻譯策略';
 			default: return null;
 		}
 	}

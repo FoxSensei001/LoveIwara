@@ -26,7 +26,7 @@ class AITranslationSettingsPage extends StatelessWidget {
               elevation: 2,
               backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             ),
-      body: AITranslationSettingsWidget(),
+      body: const AITranslationSettingsWidget(),
     );
   }
 }
@@ -173,8 +173,8 @@ class _AITranslationSettingsWidgetState
                           color: colorScheme.error,
                           fontWeight: FontWeight.w500)),
                   TextSpan(
-                      text: '1. ${slang.t.translation.operationSuggestion1}\n'
-                          '2. ${slang.t.translation.operationSuggestion2}\n')
+                      text: '${slang.t.translation.operationSuggestion1}\n'
+                          '${slang.t.translation.operationSuggestion2}\n')
                 ])),
           )
         ],
@@ -244,17 +244,7 @@ class _AITranslationSettingsWidgetState
                     defaultValue:
                         configService[ConfigService.AI_TRANSLATION_MAX_TOKENS],
                   ),
-                  _buildNumberInputSection(
-                    context: context,
-                    label: slang.t.translation.temperature,
-                    configKey: ConfigService.AI_TRANSLATION_TEMPERATURE,
-                    icon: Icons.thermostat,
-                    hintText: slang.t.translation.temperatureHintText,
-                    controller: _temperatureController,
-                    defaultValue:
-                        configService[ConfigService.AI_TRANSLATION_TEMPERATURE],
-                    isDouble: true,
-                  ),
+                  _buildTemperatureSlider(context),
                 ],
               ),
             ),
@@ -794,6 +784,54 @@ class _AITranslationSettingsWidgetState
             if (!isDouble) FilteringTextInputFormatter.digitsOnly
           ],
         ),
+      ],
+    );
+  }
+
+  Widget _buildTemperatureSlider(BuildContext context) {
+    final RxDouble temperatureValue = RxDouble(
+      configService[ConfigService.AI_TRANSLATION_TEMPERATURE]?.toDouble() ?? 0.3,
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Icon(Icons.thermostat,
+                size: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),
+            const SizedBox(width: 8),
+            Text(slang.t.translation.temperature,
+                style: Theme.of(context).textTheme.labelLarge),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Obx(() => Column(
+              children: [
+                Slider(
+                  value: temperatureValue.value,
+                  min: 0.0,
+                  max: 2.0,
+                  divisions: 20,
+                  label: temperatureValue.value.toStringAsFixed(1),
+                  onChanged: (value) {
+                    temperatureValue.value = value;
+                    configService[ConfigService.AI_TRANSLATION_TEMPERATURE] = value;
+                    _temperatureController.text = value.toStringAsFixed(1);
+                    configService[ConfigService.USE_AI_TRANSLATION] = false;
+                    _isAIEnabled.value = false;
+                  },
+                ),
+                Text(
+                  '${slang.t.translation.currentValue}: ${temperatureValue.value.toStringAsFixed(1)}',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            )),
       ],
     );
   }

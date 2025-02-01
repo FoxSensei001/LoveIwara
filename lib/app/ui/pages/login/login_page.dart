@@ -7,12 +7,14 @@ import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../../models/captcha.model.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/user_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import '../../../services/storage_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -25,6 +27,7 @@ class _LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
   final AuthService _authService = Get.find<AuthService>();
   final UserService _userService = Get.find<UserService>();
+  final StorageService _storage = StorageService();
 
   // 登录表单控制器
   final TextEditingController _loginEmailController = TextEditingController();
@@ -32,8 +35,6 @@ class _LoginPageState extends State<LoginPage>
       TextEditingController();
 
   // 注册表单控制器
-  final TextEditingController _registerEmailController =
-      TextEditingController();
   final TextEditingController _captchaController = TextEditingController();
 
   // 表单键
@@ -56,23 +57,60 @@ class _LoginPageState extends State<LoginPage>
   // 密码可见性切换
   bool _isPasswordVisible = false;
 
+  // State类添加新变量
+  bool _rememberMe = false;
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
-      if (_tabController.index == 1) {
+      if (_tabController.index == 1 && _captcha.value == null) {
         _fetchCaptcha();
       }
     });
 
-    // 如果初始标签是注册，则可选地获取验证码
-    if (_tabController.index == 1) {
-      _fetchCaptcha();
+    // 初始化时加载保存的登录信息
+    _loadSavedCredentials();
+  }
+
+  Future<void> _loadSavedCredentials() async {
+    try {
+      final rememberMe = await _storage.loadRememberMe();
+      final credentials = await _storage.readCredentials();
+      if (mounted) {
+        setState(() {
+          _loginEmailController.text = credentials?['username'] ?? '';
+          _loginPasswordController.text = credentials?['password'] ?? '';
+          _rememberMe = rememberMe;
+        });
+      }
+    } catch (e) {
+      LogUtils.e('加载保存的凭据失败: $e', tag: 'LoginPage');
+      showToastWidget(MDToastWidget(
+        message: slang.t.errors.failedToLoadSavedCredentials,
+        type: MDToastType.warning
+      ));
+    }
+  }
+
+  void _toggleRememberMe(bool newValue) {
+    if (mounted) {
+      setState(() {
+        _rememberMe = newValue;
+      });
+    }
+    // 立即持久化状态
+    _storage.saveRememberMe(newValue);
+    if (!newValue) {
+      _storage.clearCredentials();
     }
   }
 
   void _fetchCaptcha() async {
+    // 立即清除旧验证码和输入内容
+    _captcha.value = null;
+    _captchaController.clear(); // 清空验证码输入框
     if (mounted) {
       setState(() {
         _isCaptchaLoading = true;
@@ -81,9 +119,14 @@ class _LoginPageState extends State<LoginPage>
     try {
       ApiResult<Captcha> res = await _authService.fetchCaptcha();
       if (res.isSuccess) {
-        _captcha.value = res.data;
+        // 直接更新状态，不需要延迟
+        if (mounted) {
+          setState(() {
+            _captcha.value = res.data;
+          });
+        }
       } else {
-        showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error), position: ToastPosition.bottom);
+        showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error));
       }
     } finally {
       if (mounted) {
@@ -99,7 +142,6 @@ class _LoginPageState extends State<LoginPage>
     _tabController.dispose();
     _loginEmailController.dispose();
     _loginPasswordController.dispose();
-    _registerEmailController.dispose();
     _captchaController.dispose();
     _loginPasswordFocus.dispose();
     _registerCaptchaFocus.dispose();
@@ -240,6 +282,27 @@ class _LoginPageState extends State<LoginPage>
                         },
                         onFieldSubmitted: (_) => _login(),
                       ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              _toggleRememberMe(!_rememberMe);
+                            },
+                            icon: Icon(
+                              _rememberMe ? Icons.check_box : Icons.check_box_outline_blank,
+                              size: 20,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            label: Text(
+                              slang.t.auth.rememberMe,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: 24),
                       ElevatedButton(
                         onPressed: _isLoading
@@ -300,9 +363,9 @@ class _LoginPageState extends State<LoginPage>
                       ),
                       const SizedBox(height: 32),
                       TextFormField(
-                        controller: _registerEmailController,
+                        controller: _loginEmailController,
                         decoration: InputDecoration(
-                          labelText: t.auth.email,
+                          labelText: t.auth.usernameOrEmail,
                           prefixIcon: const Icon(Icons.email),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -312,7 +375,7 @@ class _LoginPageState extends State<LoginPage>
                         textInputAction: TextInputAction.next,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return t.auth.pleaseEnterEmail;
+                            return t.auth.pleaseEnterUsernameOrEmail;
                           }
                           if (!GetUtils.isEmail(value.trim())) {
                             return t.errors.invalidEmail;
@@ -327,50 +390,78 @@ class _LoginPageState extends State<LoginPage>
                         },
                       ),
                       const SizedBox(height: 16),
-                      if (_isCaptchaLoading)
-                        const Center(
-                          child: CircularProgressIndicator(),
-                        )
-                      else if (_captcha.value != null)
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Image.memory(
-                              base64Decode(_captcha.value!.data.split(',')[1]),
-                              height: 80,
-                            ),
-                            const SizedBox(height: 16),
-                            TextFormField(
-                              controller: _captchaController,
-                              decoration: InputDecoration(
-                                labelText: t.auth.captcha,
-                                prefixIcon: const Icon(Icons.security),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _isCaptchaLoading
+                                    ? _buildCaptchaShimmer(constraints.maxWidth)
+                                    : LayoutBuilder(
+                                        builder: (context, constraints) {
+                                          return Container(
+                                            width: constraints.maxWidth,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(8),
+                                              border: Border.all(
+                                                color: Theme.of(context).dividerColor,
+                                                width: 1
+                                              )
+                                            ),
+                                            child: ClipRRect(
+                                              borderRadius: BorderRadius.circular(8),
+                                              child: _captcha.value != null
+                                                  ? Image.memory(
+                                                      base64Decode(_captcha.value!.data.split(',')[1]),
+                                                      fit: BoxFit.contain,
+                                                      frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+                                                        if (frame == null || _isCaptchaLoading) {
+                                                          return _buildCaptchaShimmer(constraints.maxWidth);
+                                                        }
+                                                        return child;
+                                                      },
+                                                    )
+                                                  : Center(child: Text(t.auth.captchaNotLoaded)),
+                                            ),
+                                          );
+                                        },
+                                      ),
                               ),
-                              textInputAction: TextInputAction.done,
-                              focusNode: _registerCaptchaFocus,
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return t.auth.pleaseEnterCaptcha;
-                                }
-                                return null;
-                              },
-                              onFieldSubmitted: (_) {
-                                if (_registerFormKey.currentState!.validate()) {
-                                  _register();
-                                }
-                              },
+                              const SizedBox(width: 8),
+                              IconButton(
+                                icon: Icon(Icons.refresh, color: Theme.of(context).primaryColor),
+                                onPressed: _isCaptchaLoading ? null : _fetchCaptcha,
+                                tooltip: t.auth.refreshCaptcha,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: _captchaController,
+                            decoration: InputDecoration(
+                              labelText: t.auth.captcha,
+                              prefixIcon: const Icon(Icons.security),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
-                            TextButton(
-                              onPressed: _isCaptchaLoading ? null : _fetchCaptcha,
-                              child: Text(t.auth.refreshCaptcha),
-                            ),
-                          ],
-                        )
-                      else
-                        Text(t.auth.captchaNotLoaded),
+                            textInputAction: TextInputAction.done,
+                            focusNode: _registerCaptchaFocus,
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return t.auth.pleaseEnterCaptcha;
+                              }
+                              return null;
+                            },
+                            onFieldSubmitted: (_) {
+                              if (_registerFormKey.currentState!.validate()) {
+                                _register();
+                              }
+                            },
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: 24),
                       ElevatedButton(
                         onPressed: _isRegistering
@@ -408,6 +499,21 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
+  Widget _buildCaptchaShimmer(double containerWidth) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Container(
+        width: containerWidth,
+        height: 50,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8)
+        ),
+      ),
+    );
+  }
+
   void _login() async {
     final usernameOrEmail = _loginEmailController.text.trim();
     final password = _loginPasswordController.text;
@@ -425,6 +531,21 @@ class _LoginPageState extends State<LoginPage>
         await _userService.fetchUserProfile();
         showToastWidget(MDToastWidget(message: slang.t.auth.loginSuccess, type: MDToastType.success));
         _userService.startNotificationTimer();
+        
+        if (_rememberMe) {
+          try {
+            await _storage.writeCredentials(usernameOrEmail, password);
+          } catch (e) {
+            LogUtils.e('保存登录凭据失败: $e', tag: 'LoginPage');
+            showToastWidget(MDToastWidget(
+              message: slang.t.errors.failedToSaveCredentials,
+              type: MDToastType.warning
+            ));
+          }
+        } else {
+          await _storage.clearCredentials();
+        }
+        
         if (Get.previousRoute == Routes.LOGIN) {
           Get.offAllNamed(Routes.HOME);
         } else {
@@ -446,7 +567,7 @@ class _LoginPageState extends State<LoginPage>
   }
 
   void _register() async {
-    final email = _registerEmailController.text.trim();
+    final email = _loginEmailController.text.trim();
     final captchaAnswer = _captchaController.text.trim();
 
     if (_captcha.value == null) {

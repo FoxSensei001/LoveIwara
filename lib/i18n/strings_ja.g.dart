@@ -264,6 +264,7 @@ class _TranslationsAuthJa implements TranslationsAuthEn {
 	@override String get logoutFailed => 'ログアウトに失敗しました';
 	@override String get usernameOrEmail => 'ユーザー名またはメールアドレス';
 	@override String get pleaseEnterUsernameOrEmail => 'ユーザー名またはメールアドレスを入力してください';
+	@override String get rememberMe => 'ユーザー名とパスワードを記憶';
 }
 
 // Path: errors
@@ -327,6 +328,8 @@ class _TranslationsErrorsJa implements TranslationsErrorsEn {
 	@override String get failedToRefresh => '更新に失敗しました';
 	@override String get noPermission => '権限がありません';
 	@override String get resourceNotFound => 'リソースが見つかりません';
+	@override String get failedToSaveCredentials => 'ログイン情報の保存に失敗しました';
+	@override String get failedToLoadSavedCredentials => '保存されたログイン情報の読み込みに失敗しました';
 }
 
 // Path: friends
@@ -1015,6 +1018,8 @@ class _TranslationsTranslationJa implements TranslationsTranslationEn {
 	@override String get aiTranslationNotEnabledHint => 'AI翻訳は有効にされていません。設定で有効にしてください';
 	@override String get goToSettings => '設定に移動';
 	@override String get disableAITranslation => 'AI翻訳を無効にする';
+	@override String get currentValue => '現在値';
+	@override String get configureTranslationStrategy => '翻訳戦略を設定';
 }
 
 // Path: forum.errors
@@ -1402,6 +1407,7 @@ extension on TranslationsJa {
 			case 'auth.logoutFailed': return 'ログアウトに失敗しました';
 			case 'auth.usernameOrEmail': return 'ユーザー名またはメールアドレス';
 			case 'auth.pleaseEnterUsernameOrEmail': return 'ユーザー名またはメールアドレスを入力してください';
+			case 'auth.rememberMe': return 'ユーザー名とパスワードを記憶';
 			case 'errors.error': return 'エラー';
 			case 'errors.required': return 'この項目は必須です';
 			case 'errors.invalidEmail': return 'メールアドレスの形式が正しくありません';
@@ -1456,6 +1462,8 @@ extension on TranslationsJa {
 			case 'errors.failedToRefresh': return '更新に失敗しました';
 			case 'errors.noPermission': return '権限がありません';
 			case 'errors.resourceNotFound': return 'リソースが見つかりません';
+			case 'errors.failedToSaveCredentials': return 'ログイン情報の保存に失敗しました';
+			case 'errors.failedToLoadSavedCredentials': return '保存されたログイン情報の読み込みに失敗しました';
 			case 'friends.clickToRestoreFriend': return '友達を復元するにはクリックしてください';
 			case 'friends.friendsList': return '友達リスト';
 			case 'friends.friendRequests': return '友達リクエスト';
@@ -2064,6 +2072,8 @@ extension on TranslationsJa {
 			case 'translation.aiTranslationNotEnabledHint': return 'AI翻訳は有効にされていません。設定で有効にしてください';
 			case 'translation.goToSettings': return '設定に移動';
 			case 'translation.disableAITranslation': return 'AI翻訳を無効にする';
+			case 'translation.currentValue': return '現在値';
+			case 'translation.configureTranslationStrategy': return '翻訳戦略を設定';
 			default: return null;
 		}
 	}

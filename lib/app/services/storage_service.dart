@@ -22,6 +22,8 @@ class StorageService {
   // 为安全数据添加前缀，以区分普通数据
   static const String _securePrefix = 'secure_';
 
+  static const String _rememberMeKey = 'remember_me';
+
   Future<void> init() async {
     await GetStorage.init();
     _box = GetStorage();
@@ -126,5 +128,32 @@ class StorageService {
       LogUtils.e('读取安全存储对象失败', tag: _tag, error: e);
       return null;
     }
+  }
+
+  Future<void> writeCredentials(String username, String password) async {
+    await writeSecureData('username', username);
+    await writeSecureData('password', password);
+  }
+
+  Future<Map<String, String>?> readCredentials() async {
+    final username = await readSecureData('username');
+    final password = await readSecureData('password');
+    if (username != null && password != null) {
+      return {'username': username, 'password': password};
+    }
+    return null;
+  }
+
+  Future<void> clearCredentials() async {
+    await deleteSecureData('username');
+    await deleteSecureData('password');
+  }
+
+  Future<void> saveRememberMe(bool value) async {
+    await writeData(_rememberMeKey, value);
+  }
+
+  Future<bool> loadRememberMe() async {
+    return readData<bool>(_rememberMeKey) ?? false;
   }
 }

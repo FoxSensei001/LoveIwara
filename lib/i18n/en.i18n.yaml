@@ -191,6 +191,7 @@ auth:
   logoutFailed: Logout Failed
   usernameOrEmail: Username or Email
   pleaseEnterUsernameOrEmail: Please enter username or email
+  rememberMe: "Remember Username and Password"
 
 errors:
   error: Error
@@ -247,6 +248,8 @@ errors:
   failedToRefresh: Failed to refresh
   noPermission: No permission
   resourceNotFound: Resource not found
+  failedToSaveCredentials: "Failed to save login credentials"
+  failedToLoadSavedCredentials: "Failed to load saved credentials"
 friends:
   clickToRestoreFriend: Click to restore friend
   friendsList: Friends List
@@ -901,3 +904,5 @@ translation:
   aiTranslationNotEnabledHint: AI translation is not enabled, please enable it in settings
   goToSettings: Go to Settings
   disableAITranslation: Disable AI Translation
+  currentValue: Current Value
+  configureTranslationStrategy: Configure Translation Strategy

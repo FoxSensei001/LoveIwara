@@ -268,6 +268,7 @@ class TranslationsAuthEn {
 	String get logoutFailed => 'Logout Failed';
 	String get usernameOrEmail => 'Username or Email';
 	String get pleaseEnterUsernameOrEmail => 'Please enter username or email';
+	String get rememberMe => 'Remember Username and Password';
 }
 
 // Path: errors
@@ -331,6 +332,8 @@ class TranslationsErrorsEn {
 	String get failedToRefresh => 'Failed to refresh';
 	String get noPermission => 'No permission';
 	String get resourceNotFound => 'Resource not found';
+	String get failedToSaveCredentials => 'Failed to save login credentials';
+	String get failedToLoadSavedCredentials => 'Failed to load saved credentials';
 }
 
 // Path: friends
@@ -1019,6 +1022,8 @@ class TranslationsTranslationEn {
 	String get aiTranslationNotEnabledHint => 'AI translation is not enabled, please enable it in settings';
 	String get goToSettings => 'Go to Settings';
 	String get disableAITranslation => 'Disable AI Translation';
+	String get currentValue => 'Current Value';
+	String get configureTranslationStrategy => 'Configure Translation Strategy';
 }
 
 // Path: forum.errors
@@ -1406,6 +1411,7 @@ extension on Translations {
 			case 'auth.logoutFailed': return 'Logout Failed';
 			case 'auth.usernameOrEmail': return 'Username or Email';
 			case 'auth.pleaseEnterUsernameOrEmail': return 'Please enter username or email';
+			case 'auth.rememberMe': return 'Remember Username and Password';
 			case 'errors.error': return 'Error';
 			case 'errors.required': return 'This field is required';
 			case 'errors.invalidEmail': return 'Invalid email address';
@@ -1460,6 +1466,8 @@ extension on Translations {
 			case 'errors.failedToRefresh': return 'Failed to refresh';
 			case 'errors.noPermission': return 'No permission';
 			case 'errors.resourceNotFound': return 'Resource not found';
+			case 'errors.failedToSaveCredentials': return 'Failed to save login credentials';
+			case 'errors.failedToLoadSavedCredentials': return 'Failed to load saved credentials';
 			case 'friends.clickToRestoreFriend': return 'Click to restore friend';
 			case 'friends.friendsList': return 'Friends List';
 			case 'friends.friendRequests': return 'Friend Requests';
@@ -2068,6 +2076,8 @@ extension on Translations {
 			case 'translation.aiTranslationNotEnabledHint': return 'AI translation is not enabled, please enable it in settings';
 			case 'translation.goToSettings': return 'Go to Settings';
 			case 'translation.disableAITranslation': return 'Disable AI Translation';
+			case 'translation.currentValue': return 'Current Value';
+			case 'translation.configureTranslationStrategy': return 'Configure Translation Strategy';
 			default: return null;
 		}
 	}

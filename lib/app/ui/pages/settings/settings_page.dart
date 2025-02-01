@@ -49,8 +49,8 @@ class _SettingsPageState extends State<SettingsPage> {
           route: Routes.PROXY_SETTINGS_PAGE,
         ),
       SettingItem(
-        title: '翻译',
-        subtitle: '配置翻译策略',
+        title: t.translation.translation,
+        subtitle: t.translation.configureTranslationStrategy,
         icon: Icons.translate,
         page: AITranslationSettingsPage(isWideScreen: isWideScreen),
         route: Routes.AI_TRANSLATION_SETTINGS_PAGE,
@@ -221,7 +221,6 @@ class _SettingsPageState extends State<SettingsPage> {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {
-          print('senko item.route: ${item.route}');
           Get.toNamed(item.route);
         },
         child: Container(

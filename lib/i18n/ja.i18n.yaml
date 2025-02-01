@@ -192,6 +192,7 @@ auth:
   logoutFailed: ログアウトに失敗しました
   usernameOrEmail: ユーザー名またはメールアドレス
   pleaseEnterUsernameOrEmail: ユーザー名またはメールアドレスを入力してください
+  rememberMe: ユーザー名とパスワードを記憶
 
 errors:
   error: エラー
@@ -248,6 +249,8 @@ errors:
   failedToRefresh: 更新に失敗しました
   noPermission: 権限がありません
   resourceNotFound: リソースが見つかりません
+  failedToSaveCredentials: "ログイン情報の保存に失敗しました"
+  failedToLoadSavedCredentials: "保存されたログイン情報の読み込みに失敗しました"
 friends:
   clickToRestoreFriend: 友達を復元するにはクリックしてください
   friendsList: 友達リスト
@@ -905,3 +908,5 @@ translation:
   aiTranslationNotEnabledHint: AI翻訳は有効にされていません。設定で有効にしてください
   goToSettings: 設定に移動
   disableAITranslation: AI翻訳を無効にする
+  currentValue: 現在値
+  configureTranslationStrategy: 翻訳戦略を設定

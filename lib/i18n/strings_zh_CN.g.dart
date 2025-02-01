@@ -269,6 +269,7 @@ class _TranslationsAuthZhCn implements TranslationsAuthEn {
 	@override String get pleaseEnterUsernameOrEmail => '请输入用户名或邮箱';
 	@override String get username => '用户名或邮箱';
 	@override String get pleaseEnterUsername => '请输入用户名或邮箱';
+	@override String get rememberMe => '记住账号和密码';
 }
 
 // Path: errors
@@ -332,6 +333,8 @@ class _TranslationsErrorsZhCn implements TranslationsErrorsEn {
 	@override String get failedToRefresh => '更新失败';
 	@override String get noPermission => '权限不足';
 	@override String get resourceNotFound => '资源不存在';
+	@override String get failedToSaveCredentials => '无法安全保存登录信息';
+	@override String get failedToLoadSavedCredentials => '加载保存的登录信息失败';
 }
 
 // Path: friends
@@ -1020,6 +1023,8 @@ class _TranslationsTranslationZhCn implements TranslationsTranslationEn {
 	@override String get aiTranslationNotEnabledHint => 'AI翻译未启用，请在设置中启用';
 	@override String get goToSettings => '前往设置';
 	@override String get disableAITranslation => '禁用AI翻译';
+	@override String get currentValue => '当前值';
+	@override String get configureTranslationStrategy => '配置翻译策略';
 }
 
 // Path: forum.errors
@@ -1412,6 +1417,7 @@ extension on TranslationsZhCn {
 			case 'auth.pleaseEnterUsernameOrEmail': return '请输入用户名或邮箱';
 			case 'auth.username': return '用户名或邮箱';
 			case 'auth.pleaseEnterUsername': return '请输入用户名或邮箱';
+			case 'auth.rememberMe': return '记住账号和密码';
 			case 'errors.error': return '错误';
 			case 'errors.required': return '此项必填';
 			case 'errors.invalidEmail': return '邮箱格式不正确';
@@ -1466,6 +1472,8 @@ extension on TranslationsZhCn {
 			case 'errors.failedToRefresh': return '更新失败';
 			case 'errors.noPermission': return '权限不足';
 			case 'errors.resourceNotFound': return '资源不存在';
+			case 'errors.failedToSaveCredentials': return '无法安全保存登录信息';
+			case 'errors.failedToLoadSavedCredentials': return '加载保存的登录信息失败';
 			case 'friends.clickToRestoreFriend': return '点击恢复好友';
 			case 'friends.friendsList': return '好友列表';
 			case 'friends.friendRequests': return '好友请求';
@@ -2074,6 +2082,8 @@ extension on TranslationsZhCn {
 			case 'translation.aiTranslationNotEnabledHint': return 'AI翻译未启用，请在设置中启用';
 			case 'translation.goToSettings': return '前往设置';
 			case 'translation.disableAITranslation': return '禁用AI翻译';
+			case 'translation.currentValue': return '当前值';
+			case 'translation.configureTranslationStrategy': return '配置翻译策略';
 			default: return null;
 		}
 	}
