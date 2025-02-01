@@ -84,7 +84,7 @@ class UserService extends GetxService {
     if (_authService.hasToken) {
       try {
         LogUtils.d('$_tag 存在有效TOKEN，尝试获取用户资料');
-        await fetchUserProfile();
+        fetchUserProfile();
       } catch (e) {
         LogUtils.e('$_tag 初始化用户失败', error: e);
         // 错误处理已经在 AuthService 中统一处理
