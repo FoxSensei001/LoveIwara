@@ -33,7 +33,7 @@ class _AboutPageState extends State<AboutPage> {
   }
 
   Future<void> _openReleaseUrl() async {
-    final url = Uri.parse(_configService[ConfigService.REMOTE_REPO_RELEASE_URL]);
+    final url = Uri.parse(_configService[ConfigKey.REMOTE_REPO_RELEASE_URL]);
     if (await canLaunchUrl(url)) {
       await launchUrl(url);
     }
@@ -296,7 +296,7 @@ class _AboutPageState extends State<AboutPage> {
             subtitle: const Text('GitHub'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => launchUrl(
-              Uri.parse(_configService[ConfigService.REMOTE_REPO_URL]),
+              Uri.parse(_configService[ConfigKey.REMOTE_REPO_URL]),
             ),
           ),
           const Divider(height: 1),
@@ -306,7 +306,7 @@ class _AboutPageState extends State<AboutPage> {
             subtitle: const Text('Releases'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => launchUrl(
-              Uri.parse(_configService[ConfigService.REMOTE_REPO_RELEASE_URL]),
+              Uri.parse(_configService[ConfigKey.REMOTE_REPO_RELEASE_URL]),
             ),
           ),
           const Divider(height: 1),
@@ -316,7 +316,7 @@ class _AboutPageState extends State<AboutPage> {
             subtitle: const Text('Issues'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => launchUrl(
-              Uri.parse('${_configService[ConfigService.REMOTE_REPO_URL]}/issues'),
+              Uri.parse('${_configService[ConfigKey.REMOTE_REPO_URL]}/issues'),
             ),
           ),
           const Divider(height: 1),

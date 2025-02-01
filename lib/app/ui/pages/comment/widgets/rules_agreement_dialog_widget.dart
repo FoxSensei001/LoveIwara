@@ -133,7 +133,7 @@ class _RulesAgreementDialogState extends State<RulesAgreementDialog> {
               TextButton(
                 onPressed: () {
                   final configService = Get.find<ConfigService>();
-                  configService[ConfigService.RULES_AGREEMENT_KEY] = false;
+                  configService[ConfigKey.RULES_AGREEMENT_KEY] = false;
                   Navigator.pop(context);
                 },
                 child: Text(t.common.disagree),

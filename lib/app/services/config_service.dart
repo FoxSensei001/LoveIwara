@@ -1,246 +1,294 @@
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/models/sort.model.dart';
-import 'package:i_iwara/app/services/storage_service.dart';
 import 'package:i_iwara/common/constants.dart';
-import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:i_iwara/db/database_service.dart';
+import 'package:sqlite3/common.dart';
+import 'dart:convert';
 
 class ConfigService extends GetxService {
-  late final StorageService storage;
   static const screenshotChannel = MethodChannel('i_iwara/screenshot');
 
-  // 配置的键
-  static const String AUTO_PLAY_KEY = 'auto_play'; // 自动播放
-  static const String DEFAULT_BRIGHTNESS_KEY = 'default_brightness'; // 默认亮度
-  static const String LONG_PRESS_PLAYBACK_SPEED_KEY =
-      'long_press_playback_speed'; // 长按播放速度
-  static const String FAST_FORWARD_SECONDS_KEY = 'fast_forward_seconds'; // 快进秒数
-  static const String REWIND_SECONDS_KEY = 'rewind_seconds'; // 倒退秒数
-  static const String DEFAULT_QUALITY_KEY = 'default_quality'; // 默认画质
-  static const String REPEAT_KEY = 'repeat'; // 重复播放
-  static const String VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO =
-      'video_left_and_right_control_area_ratio'; // 视频左右控制区域比例
-  static const String BRIGHTNESS_KEY = 'brightness'; // 亮度
-  static const String KEEP_LAST_BRIGHTNESS_KEY =
-      'keep_last_brightness'; // 保持最后亮度
-  static const String VOLUME_KEY = 'volume'; // 音量
-  static const String KEEP_LAST_VOLUME_KEY = 'keep_last_volume'; // 保持最后音量
-  static const String USE_PROXY = 'use_proxy'; // 使用代理
-  static const String PROXY_URL = 'proxy_url'; // 代理地址
-  static const String RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN =
-      'render_vertical_video_in_vertical_screen'; // 在竖屏中渲染竖向视频
-  static const String ACTIVE_BACKGROUND_PRIVACY_MODE =
-      'active_background_privacy_mode'; // 激活隐私模式
-  static const String DEFAULT_LANGUAGE_KEY = 'default_language'; // 默认语言
-  static const String THEATER_MODE_KEY = 'theater_mode'; // 剧院模式
-  static const String _TRANSLATION_LANGUAGE = 'translation_language';
-  static const String REMOTE_REPO_RELEASE_URL = 'remote_repo_release_url'; // 远程仓库的 release 地址
-  static const String REMOTE_REPO_URL = 'remote_repo_url'; // 远程仓库的 url
-  static const String SETTINGS_SELECTED_INDEX_KEY = 'settings_selected_index';
-  static const String REMOTE_REPO_UPDATE_LOGS_YAML_URL = 'remote_repo_update_logs_yaml_url';
-  static const String IGNORED_VERSION = 'ignored_version';
-  static const String LAST_CHECK_UPDATE_TIME = 'last_check_update_time';
-  static const String AUTO_CHECK_UPDATE = 'auto_check_update';
-  static const String RULES_AGREEMENT_KEY = 'rules_agreement'; // 规则同意
-  static const String AUTO_RECORD_HISTORY_KEY = 'auto_record_history'; // 自动记录历史记录
-  static const String SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY = 'show_unprocessed_markdown_text'; // 显示未处理的markdown文本
-  static const String DISABLE_FORUM_REPLY_QUOTE_KEY = 'disable_forum_reply_quote'; // 禁用论坛回复引用
+  // 用于存储配置，初始值均为对应默认值
+  final settings = <ConfigKey, Rx<dynamic>>{
+    for (final key in ConfigKey.values) key: (key.getDefaultValue(key) as dynamic).obs,
+  };
 
-  static const String THEME_MODE_KEY = 'current_theme_mode'; // 当前主题模式 0 跟随系统 1 亮色 2 暗色
-  static const String USE_DYNAMIC_COLOR_KEY = 'use_dynamic_color'; // 是否使用动态颜色
-  static const String USE_PRESET_COLOR_KEY = 'use_preset_color'; // 是否使用预设颜色
-  static const String CURRENT_PRESET_INDEX_KEY = 'current_preset_index'; // 当前预设颜色索引
-  static const String CURRENT_CUSTOM_HEX_KEY = 'current_custom_hex'; // 当前自定义颜色
-  static const String CUSTOM_THEME_COLORS_KEY = 'custom_theme_colors'; // 用户自定义的主题颜色列表
-
-  static const String RECORD_AND_RESTORE_VIDEO_PROGRESS = 'record_and_restore_video_progress'; // 播放器初始化时恢复播放进度 [同时也决定了是否向数据库中写入播放进度]
-
-  static const String USE_AI_TRANSLATION = 'use_ai_translation'; // 使用AI翻译
-  static const String AI_TRANSLATION_BASE_URL = 'ai_translation_base_url'; // AI翻译基础地址
-  static const String AI_TRANSLATION_MODEL = 'ai_translation_model'; // AI翻译模型
-  static const String AI_TRANSLATION_API_KEY = 'ai_translation_api_key'; // API密钥
-  static const String AI_TRANSLATION_MAX_TOKENS = 'ai_translation_max_tokens'; // 最大token数
-  static const String AI_TRANSLATION_TEMPERATURE = 'ai_translation_temperature'; // 温度系数
-
-  // 所有配置项的 Map
-  final settings = <String, dynamic>{
-    AUTO_PLAY_KEY: false.obs,
-    DEFAULT_BRIGHTNESS_KEY: 0.5.obs,
-    LONG_PRESS_PLAYBACK_SPEED_KEY: 2.0.obs,
-    FAST_FORWARD_SECONDS_KEY: 10.obs,
-    REWIND_SECONDS_KEY: 10.obs,
-    DEFAULT_QUALITY_KEY: '360'.obs, // 360、540、Source、预览
-    REPEAT_KEY: false.obs,
-    VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO: .2.obs,
-    BRIGHTNESS_KEY: 0.5.obs,
-    KEEP_LAST_BRIGHTNESS_KEY: true.obs,
-    VOLUME_KEY: 0.4.obs,
-    KEEP_LAST_VOLUME_KEY: false.obs,
-    USE_PROXY: false.obs,
-    PROXY_URL: ''.obs,
-    RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN: true.obs,
-    ACTIVE_BACKGROUND_PRIVACY_MODE: false.obs,
-    DEFAULT_LANGUAGE_KEY: 'zh-CN'.obs,
-    THEATER_MODE_KEY: true.obs, // 默认开启剧院模式
-    REMOTE_REPO_RELEASE_URL: 'https://github.com/FoxSensei001/i_iwara/releases'.obs,
-    REMOTE_REPO_URL: 'https://github.com/FoxSensei001/i_iwara'.obs,
-    SETTINGS_SELECTED_INDEX_KEY: 0.obs,
-    REMOTE_REPO_UPDATE_LOGS_YAML_URL: 'https://raw.githubusercontent.com/FoxSensei001/i_iwara/master/update_logs.yaml'.obs,
-    IGNORED_VERSION: ''.obs,
-    LAST_CHECK_UPDATE_TIME: 0.obs,
-    AUTO_CHECK_UPDATE: true.obs,
-    RULES_AGREEMENT_KEY: false.obs,
-    AUTO_RECORD_HISTORY_KEY: true.obs,
-    SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY: false.obs,
-    DISABLE_FORUM_REPLY_QUOTE_KEY: false.obs,
-
-    THEME_MODE_KEY: 0.obs,
-    USE_DYNAMIC_COLOR_KEY: true.obs,
-    USE_PRESET_COLOR_KEY: true.obs,
-    CURRENT_PRESET_INDEX_KEY: 0.obs,
-    CURRENT_CUSTOM_HEX_KEY: ''.obs,
-    CUSTOM_THEME_COLORS_KEY: <String>[].obs,
-
-    RECORD_AND_RESTORE_VIDEO_PROGRESS: true.obs,
-
-    USE_AI_TRANSLATION: false.obs,
-    AI_TRANSLATION_BASE_URL: ''.obs,
-    AI_TRANSLATION_MODEL: ''.obs,
-    AI_TRANSLATION_API_KEY: ''.obs,
-    AI_TRANSLATION_MAX_TOKENS: 500.obs,
-    AI_TRANSLATION_TEMPERATURE: 0.3.obs,
-  }.obs;
-
+  late final CommonDatabase _db;
   late final Rx<Sort> _currentTranslationSort;
-
   Sort get currentTranslationSort => _currentTranslationSort.value;
   String get currentTranslationLanguage => currentTranslationSort.extData;
 
-  // 初始化配置
   Future<ConfigService> init() async {
-    storage = StorageService();
+    _db = DatabaseService().database;
     await _loadSettings();
 
-    // 检查是否需要激活隐私模式
-    if (settings[ACTIVE_BACKGROUND_PRIVACY_MODE]!.value == true && GetPlatform.isAndroid) {
+    // 检查隐私模式（仅在安卓下执行）
+    if (settings[ConfigKey.ACTIVE_BACKGROUND_PRIVACY_MODE]!.value == true && GetPlatform.isAndroid) {
       await screenshotChannel.invokeMethod('preventScreenshot');
     }
 
-    // [翻译] 单独初始化翻译语言
-    final savedLanguage = storage.readData(_TRANSLATION_LANGUAGE) ?? settings[DEFAULT_LANGUAGE_KEY]!.value;
+    // 初始化翻译语言（保持原有逻辑）
+    final savedLanguage = settings[ConfigKey.DEFAULT_LANGUAGE_KEY]!.value;
     _currentTranslationSort = (CommonConstants.translationSorts.firstWhere(
       (sort) => sort.extData == savedLanguage,
       orElse: () => CommonConstants.translationSorts.first,
     )).obs;
 
-    // [历史记录] 单独初始化是否记录历史记录
-    final savedAutoRecordHistory = storage.readData(AUTO_RECORD_HISTORY_KEY) ?? settings[AUTO_RECORD_HISTORY_KEY]!.value;
-    CommonConstants.enableHistory = savedAutoRecordHistory;
-
-    // [主题] 单独初始化主题模式
-    final savedThemeMode = storage.readData(THEME_MODE_KEY) ?? settings[THEME_MODE_KEY]!.value;
-    CommonConstants.themeMode = savedThemeMode;
-
-    // [主题] 单独初始化是否使用动态颜色
-    final savedUseDynamicColor = storage.readData(USE_DYNAMIC_COLOR_KEY) ?? settings[USE_DYNAMIC_COLOR_KEY]!.value;
-    CommonConstants.useDynamicColor = savedUseDynamicColor;
-
-    // [主题] 单独初始化自定义主题颜色
-    final savedCustomThemeColors = storage.readData(CUSTOM_THEME_COLORS_KEY);
-    if (savedCustomThemeColors != null) {
-      final List<String> colorsList = (savedCustomThemeColors as List<dynamic>).map((e) => e.toString()).toList();
-      settings[CUSTOM_THEME_COLORS_KEY]!.value = colorsList;
-      CommonConstants.customThemeColors = colorsList;
-    } else {
-      CommonConstants.customThemeColors = [];
-    }
-
-    // [主题] 单独初始化是否使用预设颜色
-    final savedUsePresetColor = storage.readData(USE_PRESET_COLOR_KEY) ?? settings[USE_PRESET_COLOR_KEY]!.value;
-    CommonConstants.usePresetColor = savedUsePresetColor;
-
-    // [主题] 单独初始化预设颜色索引
-    final savedCurrentPresetIndex = storage.readData(CURRENT_PRESET_INDEX_KEY) ?? settings[CURRENT_PRESET_INDEX_KEY]!.value;
-    CommonConstants.currentPresetIndex = savedCurrentPresetIndex;
-
-    // [主题] 单独初始化自定义颜色
-    final savedCurrentCustomHex = storage.readData(CURRENT_CUSTOM_HEX_KEY) ?? settings[CURRENT_CUSTOM_HEX_KEY]!.value;
-    CommonConstants.currentCustomHex = savedCurrentCustomHex;
+    // 初始化主题、历史记录等配置
+    CommonConstants.themeMode = settings[ConfigKey.THEME_MODE_KEY]!.value;
+    CommonConstants.useDynamicColor = settings[ConfigKey.USE_DYNAMIC_COLOR_KEY]!.value;
+    CommonConstants.customThemeColors = List<String>.from(settings[ConfigKey.CUSTOM_THEME_COLORS_KEY]!.value);
+    CommonConstants.usePresetColor = settings[ConfigKey.USE_PRESET_COLOR_KEY]!.value;
+    CommonConstants.currentPresetIndex = settings[ConfigKey.CURRENT_PRESET_INDEX_KEY]!.value;
+    CommonConstants.currentCustomHex = settings[ConfigKey.CURRENT_CUSTOM_HEX_KEY]!.value;
+    CommonConstants.enableHistory = settings[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS]!.value;
 
     return this;
   }
 
-  // 加载配置
+  // 从数据库加载配置，若不存在则写入默认值
   Future<void> _loadSettings() async {
-    // 加载配置
-    settings.forEach((key, value) {
-      try {
-        final storedValue = storage.readData(key);
-        if (storedValue != null) {
-          if (value is RxBool) value.value = storedValue;
-          if (value is RxDouble) value.value = storedValue;
-          if (value is RxInt) value.value = storedValue;
-          if (value is RxString) value.value = storedValue;
-          if (value is RxList) value.value = storedValue;
+    for (final key in ConfigKey.values) {
+      final result = _db.select('SELECT value FROM app_config WHERE key = ?', [key.key]);
+      if (result.isNotEmpty) {
+        final storedValue = result.first['value'] as String;
+        dynamic parsedValue;
+        final defaultVal = key.getDefaultValue(key);
+        if (defaultVal is bool) {
+          parsedValue = storedValue.toLowerCase() == 'true';
+        } else if (defaultVal is int) {
+          parsedValue = int.tryParse(storedValue) ?? defaultVal;
+        } else if (defaultVal is double) {
+          parsedValue = double.tryParse(storedValue) ?? defaultVal;
+        } else if (defaultVal is List) {
+          parsedValue = jsonDecode(storedValue);
+        } else {
+          parsedValue = storedValue;
         }
-      } catch (e) {
-        LogUtils.e('加载配置失败: $key', tag: 'ConfigService', error: e);
+        settings[key]!.value = parsedValue;
+      } else {
+        await _saveSetting(key, key.getDefaultValue(key));
+        settings[key]!.value = key.getDefaultValue(key);
       }
-    });
-  }
-
-  // 保存配置
-  Future<void> _saveSetting(String key, dynamic value) async {
-    await storage.writeData(key, value);
-  }
-
-  // 设置配置时自动更新 Map 和存储
-  Future<void> setSetting(String key, dynamic value, {bool save = true}) async {
-    if (settings.containsKey(key)) {
-      settings[key]!.value = value;
-      if (save) {
-        await _saveSetting(key, value);
-      }
-
-      // 处理隐私模式的变更
-      // 如果是安卓模式
-      if (GetPlatform.isAndroid) {
-        if (key == ACTIVE_BACKGROUND_PRIVACY_MODE) {
-          if (value == true) {
-            await screenshotChannel.invokeMethod('preventScreenshot');
-          } else {
-            await screenshotChannel.invokeMethod('allowScreenshot');
-          }
-        }
-      }
-    } else {
-      throw Exception("未知的配置键: $key");
     }
   }
 
-  /// 动态访问配置
-  /// ```dart
-  /// ConfigService configService = Get.find();
-  /// bool autoPlay = configService[ConfigService.AUTO_PLAY_KEY];
-  /// ```
-  dynamic operator [](String key) {
-    if (settings.containsKey(key)) {
-      return settings[key]!.value;
+  Future<void> _saveSetting(ConfigKey key, dynamic value) async {
+    String valueStr = value is List ? jsonEncode(value) : value.toString();
+    _db.execute('''
+      INSERT OR REPLACE INTO app_config (key, value)
+      VALUES (?, ?)
+    ''', [key.key, valueStr]);
+  }
+
+  // 通过 setSetting 同步更新内存和数据库，同时处理隐私模式变更
+  Future<void> setSetting(ConfigKey key, dynamic value, {bool save = true}) async {
+    settings[key]!.value = value;
+    if (save) {
+      await _saveSetting(key, value);
     }
-    throw Exception("未知的配置键: $key");
+    if (GetPlatform.isAndroid && key == ConfigKey.ACTIVE_BACKGROUND_PRIVACY_MODE) {
+      if (value == true) {
+        await screenshotChannel.invokeMethod('preventScreenshot');
+      } else {
+        await screenshotChannel.invokeMethod('allowScreenshot');
+      }
+    }
   }
 
-  /// 设置配置
-  /// ```dart
-  /// ConfigService configService = Get.find();
-  /// configService[ConfigService.AUTO_PLAY_KEY] = true;
-  /// ```
-  void operator []=(String key, dynamic value) {
-    setSetting(key, value);
+  dynamic operator [](ConfigKey key) => settings[key]!.value;
+  void operator []=(ConfigKey key, dynamic value) {
+    setSetting(key, value, save: true);
   }
-
+  
   void updateTranslationLanguage(Sort sort) {
     _currentTranslationSort.value = sort;
-    storage.writeData(_TRANSLATION_LANGUAGE, sort.extData);
+    setSetting(ConfigKey.DEFAULT_LANGUAGE_KEY, sort.extData);
+  }
+}
+
+enum ConfigKey {
+  AUTO_PLAY_KEY,
+  DEFAULT_BRIGHTNESS_KEY,
+  LONG_PRESS_PLAYBACK_SPEED_KEY,
+  FAST_FORWARD_SECONDS_KEY,
+  REWIND_SECONDS_KEY,
+  DEFAULT_QUALITY_KEY,
+  REPEAT_KEY,
+  VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO,
+  BRIGHTNESS_KEY,
+  KEEP_LAST_BRIGHTNESS_KEY,
+  VOLUME_KEY,
+  KEEP_LAST_VOLUME_KEY,
+  USE_PROXY,
+  PROXY_URL,
+  RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN,
+  ACTIVE_BACKGROUND_PRIVACY_MODE,
+  DEFAULT_LANGUAGE_KEY,
+  THEATER_MODE_KEY,
+  REMOTE_REPO_RELEASE_URL,
+  REMOTE_REPO_URL,
+  SETTINGS_SELECTED_INDEX_KEY,
+  REMOTE_REPO_UPDATE_LOGS_YAML_URL,
+  IGNORED_VERSION,
+  LAST_CHECK_UPDATE_TIME,
+  AUTO_CHECK_UPDATE,
+  RULES_AGREEMENT_KEY,
+  AUTO_RECORD_HISTORY_KEY,
+  SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY,
+  DISABLE_FORUM_REPLY_QUOTE_KEY,
+  THEME_MODE_KEY,
+  USE_DYNAMIC_COLOR_KEY,
+  USE_PRESET_COLOR_KEY,
+  CURRENT_PRESET_INDEX_KEY,
+  CURRENT_CUSTOM_HEX_KEY,
+  CUSTOM_THEME_COLORS_KEY,
+  RECORD_AND_RESTORE_VIDEO_PROGRESS,
+  USE_AI_TRANSLATION,
+  AI_TRANSLATION_BASE_URL,
+  AI_TRANSLATION_MODEL,
+  AI_TRANSLATION_API_KEY,
+  AI_TRANSLATION_MAX_TOKENS,
+  AI_TRANSLATION_TEMPERATURE,
+}
+
+extension ConfigKeyExtension on ConfigKey {
+  String get key {
+    switch (this) {
+      case ConfigKey.AUTO_PLAY_KEY: return 'auto_play';
+      case ConfigKey.DEFAULT_BRIGHTNESS_KEY: return 'default_brightness';
+      case ConfigKey.LONG_PRESS_PLAYBACK_SPEED_KEY: return 'long_press_playback_speed';
+      case ConfigKey.FAST_FORWARD_SECONDS_KEY: return 'fast_forward_seconds';
+      case ConfigKey.REWIND_SECONDS_KEY: return 'rewind_seconds';
+      case ConfigKey.DEFAULT_QUALITY_KEY: return 'default_quality';
+      case ConfigKey.REPEAT_KEY: return 'repeat';
+      case ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO: return 'video_left_and_right_control_area_ratio';
+      case ConfigKey.BRIGHTNESS_KEY: return 'brightness';
+      case ConfigKey.KEEP_LAST_BRIGHTNESS_KEY: return 'keep_last_brightness';
+      case ConfigKey.VOLUME_KEY: return 'volume';
+      case ConfigKey.KEEP_LAST_VOLUME_KEY: return 'keep_last_volume';
+      case ConfigKey.USE_PROXY: return 'use_proxy';
+      case ConfigKey.PROXY_URL: return 'proxy_url';
+      case ConfigKey.RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN: return 'render_vertical_video_in_vertical_screen';
+      case ConfigKey.ACTIVE_BACKGROUND_PRIVACY_MODE: return 'active_background_privacy_mode';
+      case ConfigKey.DEFAULT_LANGUAGE_KEY: return 'default_language';
+      case ConfigKey.THEATER_MODE_KEY: return 'theater_mode';
+      case ConfigKey.REMOTE_REPO_RELEASE_URL: return 'remote_repo_release_url';
+      case ConfigKey.REMOTE_REPO_URL: return 'remote_repo_url';
+      case ConfigKey.SETTINGS_SELECTED_INDEX_KEY: return 'settings_selected_index';
+      case ConfigKey.REMOTE_REPO_UPDATE_LOGS_YAML_URL: return 'remote_repo_update_logs_yaml_url';
+      case ConfigKey.IGNORED_VERSION: return 'ignored_version';
+      case ConfigKey.LAST_CHECK_UPDATE_TIME: return 'last_check_update_time';
+      case ConfigKey.AUTO_CHECK_UPDATE: return 'auto_check_update';
+      case ConfigKey.RULES_AGREEMENT_KEY: return 'rules_agreement';
+      case ConfigKey.AUTO_RECORD_HISTORY_KEY: return 'auto_record_history';
+      case ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY: return 'show_unprocessed_markdown_text';
+      case ConfigKey.DISABLE_FORUM_REPLY_QUOTE_KEY: return 'disable_forum_reply_quote';
+      case ConfigKey.THEME_MODE_KEY: return 'current_theme_mode';
+      case ConfigKey.USE_DYNAMIC_COLOR_KEY: return 'use_dynamic_color';
+      case ConfigKey.USE_PRESET_COLOR_KEY: return 'use_preset_color';
+      case ConfigKey.CURRENT_PRESET_INDEX_KEY: return 'current_preset_index';
+      case ConfigKey.CURRENT_CUSTOM_HEX_KEY: return 'current_custom_hex';
+      case ConfigKey.CUSTOM_THEME_COLORS_KEY: return 'custom_theme_colors';
+      case ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS: return 'record_and_restore_video_progress';
+      case ConfigKey.USE_AI_TRANSLATION: return 'use_ai_translation';
+      case ConfigKey.AI_TRANSLATION_BASE_URL: return 'ai_translation_base_url';
+      case ConfigKey.AI_TRANSLATION_MODEL: return 'ai_translation_model';
+      case ConfigKey.AI_TRANSLATION_API_KEY: return 'ai_translation_api_key';
+      case ConfigKey.AI_TRANSLATION_MAX_TOKENS: return 'ai_translation_max_tokens';
+      case ConfigKey.AI_TRANSLATION_TEMPERATURE: return 'ai_translation_temperature';
+    }
+  }
+
+  dynamic getDefaultValue(ConfigKey key) {
+    switch (key) {
+      case ConfigKey.AUTO_PLAY_KEY:
+        return false;
+      case ConfigKey.DEFAULT_BRIGHTNESS_KEY:
+        return 0.5;
+      case ConfigKey.LONG_PRESS_PLAYBACK_SPEED_KEY:
+        return 2.0;
+      case ConfigKey.FAST_FORWARD_SECONDS_KEY:
+        return 10;
+      case ConfigKey.REWIND_SECONDS_KEY:
+        return 10;
+      case ConfigKey.DEFAULT_QUALITY_KEY:
+        return '360';
+      case ConfigKey.REPEAT_KEY:
+        return false;
+      case ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO:
+        return 0.2;
+      case ConfigKey.BRIGHTNESS_KEY:
+        return 0.5;
+      case ConfigKey.KEEP_LAST_BRIGHTNESS_KEY:
+        return true;
+      case ConfigKey.VOLUME_KEY:
+        return 0.4;
+      case ConfigKey.KEEP_LAST_VOLUME_KEY:
+        return false;
+      case ConfigKey.USE_PROXY:
+        return false;
+      case ConfigKey.PROXY_URL:
+        return '';
+      case ConfigKey.RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN:
+        return true;
+      case ConfigKey.ACTIVE_BACKGROUND_PRIVACY_MODE:
+        return false;
+      case ConfigKey.DEFAULT_LANGUAGE_KEY:
+        return 'zh-CN';
+      case ConfigKey.THEATER_MODE_KEY:
+        return true;
+      case ConfigKey.REMOTE_REPO_RELEASE_URL:
+        return 'https://github.com/FoxSensei001/i_iwara/releases';
+      case ConfigKey.REMOTE_REPO_URL:
+        return 'https://github.com/FoxSensei001/i_iwara';
+      case ConfigKey.SETTINGS_SELECTED_INDEX_KEY:
+        return 0;
+      case ConfigKey.REMOTE_REPO_UPDATE_LOGS_YAML_URL:
+        return 'https://raw.githubusercontent.com/FoxSensei001/i_iwara/master/update_logs.yaml';
+      case ConfigKey.IGNORED_VERSION:
+        return '';
+      case ConfigKey.LAST_CHECK_UPDATE_TIME:
+        return 0;
+      case ConfigKey.AUTO_CHECK_UPDATE:
+        return true;
+      case ConfigKey.RULES_AGREEMENT_KEY:
+        return false;
+      case ConfigKey.AUTO_RECORD_HISTORY_KEY:
+        return true;
+      case ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY:
+        return false;
+      case ConfigKey.DISABLE_FORUM_REPLY_QUOTE_KEY:
+        return false;
+      case ConfigKey.THEME_MODE_KEY:
+        return 0;
+      case ConfigKey.USE_DYNAMIC_COLOR_KEY:
+        return true;
+      case ConfigKey.USE_PRESET_COLOR_KEY:
+        return true;
+      case ConfigKey.CURRENT_PRESET_INDEX_KEY:
+        return 0;
+      case ConfigKey.CURRENT_CUSTOM_HEX_KEY:
+        return '';
+      case ConfigKey.CUSTOM_THEME_COLORS_KEY:
+        return <String>[];
+      case ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS:
+        return true;
+      case ConfigKey.USE_AI_TRANSLATION:
+        return false;
+      case ConfigKey.AI_TRANSLATION_BASE_URL:
+        return '';
+      case ConfigKey.AI_TRANSLATION_MODEL:
+        return '';
+      case ConfigKey.AI_TRANSLATION_API_KEY:
+        return '';
+      case ConfigKey.AI_TRANSLATION_MAX_TOKENS:
+        return 500;
+      case ConfigKey.AI_TRANSLATION_TEMPERATURE:
+        return 0.3;
+      default:
+        throw Exception("Unknown ConfigKey: $key");
+    }
   }
 }

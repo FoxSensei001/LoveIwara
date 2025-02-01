@@ -39,7 +39,7 @@ class _ForumReplyDialogState extends State<ForumReplyDialog> {
   @override
   void initState() {
     super.initState();
-    final bool disableQuote = _configService[ConfigService.DISABLE_FORUM_REPLY_QUOTE_KEY];
+    final bool disableQuote = _configService[ConfigKey.DISABLE_FORUM_REPLY_QUOTE_KEY];
     _bodyController = TextEditingController(text: disableQuote ? null : widget.initialContent);
     _focusNode = FocusNode();
 
@@ -135,7 +135,7 @@ class _ForumReplyDialogState extends State<ForumReplyDialog> {
     );
 
     if (result == true) {
-      await _configService.setSetting(ConfigService.RULES_AGREEMENT_KEY, true);
+      await _configService.setSetting(ConfigKey.RULES_AGREEMENT_KEY, true);
       if (mounted) {
         _handleSubmit();
       }
@@ -158,7 +158,7 @@ class _ForumReplyDialogState extends State<ForumReplyDialog> {
       return;
     }
 
-    final bool hasAgreed = _configService[ConfigService.RULES_AGREEMENT_KEY];
+    final bool hasAgreed = _configService[ConfigKey.RULES_AGREEMENT_KEY];
     if (!hasAgreed) {
       await _showRulesDialog();
       return;
@@ -265,7 +265,7 @@ class _ForumReplyDialogState extends State<ForumReplyDialog> {
                 children: [
                   Obx(() {
                     final bool hasAgreed =
-                        _configService[ConfigService.RULES_AGREEMENT_KEY];
+                        _configService[ConfigKey.RULES_AGREEMENT_KEY];
                     return TextButton.icon(
                       onPressed: () => _showRulesDialog(),
                       icon: Icon(

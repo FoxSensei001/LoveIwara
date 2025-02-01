@@ -15,7 +15,7 @@ class TranslationService extends GetxService {
   Future<ApiResult<String>> translate(String text,
       {String? targetLanguage}) async {
     final useAI =
-        Get.find<ConfigService>()[ConfigService.USE_AI_TRANSLATION] as bool? ??
+        Get.find<ConfigService>()[ConfigKey.USE_AI_TRANSLATION] as bool? ??
             false;
 
     return useAI
@@ -48,15 +48,15 @@ class TranslationService extends GetxService {
   Future<ApiResult<String>> _translateWithAI(String text,
       {String? targetLanguage}) async {
     final config = Get.find<ConfigService>();
-    String baseUrl = config[ConfigService.AI_TRANSLATION_BASE_URL];
+    String baseUrl = config[ConfigKey.AI_TRANSLATION_BASE_URL];
     // 如果以 / 结尾，则去掉
     if (baseUrl.endsWith('/')) {
       baseUrl = baseUrl.substring(0, baseUrl.length - 1);
     }
-    final model = config[ConfigService.AI_TRANSLATION_MODEL];
-    final apiKey = config[ConfigService.AI_TRANSLATION_API_KEY];
-    final maxTokens = config[ConfigService.AI_TRANSLATION_MAX_TOKENS] as int? ?? 500;
-    final temperature = config[ConfigService.AI_TRANSLATION_TEMPERATURE] as double? ?? 0.3;
+    final model = config[ConfigKey.AI_TRANSLATION_MODEL];
+    final apiKey = config[ConfigKey.AI_TRANSLATION_API_KEY];
+    final maxTokens = config[ConfigKey.AI_TRANSLATION_MAX_TOKENS] as int? ?? 500;
+    final temperature = config[ConfigKey.AI_TRANSLATION_TEMPERATURE] as double? ?? 0.3;
 
     try {
       final response = await dio.post("$baseUrl/chat/completions",
@@ -91,8 +91,8 @@ class TranslationService extends GetxService {
       String baseUrl, String model, String apiKey,
       {String? targetLanguage}) async {
     final config = Get.find<ConfigService>();
-    final maxTokens = config[ConfigService.AI_TRANSLATION_MAX_TOKENS] as int? ?? 500;
-    final temperature = config[ConfigService.AI_TRANSLATION_TEMPERATURE] as double? ?? 0.1;
+    final maxTokens = config[ConfigKey.AI_TRANSLATION_MAX_TOKENS] as int? ?? 500;
+    final temperature = config[ConfigKey.AI_TRANSLATION_TEMPERATURE] as double? ?? 0.1;
 
     // 如果以 / 结尾，则去掉
     if (baseUrl.endsWith('/')) {

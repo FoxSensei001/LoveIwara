@@ -123,11 +123,11 @@ class _GestureAreaState extends State<GestureArea>
   void _showInfoMessage() {
     String message;
     if (widget.region == GestureRegion.left) {
-      // message = '后退${_configService[ConfigService.REWIND_SECONDS_KEY]}秒';
-      message = slang.t.videoDetail.rewindSeconds(num:_configService[ConfigService.REWIND_SECONDS_KEY]);
+      // message = '后退${_configService[ConfigKey.REWIND_SECONDS_KEY]}秒';
+      message = slang.t.videoDetail.rewindSeconds(num:_configService[ConfigKey.REWIND_SECONDS_KEY]);
     } else {
-      // message = '快进${_configService[ConfigService.FAST_FORWARD_SECONDS_KEY]}秒';
-      message = slang.t.videoDetail.fastForwardSeconds(num:_configService[ConfigService.FAST_FORWARD_SECONDS_KEY]);
+      // message = '快进${_configService[ConfigKey.FAST_FORWARD_SECONDS_KEY]}秒';
+      message = slang.t.videoDetail.fastForwardSeconds(num:_configService[ConfigKey.FAST_FORWARD_SECONDS_KEY]);
     }
 
     setState(() {
@@ -184,13 +184,13 @@ class _GestureAreaState extends State<GestureArea>
     if (widget.region == GestureRegion.left) {
       type = LongPressType.brightness;
       // 在亮度调节结束时保存设置
-      _configService.setSetting(ConfigService.BRIGHTNESS_KEY, _configService[ConfigService.BRIGHTNESS_KEY], save: true);
+      _configService.setSetting(ConfigKey.BRIGHTNESS_KEY, _configService[ConfigKey.BRIGHTNESS_KEY], save: true);
       // 保存亮度设置
       CommonConstants.isSetBrightness = true;
     } else if (widget.region == GestureRegion.right) {
       type = LongPressType.volume;
       // 在音量调节结束时保存设置
-      _configService.setSetting(ConfigService.VOLUME_KEY, _configService[ConfigService.VOLUME_KEY], save: true);
+      _configService.setSetting(ConfigKey.VOLUME_KEY, _configService[ConfigKey.VOLUME_KEY], save: true);
       // 保存音量设置
       CommonConstants.isSetVolume = true;
     }
@@ -222,16 +222,16 @@ class _GestureAreaState extends State<GestureArea>
         !GetPlatform.isWindows &&
         !GetPlatform.isMacOS) {
       // 只在移动设备上调整亮度
-      double rx = _configService[ConfigService.BRIGHTNESS_KEY] -
+      double rx = _configService[ConfigKey.BRIGHTNESS_KEY] -
           details.primaryDelta! / max;
       rx = rx.clamp(0.0, 1.0);
-      _configService.setSetting(ConfigService.BRIGHTNESS_KEY, rx, save: false);
+      _configService.setSetting(ConfigKey.BRIGHTNESS_KEY, rx, save: false);
       _screenBrightness?.setScreenBrightness(rx);
 
       widget.setLongPressing?.call(LongPressType.brightness, true);
     } else if (widget.region == GestureRegion.right) {
       // 调整音量
-      double rx = _configService[ConfigService.VOLUME_KEY] -
+      double rx = _configService[ConfigKey.VOLUME_KEY] -
           details.primaryDelta! / max;
       rx = rx.clamp(0.0, 1.0);
       widget.onVolumeChange?.call(rx);

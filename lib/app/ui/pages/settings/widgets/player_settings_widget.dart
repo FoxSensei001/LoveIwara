@@ -12,7 +12,7 @@ class PlayerSettingsWidget extends StatelessWidget {
 
   void _onThreeSectionSliderChangeFinished(
       double leftRatio, double middleRatio, double rightRatio) {
-    _configService[ConfigService.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO] = leftRatio;
+    _configService[ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO] = leftRatio;
   }
 
   // 创建开关设置项，并在上方显示信息提示卡片
@@ -21,7 +21,7 @@ class PlayerSettingsWidget extends StatelessWidget {
     required String label,
     bool showInfoCard = false,
     String? infoMessage,
-    required RxBool rxValue,
+    required Rx<dynamic> rxValue,  // 修改参数类型为 Rx<dynamic>
     required Function(bool) onChanged,
     required BuildContext context,
   }) {
@@ -93,7 +93,7 @@ class PlayerSettingsWidget extends StatelessWidget {
                     ),
                   ),
                   Switch(
-                    value: rxValue.value,
+                    value: rxValue.value as bool,  // 添加类型转换
                     onChanged: onChanged,
                   ),
                 ],
@@ -136,9 +136,9 @@ class PlayerSettingsWidget extends StatelessWidget {
                     label: t.settings.theaterMode,
                     showInfoCard: false,
                     infoMessage: t.settings.theaterModeDesc,
-                    rxValue: _configService.settings[ConfigService.THEATER_MODE_KEY],
+                    rxValue: _configService.settings[ConfigKey.THEATER_MODE_KEY]!,
                     onChanged: (value) {
-                      _configService[ConfigService.THEATER_MODE_KEY] = value;
+                      _configService[ConfigKey.THEATER_MODE_KEY] = value;
                     },
                   ),
                 ],
@@ -167,7 +167,7 @@ class PlayerSettingsWidget extends StatelessWidget {
                   // 快进时间设置
                   Obx(() => SettingItem(
                     label: t.settings.fastForwardTime,
-                    initialValue: _configService[ConfigService.FAST_FORWARD_SECONDS_KEY].toString(),
+                    initialValue: _configService[ConfigKey.FAST_FORWARD_SECONDS_KEY].toString(),
                     validator: (value) {
                       final parsed = int.tryParse(value);
                       if (parsed == null || parsed <= 0) {
@@ -177,7 +177,7 @@ class PlayerSettingsWidget extends StatelessWidget {
                     },
                     onValid: (value) {
                       final parsed = int.parse(value);
-                      _configService.setSetting(ConfigService.FAST_FORWARD_SECONDS_KEY, parsed);
+                      _configService.setSetting(ConfigKey.FAST_FORWARD_SECONDS_KEY, parsed);
                     },
                     icon: Icon(Icons.fast_forward, color: Get.isDarkMode ? Colors.white : null),
                     inputDecoration: InputDecoration(
@@ -191,7 +191,7 @@ class PlayerSettingsWidget extends StatelessWidget {
                   // 后退时间设置
                   Obx(() => SettingItem(
                     label: t.settings.rewindTime,
-                    initialValue: _configService[ConfigService.REWIND_SECONDS_KEY].toString(),
+                    initialValue: _configService[ConfigKey.REWIND_SECONDS_KEY].toString(),
                     validator: (value) {
                       final parsed = int.tryParse(value);
                       if (parsed == null || parsed <= 0) {
@@ -201,7 +201,7 @@ class PlayerSettingsWidget extends StatelessWidget {
                     },
                     onValid: (value) {
                       final parsed = int.parse(value);
-                      _configService.setSetting(ConfigService.REWIND_SECONDS_KEY, parsed);
+                      _configService.setSetting(ConfigKey.REWIND_SECONDS_KEY, parsed);
                     },
                     icon: Icon(Icons.fast_rewind, color: Get.isDarkMode ? Colors.white : null),
                     inputDecoration: InputDecoration(
@@ -215,7 +215,7 @@ class PlayerSettingsWidget extends StatelessWidget {
                   // 长按播放倍速设置
                   Obx(() => SettingItem(
                     label: t.settings.longPressPlaybackSpeed,
-                    initialValue: _configService[ConfigService.LONG_PRESS_PLAYBACK_SPEED_KEY].toString(),
+                    initialValue: _configService[ConfigKey.LONG_PRESS_PLAYBACK_SPEED_KEY].toString(),
                     validator: (value) {
                       final parsed = double.tryParse(value);
                       if (parsed == null || parsed <= 0.0) {
@@ -225,7 +225,7 @@ class PlayerSettingsWidget extends StatelessWidget {
                     },
                     onValid: (value) {
                       final parsed = double.parse(value);
-                      _configService[ConfigService.LONG_PRESS_PLAYBACK_SPEED_KEY] = parsed;
+                      _configService[ConfigKey.LONG_PRESS_PLAYBACK_SPEED_KEY] = parsed;
                     },
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     icon: Icon(Icons.speed, color: Get.isDarkMode ? Colors.white : null),
@@ -265,9 +265,9 @@ class PlayerSettingsWidget extends StatelessWidget {
                     label: t.settings.repeat,
                     showInfoCard: false,
                     infoMessage: null,
-                    rxValue: _configService.settings[ConfigService.REPEAT_KEY],
+                    rxValue: _configService.settings[ConfigKey.REPEAT_KEY]!,
                     onChanged: (value) {
-                      _configService[ConfigService.REPEAT_KEY] = value;
+                      _configService[ConfigKey.REPEAT_KEY] = value;
                     },
                   ),
                   // 以竖屏模式渲染竖屏视频
@@ -278,9 +278,9 @@ class PlayerSettingsWidget extends StatelessWidget {
                       label: t.settings.renderVerticalVideoInVerticalScreen,
                       showInfoCard: false,
                       infoMessage: t.settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen,
-                      rxValue: _configService.settings[ConfigService.RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN],
+                      rxValue: _configService.settings[ConfigKey.RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN]!,
                       onChanged: (value) {
-                        _configService[ConfigService.RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN] = value;
+                        _configService[ConfigKey.RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN] = value;
                       },
                     ),
                   // 记住音量
@@ -290,9 +290,9 @@ class PlayerSettingsWidget extends StatelessWidget {
                     label: t.settings.rememberVolume,
                     showInfoCard: false,
                     infoMessage: t.settings.thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain,
-                    rxValue: _configService.settings[ConfigService.KEEP_LAST_VOLUME_KEY],
+                    rxValue: _configService.settings[ConfigKey.KEEP_LAST_VOLUME_KEY]!,
                     onChanged: (value) {
-                      _configService[ConfigService.KEEP_LAST_VOLUME_KEY] = value;
+                      _configService[ConfigKey.KEEP_LAST_VOLUME_KEY] = value;
                     },
                   ),
                   // 记住亮度（仅限特定平台）
@@ -303,9 +303,9 @@ class PlayerSettingsWidget extends StatelessWidget {
                       label: t.settings.rememberBrightness,
                       showInfoCard: false,
                       infoMessage: t.settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain,
-                      rxValue: _configService.settings[ConfigService.KEEP_LAST_BRIGHTNESS_KEY],
+                      rxValue: _configService.settings[ConfigKey.KEEP_LAST_BRIGHTNESS_KEY]!,
                       onChanged: (value) {
-                        _configService[ConfigService.KEEP_LAST_BRIGHTNESS_KEY] = value;
+                        _configService[ConfigKey.KEEP_LAST_BRIGHTNESS_KEY] = value;
                       },
                     ),
                   // 添加记录和恢复播放进度的设置
@@ -315,9 +315,9 @@ class PlayerSettingsWidget extends StatelessWidget {
                     label: t.settings.recordAndRestorePlaybackProgress,
                     showInfoCard: false,
                     infoMessage: null,
-                    rxValue: _configService.settings[ConfigService.RECORD_AND_RESTORE_VIDEO_PROGRESS],
+                    rxValue: _configService.settings[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS]!,
                     onChanged: (value) {
-                      _configService[ConfigService.RECORD_AND_RESTORE_VIDEO_PROGRESS] = value;
+                      _configService[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS] = value;
                     },
                   ),
                 ],
@@ -369,9 +369,9 @@ class PlayerSettingsWidget extends StatelessWidget {
                   const SizedBox(height: 16),
                   ThreeSectionSlider(
                     onSlideChangeCallback: _onThreeSectionSliderChangeFinished,
-                    initialLeftRatio: _configService[ConfigService.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO],
-                    initialMiddleRatio: (1 - _configService[ConfigService.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO] * 2).toDouble(),
-                    initialRightRatio: _configService[ConfigService.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO],
+                    initialLeftRatio: _configService[ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO],
+                    initialMiddleRatio: (1 - _configService[ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO] * 2).toDouble(),
+                    initialRightRatio: _configService[ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO],
                   ),
                 ],
               ),

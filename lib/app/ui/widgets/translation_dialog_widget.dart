@@ -117,7 +117,7 @@ class _TranslationDialogState extends State<TranslationDialog> {
         ),
         const SizedBox(width: 8),
         Obx(() {
-          final isAIEnabled = configService[ConfigService.USE_AI_TRANSLATION] as bool;
+          final isAIEnabled = configService[ConfigKey.USE_AI_TRANSLATION] as bool;
           if (!isAIEnabled) {
             return ElevatedButton.icon(
               onPressed: () {
@@ -150,7 +150,7 @@ class _TranslationDialogState extends State<TranslationDialog> {
                 Switch(
                   value: true,
                   onChanged: (value) {
-                    configService[ConfigService.USE_AI_TRANSLATION] = false;
+                    configService[ConfigKey.USE_AI_TRANSLATION] = false;
                   },
                 ),
               ],

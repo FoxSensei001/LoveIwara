@@ -103,7 +103,7 @@ class _SettingsPageState extends State<SettingsPage> {
       BuildContext context, List<SettingItem> settingItems) {
     // 使用 GetX 管理当前选中的设置项，并从 ConfigService 中获取保存的值
     final selectedIndex =
-        (Get.find<ConfigService>()[ConfigService.SETTINGS_SELECTED_INDEX_KEY]
+        (Get.find<ConfigService>()[ConfigKey.SETTINGS_SELECTED_INDEX_KEY]
                     as int? ??
                 0)
             .obs;
@@ -112,7 +112,7 @@ class _SettingsPageState extends State<SettingsPage> {
     _selectedIndexWorker?.dispose(); // 确保之前的监听器被清理
     _selectedIndexWorker = ever(selectedIndex, (int index) {
       Get.find<ConfigService>()
-          .setSetting(ConfigService.SETTINGS_SELECTED_INDEX_KEY, index);
+          .setSetting(ConfigKey.SETTINGS_SELECTED_INDEX_KEY, index);
     });
 
     return Row(

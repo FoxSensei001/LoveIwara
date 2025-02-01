@@ -197,7 +197,7 @@ class _NotificationListPageState extends State<NotificationListPage> {
                       actions: [
                         TextButton(
                           onPressed: () {
-                            launchUrl(Uri.parse(configService[ConfigService.REMOTE_REPO_URL]));
+                            launchUrl(Uri.parse(configService[ConfigKey.REMOTE_REPO_URL]));
                           },
                           child: Text('🔗 ${slang.t.notifications.goToRepository}'),
                         ),

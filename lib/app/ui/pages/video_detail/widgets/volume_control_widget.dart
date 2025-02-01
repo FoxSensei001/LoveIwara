@@ -90,7 +90,7 @@ class _VolumeControlState extends State<VolumeControl>
       onEnter: (_) => _onHoverChanged(true),
       onExit: (_) => _onHoverChanged(false),
       child: Obx(() {
-        double volume = widget.configService[ConfigService.VOLUME_KEY];
+        double volume = widget.configService[ConfigKey.VOLUME_KEY];
         return Row(
           children: [
             IconButton(

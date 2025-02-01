@@ -35,9 +35,9 @@ class VersionService extends GetxService {
 
   /// 自动检查更新
   void doAutoCheckUpdate() async {
-    if (_configService[ConfigService.AUTO_CHECK_UPDATE]) {
+    if (_configService[ConfigKey.AUTO_CHECK_UPDATE]) {
       final lastCheckTime =
-          _configService[ConfigService.LAST_CHECK_UPDATE_TIME];
+          _configService[ConfigKey.LAST_CHECK_UPDATE_TIME];
       final now = DateTime.now().millisecondsSinceEpoch;
       if (now - lastCheckTime > checkInterval) {
         checkUpdate(showDialog: true);
@@ -52,7 +52,7 @@ class VersionService extends GetxService {
       errorMessage.value = '';
 
       final response = await _dio.get(
-        _configService[ConfigService.REMOTE_REPO_UPDATE_LOGS_YAML_URL],
+        _configService[ConfigKey.REMOTE_REPO_UPDATE_LOGS_YAML_URL],
       );
 
       if (response.statusCode == 200) {
@@ -84,14 +84,14 @@ class VersionService extends GetxService {
 
             if (showDialog &&
                 latestVersion.value !=
-                    _configService[ConfigService.IGNORED_VERSION]) {
+                    _configService[ConfigKey.IGNORED_VERSION]) {
               _showUpdateDialog();
             }
           }
         }
       }
 
-      _configService[ConfigService.LAST_CHECK_UPDATE_TIME] =
+      _configService[ConfigKey.LAST_CHECK_UPDATE_TIME] =
           DateTime.now().millisecondsSinceEpoch;
     } catch (e) {
       LogUtils.e('检查更新失败', error: e, tag: 'VersionService');
@@ -106,7 +106,7 @@ class VersionService extends GetxService {
   Future<void> _fetchUpdateInfo(String version) async {
     try {
       final response = await _dio.get(
-        _configService[ConfigService.REMOTE_REPO_UPDATE_LOGS_YAML_URL],
+        _configService[ConfigKey.REMOTE_REPO_UPDATE_LOGS_YAML_URL],
       );
 
       if (response.statusCode == 200) {
@@ -189,7 +189,7 @@ class VersionService extends GetxService {
             if (!isForceUpdate.value) ...[
               TextButton(
                 onPressed: () {
-                  _configService[ConfigService.IGNORED_VERSION] =
+                  _configService[ConfigKey.IGNORED_VERSION] =
                       latestVersion.value;
                   AppService.tryPop();
                 },
@@ -230,7 +230,7 @@ class VersionService extends GetxService {
 
   Future<void> _openReleaseUrl() async {
     final url =
-        Uri.parse(_configService[ConfigService.REMOTE_REPO_RELEASE_URL]);
+        Uri.parse(_configService[ConfigKey.REMOTE_REPO_RELEASE_URL]);
     if (await canLaunchUrl(url)) {
       await launchUrl(url);
     } else {

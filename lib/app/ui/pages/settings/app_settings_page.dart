@@ -50,9 +50,9 @@ class AppSettingsPage extends StatelessWidget {
                   () => SwitchListTile(
                     title: Text(slang.t.settings.autoRecordHistory),
                     subtitle: Text(slang.t.settings.autoRecordHistoryDesc),
-                    value: configService[ConfigService.AUTO_RECORD_HISTORY_KEY],
+                    value: configService[ConfigKey.AUTO_RECORD_HISTORY_KEY],
                     onChanged: (value) {
-                      configService[ConfigService.AUTO_RECORD_HISTORY_KEY] = value;
+                      configService[ConfigKey.AUTO_RECORD_HISTORY_KEY] = value;
                       CommonConstants.enableHistory = value;
                     },
                     shape: const RoundedRectangleBorder(
@@ -89,9 +89,9 @@ class AppSettingsPage extends StatelessWidget {
                   () => SwitchListTile(
                     title: Text(slang.t.settings.activeBackgroundPrivacyMode),
                     subtitle: Text(slang.t.settings.activeBackgroundPrivacyModeDesc),
-                    value: configService[ConfigService.ACTIVE_BACKGROUND_PRIVACY_MODE],
+                    value: configService[ConfigKey.ACTIVE_BACKGROUND_PRIVACY_MODE],
                     onChanged: (value) {
-                      configService[ConfigService.ACTIVE_BACKGROUND_PRIVACY_MODE] = value;
+                      configService[ConfigKey.ACTIVE_BACKGROUND_PRIVACY_MODE] = value;
                     },
                     shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.only(
@@ -179,9 +179,9 @@ class AppSettingsPage extends StatelessWidget {
                   () => SwitchListTile(
                     title: Text(slang.t.settings.showUnprocessedMarkdownText),
                     subtitle: Text(slang.t.settings.showUnprocessedMarkdownTextDesc),
-                    value: configService[ConfigService.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY],
+                    value: configService[ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY],
                     onChanged: (value) {
-                      configService[ConfigService.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY] = value;
+                      configService[ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY] = value;
                     },
                     shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.only(
@@ -217,9 +217,9 @@ class AppSettingsPage extends StatelessWidget {
                   () => SwitchListTile(
                     title: Text(slang.t.settings.disableForumReplyQuote),
                     subtitle: Text(slang.t.settings.disableForumReplyQuoteDesc),
-                    value: configService[ConfigService.DISABLE_FORUM_REPLY_QUOTE_KEY],
+                    value: configService[ConfigKey.DISABLE_FORUM_REPLY_QUOTE_KEY],
                     onChanged: (value) {
-                      configService[ConfigService.DISABLE_FORUM_REPLY_QUOTE_KEY] = value;
+                      configService[ConfigKey.DISABLE_FORUM_REPLY_QUOTE_KEY] = value;
                     },
                     shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.only(

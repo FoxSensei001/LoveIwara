@@ -54,7 +54,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     _configService = Get.find<ConfigService>();
     _displayData = widget.data;
     _showOriginal = widget.initialShowUnprocessedText ??
-        _configService[ConfigService.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
+        _configService[ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
     _processMarkdown(widget.data);
   }
 

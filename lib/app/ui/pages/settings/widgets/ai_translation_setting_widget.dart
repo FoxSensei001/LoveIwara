@@ -60,16 +60,16 @@ class _AITranslationSettingsWidgetState
   void initState() {
     super.initState();
     _baseUrlController.text =
-        configService[ConfigService.AI_TRANSLATION_BASE_URL];
-    _modelController.text = configService[ConfigService.AI_TRANSLATION_MODEL];
+        configService[ConfigKey.AI_TRANSLATION_BASE_URL];
+    _modelController.text = configService[ConfigKey.AI_TRANSLATION_MODEL];
     _apiKeyController.text =
-        configService[ConfigService.AI_TRANSLATION_API_KEY];
+        configService[ConfigKey.AI_TRANSLATION_API_KEY];
     updateSettings();
     _maxTokensController = TextEditingController(
         text:
-            configService[ConfigService.AI_TRANSLATION_MAX_TOKENS].toString());
+            configService[ConfigKey.AI_TRANSLATION_MAX_TOKENS].toString());
     _temperatureController = TextEditingController(
-        text: configService[ConfigService.AI_TRANSLATION_TEMPERATURE]
+        text: configService[ConfigKey.AI_TRANSLATION_TEMPERATURE]
             .toStringAsFixed(1));
   }
 
@@ -78,7 +78,7 @@ class _AITranslationSettingsWidgetState
     _hasTested.value = false;
     _isAIEnabled.value = false;
     _testResult.value = null;
-    configService[ConfigService.USE_AI_TRANSLATION] = false;
+    configService[ConfigKey.USE_AI_TRANSLATION] = false;
   }
 
   Future<void> _testConnection() async {
@@ -222,7 +222,7 @@ class _AITranslationSettingsWidgetState
                     label: slang.t.translation.apiAddress,
                     controller: _baseUrlController,
                     hintText: 'https://api.example.com/v1',
-                    configKey: ConfigService.AI_TRANSLATION_BASE_URL,
+                    configKey: ConfigKey.AI_TRANSLATION_BASE_URL,  // 使用枚举值而不是name
                     icon: Icons.link,
                   ),
                   _buildInputSection(
@@ -230,19 +230,19 @@ class _AITranslationSettingsWidgetState
                     label: slang.t.translation.modelName,
                     controller: _modelController,
                     hintText: slang.t.translation.modelNameHintText,
-                    configKey: ConfigService.AI_TRANSLATION_MODEL,
+                    configKey: ConfigKey.AI_TRANSLATION_MODEL,  // 使用枚举值而不是name
                     icon: Icons.model_training,
                   ),
                   _buildApiKeyInputSection(context),
                   _buildNumberInputSection(
                     context: context,
                     label: slang.t.translation.maxTokens,
-                    configKey: ConfigService.AI_TRANSLATION_MAX_TOKENS,
+                    configKey: ConfigKey.AI_TRANSLATION_MAX_TOKENS,  // 使用枚举值而不是name
                     icon: Icons.numbers,
                     hintText: slang.t.translation.maxTokensHintText,
                     controller: _maxTokensController,
                     defaultValue:
-                        configService[ConfigService.AI_TRANSLATION_MAX_TOKENS],
+                        configService[ConfigKey.AI_TRANSLATION_MAX_TOKENS],
                   ),
                   _buildTemperatureSlider(context),
                 ],
@@ -495,7 +495,7 @@ class _AITranslationSettingsWidgetState
       }
     }
     _isAIEnabled.value = value;
-    configService[ConfigService.USE_AI_TRANSLATION] = value;
+    configService[ConfigKey.USE_AI_TRANSLATION] = value;
   }
 
   Widget _buildRequestPreview(BuildContext context) {
@@ -503,18 +503,18 @@ class _AITranslationSettingsWidgetState
 
     return Obx(() {
       final baseUrl =
-          configService[ConfigService.AI_TRANSLATION_BASE_URL] ?? '';
-      final model = configService[ConfigService.AI_TRANSLATION_MODEL] ?? '';
-      final apiKey = configService[ConfigService.AI_TRANSLATION_API_KEY] ?? '';
+          configService[ConfigKey.AI_TRANSLATION_BASE_URL] ?? '';
+      final model = configService[ConfigKey.AI_TRANSLATION_MODEL] ?? '';
+      final apiKey = configService[ConfigKey.AI_TRANSLATION_API_KEY] ?? '';
 
       final endpoint = baseUrl.isNotEmpty
           ? '${baseUrl.endsWith('/') ? baseUrl : '$baseUrl/'}chat/completions'
           : slang.t.translation.notConfigured;
 
       final maxTokens =
-          configService[ConfigService.AI_TRANSLATION_MAX_TOKENS] ?? 500;
+          configService[ConfigKey.AI_TRANSLATION_MAX_TOKENS] ?? 500;
       final temperature =
-          configService[ConfigService.AI_TRANSLATION_TEMPERATURE] ?? 0.3;
+          configService[ConfigKey.AI_TRANSLATION_TEMPERATURE] ?? 0.3;
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -600,7 +600,7 @@ class _AITranslationSettingsWidgetState
     required String label,
     required TextEditingController controller,
     required String hintText,
-    required String configKey,
+    required ConfigKey configKey,  // 改为ConfigKey类型
     required IconData icon,
   }) {
     return Column(
@@ -634,10 +634,10 @@ class _AITranslationSettingsWidgetState
           },
           onChanged: (value) {
             configService[configKey] = value;
-            if (configKey == ConfigService.AI_TRANSLATION_BASE_URL ||
-                configKey == ConfigService.AI_TRANSLATION_MODEL ||
-                configKey == ConfigService.AI_TRANSLATION_API_KEY) {
-              configService[ConfigService.USE_AI_TRANSLATION] = false;
+            if (configKey == ConfigKey.AI_TRANSLATION_BASE_URL ||
+                configKey == ConfigKey.AI_TRANSLATION_MODEL ||
+                configKey == ConfigKey.AI_TRANSLATION_API_KEY) {
+              configService[ConfigKey.USE_AI_TRANSLATION] = false;
               _isAIEnabled.value = false;
               _isConnectionValid.value = false;
               _hasTested.value = false;
@@ -692,8 +692,8 @@ class _AITranslationSettingsWidgetState
                 return null;
               },
               onChanged: (value) {
-                configService[ConfigService.AI_TRANSLATION_API_KEY] = value;
-                configService[ConfigService.USE_AI_TRANSLATION] = false;
+                configService[ConfigKey.AI_TRANSLATION_API_KEY] = value;
+                configService[ConfigKey.USE_AI_TRANSLATION] = false;
                 _isAIEnabled.value = false;
                 _isConnectionValid.value = false;
                 _hasTested.value = false;
@@ -707,7 +707,7 @@ class _AITranslationSettingsWidgetState
   Widget _buildNumberInputSection({
     required BuildContext context,
     required String label,
-    required String configKey,
+    required ConfigKey configKey,  // 改为ConfigKey类型
     required IconData icon,
     required String hintText,
     required TextEditingController controller,
@@ -762,9 +762,9 @@ class _AITranslationSettingsWidgetState
 
             configService[configKey] = clampedValue;
 
-            if (configKey == ConfigService.AI_TRANSLATION_MAX_TOKENS ||
-                configKey == ConfigService.AI_TRANSLATION_TEMPERATURE) {
-              configService[ConfigService.USE_AI_TRANSLATION] = false;
+            if (configKey == ConfigKey.AI_TRANSLATION_MAX_TOKENS ||
+                configKey == ConfigKey.AI_TRANSLATION_TEMPERATURE) {
+              configService[ConfigKey.USE_AI_TRANSLATION] = false;
               _isAIEnabled.value = false;
             }
 
@@ -790,7 +790,7 @@ class _AITranslationSettingsWidgetState
 
   Widget _buildTemperatureSlider(BuildContext context) {
     final RxDouble temperatureValue = RxDouble(
-      configService[ConfigService.AI_TRANSLATION_TEMPERATURE]?.toDouble() ?? 0.3,
+      configService[ConfigKey.AI_TRANSLATION_TEMPERATURE]?.toDouble() ?? 0.3,
     );
 
     return Column(
@@ -817,9 +817,9 @@ class _AITranslationSettingsWidgetState
                   label: temperatureValue.value.toStringAsFixed(1),
                   onChanged: (value) {
                     temperatureValue.value = value;
-                    configService[ConfigService.AI_TRANSLATION_TEMPERATURE] = value;
+                    configService[ConfigKey.AI_TRANSLATION_TEMPERATURE] = value;
                     _temperatureController.text = value.toStringAsFixed(1);
-                    configService[ConfigService.USE_AI_TRANSLATION] = false;
+                    configService[ConfigKey.USE_AI_TRANSLATION] = false;
                     _isAIEnabled.value = false;
                   },
                 ),

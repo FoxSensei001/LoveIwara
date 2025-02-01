@@ -302,7 +302,7 @@ class SettingsContent extends StatelessWidget {
   /// 三段式滑块的回调方法
   void _onThreeSectionSliderChangeFinished(
       double leftRatio, double middleRatio, double rightRatio) {
-    _configService[ConfigService.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO] =
+    _configService[ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO] =
         leftRatio;
   }
 

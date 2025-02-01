@@ -226,7 +226,7 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
     );
 
     if (result == true) {
-      await _configService.setSetting(ConfigService.RULES_AGREEMENT_KEY, true);
+      await _configService.setSetting(ConfigKey.RULES_AGREEMENT_KEY, true);
       if (mounted) {
         _handleSubmit();
       }
@@ -270,7 +270,7 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
       return;
     }
 
-    final bool hasAgreed = _configService[ConfigService.RULES_AGREEMENT_KEY];
+    final bool hasAgreed = _configService[ConfigKey.RULES_AGREEMENT_KEY];
     if (!hasAgreed) {
       await _showRulesDialog();
       return;
@@ -633,7 +633,7 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
                 children: [
                   Obx(() {
                     final bool hasAgreed =
-                        _configService[ConfigService.RULES_AGREEMENT_KEY];
+                        _configService[ConfigKey.RULES_AGREEMENT_KEY];
                     return TextButton.icon(
                       onPressed: () => _showRulesDialog(),
                       icon: Icon(

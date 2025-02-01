@@ -335,7 +335,7 @@ class _CommentItemState extends State<CommentItem> {
                       ),
                     ),
                     Obx(() {
-                      final isAIEnabled = configService[ConfigService.USE_AI_TRANSLATION] as bool;
+                      final isAIEnabled = configService[ConfigKey.USE_AI_TRANSLATION] as bool;
                       if (!isAIEnabled) {
                         return ElevatedButton.icon(
                           onPressed: () {
@@ -366,7 +366,7 @@ class _CommentItemState extends State<CommentItem> {
                             Switch(
                               value: true,
                               onChanged: (value) {
-                                configService[ConfigService.USE_AI_TRANSLATION] = false;
+                                configService[ConfigKey.USE_AI_TRANSLATION] = false;
                               },
                             ),
                           ],

@@ -174,7 +174,7 @@ class MyVideoStateController extends GetxController
         // 如果当前在long press状态，则不更新音量
         if (isLongPressing.value || isSlidingVolumeZone.value || isSlidingBrightnessZone.value) return;
         if (!_isAdjustingVolumeByGesture) {
-          _configService.setSetting(ConfigService.VOLUME_KEY, volume, save: true);
+          _configService.setSetting(ConfigKey.VOLUME_KEY, volume, save: true);
         }
       });
     }
@@ -193,17 +193,17 @@ class MyVideoStateController extends GetxController
     }
 
     // 是否沿用之前的音量
-    bool keepLastVolumeKey = _configService[ConfigService.KEEP_LAST_VOLUME_KEY];
+    bool keepLastVolumeKey = _configService[ConfigKey.KEEP_LAST_VOLUME_KEY];
     if (CommonConstants.isSetVolume) {
       if (keepLastVolumeKey) {
         // 保持之前的音量
-        double lastVolume = _configService[ConfigService.VOLUME_KEY];
+        double lastVolume = _configService[ConfigKey.VOLUME_KEY];
         setVolume(lastVolume, save: false);
       } else {
         if (GetPlatform.isAndroid || GetPlatform.isIOS) {
           // 更新配置为当前的系统音量
           double currentVolume = await volumeController?.getVolume() ?? 0.0;
-          _configService[ConfigService.VOLUME_KEY] = currentVolume;
+          _configService[ConfigKey.VOLUME_KEY] = currentVolume;
         }
       }
     }
@@ -213,9 +213,9 @@ class MyVideoStateController extends GetxController
 
     // 想办法让native player默认走系统代理
     if (player.platform is NativePlayer &&
-        _configService[ConfigService.USE_PROXY]) {
-      bool useProxy = _configService[ConfigService.USE_PROXY];
-      String proxyUrl = _configService[ConfigService.PROXY_URL];
+        _configService[ConfigKey.USE_PROXY]) {
+      bool useProxy = _configService[ConfigKey.USE_PROXY];
+      String proxyUrl = _configService[ConfigKey.PROXY_URL];
       LogUtils.i('使用代理: $useProxy, 代理地址: $proxyUrl', 'MyVideoStateController');
       if (useProxy && proxyUrl.isNotEmpty) {
         // 如果是以 https 开头的地址，需要转换为 http
@@ -258,9 +258,9 @@ class MyVideoStateController extends GetxController
     if (!CommonConstants.isSetBrightness) return;
     if (GetPlatform.isAndroid || GetPlatform.isIOS) {
       bool keepLastBrightnessKey =
-          _configService[ConfigService.KEEP_LAST_BRIGHTNESS_KEY];
+          _configService[ConfigKey.KEEP_LAST_BRIGHTNESS_KEY];
       if (keepLastBrightnessKey) {
-        double lastBrightness = _configService[ConfigService.BRIGHTNESS_KEY];
+        double lastBrightness = _configService[ConfigKey.BRIGHTNESS_KEY];
         try {
           LogUtils.d("设置亮度: $lastBrightness", '详情页路由监听');
           ScreenBrightness().setScreenBrightness(lastBrightness);
@@ -313,7 +313,7 @@ class MyVideoStateController extends GetxController
     }
   }
 
-  // 取消监听
+  // 取消监��
   Future<void> _cancelSubscriptions() async {
     await Future.wait([
       bufferingSubscription?.cancel() ?? Future.value(),
@@ -418,7 +418,7 @@ class MyVideoStateController extends GetxController
       currentVideoSourceList.value = sources;
 
       var lastUserSelectedResolution =
-          _configService[ConfigService.DEFAULT_QUALITY_KEY];
+          _configService[ConfigKey.DEFAULT_QUALITY_KEY];
       // 使用 Video 的 copyWith 方法来更新 videoSources
       videoInfo.value = videoInfo.value!.copyWith(videoSources: sources);
 
@@ -481,7 +481,7 @@ class MyVideoStateController extends GetxController
     await _cancelSubscriptions();
 
     videoIsReady.value = false;
-    _configService[ConfigService.DEFAULT_QUALITY_KEY] = resolutionTag;
+    _configService[ConfigKey.DEFAULT_QUALITY_KEY] = resolutionTag;
     this.videoResolutions.value = videoResolutions;
     currentPosition.value = position;
     currentResolutionTag.value = resolutionTag;
@@ -522,7 +522,7 @@ class MyVideoStateController extends GetxController
             totalDuration.value.inMilliseconds > 0 &&
             position.inMilliseconds > 0 &&
             (position.inMilliseconds >= totalDuration.value.inMilliseconds - 100)) {
-          bool repeat = _configService[ConfigService.REPEAT_KEY];
+          bool repeat = _configService[ConfigKey.REPEAT_KEY];
           if (repeat) {
             LogUtils.d('[视频播放完成]，尝试重播', 'MyVideoStateController');
             // 清空缓冲区
@@ -588,7 +588,7 @@ class MyVideoStateController extends GetxController
         await player.seek(currentPosition.value);
       } else {
         // 新视频加载触发的更新
-        if (_configService[ConfigService.RECORD_AND_RESTORE_VIDEO_PROGRESS]) {
+        if (_configService[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS]) {
           try {
             final history = await _playbackHistoryService.getPlaybackHistory(videoId!);
             if (history != null) {
@@ -616,7 +616,7 @@ class MyVideoStateController extends GetxController
     isFullscreen.value = true;
     appS.hideSystemUI();
     bool renderVerticalVideoInVerticalScreen =
-        _configService[ConfigService.RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN];
+        _configService[ConfigKey.RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN];
     NaviService.navigateToFullScreenVideoPlayerScreenPage(this);
     if (renderVerticalVideoInVerticalScreen && aspectRatio.value < 1) {
       await CommonUtils.defaultEnterNativeFullscreen(toVerticalScreen: true);
@@ -714,7 +714,7 @@ class MyVideoStateController extends GetxController
   }
 
   void setLongPressPlaybackSpeedByConfiguration() {
-    double speed = _configService[ConfigService.LONG_PRESS_PLAYBACK_SPEED_KEY];
+    double speed = _configService[ConfigKey.LONG_PRESS_PLAYBACK_SPEED_KEY];
     player.setRate(speed);
   }
 
@@ -729,7 +729,7 @@ class MyVideoStateController extends GetxController
     } else {
       player.setVolume(volume * 100);
     }
-    _configService.setSetting(ConfigService.VOLUME_KEY, volume, save: save);
+    _configService.setSetting(ConfigKey.VOLUME_KEY, volume); // 移除save参数
     _isAdjustingVolumeByGesture = false;
   }
 

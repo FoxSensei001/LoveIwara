@@ -204,7 +204,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     // 获取当前的时间
     Duration currentPosition =
         widget.myVideoStateController.currentPosition.value;
-    int seconds = _configService[ConfigService.REWIND_SECONDS_KEY] as int;
+    int seconds = _configService[ConfigKey.REWIND_SECONDS_KEY] as int;
     if (currentPosition.inSeconds - seconds > 0) {
       currentPosition = Duration(seconds: currentPosition.inSeconds - seconds);
     } else {
@@ -234,7 +234,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     Duration currentPosition =
         widget.myVideoStateController.currentPosition.value;
     Duration totalDuration = widget.myVideoStateController.totalDuration.value;
-    int seconds = _configService[ConfigService.FAST_FORWARD_SECONDS_KEY] as int;
+    int seconds = _configService[ConfigKey.FAST_FORWARD_SECONDS_KEY] as int;
     if (currentPosition.inSeconds + seconds < totalDuration.inSeconds) {
       currentPosition = Duration(seconds: currentPosition.inSeconds + seconds);
     } else {
@@ -295,13 +295,13 @@ class _MyVideoScreenState extends State<MyVideoScreen>
         }
       },
       child: Scaffold(
-        backgroundColor: _configService[ConfigService.THEATER_MODE_KEY] 
+        backgroundColor: _configService[ConfigKey.THEATER_MODE_KEY] 
           ? Colors.black 
           : const Color(0xFF000000),
         body: Stack(
           children: [
             // 剧院模式背景 - 移到最外层
-            Obx(() => _configService[ConfigService.THEATER_MODE_KEY] 
+            Obx(() => _configService[ConfigKey.THEATER_MODE_KEY] 
               ? Positioned.fill(
                   child: Image.network(
                     widget.myVideoStateController.videoInfo.value?.thumbnailUrl ?? '',
@@ -313,7 +313,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                 )
               : const SizedBox.shrink()),
             // 模糊效果 - 移到最外层
-            Obx(() => _configService[ConfigService.THEATER_MODE_KEY]
+            Obx(() => _configService[ConfigKey.THEATER_MODE_KEY]
               ? Positioned.fill(
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
@@ -360,7 +360,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                           }
                         } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
                           // 获取当前音量
-                          double currentVolume = _configService[ConfigService.VOLUME_KEY];
+                          double currentVolume = _configService[ConfigKey.VOLUME_KEY];
                           // 增加音量，每次增加0.1，最大为1.0
                           double newVolume = (currentVolume + 0.1).clamp(0.0, 1.0);
                           widget.myVideoStateController.setVolume(newVolume);
@@ -368,7 +368,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                           _showVolumeInfo();
                         } else if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
                           // 获取当前音量
-                          double currentVolume = _configService[ConfigService.VOLUME_KEY];
+                          double currentVolume = _configService[ConfigKey.VOLUME_KEY];
                           // 减少音量，每次减少0.1，最小为0.0
                           double newVolume = (currentVolume - 0.1).clamp(0.0, 1.0);
                           widget.myVideoStateController.setVolume(newVolume);
@@ -427,7 +427,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
             bottom: 0,
             width: screenSize.width *
                 _configService[
-                    ConfigService.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO],
+                    ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO],
             child: GestureArea(
               setLongPressing: _setLongPressing,
               onTap: _onTap,
@@ -475,7 +475,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
             bottom: 0,
             width: screenSize.width *
                 _configService[
-                    ConfigService.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO],
+                    ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO],
             child: GestureArea(
               setLongPressing: _setLongPressing,
               onTap: _onTap,
@@ -520,7 +520,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
           )),
       Obx(() {
         double ratio = _configService[
-            ConfigService.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO] as double;
+            ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO] as double;
         double position = screenSize.width * ratio;
         return Positioned(
           left: position,
@@ -800,7 +800,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   Widget _buildPlaybackSpeedInfoMessage() {
     return Obx(() {
       double rate =
-          _configService[ConfigService.LONG_PRESS_PLAYBACK_SPEED_KEY] as double;
+          _configService[ConfigKey.LONG_PRESS_PLAYBACK_SPEED_KEY] as double;
       return Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -818,7 +818,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   Widget _buildBrightnessInfoMessage() {
     return Obx(() {
       var curBrightness =
-          _configService[ConfigService.BRIGHTNESS_KEY] as double;
+          _configService[ConfigKey.BRIGHTNESS_KEY] as double;
       IconData brightnessIcon;
       String brightnessText;
 
@@ -864,7 +864,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
 
   Widget _buildVolumeInfoMessage() {
     return Obx(() {
-      var curVolume = _configService[ConfigService.VOLUME_KEY] as double;
+      var curVolume = _configService[ConfigKey.VOLUME_KEY] as double;
       IconData volumeIcon;
       String volumeText;
 

@@ -30,11 +30,11 @@ class ThemeService extends GetxService {
 
   ThemeService() {
     final configService = Get.find<ConfigService>();
-    _useDynamicColor.value = configService[ConfigService.USE_DYNAMIC_COLOR_KEY];
-    _usePresetColor.value = configService[ConfigService.USE_PRESET_COLOR_KEY] ?? true;
-    _currentPresetIndex.value = configService[ConfigService.CURRENT_PRESET_INDEX_KEY] ?? 0;
-    _currentCustomHex.value = configService[ConfigService.CURRENT_CUSTOM_HEX_KEY] ?? '';
-    _customThemeColors.value = List<String>.from(configService[ConfigService.CUSTOM_THEME_COLORS_KEY]);
+    _useDynamicColor.value = configService[ConfigKey.USE_DYNAMIC_COLOR_KEY];
+    _usePresetColor.value = configService[ConfigKey.USE_PRESET_COLOR_KEY] ?? true;
+    _currentPresetIndex.value = configService[ConfigKey.CURRENT_PRESET_INDEX_KEY] ?? 0;
+    _currentCustomHex.value = configService[ConfigKey.CURRENT_CUSTOM_HEX_KEY] ?? '';
+    _customThemeColors.value = List<String>.from(configService[ConfigKey.CUSTOM_THEME_COLORS_KEY]);
   }
 
   bool get useDynamicColor => _useDynamicColor.value;
@@ -64,8 +64,8 @@ class ThemeService extends GetxService {
     }
     _usePresetColor.value = true;
     _currentPresetIndex.value = index;
-    Get.find<ConfigService>()[ConfigService.USE_PRESET_COLOR_KEY] = true;
-    Get.find<ConfigService>()[ConfigService.CURRENT_PRESET_INDEX_KEY] = index;
+    Get.find<ConfigService>()[ConfigKey.USE_PRESET_COLOR_KEY] = true;
+    Get.find<ConfigService>()[ConfigKey.CURRENT_PRESET_INDEX_KEY] = index;
     CommonConstants.usePresetColor = true;
     CommonConstants.currentPresetIndex = index;
     _updateTheme();
@@ -78,8 +78,8 @@ class ThemeService extends GetxService {
     }
     _usePresetColor.value = false;
     _currentCustomHex.value = hex;
-    Get.find<ConfigService>()[ConfigService.USE_PRESET_COLOR_KEY] = false;
-    Get.find<ConfigService>()[ConfigService.CURRENT_CUSTOM_HEX_KEY] = hex;
+    Get.find<ConfigService>()[ConfigKey.USE_PRESET_COLOR_KEY] = false;
+    Get.find<ConfigService>()[ConfigKey.CURRENT_CUSTOM_HEX_KEY] = hex;
     CommonConstants.usePresetColor = false;
     CommonConstants.currentCustomHex = hex;
     _updateTheme();
@@ -87,7 +87,7 @@ class ThemeService extends GetxService {
 
   void setUseDynamicColor(bool value) {
     _useDynamicColor.value = value;
-    Get.find<ConfigService>()[ConfigService.USE_DYNAMIC_COLOR_KEY] = value;
+    Get.find<ConfigService>()[ConfigKey.USE_DYNAMIC_COLOR_KEY] = value;
     CommonConstants.useDynamicColor = value;
     
     if (value && CommonConstants.dynamicLightColorScheme != null && CommonConstants.dynamicDarkColorScheme != null) {
@@ -105,7 +105,7 @@ class ThemeService extends GetxService {
     }
     if (!_customThemeColors.contains(hex)) {
       _customThemeColors.add(hex);
-      Get.find<ConfigService>()[ConfigService.CUSTOM_THEME_COLORS_KEY] = _customThemeColors.toList();
+      Get.find<ConfigService>()[ConfigKey.CUSTOM_THEME_COLORS_KEY] = _customThemeColors.toList();
       CommonConstants.customThemeColors = _customThemeColors.toList();
       setCustomColor(hex);
     }
@@ -125,13 +125,13 @@ class ThemeService extends GetxService {
     }
     
     _customThemeColors.remove(hex);
-    Get.find<ConfigService>()[ConfigService.CUSTOM_THEME_COLORS_KEY] = _customThemeColors.toList();
+    Get.find<ConfigService>()[ConfigKey.CUSTOM_THEME_COLORS_KEY] = _customThemeColors.toList();
     CommonConstants.customThemeColors = _customThemeColors.toList();
   }
   
   void setThemeMode(AppThemeMode mode) {
     _themeMode.value = mode;
-    Get.find<ConfigService>()[ConfigService.THEME_MODE_KEY] = mode.index;
+    Get.find<ConfigService>()[ConfigKey.THEME_MODE_KEY] = mode.index;
     CommonConstants.themeMode = mode.index;
     
     // 更新 GetMaterialApp 的 themeMode
@@ -186,7 +186,7 @@ class ThemeService extends GetxService {
   }
 
   Future<ThemeService> init() async {
-    final savedThemeMode = Get.find<ConfigService>()[ConfigService.THEME_MODE_KEY] ?? AppThemeMode.system.index;
+    final savedThemeMode = Get.find<ConfigService>()[ConfigKey.THEME_MODE_KEY] ?? AppThemeMode.system.index;
     _themeMode.value = AppThemeMode.values[savedThemeMode];
     return this;
   }

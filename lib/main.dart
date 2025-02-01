@@ -130,9 +130,9 @@ Future<void> _initializeBusinessServices() async {
 
   // 设置代理
   if (ProxyUtil.isSupportedPlatform()) {
-    bool useProxy = configService.settings[ConfigService.USE_PROXY].value;
+    bool useProxy = configService.settings[ConfigKey.USE_PROXY]?.value ?? false;
     if (useProxy) {
-      String proxyUrl = configService.settings[ConfigService.PROXY_URL].value;
+      String proxyUrl = configService.settings[ConfigKey.PROXY_URL]?.value ?? '';
       HttpOverrides.global = MyHttpOverrides(proxyUrl);
       LogUtils.i('代理设置完成: $proxyUrl', '启动初始化');
     } else {

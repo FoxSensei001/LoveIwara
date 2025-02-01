@@ -251,7 +251,7 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     bool activeBackgroundPrivacyMode =
-        _configService[ConfigService.ACTIVE_BACKGROUND_PRIVACY_MODE];
+        _configService[ConfigKey.ACTIVE_BACKGROUND_PRIVACY_MODE];
     switch (state) {
       case AppLifecycleState.resumed:
         if (_showPrivacyOverlay) {

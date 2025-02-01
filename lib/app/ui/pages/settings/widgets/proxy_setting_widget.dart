@@ -55,9 +55,9 @@ class _ProxySettingsWidgetState extends State<ProxySettingsWidget> {
     super.initState();
     // 初始化控件的值
     _proxyController.text =
-        widget.configService[ConfigService.PROXY_URL]?.toString() ?? '';
+        widget.configService[ConfigKey.PROXY_URL]?.toString() ?? '';
     _isProxyEnabled.value =
-        widget.configService[ConfigService.USE_PROXY] as bool? ?? false;
+        widget.configService[ConfigKey.USE_PROXY] as bool? ?? false;
 
     if (_isProxyEnabled.value) {
       _setProxy(_proxyController.text.trim());
@@ -103,7 +103,7 @@ class _ProxySettingsWidgetState extends State<ProxySettingsWidget> {
   // 检测代理是否正常
   Future<void> _checkProxy() async {
     final proxyUrl =
-        widget.configService[ConfigService.PROXY_URL]?.toString() ?? '';
+        widget.configService[ConfigKey.PROXY_URL]?.toString() ?? '';
     LogUtils.i('开始检测代理: $proxyUrl', _tag);
     if (proxyUrl.isEmpty) {
       showToastWidget(
@@ -302,7 +302,7 @@ class _ProxySettingsWidgetState extends State<ProxySettingsWidget> {
                         return null;
                       },
                       onValid: (value) {
-                        widget.configService[ConfigService.PROXY_URL] = value;
+                        widget.configService[ConfigKey.PROXY_URL] = value;
                         LogUtils.d('保存代理地址: $value', _tag);
                         if (_isProxyEnabled.value) {
                           _setProxy(value.trim());
@@ -355,11 +355,11 @@ class _ProxySettingsWidgetState extends State<ProxySettingsWidget> {
                                 value: _isProxyEnabled.value,
                                 onChanged: (value) {
                                   LogUtils.d(
-                                      '启用代理: $value, 代理地址: ${widget.configService[ConfigService.PROXY_URL]}',
+                                      '启用代理: $value, 代理地址: ${widget.configService[ConfigKey.PROXY_URL]}',
                                       _tag);
                                   _isProxyEnabled.value = value;
                                   widget.configService[
-                                      ConfigService.USE_PROXY] = value;
+                                      ConfigKey.USE_PROXY] = value;
                                   if (value) {
                                     _setProxy(_proxyController.text.trim());
                                     _setFlutterEngineProxy(
