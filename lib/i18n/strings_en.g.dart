@@ -563,6 +563,12 @@ class TranslationsSettingsEn {
 	String get confirm => 'Confirm';
 	String get noCustomColors => 'No custom colors';
 	String get recordAndRestorePlaybackProgress => 'Record and Restore Playback Progress';
+	String get signature => 'Signature';
+	String get enableSignature => 'Enable Signature';
+	String get enableSignatureDesc => 'This configuration determines whether the app will add signature when replying';
+	String get enterSignature => 'Enter Signature';
+	String get editSignature => 'Edit Signature';
+	String get signatureContent => 'Signature Content';
 }
 
 // Path: signIn
@@ -1640,6 +1646,12 @@ extension on Translations {
 			case 'settings.confirm': return 'Confirm';
 			case 'settings.noCustomColors': return 'No custom colors';
 			case 'settings.recordAndRestorePlaybackProgress': return 'Record and Restore Playback Progress';
+			case 'settings.signature': return 'Signature';
+			case 'settings.enableSignature': return 'Enable Signature';
+			case 'settings.enableSignatureDesc': return 'This configuration determines whether the app will add signature when replying';
+			case 'settings.enterSignature': return 'Enter Signature';
+			case 'settings.editSignature': return 'Edit Signature';
+			case 'settings.signatureContent': return 'Signature Content';
 			case 'signIn.pleaseLoginFirst': return 'Please login first';
 			case 'signIn.alreadySignedInToday': return 'You have already signed in today!';
 			case 'signIn.youDidNotStickToTheSignIn': return 'You did not stick to the sign in.';

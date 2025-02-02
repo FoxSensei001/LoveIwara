@@ -422,6 +422,12 @@ settings:
   confirm: 確認
   noCustomColors: カスタムカラーがありません
   recordAndRestorePlaybackProgress: 再生進度を記録して復元
+  signature: 小尾巴
+  enableSignature: 小尾巴を有効にする
+  enableSignatureDesc: この設定はアプリが回覆時に小尾巴を有効にするかどうかを決定します
+  enterSignature: 小尾巴を入力
+  editSignature: 小尾巴を編集
+  signatureContent: 小尾巴の内容
 signIn:
   pleaseLoginFirst: サインインする前にログインしてください
   alreadySignedInToday: 今日は既にサインインしています！

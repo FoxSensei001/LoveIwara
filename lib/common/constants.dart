@@ -11,6 +11,8 @@ class CommonConstants {
   // 应用名称
   static String? applicationName = 'i_iwara';
 
+  // 应用昵称 
+  static String applicationNickname = 'Love Iwara';
   // 应用包名
   static String packageName = 'm.c.g.a.i_iwara';
 

@@ -41,7 +41,14 @@ class _ForumReplyDialogState extends State<ForumReplyDialog> {
   void initState() {
     super.initState();
     final bool disableQuote = _configService[ConfigKey.DISABLE_FORUM_REPLY_QUOTE_KEY];
-    _bodyController = TextEditingController(text: disableQuote ? null : widget.initialContent);
+    
+    // 修改后的初始化逻辑
+    String initialContent = disableQuote ? '' : (widget.initialContent ?? '');
+    if (_configService[ConfigKey.ENABLE_SIGNATURE_KEY]) {
+      initialContent += _configService[ConfigKey.SIGNATURE_CONTENT_KEY];
+    }
+    
+    _bodyController = TextEditingController(text: initialContent.isNotEmpty ? initialContent : null);
     _focusNode = FocusNode();
 
     _bodyController.addListener(() {

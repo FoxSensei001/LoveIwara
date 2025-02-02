@@ -564,6 +564,12 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get confirm => '确认';
 	@override String get noCustomColors => '没有自定义颜色';
 	@override String get recordAndRestorePlaybackProgress => '记录和恢复播放进度';
+	@override String get signature => '小尾巴';
+	@override String get enableSignature => '小尾巴启用';
+	@override String get enableSignatureDesc => '此配置决定回复时是否自动添加小尾巴';
+	@override String get enterSignature => '输入小尾巴';
+	@override String get editSignature => '编辑小尾巴';
+	@override String get signatureContent => '小尾巴内容';
 }
 
 // Path: signIn
@@ -1646,6 +1652,12 @@ extension on TranslationsZhCn {
 			case 'settings.confirm': return '确认';
 			case 'settings.noCustomColors': return '没有自定义颜色';
 			case 'settings.recordAndRestorePlaybackProgress': return '记录和恢复播放进度';
+			case 'settings.signature': return '小尾巴';
+			case 'settings.enableSignature': return '小尾巴启用';
+			case 'settings.enableSignatureDesc': return '此配置决定回复时是否自动添加小尾巴';
+			case 'settings.enterSignature': return '输入小尾巴';
+			case 'settings.editSignature': return '编辑小尾巴';
+			case 'settings.signatureContent': return '小尾巴内容';
 			case 'signIn.pleaseLoginFirst': return '请先登录';
 			case 'signIn.alreadySignedInToday': return '您今天已经签到过了！';
 			case 'signIn.youDidNotStickToTheSignIn': return '您未能坚持签到。';

@@ -423,6 +423,12 @@ settings:
   confirm: 確認
   noCustomColors: 沒有自定義顏色
   recordAndRestorePlaybackProgress: 記錄和恢復播放進度
+  signature: 小尾巴
+  enableSignature: 小尾巴啟用
+  enableSignatureDesc: 此配置決定回覆時是否自動添加小尾巴
+  enterSignature: 輸入小尾巴
+  editSignature: 編輯小尾巴
+  signatureContent: 小尾巴內容
 
 signIn:
   pleaseLoginFirst: 請先登入

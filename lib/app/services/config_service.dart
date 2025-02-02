@@ -190,6 +190,8 @@ enum ConfigKey {
   AI_TRANSLATION_TEMPERATURE,
   REMEMBER_ME_KEY,
   AI_TRANSLATION_PROMPT,
+  ENABLE_SIGNATURE_KEY,  // 是否启用小尾巴
+  SIGNATURE_CONTENT_KEY, // 小尾巴内容
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -240,6 +242,8 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.REMEMBER_ME_KEY: return 'remember_me';
       case ConfigKey.AI_TRANSLATION_PROMPT: return 'ai_translation_prompt';
       case ConfigKey.USER_TARGET_LANGUAGE_KEY: return 'user_target_language';
+      case ConfigKey.ENABLE_SIGNATURE_KEY: return 'enable_signature';
+      case ConfigKey.SIGNATURE_CONTENT_KEY: return 'signature_content';
     }
   }
 
@@ -335,6 +339,10 @@ extension ConfigKeyExtension on ConfigKey {
         return false;
       case ConfigKey.AI_TRANSLATION_PROMPT:
         return "You are a translation expert. Translate from the input language to ${CommonConstants.defaultLanguagePlaceholder}. Provide the translation result directly without any explanation and keep the original format. Do not translate if the target language is the same as the source language. Additionally, if the content contains illegal or NSFW elements, sensitive words or sentences within it should be replaced.";
+      case ConfigKey.ENABLE_SIGNATURE_KEY:
+        return false;
+      case ConfigKey.SIGNATURE_CONTENT_KEY:
+        return '\n\n---\nSent from ${CommonConstants.applicationNickname}';
       default:
         throw Exception("Unknown ConfigKey: $this");
     }

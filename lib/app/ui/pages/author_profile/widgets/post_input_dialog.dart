@@ -39,7 +39,16 @@ class _PostInputDialogState extends State<PostInputDialog> {
   void initState() {
     super.initState();
     _titleController = TextEditingController();
-    _bodyController = TextEditingController();
+    
+    final configService = Get.find<ConfigService>();
+    String initialBody = '';
+    
+    // 如果启用了小尾巴，则在正文中添加小尾巴
+    if (configService[ConfigKey.ENABLE_SIGNATURE_KEY]) {
+      initialBody += configService[ConfigKey.SIGNATURE_CONTENT_KEY];
+    }
+    
+    _bodyController = TextEditingController(text: initialBody);
     
     _titleController.addListener(() {
       setState(() {
@@ -335,4 +344,4 @@ class _PostInputDialogState extends State<PostInputDialog> {
       ),
     );
   }
-} 
+}

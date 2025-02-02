@@ -421,6 +421,12 @@ settings:
   confirm: Confirm
   noCustomColors: No custom colors
   recordAndRestorePlaybackProgress: Record and Restore Playback Progress
+  signature: Signature
+  enableSignature: Enable Signature
+  enableSignatureDesc: This configuration determines whether the app will add signature when replying
+  enterSignature: Enter Signature
+  editSignature: Edit Signature
+  signatureContent: Signature Content
 signIn:
   pleaseLoginFirst: Please login first
   alreadySignedInToday: You have already signed in today!

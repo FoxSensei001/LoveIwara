@@ -429,6 +429,12 @@ settings:
   confirm: 确认
   noCustomColors: 没有自定义颜色
   recordAndRestorePlaybackProgress: 记录和恢复播放进度
+  signature: 小尾巴
+  enableSignature: 小尾巴启用
+  enableSignatureDesc: 此配置决定回复时是否自动添加小尾巴
+  enterSignature: 输入小尾巴
+  editSignature: 编辑小尾巴
+  signatureContent: 小尾巴内容
 signIn:
   pleaseLoginFirst: 请先登录
   alreadySignedInToday: 您今天已经签到过了！

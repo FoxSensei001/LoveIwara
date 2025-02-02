@@ -38,7 +38,14 @@ class _CommentInputDialogState extends State<CommentInputDialog> {
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController(text: widget.initialText);
+    final configService = Get.find<ConfigService>();
+    String initialText = widget.initialText ?? '';
+    
+    if (configService[ConfigKey.ENABLE_SIGNATURE_KEY]) {
+      initialText += configService[ConfigKey.SIGNATURE_CONTENT_KEY];
+    }
+    
+    _controller = TextEditingController(text: initialText);
     _currentLength = _controller.text.length;
     _controller.addListener(() {
       setState(() {

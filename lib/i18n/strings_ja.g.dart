@@ -559,6 +559,12 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get confirm => '確認';
 	@override String get noCustomColors => 'カスタムカラーがありません';
 	@override String get recordAndRestorePlaybackProgress => '再生進度を記録して復元';
+	@override String get signature => '小尾巴';
+	@override String get enableSignature => '小尾巴を有効にする';
+	@override String get enableSignatureDesc => 'この設定はアプリが回覆時に小尾巴を有効にするかどうかを決定します';
+	@override String get enterSignature => '小尾巴を入力';
+	@override String get editSignature => '小尾巴を編集';
+	@override String get signatureContent => '小尾巴の内容';
 }
 
 // Path: signIn
@@ -1636,6 +1642,12 @@ extension on TranslationsJa {
 			case 'settings.confirm': return '確認';
 			case 'settings.noCustomColors': return 'カスタムカラーがありません';
 			case 'settings.recordAndRestorePlaybackProgress': return '再生進度を記録して復元';
+			case 'settings.signature': return '小尾巴';
+			case 'settings.enableSignature': return '小尾巴を有効にする';
+			case 'settings.enableSignatureDesc': return 'この設定はアプリが回覆時に小尾巴を有効にするかどうかを決定します';
+			case 'settings.enterSignature': return '小尾巴を入力';
+			case 'settings.editSignature': return '小尾巴を編集';
+			case 'settings.signatureContent': return '小尾巴の内容';
 			case 'signIn.pleaseLoginFirst': return 'サインインする前にログインしてください';
 			case 'signIn.alreadySignedInToday': return '今日は既にサインインしています！';
 			case 'signIn.youDidNotStickToTheSignIn': return 'サインインを続けることができませんでした。';
