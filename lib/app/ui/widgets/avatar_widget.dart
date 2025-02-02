@@ -5,7 +5,7 @@ import 'package:i_iwara/common/constants.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 
-class AvatarWidget extends StatefulWidget {
+class AvatarWidget extends StatelessWidget {
   final String? avatarUrl;
   final double radius;
   final Map<String, String>? headers;
@@ -31,73 +31,40 @@ class AvatarWidget extends StatefulWidget {
     this.user,
   });
 
-  @override
-  State<AvatarWidget> createState() => _AvatarWidgetState();
-}
-
-class _AvatarWidgetState extends State<AvatarWidget> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(seconds: 2),
-      vsync: this,
-    );
-
-    _animation = Tween<double>(
-      begin: 0.4,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
-
-    _controller.repeat(reverse: true);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
   bool get _isOnline {
-    if (widget.user?.seenAt == null) return false;
-    final difference = DateTime.now().difference(widget.user!.seenAt!);
+    if (user?.seenAt == null) return false;
+    final difference = DateTime.now().difference(user!.seenAt!);
     return difference.inMinutes <= 5;
   }
 
   @override
   Widget build(BuildContext context) {
     final avatar = CachedNetworkImage(
-      imageUrl: widget.user?.avatar?.avatarUrl ?? widget.avatarUrl ?? widget.defaultAvatarUrl,
+      imageUrl: user?.avatar?.avatarUrl ?? avatarUrl ?? defaultAvatarUrl,
       imageBuilder: (context, imageProvider) => CircleAvatar(
-        radius: widget.radius - widget.borderWidth,
+        radius: radius - borderWidth,
         backgroundImage: imageProvider,
       ),
-      httpHeaders: widget.headers,
+      httpHeaders: headers,
       errorWidget: (context, url, error) => CircleAvatar(
-        radius: widget.radius - widget.borderWidth,
-        backgroundImage: NetworkImage(widget.defaultAvatarUrl),
+        radius: radius - borderWidth,
+        backgroundImage: NetworkImage(defaultAvatarUrl),
         onBackgroundImageError: (exception, stackTrace) => Icon(
           Icons.person,
-          size: widget.radius - widget.borderWidth,
+          size: radius - borderWidth,
         ),
       ),
       placeholder: (context, url) => Shimmer.fromColors(
         baseColor: Colors.grey[300]!,
         highlightColor: Colors.grey[100]!,
         child: CircleAvatar(
-          radius: widget.radius - widget.borderWidth,
+          radius: radius - borderWidth,
           backgroundColor: Colors.white,
         ),
       ),
     );
 
-    Widget avatarWithBorder = widget.user != null
+    Widget avatarWithBorder = user != null
         ? _buildBorderedAvatarFromUser(avatar)
         : _buildBorderedAvatarFromProps(avatar);
 
@@ -108,18 +75,15 @@ class _AvatarWidgetState extends State<AvatarWidget> with SingleTickerProviderSt
           Positioned(
             right: 0,
             bottom: 0,
-            child: AnimatedBuilder(
-              animation: _animation,
-              builder: (context, child) => Container(
-                width: widget.radius * 0.4,
-                height: widget.radius * 0.4,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.green.withOpacity(_animation.value),
-                  border: Border.all(
-                    color: Theme.of(context).scaffoldBackgroundColor,
-                    width: 2,
-                  ),
+            child: Container(
+              width: radius * 0.4,
+              height: radius * 0.4,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.green,
+                border: Border.all(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  width: 2,
                 ),
               ),
             ),
@@ -132,20 +96,20 @@ class _AvatarWidgetState extends State<AvatarWidget> with SingleTickerProviderSt
   }
 
   Widget _buildBorderedAvatarFromUser(Widget avatar) {
-    if (widget.user!.premium) {
+    if (user!.premium) {
       return _buildBorderedAvatar(
         avatar,
         LinearGradient(
           colors: [
-            Colors.purple.shade200,
-            Colors.blue.shade200,
-            Colors.pink.shade200,
+            Colors.purple.shade300,
+            Colors.blue.shade300,
+            Colors.pink.shade300,
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
       );
-    } else if (widget.user!.isAdmin) {
+    } else if (user!.isAdmin) {
       return _buildBorderedAvatar(
         avatar,
         LinearGradient(
@@ -159,7 +123,7 @@ class _AvatarWidgetState extends State<AvatarWidget> with SingleTickerProviderSt
       );
     }
 
-    switch (widget.user!.role) {
+    switch (user!.role) {
       case 'officer':
       case 'moderator':
         return _buildBorderedAvatar(
@@ -187,19 +151,19 @@ class _AvatarWidgetState extends State<AvatarWidget> with SingleTickerProviderSt
         );
       default:
         return Container(
-          width: widget.radius * 2,
-          height: widget.radius * 2,
+          width: radius * 2,
+          height: radius * 2,
           decoration: const BoxDecoration(
             shape: BoxShape.circle,
             color: Colors.transparent,
           ),
           child: Padding(
-            padding: EdgeInsets.all(widget.borderWidth),
-            child: widget.onTap != null
+            padding: EdgeInsets.all(borderWidth),
+            child: onTap != null
                 ? MouseRegion(
                     cursor: SystemMouseCursors.click,
                     child: GestureDetector(
-                      onTap: widget.onTap,
+                      onTap: onTap,
                       child: avatar,
                     ),
                   )
@@ -210,20 +174,20 @@ class _AvatarWidgetState extends State<AvatarWidget> with SingleTickerProviderSt
   }
 
   Widget _buildBorderedAvatarFromProps(Widget avatar) {
-    if (widget.isPremium) {
+    if (isPremium) {
       return _buildBorderedAvatar(
         avatar,
         LinearGradient(
           colors: [
-            Colors.purple.shade200,
-            Colors.blue.shade200,
-            Colors.pink.shade200,
+            Colors.purple.shade300,
+            Colors.blue.shade300,
+            Colors.pink.shade300,
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
       );
-    } else if (widget.isAdmin) {
+    } else if (isAdmin) {
       return _buildBorderedAvatar(
         avatar,
         LinearGradient(
@@ -237,7 +201,7 @@ class _AvatarWidgetState extends State<AvatarWidget> with SingleTickerProviderSt
       );
     }
 
-    switch (widget.role) {
+    switch (role) {
       case 'officer':
       case 'moderator':
         return _buildBorderedAvatar(
@@ -277,19 +241,19 @@ class _AvatarWidgetState extends State<AvatarWidget> with SingleTickerProviderSt
         );
       default:
         return Container(
-          width: widget.radius * 2,
-          height: widget.radius * 2,
+          width: radius * 2,
+          height: radius * 2,
           decoration: const BoxDecoration(
             shape: BoxShape.circle,
             color: Colors.transparent,
           ),
           child: Padding(
-            padding: EdgeInsets.all(widget.borderWidth),
-            child: widget.onTap != null
+            padding: EdgeInsets.all(borderWidth),
+            child: onTap != null
                 ? MouseRegion(
                     cursor: SystemMouseCursors.click,
                     child: GestureDetector(
-                      onTap: widget.onTap,
+                      onTap: onTap,
                       child: avatar,
                     ),
                   )
@@ -301,23 +265,23 @@ class _AvatarWidgetState extends State<AvatarWidget> with SingleTickerProviderSt
 
   Widget _buildBorderedAvatar(Widget avatar, Gradient gradient) {
     final Widget container = Container(
-      width: widget.radius * 2,
-      height: widget.radius * 2,
+      width: radius * 2,
+      height: radius * 2,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: gradient,
       ),
       child: Padding(
-        padding: EdgeInsets.all(widget.borderWidth),
+        padding: EdgeInsets.all(borderWidth),
         child: avatar,
       ),
     );
 
-    if (widget.onTap != null) {
+    if (onTap != null) {
       return MouseRegion(
         cursor: SystemMouseCursors.click,
         child: GestureDetector(
-          onTap: widget.onTap,
+          onTap: onTap,
           child: container,
         ),
       );

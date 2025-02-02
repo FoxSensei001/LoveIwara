@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
-import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 
@@ -54,7 +54,7 @@ class ThreadListItemWidget extends StatelessWidget {
                           onTap: () {
                             NaviService.navigateToAuthorProfilePage(thread.user.username);
                           },
-                          child: _buildUserName(context, thread.user),
+                          child: buildUserName(context, thread.user, fontSize: 12, bold: true),
                         ),
                         Text(
                           CommonUtils.formatFriendlyTimestamp(thread.createdAt),
@@ -175,7 +175,7 @@ class ThreadListItemWidget extends StatelessWidget {
                             onTap: () {
                               NaviService.navigateToAuthorProfilePage(thread.lastPost!.user.username);
                             },
-                            child: _buildUserName(context, thread.lastPost!.user),
+                            child: buildUserName(context, thread.lastPost!.user, fontSize: 12, bold: true),
                           ),
                           Text(
                             CommonUtils.formatFriendlyTimestamp(thread.lastPost!.createdAt),
@@ -196,48 +196,4 @@ class ThreadListItemWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildUserName(BuildContext context, User user) {
-    // 根据用户角色设置颜色
-    Color? nameColor;
-    if (user.role == 'officer' || user.role == 'moderator' || user.role == 'admin') {
-      nameColor = Colors.green.shade400;
-    } else if (user.role == 'limited') {
-      nameColor = Colors.grey.shade400;
-    } else {
-      nameColor = user.isAdmin ? Colors.red : Theme.of(context).colorScheme.onSurfaceVariant;
-    }
-
-    // 如果是高级用户,使用渐变效果
-    if (user.premium) {
-      return ShaderMask(
-        shaderCallback: (bounds) => LinearGradient(
-          colors: [
-            Colors.purple.shade300,
-            Colors.blue.shade300,
-            Colors.pink.shade300,
-          ],
-        ).createShader(bounds),
-        child: Text(
-          user.name,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Colors.white,
-          ),
-        ),
-      );
-    }
-
-    // 普通用户名显示
-    return Text(
-      user.name,
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-      style: TextStyle(
-        fontSize: 12,
-        color: nameColor,
-      ),
-    );
-  }
 } 

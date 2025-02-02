@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
-import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/translation_service.dart';
@@ -14,6 +13,7 @@ import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
 import 'package:i_iwara/app/ui/widgets/translation_powered_by_widget.dart';
+import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -49,53 +49,6 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
   
   bool _isTranslating = false;
   String? _translatedText;
-
-  Widget _buildUserName(User user) {
-    // 根据用户角色设置颜色
-    Color? nameColor;
-    if (user.role == 'officer' || user.role == 'moderator' || user.role == 'admin') {
-      nameColor = Colors.green.shade400;
-    } else if (user.role == 'limited') {
-      nameColor = Colors.grey.shade400;
-    } else {
-      nameColor = user.isAdmin ? Colors.red : Theme.of(context).colorScheme.onSurfaceVariant;
-    }
-
-    // 如果是高级用户,使用渐变效果
-    if (user.premium) {
-      return ShaderMask(
-        shaderCallback: (bounds) => LinearGradient(
-          colors: [
-            Colors.purple.shade300,
-            Colors.blue.shade300,
-            Colors.pink.shade300,
-          ],
-        ).createShader(bounds),
-        child: Text(
-          user.name,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-      );
-    }
-
-    // 普通用户名显示
-    return Text(
-      user.name,
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-      style: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
-        color: nameColor,
-      ),
-    );
-  }
 
   // 构建翻译按钮
   Widget _buildTranslationButton(BuildContext context) {
@@ -343,6 +296,47 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
     }
   }
 
+  Widget _buildCommentTag(String text, IconData icon) {
+    final colorScheme = Theme.of(context).colorScheme;
+    Color tagColor;
+    if (text == slang.t.common.me) {
+      tagColor = colorScheme.primary;
+    } else if (text == slang.t.common.author) {
+      tagColor = colorScheme.secondary;
+    } else if (text == slang.t.forum.pendingReview) {
+      tagColor = colorScheme.error;
+    } else {
+      tagColor = colorScheme.primary;
+    }
+    return Container(
+      margin: const EdgeInsets.only(right: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: tagColor.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: tagColor.withOpacity(0.12),
+          width: 0.5,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 10, color: tagColor.withOpacity(0.8)),
+          const SizedBox(width: 4),
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w500,
+              color: tagColor.withOpacity(0.8),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool isCurrentUser = _userService.currentUser.value?.id == widget.comment.user.id;
@@ -351,282 +345,216 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4.0),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 12,
           children: [
-            // 评论者信息和楼层
-            Row(
-              spacing: 12,
-              children: [
-                MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: GestureDetector(
-                    onTap: () {
-                      NaviService.navigateToAuthorProfilePage(
-                          widget.comment.user.username);
-                    },
-                    child: AvatarWidget(
-                      user: widget.comment.user,
-                      radius: 24,
-                      defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(8),
+                  topRight: Radius.circular(8),
+                ),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: () {
+                        NaviService.navigateToAuthorProfilePage(
+                            widget.comment.user.username);
+                      },
+                      child: AvatarWidget(
+                        user: widget.comment.user,
+                        radius: 24,
+                        defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+                      ),
                     ),
                   ),
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 4,
-                    children: [
-                      // 第一行：用户名和楼层号
-                      Row(
-                        children: [
-                          Expanded(
-                            child: MouseRegion(
-                              cursor: SystemMouseCursors.click,
-                              child: GestureDetector(
-                                onTap: () {
-                                  NaviService.navigateToAuthorProfilePage(
-                                      widget.comment.user.username);
-                                },
-                                child: _buildUserName(widget.comment.user),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 第一行：用户名和楼层号
+                        Row(
+                          children: [
+                            Expanded(
+                              child: MouseRegion(
+                                cursor: SystemMouseCursors.click,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    NaviService.navigateToAuthorProfilePage(
+                                        widget.comment.user.username);
+                                  },
+                                  child: buildUserName(context, widget.comment.user,
+                                      fontSize: 16, bold: true),
+                                ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            '#${widget.comment.replyNum + 1}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.primary,
+                            const SizedBox(width: 8),
+                            Text(
+                              '#${widget.comment.replyNum + 1}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color:
+                                    Theme.of(context).colorScheme.primary,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      // 第二行：用户名和发布时间
-                      Row(
-                        spacing: 8,
-                        children: [
-                          Expanded(
-                            child: MouseRegion(
-                              cursor: SystemMouseCursors.click,
-                              child: GestureDetector(
-                                onTap: () {
-                                  Clipboard.setData(ClipboardData(text: widget.comment.user.username));
-                                  showToastWidget(MDToastWidget(
-                                    message: slang.t.forum.copySuccessForMessage(str: widget.comment.user.username),
-                                    type: MDToastType.success
-                                  ));
-                                },
-                                child: Text(
-                                  '@${widget.comment.user.username}',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Theme.of(context).textTheme.bodySmall?.color,
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        // 第二行：用户名和发布时间
+                        Row(
+                          children: [
+                            Expanded(
+                              child: MouseRegion(
+                                cursor: SystemMouseCursors.click,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    Clipboard.setData(ClipboardData(
+                                        text: widget.comment.user.username));
+                                    showToastWidget(MDToastWidget(
+                                        message: slang.t.forum
+                                            .copySuccessForMessage(
+                                                str: widget.comment.user.username),
+                                        type: MDToastType.success));
+                                  },
+                                  child: Text(
+                                    '@${widget.comment.user.username}',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.color,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                          const Icon(Icons.schedule, size: 14),
-                          Text(
-                            CommonUtils.formatFriendlyTimestamp(widget.comment.createdAt),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Theme.of(context).textTheme.bodySmall?.color,
+                            const Icon(Icons.schedule, size: 14),
+                            const SizedBox(width: 4),
+                            Text(
+                              CommonUtils.formatFriendlyTimestamp(
+                                  widget.comment.createdAt),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.color,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      // 第三行：标签
-                      if (!widget.comment.approved || isCurrentUser || isThreadAuthor)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Wrap(
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        // 第三行：标签
+                        if (!widget.comment.approved || isCurrentUser || isThreadAuthor)
+                          Wrap(
                             spacing: 8,
                             children: [
                               if (!widget.comment.approved)
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                    vertical: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.errorContainer,
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        Icons.pending_outlined,
-                                        size: 12,
-                                        color: Theme.of(context).colorScheme.onErrorContainer,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        slang.t.forum.pendingReview,
-                                        style: TextStyle(
-                                          fontSize: 10,
-                                          color: Theme.of(context).colorScheme.onErrorContainer,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                                _buildCommentTag(slang.t.forum.pendingReview, Icons.pending_outlined),
                               if (isCurrentUser)
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                    vertical: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.primaryContainer,
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        Icons.person_outline,
-                                        size: 12,
-                                        color: Theme.of(context).colorScheme.onPrimaryContainer,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        slang.t.common.me,
-                                        style: TextStyle(
-                                          fontSize: 10,
-                                          color: Theme.of(context).colorScheme.onPrimaryContainer,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                                _buildCommentTag(slang.t.common.me, Icons.person_outline),
                               if (isThreadAuthor)
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                    vertical: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.tertiaryContainer,
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        Icons.stars_outlined,
-                                        size: 12,
-                                        color: Theme.of(context).colorScheme.onTertiaryContainer,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        slang.t.common.author,
-                                        style: TextStyle(
-                                          fontSize: 10,
-                                          color: Theme.of(context).colorScheme.onTertiaryContainer,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                                _buildCommentTag(slang.t.common.author, Icons.stars_outlined),
                             ],
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
+                ],
+              ),
+            ),
+            // 翻译与回复按钮行
+            Row(
+              spacing: 4,
+              children: [
+                if (widget.comment.createdAt != widget.comment.updatedAt) ...[
+                  const Icon(Icons.edit, size: 14),
+                  Text(
+                    CommonUtils.formatFriendlyTimestamp(widget.comment.updatedAt),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).textTheme.bodySmall?.color,
+                    ),
+                  ),
+                ],
+                const Spacer(),
+                _buildTranslationButton(context),
+                if (!widget.lockedThread) ...[
+                  const SizedBox(width: 8),
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      textStyle: const TextStyle(fontSize: 12),
+                    ),
+                    onPressed: () {
+                      UserService userService = Get.find<UserService>();
+                      if (!userService.isLogin) {
+                        AppService.switchGlobalDrawer();
+                        showToastWidget(MDToastWidget(
+                          message: slang.t.errors.pleaseLoginFirst,
+                          type: MDToastType.warning,
+                        ));
+                        return;
+                      }
+                      final replyTemplate = 'Reply #${widget.comment.replyNum + 1}: @${widget.comment.user.username}\n---\n';
+                      Get.dialog(ForumReplyDialog(
+                        threadId: widget.comment.threadId,
+                        initialContent: replyTemplate,
+                        onSubmit: () {
+                          widget.listSourceRepository.refresh();
+                        },
+                      ));
+                    },
+                    icon: const Icon(Icons.reply),
+                    label: Text(slang.t.forum.reply),
+                  ),
+                ],
               ],
             ),
-            // 评论内容
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            // Markdown内容
+            CustomMarkdownBody(
+              data: widget.comment.body,
+            ),
+            if (_translatedText != null) _buildTranslatedContent(context),
+            // 操作按钮行（仅保留编辑按钮）
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                // 翻译按钮行
-                Row(
-                  spacing: 4,
-                  children: [
-                    if (widget.comment.createdAt != widget.comment.updatedAt) ...[
-                      const Icon(Icons.edit, size: 14),
-                      Text(
-                        CommonUtils.formatFriendlyTimestamp(widget.comment.updatedAt),
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Theme.of(context).textTheme.bodySmall?.color,
-                        ),
-                      ),
-                    ],
-                    const Spacer(),
-                    _buildTranslationButton(context),
-                  ],
-                ),
-                // Markdown内容
-                CustomMarkdownBody(
-                  data: widget.comment.body,
-                ),
-                if (_translatedText != null) _buildTranslatedContent(context),
-                // 操作按钮行
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    // 编辑按钮
-                    if (isCurrentUser)
-                      IconButton(
-                        icon: const Icon(Icons.edit),
-                        tooltip: slang.t.common.edit,
-                        onPressed: () {
-                          UserService userService = Get.find<UserService>();
-                          if (!userService.isLogin) {
-                            AppService.switchGlobalDrawer();
-                            showToastWidget(MDToastWidget(message: slang.t.errors.pleaseLoginFirst, type: MDToastType.warning));
-                            return;
-                          }
-                          Get.dialog(ForumEditReplyDialog(
-                            postId: widget.comment.id,
-                            initialContent: widget.comment.body,
-                            repository: widget.listSourceRepository,
-                            onSubmit: () {
-                              // 刷新评论列表
-                              widget.listSourceRepository.refresh();
-                            },
-                          ));
+                if (isCurrentUser)
+                  IconButton(
+                    icon: const Icon(Icons.edit),
+                    tooltip: slang.t.common.edit,
+                    onPressed: () {
+                      UserService userService = Get.find<UserService>();
+                      if (!userService.isLogin) {
+                        AppService.switchGlobalDrawer();
+                        showToastWidget(MDToastWidget(message: slang.t.errors.pleaseLoginFirst, type: MDToastType.warning));
+                        return;
+                      }
+                      Get.dialog(ForumEditReplyDialog(
+                        postId: widget.comment.id,
+                        initialContent: widget.comment.body,
+                        repository: widget.listSourceRepository,
+                        onSubmit: () {
+                          widget.listSourceRepository.refresh();
                         },
-                      ),
-                    // 如果thread没有lock
-                    if (!widget.lockedThread)
-                      // 回复按钮
-                      IconButton(
-                        icon: const Icon(Icons.reply),
-                      tooltip: slang.t.forum.reply,
-                      onPressed: () {
-                        UserService userService = Get.find<UserService>();
-                        if (!userService.isLogin) {
-                          AppService.switchGlobalDrawer();
-                          showToastWidget(MDToastWidget(message: slang.t.errors.pleaseLoginFirst, type: MDToastType.warning));
-                          return;
-                        }
-                        // 生成回复模板文本
-                        final replyTemplate = 'Reply #${widget.comment.replyNum + 1}: @${widget.comment.user.username}\n---\n';
-                        
-                        // 打开回复对话框
-                        Get.dialog(ForumReplyDialog(
-                          threadId: widget.comment.threadId,
-                          initialContent: replyTemplate,
-                          onSubmit: () {
-                            // 刷新评论列表
-                            widget.listSourceRepository.refresh();
-                          },
-                        ));
-                      },
-                    ),
-                  ],
-                ),
+                      ));
+                    },
+                  ),
               ],
             ),
           ],

@@ -338,13 +338,14 @@ class _TranslationDialogState extends State<TranslationDialog> {
                       _buildTextContainer(
                         context,
                         title: t.common.translationResult,
-                        content: _error != null
-                            ? Text(
-                                _error!,
-                                style:
-                                    TextStyle(color: theme.colorScheme.error),
-                              )
-                            : SelectableText(_translatedText ?? ''),
+                        content: _isTranslating
+                            ? _buildShimmerLoading(theme)
+                            : _error != null
+                                ? Text(
+                                    _error!,
+                                    style: TextStyle(color: theme.colorScheme.error),
+                                  )
+                                : SelectableText(_translatedText ?? ''),
                       ),
                     ],
                   ),

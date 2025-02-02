@@ -31,43 +31,16 @@ class ThreadListPage extends StatefulWidget {
 class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProviderStateMixin {
   late ThreadListRepository listSourceRepository;
   final ScrollController _scrollController = ScrollController();
-  final RxBool _showBackToTop = false.obs;
-  final RxBool _enableFloatingButton = true.obs;
   final RxString _categoryName = ''.obs;
   final RxString _categoryDescription = ''.obs;
-  late AnimationController _floatingButtonController;
 
   @override
   void initState() {
     super.initState();
-    _floatingButtonController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 200),
-    );
 
     listSourceRepository = ThreadListRepository(categoryId: widget.categoryId, updateCategoryName: (name, description) {
       _categoryName.value = name;
       _categoryDescription.value = description;
-    });
-
-    // 添加滚动监听
-    _scrollController.addListener(() {
-      if (_scrollController.offset >= 300) {
-        _showBackToTop.value = true;
-        _floatingButtonController.forward();
-      } else {
-        _showBackToTop.value = false;
-        _floatingButtonController.reverse();
-      }
-    });
-
-    // 监听启用状态变化
-    ever(_enableFloatingButton, (bool enabled) {
-      if (!enabled) {
-        _floatingButtonController.reverse();
-      } else if (_showBackToTop.value) {
-        _floatingButtonController.forward();
-      }
     });
   }
 
@@ -75,7 +48,6 @@ class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProvid
   void dispose() {
     _scrollController.dispose();
     listSourceRepository.dispose();
-    _floatingButtonController.dispose();
     super.dispose();
   }
 
@@ -125,27 +97,6 @@ class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProvid
               visualDensity: VisualDensity.compact,
             ),
           ),
-          Obx(() => IconButton(
-            icon: Icon(_enableFloatingButton.value ? Icons.visibility : Icons.visibility_off),
-            onPressed: () {
-              _enableFloatingButton.value = !_enableFloatingButton.value;
-
-              showToastWidget(MDToastWidget(
-                message: _enableFloatingButton.value ? t.common.enabledFloatingButtons : t.common.disabledFloatingButtons,
-                type: MDToastType.success
-              ), position: ToastPosition.top);
-            },
-            tooltip: _enableFloatingButton.value ? t.common.disableFloatingButtons : t.common.enableFloatingButtons,
-            style: IconButton.styleFrom(
-              visualDensity: VisualDensity.compact,
-              backgroundColor: !_enableFloatingButton.value 
-                ? Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5)
-                : null,
-              foregroundColor: !_enableFloatingButton.value 
-                ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          )),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () => listSourceRepository.refresh(),
@@ -193,42 +144,6 @@ class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProvid
             ),
           ),
         ],
-      ),
-      floatingActionButton: ScaleTransition(
-        scale: _floatingButtonController,
-        child: Obx(() => (_showBackToTop.value && _enableFloatingButton.value)
-            ? Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // 隐藏浮动按钮的按钮
-                  FloatingActionButton(
-                    heroTag: 'hideFloatingButton',
-                    onPressed: () {
-                      _enableFloatingButton.value = false;
-                      showToastWidget(MDToastWidget(
-                        message: t.common.disabledFloatingButtons,
-                        type: MDToastType.success
-                      ), position: ToastPosition.top);
-                    },
-                    backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                    foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
-                    child: const Icon(Icons.visibility_off),
-                  ).paddingOnly(bottom: 8),
-                  // 回到顶部按钮
-                  FloatingActionButton(
-                    onPressed: () {
-                      _scrollController.animateTo(
-                        0,
-                        duration: const Duration(milliseconds: 500),
-                        curve: Curves.easeInOut,
-                      );
-                    },
-                    child: const Icon(Icons.arrow_upward),
-                  ),
-                  const SafeArea(child: SizedBox()),
-                ],
-              ).paddingBottom(Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0)
-            : const SizedBox()),
       ),
     );
   }

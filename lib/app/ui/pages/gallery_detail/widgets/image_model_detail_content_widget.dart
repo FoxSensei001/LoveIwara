@@ -108,7 +108,7 @@ class ImageModelDetailContent extends StatelessWidget {
     return SizedBox(
       width: imageModelWidth,
       height: (imageModelHeight ?? MediaQuery.sizeOf(context).width / 1.7),
-      child: child.paddingHorizontal(16),
+      child: child.paddingHorizontal(12),
     );
   }
 
@@ -240,19 +240,19 @@ class ImageModelDetailContent extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           _buildGalleryTitle(),
           const SizedBox(height: 8),
           _buildAuthorInfo(context),
           const SizedBox(height: 8),
           _buildPublishInfo(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           _buildGalleryDescription(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           _buildTags(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           _buildLikeAvatars(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           _buildLikeAndCommentButtons(context),
         ],
       );

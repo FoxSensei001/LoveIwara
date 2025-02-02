@@ -91,13 +91,13 @@ class VideoDetailContent extends StatelessWidget {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   const Icon(Icons.not_interested, size: 48, color: Colors.white),
-                                  const SizedBox(height: 16),
+                                  const SizedBox(height: 12),
                                   Text(
                                     t.videoDetail.resourceDeleted,
                                     style: const TextStyle(fontSize: 18, color: Colors.white),
                                     textAlign: TextAlign.center,
                                   ),
-                                  const SizedBox(height: 16),
+                                  const SizedBox(height: 12),
                                   ElevatedButton.icon(
                                     onPressed: () => AppService.tryPop(),
                                     icon: const Icon(Icons.arrow_back),
@@ -153,13 +153,13 @@ class VideoDetailContent extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               const Icon(Icons.link, size: 48, color: Colors.white),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: 12),
                               Text(
                                 '${t.videoDetail.externalVideo}: ${controller.videoInfo.value?.externalVideoDomain}',
                                 style: const TextStyle(fontSize: 18, color: Colors.white),
                                 textAlign: TextAlign.center,
                               ),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: 12),
                               Row(
                                 spacing: 16,
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -224,7 +224,7 @@ class VideoDetailContent extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 // 视频标题
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -275,7 +275,7 @@ class VideoDetailContent extends StatelessWidget {
                         ),
                       )),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 // 视频描述内容，支持展开/收起
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -286,7 +286,7 @@ class VideoDetailContent extends StatelessWidget {
                             controller.isDescriptionExpanded.toggle(),
                       )),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 // 视频标签区域，支持展开
                 Obx(() {
                   final tags = controller.videoInfo.value?.tags;
@@ -296,7 +296,7 @@ class VideoDetailContent extends StatelessWidget {
                     return const SizedBox.shrink();
                   }
                 }),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 // 点赞用户头像展示
                 Obx(() {
                   final videoId = controller.videoInfo.value?.id;
@@ -315,7 +315,7 @@ class VideoDetailContent extends StatelessWidget {
                     return const SizedBox.shrink();
                   }
                 }),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 Obx(() {
                   final videoInfo = controller.videoInfo.value;
                   if (videoInfo != null) {
