@@ -313,7 +313,7 @@ class MyVideoStateController extends GetxController
     }
   }
 
-  // 取消监��
+  // 取消监听
   Future<void> _cancelSubscriptions() async {
     await Future.wait([
       bufferingSubscription?.cancel() ?? Future.value(),

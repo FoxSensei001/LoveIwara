@@ -10,6 +10,8 @@ import 'database_service.dart';
 import 'migrations/migration.dart';
 import 'migrations/migration_v1.dart';
 import 'migrations/migration_v2.dart';
+import 'migrations/migration_v6_config.dart';
+import 'migrations/migration_v7_config_storage.dart';
 
 /// 迁移管理器
 class MigrationManager {
@@ -20,6 +22,8 @@ class MigrationManager {
     MigrationV3DownloadTask(),
     MigrationV4Favorites(),
     MigrationV5PlaybackHistory(),
+    MigrationV6Config(),
+    MigrationV7ConfigStorage(),
     // [TODO_PLACEHOLDER] 将来新增的迁移在这里添加
   ];
 

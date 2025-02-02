@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
+import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
@@ -28,6 +29,7 @@ class _LoginPageState extends State<LoginPage>
   final AuthService _authService = Get.find<AuthService>();
   final UserService _userService = Get.find<UserService>();
   final StorageService _storage = StorageService();
+  final ConfigService _configService = Get.find<ConfigService>();
 
   // 登录表单控制器
   final TextEditingController _loginEmailController = TextEditingController();
@@ -76,7 +78,7 @@ class _LoginPageState extends State<LoginPage>
 
   Future<void> _loadSavedCredentials() async {
     try {
-      final rememberMe = await _storage.loadRememberMe();
+      final rememberMe = _configService[ConfigKey.REMEMBER_ME_KEY];
       final credentials = await _storage.readCredentials();
       if (mounted) {
         setState(() {
@@ -101,7 +103,7 @@ class _LoginPageState extends State<LoginPage>
       });
     }
     // 立即持久化状态
-    _storage.saveRememberMe(newValue);
+    _configService[ConfigKey.REMEMBER_ME_KEY] = newValue;
     if (!newValue) {
       _storage.clearCredentials();
     }

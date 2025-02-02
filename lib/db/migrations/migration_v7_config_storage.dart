@@ -13,25 +13,41 @@ class MigrationV7ConfigStorage extends Migration {
   String get description => "将 config_service 的值从 StorageService 迁移到数据库";
 
   @override
-  void up(CommonDatabase db) {
-    final storage = StorageService();
-    // 遍历所有配置项，将存储中（如存在）的值迁移到数据库中
-    for (final key in ConfigKey.values) {
-      final storedValue = storage.readData(key.key);
-      final valueToSave = storedValue ?? key.getDefaultValue(key);
-      String valueStr = valueToSave is List ? jsonEncode(valueToSave) : valueToSave.toString();
-      db.execute('''
-        INSERT OR REPLACE INTO app_config (key, value)
-        VALUES (?, ?)
-      ''', [key.key, valueStr]);
+  Future<void> up(CommonDatabase db) async {
+    try {
+      final storage = StorageService();
+      if (!storage.initialized) {
+        await storage.init();
+      }
+
+      // 遍历所有配置项，将存储中的值迁移到数据库中
+      for (final key in ConfigKey.values) {
+        try {
+          final storedValue = storage.readData(key.key);
+          if (storedValue != null) {
+            String valueStr = storedValue is List ? jsonEncode(storedValue) : storedValue.toString();
+            db.execute('''
+              INSERT OR REPLACE INTO app_config (key, value)
+              VALUES (?, ?)
+            ''', [key.key, valueStr]);
+          }
+        } catch (e) {
+          // 如果某个配置项处理失败，记录日志但继续处理其他配置项
+          LogUtils.w('迁移配置项 ${key.key} 失败: $e');
+          continue;
+        }
+      }
+
+      db.execute('PRAGMA user_version = 7;');
+      LogUtils.i('已应用迁移v7：将 config_service 的值从 StorageService 迁移到数据库');
+    } catch (e) {
+      LogUtils.e('迁移v7失败: $e');
+      rethrow; // 重新抛出异常以便事务回滚
     }
-    db.execute('PRAGMA user_version = 7;');
-    LogUtils.i('已应用迁移v7：将 config_service 的值从 StorageService 迁移到数据库');
   }
 
   @override
   void down(CommonDatabase db) {
-    // 由于无法还原 StorageService 中的数据，此迁移不支持回滚
     LogUtils.i('迁移v7无法回滚');
   }
 }

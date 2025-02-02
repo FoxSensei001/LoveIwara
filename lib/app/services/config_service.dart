@@ -9,10 +9,8 @@ import 'dart:convert';
 class ConfigService extends GetxService {
   static const screenshotChannel = MethodChannel('i_iwara/screenshot');
 
-  // 用于存储配置，初始值均为对应默认值
-  final settings = <ConfigKey, Rx<dynamic>>{
-    for (final key in ConfigKey.values) key: (key.getDefaultValue(key) as dynamic).obs,
-  };
+  // 修改初始化方式
+  final settings = <ConfigKey, Rx<dynamic>>{};
 
   late final CommonDatabase _db;
   late final Rx<Sort> _currentTranslationSort;
@@ -20,6 +18,11 @@ class ConfigService extends GetxService {
   String get currentTranslationLanguage => currentTranslationSort.extData;
 
   Future<ConfigService> init() async {
+    // 初始化 settings Map
+    for (final key in ConfigKey.values) {
+      settings[key] = Rx<dynamic>(key.defaultValue);
+    }
+
     _db = DatabaseService().database;
     await _loadSettings();
 
@@ -28,14 +31,14 @@ class ConfigService extends GetxService {
       await screenshotChannel.invokeMethod('preventScreenshot');
     }
 
-    // 初始化翻译语言（保持原有逻辑）
+    // 初始化翻译语言
     final savedLanguage = settings[ConfigKey.DEFAULT_LANGUAGE_KEY]!.value;
-    _currentTranslationSort = (CommonConstants.translationSorts.firstWhere(
+    _currentTranslationSort = Rx<Sort>(CommonConstants.translationSorts.firstWhere(
       (sort) => sort.extData == savedLanguage,
       orElse: () => CommonConstants.translationSorts.first,
-    )).obs;
+    ));
 
-    // 初始化主题、历史记录等配置
+    // 初始化其他配置
     CommonConstants.themeMode = settings[ConfigKey.THEME_MODE_KEY]!.value;
     CommonConstants.useDynamicColor = settings[ConfigKey.USE_DYNAMIC_COLOR_KEY]!.value;
     CommonConstants.customThemeColors = List<String>.from(settings[ConfigKey.CUSTOM_THEME_COLORS_KEY]!.value);
@@ -54,7 +57,7 @@ class ConfigService extends GetxService {
       if (result.isNotEmpty) {
         final storedValue = result.first['value'] as String;
         dynamic parsedValue;
-        final defaultVal = key.getDefaultValue(key);
+        final defaultVal = key.defaultValue;
         if (defaultVal is bool) {
           parsedValue = storedValue.toLowerCase() == 'true';
         } else if (defaultVal is int) {
@@ -68,8 +71,8 @@ class ConfigService extends GetxService {
         }
         settings[key]!.value = parsedValue;
       } else {
-        await _saveSetting(key, key.getDefaultValue(key));
-        settings[key]!.value = key.getDefaultValue(key);
+        await _saveSetting(key, key.defaultValue);
+        settings[key]!.value = key.defaultValue;
       }
     }
   }
@@ -151,6 +154,7 @@ enum ConfigKey {
   AI_TRANSLATION_API_KEY,
   AI_TRANSLATION_MAX_TOKENS,
   AI_TRANSLATION_TEMPERATURE,
+  REMEMBER_ME_KEY,
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -198,11 +202,12 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.AI_TRANSLATION_API_KEY: return 'ai_translation_api_key';
       case ConfigKey.AI_TRANSLATION_MAX_TOKENS: return 'ai_translation_max_tokens';
       case ConfigKey.AI_TRANSLATION_TEMPERATURE: return 'ai_translation_temperature';
+      case ConfigKey.REMEMBER_ME_KEY: return 'remember_me';
     }
   }
 
-  dynamic getDefaultValue(ConfigKey key) {
-    switch (key) {
+  dynamic get defaultValue {
+    switch (this) {
       case ConfigKey.AUTO_PLAY_KEY:
         return false;
       case ConfigKey.DEFAULT_BRIGHTNESS_KEY:
@@ -287,8 +292,10 @@ extension ConfigKeyExtension on ConfigKey {
         return 500;
       case ConfigKey.AI_TRANSLATION_TEMPERATURE:
         return 0.3;
+      case ConfigKey.REMEMBER_ME_KEY:
+        return false;
       default:
-        throw Exception("Unknown ConfigKey: $key");
+        throw Exception("Unknown ConfigKey: $this");
     }
   }
 }

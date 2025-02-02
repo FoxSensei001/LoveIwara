@@ -31,9 +31,9 @@ class ThemeService extends GetxService {
   ThemeService() {
     final configService = Get.find<ConfigService>();
     _useDynamicColor.value = configService[ConfigKey.USE_DYNAMIC_COLOR_KEY];
-    _usePresetColor.value = configService[ConfigKey.USE_PRESET_COLOR_KEY] ?? true;
-    _currentPresetIndex.value = configService[ConfigKey.CURRENT_PRESET_INDEX_KEY] ?? 0;
-    _currentCustomHex.value = configService[ConfigKey.CURRENT_CUSTOM_HEX_KEY] ?? '';
+    _usePresetColor.value = configService[ConfigKey.USE_PRESET_COLOR_KEY];
+    _currentPresetIndex.value = configService[ConfigKey.CURRENT_PRESET_INDEX_KEY];
+    _currentCustomHex.value = configService[ConfigKey.CURRENT_CUSTOM_HEX_KEY];
     _customThemeColors.value = List<String>.from(configService[ConfigKey.CUSTOM_THEME_COLORS_KEY]);
   }
 

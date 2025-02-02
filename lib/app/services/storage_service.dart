@@ -13,7 +13,7 @@ class StorageService {
 
   StorageService._internal();
 
-  late final GetStorage _box;
+  GetStorage? _box;
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
   
   // 添加一个标志来跟踪是否使用安全存储
@@ -22,40 +22,60 @@ class StorageService {
   // 为安全数据添加前缀，以区分普通数据
   static const String _securePrefix = 'secure_';
 
-  static const String _rememberMeKey = 'remember_me';
+  bool initialized = false;
 
   Future<void> init() async {
-    await GetStorage.init();
-    _box = GetStorage();
-    
-    // 测试安全存储是否可用
+    if (initialized) return;
+
     try {
-      await _secureStorage.write(key: 'test_key', value: 'test_value');
-      await _secureStorage.read(key: 'test_key');
-      await _secureStorage.delete(key: 'test_key');
-      _useSecureStorage = true;
-      LogUtils.d('安全存储可用', _tag);
+      await GetStorage.init();
+      _box = GetStorage();
+      
+      // 测试安全存储是否可用
+      try {
+        await _secureStorage.write(key: 'test_key', value: 'test_value');
+        await _secureStorage.read(key: 'test_key');
+        await _secureStorage.delete(key: 'test_key');
+        _useSecureStorage = true;
+        LogUtils.d('安全存储可用', _tag);
+      } catch (e) {
+        _useSecureStorage = false;
+        LogUtils.w('安全存储不可用，将使用普通存储作为回退方案', _tag);
+      }
+
+      initialized = true;
     } catch (e) {
-      _useSecureStorage = false;
-      LogUtils.w('安全存储不可用，将使用普通存储作为回退方案', _tag);
+      LogUtils.e('存储服务初始化失败', tag: _tag, error: e);
+      rethrow;
     }
   }
 
+  GetStorage get box {
+    if (_box == null) {
+      throw StateError('StorageService 未初始化');
+    }
+    return _box!;
+  }
+
   //==================== 非安全存储 ====================
+  @Deprecated('Use [CommonDatabase] instead')
   Future<void> writeData(String key, dynamic value) async {
-    await _box.write(key, value);
+    await box.write(key, value);
   }
 
+  @Deprecated('Use [CommonDatabase] instead')
   T? readData<T>(String key) {
-    return _box.read<T>(key);
+    return box.read<T>(key);
   }
 
+  @Deprecated('Use [CommonDatabase] instead')
   Future<void> deleteData(String key) async {
-    await _box.remove(key);
+    await box.remove(key);
   }
 
+  @Deprecated('Use [CommonDatabase] instead')
   Future<void> clearAll() async {
-    await _box.erase();
+    await box.erase();
     if (_useSecureStorage) {
       try {
         await _secureStorage.deleteAll();
@@ -77,7 +97,7 @@ class StorageService {
       }
     }
     // 回退到普通存储
-    await _box.write(_securePrefix + key, value);
+    await box.write(_securePrefix + key, value);
   }
 
   Future<String?> readSecureData(String key) async {
@@ -97,7 +117,7 @@ class StorageService {
       }
     }
     // 回退到普通存储
-    return _box.read<String>(_securePrefix + key);
+    return box.read<String>(_securePrefix + key);
   }
 
   Future<void> deleteSecureData(String key) async {
@@ -111,7 +131,7 @@ class StorageService {
       }
     }
     // 回退到普通存储
-    await _box.remove(_securePrefix + key);
+    await box.remove(_securePrefix + key);
   }
 
   Future<void> writeSecureObject(String key, Map<String, dynamic> value) async {
@@ -149,11 +169,4 @@ class StorageService {
     await deleteSecureData('password');
   }
 
-  Future<void> saveRememberMe(bool value) async {
-    await writeData(_rememberMeKey, value);
-  }
-
-  Future<bool> loadRememberMe() async {
-    return readData<bool>(_rememberMeKey) ?? false;
-  }
 }
