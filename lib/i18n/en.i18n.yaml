@@ -562,6 +562,9 @@ markdown:
   syntax: Syntax
 
 forum:
+  recent: Recent
+  category: Category
+  lastReply: Last Reply
   errors:
     pleaseSelectCategory: Please select a category
     threadLocked: This thread is locked, cannot reply

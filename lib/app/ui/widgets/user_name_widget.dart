@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 
 Widget buildUserName(BuildContext context, User? user,
-    {double? fontSize, int? overflowLines, bool bold = false}) {
+    {double? fontSize, int? overflowLines, bool bold = false, Color? defaultNameColor}) {
   if (user == null) {
     return const SizedBox.shrink();
   }
@@ -17,7 +17,7 @@ Widget buildUserName(BuildContext context, User? user,
   } else {
     nameColor = user.isAdmin
         ? Colors.red
-        : Theme.of(context).colorScheme.onSurfaceVariant;
+        : defaultNameColor ?? Theme.of(context).colorScheme.onSurfaceVariant;
   }
 
   // 如果是高级用户,使用渐变效果

@@ -1,20 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
-import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/services/forum_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_post_dialog.dart';
-import 'package:i_iwara/app/ui/pages/forum/widgets/forum_shimmer_widget.dart';
+import 'package:i_iwara/app/ui/pages/forum/widgets/thread_list_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
+import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:loading_more_list/loading_more_list.dart';
+import 'package:i_iwara/app/ui/pages/forum/controllers/recent_thread_repository.dart';
+import 'package:i_iwara/app/ui/pages/forum/forum_skeleton_page.dart'; // 新增的导入
 
 class ForumPage extends StatefulWidget {
   const ForumPage({super.key});
@@ -29,10 +33,20 @@ class _ForumPageState extends State<ForumPage> {
   bool _isLoading = true;
   String? _error;
   final UserService userService = Get.find<UserService>();
+  int _selectedRailIndex = 0; // 修改变量名称：选中 rail 的索引（0 为 最近，其余从 _categories 中获取）
+  late RecentThreadListRepository _recentThreadRepository;
+
   @override
   void initState() {
     super.initState();
     _loadCategories();
+    _recentThreadRepository = RecentThreadListRepository();
+  }
+
+  @override
+  void dispose() {
+    _recentThreadRepository.dispose();
+    super.dispose();
   }
 
   Future<void> _loadCategories() async {
@@ -60,7 +74,8 @@ class _ForumPageState extends State<ForumPage> {
     UserService userService = Get.find<UserService>();
     if (!userService.isLogin) {
       AppService.switchGlobalDrawer();
-      showToastWidget(MDToastWidget(message: slang.t.errors.pleaseLoginFirst, type: MDToastType.warning));
+      showToastWidget(MDToastWidget(
+          message: slang.t.errors.pleaseLoginFirst, type: MDToastType.warning));
       return;
     }
     Get.dialog(
@@ -96,7 +111,8 @@ class _ForumPageState extends State<ForumPage> {
                         right: 0,
                         top: 0,
                         child: Obx(() {
-                          final count = userService.notificationCount.value + userService.messagesCount.value;
+                          final count = userService.notificationCount.value +
+                              userService.messagesCount.value;
                           if (count > 0) {
                             return Container(
                               width: 8,
@@ -170,7 +186,7 @@ class _ForumPageState extends State<ForumPage> {
 
   Widget _buildBody(BuildContext context) {
     if (_isLoading) {
-      return const ForumShimmerWidget();
+      return const ForumSkeletonPage(); // 修改为使用 ForumSkeletonPage
     }
 
     if (_error != null) {
@@ -201,42 +217,138 @@ class _ForumPageState extends State<ForumPage> {
       );
     }
 
+    final screenWidth = MediaQuery.of(context).size.width;
+    if (screenWidth < 260) {
+      // 使用顶部 Tab 来切换"最近"及各分类内容
+      return RefreshIndicator(
+        onRefresh: _loadCategories,
+        child: DefaultTabController(
+          length: _categories!.length + 1,
+          child: Column(
+            children: [
+              TabBar(
+                isScrollable: true,
+                physics: const NeverScrollableScrollPhysics(),
+                overlayColor: WidgetStateProperty.all(Colors.transparent),
+                tabAlignment: TabAlignment.start,
+                dividerColor: Colors.transparent,
+                padding: EdgeInsets.zero,
+                tabs: [
+                  Tab(
+                    icon: const Icon(Icons.access_time),
+                    text: slang.t.forum.recent,
+                  ),
+                  ..._categories!.map((category) => Tab(
+                        icon: Icon(_getCategoryIcon(category.name)),
+                        text: category.name,
+                      )),
+                ],
+              ),
+              Expanded(
+                child: TabBarView(
+                  children: [
+                    _buildRecentThreads(),
+                    ..._categories!.map((category) => SingleChildScrollView(
+                          child: _buildCategorySection(category),
+                        )),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // 原有宽屏布局
     return RefreshIndicator(
       onRefresh: _loadCategories,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          // 根据屏幕宽度决定是否使用双列布局
-          final bool isWideScreen = constraints.maxWidth > 900;
-
-          if (isWideScreen) {
-            // PC端双列布局
-            return _buildWideLayout();
-          } else {
-            // 移动端单列布局
-            return _buildNarrowLayout();
-          }
-        },
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            width: 60,
+            child: NavigationRail(
+              minWidth: 56,
+              selectedIndex: _selectedRailIndex,
+              onDestinationSelected: (index) {
+                setState(() {
+                  _selectedRailIndex = index;
+                });
+              },
+              labelType: NavigationRailLabelType.all, // 显示图标和文本
+              destinations: [
+                NavigationRailDestination(
+                  icon: const Icon(Icons.access_time),
+                  selectedIcon: const Icon(Icons.access_time),
+                  label: Text(slang.t.forum.recent,
+                      style: const TextStyle(fontSize: 12)),
+                ),
+                // 其他分类项：生成顺序保持不变
+                ..._categories!.map((category) {
+                  return NavigationRailDestination(
+                    icon: Icon(_getCategoryIcon(category.name)),
+                    selectedIcon: Icon(_getCategoryIcon(category.name)),
+                    label: Text(category.name,
+                        style: const TextStyle(fontSize: 12)),
+                  );
+                }),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: _selectedRailIndex == 0
+                  ? _buildRecentThreads()
+                  : SingleChildScrollView(
+                      child: _buildCategorySection(
+                          _categories![_selectedRailIndex - 1]),
+                    ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildWideLayout() {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16.0),
-      itemCount: _categories!.length,
-      itemBuilder: (context, index) {
-        return _buildCategorySection(_categories![index]);
-      },
-    );
-  }
-
-  Widget _buildNarrowLayout() {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16.0),
-      itemCount: _categories!.length,
-      itemBuilder: (context, index) {
-        return _buildCategorySection(_categories![index]);
-      },
+  Widget _buildRecentThreads() {
+    return LoadingMoreCustomScrollView(
+      slivers: <Widget>[
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              slang.t.forum.recent,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+          ),
+        ),
+        LoadingMoreSliverList<ForumThreadModel>(
+          SliverListConfig<ForumThreadModel>(
+            extendedListDelegate:
+                const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 300,
+              crossAxisSpacing: 5,
+              mainAxisSpacing: 5,
+            ),
+            itemBuilder: (context, thread, index) => ThreadListItemWidget(
+              thread: thread,
+              categoryId: thread.section,
+              onTap: () => NaviService.navigateToForumThreadDetailPage(
+                  thread.section, thread.id),
+            ),
+            sourceList: _recentThreadRepository,
+            padding: const EdgeInsets.symmetric(horizontal: 5.0),
+            indicatorBuilder: (context, status) => myLoadingMoreIndicator(
+              context,
+              status,
+              isSliver: true,
+              loadingMoreBase: _recentThreadRepository,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -253,7 +365,8 @@ class _ForumPageState extends State<ForumPage> {
             padding: const EdgeInsets.all(16.0),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(12)),
             ),
             child: Row(
               children: [
@@ -285,13 +398,16 @@ class _ForumPageState extends State<ForumPage> {
               children: [
                 TableRow(
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .surfaceContainerHighest
+                        .withOpacity(0.5),
                   ),
                   children: [
-                    _buildTableHeader(context, '板块'),
-                    _buildTableHeader(context, '主题'),
-                    _buildTableHeader(context, '回复'),
-                    _buildTableHeader(context, '最后回复'),
+                    _buildTableHeader(context, slang.t.forum.category),
+                    _buildTableHeader(context, slang.t.forum.threads),
+                    _buildTableHeader(context, slang.t.forum.posts),
+                    _buildTableHeader(context, slang.t.forum.lastReply),
                   ],
                 ),
               ],
@@ -325,14 +441,15 @@ class _ForumPageState extends State<ForumPage> {
     );
   }
 
-  Widget _buildSubCategoryTile(ForumCategoryModel subCategory, BuildContext context) {
+  Widget _buildSubCategoryTile(
+      ForumCategoryModel subCategory, BuildContext context) {
     final t = slang.Translations.of(context);
     final bool isWideScreen = MediaQuery.of(context).size.width > 900;
+    final bool isNarrowTabLayout = MediaQuery.of(context).size.width < 260; // 新增窄屏Tab布局判断
 
     if (isWideScreen) {
       return InkWell(
         onTap: () {
-          // TODO: 导航到分类详情页面
           NaviService.navigateToForumThreadListPage(subCategory.id);
         },
         child: Table(
@@ -351,7 +468,9 @@ class _ForumPageState extends State<ForumPage> {
                   child: Row(
                     children: [
                       Icon(
-                        subCategory.locked ? Icons.lock : _getSubCategoryIcon(subCategory.id),
+                        subCategory.locked
+                            ? Icons.lock
+                            : _getSubCategoryIcon(subCategory.id),
                         size: 16,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
@@ -373,7 +492,9 @@ class _ForumPageState extends State<ForumPage> {
                                 subCategory.description,
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
                                 ),
                               ),
                             ],
@@ -413,7 +534,8 @@ class _ForumPageState extends State<ForumPage> {
                       children: [
                         GestureDetector(
                           onTap: () {
-                            NaviService.navigateToAuthorProfilePage(subCategory.lastThread!.lastPost!.user.username);
+                            NaviService.navigateToAuthorProfilePage(subCategory
+                                .lastThread!.lastPost!.user.username);
                           },
                           child: AvatarWidget(
                             user: subCategory.lastThread!.lastPost?.user,
@@ -434,13 +556,18 @@ class _ForumPageState extends State<ForumPage> {
                                       child: Icon(
                                         Icons.push_pin,
                                         size: 14,
-                                        color: Theme.of(context).colorScheme.primary,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
                                       ),
                                     ),
                                   Expanded(
                                     child: GestureDetector(
                                       onTap: () {
-                                        NaviService.navigateToForumThreadDetailPage(subCategory.id, subCategory.lastThread!.id);
+                                        NaviService
+                                            .navigateToForumThreadDetailPage(
+                                                subCategory.id,
+                                                subCategory.lastThread!.id);
                                       },
                                       child: Text(
                                         subCategory.lastThread!.title,
@@ -448,7 +575,9 @@ class _ForumPageState extends State<ForumPage> {
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                           fontSize: 14,
-                                          color: Theme.of(context).colorScheme.primary,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
                                         ),
                                       ),
                                     ),
@@ -460,30 +589,42 @@ class _ForumPageState extends State<ForumPage> {
                                   Flexible(
                                     child: GestureDetector(
                                       onTap: () {
-                                        NaviService.navigateToAuthorProfilePage(subCategory.lastThread!.lastPost!.user.username);
+                                        NaviService.navigateToAuthorProfilePage(
+                                            subCategory.lastThread!.lastPost!
+                                                .user.username);
                                       },
-                                      child: _buildUserName(subCategory.lastThread!.lastPost!.user),
+                                      child: buildUserName(
+                                          context,
+                                          subCategory
+                                              .lastThread!.lastPost!.user),
                                     ),
                                   ),
                                   Text(
                                     ' · ${CommonUtils.formatFriendlyTimestamp(subCategory.lastThread!.updatedAt)}',
                                     style: TextStyle(
                                       fontSize: 12,
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
                                     ),
                                   ),
                                   const SizedBox(width: 8),
                                   Icon(
                                     Icons.remove_red_eye,
                                     size: 12,
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    CommonUtils.formatFriendlyNumber(subCategory.lastThread!.numViews),
+                                    CommonUtils.formatFriendlyNumber(
+                                        subCategory.lastThread!.numViews),
                                     style: TextStyle(
                                       fontSize: 12,
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
                                     ),
                                   ),
                                 ],
@@ -495,9 +636,9 @@ class _ForumPageState extends State<ForumPage> {
                     ),
                   )
                 else
-                  const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Text('暂无回复'),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(slang.t.common.tmpNoReplies),
                   ),
               ],
             ),
@@ -506,7 +647,7 @@ class _ForumPageState extends State<ForumPage> {
       );
     }
 
-    // 窄屏布局保持不变
+    // 窄屏布局
     return InkWell(
       onTap: () {
         NaviService.navigateToForumThreadListPage(subCategory.id);
@@ -516,7 +657,6 @@ class _ForumPageState extends State<ForumPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 分类名称和统计信息
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -524,7 +664,9 @@ class _ForumPageState extends State<ForumPage> {
                   width: 32,
                   child: Center(
                     child: Icon(
-                      subCategory.locked ? Icons.lock : _getSubCategoryIcon(subCategory.id),
+                      subCategory.locked
+                          ? Icons.lock
+                          : _getSubCategoryIcon(subCategory.id),
                       size: 20,
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
@@ -545,13 +687,17 @@ class _ForumPageState extends State<ForumPage> {
                               ),
                             ),
                           ),
-                          Text(
-                            '${t.forum.threads}: ${CommonUtils.formatFriendlyNumber(subCategory.numThreads)}  ${t.forum.posts}: ${CommonUtils.formatFriendlyNumber(subCategory.numPosts)}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          // 只在非窄屏Tab布局时显示统计信息
+                          if (!isNarrowTabLayout) 
+                            Text(
+                              '${t.forum.threads}: ${CommonUtils.formatFriendlyNumber(subCategory.numThreads)}  ${t.forum.posts}: ${CommonUtils.formatFriendlyNumber(subCategory.numPosts)}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
+                              ),
                             ),
-                          ),
                         ],
                       ),
                       if (subCategory.description.isNotEmpty) ...[
@@ -560,7 +706,8 @@ class _ForumPageState extends State<ForumPage> {
                           subCategory.description,
                           style: TextStyle(
                             fontSize: 12,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ],
@@ -591,7 +738,8 @@ class _ForumPageState extends State<ForumPage> {
                       children: [
                         GestureDetector(
                           onTap: () {
-                            NaviService.navigateToForumThreadDetailPage(subCategory.id, subCategory.lastThread!.id);
+                            NaviService.navigateToForumThreadDetailPage(
+                                subCategory.id, subCategory.lastThread!.id);
                           },
                           child: Text(
                             subCategory.lastThread!.title,
@@ -609,16 +757,21 @@ class _ForumPageState extends State<ForumPage> {
                               Flexible(
                                 child: GestureDetector(
                                   onTap: () {
-                                    NaviService.navigateToAuthorProfilePage(subCategory.lastThread!.lastPost!.user.username);
+                                    NaviService.navigateToAuthorProfilePage(
+                                        subCategory.lastThread!.lastPost!
+                                            .user.username);
                                   },
-                                  child: _buildUserName(subCategory.lastThread!.lastPost!.user),
+                                  child: buildUserName(context,
+                                      subCategory.lastThread!.lastPost!.user),
                                 ),
                               ),
                               Text(
                                 ' · ${CommonUtils.formatFriendlyTimestamp(subCategory.lastThread!.updatedAt)}',
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
                                 ),
                               ),
                             ],
@@ -635,61 +788,16 @@ class _ForumPageState extends State<ForumPage> {
     );
   }
 
-  Widget _buildUserName(User user) {
-    // 根据用户角色设置颜色
-    Color? nameColor;
-    if (user.role == 'officer' || user.role == 'moderator' || user.role == 'admin') {
-      nameColor = Colors.green.shade400;
-    } else if (user.role == 'limited') {
-      nameColor = Colors.grey.shade400;
-    } else {
-      nameColor = user.isAdmin ? Colors.red : Theme.of(context).colorScheme.onSurfaceVariant;
-    }
-
-    // 如果是高级用户,使用渐变效果
-    if (user.premium) {
-      return ShaderMask(
-        shaderCallback: (bounds) => LinearGradient(
-          colors: [
-            Colors.purple.shade300,
-            Colors.blue.shade300,
-            Colors.pink.shade300,
-          ],
-        ).createShader(bounds),
-        child: Text(
-          user.name,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Colors.white,
-          ),
-        ),
-      );
-    }
-
-    // 普通用户名显示
-    return Text(
-      user.name,
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-      style: TextStyle(
-        fontSize: 12,
-        color: nameColor,
-      ),
-    );
-  }
-
   IconData _getCategoryIcon(String categoryName) {
     final t = slang.Translations.of(context);
     if (categoryName == t.forum.groups.administration) {
       return Icons.admin_panel_settings;
     } else if (categoryName == t.forum.groups.global) {
-      return Icons.language;
+      return Icons.public; // 全球使用 public 图标
     } else if (categoryName == t.forum.groups.chinese) {
-      return Icons.language;
+      return Icons.chat; // 中文使用 chat 图标
     } else if (categoryName == t.forum.groups.japanese) {
-      return Icons.language;
+      return Icons.translate; // 日文使用 translate 图标
     } else {
       return Icons.forum;
     }

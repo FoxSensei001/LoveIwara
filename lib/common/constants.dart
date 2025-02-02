@@ -254,7 +254,10 @@ class ApiConstants {
   static String forumThreadReply(String threadId) => '/forum/$threadId/reply';
 
   // 论坛帖子列表
-  static String forumThreads(String categoryId) => '/forum/$categoryId';
+  static String forumThreadsWithCategoryId(String categoryId) => '/forum/$categoryId';
+
+  // 论坛帖子列表
+  static String forumThreads() => '/forum/threads';
 
   // 论坛帖子回复
   static String forumPosts(String postId) => '/forum/post/$postId';

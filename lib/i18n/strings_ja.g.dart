@@ -744,6 +744,9 @@ class _TranslationsForumJa implements TranslationsForumEn {
 	final TranslationsJa _root; // ignore: unused_field
 
 	// Translations
+	@override String get recent => '最近';
+	@override String get category => 'カテゴリ';
+	@override String get lastReply => '最終返信';
 	@override late final _TranslationsForumErrorsJa errors = _TranslationsForumErrorsJa._(_root);
 	@override String get title => 'タイトル';
 	@override String get createPost => '投稿を作成';
@@ -1755,6 +1758,9 @@ extension on TranslationsJa {
 			case 'markdown.separatorDescription': return '三個以上の - 号で分隔線を作成';
 			case 'markdown.separatorSyntax': return '---';
 			case 'markdown.syntax': return '語法';
+			case 'forum.recent': return '最近';
+			case 'forum.category': return 'カテゴリ';
+			case 'forum.lastReply': return '最終返信';
 			case 'forum.errors.pleaseSelectCategory': return 'カテゴリを選択してください';
 			case 'forum.errors.threadLocked': return 'このスレッドはロックされています。';
 			case 'forum.title': return 'タイトル';

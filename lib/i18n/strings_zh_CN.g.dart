@@ -749,6 +749,9 @@ class _TranslationsForumZhCn implements TranslationsForumEn {
 	final TranslationsZhCn _root; // ignore: unused_field
 
 	// Translations
+	@override String get recent => '最近';
+	@override String get category => '分类';
+	@override String get lastReply => '最后回复';
 	@override late final _TranslationsForumErrorsZhCn errors = _TranslationsForumErrorsZhCn._(_root);
 	@override String get createPost => '创建帖子';
 	@override String get title => '标题';
@@ -1765,6 +1768,9 @@ extension on TranslationsZhCn {
 			case 'markdown.separatorDescription': return '使用三个或更多 - 号创建分隔线';
 			case 'markdown.separatorSyntax': return '---';
 			case 'markdown.syntax': return '语法';
+			case 'forum.recent': return '最近';
+			case 'forum.category': return '分类';
+			case 'forum.lastReply': return '最后回复';
 			case 'forum.errors.pleaseSelectCategory': return '请选择分类';
 			case 'forum.errors.threadLocked': return '该主题已锁定，无法回复';
 			case 'forum.createPost': return '创建帖子';

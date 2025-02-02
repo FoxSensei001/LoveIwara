@@ -571,6 +571,9 @@ markdown:
   syntax: 语法
 
 forum:
+  recent: 最近
+  category: 分类
+  lastReply: 最后回复
   errors:
     pleaseSelectCategory: 请选择分类
     threadLocked: 该主题已锁定，无法回复

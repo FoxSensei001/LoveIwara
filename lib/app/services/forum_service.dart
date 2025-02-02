@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/models/dto/forum_thread_section_dto.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
+import 'package:i_iwara/app/models/page_data.model.dart';
 import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/services/api_service.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -83,7 +84,7 @@ class ForumService extends GetxService {
     }
 
     try {
-      await _apiService.put(ApiConstants.forumThreads(threadId), data: jsonBody);
+      await _apiService.put(ApiConstants.forumThreadsWithCategoryId(threadId), data: jsonBody);
       return ApiResult.success();
     } catch (e) {
       LogUtils.e('在编辑帖子标题时，编辑帖子标题失败', tag: 'ForumService', error: e);
@@ -156,7 +157,7 @@ class ForumService extends GetxService {
       int limit = 20}) async {
     try {
       var response = await _apiService
-          .get(ApiConstants.forumThreads(categoryId), queryParameters: {
+          .get(ApiConstants.forumThreadsWithCategoryId(categoryId), queryParameters: {
         'page': page,
         'limit': limit,
       });
@@ -289,6 +290,23 @@ class ForumService extends GetxService {
     } catch (e) {
       LogUtils.e('发布帖子失败', tag: 'ForumService', error: e);
       return ApiResult.fail(slang.t.errors.failedToOperate);
+    }
+  }
+
+  /// 获取最近的帖子
+  /// /forum/threads
+  /// @params limit
+  Future<ApiResult<PageData<ForumThreadModel>>> fetchRecentThreads({int limit = 10, int page = 0}) async {
+    try {
+      var response = await _apiService.get(ApiConstants.forumThreads(), queryParameters: {
+        'limit': limit,
+        'page': page,
+      });
+      final pageData = PageData.fromJsonWithConverter(response.data, ForumThreadModel.fromJson);
+      return ApiResult.success(data: pageData);
+    } catch (e) {
+      LogUtils.e('获取最近的帖子失败', tag: 'ForumService', error: e);
+      return ApiResult.fail(slang.t.errors.failedToFetchData);
     }
   }
 

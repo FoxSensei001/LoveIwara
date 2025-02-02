@@ -220,7 +220,7 @@ Future<void> _initializeDesktop() async {
   if (GetPlatform.isLinux) {
     await windowManager.setBackgroundColor(Colors.transparent);
   }
-  await windowManager.setMinimumSize(const Size(500, 600));
+  await windowManager.setMinimumSize(const Size(200, 200));
   await windowManager.show();
   await windowManager.focus();
 }

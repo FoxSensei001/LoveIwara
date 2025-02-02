@@ -748,6 +748,9 @@ class TranslationsForumEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+	String get recent => 'Recent';
+	String get category => 'Category';
+	String get lastReply => 'Last Reply';
 	late final TranslationsForumErrorsEn errors = TranslationsForumErrorsEn._(_root);
 	String get createPost => 'Create Post';
 	String get title => 'Title';
@@ -1759,6 +1762,9 @@ extension on Translations {
 			case 'markdown.separatorDescription': return 'Create separator with three or more - symbols';
 			case 'markdown.separatorSyntax': return '---';
 			case 'markdown.syntax': return 'Syntax';
+			case 'forum.recent': return 'Recent';
+			case 'forum.category': return 'Category';
+			case 'forum.lastReply': return 'Last Reply';
 			case 'forum.errors.pleaseSelectCategory': return 'Please select a category';
 			case 'forum.errors.threadLocked': return 'This thread is locked, cannot reply';
 			case 'forum.createPost': return 'Create Post';

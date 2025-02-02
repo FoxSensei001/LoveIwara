@@ -5,6 +5,8 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 
 import '../../../common/constants.dart';
 import '../../routes/app_routes.dart';
@@ -166,9 +168,7 @@ class GlobalDrawerColumns extends StatelessWidget {
         onTap: () {
           if (!userService.isLogin) {
             AppService.switchGlobalDrawer();
-            Get.toNamed(
-              Routes.LOGIN,
-            );
+            Get.toNamed(Routes.LOGIN);
           } else {
             AppService.switchGlobalDrawer();
             NaviService.navigateToAuthorProfilePage(
@@ -196,115 +196,55 @@ class GlobalDrawerColumns extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              _buildAvatar(),
+              AvatarWidget(
+                user: userService.currentUser.value,
+                radius: 40,
+                defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+              ),
               const SizedBox(width: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (userService.isLogin &&
-                      userService.currentUser.value?.premium == true)
-                    ShaderMask(
-                      shaderCallback: (bounds) => LinearGradient(
-                        colors: [
-                          Colors.purple.shade300,
-                          Colors.blue.shade300,
-                          Colors.pink.shade300,
-                        ],
-                      ).createShader(bounds),
-                      child: Text(
-                        userService.currentUser.value!.name,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    )
-                  else
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      child: userService.isLogin 
+                          ? buildUserName(
+                              context,
+                              userService.currentUser.value,
+                              fontSize: 22,
+                              bold: true,
+                              defaultNameColor: Colors.white,
+                            )
+                          : Text(
+                              t.auth.notLoggedIn,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                    ),
+                    const SizedBox(height: 4),
                     Text(
                       userService.isLogin
-                          ? userService.currentUser.value!.name
-                          : t.auth.notLoggedIn,
+                          ? '@${userService.currentUser.value!.username}'
+                          : t.auth.clickToLogin,
                       style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
+                        color: Colors.white70,
+                        fontSize: 14,
                       ),
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  const SizedBox(height: 4),
-                  Text(
-                    userService.isLogin
-                        ? '@${userService.currentUser.value!.username}'
-                        : t.auth.clickToLogin,
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
         ),
       ),
     );
-  }
-
-  Widget _buildAvatar() {
-    Widget avatar = MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: ClipOval(
-        child: CachedNetworkImage(
-          imageUrl: userService.userAvatar,
-          httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
-          width: 80,
-          height: 80,
-          fit: BoxFit.cover,
-          placeholder: (context, url) => Shimmer.fromColors(
-                        baseColor: Colors.grey[300]!,
-                        highlightColor: Colors.grey[100]!,
-                        child: const CircleAvatar(
-                          radius: 20,
-                          backgroundColor: Colors.white,
-                        ),
-                      ),
-          errorWidget: (context, url, error) => CircleAvatar(
-                        radius: 20,
-                        backgroundImage: const NetworkImage(CommonConstants.defaultAvatarUrl),
-                        onBackgroundImageError: (exception, stackTrace) => const Icon(
-                          Icons.person,
-                          size: 20,
-                        ),
-                      ),
-        ),
-      ),
-    );
-
-    if (userService.isLogin && userService.currentUser.value?.premium == true) {
-      return MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: LinearGradient(
-              colors: [
-                Colors.purple.shade200,
-                Colors.blue.shade200,
-                Colors.pink.shade200,
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: avatar,
-          ),
-        ),
-      );
-    }
-
-    return avatar;
   }
 
   Widget _buildMenuItem(IconData icon, String title, VoidCallback onTap) {

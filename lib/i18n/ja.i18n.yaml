@@ -565,6 +565,9 @@ markdown:
   syntax: 語法
 
 forum:
+  recent: 最近
+  category: カテゴリ
+  lastReply: 最終返信
   errors:
     pleaseSelectCategory: カテゴリを選択してください
     threadLocked: このスレッドはロックされています。

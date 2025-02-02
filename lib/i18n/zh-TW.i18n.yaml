@@ -566,6 +566,9 @@ markdown:
   syntax: 語法
 
 forum:
+  recent: 最近
+  category: 分類
+  lastReply: 最終回覆
   errors:
     pleaseSelectCategory: 請選擇分類
     threadLocked: 該主題已鎖定，無法回覆
