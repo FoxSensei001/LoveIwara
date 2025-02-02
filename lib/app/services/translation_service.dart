@@ -3,6 +3,7 @@ import 'package:dio/io.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'dart:convert';
@@ -59,24 +60,32 @@ class TranslationService extends GetxService {
     final temperature = config[ConfigKey.AI_TRANSLATION_TEMPERATURE] as double? ?? 0.3;
 
     try {
-      final response = await dio.post("$baseUrl/chat/completions",
-          data: {
-            "model": model,
-            "messages": [
-              {
-                "role": "system",
-                "content":
-                    "You are a translation expert. Translate from the input language to ${targetLanguage?? _configService.currentTranslationLanguage}. Provide the translation result directly without any explanation and keep the original format. Do not translate if the target language is the same as the source language. Additionally, if the content contains illegal or NSFW elements, sensitive words or sentences within it should be replaced."
-              },
-              {"role": "user", "content": text}
-            ],
-            "temperature": temperature,
-            "max_tokens": maxTokens
+      final prompt = config[ConfigKey.AI_TRANSLATION_PROMPT]
+          .replaceAll(CommonConstants.defaultLanguagePlaceholder, targetLanguage ?? _configService.currentTranslationLanguage);
+          
+      final requestData = {
+        "model": model,
+        "messages": [
+          {
+            "role": "system",
+            "content": prompt
           },
+          {"role": "user", "content": text}
+        ],
+        "temperature": temperature,
+        "max_tokens": maxTokens
+      };
+      
+      print('[AI_TRANSLATION_SERVICE] 请求参数: $requestData');
+      
+      final response = await dio.post("$baseUrl/chat/completions",
+          data: requestData,
           options: Options(headers: {
             'Authorization': 'Bearer $apiKey',
             'Content-Type': 'application/json'
           }));
+
+      print('[AI_TRANSLATION_SERVICE] 响应数据: ${response.data}');
 
       final result =
           response.data['choices'][0]['message']['content'] as String;
@@ -101,15 +110,19 @@ class TranslationService extends GetxService {
 
     try {
       const testText = "Hello";
+      
+      final prompt = config[ConfigKey.AI_TRANSLATION_PROMPT]
+          .replaceAll(CommonConstants.defaultLanguagePlaceholder, targetLanguage ?? _configService.currentTranslationLanguage);
 
       final messages = [
         {
           "role": "system",
-          "content":
-              "You are a translation expert. Translate from the input language to ${targetLanguage?? _configService.currentTranslationLanguage}. Provide the translation result directly without any explanation and keep the original format. Do not translate if the target language is the same as the source language. Additionally, if the content contains illegal or NSFW elements, sensitive words or sentences within it should be replaced."
+          "content": prompt
         },
         {"role": "user", "content": testText}
       ];
+
+      print('[AI_TRANSLATION_SERVICE] 请求参数: $messages');
 
       final testDio = Dio();
       final response = await testDio.post("$baseUrl/chat/completions",

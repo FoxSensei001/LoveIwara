@@ -149,6 +149,7 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
                     ),
                     Obx(() {
                       final isAIEnabled = configService[ConfigKey.USE_AI_TRANSLATION] as bool;
+                      print('senko $isAIEnabled');
                       if (!isAIEnabled) {
                         return ElevatedButton.icon(
                           onPressed: () {

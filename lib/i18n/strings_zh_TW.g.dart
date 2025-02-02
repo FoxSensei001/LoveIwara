@@ -1029,6 +1029,15 @@ class _TranslationsTranslationZhTw implements TranslationsTranslationEn {
 	@override String get disableAITranslation => '禁用AI翻譯';
 	@override String get currentValue => '現在值';
 	@override String get configureTranslationStrategy => '配置翻譯策略';
+	@override String get advancedSettings => '高級設定';
+	@override String get translationPrompt => '翻譯提示詞';
+	@override String get promptHint => '請輸入翻譯提示詞,使用[TL]作為目標語言的占位符';
+	@override String get promptHelperText => '提示詞必須包含[TL]作為目標語言的占位符';
+	@override String get promptMustContainTargetLang => '提示詞必須包含[TL]占位符';
+	@override String get aiTranslationWillBeDisabled => 'AI翻譯將被自動關閉';
+	@override String get aiTranslationWillBeDisabledDueToConfigChange => '由於修改了基礎配置,AI翻譯將被自動關閉';
+	@override String get aiTranslationWillBeDisabledDueToPromptChange => '由於修改了翻譯提示詞,AI翻譯將被自動關閉';
+	@override String get aiTranslationWillBeDisabledDueToParamChange => '由於修改了參數配置,AI翻譯將被自動關閉';
 }
 
 // Path: forum.errors
@@ -2092,6 +2101,15 @@ extension on TranslationsZhTw {
 			case 'translation.disableAITranslation': return '禁用AI翻譯';
 			case 'translation.currentValue': return '現在值';
 			case 'translation.configureTranslationStrategy': return '配置翻譯策略';
+			case 'translation.advancedSettings': return '高級設定';
+			case 'translation.translationPrompt': return '翻譯提示詞';
+			case 'translation.promptHint': return '請輸入翻譯提示詞,使用[TL]作為目標語言的占位符';
+			case 'translation.promptHelperText': return '提示詞必須包含[TL]作為目標語言的占位符';
+			case 'translation.promptMustContainTargetLang': return '提示詞必須包含[TL]占位符';
+			case 'translation.aiTranslationWillBeDisabled': return 'AI翻譯將被自動關閉';
+			case 'translation.aiTranslationWillBeDisabledDueToConfigChange': return '由於修改了基礎配置,AI翻譯將被自動關閉';
+			case 'translation.aiTranslationWillBeDisabledDueToPromptChange': return '由於修改了翻譯提示詞,AI翻譯將被自動關閉';
+			case 'translation.aiTranslationWillBeDisabledDueToParamChange': return '由於修改了參數配置,AI翻譯將被自動關閉';
 			default: return null;
 		}
 	}

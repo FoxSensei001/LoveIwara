@@ -920,3 +920,12 @@ translation:
   disableAITranslation: 禁用AI翻译
   currentValue: 当前值
   configureTranslationStrategy: 配置翻译策略
+  advancedSettings: "高级设置"
+  translationPrompt: "翻译提示词"
+  promptHint: "请输入翻译提示词,使用[TL]作为目标语言的占位符"
+  promptHelperText: "提示词必须包含[TL]作为目标语言的占位符"  
+  promptMustContainTargetLang: "提示词必须包含[TL]占位符"
+  aiTranslationWillBeDisabled: "AI翻译将被自动关闭"
+  aiTranslationWillBeDisabledDueToConfigChange: "由于修改了基础配置,AI翻译将被自动关闭"
+  aiTranslationWillBeDisabledDueToPromptChange: "由于修改了翻译提示词,AI翻译将被自动关闭" 
+  aiTranslationWillBeDisabledDueToParamChange: "由于修改了参数配置,AI翻译将被自动关闭"

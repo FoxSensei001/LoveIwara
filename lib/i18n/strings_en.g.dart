@@ -1030,6 +1030,15 @@ class TranslationsTranslationEn {
 	String get disableAITranslation => 'Disable AI Translation';
 	String get currentValue => 'Current Value';
 	String get configureTranslationStrategy => 'Configure Translation Strategy';
+	String get advancedSettings => 'Advanced Settings';
+	String get translationPrompt => 'Translation Prompt';
+	String get promptHint => 'Please enter translation prompt, use [TL] as the placeholder for the target language';
+	String get promptHelperText => 'The prompt must contain [TL] as the placeholder for the target language';
+	String get promptMustContainTargetLang => 'The prompt must contain [TL] placeholder';
+	String get aiTranslationWillBeDisabled => 'AI translation will be disabled';
+	String get aiTranslationWillBeDisabledDueToConfigChange => 'Due to the change of basic configuration, AI translation will be disabled';
+	String get aiTranslationWillBeDisabledDueToPromptChange => 'Due to the change of translation prompt, AI translation will be disabled';
+	String get aiTranslationWillBeDisabledDueToParamChange => 'Due to the change of parameter configuration, AI translation will be disabled';
 }
 
 // Path: forum.errors
@@ -2090,6 +2099,15 @@ extension on Translations {
 			case 'translation.disableAITranslation': return 'Disable AI Translation';
 			case 'translation.currentValue': return 'Current Value';
 			case 'translation.configureTranslationStrategy': return 'Configure Translation Strategy';
+			case 'translation.advancedSettings': return 'Advanced Settings';
+			case 'translation.translationPrompt': return 'Translation Prompt';
+			case 'translation.promptHint': return 'Please enter translation prompt, use [TL] as the placeholder for the target language';
+			case 'translation.promptHelperText': return 'The prompt must contain [TL] as the placeholder for the target language';
+			case 'translation.promptMustContainTargetLang': return 'The prompt must contain [TL] placeholder';
+			case 'translation.aiTranslationWillBeDisabled': return 'AI translation will be disabled';
+			case 'translation.aiTranslationWillBeDisabledDueToConfigChange': return 'Due to the change of basic configuration, AI translation will be disabled';
+			case 'translation.aiTranslationWillBeDisabledDueToPromptChange': return 'Due to the change of translation prompt, AI translation will be disabled';
+			case 'translation.aiTranslationWillBeDisabledDueToParamChange': return 'Due to the change of parameter configuration, AI translation will be disabled';
 			default: return null;
 		}
 	}

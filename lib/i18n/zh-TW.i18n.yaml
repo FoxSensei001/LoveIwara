@@ -918,3 +918,12 @@ translation:
   disableAITranslation: 禁用AI翻譯
   currentValue: 現在值
   configureTranslationStrategy: 配置翻譯策略
+  advancedSettings: "高級設定"
+  translationPrompt: "翻譯提示詞"
+  promptHint: "請輸入翻譯提示詞,使用[TL]作為目標語言的占位符"
+  promptHelperText: "提示詞必須包含[TL]作為目標語言的占位符"  
+  promptMustContainTargetLang: "提示詞必須包含[TL]占位符"
+  aiTranslationWillBeDisabled: "AI翻譯將被自動關閉"
+  aiTranslationWillBeDisabledDueToConfigChange: "由於修改了基礎配置,AI翻譯將被自動關閉"
+  aiTranslationWillBeDisabledDueToPromptChange: "由於修改了翻譯提示詞,AI翻譯將被自動關閉" 
+  aiTranslationWillBeDisabledDueToParamChange: "由於修改了參數配置,AI翻譯將被自動關閉"

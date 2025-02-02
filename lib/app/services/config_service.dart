@@ -155,6 +155,7 @@ enum ConfigKey {
   AI_TRANSLATION_MAX_TOKENS,
   AI_TRANSLATION_TEMPERATURE,
   REMEMBER_ME_KEY,
+  AI_TRANSLATION_PROMPT,
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -203,6 +204,7 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.AI_TRANSLATION_MAX_TOKENS: return 'ai_translation_max_tokens';
       case ConfigKey.AI_TRANSLATION_TEMPERATURE: return 'ai_translation_temperature';
       case ConfigKey.REMEMBER_ME_KEY: return 'remember_me';
+      case ConfigKey.AI_TRANSLATION_PROMPT: return 'ai_translation_prompt';
     }
   }
 
@@ -294,6 +296,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 0.3;
       case ConfigKey.REMEMBER_ME_KEY:
         return false;
+      case ConfigKey.AI_TRANSLATION_PROMPT:
+        return "You are a translation expert. Translate from the input language to ${CommonConstants.defaultLanguagePlaceholder}. Provide the translation result directly without any explanation and keep the original format. Do not translate if the target language is the same as the source language. Additionally, if the content contains illegal or NSFW elements, sensitive words or sentences within it should be replaced.";
       default:
         throw Exception("Unknown ConfigKey: $this");
     }

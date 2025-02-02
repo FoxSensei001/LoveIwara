@@ -1026,6 +1026,15 @@ class _TranslationsTranslationJa implements TranslationsTranslationEn {
 	@override String get disableAITranslation => 'AI翻訳を無効にする';
 	@override String get currentValue => '現在値';
 	@override String get configureTranslationStrategy => '翻訳戦略を設定';
+	@override String get advancedSettings => '高度な設定';
+	@override String get translationPrompt => '翻訳プロンプト';
+	@override String get promptHint => '翻訳プロンプトを入力してください。[TL]を目標言語のプレースホルダーとして使用します';
+	@override String get promptHelperText => 'プロンプトには[TL]を目標言語のプレースホルダーとして含めてください';
+	@override String get promptMustContainTargetLang => 'プロンプトには[TL]プレースホルダーを含めてください';
+	@override String get aiTranslationWillBeDisabled => 'AI翻訳が自動的に無効にされます';
+	@override String get aiTranslationWillBeDisabledDueToConfigChange => '基本設定を変更したため、AI翻訳が自動的に無効にされます';
+	@override String get aiTranslationWillBeDisabledDueToPromptChange => '翻訳プロンプトを変更したため、AI翻訳が自動的に無効にされます';
+	@override String get aiTranslationWillBeDisabledDueToParamChange => 'パラメーター設定を変更したため、AI翻訳が自動的に無効にされます';
 }
 
 // Path: forum.errors
@@ -2086,6 +2095,15 @@ extension on TranslationsJa {
 			case 'translation.disableAITranslation': return 'AI翻訳を無効にする';
 			case 'translation.currentValue': return '現在値';
 			case 'translation.configureTranslationStrategy': return '翻訳戦略を設定';
+			case 'translation.advancedSettings': return '高度な設定';
+			case 'translation.translationPrompt': return '翻訳プロンプト';
+			case 'translation.promptHint': return '翻訳プロンプトを入力してください。[TL]を目標言語のプレースホルダーとして使用します';
+			case 'translation.promptHelperText': return 'プロンプトには[TL]を目標言語のプレースホルダーとして含めてください';
+			case 'translation.promptMustContainTargetLang': return 'プロンプトには[TL]プレースホルダーを含めてください';
+			case 'translation.aiTranslationWillBeDisabled': return 'AI翻訳が自動的に無効にされます';
+			case 'translation.aiTranslationWillBeDisabledDueToConfigChange': return '基本設定を変更したため、AI翻訳が自動的に無効にされます';
+			case 'translation.aiTranslationWillBeDisabledDueToPromptChange': return '翻訳プロンプトを変更したため、AI翻訳が自動的に無効にされます';
+			case 'translation.aiTranslationWillBeDisabledDueToParamChange': return 'パラメーター設定を変更したため、AI翻訳が自動的に無効にされます';
 			default: return null;
 		}
 	}

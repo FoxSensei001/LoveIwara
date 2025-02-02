@@ -912,3 +912,13 @@ translation:
   disableAITranslation: Disable AI Translation
   currentValue: Current Value
   configureTranslationStrategy: Configure Translation Strategy
+  advancedSettings: "Advanced Settings"
+  translationPrompt: "Translation Prompt"
+  promptHint: "Please enter translation prompt, use [TL] as the placeholder for the target language"
+  promptHelperText: "The prompt must contain [TL] as the placeholder for the target language"  
+  promptMustContainTargetLang: "The prompt must contain [TL] placeholder"
+  aiTranslationWillBeDisabled: "AI translation will be disabled"
+  aiTranslationWillBeDisabledDueToConfigChange: "Due to the change of basic configuration, AI translation will be disabled"
+  aiTranslationWillBeDisabledDueToPromptChange: "Due to the change of translation prompt, AI translation will be disabled" 
+  aiTranslationWillBeDisabledDueToParamChange: "Due to the change of parameter configuration, AI translation will be disabled"
+  

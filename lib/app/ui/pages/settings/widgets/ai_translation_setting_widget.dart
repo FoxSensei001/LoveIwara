@@ -5,6 +5,7 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/translation_service.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/common/constants.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'dart:convert';
@@ -55,6 +56,7 @@ class _AITranslationSettingsWidgetState
   final GlobalKey<FormState> _formKey = GlobalKey();
   late final TextEditingController _maxTokensController;
   late final TextEditingController _temperatureController;
+  final TextEditingController _promptController = TextEditingController();
 
   @override
   void initState() {
@@ -71,6 +73,7 @@ class _AITranslationSettingsWidgetState
     _temperatureController = TextEditingController(
         text: configService[ConfigKey.AI_TRANSLATION_TEMPERATURE]
             .toStringAsFixed(1));
+    _promptController.text = configService[ConfigKey.AI_TRANSLATION_PROMPT];
   }
 
   void updateSettings() {
@@ -110,18 +113,42 @@ class _AITranslationSettingsWidgetState
     );
   }
 
+  Future<void> _disableAITranslation({String? message}) async {
+    final wasEnabled = configService[ConfigKey.USE_AI_TRANSLATION] as bool;
+    if (wasEnabled) {
+      // 显示提示
+      showToastWidget(
+        MDToastWidget(
+          message: message ?? slang.t.translation.aiTranslationWillBeDisabled,
+          type: MDToastType.warning,
+        ),
+        position: ToastPosition.bottom,
+        duration: const Duration(seconds: 5),
+      );
+    }
+    
+    // 更新配置
+    configService[ConfigKey.USE_AI_TRANSLATION] = false;
+    _isAIEnabled.value = false;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        _buildDisclaimerCard(context),
-        _buildAPIConfigSection(context),
-        _buildPreviewSection(context),
-        _buildTestConnectionSection(context),
-        _buildEnableSection(context),
-        const SafeArea(child: SizedBox.shrink()),
-      ],
+    // 将 Form 提升到最外层
+    return Form(
+      key: _formKey,
+      child: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          _buildDisclaimerCard(context),
+          _buildAPIConfigSection(context),
+          _buildAdvancedConfigSection(context), // 添加高级设置区域
+          _buildPreviewSection(context),
+          _buildTestConnectionSection(context),
+          _buildEnableSection(context),
+          const SafeArea(child: SizedBox.shrink()),
+        ],
+      ),
     );
   }
 
@@ -183,74 +210,152 @@ class _AITranslationSettingsWidgetState
   }
 
   Widget _buildAPIConfigSection(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Card(
-        elevation: 2,
-        clipBehavior: Clip.antiAlias,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return Card(
+      elevation: 2,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(slang.t.translation.apiConfig,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
+                Text(slang.t.translation.modifyConfigWillAutoCloseAITranslation,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontSize: 12,
+                        height: 1.2)),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              spacing: 16,
+              children: [
+                _buildInputSection(
+                  context: context,
+                  label: slang.t.translation.apiAddress,
+                  controller: _baseUrlController,
+                  hintText: 'https://api.example.com/v1',
+                  configKey: ConfigKey.AI_TRANSLATION_BASE_URL,  // 使用枚举值而不是name
+                  icon: Icons.link,
+                ),
+                _buildInputSection(
+                  context: context,
+                  label: slang.t.translation.modelName,
+                  controller: _modelController,
+                  hintText: slang.t.translation.modelNameHintText,
+                  configKey: ConfigKey.AI_TRANSLATION_MODEL,  // 使用枚举值而不是name
+                  icon: Icons.model_training,
+                ),
+                _buildApiKeyInputSection(context),
+                _buildNumberInputSection(
+                  context: context,
+                  label: slang.t.translation.maxTokens,
+                  configKey: ConfigKey.AI_TRANSLATION_MAX_TOKENS,  // 使用枚举值而不是name
+                  icon: Icons.numbers,
+                  hintText: slang.t.translation.maxTokensHintText,
+                  controller: _maxTokensController,
+                  defaultValue:
+                      configService[ConfigKey.AI_TRANSLATION_MAX_TOKENS],
+                ),
+                _buildTemperatureSlider(context),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAdvancedConfigSection(BuildContext context) {
+    return Card(
+      elevation: 2,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(slang.t.translation.advancedSettings,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold)),
+          ),
+          const Divider(height: 1),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              spacing: 16,
+              children: [
+                _buildPromptEditor(context),
+                // ...其他高级设置
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPromptEditor(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(slang.t.translation.apiConfig,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 4),
-                  Text(slang.t.translation.modifyConfigWillAutoCloseAITranslation,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          fontSize: 12,
-                          height: 1.2)),
-                ],
-              ),
-            ),
-            const Divider(height: 1),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                spacing: 16,
-                children: [
-                  _buildInputSection(
-                    context: context,
-                    label: slang.t.translation.apiAddress,
-                    controller: _baseUrlController,
-                    hintText: 'https://api.example.com/v1',
-                    configKey: ConfigKey.AI_TRANSLATION_BASE_URL,  // 使用枚举值而不是name
-                    icon: Icons.link,
-                  ),
-                  _buildInputSection(
-                    context: context,
-                    label: slang.t.translation.modelName,
-                    controller: _modelController,
-                    hintText: slang.t.translation.modelNameHintText,
-                    configKey: ConfigKey.AI_TRANSLATION_MODEL,  // 使用枚举值而不是name
-                    icon: Icons.model_training,
-                  ),
-                  _buildApiKeyInputSection(context),
-                  _buildNumberInputSection(
-                    context: context,
-                    label: slang.t.translation.maxTokens,
-                    configKey: ConfigKey.AI_TRANSLATION_MAX_TOKENS,  // 使用枚举值而不是name
-                    icon: Icons.numbers,
-                    hintText: slang.t.translation.maxTokensHintText,
-                    controller: _maxTokensController,
-                    defaultValue:
-                        configService[ConfigKey.AI_TRANSLATION_MAX_TOKENS],
-                  ),
-                  _buildTemperatureSlider(context),
-                ],
-              ),
-            ),
+            Icon(Icons.edit_note,
+                size: 20,
+                color: Get.isDarkMode ? Colors.white70 : Colors.grey[600]),
+            const SizedBox(width: 8),
+            Text(slang.t.translation.translationPrompt,
+                style: Theme.of(context).textTheme.labelLarge),
           ],
         ),
-      ),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: _promptController,
+          maxLines: 5,
+          decoration: InputDecoration(
+            hintText: slang.t.translation.promptHint,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            helperText: slang.t.translation.promptHelperText,
+            helperMaxLines: 2,
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return slang.t.translation.thisFieldCannotBeEmpty;
+            }
+            if (!value.contains(CommonConstants.defaultLanguagePlaceholder)) {
+              return slang.t.translation.promptMustContainTargetLang;
+            }
+            return null;
+          },
+          onChanged: (value) {
+            configService[ConfigKey.AI_TRANSLATION_PROMPT] = value;
+            _disableAITranslation(
+              message: slang.t.translation.aiTranslationWillBeDisabledDueToPromptChange
+            );
+            _isConnectionValid.value = false;
+            _hasTested.value = false;
+            _testResult.value = null;
+          },
+        ),
+      ],
     );
   }
 
@@ -476,6 +581,7 @@ class _AITranslationSettingsWidgetState
     final form = _formKey.currentState;
     if (value) {
       if (form == null || !form.validate()) {
+        print('[AI_TRANSLATION_SETTING_WIDGET] form: ${form?.validate()}');
         showToastWidget(
             // MDToastWidget(message: '请先填写有效的配置参数', type: MDToastType.error),
             MDToastWidget(message: slang.t.translation.pleaseFillInValidConfigurationParameters, type: MDToastType.error),
@@ -637,8 +743,9 @@ class _AITranslationSettingsWidgetState
             if (configKey == ConfigKey.AI_TRANSLATION_BASE_URL ||
                 configKey == ConfigKey.AI_TRANSLATION_MODEL ||
                 configKey == ConfigKey.AI_TRANSLATION_API_KEY) {
-              configService[ConfigKey.USE_AI_TRANSLATION] = false;
-              _isAIEnabled.value = false;
+              _disableAITranslation(
+                message: slang.t.translation.aiTranslationWillBeDisabledDueToConfigChange
+              );
               _isConnectionValid.value = false;
               _hasTested.value = false;
               _testResult.value = null;
@@ -693,8 +800,9 @@ class _AITranslationSettingsWidgetState
               },
               onChanged: (value) {
                 configService[ConfigKey.AI_TRANSLATION_API_KEY] = value;
-                configService[ConfigKey.USE_AI_TRANSLATION] = false;
-                _isAIEnabled.value = false;
+                _disableAITranslation(
+                  message: slang.t.translation.aiTranslationWillBeDisabledDueToConfigChange
+                );
                 _isConnectionValid.value = false;
                 _hasTested.value = false;
                 _testResult.value = null;
@@ -764,8 +872,9 @@ class _AITranslationSettingsWidgetState
 
             if (configKey == ConfigKey.AI_TRANSLATION_MAX_TOKENS ||
                 configKey == ConfigKey.AI_TRANSLATION_TEMPERATURE) {
-              configService[ConfigKey.USE_AI_TRANSLATION] = false;
-              _isAIEnabled.value = false;
+              _disableAITranslation(
+                message: slang.t.translation.aiTranslationWillBeDisabledDueToParamChange
+              );
             }
 
             if (isDouble && value.endsWith('.') && !value.contains('..')) {
@@ -819,8 +928,9 @@ class _AITranslationSettingsWidgetState
                     temperatureValue.value = value;
                     configService[ConfigKey.AI_TRANSLATION_TEMPERATURE] = value;
                     _temperatureController.text = value.toStringAsFixed(1);
-                    configService[ConfigKey.USE_AI_TRANSLATION] = false;
-                    _isAIEnabled.value = false;
+                    _disableAITranslation(
+                      message: slang.t.translation.aiTranslationWillBeDisabledDueToParamChange
+                    );
                   },
                 ),
                 Text(

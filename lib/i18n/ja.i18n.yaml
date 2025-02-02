@@ -916,3 +916,12 @@ translation:
   disableAITranslation: AI翻訳を無効にする
   currentValue: 現在値
   configureTranslationStrategy: 翻訳戦略を設定
+  advancedSettings: "高度な設定"
+  translationPrompt: "翻訳プロンプト"
+  promptHint: "翻訳プロンプトを入力してください。[TL]を目標言語のプレースホルダーとして使用します"
+  promptHelperText: "プロンプトには[TL]を目標言語のプレースホルダーとして含めてください"
+  promptMustContainTargetLang: "プロンプトには[TL]プレースホルダーを含めてください"
+  aiTranslationWillBeDisabled: "AI翻訳が自動的に無効にされます"
+  aiTranslationWillBeDisabledDueToConfigChange: "基本設定を変更したため、AI翻訳が自動的に無効にされます"
+  aiTranslationWillBeDisabledDueToPromptChange: "翻訳プロンプトを変更したため、AI翻訳が自動的に無効にされます" 
+  aiTranslationWillBeDisabledDueToParamChange: "パラメーター設定を変更したため、AI翻訳が自動的に無効にされます"
