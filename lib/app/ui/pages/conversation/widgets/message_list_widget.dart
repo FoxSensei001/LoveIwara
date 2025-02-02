@@ -394,75 +394,79 @@ class _MessageListWidgetState extends State<MessageListWidget> {
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Row(
+                  child: Column(
+                    crossAxisAlignment:
+                        isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (!isMe) Flexible(
-                        child: MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: GestureDetector(
+                      // 第一行显示用户名
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          GestureDetector(
                             onTap: () => NaviService.navigateToAuthorProfilePage(message.user.username),
                             child: buildUserName(context, message.user, fontSize: 13),
                           ),
-                        ),
+                        ],
                       ),
-                      if (!isMe) const SizedBox(width: 8),
-                      Text(
-                        CommonUtils.formatFriendlyTimestamp(message.createdAt),
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Theme.of(context).hintColor,
-                        ),
-                      ),
-                      if (!isMe) IconButton(
-                        icon: Icon(
-                          Icons.translate,
-                          size: 18,
-                          color: Theme.of(context).hintColor,
-                        ),
-                        onPressed: showTranslationDialog,
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(
-                          minWidth: 24,
-                          minHeight: 24,
-                        ),
-                      ),
-                      if (isMe) const SizedBox(width: 8),
-                      if (isMe) IconButton(
-                        icon: Icon(
-                          Icons.delete_outline,
-                          size: 18,
-                          color: Theme.of(context).hintColor,
-                        ),
-                        onPressed: showDeleteConfirmation,
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(
-                          minWidth: 24,
-                          minHeight: 24,
-                        ),
-                      ),
-                      if (isMe) IconButton(
-                        icon: Icon(
-                          Icons.translate,
-                          size: 18,
-                          color: Theme.of(context).hintColor,
-                        ),
-                        onPressed: showTranslationDialog,
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(
-                          minWidth: 24,
-                          minHeight: 24,
-                        ),
-                      ),
-                      if (isMe) const SizedBox(width: 8),
-                      if (isMe) Flexible(
-                        child: MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: GestureDetector(
-                            onTap: () => NaviService.navigateToAuthorProfilePage(message.user.username),
-                            child: buildUserName(context, message.user, fontSize: 13),
+                      const SizedBox(height: 2),
+                      // 第二行显示时间及操作按钮
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            CommonUtils.formatFriendlyTimestamp(message.createdAt),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Theme.of(context).hintColor,
+                            ),
                           ),
-                        ),
+                          if (!isMe) ...[
+                            const SizedBox(width: 8),
+                            IconButton(
+                              icon: Icon(
+                                Icons.translate,
+                                size: 18,
+                                color: Theme.of(context).hintColor,
+                              ),
+                              onPressed: showTranslationDialog,
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(
+                                minWidth: 24,
+                                minHeight: 24,
+                              ),
+                            ),
+                          ],
+                          if (isMe) ...[
+                            const SizedBox(width: 8),
+                            IconButton(
+                              icon: Icon(
+                                Icons.delete_outline,
+                                size: 18,
+                                color: Theme.of(context).hintColor,
+                              ),
+                              onPressed: showDeleteConfirmation,
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(
+                                minWidth: 24,
+                                minHeight: 24,
+                              ),
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                Icons.translate,
+                                size: 18,
+                                color: Theme.of(context).hintColor,
+                              ),
+                              onPressed: showTranslationDialog,
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(
+                                minWidth: 24,
+                                minHeight: 24,
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                     ],
                   ),

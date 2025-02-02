@@ -4,6 +4,7 @@ import 'package:i_iwara/app/services/conversation_service.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_syntax_help_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:oktoast/oktoast.dart';
 
@@ -178,24 +179,10 @@ class _ConversationMessageDialogState extends State<ConversationMessageDialog> {
                       ),
                     ),
                   ),
-                  Row(
-                    children: [
-                      IconButton(
-                        onPressed: _showMarkdownHelp,
-                        icon: const Icon(Icons.help_outline),
-                        tooltip: t.markdown.markdownSyntax,
-                      ),
-                      IconButton(
-                        onPressed: _showPreview,
-                        icon: const Icon(Icons.preview),
-                        tooltip: t.common.preview,
-                      ),
-                      IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: const Icon(Icons.close),
-                        tooltip: t.common.close,
-                      ),
-                    ],
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                    tooltip: t.common.close,
                   ),
                 ],
               ),
@@ -216,6 +203,44 @@ class _ConversationMessageDialogState extends State<ConversationMessageDialog> {
                 ),
               ),
               const SizedBox(height: 16),
+              Wrap(
+                alignment: WrapAlignment.end,
+                spacing: 8,
+                children: [
+                  IconButton(
+                    onPressed: _bodyController.text.isNotEmpty
+                        ? () {
+                            Get.dialog(
+                              TranslationDialog(
+                                text: _bodyController.text,
+                                defaultLanguageKeyMode: false,
+                              ),
+                              barrierDismissible: true,
+                            );
+                          }
+                        : null,
+                    icon: Icon(
+                      Icons.translate,
+                      color: _bodyController.text.isEmpty
+                          ? Theme.of(context).disabledColor
+                          : null,
+                    ),
+                    tooltip: t.common.translate,
+                  ),
+                  IconButton(
+                    onPressed: _showMarkdownHelp,
+                    icon: const Icon(Icons.help_outline),
+                    tooltip: t.markdown.markdownSyntax,
+                  ),
+                  IconButton(
+                    onPressed: _showPreview,
+                    icon: const Icon(Icons.preview),
+                    tooltip: t.common.preview,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              // 底部操作按钮：取消和发送
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
