@@ -1,14 +1,10 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/image_model_card_list_item_widget.dart';
-import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:shimmer/shimmer.dart';
-
 import '../../../models/sort.model.dart';
 import '../../../models/tag.model.dart';
 import '../../widgets/top_padding_height_widget.dart';
@@ -16,6 +12,9 @@ import '../search/search_dialog.dart';
 import 'controllers/popular_gallery_controller.dart';
 import 'widgets/popular_media_search_config_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/ui/widgets/common_header.dart';
+import 'package:i_iwara/app/ui/widgets/shimmer_loading_widget.dart';
+import 'package:i_iwara/app/ui/widgets/common_list_view_helper.dart';
 
 class PopularGalleryListPage extends StatefulWidget {
   final List<Sort> sorts = CommonConstants.mediaSorts;
@@ -173,101 +172,14 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
 
   @override
   Widget build(BuildContext context) {
-    final t = slang.Translations.of(context);
     return Scaffold(
       body: Column(
         children: [
           TopPaddingHeightWidget(),
-          // 一行，显示用户头像和搜索框
-          Row(
-            children: [
-              // 用户头像
-              Obx(() {
-                    if (userService.isLogin) {
-                      return Stack(
-                        children: [
-                          IconButton(
-                            icon: AvatarWidget(
-                              user: userService.currentUser.value,
-                              radius: 14,
-                              defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-                            ),
-                            onPressed: () {
-                              AppService.switchGlobalDrawer();
-                            },
-                          ),
-                          Positioned(
-                            right: 8,
-                            top: 8,
-                            child: Obx(() {
-                              final count = userService.notificationCount.value + userService.messagesCount.value;
-                              if (count > 0) {
-                                return Container(
-                                  width: 8,
-                                  height: 8,
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.error,
-                                    shape: BoxShape.circle,
-                                  ),
-                                );
-                              }
-                              return const SizedBox.shrink();
-                            }),
-                          ),
-                        ],
-                      );
-                    } else {
-                      return IconButton(
-                        icon: const Icon(Icons.account_circle),
-                        onPressed: () {
-                          AppService.switchGlobalDrawer();
-                        },
-                      );
-                    }
-                  }),
-              // 搜索框
-              Expanded(
-                child: Material(
-                  elevation: 0,
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(12),
-                  clipBehavior: Clip.antiAlias,
-                  child: TextField(
-                    readOnly: true,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: t.common.search,
-                      hintStyle: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      border: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      prefixIcon: Icon(
-                        Icons.search,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      filled: true,
-                      fillColor: Colors.transparent,
-                    ),
-                    onTap: () {
-                      Get.dialog(SearchDialog(
-                        initialSearch: '',
-                        initialSegment: SearchSegment.image,
-                        onSearch: (searchInfo, segment) {
-                          NaviService.toSearchPage(
-                              searchInfo: searchInfo, segment: segment);
-                        },
-                      ));
-                    },
-                  ),
-                ),
-              ),
-            ],
+          // 用抽离后的 CommonHeader 替换原有的头像和搜索框行
+          const CommonHeader(
+            searchSegment: SearchSegment.image,
+            avatarRadius: 20,
           ),
           // 一行，显示TabBar和筛选按钮
           Row(
@@ -369,7 +281,7 @@ class _KeepAliveTabViewState extends State<KeepAliveTabView>
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final int columns = _calculateColumns(constraints.maxWidth);
+        final int columns = calculateColumns(constraints.maxWidth);
 
         return NotificationListener<ScrollNotification>(
           onNotification: (scrollInfo) {
@@ -390,7 +302,12 @@ class _KeepAliveTabViewState extends State<KeepAliveTabView>
                 return _buildShimmerLoading(columns, constraints.maxWidth);
               } else if (!widget.controller.isInit.value &&
                   widget.controller.images.isEmpty) {
-                return _buildEmptyView(context);
+                return buildEmptyView(
+                  context: context,
+                  emptyIcon: Icons.image_not_supported,
+                  noContentText: slang.Translations.of(context).common.noContent,
+                  onRefresh: () { widget.controller.fetchImageModels(refresh: true); },
+                );
               } else {
                 final itemCount =
                     (widget.controller.images.length / columns).ceil() + 1;
@@ -403,7 +320,7 @@ class _KeepAliveTabViewState extends State<KeepAliveTabView>
                     if (index < itemCount - 1) {
                       return _buildRow(index, columns, constraints.maxWidth);
                     } else {
-                      return _buildLoadMoreIndicator(context);
+                      return buildLoadMoreIndicator(context, widget.controller.hasMore);
                     }
                   },
                 );
@@ -440,136 +357,11 @@ class _KeepAliveTabViewState extends State<KeepAliveTabView>
     );
   }
 
-  int _calculateColumns(double availableWidth) {
-    if (availableWidth > 1200) return 5;
-    if (availableWidth > 900) return 4;
-    if (availableWidth > 600) return 3;
-    if (availableWidth > 300) return 2;
-    return 1;
-  }
-
-  // 添加加载更多指示器组件
-  Widget _buildLoadMoreIndicator(BuildContext context) {
-    final t = slang.Translations.of(context);
-    return Obx(() => widget.controller.hasMore.value
-        ? const Padding(
-            padding: EdgeInsets.symmetric(vertical: 16.0),
-            child: Center(
-              child: CircularProgressIndicator(),
-            ),
-          )
-        : Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
-            child: Center(
-              child: Text(
-                t.common.noMoreDatas,
-                style: const TextStyle(color: Colors.grey),
-              ),
-            ),
-          ));
-  }
-
-  // 添加空视图组件
-  Widget _buildEmptyView(BuildContext context) {
-    final t = slang.Translations.of(context);
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Icon(
-          Icons.image_not_supported,
-          size: 80,
-          color: Colors.grey,
-        ),
-        const SizedBox(height: 16),
-        Text(
-          t.common.noContent,
-          style: const TextStyle(
-            fontSize: 18,
-            color: Colors.grey,
-          ),
-        ),
-        const SizedBox(height: 16),
-        ElevatedButton.icon(
-          onPressed: () {
-            widget.controller.fetchImageModels(refresh: true);
-          },
-          icon: const Icon(Icons.refresh),
-          label: Text(t.common.refresh),
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            textStyle: const TextStyle(fontSize: 16),
-          ),
-        ),
-      ],
-    );
-  }
-
   // 添加 shimmer 相关的组件方法
   Widget _buildShimmerLoading(int columns, double maxWidth) {
-    return ListView.builder(
-      padding: EdgeInsets.zero,
-      itemCount: 3, // 显示3行shimmer效果
-      itemBuilder: (context, index) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: List.generate(
-              columns,
-              (colIndex) => Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                  child: _buildShimmerItem(maxWidth / columns - 8),
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildShimmerItem(double width) {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: SizedBox(
-        width: width,
-        height: width * 9 / 16 + 72, // 16:9的图片比例 + 标题和信息的高度
-        child: Column(
-          spacing: 8,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 缩略图区域
-            Container(
-              width: width,
-              height: width * 9 / 16,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            // 标题区域
-            Container(
-              width: width * 0.8,
-              height: 16,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-            // 信息区域
-            Container(
-              width: width * 0.6,
-              height: 12,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-          ],
-        ),
-      ),
+    return ShimmerLoadingWidget(
+      columns: columns,
+      totalWidth: maxWidth,
     );
   }
 }
