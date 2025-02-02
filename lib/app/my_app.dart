@@ -39,8 +39,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  ColorScheme? lightColorScheme;
-  ColorScheme? darkColorScheme;
+  late ColorScheme lightColorScheme;
+  late ColorScheme darkColorScheme;
   @override
   void initState() {
     super.initState();
@@ -67,7 +67,7 @@ class _MyAppState extends State<MyApp> {
                       ? lightColorScheme 
                       : darkColorScheme;
         } else {
-          // 使用自定义颜色
+          // 使用自定义颜色，通过 seed 生成后再 harmonized，确保色彩协调性
           final Color seedColor = themeService.getCurrentThemeColor();
           colorScheme = ColorScheme.fromSeed(
             seedColor: seedColor,
@@ -76,7 +76,7 @@ class _MyAppState extends State<MyApp> {
                 : currentThemeMode == 2 
                     ? Brightness.dark 
                     : brightness,
-          );
+          ).harmonized();
         }
 
         Get.changeTheme(ThemeData(
@@ -104,29 +104,40 @@ class _MyAppState extends State<MyApp> {
 
         // 如果使用动态颜色且系统支持动态颜色
         if (useDynamicColor && (lightDynamic != null && darkDynamic != null)) {
-          lightColorScheme = lightDynamic.harmonized();
-          darkColorScheme = darkDynamic.harmonized();
+          // 使用动态颜色前先调用 harmonized()，然后通过 copyWith 为表面色赋予默认值
+          final harmonizedLight = lightDynamic.harmonized();
+          final harmonizedDark = darkDynamic.harmonized();
+          
+          lightColorScheme = harmonizedLight.copyWith(
+            surface: Colors.white, // 根据设计需求调整亮色表面色，使用 white 作为亮色背景
+          );
+          darkColorScheme = harmonizedDark.copyWith(
+            surface: Colors.black, // 根据设计需求调整暗色表面色，默认使用黑色
+          );
           // 保存到常量中
           CommonConstants.dynamicLightColorScheme = lightColorScheme;
           CommonConstants.dynamicDarkColorScheme = darkColorScheme;
+          
           // 只在非初始化时更新主题
           if (Get.context != null) {
-            bool systemIsLight = WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.light;
+            bool systemIsLight =
+                WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.light;
             if (currentThemeMode == 1) {
-              Get.changeTheme(ThemeData.from(colorScheme: lightDynamic.harmonized()));
+              Get.changeTheme(ThemeData.from(colorScheme: lightColorScheme));
             } else if (currentThemeMode == 2) {
-              Get.changeTheme(ThemeData.from(colorScheme: darkDynamic.harmonized()));
+              Get.changeTheme(ThemeData.from(colorScheme: darkColorScheme));
             } else {
-              Get.changeTheme(ThemeData.from(colorScheme: systemIsLight ? lightDynamic.harmonized() : darkDynamic.harmonized()));
+              Get.changeTheme(ThemeData.from(
+                  colorScheme: systemIsLight ? lightColorScheme : darkColorScheme));
             }
           }
         } else {
-          // 使用自定义颜色
-          lightColorScheme = ColorScheme.fromSeed(seedColor: seedColor);
+          // 使用自定义颜色，通过 seed 生成后再 harmonized，确保色彩协调性
+          lightColorScheme = ColorScheme.fromSeed(seedColor: seedColor).harmonized();
           darkColorScheme = ColorScheme.fromSeed(
             seedColor: seedColor,
             brightness: Brightness.dark,
-          );
+          ).harmonized();
         }
 
         return OKToast(
@@ -277,8 +288,6 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
         }
         break;
       case AppLifecycleState.detached:
-        break;
-      default:
         break;
     }
   }

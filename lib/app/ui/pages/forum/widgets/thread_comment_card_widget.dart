@@ -18,6 +18,7 @@ import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:flutter/services.dart';
+import 'package:i_iwara/utils/widget_extensions.dart';
 import 'package:oktoast/oktoast.dart';
 
 class ThreadCommentCardWidget extends StatefulWidget {
@@ -521,7 +522,7 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
                     },
                     icon: const Icon(Icons.reply),
                     label: Text(slang.t.forum.reply),
-                  ),
+                  ).paddingRight(12),
                 ],
               ],
             ),
