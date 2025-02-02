@@ -132,7 +132,7 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
                     IconButton(
                       icon: AvatarWidget(
                         user: userService.currentUser.value,
-                        radius: 14,
+                        radius: 20,
                         defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
                       ),
                       onPressed: () {

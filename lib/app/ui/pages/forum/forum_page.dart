@@ -105,7 +105,7 @@ class _ForumPageState extends State<ForumPage> {
                       AvatarWidget(
                         user: userService.currentUser.value,
                         defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-                        radius: 14,
+                        radius: 20,
                       ),
                       Positioned(
                         right: 0,
@@ -268,32 +268,45 @@ class _ForumPageState extends State<ForumPage> {
         children: [
           SizedBox(
             width: 60,
-            child: NavigationRail(
-              minWidth: 56,
-              selectedIndex: _selectedRailIndex,
-              onDestinationSelected: (index) {
-                setState(() {
-                  _selectedRailIndex = index;
-                });
-              },
-              labelType: NavigationRailLabelType.all, // 显示图标和文本
-              destinations: [
-                NavigationRailDestination(
-                  icon: const Icon(Icons.access_time),
-                  selectedIcon: const Icon(Icons.access_time),
-                  label: Text(slang.t.forum.recent,
-                      style: const TextStyle(fontSize: 12)),
+            child: SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: MediaQuery.of(context).size.height,
                 ),
-                // 其他分类项：生成顺序保持不变
-                ..._categories!.map((category) {
-                  return NavigationRailDestination(
-                    icon: Icon(_getCategoryIcon(category.name)),
-                    selectedIcon: Icon(_getCategoryIcon(category.name)),
-                    label: Text(category.name,
-                        style: const TextStyle(fontSize: 12)),
-                  );
-                }),
-              ],
+                child: IntrinsicHeight(
+                  child: NavigationRail(
+                    minWidth: 56,
+                    selectedIndex: _selectedRailIndex,
+                    onDestinationSelected: (index) {
+                      setState(() {
+                        _selectedRailIndex = index;
+                      });
+                    },
+                    labelType: NavigationRailLabelType.all, // 显示图标和文本
+                    destinations: [
+                      NavigationRailDestination(
+                        icon: const Icon(Icons.access_time),
+                        selectedIcon: const Icon(Icons.access_time),
+                        label: Text(
+                          slang.t.forum.recent,
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      ),
+                      // 其他分类项：生成顺序保持不变
+                      ..._categories!.map((category) {
+                        return NavigationRailDestination(
+                          icon: Icon(_getCategoryIcon(category.name)),
+                          selectedIcon: Icon(_getCategoryIcon(category.name)),
+                          label: Text(
+                            category.name,
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
           Expanded(

@@ -66,7 +66,10 @@ class _AITranslationSettingsWidgetState
     _modelController.text = configService[ConfigKey.AI_TRANSLATION_MODEL];
     _apiKeyController.text =
         configService[ConfigKey.AI_TRANSLATION_API_KEY];
-    updateSettings();
+    _isConnectionValid.value = false;
+    _hasTested.value = false;
+    _testResult.value = null;
+    _isAIEnabled.value = configService[ConfigKey.USE_AI_TRANSLATION] as bool? ?? false;
     _maxTokensController = TextEditingController(
         text:
             configService[ConfigKey.AI_TRANSLATION_MAX_TOKENS].toString());
@@ -74,14 +77,6 @@ class _AITranslationSettingsWidgetState
         text: configService[ConfigKey.AI_TRANSLATION_TEMPERATURE]
             .toStringAsFixed(1));
     _promptController.text = configService[ConfigKey.AI_TRANSLATION_PROMPT];
-  }
-
-  void updateSettings() {
-    _isConnectionValid.value = false;
-    _hasTested.value = false;
-    _isAIEnabled.value = false;
-    _testResult.value = null;
-    configService[ConfigKey.USE_AI_TRANSLATION] = false;
   }
 
   Future<void> _testConnection() async {
