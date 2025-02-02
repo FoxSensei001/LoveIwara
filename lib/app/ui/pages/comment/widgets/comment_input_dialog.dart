@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/rules_agreement_dialog_widget.dart';
+import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_syntax_help_dialog.dart';
@@ -170,27 +171,10 @@ class _CommentInputDialogState extends State<CommentInputDialog> {
                     ),
                   ),
                 ),
-                Row(
-                  children: [
-                    // 帮助按钮
-                    IconButton(
-                      onPressed: _showMarkdownHelp,
-                      icon: const Icon(Icons.help_outline),
-                      tooltip: t.markdown.markdownSyntax,
-                    ),
-                    // 预览按钮
-                    IconButton(
-                      onPressed: _showPreview,
-                      icon: const Icon(Icons.preview),
-                      tooltip: t.common.preview,
-                    ),
-                    // 关闭按钮
-                    IconButton(
-                      onPressed: () => AppService.tryPop(),
-                      icon: const Icon(Icons.close),
-                      tooltip: t.common.close,
-                    ),
-                  ],
+                IconButton(
+                  onPressed: () => AppService.tryPop(),
+                  icon: const Icon(Icons.close),
+                  tooltip: t.common.close,
                 ),
               ],
             ),
@@ -207,6 +191,42 @@ class _CommentInputDialogState extends State<CommentInputDialog> {
                     ? t.errors.exceedsMaxLength(max: widget.maxLength.toString())
                     : null,
               ),
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              alignment: WrapAlignment.end,
+              spacing: 8,
+              children: [
+                IconButton(
+                  onPressed: _controller.text.isNotEmpty
+                      ? () {
+                          Get.dialog(
+                            TranslationDialog(
+                              text: _controller.text,
+                              defaultLanguageKeyMode: false,
+                            ),
+                          );
+                        }
+                      : null,
+                  icon: Icon(
+                    Icons.translate,
+                    color: _controller.text.isEmpty
+                        ? Theme.of(context).disabledColor
+                        : null,
+                  ),
+                  tooltip: t.common.translate,
+                ),
+                IconButton(
+                  onPressed: _showMarkdownHelp,
+                  icon: const Icon(Icons.help_outline),
+                  tooltip: t.markdown.markdownSyntax,
+                ),
+                IconButton(
+                  onPressed: _showPreview,
+                  icon: const Icon(Icons.preview),
+                  tooltip: t.common.preview,
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             Wrap(

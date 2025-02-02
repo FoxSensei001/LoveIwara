@@ -8,13 +8,16 @@ import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/app/routes/app_routes.dart';
+import 'package:flutter/services.dart';
 
 class TranslationDialog extends StatefulWidget {
   final String text;
+  final bool defaultLanguageKeyMode;
 
   const TranslationDialog({
     super.key,
     required this.text,
+    this.defaultLanguageKeyMode = true,
   });
 
   @override
@@ -38,7 +41,14 @@ class _TranslationDialogState extends State<TranslationDialog> {
       _error = null;
     });
 
-    ApiResult<String> result = await _translationService.translate(widget.text);
+    final targetLanguage = widget.defaultLanguageKeyMode 
+        ? null 
+        : _configService.currentTargetLanguage;
+
+    ApiResult<String> result = await _translationService.translate(
+      widget.text,
+      targetLanguage: targetLanguage,
+    );
 
     if (!mounted) return;
     setState(() {
@@ -64,11 +74,18 @@ class _TranslationDialogState extends State<TranslationDialog> {
     final configService = Get.find<ConfigService>();
     final t = slang.Translations.of(context);
     
+    final currentLanguage = widget.defaultLanguageKeyMode 
+        ? configService.currentTranslationLanguage
+        : configService.currentTargetLanguage;
+    final updateMethod = widget.defaultLanguageKeyMode
+        ? configService.updateTranslationLanguage
+        : configService.updateTargetLanguage;
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         PopupMenuButton<String>(
-          initialValue: _configService.currentTranslationLanguage,
+          initialValue: currentLanguage,
           child: Card(
             elevation: 2,
             shape: RoundedRectangleBorder(
@@ -80,11 +97,10 @@ class _TranslationDialogState extends State<TranslationDialog> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    CommonConstants.translationSorts
-                        .firstWhere((sort) =>
-                            sort.extData ==
-                            _configService.currentTranslationLanguage)
-                        .label,
+                    CommonConstants.translationSorts.firstWhere(
+                      (sort) => sort.extData == currentLanguage,
+                      orElse: () => CommonConstants.translationSorts.first,
+                    ).label,
                     style: const TextStyle(fontSize: 14),
                   ),
                   const SizedBox(width: 4),
@@ -96,22 +112,18 @@ class _TranslationDialogState extends State<TranslationDialog> {
               ),
             ),
           ),
-          itemBuilder: (context) {
-            return CommonConstants.translationSorts.map((sort) {
-              return PopupMenuItem<String>(
-                value: sort.extData,
-                child: Text(sort.label),
-              );
-            }).toList();
-          },
+          itemBuilder: (context) => CommonConstants.translationSorts.map((sort) {
+            return PopupMenuItem<String>(
+              value: sort.extData,
+              child: Text(sort.label),
+            );
+          }).toList(),
           onSelected: (value) {
             final sort = CommonConstants.translationSorts.firstWhere(
               (sort) => sort.extData == value,
             );
-            _configService.updateTranslationLanguage(sort);
-            setState(() {
-              _translatedText = null;
-            });
+            updateMethod(sort);
+            setState(() => _translatedText = null);
             _handleTranslation();
           },
         ),
@@ -121,7 +133,6 @@ class _TranslationDialogState extends State<TranslationDialog> {
           if (!isAIEnabled) {
             return ElevatedButton.icon(
               onPressed: () {
-                Get.closeAllDialogs();
                 Get.toNamed(Routes.AI_TRANSLATION_SETTINGS_PAGE);
               },
               icon: Icon(Icons.auto_awesome, 
@@ -178,6 +189,9 @@ class _TranslationDialogState extends State<TranslationDialog> {
         const SizedBox(height: 8),
         Container(
           width: double.infinity,
+          constraints: title == t.common.originalText
+              ? BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.3)
+              : null,
           decoration: BoxDecoration(
             border: Border.all(
               color: theme.colorScheme.outline.withOpacity(0.5),
@@ -187,26 +201,41 @@ class _TranslationDialogState extends State<TranslationDialog> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: title == t.common.translationResult && _isTranslating
-                    ? _buildShimmerLoading(theme)
-                    : content,
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainerHighest
-                      .withOpacity(0.5),
-                  borderRadius:
-                      const BorderRadius.vertical(bottom: Radius.circular(11)),
+              if (title == t.common.originalText)
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(12),
+                    child: content,
+                  ),
+                )
+              else
+                Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: content,
                 ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     if (title == t.common.translationResult)
-                      translationPoweredByWidget(context, fontSize: 10)
+                      translationPoweredByWidget(context, fontSize: 16),
+                    if (title == t.common.translationResult && _translatedText != null)
+                      const SizedBox(width: 16),
+                    if (title == t.common.translationResult && _translatedText != null)
+                      Tooltip(
+                        message: t.download.copy,
+                        child: IconButton(
+                          icon: const Icon(Icons.content_copy, size: 18),
+                          onPressed: () async {
+                            await Clipboard.setData(ClipboardData(text: _translatedText!));
+                            Get.showSnackbar(GetSnackBar(
+                              message: t.download.copySuccess,
+                              duration: const Duration(seconds: 2),
+                            ));
+                          },
+                        ),
+                      ),
                   ],
                 ),
               ),

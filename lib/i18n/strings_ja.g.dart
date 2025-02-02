@@ -989,7 +989,7 @@ class _TranslationsTranslationJa implements TranslationsTranslationEn {
 	@override String get modelName => 'モデル名';
 	@override String get modelNameHintText => '例：gpt-4-turbo';
 	@override String get maxTokens => '最大トークン数';
-	@override String get maxTokensHintText => '例：500';
+	@override String get maxTokensHintText => '例：1024';
 	@override String get temperature => '温度係数';
 	@override String get temperatureHintText => '0.0-2.0';
 	@override String get clickTestButtonToVerifyAPIConnection => 'テストボタンをクリックしてAPI接続を検証';
@@ -2058,7 +2058,7 @@ extension on TranslationsJa {
 			case 'translation.modelName': return 'モデル名';
 			case 'translation.modelNameHintText': return '例：gpt-4-turbo';
 			case 'translation.maxTokens': return '最大トークン数';
-			case 'translation.maxTokensHintText': return '例：500';
+			case 'translation.maxTokensHintText': return '例：1024';
 			case 'translation.temperature': return '温度係数';
 			case 'translation.temperatureHintText': return '0.0-2.0';
 			case 'translation.clickTestButtonToVerifyAPIConnection': return 'テストボタンをクリックしてAPI接続を検証';

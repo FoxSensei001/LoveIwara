@@ -249,7 +249,6 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
                       if (!isAIEnabled) {
                         return ElevatedButton.icon(
                           onPressed: () {
-                            Get.closeAllDialogs();
                             Get.toNamed(Routes.AI_TRANSLATION_SETTINGS_PAGE);
                           },
                           icon: Icon(

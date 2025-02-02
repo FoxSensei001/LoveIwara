@@ -56,8 +56,8 @@ class TranslationService extends GetxService {
     }
     final model = config[ConfigKey.AI_TRANSLATION_MODEL];
     final apiKey = config[ConfigKey.AI_TRANSLATION_API_KEY];
-    final maxTokens = config[ConfigKey.AI_TRANSLATION_MAX_TOKENS] as int? ?? 500;
-    final temperature = config[ConfigKey.AI_TRANSLATION_TEMPERATURE] as double? ?? 0.3;
+    final maxTokens = config[ConfigKey.AI_TRANSLATION_MAX_TOKENS];
+    final temperature = config[ConfigKey.AI_TRANSLATION_TEMPERATURE];
 
     try {
       final prompt = config[ConfigKey.AI_TRANSLATION_PROMPT]
@@ -100,8 +100,8 @@ class TranslationService extends GetxService {
       String baseUrl, String model, String apiKey,
       {String? targetLanguage}) async {
     final config = Get.find<ConfigService>();
-    final maxTokens = config[ConfigKey.AI_TRANSLATION_MAX_TOKENS] as int? ?? 500;
-    final temperature = config[ConfigKey.AI_TRANSLATION_TEMPERATURE] as double? ?? 0.1;
+    final maxTokens = config[ConfigKey.AI_TRANSLATION_MAX_TOKENS];
+    final temperature = config[ConfigKey.AI_TRANSLATION_TEMPERATURE];
 
     // 如果以 / 结尾，则去掉
     if (baseUrl.endsWith('/')) {

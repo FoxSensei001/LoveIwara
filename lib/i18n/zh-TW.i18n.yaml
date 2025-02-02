@@ -881,7 +881,7 @@ translation:
   modelName: 模型名稱
   modelNameHintText: '例如：gpt-4-turbo'
   maxTokens: 最大Token數
-  maxTokensHintText: '例如：500'
+  maxTokensHintText: '例如：1024'
   temperature: 溫度係數
   temperatureHintText: '0.0-2.0'
   clickTestButtonToVerifyAPIConnection: '點擊測試按鈕驗證API連接有效性'

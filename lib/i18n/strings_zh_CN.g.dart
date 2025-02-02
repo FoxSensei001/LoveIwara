@@ -994,7 +994,7 @@ class _TranslationsTranslationZhCn implements TranslationsTranslationEn {
 	@override String get modelName => '模型名称';
 	@override String get modelNameHintText => '例如：gpt-4-turbo';
 	@override String get maxTokens => '最大Token数';
-	@override String get maxTokensHintText => '例如：500';
+	@override String get maxTokensHintText => '例如：1024';
 	@override String get temperature => '温度系数';
 	@override String get temperatureHintText => '0.0-2.0';
 	@override String get clickTestButtonToVerifyAPIConnection => '点击测试按钮验证API连接有效性';
@@ -2068,7 +2068,7 @@ extension on TranslationsZhCn {
 			case 'translation.modelName': return '模型名称';
 			case 'translation.modelNameHintText': return '例如：gpt-4-turbo';
 			case 'translation.maxTokens': return '最大Token数';
-			case 'translation.maxTokensHintText': return '例如：500';
+			case 'translation.maxTokensHintText': return '例如：1024';
 			case 'translation.temperature': return '温度系数';
 			case 'translation.temperatureHintText': return '0.0-2.0';
 			case 'translation.clickTestButtonToVerifyAPIConnection': return '点击测试按钮验证API连接有效性';

@@ -993,7 +993,7 @@ class TranslationsTranslationEn {
 	String get modelName => 'Model Name';
 	String get modelNameHintText => 'For example: gpt-4-turbo';
 	String get maxTokens => 'Max Tokens';
-	String get maxTokensHintText => 'For example: 500';
+	String get maxTokensHintText => 'For example: 1024';
 	String get temperature => 'Temperature';
 	String get temperatureHintText => '0.0-2.0';
 	String get clickTestButtonToVerifyAPIConnection => 'Click test button to verify API connection validity';
@@ -2062,7 +2062,7 @@ extension on Translations {
 			case 'translation.modelName': return 'Model Name';
 			case 'translation.modelNameHintText': return 'For example: gpt-4-turbo';
 			case 'translation.maxTokens': return 'Max Tokens';
-			case 'translation.maxTokensHintText': return 'For example: 500';
+			case 'translation.maxTokensHintText': return 'For example: 1024';
 			case 'translation.temperature': return 'Temperature';
 			case 'translation.temperatureHintText': return '0.0-2.0';
 			case 'translation.clickTestButtonToVerifyAPIConnection': return 'Click test button to verify API connection validity';

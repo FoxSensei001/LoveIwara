@@ -992,7 +992,7 @@ class _TranslationsTranslationZhTw implements TranslationsTranslationEn {
 	@override String get modelName => '模型名稱';
 	@override String get modelNameHintText => '例如：gpt-4-turbo';
 	@override String get maxTokens => '最大Token數';
-	@override String get maxTokensHintText => '例如：500';
+	@override String get maxTokensHintText => '例如：1024';
 	@override String get temperature => '溫度係數';
 	@override String get temperatureHintText => '0.0-2.0';
 	@override String get clickTestButtonToVerifyAPIConnection => '點擊測試按鈕驗證API連接有效性';
@@ -2064,7 +2064,7 @@ extension on TranslationsZhTw {
 			case 'translation.modelName': return '模型名稱';
 			case 'translation.modelNameHintText': return '例如：gpt-4-turbo';
 			case 'translation.maxTokens': return '最大Token數';
-			case 'translation.maxTokensHintText': return '例如：500';
+			case 'translation.maxTokensHintText': return '例如：1024';
 			case 'translation.temperature': return '溫度係數';
 			case 'translation.temperatureHintText': return '0.0-2.0';
 			case 'translation.clickTestButtonToVerifyAPIConnection': return '點擊測試按鈕驗證API連接有效性';

@@ -13,9 +13,15 @@ class ConfigService extends GetxService {
   final settings = <ConfigKey, Rx<dynamic>>{};
 
   late final CommonDatabase _db;
-  late final Rx<Sort> _currentTranslationSort;
+
+  late final Rx<Sort> _currentTranslationSort; // 当前翻译语言
   Sort get currentTranslationSort => _currentTranslationSort.value;
   String get currentTranslationLanguage => currentTranslationSort.extData;
+
+  // 新增目标语言相关字段
+  late final Rx<Sort> _currentTargetLanguageSort; // 当前翻译目标语言
+  Sort get currentTargetLanguageSort => _currentTargetLanguageSort.value;
+  String get currentTargetLanguage => currentTargetLanguageSort.extData;
 
   Future<ConfigService> init() async {
     // 初始化 settings Map
@@ -32,11 +38,32 @@ class ConfigService extends GetxService {
     }
 
     // 初始化翻译语言
-    final savedLanguage = settings[ConfigKey.DEFAULT_LANGUAGE_KEY]!.value;
+    String savedLanguage = settings[ConfigKey.DEFAULT_LANGUAGE_KEY]!.value;
     _currentTranslationSort = Rx<Sort>(CommonConstants.translationSorts.firstWhere(
       (sort) => sort.extData == savedLanguage,
       orElse: () => CommonConstants.translationSorts.first,
     ));
+
+    // 如果 _currentTranslationSort 的 extData 和 savedLanguage 不一致，则更新 savedLanguage
+    if (_currentTranslationSort.value.extData != savedLanguage) {
+      savedLanguage = _currentTranslationSort.value.extData;
+      await _saveSetting(ConfigKey.DEFAULT_LANGUAGE_KEY, savedLanguage);
+    }
+
+    // 初始化目标翻译语言（处理方式与源语言相同）
+    String savedTargetLanguage = settings[ConfigKey.USER_TARGET_LANGUAGE_KEY]!.value;
+    _currentTargetLanguageSort = Rx<Sort>(CommonConstants.translationSorts.firstWhere(
+      (sort) => sort.extData == savedTargetLanguage,
+      orElse: () => CommonConstants.translationSorts.firstWhere(
+        (sort) => sort.extData == ConfigKey.USER_TARGET_LANGUAGE_KEY.defaultValue
+      ),
+    ));
+
+    // 同步目标语言设置到数据库（如果不一致）
+    if (_currentTargetLanguageSort.value.extData != savedTargetLanguage) {
+      savedTargetLanguage = _currentTargetLanguageSort.value.extData;
+      await _saveSetting(ConfigKey.USER_TARGET_LANGUAGE_KEY, savedTargetLanguage);
+    }
 
     // 初始化其他配置
     CommonConstants.themeMode = settings[ConfigKey.THEME_MODE_KEY]!.value;
@@ -109,6 +136,12 @@ class ConfigService extends GetxService {
     _currentTranslationSort.value = sort;
     setSetting(ConfigKey.DEFAULT_LANGUAGE_KEY, sort.extData);
   }
+
+  // 新增目标语言更新方法
+  void updateTargetLanguage(Sort sort) {
+    _currentTargetLanguageSort.value = sort;
+    setSetting(ConfigKey.USER_TARGET_LANGUAGE_KEY, sort.extData);
+  }
 }
 
 enum ConfigKey {
@@ -129,6 +162,7 @@ enum ConfigKey {
   RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN,
   ACTIVE_BACKGROUND_PRIVACY_MODE,
   DEFAULT_LANGUAGE_KEY,
+  USER_TARGET_LANGUAGE_KEY,
   THEATER_MODE_KEY,
   REMOTE_REPO_RELEASE_URL,
   REMOTE_REPO_URL,
@@ -205,6 +239,7 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.AI_TRANSLATION_TEMPERATURE: return 'ai_translation_temperature';
       case ConfigKey.REMEMBER_ME_KEY: return 'remember_me';
       case ConfigKey.AI_TRANSLATION_PROMPT: return 'ai_translation_prompt';
+      case ConfigKey.USER_TARGET_LANGUAGE_KEY: return 'user_target_language';
     }
   }
 
@@ -244,6 +279,8 @@ extension ConfigKeyExtension on ConfigKey {
         return false;
       case ConfigKey.DEFAULT_LANGUAGE_KEY:
         return 'zh-CN';
+      case ConfigKey.USER_TARGET_LANGUAGE_KEY:
+        return 'en-US';
       case ConfigKey.THEATER_MODE_KEY:
         return true;
       case ConfigKey.REMOTE_REPO_RELEASE_URL:
@@ -291,7 +328,7 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.AI_TRANSLATION_API_KEY:
         return '';
       case ConfigKey.AI_TRANSLATION_MAX_TOKENS:
-        return 500;
+        return 1024;
       case ConfigKey.AI_TRANSLATION_TEMPERATURE:
         return 0.3;
       case ConfigKey.REMEMBER_ME_KEY:

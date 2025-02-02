@@ -609,18 +609,18 @@ class _AITranslationSettingsWidgetState
 
     return Obx(() {
       final baseUrl =
-          configService[ConfigKey.AI_TRANSLATION_BASE_URL] ?? '';
-      final model = configService[ConfigKey.AI_TRANSLATION_MODEL] ?? '';
-      final apiKey = configService[ConfigKey.AI_TRANSLATION_API_KEY] ?? '';
+          configService[ConfigKey.AI_TRANSLATION_BASE_URL];
+      final model = configService[ConfigKey.AI_TRANSLATION_MODEL];
+      final apiKey = configService[ConfigKey.AI_TRANSLATION_API_KEY];
 
       final endpoint = baseUrl.isNotEmpty
           ? '${baseUrl.endsWith('/') ? baseUrl : '$baseUrl/'}chat/completions'
           : slang.t.translation.notConfigured;
 
       final maxTokens =
-          configService[ConfigKey.AI_TRANSLATION_MAX_TOKENS] ?? 500;
+          configService[ConfigKey.AI_TRANSLATION_MAX_TOKENS];
       final temperature =
-          configService[ConfigKey.AI_TRANSLATION_TEMPERATURE] ?? 0.3;
+          configService[ConfigKey.AI_TRANSLATION_TEMPERATURE];
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -13,6 +13,7 @@ import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_syntax_help_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 
 class ForumPostDialog extends StatefulWidget {
   const ForumPostDialog({
@@ -397,31 +398,17 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
                 children: [
                   Expanded(
                     child: Text(
-                      t.forum.createThread,
+                      t.forum.createPost,
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                  Row(
-                    children: [
-                      IconButton(
-                        onPressed: _showMarkdownHelp,
-                        icon: const Icon(Icons.help_outline),
-                        tooltip: t.markdown.markdownSyntax,
-                      ),
-                      IconButton(
-                        onPressed: _showPreview,
-                        icon: const Icon(Icons.preview),
-                        tooltip: t.common.preview,
-                      ),
-                      IconButton(
-                        onPressed: () => AppService.tryPop(),
-                        icon: const Icon(Icons.close),
-                        tooltip: t.common.close,
-                      ),
-                    ],
+                  IconButton(
+                    onPressed: () => AppService.tryPop(),
+                    icon: const Icon(Icons.close),
+                    tooltip: t.common.close,
                   ),
                 ],
               ),
@@ -623,6 +610,46 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
                       ? t.errors.exceedsMaxLength(max: maxBodyLength.toString())
                       : null,
                 ),
+              ),
+              const SizedBox(height: 16),
+              // 新增操作按钮行
+              Wrap(
+                alignment: WrapAlignment.end,
+                spacing: 8,
+                children: [
+                  // 翻译按钮
+                  IconButton(
+                    onPressed: _bodyController.text.isNotEmpty
+                        ? () {
+                            Get.dialog(
+                              TranslationDialog(
+                                text: _bodyController.text,
+                                defaultLanguageKeyMode: false,
+                              ),
+                            );
+                          }
+                        : null,
+                    icon: Icon(
+                      Icons.translate,
+                      color: _bodyController.text.isEmpty
+                          ? Theme.of(context).disabledColor
+                          : null,
+                    ),
+                    tooltip: t.common.translate,
+                  ),
+                  // 帮助按钮
+                  IconButton(
+                    onPressed: _showMarkdownHelp,
+                    icon: const Icon(Icons.help_outline),
+                    tooltip: t.markdown.markdownSyntax,
+                  ),
+                  // 预览按钮
+                  IconButton(
+                    onPressed: _showPreview,
+                    icon: const Icon(Icons.preview),
+                    tooltip: t.common.preview,
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
               Wrap(
