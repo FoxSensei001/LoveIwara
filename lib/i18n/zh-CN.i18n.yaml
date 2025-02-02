@@ -935,3 +935,4 @@ translation:
   aiTranslationWillBeDisabledDueToConfigChange: "由于修改了基础配置,AI翻译将被自动关闭"
   aiTranslationWillBeDisabledDueToPromptChange: "由于修改了翻译提示词,AI翻译将被自动关闭" 
   aiTranslationWillBeDisabledDueToParamChange: "由于修改了参数配置,AI翻译将被自动关闭"
+  onlyOpenAIAPISupported: "当前仅支持OpenAI兼容的API格式（application/json请求体格式）"

@@ -931,3 +931,4 @@ translation:
   aiTranslationWillBeDisabledDueToConfigChange: "基本設定を変更したため、AI翻訳が自動的に無効にされます"
   aiTranslationWillBeDisabledDueToPromptChange: "翻訳プロンプトを変更したため、AI翻訳が自動的に無効にされます" 
   aiTranslationWillBeDisabledDueToParamChange: "パラメーター設定を変更したため、AI翻訳が自動的に無効にされます"
+  onlyOpenAIAPISupported: "現在、OpenAI互換のAPI形式（application/jsonリクエストボディ形式）のみサポートされています"

@@ -1041,6 +1041,7 @@ class _TranslationsTranslationJa implements TranslationsTranslationEn {
 	@override String get aiTranslationWillBeDisabledDueToConfigChange => '基本設定を変更したため、AI翻訳が自動的に無効にされます';
 	@override String get aiTranslationWillBeDisabledDueToPromptChange => '翻訳プロンプトを変更したため、AI翻訳が自動的に無効にされます';
 	@override String get aiTranslationWillBeDisabledDueToParamChange => 'パラメーター設定を変更したため、AI翻訳が自動的に無効にされます';
+	@override String get onlyOpenAIAPISupported => '現在、OpenAI互換のAPI形式（application/jsonリクエストボディ形式）のみサポートされています';
 }
 
 // Path: forum.errors
@@ -2116,6 +2117,7 @@ extension on TranslationsJa {
 			case 'translation.aiTranslationWillBeDisabledDueToConfigChange': return '基本設定を変更したため、AI翻訳が自動的に無効にされます';
 			case 'translation.aiTranslationWillBeDisabledDueToPromptChange': return '翻訳プロンプトを変更したため、AI翻訳が自動的に無効にされます';
 			case 'translation.aiTranslationWillBeDisabledDueToParamChange': return 'パラメーター設定を変更したため、AI翻訳が自動的に無効にされます';
+			case 'translation.onlyOpenAIAPISupported': return '現在、OpenAI互換のAPI形式（application/jsonリクエストボディ形式）のみサポートされています';
 			default: return null;
 		}
 	}

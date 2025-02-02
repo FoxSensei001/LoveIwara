@@ -1046,6 +1046,7 @@ class _TranslationsTranslationZhCn implements TranslationsTranslationEn {
 	@override String get aiTranslationWillBeDisabledDueToConfigChange => '由于修改了基础配置,AI翻译将被自动关闭';
 	@override String get aiTranslationWillBeDisabledDueToPromptChange => '由于修改了翻译提示词,AI翻译将被自动关闭';
 	@override String get aiTranslationWillBeDisabledDueToParamChange => '由于修改了参数配置,AI翻译将被自动关闭';
+	@override String get onlyOpenAIAPISupported => '当前仅支持OpenAI兼容的API格式（application/json请求体格式）';
 }
 
 // Path: forum.errors
@@ -2126,6 +2127,7 @@ extension on TranslationsZhCn {
 			case 'translation.aiTranslationWillBeDisabledDueToConfigChange': return '由于修改了基础配置,AI翻译将被自动关闭';
 			case 'translation.aiTranslationWillBeDisabledDueToPromptChange': return '由于修改了翻译提示词,AI翻译将被自动关闭';
 			case 'translation.aiTranslationWillBeDisabledDueToParamChange': return '由于修改了参数配置,AI翻译将被自动关闭';
+			case 'translation.onlyOpenAIAPISupported': return '当前仅支持OpenAI兼容的API格式（application/json请求体格式）';
 			default: return null;
 		}
 	}

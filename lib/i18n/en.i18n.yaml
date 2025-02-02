@@ -927,4 +927,5 @@ translation:
   aiTranslationWillBeDisabledDueToConfigChange: "Due to the change of basic configuration, AI translation will be disabled"
   aiTranslationWillBeDisabledDueToPromptChange: "Due to the change of translation prompt, AI translation will be disabled" 
   aiTranslationWillBeDisabledDueToParamChange: "Due to the change of parameter configuration, AI translation will be disabled"
-  
+  onlyOpenAIAPISupported: "Currently only supports OpenAI-compatible API format (application/json request body)"
+

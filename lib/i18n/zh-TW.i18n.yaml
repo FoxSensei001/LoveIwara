@@ -933,3 +933,4 @@ translation:
   aiTranslationWillBeDisabledDueToConfigChange: "由於修改了基礎配置,AI翻譯將被自動關閉"
   aiTranslationWillBeDisabledDueToPromptChange: "由於修改了翻譯提示詞,AI翻譯將被自動關閉" 
   aiTranslationWillBeDisabledDueToParamChange: "由於修改了參數配置,AI翻譯將被自動關閉"
+  onlyOpenAIAPISupported: "目前僅支持OpenAI兼容的API格式（application/json請求體格式）"

@@ -1045,6 +1045,7 @@ class TranslationsTranslationEn {
 	String get aiTranslationWillBeDisabledDueToConfigChange => 'Due to the change of basic configuration, AI translation will be disabled';
 	String get aiTranslationWillBeDisabledDueToPromptChange => 'Due to the change of translation prompt, AI translation will be disabled';
 	String get aiTranslationWillBeDisabledDueToParamChange => 'Due to the change of parameter configuration, AI translation will be disabled';
+	String get onlyOpenAIAPISupported => 'Currently only supports OpenAI-compatible API format (application/json request body)';
 }
 
 // Path: forum.errors
@@ -2120,6 +2121,7 @@ extension on Translations {
 			case 'translation.aiTranslationWillBeDisabledDueToConfigChange': return 'Due to the change of basic configuration, AI translation will be disabled';
 			case 'translation.aiTranslationWillBeDisabledDueToPromptChange': return 'Due to the change of translation prompt, AI translation will be disabled';
 			case 'translation.aiTranslationWillBeDisabledDueToParamChange': return 'Due to the change of parameter configuration, AI translation will be disabled';
+			case 'translation.onlyOpenAIAPISupported': return 'Currently only supports OpenAI-compatible API format (application/json request body)';
 			default: return null;
 		}
 	}

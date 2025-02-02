@@ -233,6 +233,14 @@ class _AITranslationSettingsWidgetState
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontSize: 12,
                         height: 1.2)),
+                const SizedBox(height: 8),
+                Text(
+                  slang.t.translation.onlyOpenAIAPISupported,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.error,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500),
+                ),
               ],
             ),
           ),
