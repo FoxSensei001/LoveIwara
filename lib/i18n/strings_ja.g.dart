@@ -458,6 +458,9 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	final TranslationsJa _root; // ignore: unused_field
 
 	// Translations
+	@override String get basicSettings => '基本設定';
+	@override String get personalizedSettings => '個性化設定';
+	@override String get otherSettings => 'その他設定';
 	@override String get searchConfig => '検索設定';
 	@override String get thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain => 'この設定は、今後動画を再生する際に以前の設定を使用するかどうかを決定します。';
 	@override String get playControl => '再生コントロール';
@@ -1520,6 +1523,9 @@ extension on TranslationsJa {
 			case 'search.searchResult': return '検索結果';
 			case 'search.unsupportedSearchType': return ({required Object searchType}) => 'サポートされていない検索タイプ: ${searchType}';
 			case 'mediaList.personalIntroduction': return '個人紹介';
+			case 'settings.basicSettings': return '基本設定';
+			case 'settings.personalizedSettings': return '個性化設定';
+			case 'settings.otherSettings': return 'その他設定';
 			case 'settings.searchConfig': return '検索設定';
 			case 'settings.thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain': return 'この設定は、今後動画を再生する際に以前の設定を使用するかどうかを決定します。';
 			case 'settings.playControl': return '再生コントロール';

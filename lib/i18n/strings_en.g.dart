@@ -462,6 +462,9 @@ class TranslationsSettingsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+	String get basicSettings => 'Basic Settings';
+	String get personalizedSettings => 'Personalized Settings';
+	String get otherSettings => 'Other Settings';
 	String get searchConfig => 'Search Config';
 	String get thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain => 'This configuration determines whether the previous configuration will be used when playing videos again.';
 	String get playControl => 'Play Control';
@@ -1524,6 +1527,9 @@ extension on Translations {
 			case 'search.searchResult': return 'Search Result';
 			case 'search.unsupportedSearchType': return ({required Object searchType}) => 'Unsupported search type: ${searchType}';
 			case 'mediaList.personalIntroduction': return 'Personal Introduction';
+			case 'settings.basicSettings': return 'Basic Settings';
+			case 'settings.personalizedSettings': return 'Personalized Settings';
+			case 'settings.otherSettings': return 'Other Settings';
 			case 'settings.searchConfig': return 'Search Config';
 			case 'settings.thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain': return 'This configuration determines whether the previous configuration will be used when playing videos again.';
 			case 'settings.playControl': return 'Play Control';

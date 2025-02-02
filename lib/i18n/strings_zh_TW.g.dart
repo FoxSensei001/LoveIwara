@@ -458,6 +458,9 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	final TranslationsZhTw _root; // ignore: unused_field
 
 	// Translations
+	@override String get basicSettings => '基礎設定';
+	@override String get personalizedSettings => '個性化設定';
+	@override String get otherSettings => '其他設定';
 	@override String get searchConfig => '搜尋設定';
 	@override String get thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain => '此設定將決定您之後播放影片時是否會沿用之前的設定。';
 	@override String get playControl => '播放控制';
@@ -1523,6 +1526,9 @@ extension on TranslationsZhTw {
 			case 'search.searchResult': return '搜尋結果';
 			case 'search.unsupportedSearchType': return ({required Object searchType}) => '不支援的搜尋類型: ${searchType}';
 			case 'mediaList.personalIntroduction': return '個人簡介';
+			case 'settings.basicSettings': return '基礎設定';
+			case 'settings.personalizedSettings': return '個性化設定';
+			case 'settings.otherSettings': return '其他設定';
 			case 'settings.searchConfig': return '搜尋設定';
 			case 'settings.thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain': return '此設定將決定您之後播放影片時是否會沿用之前的設定。';
 			case 'settings.playControl': return '播放控制';

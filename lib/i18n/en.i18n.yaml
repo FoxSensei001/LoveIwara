@@ -320,6 +320,9 @@ mediaList:
   personalIntroduction: Personal Introduction
 
 settings:
+  basicSettings: Basic Settings
+  personalizedSettings: Personalized Settings
+  otherSettings: Other Settings
   searchConfig: Search Config
   thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain: This configuration determines whether the previous configuration will be used when playing videos again.
   playControl: Play Control

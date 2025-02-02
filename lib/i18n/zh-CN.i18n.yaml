@@ -328,6 +328,9 @@ mediaList:
   personalIntroduction: 个人简介
 
 settings:
+  basicSettings: 基础设置
+  personalizedSettings: 个性化设置
+  otherSettings: 其他设置
   searchConfig: 搜索配置
   thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain: 此配置决定当你之后播放视频时是否会沿用之前的配置。
   playControl: 播放控制

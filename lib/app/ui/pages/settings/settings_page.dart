@@ -99,22 +99,39 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget _buildWideScreenLayout(
-      BuildContext context, List<SettingItem> settingItems) {
-    // 使用 GetX 管理当前选中的设置项，并从 ConfigService 中获取保存的值
-    final selectedIndex =
-        (Get.find<ConfigService>()[ConfigKey.SETTINGS_SELECTED_INDEX_KEY]
-                    as int? ??
-                0)
-            .obs;
-
-    // 监听选中索引的变化并保存到 ConfigService
-    _selectedIndexWorker?.dispose(); // 确保之前的监听器被清理
+  Widget _buildWideScreenLayout(BuildContext context, List<SettingItem> settingItems) {
+    final selectedIndex = (Get.find<ConfigService>()[ConfigKey.SETTINGS_SELECTED_INDEX_KEY] as int? ?? 0).obs;
+    
+    _selectedIndexWorker?.dispose();
     _selectedIndexWorker = ever(selectedIndex, (int index) {
-      Get.find<ConfigService>()
-          .setSetting(ConfigKey.SETTINGS_SELECTED_INDEX_KEY, index);
+      Get.find<ConfigService>().setSetting(ConfigKey.SETTINGS_SELECTED_INDEX_KEY, index);
     });
-
+  
+    // 定义分组设置项
+    final groupedItems = [
+      _SettingGroup(
+        // title: '基础设置',
+        title: slang.t.settings.basicSettings,
+        items: settingItems.where((item) =>
+            item.icon == Icons.wifi ||
+            item.icon == Icons.translate ||
+            item.icon == Icons.settings).toList(),
+      ),
+      _SettingGroup(
+        // title: '个性化',
+        title: slang.t.settings.personalizedSettings,
+        items: settingItems.where((item) =>
+            item.icon == Icons.play_circle_outline ||
+            item.icon == Icons.color_lens).toList(),
+      ),
+      _SettingGroup(
+        // title: '其他',
+        title: slang.t.settings.otherSettings,
+        items: settingItems.where((item) => 
+            item.icon == Icons.info_outline).toList(),
+      ),
+    ];
+  
     return Row(
       children: [
         // 左侧菜单
@@ -122,22 +139,57 @@ class _SettingsPageState extends State<SettingsPage> {
           width: 300,
           child: Card(
             margin: const EdgeInsets.all(16),
-            elevation: 4,
-            // color: Colors.transparent,
+            elevation: 0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
+              side: BorderSide(
+                color: Theme.of(context).dividerColor.withOpacity(0.1),
+              ),
             ),
+            clipBehavior: Clip.antiAlias,
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(vertical: 8),
-              itemCount: settingItems.length,
-              itemBuilder: (context, index) {
-                final item = settingItems[index];
-                return Obx(() => _buildSettingsListTile(
-                      context,
-                      item,
-                      isSelected: selectedIndex.value == index,
-                      onTap: () => selectedIndex.value = index,
-                    ));
+              itemCount: groupedItems.length,
+              itemBuilder: (context, groupIndex) {
+                final group = groupedItems[groupIndex];
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+                      child: Text(
+                        group.title,
+                      ),
+                    ),
+                    ...List.generate(group.items.length, (itemIndex) {
+                      final item = group.items[itemIndex];
+                      final globalIndex = groupedItems
+                          .take(groupIndex)
+                          .fold<int>(0, (sum, group) => sum + group.items.length) + itemIndex;
+                      
+                      return Obx(() => Column(
+                        children: [
+                          _buildSettingsListTile(
+                            context,
+                            item,
+                            isSelected: selectedIndex.value == globalIndex,
+                            onTap: () => selectedIndex.value = globalIndex,
+                          ),
+                          if (itemIndex != group.items.length - 1)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 56),
+                              child: Divider(
+                                height: 1,
+                                color: Theme.of(context).dividerColor.withOpacity(0.1),
+                              ),
+                            ),
+                        ],
+                      ));
+                    }),
+                    if (groupIndex != groupedItems.length - 1)
+                      const SizedBox(height: 16),
+                  ],
+                );
               },
             ),
           ),
@@ -146,9 +198,12 @@ class _SettingsPageState extends State<SettingsPage> {
         Expanded(
           child: Card(
             margin: const EdgeInsets.fromLTRB(0, 16, 16, 16),
-            elevation: 4,
+            elevation: 0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
+              side: BorderSide(
+                color: Theme.of(context).dividerColor.withOpacity(0.1),
+              ),
             ),
             clipBehavior: Clip.antiAlias,
             child: Obx(() => settingItems[selectedIndex.value].page),
@@ -157,19 +212,100 @@ class _SettingsPageState extends State<SettingsPage> {
       ],
     );
   }
-
+  
   Widget _buildNarrowScreenLayout(
       BuildContext context, List<SettingItem> settingItems) {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: settingItems.length,
-      itemBuilder: (context, index) {
-        final item = settingItems[index];
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: _buildSettingsCard(context, item),
-        );
-      },
+    return CustomScrollView(
+      slivers: [
+        const SliverToBoxAdapter(
+          child: SizedBox(height: 8),
+        ),
+        _buildSettingsGroup(
+          context,
+          // title: '基础设置',
+          title: slang.t.settings.basicSettings,
+          items: settingItems.where((item) =>
+              item.icon == Icons.wifi ||
+              item.icon == Icons.translate ||
+              item.icon == Icons.settings).toList(),
+        ),
+        _buildSettingsGroup(
+          context,
+          // title: '个性化',
+          title: slang.t.settings.personalizedSettings,
+          items: settingItems.where((item) =>
+              item.icon == Icons.play_circle_outline ||
+              item.icon == Icons.color_lens).toList(),
+        ),
+        _buildSettingsGroup(
+          context,
+          // title: '其他',
+          title: slang.t.settings.otherSettings,
+          items: settingItems.where((item) => 
+              item.icon == Icons.info_outline).toList(),
+          isLastGroup: true,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSettingsGroup(
+    BuildContext context, {
+    required String title,
+    required List<SettingItem> items,
+    bool isLastGroup = false,
+  }) {
+    return SliverPadding(
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        bottom: isLastGroup ? 8 : 16,
+      ),
+      sliver: SliverToBoxAdapter(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 4, bottom: 8),
+              child: Text(
+                title,
+                // style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                //       fontWeight: FontWeight.bold,
+                //       color: Theme.of(context).primaryColor,
+                //     ),
+              ),
+            ),
+            Card(
+              elevation: 0,
+              clipBehavior: Clip.antiAlias,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(
+                  color: Theme.of(context).dividerColor.withOpacity(0.1),
+                ),
+              ),
+              child: Column(
+                children: List.generate(items.length, (index) {
+                  final item = items[index];
+                  return Column(
+                    children: [
+                      _buildSettingsCard(context, item),
+                      if (index != items.length - 1)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 56),
+                          child: Divider(
+                            height: 1,
+                            color: Theme.of(context).dividerColor.withOpacity(0.1),
+                          ),
+                        ),
+                    ],
+                  );
+                }),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -179,85 +315,109 @@ class _SettingsPageState extends State<SettingsPage> {
     required bool isSelected,
     required VoidCallback onTap,
   }) {
-    return ListTile(
-      selected: isSelected,
-      leading: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? Theme.of(context).primaryColor
-              : Theme.of(context).primaryColor.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Icon(
-          item.icon,
-          color: isSelected
-              ? Colors.white
-              : Get.isDarkMode
-                  ? Colors.white
-                  : null,
-        ),
-      ),
-      title: Text(
-        item.title,
-        style: TextStyle(
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-        ),
-      ),
-      subtitle: Text(item.subtitle),
-      onTap: onTap,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-    );
-  }
-
-  Widget _buildSettingsCard(BuildContext context, SettingItem item) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      clipBehavior: Clip.antiAlias,
+    return Material(
+      color: isSelected ? Theme.of(context).primaryColor.withOpacity(0.1) : Colors.transparent,
       child: InkWell(
-        onTap: () {
-          Get.toNamed(item.route);
-        },
-        child: Container(
-          padding: const EdgeInsets.all(16),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  color: isSelected
+                      ? Theme.of(context).primaryColor
+                      : Theme.of(context).primaryColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(item.icon,
-                    color: Get.isDarkMode ? Colors.white : null),
+                child: Icon(
+                  item.icon,
+                  size: 20,
+                  color: isSelected 
+                      ? Colors.white 
+                      : (Get.isDarkMode ? Colors.white : Theme.of(context).primaryColor),
+                ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       item.title,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                           ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     Text(
                       item.subtitle,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.grey[600],
+                            color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.7),
                           ),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right, color: Colors.grey),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSettingsCard(BuildContext context, SettingItem item) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => Get.toNamed(item.route),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  item.icon,
+                  size: 20,
+                  color: Get.isDarkMode ? Colors.white : Theme.of(context).primaryColor,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.title,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      item.subtitle,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.color
+                                ?.withOpacity(0.7),
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right,
+                size: 20,
+                color: Theme.of(context).iconTheme.color?.withOpacity(0.3),
+              ),
             ],
           ),
         ),
@@ -280,5 +440,16 @@ class SettingItem {
     required this.icon,
     required this.page,
     required this.route,
+  });
+}
+
+// 新增分组数据模型
+class _SettingGroup {
+  final String title;
+  final List<SettingItem> items;
+
+  _SettingGroup({
+    required this.title,
+    required this.items,
   });
 }

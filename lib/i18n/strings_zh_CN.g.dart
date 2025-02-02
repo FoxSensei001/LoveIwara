@@ -463,6 +463,9 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	final TranslationsZhCn _root; // ignore: unused_field
 
 	// Translations
+	@override String get basicSettings => '基础设置';
+	@override String get personalizedSettings => '个性化设置';
+	@override String get otherSettings => '其他设置';
 	@override String get searchConfig => '搜索配置';
 	@override String get thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain => '此配置决定当你之后播放视频时是否会沿用之前的配置。';
 	@override String get playControl => '播放控制';
@@ -1530,6 +1533,9 @@ extension on TranslationsZhCn {
 			case 'search.searchResult': return '搜索结果';
 			case 'search.unsupportedSearchType': return ({required Object searchType}) => '不支持的搜索类型: ${searchType}';
 			case 'mediaList.personalIntroduction': return '个人简介';
+			case 'settings.basicSettings': return '基础设置';
+			case 'settings.personalizedSettings': return '个性化设置';
+			case 'settings.otherSettings': return '其他设置';
 			case 'settings.searchConfig': return '搜索配置';
 			case 'settings.thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain': return '此配置决定当你之后播放视频时是否会沿用之前的配置。';
 			case 'settings.playControl': return '播放控制';

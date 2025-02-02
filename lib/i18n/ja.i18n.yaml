@@ -321,6 +321,9 @@ mediaList:
   personalIntroduction: 個人紹介
 
 settings:
+  basicSettings: 基本設定
+  personalizedSettings: 個性化設定
+  otherSettings: その他設定
   searchConfig: 検索設定
   thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain: この設定は、今後動画を再生する際に以前の設定を使用するかどうかを決定します。
   playControl: 再生コントロール

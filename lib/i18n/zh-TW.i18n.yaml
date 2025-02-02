@@ -322,6 +322,9 @@ mediaList:
   personalIntroduction: 個人簡介
 
 settings:
+  basicSettings: 基礎設定
+  personalizedSettings: 個性化設定
+  otherSettings: 其他設定
   searchConfig: 搜尋設定
   thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain: 此設定將決定您之後播放影片時是否會沿用之前的設定。
   playControl: 播放控制
