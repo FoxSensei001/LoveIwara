@@ -233,6 +233,9 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get clearDateRange => '日付範囲をクリア';
 	@override String get followSuccessClickAgainToSpecialFollow => 'フォローに成功しました。再度クリックして特別フォロー';
 	@override String get exitConfirmTip => '本当に退出しますか？';
+	@override String get error => 'エラー';
+	@override String get taskRunning => '既にタスクが実行中です。しばらくお待ちください。';
+	@override String get operationCancelled => '操作がキャンセルされました。';
 }
 
 // Path: auth
@@ -287,7 +290,7 @@ class _TranslationsErrorsJa implements TranslationsErrorsEn {
 	@override String unsupportedImageFormat({required Object str}) => 'サポートされていない画像形式: ${str}';
 	@override String get invalidGalleryId => '無効なギャラリーIDです';
 	@override String get translationFailedPleaseTryAgainLater => '翻訳に失敗しました。後でもう一度お試しください';
-	@override String get errorOccurred => 'エラーが発生しました。後でもう一度お試しください';
+	@override String get errorOccurred => 'エラーが発生しました。しばらくしてから再試行してください。';
 	@override String get errorOccurredWhileProcessingRequest => 'リクエストの処理中にエラーが発生しました';
 	@override String get errorWhileFetchingDatas => 'データの取得中にエラーが発生しました。後でもう一度お試しください';
 	@override String get serviceNotInitialized => 'サービスが初期化されていません';
@@ -565,6 +568,14 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get enterSignature => '小尾巴を入力';
 	@override String get editSignature => '小尾巴を編集';
 	@override String get signatureContent => '小尾巴の内容';
+	@override String get exportConfig => 'アプリ設定をエクスポート';
+	@override String get exportConfigDesc => 'ダウンロード記録を除いたアプリ設定をファイルにエクスポートします';
+	@override String get importConfig => 'アプリ設定をインポート';
+	@override String get importConfigDesc => 'ファイルからアプリ設定をインポートします';
+	@override String get exportConfigSuccess => '設定が正常にエクスポートされました';
+	@override String get exportConfigFailed => '設定のエクスポートに失敗しました';
+	@override String get importConfigSuccess => '設定が正常にインポートされました';
+	@override String get importConfigFailed => '設定のインポートに失敗しました';
 }
 
 // Path: signIn
@@ -1407,6 +1418,9 @@ extension on TranslationsJa {
 			case 'common.clearDateRange': return '日付範囲をクリア';
 			case 'common.followSuccessClickAgainToSpecialFollow': return 'フォローに成功しました。再度クリックして特別フォロー';
 			case 'common.exitConfirmTip': return '本当に退出しますか？';
+			case 'common.error': return 'エラー';
+			case 'common.taskRunning': return '既にタスクが実行中です。しばらくお待ちください。';
+			case 'common.operationCancelled': return '操作がキャンセルされました。';
 			case 'auth.login': return 'ログイン';
 			case 'auth.logout': return 'ログアウト';
 			case 'auth.email': return 'メールアドレス';
@@ -1443,7 +1457,7 @@ extension on TranslationsJa {
 			case 'errors.unsupportedImageFormat': return ({required Object str}) => 'サポートされていない画像形式: ${str}';
 			case 'errors.invalidGalleryId': return '無効なギャラリーIDです';
 			case 'errors.translationFailedPleaseTryAgainLater': return '翻訳に失敗しました。後でもう一度お試しください';
-			case 'errors.errorOccurred': return 'エラーが発生しました。後でもう一度お試しください';
+			case 'errors.errorOccurred': return 'エラーが発生しました。しばらくしてから再試行してください。';
 			case 'errors.errorOccurredWhileProcessingRequest': return 'リクエストの処理中にエラーが発生しました';
 			case 'errors.errorWhileFetchingDatas': return 'データの取得中にエラーが発生しました。後でもう一度お試しください';
 			case 'errors.serviceNotInitialized': return 'サービスが初期化されていません';
@@ -1649,6 +1663,14 @@ extension on TranslationsJa {
 			case 'settings.enterSignature': return '小尾巴を入力';
 			case 'settings.editSignature': return '小尾巴を編集';
 			case 'settings.signatureContent': return '小尾巴の内容';
+			case 'settings.exportConfig': return 'アプリ設定をエクスポート';
+			case 'settings.exportConfigDesc': return 'ダウンロード記録を除いたアプリ設定をファイルにエクスポートします';
+			case 'settings.importConfig': return 'アプリ設定をインポート';
+			case 'settings.importConfigDesc': return 'ファイルからアプリ設定をインポートします';
+			case 'settings.exportConfigSuccess': return '設定が正常にエクスポートされました';
+			case 'settings.exportConfigFailed': return '設定のエクスポートに失敗しました';
+			case 'settings.importConfigSuccess': return '設定が正常にインポートされました';
+			case 'settings.importConfigFailed': return '設定のインポートに失敗しました';
 			case 'signIn.pleaseLoginFirst': return 'サインインする前にログインしてください';
 			case 'signIn.alreadySignedInToday': return '今日は既にサインインしています！';
 			case 'signIn.youDidNotStickToTheSignIn': return 'サインインを続けることができませんでした。';

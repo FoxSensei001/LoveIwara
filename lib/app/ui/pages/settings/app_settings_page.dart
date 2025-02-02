@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/signature_edit_dialog_widget.dart';
+import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/services/config_backup_service.dart';
+import 'package:oktoast/oktoast.dart';
 
 class AppSettingsPage extends StatelessWidget {
   final bool isWideScreen;
@@ -286,6 +289,44 @@ class AppSettingsPage extends StatelessWidget {
                           ),
                         )
                       : const SizedBox.shrink(),
+                ),
+              ],
+            ),
+          ),
+          Card(
+            clipBehavior: Clip.hardEdge,
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.file_upload),
+                  title: Text(slang.t.settings.exportConfig),
+                  subtitle: Text(slang.t.settings.exportConfigDesc),
+                  onTap: () async {
+                    try {
+                      await Get.find<ConfigBackupService>().exportConfig();
+                      showToastWidget(MDToastWidget(message: slang.t.settings.exportConfigSuccess, type: MDToastType.success));
+                    } catch (e) {
+                      showToastWidget(MDToastWidget(message: '${slang.t.settings.exportConfigFailed}: ${e.toString()}', type: MDToastType.error));
+                    }
+                  },
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.file_download),
+                  title: Text(slang.t.settings.importConfig),
+                  subtitle: Text(slang.t.settings.importConfigDesc),
+                  onTap: () async {
+                    try {
+                      await Get.find<ConfigBackupService>().importConfig();
+                      showToastWidget(MDToastWidget(message: slang.t.settings.importConfigSuccess, type: MDToastType.success));
+                    } catch (e) {
+                      showToastWidget(MDToastWidget(message: '${slang.t.settings.importConfigFailed}: ${e.toString()}', type: MDToastType.error));
+                    }
+                  },
                 ),
               ],
             ),

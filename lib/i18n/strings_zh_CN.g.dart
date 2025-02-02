@@ -235,6 +235,9 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String get clearDateRange => '清除日期范围';
 	@override String get followSuccessClickAgainToSpecialFollow => '已成功关注，再次点击以特别关注';
 	@override String get exitConfirmTip => '确定要退出吗？';
+	@override String get error => '错误';
+	@override String get taskRunning => '任务正在进行中，请稍后再试。';
+	@override String get operationCancelled => '操作已取消。';
 }
 
 // Path: auth
@@ -292,7 +295,7 @@ class _TranslationsErrorsZhCn implements TranslationsErrorsEn {
 	@override String unsupportedImageFormat({required Object str}) => '不支持的图片格式: ${str}';
 	@override String get invalidGalleryId => '无效的图库ID';
 	@override String get translationFailedPleaseTryAgainLater => '翻译失败，请稍后重试';
-	@override String get errorOccurred => '出错了，请稍后再试';
+	@override String get errorOccurred => '发生错误，请稍后再试。';
 	@override String get errorOccurredWhileProcessingRequest => '处理请求时出错';
 	@override String get errorWhileFetchingDatas => '获取数据时出错，请稍后再试';
 	@override String get serviceNotInitialized => '服务未初始化';
@@ -570,6 +573,14 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get enterSignature => '输入小尾巴';
 	@override String get editSignature => '编辑小尾巴';
 	@override String get signatureContent => '小尾巴内容';
+	@override String get exportConfig => '导出应用配置';
+	@override String get exportConfigDesc => '将应用配置导出为文件（不包含下载记录）';
+	@override String get importConfig => '导入应用配置';
+	@override String get importConfigDesc => '从文件导入应用配置';
+	@override String get exportConfigSuccess => '配置导出成功！';
+	@override String get exportConfigFailed => '配置导出失败';
+	@override String get importConfigSuccess => '配置导入成功！';
+	@override String get importConfigFailed => '配置导入失败';
 }
 
 // Path: signIn
@@ -1414,6 +1425,9 @@ extension on TranslationsZhCn {
 			case 'common.clearDateRange': return '清除日期范围';
 			case 'common.followSuccessClickAgainToSpecialFollow': return '已成功关注，再次点击以特别关注';
 			case 'common.exitConfirmTip': return '确定要退出吗？';
+			case 'common.error': return '错误';
+			case 'common.taskRunning': return '任务正在进行中，请稍后再试。';
+			case 'common.operationCancelled': return '操作已取消。';
 			case 'auth.tagLimit': return '标签上限';
 			case 'auth.login': return '登录';
 			case 'auth.logout': return '退出登录';
@@ -1453,7 +1467,7 @@ extension on TranslationsZhCn {
 			case 'errors.unsupportedImageFormat': return ({required Object str}) => '不支持的图片格式: ${str}';
 			case 'errors.invalidGalleryId': return '无效的图库ID';
 			case 'errors.translationFailedPleaseTryAgainLater': return '翻译失败，请稍后重试';
-			case 'errors.errorOccurred': return '出错了，请稍后再试';
+			case 'errors.errorOccurred': return '发生错误，请稍后再试。';
 			case 'errors.errorOccurredWhileProcessingRequest': return '处理请求时出错';
 			case 'errors.errorWhileFetchingDatas': return '获取数据时出错，请稍后再试';
 			case 'errors.serviceNotInitialized': return '服务未初始化';
@@ -1659,6 +1673,14 @@ extension on TranslationsZhCn {
 			case 'settings.enterSignature': return '输入小尾巴';
 			case 'settings.editSignature': return '编辑小尾巴';
 			case 'settings.signatureContent': return '小尾巴内容';
+			case 'settings.exportConfig': return '导出应用配置';
+			case 'settings.exportConfigDesc': return '将应用配置导出为文件（不包含下载记录）';
+			case 'settings.importConfig': return '导入应用配置';
+			case 'settings.importConfigDesc': return '从文件导入应用配置';
+			case 'settings.exportConfigSuccess': return '配置导出成功！';
+			case 'settings.exportConfigFailed': return '配置导出失败';
+			case 'settings.importConfigSuccess': return '配置导入成功！';
+			case 'settings.importConfigFailed': return '配置导入失败';
 			case 'signIn.pleaseLoginFirst': return '请先登录';
 			case 'signIn.alreadySignedInToday': return '您今天已经签到过了！';
 			case 'signIn.youDidNotStickToTheSignIn': return '您未能坚持签到。';

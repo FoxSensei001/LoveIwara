@@ -42,6 +42,7 @@ import 'app/services/version_service.dart';
 import 'app/repositories/history_repository.dart';
 import 'app/services/message_service.dart';
 import 'app/services/favorite_service.dart';
+import 'package:i_iwara/app/services/config_backup_service.dart';
 
 void main() {
   // 确保Flutter初始化
@@ -127,6 +128,9 @@ Future<void> _initializeBusinessServices() async {
   // 初始化配置服务
   var configService = await ConfigService().init();
   Get.put(configService);
+
+  // 注册 ConfigBackupService 作为 GetxService
+  Get.put(ConfigBackupService());
 
   // 设置代理
   if (ProxyUtil.isSupportedPlatform()) {

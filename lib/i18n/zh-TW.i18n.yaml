@@ -168,6 +168,9 @@ common:
   clearDateRange: 清除日期範圍
   followSuccessClickAgainToSpecialFollow: 已成功關注，再次點擊以特別關注
   exitConfirmTip: 確定要退出嗎？
+  error: 錯誤
+  taskRunning: "任務正在進行中，請稍後再試。"
+  operationCancelled: "操作已取消。"
 
 auth:
   login: 登入
@@ -208,7 +211,7 @@ errors:
   unsupportedImageFormat: '不支援的圖片格式: ${str}'
   invalidGalleryId: 無效的圖庫ID
   translationFailedPleaseTryAgainLater: 翻譯失敗，請稍後再試
-  errorOccurred: 發生錯誤，請稍後再試
+  errorOccurred: "發生錯誤，請稍後再試。"
   errorOccurredWhileProcessingRequest: 處理請求時出錯
   errorWhileFetchingDatas: 取得資料時出錯，請稍後再試
   serviceNotInitialized: 服務未初始化
@@ -429,6 +432,14 @@ settings:
   enterSignature: 輸入小尾巴
   editSignature: 編輯小尾巴
   signatureContent: 小尾巴內容
+  exportConfig: "匯出應用配置"
+  exportConfigDesc: "將應用配置匯出為文件（不包含下載記錄）"
+  importConfig: "匯入應用配置"
+  importConfigDesc: "從文件匯入應用配置"
+  exportConfigSuccess: "配置匯出成功！"
+  exportConfigFailed: "配置匯出失敗"
+  importConfigSuccess: "配置匯入成功！"
+  importConfigFailed: "配置匯入失敗"
 
 signIn:
   pleaseLoginFirst: 請先登入

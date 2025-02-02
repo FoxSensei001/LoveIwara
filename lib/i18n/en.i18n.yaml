@@ -168,6 +168,9 @@ common:
   clearDateRange: Clear Date Range
   followSuccessClickAgainToSpecialFollow: Followed successfully, click again to special follow
   exitConfirmTip: Are you sure you want to exit?
+  error: Error
+  taskRunning: "A task is already running, please wait."
+  operationCancelled: "Operation cancelled."
 auth:
   login: Login
   logout: Logout
@@ -207,7 +210,7 @@ errors:
   unsupportedImageFormat: 'Unsupported image format: ${str}'
   invalidGalleryId: Invalid gallery ID
   translationFailedPleaseTryAgainLater: Translation failed, please try again later
-  errorOccurred: Error occurred, please try again later
+  errorOccurred: "An error occurred, please try again later."
   errorOccurredWhileProcessingRequest: Error occurred while processing request
   errorWhileFetchingDatas: Error while fetching datas, please try again later
   serviceNotInitialized: Service not initialized
@@ -427,6 +430,14 @@ settings:
   enterSignature: Enter Signature
   editSignature: Edit Signature
   signatureContent: Signature Content
+  exportConfig: "Export App Configuration"
+  exportConfigDesc: "Export app configuration to a file (excluding download records)"
+  importConfig: "Import App Configuration"
+  importConfigDesc: "Import app configuration from a file"
+  exportConfigSuccess: "Configuration exported successfully!"
+  exportConfigFailed: "Failed to export configuration"
+  importConfigSuccess: "Configuration imported successfully!"
+  importConfigFailed: "Failed to import configuration"
 signIn:
   pleaseLoginFirst: Please login first
   alreadySignedInToday: You have already signed in today!

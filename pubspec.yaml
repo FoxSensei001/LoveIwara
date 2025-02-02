@@ -51,6 +51,7 @@ dependencies:
   oktoast: ^3.4.0
   app_links: ^6.3.3
   floating: ^5.0.1
+  flutter_file_dialog: ^3.0.2
 
   yaml: any
   screen_brightness: any
@@ -60,6 +61,7 @@ dependencies:
   qr_flutter: ^4.1.0
   open_file: ^3.5.10
   flutter_colorpicker: ^1.1.0
+  archive: ^4.0.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

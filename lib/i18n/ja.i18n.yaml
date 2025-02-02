@@ -169,6 +169,9 @@ common:
   clearDateRange: 日付範囲をクリア
   followSuccessClickAgainToSpecialFollow: フォローに成功しました。再度クリックして特別フォロー
   exitConfirmTip: 本当に退出しますか？
+  error: エラー
+  taskRunning: "既にタスクが実行中です。しばらくお待ちください。"
+  operationCancelled: "操作がキャンセルされました。"
 auth:
   login: ログイン
   logout: ログアウト
@@ -208,7 +211,7 @@ errors:
   unsupportedImageFormat: 'サポートされていない画像形式: ${str}'
   invalidGalleryId: 無効なギャラリーIDです
   translationFailedPleaseTryAgainLater: 翻訳に失敗しました。後でもう一度お試しください
-  errorOccurred: エラーが発生しました。後でもう一度お試しください
+  errorOccurred: "エラーが発生しました。しばらくしてから再試行してください。"
   errorOccurredWhileProcessingRequest: リクエストの処理中にエラーが発生しました
   errorWhileFetchingDatas: データの取得中にエラーが発生しました。後でもう一度お試しください
   serviceNotInitialized: サービスが初期化されていません
@@ -428,6 +431,14 @@ settings:
   enterSignature: 小尾巴を入力
   editSignature: 小尾巴を編集
   signatureContent: 小尾巴の内容
+  exportConfig: "アプリ設定をエクスポート"
+  exportConfigDesc: "ダウンロード記録を除いたアプリ設定をファイルにエクスポートします"
+  importConfig: "アプリ設定をインポート"
+  importConfigDesc: "ファイルからアプリ設定をインポートします"
+  exportConfigSuccess: "設定が正常にエクスポートされました"
+  exportConfigFailed: "設定のエクスポートに失敗しました"
+  importConfigSuccess: "設定が正常にインポートされました"
+  importConfigFailed: "設定のインポートに失敗しました"
 signIn:
   pleaseLoginFirst: サインインする前にログインしてください
   alreadySignedInToday: 今日は既にサインインしています！

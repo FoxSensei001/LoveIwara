@@ -237,6 +237,9 @@ class TranslationsCommonEn {
 	String get clearDateRange => 'Clear Date Range';
 	String get followSuccessClickAgainToSpecialFollow => 'Followed successfully, click again to special follow';
 	String get exitConfirmTip => 'Are you sure you want to exit?';
+	String get error => 'Error';
+	String get taskRunning => 'A task is already running, please wait.';
+	String get operationCancelled => 'Operation cancelled.';
 }
 
 // Path: auth
@@ -291,7 +294,7 @@ class TranslationsErrorsEn {
 	String unsupportedImageFormat({required Object str}) => 'Unsupported image format: ${str}';
 	String get invalidGalleryId => 'Invalid gallery ID';
 	String get translationFailedPleaseTryAgainLater => 'Translation failed, please try again later';
-	String get errorOccurred => 'Error occurred, please try again later';
+	String get errorOccurred => 'An error occurred, please try again later.';
 	String get errorOccurredWhileProcessingRequest => 'Error occurred while processing request';
 	String get errorWhileFetchingDatas => 'Error while fetching datas, please try again later';
 	String get serviceNotInitialized => 'Service not initialized';
@@ -569,6 +572,14 @@ class TranslationsSettingsEn {
 	String get enterSignature => 'Enter Signature';
 	String get editSignature => 'Edit Signature';
 	String get signatureContent => 'Signature Content';
+	String get exportConfig => 'Export App Configuration';
+	String get exportConfigDesc => 'Export app configuration to a file (excluding download records)';
+	String get importConfig => 'Import App Configuration';
+	String get importConfigDesc => 'Import app configuration from a file';
+	String get exportConfigSuccess => 'Configuration exported successfully!';
+	String get exportConfigFailed => 'Failed to export configuration';
+	String get importConfigSuccess => 'Configuration imported successfully!';
+	String get importConfigFailed => 'Failed to import configuration';
 }
 
 // Path: signIn
@@ -1411,6 +1422,9 @@ extension on Translations {
 			case 'common.clearDateRange': return 'Clear Date Range';
 			case 'common.followSuccessClickAgainToSpecialFollow': return 'Followed successfully, click again to special follow';
 			case 'common.exitConfirmTip': return 'Are you sure you want to exit?';
+			case 'common.error': return 'Error';
+			case 'common.taskRunning': return 'A task is already running, please wait.';
+			case 'common.operationCancelled': return 'Operation cancelled.';
 			case 'auth.login': return 'Login';
 			case 'auth.logout': return 'Logout';
 			case 'auth.email': return 'Email';
@@ -1447,7 +1461,7 @@ extension on Translations {
 			case 'errors.unsupportedImageFormat': return ({required Object str}) => 'Unsupported image format: ${str}';
 			case 'errors.invalidGalleryId': return 'Invalid gallery ID';
 			case 'errors.translationFailedPleaseTryAgainLater': return 'Translation failed, please try again later';
-			case 'errors.errorOccurred': return 'Error occurred, please try again later';
+			case 'errors.errorOccurred': return 'An error occurred, please try again later.';
 			case 'errors.errorOccurredWhileProcessingRequest': return 'Error occurred while processing request';
 			case 'errors.errorWhileFetchingDatas': return 'Error while fetching datas, please try again later';
 			case 'errors.serviceNotInitialized': return 'Service not initialized';
@@ -1653,6 +1667,14 @@ extension on Translations {
 			case 'settings.enterSignature': return 'Enter Signature';
 			case 'settings.editSignature': return 'Edit Signature';
 			case 'settings.signatureContent': return 'Signature Content';
+			case 'settings.exportConfig': return 'Export App Configuration';
+			case 'settings.exportConfigDesc': return 'Export app configuration to a file (excluding download records)';
+			case 'settings.importConfig': return 'Import App Configuration';
+			case 'settings.importConfigDesc': return 'Import app configuration from a file';
+			case 'settings.exportConfigSuccess': return 'Configuration exported successfully!';
+			case 'settings.exportConfigFailed': return 'Failed to export configuration';
+			case 'settings.importConfigSuccess': return 'Configuration imported successfully!';
+			case 'settings.importConfigFailed': return 'Failed to import configuration';
 			case 'signIn.pleaseLoginFirst': return 'Please login first';
 			case 'signIn.alreadySignedInToday': return 'You have already signed in today!';
 			case 'signIn.youDidNotStickToTheSignIn': return 'You did not stick to the sign in.';

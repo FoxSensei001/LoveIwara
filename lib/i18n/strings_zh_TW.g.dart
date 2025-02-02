@@ -233,6 +233,9 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get clearDateRange => '清除日期範圍';
 	@override String get followSuccessClickAgainToSpecialFollow => '已成功關注，再次點擊以特別關注';
 	@override String get exitConfirmTip => '確定要退出嗎？';
+	@override String get error => '錯誤';
+	@override String get taskRunning => '任務正在進行中，請稍後再試。';
+	@override String get operationCancelled => '操作已取消。';
 }
 
 // Path: auth
@@ -287,7 +290,7 @@ class _TranslationsErrorsZhTw implements TranslationsErrorsEn {
 	@override String unsupportedImageFormat({required Object str}) => '不支援的圖片格式: ${str}';
 	@override String get invalidGalleryId => '無效的圖庫ID';
 	@override String get translationFailedPleaseTryAgainLater => '翻譯失敗，請稍後再試';
-	@override String get errorOccurred => '發生錯誤，請稍後再試';
+	@override String get errorOccurred => '發生錯誤，請稍後再試。';
 	@override String get errorOccurredWhileProcessingRequest => '處理請求時出錯';
 	@override String get errorWhileFetchingDatas => '取得資料時出錯，請稍後再試';
 	@override String get serviceNotInitialized => '服務未初始化';
@@ -565,6 +568,14 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get enterSignature => '輸入小尾巴';
 	@override String get editSignature => '編輯小尾巴';
 	@override String get signatureContent => '小尾巴內容';
+	@override String get exportConfig => '匯出應用配置';
+	@override String get exportConfigDesc => '將應用配置匯出為文件（不包含下載記錄）';
+	@override String get importConfig => '匯入應用配置';
+	@override String get importConfigDesc => '從文件匯入應用配置';
+	@override String get exportConfigSuccess => '配置匯出成功！';
+	@override String get exportConfigFailed => '配置匯出失敗';
+	@override String get importConfigSuccess => '配置匯入成功！';
+	@override String get importConfigFailed => '配置匯入失敗';
 }
 
 // Path: signIn
@@ -1410,6 +1421,9 @@ extension on TranslationsZhTw {
 			case 'common.clearDateRange': return '清除日期範圍';
 			case 'common.followSuccessClickAgainToSpecialFollow': return '已成功關注，再次點擊以特別關注';
 			case 'common.exitConfirmTip': return '確定要退出嗎？';
+			case 'common.error': return '錯誤';
+			case 'common.taskRunning': return '任務正在進行中，請稍後再試。';
+			case 'common.operationCancelled': return '操作已取消。';
 			case 'auth.login': return '登入';
 			case 'auth.logout': return '登出';
 			case 'auth.email': return '電子郵件';
@@ -1446,7 +1460,7 @@ extension on TranslationsZhTw {
 			case 'errors.unsupportedImageFormat': return ({required Object str}) => '不支援的圖片格式: ${str}';
 			case 'errors.invalidGalleryId': return '無效的圖庫ID';
 			case 'errors.translationFailedPleaseTryAgainLater': return '翻譯失敗，請稍後再試';
-			case 'errors.errorOccurred': return '發生錯誤，請稍後再試';
+			case 'errors.errorOccurred': return '發生錯誤，請稍後再試。';
 			case 'errors.errorOccurredWhileProcessingRequest': return '處理請求時出錯';
 			case 'errors.errorWhileFetchingDatas': return '取得資料時出錯，請稍後再試';
 			case 'errors.serviceNotInitialized': return '服務未初始化';
@@ -1652,6 +1666,14 @@ extension on TranslationsZhTw {
 			case 'settings.enterSignature': return '輸入小尾巴';
 			case 'settings.editSignature': return '編輯小尾巴';
 			case 'settings.signatureContent': return '小尾巴內容';
+			case 'settings.exportConfig': return '匯出應用配置';
+			case 'settings.exportConfigDesc': return '將應用配置匯出為文件（不包含下載記錄）';
+			case 'settings.importConfig': return '匯入應用配置';
+			case 'settings.importConfigDesc': return '從文件匯入應用配置';
+			case 'settings.exportConfigSuccess': return '配置匯出成功！';
+			case 'settings.exportConfigFailed': return '配置匯出失敗';
+			case 'settings.importConfigSuccess': return '配置匯入成功！';
+			case 'settings.importConfigFailed': return '配置匯入失敗';
 			case 'signIn.pleaseLoginFirst': return '請先登入';
 			case 'signIn.alreadySignedInToday': return '您今天已經簽到過了！';
 			case 'signIn.youDidNotStickToTheSignIn': return '您未能持續簽到。';

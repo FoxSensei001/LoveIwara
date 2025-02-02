@@ -172,6 +172,9 @@ common:
   clearDateRange: 清除日期范围
   followSuccessClickAgainToSpecialFollow: 已成功关注，再次点击以特别关注
   exitConfirmTip: 确定要退出吗？
+  error: 错误
+  taskRunning: "任务正在进行中，请稍后再试。"
+  operationCancelled: "操作已取消。"
 auth:
   tagLimit: 标签上限
   login: 登录
@@ -214,7 +217,7 @@ errors:
   unsupportedImageFormat: '不支持的图片格式: ${str}'
   invalidGalleryId: 无效的图库ID
   translationFailedPleaseTryAgainLater: 翻译失败，请稍后重试
-  errorOccurred: 出错了，请稍后再试
+  errorOccurred: "发生错误，请稍后再试。"
   errorOccurredWhileProcessingRequest: 处理请求时出错
   errorWhileFetchingDatas: 获取数据时出错，请稍后再试
   serviceNotInitialized: 服务未初始化
@@ -435,6 +438,14 @@ settings:
   enterSignature: 输入小尾巴
   editSignature: 编辑小尾巴
   signatureContent: 小尾巴内容
+  exportConfig: "导出应用配置"
+  exportConfigDesc: "将应用配置导出为文件（不包含下载记录）"
+  importConfig: "导入应用配置"
+  importConfigDesc: "从文件导入应用配置"
+  exportConfigSuccess: "配置导出成功！"
+  exportConfigFailed: "配置导出失败"
+  importConfigSuccess: "配置导入成功！"
+  importConfigFailed: "配置导入失败"
 signIn:
   pleaseLoginFirst: 请先登录
   alreadySignedInToday: 您今天已经签到过了！
