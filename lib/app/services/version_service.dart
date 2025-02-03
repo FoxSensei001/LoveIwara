@@ -237,4 +237,22 @@ class VersionService extends GetxService {
       LogUtils.e('无法打开更新链接', tag: 'VersionService');
     }
   }
+
+  /// 获取全部更新日志
+  Future<List<UpdateInfo>> fetchAllUpdateLogs() async {
+    List<UpdateInfo> updatesList = [];
+    try {
+      final response = await _dio.get(
+        _configService[ConfigKey.REMOTE_REPO_UPDATE_LOGS_YAML_URL],
+      );
+      if (response.statusCode == 200) {
+        final yamlData = loadYaml(response.data);
+        final yamlUpdates = yamlData['updates'] as YamlList;
+        updatesList = yamlUpdates.map<UpdateInfo>((update) => UpdateInfo.fromYaml(update)).toList();
+      }
+    } catch (e) {
+      LogUtils.e('获取全部更新日志失败', error: e, tag: 'VersionService');
+    }
+    return updatesList;
+  }
 }

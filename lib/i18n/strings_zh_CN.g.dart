@@ -238,6 +238,7 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String get error => '错误';
 	@override String get taskRunning => '任务正在进行中，请稍后再试。';
 	@override String get operationCancelled => '操作已取消。';
+	@override String get unsavedChanges => '您有未保存的更改';
 }
 
 // Path: auth
@@ -581,6 +582,11 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get exportConfigFailed => '配置导出失败';
 	@override String get importConfigSuccess => '配置导入成功！';
 	@override String get importConfigFailed => '配置导入失败';
+	@override String get historyUpdateLogs => '历代更新日志';
+	@override String get noUpdateLogs => '未获取到更新日志';
+	@override String get versionLabel => '版本: {version}';
+	@override String get releaseDateLabel => '发布日期: {date}';
+	@override String get noChanges => '暂无更新内容';
 }
 
 // Path: signIn
@@ -1428,6 +1434,7 @@ extension on TranslationsZhCn {
 			case 'common.error': return '错误';
 			case 'common.taskRunning': return '任务正在进行中，请稍后再试。';
 			case 'common.operationCancelled': return '操作已取消。';
+			case 'common.unsavedChanges': return '您有未保存的更改';
 			case 'auth.tagLimit': return '标签上限';
 			case 'auth.login': return '登录';
 			case 'auth.logout': return '退出登录';
@@ -1681,6 +1688,11 @@ extension on TranslationsZhCn {
 			case 'settings.exportConfigFailed': return '配置导出失败';
 			case 'settings.importConfigSuccess': return '配置导入成功！';
 			case 'settings.importConfigFailed': return '配置导入失败';
+			case 'settings.historyUpdateLogs': return '历代更新日志';
+			case 'settings.noUpdateLogs': return '未获取到更新日志';
+			case 'settings.versionLabel': return '版本: {version}';
+			case 'settings.releaseDateLabel': return '发布日期: {date}';
+			case 'settings.noChanges': return '暂无更新内容';
 			case 'signIn.pleaseLoginFirst': return '请先登录';
 			case 'signIn.alreadySignedInToday': return '您今天已经签到过了！';
 			case 'signIn.youDidNotStickToTheSignIn': return '您未能坚持签到。';

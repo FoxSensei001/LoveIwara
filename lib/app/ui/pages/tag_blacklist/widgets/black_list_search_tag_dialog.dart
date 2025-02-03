@@ -7,7 +7,7 @@ import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 
 class BlackListTagSearchDialog extends StatefulWidget {
-  final Function(List<Tag>) onSave;
+  final Future<bool> Function(List<Tag>) onSave;
 
   const BlackListTagSearchDialog({
     super.key,
@@ -113,9 +113,11 @@ class _BlackListTagSearchDialogState extends State<BlackListTagSearchDialog> {
                     onPressed: () => _searchTags(),
                   ),
                   TextButton(
-                    onPressed: () {
-                      widget.onSave(selectedTags);
-                      AppService.tryPop();
+                    onPressed: () async {
+                      final bool success = await widget.onSave(selectedTags);
+                      if (success) {
+                        AppService.tryPop();
+                      }
                     },
                     child: Text(t.common.confirm),
                   ),

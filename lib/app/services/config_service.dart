@@ -14,7 +14,7 @@ class ConfigService extends GetxService {
 
   late final CommonDatabase _db;
 
-  late final Rx<Sort> _currentTranslationSort; // 当前翻译语言
+  final Rx<Sort> _currentTranslationSort = CommonConstants.translationSorts.first.obs;
   Sort get currentTranslationSort => _currentTranslationSort.value;
   String get currentTranslationLanguage => currentTranslationSort.extData;
 
@@ -39,10 +39,10 @@ class ConfigService extends GetxService {
 
     // 初始化翻译语言
     String savedLanguage = settings[ConfigKey.DEFAULT_LANGUAGE_KEY]!.value;
-    _currentTranslationSort = Rx<Sort>(CommonConstants.translationSorts.firstWhere(
+    _currentTranslationSort.value = CommonConstants.translationSorts.firstWhere(
       (sort) => sort.extData == savedLanguage,
       orElse: () => CommonConstants.translationSorts.first,
-    ));
+    );
 
     // 如果 _currentTranslationSort 的 extData 和 savedLanguage 不一致，则更新 savedLanguage
     if (_currentTranslationSort.value.extData != savedLanguage) {

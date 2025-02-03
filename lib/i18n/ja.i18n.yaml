@@ -172,6 +172,7 @@ common:
   error: エラー
   taskRunning: "既にタスクが実行中です。しばらくお待ちください。"
   operationCancelled: "操作がキャンセルされました。"
+  unsavedChanges: "未保存の変更があります"
 auth:
   login: ログイン
   logout: ログアウト
@@ -439,6 +440,11 @@ settings:
   exportConfigFailed: "設定のエクスポートに失敗しました"
   importConfigSuccess: "設定が正常にインポートされました"
   importConfigFailed: "設定のインポートに失敗しました"
+  historyUpdateLogs: "歴代アップデートログ"
+  noUpdateLogs: "アップデートログが取得できませんでした"
+  versionLabel: "バージョン: {version}"
+  releaseDateLabel: "リリース日: {date}"
+  noChanges: "更新内容がありません"
 signIn:
   pleaseLoginFirst: サインインする前にログインしてください
   alreadySignedInToday: 今日は既にサインインしています！

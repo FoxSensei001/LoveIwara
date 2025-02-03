@@ -8,6 +8,7 @@ import 'package:i_iwara/utils/common_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
+import 'package:i_iwara/app/ui/pages/settings/history_update_logs_page.dart';
 
 class AboutPage extends StatefulWidget {
   final bool isWideScreen;
@@ -144,7 +145,7 @@ class _AboutPageState extends State<AboutPage> {
             ),
             const SizedBox(height: 16),
             Text(
-              'i-iwara',
+              CommonConstants.applicationNickname,
               style: theme.textTheme.titleLarge,
             ),
             const SizedBox(height: 8),
@@ -283,10 +284,32 @@ class _AboutPageState extends State<AboutPage> {
     );
   }
 
+  Widget _buildHistoryUpdatesSection() {
+    final t = slang.Translations.of(context);
+    return Card(
+      elevation: 2,
+      clipBehavior: Clip.hardEdge,
+      child: ListTile(
+        leading: const Icon(Icons.history),
+        title: Text(t.settings.historyUpdateLogs),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const HistoryUpdateLogsPage(),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   Widget _buildLinksSection() {
     final t = slang.Translations.of(context);
     
     return Card(
+      clipBehavior: Clip.hardEdge,
       elevation: 2,
       child: Column(
         children: [
@@ -345,9 +368,8 @@ class _AboutPageState extends State<AboutPage> {
         padding: const EdgeInsets.all(16),
         children: [
           _buildAppInfoSection(),
-          const SizedBox(height: 16),
           _buildUpdateSection(),
-          const SizedBox(height: 16),
+          _buildHistoryUpdatesSection(),
           _buildLinksSection(),
           SizedBox(height: Get.context != null ? 
             MediaQuery.of(Get.context!).padding.bottom : 0),

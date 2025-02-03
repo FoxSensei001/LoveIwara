@@ -62,8 +62,9 @@ class _TagBlacklistPageState extends State<TagBlacklistPage> {
         title: Text(t.common.tagBlacklist),
       ),
       body: Obx(() {
+        Widget content;
         if (controller.isLoading.value && controller.blacklistTags.isEmpty) {
-          return Padding(
+          content = Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,10 +101,8 @@ class _TagBlacklistPageState extends State<TagBlacklistPage> {
               ],
             ),
           );
-        }
-
-        if (controller.hasError.value) {
-          return Center(
+        } else if (controller.hasError.value) {
+          content = Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -117,10 +116,8 @@ class _TagBlacklistPageState extends State<TagBlacklistPage> {
               ],
             ),
           );
-        }
-
-        if (controller.blacklistTags.isEmpty) {
-          return Column(
+        } else if (controller.blacklistTags.isEmpty) {
+          content = Column(
             children: [
               Expanded(
                 child: MyEmptyWidget(
@@ -138,10 +135,10 @@ class _TagBlacklistPageState extends State<TagBlacklistPage> {
                       onPressed: () async {
                         Get.dialog(
                           BlackListTagSearchDialog(
-                            onSave: (tags) {
+                            onSave: (tags) async {
                               final currentTagIds = controller.blacklistTags.map((tag) => tag.id).toList();
                               final newTags = tags.where((tag) => !currentTagIds.contains(tag.id)).toList();
-                              controller.addTags(newTags);
+                              return controller.addTags(newTags);
                             },
                           ),
                         );
@@ -154,63 +151,91 @@ class _TagBlacklistPageState extends State<TagBlacklistPage> {
               ),
             ],
           );
-        }
-
-        return RefreshIndicator(
-          onRefresh: () => controller.fetchBlacklistTags(),
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    '${t.common.tagLimit}: ${controller.blacklistTags.length}/${controller.tagLimit}',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  const SizedBox(height: 16),
-                  Wrap(
-                    spacing: 8.0,
-                    runSpacing: 8.0,
-                    children: controller.blacklistTags.map((tag) {
-                      return Chip(
-                        label: Text(tag.id),
-                        avatar: _buildTagIcon(tag),
-                        deleteIcon: const Icon(Icons.close, size: 18),
-                        onDeleted: () => controller.removeTag(tag),
-                        labelStyle: TextStyle(
-                          color: tag.type == 'ecchi' ? Colors.red : null,
+        } else {
+          content = RefreshIndicator(
+            onRefresh: () => controller.fetchBlacklistTags(),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      '${t.common.tagLimit}: ${controller.blacklistTags.length}/${controller.tagLimit}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: 16),
+                    Wrap(
+                      spacing: 8.0,
+                      runSpacing: 8.0,
+                      children: controller.blacklistTags.map((tag) {
+                        return Chip(
+                          label: Text(tag.id),
+                          avatar: _buildTagIcon(tag),
+                          deleteIcon: const Icon(Icons.close, size: 18),
+                          onDeleted: () => controller.removeTag(tag),
+                          labelStyle: TextStyle(
+                            color: tag.type == 'ecchi' ? Colors.red : null,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    const Divider(height: 32),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.add),
+                          onPressed: () async {
+                            Get.dialog(
+                              BlackListTagSearchDialog(
+                                onSave: (tags) async {
+                                  final currentTagIds = controller.blacklistTags.map((tag) => tag.id).toList();
+                                  final newTags = tags.where((tag) => !currentTagIds.contains(tag.id)).toList();
+                                  return controller.addTags(newTags);
+                                },
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    }).toList(),
-                  ),
-                  const Divider(height: 32),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.add),
-                        onPressed: () async {
-                          Get.dialog(
-                            BlackListTagSearchDialog(
-                              onSave: (tags) {
-                                final currentTagIds = controller.blacklistTags.map((tag) => tag.id).toList();
-                                final newTags = tags.where((tag) => !currentTagIds.contains(tag.id)).toList();
-                                controller.addTags(newTags);
-                              },
-                            ),
-                          );
-                        },
-                      ),
-                      const SizedBox(width: 8),
-                      _buildSaveButton(),
-                    ],
-                  ),
-                ],
+                        const SizedBox(width: 8),
+                        _buildSaveButton(),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
+          );
+        }
+  
+        return Column(
+          children: [
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: controller.hasUnsavedChanges
+                  ? Container(
+                      key: const ValueKey('unsavedBanner'),
+                      width: double.infinity,
+                      color: Colors.red[100],
+                      padding: const EdgeInsets.all(8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.warning, color: Colors.red),
+                          const SizedBox(width: 8),
+                          Text(
+                            t.common.unsavedChanges,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ],
+                      ),
+                    )
+                  : const SizedBox.shrink(key: ValueKey('empty')),
+            ),
+            Expanded(child: content),
+          ],
         );
       }),
     );

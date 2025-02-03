@@ -236,6 +236,7 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get error => 'エラー';
 	@override String get taskRunning => '既にタスクが実行中です。しばらくお待ちください。';
 	@override String get operationCancelled => '操作がキャンセルされました。';
+	@override String get unsavedChanges => '未保存の変更があります';
 }
 
 // Path: auth
@@ -576,6 +577,11 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get exportConfigFailed => '設定のエクスポートに失敗しました';
 	@override String get importConfigSuccess => '設定が正常にインポートされました';
 	@override String get importConfigFailed => '設定のインポートに失敗しました';
+	@override String get historyUpdateLogs => '歴代アップデートログ';
+	@override String get noUpdateLogs => 'アップデートログが取得できませんでした';
+	@override String get versionLabel => 'バージョン: {version}';
+	@override String get releaseDateLabel => 'リリース日: {date}';
+	@override String get noChanges => '更新内容がありません';
 }
 
 // Path: signIn
@@ -1421,6 +1427,7 @@ extension on TranslationsJa {
 			case 'common.error': return 'エラー';
 			case 'common.taskRunning': return '既にタスクが実行中です。しばらくお待ちください。';
 			case 'common.operationCancelled': return '操作がキャンセルされました。';
+			case 'common.unsavedChanges': return '未保存の変更があります';
 			case 'auth.login': return 'ログイン';
 			case 'auth.logout': return 'ログアウト';
 			case 'auth.email': return 'メールアドレス';
@@ -1671,6 +1678,11 @@ extension on TranslationsJa {
 			case 'settings.exportConfigFailed': return '設定のエクスポートに失敗しました';
 			case 'settings.importConfigSuccess': return '設定が正常にインポートされました';
 			case 'settings.importConfigFailed': return '設定のインポートに失敗しました';
+			case 'settings.historyUpdateLogs': return '歴代アップデートログ';
+			case 'settings.noUpdateLogs': return 'アップデートログが取得できませんでした';
+			case 'settings.versionLabel': return 'バージョン: {version}';
+			case 'settings.releaseDateLabel': return 'リリース日: {date}';
+			case 'settings.noChanges': return '更新内容がありません';
 			case 'signIn.pleaseLoginFirst': return 'サインインする前にログインしてください';
 			case 'signIn.alreadySignedInToday': return '今日は既にサインインしています！';
 			case 'signIn.youDidNotStickToTheSignIn': return 'サインインを続けることができませんでした。';

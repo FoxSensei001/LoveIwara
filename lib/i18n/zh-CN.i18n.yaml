@@ -175,6 +175,7 @@ common:
   error: 错误
   taskRunning: "任务正在进行中，请稍后再试。"
   operationCancelled: "操作已取消。"
+  unsavedChanges: "您有未保存的更改"
 auth:
   tagLimit: 标签上限
   login: 登录
@@ -446,6 +447,11 @@ settings:
   exportConfigFailed: "配置导出失败"
   importConfigSuccess: "配置导入成功！"
   importConfigFailed: "配置导入失败"
+  historyUpdateLogs: "历代更新日志"
+  noUpdateLogs: "未获取到更新日志"
+  versionLabel: "版本: {version}"
+  releaseDateLabel: "发布日期: {date}"
+  noChanges: "暂无更新内容"
 signIn:
   pleaseLoginFirst: 请先登录
   alreadySignedInToday: 您今天已经签到过了！

@@ -240,6 +240,7 @@ class TranslationsCommonEn {
 	String get error => 'Error';
 	String get taskRunning => 'A task is already running, please wait.';
 	String get operationCancelled => 'Operation cancelled.';
+	String get unsavedChanges => 'You have unsaved changes';
 }
 
 // Path: auth
@@ -580,6 +581,11 @@ class TranslationsSettingsEn {
 	String get exportConfigFailed => 'Failed to export configuration';
 	String get importConfigSuccess => 'Configuration imported successfully!';
 	String get importConfigFailed => 'Failed to import configuration';
+	String get historyUpdateLogs => 'History Update Logs';
+	String get noUpdateLogs => 'No update logs available';
+	String get versionLabel => 'Version: {version}';
+	String get releaseDateLabel => 'Release Date: {date}';
+	String get noChanges => 'No update content available';
 }
 
 // Path: signIn
@@ -1425,6 +1431,7 @@ extension on Translations {
 			case 'common.error': return 'Error';
 			case 'common.taskRunning': return 'A task is already running, please wait.';
 			case 'common.operationCancelled': return 'Operation cancelled.';
+			case 'common.unsavedChanges': return 'You have unsaved changes';
 			case 'auth.login': return 'Login';
 			case 'auth.logout': return 'Logout';
 			case 'auth.email': return 'Email';
@@ -1675,6 +1682,11 @@ extension on Translations {
 			case 'settings.exportConfigFailed': return 'Failed to export configuration';
 			case 'settings.importConfigSuccess': return 'Configuration imported successfully!';
 			case 'settings.importConfigFailed': return 'Failed to import configuration';
+			case 'settings.historyUpdateLogs': return 'History Update Logs';
+			case 'settings.noUpdateLogs': return 'No update logs available';
+			case 'settings.versionLabel': return 'Version: {version}';
+			case 'settings.releaseDateLabel': return 'Release Date: {date}';
+			case 'settings.noChanges': return 'No update content available';
 			case 'signIn.pleaseLoginFirst': return 'Please login first';
 			case 'signIn.alreadySignedInToday': return 'You have already signed in today!';
 			case 'signIn.youDidNotStickToTheSignIn': return 'You did not stick to the sign in.';

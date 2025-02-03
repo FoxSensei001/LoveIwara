@@ -171,6 +171,7 @@ common:
   error: 錯誤
   taskRunning: "任務正在進行中，請稍後再試。"
   operationCancelled: "操作已取消。"
+  unsavedChanges: "您有未儲存的更改"
 
 auth:
   login: 登入
@@ -440,6 +441,11 @@ settings:
   exportConfigFailed: "配置匯出失敗"
   importConfigSuccess: "配置匯入成功！"
   importConfigFailed: "配置匯入失敗"
+  historyUpdateLogs: "歷代更新日誌"
+  noUpdateLogs: "未獲取到更新日誌"
+  versionLabel: "版本: {version}"
+  releaseDateLabel: "發布日期: {date}"
+  noChanges: "暫無更新內容"
 
 signIn:
   pleaseLoginFirst: 請先登入

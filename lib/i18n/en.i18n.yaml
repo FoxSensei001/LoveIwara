@@ -171,6 +171,7 @@ common:
   error: Error
   taskRunning: "A task is already running, please wait."
   operationCancelled: "Operation cancelled."
+  unsavedChanges: "You have unsaved changes"
 auth:
   login: Login
   logout: Logout
@@ -438,6 +439,11 @@ settings:
   exportConfigFailed: "Failed to export configuration"
   importConfigSuccess: "Configuration imported successfully!"
   importConfigFailed: "Failed to import configuration"
+  historyUpdateLogs: "History Update Logs"
+  noUpdateLogs: "No update logs available"
+  versionLabel: "Version: {version}"
+  releaseDateLabel: "Release Date: {date}"
+  noChanges: "No update content available"
 signIn:
   pleaseLoginFirst: Please login first
   alreadySignedInToday: You have already signed in today!
