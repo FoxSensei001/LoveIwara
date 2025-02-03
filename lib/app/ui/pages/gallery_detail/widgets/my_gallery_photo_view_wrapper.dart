@@ -1,10 +1,12 @@
 import 'dart:io';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:photo_view/photo_view.dart';
@@ -12,7 +14,6 @@ import 'package:photo_view/photo_view_gallery.dart';
 
 import '../../../widgets/loading_button_widget.dart';
 import 'menu_item_widget.dart';
-import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class MyGalleryPhotoViewWrapper extends StatefulWidget {
   const MyGalleryPhotoViewWrapper({
@@ -60,7 +61,7 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
       widget.galleryItems.length,
       (index) => PhotoViewController(),
     );
-    
+
     // 仅在移动平台添加音量键监听
     if (Platform.isAndroid || Platform.isIOS) {
       _initVolumeKeyListener();
@@ -80,7 +81,7 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
             break;
         }
       });
-      
+
       // 启用音量键监听
       await platform.invokeMethod('enableVolumeKeyListener');
     } catch (e) {
@@ -184,7 +185,9 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                 children: [
                   const Icon(Icons.arrow_right_alt),
                   const SizedBox(width: 8),
-                  Expanded(child: Text(slang.t.galleryDetail.clickLeftAndRightEdgeToSwitchImage)),
+                  Expanded(
+                      child: Text(slang
+                          .t.galleryDetail.clickLeftAndRightEdgeToSwitchImage)),
                 ],
               ),
               const SizedBox(height: 8),
@@ -193,7 +196,9 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                 children: [
                   const Icon(Icons.save),
                   const SizedBox(width: 8),
-                  Expanded(child: Text(slang.t.galleryDetail.rightClickToSaveSingleImage)),
+                  Expanded(
+                      child: Text(
+                          slang.t.galleryDetail.rightClickToSaveSingleImage)),
                 ],
               ),
               const SizedBox(height: 8),
@@ -202,7 +207,9 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                 children: [
                   const Icon(Icons.keyboard_arrow_left),
                   const SizedBox(width: 8),
-                  Expanded(child: Text(slang.t.galleryDetail.keyboardLeftAndRightToSwitch)),
+                  Expanded(
+                      child: Text(
+                          slang.t.galleryDetail.keyboardLeftAndRightToSwitch)),
                 ],
               ),
               const SizedBox(height: 8),
@@ -211,7 +218,9 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                 children: [
                   const Icon(Icons.keyboard_arrow_up),
                   const SizedBox(width: 8),
-                  Expanded(child: Text(slang.t.galleryDetail.keyboardUpAndDownToZoom)),
+                  Expanded(
+                      child:
+                          Text(slang.t.galleryDetail.keyboardUpAndDownToZoom)),
                 ],
               ),
               const SizedBox(height: 8),
@@ -220,7 +229,8 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                 children: [
                   const Icon(Icons.swap_vert),
                   const SizedBox(width: 8),
-                  Expanded(child: Text(slang.t.galleryDetail.mouseWheelToSwitch)),
+                  Expanded(
+                      child: Text(slang.t.galleryDetail.mouseWheelToSwitch)),
                 ],
               ),
               const SizedBox(height: 8),
@@ -229,7 +239,9 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                 children: [
                   const Icon(Icons.zoom_in),
                   const SizedBox(width: 8),
-                  Expanded(child: Text(slang.t.galleryDetail.ctrlAndMouseWheelToZoom)),
+                  Expanded(
+                      child:
+                          Text(slang.t.galleryDetail.ctrlAndMouseWheelToZoom)),
                 ],
               ),
               const SizedBox(height: 8),
@@ -238,7 +250,9 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                 children: [
                   const Icon(Icons.thumb_up),
                   const SizedBox(width: 8),
-                  Expanded(child: Text(slang.t.galleryDetail.moreFeaturesToBeDiscovered)),
+                  Expanded(
+                      child: Text(
+                          slang.t.galleryDetail.moreFeaturesToBeDiscovered)),
                 ],
               ),
             ],
@@ -341,7 +355,8 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
     // 获取屏幕宽度
     final screenWidth = MediaQuery.of(context).size.width;
     // 计算点击区域宽度，宽屏和窄屏使用不同的比例
-    final tapAreaWidth = screenWidth > 600 ? screenWidth * 0.2 : screenWidth * 0.25;
+    final tapAreaWidth =
+        screenWidth > 600 ? screenWidth * 0.2 : screenWidth * 0.25;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -387,72 +402,119 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                         ? '${widget.galleryItems[index].data.originalUrl}?reload=${_reloadTimestamps[index]}'
                         : widget.galleryItems[index].data.originalUrl;
 
+                    // 包裹图片用 GestureDetector 来检测 tap 事件
                     return PhotoViewGalleryPageOptions.customChild(
-                      child: KeyedSubtree(
-                        key: ValueKey(
-                            '${widget.galleryItems[index]}_${_reloadTimestamps[index] ?? 0}'),
-                        child: Image(
-                          image: widget.galleryItems[index].data.url.startsWith('file://')
-                              ? FileImage(File(widget.galleryItems[index].data.url.replaceFirst('file://', '')))
-                              : NetworkImage(imageUrl, headers: widget.galleryItems[index].headers) as ImageProvider,
-                          fit: BoxFit.contain,
-                          loadingBuilder: (BuildContext context, Widget child,
-                              ImageChunkEvent? loadingProgress) {
-                            if (loadingProgress == null) {
-                              return child;
+                      child: GestureDetector(
+                        onTapUp: (details) {
+                          final screenWidth = MediaQuery.of(context).size.width;
+                          // 这里保持原 tap 区域比例，比如宽屏 20%，窄屏 25%
+                          final threshold = screenWidth > 600
+                              ? screenWidth * 0.2
+                              : screenWidth * 0.25;
+                          if (details.globalPosition.dx < threshold) {
+                            // 点击左侧，切换上一页
+                            if (currentIndex > 0) {
+                              goToPreviousPage();
                             }
-                            return Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  CircularProgressIndicator(
-                                    value: loadingProgress.expectedTotalBytes !=
-                                            null
-                                        ? loadingProgress
-                                                .cumulativeBytesLoaded /
-                                            loadingProgress.expectedTotalBytes!
-                                        : null,
-                                  ),
-                                  const SizedBox(height: 16),
-                                  if (loadingProgress.expectedTotalBytes !=
-                                      null) ...[
-                                    Text(
-                                      '${((loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!) * 100).toStringAsFixed(1)}%',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 14,
-                                      ),
+                          } else if (details.globalPosition.dx >
+                              screenWidth - threshold) {
+                            // 点击右侧，切换下一页
+                            if (currentIndex < widget.galleryItems.length - 1) {
+                              goToNextPage();
+                            }
+                          }
+                        },
+                        child: KeyedSubtree(
+                          key: ValueKey(
+                              '${widget.galleryItems[index]}_${_reloadTimestamps[index] ?? 0}'),
+                          child: Image(
+                            image: widget.galleryItems[index].data.url
+                                    .startsWith('file://')
+                                ? FileImage(File(widget
+                                    .galleryItems[index].data.url
+                                    .replaceFirst('file://', '')))
+                                : NetworkImage(imageUrl,
+                                    headers: widget.galleryItems[index]
+                                        .headers) as ImageProvider,
+                            fit: BoxFit.contain,
+                            loadingBuilder: (BuildContext context, Widget child,
+                                ImageChunkEvent? loadingProgress) {
+                              if (loadingProgress == null) {
+                                return child;
+                              }
+                              return Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    CircularProgressIndicator(
+                                      value:
+                                          loadingProgress.expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                              : null,
                                     ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      '${(loadingProgress.cumulativeBytesLoaded / 1024 / 1024).toStringAsFixed(1)}MB / ${(loadingProgress.expectedTotalBytes! / 1024 / 1024).toStringAsFixed(1)}MB',
-                                      style: const TextStyle(
-                                        color: Colors.white70,
-                                        fontSize: 12,
+                                    const SizedBox(height: 16),
+                                    if (loadingProgress.expectedTotalBytes !=
+                                        null) ...[
+                                      Text(
+                                        '${((loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!) * 100).toStringAsFixed(1)}%',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14,
+                                        ),
                                       ),
-                                    ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        '${(loadingProgress.cumulativeBytesLoaded / 1024 / 1024).toStringAsFixed(1)}MB / ${(loadingProgress.expectedTotalBytes! / 1024 / 1024).toStringAsFixed(1)}MB',
+                                        style: const TextStyle(
+                                          color: Colors.white70,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
                                   ],
-                                ],
-                              ),
-                            );
-                          },
-                          errorBuilder: (context, error, stackTrace) {
-                            // 如果是Invalid image data错误，说明图片格式不支持
-                            // 获取文件扩展名
-                            final fileExtension = CommonUtils.getFileExtension(imageUrl);
-
-                            if (error is Exception &&
-                                error
-                                    .toString()
-                                    .contains('Invalid image data')) {
-                              LogUtils.e(
-                                '图片格式不支持, 当前的图片地址是: $imageUrl\n'
-                                '文件扩展名: $fileExtension\n'
-                                '错误详情: ${error.toString()}',
-                                tag: 'MyGalleryPhotoViewWrapper',
-                                error: error,
+                                ),
                               );
-
+                            },
+                            errorBuilder: (context, error, stackTrace) {
+                              final fileExtension =
+                                  CommonUtils.getFileExtension(imageUrl);
+                              if (error is Exception &&
+                                  error
+                                      .toString()
+                                      .contains('Invalid image data')) {
+                                LogUtils.e(
+                                  '图片格式不支持, 当前的图片地址是: $imageUrl\n'
+                                  '文件扩展名: $fileExtension\n'
+                                  '错误详情: ${error.toString()}',
+                                  tag: 'MyGalleryPhotoViewWrapper',
+                                  error: error,
+                                );
+                                return Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(
+                                        Icons.error_outline,
+                                        color: Colors.white,
+                                        size: 48,
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        slang.t.errors.unsupportedImageFormat(
+                                            str: fileExtension),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }
                               return Center(
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -464,46 +526,26 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                                     ),
                                     const SizedBox(height: 16),
                                     Text(
-                                      slang.t.errors.unsupportedImageFormat(str: fileExtension),
+                                      slang.t.errors.errorWhileLoadingGallery,
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontSize: 16,
                                       ),
                                     ),
+                                    const SizedBox(height: 16),
+                                    LoadingButton(
+                                      onPressed: () => Future(() {
+                                        _triggerReload(index);
+                                      }),
+                                      text: slang.t.common.retry,
+                                      backgroundColor: Colors.white,
+                                      foregroundColor: Colors.black,
+                                    ),
                                   ],
                                 ),
                               );
-                            }
-                            return Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(
-                                    Icons.error_outline,
-                                    color: Colors.white,
-                                    size: 48,
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    slang.t.errors.errorWhileLoadingGallery,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  LoadingButton(
-                                    onPressed: () => Future(() {
-                                      _triggerReload(index);
-                                    }),
-                                    text: slang.t.common.retry,
-                                    backgroundColor: Colors.white,
-                                    foregroundColor: Colors.black,
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
+                            },
+                          ),
                         ),
                       ),
                       minScale: PhotoViewComputedScale.contained * 0.5,
@@ -511,46 +553,17 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                       initialScale: PhotoViewComputedScale.contained,
                       controller: controllers[index],
                       heroAttributes: PhotoViewHeroAttributes(
-                          tag: widget.galleryItems[index].data.id),
+                        tag: widget.galleryItems[index].data.id,
+                      ),
                     );
                   },
                   itemCount: widget.galleryItems.length,
-                  // 移除全局 loadingBuilder，因为现在每个图片都有自己的加载进度
                   pageController: pageController,
                   onPageChanged: (index) {
                     setState(() {
                       currentIndex = index;
                     });
                   },
-                ),
-                // 添加左右点击区域
-                Positioned(
-                  left: 0,
-                  top: 0,
-                  bottom: 0,
-                  child: _buildTapArea(
-                    isLeft: true,
-                    width: tapAreaWidth,
-                    onTap: () {
-                      if (currentIndex > 0) {
-                        goToPreviousPage();
-                      }
-                    },
-                  ),
-                ),
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  bottom: 0,
-                  child: _buildTapArea(
-                    isLeft: false,
-                    width: tapAreaWidth,
-                    onTap: () {
-                      if (currentIndex < widget.galleryItems.length - 1) {
-                        goToNextPage();
-                      }
-                    },
-                  ),
                 ),
                 SafeArea(
                   child: Container(
