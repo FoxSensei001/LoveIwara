@@ -247,8 +247,13 @@ class VideoDetailContent extends StatelessWidget {
                       if (controller.videoInfo.value?.title?.isNotEmpty == true)
                         IconButton(
                           icon: const Icon(Icons.translate, size: 20),
+                          padding: EdgeInsets.zero,
                           onPressed: () {
-                            // TODO: 添加点击事件处理逻辑
+                            Get.dialog(
+                              TranslationDialog(
+                                text: controller.videoInfo.value?.title ?? '',
+                              ),
+                            );
                           },
                         ),
                     ],
