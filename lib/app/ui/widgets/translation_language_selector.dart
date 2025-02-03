@@ -35,7 +35,7 @@ class TranslationLanguageSelector extends StatelessWidget {
     this.compact = true,
     this.extrimCompact = false,
     this.dialogTitle,
-    this.showAIToggle = false,
+    this.showAIToggle = true,
   });
 
   @override
