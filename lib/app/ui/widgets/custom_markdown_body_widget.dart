@@ -161,29 +161,31 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     final matches = pattern.allMatches(data).toList();
     if (matches.isEmpty) return data;
 
+    String updatedData = data; // 累积处理后的数据
+
     for (final match in matches) {
-      if (!mounted || !_isProcessing) return data;
+      if (!mounted || !_isProcessing) return updatedData;
 
       final id = match.group(1)!;
       final originalUrl = match.group(0)!;
 
       final info = await _fetchInfo(type, id);
       final emoji = UrlUtils.getIwaraTypeEmoji(type);
-      
+
       final replacement = info.isSuccess
           ? '[$emoji ${info.data}]($originalUrl)'
           : '[$emoji ${type.name.capitalize} $id]($originalUrl)';
 
-      data = data.replaceAll(originalUrl, replacement);
-
-      if (mounted && _isProcessing) {
-        setState(() {
-          _displayData = data;
-        });
-      }
+      updatedData = updatedData.replaceAll(originalUrl, replacement);
     }
 
-    return data;
+    // 循环结束后一次性更新状态
+    if (mounted && _isProcessing) {
+      setState(() {
+        _displayData = updatedData;
+      });
+    }
+    return updatedData;
   }
 
   Future<ApiResult<String>> _fetchInfo(IwaraUrlType type, String id) async {

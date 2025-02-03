@@ -143,6 +143,7 @@ class CommentSection extends StatelessWidget {
           if (index < controller.comments.length) {
             Comment comment = controller.comments[index];
             return CommentItem(
+              key: ValueKey(comment.id),
               comment: comment,
               authorUserId: authorUserId,
               controller: controller,

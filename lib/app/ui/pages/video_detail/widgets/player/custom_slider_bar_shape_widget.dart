@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'dart:async';
 
 import '../../../../../../utils/common_utils.dart';
 import '../../controllers/my_video_state_controller.dart';
@@ -54,24 +55,42 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
   // 将平台判断逻辑提取为getter
   bool get _shouldHandleHover => !isMobile;
 
-  // 添加计算值的getter
-  double get _currentValue {
-    if ((widget.controller.videoBuffering.value && 
-         !widget.controller.sliderDragLoadFinished.value) || 
-        _dragging) {
-      return _draggingValue ?? 0.0;
-    }
-    return widget.controller.currentPosition.value.inSeconds.toDouble();
-  }
+  // 添加节流机制（节流当前播放进度和总时长更新）
+  Timer? _throttleTimer;
+  double _throttledCurrentValue = 0.0;
+  double _maxValueStored = 0.0;
 
-  double get _maxValue => 
-      widget.controller.totalDuration.value.inSeconds.toDouble();
+  // 当未拖拽时，当前显示的进度值：拖拽时用拖拽值，否则用节流后的值
+  double get _currentValue => _dragging ? (_draggingValue ?? _throttledCurrentValue) : _throttledCurrentValue;
+
+  @override
+  void initState() {
+    super.initState();
+    // 初始化节流数值
+    _throttledCurrentValue = widget.controller.currentPosition.value.inSeconds.toDouble();
+    _maxValueStored = widget.controller.totalDuration.value.inSeconds.toDouble();
+    // 开启定时器（每 100ms 更新一次）
+    _throttleTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
+      if (!_dragging) {
+        double newVal = widget.controller.currentPosition.value.inSeconds.toDouble();
+        double newMax = widget.controller.totalDuration.value.inSeconds.toDouble();
+        // 当数值变化超过 0.1 秒时更新
+        if ((newVal - _throttledCurrentValue).abs() >= 0.1 || (_maxValueStored - newMax).abs() >= 0.1) {
+          setState(() {
+            _throttledCurrentValue = newVal;
+            _maxValueStored = newMax;
+          });
+        }
+      }
+    });
+  }
 
   @override
   void dispose() {
     _draggingValue = null;
     _hoverValue = null;
     _hoverPosition = null;
+    _throttleTimer?.cancel(); // 取消节流定时器
     super.dispose();
   }
 
@@ -87,8 +106,8 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
             onEnter: _shouldHandleHover ? _handleMouseEnter : null,
             onExit: _shouldHandleHover ? _handleMouseExit : null,
             onHover: _shouldHandleHover ? _handleMouseHover : null,
-            child: Obx(() {
-              return Stack(
+            child: RepaintBoundary(
+              child: Stack(
                 alignment: Alignment.centerLeft,
                 clipBehavior: Clip.none,
                 children: [
@@ -109,7 +128,7 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
                         hoverValue: _hoverValue,
                         currentValue: _currentValue,
                         bufferRanges: widget.controller.buffers,
-                        maxValue: _maxValue,
+                        maxValue: _maxValueStored > 0 ? _maxValueStored : 1.0,
                         activePaint: _activePaint,
                         inactivePaint: _inactivePaint,
                         bufferedPaint: _bufferedPaint,
@@ -126,9 +145,9 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
                     ),
                     child: Slider(
                       key: _sliderKey,
-                      value: _currentValue.clamp(0.0, _maxValue > 0 ? _maxValue : 1.0),
+                      value: _currentValue.clamp(0.0, _maxValueStored > 0 ? _maxValueStored : 1.0),
                       min: 0.0,
-                      max: _maxValue > 0 ? _maxValue : 1.0,
+                      max: _maxValueStored > 0 ? _maxValueStored : 1.0,
                       focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
                       autofocus: false,
                       onChangeStart: (value) {
@@ -154,11 +173,10 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
                         widget.controller.handleSeek(Duration(seconds: value.toInt()));
                         widget.controller.setInteracting(false);
                       },
-                      // 计算总时长和当前播放位置的百分比
-                      divisions: _maxValue > 0 ? _maxValue.toInt() : 1,
+                      // 计算总时长和当前播放位置的比例
+                      divisions: _maxValueStored > 0 ? _maxValueStored.toInt() : 1,
                       label: CommonUtils.formatDuration(Duration(
-                        seconds:
-                            _draggingValue?.toInt() ?? _currentValue.toInt() ?? 0,
+                        seconds: (_draggingValue ?? _currentValue).toInt(),
                       )),
                     ),
                   ),
@@ -166,8 +184,8 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
                   if (_hoverValue != null && _hoverPosition != null)
                     _buildHoverPreview(),
                 ],
-              );
-            }),
+              ),
+            ),
           ),
         );
       },
@@ -223,7 +241,7 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
     if (box != null) {
       Offset localPosition = box.globalToLocal(globalPosition);
       double relative = localPosition.dx / box.size.width;
-      double max = _maxValue;
+      double max = _maxValueStored;
       double hoverValue = (relative * max).clamp(0.0, max);
       double hoverPosition = localPosition.dx.clamp(0.0, box.size.width);
 
@@ -250,15 +268,12 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
     if (box == null) return;
 
     try {
-      Offset localPosition = box.globalToLocal(globalPosition);
-      double relative = localPosition.dx / box.size.width;
-      double max = _maxValue;
-      
+      final Offset localPosition = box.globalToLocal(globalPosition);
+      final double relative = localPosition.dx / box.size.width;
+      final double max = _maxValueStored;
       if (max <= 0) return;
-      
-      double hoverValue = (relative * max).clamp(0.0, max);
-      double hoverPosition = localPosition.dx.clamp(0.0, box.size.width);
-
+      final double hoverValue = (relative * max).clamp(0.0, max);
+      final double hoverPosition = localPosition.dx.clamp(0.0, box.size.width);
       setState(() {
         _hoverValue = hoverValue;
         _hoverPosition = hoverPosition;

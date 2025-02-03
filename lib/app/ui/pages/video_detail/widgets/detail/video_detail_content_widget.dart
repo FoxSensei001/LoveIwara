@@ -50,458 +50,461 @@ class VideoDetailContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // 视频播放器区域
-        ClipRect(
-          child: Stack(
-            children: [
-              Obx(() {
-                // 如果视频加载出错，显示错误组件
-                if (controller.videoErrorMessage.value != null) {
-                  return SizedBox(
-                    width: videoWidth,
-                    height: (videoHeight ?? (MediaQuery.sizeOf(context).width / 1.7)) + paddingTop,
-                    child: Stack(
-                      children: [
-                        // 添加背景图片
-                        if (controller.videoInfo.value?.previewUrl != null)
-                          Positioned.fill(
-                            child: CachedNetworkImage(
-                              imageUrl: controller.videoInfo.value!.previewUrl,
-                              fit: BoxFit.cover,
-                              errorWidget: (context, url, error) => Container(
-                                color: Colors.black,
-                                child: const Icon(Icons.error_outline, size: 48, color: Colors.white54),
-                              ),
-                            ),
-                          ),
-                        // 添加半透明遮罩
-                        Positioned.fill(
-                          child: Container(
-                            color: Colors.black.withOpacity(0.7),
-                          ),
-                        ),
-                        // 错误提示内容
-                        Center(
-                          child: controller.videoErrorMessage.value == 'resource_404'
-                            ? Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(Icons.not_interested, size: 48, color: Colors.white),
-                                  const SizedBox(height: 12),
-                                  Text(
-                                    t.videoDetail.resourceDeleted,
-                                    style: const TextStyle(fontSize: 18, color: Colors.white),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  const SizedBox(height: 12),
-                                  ElevatedButton.icon(
-                                    onPressed: () => AppService.tryPop(),
-                                    icon: const Icon(Icons.arrow_back),
-                                    label: Text(t.common.back),
-                                  ),
-                                ],
-                              )
-                            : CommonErrorWidget(
-                                text: controller.videoErrorMessage.value ?? t.videoDetail.errorLoadingVideo,
-                                children: [
-                                  ElevatedButton.icon(
-                                    onPressed: () => AppService.tryPop(),
-                                    icon: const Icon(Icons.arrow_back),
-                                    label: Text(t.common.back),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  ElevatedButton.icon(
-                                    onPressed: () => controller.fetchVideoDetail(controller.videoId ?? ''),
-                                    icon: const Icon(Icons.refresh),
-                                    label: Text(t.common.retry),
-                                  ),
-                                ],
-                              ),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-                // 如果是站外视频，显示站外视频提示
-                else if (controller.videoInfo.value?.isExternalVideo == true) {
-                  return SizedBox(
-                    width: videoWidth,
-                    height: (videoHeight ?? (MediaQuery.sizeOf(context).width / 1.7)) + paddingTop,
-                    child: Stack(
-                      children: [
-                        // 添加背景图片
-                        if (controller.videoInfo.value?.previewUrl != null)
-                          Positioned.fill(
-                            child: CachedNetworkImage(
-                              imageUrl: controller.videoInfo.value!.previewUrl,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        // 添加半透明遮罩
-                        Positioned.fill(
-                          child: Container(
-                            color: Colors.black.withOpacity(0.7),
-                          ),
-                        ),
-                        // 原有的提示内容
-                        Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.link, size: 48, color: Colors.white),
-                              const SizedBox(height: 12),
-                              Text(
-                                '${t.videoDetail.externalVideo}: ${controller.videoInfo.value?.externalVideoDomain}',
-                                style: const TextStyle(fontSize: 18, color: Colors.white),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 12),
-                              Row(
-                                spacing: 16,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  ElevatedButton.icon(
-                                    onPressed: () => AppService.tryPop(),
-                                    icon: const Icon(Icons.arrow_back),
-                                    label: Text(t.common.back),
-                                  ),
-                                  ElevatedButton.icon(
-                                    onPressed: () {
-                                      if (controller.videoInfo.value?.embedUrl != null) {
-                                        launchUrl(Uri.parse(controller.videoInfo.value!.embedUrl!));
-                                      }
-                                    },
-                                    icon: const Icon(Icons.open_in_new),
-                                    label: Text(t.videoDetail.openInBrowser),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-                // 如果不是全屏模式，显示视频播放器
-                else if (!controller.isFullscreen.value) {
-                  var isDesktopAppFullScreen =
-                      controller.isDesktopAppFullScreen.value;
-                  return SizedBox(
-                    width: !isDesktopAppFullScreen
-                        ? videoWidth
-                        : MediaQuery.sizeOf(context).width,
-                    height: !isDesktopAppFullScreen
-                        ? (videoHeight ??
-                                (
-                                    // 使用有效的视频比例，如果比例小于1，则使用1.7
-                                    (controller.aspectRatio.value < 1
-                                        ? MediaQuery.sizeOf(context).width / 1.7
-                                        : MediaQuery.sizeOf(context).width /
-                                            controller.aspectRatio.value))) +
-                            paddingTop
-                        : MediaQuery.sizeOf(context).height,
-                    child: MyVideoScreen(
-                        isFullScreen: false,
-                        myVideoStateController: controller),
-                  );
-                } else {
-                  return const SizedBox.shrink();
-                }
-              }),
-            ],
-          ),
-        ),
-        // 视频详情内容区域
-        Obx(() {
-          if (!controller.isDesktopAppFullScreen.value) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
+    // 用 RepaintBoundary 包裹整个内容区域，减少内部局部更新对整体绘制的影响
+    return RepaintBoundary(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // 视频播放器区域
+          ClipRect(
+            child: Stack(
               children: [
-                const SizedBox(height: 12),
-                // 视频标题
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 标题文本
-                      Expanded(
-                        child: SelectableText(
-                          controller.videoInfo.value?.title ?? '',
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                            height: 1.3,
-                          ),
-                        ),
-                      ),
-                      // 翻译按钮
-                      if (controller.videoInfo.value?.title?.isNotEmpty == true)
-                        IconButton(
-                          icon: const Icon(Icons.translate, size: 20),
-                          padding: EdgeInsets.zero,
-                          onPressed: () {
-                            Get.dialog(
-                              TranslationDialog(
-                                text: controller.videoInfo.value?.title ?? '',
+                Obx(() {
+                  // 如果视频加载出错，显示错误组件
+                  if (controller.videoErrorMessage.value != null) {
+                    return SizedBox(
+                      width: videoWidth,
+                      height: (videoHeight ?? (MediaQuery.sizeOf(context).width / 1.7)) + paddingTop,
+                      child: Stack(
+                        children: [
+                          // 添加背景图片
+                          if (controller.videoInfo.value?.previewUrl != null)
+                            Positioned.fill(
+                              child: CachedNetworkImage(
+                                imageUrl: controller.videoInfo.value!.previewUrl,
+                                fit: BoxFit.cover,
+                                errorWidget: (context, url, error) => Container(
+                                  color: Colors.black,
+                                  child: const Icon(Icons.error_outline, size: 48, color: Colors.white54),
+                                ),
                               ),
-                            );
-                          },
-                        ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-                // 作者信息区域，包括头像和用户名
-                _buildAuthorInfo(context),
-                const SizedBox(height: 12),
-                // 视频发布时间和观看次数
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Obx(() => Text(
-                        '${t.galleryDetail.publishedAt}：${CommonUtils.formatFriendlyTimestamp(controller.videoInfo.value?.createdAt)}    ${t.galleryDetail.viewsCount}：${CommonUtils.formatFriendlyNumber(controller.videoInfo.value?.numViews)}',
-                        style: TextStyle(
-                          color: Colors.grey.shade600,
-                          fontSize: 13,
-                        ),
-                      )),
-                ),
-                const SizedBox(height: 12),
-                // 视频描述内容，支持展开/收起
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Obx(() => VideoDescriptionWidget(
-                        description: controller.videoInfo.value?.body,
-                        isDescriptionExpanded: controller.isDescriptionExpanded,
-                        onToggleDescription: () =>
-                            controller.isDescriptionExpanded.toggle(),
-                      )),
-                ),
-                const SizedBox(height: 12),
-                // 视频标签区域，支持展开
-                Obx(() {
-                  final tags = controller.videoInfo.value?.tags;
-                  if (tags != null && tags.isNotEmpty) {
-                    return ExpandableTagsWidget(tags: tags);
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                }),
-                const SizedBox(height: 12),
-                // 点赞用户头像展示
-                Obx(() {
-                  final videoId = controller.videoInfo.value?.id;
-                  if (videoId != null) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: SizedBox(
-                        height: 40,
-                        child: LikeAvatarsWidget(
-                          mediaId: videoId,
-                          mediaType: MediaType.VIDEO,
-                        ),
+                            ),
+                          // 添加半透明遮罩
+                          Positioned.fill(
+                            child: Container(
+                              color: Colors.black.withOpacity(0.7),
+                            ),
+                          ),
+                          // 错误提示内容
+                          Center(
+                            child: controller.videoErrorMessage.value == 'resource_404'
+                              ? Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(Icons.not_interested, size: 48, color: Colors.white),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      t.videoDetail.resourceDeleted,
+                                      style: const TextStyle(fontSize: 18, color: Colors.white),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    const SizedBox(height: 12),
+                                    ElevatedButton.icon(
+                                      onPressed: () => AppService.tryPop(),
+                                      icon: const Icon(Icons.arrow_back),
+                                      label: Text(t.common.back),
+                                    ),
+                                  ],
+                                )
+                              : CommonErrorWidget(
+                                  text: controller.videoErrorMessage.value ?? t.videoDetail.errorLoadingVideo,
+                                  children: [
+                                    ElevatedButton.icon(
+                                      onPressed: () => AppService.tryPop(),
+                                      icon: const Icon(Icons.arrow_back),
+                                      label: Text(t.common.back),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    ElevatedButton.icon(
+                                      onPressed: () => controller.fetchVideoDetail(controller.videoId ?? ''),
+                                      icon: const Icon(Icons.refresh),
+                                      label: Text(t.common.retry),
+                                    ),
+                                  ],
+                                ),
+                          ),
+                        ],
                       ),
                     );
-                  } else {
-                    return const SizedBox.shrink();
                   }
-                }),
-                const SizedBox(height: 12),
-                Obx(() {
-                  final videoInfo = controller.videoInfo.value;
-                  if (videoInfo != null) {
-                    return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          spacing: 8,
-                          children: [
-                            LikeButtonWidget(
-                              mediaId: videoInfo.id,
-                              liked: videoInfo.liked ?? false,
-                              likeCount: videoInfo.numLikes ?? 0,
-                              onLike: (id) async {
-                                final result = await Get.find<VideoService>().likeVideo(id);
-                                return result.isSuccess;
-                              },
-                              onUnlike: (id) async {
-                                final result = await Get.find<VideoService>().unlikeVideo(id);
-                                return result.isSuccess;
-                              },
-                              onLikeChanged: (liked) {
-                                controller.videoInfo.value = controller.videoInfo.value?.copyWith(
-                                  liked: liked,
-                                  numLikes: (controller.videoInfo.value?.numLikes ?? 0) + (liked ? 1 : -1),
-                                );
-                              },
-                            ),
-                            Material(
-                              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                              borderRadius: BorderRadius.circular(20),
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(20),
-                                onTap: () {
-                                  final UserService userService = Get.find();
-                                  if (!userService.isLogin) {
-                                    showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error), position: ToastPosition.bottom);
-                                    Get.toNamed(Routes.LOGIN);
-                                    return;
-                                  }
-                                  showModalBottomSheet(
-                                    backgroundColor: Colors.transparent,
-                                    isScrollControlled: true,
-                                    builder: (context) => AddVideoToPlayListDialog(
-                                      videoId: controller.videoInfo.value?.id ?? '',
-                                    ), context: context,
-                                  );
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(Icons.playlist_add,
-                                        size: 20,
-                                        color: Theme.of(context).iconTheme.color
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        slang.Translations.of(context).common.playList,
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: Theme.of(context).textTheme.bodyMedium?.color
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                  // 如果是站外视频，显示站外视频提示
+                  else if (controller.videoInfo.value?.isExternalVideo == true) {
+                    return SizedBox(
+                      width: videoWidth,
+                      height: (videoHeight ?? (MediaQuery.sizeOf(context).width / 1.7)) + paddingTop,
+                      child: Stack(
+                        children: [
+                          // 添加背景图片
+                          if (controller.videoInfo.value?.previewUrl != null)
+                            Positioned.fill(
+                              child: CachedNetworkImage(
+                                imageUrl: controller.videoInfo.value!.previewUrl,
+                                fit: BoxFit.cover,
                               ),
                             ),
-                            Material(
-                              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                              borderRadius: BorderRadius.circular(20),
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(20),
-                                onTap: () {
-                                  _addToFavorite(context);
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(Icons.bookmark_border,
-                                        size: 20,
-                                        color: Theme.of(context).iconTheme.color
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        slang.Translations.of(context).favorite.localizeFavorite,
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: Theme.of(context).textTheme.bodyMedium?.color
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
+                          // 添加半透明遮罩
+                          Positioned.fill(
+                            child: Container(
+                              color: Colors.black.withOpacity(0.7),
                             ),
-                            Material(
-                              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                              borderRadius: BorderRadius.circular(20),
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(20),
-                                onTap: () {
-                                  _showDownloadDialog(context);
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(Icons.download,
-                                        size: 20,
-                                        color: Theme.of(context).iconTheme.color
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        t.common.download,
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: Theme.of(context).textTheme.bodyMedium?.color
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                          ),
+                          // 原有的提示内容
+                          Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.link, size: 48, color: Colors.white),
+                                const SizedBox(height: 12),
+                                Text(
+                                  '${t.videoDetail.externalVideo}: ${controller.videoInfo.value?.externalVideoDomain}',
+                                  style: const TextStyle(fontSize: 18, color: Colors.white),
+                                  textAlign: TextAlign.center,
                                 ),
-                              ),
-                            ),
-                            Material(
-                              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                              borderRadius: BorderRadius.circular(20),
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(20),
-                                onTap: () {
-                                  showModalBottomSheet(
-                                    backgroundColor: Colors.transparent,
-                                    isScrollControlled: true,
-                                    builder: (context) => ShareVideoBottomSheet(
-                                      videoId: controller.videoInfo.value?.id ?? '',
-                                      videoTitle: controller.videoInfo.value?.title ?? '',
-                                      authorName: controller.videoInfo.value?.user?.name ?? '',
-                                      previewUrl: controller.videoInfo.value?.previewUrl ?? '',
+                                const SizedBox(height: 12),
+                                Row(
+                                  spacing: 16,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    ElevatedButton.icon(
+                                      onPressed: () => AppService.tryPop(),
+                                      icon: const Icon(Icons.arrow_back),
+                                      label: Text(t.common.back),
                                     ),
-                                    context: context,
-                                  );
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(Icons.share,
-                                        size: 20,
-                                        color: Theme.of(context).iconTheme.color
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        slang.Translations.of(context).common.share,
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: Theme.of(context).textTheme.bodyMedium?.color
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                    ElevatedButton.icon(
+                                      onPressed: () {
+                                        if (controller.videoInfo.value?.embedUrl != null) {
+                                          launchUrl(Uri.parse(controller.videoInfo.value!.embedUrl!));
+                                        }
+                                      },
+                                      icon: const Icon(Icons.open_in_new),
+                                      label: Text(t.videoDetail.openInBrowser),
+                                    ),
+                                  ],
                                 ),
-                              ),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
+                    );
+                  }
+                  // 如果不是全屏模式，显示视频播放器
+                  else if (!controller.isFullscreen.value) {
+                    var isDesktopAppFullScreen =
+                        controller.isDesktopAppFullScreen.value;
+                    return SizedBox(
+                      width: !isDesktopAppFullScreen
+                          ? videoWidth
+                          : MediaQuery.sizeOf(context).width,
+                      height: !isDesktopAppFullScreen
+                          ? (videoHeight ??
+                                  (
+                                      // 使用有效的视频比例，如果比例小于1，则使用1.7
+                                      (controller.aspectRatio.value < 1
+                                          ? MediaQuery.sizeOf(context).width / 1.7
+                                          : MediaQuery.sizeOf(context).width /
+                                              controller.aspectRatio.value))) +
+                              paddingTop
+                          : MediaQuery.sizeOf(context).height,
+                      child: MyVideoScreen(
+                          isFullScreen: false,
+                          myVideoStateController: controller),
                     );
                   } else {
                     return const SizedBox.shrink();
                   }
                 }),
               ],
-            );
-          } else {
-            // 如果是全屏模式，则不显示详情内容
-            return const SizedBox.shrink();
-          }
-        }),
-      ],
+            ),
+          ),
+          // 视频详情内容区域
+          Obx(() {
+            if (!controller.isDesktopAppFullScreen.value) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 12),
+                  // 视频标题
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 标题文本
+                        Expanded(
+                          child: SelectableText(
+                            controller.videoInfo.value?.title ?? '',
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                              height: 1.3,
+                            ),
+                          ),
+                        ),
+                        // 翻译按钮
+                        if (controller.videoInfo.value?.title?.isNotEmpty == true)
+                          IconButton(
+                            icon: const Icon(Icons.translate, size: 20),
+                            padding: EdgeInsets.zero,
+                            onPressed: () {
+                              Get.dialog(
+                                TranslationDialog(
+                                  text: controller.videoInfo.value?.title ?? '',
+                                ),
+                              );
+                            },
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  // 作者信息区域，包括头像和用户名
+                  _buildAuthorInfo(context),
+                  const SizedBox(height: 12),
+                  // 视频发布时间和观看次数
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Obx(() => Text(
+                          '${t.galleryDetail.publishedAt}：${CommonUtils.formatFriendlyTimestamp(controller.videoInfo.value?.createdAt)}    ${t.galleryDetail.viewsCount}：${CommonUtils.formatFriendlyNumber(controller.videoInfo.value?.numViews)}',
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 13,
+                          ),
+                        )),
+                  ),
+                  const SizedBox(height: 12),
+                  // 视频描述内容，支持展开/收起
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Obx(() => VideoDescriptionWidget(
+                          description: controller.videoInfo.value?.body,
+                          isDescriptionExpanded: controller.isDescriptionExpanded,
+                          onToggleDescription: () =>
+                              controller.isDescriptionExpanded.toggle(),
+                        )),
+                  ),
+                  const SizedBox(height: 12),
+                  // 视频标签区域，支持展开
+                  Obx(() {
+                    final tags = controller.videoInfo.value?.tags;
+                    if (tags != null && tags.isNotEmpty) {
+                      return ExpandableTagsWidget(tags: tags);
+                    } else {
+                      return const SizedBox.shrink();
+                    }
+                  }),
+                  const SizedBox(height: 12),
+                  // 点赞用户头像展示
+                  Obx(() {
+                    final videoId = controller.videoInfo.value?.id;
+                    if (videoId != null) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: SizedBox(
+                          height: 40,
+                          child: LikeAvatarsWidget(
+                            mediaId: videoId,
+                            mediaType: MediaType.VIDEO,
+                          ),
+                        ),
+                      );
+                    } else {
+                      return const SizedBox.shrink();
+                    }
+                  }),
+                  const SizedBox(height: 12),
+                  Obx(() {
+                    final videoInfo = controller.videoInfo.value;
+                    if (videoInfo != null) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            spacing: 8,
+                            children: [
+                              LikeButtonWidget(
+                                mediaId: videoInfo.id,
+                                liked: videoInfo.liked ?? false,
+                                likeCount: videoInfo.numLikes ?? 0,
+                                onLike: (id) async {
+                                  final result = await Get.find<VideoService>().likeVideo(id);
+                                  return result.isSuccess;
+                                },
+                                onUnlike: (id) async {
+                                  final result = await Get.find<VideoService>().unlikeVideo(id);
+                                  return result.isSuccess;
+                                },
+                                onLikeChanged: (liked) {
+                                  controller.videoInfo.value = controller.videoInfo.value?.copyWith(
+                                    liked: liked,
+                                    numLikes: (controller.videoInfo.value?.numLikes ?? 0) + (liked ? 1 : -1),
+                                  );
+                                },
+                              ),
+                              Material(
+                                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                borderRadius: BorderRadius.circular(20),
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(20),
+                                  onTap: () {
+                                    final UserService userService = Get.find();
+                                    if (!userService.isLogin) {
+                                      showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error), position: ToastPosition.bottom);
+                                      Get.toNamed(Routes.LOGIN);
+                                      return;
+                                    }
+                                    showModalBottomSheet(
+                                      backgroundColor: Colors.transparent,
+                                      isScrollControlled: true,
+                                      builder: (context) => AddVideoToPlayListDialog(
+                                        videoId: controller.videoInfo.value?.id ?? '',
+                                      ), context: context,
+                                    );
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.playlist_add,
+                                          size: 20,
+                                          color: Theme.of(context).iconTheme.color
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          slang.Translations.of(context).common.playList,
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Theme.of(context).textTheme.bodyMedium?.color
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Material(
+                                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                borderRadius: BorderRadius.circular(20),
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(20),
+                                  onTap: () {
+                                    _addToFavorite(context);
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.bookmark_border,
+                                          size: 20,
+                                          color: Theme.of(context).iconTheme.color
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          slang.Translations.of(context).favorite.localizeFavorite,
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Theme.of(context).textTheme.bodyMedium?.color
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Material(
+                                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                borderRadius: BorderRadius.circular(20),
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(20),
+                                  onTap: () {
+                                    _showDownloadDialog(context);
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.download,
+                                          size: 20,
+                                          color: Theme.of(context).iconTheme.color
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          t.common.download,
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Theme.of(context).textTheme.bodyMedium?.color
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Material(
+                                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                borderRadius: BorderRadius.circular(20),
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(20),
+                                  onTap: () {
+                                    showModalBottomSheet(
+                                      backgroundColor: Colors.transparent,
+                                      isScrollControlled: true,
+                                      builder: (context) => ShareVideoBottomSheet(
+                                        videoId: controller.videoInfo.value?.id ?? '',
+                                        videoTitle: controller.videoInfo.value?.title ?? '',
+                                        authorName: controller.videoInfo.value?.user?.name ?? '',
+                                        previewUrl: controller.videoInfo.value?.previewUrl ?? '',
+                                      ),
+                                      context: context,
+                                    );
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.share,
+                                          size: 20,
+                                          color: Theme.of(context).iconTheme.color
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          slang.Translations.of(context).common.share,
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Theme.of(context).textTheme.bodyMedium?.color
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    } else {
+                      return const SizedBox.shrink();
+                    }
+                  }),
+                ],
+              );
+            } else {
+              // 如果是全屏模式，则不显示详情内容
+              return const SizedBox.shrink();
+            }
+          }),
+        ],
+      ),
     );
   }
 

@@ -721,127 +721,129 @@ class _CommentItemState extends State<CommentItem> {
     final comment = widget.comment;
     final t = slang.Translations.of(context);
 
-    return Padding(
-      padding: EdgeInsets.only(
-        left: comment.parent != null ? 32.0 : 16.0,
-        right: 0.0,
-        top: 8.0,
-        bottom: 8.0,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 用户信息行
-          MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-              onTap: () => NaviService.navigateToAuthorProfilePage(comment.user?.username ?? ''),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // 头像
-                  _buildUserAvatar(comment),
-                  const SizedBox(width: 8),
-                  // 用户名、标签等信息
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // 用户名行
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            // 会员用户名
-                            Flexible(
-                              child: buildUserName(context, comment.user!, fontSize: 14, bold: true),
-                            ),
-                          ],
-                        ),
-                        // 标签行
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
+    return RepaintBoundary(
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: comment.parent != null ? 32.0 : 16.0,
+          right: 0.0,
+          top: 8.0,
+          bottom: 8.0,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 用户信息行
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: () => NaviService.navigateToAuthorProfilePage(comment.user?.username ?? ''),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // 头像
+                    _buildUserAvatar(comment),
+                    const SizedBox(width: 8),
+                    // 用户名、标签等信息
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // 用户名行
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              if (comment.user?.id == _userService.currentUser.value?.id)
-                                _buildCommentTag(t.common.me, Colors.blue, Icons.person),
-                              if (comment.user?.premium == true)
-                                _buildCommentTag(t.common.premium, Colors.purple, Icons.star),
-                              if (comment.user?.id == widget.authorUserId)
-                                _buildCommentTag(t.common.author, Colors.green, Icons.verified_user),
-                              if (comment.user?.role.contains('admin') == true)
-                                _buildCommentTag(t.common.admin, Colors.red, Icons.admin_panel_settings),
+                              // 会员用户名
+                              Flexible(
+                                child: buildUserName(context, comment.user!, fontSize: 14, bold: true),
+                              ),
                             ],
                           ),
-                        ),
-                        // @用户名
-                        Text(
-                          '@${comment.user?.username ?? ''}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
+                          // 标签行
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (comment.user?.id == _userService.currentUser.value?.id)
+                                  _buildCommentTag(t.common.me, Colors.blue, Icons.person),
+                                if (comment.user?.premium == true)
+                                  _buildCommentTag(t.common.premium, Colors.purple, Icons.star),
+                                if (comment.user?.id == widget.authorUserId)
+                                  _buildCommentTag(t.common.author, Colors.green, Icons.verified_user),
+                                if (comment.user?.role.contains('admin') == true)
+                                  _buildCommentTag(t.common.admin, Colors.red, Icons.admin_panel_settings),
+                              ],
+                            ),
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+                          // @用户名
+                          Text(
+                            '@${comment.user?.username ?? ''}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            // 评论内容
+            Padding(
+              padding: const EdgeInsets.only(left: 48.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 评论内容 - 添加点击回复功能
+                  Material(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(8),
+                    clipBehavior: Clip.antiAlias,
+                    child: InkWell(
+                      onTap: widget.comment.parent == null ? _showReplyDialog : null,
+                      child: CustomMarkdownBody(data: comment.body),
                     ),
                   ),
+                  if (_translatedText != null) ...[
+                    const SizedBox(height: 8),
+                    _buildTranslatedContent(context),
+                  ],
+                  const SizedBox(height: 8),
+                  // 回复、翻译和操作按钮行
+                  Row(
+                    children: [
+                      // 翻译按钮
+                      _buildTranslationButton(context),
+                      const Spacer(),
+                      // 回复按钮 - 只在非回复评论中显示
+                      if (comment.parent == null)
+                        IconButton(
+                          onPressed: _showReplyDialog,
+                          icon: const Icon(Icons.reply, size: 20),
+                          visualDensity: VisualDensity.compact,
+                          tooltip: t.common.reply,
+                          style: IconButton.styleFrom(
+                            foregroundColor: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      _buildActionMenu(context),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  // 时间和查看回复按钮行
+                  _buildTimeInfo(comment, context),
                 ],
               ),
             ),
-          ),
-          const SizedBox(height: 8),
-          // 评论内容
-          Padding(
-            padding: const EdgeInsets.only(left: 48.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 评论内容 - 添加点击回复功能
-                Material(
-                  color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(8),
-                  clipBehavior: Clip.antiAlias,
-                  child: InkWell(
-                    onTap: widget.comment.parent == null ? _showReplyDialog : null,
-                    child: CustomMarkdownBody(data: comment.body),
-                  ),
-                ),
-                if (_translatedText != null) ...[
-                  const SizedBox(height: 8),
-                  _buildTranslatedContent(context),
-                ],
-                const SizedBox(height: 8),
-                // 回复、翻译和操作按钮行
-                Row(
-                  children: [
-                    // 翻译按钮
-                    _buildTranslationButton(context),
-                    const Spacer(),
-                    // 回复按钮 - 只在非回复评论中显示
-                    if (comment.parent == null)
-                      IconButton(
-                        onPressed: _showReplyDialog,
-                        icon: const Icon(Icons.reply, size: 20),
-                        visualDensity: VisualDensity.compact,
-                        tooltip: t.common.reply,
-                        style: IconButton.styleFrom(
-                          foregroundColor: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                    _buildActionMenu(context),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                // 时间和查看回复按钮行
-                _buildTimeInfo(comment, context),
-              ],
-            ),
-          ),
-          // 回复列表
-          if (_isRepliesExpanded) _buildRepliesList(context),
-        ],
+            // 回复列表
+            if (_isRepliesExpanded) _buildRepliesList(context),
+          ],
+        ),
       ),
     );
   }

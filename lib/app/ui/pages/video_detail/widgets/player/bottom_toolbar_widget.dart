@@ -41,13 +41,16 @@ class BottomToolbar extends StatelessWidget {
     final bool isSmallScreen = MediaQuery.of(context).size.width < 600;
     final double iconSize = isSmallScreen ? 18 : 20;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (currentScreenIsFullScreen)
-          _buildTopInteractionLayer(context, isSmallScreen),
-        _buildBottomToolbar(context, isSmallScreen, iconSize, t),
-      ],
+    // 用 RepaintBoundary 包裹整个工具条
+    return RepaintBoundary(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (currentScreenIsFullScreen)
+            _buildTopInteractionLayer(context, isSmallScreen),
+          _buildBottomToolbar(context, isSmallScreen, iconSize, t),
+        ],
+      ),
     );
   }
 
