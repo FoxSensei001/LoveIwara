@@ -128,9 +128,6 @@ class TopToolbar extends StatelessWidget {
                         if (await floating.isPipAvailable) {
                           final status = await floating.pipStatus;
                           if (status == PiPStatus.disabled || status == PiPStatus.automatic) {
-                            await floating.enable(const ImmediatePiP(
-                              aspectRatio: Rational.square(),
-                            ));
                             // 关闭全屏和桌面全屏模式
                             if (currentScreenIsFullScreen) AppService.tryPop();
                             if (myVideoStateController.isDesktopAppFullScreen.value) {
@@ -138,9 +135,6 @@ class TopToolbar extends StatelessWidget {
                             }
                             myVideoStateController.enterPiPMode();
                           } else if (status == PiPStatus.enabled) {
-                            await floating.enable(const ImmediatePiP(
-                              aspectRatio: Rational.square(),
-                            ));
                             myVideoStateController.exitPiPMode();
                           }
                         }

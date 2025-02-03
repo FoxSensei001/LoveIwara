@@ -844,13 +844,25 @@ class MyVideoStateController extends GetxController
   }
 
   /// 进入画中画模式
-  void enterPiPMode() {
+  Future<void> enterPiPMode() async {
+    // 获取当前视频的宽度和高度以构造画中画窗口的比例
+    final int width = sourceVideoWidth.value;
+    final int height = sourceVideoHeight.value;
+    if (height == 0 || width == 0) {
+      return;
+    }
+    // 利用视频的宽高构造比例参数（Rational类型）
+    final ratio = Rational(width, height);
+    LogUtils.d("进入画中画模式，设置宽高比为：$width:$height, Rational: $ratio", "MyVideoStateController");
+    // 通过floating插件启用画中画模式并传入宽高比
+    await Floating().enable(ImmediatePiP(aspectRatio: ratio));
     isPiPMode.value = true;
     player.play();
   }
 
   /// 退出画中画模式
-  void exitPiPMode() {
+  Future<void> exitPiPMode() async {
+    await Floating().cancelOnLeavePiP();
     isPiPMode.value = false;
   }
 }
