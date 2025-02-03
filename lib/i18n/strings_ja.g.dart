@@ -1011,7 +1011,7 @@ class _TranslationsTranslationJa implements TranslationsTranslationEn {
 	@override String get temperatureHintText => '0.0-2.0';
 	@override String get clickTestButtonToVerifyAPIConnection => 'テストボタンをクリックしてAPI接続を検証';
 	@override String get requestPreview => 'リクエストプレビュー';
-	@override String get enableAITranslation => 'AI翻訳を有効にする';
+	@override String get enableAITranslation => 'AI翻訳';
 	@override String get enabled => '有効';
 	@override String get disabled => '無効';
 	@override String get testing => 'テスト中...';
@@ -2098,7 +2098,7 @@ extension on TranslationsJa {
 			case 'translation.temperatureHintText': return '0.0-2.0';
 			case 'translation.clickTestButtonToVerifyAPIConnection': return 'テストボタンをクリックしてAPI接続を検証';
 			case 'translation.requestPreview': return 'リクエストプレビュー';
-			case 'translation.enableAITranslation': return 'AI翻訳を有効にする';
+			case 'translation.enableAITranslation': return 'AI翻訳';
 			case 'translation.enabled': return '有効';
 			case 'translation.disabled': return '無効';
 			case 'translation.testing': return 'テスト中...';

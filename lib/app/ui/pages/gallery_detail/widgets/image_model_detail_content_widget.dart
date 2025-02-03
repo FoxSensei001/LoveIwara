@@ -282,8 +282,6 @@ class ImageModelDetailContent extends StatelessWidget {
           if (controller.imageModelInfo.value?.title.isNotEmpty == true)
             IconButton(
               icon: const Icon(Icons.translate, size: 20),
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
               onPressed: () {
                 Get.dialog(
                   TranslationDialog(

@@ -903,7 +903,7 @@ translation:
   temperatureHintText: '0.0-2.0'
   clickTestButtonToVerifyAPIConnection: '點擊測試按鈕驗證API連接有效性'
   requestPreview: 請求預覽
-  enableAITranslation: 啟用AI翻譯
+  enableAITranslation: AI翻譯
   enabled: 已啟用
   disabled: 已禁用
   testing: 測試中...

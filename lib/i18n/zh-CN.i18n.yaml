@@ -905,7 +905,7 @@ translation:
   temperatureHintText: '0.0-2.0'
   clickTestButtonToVerifyAPIConnection: '点击测试按钮验证API连接有效性'
   requestPreview: 请求预览
-  enableAITranslation: 启用AI翻译
+  enableAITranslation: AI翻译
   enabled: 已启用
   disabled: 已禁用
   testing: 测试中...

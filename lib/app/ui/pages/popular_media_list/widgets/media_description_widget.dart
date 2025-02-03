@@ -4,10 +4,8 @@ import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/translation_service.dart';
 import 'package:i_iwara/app/ui/widgets/translation_powered_by_widget.dart';
-import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:i_iwara/app/routes/app_routes.dart';
-import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/ui/widgets/translation_language_selector.dart';
 
 import '../../../widgets/custom_markdown_body_widget.dart';
 
@@ -55,173 +53,41 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
   }
 
   Widget _buildTranslationButton(BuildContext context) {
-    final t = slang.Translations.of(context);
     final configService = Get.find<ConfigService>();
-
-    return Card(
-      elevation: 1,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // 左侧翻译按钮
-          Flexible(
-            child: InkWell(
-              borderRadius: const BorderRadius.horizontal(left: Radius.circular(20)),
-              onTap: _isTranslating ? null : () => _handleTranslation(),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (_isTranslating)
-                      const SizedBox(
-                        width: 14,
-                        height: 14,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    else
-                      const Icon(Icons.translate, size: 16),
-                    const SizedBox(width: 4),
-                    Text(
-                      t.common.translate,
-                      style: const TextStyle(
-                        fontSize: 12,
-                      ),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        IconButton(
+          onPressed: _isTranslating ? null : () => _handleTranslation(),
+          icon: _isTranslating
+              ? SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Theme.of(context).colorScheme.primary,
                     ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          // 分割线
-          Container(
-            height: 24,
-            width: 1,
-            color: Colors.grey.withOpacity(0.2),
-          ),
-          // 右侧下拉按钮
-          InkWell(
-            borderRadius: const BorderRadius.horizontal(right: Radius.circular(20)),
-            onTap: _showTranslationMenuDialog,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Icon(
-                Icons.arrow_drop_down,
-                size: 26,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showTranslationMenuDialog() {
-    final t = slang.Translations.of(context);
-    final configService = Get.find<ConfigService>();
-
-    Get.dialog(
-      Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        t.common.selectTranslationLanguage,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    Obx(() {
-                      final isAIEnabled = configService[ConfigKey.USE_AI_TRANSLATION] as bool;
-                      if (!isAIEnabled) {
-                        return ElevatedButton.icon(
-                          onPressed: () {
-                            Get.toNamed(Routes.AI_TRANSLATION_SETTINGS_PAGE);
-                          },
-                          icon: Icon(Icons.auto_awesome, 
-                            size: 14, 
-                            color: Theme.of(context).colorScheme.primary),
-                          label: Text(
-                            t.translation.enableAITranslation,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.primary,
-                              fontSize: 12
-                            ),
-                          ),
-                        );
-                      }
-                      return Tooltip(
-                        message: t.translation.disableAITranslation,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.auto_awesome,
-                              size: 18,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                            const SizedBox(width: 8),
-                            Switch(
-                              value: true,
-                              onChanged: (value) {
-                                configService[ConfigKey.USE_AI_TRANSLATION] = false;
-                              },
-                            ),
-                          ],
-                        ),
-                      );
-                    }),
-                  ],
-                ),
-              ),
-              const Divider(height: 1),
-              ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height * 0.6,
-                ),
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: CommonConstants.translationSorts.map((sort) {
-                      final isSelected = sort.id == _configService.currentTranslationSort.id;
-                      return ListTile(
-                        dense: true,
-                        selected: isSelected,
-                        title: Text(sort.label),
-                        trailing: isSelected ? const Icon(Icons.check, size: 18) : null,
-                        onTap: () {
-                          _configService.updateTranslationLanguage(sort);
-                          AppService.tryPop();
-                          if (_translatedText != null) {
-                            _handleTranslation();
-                          }
-                        },
-                      );
-                    }).toList(),
                   ),
+                )
+              : Icon(
+                  Icons.translate,
+                  size: 24,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
-              ),
-            ],
-          ),
         ),
-      ),
-      barrierDismissible: true,
+        TranslationLanguageSelector(
+          compact: true,
+          selectedLanguage: configService.currentTranslationSort,
+          onLanguageSelected: (sort) {
+            configService.updateTranslationLanguage(sort);
+            if (_translatedText != null) {
+              _handleTranslation();
+            }
+          },
+        ),
+      ],
     );
   }
 

@@ -1016,7 +1016,7 @@ class _TranslationsTranslationZhCn implements TranslationsTranslationEn {
 	@override String get temperatureHintText => '0.0-2.0';
 	@override String get clickTestButtonToVerifyAPIConnection => '点击测试按钮验证API连接有效性';
 	@override String get requestPreview => '请求预览';
-	@override String get enableAITranslation => '启用AI翻译';
+	@override String get enableAITranslation => 'AI翻译';
 	@override String get enabled => '已启用';
 	@override String get disabled => '已禁用';
 	@override String get testing => '测试中...';
@@ -2108,7 +2108,7 @@ extension on TranslationsZhCn {
 			case 'translation.temperatureHintText': return '0.0-2.0';
 			case 'translation.clickTestButtonToVerifyAPIConnection': return '点击测试按钮验证API连接有效性';
 			case 'translation.requestPreview': return '请求预览';
-			case 'translation.enableAITranslation': return '启用AI翻译';
+			case 'translation.enableAITranslation': return 'AI翻译';
 			case 'translation.enabled': return '已启用';
 			case 'translation.disabled': return '已禁用';
 			case 'translation.testing': return '测试中...';

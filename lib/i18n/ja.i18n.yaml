@@ -901,7 +901,7 @@ translation:
   temperatureHintText: '0.0-2.0'
   clickTestButtonToVerifyAPIConnection: 'テストボタンをクリックしてAPI接続を検証'
   requestPreview: リクエストプレビュー
-  enableAITranslation: AI翻訳を有効にする
+  enableAITranslation: AI翻訳
   enabled: 有効
   disabled: 無効
   testing: テスト中...

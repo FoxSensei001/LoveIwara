@@ -897,7 +897,7 @@ translation:
   temperatureHintText: '0.0-2.0'
   clickTestButtonToVerifyAPIConnection: 'Click test button to verify API connection validity'
   requestPreview: Request Preview
-  enableAITranslation: Enable AI Translation
+  enableAITranslation: Enable AI
   enabled: Enabled
   disabled: Disabled
   testing: Testing...

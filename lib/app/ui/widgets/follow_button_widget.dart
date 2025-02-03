@@ -9,6 +9,7 @@ import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:oktoast/oktoast.dart';
 import 'package:vibration/vibration.dart';
+import 'package:shimmer/shimmer.dart';
 
 class FollowButtonWidget extends StatefulWidget {
   final User user;
@@ -38,23 +39,17 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
 
   // 构建加载中的按钮
   Widget _buildLoadingButton({bool isFollowing = false, required BuildContext context}) {
-    final t = slang.Translations.of(context);
-    return ElevatedButton.icon(
-      onPressed: null,
-      icon: isFollowing ? const Icon(Icons.check, size: 18) : const Icon(Icons.person_add, size: 18),
-      label: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(
-            width: 12,
-            height: 12,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-            ),
-          ),
-          const SizedBox(width: 4),
-          Text(isFollowing ? t.common.followed : t.common.follow),
-        ],
+    return Shimmer.fromColors(
+      baseColor: Colors.grey.shade300,
+      highlightColor: Colors.grey.shade100,
+      child: Container(
+        // 标准按钮高度，可根据实际需求调整
+        height: 48,
+        width: 100,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24), // 可调整边角弧度以匹配设计
+        ),
       ),
     );
   }

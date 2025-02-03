@@ -1014,7 +1014,7 @@ class _TranslationsTranslationZhTw implements TranslationsTranslationEn {
 	@override String get temperatureHintText => '0.0-2.0';
 	@override String get clickTestButtonToVerifyAPIConnection => '點擊測試按鈕驗證API連接有效性';
 	@override String get requestPreview => '請求預覽';
-	@override String get enableAITranslation => '啟用AI翻譯';
+	@override String get enableAITranslation => 'AI翻譯';
 	@override String get enabled => '已啟用';
 	@override String get disabled => '已禁用';
 	@override String get testing => '測試中...';
@@ -2104,7 +2104,7 @@ extension on TranslationsZhTw {
 			case 'translation.temperatureHintText': return '0.0-2.0';
 			case 'translation.clickTestButtonToVerifyAPIConnection': return '點擊測試按鈕驗證API連接有效性';
 			case 'translation.requestPreview': return '請求預覽';
-			case 'translation.enableAITranslation': return '啟用AI翻譯';
+			case 'translation.enableAITranslation': return 'AI翻譯';
 			case 'translation.enabled': return '已啟用';
 			case 'translation.disabled': return '已禁用';
 			case 'translation.testing': return '測試中...';

@@ -1015,7 +1015,7 @@ class TranslationsTranslationEn {
 	String get temperatureHintText => '0.0-2.0';
 	String get clickTestButtonToVerifyAPIConnection => 'Click test button to verify API connection validity';
 	String get requestPreview => 'Request Preview';
-	String get enableAITranslation => 'Enable AI Translation';
+	String get enableAITranslation => 'Enable AI';
 	String get enabled => 'Enabled';
 	String get disabled => 'Disabled';
 	String get testing => 'Testing...';
@@ -2102,7 +2102,7 @@ extension on Translations {
 			case 'translation.temperatureHintText': return '0.0-2.0';
 			case 'translation.clickTestButtonToVerifyAPIConnection': return 'Click test button to verify API connection validity';
 			case 'translation.requestPreview': return 'Request Preview';
-			case 'translation.enableAITranslation': return 'Enable AI Translation';
+			case 'translation.enableAITranslation': return 'Enable AI';
 			case 'translation.enabled': return 'Enabled';
 			case 'translation.disabled': return 'Disabled';
 			case 'translation.testing': return 'Testing...';

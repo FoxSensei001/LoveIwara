@@ -7,8 +7,9 @@ import 'package:i_iwara/app/ui/widgets/translation_powered_by_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:shimmer/shimmer.dart';
-import 'package:i_iwara/app/routes/app_routes.dart';
 import 'package:flutter/services.dart';
+import 'package:i_iwara/app/ui/widgets/ai_translation_toggle_button.dart';
+import 'package:i_iwara/app/ui/widgets/translation_language_selector.dart';
 
 class TranslationDialog extends StatefulWidget {
   final String text;
@@ -73,101 +74,32 @@ class _TranslationDialogState extends State<TranslationDialog> {
   Widget _buildLanguageSelector() {
     final configService = Get.find<ConfigService>();
     final t = slang.Translations.of(context);
-    
-    final currentLanguage = widget.defaultLanguageKeyMode 
+
+    final currentLanguage = widget.defaultLanguageKeyMode
         ? configService.currentTranslationLanguage
         : configService.currentTargetLanguage;
+
     final updateMethod = widget.defaultLanguageKeyMode
         ? configService.updateTranslationLanguage
         : configService.updateTargetLanguage;
 
+    final selectedSort = CommonConstants.translationSorts.firstWhere(
+      (sort) => sort.extData == currentLanguage,
+      orElse: () => CommonConstants.translationSorts.first,
+    );
+    
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        PopupMenuButton<String>(
-          initialValue: currentLanguage,
-          child: Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    CommonConstants.translationSorts.firstWhere(
-                      (sort) => sort.extData == currentLanguage,
-                      orElse: () => CommonConstants.translationSorts.first,
-                    ).label,
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                  const SizedBox(width: 4),
-                  const Icon(
-                    Icons.arrow_drop_down,
-                    size: 24,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          itemBuilder: (context) => CommonConstants.translationSorts.map((sort) {
-            return PopupMenuItem<String>(
-              value: sort.extData,
-              child: Text(sort.label),
-            );
-          }).toList(),
-          onSelected: (value) {
-            final sort = CommonConstants.translationSorts.firstWhere(
-              (sort) => sort.extData == value,
-            );
+        TranslationLanguageSelector(
+          usePopupMenu: true,
+          selectedLanguage: selectedSort,
+          onLanguageSelected: (sort) {
             updateMethod(sort);
             setState(() => _translatedText = null);
             _handleTranslation();
           },
         ),
-        const SizedBox(width: 8),
-        Obx(() {
-          final isAIEnabled = configService[ConfigKey.USE_AI_TRANSLATION] as bool;
-          if (!isAIEnabled) {
-            return ElevatedButton.icon(
-              onPressed: () {
-                Get.toNamed(Routes.AI_TRANSLATION_SETTINGS_PAGE);
-              },
-              icon: Icon(Icons.auto_awesome, 
-                size: 14, 
-                color: Theme.of(context).colorScheme.primary),
-              label: Text(
-                t.translation.enableAITranslation,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontSize: 12
-                ),
-              ),
-            );
-          }
-          return Tooltip(
-            message: t.translation.disableAITranslation,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.auto_awesome,
-                  size: 18,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(width: 8),
-                Switch(
-                  value: true,
-                  onChanged: (value) {
-                    configService[ConfigKey.USE_AI_TRANSLATION] = false;
-                  },
-                ),
-              ],
-            ),
-          );
-        }),
       ],
     );
   }
@@ -213,30 +145,33 @@ class _TranslationDialogState extends State<TranslationDialog> {
                   padding: const EdgeInsets.all(12),
                   child: content,
                 ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    if (title == t.common.translationResult)
-                      translationPoweredByWidget(context, fontSize: 16),
-                    if (title == t.common.translationResult && _translatedText != null)
-                      const SizedBox(width: 16),
-                    if (title == t.common.translationResult && _translatedText != null)
-                      Tooltip(
-                        message: t.download.copy,
-                        child: IconButton(
-                          icon: const Icon(Icons.content_copy, size: 18),
-                          onPressed: () async {
-                            await Clipboard.setData(ClipboardData(text: _translatedText!));
-                            Get.showSnackbar(GetSnackBar(
-                              message: t.download.copySuccess,
-                              duration: const Duration(seconds: 2),
-                            ));
-                          },
+              Align(
+                alignment: Alignment.centerRight,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  child: Wrap(
+                    alignment: WrapAlignment.end,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 16,
+                    children: [
+                      if (title == t.common.translationResult)
+                        translationPoweredByWidget(context, fontSize: 16),
+                      if (title == t.common.translationResult && _translatedText != null)
+                        Tooltip(
+                          message: t.download.copy,
+                          child: IconButton(
+                            icon: const Icon(Icons.content_copy, size: 18),
+                            onPressed: () async {
+                              await Clipboard.setData(ClipboardData(text: _translatedText!));
+                              Get.showSnackbar(GetSnackBar(
+                                message: t.download.copySuccess,
+                                duration: const Duration(seconds: 2),
+                              ));
+                            },
+                          ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -308,10 +243,7 @@ class _TranslationDialogState extends State<TranslationDialog> {
                 children: [
                   _buildLanguageSelector(),
                   const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
+                  const AITranslationToggleButton(compact: true),
                 ],
               ),
             ),

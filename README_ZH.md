@@ -293,3 +293,69 @@ flutter config --clear-features
 - [wgh136/PicaComic](https://github.com/wgh136/PicaComic) - 结构良好的 Flutter 漫画应用
 
 项目中的许多实现方式和最佳实践都是从这些仓库中学习得来。 
+
+## Android 签名配置
+
+在构建 Android 版本之前，需要配置正确的签名信息来生成正式发布的 APK，请按照以下步骤操作：
+
+1. **生成 keystore 文件**
+
+   在项目的 `android/app` 目录下打开终端，执行以下命令（请替换 `<your_key_alias>` 及其他参数为你自己的信息）：
+   ```bash
+   keytool -genkeypair -v -keystore keystore.jks -alias <your_key_alias> -keyalg RSA -keysize 2048 -validity 10000
+   ```
+   该命令将在当前目录生成一个名为 `keystore.jks` 的文件，请确保该文件位于 `android/app` 目录下。
+
+2. **配置签名信息**
+
+   请检查 `android/app/build.gradle` 文件中的签名配置，确保配置如下：
+   ```groovy
+   signingConfigs {
+       release {
+           storeFile file("keystore.jks")
+           storePassword System.getenv("KEYSTORE_PASSWORD") ?: project.findProperty("MY_KEYSTORE_PASSWORD")
+           keyAlias System.getenv("KEY_ALIAS") ?: project.findProperty("MY_KEY_ALIAS")
+           keyPassword System.getenv("KEY_PASSWORD") ?: project.findProperty("MY_KEY_PASSWORD")
+       }
+   }
+   ```
+   同时，在 `android/gradle.properties` 文件中确保包含以下占位符：
+   ```properties
+   MY_KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD}
+   MY_KEY_ALIAS=${KEY_ALIAS}
+   MY_KEY_PASSWORD=${KEY_PASSWORD}
+   ```
+   这样可以确保签名信息能通过系统环境变量注入，或者在本地直接配置实际值（建议仅用于调试环境）。
+
+3. **GitHub Actions 配置**
+
+   为了在 GitHub Actions 上自动构建签名的 APK，需要做以下准备工作：
+   - 将 `keystore.jks` 文件转换为 Base64 编码后的字符串，然后在仓库的 Secrets 中添加一个 Secret（例如命名为 `KEYSTORE_BASE64`）。
+   - 同时，在仓库 Secrets 中添加以下条目：
+     - `KEYSTORE_PASSWORD`（你的 keystore 密码）
+     - `KEY_ALIAS`（签名使用的别名）
+     - `KEY_PASSWORD`（你的密钥密码）
+
+   在工作流文件（如 `.github/workflows/build.yml`）中，配置环境变量及还原 keystore 文件的步骤示例如下：
+   ```yaml
+   env:
+     KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+     KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+     KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+   
+   steps:
+     - name: Setup Keystore
+       run: |
+         echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/keystore.jks
+       shell: bash
+   ```
+
+4. **构建命令**
+
+   配置完成后，在项目根目录下执行：
+   ```bash
+   flutter build apk --release
+   ```
+   成功构建后，生成的 APK 将位于 `build/app/outputs/flutter-apk/app-release.apk`。
+
+按照以上步骤配置后，即可生成并使用签名的 Android APK 用于发布或后续覆盖安装。

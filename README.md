@@ -295,3 +295,69 @@ This project wouldn't be possible without the inspiration and learning from thes
 - [wgh136/PicaComic](https://github.com/wgh136/PicaComic) - A well-structured Flutter comic application
 
 Many of the implementations and best practices in this project were learned from these repositories.
+
+### Android Signing Configuration
+
+Before building the Android version, you need to set up the signing information to generate a production-ready APK. Please follow these steps:
+
+1. **Generate a keystore file**
+
+   Navigate to the `android/app` directory and run the following command in your terminal (replace `<your_key_alias>` and other parameters with your own details):
+   ```bash
+   keytool -genkeypair -v -keystore keystore.jks -alias <your_key_alias> -keyalg RSA -keysize 2048 -validity 10000
+   ```
+   This command generates a `keystore.jks` file in the current directory. Ensure that the file is located in the `android/app` directory.
+
+2. **Configure signing information**
+
+   Make sure the signing configuration in `android/app/build.gradle` is set up as follows:
+   ```groovy
+   signingConfigs {
+       release {
+           storeFile file("keystore.jks")
+           storePassword System.getenv("KEYSTORE_PASSWORD") ?: project.findProperty("MY_KEYSTORE_PASSWORD")
+           keyAlias System.getenv("KEY_ALIAS") ?: project.findProperty("MY_KEY_ALIAS")
+           keyPassword System.getenv("KEY_PASSWORD") ?: project.findProperty("MY_KEY_PASSWORD")
+       }
+   }
+   ```
+   Also, ensure that your `android/gradle.properties` file includes the following placeholders:
+   ```properties
+   MY_KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD}
+   MY_KEY_ALIAS=${KEY_ALIAS}
+   MY_KEY_PASSWORD=${KEY_PASSWORD}
+   ```
+   This setup allows the signing credentials to be injected via system environment variables, or you can directly set actual values locally (recommended only for debugging purposes).
+
+3. **GitHub Actions Configuration**
+
+   To automatically build a signed APK in GitHub Actions, perform the following:
+   - Convert your `keystore.jks` file to a Base64-encoded string and add it as a repository Secret (for example, `KEYSTORE_BASE64`).
+   - Additionally, add the following Secrets to your repository:
+     - `KEYSTORE_PASSWORD` (your keystore password)
+     - `KEY_ALIAS` (the alias used for signing)
+     - `KEY_PASSWORD` (your key password)
+
+   In your GitHub Actions workflow (e.g., `.github/workflows/build.yml`), configure the environment variables and a step to decode the keystore as shown below:
+   ```yaml
+   env:
+     KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+     KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+     KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+   
+   steps:
+     - name: Setup Keystore
+       run: |
+         echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/keystore.jks
+       shell: bash
+   ```
+
+4. **Build Command**
+
+   Once everything is configured, build the release APK by running:
+   ```bash
+   flutter build apk --release
+   ```
+   The generated APK will be located at `build/app/outputs/flutter-apk/app-release.apk`.
+
+Following these steps will allow you to generate and use a signed Android APK suitable for release or update purposes.
