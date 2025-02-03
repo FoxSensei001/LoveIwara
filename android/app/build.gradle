@@ -27,9 +27,21 @@ android {
         versionName = flutter.versionName
     }
 
+    // 配置正式签名（正式构建时使用）
+    signingConfigs {
+        release {
+            // 这里的路径应该与 GitHub Action 解码后存放的路径一致
+            storeFile file("keystore.jks")
+            storePassword System.getenv("KEYSTORE_PASSWORD") ?: project.findProperty("MY_KEYSTORE_PASSWORD")
+            keyAlias System.getenv("KEY_ALIAS") ?: project.findProperty("MY_KEY_ALIAS")
+            keyPassword System.getenv("KEY_PASSWORD") ?: project.findProperty("MY_KEY_PASSWORD")
+        }
+    }
+
     buildTypes {
         release {
-            signingConfig signingConfigs.debug
+            // 正式构建时启用正式签名
+            signingConfig signingConfigs.release
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

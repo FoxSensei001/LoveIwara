@@ -28,6 +28,10 @@ jobs:
   build-android:
     if: ${{ inputs.build_android }}
     runs-on: ubuntu-latest
+    env:
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
     steps:
       - uses: actions/checkout@v4
@@ -44,6 +48,11 @@ jobs:
           flutter-version: '3.27.1'
           channel: 'stable'
           cache: true
+
+      - name: Setup Keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/keystore.jks
+        shell: bash
 
       - name: Get dependencies
         run: flutter pub get

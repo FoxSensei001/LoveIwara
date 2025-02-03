@@ -104,14 +104,20 @@ class _MyAppState extends State<MyApp> {
 
         // 如果使用动态颜色且系统支持动态颜色
         if (useDynamicColor && (lightDynamic != null && darkDynamic != null)) {
-          // 使用动态颜色前先调用 harmonized()，然后通过 copyWith 为表面色赋予默认值
-          final harmonizedLight = lightDynamic.harmonized();
-          final harmonizedDark = darkDynamic.harmonized();
+          // 使用动态颜色的 primary 作为 seed，通过 fromSeed 再 harmonized 生成完整颜色方案
+          final Color dynamicSeedLight = lightDynamic.primary;
+          final Color dynamicSeedDark = darkDynamic.primary;
           
-          lightColorScheme = harmonizedLight.copyWith(
+          lightColorScheme = ColorScheme.fromSeed(
+            seedColor: dynamicSeedLight,
+            brightness: Brightness.light,
+          ).harmonized().copyWith(
             surface: Colors.white, // 根据设计需求调整亮色表面色，使用 white 作为亮色背景
           );
-          darkColorScheme = harmonizedDark.copyWith(
+          darkColorScheme = ColorScheme.fromSeed(
+            seedColor: dynamicSeedDark,
+            brightness: Brightness.dark,
+          ).harmonized().copyWith(
             surface: Colors.black, // 根据设计需求调整暗色表面色，默认使用黑色
           );
           // 保存到常量中
