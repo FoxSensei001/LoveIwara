@@ -3,14 +3,13 @@ abstract class Routes {
   Routes._();
 
   static const HOME = _Paths.HOME;
-  static const POPULAR_VIDEOS =
-      ROOT; // /home/popular_videos
-  static const GALLERY = _Paths.HOME + _Paths.GALLERY;
-  static const SUBSCRIPTIONS = _Paths.HOME + _Paths.SUBSCRIPTIONS;
+  static const POPULAR_VIDEOS = _Paths.ROOT; // /home/popular_videos
+  static const GALLERY = _Paths.GALLERY;
+  static const SUBSCRIPTIONS = _Paths.SUBSCRIPTIONS;
   static String VIDEO_DETAIL(String videoId) => _Paths.VIDEO_DETAIL.replaceAll(':videoId', videoId);
   static String VIDEO_DETAIL_PREFIX = _Paths.VIDEO_DETAIL_PREFIX;
-  static String AUTHOR_PROFILE(String userName) => _Paths.HOME + _Paths.AUTHOR_PROFILE.replaceAll(':userName', userName);
-  static String GALLERY_DETAIL(String galleryId) => _Paths.HOME + _Paths.GALLERY_DETAIL.replaceAll(':galleryId', galleryId);
+  static String AUTHOR_PROFILE(String userName) => _Paths.AUTHOR_PROFILE.replaceAll(':userName', userName);
+  static String GALLERY_DETAIL(String galleryId) => _Paths.GALLERY_DETAIL.replaceAll(':galleryId', galleryId);
 
   static const LOGIN = _Paths.LOGIN;
   static const SETTINGS_PAGE = _Paths.SETTINGS_PAGE;
