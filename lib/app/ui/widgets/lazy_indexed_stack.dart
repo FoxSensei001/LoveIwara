@@ -17,6 +17,7 @@ class LazyIndexedStack extends StatefulWidget {
 
 class LazyIndexedStackState extends State<LazyIndexedStack> {
   late List<Widget?> _cache;
+  bool _isReleasing = false; // 防止重复释放
 
   @override
   void initState() {
@@ -29,31 +30,45 @@ class LazyIndexedStackState extends State<LazyIndexedStack> {
     if (_cache[index] != null) {
       return _cache[index]!;
     }
-    final child = widget.itemBuilders[index](context);
-    _cache[index] = child;
-    return child;
+    try {
+      final child = widget.itemBuilders[index](context);
+      _cache[index] = child;
+      return child;
+    } catch (e, stackTrace) {
+      // 如果构建失败，打印日志并返回错误显示的Widget
+      debugPrint("Error building widget at index $index: $e\n$stackTrace");
+      return Container(
+        color: Colors.red,
+        child: const Center(child: Text('Error building widget')),
+      );
+    }
   }
 
   /// 当系统内存紧张时，释放非当前显示页面的缓存
   void releaseNonCurrent() {
+    if (_isReleasing) return;
+    _isReleasing = true;
     for (int i = 0; i < _cache.length; i++) {
       if (i != widget.index) {
         _cache[i] = null;
       }
     }
-    if (mounted) {
-      setState(() {}); // 重建
-    }
+    // 延迟调用 setState，避免阻塞 UI 线程
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {});
+      }
+      _isReleasing = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     List<Widget> children = List.generate(widget.itemBuilders.length, (index) {
-      // 当前页面始终调用构建器，并返回缓存结果
       if (index == widget.index) {
         return _buildChild(index);
       }
-      // 如果缓存中有值则返回，没有则返回空容器
+      // 当缓存不存在时返回空容器
       return _cache[index] ?? const SizedBox.shrink();
     });
     return IndexedStack(
