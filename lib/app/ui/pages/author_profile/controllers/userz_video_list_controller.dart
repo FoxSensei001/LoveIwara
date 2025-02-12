@@ -1,79 +1,78 @@
 import 'package:get/get.dart';
-import 'package:i_iwara/app/models/page_data.model.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/models/video.model.dart';
+import 'package:i_iwara/app/services/video_service.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:oktoast/oktoast.dart';
+import 'package:loading_more_list/loading_more_list.dart';
 
-import '../../../../models/api_result.model.dart';
-import '../../../../models/video.model.dart';
-import '../../../../services/video_service.dart';
-
-class UserzVideoListController extends GetxController {
-  late VideoService _videoService;
+class UserzVideoListRepository extends LoadingMoreBase<Video> {
+  final VideoService _videoService = Get.find<VideoService>();
+  final String userId;
+  final String sortType;
   final Function({int? count})? onFetchFinished;
 
-  /// 参数
-  final Rxn<String> userId = Rxn<String>();
-  final Rxn<String> sort = Rxn<String>();
+  UserzVideoListRepository({
+    required this.userId,
+    required this.sortType,
+    this.onFetchFinished,
+    this.maxLength = 300,
+  });
 
-  final RxInt page = 0.obs;
-  final RxInt totalCnts = 0.obs;
-  final RxList<Video> videos = <Video>[].obs;
-  final RxBool isLoading = true.obs;
-  var hasMore = true.obs;
-  Worker? worker;
-  UserzVideoListController({this.onFetchFinished});
+  int _pageIndex = 0;
+  bool _hasMore = true;
+  bool forceRefresh = false;
+  final int maxLength;
 
   @override
-  void onInit() {
-    super.onInit();
-    _videoService = Get.find<VideoService>();
+  bool get hasMore => (_hasMore && length < maxLength) || forceRefresh;
 
-    // 当sort变化后，重置分页等参数
-    worker = ever(sort, (_) {
-      fetchVideos(refresh: true);
-    });
+  @override
+  Future<bool> refresh([bool notifyStateChanged = false]) async {
+    _hasMore = true;
+    _pageIndex = 0;
+    forceRefresh = !notifyStateChanged;
+    final bool result = await super.refresh(notifyStateChanged);
+    forceRefresh = false;
+    return result;
   }
 
   @override
-  void onClose() {
-    worker?.dispose();
-    super.onClose();
-  }
-
-  Future<void> fetchVideos({bool refresh = false}) async {
-    final tempPage = refresh ? 0 : page.value;
-
-    if (!hasMore.value && !refresh) return;
-
-    isLoading(true);
+  Future<bool> loadData([bool isLoadMoreAction = false]) async {
+    bool isSuccess = false;
     try {
-      ApiResult<PageData<Video>> response = await _videoService
-          .fetchVideosByParams(page: tempPage, limit: 20, params: {
-        'sort': sort.value,
-        'rating': 'all',
-        'user': userId.value,
-      });
+      final response = await _videoService.fetchVideosByParams(
+        page: _pageIndex,
+        limit: 20,
+        params: {
+          'sort': sortType,
+          'rating': 'all',
+          'user': userId,
+        },
+      );
 
-      LogUtils.d(
-          '[视频搜索controller] 查询参数: userId: ${userId.value}, sort: ${sort.value}, page: $tempPage');
+      LogUtils.d('[视频列表Repository] 查询参数: userId: $userId, sort: $sortType, page: $_pageIndex');
 
       if (!response.isSuccess) {
-        showToastWidget(MDToastWidget(message: response.message, type: MDToastType.error), position: ToastPosition.bottom);
-        return;
-      }
-      final newVideos = response.data!.results;
-
-      if (refresh) {
-        videos.clear();
+        throw Exception(response.message);
       }
 
-      videos.addAll(newVideos);
-      page.value = tempPage + 1;
-      hasMore.value = newVideos.isNotEmpty;
-      onFetchFinished?.call(count: response.data!.count);
-    } finally {
-      isLoading(false);
+      final videos = response.data!.results;
+
+      if (_pageIndex == 0) {
+        clear();
+        onFetchFinished?.call(count: response.data!.count);
+      }
+
+      for (final video in videos) {
+        add(video);
+      }
+
+      _hasMore = videos.isNotEmpty;
+      _pageIndex++;
+      isSuccess = true;
+    } catch (exception, stack) {
+      isSuccess = false;
+      LogUtils.e('加载视频列表失败', error: exception, stack: stack);
     }
+    return isSuccess;
   }
 }

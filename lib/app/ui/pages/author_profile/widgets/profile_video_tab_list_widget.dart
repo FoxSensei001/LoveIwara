@@ -1,11 +1,9 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:get/get.dart';
+import 'package:i_iwara/app/models/video.model.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-
-import '../../../../models/video.model.dart';
-import '../../popular_media_list/widgets/video_tile_list_item_widget.dart';
 import '../controllers/userz_video_list_controller.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -24,14 +22,12 @@ class ProfileVideoTabListWidget extends StatefulWidget {
   });
 
   @override
-  _ProfileVideoTabListWidgetState createState() =>
-      _ProfileVideoTabListWidgetState();
+  _ProfileVideoTabListWidgetState createState() => _ProfileVideoTabListWidgetState();
 }
 
 class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
     with AutomaticKeepAliveClientMixin {
-  final String uniqueKey = UniqueKey().toString();
-  late UserzVideoListController videoListController;
+  late UserzVideoListRepository videoListRepository;
   late ScrollController _tabBarScrollController;
 
   String getSort() {
@@ -55,29 +51,33 @@ class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
   void initState() {
     super.initState();
     widget.tc.addListener(_handleTabSelection);
-    videoListController = Get.put(
-      UserzVideoListController(onFetchFinished: widget.onFetchFinished),
-      tag: uniqueKey,
-    );
     _tabBarScrollController = ScrollController();
+    _initRepository();
+  }
+
+  void _initRepository() {
+    videoListRepository = UserzVideoListRepository(
+      userId: widget.userId,
+      sortType: getSort(),
+      onFetchFinished: widget.onFetchFinished,
+    );
     LogUtils.d('[详情视频列表] 初始化，当前的用户ID是：${widget.userId}, 排序是：${getSort()}');
-    videoListController.userId.value = widget.userId;
-    videoListController.sort.value = getSort();
   }
 
   @override
   void dispose() {
     widget.tc.removeListener(_handleTabSelection);
-    Get.delete<UserzVideoListController>(tag: uniqueKey);
+    videoListRepository.dispose();
     _tabBarScrollController.dispose();
     super.dispose();
   }
 
-  // 获取当前选择的
   void _handleTabSelection() {
     if (widget.tc.indexIsChanging) {
-      videoListController.sort.value = getSort();
-
+      setState(() {
+        videoListRepository.dispose();
+        _initRepository();
+      });
       LogUtils.d('[详情视频列表] 切换排序，当前选择的是：${widget.tc.index}, 排序是：${getSort()}');
     }
   }
@@ -182,85 +182,34 @@ class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
                 ),
               ),
             ),
-            // 一个刷新按钮
-            Obx(() => videoListController.isLoading.value
-                ? const IconButton(icon: Icon(Icons.refresh), onPressed: null)
-                    .animate(
-                      onPlay: (controller) => controller.repeat(), // loop
-                    )
-                    .addEffect(
-                      const RotateEffect(
-                        duration: Duration(seconds: 1),
-                        curve: Curves.linear,
-                      ),
-                    )
-                : IconButton(
-                    icon: const Icon(Icons.refresh),
-                    onPressed: () {
-                      videoListController.fetchVideos(refresh: true);
-                    },
-                  )),
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: () => videoListRepository.refresh(true),
+            ),
           ],
         ),
         Expanded(
-          child: Obx(() => _buildVideoList()),
-        )
-      ],
-    );
-  }
-
-  // 构建视频列表视图
-  Widget _buildVideoList() {
-    return NotificationListener<ScrollNotification>(
-      onNotification: (scrollInfo) {
-        if (!videoListController.isLoading.value &&
-            scrollInfo.metrics.pixels >=
-                scrollInfo.metrics.maxScrollExtent - 100 &&
-            videoListController.hasMore.value) {
-          // 接近底部时加载更多评论
-          videoListController.fetchVideos();
-        }
-        return false;
-      },
-      child: ListView.separated(
-        physics: const AlwaysScrollableScrollPhysics(),
-        shrinkWrap: true,
-        itemCount: videoListController.videos.length + 1,
-        separatorBuilder: (context, index) => const Divider(height: 1),
-        itemBuilder: (context, index) {
-          if (index < videoListController.videos.length) {
-            Video video = videoListController.videos[index];
-            return VideoTileListItem(video: video);
-          } else {
-            // 最后一项显示加载指示器或结束提示
-            return _buildLoadMoreIndicator(context);
-          }
-        },
-      ),
-    );
-  }
-
-  // 构建加载更多指示器
-  Widget _buildLoadMoreIndicator(BuildContext context) {
-    final t = slang.Translations.of(context);
-    if (videoListController.isLoading.value) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 16.0),
-        child: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    } else {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16.0),
-        child: Center(
-          child: Text(
-            t.authorProfile.noMoreDatas,
-            style: const TextStyle(color: Colors.grey),
+          child: MediaListView<Video>(
+            sourceList: videoListRepository,
+            emptyIcon: Icons.video_library_outlined,
+            itemBuilder: (context, video, index) {
+              return Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
+                  vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
+                ),
+                child: VideoCardListItemWidget(
+                  video: video,
+                  width: MediaQuery.of(context).size.width <= 600 
+                      ? MediaQuery.of(context).size.width / 2 - 8 
+                      : 200,
+                ),
+              );
+            },
           ),
         ),
-      );
-    }
+      ],
+    );
   }
 
   @override

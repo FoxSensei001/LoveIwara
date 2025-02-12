@@ -84,7 +84,7 @@ class TranslationLanguageSelector extends StatelessWidget {
                 ),
                 const SizedBox(width: 4),
                 Icon(
-                  Icons.keyboard_double_arrow_down,
+                  Icons.keyboard_double_arrow_down_rounded,
                   size: 20,
                   color: Theme.of(context).colorScheme.primary,
                 ),

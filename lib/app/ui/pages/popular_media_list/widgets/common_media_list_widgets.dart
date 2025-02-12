@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/shimmer_card.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -16,15 +17,22 @@ Widget? buildIndicator(
     case IndicatorStatus.none:
       return null;
     case IndicatorStatus.loadingMoreBusying:
-      return Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
-          vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
-        ),
-        child: Shimmer.fromColors(
-          baseColor: Colors.grey[300]!,
-          highlightColor: Colors.grey[100]!,
-          child: buildShimmerItem(MediaQuery.of(context).size.width <= 600 ? 180 : 200),
+      return Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: MediaQuery.of(context).size.width <= 600 ? 180 : 200,
+            crossAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
+            mainAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
+            childAspectRatio: 1 / 1.2,
+          ),
+          itemCount: MediaQuery.of(context).size.width <= 600 ? 2 : 6,
+          itemBuilder: (context, index) => buildShimmerItem(
+            MediaQuery.of(context).size.width <= 600 ? 180 : 200,
+          ),
         ),
       );
     case IndicatorStatus.fullScreenBusying:
@@ -38,15 +46,12 @@ Widget? buildIndicator(
             maxCrossAxisExtent: MediaQuery.of(context).size.width <= 600 ? 180 : 200,
             crossAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
             mainAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
-            childAspectRatio: 1,
+            childAspectRatio: 1 / 1.2,
           ),
-          padding: EdgeInsets.only(
-            left: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
-            right: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
-            top: MediaQuery.of(context).size.width <= 600 ? 2.0 : 3.0,
+          itemCount: 8,
+          itemBuilder: (context, index) => buildShimmerItem(
+            MediaQuery.of(context).size.width <= 600 ? 180 : 200,
           ),
-          itemCount: 6,
-          itemBuilder: (context, index) => buildShimmerItem(MediaQuery.of(context).size.width <= 600 ? 180 : 200),
         ),
       );
       return SliverFillRemaining(child: finalWidget);
@@ -178,41 +183,7 @@ Widget buildShimmerItem(double width) {
   return Shimmer.fromColors(
     baseColor: Colors.grey[300]!,
     highlightColor: Colors.grey[100]!,
-    child: SizedBox(
-      width: width,
-      height: width,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: width,
-            height: width,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Container(
-            width: width * 0.8,
-            height: 16,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Container(
-            width: width * 0.6,
-            height: 12,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
-        ],
-      ),
-    ),
+    child: ShimmerCard(width: width),
   );
 }
 

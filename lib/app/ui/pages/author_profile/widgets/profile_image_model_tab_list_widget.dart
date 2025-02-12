@@ -1,14 +1,12 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:get/get.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
 import '../../../../models/image.model.dart';
-import '../../popular_media_list/widgets/image_model_tile_list_item_widget.dart';
 import '../controllers/userz_image_model_list_controller.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/image_model_card_list_item_widget.dart';
 
 class ProfileImageModelTabListWidget extends StatefulWidget {
   final String tabKey;
@@ -25,14 +23,12 @@ class ProfileImageModelTabListWidget extends StatefulWidget {
   });
 
   @override
-  _ProfileImageModelTabListWidgetState createState() =>
-      _ProfileImageModelTabListWidgetState();
+  _ProfileImageModelTabListWidgetState createState() => _ProfileImageModelTabListWidgetState();
 }
 
 class _ProfileImageModelTabListWidgetState extends State<ProfileImageModelTabListWidget>
     with AutomaticKeepAliveClientMixin {
-  final String uniqueKey = UniqueKey().toString();
-  late UserzImageModelListController imageModelListController;
+  late UserzImageModelListRepository imageListRepository;
   late ScrollController _tabBarScrollController;
 
   String getSort() {
@@ -56,29 +52,33 @@ class _ProfileImageModelTabListWidgetState extends State<ProfileImageModelTabLis
   void initState() {
     super.initState();
     widget.tc.addListener(_handleTabSelection);
-    imageModelListController = Get.put(
-      UserzImageModelListController(onFetchFinished: widget.onFetchFinished),
-      tag: uniqueKey,
-    );
     _tabBarScrollController = ScrollController();
+    _initRepository();
+  }
+
+  void _initRepository() {
+    imageListRepository = UserzImageModelListRepository(
+      userId: widget.userId,
+      sortType: getSort(),
+      onFetchFinished: widget.onFetchFinished,
+    );
     LogUtils.d('[详情图片列表] 初始化，当前的用户ID是：${widget.userId}, 排序是：${getSort()}');
-    imageModelListController.userId.value = widget.userId;
-    imageModelListController.sort.value = getSort();
   }
 
   @override
   void dispose() {
     widget.tc.removeListener(_handleTabSelection);
-    Get.delete<UserzImageModelListController>(tag: uniqueKey);
+    imageListRepository.dispose();
     _tabBarScrollController.dispose();
     super.dispose();
   }
 
-  // 获取当前选择的
   void _handleTabSelection() {
     if (widget.tc.indexIsChanging) {
-      imageModelListController.sort.value = getSort();
-
+      setState(() {
+        imageListRepository.dispose();
+        _initRepository();
+      });
       LogUtils.d('[详情图片列表] 切换排序，当前选择的是：${widget.tc.index}, 排序是：${getSort()}');
     }
   }
@@ -98,8 +98,8 @@ class _ProfileImageModelTabListWidgetState extends State<ProfileImageModelTabLis
 
   @override
   Widget build(BuildContext context) {
-    final t = slang.Translations.of(context);
     super.build(context);
+    final t = slang.Translations.of(context);
     final TabBar secondaryTabBar = TabBar(
       isScrollable: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -161,6 +161,7 @@ class _ProfileImageModelTabListWidgetState extends State<ProfileImageModelTabLis
         ),
       ],
     );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -183,86 +184,34 @@ class _ProfileImageModelTabListWidgetState extends State<ProfileImageModelTabLis
                 ),
               ),
             ),
-            // 一个刷新按钮
-            Obx(() => imageModelListController.isLoading.value
-                ? const IconButton(icon: Icon(Icons.refresh), onPressed: null)
-                .animate(
-              onPlay: (controller) => controller.repeat(), // loop
-            )
-                .addEffect(
-              const RotateEffect(
-                duration: Duration(seconds: 1),
-                curve: Curves.linear,
-              ),
-            )
-                : IconButton(
+            IconButton(
               icon: const Icon(Icons.refresh),
-              onPressed: () {
-                imageModelListController.fetchImageModels(refresh: true);
-              },
-            )),
-            const SizedBox(width: 16),
+              onPressed: () => imageListRepository.refresh(true),
+            ),
           ],
         ),
         Expanded(
-          child: Obx(() => _buildImageModelList()),
-        )
-      ],
-    );
-  }
-
-  // 构建图片列表视图
-  Widget _buildImageModelList() {
-    return NotificationListener<ScrollNotification>(
-      onNotification: (scrollInfo) {
-        if (!imageModelListController.isLoading.value &&
-            scrollInfo.metrics.pixels >=
-                scrollInfo.metrics.maxScrollExtent - 100 &&
-            imageModelListController.hasMore.value) {
-          // 接近底部时加载更多评论
-          imageModelListController.fetchImageModels();
-        }
-        return false;
-      },
-      child: ListView.separated(
-        physics: const AlwaysScrollableScrollPhysics(),
-        shrinkWrap: true,
-        itemCount: imageModelListController.imageModels.length + 1,
-        separatorBuilder: (context, index) => const Divider(height: 1),
-        itemBuilder: (context, index) {
-          if (index < imageModelListController.imageModels.length) {
-            ImageModel imageModel = imageModelListController.imageModels[index];
-            return ImageModelTileListItem(imageModel: imageModel);
-          } else {
-            // 最后一项显示加载指示器或结束提示
-            return _buildLoadMoreIndicator(context);
-          }
-        },
-      ),
-    );
-  }
-
-  // 构建加载更多指示器
-  Widget _buildLoadMoreIndicator(BuildContext context) {
-    final t = slang.Translations.of(context);
-    if (imageModelListController.isLoading.value) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 16.0),
-        child: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    } else {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16.0),
-        child: Center(
-          child: Text(
-            t.authorProfile.noMoreDatas,
-            style: const TextStyle(color: Colors.grey),
+          child: MediaListView<ImageModel>(
+            sourceList: imageListRepository,
+            emptyIcon: Icons.image_outlined,
+            itemBuilder: (context, image, index) {
+              return Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
+                  vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
+                ),
+                child: ImageModelCardListItemWidget(
+                  imageModel: image,
+                  width: MediaQuery.of(context).size.width <= 600 
+                      ? MediaQuery.of(context).size.width / 2 - 8 
+                      : 200,
+                ),
+              );
+            },
           ),
         ),
-      );
-    }
+      ],
+    );
   }
 
   @override

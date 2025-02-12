@@ -45,36 +45,39 @@ class SubscriptionPostListState extends State<SubscriptionPostList> with Automat
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return LoadingMoreCustomScrollView(
-      slivers: <Widget>[
-        LoadingMoreSliverList(
-          SliverListConfig<PostModel>(
-            extendedListDelegate:
-                SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: MediaQuery.of(context).size.width <= 600 ? 400 : 600,
-              crossAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
-              mainAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
+    return RefreshIndicator(
+      onRefresh: refresh,
+      child: LoadingMoreCustomScrollView(
+        slivers: <Widget>[
+          LoadingMoreSliverList(
+            SliverListConfig<PostModel>(
+              extendedListDelegate:
+                  SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: MediaQuery.of(context).size.width <= 600 ? 400 : 600,
+                crossAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
+                mainAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
+              ),
+              itemBuilder: (BuildContext context, PostModel post, int index) {
+                return Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 4,
+                  ),
+                  child: PostCardListItemWidget(post: post),
+                );
+              },
+              sourceList: listSourceRepository,
+              padding: EdgeInsets.only(
+                left: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
+                right: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
+                top: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
+                bottom: Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0,
+              ),
+              lastChildLayoutType: LastChildLayoutType.foot,
+              indicatorBuilder: _buildIndicator,
             ),
-            itemBuilder: (BuildContext context, PostModel post, int index) {
-              return Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 4,
-                ),
-                child: PostCardListItemWidget(post: post),
-              );
-            },
-            sourceList: listSourceRepository,
-            padding: EdgeInsets.only(
-              left: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
-              right: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
-              top: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
-              bottom: Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0,
-            ),
-            lastChildLayoutType: LastChildLayoutType.foot,
-            indicatorBuilder: _buildIndicator,
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

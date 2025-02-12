@@ -41,21 +41,24 @@ class SubscriptionVideoListState extends State<SubscriptionVideoList> with Autom
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return MediaListView<Video>(
-      sourceList: listSourceRepository,
-      emptyIcon: Icons.video_library_outlined,
-      itemBuilder: (context, video, index) {
-        return Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
-            vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
-          ),
-          child: VideoCardListItemWidget(
-            video: video,
-            width: MediaQuery.of(context).size.width <= 600 ? MediaQuery.of(context).size.width / 2 - 8 : 200,
-          ),
-        );
-      },
+    return RefreshIndicator(
+      onRefresh: refresh,
+      child: MediaListView<Video>(
+        sourceList: listSourceRepository,
+        emptyIcon: Icons.video_library_outlined,
+        itemBuilder: (context, video, index) {
+          return Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
+              vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
+            ),
+            child: VideoCardListItemWidget(
+              video: video,
+              width: MediaQuery.of(context).size.width <= 600 ? MediaQuery.of(context).size.width / 2 - 8 : 200,
+            ),
+          );
+        },
+      ),
     );
   }
 }

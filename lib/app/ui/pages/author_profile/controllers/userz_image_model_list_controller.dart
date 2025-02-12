@@ -4,6 +4,7 @@ import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:loading_more_list/loading_more_list.dart';
 
 import '../../../../models/api_result.model.dart';
 import '../../../../models/image.model.dart';
@@ -76,5 +77,78 @@ class UserzImageModelListController extends GetxController {
     } finally {
       isLoading(false);
     }
+  }
+}
+
+class UserzImageModelListRepository extends LoadingMoreBase<ImageModel> {
+  final GalleryService _imageModelService = Get.find<GalleryService>();
+  final String userId;
+  final String sortType; // 使用 sortType 避免命名冲突
+  final Function({int? count})? onFetchFinished;
+
+  UserzImageModelListRepository({
+    required this.userId,
+    required this.sortType,
+    this.onFetchFinished,
+    this.maxLength = 300,
+  });
+
+  int _pageIndex = 0;
+  bool _hasMore = true;
+  bool forceRefresh = false;
+  final int maxLength;
+
+  @override
+  bool get hasMore => (_hasMore && length < maxLength) || forceRefresh;
+
+  @override
+  Future<bool> refresh([bool notifyStateChanged = false]) async {
+    _hasMore = true;
+    _pageIndex = 0;
+    forceRefresh = !notifyStateChanged;
+    final bool result = await super.refresh(notifyStateChanged);
+    forceRefresh = false;
+    return result;
+  }
+
+  @override
+  Future<bool> loadData([bool isLoadMoreAction = false]) async {
+    bool isSuccess = false;
+    try {
+      final response = await _imageModelService.fetchImageModelsByParams(
+        page: _pageIndex,
+        limit: 20,
+        params: {
+          'sort': sortType,
+          'rating': 'all',
+          'user': userId,
+        },
+      );
+
+      LogUtils.d('[图片列表Repository] 查询参数: userId: $userId, sort: $sortType, page: $_pageIndex');
+
+      if (!response.isSuccess) {
+        throw Exception(response.message);
+      }
+
+      final images = response.data!.results;
+
+      if (_pageIndex == 0) {
+        clear();
+        onFetchFinished?.call(count: response.data!.count);
+      }
+
+      for (final image in images) {
+        add(image);
+      }
+
+      _hasMore = images.isNotEmpty;
+      _pageIndex++;
+      isSuccess = true;
+    } catch (exception, stack) {
+      isSuccess = false;
+      LogUtils.e('加载图片列表失败', error: exception, stack: stack);
+    }
+    return isSuccess;
   }
 }

@@ -122,7 +122,7 @@ class _TranslationDialogState extends State<TranslationDialog> {
         Container(
           width: double.infinity,
           constraints: title == t.common.originalText
-              ? BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.3)
+              ? BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.15)
               : null,
           decoration: BoxDecoration(
             border: Border.all(
