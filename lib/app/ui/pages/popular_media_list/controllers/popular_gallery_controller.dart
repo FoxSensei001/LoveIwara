@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/page_data.model.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/base_media_repository.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/app/ui/widgets/error_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
@@ -13,10 +14,21 @@ import 'package:oktoast/oktoast.dart';
 import '../../../../../utils/logger_utils.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../../services/gallery_service.dart';
+import 'base_media_controller.dart';
+import 'popular_gallery_repository.dart';
 
-class PopularGalleryController extends GetxController {
-  final String sortId; // 当前controller的排序
-  final GalleryService _galleryService = Get.find<GalleryService>(); // 图片服务
+class PopularGalleryController extends BaseMediaController<ImageModel> {
+  final GalleryService _galleryService = Get.find<GalleryService>();
+
+  PopularGalleryController({required super.sortId});
+
+  @override
+  BaseMediaRepository<ImageModel> createRepository() {
+    return PopularGalleryRepository(
+      galleryService: _galleryService,
+      sortId: sortId,
+    );
+  }
 
   final RxList<ImageModel> images = <ImageModel>[].obs; // 图片列表
   final RxBool isLoading = false.obs; // 是否正在加载
@@ -29,8 +41,6 @@ class PopularGalleryController extends GetxController {
 
   final int pageSize = 20; // 每页数据量
   int page = 0; // 当前页码
-
-  PopularGalleryController({required this.sortId});
 
   /// 重置控制器状态
   void reset() {
@@ -101,5 +111,4 @@ class PopularGalleryController extends GetxController {
       isInit.value = false;
     }
   }
-
 }

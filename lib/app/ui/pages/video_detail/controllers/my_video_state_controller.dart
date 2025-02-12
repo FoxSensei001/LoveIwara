@@ -242,12 +242,19 @@ class MyVideoStateController extends GetxController
 
   void _setupPiPListener() {
     if (GetPlatform.isAndroid) {
-      _pipStatusSubscription = Floating().pipStatusStream.listen((status) {
-        if (status == PiPStatus.enabled) {
-          if (!isPiPMode.value) enterPiPMode();
-        } else {
-          if (isPiPMode.value) exitPiPMode();
-        }
+      // 添加防抖
+      Timer? debounceTimer;
+      _pipStatusSubscription = Floating().pipStatusStream
+        .distinct() // 避免重复状态
+        .listen((status) {
+          debounceTimer?.cancel();
+          debounceTimer = Timer(const Duration(milliseconds: 100), () {
+            if (status == PiPStatus.enabled && !isPiPMode.value) {
+              enterPiPMode();
+            } else if (status != PiPStatus.enabled && isPiPMode.value) {
+              exitPiPMode();
+            }
+          });
       });
     }
   }

@@ -1,20 +1,24 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/image_model_card_list_item_widget.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/popular_media_search_config_widget.dart';
+import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:i_iwara/app/ui/widgets/common_header.dart';
+import 'package:loading_more_list/loading_more_list.dart';
+import 'package:shimmer/shimmer.dart';
+
 import '../../../models/sort.model.dart';
 import '../../../models/tag.model.dart';
 import '../../widgets/top_padding_height_widget.dart';
-import '../search/search_dialog.dart';
 import 'controllers/popular_gallery_controller.dart';
-import 'widgets/popular_media_search_config_widget.dart';
+import 'controllers/popular_gallery_repository.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:i_iwara/app/ui/widgets/common_header.dart';
-import 'package:i_iwara/app/ui/widgets/shimmer_loading_widget.dart';
-import 'package:i_iwara/app/ui/widgets/common_list_view_helper.dart';
+import 'widgets/media_tab_view.dart';
 
 class PopularGalleryListPage extends StatefulWidget {
   final List<Sort> sorts = CommonConstants.mediaSorts;
@@ -26,11 +30,15 @@ class PopularGalleryListPage extends StatefulWidget {
 }
 
 class _PopularGalleryListPageState extends State<PopularGalleryListPage>
-    with TickerProviderStateMixin {
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late ScrollController _tabBarScrollController;
   final List<GlobalKey> _tabKeys = [];
+
   final UserService userService = Get.find<UserService>();
+
+  final Map<SortId, PopularGalleryRepository> _repositories = {};
+  final Map<SortId, PopularGalleryController> _controllers = {};
 
   // 查询参数
   List<Tag> tags = [];
@@ -40,23 +48,29 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
   @override
   void initState() {
     super.initState();
+    for (var sort in widget.sorts) {
+      _tabKeys.add(GlobalKey());
+      final controller = Get.put(PopularGalleryController(sortId: sort.id.name), tag: sort.id.name);
+      _controllers[sort.id] = controller;
+      _repositories[sort.id] = controller.repository as PopularGalleryRepository;
+    }
     _tabController = TabController(length: widget.sorts.length, vsync: this);
     _tabBarScrollController = ScrollController();
 
-    for (var sort in widget.sorts) {
-      _tabKeys.add(GlobalKey());
-      Get.put(PopularGalleryController(sortId: sort.id.name),
-          tag: sort.id.name);
-    }
-
-    // 取出初始标签页的controller
-    var initialSortId = widget.sorts[_tabController.index].id;
-    var initialController =
-        Get.find<PopularGalleryController>(tag: initialSortId.name);
-    initialController.fetchImageModels();
-
-    // 添加切换标签页的监听器
     _tabController.addListener(_onTabChange);
+  }
+
+  @override
+  void dispose() {
+    _tabController.removeListener(_onTabChange);
+    _tabController.dispose();
+    _tabBarScrollController.dispose();
+    for (var controller in _controllers.values) {
+      Get.delete<PopularGalleryController>(tag: controller.sortId);
+    }
+    _controllers.clear();
+    _repositories.clear();
+    super.dispose();
   }
 
   // 设置查询参数
@@ -70,60 +84,39 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
 
     // 设置每个controller的查询参数并重置数据
     for (var sort in widget.sorts) {
-      var controller = Get.find<PopularGalleryController>(tag: sort.id.name);
-      controller.searchTagIds = tags.map((e) => e.id).toList();
-      controller.searchDate = year;
-      controller.searchRating = rating;
-      // 重置controller状态
-      controller.reset();
-      // 如果是当前显示的tab，则立即加载新数据
-      if (sort.id == widget.sorts[_tabController.index].id) {
-        controller.fetchImageModels();
-      }
+      var controller = _controllers[sort.id]!;
+      controller.updateSearchParams(
+        searchTagIds: tags.map((e) => e.id).toList(),
+        searchDate: year,
+        searchRating: rating,
+      );
     }
   }
 
   void _onTabChange() {
-    // 加载数据
-    var sortId = widget.sorts[_tabController.index].id;
-    var controller = Get.find<PopularGalleryController>(tag: sortId.name);
-    // 如果是在初始化状态并且不是正在加载，则加载数据
-    if (controller.isInit.value && !controller.isLoading.value) {
-      controller.fetchImageModels(refresh: true);
-    }
-    // 滚动到选中的Tab
     _scrollToSelectedTab();
   }
 
   void _scrollToSelectedTab() {
-    // 获取当前选中的tab的GlobalKey
     final GlobalKey currentTabKey = _tabKeys[_tabController.index];
-
-    // 获取tab的RenderBox
     final RenderBox? renderBox =
         currentTabKey.currentContext?.findRenderObject() as RenderBox?;
 
     if (renderBox != null) {
-      // 获取tab在ScrollView中的位置
       final position = renderBox.localToGlobal(Offset.zero);
-
-      // 计算需要滚动的位置
       final screenWidth = MediaQuery.of(context).size.width;
       final tabWidth = renderBox.size.width;
 
-      // 计算目标滚动位置（使tab居中）
       final targetScroll = _tabBarScrollController.offset +
           position.dx -
           (screenWidth / 2) +
           (tabWidth / 2);
 
-      // 确保滚动位置在有效范围内
       final double finalScroll = targetScroll.clamp(
         0.0,
         _tabBarScrollController.position.maxScrollExtent,
       );
 
-      // 使用动画滚动到目标位置
       _tabBarScrollController.animateTo(
         finalScroll,
         duration: const Duration(milliseconds: 300),
@@ -146,18 +139,6 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
     }
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    _tabController.removeListener(_onTabChange);
-    _tabController.dispose();
-    _tabBarScrollController.dispose();
-    // 清理所有的controller
-    for (var sort in widget.sorts) {
-      Get.delete<PopularGalleryController>(tag: sort.id.name);
-    }
-  }
-
   // 打开搜索配置弹窗
   void _openParamsModal() {
     Get.dialog(PopularMediaSearchConfig(
@@ -176,17 +157,13 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
       body: Column(
         children: [
           TopPaddingHeightWidget(),
-          // 用抽离后的 CommonHeader 替换原有的头像和搜索框行
           const CommonHeader(
             searchSegment: SearchSegment.image,
             avatarRadius: 20,
           ),
-          // 一行，显示TabBar和筛选按钮
           Row(
             children: [
-              // TabBar
               Expanded(
-                // 支持鼠标滚动 以及 tabbar 变动后位置调整
                 child: MouseRegion(
                   child: Listener(
                     onPointerSignal: (pointerSignal) {
@@ -210,7 +187,7 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
                           int index = entry.key;
                           Sort sort = entry.value;
                           return Container(
-                            key: _tabKeys[index], // 使用GlobalKey
+                            key: _tabKeys[index],
                             child: Tab(
                               child: Row(
                                 children: [
@@ -231,9 +208,8 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
                 icon: const Icon(Icons.refresh),
                 onPressed: () {
                   var sortId = widget.sorts[_tabController.index].id;
-                  var controller =
-                      Get.find<PopularGalleryController>(tag: sortId.name);
-                  controller.fetchImageModels(refresh: true);
+                  var repository = _repositories[sortId]!;
+                  repository.refresh(true);
                 },
               ),
               IconButton(
@@ -242,126 +218,19 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
               ),
             ],
           ),
-          // 移除 EasyRefresh,直接使用 TabBarView
           Expanded(
             child: TabBarView(
               controller: _tabController,
               children: widget.sorts.map((sort) {
-                return KeepAliveTabView(
-                  controller:
-                      Get.find<PopularGalleryController>(tag: sort.id.name),
+                return MediaTabView<ImageModel>(
+                  repository: _repositories[sort.id]!,
+                  emptyIcon: Icons.image_outlined,
                 );
               }).toList(),
             ),
           ),
         ],
       ),
-    );
-  }
-}
-
-// 单独抽取出来的TabView，用于保持 滚动状态
-class KeepAliveTabView extends StatefulWidget {
-  final PopularGalleryController controller;
-
-  const KeepAliveTabView({super.key, required this.controller});
-
-  @override
-  _KeepAliveTabViewState createState() => _KeepAliveTabViewState();
-}
-
-class _KeepAliveTabViewState extends State<KeepAliveTabView>
-    with AutomaticKeepAliveClientMixin {
-  @override
-  bool get wantKeepAlive => true;
-
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final int columns = calculateColumns(constraints.maxWidth);
-
-        return NotificationListener<ScrollNotification>(
-          onNotification: (scrollInfo) {
-            if (!widget.controller.isLoading.value &&
-                scrollInfo.metrics.pixels >=
-                    scrollInfo.metrics.maxScrollExtent - 100 &&
-                !widget.controller.isInit.value) {
-              widget.controller.fetchImageModels();
-            }
-            return false;
-          },
-          child: Obx(
-            () {
-              if (widget.controller.errorWidget.value != null) {
-                return widget.controller.errorWidget.value!;
-              } else if (widget.controller.isLoading.value &&
-                  widget.controller.images.isEmpty) {
-                return _buildShimmerLoading(columns, constraints.maxWidth);
-              } else if (!widget.controller.isInit.value &&
-                  widget.controller.images.isEmpty) {
-                return buildEmptyView(
-                  context: context,
-                  emptyIcon: Icons.image_not_supported,
-                  noContentText: slang.Translations.of(context).common.noContent,
-                  onRefresh: () { widget.controller.fetchImageModels(refresh: true); },
-                );
-              } else {
-                final itemCount =
-                    (widget.controller.images.length / columns).ceil() + 1;
-
-                return ListView.builder(
-                  padding: EdgeInsets.zero,
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  itemCount: itemCount,
-                  itemBuilder: (context, index) {
-                    if (index < itemCount - 1) {
-                      return _buildRow(index, columns, constraints.maxWidth);
-                    } else {
-                      return buildLoadMoreIndicator(context, widget.controller.hasMore);
-                    }
-                  },
-                );
-              }
-            },
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildRow(int index, int columns, double maxWidth) {
-    final startIndex = index * columns;
-    final endIndex =
-        (startIndex + columns).clamp(0, widget.controller.images.length);
-    final rowItems = widget.controller.images.sublist(startIndex, endIndex);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: rowItems
-            .map((imageModel) => Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                    child: ImageModelCardListItemWidget(
-                      imageModel: imageModel,
-                      width: maxWidth / columns - 8,
-                    ),
-                  ),
-                ))
-            .toList(),
-      ),
-    );
-  }
-
-  // 添加 shimmer 相关的组件方法
-  Widget _buildShimmerLoading(int columns, double maxWidth) {
-    return ShimmerLoadingWidget(
-      columns: columns,
-      totalWidth: maxWidth,
     );
   }
 }

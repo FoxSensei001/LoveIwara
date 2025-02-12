@@ -4,6 +4,7 @@ import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 import '../../../../../common/constants.dart';
 
@@ -57,7 +58,6 @@ class ImageModelCardListItemWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildTitle(textTheme, isNarrowScreen),
-              const SizedBox(height: 2),
               _buildTimeInfo(textTheme, context),
               SizedBox(height: isNarrowScreen ? 4 : 8),
               _buildAuthorInfo(textTheme, context),
@@ -68,23 +68,20 @@ class ImageModelCardListItemWidget extends StatelessWidget {
     );
   }
 
-  // 视频缩略图
   Widget _buildThumbnail(BuildContext context) {
-    final bool isNarrowScreen = MediaQuery.of(context).size.width < 600;
-    
     return Stack(
       fit: StackFit.expand,
       children: [
         ClipRRect(
-          borderRadius: BorderRadius.circular(isNarrowScreen ? 8 : 12),
+          borderRadius: BorderRadius.circular(12),
           child: CachedNetworkImage(
             imageUrl: imageModel.thumbnailUrl,
             fit: BoxFit.cover,
             placeholder: (context, url) => _buildPlaceholder(),
             errorWidget: (context, url, error) => Container(
-                    color: Colors.grey[200],
-                    child: Icon(Icons.image_not_supported, size: 40, color: Colors.grey[600])
-                  ),
+              color: Colors.grey[200],
+              child: Icon(Icons.image_not_supported, size: 40, color: Colors.grey[600])
+            ),
           ),
         ),
         if (imageModel.rating == 'ecchi')
@@ -93,23 +90,21 @@ class ImageModelCardListItemWidget extends StatelessWidget {
             bottom: 0,
             child: _buildRatingTag(context),
           ),
-        // 左下角显示图片数量
         Positioned(
-            right: 0,
-            top: 0,
-            child: _buildImageNums(context, imageModel.numImages)),
-        // 右下角显示观看数量
+          right: 0,
+          top: 0,
+          child: _buildImageNums(context, imageModel.numImages),
+        ),
         Positioned(
           right: 0,
           bottom: 0,
           child: _buildViewsNums(context, imageModel.numViews),
         ),
-        // 左上角显示点赞数量
         Positioned(
           left: 0,
           top: 0,
           child: _buildLikeNums(context, imageModel.numLikes),
-        )
+        ),
       ],
     );
   }
@@ -117,18 +112,13 @@ class ImageModelCardListItemWidget extends StatelessWidget {
   Widget _buildPlaceholder() => Container(color: Colors.grey[300]);
 
   Widget _buildRatingTag(BuildContext context) {
-    final bool isNarrowScreen = MediaQuery.of(context).size.width < 600;
-    
     return ClipRRect(
-      borderRadius: BorderRadius.only(
-        topRight: Radius.circular(isNarrowScreen ? 10 : 14),
-        bottomLeft: Radius.circular(isNarrowScreen ? 8 : 12),
+      borderRadius: const BorderRadius.only(
+        topRight: Radius.circular(8),
+        bottomLeft: Radius.circular(6),
       ),
       child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: isNarrowScreen ? 6 : 8,
-          vertical: isNarrowScreen ? 2 : 4,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
         decoration: const BoxDecoration(
           color: Colors.red,
         ),
@@ -137,7 +127,7 @@ class ImageModelCardListItemWidget extends StatelessWidget {
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSecondary,
             fontWeight: FontWeight.bold,
-            fontSize: isNarrowScreen ? 10 : 12,
+            fontSize: 10,
             decoration: TextDecoration.none,
           ),
         ),
@@ -146,35 +136,32 @@ class ImageModelCardListItemWidget extends StatelessWidget {
   }
 
   Widget _buildLikeNums(BuildContext context, int likes) {
-    final bool isNarrowScreen = MediaQuery.of(context).size.width < 600;
-    
     return ClipRRect(
-      borderRadius: BorderRadius.only(
-        topLeft: Radius.circular(isNarrowScreen ? 8 : 12),
-        bottomRight: Radius.circular(isNarrowScreen ? 10 : 14),
+      borderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(6),
+        bottomRight: Radius.circular(8),
       ),
       child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: isNarrowScreen ? 6 : 8,
-          vertical: isNarrowScreen ? 2 : 4,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
         decoration: const BoxDecoration(
-          color: Color(0x99000000),
+          color: Colors.black54,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.favorite, 
-              size: isNarrowScreen ? 12 : 16,
-              color: Colors.white
+            const Icon(
+              Icons.favorite,
+              size: 10,
+              color: Colors.white,
             ),
-            SizedBox(width: isNarrowScreen ? 2 : 4),
+            const SizedBox(width: 2),
             Text(
               CommonUtils.formatFriendlyNumber(likes),
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
-                fontSize: isNarrowScreen ? 11 : 14,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
+                fontSize: 10,
+                decoration: TextDecoration.none,
               ),
             ),
           ],
@@ -184,35 +171,32 @@ class ImageModelCardListItemWidget extends StatelessWidget {
   }
 
   Widget _buildViewsNums(BuildContext context, int views) {
-    final bool isNarrowScreen = MediaQuery.of(context).size.width < 600;
-    
     return ClipRRect(
-      borderRadius: BorderRadius.only(
-        topLeft: Radius.circular(isNarrowScreen ? 10 : 14),
-        bottomRight: Radius.circular(isNarrowScreen ? 8 : 12),
+      borderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(8),
+        bottomRight: Radius.circular(6),
       ),
       child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: isNarrowScreen ? 6 : 8,
-          vertical: isNarrowScreen ? 2 : 4,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
         decoration: const BoxDecoration(
-          color: Color(0x99000000),
+          color: Colors.black54,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.remove_red_eye,
-              size: isNarrowScreen ? 12 : 16,
-              color: Colors.white
+            const Icon(
+              Icons.remove_red_eye,
+              size: 10,
+              color: Colors.white,
             ),
-            SizedBox(width: isNarrowScreen ? 2 : 4),
+            const SizedBox(width: 2),
             Text(
               CommonUtils.formatFriendlyNumber(views),
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
-                fontSize: isNarrowScreen ? 11 : 14,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
+                fontSize: 10,
+                decoration: TextDecoration.none,
               ),
             ),
           ],
@@ -222,35 +206,32 @@ class ImageModelCardListItemWidget extends StatelessWidget {
   }
 
   Widget _buildImageNums(BuildContext context, int numImages) {
-    final bool isNarrowScreen = MediaQuery.of(context).size.width < 600;
-    
     return ClipRRect(
-      borderRadius: BorderRadius.only(
-        topRight: Radius.circular(isNarrowScreen ? 8 : 14),
-        bottomLeft: Radius.circular(isNarrowScreen ? 10 : 12),
+      borderRadius: const BorderRadius.only(
+        topRight: Radius.circular(6),
+        bottomLeft: Radius.circular(8),
       ),
       child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: isNarrowScreen ? 6 : 8,
-          vertical: isNarrowScreen ? 2 : 4,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
         decoration: const BoxDecoration(
-          color: Color(0x99000000),
+          color: Colors.black54,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.image,
-              size: isNarrowScreen ? 12 : 16,
-              color: Colors.white
+            const Icon(
+              Icons.image,
+              size: 10,
+              color: Colors.white,
             ),
-            SizedBox(width: isNarrowScreen ? 2 : 4),
+            const SizedBox(width: 2),
             Text(
               '$numImages',
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
-                fontSize: isNarrowScreen ? 11 : 14,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
+                fontSize: 10,
+                decoration: TextDecoration.none,
               ),
             ),
           ],
@@ -261,9 +242,7 @@ class ImageModelCardListItemWidget extends StatelessWidget {
 
   Widget _buildTitle(TextTheme textTheme, bool isNarrowScreen) {
     return SizedBox(
-      height: isNarrowScreen 
-          ? textTheme.bodyLarge!.fontSize! * 3.0
-          : textTheme.bodyLarge!.fontSize! * 3.5,
+      height: textTheme.bodyLarge!.fontSize! * 3.0,
       child: Text(
         imageModel.title,
         maxLines: 2,
@@ -280,7 +259,6 @@ class ImageModelCardListItemWidget extends StatelessWidget {
 
   Widget _buildTimeInfo(TextTheme textTheme, BuildContext context) {
     final bool isNarrowScreen = MediaQuery.of(context).size.width < 600;
-    
     return Text(
       CommonUtils.formatFriendlyTimestamp(imageModel.createdAt),
       style: textTheme.bodySmall?.copyWith(
@@ -292,6 +270,7 @@ class ImageModelCardListItemWidget extends StatelessWidget {
   }
 
   Widget _buildAuthorInfo(TextTheme textTheme, BuildContext context) {
+    final t = slang.Translations.of(context);
     final bool isNarrowScreen = MediaQuery.of(context).size.width < 600;
     
     return GestureDetector(
@@ -312,7 +291,7 @@ class ImageModelCardListItemWidget extends StatelessWidget {
                     ],
                   ).createShader(bounds),
                   child: Text(
-                    imageModel.user?.name ?? 'Unknown User',
+                    imageModel.user?.name ?? t.common.unknownUser,
                     style: TextStyle(
                       fontSize: isNarrowScreen ? 12 : 14,
                       color: Colors.white,
@@ -323,7 +302,7 @@ class ImageModelCardListItemWidget extends StatelessWidget {
                   ),
                 )
               : Text(
-                  imageModel.user?.name ?? 'Unknown User',
+                  imageModel.user?.name ?? t.common.unknownUser,
                   style: textTheme.bodySmall?.copyWith(
                     fontSize: isNarrowScreen ? 12 : null,
                   ),

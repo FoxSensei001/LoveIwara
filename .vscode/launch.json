@@ -51,6 +51,36 @@
                 "--web-port=8000",
                 "--web-hostname=0.0.0.0"
             ]
+        },
+        {
+            "name": "i_iwara_sensei (Windows - Profile)",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "-d",
+                "windows",
+                "--profile"
+            ]
+        },
+        {
+            "name": "i_iwara_sensei (macOS - Profile)",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "-d",
+                "macos",
+                "--profile"
+            ]
+        },
+        {
+            "name": "i_iwara_sensei (Linux - Profile)",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "-d",
+                "linux",
+                "--profile"
+            ]
         }
     ]
 }
