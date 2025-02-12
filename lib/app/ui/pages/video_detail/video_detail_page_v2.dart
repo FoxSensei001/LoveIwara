@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_routes.dart';
 import 'package:i_iwara/app/services/app_service.dart';
-import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_dialog.dart';
 import 'package:i_iwara/app/ui/pages/home/home_navigation_layout.dart';
@@ -89,7 +88,10 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
 
     // 如果操作类型是进入，上一个路由contains Routes.VIDEO_DETAIL，则暂停
     if (route?.isActive == true && previousRoute?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) == true) {
-      controller.player.pause();
+      // 如果当前正在loading，则不pause
+      if (!controller.player.state.buffering) {
+        controller.player.pause();
+      }
     }
 
     // 如果当前路由contains Routes.VIDEO_DETAIL，且操作类型是离开则resetBrightness

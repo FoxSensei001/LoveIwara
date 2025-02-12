@@ -56,7 +56,7 @@ class TranslationLanguageSelector extends StatelessWidget {
       return IconButton(
         onPressed: () => _showDialogSelector(context),
         icon: Icon(
-          Icons.arrow_drop_down,
+          Icons.keyboard_double_arrow_down_rounded,
           size: 20,
           color: Theme.of(context).colorScheme.primary,
         ),
@@ -84,7 +84,7 @@ class TranslationLanguageSelector extends StatelessWidget {
                 ),
                 const SizedBox(width: 4),
                 Icon(
-                  Icons.arrow_drop_down,
+                  Icons.keyboard_double_arrow_down,
                   size: 20,
                   color: Theme.of(context).colorScheme.primary,
                 ),
@@ -115,7 +115,7 @@ class TranslationLanguageSelector extends StatelessWidget {
                 style: const TextStyle(fontSize: 14),
               ),
               const SizedBox(width: 4),
-              const Icon(Icons.arrow_drop_down, size: 24),
+              const Icon(Icons.keyboard_double_arrow_down_rounded, size: 24),
             ],
           ),
         ),
@@ -152,7 +152,7 @@ class TranslationLanguageSelector extends StatelessWidget {
                 style: const TextStyle(fontSize: 14),
               ),
               const SizedBox(width: 4),
-              const Icon(Icons.arrow_drop_down, size: 24),
+              const Icon(Icons.keyboard_double_arrow_down_rounded, size: 24),
             ],
           ),
         ),
