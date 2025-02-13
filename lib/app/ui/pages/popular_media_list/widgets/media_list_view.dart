@@ -18,6 +18,7 @@ class MediaListView<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LoadingMoreCustomScrollView(
+      physics: const ClampingScrollPhysics(),
       slivers: <Widget>[
         LoadingMoreSliverList(
           SliverListConfig<T>(

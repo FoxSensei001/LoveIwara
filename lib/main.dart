@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -61,8 +62,8 @@ void main() {
     // 确保Flutter初始化
     WidgetsFlutterBinding.ensureInitialized();
 
-    // 设置最高刷新率(仅Android)
-    if (Platform.isAndroid) {
+    // 设置最高刷新率(仅在非Web的Android上)
+    if (!kIsWeb && Platform.isAndroid) {
       try {
         await FlutterDisplayMode.setHighRefreshRate();
       } catch (e) {

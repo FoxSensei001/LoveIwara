@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 
 import 'package:i_iwara/utils/logger_utils.dart';
 
@@ -31,18 +32,23 @@ class StorageService {
       await GetStorage.init();
       _box = GetStorage();
       
-      // 测试安全存储是否可用
-      try {
-        await _secureStorage.write(key: 'test_key', value: 'test_value');
-        await _secureStorage.read(key: 'test_key');
-        await _secureStorage.delete(key: 'test_key');
-        _useSecureStorage = true;
-        LogUtils.d('安全存储可用', _tag);
-      } catch (e) {
+      if (kIsWeb) {
         _useSecureStorage = false;
-        LogUtils.w('安全存储不可用，将使用普通存储作为回退方案', _tag);
+        LogUtils.w('运行在 Web 上，不支持安全存储，将使用普通存储作为回退方案', _tag);
+      } else {
+        // 测试安全存储是否可用
+        try {
+          await _secureStorage.write(key: 'test_key', value: 'test_value');
+          await _secureStorage.read(key: 'test_key');
+          await _secureStorage.delete(key: 'test_key');
+          _useSecureStorage = true;
+          LogUtils.d('安全存储可用', _tag);
+        } catch (e) {
+          _useSecureStorage = false;
+          LogUtils.w('安全存储不可用，将使用普通存储作为回退方案', _tag);
+        }
       }
-
+      
       initialized = true;
     } catch (e) {
       LogUtils.e('存储服务初始化失败', tag: _tag, error: e);

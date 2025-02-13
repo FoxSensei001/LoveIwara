@@ -1,3 +1,4 @@
+import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_routes.dart';
@@ -13,12 +14,13 @@ import '../../../services/app_service.dart';
 import '../../widgets/top_padding_height_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/common/constants.dart';
+import 'package:i_iwara/app/ui/widgets/glow_notification_widget.dart';
 
 class SubscriptionsPage extends StatefulWidget {
   const SubscriptionsPage({super.key});
 
   @override
-  _SubscriptionsPageState createState() => _SubscriptionsPageState();
+  State<SubscriptionsPage> createState() => _SubscriptionsPageState();
 }
 
 class _SubscriptionsPageState extends State<SubscriptionsPage>
@@ -31,7 +33,6 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
   String selectedId = '';
 
   final ScrollController _scrollController = ScrollController();
-  bool _showBackToTop = false;
   late AnimationController _refreshIconController;
   
   // 为每个列表保存一个GlobalKey，用于调用刷新方法
@@ -41,11 +42,12 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
     2: GlobalKey<SubscriptionPostListState>(),
   };
 
+  final ScrollController _extendedScrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _scrollController.addListener(_scrollListener);
     _tabController.addListener(() {
       if (_tabController.indexIsChanging) {
         setState(() {});
@@ -55,16 +57,6 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
       duration: const Duration(seconds: 1),
       vsync: this,
     );
-  }
-
-  void _scrollListener() {
-    bool shouldShow =
-        _scrollController.hasClients && _scrollController.offset > 200;
-    if (shouldShow != _showBackToTop) {
-      setState(() {
-        _showBackToTop = shouldShow;
-      });
-    }
   }
 
   void _onIdSelected(String id) {
@@ -120,163 +112,203 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
 
   Widget _buildContent(BuildContext context) {
     final t = slang.Translations.of(context);
-    return Column(
-      children: [
-        TopPaddingHeightWidget(),
-        Row(
-          children: [
-            Obx(() {
-              if (userService.isLogin) {
-                return Stack(
+    return ExtendedNestedScrollView(
+      controller: _extendedScrollController,
+      onlyOneScrollInBody: true,
+      headerSliverBuilder: (context, innerBoxIsScrolled) {
+        return [
+          SliverAppBar(
+            pinned: false,
+            floating: true,
+            expandedHeight: 150, // [硬编码设置高度(不合适)]
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            flexibleSpace: FlexibleSpaceBar(
+              collapseMode: CollapseMode.pin,
+              background: Container(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    IconButton(
-                      icon: AvatarWidget(
-                        user: userService.currentUser.value,
-                        radius: 20,
-                        defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+                    TopPaddingHeightWidget(),
+                    // 头像和标题行
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        children: [
+                          Obx(() => _buildAvatarButton()),
+                          Expanded(
+                            child: Text(
+                              t.common.subscriptions,
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
+                    ),
+                    // 订阅用户选择列表
+                    Obx(() => _buildSubscriptionList()),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          // TabBar 部分保持固定
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: _SliverAppBarDelegate(
+              child: Container(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TabBar(
+                        controller: _tabController,
+                        isScrollable: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        overlayColor: WidgetStateProperty.all(Colors.transparent),
+                        tabAlignment: TabAlignment.start,
+                        dividerColor: Colors.transparent,
+                        labelStyle: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        unselectedLabelStyle: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                        ),
+                        tabs: [
+                          Tab(text: t.common.video),
+                          Tab(text: t.common.gallery),
+                          Tab(text: t.common.post),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.vertical_align_top),
                       onPressed: () {
-                        AppService.switchGlobalDrawer();
+                        _extendedScrollController.animateTo(
+                          0,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        );
                       },
                     ),
-                    Positioned(
-                      right: 8,
-                      top: 8,
-                      child: Obx(() {
-                        final count = userService.notificationCount.value + userService.messagesCount.value;
-                        if (count > 0) {
-                          return Container(
-                            width: 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.error,
-                              shape: BoxShape.circle,
-                            ),
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      }),
+                    RotationTransition(
+                      turns: _refreshIconController,
+                      child: IconButton(
+                        icon: const Icon(Icons.refresh),
+                        onPressed: _refreshCurrentList,
+                      ),
                     ),
                   ],
-                );
-              } else {
-                return IconButton(
-                  icon: const Icon(Icons.account_circle),
-                  onPressed: () {
-                    AppService.switchGlobalDrawer();
-                  },
+                ),
+              ),
+            ),
+          ),
+        ];
+      },
+      pinnedHeaderSliverHeightBuilder: () {
+        return MediaQuery.of(context).padding.top + kToolbarHeight;
+      },
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          // 视频列表
+          GlowNotificationWidget(
+            child: SubscriptionVideoList(
+              key: _listStateKeys[0],
+              userId: selectedId,
+            ),
+          ),
+          // 图片列表
+          GlowNotificationWidget(
+            child: SubscriptionImageList(
+              key: _listStateKeys[1],
+              userId: selectedId,
+            ),
+          ),
+          // 帖子列表
+          GlowNotificationWidget(
+            child: SubscriptionPostList(
+              key: _listStateKeys[2],
+              userId: selectedId,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 抽取头像按钮构建方法
+  Widget _buildAvatarButton() {
+    if (userService.isLogin) {
+      return Stack(
+        children: [
+          IconButton(
+            icon: AvatarWidget(
+              user: userService.currentUser.value,
+              radius: 20,
+              defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+            ),
+            onPressed: () => AppService.switchGlobalDrawer(),
+          ),
+          Positioned(
+            right: 8,
+            top: 8,
+            child: Obx(() {
+              final count = userService.notificationCount.value + userService.messagesCount.value;
+              if (count > 0) {
+                return Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.error,
+                    shape: BoxShape.circle,
+                  ),
                 );
               }
+              return const SizedBox.shrink();
             }),
-            Expanded(
-              child: Text(
-                t.common.subscriptions,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        ),
-        Obx(() {
-          RxSet<UserDTO> likedUsers = userPreferenceService.likedUsers;
-          List<UserDTO> sortedUsers = likedUsers.toList()
-            ..sort((a, b) => 
-              (b.likedTime ?? DateTime.fromMillisecondsSinceEpoch(0))
-              .compareTo(a.likedTime ?? DateTime.fromMillisecondsSinceEpoch(0)));
-          List<SubscriptionSelectItem> selectionList = sortedUsers
-              .map((userDto) => SubscriptionSelectItem(
-                    id: userDto.id,
-                    label: userDto.name,
-                    avatarUrl: userDto.avatarUrl,
-                    onLongPress: () => NaviService.navigateToAuthorProfilePage(userDto.username),
-                  ))
-              .toList();
-          return SubscriptionSelectList(
-            selectionList: selectionList,
-            selectedId: selectedId,
-            onIdSelected: _onIdSelected,
-          );
-        }),
-        Row(
-          children: [
-            Expanded(
-              child: TabBar(
-                isScrollable: true,
-                physics: const NeverScrollableScrollPhysics(),
-                overlayColor: WidgetStateProperty.all(Colors.transparent),
-                tabAlignment: TabAlignment.start,
-                dividerColor: Colors.transparent,
-                controller: _tabController,
-                labelStyle: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-                unselectedLabelStyle: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                ),
-                tabs: [
-                  Tab(text: t.common.video),
-                  Tab(text: t.common.gallery),
-                  Tab(text: t.common.post),
-                ],
-              ),
-            ),
-            RotationTransition(
-              turns: _refreshIconController,
-              child: IconButton(
-                icon: const Icon(Icons.refresh),
-                onPressed: _refreshCurrentList,
-              ),
-            ),
-          ],
-        ),
-        Expanded(
-          child: TabBarView(
-            controller: _tabController,
-            children: [
-              SubscriptionVideoList(
-                key: _listStateKeys[0],
-                userId: selectedId,
-              ),
-              SubscriptionImageList(
-                key: _listStateKeys[1],
-                userId: selectedId,
-              ),
-              SubscriptionPostList(
-                key: _listStateKeys[2],
-                userId: selectedId,
-              ),
-            ],
           ),
-        ),
-      ],
+        ],
+      );
+    } else {
+      return IconButton(
+        icon: const Icon(Icons.account_circle),
+        onPressed: () => AppService.switchGlobalDrawer(),
+      );
+    }
+  }
+
+  // 抽取订阅列表构建方法
+  Widget _buildSubscriptionList() {
+    RxSet<UserDTO> likedUsers = userPreferenceService.likedUsers;
+    List<UserDTO> sortedUsers = likedUsers.toList()
+      ..sort((a, b) => (b.likedTime ?? DateTime.fromMillisecondsSinceEpoch(0))
+          .compareTo(a.likedTime ?? DateTime.fromMillisecondsSinceEpoch(0)));
+    List<SubscriptionSelectItem> selectionList = sortedUsers
+        .map((userDto) => SubscriptionSelectItem(
+              id: userDto.id,
+              label: userDto.name,
+              avatarUrl: userDto.avatarUrl,
+              onLongPress: () =>
+                  NaviService.navigateToAuthorProfilePage(userDto.username),
+            ))
+        .toList();
+    return SubscriptionSelectList(
+      selectionList: selectionList,
+      selectedId: selectedId,
+      onIdSelected: _onIdSelected,
     );
   }
 
   Widget _buildLoggedInView(BuildContext context) {
     return Scaffold(
       body: _buildContent(context),
-      floatingActionButton: AnimatedSlide(
-        duration: const Duration(milliseconds: 200),
-        offset: _showBackToTop ? Offset.zero : const Offset(0, 2),
-        child: AnimatedOpacity(
-          opacity: _showBackToTop ? 1.0 : 0.0,
-          duration: const Duration(milliseconds: 200),
-          child: FloatingActionButton.small(
-            onPressed: () {
-              _scrollController.animateTo(
-                0,
-                duration: const Duration(milliseconds: 500),
-                curve: Curves.easeOut,
-              );
-            },
-            child: const Icon(Icons.arrow_upward),
-          ),
-        ),
-      ),
+      
     );
   }
 
@@ -343,5 +375,29 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
         ),
       ),
     );
+  }
+}
+
+// 添加一个SliverPersistentHeaderDelegate来处理TabBar
+class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
+  final Widget child;
+
+  _SliverAppBarDelegate({
+    required this.child,
+  });
+
+  @override
+  double get minExtent => 48.0;
+  @override
+  double get maxExtent => 48.0;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return child;
+  }
+
+  @override
+  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
+    return false;
   }
 }
