@@ -266,6 +266,10 @@ friends:
   friendsList: 好友列表
   friendRequests: 好友请求
   friendRequestsList: 好友请求列表
+  removingFriend: 正在解除好友关系...
+  failedToRemoveFriend: 解除好友关系失败
+  cancelingRequest: 正在取消好友申请...
+  failedToCancelRequest: 取消好友申请失败
 
 authorProfile:
   noMoreDatas: 没有更多数据了

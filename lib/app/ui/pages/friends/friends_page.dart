@@ -23,15 +23,7 @@ class _FriendsPageState extends State<FriendsPage>
     super.initState();
     _controller = Get.put(FriendsController());
     _tabController = TabController(length: 2, vsync: this);
-    _tabController.addListener(_handleTabChange);
     _userService = Get.find<UserService>();
-  }
-
-  void _handleTabChange() {
-    if (!_tabController.indexIsChanging) {
-      setState(() {});
-      _controller.refreshCurrentTab(_tabController.index);
-    }
   }
 
   @override
@@ -144,8 +136,6 @@ class _FriendsPageState extends State<FriendsPage>
       ),
       body: TabBarView(
         controller: _tabController,
-        // 禁用滑动切换
-        physics: const NeverScrollableScrollPhysics(),
         children: [
           FriendList(
             scrollController: _controller.friendListScrollController,

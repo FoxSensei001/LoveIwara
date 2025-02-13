@@ -29,8 +29,6 @@ class AuthorProfileController extends GetxController {
   final Rxn<int> videoCounts = Rxn<int>();
 
   // 添加关系状态
-  final RxBool isFriendLoading = false.obs;
-  final RxBool isFollowLoading = false.obs;
   final RxBool isFriendRequestPending = false.obs;
   final RxBool isCommentSheetVisible = false.obs;
   Worker? worker;
@@ -83,7 +81,7 @@ class AuthorProfileController extends GetxController {
       var header = authorData.data['header'];
       headerBackgroundUrl.value =
           CommonConstants.userProfileHeaderUrl(header?['id']);
-      LogUtils.d('获取的用户信息: $authorData', 'AuthorProfileController');
+      // LogUtils.d('获取的用户信息: $authorData', 'AuthorProfileController');
     } catch (e) {
       LogUtils.e('抓取作者详情失败', tag: 'AuthorProfileController', error: e);
       errorWidget.value = Center(child: Text(t.errors.errorWhileFetching));
@@ -127,6 +125,7 @@ class AuthorProfileController extends GetxController {
   }
 
   /// 获取当前用户与作者的关系状态
+  /// status: pending, friends, none
   Future<void> fetchRelationshipStatus() async {
     if (author.value == null || !_userService.isLogin) {
       return;
@@ -147,7 +146,6 @@ class AuthorProfileController extends GetxController {
     if (author.value == null) return;
     String userId = author.value!.id;
     try {
-      isFollowLoading.value = true;
       ApiResult res = await _userService.followUser(userId);
       if (!res.isSuccess) {
         showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error), position: ToastPosition.bottom);
@@ -158,7 +156,7 @@ class AuthorProfileController extends GetxController {
       author.value = User.fromJson(authorData.data['user']);
       followingCounts.value += 1;
     } finally {
-      isFollowLoading.value = false;
+      // 移除 isFollowLoading
     }
   }
 
@@ -167,7 +165,6 @@ class AuthorProfileController extends GetxController {
     if (author.value == null) return;
     String userId = author.value!.id;
     try {
-      isFollowLoading.value = true;
       ApiResult res = await _userService.unfollowUser(userId);
       if (!res.isSuccess) {
         showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error), position: ToastPosition.bottom);
@@ -179,45 +176,7 @@ class AuthorProfileController extends GetxController {
       author.value = User.fromJson(authorData.data['user']);
       followingCounts.value -= 1;
     } finally {
-      isFollowLoading.value = false;
-    }
-  }
-
-  /// 发送朋友申请
-  Future<void> sendFriendRequest() async {
-    if (author.value == null) return;
-    String userId = author.value!.id;
-    try {
-      isFriendLoading.value = true;
-      ApiResult res = await _userService.addFriend(userId);
-      if (!res.isSuccess) {
-        showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error), position: ToastPosition.bottom);
-        return;
-      }
-      isFriendRequestPending.value = true;
-    } finally {
-      isFriendLoading.value = false;
-    }
-  }
-
-  /// 取消朋友申请
-  Future<void> cancelFriendRequest() async {
-    if (author.value == null) return;
-    String userId = author.value!.id;
-    try {
-      isFriendLoading.value = true;
-      ApiResult res = await _userService.removeFriend(userId);
-      if (!res.isSuccess) {
-        showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error), position: ToastPosition.bottom);
-        return;
-      }
-      isFriendRequestPending.value = false;
-      // 更新朋友状态
-      if (author.value?.friend == true) {
-        author.value = author.value?.copyWith(friend: false);
-      }
-    } finally {
-      isFriendLoading.value = false;
+      // 移除 isFollowLoading
     }
   }
 }

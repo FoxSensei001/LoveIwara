@@ -34,7 +34,7 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
 
   final ScrollController _scrollController = ScrollController();
   late AnimationController _refreshIconController;
-  
+
   // 为每个列表保存一个GlobalKey，用于调用刷新方法
   final Map<int, GlobalKey<State>> _listStateKeys = {
     0: GlobalKey<SubscriptionVideoListState>(),
@@ -78,11 +78,14 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
       final currentKey = _listStateKeys[_tabController.index];
       if (currentKey?.currentState != null) {
         if (_tabController.index == 0) {
-          await (currentKey!.currentState as SubscriptionVideoListState).refresh();
+          await (currentKey!.currentState as SubscriptionVideoListState)
+              .refresh();
         } else if (_tabController.index == 1) {
-          await (currentKey!.currentState as SubscriptionImageListState).refresh();
+          await (currentKey!.currentState as SubscriptionImageListState)
+              .refresh();
         } else {
-          await (currentKey!.currentState as SubscriptionPostListState).refresh();
+          await (currentKey!.currentState as SubscriptionPostListState)
+              .refresh();
         }
       }
     } finally {
@@ -117,42 +120,32 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
       onlyOneScrollInBody: true,
       headerSliverBuilder: (context, innerBoxIsScrolled) {
         return [
-          SliverAppBar(
-            pinned: false,
-            floating: true,
-            expandedHeight: 150, // [硬编码设置高度(不合适)]
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            flexibleSpace: FlexibleSpaceBar(
-              collapseMode: CollapseMode.pin,
-              background: Container(
-                color: Theme.of(context).scaffoldBackgroundColor,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TopPaddingHeightWidget(),
-                    // 头像和标题行
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        children: [
-                          Obx(() => _buildAvatarButton()),
-                          Expanded(
-                            child: Text(
-                              t.common.subscriptions,
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+          SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TopPaddingHeightWidget(),
+                // 头像和标题行
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      Obx(() => _buildAvatarButton()),
+                      Expanded(
+                        child: Text(
+                          t.common.subscriptions,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
                           ),
-                        ],
+                        ),
                       ),
-                    ),
-                    // 订阅用户选择列表
-                    Obx(() => _buildSubscriptionList()),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
+                // 订阅用户选择列表
+                Obx(() => _buildSubscriptionList()),
+              ],
             ),
           ),
           // TabBar 部分保持固定
@@ -168,7 +161,8 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
                         controller: _tabController,
                         isScrollable: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        overlayColor: WidgetStateProperty.all(Colors.transparent),
+                        overlayColor:
+                            WidgetStateProperty.all(Colors.transparent),
                         tabAlignment: TabAlignment.start,
                         dividerColor: Colors.transparent,
                         labelStyle: const TextStyle(
@@ -259,7 +253,8 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
             right: 8,
             top: 8,
             child: Obx(() {
-              final count = userService.notificationCount.value + userService.messagesCount.value;
+              final count = userService.notificationCount.value +
+                  userService.messagesCount.value;
               if (count > 0) {
                 return Container(
                   width: 8,
@@ -308,7 +303,6 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
   Widget _buildLoggedInView(BuildContext context) {
     return Scaffold(
       body: _buildContent(context),
-      
     );
   }
 
@@ -392,7 +386,8 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   double get maxExtent => 48.0;
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
     return child;
   }
 

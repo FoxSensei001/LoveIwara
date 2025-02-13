@@ -259,6 +259,10 @@ friends:
   friendsList: Friends List
   friendRequests: Friend Requests
   friendRequestsList: Friend Requests List
+  removingFriend: Removing friend...
+  failedToRemoveFriend: Failed to remove friend
+  cancelingRequest: Canceling friend request...
+  failedToCancelRequest: Failed to cancel friend request
 
 authorProfile:
   noMoreDatas: No more data

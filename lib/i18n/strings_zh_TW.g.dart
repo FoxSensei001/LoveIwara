@@ -347,6 +347,10 @@ class _TranslationsFriendsZhTw implements TranslationsFriendsEn {
 	@override String get friendsList => '朋友列表';
 	@override String get friendRequests => '朋友請求';
 	@override String get friendRequestsList => '朋友請求列表';
+	@override String get removingFriend => '正在解除好友關係...';
+	@override String get failedToRemoveFriend => '解除好友關係失敗';
+	@override String get cancelingRequest => '正在取消好友申請...';
+	@override String get failedToCancelRequest => '取消好友申請失敗';
 }
 
 // Path: authorProfile
@@ -1514,6 +1518,10 @@ extension on TranslationsZhTw {
 			case 'friends.friendsList': return '朋友列表';
 			case 'friends.friendRequests': return '朋友請求';
 			case 'friends.friendRequestsList': return '朋友請求列表';
+			case 'friends.removingFriend': return '正在解除好友關係...';
+			case 'friends.failedToRemoveFriend': return '解除好友關係失敗';
+			case 'friends.cancelingRequest': return '正在取消好友申請...';
+			case 'friends.failedToCancelRequest': return '取消好友申請失敗';
 			case 'authorProfile.noMoreDatas': return '沒有更多資料了';
 			case 'authorProfile.userProfile': return '使用者資料';
 			case 'favorites.clickToRestoreFavorite': return '點擊恢復最愛';

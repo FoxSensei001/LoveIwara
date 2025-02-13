@@ -351,6 +351,10 @@ class TranslationsFriendsEn {
 	String get friendsList => 'Friends List';
 	String get friendRequests => 'Friend Requests';
 	String get friendRequestsList => 'Friend Requests List';
+	String get removingFriend => 'Removing friend...';
+	String get failedToRemoveFriend => 'Failed to remove friend';
+	String get cancelingRequest => 'Canceling friend request...';
+	String get failedToCancelRequest => 'Failed to cancel friend request';
 }
 
 // Path: authorProfile
@@ -1515,6 +1519,10 @@ extension on Translations {
 			case 'friends.friendsList': return 'Friends List';
 			case 'friends.friendRequests': return 'Friend Requests';
 			case 'friends.friendRequestsList': return 'Friend Requests List';
+			case 'friends.removingFriend': return 'Removing friend...';
+			case 'friends.failedToRemoveFriend': return 'Failed to remove friend';
+			case 'friends.cancelingRequest': return 'Canceling friend request...';
+			case 'friends.failedToCancelRequest': return 'Failed to cancel friend request';
 			case 'authorProfile.noMoreDatas': return 'No more data';
 			case 'authorProfile.userProfile': return 'User Profile';
 			case 'favorites.clickToRestoreFavorite': return 'Click to restore favorite';

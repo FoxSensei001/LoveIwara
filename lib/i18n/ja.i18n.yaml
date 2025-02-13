@@ -260,6 +260,10 @@ friends:
   friendsList: 友達リスト
   friendRequests: 友達リクエスト
   friendRequestsList: 友達リクエスト一覧
+  removingFriend: フレンド解除中...
+  failedToRemoveFriend: フレンド解除に失敗しました
+  cancelingRequest: フレンド申請をキャンセル中...
+  failedToCancelRequest: フレンド申請のキャンセルに失敗しました
 
 authorProfile:
   noMoreDatas: これ以上データはありません

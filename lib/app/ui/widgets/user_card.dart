@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/models/user.model.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/follow_button_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
@@ -7,43 +8,18 @@ import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class UserCard extends StatefulWidget {
-
   final User user;
-  final VoidCallback? onTap;
-  final bool showFriendOptions;
-  final bool showFriendAcceptAndRejectOptions;
-  final bool showCancelFriendRequestOption;
-  final Function(String)? onRemoveFriend;
-  final Function(String)? onAcceptFriendRequest;
-  final Function(String)? onRejectFriendRequest;
-  final Function(String)? onCancelFriendRequest;
-  final bool isRemovingFriend;
-  final bool isAcceptingRequest;
-  final bool isRejectingRequest;
-  final bool isCancelingRequest;
-  final bool isRestoringFriend;
+  final List<Widget>? actions;
   final bool showFollowButton;
 
   const UserCard({
     super.key,
     required this.user,
-    this.onTap,
-    this.showFriendOptions = false,
-    this.showFriendAcceptAndRejectOptions = false,
-    this.showCancelFriendRequestOption = false,
+    this.actions,
     this.showFollowButton = false,
-    this.onRemoveFriend,
-    this.onAcceptFriendRequest,
-    this.onRejectFriendRequest,
-    this.onCancelFriendRequest,
-    this.isRemovingFriend = false,
-    this.isAcceptingRequest = false,
-    this.isRejectingRequest = false,
-    this.isCancelingRequest = false,
-    this.isRestoringFriend = false,
   });
 
-  @override 
+  @override
   State<UserCard> createState() => _UserCardState();
 }
 
@@ -61,7 +37,7 @@ class _UserCardState extends State<UserCard> {
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: widget.onTap,
+        onTap: () => NaviService.navigateToAuthorProfilePage(user.username),
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Row(
@@ -82,17 +58,9 @@ class _UserCardState extends State<UserCard> {
                   ],
                 ),
               ),
-              if (widget.showFriendOptions && user.friend) ...[
+              if (widget.actions != null) ...[
                 const SizedBox(width: 8),
-                _buildRemoveFriendButton(context),
-              ],
-              if (widget.showFriendAcceptAndRejectOptions) ...[
-                const SizedBox(width: 8),
-                _buildFriendRequestButtons(context),
-              ],
-              if (widget.showCancelFriendRequestOption) ...[
-                const SizedBox(width: 8),
-                _buildCancelRequestButton(context),
+                ...widget.actions!,
               ],
               if (widget.showFollowButton) ...[
                 const SizedBox(width: 8),
@@ -222,80 +190,6 @@ class _UserCardState extends State<UserCard> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildRemoveFriendButton(BuildContext context) {
-    final t = slang.Translations.of(context);
-    return IconButton(
-      icon: widget.isRemovingFriend
-          ? const SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
-          : const Icon(Icons.person_remove),
-      color: Colors.red,
-      onPressed: widget.isRemovingFriend ? null : () => widget.onRemoveFriend?.call(user.id),
-      tooltip: t.common.removeFriend,
-    );
-  }
-
-  Widget _buildFriendRequestButtons(BuildContext context) {
-    final t = slang.Translations.of(context);
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        IconButton(
-          icon: widget.isAcceptingRequest
-              ? const SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.green,
-                  ),
-                )
-              : const Icon(Icons.check_circle),
-          color: Colors.green,
-          onPressed: widget.isAcceptingRequest ? null : () => widget.onAcceptFriendRequest?.call(user.id),
-          tooltip: t.common.accept,
-        ),
-        IconButton(
-          icon: widget.isRejectingRequest
-              ? const SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.red,
-                  ),
-                )
-              : const Icon(Icons.cancel),
-          color: Colors.red,
-          onPressed: widget.isRejectingRequest ? null : () => widget.onRejectFriendRequest?.call(user.id),
-          tooltip: t.common.reject,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCancelRequestButton(BuildContext context) {
-    final t = slang.Translations.of(context);
-    return IconButton(
-      icon: widget.isCancelingRequest
-          ? const SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: Colors.orange,
-              ),
-            )
-          : const Icon(Icons.person_remove),
-      color: Colors.orange,
-      onPressed: widget.isCancelingRequest ? null : () => widget.onCancelFriendRequest?.call(user.id),
-      tooltip: t.common.cancelFriendRequest,
     );
   }
 }

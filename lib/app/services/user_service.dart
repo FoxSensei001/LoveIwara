@@ -166,7 +166,7 @@ class UserService extends GetxService {
     }
   }
 
-  /// 添加朋友
+  /// 移除朋友
   Future<ApiResult> removeFriend(String userId) async {
     // 检查用户ID是否为空
     if (userId.isEmpty) {

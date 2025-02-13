@@ -260,6 +260,10 @@ friends:
   friendsList: 朋友列表
   friendRequests: 朋友請求
   friendRequestsList: 朋友請求列表
+  removingFriend: 正在解除好友關係...
+  failedToRemoveFriend: 解除好友關係失敗
+  cancelingRequest: 正在取消好友申請...
+  failedToCancelRequest: 取消好友申請失敗
 
 authorProfile:
   noMoreDatas: 沒有更多資料了

@@ -9,6 +9,9 @@ import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/translation_service.dart';
+import 'package:i_iwara/app/ui/widgets/translation_language_selector.dart';
+import 'package:i_iwara/app/models/api_result.model.dart';
 
 import '../../../widgets/custom_markdown_body_widget.dart';
 import '../controllers/post_detail_controller.dart';
@@ -260,96 +263,61 @@ class PostDetailContent extends StatelessWidget {
   }
 
   Widget _buildTranslationButton(BuildContext context) {
-    final t = slang.Translations.of(context);
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Flexible(
-            child: InkWell(
-              borderRadius: const BorderRadius.horizontal(
-                left: Radius.circular(20),
-              ),
-              onTap: controller.isTranslating.value
-                  ? null
-                  : () => controller.handleTranslation(),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (controller.isTranslating.value)
-                      const SizedBox(
-                        width: 14,
-                        height: 14,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    else
-                      const Icon(Icons.translate, size: 16),
-                    const SizedBox(width: 4),
-                    Text(
-                      t.common.translate,
-                      style: const TextStyle(fontSize: 12),
+    final configService = Get.find<ConfigService>();
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Obx(() => IconButton(
+          onPressed: controller.isTranslating.value ? null : () => _handleTranslation(),
+          icon: controller.isTranslating.value
+              ? SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Theme.of(context).colorScheme.primary,
                     ),
-                  ],
+                  ),
+                )
+              : Icon(
+                  Icons.translate,
+                  size: 24,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
-              ),
-            ),
-          ),
-          Container(
-            height: 24,
-            width: 1,
-            color: Colors.grey.withOpacity(0.2),
-          ),
-          InkWell(
-            borderRadius: const BorderRadius.horizontal(
-              right: Radius.circular(20),
-            ),
-            onTap: () => controller.showTranslationMenu.toggle(),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Obx(() => Icon(
-                    controller.showTranslationMenu.value
-                        ? Icons.arrow_drop_up
-                        : Icons.arrow_drop_down,
-                    size: 26,
-                  )),
-            ),
-          ),
-        ],
-      ),
+        )),
+        TranslationLanguageSelector(
+          compact: true,
+          selectedLanguage: configService.currentTranslationSort,
+          onLanguageSelected: (sort) {
+            configService.updateTranslationLanguage(sort);
+            if (controller.translatedText.value != null) {
+              _handleTranslation();
+            }
+          },
+        ),
+      ],
     );
   }
 
-  Widget _buildTranslationMenu() {
-    final ConfigService configService = Get.find();
-    return Card(
-      elevation: 4,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: CommonConstants.translationSorts.map((sort) {
-          final isSelected = sort.id == configService.currentTranslationSort.id;
-          return ListTile(
-            dense: true,
-            selected: isSelected,
-            title: Text(sort.label),
-            onTap: () {
-              configService.updateTranslationLanguage(sort);
-              controller.showTranslationMenu.value = false;
-              controller.translatedText.value = null;
-              controller.handleTranslation();
-            },
-          );
-        }).toList(),
-      ),
-    );
+  Future<void> _handleTranslation() async {
+    final translationService = Get.find<TranslationService>();
+    final post = controller.postInfo.value;
+    if (post?.body.isNotEmpty == true) {
+      controller.isTranslating.value = true;
+      try {
+        ApiResult<String> result = await translationService.translate(post?.body ?? '');
+        
+        if (result.isSuccess) {
+          controller.translatedText.value = result.data;
+        } else {
+          controller.translatedText.value = slang.t.errors.translationFailedPleaseTryAgainLater;
+        }
+      } finally {
+        controller.isTranslating.value = false;
+      }
+    }
   }
 
   Widget _buildTranslatedContent(BuildContext context) {
@@ -382,17 +350,18 @@ class PostDetailContent extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          if (controller.translatedText.value ==
-              t.errors.translationFailedPleaseTryAgainLater)
-            Text(
-              controller.translatedText.value!,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.error,
-                fontSize: 14,
-              ),
-            )
-          else
-            CustomMarkdownBody(data: controller.translatedText.value!),
+          Obx(() {
+            if (controller.translatedText.value == t.errors.translationFailedPleaseTryAgainLater) {
+              return Text(
+                controller.translatedText.value!,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.error,
+                  fontSize: 14,
+                ),
+              );
+            }
+            return CustomMarkdownBody(data: controller.translatedText.value!);
+          }),
         ],
       ),
     );
@@ -405,29 +374,30 @@ class PostDetailContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              Text(
+                slang.t.mediaList.personalIntroduction,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               _buildTranslationButton(context),
             ],
           ),
-          Obx(() {
-            if (controller.showTranslationMenu.value) {
-              return Align(
-                alignment: Alignment.centerRight,
-                child: _buildTranslationMenu(),
-              );
-            }
-            return const SizedBox.shrink();
-          }),
+          const SizedBox(height: 8),
           CustomMarkdownBody(data: controller.postInfo.value?.body ?? ''),
           Obx(() {
-            if (controller.translatedText.value != null) {
-              return Padding(
-                padding: const EdgeInsets.only(top: 12),
-                child: _buildTranslatedContent(context),
-              );
+            if (controller.translatedText.value == null) {
+              return const SizedBox.shrink();
             }
-            return const SizedBox.shrink();
+            return Column(
+              children: [
+                const SizedBox(height: 12),
+                _buildTranslatedContent(context),
+              ],
+            );
           }),
         ],
       ),

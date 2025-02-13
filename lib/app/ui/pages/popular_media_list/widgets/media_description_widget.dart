@@ -26,29 +26,26 @@ class MediaDescriptionWidget extends StatefulWidget {
 }
 
 class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
-  bool _showTranslationMenu = false;
   bool _isTranslating = false;
   String? _translatedText;
-  final GlobalKey _contentKey = GlobalKey();
-  bool _hasOverflow = false;
+  late GlobalKey _contentKey;
 
   final TranslationService _translationService = Get.find();
-  final ConfigService _configService = Get.find();
 
   @override
   void initState() {
     super.initState();
+    _contentKey = GlobalKey();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkOverflow();
     });
   }
 
   void _checkOverflow() {
-    final RenderBox? renderBox = _contentKey.currentContext?.findRenderObject() as RenderBox?;
+    final RenderBox? renderBox =
+        _contentKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox != null) {
-      setState(() {
-        _hasOverflow = renderBox.size.height > 200;
-      });
+      setState(() {});
     }
   }
 
@@ -96,7 +93,8 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
 
     setState(() => _isTranslating = true);
 
-    ApiResult<String> result = await _translationService.translate(widget.description ?? '');
+    ApiResult<String> result =
+        await _translationService.translate(widget.description ?? '');
     if (result.isSuccess) {
       setState(() {
         _translatedText = result.data;
@@ -114,7 +112,10 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
     final t = slang.Translations.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+        color: Theme.of(context)
+            .colorScheme
+            .surfaceContainerHighest
+            .withOpacity(0.3),
         borderRadius: BorderRadius.circular(8),
       ),
       padding: const EdgeInsets.all(12),
@@ -199,8 +200,7 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
                             const SizedBox(height: 12),
                             _buildTranslatedContent(context),
                           ],
-                          if (!expanded) 
-                            const SizedBox(height: 60),
+                          if (!expanded) const SizedBox(height: 60),
                         ],
                       ),
                     ),
@@ -225,8 +225,14 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
                               colors: [
-                                Theme.of(context).colorScheme.surface.withOpacity(0),
-                                Theme.of(context).colorScheme.surface.withOpacity(0.8),
+                                Theme.of(context)
+                                    .colorScheme
+                                    .surface
+                                    .withOpacity(0),
+                                Theme.of(context)
+                                    .colorScheme
+                                    .surface
+                                    .withOpacity(0.8),
                                 Theme.of(context).colorScheme.surface,
                               ],
                               stops: const [0.0, 0.5, 0.8],
@@ -241,14 +247,16 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
                                   Text(
                                     t.common.expand,
                                     style: TextStyle(
-                                      color: Theme.of(context).colorScheme.primary,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
                                     ),
                                   ),
                                   const SizedBox(width: 4),
                                   Icon(
                                     Icons.keyboard_arrow_down,
                                     size: 16,
-                                    color: Theme.of(context).colorScheme.primary,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
                                   ),
                                 ],
                               ),

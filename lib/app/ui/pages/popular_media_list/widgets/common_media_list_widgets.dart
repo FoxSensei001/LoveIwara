@@ -13,48 +13,58 @@ Widget? buildIndicator(
 }) {
   Widget? finalWidget;
 
+  // 提取通用的 shimmer grid 构建逻辑
+  Widget buildShimmerGrid({required int itemCount}) {
+    return GridView.builder(
+      shrinkWrap: true,
+      padding: EdgeInsets.zero,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: MediaQuery.of(context).size.width <= 600 ? 180 : 200,
+        crossAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
+        mainAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
+        childAspectRatio: 1 / 1.2,
+      ),
+      itemCount: itemCount,
+      itemBuilder: (context, index) => buildShimmerItem(
+        MediaQuery.of(context).size.width <= 600 ? 180 : 200,
+      ),
+    );
+  }
+
   switch (status) {
     case IndicatorStatus.none:
       return null;
+      
     case IndicatorStatus.loadingMoreBusying:
-      return Shimmer.fromColors(
-        baseColor: Colors.grey[300]!,
-        highlightColor: Colors.grey[100]!,
-        child: GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: MediaQuery.of(context).size.width <= 600 ? 180 : 200,
-            crossAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
-            mainAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
-            childAspectRatio: 1 / 1.2,
-          ),
-          itemCount: MediaQuery.of(context).size.width <= 600 ? 2 : 6,
-          itemBuilder: (context, index) => buildShimmerItem(
-            MediaQuery.of(context).size.width <= 600 ? 180 : 200,
-          ),
-        ),
-      );
     case IndicatorStatus.fullScreenBusying:
-      finalWidget = Shimmer.fromColors(
+      final isFullScreen = status == IndicatorStatus.fullScreenBusying;
+      final shimmerContent = Shimmer.fromColors(
         baseColor: Colors.grey[300]!,
         highlightColor: Colors.grey[100]!,
-        child: GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: MediaQuery.of(context).size.width <= 600 ? 180 : 200,
-            crossAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
-            mainAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
-            childAspectRatio: 1 / 1.2,
-          ),
-          itemCount: 8,
-          itemBuilder: (context, index) => buildShimmerItem(
-            MediaQuery.of(context).size.width <= 600 ? 180 : 200,
-          ),
+        child: buildShimmerGrid(
+          itemCount: isFullScreen ? 8 : (MediaQuery.of(context).size.width <= 600 ? 2 : 6),
         ),
       );
-      return SliverFillRemaining(child: finalWidget);
+      
+      if (isFullScreen) {
+        return SliverFillRemaining(
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
+            ),
+            child: shimmerContent,
+          ),
+        );
+      }
+      
+      return Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
+        ),
+        child: shimmerContent,
+      );
+
     case IndicatorStatus.error:
       return Padding(
         padding: const EdgeInsets.all(8.0),

@@ -36,8 +36,6 @@ class _FollowingListState extends State<FollowingList> with AutomaticKeepAliveCl
             itemBuilder: (context, user, index) {
               return UserCard(
                 user: user,
-                onTap: () => widget.controller.navigateToUserProfile(user.username),
-                showFollowButton: false,
               );
             },
             sourceList: widget.controller.followingRepository,

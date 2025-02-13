@@ -284,7 +284,6 @@ class _SearchResultState extends State<SearchResult> {
               padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
               child: UserCard(
                 user: user,
-                onTap: () => NaviService.navigateToAuthorProfilePage(user.username),
               ),
             );
           } else {

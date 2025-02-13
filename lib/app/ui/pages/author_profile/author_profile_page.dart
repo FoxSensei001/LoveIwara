@@ -35,6 +35,7 @@ import 'package:i_iwara/app/ui/widgets/follow_button_widget.dart';
 import 'package:i_iwara/app/ui/pages/author_profile/widgets/post_input_dialog.dart';
 import 'package:i_iwara/app/ui/pages/conversation/widgets/new_conversation_dialog.dart';
 import 'package:i_iwara/app/ui/pages/author_profile/widgets/share_user_bottom_sheet.dart';
+import 'package:i_iwara/app/ui/widgets/friend_button_widget.dart';
 
 class AuthorProfilePage extends StatefulWidget {
   final String username;
@@ -279,9 +280,9 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () {
-              profileController.fetchAuthorDescription();
+              AppService.tryPop();
             },
-            child: Text(t.common.retry),
+            child: Text(t.common.back),
           )
         ],
       ),
@@ -732,101 +733,16 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                                         return const SizedBox.shrink();
                                       }
 
-                                      // 加载中状态
-                                      if (profileController
-                                          .isFriendLoading.value) {
-                                        return SizedBox(
-                                          height: isNarrowScreen ? 32 : 36,
-                                          child: ElevatedButton.icon(
-                                            onPressed: null,
-                                            icon: const Icon(Icons.person_add,
-                                                size: 16),
-                                            label: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                const SizedBox(
-                                                  width: 12,
-                                                  height: 12,
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                    strokeWidth: 2,
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 4),
-                                                Text(
-                                                  t.common.loading,
-                                                  style: TextStyle(
-                                                      fontSize: isNarrowScreen
-                                                          ? 12
-                                                          : 14),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        );
-                                      }
-
-                                      // 处于代办状态
-                                      Widget button;
-                                      if (profileController
-                                          .isFriendRequestPending.value) {
-                                        button = ElevatedButton.icon(
-                                          onPressed: () {
-                                            // 取消朋友申请
-                                            profileController
-                                                .cancelFriendRequest();
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.orange,
-                                          ),
-                                          icon: Icon(Icons.person_remove,
-                                              size: isNarrowScreen ? 16 : 18),
-                                          label: Text(
-                                            t.common.cancelFriendRequest,
-                                            style: TextStyle(
-                                                fontSize:
-                                                    isNarrowScreen ? 12 : 14),
-                                          ),
-                                        );
-                                      } else if (profileController
-                                              .author.value?.friend ==
-                                          true) {
-                                        button = ElevatedButton.icon(
-                                          onPressed: () {
-                                            // 取消朋友
-                                            profileController
-                                                .cancelFriendRequest();
-                                          },
-                                          icon: Icon(Icons.person_remove,
-                                              size: isNarrowScreen ? 16 : 18),
-                                          label: Text(
-                                            t.common.removeFriend,
-                                            style: TextStyle(
-                                                fontSize:
-                                                    isNarrowScreen ? 12 : 14),
-                                          ),
-                                        );
-                                      } else {
-                                        button = ElevatedButton.icon(
-                                          onPressed: () {
-                                            // 发送朋友申请
-                                            profileController
-                                                .sendFriendRequest();
-                                          },
-                                          icon: Icon(Icons.person_add,
-                                              size: isNarrowScreen ? 16 : 18),
-                                          label: Text(
-                                            t.common.addFriend,
-                                            style: TextStyle(
-                                                fontSize:
-                                                    isNarrowScreen ? 12 : 14),
-                                          ),
-                                        );
-                                      }
-
                                       return SizedBox(
                                         height: isNarrowScreen ? 32 : 36,
-                                        child: button,
+                                        child: FriendButtonWidget(
+                                          user: profileController.author.value!,
+                                          // isPending: profileController.isFriendRequestPending.value,
+                                          onUserUpdated: (updatedUser) {
+                                            profileController.author.value = updatedUser;
+                                            profileController.isFriendRequestPending.value = !profileController.isFriendRequestPending.value;
+                                          },
+                                        ),
                                       );
                                     }),
                                     // 关注按钮

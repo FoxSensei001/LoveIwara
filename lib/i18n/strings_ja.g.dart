@@ -347,6 +347,10 @@ class _TranslationsFriendsJa implements TranslationsFriendsEn {
 	@override String get friendsList => '友達リスト';
 	@override String get friendRequests => '友達リクエスト';
 	@override String get friendRequestsList => '友達リクエスト一覧';
+	@override String get removingFriend => 'フレンド解除中...';
+	@override String get failedToRemoveFriend => 'フレンド解除に失敗しました';
+	@override String get cancelingRequest => 'フレンド申請をキャンセル中...';
+	@override String get failedToCancelRequest => 'フレンド申請のキャンセルに失敗しました';
 }
 
 // Path: authorProfile
@@ -1511,6 +1515,10 @@ extension on TranslationsJa {
 			case 'friends.friendsList': return '友達リスト';
 			case 'friends.friendRequests': return '友達リクエスト';
 			case 'friends.friendRequestsList': return '友達リクエスト一覧';
+			case 'friends.removingFriend': return 'フレンド解除中...';
+			case 'friends.failedToRemoveFriend': return 'フレンド解除に失敗しました';
+			case 'friends.cancelingRequest': return 'フレンド申請をキャンセル中...';
+			case 'friends.failedToCancelRequest': return 'フレンド申請のキャンセルに失敗しました';
 			case 'authorProfile.noMoreDatas': return 'これ以上データはありません';
 			case 'authorProfile.userProfile': return 'ユーザープロフィール';
 			case 'favorites.clickToRestoreFavorite': return 'お気に入りを復元するにはクリックしてください';
