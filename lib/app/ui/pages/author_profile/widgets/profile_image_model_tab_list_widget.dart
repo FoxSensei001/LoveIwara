@@ -191,23 +191,28 @@ class _ProfileImageModelTabListWidgetState extends State<ProfileImageModelTabLis
           ],
         ),
         Expanded(
-          child: MediaListView<ImageModel>(
-            sourceList: imageListRepository,
-            emptyIcon: Icons.image_outlined,
-            itemBuilder: (context, image, index) {
-              return Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
-                  vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
-                ),
-                child: ImageModelCardListItemWidget(
-                  imageModel: image,
-                  width: MediaQuery.of(context).size.width <= 600 
-                      ? MediaQuery.of(context).size.width / 2 - 8 
-                      : 200,
-                ),
-              );
+          child: RefreshIndicator(
+            onRefresh: () async {
+              await imageListRepository.refresh(true);
             },
+            child: MediaListView<ImageModel>(
+              sourceList: imageListRepository,
+              emptyIcon: Icons.image_outlined,
+              itemBuilder: (context, image, index) {
+                return Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
+                    vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
+                  ),
+                  child: ImageModelCardListItemWidget(
+                    imageModel: image,
+                    width: MediaQuery.of(context).size.width <= 600 
+                        ? MediaQuery.of(context).size.width / 2 - 8 
+                        : 200,
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ],

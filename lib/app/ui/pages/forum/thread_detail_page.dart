@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
-import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/forum/controllers/thread_detail_repository.dart';
@@ -14,7 +13,6 @@ import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/common_utils.dart';
-import 'package:i_iwara/utils/widget_extensions.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:shimmer/shimmer.dart';
@@ -22,6 +20,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'widgets/thread_comment_card_widget.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_edit_title_dialog.dart';
+import 'package:i_iwara/app/services/forum_service.dart';
 
 class ThreadDetailPage extends StatefulWidget {
   final String threadId;
@@ -42,7 +41,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
   final ScrollController _scrollController = ScrollController();
   final Rx<ForumThreadModel?> _thread = Rx<ForumThreadModel?>(null);
   final UserService _userService = Get.find<UserService>();
-
+  
   @override
   void initState() {
     super.initState();
@@ -169,6 +168,39 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
           return LoadingMoreCustomScrollView(
             controller: _scrollController,
             slivers: <Widget>[
+              // 添加面包屑导航
+              SliverToBoxAdapter(
+                child: Obx(() {
+                  if (_thread.value == null) return const SizedBox.shrink();
+                  
+                  return Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isWideScreen ? 16.0 : 8.0,
+                    ),
+                    child: Row(
+                      children: [
+                        Text(
+                          '${slang.t.forum.forum} / ',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          idNames[replaceUnderline(_thread.value!.section)] ?? 'Unknown',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              ),
+              
               // 帖子内容区域
               SliverToBoxAdapter(
                 child: Obx(() {
@@ -177,7 +209,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
                   }
 
                   return Card(
-                    margin: EdgeInsets.all(isWideScreen ? 16.0 : 8.0),
+                    margin: EdgeInsets.symmetric(horizontal: isWideScreen ? 16.0 : 8.0, vertical: 4.0),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -275,10 +307,10 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
                         ),
                         // 内容部分：标题、状态、统计信息及更新时间
                         Padding(
-                          padding: const EdgeInsets.all(16.0),
+                          padding: const EdgeInsets.all(8.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            spacing: 12,
+                            spacing: 8,
                             children: [
                               // 标题和状态
                               Column(
@@ -286,7 +318,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
                                 spacing: 8,
                                 children: [
                                   Row(
-                                    spacing: 8,
+                                    spacing: 4,
                                     children: [
                                       if (_thread.value!.sticky)
                                         Icon(

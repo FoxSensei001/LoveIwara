@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/follows/controllers/follows_controller.dart';
 import 'package:i_iwara/app/ui/pages/follows/widgets/followers_list.dart';
 import 'package:i_iwara/app/ui/pages/follows/widgets/following_list.dart';
+import 'package:i_iwara/app/ui/pages/follows/widgets/special_follows_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class FollowsPage extends StatefulWidget {
@@ -36,7 +37,7 @@ class _FollowsPageState extends State<FollowsPage>
       initIsFollowing: widget.initIsFollowing,
     ), tag: widget.userId);
     _tabController = TabController(
-      length: 2,
+      length: 3,
       vsync: this,
       initialIndex: widget.initIsFollowing ? 0 : 1,
     );
@@ -79,6 +80,7 @@ class _FollowsPageState extends State<FollowsPage>
           tabs: [
             Tab(text: t.common.following),
             Tab(text: t.common.fans),
+            Tab(text: t.common.specialFollowed),
           ],
         ),
       ),
@@ -93,6 +95,7 @@ class _FollowsPageState extends State<FollowsPage>
             scrollController: controller.followersListScrollController,
             controller: controller,
           ),
+          SpecialFollowsList(controller: controller),
         ],
       ),
     );

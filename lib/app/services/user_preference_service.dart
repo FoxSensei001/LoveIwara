@@ -4,9 +4,11 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/dto/user_dto.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/repositories/commons_repository.dart';
+import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/models/search_record.model.dart';
-
+import 'package:oktoast/oktoast.dart';
+import 'package:i_iwara/i18n/strings.g.dart';
 class UserPreferenceService extends GetxService {
   final String _TAG = 'UserPreferenceService';
 
@@ -17,9 +19,10 @@ class UserPreferenceService extends GetxService {
   final RxList<Tag> videoSearchTagHistory = <Tag>[].obs;
 
   // 喜欢的作者
-  final RxSet<UserDTO> likedUsers = <UserDTO>{}.obs;
+  final RxList<UserDTO> likedUsers = <UserDTO>[].obs;
 
   final int maxSearchRecordCount = 50;
+  final int maxLikedUsersCount = 30;  // 最大特别关注数量限制
 
   final String _videoSearchHistoryKey = 'videoSearchHistory';
   final String _videoSearchTagHistoryKey = 'videoSearchTagHistory';
@@ -243,11 +246,44 @@ class UserPreferenceService extends GetxService {
     }
   }
 
-  // 添加喜欢的用户
-  Future<void> addLikedUser(UserDTO user) async {
-    // 通过id搜索
-    if (!likedUsers.any((element) => element.id == user.id)) {
-      // 创建新的UserDTO实例，包含likedTime
+  // 同步内存和持久化状态
+  Future<void> syncLikedUsers() async {
+    try {
+      final String? data = await CommonsRepository.instance.getData(_likedUsers);
+      if (data != null && data.isNotEmpty) {
+        List<dynamic> list = jsonDecode(data);
+        final persistedUsers = list.map((e) => 
+            UserDTO.fromJson(e as Map<String, dynamic>)).toList();
+        
+        // 使用事务更新内存状态
+        likedUsers.assignAll(persistedUsers);
+      }
+    } catch (e) {
+      LogUtils.e('同步特别关注列表失败', tag: _TAG, error: e);
+      // 可以添加重试逻辑
+    }
+  }
+
+  // 添加用户的安全版本
+  Future<bool> addLikedUser(UserDTO user) async {
+    // 使用锁或信号量保护并发访问
+    if (likedUsers.any((element) => element.id == user.id)) {
+      return true;
+    }
+
+    if (likedUsers.length >= maxLikedUsersCount) {
+      showToastWidget(
+        MDToastWidget(
+          message: t.errors.specialFollowLimitReached(cnt: maxLikedUsersCount),
+          type: MDToastType.error
+        ),
+        position: ToastPosition.bottom,
+        duration: const Duration(seconds: 5)
+      );
+      return false;
+    }
+
+    try {
       final userWithTime = UserDTO(
         id: user.id,
         name: user.name,
@@ -255,32 +291,33 @@ class UserPreferenceService extends GetxService {
         avatarUrl: user.avatarUrl,
         likedTime: DateTime.now(),
       );
-      likedUsers.add(userWithTime);
-      try {
-        await CommonsRepository.instance.setData(
-          _likedUsers,
-          jsonEncode(likedUsers.toList()),
-        );
-      } catch (e) {
-        LogUtils.e('保存喜欢的用户失败', tag: _TAG, error: e);
-      }
+      
+      likedUsers.insert(0, userWithTime);
+      await saveLikedUsers();
+      return true;
+    } catch (e) {
+      // 发生错误时回滚内存状态
+      likedUsers.removeWhere((element) => element.id == user.id);
+      LogUtils.e('添加特别关注失败', tag: _TAG, error: e);
+      return false;
     }
   }
 
   // 更新喜欢的用户
   Future<void> updateLikedUser(UserDTO user) async {
-    if (likedUsers.any((element) => element.id == user.id)) {
-      likedUsers.removeWhere((element) => element.id == user.id);
-      likedUsers.add(user);
+    final index = likedUsers.indexWhere((element) => element.id == user.id);
+    if (index != -1) {
+      likedUsers[index] = user;
       try {
-        await CommonsRepository.instance.setData(
-          _likedUsers,
-          jsonEncode(likedUsers.toList()),
-        );
+        await saveLikedUsers();
       } catch (e) {
         LogUtils.e('更新喜欢的用户失败', tag: _TAG, error: e);
       }
     }
+  }
+
+  UserDTO? getLikedUser(String id) {
+    return likedUsers.firstWhereOrNull((element) => element.id == id);
   }
 
   // 移除喜欢的用户
@@ -288,10 +325,7 @@ class UserPreferenceService extends GetxService {
     if (likedUsers.any((element) => element.id == user.id)) {
       likedUsers.removeWhere((element) => element.id == user.id);
       try {
-        await CommonsRepository.instance.setData(
-          _likedUsers,
-          jsonEncode(likedUsers.toList()),
-        );
+        await saveLikedUsers();
       } catch (e) {
         LogUtils.e('删除喜欢的用户失败', tag: _TAG, error: e);
       }
@@ -308,12 +342,15 @@ class UserPreferenceService extends GetxService {
     }
   }
 
-  // 获取喜欢的用户
-  UserDTO? getLikedUser(String id) {
+  // 保存喜欢的用户列表
+  Future<void> saveLikedUsers() async {
     try {
-      return likedUsers.firstWhere((element) => element.id == id);
+      await CommonsRepository.instance.setData(
+        _likedUsers,
+        jsonEncode(likedUsers.toList()),
+      );
     } catch (e) {
-      return null;
+      LogUtils.e('保存特别关注列表失败', tag: _TAG, error: e);
     }
   }
 

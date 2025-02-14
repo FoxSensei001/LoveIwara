@@ -328,15 +328,6 @@ class _ForumPageState extends State<ForumPage> {
   Widget _buildRecentThreads() {
     return LoadingMoreCustomScrollView(
       slivers: <Widget>[
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              slang.t.forum.recent,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-          ),
-        ),
         LoadingMoreSliverList<ForumThreadModel>(
           SliverListConfig<ForumThreadModel>(
             extendedListDelegate:

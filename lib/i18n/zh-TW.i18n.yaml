@@ -172,6 +172,8 @@ common:
   taskRunning: "任務正在進行中，請稍後再試。"
   operationCancelled: "操作已取消。"
   unsavedChanges: "您有未儲存的更改"
+  specialFollowsManagementTip: 拖動可排序 • 左滑可刪除
+  specialFollowsManagement: 特別關注管理
 
 auth:
   login: 登入
@@ -255,6 +257,7 @@ errors:
   resourceNotFound: 資源不存在
   failedToSaveCredentials: "無法安全保存登入資訊"
   failedToLoadSavedCredentials: "載入保存的登入資訊失敗"
+  specialFollowLimitReached: '特別關注上限超出，上限: ${cnt}，請於關注列表頁中調整'
 friends:
   clickToRestoreFriend: 點擊恢復朋友
   friendsList: 朋友列表

@@ -101,6 +101,7 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
                       name: _currentUser.name,
                       username: _currentUser.username,
                       avatarUrl: _currentUser.avatar?.avatarUrl ?? '',
+                      likedTime: DateTime.now(),
                     ));
                   }
                   if (Get.isBottomSheetOpen ?? false) {

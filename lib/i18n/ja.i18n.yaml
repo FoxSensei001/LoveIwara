@@ -33,6 +33,8 @@ common:
   unfollow: フォロー解除
   specialFollow: 特別フォロー
   specialFollowed: 特別フォロー済み
+  specialFollowsManagementTip: ドラッグで並び替え • 左スワイプで削除
+  specialFollowsManagement: 特別フォロー管理
   gallery: ギャラリー
   playlist: プレイリスト
   commentPostedSuccessfully: コメントが正常に投稿されました
@@ -255,6 +257,7 @@ errors:
   resourceNotFound: リソースが見つかりません
   failedToSaveCredentials: "ログイン情報の保存に失敗しました"
   failedToLoadSavedCredentials: "保存されたログイン情報の読み込みに失敗しました"
+  specialFollowLimitReached: '特別フォローの上限を超えています。上限: ${cnt}，フォローリストページで調整してください'
 friends:
   clickToRestoreFriend: 友達を復元するにはクリックしてください
   friendsList: 友達リスト

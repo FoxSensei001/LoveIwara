@@ -176,6 +176,8 @@ common:
   taskRunning: "任务正在进行中，请稍后再试。"
   operationCancelled: "操作已取消。"
   unsavedChanges: "您有未保存的更改"
+  specialFollowsManagementTip: 拖动可排序 • 左滑可删除
+  specialFollowsManagement: 特别关注管理
 auth:
   tagLimit: 标签上限
   login: 登录
@@ -261,6 +263,7 @@ errors:
   resourceNotFound: 资源不存在
   failedToSaveCredentials: "无法安全保存登录信息"
   failedToLoadSavedCredentials: "加载保存的登录信息失败"
+  specialFollowLimitReached: '特别关注上限超出，上限: ${cnt}，请于关注列表页中调整'
 friends:
   clickToRestoreFriend: 点击恢复好友
   friendsList: 好友列表

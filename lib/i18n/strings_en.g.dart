@@ -241,6 +241,8 @@ class TranslationsCommonEn {
 	String get taskRunning => 'A task is already running, please wait.';
 	String get operationCancelled => 'Operation cancelled.';
 	String get unsavedChanges => 'You have unsaved changes';
+	String get specialFollowsManagementTip => 'Drag to reorder • Swipe left to remove';
+	String get specialFollowsManagement => 'Special Follows Management';
 }
 
 // Path: auth
@@ -338,6 +340,7 @@ class TranslationsErrorsEn {
 	String get resourceNotFound => 'Resource not found';
 	String get failedToSaveCredentials => 'Failed to save login credentials';
 	String get failedToLoadSavedCredentials => 'Failed to load saved credentials';
+	String specialFollowLimitReached({required Object cnt}) => 'Special follow limit exceeded, limit: ${cnt}, please adjust in the follow list page';
 }
 
 // Path: friends
@@ -1436,6 +1439,8 @@ extension on Translations {
 			case 'common.taskRunning': return 'A task is already running, please wait.';
 			case 'common.operationCancelled': return 'Operation cancelled.';
 			case 'common.unsavedChanges': return 'You have unsaved changes';
+			case 'common.specialFollowsManagementTip': return 'Drag to reorder • Swipe left to remove';
+			case 'common.specialFollowsManagement': return 'Special Follows Management';
 			case 'auth.login': return 'Login';
 			case 'auth.logout': return 'Logout';
 			case 'auth.email': return 'Email';
@@ -1515,6 +1520,7 @@ extension on Translations {
 			case 'errors.resourceNotFound': return 'Resource not found';
 			case 'errors.failedToSaveCredentials': return 'Failed to save login credentials';
 			case 'errors.failedToLoadSavedCredentials': return 'Failed to load saved credentials';
+			case 'errors.specialFollowLimitReached': return ({required Object cnt}) => 'Special follow limit exceeded, limit: ${cnt}, please adjust in the follow list page';
 			case 'friends.clickToRestoreFriend': return 'Click to restore friend';
 			case 'friends.friendsList': return 'Friends List';
 			case 'friends.friendRequests': return 'Friend Requests';

@@ -237,6 +237,8 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get taskRunning => '任務正在進行中，請稍後再試。';
 	@override String get operationCancelled => '操作已取消。';
 	@override String get unsavedChanges => '您有未儲存的更改';
+	@override String get specialFollowsManagementTip => '拖動可排序 • 左滑可刪除';
+	@override String get specialFollowsManagement => '特別關注管理';
 }
 
 // Path: auth
@@ -334,6 +336,7 @@ class _TranslationsErrorsZhTw implements TranslationsErrorsEn {
 	@override String get resourceNotFound => '資源不存在';
 	@override String get failedToSaveCredentials => '無法安全保存登入資訊';
 	@override String get failedToLoadSavedCredentials => '載入保存的登入資訊失敗';
+	@override String specialFollowLimitReached({required Object cnt}) => '特別關注上限超出，上限: ${cnt}，請於關注列表頁中調整';
 }
 
 // Path: friends
@@ -1435,6 +1438,8 @@ extension on TranslationsZhTw {
 			case 'common.taskRunning': return '任務正在進行中，請稍後再試。';
 			case 'common.operationCancelled': return '操作已取消。';
 			case 'common.unsavedChanges': return '您有未儲存的更改';
+			case 'common.specialFollowsManagementTip': return '拖動可排序 • 左滑可刪除';
+			case 'common.specialFollowsManagement': return '特別關注管理';
 			case 'auth.login': return '登入';
 			case 'auth.logout': return '登出';
 			case 'auth.email': return '電子郵件';
@@ -1514,6 +1519,7 @@ extension on TranslationsZhTw {
 			case 'errors.resourceNotFound': return '資源不存在';
 			case 'errors.failedToSaveCredentials': return '無法安全保存登入資訊';
 			case 'errors.failedToLoadSavedCredentials': return '載入保存的登入資訊失敗';
+			case 'errors.specialFollowLimitReached': return ({required Object cnt}) => '特別關注上限超出，上限: ${cnt}，請於關注列表頁中調整';
 			case 'friends.clickToRestoreFriend': return '點擊恢復朋友';
 			case 'friends.friendsList': return '朋友列表';
 			case 'friends.friendRequests': return '朋友請求';

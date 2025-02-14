@@ -97,6 +97,8 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get unfollow => 'フォロー解除';
 	@override String get specialFollow => '特別フォロー';
 	@override String get specialFollowed => '特別フォロー済み';
+	@override String get specialFollowsManagementTip => 'ドラッグで並び替え • 左スワイプで削除';
+	@override String get specialFollowsManagement => '特別フォロー管理';
 	@override String get gallery => 'ギャラリー';
 	@override String get playlist => 'プレイリスト';
 	@override String get commentPostedSuccessfully => 'コメントが正常に投稿されました';
@@ -334,6 +336,7 @@ class _TranslationsErrorsJa implements TranslationsErrorsEn {
 	@override String get resourceNotFound => 'リソースが見つかりません';
 	@override String get failedToSaveCredentials => 'ログイン情報の保存に失敗しました';
 	@override String get failedToLoadSavedCredentials => '保存されたログイン情報の読み込みに失敗しました';
+	@override String specialFollowLimitReached({required Object cnt}) => '特別フォローの上限を超えています。上限: ${cnt}，フォローリストページで調整してください';
 }
 
 // Path: friends
@@ -1292,6 +1295,8 @@ extension on TranslationsJa {
 			case 'common.unfollow': return 'フォロー解除';
 			case 'common.specialFollow': return '特別フォロー';
 			case 'common.specialFollowed': return '特別フォロー済み';
+			case 'common.specialFollowsManagementTip': return 'ドラッグで並び替え • 左スワイプで削除';
+			case 'common.specialFollowsManagement': return '特別フォロー管理';
 			case 'common.gallery': return 'ギャラリー';
 			case 'common.playlist': return 'プレイリスト';
 			case 'common.commentPostedSuccessfully': return 'コメントが正常に投稿されました';
@@ -1511,6 +1516,7 @@ extension on TranslationsJa {
 			case 'errors.resourceNotFound': return 'リソースが見つかりません';
 			case 'errors.failedToSaveCredentials': return 'ログイン情報の保存に失敗しました';
 			case 'errors.failedToLoadSavedCredentials': return '保存されたログイン情報の読み込みに失敗しました';
+			case 'errors.specialFollowLimitReached': return ({required Object cnt}) => '特別フォローの上限を超えています。上限: ${cnt}，フォローリストページで調整してください';
 			case 'friends.clickToRestoreFriend': return '友達を復元するにはクリックしてください';
 			case 'friends.friendsList': return '友達リスト';
 			case 'friends.friendRequests': return '友達リクエスト';

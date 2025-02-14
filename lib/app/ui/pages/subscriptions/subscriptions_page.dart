@@ -280,11 +280,9 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
 
   // 抽取订阅列表构建方法
   Widget _buildSubscriptionList() {
-    RxSet<UserDTO> likedUsers = userPreferenceService.likedUsers;
-    List<UserDTO> sortedUsers = likedUsers.toList()
-      ..sort((a, b) => (b.likedTime ?? DateTime.fromMillisecondsSinceEpoch(0))
-          .compareTo(a.likedTime ?? DateTime.fromMillisecondsSinceEpoch(0)));
-    List<SubscriptionSelectItem> selectionList = sortedUsers
+    final likedUsers = userPreferenceService.likedUsers;
+
+    List<SubscriptionSelectItem> selectionList = likedUsers
         .map((userDto) => SubscriptionSelectItem(
               id: userDto.id,
               label: userDto.name,

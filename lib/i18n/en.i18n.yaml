@@ -172,6 +172,8 @@ common:
   taskRunning: "A task is already running, please wait."
   operationCancelled: "Operation cancelled."
   unsavedChanges: "You have unsaved changes"
+  specialFollowsManagementTip: Drag to reorder • Swipe left to remove
+  specialFollowsManagement: Special Follows Management
 auth:
   login: Login
   logout: Logout
@@ -254,6 +256,7 @@ errors:
   resourceNotFound: Resource not found
   failedToSaveCredentials: "Failed to save login credentials"
   failedToLoadSavedCredentials: "Failed to load saved credentials"
+  specialFollowLimitReached: 'Special follow limit exceeded, limit: ${cnt}, please adjust in the follow list page'
 friends:
   clickToRestoreFriend: Click to restore friend
   friendsList: Friends List

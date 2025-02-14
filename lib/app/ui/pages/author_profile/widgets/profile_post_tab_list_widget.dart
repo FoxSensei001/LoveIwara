@@ -139,23 +139,28 @@ class _ProfilePostTabListWidgetState extends State<ProfilePostTabListWidget>
 
     return Stack(
       children: [
-        LoadingMoreCustomScrollView(
-          controller: _scrollController,
-          slivers: <Widget>[
-            LoadingMoreSliverList<PostModel>(
-              SliverListConfig<PostModel>(
-                itemBuilder: buildItem,
-                sourceList: listSourceRepository,
-                padding: const EdgeInsets.all(8.0),
-                indicatorBuilder: (context, status) => myLoadingMoreIndicator(
-                  context,
-                  status,
-                  isSliver: true,
-                  loadingMoreBase: listSourceRepository,
+        RefreshIndicator(
+          onRefresh: () async {
+            await listSourceRepository.refresh(true);
+          },
+          child: LoadingMoreCustomScrollView(
+            controller: _scrollController,
+            slivers: <Widget>[
+              LoadingMoreSliverList<PostModel>(
+                SliverListConfig<PostModel>(
+                  itemBuilder: buildItem,
+                  sourceList: listSourceRepository,
+                  padding: const EdgeInsets.all(8.0),
+                  indicatorBuilder: (context, status) => myLoadingMoreIndicator(
+                    context,
+                    status,
+                    isSliver: true,
+                    loadingMoreBase: listSourceRepository,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         Positioned(
           right: 16,

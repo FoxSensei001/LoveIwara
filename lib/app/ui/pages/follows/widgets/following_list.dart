@@ -20,40 +20,48 @@ class FollowingList extends StatefulWidget {
   State<FollowingList> createState() => _FollowingListState();
 }
 
-class _FollowingListState extends State<FollowingList> with AutomaticKeepAliveClientMixin {
+class _FollowingListState extends State<FollowingList>
+    with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    
-    return LoadingMoreCustomScrollView(
-      controller: widget.scrollController,
-      slivers: [
-        LoadingMoreSliverList<User>(
-          SliverListConfig<User>(
-            itemBuilder: (context, user, index) {
-              return UserCard(
-                user: user,
-              );
-            },
-            sourceList: widget.controller.followingRepository,
-            padding: EdgeInsets.fromLTRB(
-              5.0,
-              5.0,
-              5.0,
-              Get.context != null ? MediaQuery.of(Get.context!).padding.bottom + 5.0 : 0,
-            ),
-            indicatorBuilder: (context, status) => myLoadingMoreIndicator(
-              context,
-              status,
-              isSliver: true,
-              loadingMoreBase: widget.controller.followingRepository,
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        await widget.controller.followingRepository.refresh(true);
+      },
+      child: LoadingMoreCustomScrollView(
+        controller: widget.scrollController,
+        slivers: [
+          LoadingMoreSliverList<User>(
+            SliverListConfig<User>(
+              itemBuilder: (context, user, index) {
+                return UserCard(
+                  user: user,
+                );
+              },
+              sourceList: widget.controller.followingRepository,
+              padding: EdgeInsets.fromLTRB(
+                5.0,
+                5.0,
+                5.0,
+                Get.context != null
+                    ? MediaQuery.of(Get.context!).padding.bottom + 5.0
+                    : 0,
+              ),
+              indicatorBuilder: (context, status) => myLoadingMoreIndicator(
+                context,
+                status,
+                isSliver: true,
+                loadingMoreBase: widget.controller.followingRepository,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
-} 
+}

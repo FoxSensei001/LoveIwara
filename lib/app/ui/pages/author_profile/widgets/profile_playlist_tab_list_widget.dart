@@ -40,28 +40,33 @@ class _ProfilePlaylistTabListWidgetState extends State<ProfilePlaylistTabListWid
 
   @override
   Widget build(BuildContext context) {
-    return LoadingMoreCustomScrollView(
-      slivers: <Widget>[
-        LoadingMoreSliverList<PlaylistModel>(
-          SliverListConfig<PlaylistModel>(
-            extendedListDelegate: const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 300,
-              crossAxisSpacing: 5,
-              mainAxisSpacing: 5,
+    return RefreshIndicator(
+      onRefresh: () async {
+        await listSourceRepository.refresh(true);
+      },
+      child: LoadingMoreCustomScrollView(
+        slivers: <Widget>[
+          LoadingMoreSliverList<PlaylistModel>(
+            SliverListConfig<PlaylistModel>(
+              extendedListDelegate: const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 300,
+                crossAxisSpacing: 5,
+                mainAxisSpacing: 5,
+              ),
+              itemBuilder: (context, item, index) => PlaylistItemWidget(playlist: item),
+              sourceList: listSourceRepository,
+              padding: const EdgeInsets.all(5.0),
+              lastChildLayoutType: LastChildLayoutType.foot,
+              indicatorBuilder: (context, status) => myLoadingMoreIndicator(
+                context, 
+                status,
+                isSliver: true, 
+                loadingMoreBase: listSourceRepository
+              ),
             ),
-            itemBuilder: (context, item, index) => PlaylistItemWidget(playlist: item),
-            sourceList: listSourceRepository,
-            padding: const EdgeInsets.all(5.0),
-            lastChildLayoutType: LastChildLayoutType.foot,
-            indicatorBuilder: (context, status) => myLoadingMoreIndicator(
-              context, 
-              status,
-              isSliver: true, 
-              loadingMoreBase: listSourceRepository
-            ),
-          ),
-        )
-      ],
+          )
+        ],
+      ),
     );
   }
 } 

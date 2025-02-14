@@ -3,7 +3,7 @@ class UserDTO {
   final String name;
   final String username;
   final String avatarUrl;
-  final DateTime? likedTime;
+  DateTime? likedTime;
 
   UserDTO({
     required this.id,
@@ -31,5 +31,20 @@ class UserDTO {
       'avatarUrl': avatarUrl,
       'likedTime': likedTime?.toIso8601String(),
     };
+  }
+
+  UserDTO copyWith({
+    String? name,
+    String? username,
+    String? avatarUrl,
+    DateTime? likedTime,
+  }) {
+    return UserDTO(
+      id: id,
+      name: name ?? this.name,
+      username: username ?? this.username,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      likedTime: likedTime ?? this.likedTime,
+    );
   }
 }

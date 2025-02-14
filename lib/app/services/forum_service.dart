@@ -61,6 +61,11 @@ final Map<String, String> idDescriptions = {
   'other': slang.t.forum.leafDescriptions.other,
 };
 
+String replaceUnderline(String? id) {
+  if (id == null) return '';
+  return id.replaceAll('-', '_');
+}
+
 class ForumService extends GetxService {
   final ApiService _apiService = Get.find();
 

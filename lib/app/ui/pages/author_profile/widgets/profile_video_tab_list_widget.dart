@@ -189,23 +189,28 @@ class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
           ],
         ),
         Expanded(
-          child: MediaListView<Video>(
-            sourceList: videoListRepository,
-            emptyIcon: Icons.video_library_outlined,
-            itemBuilder: (context, video, index) {
-              return Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
-                  vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
-                ),
-                child: VideoCardListItemWidget(
-                  video: video,
-                  width: MediaQuery.of(context).size.width <= 600 
-                      ? MediaQuery.of(context).size.width / 2 - 8 
-                      : 200,
-                ),
-              );
+          child: RefreshIndicator(
+            onRefresh: () async {
+              await videoListRepository.refresh(true);
             },
+            child: MediaListView<Video>(
+              sourceList: videoListRepository,
+              emptyIcon: Icons.video_library_outlined,
+              itemBuilder: (context, video, index) {
+                return Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
+                    vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
+                  ),
+                  child: VideoCardListItemWidget(
+                    video: video,
+                    width: MediaQuery.of(context).size.width <= 600 
+                        ? MediaQuery.of(context).size.width / 2 - 8 
+                        : 200,
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ],

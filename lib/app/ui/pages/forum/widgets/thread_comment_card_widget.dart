@@ -5,7 +5,6 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/translation_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
-import 'package:i_iwara/app/routes/app_routes.dart';
 import 'package:i_iwara/app/ui/pages/forum/controllers/thread_detail_repository.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_reply_dialog.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_edit_reply_dialog.dart';
@@ -343,6 +342,7 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
               spacing: 4,
               children: [
                 if (widget.comment.createdAt != widget.comment.updatedAt) ...[
+                  const SizedBox(width: 4),
                   const Icon(Icons.edit, size: 14),
                   Text(
                     CommonUtils.formatFriendlyTimestamp(widget.comment.updatedAt),

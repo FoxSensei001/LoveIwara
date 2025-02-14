@@ -239,6 +239,8 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String get taskRunning => '任务正在进行中，请稍后再试。';
 	@override String get operationCancelled => '操作已取消。';
 	@override String get unsavedChanges => '您有未保存的更改';
+	@override String get specialFollowsManagementTip => '拖动可排序 • 左滑可删除';
+	@override String get specialFollowsManagement => '特别关注管理';
 }
 
 // Path: auth
@@ -339,6 +341,7 @@ class _TranslationsErrorsZhCn implements TranslationsErrorsEn {
 	@override String get resourceNotFound => '资源不存在';
 	@override String get failedToSaveCredentials => '无法安全保存登录信息';
 	@override String get failedToLoadSavedCredentials => '加载保存的登录信息失败';
+	@override String specialFollowLimitReached({required Object cnt}) => '特别关注上限超出，上限: ${cnt}，请于关注列表页中调整';
 }
 
 // Path: friends
@@ -1439,6 +1442,8 @@ extension on TranslationsZhCn {
 			case 'common.taskRunning': return '任务正在进行中，请稍后再试。';
 			case 'common.operationCancelled': return '操作已取消。';
 			case 'common.unsavedChanges': return '您有未保存的更改';
+			case 'common.specialFollowsManagementTip': return '拖动可排序 • 左滑可删除';
+			case 'common.specialFollowsManagement': return '特别关注管理';
 			case 'auth.tagLimit': return '标签上限';
 			case 'auth.login': return '登录';
 			case 'auth.logout': return '退出登录';
@@ -1521,6 +1526,7 @@ extension on TranslationsZhCn {
 			case 'errors.resourceNotFound': return '资源不存在';
 			case 'errors.failedToSaveCredentials': return '无法安全保存登录信息';
 			case 'errors.failedToLoadSavedCredentials': return '加载保存的登录信息失败';
+			case 'errors.specialFollowLimitReached': return ({required Object cnt}) => '特别关注上限超出，上限: ${cnt}，请于关注列表页中调整';
 			case 'friends.clickToRestoreFriend': return '点击恢复好友';
 			case 'friends.friendsList': return '好友列表';
 			case 'friends.friendRequests': return '好友请求';
