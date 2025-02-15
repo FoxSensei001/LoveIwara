@@ -154,7 +154,7 @@ class _GestureAreaState extends State<GestureArea>
   void _onLongPressEnd(LongPressEndDetails details) async {
     // 震动
     if (await Vibration.hasVibrator() && CommonConstants.enableVibration) {
-      await Vibration.vibrate(duration: 100);
+      await Vibration.vibrate(duration: 50);
     }
 
     widget.setLongPressing?.call(LongPressType.normal, false);
