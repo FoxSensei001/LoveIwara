@@ -20,11 +20,13 @@ android {
 
     defaultConfig {
         applicationId = "m.c.g.a.i_iwara"
-        // 将 minSdk 从 23 改为 24
         minSdk = 24
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        ndk {
+            abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86_64'
+        }
     }
 
     // 配置正式签名（正式构建时使用）
@@ -42,10 +44,14 @@ android {
         release {
             // 正式构建时启用正式签名
             signingConfig signingConfigs.release
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled false
+            shrinkResources false
+        }
+        debug {
+            signingConfig signingConfigs.debug
         }
     }
+
     packagingOptions {
         jniLibs {
             useLegacyPackaging = true
