@@ -451,6 +451,9 @@ settings:
   versionLabel: "Version: {version}"
   releaseDateLabel: "Release Date: {date}"
   noChanges: "No update content available"
+  interaction: Interaction
+  enableVibration: Enable Vibration
+  enableVibrationDesc: Enable vibration feedback when interacting with the app
 signIn:
   pleaseLoginFirst: Please login first
   alreadySignedInToday: You have already signed in today!

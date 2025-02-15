@@ -452,6 +452,9 @@ settings:
   versionLabel: "バージョン: {version}"
   releaseDateLabel: "リリース日: {date}"
   noChanges: "更新内容がありません"
+  interaction: インタラクション
+  enableVibration: バイブレーション
+  enableVibrationDesc: アプリの操作時にバイブレーションフィードバックを有効にする
 signIn:
   pleaseLoginFirst: サインインする前にログインしてください
   alreadySignedInToday: 今日は既にサインインしています！

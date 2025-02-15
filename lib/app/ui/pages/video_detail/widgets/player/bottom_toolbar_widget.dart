@@ -630,7 +630,7 @@ class BottomToolbar extends StatelessWidget {
             size: iconSize,
           ),
           onPressed: () async {
-            if (await Vibration.hasVibrator() ?? false) {
+            if (await Vibration.hasVibrator() && CommonConstants.enableVibration) {
               await Vibration.vibrate(duration: 50);
             }
 

@@ -594,6 +594,9 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get versionLabel => '版本: {version}';
 	@override String get releaseDateLabel => '发布日期: {date}';
 	@override String get noChanges => '暂无更新内容';
+	@override String get interaction => '交互';
+	@override String get enableVibration => '启用震动';
+	@override String get enableVibrationDesc => '启用应用交互时的震动反馈';
 }
 
 // Path: signIn
@@ -1707,6 +1710,9 @@ extension on TranslationsZhCn {
 			case 'settings.versionLabel': return '版本: {version}';
 			case 'settings.releaseDateLabel': return '发布日期: {date}';
 			case 'settings.noChanges': return '暂无更新内容';
+			case 'settings.interaction': return '交互';
+			case 'settings.enableVibration': return '启用震动';
+			case 'settings.enableVibrationDesc': return '启用应用交互时的震动反馈';
 			case 'signIn.pleaseLoginFirst': return '请先登录';
 			case 'signIn.alreadySignedInToday': return '您今天已经签到过了！';
 			case 'signIn.youDidNotStickToTheSignIn': return '您未能坚持签到。';

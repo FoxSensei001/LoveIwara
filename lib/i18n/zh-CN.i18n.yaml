@@ -459,6 +459,9 @@ settings:
   versionLabel: "版本: {version}"
   releaseDateLabel: "发布日期: {date}"
   noChanges: "暂无更新内容"
+  interaction: 交互
+  enableVibration: 启用震动
+  enableVibrationDesc: 启用应用交互时的震动反馈
 signIn:
   pleaseLoginFirst: 请先登录
   alreadySignedInToday: 您今天已经签到过了！

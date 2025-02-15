@@ -143,7 +143,7 @@ class _GestureAreaState extends State<GestureArea>
 
   void _onLongPressStart(LongPressStartDetails details) async {
     // 添加震动反馈
-    if (await Vibration.hasVibrator() ?? false) {
+    if (await Vibration.hasVibrator() && CommonConstants.enableVibration) {
       await Vibration.vibrate(duration: 50);
     }
     // 如果视频在暂停或buffering状态，不处理

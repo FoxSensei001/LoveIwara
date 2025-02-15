@@ -589,6 +589,9 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get versionLabel => 'バージョン: {version}';
 	@override String get releaseDateLabel => 'リリース日: {date}';
 	@override String get noChanges => '更新内容がありません';
+	@override String get interaction => 'インタラクション';
+	@override String get enableVibration => 'バイブレーション';
+	@override String get enableVibrationDesc => 'アプリの操作時にバイブレーションフィードバックを有効にする';
 }
 
 // Path: signIn
@@ -1697,6 +1700,9 @@ extension on TranslationsJa {
 			case 'settings.versionLabel': return 'バージョン: {version}';
 			case 'settings.releaseDateLabel': return 'リリース日: {date}';
 			case 'settings.noChanges': return '更新内容がありません';
+			case 'settings.interaction': return 'インタラクション';
+			case 'settings.enableVibration': return 'バイブレーション';
+			case 'settings.enableVibrationDesc': return 'アプリの操作時にバイブレーションフィードバックを有効にする';
 			case 'signIn.pleaseLoginFirst': return 'サインインする前にログインしてください';
 			case 'signIn.alreadySignedInToday': return '今日は既にサインインしています！';
 			case 'signIn.youDidNotStickToTheSignIn': return 'サインインを続けることができませんでした。';

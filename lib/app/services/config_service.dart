@@ -73,7 +73,7 @@ class ConfigService extends GetxService {
     CommonConstants.currentPresetIndex = settings[ConfigKey.CURRENT_PRESET_INDEX_KEY]!.value;
     CommonConstants.currentCustomHex = settings[ConfigKey.CURRENT_CUSTOM_HEX_KEY]!.value;
     CommonConstants.enableHistory = settings[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS]!.value;
-
+    CommonConstants.enableVibration = settings[ConfigKey.ENABLE_VIBRATION]!.value;
     return this;
   }
 
@@ -192,6 +192,7 @@ enum ConfigKey {
   AI_TRANSLATION_PROMPT,
   ENABLE_SIGNATURE_KEY,  // 是否启用小尾巴
   SIGNATURE_CONTENT_KEY, // 小尾巴内容
+  ENABLE_VIBRATION, // 是否开启震动
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -244,6 +245,7 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.USER_TARGET_LANGUAGE_KEY: return 'user_target_language';
       case ConfigKey.ENABLE_SIGNATURE_KEY: return 'enable_signature';
       case ConfigKey.SIGNATURE_CONTENT_KEY: return 'signature_content';
+      case ConfigKey.ENABLE_VIBRATION: return 'enable_vibration';
     }
   }
 
@@ -343,6 +345,8 @@ extension ConfigKeyExtension on ConfigKey {
         return false;
       case ConfigKey.SIGNATURE_CONTENT_KEY:
         return '\n\n---\nSent from ${CommonConstants.applicationNickname}';
+      case ConfigKey.ENABLE_VIBRATION:
+        return true;
       default:
         throw Exception("Unknown ConfigKey: $this");
     }

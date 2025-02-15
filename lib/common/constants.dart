@@ -87,6 +87,9 @@ class CommonConstants {
   static String defaultThumbnailUrl =
       '$iwaraBaseUrl/images/default-thumbnail.jpg';
 
+  /// ============================== 功能开关Start ==============================
+  // 开启震动
+  static bool enableVibration = true;
   // 是否启用R18内容
   static bool enableR18 = true;
 
@@ -105,6 +108,8 @@ class CommonConstants {
 
   static ColorScheme? dynamicLightColorScheme;
   static ColorScheme? dynamicDarkColorScheme;
+
+  /// ============================== 功能开关End ==============================
 
   // 获取用户背景URL
   static userProfileHeaderUrl(String? headerId) {

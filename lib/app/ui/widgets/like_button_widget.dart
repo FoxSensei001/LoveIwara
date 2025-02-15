@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_routes.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:vibration/vibration.dart';
@@ -51,7 +52,7 @@ class _LikeButtonWidgetState extends State<LikeButtonWidget> {
       return;
     }
 
-    if (await Vibration.hasVibrator() ?? false) {
+    if (await Vibration.hasVibrator() && CommonConstants.enableVibration) {
       await Vibration.vibrate(duration: 50);
     }
 

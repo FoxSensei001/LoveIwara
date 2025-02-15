@@ -593,6 +593,9 @@ class TranslationsSettingsEn {
 	String get versionLabel => 'Version: {version}';
 	String get releaseDateLabel => 'Release Date: {date}';
 	String get noChanges => 'No update content available';
+	String get interaction => 'Interaction';
+	String get enableVibration => 'Enable Vibration';
+	String get enableVibrationDesc => 'Enable vibration feedback when interacting with the app';
 }
 
 // Path: signIn
@@ -1701,6 +1704,9 @@ extension on Translations {
 			case 'settings.versionLabel': return 'Version: {version}';
 			case 'settings.releaseDateLabel': return 'Release Date: {date}';
 			case 'settings.noChanges': return 'No update content available';
+			case 'settings.interaction': return 'Interaction';
+			case 'settings.enableVibration': return 'Enable Vibration';
+			case 'settings.enableVibrationDesc': return 'Enable vibration feedback when interacting with the app';
 			case 'signIn.pleaseLoginFirst': return 'Please login first';
 			case 'signIn.alreadySignedInToday': return 'You have already signed in today!';
 			case 'signIn.youDidNotStickToTheSignIn': return 'You did not stick to the sign in.';

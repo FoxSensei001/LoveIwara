@@ -8,6 +8,7 @@ import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/services/config_backup_service.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:vibration/vibration.dart';
 
 class AppSettingsPage extends StatelessWidget {
   final bool isWideScreen;
@@ -105,6 +106,52 @@ class AppSettingsPage extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+          FutureBuilder<bool>(
+            future: Vibration.hasVibrator(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData && snapshot.data == true) {
+                return Card(
+                  elevation: 2,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(16)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Text(
+                          slang.t.settings.interaction,
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                      ),
+                      const Divider(height: 1),
+                      Obx(
+                        () => SwitchListTile(
+                          title: Text(slang.t.settings.enableVibration),
+                          subtitle: Text(slang.t.settings.enableVibrationDesc),
+                          value: configService[ConfigKey.ENABLE_VIBRATION],
+                          onChanged: (value) {
+                            configService[ConfigKey.ENABLE_VIBRATION] = value;
+                            CommonConstants.enableVibration = value;
+                          },
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(16),
+                              bottomRight: Radius.circular(16),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            },
           ),
           if (GetPlatform.isAndroid)
             Card(

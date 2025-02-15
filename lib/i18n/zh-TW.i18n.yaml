@@ -453,6 +453,9 @@ settings:
   versionLabel: "版本: {version}"
   releaseDateLabel: "發布日期: {date}"
   noChanges: "暫無更新內容"
+  interaction: 互動
+  enableVibration: 啟用震動
+  enableVibrationDesc: 啟用應用互動時的震動反饋
 
 signIn:
   pleaseLoginFirst: 請先登入

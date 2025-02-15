@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_preview_modal.dart';
+import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:vibration/vibration.dart';
 
@@ -268,7 +269,7 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
   /// 处理长按和右键事件
   void _handleLongPress(BuildContext context) async {
     // 震动反馈
-    if (await Vibration.hasVibrator() ?? false) {
+    if (await Vibration.hasVibrator() && CommonConstants.enableVibration) {
       await Vibration.vibrate(pattern: [500]);
     }
 

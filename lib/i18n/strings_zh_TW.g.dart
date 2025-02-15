@@ -589,6 +589,9 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get versionLabel => '版本: {version}';
 	@override String get releaseDateLabel => '發布日期: {date}';
 	@override String get noChanges => '暫無更新內容';
+	@override String get interaction => '互動';
+	@override String get enableVibration => '啟用震動';
+	@override String get enableVibrationDesc => '啟用應用互動時的震動反饋';
 }
 
 // Path: signIn
@@ -1700,6 +1703,9 @@ extension on TranslationsZhTw {
 			case 'settings.versionLabel': return '版本: {version}';
 			case 'settings.releaseDateLabel': return '發布日期: {date}';
 			case 'settings.noChanges': return '暫無更新內容';
+			case 'settings.interaction': return '互動';
+			case 'settings.enableVibration': return '啟用震動';
+			case 'settings.enableVibrationDesc': return '啟用應用互動時的震動反饋';
 			case 'signIn.pleaseLoginFirst': return '請先登入';
 			case 'signIn.alreadySignedInToday': return '您今天已經簽到過了！';
 			case 'signIn.youDidNotStickToTheSignIn': return '您未能持續簽到。';
