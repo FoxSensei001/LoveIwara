@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/play_list.model.dart';
@@ -228,7 +227,7 @@ class _PlayListPageState extends State<PlayListPage> {
       AlertDialog(
         title: Text('💡 ${slang.t.playList.friendlyTips}',
             style: const TextStyle(fontSize: 18)),
-        content: ExtendedText(
+        content: Text(
           '${slang.t.playList.dearUser}:\n\n'
           '⚠️ ${slang.t.playList.iwaraPlayListSystemIsNotPerfectYet}\n'
           '• ${slang.t.playList.notSupportSetCover}\n'
