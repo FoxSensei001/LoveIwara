@@ -473,6 +473,8 @@ class TranslationsSettingsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+	String get showVideoProgressBottomBarWhenToolbarHidden => 'Show Video Progress Bottom Bar When Toolbar Hidden';
+	String get showVideoProgressBottomBarWhenToolbarHiddenDesc => 'This configuration determines whether the video progress bottom bar will be shown when the toolbar is hidden.';
 	String get basicSettings => 'Basic Settings';
 	String get personalizedSettings => 'Personalized Settings';
 	String get otherSettings => 'Other Settings';
@@ -1584,6 +1586,8 @@ extension on Translations {
 			case 'search.searchResult': return 'Search Result';
 			case 'search.unsupportedSearchType': return ({required Object searchType}) => 'Unsupported search type: ${searchType}';
 			case 'mediaList.personalIntroduction': return 'Personal Introduction';
+			case 'settings.showVideoProgressBottomBarWhenToolbarHidden': return 'Show Video Progress Bottom Bar When Toolbar Hidden';
+			case 'settings.showVideoProgressBottomBarWhenToolbarHiddenDesc': return 'This configuration determines whether the video progress bottom bar will be shown when the toolbar is hidden.';
 			case 'settings.basicSettings': return 'Basic Settings';
 			case 'settings.personalizedSettings': return 'Personalized Settings';
 			case 'settings.otherSettings': return 'Other Settings';

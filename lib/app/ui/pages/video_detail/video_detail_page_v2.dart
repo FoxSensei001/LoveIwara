@@ -88,8 +88,8 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
 
     // 如果操作类型是进入，上一个路由contains Routes.VIDEO_DETAIL，则暂停
     if (route?.isActive == true && previousRoute?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) == true) {
-      // 如果当前正在loading，则不pause
-      if (!controller.player.state.buffering) {
+      // 如果当前路由为null，则不pause
+      if (route?.settings.name != null) {
         controller.player.pause();
       }
     }

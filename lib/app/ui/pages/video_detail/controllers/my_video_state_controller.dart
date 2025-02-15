@@ -138,7 +138,7 @@ class MyVideoStateController extends GetxController
     
     // 动画
     animationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 200),
       vsync: this,
     );
 
@@ -736,7 +736,7 @@ class MyVideoStateController extends GetxController
     } else {
       player.setVolume(volume * 100);
     }
-    _configService.setSetting(ConfigKey.VOLUME_KEY, volume); // 移除save参数
+    _configService.setSetting(ConfigKey.VOLUME_KEY, volume, save: save);
     _isAdjustingVolumeByGesture = false;
   }
 
@@ -748,7 +748,7 @@ class MyVideoStateController extends GetxController
     final Duration end = bufferDuration;
 
     // 如果缓冲时长小于等于当前播放位置，或大于总时长，则忽略
-    if (end <= start || end > totalDuration.value) {
+    if (end <= Duration.zero || end > totalDuration.value) {
       return;
     }
 

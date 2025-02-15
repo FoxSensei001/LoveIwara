@@ -469,6 +469,8 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	final TranslationsJa _root; // ignore: unused_field
 
 	// Translations
+	@override String get showVideoProgressBottomBarWhenToolbarHidden => '底部プログレスバー';
+	@override String get showVideoProgressBottomBarWhenToolbarHiddenDesc => 'この設定は、ツールバーが非表示のときに底部プログレスバーを表示するかどうかを決定します。';
 	@override String get basicSettings => '基本設定';
 	@override String get personalizedSettings => '個性化設定';
 	@override String get otherSettings => 'その他設定';
@@ -1580,6 +1582,8 @@ extension on TranslationsJa {
 			case 'search.searchResult': return '検索結果';
 			case 'search.unsupportedSearchType': return ({required Object searchType}) => 'サポートされていない検索タイプ: ${searchType}';
 			case 'mediaList.personalIntroduction': return '個人紹介';
+			case 'settings.showVideoProgressBottomBarWhenToolbarHidden': return '底部プログレスバー';
+			case 'settings.showVideoProgressBottomBarWhenToolbarHiddenDesc': return 'この設定は、ツールバーが非表示のときに底部プログレスバーを表示するかどうかを決定します。';
 			case 'settings.basicSettings': return '基本設定';
 			case 'settings.personalizedSettings': return '個性化設定';
 			case 'settings.otherSettings': return 'その他設定';

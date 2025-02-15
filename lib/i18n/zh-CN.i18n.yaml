@@ -339,6 +339,8 @@ mediaList:
   personalIntroduction: 个人简介
 
 settings:
+  showVideoProgressBottomBarWhenToolbarHidden: 显示底部进度条
+  showVideoProgressBottomBarWhenToolbarHiddenDesc: 此配置决定是否在工具栏隐藏时显示底部进度条
   basicSettings: 基础设置
   personalizedSettings: 个性化设置
   otherSettings: 其他设置

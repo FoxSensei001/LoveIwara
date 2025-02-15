@@ -389,6 +389,8 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                             // InfoMessage 提示区域
                             _buildInfoMessage(),
                             _buildSeekPreview(),
+                            // 添加底部进度条
+                            _buildBottomProgressBar(),
                           ],
                         ),
                       ),
@@ -756,7 +758,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   // 快进的消息提示
   Widget _buildInfoMessage() {
     return Positioned(
-      top: 50,
+      top: 20,
       left: 0,
       right: 0,
       child: Center(
@@ -949,6 +951,99 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                 ),
               ],
             ),
+          ),
+        ),
+      );
+    });
+  }
+
+  // 在类中添加新的方法
+  Widget _buildBottomProgressBar() {
+    return Obx(() {
+      if (!_configService[ConfigKey.SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN]) {
+        return const SizedBox.shrink();
+      }
+
+      return Positioned(
+        left: 0,
+        right: 0,
+        bottom: 0,
+        child: IgnorePointer(
+          child: AnimatedBuilder(
+            animation: widget.myVideoStateController.animationController,
+            builder: (context, child) {
+              // 当工具栏显示时（animationController.value = 1），进度条透明度为0
+              // 当工具栏隐藏时（animationController.value = 0），进度条透明度为1
+              double opacity = 1.0 - widget.myVideoStateController.animationController.value;
+              
+              return Opacity(
+                opacity: opacity,
+                child: Container(
+                  height: 3,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                      colors: [
+                        Colors.black.withOpacity(0.7),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final totalWidth = constraints.maxWidth;
+                      
+                      return Obx(() {
+                        final currentPosition = widget.myVideoStateController.currentPosition.value;
+                        final totalDuration = widget.myVideoStateController.totalDuration.value;
+                        final buffers = widget.myVideoStateController.buffers;
+                        
+                        // 计算当前进度的宽度
+                        double progressWidth = totalDuration.inMilliseconds > 0
+                            ? (currentPosition.inMilliseconds / totalDuration.inMilliseconds) * totalWidth
+                            : 0.0;
+                        
+                        return Stack(
+                          children: [
+                            // 背景层
+                            Container(
+                              width: totalWidth,
+                              height: 3,
+                              color: Colors.black.withOpacity(0.1),
+                            ),
+                            // 缓冲层
+                            ...buffers.map((buffer) {
+                              double startX = totalDuration.inMilliseconds > 0
+                                  ? (buffer.start.inMilliseconds / totalDuration.inMilliseconds) * totalWidth
+                                  : 0.0;
+                              double endX = totalDuration.inMilliseconds > 0
+                                  ? (buffer.end.inMilliseconds / totalDuration.inMilliseconds) * totalWidth
+                                  : 0.0;
+                              
+                              return Positioned(
+                                left: startX,
+                                child: Container(
+                                  width: endX - startX,
+                                  height: 3,
+                                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                                ),
+                              );
+                            }),
+                            // 进度层
+                            Container(
+                              width: progressWidth,
+                              height: 3,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ],
+                        );
+                      });
+                    },
+                  ),
+                ),
+              );
+            },
           ),
         ),
       );

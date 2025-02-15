@@ -331,6 +331,8 @@ mediaList:
   personalIntroduction: Personal Introduction
 
 settings:
+  showVideoProgressBottomBarWhenToolbarHidden: Show Video Progress Bottom Bar When Toolbar Hidden
+  showVideoProgressBottomBarWhenToolbarHiddenDesc: This configuration determines whether the video progress bottom bar will be shown when the toolbar is hidden.
   basicSettings: Basic Settings
   personalizedSettings: Personalized Settings
   otherSettings: Other Settings

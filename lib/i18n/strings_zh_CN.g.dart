@@ -474,6 +474,8 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	final TranslationsZhCn _root; // ignore: unused_field
 
 	// Translations
+	@override String get showVideoProgressBottomBarWhenToolbarHidden => '显示底部进度条';
+	@override String get showVideoProgressBottomBarWhenToolbarHiddenDesc => '此配置决定是否在工具栏隐藏时显示底部进度条';
 	@override String get basicSettings => '基础设置';
 	@override String get personalizedSettings => '个性化设置';
 	@override String get otherSettings => '其他设置';
@@ -1590,6 +1592,8 @@ extension on TranslationsZhCn {
 			case 'search.searchResult': return '搜索结果';
 			case 'search.unsupportedSearchType': return ({required Object searchType}) => '不支持的搜索类型: ${searchType}';
 			case 'mediaList.personalIntroduction': return '个人简介';
+			case 'settings.showVideoProgressBottomBarWhenToolbarHidden': return '显示底部进度条';
+			case 'settings.showVideoProgressBottomBarWhenToolbarHiddenDesc': return '此配置决定是否在工具栏隐藏时显示底部进度条';
 			case 'settings.basicSettings': return '基础设置';
 			case 'settings.personalizedSettings': return '个性化设置';
 			case 'settings.otherSettings': return '其他设置';

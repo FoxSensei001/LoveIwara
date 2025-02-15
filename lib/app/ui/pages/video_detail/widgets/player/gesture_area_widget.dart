@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:vibration/vibration.dart';
+import 'package:i_iwara/utils/easy_throttle.dart';
 
 import '../../../../../services/config_service.dart';
 import '../../controllers/my_video_state_controller.dart';
@@ -79,10 +80,6 @@ class _GestureAreaState extends State<GestureArea>
     _isVerticalDragProcessable = _checkLeftAndCenterVerticalDragProcessable();
   }
 
-  void _onTap() {
-    widget.onTap?.call();
-  }
-
   void _onDoubleTap() {
     // 如果是中心区域，双击切换播放状态
     switch (widget.region) {
@@ -154,7 +151,12 @@ class _GestureAreaState extends State<GestureArea>
     widget.setLongPressing?.call(LongPressType.normal, true);
   }
 
-  void _onLongPressEnd(LongPressEndDetails details) {
+  void _onLongPressEnd(LongPressEndDetails details) async {
+    // 震动
+    if (await Vibration.hasVibrator() && CommonConstants.enableVibration) {
+      await Vibration.vibrate(duration: 100);
+    }
+
     widget.setLongPressing?.call(LongPressType.normal, false);
     // 恢复正常播放速度
     widget.myVideoStateController.player.setRate(1.0);
@@ -212,8 +214,8 @@ class _GestureAreaState extends State<GestureArea>
       return;
     }
 
-    // 缩放因子，亮度区域的缩放因子为2，音量区域的缩放因子为1
-    var scalingFactor = widget.region == GestureRegion.left ? 2 : 1;
+    // 缩放因子，调低因子以加快调整速度：亮度区域设置为0.2，音量区域设置为0.3
+    var scalingFactor = widget.region == GestureRegion.left ? 0.2 : 0.3;
     final double max = widget.screenSize.height * scalingFactor;
 
     if (widget.region == GestureRegion.left &&
@@ -225,8 +227,12 @@ class _GestureAreaState extends State<GestureArea>
       double rx = _configService[ConfigKey.BRIGHTNESS_KEY] -
           details.primaryDelta! / max;
       rx = rx.clamp(0.0, 1.0);
-      _configService.setSetting(ConfigKey.BRIGHTNESS_KEY, rx, save: false);
-      _screenBrightness?.setScreenBrightness(rx);
+      
+      // 使用节流控制亮度调节
+      EasyThrottle.throttle('setBrightness', const Duration(milliseconds: 20), () {
+        _configService.setSetting(ConfigKey.BRIGHTNESS_KEY, rx, save: false);
+        _screenBrightness?.setScreenBrightness(rx);
+      });
 
       widget.setLongPressing?.call(LongPressType.brightness, true);
     } else if (widget.region == GestureRegion.right) {
@@ -234,7 +240,12 @@ class _GestureAreaState extends State<GestureArea>
       double rx = _configService[ConfigKey.VOLUME_KEY] -
           details.primaryDelta! / max;
       rx = rx.clamp(0.0, 1.0);
-      widget.onVolumeChange?.call(rx);
+      
+      // 使用节流控制音量调节
+      EasyThrottle.throttle('setVolume', const Duration(milliseconds: 20), () {
+        widget.onVolumeChange?.call(rx);
+      });
+      
       widget.setLongPressing?.call(LongPressType.volume, true);
     }
   }

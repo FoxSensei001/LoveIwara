@@ -47,8 +47,7 @@ class PlayerSettingsWidget extends StatelessWidget {
                   Expanded(
                     // 使用 Expanded 确保文本不会溢出
                     child: Text(
-                      // '此配置决定当你之后播放视频时是否会沿用之前的配置。',
-                      t.settings.thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain,
+                      infoMessage,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
@@ -276,7 +275,7 @@ class PlayerSettingsWidget extends StatelessWidget {
                       context: context,
                       iconData: Icons.smartphone,
                       label: t.settings.renderVerticalVideoInVerticalScreen,
-                      showInfoCard: false,
+                      showInfoCard: true,
                       infoMessage: t.settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen,
                       rxValue: _configService.settings[ConfigKey.RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN]!,
                       onChanged: (value) {
@@ -288,7 +287,7 @@ class PlayerSettingsWidget extends StatelessWidget {
                     context: context,
                     iconData: Icons.volume_up,
                     label: t.settings.rememberVolume,
-                    showInfoCard: false,
+                    showInfoCard: true,
                     infoMessage: t.settings.thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain,
                     rxValue: _configService.settings[ConfigKey.KEEP_LAST_VOLUME_KEY]!,
                     onChanged: (value) {
@@ -301,7 +300,7 @@ class PlayerSettingsWidget extends StatelessWidget {
                       context: context,
                       iconData: Icons.brightness_medium,
                       label: t.settings.rememberBrightness,
-                      showInfoCard: false,
+                      showInfoCard: true,
                       infoMessage: t.settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain,
                       rxValue: _configService.settings[ConfigKey.KEEP_LAST_BRIGHTNESS_KEY]!,
                       onChanged: (value) {
@@ -318,6 +317,18 @@ class PlayerSettingsWidget extends StatelessWidget {
                     rxValue: _configService.settings[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS]!,
                     onChanged: (value) {
                       _configService[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS] = value;
+                    },
+                  ),
+                  // 添加显示底部进度条的设置
+                  _buildSwitchSetting(
+                    context: context,
+                    iconData: Icons.linear_scale,
+                    label: t.settings.showVideoProgressBottomBarWhenToolbarHidden,
+                    showInfoCard: true,
+                    infoMessage: t.settings.showVideoProgressBottomBarWhenToolbarHiddenDesc,
+                    rxValue: _configService.settings[ConfigKey.SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN]!,
+                    onChanged: (value) {
+                      _configService[ConfigKey.SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN] = value;
                     },
                   ),
                 ],
