@@ -13,7 +13,6 @@ import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:vibration/vibration.dart';
 
-import '../video_rating_animation.dart';
 import 'bottom_toolbar_widget.dart';
 import 'gesture_area_widget.dart';
 import 'top_toolbar_widget.dart';

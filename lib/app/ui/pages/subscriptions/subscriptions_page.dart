@@ -9,7 +9,6 @@ import 'package:i_iwara/app/ui/pages/subscriptions/widgets/subscription_post_lis
 import 'package:i_iwara/app/ui/pages/subscriptions/widgets/subscription_select_list_widget.dart';
 import 'package:i_iwara/app/ui/pages/subscriptions/widgets/subscription_video_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import '../../../models/dto/user_dto.dart';
 import '../../../services/app_service.dart';
 import '../../widgets/top_padding_height_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/dto/user_request_dto.dart';
-import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/friends/controllers/friends_controller.dart';
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';

@@ -3,21 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/services/user_service.dart';
-import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/image_model_card_list_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/popular_media_search_config_widget.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/ui/widgets/common_header.dart';
-import 'package:loading_more_list/loading_more_list.dart';
-import 'package:shimmer/shimmer.dart';
 
 import '../../../models/sort.model.dart';
 import '../../../models/tag.model.dart';
 import '../../widgets/top_padding_height_widget.dart';
 import 'controllers/popular_gallery_controller.dart';
 import 'controllers/popular_gallery_repository.dart';
-import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'widgets/media_tab_view.dart';
 
 class PopularGalleryListPage extends StatefulWidget {

@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:oktoast/oktoast.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 

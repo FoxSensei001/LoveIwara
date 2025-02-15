@@ -10,7 +10,6 @@ import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
-import 'package:i_iwara/utils/widget_extensions.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:oktoast/oktoast.dart';
 

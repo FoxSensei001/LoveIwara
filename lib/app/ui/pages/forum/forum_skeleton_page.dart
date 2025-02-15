@@ -14,7 +14,7 @@ class ForumSkeletonPage extends StatelessWidget {
         children: [
           // 模拟 TabBar
           Shimmer.fromColors(
-            baseColor: Theme.of(context).colorScheme.surfaceVariant,
+            baseColor: Theme.of(context).colorScheme.surfaceContainerHighest,
             highlightColor: Theme.of(context).colorScheme.surface,
             child: Container(
               height: 46,
@@ -48,9 +48,9 @@ class ForumSkeletonPage extends StatelessWidget {
       children: [
         // 模拟 NavigationRail
         Shimmer.fromColors(
-          baseColor: Theme.of(context).colorScheme.surfaceVariant,
+          baseColor: Theme.of(context).colorScheme.surfaceContainerHighest,
           highlightColor: Theme.of(context).colorScheme.surface,
-          child: Container(
+          child: SizedBox(
             width: 60,
             child: Column(
               children: List.generate(
@@ -78,7 +78,7 @@ class ForumSkeletonPage extends StatelessWidget {
 
   Widget _buildSkeletonContent(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: Theme.of(context).colorScheme.surfaceVariant,
+      baseColor: Theme.of(context).colorScheme.surfaceContainerHighest,
       highlightColor: Theme.of(context).colorScheme.surface,
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
@@ -97,9 +97,9 @@ class ForumSkeletonPage extends StatelessWidget {
                 Container(
                   height: 48,
                   padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: Colors.white,
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
                   ),
                   child: Row(
                     children: [

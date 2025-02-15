@@ -8,15 +8,11 @@ import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/ui/widgets/common_header.dart';
-import 'package:loading_more_list/loading_more_list.dart';
-import 'package:shimmer/shimmer.dart';
 
 import '../../../models/sort.model.dart';
 import '../../../models/tag.model.dart';
 import '../../widgets/top_padding_height_widget.dart';
 import 'controllers/popular_video_controller.dart';
-import 'widgets/video_card_list_item_widget.dart';
-import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'controllers/popular_video_repository.dart';
 import 'widgets/media_tab_view.dart';
 
