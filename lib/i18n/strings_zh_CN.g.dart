@@ -599,6 +599,8 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get interaction => '交互';
 	@override String get enableVibration => '启用震动';
 	@override String get enableVibrationDesc => '启用应用交互时的震动反馈';
+	@override String get defaultKeepVideoToolbarVisible => '保持工具栏常驻';
+	@override String get defaultKeepVideoToolbarVisibleDesc => '此设置决定首次进入视频页面时是否保持工具栏常驻显示。';
 }
 
 // Path: signIn
@@ -1239,7 +1241,7 @@ class _TranslationsDownloadErrorsZhCn implements TranslationsDownloadErrorsEn {
 	@override String get taskAlreadyCompletedDoNotAdd => '任务已完成，请勿重复添加';
 	@override String get linkExpiredTryAgain => '链接已过期，正在重新获取下载链接';
 	@override String get linkExpiredTryAgainSuccess => '链接已过期，正在重新获取下载链接成功';
-	@override String get linkExpiredTryAgainFailed => '链接已过期，正在重新获取下载链接失败';
+	@override String get linkExpiredTryAgainFailed => '链接已过期,正在重新获取下载链接失败';
 	@override String get taskDeleted => '任务已删除';
 	@override String unsupportedImageFormat({required Object format}) => '不支持的图片格式: ${format}';
 	@override String get deleteFileError => '文件删除失败，可能是因为文件被占用';
@@ -1717,6 +1719,8 @@ extension on TranslationsZhCn {
 			case 'settings.interaction': return '交互';
 			case 'settings.enableVibration': return '启用震动';
 			case 'settings.enableVibrationDesc': return '启用应用交互时的震动反馈';
+			case 'settings.defaultKeepVideoToolbarVisible': return '保持工具栏常驻';
+			case 'settings.defaultKeepVideoToolbarVisibleDesc': return '此设置决定首次进入视频页面时是否保持工具栏常驻显示。';
 			case 'signIn.pleaseLoginFirst': return '请先登录';
 			case 'signIn.alreadySignedInToday': return '您今天已经签到过了！';
 			case 'signIn.youDidNotStickToTheSignIn': return '您未能坚持签到。';
@@ -2020,7 +2024,7 @@ extension on TranslationsZhCn {
 			case 'download.errors.taskAlreadyCompletedDoNotAdd': return '任务已完成，请勿重复添加';
 			case 'download.errors.linkExpiredTryAgain': return '链接已过期，正在重新获取下载链接';
 			case 'download.errors.linkExpiredTryAgainSuccess': return '链接已过期，正在重新获取下载链接成功';
-			case 'download.errors.linkExpiredTryAgainFailed': return '链接已过期，正在重新获取下载链接失败';
+			case 'download.errors.linkExpiredTryAgainFailed': return '链接已过期,正在重新获取下载链接失败';
 			case 'download.errors.taskDeleted': return '任务已删除';
 			case 'download.errors.unsupportedImageFormat': return ({required Object format}) => '不支持的图片格式: ${format}';
 			case 'download.errors.deleteFileError': return '文件删除失败，可能是因为文件被占用';

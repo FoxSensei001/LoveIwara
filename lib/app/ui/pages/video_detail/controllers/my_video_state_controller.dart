@@ -57,8 +57,8 @@ class MyVideoStateController extends GetxController
   final RxBool isDesktopAppFullScreen = false.obs; // 是否是应用全屏
   bool firstLoaded = false;
 
-  // 工具栏可见性
-  final RxBool areToolbarsVisible = true.obs;
+  // 锁定隐藏工具栏
+  final RxBool isToolbarsLocked = false.obs;
 
   // 视频信息 | 详情页状态
   final RxBool isVideoInfoLoading = false.obs;
@@ -136,6 +136,10 @@ class MyVideoStateController extends GetxController
   // 播放模式设置标志位
   bool _isSettingPlayMode = false;
 
+  // 在类成员变量区域添加
+  Timer? _lockButtonHideTimer;
+  final RxBool isLockButtonVisible = true.obs;
+
   MyVideoStateController(this.videoId);
 
   @override
@@ -168,6 +172,16 @@ class MyVideoStateController extends GetxController
 
     // 初始状态显示工具栏
     animationController.forward();
+    if (!_configService[ConfigKey.DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE]) {
+      // 添加自动隐藏工具栏的定时器
+      _resetAutoHideTimer();
+      // 添加自动隐藏锁定按钮的定时器
+      _lockButtonHideTimer = Timer(const Duration(seconds: 3), () {
+        if (isToolbarsLocked.value) {
+          isLockButtonVisible.value = false;
+        }
+      });
+    }
 
     // 初始化 VideoController
     player = Player();
@@ -316,6 +330,7 @@ class MyVideoStateController extends GetxController
     _resumeTipTimer?.cancel();
     _pipStatusSubscription?.cancel(); // 取消监听
     _positionUpdateThrottleTimer?.cancel(); // 清理节流定时器
+    _lockButtonHideTimer?.cancel();
     super.onClose();
   }
 
@@ -654,6 +669,7 @@ class MyVideoStateController extends GetxController
       // 如果正在交互或悬浮在工具栏上，不执行隐藏
       if (!_isInteracting.value && !_isHoveringToolbar.value && animationController.value == 1.0) {
         animationController.reverse();
+        isLockButtonVisible.value = false; // 同时隐藏锁定按钮
       }
     });
   }
@@ -687,16 +703,19 @@ class MyVideoStateController extends GetxController
     if (animationController.isCompleted) {
       animationController.reverse();
       _autoHideTimer?.cancel(); // 用户主动隐藏时取消定时器
+      isLockButtonVisible.value = false; // 隐藏锁定按钮
     } else {
       animationController.forward();
+      isLockButtonVisible.value = true; // 显示锁定按钮
       _resetAutoHideTimer();
     }
   }
 
-  // 显示工具栏（不切换状态）
+  // 修改 showToolbars 方法
   void showToolbars() {
     if (!animationController.isCompleted) {
       animationController.forward();
+      isLockButtonVisible.value = true; // 显示锁定按钮
       _resetAutoHideTimer();
     } else {
       // 如果已经显示，仅重置定时器
@@ -910,6 +929,33 @@ class MyVideoStateController extends GetxController
       }
       sliderDragLoadFinished.value = true;
     });
+  }
+
+  void showLockButton() {
+    isLockButtonVisible.value = true;
+    _lockButtonHideTimer?.cancel();
+    _lockButtonHideTimer = Timer(const Duration(seconds: 3), () {
+      if (isToolbarsLocked.value) {
+        isLockButtonVisible.value = false;
+      }
+    });
+  }
+
+  void toggleLockState() {
+    isToolbarsLocked.value = !isToolbarsLocked.value;
+    if (!isToolbarsLocked.value) {
+      // 如果解锁，显示所有工具栏
+      animationController.forward();
+      isLockButtonVisible.value = true;
+    } else {
+      // 如果锁定，隐藏所有工具栏
+      animationController.reverse();
+      // 启动定时器隐藏锁按钮
+      _lockButtonHideTimer?.cancel();
+      _lockButtonHideTimer = Timer(const Duration(seconds: 3), () {
+        isLockButtonVisible.value = false;
+      });
+    }
   }
 }
 

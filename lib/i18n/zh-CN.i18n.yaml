@@ -464,6 +464,8 @@ settings:
   interaction: 交互
   enableVibration: 启用震动
   enableVibrationDesc: 启用应用交互时的震动反馈
+  defaultKeepVideoToolbarVisible: 保持工具栏常驻
+  defaultKeepVideoToolbarVisibleDesc: 此设置决定首次进入视频页面时是否保持工具栏常驻显示。
 signIn:
   pleaseLoginFirst: 请先登录
   alreadySignedInToday: 您今天已经签到过了！
@@ -794,7 +796,7 @@ download:
     taskAlreadyCompletedDoNotAdd: 任务已完成，请勿重复添加
     linkExpiredTryAgain: 链接已过期，正在重新获取下载链接
     linkExpiredTryAgainSuccess: 链接已过期，正在重新获取下载链接成功
-    linkExpiredTryAgainFailed: 链接已过期，正在重新获取下载链接失败
+    linkExpiredTryAgainFailed: 链接已过期,正在重新获取下载链接失败
     taskDeleted: 任务已删除
     unsupportedImageFormat: '不支持的图片格式: ${format}'
     deleteFileError: '文件删除失败，可能是因为文件被占用'

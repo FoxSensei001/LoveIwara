@@ -598,6 +598,8 @@ class TranslationsSettingsEn {
 	String get interaction => 'Interaction';
 	String get enableVibration => 'Enable Vibration';
 	String get enableVibrationDesc => 'Enable vibration feedback when interacting with the app';
+	String get defaultKeepVideoToolbarVisible => 'Keep Video Toolbar Visible';
+	String get defaultKeepVideoToolbarVisibleDesc => 'This setting determines whether the video toolbar remains visible when first entering the video page.';
 }
 
 // Path: signIn
@@ -1711,6 +1713,8 @@ extension on Translations {
 			case 'settings.interaction': return 'Interaction';
 			case 'settings.enableVibration': return 'Enable Vibration';
 			case 'settings.enableVibrationDesc': return 'Enable vibration feedback when interacting with the app';
+			case 'settings.defaultKeepVideoToolbarVisible': return 'Keep Video Toolbar Visible';
+			case 'settings.defaultKeepVideoToolbarVisibleDesc': return 'This setting determines whether the video toolbar remains visible when first entering the video page.';
 			case 'signIn.pleaseLoginFirst': return 'Please login first';
 			case 'signIn.alreadySignedInToday': return 'You have already signed in today!';
 			case 'signIn.youDidNotStickToTheSignIn': return 'You did not stick to the sign in.';

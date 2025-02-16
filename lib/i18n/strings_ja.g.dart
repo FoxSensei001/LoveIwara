@@ -594,6 +594,8 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get interaction => 'インタラクション';
 	@override String get enableVibration => 'バイブレーション';
 	@override String get enableVibrationDesc => 'アプリの操作時にバイブレーションフィードバックを有効にする';
+	@override String get defaultKeepVideoToolbarVisible => 'ツールバーを常に表示';
+	@override String get defaultKeepVideoToolbarVisibleDesc => 'この設定は、動画ページに入った時にツールバーを常に表示するかどうかを決定します。';
 }
 
 // Path: signIn
@@ -1707,6 +1709,8 @@ extension on TranslationsJa {
 			case 'settings.interaction': return 'インタラクション';
 			case 'settings.enableVibration': return 'バイブレーション';
 			case 'settings.enableVibrationDesc': return 'アプリの操作時にバイブレーションフィードバックを有効にする';
+			case 'settings.defaultKeepVideoToolbarVisible': return 'ツールバーを常に表示';
+			case 'settings.defaultKeepVideoToolbarVisibleDesc': return 'この設定は、動画ページに入った時にツールバーを常に表示するかどうかを決定します。';
 			case 'signIn.pleaseLoginFirst': return 'サインインする前にログインしてください';
 			case 'signIn.alreadySignedInToday': return '今日は既にサインインしています！';
 			case 'signIn.youDidNotStickToTheSignIn': return 'サインインを続けることができませんでした。';

@@ -195,6 +195,7 @@ enum ConfigKey {
   ENABLE_VIBRATION, // 是否开启震动
   SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN, // 是否在工具栏隐藏时显示进度条
   SHOW_FOLLOW_TIP_COUNT, // 告诉用户关注功能的次数，默认两次
+  DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE, // 默认是否保持刚进入视频页时工具栏常驻
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -250,6 +251,7 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.ENABLE_VIBRATION: return 'enable_vibration';
       case ConfigKey.SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN: return 'show_video_progress_bottom_bar_when_toolbar_hidden';
       case ConfigKey.SHOW_FOLLOW_TIP_COUNT: return 'show_follow_tip_count'; // 告诉用户关注功能的次数，默认两次
+      case ConfigKey.DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE: return 'default_keep_video_toolbar_visable'; // 默认是否保持刚进入视频页时工具栏常驻
     }
   }
 
@@ -355,6 +357,8 @@ extension ConfigKeyExtension on ConfigKey {
         return true;
       case ConfigKey.SHOW_FOLLOW_TIP_COUNT:
         return 2;
+      case ConfigKey.DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE:
+        return true;
       default:
         throw Exception("Unknown ConfigKey: $this");
     }

@@ -331,6 +331,18 @@ class PlayerSettingsWidget extends StatelessWidget {
                       _configService[ConfigKey.SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN] = value;
                     },
                   ),
+                  // 添加工具栏常驻开关
+                  _buildSwitchSetting(
+                    context: context,
+                    iconData: Icons.visibility,
+                    label: t.settings.defaultKeepVideoToolbarVisible,
+                    showInfoCard: true,
+                    infoMessage: t.settings.defaultKeepVideoToolbarVisibleDesc,
+                    rxValue: _configService.settings[ConfigKey.DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE]!,
+                    onChanged: (value) {
+                      _configService[ConfigKey.DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE] = value;
+                    },
+                  ),
                 ],
               ),
             ),

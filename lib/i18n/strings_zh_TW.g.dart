@@ -594,6 +594,8 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get interaction => '互動';
 	@override String get enableVibration => '啟用震動';
 	@override String get enableVibrationDesc => '啟用應用互動時的震動反饋';
+	@override String get defaultKeepVideoToolbarVisible => '保持工具列常駐';
+	@override String get defaultKeepVideoToolbarVisibleDesc => '此設定決定首次進入影片頁面時是否保持工具列常駐顯示。';
 }
 
 // Path: signIn
@@ -1710,6 +1712,8 @@ extension on TranslationsZhTw {
 			case 'settings.interaction': return '互動';
 			case 'settings.enableVibration': return '啟用震動';
 			case 'settings.enableVibrationDesc': return '啟用應用互動時的震動反饋';
+			case 'settings.defaultKeepVideoToolbarVisible': return '保持工具列常駐';
+			case 'settings.defaultKeepVideoToolbarVisibleDesc': return '此設定決定首次進入影片頁面時是否保持工具列常駐顯示。';
 			case 'signIn.pleaseLoginFirst': return '請先登入';
 			case 'signIn.alreadySignedInToday': return '您今天已經簽到過了！';
 			case 'signIn.youDidNotStickToTheSignIn': return '您未能持續簽到。';

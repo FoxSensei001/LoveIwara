@@ -458,6 +458,8 @@ settings:
   interaction: 互動
   enableVibration: 啟用震動
   enableVibrationDesc: 啟用應用互動時的震動反饋
+  defaultKeepVideoToolbarVisible: 保持工具列常駐
+  defaultKeepVideoToolbarVisibleDesc: 此設定決定首次進入影片頁面時是否保持工具列常駐顯示。
 
 signIn:
   pleaseLoginFirst: 請先登入

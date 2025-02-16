@@ -457,6 +457,8 @@ settings:
   interaction: インタラクション
   enableVibration: バイブレーション
   enableVibrationDesc: アプリの操作時にバイブレーションフィードバックを有効にする
+  defaultKeepVideoToolbarVisible: ツールバーを常に表示
+  defaultKeepVideoToolbarVisibleDesc: この設定は、動画ページに入った時にツールバーを常に表示するかどうかを決定します。
 signIn:
   pleaseLoginFirst: サインインする前にログインしてください
   alreadySignedInToday: 今日は既にサインインしています！
