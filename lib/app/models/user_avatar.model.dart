@@ -1,4 +1,6 @@
 
+import 'package:i_iwara/common/constants.dart';
+
 class UserAvatar {
   final String id;
   final String type;
@@ -54,5 +56,11 @@ class UserAvatar {
     return data;
   }
 
-  String get avatarUrl => 'https://i.iwara.tv/image/avatar/$id/$id.jpg';
+  String get avatarUrl {
+    final isAnimated = mime == 'image/gif' || mime == 'image/webp' || mime == 'image/apng';
+    if (isAnimated) {
+      return CommonConstants.avatarOriginalUrl(id, name);
+    }
+    return CommonConstants.avatarUrl(id, name);
+  }
 }

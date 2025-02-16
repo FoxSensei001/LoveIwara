@@ -109,6 +109,12 @@ class CommonConstants {
   static ColorScheme? dynamicLightColorScheme;
   static ColorScheme? dynamicDarkColorScheme;
 
+  // 用户头像原图 
+  static String avatarOriginalUrl(String id, String name) => '$iwaraImageBaseUrl/image/original/$id/$name';
+
+  // 用户头像URL
+  static String avatarUrl(String id, String name) => '$iwaraImageBaseUrl/image/avatar/$id/$name.jpg';
+
   /// ============================== 功能开关End ==============================
 
   // 获取用户背景URL

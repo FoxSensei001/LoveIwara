@@ -48,7 +48,7 @@ class AvatarWidget extends StatelessWidget {
       httpHeaders: headers,
       errorWidget: (context, url, error) => CircleAvatar(
         radius: radius - borderWidth,
-        backgroundImage: NetworkImage(defaultAvatarUrl),
+        backgroundImage: NetworkImage(user?.avatar?.avatarUrl ?? defaultAvatarUrl),
         onBackgroundImageError: (exception, stackTrace) => Icon(
           Icons.person,
           size: radius - borderWidth,

@@ -128,6 +128,14 @@ class MyVideoStateController extends GetxController
   final RxBool isSlidingVolumeZone = false.obs;     // 是否在滑动音量区域
   final RxBool isLongPressing = false.obs;          // 是否在长按
 
+  // 节流相关变量
+  Timer? _positionUpdateThrottleTimer;
+  static const _positionUpdateThrottleInterval = Duration(milliseconds: 200); // 200ms节流间隔
+  Duration _lastPosition = Duration.zero;
+  
+  // 播放模式设置标志位
+  bool _isSettingPlayMode = false;
+
   MyVideoStateController(this.videoId);
 
   @override
@@ -307,6 +315,7 @@ class MyVideoStateController extends GetxController
     player.dispose();
     _resumeTipTimer?.cancel();
     _pipStatusSubscription?.cancel(); // 取消监听
+    _positionUpdateThrottleTimer?.cancel(); // 清理节流定时器
     super.onClose();
   }
 
@@ -486,6 +495,8 @@ class MyVideoStateController extends GetxController
     LogUtils.i('[重置视频] $title $resolutionTag $videoResolutions $position', 'MyVideoStateController');
 
     await _cancelSubscriptions();
+    // 清楚buffer
+    _clearBuffers();
 
     videoIsReady.value = false;
     _configService[ConfigKey.DEFAULT_QUALITY_KEY] = resolutionTag;
@@ -513,36 +524,13 @@ class MyVideoStateController extends GetxController
 
     await player.open(Media(url));
 
+    // position监听器设置方法
+    _setupPositionListener();
+
     // 监听缓冲状态
     bufferingSubscription = player.stream.buffering.listen((buffering) async {
       // LogUtils.d('[视频缓冲中] $buffering', 'MyVideoStateController');
       videoBuffering.value = buffering;
-    });
-
-    // 监听播放位置
-    positionSubscription = player.stream.position.listen((position) async {
-      if (!videoIsReady.value) return;
-
-      // 只有在不是等待seek完成的状态下才更新位置
-      if (!isWaitingForSeek.value) {
-        if (videoIsReady.value &&
-            totalDuration.value.inMilliseconds > 0 &&
-            position.inMilliseconds > 0 &&
-            (position.inMilliseconds >= totalDuration.value.inMilliseconds - 100)) {
-          bool repeat = _configService[ConfigKey.REPEAT_KEY];
-          if (repeat) {
-            LogUtils.d('[视频播放完成]，尝试重播', 'MyVideoStateController');
-            // 清空缓冲区
-            _clearBuffers();
-            player.setPlaylistMode(PlaylistMode.loop);
-          } else {
-            player.setPlaylistMode(PlaylistMode.single);
-          }
-        }
-
-        currentPosition.value = position;
-      }
-      sliderDragLoadFinished.value = true;
     });
 
     // 监听视频总时长
@@ -570,8 +558,9 @@ class MyVideoStateController extends GetxController
 
     // 正在播放
     playingSubscription = player.stream.playing.listen((playing) {
-      LogUtils.d('[正在播放] $playing', 'MyVideoStateController');
-      videoPlaying.value = playing;
+      if (playing != videoPlaying.value) {
+        videoPlaying.value = playing;
+      }
     });
 
     // 缓冲进度
@@ -871,6 +860,56 @@ class MyVideoStateController extends GetxController
   Future<void> exitPiPMode() async {
     await Floating().cancelOnLeavePiP();
     isPiPMode.value = false;
+  }
+
+  // 修改position监听器
+  void _setupPositionListener() {
+    positionSubscription = player.stream.position.listen((position) async {
+      if (!videoIsReady.value) return;
+
+      // 只有在不是等待seek完成的状态下才更新位置
+      if (!isWaitingForSeek.value) {
+        // 节流处理
+        if (_positionUpdateThrottleTimer?.isActive ?? false) {
+          // 保存最新位置，但不立即更新
+          _lastPosition = position;
+          return;
+        }
+
+        // 更新位置并设置节流定时器
+        currentPosition.value = position;
+        _lastPosition = position;
+        
+        _positionUpdateThrottleTimer = Timer(_positionUpdateThrottleInterval, () {
+          // 定时器触发时，如果最新位置与当前显示位置不同，则更新
+          if (_lastPosition != currentPosition.value) {
+            currentPosition.value = _lastPosition;
+          }
+        });
+
+        // 检查视频是否播放完成的逻辑
+        if (!_isSettingPlayMode &&
+            videoIsReady.value &&
+            totalDuration.value.inMilliseconds > 0 &&
+            position.inMilliseconds > 0 &&
+            (position.inMilliseconds >= totalDuration.value.inMilliseconds - 2000)) {
+          _isSettingPlayMode = true;
+          bool repeat = _configService[ConfigKey.REPEAT_KEY];
+          if (repeat) {
+            LogUtils.d('[视频即将播放完成]，设置播放模式', 'MyVideoStateController');
+            _clearBuffers();
+            player.setPlaylistMode(PlaylistMode.loop);
+          } else {
+            player.setPlaylistMode(PlaylistMode.single);
+          }
+          // 设置一个延时，在视频真正结束后重置标志位
+          Future.delayed(const Duration(seconds: 3), () {
+            _isSettingPlayMode = false;
+          });
+        }
+      }
+      sliderDragLoadFinished.value = true;
+    });
   }
 }
 
