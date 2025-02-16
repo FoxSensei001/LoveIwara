@@ -107,7 +107,6 @@ class FriendRequestList extends StatelessWidget {
       icon: const Icon(Icons.person_remove),
       color: Colors.orange,
       onPressed: fake ? null : () {
-        print('取消好友请求: name: ${request.user.name} userId: ${request.user.id}, target: ${request.target.name} targetId: ${request.target.id}, id: ${request.id}');
         controller.cancelFriendRequest(request.target.id);
       },
       tooltip: t.common.cancelFriendRequest,

@@ -76,7 +76,6 @@ class TranslationService extends GetxService {
         "max_tokens": maxTokens
       };
       
-      print('[AI_TRANSLATION_SERVICE] 请求参数: $requestData');
       
       final response = await dio.post("$baseUrl/chat/completions",
           data: requestData,
@@ -84,8 +83,6 @@ class TranslationService extends GetxService {
             'Authorization': 'Bearer $apiKey',
             'Content-Type': 'application/json'
           }));
-
-      print('[AI_TRANSLATION_SERVICE] 响应数据: ${response.data}');
 
       final result =
           response.data['choices'][0]['message']['content'] as String;
@@ -121,8 +118,6 @@ class TranslationService extends GetxService {
         },
         {"role": "user", "content": testText}
       ];
-
-      print('[AI_TRANSLATION_SERVICE] 请求参数: $messages');
 
       final testDio = Dio();
       final response = await testDio.post("$baseUrl/chat/completions",

@@ -53,7 +53,6 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
   String rating = '';
 
   void tryRefreshCurrentSort() {
-    print("tryRefreshCurrentSort ");
     if (mounted) {
       var sortId = sorts[_tabController.index].id;
       var repository = _repositories[sortId];

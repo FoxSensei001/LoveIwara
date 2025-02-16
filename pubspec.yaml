@@ -72,14 +72,17 @@ dev_dependencies:
   change_app_package_name: ^1.4.0
 
 flutter_launcher_icons:
-  android: "launcher_icon"
-  ios: true
-  image_path: "assets/icon/launcher_icon_v2.png"
-  min_sdk_android: 21
-  remove_alpha_ios: true
-  adaptive_icon_background: "#ffffff"  # 白色背景，你可以改成其他颜色
-  adaptive_icon_foreground: "assets/icon/launcher_icon_v2.png"  # 如果你的图标需要适配 Android 自适应图标
-
+  android: true         # 为 Android 生成图标
+  ios: true             # 为 iOS 生成图标
+  image_path: "assets/icon/launcher_icon_v2.png"  # 图标的路径
+  remove_alpha_ios: true  # （可选）去除 iOS 图标的透明度，避免上传到 App Store 时被拒绝
+  windows:
+    generate: true
+    image_path: "assets/icon/launcher_icon_v2.png"
+    icon_size: 48 # min:48, max:256, default: 48
+  macos:
+    generate: true
+    image_path: "assets/icon/launcher_icon_v2.png"
 flutter:
   uses-material-design: true
 

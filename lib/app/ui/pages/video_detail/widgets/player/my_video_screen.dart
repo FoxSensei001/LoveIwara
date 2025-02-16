@@ -210,7 +210,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       currentPosition = Duration.zero;
     }
 
-    widget.myVideoStateController.player.seek(currentPosition);
+    widget.myVideoStateController.handleSeek(currentPosition);
   }
 
   void _triggerRightRipple() {
@@ -239,7 +239,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     } else {
       currentPosition = totalDuration;
     }
-    widget.myVideoStateController.player.seek(currentPosition);
+    widget.myVideoStateController.handleSeek(currentPosition);
   }
 
   // 单击事件
@@ -487,7 +487,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                 if (_horizontalDragStartPosition != null) {
                   Duration targetPosition =
                       widget.myVideoStateController.previewPosition.value;
-                  widget.myVideoStateController.player.seek(targetPosition);
+                  widget.myVideoStateController.handleSeek(targetPosition);
                 }
 
                 _horizontalDragStartX = null;
@@ -544,7 +544,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                 if (_horizontalDragStartPosition != null) {
                   Duration targetPosition =
                       widget.myVideoStateController.previewPosition.value;
-                  widget.myVideoStateController.player.seek(targetPosition);
+                  widget.myVideoStateController.handleSeek(targetPosition);
                 }
 
                 _horizontalDragStartX = null;
@@ -1055,8 +1055,6 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                                     totalDuration.inMilliseconds) *
                                 totalWidth
                             : 0.0;
-
-                        print('senko build, currentPosition: $currentPosition, totalDuration: $totalDuration, progressWidth: $progressWidth');
 
                         return Stack(
                           children: [

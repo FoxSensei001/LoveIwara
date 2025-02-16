@@ -41,8 +41,6 @@ class FriendRequestRepository extends LoadingMoreBase<UserRequestDTO> {
           add(request);
         }
 
-        print('当前的列表的内容: ${toList().map((e) => '{target: ${e.target.name}, user: ${e.user.name}, id: ${e.id}}').toList()}');
-
         _hasMore = result.data!.results.isNotEmpty;
         _pageIndex++;
         isSuccess = true;

@@ -584,7 +584,6 @@ class _AITranslationSettingsWidgetState
     final form = _formKey.currentState;
     if (value) {
       if (form == null || !form.validate()) {
-        print('[AI_TRANSLATION_SETTING_WIDGET] form: ${form?.validate()}');
         showToastWidget(
             // MDToastWidget(message: '请先填写有效的配置参数', type: MDToastType.error),
             MDToastWidget(message: slang.t.translation.pleaseFillInValidConfigurationParameters, type: MDToastType.error),
