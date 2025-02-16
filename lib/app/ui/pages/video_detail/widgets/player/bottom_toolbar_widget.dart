@@ -184,7 +184,7 @@ class BottomToolbar extends StatelessWidget {
     final t = slang.Translations.of(context);
     // 获取当前和总时长
     final Duration currentPosition =
-        myVideoStateController.currentPosition.value;
+        myVideoStateController.currentPosition;
     final Duration totalDuration = myVideoStateController.totalDuration.value;
 
     // 将总时长拆分为小时、分钟和秒
@@ -654,7 +654,7 @@ class BottomToolbar extends StatelessWidget {
           ),
           child: Obx(
             () => Text(
-              '${CommonUtils.formatDuration(myVideoStateController.currentPosition.value)} / ${CommonUtils.formatDuration(myVideoStateController.totalDuration.value)}',
+              '${CommonUtils.formatDuration(myVideoStateController.toShowCurrentPosition.value)} / ${CommonUtils.formatDuration(myVideoStateController.totalDuration.value)}',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: isSmallScreen ? 11 : 12,

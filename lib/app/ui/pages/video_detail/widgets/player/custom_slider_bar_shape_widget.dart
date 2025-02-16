@@ -74,7 +74,7 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
     super.initState();
     // 初始化节流数值
     _throttledCurrentValue =
-        widget.controller.currentPosition.value.inSeconds.toDouble();
+        widget.controller.currentPosition.inSeconds.toDouble();
     _maxValueStored =
         widget.controller.totalDuration.value.inSeconds.toDouble();
     String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
@@ -90,7 +90,7 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
           const Duration(milliseconds: 100),
           () {
             double newVal =
-                widget.controller.currentPosition.value.inSeconds.toDouble();
+                widget.controller.currentPosition.inSeconds.toDouble();
             double newMax =
                 widget.controller.totalDuration.value.inSeconds.toDouble();
             // 当数值变化超过 0.1 秒时更新

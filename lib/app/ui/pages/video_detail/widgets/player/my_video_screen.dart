@@ -202,7 +202,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
 
     // 获取当前的时间
     Duration currentPosition =
-        widget.myVideoStateController.currentPosition.value;
+        widget.myVideoStateController.currentPosition;
     int seconds = _configService[ConfigKey.REWIND_SECONDS_KEY] as int;
     if (currentPosition.inSeconds - seconds > 0) {
       currentPosition = Duration(seconds: currentPosition.inSeconds - seconds);
@@ -231,7 +231,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
 
     // 获取当前的时间
     Duration currentPosition =
-        widget.myVideoStateController.currentPosition.value;
+        widget.myVideoStateController.currentPosition;
     Duration totalDuration = widget.myVideoStateController.totalDuration.value;
     int seconds = _configService[ConfigKey.FAST_FORWARD_SECONDS_KEY] as int;
     if (currentPosition.inSeconds + seconds < totalDuration.inSeconds) {
@@ -459,7 +459,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
               onHorizontalDragStart: (details) {
                 _horizontalDragStartX = details.localPosition.dx;
                 _horizontalDragStartPosition =
-                    widget.myVideoStateController.currentPosition.value;
+                    widget.myVideoStateController.currentPosition;
                 widget.myVideoStateController.setInteracting(true);
                 widget.myVideoStateController.showSeekPreview(true);
               },
@@ -516,7 +516,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
               onHorizontalDragStart: (details) {
                 _horizontalDragStartX = details.localPosition.dx;
                 _horizontalDragStartPosition =
-                    widget.myVideoStateController.currentPosition.value;
+                    widget.myVideoStateController.currentPosition;
                 widget.myVideoStateController.setInteracting(true);
                 widget.myVideoStateController.showSeekPreview(true);
               },
@@ -573,7 +573,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
             onHorizontalDragStart: (details) {
               _horizontalDragStartX = details.localPosition.dx;
               _horizontalDragStartPosition =
-                  widget.myVideoStateController.currentPosition.value;
+                  widget.myVideoStateController.currentPosition;
               widget.myVideoStateController.setInteracting(true);
               widget.myVideoStateController.showSeekPreview(true);
             },
@@ -1044,7 +1044,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
 
                       return Obx(() {
                         final currentPosition =
-                            widget.myVideoStateController.currentPosition.value;
+                            widget.myVideoStateController.toShowCurrentPosition.value;
                         final totalDuration =
                             widget.myVideoStateController.totalDuration.value;
                         final buffers = widget.myVideoStateController.buffers;
@@ -1055,6 +1055,8 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                                     totalDuration.inMilliseconds) *
                                 totalWidth
                             : 0.0;
+
+                        print('senko build, currentPosition: $currentPosition, totalDuration: $totalDuration, progressWidth: $progressWidth');
 
                         return Stack(
                           children: [

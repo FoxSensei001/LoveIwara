@@ -48,7 +48,7 @@ class MyVideoStateController extends GetxController
 
   // 状态
   // 播放器状态
-  final Rx<Duration> currentPosition = Duration.zero.obs;
+  Duration currentPosition = Duration.zero;
   final Rx<Duration> totalDuration = Duration.zero.obs;
   final RxBool videoPlaying = false.obs;
   final RxBool videoBuffering = true.obs;
@@ -56,6 +56,9 @@ class MyVideoStateController extends GetxController
   final RxDouble playerPlaybackSpeed = 1.0.obs; // 播放速度
   final RxBool isDesktopAppFullScreen = false.obs; // 是否是应用全屏
   bool firstLoaded = false;
+    // 显示用的时间变量
+  final Rx<Duration> toShowCurrentPosition = Duration.zero.obs;
+  Timer? _displayUpdateTimer;
 
   // 锁定隐藏工具栏
   final RxBool isToolbarsLocked = false.obs;
@@ -260,6 +263,9 @@ class MyVideoStateController extends GetxController
     _setupPiPListener();
 
     fetchVideoDetail(videoId!);
+
+    // 启动显示时间更新定时器
+    _startDisplayTimer();
   }
 
   void _setupPiPListener() {
@@ -307,7 +313,7 @@ class MyVideoStateController extends GetxController
     
     // 保存播放记录
     if (videoId != null && totalDuration.value.inMilliseconds > 0) {
-      final currentMs = currentPosition.value.inMilliseconds;
+      final currentMs = currentPosition.inMilliseconds;
       final totalMs = totalDuration.value.inMilliseconds;
       
       // 如果在开头5秒或结尾5秒,删除记录
@@ -331,6 +337,7 @@ class MyVideoStateController extends GetxController
     _pipStatusSubscription?.cancel(); // 取消监听
     _positionUpdateThrottleTimer?.cancel(); // 清理节流定时器
     _lockButtonHideTimer?.cancel();
+    _displayUpdateTimer?.cancel(); // 添加定时器清理
     super.onClose();
   }
 
@@ -496,7 +503,7 @@ class MyVideoStateController extends GetxController
       title: videoInfo.value!.title ?? '',
       resolutionTag: resolutionTag,
       videoResolutions: videoResolutions.toList(),
-      position: currentPosition.value,
+      position: currentPosition,
     );
   }
 
@@ -516,7 +523,7 @@ class MyVideoStateController extends GetxController
     videoIsReady.value = false;
     _configService[ConfigKey.DEFAULT_QUALITY_KEY] = resolutionTag;
     this.videoResolutions.value = videoResolutions;
-    currentPosition.value = position;
+    currentPosition = position;
     currentResolutionTag.value = resolutionTag;
     sliderDragLoadFinished.value = true;
     _clearBuffers(); // 清空缓冲区
@@ -596,7 +603,7 @@ class MyVideoStateController extends GetxController
       // 避免初次加载视频时，又被seek到0
       if (firstLoaded) {
         // 刷新率切换触发的更新
-        await player.seek(currentPosition.value);
+        await player.seek(currentPosition);
       } else {
         // 新视频加载触发的更新
         if (_configService[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS]) {
@@ -752,7 +759,7 @@ class MyVideoStateController extends GetxController
     // 如果总时长为0，说明视频还未加载，不处理缓冲
     if (totalDuration.value.inMilliseconds == 0) return;
     
-    final Duration start = currentPosition.value;
+    final Duration start = currentPosition;
     final Duration end = bufferDuration;
 
     // 如果缓冲时长小于等于当前播放位置，或大于总时长，则忽略
@@ -781,7 +788,7 @@ class MyVideoStateController extends GetxController
     // 对缓冲区进行排序并移除无效的缓冲区
     updatedBuffers.sort((a, b) => a.start.compareTo(b.start));
     updatedBuffers.removeWhere((range) => 
-      range.end <= currentPosition.value || 
+      range.end <= currentPosition || 
       range.start >= totalDuration.value
     );
 
@@ -801,7 +808,7 @@ class MyVideoStateController extends GetxController
     isWaitingForSeek.value = true;
     
     // 如果是回退进度，则清空缓冲区
-    if (newPosition < currentPosition.value) {
+    if (newPosition < currentPosition) {
       _clearBuffers();
     } else {
       // 清理失效的缓冲区
@@ -813,7 +820,7 @@ class MyVideoStateController extends GetxController
     }
     
     // 先更新UI位置
-    currentPosition.value = newPosition;
+    currentPosition = newPosition;
     
     // 执行实际的seek操作
     await player.seek(newPosition);
@@ -896,13 +903,13 @@ class MyVideoStateController extends GetxController
         }
 
         // 更新位置并设置节流定时器
-        currentPosition.value = position;
+        currentPosition = position;
         _lastPosition = position;
         
         _positionUpdateThrottleTimer = Timer(_positionUpdateThrottleInterval, () {
           // 定时器触发时，如果最新位置与当前显示位置不同，则更新
-          if (_lastPosition != currentPosition.value) {
-            currentPosition.value = _lastPosition;
+          if (_lastPosition != currentPosition) {
+            currentPosition = _lastPosition;
           }
         });
 
@@ -956,6 +963,16 @@ class MyVideoStateController extends GetxController
         isLockButtonVisible.value = false;
       });
     }
+  }
+
+  // 添加启动定时器的方法
+  void _startDisplayTimer() {
+    _displayUpdateTimer?.cancel();
+    _displayUpdateTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+      if (videoIsReady.value && !isWaitingForSeek.value) {
+        toShowCurrentPosition.value = currentPosition;
+      }
+    });
   }
 }
 
