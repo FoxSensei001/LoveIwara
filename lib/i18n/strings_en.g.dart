@@ -600,6 +600,7 @@ class TranslationsSettingsEn {
 	String get enableVibrationDesc => 'Enable vibration feedback when interacting with the app';
 	String get defaultKeepVideoToolbarVisible => 'Keep Video Toolbar Visible';
 	String get defaultKeepVideoToolbarVisibleDesc => 'This setting determines whether the video toolbar remains visible when first entering the video page.';
+	String get theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt => 'Theater mode currently has serious performance issues that I don\'t know how to fix yet. Please use it with caution on mobile devices. If you are running on desktop, you can enable it.';
 }
 
 // Path: signIn
@@ -1716,6 +1717,7 @@ extension on Translations {
 			case 'settings.enableVibrationDesc': return 'Enable vibration feedback when interacting with the app';
 			case 'settings.defaultKeepVideoToolbarVisible': return 'Keep Video Toolbar Visible';
 			case 'settings.defaultKeepVideoToolbarVisibleDesc': return 'This setting determines whether the video toolbar remains visible when first entering the video page.';
+			case 'settings.theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt': return 'Theater mode currently has serious performance issues that I don\'t know how to fix yet. Please use it with caution on mobile devices. If you are running on desktop, you can enable it.';
 			case 'signIn.pleaseLoginFirst': return 'Please login first';
 			case 'signIn.alreadySignedInToday': return 'You have already signed in today!';
 			case 'signIn.youDidNotStickToTheSignIn': return 'You did not stick to the sign in.';

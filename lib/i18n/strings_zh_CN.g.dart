@@ -601,6 +601,7 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get enableVibrationDesc => '启用应用交互时的震动反馈';
 	@override String get defaultKeepVideoToolbarVisible => '保持工具栏常驻';
 	@override String get defaultKeepVideoToolbarVisibleDesc => '此设置决定首次进入视频页面时是否保持工具栏常驻显示。';
+	@override String get theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt => '剧院模式目前存在严重的性能问题，我暂时不知道如何修复，移动端请谨慎使用，如果您在桌面端运行，您可以打开它。';
 }
 
 // Path: signIn
@@ -1722,6 +1723,7 @@ extension on TranslationsZhCn {
 			case 'settings.enableVibrationDesc': return '启用应用交互时的震动反馈';
 			case 'settings.defaultKeepVideoToolbarVisible': return '保持工具栏常驻';
 			case 'settings.defaultKeepVideoToolbarVisibleDesc': return '此设置决定首次进入视频页面时是否保持工具栏常驻显示。';
+			case 'settings.theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt': return '剧院模式目前存在严重的性能问题，我暂时不知道如何修复，移动端请谨慎使用，如果您在桌面端运行，您可以打开它。';
 			case 'signIn.pleaseLoginFirst': return '请先登录';
 			case 'signIn.alreadySignedInToday': return '您今天已经签到过了！';
 			case 'signIn.youDidNotStickToTheSignIn': return '您未能坚持签到。';

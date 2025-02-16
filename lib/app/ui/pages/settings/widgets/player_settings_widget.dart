@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/setting_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/three_section_slider.dart';
+import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:oktoast/oktoast.dart';
 import '../../../../services/config_service.dart';
 
 class PlayerSettingsWidget extends StatelessWidget {
@@ -21,11 +23,11 @@ class PlayerSettingsWidget extends StatelessWidget {
     required String label,
     bool showInfoCard = false,
     String? infoMessage,
-    required Rx<dynamic> rxValue,  // 修改参数类型为 Rx<dynamic>
+    required Rx<dynamic> rxValue,
     required Function(bool) onChanged,
     required BuildContext context,
+    bool disabled = false,
   }) {
-    final t = slang.Translations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -91,9 +93,15 @@ class PlayerSettingsWidget extends StatelessWidget {
                           ),
                     ),
                   ),
-                  Switch(
-                    value: rxValue.value as bool,  // 添加类型转换
-                    onChanged: onChanged,
+                  IgnorePointer(
+                    ignoring: disabled,
+                    child: Opacity(
+                      opacity: disabled ? 0.5 : 1,
+                      child: Switch(
+                        value: rxValue.value as bool,
+                        onChanged: disabled ? null : onChanged,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -110,41 +118,6 @@ class PlayerSettingsWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    t.settings.playControl,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  // 剧院模式开关
-                  _buildSwitchSetting(
-                    context: context,
-                    iconData: Icons.theater_comedy,
-                    label: t.settings.theaterMode,
-                    showInfoCard: false,
-                    infoMessage: t.settings.theaterModeDesc,
-                    rxValue: _configService.settings[ConfigKey.THEATER_MODE_KEY]!,
-                    onChanged: (value) {
-                      _configService[ConfigKey.THEATER_MODE_KEY] = value;
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
           Card(
             elevation: 2,
             shape: RoundedRectangleBorder(
@@ -395,6 +368,42 @@ class PlayerSettingsWidget extends StatelessWidget {
                     initialLeftRatio: _configService[ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO],
                     initialMiddleRatio: (1 - _configService[ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO] * 2).toDouble(),
                     initialRightRatio: _configService[ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 8,
+                children: [
+                  Text(
+                    t.settings.playControl,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(t.settings.theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt, style: const TextStyle(fontSize: 14, color: Colors.red),),
+                  // 剧院模式开关
+                  _buildSwitchSetting(
+                    // disabled: true,
+                    context: context,
+                    iconData: Icons.theater_comedy,
+                    label: t.settings.theaterMode,
+                    showInfoCard: false,
+                    infoMessage: t.settings.theaterModeDesc,
+                    rxValue: _configService.settings[ConfigKey.THEATER_MODE_KEY]!,
+                    onChanged: (value) {
+                      _configService[ConfigKey.THEATER_MODE_KEY] = value;
+                    },
                   ),
                 ],
               ),
