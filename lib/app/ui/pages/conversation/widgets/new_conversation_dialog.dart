@@ -8,7 +8,6 @@ import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_syntax_help_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
-import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:oktoast/oktoast.dart';
 

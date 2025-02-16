@@ -10,7 +10,6 @@ import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/status_label_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
-import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:open_file/open_file.dart';
 import 'package:super_clipboard/super_clipboard.dart';

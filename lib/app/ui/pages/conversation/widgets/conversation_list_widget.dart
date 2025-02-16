@@ -7,7 +7,6 @@ import 'package:i_iwara/app/ui/pages/conversation/controllers/conversation_list_
 import 'package:i_iwara/app/ui/pages/conversation/widgets/new_conversation_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
-import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:loading_more_list/loading_more_list.dart';

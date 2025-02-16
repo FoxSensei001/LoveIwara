@@ -8,6 +8,45 @@ currentVersion: "0.3.0"
 # 4. forceUpdate: 是否强制更新
 # 5. minVersion: 最小版本号
 updates:
+  # - version: "0.3.9"
+  #   date: "2025-02-16"
+  #   forceUpdate: false
+  #   minVersion: "0.3.0"
+  #   changes:
+  #     zh-CN:
+  #       - "本次更新主要聚焦于性能和体验优化，推荐更新✨"
+  #       - "大幅优化播放器页面和整体性能"
+  #       - "新增特别关注管理页(和关注列表页同层)"
+  #       - "设置里新增震动控制开关"
+  #       - "主页页面添加保活效果"
+  #       - "为常用列表页面新增下拉刷新"
+  #       - "修复已知问题🔧:"
+  #       - "播放器性能过低"
+  #       - "好友列表和申请页存在的错误交互"
+  #       - "其他细节优化..."
+  #     en:
+  #       - "This update focuses on performance and experience optimization, recommended update✨"
+  #       - "Significantly optimized player page and overall performance"
+  #       - "Added special attention management page (same layer as follow list page)"
+  #       - "Added vibration control switch in settings"
+  #       - "Added keep-alive effect to home page"
+  #       - "Added pull-down refresh for frequently used list pages"
+  #       - "Fixed known issues🔧:"
+  #       - "Player performance is too low"
+  #       - "Incorrect interaction in friend list and application page"
+  #       - "Other details optimized..."
+  #     ja:
+  #       - "この更新はパフォーマンスと体験の向上に焦点を当てています。更新をおすすめします✨"
+  #       - "プレイヤーページと全体的なパフォーマンスを大幅に最適化"
+  #       - "特別な注目管理ページを追加（フォローリストページと同じレイヤー）"
+  #       - "設定に振動制御スイッチを追加"
+  #       - "ホームページに保活効果を追加"
+  #       - "よく使用されるリストページに下拉リフレッシュを追加"
+  #       - "既知の問題を修正🔧:"
+  #       - "プレイヤーパフォーマンスが低すぎる"
+  #       - "フレンドリストと申請ページの誤ったインタラクション"
+  #       - "その他の細かい最適化..."
+
   - version: "0.3.0"
     date: "2025-02-03"
     forceUpdate: false

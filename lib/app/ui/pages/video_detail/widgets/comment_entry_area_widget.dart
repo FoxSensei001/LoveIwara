@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../../../../../common/constants.dart';
 import '../../../../services/user_service.dart';
 import '../../comment/controllers/comment_controller.dart';
 import '../../../../../../i18n/strings.g.dart' as slang;

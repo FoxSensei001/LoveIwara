@@ -3,7 +3,6 @@ import 'package:i_iwara/app/models/forum.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
-import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 
 class ThreadListItemWidget extends StatelessWidget {

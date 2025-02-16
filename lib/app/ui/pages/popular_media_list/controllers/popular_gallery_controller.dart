@@ -35,8 +35,11 @@ class PopularGalleryController extends BaseMediaController<ImageModel> {
   final RxBool hasMore = true.obs; // 是否还有更多数据
   final RxBool isInit = true.obs; // 是否是初始化状态
   final Rxn<Widget> errorWidget = Rxn<Widget>(); // 错误小部件
+  @override
   List<String> searchTagIds = []; // 搜索标签
+  @override
   String searchDate = ''; // 搜索日期 如2024、2023、
+  @override
   String searchRating = ''; // 内容评级
 
   final int pageSize = 20; // 每页数据量

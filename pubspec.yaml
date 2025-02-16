@@ -60,6 +60,8 @@ dependencies:
   archive: ^4.0.2
   ffi: ^2.1.3
   volume_controller: ^2.0.7
+  uuid: any
+  audio_video_progress_bar: ^2.0.3
 dev_dependencies:
   flutter_test:
     sdk: flutter

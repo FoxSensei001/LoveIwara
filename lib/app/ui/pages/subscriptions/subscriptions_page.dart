@@ -12,7 +12,6 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import '../../../services/app_service.dart';
 import '../../widgets/top_padding_height_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
-import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/app/ui/widgets/glow_notification_widget.dart';
 import 'package:i_iwara/app/ui/pages/home_page.dart';
 
@@ -264,7 +263,7 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
           IconButton(
             icon: AvatarWidget(
               user: userService.currentUser.value,
-              size: 20
+              size: 40
             ),
             onPressed: () => AppService.switchGlobalDrawer(),
           ),

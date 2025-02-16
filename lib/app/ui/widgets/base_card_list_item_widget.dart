@@ -4,7 +4,6 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
-import '../../../common/constants.dart';
 
 class BaseCardListItem extends StatelessWidget {
   static const double narrowScreenWidth = 600;

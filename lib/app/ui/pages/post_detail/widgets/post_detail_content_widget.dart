@@ -4,7 +4,6 @@ import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/follow_button_widget.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/app/ui/widgets/translation_powered_by_widget.dart';
-import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:get/get.dart';

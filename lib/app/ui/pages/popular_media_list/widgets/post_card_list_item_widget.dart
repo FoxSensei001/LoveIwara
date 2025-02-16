@@ -3,7 +3,6 @@ import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
-import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/app/models/history_record.dart';
 import 'package:i_iwara/app/repositories/history_repository.dart';

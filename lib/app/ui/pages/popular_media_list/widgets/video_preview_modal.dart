@@ -5,7 +5,6 @@ import 'package:i_iwara/utils/common_utils.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-import '../../../../../common/constants.dart';
 import '../../../../models/video.model.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 class VideoPreviewDetailModal extends StatelessWidget {

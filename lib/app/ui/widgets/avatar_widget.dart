@@ -23,7 +23,7 @@ class AvatarWidget extends StatelessWidget {
 
   bool get _isOnline {
     if (user?.seenAt == null) return false;
-    final difference = DateTime.now().difference(user!.seenAt!);
+    final difference = DateTime.now().toUtc().difference(user!.seenAt!.toUtc());
     return difference.inMinutes <= 5;
   }
 

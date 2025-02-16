@@ -990,6 +990,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                   child: LayoutBuilder(
                     builder: (context, constraints) {
                       final totalWidth = constraints.maxWidth;
+                      final colorTheme = Theme.of(context).colorScheme.primary;
                       
                       return Obx(() {
                         final currentPosition = widget.myVideoStateController.currentPosition.value;
@@ -1007,7 +1008,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                             Container(
                               width: totalWidth,
                               height: 3,
-                              color: Colors.black.withOpacity(0.1),
+                              color: Colors.white.withOpacity(0.2),
                             ),
                             // 缓冲层
                             ...buffers.map((buffer) {
@@ -1023,7 +1024,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                                 child: Container(
                                   width: endX - startX,
                                   height: 3,
-                                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                                  color: Colors.white.withOpacity(0.4),
                                 ),
                               );
                             }),
@@ -1031,7 +1032,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                             Container(
                               width: progressWidth,
                               height: 3,
-                              color: Theme.of(context).colorScheme.primary,
+                              color: colorTheme,
                             ),
                           ],
                         );

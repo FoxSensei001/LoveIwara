@@ -4,7 +4,6 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/follow_button_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
-import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class UserCard extends StatefulWidget {
