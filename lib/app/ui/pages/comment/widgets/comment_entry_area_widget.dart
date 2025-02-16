@@ -92,11 +92,7 @@ class CommentEntryAreaButtonWidget extends StatelessWidget {
                         }
                         return AvatarWidget(
                           avatarUrl: avatarUrl,
-                          defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-                          headers: const {'referer': CommonConstants.iwaraBaseUrl},
-                          radius: 20,
-                          isPremium: isPremium,
-                          isAdmin: isAdmin,
+                          size: 40
                         );
                       }),
                       const SizedBox(width: 8),

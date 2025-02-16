@@ -79,12 +79,7 @@ class _SharePostBottomSheetState extends State<SharePostBottomSheet> {
                       // 头像
                       AvatarWidget(
                         avatarUrl: widget.post.user.avatar?.avatarUrl,
-                        defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-                        headers: const {'referer': CommonConstants.iwaraBaseUrl},
-                        isPremium: widget.post.user.premium,
-                        isAdmin: widget.post.user.isAdmin,
-                        role: widget.post.user.role,
-                        radius: 40,
+                        size: 40
                       ),
                       const SizedBox(width: 16),
                       // 统计信息

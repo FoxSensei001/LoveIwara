@@ -303,8 +303,7 @@ class _NewConversationDialogState extends State<NewConversationDialog> {
                                 children: [
                                   AvatarWidget(
                                     user: _selectedUser,
-                                    defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-                                    radius: 16,
+                                    size: 16
                                   ),
                                   const SizedBox(width: 8),
                                   Expanded(
@@ -511,8 +510,6 @@ class _UserSearchSheetState extends State<_UserSearchSheet> {
                 return ListTile(
                   leading: AvatarWidget(
                     user: user,
-                    defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-                    radius: 20,
                   ),
                   title: buildUserName(context, user, fontSize: 14),
                   subtitle: Text('@${user.username}'),

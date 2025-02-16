@@ -249,8 +249,7 @@ class _AuthorInfo extends StatelessWidget {
   Widget _buildAvatar(bool isNarrowScreen) {
     return AvatarWidget(
       user: user,
-      defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-      radius: isNarrowScreen ? 12 : 14,
+      size: 30
     );
   }
 }

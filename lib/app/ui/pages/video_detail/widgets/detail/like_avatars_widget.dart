@@ -127,8 +127,7 @@ class _LikeAvatarsWidgetState extends State<LikeAvatarsWidget> {
   Widget _buildAvatarCircle(User user) {
     return AvatarWidget(
         user: user,
-        defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-        radius: 20,
+        size: 40,
         onTap: () => NaviService.navigateToAuthorProfilePage(user.username));
   }
 }

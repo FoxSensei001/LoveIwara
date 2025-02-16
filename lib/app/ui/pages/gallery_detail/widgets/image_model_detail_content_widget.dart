@@ -324,7 +324,7 @@ class ImageModelDetailContent extends StatelessWidget {
   }
 
   Widget _buildAuthorAvatar(BuildContext context) {
-    Widget avatar = MouseRegion(
+    return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: () {
@@ -336,37 +336,11 @@ class ImageModelDetailContent extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         child: AvatarWidget(
           user: controller.imageModelInfo.value?.user,
-          defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-          radius: 20,
+          size: 40
         ),
       ),
     );
 
-    if (controller.imageModelInfo.value?.user?.premium == true) {
-      return MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: LinearGradient(
-              colors: [
-                Colors.purple.shade200,
-                Colors.blue.shade200,
-                Colors.pink.shade200,
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: avatar,
-          ),
-        ),
-      );
-    }
-
-    return avatar;
   }
 
   // 构建作者名字按钮

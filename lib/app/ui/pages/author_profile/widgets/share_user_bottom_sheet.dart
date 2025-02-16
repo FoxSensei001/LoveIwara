@@ -91,9 +91,7 @@ class _ShareUserBottomSheetState extends State<ShareUserBottomSheet> {
                       // 头像
                       AvatarWidget(
                         avatarUrl: widget.avatarUrl,
-                        defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-                        headers: const {'referer': CommonConstants.iwaraBaseUrl},
-                        radius: 40,
+                        size: 70
                       ),
                       const SizedBox(width: 16),
                       // 用户信息

@@ -121,8 +121,7 @@ class _ForumPageState extends State<ForumPage> {
                     children: [
                       AvatarWidget(
                         user: userService.currentUser.value,
-                        defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-                        radius: 20,
+                        size: 40
                       ),
                       Positioned(
                         right: 0,
@@ -560,8 +559,6 @@ class _ForumPageState extends State<ForumPage> {
                           },
                           child: AvatarWidget(
                             user: subCategory.lastThread!.lastPost?.user,
-                            radius: 16,
-                            defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -748,8 +745,6 @@ class _ForumPageState extends State<ForumPage> {
                     child: Center(
                       child: AvatarWidget(
                         user: subCategory.lastThread!.lastPost?.user,
-                        radius: 16,
-                        defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
                       ),
                     ),
                   ),

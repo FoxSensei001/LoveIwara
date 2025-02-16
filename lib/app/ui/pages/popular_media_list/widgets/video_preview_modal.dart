@@ -154,8 +154,7 @@ class VideoPreviewDetailModal extends StatelessWidget {
                                 children: [
                                   AvatarWidget(
                                     user: video.user,
-                                    defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-                                    radius: 14,
+                                    size: 30
                                   ),
                                   const SizedBox(width: 8),
                                   Flexible(

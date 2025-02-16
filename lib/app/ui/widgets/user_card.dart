@@ -83,8 +83,7 @@ class _UserCardState extends State<UserCard> {
   Widget _buildAvatar() {
     return AvatarWidget(
       user: user,
-      defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-      radius: 30,
+      size: 40
     );
   }
 

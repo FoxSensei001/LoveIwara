@@ -509,7 +509,7 @@ class VideoDetailContent extends StatelessWidget {
   }
 
   Widget _buildAuthorAvatar() {
-    Widget avatar = MouseRegion(
+    return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: () {
@@ -521,37 +521,10 @@ class VideoDetailContent extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         child: AvatarWidget(
           user: controller.videoInfo.value?.user,
-          defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-          radius: 20,
+          size: 40
         ),
       ),
     );
-
-    if (controller.videoInfo.value?.user?.premium == true) {
-      return MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: LinearGradient(
-              colors: [
-                Colors.purple.shade200,
-                Colors.blue.shade200,
-                Colors.pink.shade200,
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: avatar,
-          ),
-        ),
-      );
-    }
-
-    return avatar;
   }
 
   Widget _buildAuthorNameButton(BuildContext context) {

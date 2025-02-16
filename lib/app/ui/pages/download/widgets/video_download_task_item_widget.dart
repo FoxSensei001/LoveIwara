@@ -214,20 +214,11 @@ class VideoDownloadTaskItem extends StatelessWidget {
                                     child: GestureDetector(
                                       onTap: () =>
                                           _navigateToAuthorProfile(videoData),
-                                      child: Container(
-                                        width: 24,
-                                        height: 24,
-                                        margin: const EdgeInsets.only(right: 8),
-                                        child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                          child: AvatarWidget(
+                                      child:  AvatarWidget(
                                             avatarUrl: videoData.authorAvatar,
-                                            defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+                                            size: 25
                                           ),
                                         ),
-                                      ),
-                                    ),
                                   ),
                                 Expanded(
                                   child: Align(

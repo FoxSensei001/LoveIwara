@@ -109,8 +109,7 @@ class PostDetailContent extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         child: AvatarWidget(
           user: user,
-          defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-          radius: 20,
+          size: 40
         ),
       ),
     );

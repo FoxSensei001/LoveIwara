@@ -346,8 +346,7 @@ class _ConversationListWidgetState extends State<ConversationListWidget> {
               },
               child: AvatarWidget(
                 user: otherParticipant,
-                defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-                radius: 25,
+                size: 40
               ),
             ),
             const SizedBox(width: 6),

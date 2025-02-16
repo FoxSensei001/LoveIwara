@@ -181,8 +181,7 @@ class _GalleryDownloadTaskDetailPageState extends State<GalleryDownloadTaskDetai
                     children: [
                       AvatarWidget(
                         avatarUrl: extData.authorAvatar,
-                        defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-                        radius: 20,
+                        size: 40,
                       ),
                       const SizedBox(width: 12),
                       Column(

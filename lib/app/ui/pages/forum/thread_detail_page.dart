@@ -235,12 +235,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
                                   },
                                   child: AvatarWidget(
                                     user: _thread.value!.user,
-                                    radius: 20,
-                                    defaultAvatarUrl:
-                                        CommonConstants.defaultAvatarUrl,
-                                    isPremium: _thread.value!.user.premium,
-                                    isAdmin: _thread.value!.user.isAdmin,
-                                    role: _thread.value!.user.role,
+                                    size: 40
                                   ),
                                 ),
                               ),

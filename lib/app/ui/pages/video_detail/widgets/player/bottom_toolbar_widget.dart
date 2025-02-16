@@ -5,7 +5,6 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/volume_control_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/follow_button_widget.dart';
-import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/vibrate_utils.dart';
 import 'package:logger/logger.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -572,8 +571,7 @@ class BottomToolbar extends StatelessWidget {
         children: [
           AvatarWidget(
             user: videoInfo?.user,
-            defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-            radius: 14,
+            size: 30,
           ),
           const SizedBox(width: 6),
           ConstrainedBox(

@@ -484,8 +484,7 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
               children: [
                 AvatarWidget(
                   user: user,
-                  radius: 24,
-                  defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+                  size: 24
                 ),
                 const SizedBox(width: 12),
                 Expanded(

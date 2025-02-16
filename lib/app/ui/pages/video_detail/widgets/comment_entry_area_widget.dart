@@ -57,15 +57,7 @@ class CommentEntryAreaButtonWidget extends StatelessWidget {
                         avatarUrl: commentController.comments.isNotEmpty
                             ? commentController.comments.first.user?.avatar?.avatarUrl
                             : userService.userAvatar,
-                        defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-                        headers: const {'referer': CommonConstants.iwaraBaseUrl},
-                        radius: 20,
-                        isPremium: commentController.comments.isNotEmpty
-                            ? commentController.comments.first.user?.premium ?? false
-                            : userService.currentUser.value?.premium ?? false,
-                        isAdmin: commentController.comments.isNotEmpty
-                            ? commentController.comments.first.user?.isAdmin ?? false
-                            : userService.currentUser.value?.isAdmin ?? false,
+                        size: 30,
                       ),
                       const SizedBox(width: 8),
                       Expanded(

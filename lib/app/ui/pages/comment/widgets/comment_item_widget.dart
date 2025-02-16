@@ -852,9 +852,7 @@ class _CommentItemState extends State<CommentItem> {
   Widget _buildUserAvatar(Comment comment) {
     return AvatarWidget(
       user: comment.user,
-      defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-      headers: const {'referer': CommonConstants.iwaraBaseUrl},
-      radius: 20,
+      size: 40
     );
   }
 

@@ -197,8 +197,7 @@ class GlobalDrawerColumns extends StatelessWidget {
             children: [
               AvatarWidget(
                 user: userService.currentUser.value,
-                radius: 40,
-                defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+                size: 70
               ),
               const SizedBox(width: 16),
               Expanded(

@@ -511,10 +511,10 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        AvatarWidget(
+                        Center(
+                          child: AvatarWidget(
                           user: profileController.author.value,
-                          defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-                          radius: isNarrowScreen ? 30 : 40,
+                          size: 70,
                           onTap: () {
                             // 进入图片详情页
                             final avatarUrl = profileController.author.value?.avatar?.avatarUrl;
@@ -559,6 +559,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                               );
                             }
                           },
+                        )
                         ),
                         const SizedBox(width: 16),
                         // 用户名、粉丝数、关注数

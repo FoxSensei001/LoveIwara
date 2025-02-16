@@ -178,8 +178,7 @@ class PostCardListItemWidget extends StatelessWidget {
   Widget _buildAvatar(User user, bool isSmallScreen) {
     return AvatarWidget(
       user: user,
-      defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-      radius: isSmallScreen ? 16 : 20,
+      size: 30
     );
   }
 

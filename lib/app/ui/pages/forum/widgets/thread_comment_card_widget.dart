@@ -232,8 +232,7 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
                       },
                       child: AvatarWidget(
                         user: widget.comment.user,
-                        radius: 24,
-                        defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+                        size: 40
                       ),
                     ),
                   ),

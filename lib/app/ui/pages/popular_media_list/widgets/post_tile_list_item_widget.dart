@@ -100,8 +100,7 @@ class PostTileListItemWidget extends StatelessWidget {
   Widget _buildAvatar(User user) {
     return AvatarWidget(
       user: user,
-      defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-      radius: 20,
+      size: 30
     );
   }
 

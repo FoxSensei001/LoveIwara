@@ -4,7 +4,6 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
-import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 
@@ -28,22 +27,16 @@ class CommonHeader extends StatelessWidget {
           if (userService.isLogin) {
             return Stack(
               children: [
-                IconButton(
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
-                  splashRadius: 24,
-                  icon: AvatarWidget(
-                    user: userService.currentUser.value,
-                    radius: avatarRadius,
-                    defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
-                  ),
-                  onPressed: () {
+               AvatarWidget(
+                  user: userService.currentUser.value,
+                  size: 48,
+                  onTap: () {
                     AppService.switchGlobalDrawer();
-                  },
+                  }
                 ),
                 Positioned(
-                  right: 8,
-                  top: 8,
+                  right: 2,
+                  top: 2,
                   child: Obx(() {
                     final count = userService.notificationCount.value +
                         userService.messagesCount.value;

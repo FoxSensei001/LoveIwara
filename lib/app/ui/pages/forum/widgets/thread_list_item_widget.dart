@@ -41,8 +41,7 @@ class ThreadListItemWidget extends StatelessWidget {
                     },
                     child: AvatarWidget(
                       user: thread.user,
-                      radius: 16,
-                      defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+                      size: 30
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -162,8 +161,7 @@ class ThreadListItemWidget extends StatelessWidget {
                       },
                       child: AvatarWidget(
                         user: thread.lastPost!.user,
-                        radius: 12,
-                        defaultAvatarUrl: CommonConstants.defaultAvatarUrl,
+                        size: 30
                       ),
                     ),
                     const SizedBox(width: 8),

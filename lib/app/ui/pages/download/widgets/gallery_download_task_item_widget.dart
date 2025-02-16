@@ -139,9 +139,7 @@ class GalleryDownloadTaskItem extends StatelessWidget {
                                 children: [
                                   AvatarWidget(
                                     avatarUrl: extData.authorAvatar,
-                                    defaultAvatarUrl:
-                                        CommonConstants.defaultAvatarUrl,
-                                    radius: 12,
+                                    size: 25
                                   ),
                                   const SizedBox(width: 12),
                                   Text(
