@@ -310,6 +310,8 @@ class _GestureAreaState extends State<GestureArea>
       },
       onHorizontalDragEnd: (details) {
         widget.myVideoStateController.setInteracting(false);
+        // 触发震动
+        VibrateUtils.vibrate(type: HapticFeedback.lightImpact);
         widget.onHorizontalDragEnd?.call(details);
       },
       child: Container(

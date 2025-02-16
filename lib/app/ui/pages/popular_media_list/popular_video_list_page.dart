@@ -15,12 +15,12 @@ import '../../widgets/top_padding_height_widget.dart';
 import 'controllers/popular_video_controller.dart';
 import 'controllers/popular_video_repository.dart';
 import 'widgets/media_tab_view.dart';
-import '../../../ui/pages/refreshable_page.dart';
+import '../home_page.dart';
 
-class PopularVideoListPage extends RefreshablePage {
-  const PopularVideoListPage({super.key});
-
+class PopularVideoListPage extends StatefulWidget with RefreshableMixin {
   static final globalKey = GlobalKey<_PopularVideoListPageState>();
+
+  const PopularVideoListPage({super.key});
 
   @override
   State<PopularVideoListPage> createState() => _PopularVideoListPageState();

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../pages/refreshable_page.dart';
+import '../pages/home_page.dart';
 
 /// LazyIndexedStack：实现懒加载并缓存页面。
 class LazyIndexedStack extends StatefulWidget {
@@ -67,8 +67,8 @@ class LazyIndexedStackState extends State<LazyIndexedStack> {
   void refreshCurrent() {
     if (widget.index >= 0 && widget.index < _cache.length) {
       final currentWidget = _cache[widget.index];
-      if (currentWidget is RefreshableInterface) {
-        (currentWidget as RefreshableInterface).refreshCurrent();
+      if (currentWidget is HomeWidgetInterface) {
+        (currentWidget as HomeWidgetInterface).refreshCurrent();
       }
     }
   }

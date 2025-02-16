@@ -14,12 +14,12 @@ import '../../widgets/top_padding_height_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/app/ui/widgets/glow_notification_widget.dart';
-import 'package:i_iwara/app/ui/pages/refreshable_page.dart';
+import 'package:i_iwara/app/ui/pages/home_page.dart';
 
-class SubscriptionsPage extends RefreshablePage {
-  const SubscriptionsPage({super.key});
-
+class SubscriptionsPage extends StatefulWidget with RefreshableMixin {
   static final globalKey = GlobalKey<_SubscriptionsPageState>();
+
+  const SubscriptionsPage({super.key});
 
   @override
   State<SubscriptionsPage> createState() => _SubscriptionsPageState();

@@ -15,12 +15,12 @@ import '../../widgets/top_padding_height_widget.dart';
 import 'controllers/popular_gallery_controller.dart';
 import 'controllers/popular_gallery_repository.dart';
 import 'widgets/media_tab_view.dart';
-import '../../../ui/pages/refreshable_page.dart';
+import '../home_page.dart';
 
-class PopularGalleryListPage extends RefreshablePage {
-  const PopularGalleryListPage({super.key});
-
+class PopularGalleryListPage extends StatefulWidget with RefreshableMixin {
   static final globalKey = GlobalKey<_PopularGalleryListPageState>();
+
+  const PopularGalleryListPage({super.key});
 
   @override
   State<PopularGalleryListPage> createState() => _PopularGalleryListPageState();
@@ -28,7 +28,6 @@ class PopularGalleryListPage extends RefreshablePage {
   @override
   void refreshCurrent() {
     final state = globalKey.currentState;
-    print("refreshCurrent PopularGalleryListPage state: $state");
     if (state != null) {
       state.tryRefreshCurrentSort();
     }

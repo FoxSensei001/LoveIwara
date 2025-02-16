@@ -19,12 +19,12 @@ import 'package:oktoast/oktoast.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/app/ui/pages/forum/controllers/recent_thread_repository.dart';
 import 'package:i_iwara/app/ui/pages/forum/forum_skeleton_page.dart';
-import 'package:i_iwara/app/ui/pages/refreshable_page.dart';
+import 'package:i_iwara/app/ui/pages/home_page.dart';
 
-class ForumPage extends RefreshablePage {
-  const ForumPage({super.key});
-
+class ForumPage extends StatefulWidget with RefreshableMixin {
   static final globalKey = GlobalKey<_ForumPageState>();
+
+  const ForumPage({super.key});
 
   @override
   State<ForumPage> createState() => _ForumPageState();

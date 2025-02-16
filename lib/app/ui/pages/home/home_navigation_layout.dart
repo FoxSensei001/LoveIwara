@@ -17,13 +17,13 @@ import '../subscriptions/subscriptions_page.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/utils/exit_confirm_util.dart';
 import 'package:i_iwara/app/ui/widgets/lazy_indexed_stack.dart';
+import 'package:i_iwara/app/ui/pages/home_page.dart';
 
 /// 侧边栏、底部导航栏、主要内容
-class HomeNavigationLayout extends StatefulWidget {
-  const HomeNavigationLayout({super.key});
+class HomeNavigationLayout extends StatefulWidget with RefreshableMixin {
+  static final homeNavigatorObserver = HomeNavigatorObserver();
 
-  static final HomeNavigatorObserver homeNavigatorObserver =
-      HomeNavigatorObserver();
+  const HomeNavigationLayout({super.key});
 
   @override
   State<HomeNavigationLayout> createState() => _HomeNavigationLayoutState();
