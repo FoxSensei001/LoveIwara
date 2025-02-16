@@ -517,7 +517,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
                       MenuItem(
                         title: t.galleryDetail.saveAs,
                         icon: Icons.download,
-                        onTap: () => ImageUtils.downloadImageForDesktop(item),
+                        onTap: () => ImageUtils.downloadImageToAppDirectory(item),
                       ),
                     MenuItem(
                       title: t.galleryDetail.saveToAlbum,

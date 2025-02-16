@@ -310,7 +310,7 @@ class DownloadService extends GetxService {
 
   // 删除任务
   // 此任务可能在内存中，也可能在数据库中，需要先从内存中获取，如果获取不到，则从数据库中获取
-  Future<void> deleteTask(String taskId) async {
+  Future<void> deleteTask(String taskId, {bool ignoreFileDeleteError = false}) async {
     LogUtils.i('开始删除下载任务: $taskId', 'DownloadService');
     DownloadTask? task;
     // 获取任务信息
@@ -356,7 +356,7 @@ class DownloadService extends GetxService {
       }
     }
 
-    if (!isDeleteSuccess) {
+    if (!isDeleteSuccess && !ignoreFileDeleteError) {
       LogUtils.e('删除文件失败: ${task.savePath}', tag: 'DownloadService');
       _showMessage(slang.t.download.errors.deleteFileError, Colors.red);
       return;

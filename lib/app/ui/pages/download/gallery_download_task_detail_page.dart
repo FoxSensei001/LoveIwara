@@ -77,7 +77,7 @@ class _GalleryDownloadTaskDetailPageState extends State<GalleryDownloadTaskDetai
         MenuItem(
           title: t.galleryDetail.saveAs,
           icon: Icons.download,
-          onTap: () => ImageUtils.downloadImageForDesktop(item),
+          onTap: () => ImageUtils.downloadImageToAppDirectory(item),
         ),
     ];
   }

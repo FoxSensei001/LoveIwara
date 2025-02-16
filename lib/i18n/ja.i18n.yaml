@@ -806,6 +806,7 @@ download:
     pleaseTryOtherViewer: '他のビューアーを使用してみてください'
   downloadList: ダウンロードリスト
   download: ダウンロード
+  forceDeleteTask: 強制削除タスク
   startDownloading: ダウンロードを開始
   clearAllFailedTasks: すべての失敗タスクをクリア
   clearAllFailedTasksConfirmation: 'すべての失敗タスクをクリアしますか？\nこれらのタスクのファイルも削除されます。'

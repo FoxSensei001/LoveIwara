@@ -348,7 +348,6 @@ class AppSettingsPage extends StatelessWidget {
                   onTap: () async {
                     try {
                       await Get.find<ConfigBackupService>().exportConfig();
-                      showToastWidget(MDToastWidget(message: slang.t.settings.exportConfigSuccess, type: MDToastType.success));
                     } catch (e) {
                       showToastWidget(MDToastWidget(message: '${slang.t.settings.exportConfigFailed}: ${e.toString()}', type: MDToastType.error));
                     }
@@ -362,7 +361,6 @@ class AppSettingsPage extends StatelessWidget {
                   onTap: () async {
                     try {
                       await Get.find<ConfigBackupService>().importConfig();
-                      showToastWidget(MDToastWidget(message: slang.t.settings.importConfigSuccess, type: MDToastType.success));
                     } catch (e) {
                       showToastWidget(MDToastWidget(message: '${slang.t.settings.importConfigFailed}: ${e.toString()}', type: MDToastType.error));
                     }

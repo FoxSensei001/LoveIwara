@@ -911,6 +911,7 @@ class _TranslationsDownloadZhTw implements TranslationsDownloadEn {
 	@override late final _TranslationsDownloadErrorsZhTw errors = _TranslationsDownloadErrorsZhTw._(_root);
 	@override String get downloadList => '下載列表';
 	@override String get download => '下載';
+	@override String get forceDeleteTask => '強制刪除任務';
 	@override String get startDownloading => '開始下載...';
 	@override String get clearAllFailedTasks => '清除全部失敗任務';
 	@override String get clearAllFailedTasksConfirmation => '確定要清除所有失敗的下載任務嗎？\n這些任務的文件也會被刪除。';
@@ -2035,6 +2036,7 @@ extension on TranslationsZhTw {
 			case 'download.errors.imageLoadFailed': return '圖片加載失敗';
 			case 'download.downloadList': return '下載列表';
 			case 'download.download': return '下載';
+			case 'download.forceDeleteTask': return '強制刪除任務';
 			case 'download.startDownloading': return '開始下載...';
 			case 'download.clearAllFailedTasks': return '清除全部失敗任務';
 			case 'download.clearAllFailedTasksConfirmation': return '確定要清除所有失敗的下載任務嗎？\n這些任務的文件也會被刪除。';

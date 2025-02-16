@@ -100,6 +100,17 @@ class VideoDownloadTaskItem extends StatelessWidget {
               ),
               onTap: () => _showDeleteConfirmDialog(context),
             ),
+            // 强制删除
+            PopupMenuItem(
+              child: Row(
+                children: [
+                  const Icon(Icons.delete, color: Colors.red),
+                  const SizedBox(width: 8),
+                  Text(t.download.forceDeleteTask, style: const TextStyle(color: Colors.red)),
+                ],
+              ),
+              onTap: () => _showDeleteConfirmDialog(context, force: true),
+            ),
           ],
         );
       },
@@ -381,6 +392,17 @@ class VideoDownloadTaskItem extends StatelessWidget {
                 _showDeleteConfirmDialog(context);
               },
             ),
+            // 强制删除
+            PopupMenuItem(
+              child: Row(
+                children: [
+                  const Icon(Icons.delete, color: Colors.red),
+                  const SizedBox(width: 8),
+                  Text(t.download.forceDeleteTask, style: const TextStyle(color: Colors.red)),
+                ],
+              ),
+              onTap: () => _showDeleteConfirmDialog(context, force: true),
+            ),
           ],
         ),
       ),
@@ -611,7 +633,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
     }
   }
 
-  void _showDeleteConfirmDialog(BuildContext context) {
+  void _showDeleteConfirmDialog(BuildContext context, {bool force = false}) {
     final t = slang.Translations.of(context);
     Get.dialog(
       AlertDialog(
@@ -625,7 +647,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
           TextButton(
             onPressed: () {
               AppService.tryPop();
-              DownloadService.to.deleteTask(task.id);
+              DownloadService.to.deleteTask(task.id, ignoreFileDeleteError: force);
             },
             child: Text(t.common.confirm),
           ),

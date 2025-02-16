@@ -100,6 +100,7 @@ class ConfigBackupService extends GetxService {
         }
         final file = File(fileSaveLocation.path);
         await file.writeAsString(jsonString);
+        showToastWidget(MDToastWidget(message: slang.t.settings.exportConfigSuccess, type: MDToastType.success));
       }
     } catch (e) {
       LogUtils.e("配置导出失败: ${e.toString()}", error: e, tag: "ConfigBackupService");
@@ -180,6 +181,7 @@ class ConfigBackupService extends GetxService {
       } finally {
         db.execute('PRAGMA foreign_keys = ON;');
       }
+      showToastWidget(MDToastWidget(message: slang.t.settings.importConfigSuccess, type: MDToastType.success));
     } catch (e) {
       LogUtils.e("配置导入失败: ${e.toString()}", error: e, tag: "ConfigBackupService");
       throw Exception("配置导入失败: ${e.toString()}");

@@ -809,6 +809,7 @@ download:
     imageLoadFailed: '圖片加載失敗'
   downloadList: 下載列表
   download: 下載
+  forceDeleteTask: 強制刪除任務
   startDownloading: 開始下載...
   clearAllFailedTasks: 清除全部失敗任務
   clearAllFailedTasksConfirmation: '確定要清除所有失敗的下載任務嗎？\n這些任務的文件也會被刪除。'

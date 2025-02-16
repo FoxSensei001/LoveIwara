@@ -913,6 +913,7 @@ class _TranslationsDownloadZhCn implements TranslationsDownloadEn {
 	@override late final _TranslationsDownloadErrorsZhCn errors = _TranslationsDownloadErrorsZhCn._(_root);
 	@override String get downloadList => '下载列表';
 	@override String get download => '下载';
+	@override String get forceDeleteTask => '强制删除任务';
 	@override String get startDownloading => '开始下载...';
 	@override String get clearAllFailedTasks => '清除全部失败任务';
 	@override String get clearAllFailedTasksConfirmation => '确定要清除所有失败的下载任务吗？\n这些任务的文件也会被删除。';
@@ -2039,6 +2040,7 @@ extension on TranslationsZhCn {
 			case 'download.errors.pleaseTryOtherViewer': return '请尝试使用其他查看器打开';
 			case 'download.downloadList': return '下载列表';
 			case 'download.download': return '下载';
+			case 'download.forceDeleteTask': return '强制删除任务';
 			case 'download.startDownloading': return '开始下载...';
 			case 'download.clearAllFailedTasks': return '清除全部失败任务';
 			case 'download.clearAllFailedTasksConfirmation': return '确定要清除所有失败的下载任务吗？\n这些任务的文件也会被删除。';

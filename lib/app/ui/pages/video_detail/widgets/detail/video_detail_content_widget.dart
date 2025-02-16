@@ -31,6 +31,10 @@ import 'package:i_iwara/app/services/download_service.dart';
 import 'package:path/path.dart' as p;
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
+import 'package:flutter_file_dialog/flutter_file_dialog.dart';
+import 'package:file_selector/file_selector.dart' as fs;
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 class VideoDetailContent extends StatelessWidget {
   final MyVideoStateController controller;
@@ -616,6 +620,43 @@ class VideoDetailContent extends StatelessWidget {
     );
   }
 
+  Future<String?> _getSavePath(String title, String quality) async {
+    if (Platform.isAndroid || Platform.isIOS) {
+      final tempDir = await getTemporaryDirectory();
+      final fileName = '${title}_$quality.mp4';
+      final tempFilePath = p.join(tempDir.path, fileName);
+      
+      // 创建一个空文件
+      await File(tempFilePath).create(recursive: true);
+      
+      final params = SaveFileDialogParams(
+        sourceFilePath: tempFilePath,
+      );
+      
+      String? selectedPath;
+      try {
+        selectedPath = await FlutterFileDialog.saveFile(params: params);
+        LogUtils.d('选择的保存路径: $selectedPath', 'VideoDetailContent');
+      } finally {
+        // 确保临时文件被删除
+        final tempFile = File(tempFilePath);
+        if (await tempFile.exists()) {
+          await tempFile.delete();
+        }
+      }
+      
+      return selectedPath;
+    } else {
+      // 桌面平台：使用 file_selector
+      final fileSaveLocation = await fs.getSaveLocation(
+        acceptedTypeGroups: [const fs.XTypeGroup(label: 'MP4', extensions: ['mp4'])],
+        suggestedName: '${title}_$quality.mp4',
+      );
+      
+      return fileSaveLocation?.path;
+    }
+  }
+
   void _showDownloadDialog(BuildContext context) {
     final t = slang.Translations.of(context);
     final sources = controller.currentVideoSourceList;
@@ -671,13 +712,26 @@ class VideoDetailContent extends StatelessWidget {
                     quality: source.name,
                   );
 
+                  // 在创建下载任务之前获取保存路径
+                  final savePath = await _getSavePath(
+                    videoInfo.title ?? 'video',
+                    source.name ?? 'unknown',
+                  );
+
+                  print('senko savePath: $savePath');
+                  
+                  if (savePath == null) {
+                    showToastWidget(MDToastWidget(
+                      message: t.common.operationCancelled,
+                      type: MDToastType.info
+                    ));
+                    return;
+                  }
+
                   final task = DownloadTask(
                     id: VideoDownloadExtData.genExtDataIdByVideoInfo(videoInfo, source.name ?? 'unknown'),
                     url: source.download!,
-                    savePath: await _getSavePath(
-                      videoInfo.title ?? 'video',
-                      source.name ?? 'unknown',
-                    ),
+                    savePath: savePath,
                     fileName: '${videoInfo.title ?? 'video'}_${source.name}.mp4',
                     supportsRange: true,
                     extData: DownloadTaskExtData(
@@ -724,13 +778,6 @@ class VideoDetailContent extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  // 获取视频的下载地址
-  Future<String> _getSavePath(String title, String quality) async {
-    final dir = await CommonUtils.getAppDirectory(pathSuffix: p.join('downloads', 'videos'));
-    final sanitizedTitle = title.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_');
-    return '${dir.path}/${sanitizedTitle}_$quality.mp4';
   }
 
   // 添加到收藏夹

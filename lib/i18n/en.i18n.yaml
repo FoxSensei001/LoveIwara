@@ -828,6 +828,7 @@ download:
   copyDownloadUrl: Copy Download URL
   showInFolder: Show in Folder
   deleteTask: Delete Task
+  forceDeleteTask: Force Delete Task
   downloadingProgressForVideoTask: 'Downloading ${downloaded}/${total} (${progress}%) • ${speed}MB/s'
   downloadingOnlyDownloadedAndSpeed: 'Downloading ${downloaded} • ${speed}MB/s'
   pausedForDownloadedAndTotal: 'Paused ${downloaded}/${total} (${progress}%)'

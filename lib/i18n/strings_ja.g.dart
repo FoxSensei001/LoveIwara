@@ -908,6 +908,7 @@ class _TranslationsDownloadJa implements TranslationsDownloadEn {
 	@override late final _TranslationsDownloadErrorsJa errors = _TranslationsDownloadErrorsJa._(_root);
 	@override String get downloadList => 'ダウンロードリスト';
 	@override String get download => 'ダウンロード';
+	@override String get forceDeleteTask => '強制削除タスク';
 	@override String get startDownloading => 'ダウンロードを開始';
 	@override String get clearAllFailedTasks => 'すべての失敗タスクをクリア';
 	@override String get clearAllFailedTasksConfirmation => 'すべての失敗タスクをクリアしますか？\nこれらのタスクのファイルも削除されます。';
@@ -2029,6 +2030,7 @@ extension on TranslationsJa {
 			case 'download.errors.pleaseTryOtherViewer': return '他のビューアーを使用してみてください';
 			case 'download.downloadList': return 'ダウンロードリスト';
 			case 'download.download': return 'ダウンロード';
+			case 'download.forceDeleteTask': return '強制削除タスク';
 			case 'download.startDownloading': return 'ダウンロードを開始';
 			case 'download.clearAllFailedTasks': return 'すべての失敗タスクをクリア';
 			case 'download.clearAllFailedTasksConfirmation': return 'すべての失敗タスクをクリアしますか？\nこれらのタスクのファイルも削除されます。';
