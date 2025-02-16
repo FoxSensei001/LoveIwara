@@ -8,11 +8,10 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/rapple_painter.dart';
-import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:i_iwara/utils/vibrate_utils.dart';
 import 'package:media_kit_video/media_kit_video.dart';
-import 'package:vibration/vibration.dart';
 
 import 'bottom_toolbar_widget.dart';
 import 'gesture_area_widget.dart';
@@ -662,9 +661,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
               child: InkWell(
                 onTap: () async {
                   // 添加震动反馈
-                  if (await Vibration.hasVibrator() && CommonConstants.enableVibration) {
-                    await Vibration.vibrate(duration: 50);
-                  }
+                  VibrateUtils.vibrate();
                   
                   myVideoStateController.videoPlaying.value
                       ? myVideoStateController.player.pause()

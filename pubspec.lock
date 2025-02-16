@@ -1655,22 +1655,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
-  vibration:
-    dependency: "direct main"
-    description:
-      name: vibration
-      sha256: "1610296b8b97b3bc65cb745ffb7c9ffa2ad3ef4bb18e95ab13b0881458330126"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.1.2"
-  vibration_platform_interface:
-    dependency: transitive
-    description:
-      name: vibration_platform_interface
-      sha256: "03e9deaa4df48a1a6212e281bfee5f610d62e9247929dd2f26f4efd4fa5e225c"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.0"
   visibility_detector:
     dependency: "direct main"
     description:

@@ -6,6 +6,7 @@ import 'package:i_iwara/app/services/translation_service.dart';
 import 'package:i_iwara/app/ui/widgets/translation_powered_by_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/utils/vibrate_utils.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/widgets/ai_translation_toggle_button.dart';
@@ -155,7 +156,7 @@ class _TranslationDialogState extends State<TranslationDialog> {
                     spacing: 16,
                     children: [
                       if (title == t.common.translationResult)
-                        translationPoweredByWidget(context, fontSize: 16),
+                        translationPoweredByWidget(context, fontSize: 12),
                       if (title == t.common.translationResult && _translatedText != null)
                         Tooltip(
                           message: t.download.copy,
@@ -163,6 +164,7 @@ class _TranslationDialogState extends State<TranslationDialog> {
                             icon: const Icon(Icons.content_copy, size: 18),
                             onPressed: () async {
                               await Clipboard.setData(ClipboardData(text: _translatedText!));
+                              VibrateUtils.vibrate();
                               Get.showSnackbar(GetSnackBar(
                                 message: t.download.copySuccess,
                                 duration: const Duration(seconds: 2),

@@ -18,42 +18,45 @@ class FriendList extends StatelessWidget {
   Widget build(BuildContext context) {
     final FriendsController controller = Get.find();
     final t = slang.Translations.of(context);
-
-    return LoadingMoreCustomScrollView(
-      controller: scrollController,
-      slivers: [
-        LoadingMoreSliverList<User>(
-          SliverListConfig<User>(
-            itemBuilder: (context, user, index) {
-              return UserCard(
-                user: user,
-                actions: [
-                  IconButton(
-                    icon: const Icon(Icons.person_remove),
-                    color: Colors.red,
-                    // onPressed: () => controller.removeFriend(user.id),
-                    onPressed: null, // [TODO_PLACEHOLDER]由于移除朋友后刷新页面存在奇怪bug，临时禁用
-                    tooltip: t.common.removeFriend,
-                  ),
-                ],
-              );
-            },
-            sourceList: controller.friendRepository,
-            padding: EdgeInsets.fromLTRB(
-              5.0,
-              5.0,
-              5.0,
-              Get.context != null ? MediaQuery.of(Get.context!).padding.bottom + 5.0 : 0,
-            ),
-            indicatorBuilder: (context, status) => myLoadingMoreIndicator(
-              context,
-              status,
-              isSliver: true,
-              loadingMoreBase: controller.friendRepository,
+    
+    return RefreshIndicator(
+      onRefresh: () => controller.friendRepository.refresh(true),
+      child: LoadingMoreCustomScrollView(
+        controller: scrollController,
+        slivers: [
+          LoadingMoreSliverList<User>(
+            SliverListConfig<User>(
+              itemBuilder: (context, user, index) {
+                return UserCard(
+                  user: user,
+                  actions: [
+                    IconButton(
+                      icon: const Icon(Icons.person_remove),
+                      color: Colors.red,
+                      // onPressed: () => controller.removeFriend(user.id),
+                      onPressed: null, // [TODO_PLACEHOLDER]由于移除朋友后刷新页面存在奇怪bug，临时禁用
+                      tooltip: t.common.removeFriend,
+                    ),
+                  ],
+                );
+              },
+              sourceList: controller.friendRepository,
+              padding: EdgeInsets.fromLTRB(
+                5.0,
+                5.0,
+                5.0,
+                Get.context != null ? MediaQuery.of(Get.context!).padding.bottom + 5.0 : 0,
+              ),
+              indicatorBuilder: (context, status) => myLoadingMoreIndicator(
+                context,
+                status,
+                isSliver: true,
+                loadingMoreBase: controller.friendRepository,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

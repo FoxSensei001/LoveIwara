@@ -21,45 +21,48 @@ class FriendRequestList extends StatelessWidget {
     final FriendsController controller = Get.find();
     final UserService userService = Get.find();
 
-    return LoadingMoreCustomScrollView(
-      controller: scrollController,
-      slivers: [
-        LoadingMoreSliverList<UserRequestDTO>(
-          SliverListConfig<UserRequestDTO>(
-            itemBuilder: (context, request, index) {
-              final bool isTargetSelf =
-                  request.target.id == userService.currentUser.value?.id;
-              final user = isTargetSelf ? request.user : request.target;
+    return RefreshIndicator(
+      onRefresh: () => controller.requestRepository.refresh(true),
+      child: LoadingMoreCustomScrollView(
+        controller: scrollController,
+        slivers: [
+          LoadingMoreSliverList<UserRequestDTO>(
+            SliverListConfig<UserRequestDTO>(
+              itemBuilder: (context, request, index) {
+                final bool isTargetSelf =
+                    request.target.id == userService.currentUser.value?.id;
+                final user = isTargetSelf ? request.user : request.target;
 
-              return UserCard(
-                user: user,
-                actions: [
-                  // [TODO_PLACEHOLDER]由于移除朋友后刷新页面存在奇怪bug，临时禁用
-                  if (isTargetSelf)
-                    _buildAcceptRejectButtons(context, controller, request, fake: true)
-                  else
-                    _buildCancelRequestButton(context, controller, request, fake: true),
-                ],
-              );
-            },
-            sourceList: controller.requestRepository,
-            padding: EdgeInsets.fromLTRB(
-              5.0,
-              5.0,
-              5.0,
-              Get.context != null
-                  ? MediaQuery.of(Get.context!).padding.bottom + 5.0
-                  : 0,
-            ),
-            indicatorBuilder: (context, status) => myLoadingMoreIndicator(
-              context,
-              status,
-              isSliver: true,
-              loadingMoreBase: controller.requestRepository,
+                return UserCard(
+                  user: user,
+                  actions: [
+                    // [TODO_PLACEHOLDER]由于移除朋友后刷新页面存在奇怪bug，临时禁用
+                    if (isTargetSelf)
+                      _buildAcceptRejectButtons(context, controller, request, fake: true)
+                    else
+                      _buildCancelRequestButton(context, controller, request, fake: true),
+                  ],
+                );
+              },
+              sourceList: controller.requestRepository,
+              padding: EdgeInsets.fromLTRB(
+                5.0,
+                5.0,
+                5.0,
+                Get.context != null
+                    ? MediaQuery.of(Get.context!).padding.bottom + 5.0
+                    : 0,
+              ),
+              indicatorBuilder: (context, status) => myLoadingMoreIndicator(
+                context,
+                status,
+                isSliver: true,
+                loadingMoreBase: controller.requestRepository,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

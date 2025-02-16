@@ -6,9 +6,9 @@ import 'package:i_iwara/app/ui/pages/video_detail/widgets/volume_control_widget.
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/follow_button_widget.dart';
 import 'package:i_iwara/common/constants.dart';
+import 'package:i_iwara/utils/vibrate_utils.dart';
 import 'package:logger/logger.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:vibration/vibration.dart';
 import 'package:i_iwara/app/ui/widgets/like_button_widget.dart';
 import 'package:i_iwara/app/services/video_service.dart';
 
@@ -630,10 +630,7 @@ class BottomToolbar extends StatelessWidget {
             size: iconSize,
           ),
           onPressed: () async {
-            if (await Vibration.hasVibrator() && CommonConstants.enableVibration) {
-              await Vibration.vibrate(duration: 50);
-            }
-
+            VibrateUtils.vibrate();
             if (myVideoStateController.videoPlaying.value) {
               myVideoStateController.videoController.player.pause();
             } else {

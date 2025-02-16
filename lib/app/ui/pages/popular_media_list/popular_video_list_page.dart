@@ -15,18 +15,28 @@ import '../../widgets/top_padding_height_widget.dart';
 import 'controllers/popular_video_controller.dart';
 import 'controllers/popular_video_repository.dart';
 import 'widgets/media_tab_view.dart';
+import '../../../ui/pages/refreshable_page.dart';
 
-class PopularVideoListPage extends StatefulWidget {
-  final List<Sort> sorts = CommonConstants.mediaSorts;
+class PopularVideoListPage extends RefreshablePage {
+  const PopularVideoListPage({super.key});
 
-  PopularVideoListPage({super.key});
+  static final globalKey = GlobalKey<_PopularVideoListPageState>();
 
   @override
-  _PopularVideoListPageState createState() => _PopularVideoListPageState();
+  State<PopularVideoListPage> createState() => _PopularVideoListPageState();
+
+  @override
+  void refreshCurrent() {
+    final state = globalKey.currentState;
+    if (state != null) {
+      state.tryRefreshCurrentSort();
+    }
+  }
 }
 
 class _PopularVideoListPageState extends State<PopularVideoListPage>
     with SingleTickerProviderStateMixin {
+  final List<Sort> sorts = CommonConstants.mediaSorts;
   late TabController _tabController;
   late ScrollController _tabBarScrollController;
   final List<GlobalKey> _tabKeys = [];
@@ -36,6 +46,16 @@ class _PopularVideoListPageState extends State<PopularVideoListPage>
   final Map<SortId, PopularVideoRepository> _repositories = {};
   final Map<SortId, PopularVideoController> _controllers = {};
 
+  void tryRefreshCurrentSort() {
+    if (mounted) {
+      var sortId = sorts[_tabController.index].id;
+      var repository = _repositories[sortId];
+      if (repository != null && !repository.isLoading) {
+        repository.refresh(true);
+      }
+    }
+  }
+
   // 查询参数
   List<Tag> tags = [];
   String year = '';
@@ -44,13 +64,13 @@ class _PopularVideoListPageState extends State<PopularVideoListPage>
   @override
   void initState() {
     super.initState();
-    for (var sort in widget.sorts) {
+    for (var sort in sorts) {
       _tabKeys.add(GlobalKey());
       final controller = Get.put(PopularVideoController(sortId: sort.id.name), tag: sort.id.name);
       _controllers[sort.id] = controller;
       _repositories[sort.id] = controller.repository as PopularVideoRepository;
     }
-    _tabController = TabController(length: widget.sorts.length, vsync: this);
+    _tabController = TabController(length: sorts.length, vsync: this);
     _tabBarScrollController = ScrollController();
 
     _tabController.addListener(_onTabChange);
@@ -80,7 +100,7 @@ class _PopularVideoListPageState extends State<PopularVideoListPage>
     LogUtils.d('设置查询参数: tags: $tags, year: $year, rating: $rating', 'PopularVideoListPage');
 
     // 设置每个controller的查询参数并重置数据
-    for (var sort in widget.sorts) {
+    for (var sort in sorts) {
       var controller = _controllers[sort.id]!;
       controller.updateSearchParams(
         searchTagIds: tags.map((e) => e.id).toList(),
@@ -186,7 +206,7 @@ class _PopularVideoListPageState extends State<PopularVideoListPage>
                         dividerColor: Colors.transparent,
                         padding: EdgeInsets.zero,
                         controller: _tabController,
-                        tabs: widget.sorts.asMap().entries.map((entry) {
+                        tabs: sorts.asMap().entries.map((entry) {
                           int index = entry.key;
                           Sort sort = entry.value;
                           return Container(
@@ -211,7 +231,7 @@ class _PopularVideoListPageState extends State<PopularVideoListPage>
               IconButton(
                 icon: const Icon(Icons.refresh),
                 onPressed: () {
-                  var sortId = widget.sorts[_tabController.index].id;
+                  var sortId = sorts[_tabController.index].id;
                   var repository = _repositories[sortId]!;
                   repository.refresh(true);
                 },
@@ -226,7 +246,7 @@ class _PopularVideoListPageState extends State<PopularVideoListPage>
           Expanded(
             child: TabBarView(
               controller: _tabController,
-              children: widget.sorts.map((sort) {
+              children: sorts.map((sort) {
                 return MediaTabView<Video>(
                   repository: _repositories[sort.id]!,
                   emptyIcon: Icons.video_library_outlined,

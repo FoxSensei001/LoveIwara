@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/forum/forum_page.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:i_iwara/utils/vibrate_utils.dart';
+import 'package:i_iwara/utils/easy_throttle.dart';
 
 import '../../../routes/app_routes.dart';
 import '../../../services/app_service.dart';
@@ -49,6 +51,9 @@ class _HomeNavigationLayoutState extends State<HomeNavigationLayout>
   void dispose() {
     // 停止通知计数定时任务
     userService.stopNotificationTimer();
+    // 清理节流器
+    EasyThrottle.cancel('refresh_page');
+    EasyThrottle.cancel('switch_page');
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -59,6 +64,42 @@ class _HomeNavigationLayoutState extends State<HomeNavigationLayout>
     super.didHaveMemoryPressure();
     _lazyStackKey.currentState?.releaseNonCurrent();
     LogUtils.i("内存存在压力，释放其他页面", "HomeNavigationLayout");
+  }
+
+  /// 新增的通用导航处理方法
+  void handleNavigationTap(int value) {
+    if (appService.currentIndex == value) {
+      // 如果是当前页面，则不进行切换，而是刷新当前页面
+      // 添加节流，1秒内只能刷新一次
+      if (EasyThrottle.throttle(
+        'refresh_page',
+        const Duration(seconds: 1), // 节流时间
+        () {
+          LogUtils.d("refreshCurrent", "HomeNavigationLayout");
+          VibrateUtils.vibrate();
+          _lazyStackKey.currentState?.refreshCurrent();
+        },
+      )) {
+        return; // 如果被节流了，直接返回
+      }
+      return;
+    }
+
+    // 切换页面的逻辑添加节流
+    if (EasyThrottle.throttle(
+      'switch_page',
+      const Duration(milliseconds: 300), // 节流时间
+      () {
+        VibrateUtils.vibrate();
+        // 清除所有子页面后再切换主页面
+        while (AppService.homeNavigatorKey.currentState!.canPop()) {
+          AppService.homeNavigatorKey.currentState!.pop();
+        }
+        appService.currentIndex = value;
+      },
+    )) {
+      return; // 如果被节流了，直接返回
+    }
   }
 
   @override
@@ -118,15 +159,7 @@ class _HomeNavigationLayoutState extends State<HomeNavigationLayout>
                               ],
                             ),
                           ),
-                          onDestinationSelected: (value) {
-                            if (appService.currentIndex == value) return;
-                            // 先清除所有子页面
-                            while (AppService.homeNavigatorKey.currentState!.canPop()) {
-                              AppService.homeNavigatorKey.currentState!.pop();
-                            }
-                            // 再切换主页面
-                            appService.currentIndex = value;
-                          },
+                          onDestinationSelected: handleNavigationTap,
                           destinations: [
                             NavigationRailDestination(
                               icon: const Icon(Icons.video_library),
@@ -165,15 +198,21 @@ class _HomeNavigationLayoutState extends State<HomeNavigationLayout>
                             settings.name == Routes.SUBSCRIPTIONS ||
                             settings.name == Routes.FORUM) {
                           return PageRouteBuilder(
-                            pageBuilder: (context, animation, secondaryAnimation) {
+                            pageBuilder:
+                                (context, animation, secondaryAnimation) {
                               return Obx(() => LazyIndexedStack(
                                     key: _lazyStackKey,
                                     index: appService.currentIndex,
                                     itemBuilders: [
-                                      (context) => PopularVideoListPage(),
-                                      (context) => PopularGalleryListPage(),
-                                      (context) => const SubscriptionsPage(),
-                                      (context) => const ForumPage(),
+                                      (context) => PopularVideoListPage(
+                                          key: PopularVideoListPage.globalKey),
+                                      (context) => PopularGalleryListPage(
+                                          key:
+                                              PopularGalleryListPage.globalKey),
+                                      (context) => SubscriptionsPage(
+                                          key: SubscriptionsPage.globalKey),
+                                      (context) =>
+                                          ForumPage(key: ForumPage.globalKey),
                                     ],
                                   ));
                             },
@@ -196,16 +235,11 @@ class _HomeNavigationLayoutState extends State<HomeNavigationLayout>
                         currentIndex: appService.currentIndex,
                         type: BottomNavigationBarType.fixed,
                         backgroundColor: Theme.of(context).colorScheme.surface,
-                        selectedItemColor: Theme.of(context).colorScheme.primary,
-                        unselectedItemColor: Theme.of(context).colorScheme.onSurfaceVariant,
-                        onTap: (value) {
-                          if (appService.currentIndex == value) return;
-                          // 清除所有子页面后再切换主页面
-                          while (AppService.homeNavigatorKey.currentState!.canPop()) {
-                            AppService.homeNavigatorKey.currentState!.pop();
-                          }
-                          appService.currentIndex = value;
-                        },
+                        selectedItemColor:
+                            Theme.of(context).colorScheme.primary,
+                        unselectedItemColor:
+                            Theme.of(context).colorScheme.onSurfaceVariant,
+                        onTap: handleNavigationTap,
                         items: [
                           BottomNavigationBarItem(
                             icon: const Icon(Icons.video_library),
@@ -321,8 +355,8 @@ class _NaviPopScope extends StatelessWidget {
         : PopScope(
             canPop: GetPlatform.isAndroid ? false : true,
             onPopInvokedWithResult: (value, result) {
-              LogUtils.i('[顶层Popscope结果, value: $value, result: $result]',
-                  'PopScope');
+              LogUtils.i(
+                  '[顶层Popscope结果, value: $value, result: $result]', 'PopScope');
               ExitConfirmUtil.handleExit(context, action);
             },
             child: child,

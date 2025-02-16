@@ -14,12 +14,23 @@ import '../../widgets/top_padding_height_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/app/ui/widgets/glow_notification_widget.dart';
+import 'package:i_iwara/app/ui/pages/refreshable_page.dart';
 
-class SubscriptionsPage extends StatefulWidget {
+class SubscriptionsPage extends RefreshablePage {
   const SubscriptionsPage({super.key});
+
+  static final globalKey = GlobalKey<_SubscriptionsPageState>();
 
   @override
   State<SubscriptionsPage> createState() => _SubscriptionsPageState();
+
+  @override
+  void refreshCurrent() {
+    final state = globalKey.currentState;
+    if (state != null) {
+      state.tryRefreshCurrentList();
+    }
+  }
 }
 
 class _SubscriptionsPageState extends State<SubscriptionsPage>
@@ -40,6 +51,16 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
     1: GlobalKey<SubscriptionImageListState>(),
     2: GlobalKey<SubscriptionPostListState>(),
   };
+
+  void tryRefreshCurrentList() {
+    if (mounted) {
+      // 获取当前的列表
+      var currentKey = _listStateKeys[_tabController.index];
+      if (currentKey != null && currentKey.currentState != null) {
+        (currentKey.currentState as SubscriptionVideoListState).refresh();
+      }
+    }
+  }
 
   final ScrollController _extendedScrollController = ScrollController();
 

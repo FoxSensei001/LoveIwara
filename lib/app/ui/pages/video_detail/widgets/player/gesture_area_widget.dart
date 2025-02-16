@@ -1,8 +1,11 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/common/constants.dart';
+import 'package:i_iwara/utils/vibrate_utils.dart';
 import 'package:screen_brightness/screen_brightness.dart';
-import 'package:vibration/vibration.dart';
 import 'package:i_iwara/utils/easy_throttle.dart';
 
 import '../../../../../services/config_service.dart';
@@ -82,6 +85,8 @@ class _GestureAreaState extends State<GestureArea>
 
   void _onDoubleTap() {
     // 如果是中心区域，双击切换播放状态
+    VibrateUtils.vibrate();
+
     switch (widget.region) {
       case GestureRegion.center:
         widget.myVideoStateController.videoPlaying.value
@@ -139,10 +144,7 @@ class _GestureAreaState extends State<GestureArea>
   }
 
   void _onLongPressStart(LongPressStartDetails details) async {
-    // 添加震动反馈
-    if (await Vibration.hasVibrator() && CommonConstants.enableVibration) {
-      await Vibration.vibrate(duration: 50);
-    }
+    VibrateUtils.vibrate(type: HapticFeedback.vibrate);
     // 如果视频在暂停或buffering状态，不处理
     if (!widget.myVideoStateController.videoPlaying.value ||
         widget.myVideoStateController.videoBuffering.value) {
@@ -153,9 +155,7 @@ class _GestureAreaState extends State<GestureArea>
 
   void _onLongPressEnd(LongPressEndDetails details) async {
     // 震动
-    if (await Vibration.hasVibrator() && CommonConstants.enableVibration) {
-      await Vibration.vibrate(duration: 50);
-    }
+    VibrateUtils.vibrate(type: HapticFeedback.lightImpact);
 
     widget.setLongPressing?.call(LongPressType.normal, false);
     // 恢复正常播放速度

@@ -76,32 +76,35 @@ class _PlayListPageState extends State<PlayListPage> {
           // ),
         ],
       ),
-      body: LoadingMoreCustomScrollView(
-        controller: _scrollController,
-        slivers: <Widget>[
-          LoadingMoreSliverList<PlaylistModel>(
-            SliverListConfig<PlaylistModel>(
-              extendedListDelegate:
-                  const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 300,
-                crossAxisSpacing: 5,
-                mainAxisSpacing: 5,
+      body: RefreshIndicator(
+        onRefresh: () => listSourceRepository.refresh(true),
+        child: LoadingMoreCustomScrollView(
+          controller: _scrollController,
+          slivers: <Widget>[
+            LoadingMoreSliverList<PlaylistModel>(
+              SliverListConfig<PlaylistModel>(
+                extendedListDelegate:
+                    const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 300,
+                  crossAxisSpacing: 5,
+                  mainAxisSpacing: 5,
+                ),
+                itemBuilder: buildItem,
+                sourceList: listSourceRepository,
+                padding: EdgeInsets.only(
+                  left: 5.0,
+                  right: 5.0,
+                  top: 5.0,
+                  bottom: Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0, // 添加底部安全区域
+                ),
+                lastChildLayoutType: LastChildLayoutType.foot,
+                indicatorBuilder: (context, status) => myLoadingMoreIndicator(
+                    context, status,
+                    isSliver: true, loadingMoreBase: listSourceRepository),
               ),
-              itemBuilder: buildItem,
-              sourceList: listSourceRepository,
-              padding: EdgeInsets.only(
-                left: 5.0,
-                right: 5.0,
-                top: 5.0,
-                bottom: Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0, // 添加底部安全区域
-              ),
-              lastChildLayoutType: LastChildLayoutType.foot,
-              indicatorBuilder: (context, status) => myLoadingMoreIndicator(
-                  context, status,
-                  isSliver: true, loadingMoreBase: listSourceRepository),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       floatingActionButton: Obx(() => _showBackToTop.value
           ? FloatingActionButton(

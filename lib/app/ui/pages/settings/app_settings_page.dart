@@ -7,8 +7,8 @@ import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/services/config_backup_service.dart';
+import 'package:i_iwara/utils/vibrate_utils.dart';
 import 'package:oktoast/oktoast.dart';
-import 'package:vibration/vibration.dart';
 
 class AppSettingsPage extends StatelessWidget {
   final bool isWideScreen;
@@ -107,12 +107,9 @@ class AppSettingsPage extends StatelessWidget {
               ],
             ),
           ),
-          FutureBuilder<bool>(
-            future: Vibration.hasVibrator(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData && snapshot.data == true) {
-                return Card(
-                  elevation: 2,
+          if (VibrateUtils.hasVibrator())
+            Card(
+              elevation: 2,
                   shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(16)),
                   ),
@@ -147,12 +144,8 @@ class AppSettingsPage extends StatelessWidget {
                         ),
                       ),
                     ],
-                  ),
-                );
-              }
-              return const SizedBox.shrink();
-            },
-          ),
+              ),
+            ),
           if (GetPlatform.isAndroid)
             Card(
               elevation: 2,

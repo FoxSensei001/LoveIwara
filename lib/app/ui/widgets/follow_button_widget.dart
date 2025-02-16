@@ -1,15 +1,17 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/dto/user_dto.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/routes/app_routes.dart';
+import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/user_preference_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
-import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/utils/vibrate_utils.dart';
 import 'package:oktoast/oktoast.dart';
-import 'package:vibration/vibration.dart';
 import 'package:shimmer/shimmer.dart';
 
 class FollowButtonWidget extends StatefulWidget {
@@ -88,6 +90,7 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
                       )
                     : null,
                 onTap: () async {
+                  VibrateUtils.vibrate();
                   final UserService userService = Get.find();
                   if (!userService.isLogin) {
                     showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error));
@@ -108,10 +111,6 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
                   if (Get.isBottomSheetOpen ?? false) {
                     Get.closeAllBottomSheets();
                   }
-                  // 震动
-                  if (await Vibration.hasVibrator() && CommonConstants.enableVibration) {
-                    await Vibration.vibrate(pattern: [500]);
-                  }
                 },
               ),
               ListTile(
@@ -126,6 +125,7 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
                       )
                     : null,
                 onTap: () async {
+                  VibrateUtils.vibrate();
                   final UserService userService = Get.find();
                   if (!userService.isLogin) {
                     showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error));
@@ -161,10 +161,6 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
                     showToastWidget(MDToastWidget(message: t.errors.failedToOperate, type: MDToastType.error),position: ToastPosition.top);
                   } finally {
                     isProcessing.value = false;
-                    // 震动
-                    if (await Vibration.hasVibrator() && CommonConstants.enableVibration) {
-                      await Vibration.vibrate(pattern: [500]);
-                    }
                   }
                 },
               ),
@@ -192,6 +188,7 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
     if (!_currentUser.following) {
       return ElevatedButton.icon(
         onPressed: () async {
+          VibrateUtils.vibrate();
           setState(() {
             _isLoading = true;
           });
@@ -204,13 +201,24 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
                 _currentUser = updatedUser;
               });
               widget.onUserUpdated?.call(updatedUser);
-              Get.showSnackbar(
-                GetSnackBar(
+              final configService = Get.find<ConfigService>();
+              final showFollowTipCount = configService[ConfigKey.SHOW_FOLLOW_TIP_COUNT] as int;
+              final random = Random ();
+              if (showFollowTipCount > 0) {
+                final shouldShow = showFollowTipCount > 0 && random.nextDouble() < 0.5;
+                if (shouldShow) {
+                  Get.showSnackbar(
+                    GetSnackBar(
                   message: "🔔 ${t.common.followSuccessClickAgainToSpecialFollow}",
                   duration: const Duration(seconds: 3),
                   backgroundColor: Colors.green,
-                ),
-              );
+                    ),
+                  );
+
+                  final newCount = max(0, showFollowTipCount - 1);
+                  configService.setSetting(ConfigKey.SHOW_FOLLOW_TIP_COUNT, newCount);
+                }
+              }
             } else {
               showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error),position: ToastPosition.top);
             }
@@ -228,7 +236,9 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
     }
 
     return ElevatedButton.icon(
-      onPressed: () => _showFollowOptionsSheet(context),
+      onPressed: () {
+        _showFollowOptionsSheet(context);
+      },
       icon: const Icon(Icons.check, size: 18),
       label: Text(t.common.followed),
     );

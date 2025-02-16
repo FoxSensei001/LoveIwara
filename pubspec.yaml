@@ -26,7 +26,6 @@ dependencies:
   media_kit_libs_video: ^1.0.5
   cached_network_image: ^3.4.1
   shimmer: ^3.0.0
-  vibration: ^3.1.2
   extended_nested_scroll_view: ^6.2.1
   markdown_widget: ^2.3.2+6
   url_launcher: ^6.3.1

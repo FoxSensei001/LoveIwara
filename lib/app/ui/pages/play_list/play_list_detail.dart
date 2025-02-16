@@ -54,32 +54,35 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(context),
-      body: LoadingMoreCustomScrollView(
-        controller: _scrollController,
-        slivers: <Widget>[
-          LoadingMoreSliverList<Video>(
-            SliverListConfig<Video>(
-              extendedListDelegate:
-                  const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 300,
-                crossAxisSpacing: 5,
-                mainAxisSpacing: 5,
+      body: RefreshIndicator(
+        onRefresh: () => controller.repository.refresh(true),
+        child: LoadingMoreCustomScrollView(
+          controller: _scrollController,
+          slivers: <Widget>[
+            LoadingMoreSliverList<Video>(
+              SliverListConfig<Video>(
+                extendedListDelegate:
+                    const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 300,
+                  crossAxisSpacing: 5,
+                  mainAxisSpacing: 5,
+                ),
+                itemBuilder: buildVideoItem,
+                sourceList: controller.repository,
+                padding: EdgeInsets.only(
+                  left: 5.0,
+                  right: 5.0,
+                  top: 5.0,
+                  bottom: Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0, // 添加底部安全区域
+                ),
+                lastChildLayoutType: LastChildLayoutType.foot,
+                indicatorBuilder: (context, status) => myLoadingMoreIndicator(
+                    context, status,
+                    isSliver: true, loadingMoreBase: controller.repository),
               ),
-              itemBuilder: buildVideoItem,
-              sourceList: controller.repository,
-              padding: EdgeInsets.only(
-                left: 5.0,
-                right: 5.0,
-                top: 5.0,
-                bottom: Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0, // 添加底部安全区域
-              ),
-              lastChildLayoutType: LastChildLayoutType.foot,
-              indicatorBuilder: (context, status) => myLoadingMoreIndicator(
-                  context, status,
-                  isSliver: true, loadingMoreBase: controller.repository),
-            ),
-          )
-        ],
+            )
+          ],
+        ),
       ),
       floatingActionButton: Obx(() => _showBackToTop.value
           ? FloatingActionButton(

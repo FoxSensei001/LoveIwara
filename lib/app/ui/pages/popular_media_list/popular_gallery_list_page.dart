@@ -15,18 +15,30 @@ import '../../widgets/top_padding_height_widget.dart';
 import 'controllers/popular_gallery_controller.dart';
 import 'controllers/popular_gallery_repository.dart';
 import 'widgets/media_tab_view.dart';
+import '../../../ui/pages/refreshable_page.dart';
 
-class PopularGalleryListPage extends StatefulWidget {
-  final List<Sort> sorts = CommonConstants.mediaSorts;
+class PopularGalleryListPage extends RefreshablePage {
+  const PopularGalleryListPage({super.key});
 
-  PopularGalleryListPage({super.key});
+  static final globalKey = GlobalKey<_PopularGalleryListPageState>();
 
   @override
-  _PopularGalleryListPageState createState() => _PopularGalleryListPageState();
+  State<PopularGalleryListPage> createState() => _PopularGalleryListPageState();
+
+  @override
+  void refreshCurrent() {
+    final state = globalKey.currentState;
+    print("refreshCurrent PopularGalleryListPage state: $state");
+    if (state != null) {
+      state.tryRefreshCurrentSort();
+    }
+  }
 }
 
 class _PopularGalleryListPageState extends State<PopularGalleryListPage>
     with SingleTickerProviderStateMixin {
+  final List<Sort> sorts = CommonConstants.mediaSorts;
+
   late TabController _tabController;
   late ScrollController _tabBarScrollController;
   final List<GlobalKey> _tabKeys = [];
@@ -41,16 +53,27 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
   String year = '';
   String rating = '';
 
+  void tryRefreshCurrentSort() {
+    print("tryRefreshCurrentSort ");
+    if (mounted) {
+      var sortId = sorts[_tabController.index].id;
+      var repository = _repositories[sortId];
+      if (repository != null && !repository.isLoading) {
+        repository.refresh(true);
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    for (var sort in widget.sorts) {
+    for (var sort in sorts) {
       _tabKeys.add(GlobalKey());
       final controller = Get.put(PopularGalleryController(sortId: sort.id.name), tag: sort.id.name);
       _controllers[sort.id] = controller;
       _repositories[sort.id] = controller.repository as PopularGalleryRepository;
     }
-    _tabController = TabController(length: widget.sorts.length, vsync: this);
+    _tabController = TabController(length: sorts.length, vsync: this);
     _tabBarScrollController = ScrollController();
 
     _tabController.addListener(_onTabChange);
@@ -79,7 +102,7 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
     LogUtils.d('设置查询参数: tags: $tags, year: $year, rating: $rating', 'PopularGalleryListPage');
 
     // 设置每个controller的查询参数并重置数据
-    for (var sort in widget.sorts) {
+    for (var sort in sorts) {
       var controller = _controllers[sort.id]!;
       controller.updateSearchParams(
         searchTagIds: tags.map((e) => e.id).toList(),
@@ -179,7 +202,7 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
                         dividerColor: Colors.transparent,
                         padding: EdgeInsets.zero,
                         controller: _tabController,
-                        tabs: widget.sorts.asMap().entries.map((entry) {
+                        tabs: sorts.asMap().entries.map((entry) {
                           int index = entry.key;
                           Sort sort = entry.value;
                           return Container(
@@ -203,7 +226,7 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
               IconButton(
                 icon: const Icon(Icons.refresh),
                 onPressed: () {
-                  var sortId = widget.sorts[_tabController.index].id;
+                  var sortId = sorts[_tabController.index].id;
                   var repository = _repositories[sortId]!;
                   repository.refresh(true);
                 },
@@ -217,7 +240,7 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
           Expanded(
             child: TabBarView(
               controller: _tabController,
-              children: widget.sorts.map((sort) {
+              children: sorts.map((sort) {
                 return MediaTabView<ImageModel>(
                   repository: _repositories[sort.id]!,
                   emptyIcon: Icons.image_outlined,

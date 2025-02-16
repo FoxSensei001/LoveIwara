@@ -18,13 +18,24 @@ import 'package:i_iwara/utils/common_utils.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/app/ui/pages/forum/controllers/recent_thread_repository.dart';
-import 'package:i_iwara/app/ui/pages/forum/forum_skeleton_page.dart'; // 新增的导入
+import 'package:i_iwara/app/ui/pages/forum/forum_skeleton_page.dart';
+import 'package:i_iwara/app/ui/pages/refreshable_page.dart';
 
-class ForumPage extends StatefulWidget {
+class ForumPage extends RefreshablePage {
   const ForumPage({super.key});
+
+  static final globalKey = GlobalKey<_ForumPageState>();
 
   @override
   State<ForumPage> createState() => _ForumPageState();
+
+  @override
+  void refreshCurrent() {
+    final state = globalKey.currentState;
+    if (state != null) {
+      state.tryRefreshCurrentList();
+    }
+  }
 }
 
 class _ForumPageState extends State<ForumPage> {
@@ -35,6 +46,12 @@ class _ForumPageState extends State<ForumPage> {
   final UserService userService = Get.find<UserService>();
   int _selectedRailIndex = 0; // 修改变量名称：选中 rail 的索引（0 为 最近，其余从 _categories 中获取）
   late RecentThreadListRepository _recentThreadRepository;
+
+  void tryRefreshCurrentList() {
+    if (mounted) {
+      _loadCategories();
+    }
+  }
 
   @override
   void initState() {
