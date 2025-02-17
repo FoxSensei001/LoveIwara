@@ -459,7 +459,7 @@ settings:
   enableVibrationDesc: Enable vibration feedback when interacting with the app
   defaultKeepVideoToolbarVisible: Keep Video Toolbar Visible
   defaultKeepVideoToolbarVisibleDesc: This setting determines whether the video toolbar remains visible when first entering the video page.
-  theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt: Theater mode currently has serious performance issues that I don't know how to fix yet. Please use it with caution on mobile devices. If you are running on desktop, you can enable it.
+  theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt: Mobile devices enable theater mode, which may cause performance issues. You can choose to enable it.
 signIn:
   pleaseLoginFirst: Please login first
   alreadySignedInToday: You have already signed in today!

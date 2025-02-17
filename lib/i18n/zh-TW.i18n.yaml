@@ -461,7 +461,7 @@ settings:
   enableVibrationDesc: 啟用應用互動時的震動反饋
   defaultKeepVideoToolbarVisible: 保持工具列常駐
   defaultKeepVideoToolbarVisibleDesc: 此設定決定首次進入影片頁面時是否保持工具列常駐顯示。
-  theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt: 劇院模式目前存在嚴重的性能問題，我暫時不知道如何修復，移動端請謹慎使用，如果您在桌面端運行，您可以打開它。
+  theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt: 移動端開啟劇院模式可能會造成性能問題，可酌情開啟。
 signIn:
   pleaseLoginFirst: 請先登入
   alreadySignedInToday: 您今天已經簽到過了！

@@ -460,7 +460,7 @@ settings:
   enableVibrationDesc: アプリの操作時にバイブレーションフィードバックを有効にする
   defaultKeepVideoToolbarVisible: ツールバーを常に表示
   defaultKeepVideoToolbarVisibleDesc: この設定は、動画ページに入った時にツールバーを常に表示するかどうかを決定します。
-  theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt: シアターモードは現在深刻なパフォーマンスの問題が存在します。修正方法が分からないため、モバイル端末での使用は慎重にお願いします。デスクトップ端末をご利用の場合は、有効にすることができます。
+  theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt: モバイル端でシアターモードを有効にすると、パフォーマンスの問題が発生する可能性があるため、状況に応じてご利用ください。
 signIn:
   pleaseLoginFirst: サインインする前にログインしてください
   alreadySignedInToday: 今日は既にサインインしています！

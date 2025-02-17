@@ -276,11 +276,17 @@ class ApiService extends GetxService {
         queryParameters: options.queryParameters,
       );
     } catch (e) {
-      if (currentRetry < maxRetries - 1) {
-        // 计算递增的重试延迟
-        final delay = baseRetryDelay * (currentRetry + 1);
-        await Future.delayed(delay);
-        return _retryRequest(options, currentRetry: currentRetry + 1);
+      // 只对网络超时错误或5xx服务器错误进行重试
+      if (e is d_dio.DioException && 
+          (e.type == d_dio.DioExceptionType.connectionTimeout ||
+           e.type == d_dio.DioExceptionType.receiveTimeout ||
+           e.type == d_dio.DioExceptionType.sendTimeout ||
+           (e.response?.statusCode != null && e.response!.statusCode! >= 500))) {
+        if (currentRetry < maxRetries - 1) {
+          final delay = baseRetryDelay * (currentRetry + 1);
+          await Future.delayed(delay);
+          return _retryRequest(options, currentRetry: currentRetry + 1);
+        }
       }
       rethrow;
     }

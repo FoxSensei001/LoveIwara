@@ -597,7 +597,7 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get enableVibrationDesc => 'アプリの操作時にバイブレーションフィードバックを有効にする';
 	@override String get defaultKeepVideoToolbarVisible => 'ツールバーを常に表示';
 	@override String get defaultKeepVideoToolbarVisibleDesc => 'この設定は、動画ページに入った時にツールバーを常に表示するかどうかを決定します。';
-	@override String get theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt => 'シアターモードは現在深刻なパフォーマンスの問題が存在します。修正方法が分からないため、モバイル端末での使用は慎重にお願いします。デスクトップ端末をご利用の場合は、有効にすることができます。';
+	@override String get theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt => 'モバイル端でシアターモードを有効にすると、パフォーマンスの問題が発生する可能性があるため、状況に応じてご利用ください。';
 }
 
 // Path: signIn
@@ -1715,7 +1715,7 @@ extension on TranslationsJa {
 			case 'settings.enableVibrationDesc': return 'アプリの操作時にバイブレーションフィードバックを有効にする';
 			case 'settings.defaultKeepVideoToolbarVisible': return 'ツールバーを常に表示';
 			case 'settings.defaultKeepVideoToolbarVisibleDesc': return 'この設定は、動画ページに入った時にツールバーを常に表示するかどうかを決定します。';
-			case 'settings.theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt': return 'シアターモードは現在深刻なパフォーマンスの問題が存在します。修正方法が分からないため、モバイル端末での使用は慎重にお願いします。デスクトップ端末をご利用の場合は、有効にすることができます。';
+			case 'settings.theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt': return 'モバイル端でシアターモードを有効にすると、パフォーマンスの問題が発生する可能性があるため、状況に応じてご利用ください。';
 			case 'signIn.pleaseLoginFirst': return 'サインインする前にログインしてください';
 			case 'signIn.alreadySignedInToday': return '今日は既にサインインしています！';
 			case 'signIn.youDidNotStickToTheSignIn': return 'サインインを続けることができませんでした。';
