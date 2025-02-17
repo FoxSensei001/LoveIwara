@@ -13,7 +13,6 @@ import 'package:yaml/yaml.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 
 class VersionService extends GetxService {
-  final int checkInterval = 24 * 60 * 60 * 1000;
   final ConfigService _configService = Get.find();
   final Dio _dio = Dio();
 
@@ -36,12 +35,7 @@ class VersionService extends GetxService {
   /// 自动检查更新
   void doAutoCheckUpdate() async {
     if (_configService[ConfigKey.AUTO_CHECK_UPDATE]) {
-      final lastCheckTime =
-          _configService[ConfigKey.LAST_CHECK_UPDATE_TIME];
-      final now = DateTime.now().millisecondsSinceEpoch;
-      if (now - lastCheckTime > checkInterval) {
-        checkUpdate(showDialog: true);
-      }
+      checkUpdate(showDialog: true);
     }
   }
 
