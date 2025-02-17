@@ -1132,36 +1132,39 @@ class _MyVideoScreenState extends State<MyVideoScreen>
               widget.myVideoStateController.isLockButtonVisible.value;
           final isLocked = widget.myVideoStateController.isToolbarsLocked.value;
 
-          return AnimatedOpacity(
-            opacity: isVisible ? 1.0 : 0.0,
-            duration: const Duration(milliseconds: 200),
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.6),
-                shape: BoxShape.rectangle,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Material(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.circular(8),
-                child: InkWell(
-                  onTap: () {
-                    widget.myVideoStateController.toggleLockState();
-                    // 添加震动反馈
-                    VibrateUtils.vibrate();
-                    // 如果当前处于未锁定，且视频暂停，则播放视频
-                    if (!isLocked &&
-                        !widget.myVideoStateController.videoPlaying.value) {
-                      widget.myVideoStateController.player.play();
-                    }
-                  },
+          return IgnorePointer(
+            ignoring: !isVisible,
+            child: AnimatedOpacity(
+              opacity: isVisible ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 200),
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.6),
+                  shape: BoxShape.rectangle,
                   borderRadius: BorderRadius.circular(8),
-                  child: Icon(
-                    isLocked ? Icons.lock_rounded : Icons.lock_open_rounded,
-                    color: Colors.white,
-                    size: 24,
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(8),
+                  child: InkWell(
+                    onTap: () {
+                      widget.myVideoStateController.toggleLockState();
+                      // 添加震动反馈
+                      VibrateUtils.vibrate();
+                      // 如果当前处于未锁定，且视频暂停，则播放视频
+                      if (!isLocked &&
+                          !widget.myVideoStateController.videoPlaying.value) {
+                        widget.myVideoStateController.player.play();
+                      }
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    child: Icon(
+                      isLocked ? Icons.lock_rounded : Icons.lock_open_rounded,
+                      color: Colors.white,
+                      size: 24,
+                    ),
                   ),
                 ),
               ),

@@ -294,7 +294,7 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.USER_TARGET_LANGUAGE_KEY:
         return 'en-US';
       case ConfigKey.THEATER_MODE_KEY:
-        return true;
+        return false;
       case ConfigKey.REMOTE_REPO_RELEASE_URL:
         return 'https://github.com/FoxSensei001/i_iwara/releases';
       case ConfigKey.REMOTE_REPO_URL:
