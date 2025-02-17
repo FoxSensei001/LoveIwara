@@ -151,17 +151,21 @@ Future<void> _initializeBusinessServices() async {
 
   // 初始化认证服务和API服务
   try {
+    LogUtils.d('开始初始化认证服务', '启动初始化');
     AuthService authService = await AuthService().init();
     Get.put(authService);
 
+    LogUtils.d('开始初始化API服务', '启动初始化');
     ApiService apiService = await ApiService.getInstance();
     Get.put(apiService);
 
     // 只有在认证服务初始化成功后才初始化用户服务
     if (authService.isAuthenticated) {
       try {
-        UserService userService = await UserService().init();
+        LogUtils.d('开始初始化用户服务', '启动初始化');
+        UserService userService = UserService();
         Get.put(userService);
+        LogUtils.d('用户服务初始化完成', '启动初始化');
       } catch (e) {
         LogUtils.e('用户服务初始化失败', tag: '启动初始化', error: e);
         // 用户服务初始化失败，清理认证状态
@@ -169,6 +173,7 @@ Future<void> _initializeBusinessServices() async {
         Get.put(UserService());
       }
     } else {
+      LogUtils.d('用户未认证，跳过用户服务初始化', '启动初始化');
       // 如果未认证，仍然注册服务但不初始化
       Get.put(UserService());
     }

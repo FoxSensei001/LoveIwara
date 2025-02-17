@@ -15,6 +15,7 @@ import 'package:markdown_widget/markdown_widget.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/services.dart';
 
 class CustomMarkdownBody extends StatefulWidget {
   final String data;
@@ -130,22 +131,25 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
   Future<String> _formatLinks(String data) async {
     final patterns = {
       IwaraUrlType.video: RegExp(
-          r'(?<!\]\()https?://(?:www\.)?iwara\.tv/video/([a-zA-Z0-9]+)(?:/[^\s]*)?',
+          r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/video/([a-zA-Z0-9]+)(?:/[^\s]*)?',
           caseSensitive: false),
       IwaraUrlType.forum: RegExp(
-          r'(?<!\]\()https?://(?:www\.)?iwara\.tv/forum/([^/\s]+)/([a-zA-Z0-9-]+)(?:/[^\s]*)?',
+          r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/forum/([^/\s]+)/([a-zA-Z0-9-]+)(?:/[^\s]*)?',
           caseSensitive: false),
       IwaraUrlType.image: RegExp(
-          r'(?<!\]\()https?://(?:www\.)?iwara\.tv/image/([a-zA-Z0-9]+)(?:/[^\s]*)?',
+          r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/image/([a-zA-Z0-9]+)(?:/[^\s]*)?',
           caseSensitive: false),
       IwaraUrlType.profile: RegExp(
-          r'(?<!\]\()https?://(?:www\.)?iwara\.tv/profile/([^/\s]+)(?:/[^\s]*)?',
+          r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/profile/([^/\s]+)(?:/[^\s]*)?',
           caseSensitive: false),
       IwaraUrlType.playlist: RegExp(
-          r'(?<!\]\()https?://(?:www\.)?iwara\.tv/playlist/([a-zA-Z0-9-]+)(?:/[^\s]*)?',
+          r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/playlist/([a-zA-Z0-9-]+)(?:/[^\s]*)?',
           caseSensitive: false),
       IwaraUrlType.post: RegExp(
-          r'(?<!\]\()https?://(?:www\.)?iwara\.tv/post/([a-zA-Z0-9-]+)(?:/[^\s]*)?',
+          r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/post/([a-zA-Z0-9-]+)(?:/[^\s]*)?',
+          caseSensitive: false),
+      IwaraUrlType.rule: RegExp(
+          r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/rule/([a-zA-Z0-9-]+)(?:/[^\s]*)?',
           caseSensitive: false),
     };
 
@@ -163,30 +167,35 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     if (matches.isEmpty) return data;
 
     String updatedData = data;
+    final processedUrls = <String>{}; 
 
     for (final match in matches) {
       if (!mounted || !_isProcessing) return updatedData;
 
       final originalUrl = match.group(0)!;
+      if (processedUrls.contains(originalUrl)) continue;
+      processedUrls.add(originalUrl);
+
       String idToFetch;
       String idForFallback;
 
-      // 确定要获取信息的ID和失败时显示的ID
       if (type == IwaraUrlType.forum && match.groupCount >= 2) {
-        idToFetch = match.group(2)!; // 使用 subId 获取信息
-        idForFallback = match.group(2)!; // 失败时显示 subId
+        idToFetch = match.group(2)!;
+        idForFallback = match.group(2)!;
       } else {
-        idToFetch = match.group(1)!; // 使用主ID获取信息
-        idForFallback = match.group(1)!; // 失败时显示主ID
+        idToFetch = match.group(1)!;
+        idForFallback = match.group(1)!;
       }
 
       final info = await _fetchInfo(type, idToFetch);
       final emoji = UrlUtils.getIwaraTypeEmoji(type);
 
-      final replacement = info.isSuccess
-          ? '[$emoji ${info.data}]($originalUrl)'
-          : '[$emoji ${type.name.capitalize} $idForFallback]($originalUrl)';
+      // 将 emoji 放在 Markdown 链接语法外面
+      final linkText = info.isSuccess 
+          ? info.data?.replaceAll(RegExp(r'[\[\]\(\)]'), '') ?? ''
+          : '${type.name.capitalize} $idForFallback'.replaceAll(RegExp(r'[\[\]\(\)]'), '');
 
+      final replacement = '$emoji [$linkText]($originalUrl)';
       updatedData = updatedData.replaceAll(originalUrl, replacement);
     }
 
@@ -227,6 +236,8 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
             return ApiResult.success(data: result.data.toString());
           }
           return ApiResult.fail(result.message);
+        case IwaraUrlType.rule:
+          return lightService.fetchRule(id);
         default:
           return ApiResult.fail(t.errors.unknownType);
       }
@@ -309,15 +320,17 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
   /// 处理纯文本中的链接
   String _processPlainLinks(String text) {
     final linkPattern = RegExp(
-      r'(?<![\]\(])(?<!https?://(?:www\.)?iwara\.tv/)\b'
-      r'(https?://[^\s<\)"]+?)' // 非贪婪匹配，排除结尾的)和"
-      r'(?=[\s\)"<]|$)', // 正向前瞻确保URL边界正确
+      r'(?<![\[\(])' // 确保前面不是 [ 或 (
+      r'(?<!\]\()' // 确保前面不是 ](
+      r'https?://[^\s\[\]\(\)]+' // 匹配URL，不包含markdown特殊字符
+      r'(?![\]\)])', // 确保后面不是 ] 或 )
       caseSensitive: false,
     );
 
     return text.replaceAllMapped(linkPattern, (match) {
-      final url = match.group(1)!;
+      final url = match.group(0)!;
       final emoji = _getUrlTypeEmoji(url);
+      // 将 emoji 放在 Markdown 链接语法外面
       return '$emoji [$url]($url)';
     });
   }
@@ -444,6 +457,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
                   urlInfo.id!, urlInfo.secondaryId!);
             }
             break;
+          case IwaraUrlType.rule:
           case IwaraUrlType.unknown:
             await _launchUrl(Uri.parse(url), url);
             break;
@@ -635,6 +649,52 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
                   ),
                 ),
               ],
+              const SizedBox(height: 8),
+              if (false) // 开关，这样写方便我之后调试
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton.icon(
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    ),
+                    icon: const Icon(Icons.copy, size: 14),
+                    label: Text(
+                      '复制原文',
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: widget.data));
+                      showToastWidget(
+                        MDToastWidget(
+                            message: '复制原文成功',
+                            type: MDToastType.success),
+                        position: ToastPosition.top,
+                      );
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                  TextButton.icon(
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    ),
+                    icon: const Icon(Icons.copy, size: 14),
+                    label: Text(
+                      '复制处理后',
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: _displayData));
+                      showToastWidget(
+                        MDToastWidget(
+                            message: '复制处理后成功',
+                            type: MDToastType.success),
+                        position: ToastPosition.top,
+                      );
+                    },
+                  ),
+                ],
+              ),
             ],
           ),
         );

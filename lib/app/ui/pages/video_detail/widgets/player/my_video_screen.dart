@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:ui';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -62,6 +62,13 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   double? _horizontalDragStartX;
   Duration? _horizontalDragStartPosition;
   static const int MAX_SEEK_SECONDS = 90;
+
+  // 添加缓存的模糊背景
+  String? _lastThumbnailUrl;
+
+  // 添加尺寸缓存
+  Size? _lastSize;
+  Widget? _sizedBlurredBackground;
 
   @override
   void initState() {
@@ -300,38 +307,25 @@ class _MyVideoScreenState extends State<MyVideoScreen>
         }
       },
       child: Scaffold(
-        backgroundColor: _configService[ConfigKey.THEATER_MODE_KEY]
-            ? Colors.black
-            : const Color(0xFF000000),
-        body: RepaintBoundary(
-          // ← 添加 RepaintBoundary，隔离重绘区域
-          child: Stack(
+        backgroundColor: Colors.black,
+        body: Stack(
             children: [
-              // 剧院模式背景（使用 Obx 包裹，但内部内容使用 const 补充）
-              Obx(() => _configService[ConfigKey.THEATER_MODE_KEY]
-                  ? Positioned.fill(
-                      child: Image.network(
-                        widget.myVideoStateController.videoInfo.value
-                                ?.thumbnailUrl ??
-                            '',
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          color: Colors.black,
-                        ),
-                      ),
-                    )
-                  : const SizedBox.shrink()),
-              // 模糊效果
-              Obx(() => _configService[ConfigKey.THEATER_MODE_KEY]
-                  ? Positioned.fill(
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                        child: Container(
-                          color: Colors.black.withOpacity(0.5),
-                        ),
-                      ),
-                    )
-                  : const SizedBox.shrink()),
+              // 剧院模式背景
+              Obx(() {
+                final isTheaterMode = _configService[ConfigKey.THEATER_MODE_KEY] as bool;
+                if (!isTheaterMode) {
+                  return const SizedBox.shrink();
+                }
+
+                // 使用 LayoutBuilder 获取精确尺寸
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    final size = Size(constraints.maxWidth, constraints.maxHeight);
+                    final thumbnailUrl = widget.myVideoStateController.videoInfo.value?.thumbnailUrl;
+                    return _createBlurredBackground(thumbnailUrl, size);
+                  },
+                );
+              }),
               // 主要内容
               LayoutBuilder(
                 builder: (BuildContext context, BoxConstraints constraints) {
@@ -423,7 +417,6 @@ class _MyVideoScreenState extends State<MyVideoScreen>
               ),
             ],
           ),
-        ),
       ),
     );
   }
@@ -1173,6 +1166,136 @@ class _MyVideoScreenState extends State<MyVideoScreen>
         }),
       ),
     );
+  }
+
+  // 优化模糊背景创建方法
+  void _updateBlurredBackground(String? thumbnailUrl, Size size) async {
+    // 如果尺寸和URL都没变，不需要更新
+    if (_lastSize == size && _lastThumbnailUrl == thumbnailUrl) {
+      return;
+    }
+
+    _lastSize = size;
+    _lastThumbnailUrl = thumbnailUrl;
+
+    if (thumbnailUrl == null || thumbnailUrl.isEmpty) {
+      _sizedBlurredBackground = Container(
+        width: size.width,
+        height: size.height,
+        color: Colors.black,
+      );
+      return;
+    }
+
+    try {
+      // 1. 首先加载原始图片
+      final NetworkImage networkImage = NetworkImage(thumbnailUrl);
+      final ImageStream stream = networkImage.resolve(ImageConfiguration());
+      final Completer<ui.Image> completer = Completer<ui.Image>();
+      
+      stream.addListener(ImageStreamListener((ImageInfo info, bool _) {
+        completer.complete(info.image);
+      }));
+
+      final ui.Image originalImage = await completer.future;
+
+      // 2. 计算适当的绘制尺寸以保持宽高比
+      final double imageAspectRatio = originalImage.width / originalImage.height;
+      final double screenAspectRatio = size.width / size.height;
+      
+      double targetWidth = size.width;
+      double targetHeight = size.height;
+      double offsetX = 0;
+      double offsetY = 0;
+
+      if (imageAspectRatio > screenAspectRatio) {
+        // 图片比屏幕更宽，以高度为基准
+        targetWidth = size.height * imageAspectRatio;
+        offsetX = -(targetWidth - size.width) / 2;
+      } else {
+        // 图片比屏幕更高，以宽度为基准
+        targetHeight = size.width / imageAspectRatio;
+        offsetY = -(targetHeight - size.height) / 2;
+      }
+
+      // 3. 创建一个自定义画布，使用目标尺寸
+      final recorder = ui.PictureRecorder();
+      final canvas = Canvas(recorder);
+      
+      // 4. 绘制图片并应用模糊效果
+      final paint = Paint()
+        ..imageFilter = ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20);
+      
+      // 使用计算后的偏移量和尺寸绘制图片
+      canvas.drawImageRect(
+        originalImage,
+        Rect.fromLTWH(0, 0, originalImage.width.toDouble(), originalImage.height.toDouble()),
+        Rect.fromLTWH(offsetX, offsetY, targetWidth, targetHeight),
+        paint,
+      );
+      
+      // 5. 将模糊后的图片转换为图像
+      final blurredImage = await recorder.endRecording().toImage(
+        size.width.toInt(),
+        size.height.toInt()
+      );
+      
+      // 6. 转换为字节数据
+      final byteData = await blurredImage.toByteData(format: ui.ImageByteFormat.png);
+      final buffer = byteData!.buffer.asUint8List();
+
+      // 7. 创建新的缓存Widget
+      if (mounted) {
+        setState(() {
+          _sizedBlurredBackground = Stack(
+            children: [
+              Positioned.fill(
+                child: Container(color: Colors.black),
+              ),
+              Positioned.fill(
+                child: Opacity(
+                  opacity: 0.2,
+                  child: Image.memory(
+                    buffer,
+                    fit: BoxFit.cover,
+                    width: size.width,
+                    height: size.height,
+                  ),
+                ),
+              ),
+            ],
+          );
+        });
+      }
+
+    } catch (e) {
+      LogUtils.e('创建模糊背景失败: $e', tag: 'MyVideoScreen');
+      _sizedBlurredBackground = Container(
+        width: size.width,
+        height: size.height,
+        color: Colors.black,
+      );
+    }
+  }
+
+  // 修改 _createBlurredBackground 方法
+  Widget _createBlurredBackground(String? thumbnailUrl, Size size) {
+    // 如果缓存不存在，触发异步更新
+    if (_sizedBlurredBackground == null || 
+        _lastSize != size || 
+        _lastThumbnailUrl != thumbnailUrl) {
+      _updateBlurredBackground(thumbnailUrl, size);
+      
+      // 返回一个占位的黑色背景
+      return Container(
+        width: size.width,
+        height: size.height,
+        color: Colors.black,
+      );
+    }
+    
+    // 返回缓存的模糊背景
+    return _sizedBlurredBackground!;
   }
 }
 

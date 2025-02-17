@@ -28,7 +28,7 @@ import '../../../../services/api_service.dart';
 import '../../../../services/config_service.dart';
 import '../widgets/player/custom_slider_bar_shape_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import '../widgets/private_video_widget.dart';
+import '../widgets/private_or_deleted_video_widget.dart';
 import 'package:floating/floating.dart';
 
 class MyVideoStateController extends GetxController
@@ -411,15 +411,21 @@ class MyVideoStateController extends GetxController
         fetchVideoSource();
       }
     } catch (e) {
-      // 处理 403 错误，表示这是一个私密视频
+      // 处理 403 和 404 错误
       LogUtils.e('获取视频详情失败: $e', tag: 'MyVideoStateController', error: e);
-      if (e is DioException && e.response?.statusCode == 403) {
-        var data = e.response?.data;
-        if (data != null && 
-            data['message'] != null && 
-            data['message'] == 'errors.privateVideo') {
-          User author = User.fromJson(data['data']['user']);
-          mainErrorWidget.value = PrivateVideoWidget(author: author);
+      if (e is DioException) {
+        if (e.response?.statusCode == 403) {
+          var data = e.response?.data;
+          if (data != null && 
+              data['message'] != null && 
+              data['message'] == 'errors.privateVideo') {
+            User author = User.fromJson(data['data']['user']);
+            mainErrorWidget.value = PrivateOrDeletedVideoWidget(author: author, isPrivate: true);
+            return;
+          }
+        } else if (e.response?.statusCode == 404) {
+          // 处理404错误
+          mainErrorWidget.value = PrivateOrDeletedVideoWidget(isPrivate: false);
           return;
         }
       }

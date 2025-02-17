@@ -258,6 +258,7 @@ errors:
   failedToSaveCredentials: "無法安全保存登入資訊"
   failedToLoadSavedCredentials: "載入保存的登入資訊失敗"
   specialFollowLimitReached: '特別關注上限超出，上限: ${cnt}，請於關注列表頁中調整'
+  notFound: '內容不存在或已被刪除'
 friends:
   clickToRestoreFriend: 點擊恢復朋友
   friendsList: 朋友列表

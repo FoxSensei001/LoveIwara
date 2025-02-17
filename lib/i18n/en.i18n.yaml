@@ -257,6 +257,7 @@ errors:
   failedToSaveCredentials: "Failed to save login credentials"
   failedToLoadSavedCredentials: "Failed to load saved credentials"
   specialFollowLimitReached: 'Special follow limit exceeded, limit: ${cnt}, please adjust in the follow list page'
+  notFound: 'Content not found or has been deleted'
 friends:
   clickToRestoreFriend: Click to restore friend
   friendsList: Friends List

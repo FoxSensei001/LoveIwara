@@ -264,6 +264,7 @@ errors:
   failedToSaveCredentials: "无法安全保存登录信息"
   failedToLoadSavedCredentials: "加载保存的登录信息失败"
   specialFollowLimitReached: '特别关注上限超出，上限: ${cnt}，请于关注列表页中调整'
+  notFound: '内容不存在或已被删除'
 friends:
   clickToRestoreFriend: 点击恢复好友
   friendsList: 好友列表

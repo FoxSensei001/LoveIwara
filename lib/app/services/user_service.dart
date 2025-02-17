@@ -79,7 +79,7 @@ class UserService extends GetxService {
     super.onClose();
   }
 
-  Future<UserService> init() async {
+  UserService() {
     LogUtils.d('$_tag 初始化用户服务');
     if (_authService.hasToken) {
       try {
@@ -92,16 +92,18 @@ class UserService extends GetxService {
     } else {
       LogUtils.d('$_tag 未登录');
     }
-    return this;
   }
 
   // 抓取用户资料
   Future<void> fetchUserProfile() async {
     try {
-      LogUtils.d('$_tag 抓取用户资料');
+      LogUtils.d('$_tag 开始抓取用户资料');
       final response = await _apiService.get<Map<String, dynamic>>('/user');
+      LogUtils.d('$_tag 获取到用户资料响应');
       currentUser.value = User.fromJson(response.data!['user']);
-      LogUtils.d('$_tag 用户资料: ${currentUser.value}');
+      LogUtils.d('$_tag 用户资料解析完成: ${currentUser.value}');
+      // 获取到用户资料后启动通知计数定时器
+      startNotificationTimer();
     } catch (e) {
       LogUtils.e('抓取用户资料失败', error: e);
       if (e is! UnauthorizedException) {

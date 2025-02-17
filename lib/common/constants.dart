@@ -298,6 +298,9 @@ class ApiConstants {
 
   // 视频详情
   static String video(String videoId) => '/video/$videoId';
+
+  // 规则
+  static String lightRule(String ruleId) => '/light/rule/$ruleId';
 }
 
 // 视频接口的排序方式

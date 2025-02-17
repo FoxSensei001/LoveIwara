@@ -337,6 +337,7 @@ class _TranslationsErrorsZhTw implements TranslationsErrorsEn {
 	@override String get failedToSaveCredentials => '無法安全保存登入資訊';
 	@override String get failedToLoadSavedCredentials => '載入保存的登入資訊失敗';
 	@override String specialFollowLimitReached({required Object cnt}) => '特別關注上限超出，上限: ${cnt}，請於關注列表頁中調整';
+	@override String get notFound => '內容不存在或已被刪除';
 }
 
 // Path: friends
@@ -1529,6 +1530,7 @@ extension on TranslationsZhTw {
 			case 'errors.failedToSaveCredentials': return '無法安全保存登入資訊';
 			case 'errors.failedToLoadSavedCredentials': return '載入保存的登入資訊失敗';
 			case 'errors.specialFollowLimitReached': return ({required Object cnt}) => '特別關注上限超出，上限: ${cnt}，請於關注列表頁中調整';
+			case 'errors.notFound': return '內容不存在或已被刪除';
 			case 'friends.clickToRestoreFriend': return '點擊恢復朋友';
 			case 'friends.friendsList': return '朋友列表';
 			case 'friends.friendRequests': return '朋友請求';

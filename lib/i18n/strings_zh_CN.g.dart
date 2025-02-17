@@ -342,6 +342,7 @@ class _TranslationsErrorsZhCn implements TranslationsErrorsEn {
 	@override String get failedToSaveCredentials => '无法安全保存登录信息';
 	@override String get failedToLoadSavedCredentials => '加载保存的登录信息失败';
 	@override String specialFollowLimitReached({required Object cnt}) => '特别关注上限超出，上限: ${cnt}，请于关注列表页中调整';
+	@override String get notFound => '内容不存在或已被删除';
 }
 
 // Path: friends
@@ -1536,6 +1537,7 @@ extension on TranslationsZhCn {
 			case 'errors.failedToSaveCredentials': return '无法安全保存登录信息';
 			case 'errors.failedToLoadSavedCredentials': return '加载保存的登录信息失败';
 			case 'errors.specialFollowLimitReached': return ({required Object cnt}) => '特别关注上限超出，上限: ${cnt}，请于关注列表页中调整';
+			case 'errors.notFound': return '内容不存在或已被删除';
 			case 'friends.clickToRestoreFriend': return '点击恢复好友';
 			case 'friends.friendsList': return '好友列表';
 			case 'friends.friendRequests': return '好友请求';

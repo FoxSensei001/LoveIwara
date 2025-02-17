@@ -341,6 +341,7 @@ class TranslationsErrorsEn {
 	String get failedToSaveCredentials => 'Failed to save login credentials';
 	String get failedToLoadSavedCredentials => 'Failed to load saved credentials';
 	String specialFollowLimitReached({required Object cnt}) => 'Special follow limit exceeded, limit: ${cnt}, please adjust in the follow list page';
+	String get notFound => 'Content not found or has been deleted';
 }
 
 // Path: friends
@@ -1530,6 +1531,7 @@ extension on Translations {
 			case 'errors.failedToSaveCredentials': return 'Failed to save login credentials';
 			case 'errors.failedToLoadSavedCredentials': return 'Failed to load saved credentials';
 			case 'errors.specialFollowLimitReached': return ({required Object cnt}) => 'Special follow limit exceeded, limit: ${cnt}, please adjust in the follow list page';
+			case 'errors.notFound': return 'Content not found or has been deleted';
 			case 'friends.clickToRestoreFriend': return 'Click to restore friend';
 			case 'friends.friendsList': return 'Friends List';
 			case 'friends.friendRequests': return 'Friend Requests';

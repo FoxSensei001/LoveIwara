@@ -337,6 +337,7 @@ class _TranslationsErrorsJa implements TranslationsErrorsEn {
 	@override String get failedToSaveCredentials => 'ログイン情報の保存に失敗しました';
 	@override String get failedToLoadSavedCredentials => '保存されたログイン情報の読み込みに失敗しました';
 	@override String specialFollowLimitReached({required Object cnt}) => '特別フォローの上限を超えています。上限: ${cnt}，フォローリストページで調整してください';
+	@override String get notFound => 'コンテンツが見つかりませんまたは削除されました';
 }
 
 // Path: friends
@@ -1526,6 +1527,7 @@ extension on TranslationsJa {
 			case 'errors.failedToSaveCredentials': return 'ログイン情報の保存に失敗しました';
 			case 'errors.failedToLoadSavedCredentials': return '保存されたログイン情報の読み込みに失敗しました';
 			case 'errors.specialFollowLimitReached': return ({required Object cnt}) => '特別フォローの上限を超えています。上限: ${cnt}，フォローリストページで調整してください';
+			case 'errors.notFound': return 'コンテンツが見つかりませんまたは削除されました';
 			case 'friends.clickToRestoreFriend': return '友達を復元するにはクリックしてください';
 			case 'friends.friendsList': return '友達リスト';
 			case 'friends.friendRequests': return '友達リクエスト';

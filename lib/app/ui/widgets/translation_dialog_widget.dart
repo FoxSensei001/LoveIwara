@@ -74,7 +74,6 @@ class _TranslationDialogState extends State<TranslationDialog> {
 
   Widget _buildLanguageSelector() {
     final configService = Get.find<ConfigService>();
-    final t = slang.Translations.of(context);
 
     final currentLanguage = widget.defaultLanguageKeyMode
         ? configService.currentTranslationLanguage

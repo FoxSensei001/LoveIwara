@@ -9,6 +9,7 @@ enum IwaraUrlType {
   forumThread,
   playlist,
   post,
+  rule,
   unknown
 }
 
@@ -100,6 +101,12 @@ class UrlUtils {
         case 'post':
           return IwaraUrlInfo(
             type: IwaraUrlType.post,
+            id: pathSegments.length > 1 ? pathSegments[1] : null,
+            originalUrl: url,
+          );
+        case 'rule':
+          return IwaraUrlInfo(
+            type: IwaraUrlType.rule,
             id: pathSegments.length > 1 ? pathSegments[1] : null,
             originalUrl: url,
           );
@@ -212,6 +219,8 @@ class UrlUtils {
         return '🎵';
       case IwaraUrlType.post:
         return '💬';
+      case IwaraUrlType.rule:
+        return '📜';
       case IwaraUrlType.unknown:
         return '❓';
     }
