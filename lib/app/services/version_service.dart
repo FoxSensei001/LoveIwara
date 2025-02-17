@@ -140,44 +140,46 @@ class VersionService extends GetxService {
         },
         child: AlertDialog(
           title: Text('${t.settings.newVersionAvailable}: ${latestVersion.value}'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('${t.settings.latestVersion}: ${latestVersion.value}'),
-              const SizedBox(height: 8),
-              Text('${t.settings.releaseDate}: ${update.date}'),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Text(t.settings.updateContent),
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.translate),
-                    onPressed: () {
-                      Get.dialog(
-                        TranslationDialog(
-                          text: changes.join('\n\n'),
-                        ),
-                        barrierDismissible: true,
-                      );
-                    },
-                  ),
-                ],
-              ),
-              ...changes.map((change) => Padding(
-                padding: const EdgeInsets.only(left: 16, top: 4),
-                child: Text(change),
-              )),
-              if (needMinVersionUpdate.value)
-                Padding(
-                  padding: const EdgeInsets.only(top: 16),
-                  child: Text(
-                    t.settings.minVersionUpdateRequired,
-                    style: TextStyle(color: Get.theme.colorScheme.error),
-                  ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('${t.settings.latestVersion}: ${latestVersion.value}'),
+                const SizedBox(height: 8),
+                Text('${t.settings.releaseDate}: ${update.date}'),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Text(t.settings.updateContent),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.translate),
+                      onPressed: () {
+                        Get.dialog(
+                          TranslationDialog(
+                            text: changes.join('\n\n'),
+                          ),
+                          barrierDismissible: true,
+                        );
+                      },
+                    ),
+                  ],
                 ),
-            ],
+                ...changes.map((change) => Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(change),
+                )),
+                if (needMinVersionUpdate.value)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Text(
+                      t.settings.minVersionUpdateRequired,
+                      style: TextStyle(color: Get.theme.colorScheme.error),
+                    ),
+                  ),
+              ],
+            ),
           ),
           actions: [
             if (!isForceUpdate.value) ...[
