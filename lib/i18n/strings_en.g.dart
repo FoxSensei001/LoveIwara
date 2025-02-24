@@ -602,6 +602,10 @@ class TranslationsSettingsEn {
 	String get defaultKeepVideoToolbarVisible => 'Keep Video Toolbar Visible';
 	String get defaultKeepVideoToolbarVisibleDesc => 'This setting determines whether the video toolbar remains visible when first entering the video page.';
 	String get theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt => 'Mobile devices enable theater mode, which may cause performance issues. You can choose to enable it.';
+	String get lockButtonPosition => 'Lock Button Position';
+	String get lockButtonPositionBothSides => 'Both Sides';
+	String get lockButtonPositionLeftSide => 'Left Side';
+	String get lockButtonPositionRightSide => 'Right Side';
 }
 
 // Path: signIn
@@ -1720,6 +1724,10 @@ extension on Translations {
 			case 'settings.defaultKeepVideoToolbarVisible': return 'Keep Video Toolbar Visible';
 			case 'settings.defaultKeepVideoToolbarVisibleDesc': return 'This setting determines whether the video toolbar remains visible when first entering the video page.';
 			case 'settings.theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt': return 'Mobile devices enable theater mode, which may cause performance issues. You can choose to enable it.';
+			case 'settings.lockButtonPosition': return 'Lock Button Position';
+			case 'settings.lockButtonPositionBothSides': return 'Both Sides';
+			case 'settings.lockButtonPositionLeftSide': return 'Left Side';
+			case 'settings.lockButtonPositionRightSide': return 'Right Side';
 			case 'signIn.pleaseLoginFirst': return 'Please login first';
 			case 'signIn.alreadySignedInToday': return 'You have already signed in today!';
 			case 'signIn.youDidNotStickToTheSignIn': return 'You did not stick to the sign in.';

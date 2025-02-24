@@ -188,7 +188,12 @@ class MyVideoStateController extends GetxController
 
     // 初始化 VideoController
     player = Player();
-    videoController = VideoController(player);
+    videoController = VideoController(player,
+      configuration: VideoControllerConfiguration(
+        enableHardwareAcceleration: true,
+        androidAttachSurfaceAfterVideoParameters: false
+      )
+    );
 
     if (GetPlatform.isAndroid || GetPlatform.isIOS) {
       // 初始化并关闭系统音量UI

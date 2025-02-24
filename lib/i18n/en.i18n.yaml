@@ -460,6 +460,10 @@ settings:
   defaultKeepVideoToolbarVisible: Keep Video Toolbar Visible
   defaultKeepVideoToolbarVisibleDesc: This setting determines whether the video toolbar remains visible when first entering the video page.
   theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt: Mobile devices enable theater mode, which may cause performance issues. You can choose to enable it.
+  lockButtonPosition: Lock Button Position
+  lockButtonPositionBothSides: Both Sides
+  lockButtonPositionLeftSide: Left Side
+  lockButtonPositionRightSide: Right Side
 signIn:
   pleaseLoginFirst: Please login first
   alreadySignedInToday: You have already signed in today!

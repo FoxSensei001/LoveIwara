@@ -598,6 +598,10 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get defaultKeepVideoToolbarVisible => 'ツールバーを常に表示';
 	@override String get defaultKeepVideoToolbarVisibleDesc => 'この設定は、動画ページに入った時にツールバーを常に表示するかどうかを決定します。';
 	@override String get theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt => 'モバイル端でシアターモードを有効にすると、パフォーマンスの問題が発生する可能性があるため、状況に応じてご利用ください。';
+	@override String get lockButtonPosition => 'ロックボタンの位置';
+	@override String get lockButtonPositionBothSides => '両側に表示';
+	@override String get lockButtonPositionLeftSide => '左側のみ表示';
+	@override String get lockButtonPositionRightSide => '右側のみ表示';
 }
 
 // Path: signIn
@@ -1716,6 +1720,10 @@ extension on TranslationsJa {
 			case 'settings.defaultKeepVideoToolbarVisible': return 'ツールバーを常に表示';
 			case 'settings.defaultKeepVideoToolbarVisibleDesc': return 'この設定は、動画ページに入った時にツールバーを常に表示するかどうかを決定します。';
 			case 'settings.theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt': return 'モバイル端でシアターモードを有効にすると、パフォーマンスの問題が発生する可能性があるため、状況に応じてご利用ください。';
+			case 'settings.lockButtonPosition': return 'ロックボタンの位置';
+			case 'settings.lockButtonPositionBothSides': return '両側に表示';
+			case 'settings.lockButtonPositionLeftSide': return '左側のみ表示';
+			case 'settings.lockButtonPositionRightSide': return '右側のみ表示';
 			case 'signIn.pleaseLoginFirst': return 'サインインする前にログインしてください';
 			case 'signIn.alreadySignedInToday': return '今日は既にサインインしています！';
 			case 'signIn.youDidNotStickToTheSignIn': return 'サインインを続けることができませんでした。';

@@ -15,7 +15,6 @@ import 'package:oktoast/oktoast.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import '../../../../common/enums/media_enums.dart';
 import '../../widgets/error_widget.dart';
-import '../../widgets/sliding_card_widget.dart';
 import '../comment/controllers/comment_controller.dart';
 import '../comment/widgets/comment_entry_area_widget.dart';
 import '../comment/widgets/comment_section_widget.dart';
@@ -295,6 +294,7 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
               sideColumnMinWidth,
               paddingTop);
 
+
           if (isWide) {
             // 宽屏布局
             if (controller.isVideoInfoLoading.value) {
@@ -317,255 +317,84 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
               return const SizedBox.shrink();
             }
 
-            return PopScope(
-              canPop: !controller.isCommentSheetVisible.value,
-              onPopInvokedWithResult: (bool didPop, dynamic result) {
-                if (controller.isCommentSheetVisible.value) {
-                  controller.isCommentSheetVisible.toggle();
-                }
-              },
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 左侧视频详情，使用SingleChildScrollView以确保内容可滚动
-                  SizedBox(
-                    width: isDesktopAppFullScreen
-                        ? screenWidth
-                        : renderVideoSize.width,
-                    child: SingleChildScrollView(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          VideoDetailContent(
-                            controller: controller,
-                            paddingTop: paddingTop,
-                            videoHeight: renderVideoSize.height,
-                            videoWidth: renderVideoSize.width,
-                          ),
-                          if (!isDesktopAppFullScreen)...[
-                            Container(
-                              padding: const EdgeInsets.all(16),
-                              child: CommentEntryAreaButtonWidget(
-                                  commentController: commentController,
-                                  onClickButton: () {
-                                    showCommentModal(context);
-                                  }),
-                            ),
-                            const SafeArea(child: SizedBox.shrink()),
-                          ]
-                        ],
-                      ),
-                    ),
-                  ),
-                  if (!controller.isDesktopAppFullScreen.value)
-                    Expanded(
-                      child: Stack(
-                        children: [
-                          SingleChildScrollView(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                // 相关视频
-                                Container(
-                                    height: paddingTop,
-                                    color: Colors.transparent),
-                                // 作者的其他视频
-                                if (controller.otherAuthorzVideosController !=
-                                        null &&
-                                    controller.otherAuthorzVideosController!
-                                        .isLoading.value) ...[
-                                  Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 16),
-                                      child: Text(t.videoDetail.authorOtherVideos,
-                                          style: const TextStyle(fontSize: 18))),
-                                  const MediaTileListSkeletonWidget()
-                                ] else if (controller
-                                            .otherAuthorzVideosController !=
-                                        null &&
-                                    controller.otherAuthorzVideosController!
-                                        .videos.isEmpty)
-                                  const SizedBox.shrink()
-                                else ...[
-                                  Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 16),
-                                      child: Text(t.videoDetail.authorOtherVideos,
-                                          style: const TextStyle(fontSize: 18))),
-                                  // 构建作者的其他视频列表
-                                  if (controller.otherAuthorzVideosController !=
-                                      null)
-                                    for (var video in controller
-                                        .otherAuthorzVideosController!.videos)
-                                      VideoTileListItem(video: video),
-                                ],
-                                if (relatedVideoController.isLoading.value) ...[
-                                  const SizedBox(height: 16),
-                                  Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 16),
-                                      child: Text(t.videoDetail.relatedVideos,
-                                          style: const TextStyle(fontSize: 18))),
-                                  const MediaTileListSkeletonWidget()
-                                ] else if (relatedVideoController.videos.isEmpty)
-                                  const SizedBox.shrink()
-                                else ...[
-                                  const SizedBox(height: 16),
-                                  Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 16),
-                                      child: Text(t.videoDetail.relatedVideos,
-                                          style: const TextStyle(fontSize: 18))),
-                                  // 构建相关视频列表
-                                  for (var video in relatedVideoController.videos)
-                                    VideoTileListItem(video: video),
-                                ],
-                                const SafeArea(child: SizedBox.shrink()),
-                              ],
-                            ),
-                          ),
-                          // SlidingCard 仅覆盖右侧区域
-                          Obx(() => SlidingCard(
-                                isVisible: controller.isCommentSheetVisible.value,
-                                onDismiss: () =>
-                                    controller.isCommentSheetVisible.toggle(),
-                                title: Container(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 16),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        t.common.commentList,
-                                        style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      const Spacer(),
-                                      // 添加发表评论按钮
-                                      TextButton.icon(
-                                        onPressed: () {
-                                          Get.dialog(
-                                            CommentInputDialog(
-                                              title: t.common.sendComment,
-                                              submitText: t.common.send,
-                                              onSubmit: (text) async {
-                                                if (text.trim().isEmpty) {
-                                                  showToastWidget(MDToastWidget(
-                                                      message: t.errors
-                                                          .commentCanNotBeEmpty,
-                                                      type: MDToastType.error), position: ToastPosition.bottom);
-                                                  return;
-                                                }
-                                                final UserService userService =
-                                                    Get.find();
-                                                if (!userService.isLogin) {
-                                                  showToastWidget(MDToastWidget(
-                                                      message:
-                                                          t.errors.pleaseLoginFirst,
-                                                      type: MDToastType.error), position: ToastPosition.bottom);
-                                                  Get.toNamed(Routes.LOGIN);
-                                                  return;
-                                                }
-                                                await commentController
-                                                    .postComment(text);
-                                              },
-                                            ),
-                                            barrierDismissible: true,
-                                          );
-                                        },
-                                        icon: const Icon(Icons.add_comment),
-                                        label: Text(t.common.sendComment),
-                                      ),
-                                      // 关闭按钮
-                                      IconButton(
-                                        icon: const Icon(Icons.close),
-                                        onPressed: () => controller
-                                            .isCommentSheetVisible
-                                            .toggle(),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                child: Obx(() => CommentSection(
-                                    controller: commentController,
-                                    authorUserId:
-                                        controller.videoInfo.value?.user?.id)),
-                              )),
-                        ],
-                      ),
-                    )
-                ],
-              ),
-            );
-          } else {
-            // 窄屏布局，使用Stack 覆盖整个屏幕
-            if (controller.isVideoInfoLoading.value) {
-              return const MediaDetailInfoSkeletonWidget();
-            }
-            return PopScope(
-              canPop: !controller.isCommentSheetVisible.value,
-              onPopInvokedWithResult: (bool didPop, dynamic result) {
-                if (controller.isCommentSheetVisible.value) {
-                  controller.isCommentSheetVisible.toggle();
-                }
-              },
-              child: Stack(
-                children: [
-                  SingleChildScrollView(
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 左侧视频详情，使用SingleChildScrollView以确保内容可滚动
+                SizedBox(
+                  width: isDesktopAppFullScreen
+                      ? screenWidth
+                      : renderVideoSize.width,
+                  child: SingleChildScrollView(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // 视频详情
                         VideoDetailContent(
                           controller: controller,
                           paddingTop: paddingTop,
+                          videoHeight: renderVideoSize.height,
                         ),
-                        if (!controller.isDesktopAppFullScreen.value) ...[
-                          // 评论区域
+                        if (!isDesktopAppFullScreen)...[
                           Container(
                             padding: const EdgeInsets.all(16),
                             child: CommentEntryAreaButtonWidget(
-                              commentController: commentController,
-                              onClickButton: () {
-                                showCommentModal(context);
-                              },
-                            ),
+                                commentController: commentController,
+                                onClickButton: () {
+                                  showCommentModal(context);
+                                }),
                           ),
+                          const SafeArea(child: SizedBox.shrink()),
+                        ]
+                      ],
+                    ),
+                  ),
+                ),
+                if (!controller.isDesktopAppFullScreen.value)
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // 相关视频
+                          Container(
+                              height: paddingTop,
+                              color: Colors.transparent),
                           // 作者的其他视频
-                          if (controller.otherAuthorzVideosController != null &&
-                              controller.otherAuthorzVideosController!.isLoading
-                                  .value) ...[
+                          if (controller.otherAuthorzVideosController !=
+                                  null &&
+                              controller.otherAuthorzVideosController!
+                                  .isLoading.value) ...[
                             Container(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 16),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16),
                                 child: Text(t.videoDetail.authorOtherVideos,
                                     style: const TextStyle(fontSize: 18))),
                             const MediaTileListSkeletonWidget()
-                          ] else if (controller.otherAuthorzVideosController !=
+                          ] else if (controller
+                                      .otherAuthorzVideosController !=
                                   null &&
-                              controller
-                                  .otherAuthorzVideosController!.videos.isEmpty)
+                              controller.otherAuthorzVideosController!
+                                  .videos.isEmpty)
                             const SizedBox.shrink()
                           else ...[
                             Container(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 16),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16),
                                 child: Text(t.videoDetail.authorOtherVideos,
                                     style: const TextStyle(fontSize: 18))),
                             // 构建作者的其他视频列表
-                            if (controller.otherAuthorzVideosController != null)
+                            if (controller.otherAuthorzVideosController !=
+                                null)
                               for (var video in controller
                                   .otherAuthorzVideosController!.videos)
                                 VideoTileListItem(video: video),
                           ],
-                          // 相关视频
                           if (relatedVideoController.isLoading.value) ...[
                             const SizedBox(height: 16),
                             Container(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 16),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16),
                                 child: Text(t.videoDetail.relatedVideos,
                                     style: const TextStyle(fontSize: 18))),
                             const MediaTileListSkeletonWidget()
@@ -574,8 +403,8 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
                           else ...[
                             const SizedBox(height: 16),
                             Container(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 16),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16),
                                 child: Text(t.videoDetail.relatedVideos,
                                     style: const TextStyle(fontSize: 18))),
                             // 构建相关视频列表
@@ -583,76 +412,88 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
                               VideoTileListItem(video: video),
                           ],
                           const SafeArea(child: SizedBox.shrink()),
-                        ]
-                      ],
+                        ],
+                      ),
                     ),
+                  )
+              ],
+            );
+          } else {
+            if (controller.isVideoInfoLoading.value) {
+              return const MediaDetailInfoSkeletonWidget();
+            }
+            return SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 视频详情
+                  VideoDetailContent(
+                    controller: controller,
+                    paddingTop: paddingTop,
                   ),
-                  if (!controller.isDesktopAppFullScreen.value)
-                    Obx(() => SlidingCard(
-                          isVisible: controller.isCommentSheetVisible.value,
-                          onDismiss: () =>
-                              controller.isCommentSheetVisible.toggle(),
-                          title: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Row(
-                              children: [
-                                Text(
-                                  t.common.commentList,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const Spacer(),
-                                // 添加发表评论按钮
-                                TextButton.icon(
-                                  onPressed: () {
-                                    Get.dialog(
-                                      CommentInputDialog(
-                                        title: t.common.sendComment,
-                                        submitText: t.common.send,
-                                        onSubmit: (text) async {
-                                          if (text.trim().isEmpty) {
-                                            showToastWidget(MDToastWidget(
-                                                message:
-                                                    t.errors.commentCanNotBeEmpty,
-                                                type: MDToastType.error), position: ToastPosition.bottom);
-                                            return;
-                                          }
-                                          final UserService userService =
-                                              Get.find();
-                                          if (!userService.isLogin) {
-                                            showToastWidget(MDToastWidget(
-                                                message:
-                                                    t.errors.pleaseLoginFirst,
-                                                type: MDToastType.error), position: ToastPosition.bottom);
-                                            Get.toNamed(Routes.LOGIN);
-                                            return;
-                                          }
-                                          await commentController
-                                              .postComment(text);
-                                        },
-                                      ),
-                                      barrierDismissible: true,
-                                    );
-                                  },
-                                  icon: const Icon(Icons.add_comment),
-                                  label: Text(t.common.sendComment),
-                                ),
-                                // 关闭按钮
-                                IconButton(
-                                  icon: const Icon(Icons.close),
-                                  onPressed: () =>
-                                      controller.isCommentSheetVisible.toggle(),
-                                ),
-                              ],
-                            ),
-                          ),
-                          child: Obx(() => CommentSection(
-                              controller: commentController,
-                              authorUserId:
-                                  controller.videoInfo.value?.user?.id)),
-                        )),
+                  if (!controller.isDesktopAppFullScreen.value) ...[
+                    // 评论区域
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      child: CommentEntryAreaButtonWidget(
+                        commentController: commentController,
+                        onClickButton: () {
+                          showCommentModal(context);
+                        },
+                      ),
+                    ),
+                    // 作者的其他视频
+                    if (controller.otherAuthorzVideosController != null &&
+                        controller.otherAuthorzVideosController!.isLoading
+                            .value) ...[
+                      Container(
+                          padding:
+                              const EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(t.videoDetail.authorOtherVideos,
+                              style: const TextStyle(fontSize: 18))),
+                      const MediaTileListSkeletonWidget()
+                    ] else if (controller.otherAuthorzVideosController !=
+                            null &&
+                        controller
+                            .otherAuthorzVideosController!.videos.isEmpty)
+                      const SizedBox.shrink()
+                    else ...[
+                      Container(
+                          padding:
+                              const EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(t.videoDetail.authorOtherVideos,
+                              style: const TextStyle(fontSize: 18))),
+                      // 构建作者的其他视频列表
+                      if (controller.otherAuthorzVideosController != null)
+                        for (var video in controller
+                            .otherAuthorzVideosController!.videos)
+                          VideoTileListItem(video: video),
+                    ],
+                    // 相关视频
+                    if (relatedVideoController.isLoading.value) ...[
+                      const SizedBox(height: 16),
+                      Container(
+                          padding:
+                              const EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(t.videoDetail.relatedVideos,
+                              style: const TextStyle(fontSize: 18))),
+                      const MediaTileListSkeletonWidget()
+                    ] else if (relatedVideoController.videos.isEmpty)
+                      const SizedBox.shrink()
+                    else ...[
+                      const SizedBox(height: 16),
+                      Container(
+                          padding:
+                              const EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(t.videoDetail.relatedVideos,
+                              style: const TextStyle(fontSize: 18))),
+                      // 构建相关视频列表
+                      for (var video in relatedVideoController.videos)
+                        VideoTileListItem(video: video),
+                    ],
+                    const SafeArea(child: SizedBox.shrink()),
+                  ]
                 ],
               ),
             );

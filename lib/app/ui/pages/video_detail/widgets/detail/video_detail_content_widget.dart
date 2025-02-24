@@ -36,18 +36,19 @@ import 'package:file_selector/file_selector.dart' as fs;
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
+// 添加最小高度常量
+const double MIN_VIDEO_HEIGHT = 240.0;
+
 class VideoDetailContent extends StatelessWidget {
   final MyVideoStateController controller;
   final double paddingTop;
   final double? videoHeight;
-  final double? videoWidth;
 
   const VideoDetailContent({
     super.key,
     required this.controller,
     required this.paddingTop,
     this.videoHeight,
-    this.videoWidth,
   });
 
   @override
@@ -67,7 +68,6 @@ class VideoDetailContent extends StatelessWidget {
                   // 如果视频加载出错，显示错误组件
                   if (controller.videoErrorMessage.value != null) {
                     return SizedBox(
-                      width: videoWidth,
                       height: (videoHeight ?? (MediaQuery.sizeOf(context).width / 1.7)) + paddingTop,
                       child: Stack(
                         children: [
@@ -134,7 +134,6 @@ class VideoDetailContent extends StatelessWidget {
                   // 如果是站外视频，显示站外视频提示
                   else if (controller.videoInfo.value?.isExternalVideo == true) {
                     return SizedBox(
-                      width: videoWidth,
                       height: (videoHeight ?? (MediaQuery.sizeOf(context).width / 1.7)) + paddingTop,
                       child: Stack(
                         children: [
@@ -197,18 +196,16 @@ class VideoDetailContent extends StatelessWidget {
                     var isDesktopAppFullScreen =
                         controller.isDesktopAppFullScreen.value;
                     return SizedBox(
-                      width: !isDesktopAppFullScreen
-                          ? videoWidth
-                          : MediaQuery.sizeOf(context).width,
                       height: !isDesktopAppFullScreen
-                          ? (videoHeight ??
+                          ? ((videoHeight ??
                                   (
                                       // 使用有效的视频比例，如果比例小于1，则使用1.7
                                       (controller.aspectRatio.value < 1
                                           ? MediaQuery.sizeOf(context).width / 1.7
                                           : MediaQuery.sizeOf(context).width /
                                               controller.aspectRatio.value))) +
-                              paddingTop
+                              paddingTop)
+                              .clamp(MIN_VIDEO_HEIGHT, double.infinity)
                           : MediaQuery.sizeOf(context).height,
                       child: MyVideoScreen(
                           isFullScreen: false,

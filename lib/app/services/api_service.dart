@@ -22,6 +22,7 @@ class _TokenQueue {
   static const int maxQueueSize = 100;
 
   Future<T> add<T>(Future<T> Function() task) async {
+    LogUtils.d('TokenQueue: 添加任务到队列，当前队列长度: ${_queue.length}');
     if (_queue.length >= maxQueueSize) {
       throw Exception('Token refresh queue is full');
     }
@@ -30,9 +31,12 @@ class _TokenQueue {
     
     Future<void> executeTask() async {
       try {
+        LogUtils.d('TokenQueue: 开始执行队列任务');
         final result = await task();
         completer.complete(result);
+        LogUtils.d('TokenQueue: 队列任务执行完成');
       } catch (e) {
+        LogUtils.e('TokenQueue: 队列任务执行失败', error: e);
         completer.completeError(e);
       }
     }
@@ -41,11 +45,15 @@ class _TokenQueue {
 
     if (!_processing) {
       _processing = true;
+      LogUtils.d('TokenQueue: 队列开始处理，队列长度: ${_queue.length}');
       while (_queue.isNotEmpty) {
         final nextTask = _queue.removeFirst();
         await nextTask();
       }
       _processing = false;
+      LogUtils.d('TokenQueue: 队列处理完成');
+    } else {
+      LogUtils.d('TokenQueue: 队列正在处理中，新任务已添加到队列');
     }
 
     return completer.future;
@@ -67,8 +75,7 @@ class ApiService extends GetxService {
   // 队列定义
   final _TokenQueue _refreshQueue = _TokenQueue();
   
-  // token刷新的URL
-  static const String _tokenRefreshUrl = '/user/token';
+  bool _interceptorAdded = false;
 
   // 构造函数返回的是同一个
   ApiService._();
@@ -97,274 +104,82 @@ class ApiService extends GetxService {
       },
     ));
 
+    if (_interceptorAdded) {
+      return this;
+    }
+
     // 修改拦截器
     _dio.interceptors.add(d_dio.InterceptorsWrapper(
       onRequest: (options, handler) async {
-        if (CommonConstants.enableR18) {
-          // do nothing
-        } else {
-          options.queryParameters = {
-            ...options.queryParameters,
-            'rating': MediaRating.GENERAL.value
-          };
-        }
-
-        LogUtils.d(
-            '请求: Method: ${options.method} Path: ${options.path} Params: ${options.queryParameters} Body: ${options.data}',
-            _tag);
-            
-        // 如果是刷新token的请求，使用auth token
-        if (options.path == _tokenRefreshUrl) {
-          if (_authService.authToken != null) {
-            options.headers['Authorization'] = 'Bearer ${_authService.authToken}';
-            return handler.next(options);
-          } else {
-            return handler.reject(
-              d_dio.DioException(
-                requestOptions: options,
-                error: 'No auth token available',
-                type: d_dio.DioExceptionType.badResponse,
-              ),
-            );
-          }
-        }
-            
-        // 其他请求检查access token
-        if (_authService.hasToken) {
-          final accessToken = await _getValidAccessToken();
-          if (accessToken != null) {
-            options.headers['Authorization'] = 'Bearer $accessToken';
-            return handler.next(options);
-          }
+        final accessToken = _authService.accessToken;
+        LogUtils.d('ApiService: 拦截器处理请求: ${options.path}');
+        
+        if (accessToken != null) {
+          options.headers['Authorization'] = 'Bearer $accessToken';
+          LogUtils.d('ApiService: 已添加 Authorization Header');
         }
         
-        // 无token或获取失败
-        if (options.headers.containsKey('Authorization')) {
-          options.headers.remove('Authorization');
-        }
         return handler.next(options);
       },
-      onResponse: (response, handler) async {
-        try {
-          if (_authService.hasToken && 
-              response.requestOptions.path != _tokenRefreshUrl &&
-              _authService.isAccessTokenExpired) {
-            bool success = await _refreshQueue.add(() async {
-              var requestToken = response.requestOptions.headers["Authorization"] as String?;
-              var currentToken = _authService.accessToken;
-
-              if (!_isSameToken(requestToken, currentToken)) {
-                // token不同，可能是其他请求已经刷新过了
-                return true;
-              }
-
-              // 再次检查是否过期（可能在队列中等待时已被其他请求刷新）
-              if (_authService.isAccessTokenExpired) {
-                final refreshSuccess = await _authService.refreshAccessToken();
-                if (refreshSuccess) {
-                  response.requestOptions.headers["Authorization"] = 
-                      "Bearer ${_authService.accessToken}";
-                  return true;
-                }
-                return false;
-              }
-              return true;
-            });
-
-            if (success) {
-              return handler.resolve(await _retryRequest(response.requestOptions));
-            }
+      onError: (error, handler) async {
+        if (error.response?.statusCode == 401 || error.response?.statusCode == 403) {
+          LogUtils.e('ApiService: 认证错误 ${error.response?.statusCode}');
+          
+          // 如果是刷新token的请求失败，直接处理认证错误
+          if (error.requestOptions.path == '/user/token') {
+            await handleAuthError();
+            return handler.next(error);
           }
-        } catch (e) {
-          LogUtils.e('Token刷新失败', tag: _tag, error: e);
-          // _handleGeneralError(d_dio.DioException(
-          //   requestOptions: response.requestOptions,
-          //   error: e.toString(),
-          // ));
-        }
-        return handler.next(response);
-      },
-      onError: (d_dio.DioException error, handler) async {
-        // 处理网络错误
-        if (error.type == d_dio.DioExceptionType.connectionTimeout ||
-            error.type == d_dio.DioExceptionType.receiveTimeout ||
-            error.type == d_dio.DioExceptionType.sendTimeout) {
-          _handleNetworkError(error);
-          return handler.next(error);
-        }
-        
-        switch (error.response?.statusCode) {
-          case 401: // Unauthorized - 未认证或认证已过期
-            // 如果是刷新token的请求失败，直接返回
-            if (error.requestOptions.path == _tokenRefreshUrl) {
-              _handleAuthError(error);
-              return handler.next(error);
+
+          final result = await _refreshQueue.add(() async {
+            return await _authService.refreshAccessToken();
+          });
+          
+          if (result) {
+            try {
+              final response = await _retryRequest(error.requestOptions);
+              return handler.resolve(response);
+            } catch (e) {
+              LogUtils.e('重试请求失败', error: e);
+              await handleAuthError();
             }
-
-            if (_authService.hasToken) {
-              try {
-                bool success = await _refreshQueue.add(() async {
-                  var requestToken = error.requestOptions.headers["Authorization"] as String?;
-                  var currentToken = _authService.accessToken;
-
-                  if (!_isSameToken(requestToken, currentToken)) {
-                    return true;
-                  }
-
-                  if (_authService.isAccessTokenExpired) {
-                    return await _authService.refreshAccessToken();
-                  }
-                  return true;
-                });
-
-                if (success) {
-                  return handler.resolve(await _retryRequest(error.requestOptions));
-                }
-              } catch (e) {
-                LogUtils.e('Token刷新失败', tag: _tag, error: e);
-              }
-            }
-            
-            _handleAuthError(error);
-            break;
-            
-          case 403: // Forbidden - 已认证但无权限
-            LogUtils.e('$_tag 遇到403错误（无权限访问）', error: error);
-            _handleForbiddenError(error);
-            break;
-            
-          default:
-            // _handleGeneralError(error);
+          } else {
+            await handleAuthError();
+          }
         }
-        
         return handler.next(error);
       },
     ));
 
+    _interceptorAdded = true;
     return this;
   }
 
-  // 获取有效的access token
-  Future<String?> _getValidAccessToken() async {
-    if (_authService.isAuthTokenExpired) {
-      await _authService.handleTokenExpired();
-      return null;
-    }
-
-    if (_authService.isAccessTokenExpired) {
-      final success = await _refreshQueue.add(() => _authService.refreshAccessToken());
-      if (!success) return null;
-    }
-
-    return _authService.accessToken;
-  }
-
   // 重试请求
-  Future<d_dio.Response<T>> _retryRequest<T>(d_dio.RequestOptions options, {int currentRetry = 0}) async {
-    try {
-      final opts = d_dio.Options(
-        method: options.method,
-        headers: options.headers,
-        sendTimeout: requestTimeout,
-        receiveTimeout: requestTimeout,
-      );
-      
-      return await _dio.request<T>(
-        options.path,
-        options: opts,
-        data: options.data,
-        queryParameters: options.queryParameters,
-      );
-    } catch (e) {
-      // 只对网络超时错误或5xx服务器错误进行重试
-      if (e is d_dio.DioException && 
-          (e.type == d_dio.DioExceptionType.connectionTimeout ||
-           e.type == d_dio.DioExceptionType.receiveTimeout ||
-           e.type == d_dio.DioExceptionType.sendTimeout ||
-           (e.response?.statusCode != null && e.response!.statusCode! >= 500))) {
-        if (currentRetry < maxRetries - 1) {
-          final delay = baseRetryDelay * (currentRetry + 1);
-          await Future.delayed(delay);
-          return _retryRequest(options, currentRetry: currentRetry + 1);
-        }
-      }
-      rethrow;
+  Future<d_dio.Response<T>> _retryRequest<T>(d_dio.RequestOptions options) async {
+    LogUtils.d('ApiService: 开始重试请求: ${options.path}');
+    
+    // 获取最新的 token
+    final accessToken = _authService.accessToken;
+    if (accessToken != null) {
+      options.headers['Authorization'] = 'Bearer $accessToken';
     }
+    
+    LogUtils.d('ApiService: 重试请求 Headers: ${options.headers}');
+    
+    return _dio.fetch<T>(options..copyWith(
+      baseUrl: options.baseUrl,
+      // 确保使用原始请求的所有参数
+      queryParameters: options.queryParameters,
+      data: options.data,
+      // 其他参数保持不变
+    ));
   }
 
   // 处理认证错误
-  void _handleAuthError(d_dio.DioException error) {
-    final message = error.response?.data?['message'];
-    switch (message) {
-      case 'errors.tokenExpired':
-        _messageService.showMessage(
-          t.errors.sessionExpired,
-          MDToastType.warning,
-        );
-        break;
-      case 'errors.invalidToken':
-        _messageService.showMessage(
-          'Invalid token',
-          MDToastType.warning,
-        );
-        break;
-      default:
-        if (!_authService.hasToken) {
-          _messageService.showMessage(
-            t.errors.pleaseLoginFirst,
-            MDToastType.warning,
-          );
-        } else {
-          _messageService.showMessage(
-            t.errors.sessionExpired,
-            MDToastType.warning,
-          );
-        }
-    }
-  }
-
-  // 处理权限错误
-  void _handleForbiddenError(d_dio.DioException error) {
-    final message = error.response?.data?['message'];
-    switch (message) {
-      case 'errors.premiumRequired':
-        _messageService.showMessage(
-          'Premium required',
-          MDToastType.warning,
-        );
-        break;
-      case 'errors.accountSuspended':
-        _messageService.showMessage(
-          'Account suspended',
-          MDToastType.error,
-        );
-        break;
-      default:
-        _messageService.showMessage(
-          t.errors.noPermission,
-          MDToastType.warning,
-        );
-    }
-  }
-
-  // 处理网络错误
-  void _handleNetworkError(d_dio.DioException error) {
-    if (error.type == d_dio.DioExceptionType.connectionTimeout) {
-      _messageService.showMessage(
-        'Connection timeout',
-        MDToastType.error,
-      );
-    } else if (error.type == d_dio.DioExceptionType.receiveTimeout) {
-      _messageService.showMessage(
-        'Receive timeout',
-        MDToastType.error,
-      );
-    } else {
-      _messageService.showMessage(
-        t.errors.networkError,
-        MDToastType.error,
-      );
-    }
+  Future<void> handleAuthError() async {
+    // 清理token和用户状态
+    await _authService.handleTokenExpired();
   }
 
   Future<d_dio.Response<T>> get<T>(String path,

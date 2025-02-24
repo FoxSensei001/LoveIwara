@@ -461,6 +461,10 @@ settings:
   defaultKeepVideoToolbarVisible: ツールバーを常に表示
   defaultKeepVideoToolbarVisibleDesc: この設定は、動画ページに入った時にツールバーを常に表示するかどうかを決定します。
   theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt: モバイル端でシアターモードを有効にすると、パフォーマンスの問題が発生する可能性があるため、状況に応じてご利用ください。
+  lockButtonPosition: ロックボタンの位置
+  lockButtonPositionBothSides: 両側に表示
+  lockButtonPositionLeftSide: 左側のみ表示
+  lockButtonPositionRightSide: 右側のみ表示
 signIn:
   pleaseLoginFirst: サインインする前にログインしてください
   alreadySignedInToday: 今日は既にサインインしています！

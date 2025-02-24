@@ -15,7 +15,6 @@ import 'package:oktoast/oktoast.dart';
 import '../../../../common/enums/media_enums.dart';
 import '../../../../utils/logger_utils.dart';
 import '../../widgets/error_widget.dart';
-import '../../widgets/sliding_card_widget.dart';
 import '../comment/controllers/comment_controller.dart';
 import '../comment/widgets/comment_entry_area_widget.dart';
 import '../comment/widgets/comment_section_widget.dart';
@@ -275,159 +274,93 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
               return const MyEmptyWidget();
             }
 
-            return PopScope(
-              canPop: !detailController.isCommentSheetVisible.value,
-              onPopInvokedWithResult: (bool didPop, dynamic result) {
-                LogUtils.i(
-                    '图库内部的PopScope被触发 $didPop, $result, ${!detailController.isCommentSheetVisible.value}',
-                    'GalleryDetailPage');
-                if (detailController.isCommentSheetVisible.value) {
-                  detailController.isCommentSheetVisible.toggle();
-                }
-              },
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: renderImageModelSize.width,
-                    child: SingleChildScrollView(
-                      physics: detailController.isHoveringHorizontalList.value
-                          ? const NeverScrollableScrollPhysics()
-                          : null,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          ImageModelDetailContent(
-                            controller: detailController,
-                            paddingTop: paddingTop,
-                            imageModelHeight: renderImageModelSize.height,
-                            imageModelWidth: renderImageModelSize.width,
-                          ),
-                          CommentEntryAreaButtonWidget(
-                              commentController: commentController,
-                              onClickButton: () {
-                                showCommentModal(context);
-                              }).paddingVertical(16),
-                          const SafeArea(child: SizedBox.shrink()),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Stack(
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: renderImageModelSize.width,
+                  child: SingleChildScrollView(
+                    physics: detailController.isHoveringHorizontalList.value
+                        ? const NeverScrollableScrollPhysics()
+                        : null,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        // 给个假区域默认占位整个容器高度
-                        Container(
-                          height: double.infinity,
+                        ImageModelDetailContent(
+                          controller: detailController,
+                          paddingTop: paddingTop,
+                          imageModelHeight: renderImageModelSize.height,
+                          imageModelWidth: renderImageModelSize.width,
                         ),
-                        // 显示区域
-                        SingleChildScrollView(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              SizedBox(height: paddingTop + 16),
-                              Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 16),
-                                  child: Text(t.galleryDetail.authorOtherGalleries,
-                                      style: const TextStyle(fontSize: 18))),
-                              const SizedBox(height: 16),
-                              // 作者的其他图库
-                              if (detailController
-                                          .otherAuthorzImageModelsController !=
-                                      null &&
-                                  detailController
-                                      .otherAuthorzImageModelsController!
-                                      .isLoading
-                                      .value)
-                                const MediaTileListSkeletonWidget()
-                              else if (detailController
-                                  .otherAuthorzImageModelsController!
-                                  .imageModels
-                                  .isEmpty)
-                                const MyEmptyWidget()
-                              else ...[
-                                // 构建作者的其他图库列表
-                                for (var imageModel in detailController
-                                    .otherAuthorzImageModelsController!
-                                    .imageModels)
-                                  ImageModelTileListItem(
-                                      imageModel: imageModel),
-                              ],
-                              const SizedBox(height: 16),
-                              Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 16),
-                                  child: Text(t.galleryDetail.relatedGalleries,
-                                      style: const TextStyle(fontSize: 18))),
-                              const SizedBox(height: 16),
-                              if (relatedMediasController.isLoading.value)
-                                const MediaTileListSkeletonWidget()
-                              else if (relatedMediasController
-                                  .imageModels.isEmpty)
-                                const MyEmptyWidget()
-                              else
-                                // 构建相关图库列表
-                                for (var imageModel
-                                    in relatedMediasController.imageModels)
-                                  ImageModelTileListItem(
-                                      imageModel: imageModel),
-                              const SafeArea(child: SizedBox.shrink()),
-                            ],
-                          ),
-                        ),
-                        // SlidingCard 仅覆盖右侧区域
-                        SlidingCard(
-                          isVisible:
-                              detailController.isCommentSheetVisible.value,
-                          onDismiss: () =>
-                              detailController.isCommentSheetVisible.toggle(),
-                          title: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Row(
-                              children: [
-                                Text(
-                                  t.common.commentList,
-                                  style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                const Spacer(),
-                                // 添加发表评论按钮
-                                TextButton.icon(
-                                  onPressed: () {
-                                    final UserService userService = Get.find();
-                                    if (!userService.isLogin) {
-                                      showToastWidget(MDToastWidget(message: slang.t.errors.pleaseLoginFirst, type: MDToastType.error), position: ToastPosition.bottom);
-                                      Get.toNamed(Routes.LOGIN);
-                                      return;
-                                    }
-                                    showCommentModal(context);
-                                  },
-                                  icon: const Icon(Icons.add_comment),
-                                  label: Text(t.common.sendComment),
-                                ),
-                                // 关闭按钮
-                                IconButton(
-                                  icon: const Icon(Icons.close),
-                                  onPressed: () => detailController
-                                      .isCommentSheetVisible
-                                      .toggle(),
-                                ),
-                              ],
-                            ),
-                          ),
-                          child: CommentSection(
-                              controller: commentController,
-                              authorUserId: detailController
-                                  .imageModelInfo.value?.user?.id),
-                        ),
+                        CommentEntryAreaButtonWidget(
+                            commentController: commentController,
+                            onClickButton: () {
+                              showCommentModal(context);
+                            }).paddingVertical(16),
+                        const SafeArea(child: SizedBox.shrink()),
                       ],
                     ),
-                  )
-                ],
-              ),
+                  ),
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(height: paddingTop + 16),
+                        Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16),
+                            child: Text(t.galleryDetail.authorOtherGalleries,
+                                style: const TextStyle(fontSize: 18))),
+                        const SizedBox(height: 16),
+                        // 作者的其他图库
+                        if (detailController
+                                    .otherAuthorzImageModelsController !=
+                                null &&
+                            detailController
+                                .otherAuthorzImageModelsController!
+                                .isLoading
+                                .value)
+                          const MediaTileListSkeletonWidget()
+                        else if (detailController
+                            .otherAuthorzImageModelsController!
+                            .imageModels
+                            .isEmpty)
+                          const MyEmptyWidget()
+                        else ...[
+                          // 构建作者的其他图库列表
+                          for (var imageModel in detailController
+                              .otherAuthorzImageModelsController!
+                              .imageModels)
+                            ImageModelTileListItem(
+                                imageModel: imageModel),
+                        ],
+                        const SizedBox(height: 16),
+                        Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16),
+                            child: Text(t.galleryDetail.relatedGalleries,
+                                style: const TextStyle(fontSize: 18))),
+                        const SizedBox(height: 16),
+                        if (relatedMediasController.isLoading.value)
+                          const MediaTileListSkeletonWidget()
+                        else if (relatedMediasController
+                            .imageModels.isEmpty)
+                          const MyEmptyWidget()
+                        else
+                          // 构建相关图库列表
+                          for (var imageModel
+                              in relatedMediasController.imageModels)
+                            ImageModelTileListItem(
+                                imageModel: imageModel),
+                        const SafeArea(child: SizedBox.shrink()),
+                      ],
+                    ),
+                  ),
+                )
+              ],
             );
           } else {
             if (detailController.isImageModelInfoLoading.value) {
@@ -438,124 +371,68 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
               return const MyEmptyWidget();
             }
 
-            return PopScope(
-              canPop: !detailController.isCommentSheetVisible.value,
-              onPopInvokedWithResult: (bool didPop, dynamic result) {
-                if (detailController.isCommentSheetVisible.value) {
-                  detailController.isCommentSheetVisible.toggle();
-                }
-              },
-              child: Stack(
+            return SingleChildScrollView(
+              physics: detailController.isHoveringHorizontalList.value
+                  ? const NeverScrollableScrollPhysics()
+                  : null,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  SingleChildScrollView(
-                    physics: detailController.isHoveringHorizontalList.value
-                        ? const NeverScrollableScrollPhysics()
-                        : null,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // 图库详情
-                        ImageModelDetailContent(
-                          controller: detailController,
-                          paddingTop: paddingTop,
-                        ),
-                        // 评论区域
-                        Container(
-                            padding: const EdgeInsets.all(16),
-                            child: CommentEntryAreaButtonWidget(
-                              commentController: commentController,
-                              onClickButton: () {
-                                showCommentModal(context);
-                              },
-                            ).paddingVertical(16)),
-                        // 作者的其他图库
-                        Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Text(t.galleryDetail.authorOtherGalleries,
-                                style: const TextStyle(fontSize: 18))),
-                        if (detailController
-                                    .otherAuthorzImageModelsController !=
-                                null &&
-                            detailController.otherAuthorzImageModelsController!
-                                .isLoading.value)
-                          const MediaTileListSkeletonWidget()
-                        else if (detailController
-                            .otherAuthorzImageModelsController!
-                            .imageModels
-                            .isEmpty)
-                          const MyEmptyWidget()
-                        else ...[
-                          // 构建作者的其他图库列表
-                          for (var imageModel in detailController
-                              .otherAuthorzImageModelsController!.imageModels)
-                            ImageModelTileListItem(imageModel: imageModel),
-                        ],
-                        // 相关图库
-                        const SizedBox(height: 16),
-                        Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Text(t.galleryDetail.relatedGalleries,
-                                style: const TextStyle(fontSize: 18))),
-                        const SizedBox(height: 16),
-                        if (relatedMediasController.isLoading.value)
-                          const MediaTileListSkeletonWidget()
-                        else if (relatedMediasController.imageModels.isEmpty)
-                          const MyEmptyWidget()
-                        else ...[
-                          // 构建相关图库列表
-                          for (var imageModel
-                              in relatedMediasController.imageModels)
-                            ImageModelTileListItem(imageModel: imageModel),
-                        ],
-                        const SafeArea(child: SizedBox.shrink()),
-                      ],
-                    ),
+                  // 图库详情
+                  ImageModelDetailContent(
+                    controller: detailController,
+                    paddingTop: paddingTop,
                   ),
-                  SlidingCard(
-                    isVisible: detailController.isCommentSheetVisible.value,
-                    onDismiss: () =>
-                        detailController.isCommentSheetVisible.toggle(),
-                    title: Container(
+                  // 评论区域
+                  Container(
+                      padding: const EdgeInsets.all(16),
+                      child: CommentEntryAreaButtonWidget(
+                        commentController: commentController,
+                        onClickButton: () {
+                          showCommentModal(context);
+                        },
+                      ).paddingVertical(16)),
+                  // 作者的其他图库
+                  Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        children: [
-                          Text(
-                            t.common.commentList,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Spacer(),
-                          // 添加发表评论按钮
-                          TextButton.icon(
-                            onPressed: () {
-                              final UserService userService = Get.find();
-                              if (!userService.isLogin) {
-                                showToastWidget(MDToastWidget(message: slang.t.errors.pleaseLoginFirst, type: MDToastType.error), position: ToastPosition.bottom);
-                                Get.toNamed(Routes.LOGIN);
-                                return;
-                              }
-                              showCommentModal(context);
-                            },
-                            icon: const Icon(Icons.add_comment),
-                            label: Text(t.common.sendComment),
-                          ),
-                          // 关闭按钮
-                          IconButton(
-                            icon: const Icon(Icons.close),
-                            onPressed: () =>
-                                detailController.isCommentSheetVisible.toggle(),
-                          ),
-                        ],
-                      ),
-                    ),
-                    child: CommentSection(
-                        controller: commentController,
-                        authorUserId:
-                            detailController.imageModelInfo.value?.user?.id),
-                  ),
+                      child: Text(t.galleryDetail.authorOtherGalleries,
+                          style: const TextStyle(fontSize: 18))),
+                  if (detailController
+                              .otherAuthorzImageModelsController !=
+                          null &&
+                      detailController.otherAuthorzImageModelsController!
+                          .isLoading.value)
+                    const MediaTileListSkeletonWidget()
+                  else if (detailController
+                      .otherAuthorzImageModelsController!
+                      .imageModels
+                      .isEmpty)
+                    const MyEmptyWidget()
+                  else ...[
+                    // 构建作者的其他图库列表
+                    for (var imageModel in detailController
+                        .otherAuthorzImageModelsController!.imageModels)
+                      ImageModelTileListItem(imageModel: imageModel),
+                  ],
+                  // 相关图库
+                  const SizedBox(height: 16),
+                  Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(t.galleryDetail.relatedGalleries,
+                          style: const TextStyle(fontSize: 18))),
+                  const SizedBox(height: 16),
+                  if (relatedMediasController.isLoading.value)
+                    const MediaTileListSkeletonWidget()
+                  else if (relatedMediasController.imageModels.isEmpty)
+                    const MyEmptyWidget()
+                  else ...[
+                    // 构建相关图库列表
+                    for (var imageModel
+                        in relatedMediasController.imageModels)
+                      ImageModelTileListItem(imageModel: imageModel),
+                  ],
+                  const SafeArea(child: SizedBox.shrink()),
                 ],
               ),
             );

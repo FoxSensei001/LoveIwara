@@ -12,7 +12,6 @@ import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 import '../../widgets/error_widget.dart';
-import '../../widgets/sliding_card_widget.dart';
 import '../comment/controllers/comment_controller.dart';
 import '../comment/widgets/comment_entry_area_widget.dart';
 import '../comment/widgets/comment_section_widget.dart';
@@ -209,107 +208,38 @@ class _PostDetailPageState extends State<PostDetailPage> {
             return const MyEmptyWidget();
           }
 
-          return PopScope(
-            canPop: !detailController.isCommentSheetVisible.value,
-            onPopInvokedWithResult: (bool didPop, dynamic result) {
-              if (detailController.isCommentSheetVisible.value) {
-                detailController.isCommentSheetVisible.toggle();
-              }
-            },
-            child: Stack(
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      PostDetailContent(
-                        controller: detailController,
-                        paddingTop: paddingTop,
-                        onShare: () {
-                          showModalBottomSheet(
-                            backgroundColor: Colors.transparent,
-                            isScrollControlled: true,
-                            builder: (context) => SharePostBottomSheet(
-                              post: detailController.postInfo.value!,
-                            ),
-                            context: context,
-                          );
-                        },
+                PostDetailContent(
+                  controller: detailController,
+                  paddingTop: paddingTop,
+                  onShare: () {
+                    showModalBottomSheet(
+                      backgroundColor: Colors.transparent,
+                      isScrollControlled: true,
+                      builder: (context) => SharePostBottomSheet(
+                        post: detailController.postInfo.value!,
                       ),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: isSmallScreen ? 12 : 16,
-                          vertical: isSmallScreen ? 8 : 16,
-                        ),
-                        child: CommentEntryAreaButtonWidget(
-                          commentController: commentController,
-                          onClickButton: () {
-                            showCommentModal(context);
-                          },
-                        ),
-                      ),
-                      const SafeArea(child: SizedBox.shrink()),
-                    ],
+                      context: context,
+                    );
+                  },
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isSmallScreen ? 12 : 16,
+                    vertical: isSmallScreen ? 8 : 16,
+                  ),
+                  child: CommentEntryAreaButtonWidget(
+                    commentController: commentController,
+                    onClickButton: () {
+                      showCommentModal(context);
+                    },
                   ),
                 ),
-                SlidingCard(
-                  isVisible: detailController.isCommentSheetVisible.value,
-                  onDismiss: () => detailController.isCommentSheetVisible.toggle(),
-                  title: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: isSmallScreen ? 12 : 16,
-                    ),
-                    child: Row(
-                      children: [
-                        Text(
-                          t.common.commentList,
-                          style: TextStyle(
-                            fontSize: isSmallScreen ? 16 : 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const Spacer(),
-                        TextButton.icon(
-                          onPressed: () {
-                            final UserService userService = Get.find();
-                            if (!userService.isLogin) {
-                              showToastWidget(MDToastWidget(
-                                message: slang.t.errors.pleaseLoginFirst,
-                                type: MDToastType.error,
-                              ));
-                              Get.toNamed(Routes.LOGIN);
-                              return;
-                            }
-                            showCommentModal(context);
-                          },
-                          icon: Icon(
-                            Icons.add_comment,
-                            size: isSmallScreen ? 18 : 20,
-                          ),
-                          label: Text(
-                            t.common.sendComment,
-                            style: TextStyle(
-                              fontSize: isSmallScreen ? 13 : 14,
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.close,
-                            size: isSmallScreen ? 20 : 24,
-                          ),
-                          onPressed: () =>
-                              detailController.isCommentSheetVisible.toggle(),
-                        ),
-                      ],
-                    ),
-                  ),
-                  child: CommentSection(
-                    controller: commentController,
-                    authorUserId: detailController.postInfo.value?.user.id,
-                  ),
-                ),
+                const SafeArea(child: SizedBox.shrink()),
               ],
             ),
           );

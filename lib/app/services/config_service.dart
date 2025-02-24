@@ -196,6 +196,7 @@ enum ConfigKey {
   SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN, // 是否在工具栏隐藏时显示进度条
   SHOW_FOLLOW_TIP_COUNT, // 告诉用户关注功能的次数，默认两次
   DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE, // 默认是否保持刚进入视频页时工具栏常驻
+  VIDEO_TOOLBAR_LOCK_BUTTON_POSITION, // 视频工具栏锁定按钮位置
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -250,8 +251,9 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.SIGNATURE_CONTENT_KEY: return 'signature_content';
       case ConfigKey.ENABLE_VIBRATION: return 'enable_vibration';
       case ConfigKey.SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN: return 'show_video_progress_bottom_bar_when_toolbar_hidden';
-      case ConfigKey.SHOW_FOLLOW_TIP_COUNT: return 'show_follow_tip_count'; // 告诉用户关注功能的次数，默认两次
-      case ConfigKey.DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE: return 'default_keep_video_toolbar_visable'; // 默认是否保持刚进入视频页时工具栏常驻
+      case ConfigKey.SHOW_FOLLOW_TIP_COUNT: return 'show_follow_tip_count';
+      case ConfigKey.DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE: return 'default_keep_video_toolbar_visable';
+      case ConfigKey.VIDEO_TOOLBAR_LOCK_BUTTON_POSITION: return 'video_toolbar_lock_button_position';
     }
   }
 
@@ -359,6 +361,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 2;
       case ConfigKey.DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE:
         return true;
+      case ConfigKey.VIDEO_TOOLBAR_LOCK_BUTTON_POSITION:
+        return 2;
       default:
         throw Exception("Unknown ConfigKey: $this");
     }

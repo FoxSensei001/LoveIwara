@@ -603,6 +603,10 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get defaultKeepVideoToolbarVisible => '保持工具栏常驻';
 	@override String get defaultKeepVideoToolbarVisibleDesc => '此设置决定首次进入视频页面时是否保持工具栏常驻显示。';
 	@override String get theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt => '移动端开启剧院模式可能会造成性能问题，可酌情开启。';
+	@override String get lockButtonPosition => '锁定按钮位置';
+	@override String get lockButtonPositionBothSides => '两侧显示';
+	@override String get lockButtonPositionLeftSide => '仅左侧显示';
+	@override String get lockButtonPositionRightSide => '仅右侧显示';
 }
 
 // Path: signIn
@@ -1726,6 +1730,10 @@ extension on TranslationsZhCn {
 			case 'settings.defaultKeepVideoToolbarVisible': return '保持工具栏常驻';
 			case 'settings.defaultKeepVideoToolbarVisibleDesc': return '此设置决定首次进入视频页面时是否保持工具栏常驻显示。';
 			case 'settings.theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt': return '移动端开启剧院模式可能会造成性能问题，可酌情开启。';
+			case 'settings.lockButtonPosition': return '锁定按钮位置';
+			case 'settings.lockButtonPositionBothSides': return '两侧显示';
+			case 'settings.lockButtonPositionLeftSide': return '仅左侧显示';
+			case 'settings.lockButtonPositionRightSide': return '仅右侧显示';
 			case 'signIn.pleaseLoginFirst': return '请先登录';
 			case 'signIn.alreadySignedInToday': return '您今天已经签到过了！';
 			case 'signIn.youDidNotStickToTheSignIn': return '您未能坚持签到。';

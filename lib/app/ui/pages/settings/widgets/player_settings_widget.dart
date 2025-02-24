@@ -316,6 +316,84 @@ class PlayerSettingsWidget extends StatelessWidget {
                       _configService[ConfigKey.DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE] = value;
                     },
                   ),
+                  // 添加锁定按钮位置设置
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(Get.context!).cardColor,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.lock,
+                              color: Get.isDarkMode ? Colors.white : null,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                t.settings.lockButtonPosition,
+                                style: Theme.of(Get.context!)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Obx(() {
+                          final currentPosition = _configService[ConfigKey.VIDEO_TOOLBAR_LOCK_BUTTON_POSITION] as int;
+                          return Column(
+                            children: [
+                              RadioListTile<int>(
+                                title: Text(t.settings.lockButtonPositionBothSides),
+                                value: 1,
+                                groupValue: currentPosition,
+                                onChanged: (value) {
+                                  if (value != null) {
+                                    _configService[ConfigKey.VIDEO_TOOLBAR_LOCK_BUTTON_POSITION] = value;
+                                  }
+                                },
+                              ),
+                              RadioListTile<int>(
+                                title: Text(t.settings.lockButtonPositionLeftSide),
+                                value: 2,
+                                groupValue: currentPosition,
+                                onChanged: (value) {
+                                  if (value != null) {
+                                    _configService[ConfigKey.VIDEO_TOOLBAR_LOCK_BUTTON_POSITION] = value;
+                                  }
+                                },
+                              ),
+                              RadioListTile<int>(
+                                title: Text(t.settings.lockButtonPositionRightSide),
+                                value: 3,
+                                groupValue: currentPosition,
+                                onChanged: (value) {
+                                  if (value != null) {
+                                    _configService[ConfigKey.VIDEO_TOOLBAR_LOCK_BUTTON_POSITION] = value;
+                                  }
+                                },
+                              ),
+                            ],
+                          );
+                        }),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),

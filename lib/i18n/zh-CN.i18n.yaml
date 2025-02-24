@@ -468,6 +468,10 @@ settings:
   defaultKeepVideoToolbarVisible: 保持工具栏常驻
   defaultKeepVideoToolbarVisibleDesc: 此设置决定首次进入视频页面时是否保持工具栏常驻显示。
   theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt: 移动端开启剧院模式可能会造成性能问题，可酌情开启。
+  lockButtonPosition: 锁定按钮位置
+  lockButtonPositionBothSides: 两侧显示
+  lockButtonPositionLeftSide: 仅左侧显示
+  lockButtonPositionRightSide: 仅右侧显示
 signIn:
   pleaseLoginFirst: 请先登录
   alreadySignedInToday: 您今天已经签到过了！
