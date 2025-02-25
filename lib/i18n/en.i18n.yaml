@@ -966,4 +966,12 @@ translation:
   aiTranslationWillBeDisabledDueToPromptChange: "Due to the change of translation prompt, AI translation will be disabled" 
   aiTranslationWillBeDisabledDueToParamChange: "Due to the change of parameter configuration, AI translation will be disabled"
   onlyOpenAIAPISupported: "Currently only supports OpenAI-compatible API format (application/json request body)"
-
+  streamingTranslation: "Streaming Translation"
+  streamingTranslationSupported: "Streaming Translation Supported"
+  streamingTranslationNotSupported: "Streaming Translation Not Supported"
+  streamingTranslationDescription: "Streaming translation can display results in real-time during the translation process, providing a better user experience"
+  usingFullUrlWithHash: "Using full URL (ending with #)"
+  baseUrlInputHelperText: "When ending with #, it will be used as the actual request address"
+  currentActualUrl: "Current actual URL: ${url}"
+  urlEndingWithHashTip: "URL ending with # will be used directly without adding any suffix"
+  streamingTranslationWarning: "Note: This feature requires API service support for streaming transmission, some models may not support it"

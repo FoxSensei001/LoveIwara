@@ -950,13 +950,17 @@ class MyVideoStateController extends GetxController
   }
 
   void showLockButton() {
-    isLockButtonVisible.value = true;
-    _lockButtonHideTimer?.cancel();
-    _lockButtonHideTimer = Timer(const Duration(seconds: 3), () {
-      if (isToolbarsLocked.value) {
-        isLockButtonVisible.value = false;
+    if (isToolbarsLocked.value) {
+      isLockButtonVisible.toggle();
+      if (isLockButtonVisible.value) {
+        _lockButtonHideTimer?.cancel();
+        _lockButtonHideTimer = Timer(const Duration(seconds: 3), () {
+          if (isToolbarsLocked.value) {
+            isLockButtonVisible.value = false;
+          }
+        });
       }
-    });
+    }
   }
 
   void toggleLockState() {

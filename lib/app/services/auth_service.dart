@@ -48,9 +48,6 @@ class AuthService extends GetxService {
 
   Timer? _tokenRefreshTimer;
 
-  // 添加token刷新锁
-  bool _isRefreshing = false;
-
   // 添加token过期时间
   DateTime? _tokenExpireTime;
   

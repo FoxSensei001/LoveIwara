@@ -6,6 +6,7 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/translation_service.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/common/constants.dart';
+import 'package:i_iwara/utils/widget_extensions.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'dart:convert';
@@ -81,14 +82,27 @@ class _AITranslationSettingsWidgetState
 
   Future<void> _testConnection() async {
     _isTesting.value = true;
+    
+    // 获取要测试的baseUrl，处理特殊情况
+    String baseUrl = _baseUrlController.text.trim();
+    
     final result = await translationService.testAITranslation(
-      _baseUrlController.text.trim(),
+      baseUrl,
       _modelController.text.trim(),
       _apiKeyController.text.trim(),
     );
     _testResult.value = result.data;
     _isConnectionValid.value = result.data?.connectionValid ?? false;
     _hasTested.value = true;
+    
+    // 如果连接测试成功，默认支持流式传输
+    if (_isConnectionValid.value) {
+      // 更新配置
+      configService[ConfigKey.AI_TRANSLATION_BASE_URL] = baseUrl;
+      configService[ConfigKey.AI_TRANSLATION_MODEL] = _modelController.text.trim();
+      configService[ConfigKey.AI_TRANSLATION_API_KEY] = _apiKeyController.text.trim();
+    }
+    
     _isTesting.value = false;
   }
 
@@ -244,6 +258,7 @@ class _AITranslationSettingsWidgetState
             padding: const EdgeInsets.all(16),
             child: Column(
               spacing: 16,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildInputSection(
                   context: context,
@@ -252,7 +267,24 @@ class _AITranslationSettingsWidgetState
                   hintText: 'https://api.example.com/v1',
                   configKey: ConfigKey.AI_TRANSLATION_BASE_URL,  // 使用枚举值而不是name
                   icon: Icons.link,
+                  // helperText: "以#结尾时将以输入的URL作为实际请求地址" 
+                  helperText: slang.t.translation.baseUrlInputHelperText
                 ),
+
+                Obx(() {
+                  // 提示当前的实际URL
+                  final baseUrl = configService[ConfigKey.AI_TRANSLATION_BASE_URL];
+                  final actualUrl = translationService.getFinalUrl(baseUrl);
+                  return Text(
+                    // "当前实际URL: $actualUrl",
+                    slang.t.translation.currentActualUrl(url: actualUrl),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontSize: 12,
+                        height: 1.2),
+                  ).paddingLeft(12);
+                }),
+
                 _buildInputSection(
                   context: context,
                   label: slang.t.translation.modelName,
@@ -615,14 +647,18 @@ class _AITranslationSettingsWidgetState
       final model = configService[ConfigKey.AI_TRANSLATION_MODEL];
       final apiKey = configService[ConfigKey.AI_TRANSLATION_API_KEY];
 
-      final endpoint = baseUrl.isNotEmpty
-          ? '${baseUrl.endsWith('/') ? baseUrl : '$baseUrl/'}chat/completions'
-          : slang.t.translation.notConfigured;
+      // 使用TranslationService的getFinalUrl方法获取最终URL
+      final actualRequestUrl = translationService.getFinalUrl(
+        baseUrl, 
+      );
 
       final maxTokens =
           configService[ConfigKey.AI_TRANSLATION_MAX_TOKENS];
       final temperature =
           configService[ConfigKey.AI_TRANSLATION_TEMPERATURE];
+      
+      // 获取流式传输支持状态
+      final supportsStreaming = configService[ConfigKey.AI_TRANSLATION_SUPPORTS_STREAMING] as bool? ?? false;
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -630,7 +666,7 @@ class _AITranslationSettingsWidgetState
           _buildConfigRow(
               icon: Icons.link,
               label: '${slang.t.translation.apiEndpoint}:',
-              value: endpoint,
+              value: actualRequestUrl,
               valueStyle: TextStyle(
                   fontFamily: 'JetBrainsMono',
                   color: colorScheme.onSurfaceVariant),
@@ -657,6 +693,17 @@ class _AITranslationSettingsWidgetState
               label: '${slang.t.translation.temperature}:',
               value: temperature.toStringAsFixed(1),
               context: context),
+          _buildSwitchConfigRow(
+            icon: Icons.stream,
+            label: '${slang.t.translation.streamingTranslation}:',
+            description: slang.t.translation.streamingTranslationDescription,
+            warningText: slang.t.translation.streamingTranslationWarning,
+            value: supportsStreaming,
+            onChanged: (value) {
+              configService[ConfigKey.AI_TRANSLATION_SUPPORTS_STREAMING] = value;
+            },
+            context: context,
+          ),
         ],
       );
     });
@@ -667,6 +714,7 @@ class _AITranslationSettingsWidgetState
       required String label,
       required String value,
       bool warning = false,
+      bool success = false,
       TextStyle? valueStyle,
       required BuildContext context}) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -693,11 +741,69 @@ class _AITranslationSettingsWidgetState
                         TextStyle(
                             color: warning
                                 ? colorScheme.error
-                                : colorScheme.onSurface,
+                                : success
+                                    ? colorScheme.primary
+                                    : colorScheme.onSurface,
                             fontFamily: 'Roboto')),
               ],
             ),
           )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSwitchConfigRow({
+    required IconData icon,
+    required String label,
+    required String description,
+    String? warningText,
+    required bool value,
+    required Function(bool) onChanged,
+    required BuildContext context,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 20, color: colorScheme.onSurfaceVariant),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label,
+                    style: Theme.of(context)
+                        .textTheme
+                        .labelMedium
+                        ?.copyWith(color: colorScheme.onSurfaceVariant)),
+                const SizedBox(height: 4),
+                Text(description,
+                    style: TextStyle(
+                      color: colorScheme.onSurface,
+                      fontFamily: 'Roboto',
+                    )),
+                if (warningText != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    warningText,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: colorScheme.error.withOpacity(0.8),
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          Switch(
+            value: value,
+            onChanged: onChanged,
+          ),
         ],
       ),
     );
@@ -710,6 +816,7 @@ class _AITranslationSettingsWidgetState
     required String hintText,
     required ConfigKey configKey,  // 改为ConfigKey类型
     required IconData icon,
+    String? helperText,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -733,6 +840,8 @@ class _AITranslationSettingsWidgetState
             ),
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            helperText: helperText,
+            helperMaxLines: 3,
           ),
           validator: (value) {
             if (value == null || value.isEmpty) {

@@ -302,7 +302,7 @@ class _NewConversationDialogState extends State<NewConversationDialog> {
                                 children: [
                                   AvatarWidget(
                                     user: _selectedUser,
-                                    size: 16
+                                    size: 40
                                   ),
                                   const SizedBox(width: 8),
                                   Expanded(

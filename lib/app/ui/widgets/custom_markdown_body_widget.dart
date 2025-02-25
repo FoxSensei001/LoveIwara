@@ -1,12 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
-import 'package:i_iwara/app/services/light_service.dart';
+import 'package:i_iwara/app/services/translation_service.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/widgets/markdown_translation_controller.dart';
+import 'package:i_iwara/app/ui/widgets/translation_language_selector.dart';
+import 'package:i_iwara/app/ui/widgets/translation_powered_by_widget.dart';
 import 'package:i_iwara/app/utils/url_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/image_utils.dart';
@@ -16,17 +18,25 @@ import 'package:oktoast/oktoast.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
+import 'dart:async';
+import 'package:i_iwara/app/utils/markdown_formatter.dart';
 
 class CustomMarkdownBody extends StatefulWidget {
   final String data;
   final bool? initialShowUnprocessedText;
   final bool clickInternalLinkByUrlLaunch; // 当为true时，内部链接也使用urllaunch打开
+  final bool showTranslationButton; // 是否显示翻译按钮
+  final MarkdownTranslationController? translationController; // 外部控制器
+  final EdgeInsetsGeometry padding; // 新增的 padding 参数
 
   const CustomMarkdownBody({
     super.key,
     required this.data,
     this.initialShowUnprocessedText,
     this.clickInternalLinkByUrlLaunch = false,
+    this.showTranslationButton = false,
+    this.translationController,
+    this.padding = EdgeInsets.zero, // 默认 padding 为 0
   });
 
   @override
@@ -42,10 +52,20 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
   final _markdownGenerator = MarkdownGenerator(
     linesMargin: const EdgeInsets.symmetric(vertical: 4),
   );
+  final _markdownFormatter = MarkdownFormatter();
+
+  // 内部翻译相关状态
+  bool _isTranslating = false;
+  String? _translatedText;
+  String? _rawTranslatedText; // 存储未格式化的翻译文本
+  bool _isTranslationComplete = false; // 标记翻译是否完成
+  late final TranslationService _translationService;
+  StreamSubscription<String>? _translationStreamSubscription;
 
   @override
   void dispose() {
     _isProcessing = false;
+    _translationStreamSubscription?.cancel();
     super.dispose();
   }
 
@@ -53,10 +73,20 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
   void initState() {
     super.initState();
     _configService = Get.find<ConfigService>();
+    if (widget.showTranslationButton) {
+      _translationService = Get.find<TranslationService>();
+    }
     _displayData = widget.data;
     _showOriginal = widget.initialShowUnprocessedText ??
         _configService[ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
     _processMarkdown(widget.data);
+
+    // 如果提供了外部控制器，监听其变化
+    if (widget.translationController != null) {
+      widget.translationController!.translatedText.listen((translatedText) {
+        // 不需要setState，因为我们在build中使用Obx
+      });
+    }
   }
 
   @override
@@ -66,9 +96,15 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
       if (mounted) {
         setState(() {
           _displayData = widget.data;
+          _translatedText = null; // 当内容变化时清除翻译结果
         });
       }
       _processMarkdown(widget.data);
+
+      // 如果控制器发生变化或内容变化时有控制器，清除控制器中的翻译结果
+      if (widget.translationController != null) {
+        widget.translationController!.clearTranslation();
+      }
     }
   }
 
@@ -79,7 +115,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     bool hasChanges = false;
 
     try {
-      String newProcessed = await _formatLinks(processed);
+      String newProcessed = await _markdownFormatter.formatLinks(processed);
       if (newProcessed != processed) hasChanges = true;
       processed = newProcessed;
       if (!mounted || !_isProcessing) return;
@@ -88,7 +124,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     }
 
     try {
-      String newProcessed = _formatMarkdownLinks(processed);
+      String newProcessed = _markdownFormatter.formatMarkdownLinks(processed);
       if (newProcessed != processed) hasChanges = true;
       processed = newProcessed;
       if (mounted && _isProcessing) {
@@ -101,7 +137,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     }
 
     try {
-      String newProcessed = _formatMentions(processed);
+      String newProcessed = _markdownFormatter.formatMentions(processed);
       if (newProcessed != processed) hasChanges = true;
       processed = newProcessed;
       if (mounted && _isProcessing) {
@@ -114,7 +150,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     }
 
     try {
-      String newProcessed = _replaceNewlines(processed);
+      String newProcessed = _markdownFormatter.replaceNewlines(processed);
       if (newProcessed != processed) hasChanges = true;
       processed = newProcessed;
       if (mounted && _isProcessing) {
@@ -128,291 +164,107 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     }
   }
 
-  Future<String> _formatLinks(String data) async {
-    final patterns = {
-      IwaraUrlType.video: RegExp(
-          r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/video/([a-zA-Z0-9]+)(?:/[^\s]*)?',
-          caseSensitive: false),
-      IwaraUrlType.forum: RegExp(
-          r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/forum/([^/\s]+)/([a-zA-Z0-9-]+)(?:/[^\s]*)?',
-          caseSensitive: false),
-      IwaraUrlType.image: RegExp(
-          r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/image/([a-zA-Z0-9]+)(?:/[^\s]*)?',
-          caseSensitive: false),
-      IwaraUrlType.profile: RegExp(
-          r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/profile/([^/\s]+)(?:/[^\s]*)?',
-          caseSensitive: false),
-      IwaraUrlType.playlist: RegExp(
-          r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/playlist/([a-zA-Z0-9-]+)(?:/[^\s]*)?',
-          caseSensitive: false),
-      IwaraUrlType.post: RegExp(
-          r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/post/([a-zA-Z0-9-]+)(?:/[^\s]*)?',
-          caseSensitive: false),
-      IwaraUrlType.rule: RegExp(
-          r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/rule/([a-zA-Z0-9-]+)(?:/[^\s]*)?',
-          caseSensitive: false),
-    };
+  // 处理翻译
+  Future<void> _handleTranslation() async {
+    if (_isTranslating) return;
 
-    String updatedData = data;
-    for (var entry in patterns.entries) {
-      updatedData = await _formatLinkType(updatedData, entry.key, entry.value);
+    setState(() {
+      _isTranslating = true;
+      _isTranslationComplete = false;
+      _rawTranslatedText = null;
+      _translatedText = null;
+    });
+
+    // 取消之前的流订阅
+    await _translationStreamSubscription?.cancel();
+    _translationStreamSubscription = null;
+
+    // 尝试使用流式翻译
+    final stream = _translationService.translateStream(widget.data);
+    if (stream != null) {
+      _translationStreamSubscription = stream.listen((translatedText) {
+        if (mounted) {
+          setState(() {
+            // 在翻译过程中只更新原始文本，不进行格式化
+            _rawTranslatedText = translatedText;
+            if (!_isTranslationComplete) {
+              _translatedText = _rawTranslatedText;
+            }
+          });
+        }
+      }, onError: (error) {
+        if (mounted) {
+          setState(() {
+            _rawTranslatedText = t.common.translateFailedPleaseTryAgainLater;
+            _translatedText = _rawTranslatedText;
+            _isTranslating = false;
+            _isTranslationComplete = true;
+          });
+        }
+      }, onDone: () {
+        if (mounted) {
+          // 翻译完成后，先标记翻译完成，再进行格式化处理
+          setState(() {
+            _isTranslationComplete = true;
+            // 保持翻译中状态，但显示翻译已完成
+            _translatedText = _rawTranslatedText;
+          });
+          
+          // 在后台进行格式化处理
+          _processTranslatedText();
+        }
+      });
+      return;
     }
 
-    return updatedData;
-  }
-
-  Future<String> _formatLinkType(
-      String data, IwaraUrlType type, RegExp pattern) async {
-    final matches = pattern.allMatches(data).toList();
-    if (matches.isEmpty) return data;
-
-    String updatedData = data;
-    final processedUrls = <String>{}; 
-
-    for (final match in matches) {
-      if (!mounted || !_isProcessing) return updatedData;
-
-      final originalUrl = match.group(0)!;
-      if (processedUrls.contains(originalUrl)) continue;
-      processedUrls.add(originalUrl);
-
-      String idToFetch;
-      String idForFallback;
-
-      if (type == IwaraUrlType.forum && match.groupCount >= 2) {
-        idToFetch = match.group(2)!;
-        idForFallback = match.group(2)!;
-      } else {
-        idToFetch = match.group(1)!;
-        idForFallback = match.group(1)!;
-      }
-
-      final info = await _fetchInfo(type, idToFetch);
-      final emoji = UrlUtils.getIwaraTypeEmoji(type);
-
-      // 将 emoji 放在 Markdown 链接语法外面
-      final linkText = info.isSuccess 
-          ? info.data?.replaceAll(RegExp(r'[\[\]\(\)]'), '') ?? ''
-          : '${type.name.capitalize} $idForFallback'.replaceAll(RegExp(r'[\[\]\(\)]'), '');
-
-      final replacement = '$emoji [$linkText]($originalUrl)';
-      updatedData = updatedData.replaceAll(originalUrl, replacement);
-    }
-
-    if (mounted && _isProcessing) {
+    // 如果流式翻译不可用或被禁用，使用普通翻译
+    final result = await _translationService.translate(widget.data);
+    if (result.isSuccess && mounted) {
       setState(() {
-        _displayData = updatedData;
+        _rawTranslatedText = result.data;
+        _translatedText = _rawTranslatedText;
+        _isTranslationComplete = true;
+      });
+      // 翻译完成后，进行格式化处理
+      _processTranslatedText();
+    } else if (mounted) {
+      setState(() {
+        _rawTranslatedText = t.common.translateFailedPleaseTryAgainLater;
+        _translatedText = _rawTranslatedText;
+        _isTranslating = false;
+        _isTranslationComplete = true;
       });
     }
-    return updatedData;
   }
 
-  Future<ApiResult<String>> _fetchInfo(IwaraUrlType type, String id) async {
-    LightService? lightService;
-    try {
-      lightService = Get.find<LightService>();
-    } catch (e) {
-      LogUtils.e('LightService 未找到', tag: 'CustomMarkdownBody', error: e);
-      return ApiResult.fail(t.errors.serviceNotInitialized);
+  // 处理翻译文本的格式化
+  Future<void> _processTranslatedText() async {
+    if (_rawTranslatedText == null || 
+        _rawTranslatedText == t.common.translateFailedPleaseTryAgainLater) {
+      setState(() {
+        _isTranslating = false;
+      });
+      return;
     }
 
     try {
-      switch (type) {
-        case IwaraUrlType.video:
-          return lightService.fetchLightVideoTitle(id);
-        case IwaraUrlType.forum:
-          return lightService.fetchLightForumTitle(id);
-        case IwaraUrlType.image:
-          return lightService.fetchLightImageTitle(id);
-        case IwaraUrlType.profile:
-          final result = await lightService.fetchLightProfile(id);
-          if (result.isSuccess && result.data != null) {
-            return ApiResult.success(data: result.data!['name'] as String);
-          }
-          return ApiResult.fail(result.message);
-        case IwaraUrlType.playlist:
-          final result = await lightService.fetchPlaylistInfo(id);
-          if (result.isSuccess && result.data != null) {
-            return ApiResult.success(data: result.data.toString());
-          }
-          return ApiResult.fail(result.message);
-        case IwaraUrlType.rule:
-          return lightService.fetchRule(id);
-        default:
-          return ApiResult.fail(t.errors.unknownType);
+      final processed = await _markdownFormatter.processTranslatedText(_rawTranslatedText!);
+      
+      if (mounted) {
+        setState(() {
+          _translatedText = processed;
+          _isTranslating = false;
+        });
       }
     } catch (e) {
-      LogUtils.e('获取信息失败', tag: 'CustomMarkdownBody', error: e);
-      return ApiResult.fail(t.errors.errorWhileFetching);
-    }
-  }
-
-  /// 将文本中的链接格式化为 Markdown 链接
-  String _formatMarkdownLinks(String data) {
-    // 将文本分割成代码块和非代码块部分
-    List<String> segments = _splitByCodeBlocks(data);
-    List<String> processed = [];
-
-    // 处理每个片段
-    for (int i = 0; i < segments.length; i++) {
-      // 偶数索引为非代码块内容，需要处理链接
-      if (i % 2 == 0) {
-        processed.add(_processNonCodeBlockLinks(segments[i]));
-      } else {
-        // 奇数索引为代码块内容，保持原样
-        processed.add(segments[i]);
+      LogUtils.e('格式化翻译文本时发生错误', error: e, tag: 'CustomMarkdownBody');
+      if (mounted) {
+        setState(() {
+          _translatedText = _rawTranslatedText;
+          _isTranslating = false;
+        });
       }
     }
-
-    return processed.join('');
-  }
-
-  /// 将文本按代码块分割
-  List<String> _splitByCodeBlocks(String text) {
-    final codeBlockPattern = RegExp(r'`[^`]+`');
-    List<String> segments = [];
-    int lastEnd = 0;
-
-    for (Match match in codeBlockPattern.allMatches(text)) {
-      // 添加代码块前的文本
-      if (match.start > lastEnd) {
-        segments.add(text.substring(lastEnd, match.start));
-      }
-      // 添加代码块
-      segments.add(text.substring(match.start, match.end));
-      lastEnd = match.end;
-    }
-
-    // 添加最后一段文本
-    if (lastEnd < text.length) {
-      segments.add(text.substring(lastEnd));
-    }
-
-    return segments;
-  }
-
-  /// 处理非代码块中的链接
-  String _processNonCodeBlockLinks(String text) {
-    // 匹配URL，但不包括已经是markdown格式的链接和代码块中的链接
-    final markdownLinkPattern = RegExp(r'\[([^\]]+)\]\(([^)]+)\)');
-    final segments = <String>[];
-    int lastEnd = 0;
-
-    // 先找出所有markdown格式的链接，保持它们不变
-    for (final match in markdownLinkPattern.allMatches(text)) {
-      if (match.start > lastEnd) {
-        // 处理markdown链接之间的文本
-        segments.add(_processPlainLinks(text.substring(lastEnd, match.start)));
-      }
-      // 保持markdown链接不变
-      segments.add(text.substring(match.start, match.end));
-      lastEnd = match.end;
-    }
-
-    // 处理最后一段文本
-    if (lastEnd < text.length) {
-      segments.add(_processPlainLinks(text.substring(lastEnd)));
-    }
-
-    return segments.join('');
-  }
-
-  /// 处理纯文本中的链接
-  String _processPlainLinks(String text) {
-    final linkPattern = RegExp(
-      r'(?<![\[\(])' // 确保前面不是 [ 或 (
-      r'(?<!\]\()' // 确保前面不是 ](
-      r'https?://[^\s\[\]\(\)]+' // 匹配URL，不包含markdown特殊字符
-      r'(?![\]\)])', // 确保后面不是 ] 或 )
-      caseSensitive: false,
-    );
-
-    return text.replaceAllMapped(linkPattern, (match) {
-      final url = match.group(0)!;
-      final emoji = _getUrlTypeEmoji(url);
-      // 将 emoji 放在 Markdown 链接语法外面
-      return '$emoji [$url]($url)';
-    });
-  }
-
-  /// 根据URL获取对应的图标
-  String _getUrlTypeEmoji(String url) {
-    final uri = Uri.tryParse(url.toLowerCase());
-    if (uri == null) return '🔗';
-
-    // 网站特定图标映射
-    final Map<String, String> siteEmojis = {
-      'github.com': '📦',
-      'youtube.com': '📺',
-      'youtu.be': '📺',
-      'twitter.com': '🐦',
-      'x.com': '🐦',
-      'facebook.com': '👥',
-      'instagram.com': '📸',
-      'linkedin.com': '💼',
-      'medium.com': '📝',
-      'reddit.com': '📱',
-      'stackoverflow.com': '💻',
-      'discord.com': '💬',
-      'telegram.org': '📨',
-      'whatsapp.com': '💭',
-      'docs.google.com': '📄',
-      'drive.google.com': '💾',
-      'maps.google.com': '🗺️',
-      'play.google.com': '🎮',
-      'apple.com': '🍎',
-      'microsoft.com': '🪟',
-      'amazon.com': '🛒',
-      'netflix.com': '🎬',
-      'spotify.com': '🎵',
-      'twitch.tv': '🎮',
-      'wikipedia.org': '📚',
-      'notion.so': '📝',
-      'figma.com': '🎨',
-      'gitlab.com': '📦',
-      'bitbucket.org': '📦',
-      'npm.com': '📦',
-      'docker.com': '🐳',
-      'kubernetes.io': '⚓',
-    };
-
-    // 检查是否为已知网站
-    final host = uri.host.replaceAll('www.', '');
-    for (final entry in siteEmojis.entries) {
-      if (host.contains(entry.key)) {
-        return entry.value;
-      }
-    }
-
-    // 根据URL路径判断类型
-    final path = uri.path.toLowerCase();
-    if (path.contains('.pdf')) return '📄';
-    if (path.contains('.zip') || path.contains('.rar')) return '📦';
-    if (path.contains('.mp3') || path.contains('.wav')) return '🎵';
-    if (path.contains('.mp4') || path.contains('.mov')) return '🎥';
-    if (path.contains('.jpg') || path.contains('.png')) return '🖼️';
-    if (path.contains('.doc') || path.contains('.txt')) return '📝';
-    if (path.contains('api') || path.contains('docs')) return '📚';
-
-    // 默认图标
-    return '🔗';
-  }
-
-  /// 将文本中的换行符替换为两个空格和换行符
-  String _replaceNewlines(String data) {
-    return data.replaceAll(RegExp(r'\n'), '  \n');
-  }
-
-  /// 将文本中的 @ 用户名格式化为 Markdown 链接
-  String _formatMentions(String data) {
-    final mentionPattern =
-        RegExp(r'(?<![\/\w])@([\w\u4e00-\u9fa5]+)'); // 确保 @ 前不是 / 或字母数字字符
-    return data.replaceAllMapped(mentionPattern, (match) {
-      final mention = match.group(0);
-      final username = match.group(1);
-      if (username == null) return mention ?? '';
-      return '[$mention](https://www.iwara.tv/profile/$username)';
-    });
   }
 
   void _onTapLink(String url) async {
@@ -488,6 +340,145 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     }
   }
 
+  // 构建翻译按钮
+  Widget _buildTranslationButton(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          onPressed: _isTranslating ? null : () => _handleTranslation(),
+          icon: _isTranslating
+              ? SizedBox(
+                  width: 14,
+                  height: 14,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                )
+              : Icon(
+                  Icons.translate,
+                  size: 16,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+        ),
+        // 不设置间隙，紧靠着放置
+        TranslationLanguageSelector(
+          compact: true,
+          extrimCompact: true,
+          selectedLanguage: _configService.currentTranslationSort,
+          onLanguageSelected: (sort) {
+            _configService.updateTranslationLanguage(sort);
+            if (_translatedText != null) {
+              _handleTranslation();
+            }
+          },
+        ),
+      ],
+    );
+  }
+
+  // 构建翻译结果内容
+  Widget _buildTranslatedContent(BuildContext context, {String? customText}) {
+    final translatedText = customText ?? _translatedText;
+    if (translatedText == null) return const SizedBox.shrink();
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context)
+            .colorScheme
+            .surfaceContainerHighest
+            .withOpacity(0.3),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.translate, size: 14),
+              const SizedBox(width: 4),
+              Text(
+                t.common.translationResult,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const Spacer(),
+              if (_isTranslating && _isTranslationComplete)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 12,
+                      height: 12,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      t.common.loading,
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                ),
+              translationPoweredByWidget(context, fontSize: 10)
+            ],
+          ),
+          const SizedBox(height: 8),
+          if (translatedText == t.common.translateFailedPleaseTryAgainLater)
+            SelectableText(
+              translatedText,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.error,
+                fontSize: 14,
+              ),
+            )
+          else if (!_isTranslationComplete && _isTranslating)
+            // 翻译中显示纯文本，不使用Markdown渲染
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (_isTranslating)
+                  LinearProgressIndicator(
+                    backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                const SizedBox(height: 8),
+                SelectableText(
+                  translatedText,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            )
+          else
+            // 翻译完成后使用Markdown渲染
+            CustomMarkdownBody(
+              data: translatedText,
+              showTranslationButton: false,
+            ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Get.theme.brightness == Brightness.dark;
@@ -508,88 +499,85 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
             if (parsedUri == null || !parsedUri.hasAbsolutePath) {
               throw FormatException(t.errors.invalidUrl);
             }
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: GestureDetector(
-                onTap: () {
-                  // 进入图片详情页
-                  ImageItem item = ImageItem(
-                      url: url,
-                      data: ImageItemData(id: '', url: url, originalUrl: url));
-                  final menuItems = [
+            return GestureDetector(
+              onTap: () {
+                // 进入图片详情页
+                ImageItem item = ImageItem(
+                    url: url,
+                    data: ImageItemData(id: '', url: url, originalUrl: url));
+                final menuItems = [
+                  MenuItem(
+                    title: t.galleryDetail.copyLink,
+                    icon: Icons.copy,
+                    onTap: () => ImageUtils.copyLink(item),
+                  ),
+                  MenuItem(
+                    title: t.galleryDetail.copyImage,
+                    icon: Icons.copy,
+                    onTap: () => ImageUtils.copyImage(item),
+                  ),
+                  if (GetPlatform.isDesktop && !GetPlatform.isWeb)
                     MenuItem(
-                      title: t.galleryDetail.copyLink,
-                      icon: Icons.copy,
-                      onTap: () => ImageUtils.copyLink(item),
-                    ),
-                    MenuItem(
-                      title: t.galleryDetail.copyImage,
-                      icon: Icons.copy,
-                      onTap: () => ImageUtils.copyImage(item),
-                    ),
-                    if (GetPlatform.isDesktop && !GetPlatform.isWeb)
-                      MenuItem(
-                        title: t.galleryDetail.saveAs,
-                        icon: Icons.download,
-                        onTap: () => ImageUtils.downloadImageToAppDirectory(item),
-                      ),
-                    MenuItem(
-                      title: t.galleryDetail.saveToAlbum,
-                      icon: Icons.save,
+                      title: t.galleryDetail.saveAs,
+                      icon: Icons.download,
                       onTap: () => ImageUtils.downloadImageToAppDirectory(item),
                     ),
-                  ];
-                  NaviService.navigateToPhotoViewWrapper(
-                      imageItems: [item],
-                      initialIndex: 0,
-                      menuItemsBuilder: (context, item) => menuItems);
-                },
-                child: MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: CachedNetworkImage(
-                      imageUrl: url,
-                      placeholder: (context, url) => Shimmer.fromColors(
-                        baseColor: Colors.grey[300]!,
-                        highlightColor: Colors.grey[100]!,
-                        child: Container(
-                          width: double.infinity,
-                          height: 200.0,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      ),
-                      errorWidget: (context, url, error) => Container(
+                  MenuItem(
+                    title: t.galleryDetail.saveToAlbum,
+                    icon: Icons.save,
+                    onTap: () => ImageUtils.downloadImageToAppDirectory(item),
+                  ),
+                ];
+                NaviService.navigateToPhotoViewWrapper(
+                    imageItems: [item],
+                    initialIndex: 0,
+                    menuItemsBuilder: (context, item) => menuItems);
+              },
+              child: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: CachedNetworkImage(
+                    imageUrl: url,
+                    placeholder: (context, url) => Shimmer.fromColors(
+                      baseColor: Colors.grey[300]!,
+                      highlightColor: Colors.grey[100]!,
+                      child: Container(
                         width: double.infinity,
                         height: 200.0,
                         decoration: BoxDecoration(
-                          color: Colors.grey[200],
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.broken_image_outlined,
-                              size: 48,
-                              color: Colors.grey[400],
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              '图片加载失败',
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
                       ),
-                      fit: BoxFit.cover,
                     ),
+                    errorWidget: (context, url, error) => Container(
+                      width: double.infinity,
+                      height: 200.0,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.broken_image_outlined,
+                            size: 48,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            t.errors.error,
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    fit: BoxFit.cover,
                   ),
                 ),
               ),
@@ -605,11 +593,12 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     return LayoutBuilder(
       builder: (context, constraints) {
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          padding: widget.padding,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Markdown内容
               SelectionArea(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -620,6 +609,8 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
                   ),
                 ),
               ),
+
+              // 原始文本显示切换 - 移动到这里，紧跟在Markdown内容之后
               if (_hasProcessedContent) ...[
                 const SizedBox(height: 8),
                 Align(
@@ -649,52 +640,131 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
                   ),
                 ),
               ],
+
+              // 处理翻译结果显示
+              // 1. 如果使用外部控制器，监听控制器状态
+              if (widget.translationController != null) ...[
+                Obx(() {
+                  final controller = widget.translationController!;
+                  if (controller.hasTranslation) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 8),
+                        if (controller.isTranslating.value && !controller.isTranslationComplete.value)
+                          // 翻译中显示纯文本，不使用Markdown渲染
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerHighest
+                                  .withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.translate, size: 14),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      t.common.translationResult,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    translationPoweredByWidget(context, fontSize: 10)
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                LinearProgressIndicator(
+                                  backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Theme.of(context).colorScheme.primary,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  controller.translatedText.value ?? '',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        else
+                          _buildTranslatedContent(context,
+                              customText: controller.translatedText.value),
+                      ],
+                    );
+                  }
+                  return const SizedBox.shrink();
+                }),
+              ]
+              // 2. 如果使用内部翻译功能
+              else if (widget.showTranslationButton) ...[
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    _buildTranslationButton(context),
+                  ],
+                ),
+                if (_translatedText != null) ...[
+                  const SizedBox(height: 8),
+                  _buildTranslatedContent(context),
+                ],
+              ],
               const SizedBox(height: 8),
               if (false) // 开关，这样写方便我之后调试
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton.icon(
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton.icon(
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      ),
+                      icon: const Icon(Icons.copy, size: 14),
+                      label: Text(
+                        '复制原文',
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(text: widget.data));
+                        showToastWidget(
+                          MDToastWidget(
+                              message: '复制原文成功', type: MDToastType.success),
+                          position: ToastPosition.top,
+                        );
+                      },
                     ),
-                    icon: const Icon(Icons.copy, size: 14),
-                    label: Text(
-                      '复制原文',
-                      style: const TextStyle(fontSize: 12),
+                    const SizedBox(width: 8),
+                    TextButton.icon(
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      ),
+                      icon: const Icon(Icons.copy, size: 14),
+                      label: Text(
+                        '复制处理后',
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(text: _displayData));
+                        showToastWidget(
+                          MDToastWidget(
+                              message: '复制处理后成功', type: MDToastType.success),
+                          position: ToastPosition.top,
+                        );
+                      },
                     ),
-                    onPressed: () {
-                      Clipboard.setData(ClipboardData(text: widget.data));
-                      showToastWidget(
-                        MDToastWidget(
-                            message: '复制原文成功',
-                            type: MDToastType.success),
-                        position: ToastPosition.top,
-                      );
-                    },
-                  ),
-                  const SizedBox(width: 8),
-                  TextButton.icon(
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    ),
-                    icon: const Icon(Icons.copy, size: 14),
-                    label: Text(
-                      '复制处理后',
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                    onPressed: () {
-                      Clipboard.setData(ClipboardData(text: _displayData));
-                      showToastWidget(
-                        MDToastWidget(
-                            message: '复制处理后成功',
-                            type: MDToastType.success),
-                        position: ToastPosition.top,
-                      );
-                    },
-                  ),
-                ],
-              ),
+                  ],
+                ),
             ],
           ),
         );

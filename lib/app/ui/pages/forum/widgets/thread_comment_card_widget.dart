@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
-import 'package:i_iwara/app/services/translation_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/forum/controllers/thread_detail_repository.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_reply_dialog.dart';
@@ -11,8 +10,8 @@ import 'package:i_iwara/app/ui/pages/forum/widgets/forum_edit_reply_dialog.dart'
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
-import 'package:i_iwara/app/ui/widgets/translation_powered_by_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
+import 'package:i_iwara/app/ui/widgets/markdown_translation_controller.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:flutter/services.dart';
@@ -42,20 +41,31 @@ class ThreadCommentCardWidget extends StatefulWidget {
 
 class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
   final UserService _userService = Get.find<UserService>();
-  final TranslationService _translationService = Get.find();
-  final RxBool isContentExpanded = false.obs;
+  final ConfigService _configService = Get.find();
   
-  bool _isTranslating = false;
-  String? _translatedText;
+  // 使用翻译控制器
+  late final MarkdownTranslationController _translationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _translationController = MarkdownTranslationController();
+  }
+
+  @override
+  void dispose() {
+    _translationController.dispose();
+    super.dispose();
+  }
 
   // 构建翻译按钮
   Widget _buildTranslationButton(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        IconButton(
-          onPressed: _isTranslating ? null : () => _handleTranslation(),
-          icon: _isTranslating
+        Obx(() => IconButton(
+          onPressed: _translationController.isTranslating.value ? null : () => _handleTranslation(),
+          icon: _translationController.isTranslating.value
               ? SizedBox(
                   width: 14,
                   height: 14,
@@ -71,15 +81,15 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
                   size: 16,
                   color: Theme.of(context).colorScheme.primary,
                 ),
-        ),
+        )),
         // 不设置间隙，紧靠着放置
         TranslationLanguageSelector(
           compact: true,
           extrimCompact: true,
-          selectedLanguage: Get.find<ConfigService>().currentTranslationSort,
+          selectedLanguage: _configService.currentTranslationSort,
           onLanguageSelected: (sort) {
-            Get.find<ConfigService>().updateTranslationLanguage(sort);
-            if (_translatedText != null) {
+            _configService.updateTranslationLanguage(sort);
+            if (_translationController.hasTranslation) {
               _handleTranslation();
             }
           },
@@ -88,71 +98,8 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
     );
   }
 
-  // 构建翻译后的内容区域
-  Widget _buildTranslatedContent(BuildContext context) {
-    final t = slang.Translations.of(context);
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context)
-            .colorScheme
-            .surfaceContainerHighest
-            .withOpacity(0.3),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.translate, size: 14),
-              const SizedBox(width: 4),
-              Text(
-                t.common.translationResult,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const Spacer(),
-              translationPoweredByWidget(context, fontSize: 10)
-            ],
-          ),
-          const SizedBox(height: 8),
-          if (_translatedText == t.common.translateFailedPleaseTryAgainLater)
-            Text(
-              _translatedText!,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.error,
-                fontSize: 14,
-              ),
-            )
-          else
-            CustomMarkdownBody(
-              data: _translatedText!,
-            ),
-        ],
-      ),
-    );
-  }
-
   Future<void> _handleTranslation() async {
-    if (_isTranslating) return;
-
-    setState(() => _isTranslating = true);
-
-    final result = await _translationService.translate(widget.comment.body);
-    if (result.isSuccess) {
-      setState(() {
-        _translatedText = result.data;
-        _isTranslating = false;
-      });
-    } else {
-      setState(() {
-        _translatedText = slang.t.common.translateFailedPleaseTryAgainLater;
-        _isTranslating = false;
-      });
-    }
+    await _translationController.translate(widget.comment.body);
   }
 
   Widget _buildCommentTag(String text, IconData icon) {
@@ -385,8 +332,10 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
             // Markdown内容
             CustomMarkdownBody(
               data: widget.comment.body,
+              showTranslationButton: false,
+              translationController: _translationController,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
             ),
-            if (_translatedText != null) _buildTranslatedContent(context),
             // 操作按钮行（仅保留编辑按钮）
             Row(
               mainAxisAlignment: MainAxisAlignment.end,

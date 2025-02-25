@@ -1080,6 +1080,15 @@ class _TranslationsTranslationJa implements TranslationsTranslationEn {
 	@override String get aiTranslationWillBeDisabledDueToPromptChange => '翻訳プロンプトを変更したため、AI翻訳が自動的に無効にされます';
 	@override String get aiTranslationWillBeDisabledDueToParamChange => 'パラメーター設定を変更したため、AI翻訳が自動的に無効にされます';
 	@override String get onlyOpenAIAPISupported => '現在、OpenAI互換のAPI形式（application/jsonリクエストボディ形式）のみサポートされています';
+	@override String get streamingTranslation => 'ストリーミング翻訳';
+	@override String get streamingTranslationSupported => 'ストリーミング翻訳対応';
+	@override String get streamingTranslationNotSupported => 'ストリーミング翻訳非対応';
+	@override String get streamingTranslationDescription => 'ストリーミング翻訳は翻訳プロセス中にリアルタイムで結果を表示し、より良いユーザー体験を提供します';
+	@override String get baseUrlInputHelperText => '末尾が#の場合、入力されたURLを実際のリクエストアドレスとして使用します';
+	@override String currentActualUrl({required Object url}) => '現在の実際のURL: ${url}';
+	@override String get usingFullUrlWithHash => '完全なURL（#で終わる）を使用';
+	@override String get urlEndingWithHashTip => 'URLが#で終わる場合、入力されたURLを実際のリクエストアドレスとして使用します';
+	@override String get streamingTranslationWarning => '注意：この機能はAPIサービスがストリーミング伝送をサポートする必要があり、一部のモデルではサポートされていない場合があります';
 }
 
 // Path: forum.errors
@@ -2194,6 +2203,15 @@ extension on TranslationsJa {
 			case 'translation.aiTranslationWillBeDisabledDueToPromptChange': return '翻訳プロンプトを変更したため、AI翻訳が自動的に無効にされます';
 			case 'translation.aiTranslationWillBeDisabledDueToParamChange': return 'パラメーター設定を変更したため、AI翻訳が自動的に無効にされます';
 			case 'translation.onlyOpenAIAPISupported': return '現在、OpenAI互換のAPI形式（application/jsonリクエストボディ形式）のみサポートされています';
+			case 'translation.streamingTranslation': return 'ストリーミング翻訳';
+			case 'translation.streamingTranslationSupported': return 'ストリーミング翻訳対応';
+			case 'translation.streamingTranslationNotSupported': return 'ストリーミング翻訳非対応';
+			case 'translation.streamingTranslationDescription': return 'ストリーミング翻訳は翻訳プロセス中にリアルタイムで結果を表示し、より良いユーザー体験を提供します';
+			case 'translation.baseUrlInputHelperText': return '末尾が#の場合、入力されたURLを実際のリクエストアドレスとして使用します';
+			case 'translation.currentActualUrl': return ({required Object url}) => '現在の実際のURL: ${url}';
+			case 'translation.usingFullUrlWithHash': return '完全なURL（#で終わる）を使用';
+			case 'translation.urlEndingWithHashTip': return 'URLが#で終わる場合、入力されたURLを実際のリクエストアドレスとして使用します';
+			case 'translation.streamingTranslationWarning': return '注意：この機能はAPIサービスがストリーミング伝送をサポートする必要があり、一部のモデルではサポートされていない場合があります';
 			default: return null;
 		}
 	}

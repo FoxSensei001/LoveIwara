@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
-import 'package:i_iwara/app/services/translation_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/comment_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/controllers/comment_controller.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_remove_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
-import 'package:i_iwara/app/ui/widgets/translation_powered_by_widget.dart';
+import 'package:i_iwara/app/ui/widgets/markdown_translation_controller.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:shimmer/shimmer.dart';
+import 'dart:async';
 
 import '../../../../../common/constants.dart';
 import '../../../../models/comment.model.dart';
@@ -43,8 +42,6 @@ class CommentItem extends StatefulWidget {
 class _CommentItemState extends State<CommentItem> {
   bool _isRepliesExpanded = false;
   bool _isTranslationMenuVisible = false;
-  bool _isTranslating = false;
-  String? _translatedText;
   final UserService _userService = Get.find();
   final List<Comment> _replies = [];
   bool _isLoadingReplies = false;
@@ -53,9 +50,11 @@ class _CommentItemState extends State<CommentItem> {
   final int _pageSize = 20;
   String? _errorMessage;
 
-  final TranslationService _translationService = Get.find();
   final ConfigService _configService = Get.find();
   final CommentService _commentService = Get.find();
+  
+  // 翻译控制器
+  late final MarkdownTranslationController _translationController;
 
   OverlayEntry? _overlayEntry;
   final LayerLink _layerLink = LayerLink();
@@ -63,6 +62,14 @@ class _CommentItemState extends State<CommentItem> {
   @override
   void initState() {
     super.initState();
+    _translationController = MarkdownTranslationController();
+  }
+  
+  @override
+  void dispose() {
+    _overlayEntry?.remove();
+    _translationController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchReplies({bool refresh = false}) async {
@@ -285,7 +292,7 @@ class _CommentItemState extends State<CommentItem> {
                   onTap: () {
                     _configService.updateTranslationLanguage(sort);
                     _toggleTranslationMenu();
-                    if (_translatedText != null) {
+                    if (_translationController.hasTranslation) {
                       _handleTranslation();
                     }
                   },
@@ -300,20 +307,14 @@ class _CommentItemState extends State<CommentItem> {
     overlay.insert(_overlayEntry!);
   }
 
-  @override
-  void dispose() {
-    _overlayEntry?.remove();
-    super.dispose();
-  }
-
   Widget _buildTranslationButton(BuildContext context) {
     final configService = Get.find<ConfigService>();
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        IconButton(
-          onPressed: _isTranslating ? null : () => _handleTranslation(),
-          icon: _isTranslating
+        Obx(() => IconButton(
+          onPressed: _translationController.isTranslating.value ? null : () => _handleTranslation(),
+          icon: _translationController.isTranslating.value
               ? SizedBox(
                   width: 24,
                   height: 24,
@@ -329,14 +330,14 @@ class _CommentItemState extends State<CommentItem> {
                   size: 24,
                   color: Theme.of(context).colorScheme.primary,
                 ),
-        ),
+        )),
         Obx(() => TranslationLanguageSelector(
               compact: true,
               extrimCompact: true,
               selectedLanguage: configService.currentTranslationSort,
               onLanguageSelected: (sort) {
                 configService.updateTranslationLanguage(sort);
-                if (_translatedText != null) {
+                if (_translationController.hasTranslation) {
                   _handleTranslation();
                 }
               },
@@ -346,71 +347,7 @@ class _CommentItemState extends State<CommentItem> {
   }
 
   Future<void> _handleTranslation() async {
-    if (_isTranslating) return;
-
-    setState(() => _isTranslating = true);
-
-    ApiResult<String> result =
-        await _translationService.translate(widget.comment.body);
-    if (result.isSuccess) {
-      setState(() {
-        _translatedText = result.data;
-        _isTranslating = false;
-      });
-    } else {
-      setState(() {
-        _translatedText = slang.t.common.translateFailedPleaseTryAgainLater;
-        _isTranslating = false;
-      });
-    }
-  }
-
-  // 构建翻译后的内容区域
-  Widget _buildTranslatedContent(BuildContext context) {
-    final t = slang.Translations.of(context);
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context)
-            .colorScheme
-            .surfaceContainerHighest
-            .withOpacity(0.3),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.translate, size: 14),
-              const SizedBox(width: 4),
-              Text(
-                t.common.translationResult,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const Spacer(),
-              translationPoweredByWidget(context, fontSize: 10)
-            ],
-          ),
-          const SizedBox(height: 8),
-          if (_translatedText == t.common.translateFailedPleaseTryAgainLater)
-            Text(
-              _translatedText!,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.error,
-                fontSize: 14,
-              ),
-            )
-          else
-            CustomMarkdownBody(
-              data: _translatedText!,
-            ),
-        ],
-      ),
-    );
+    await _translationController.translate(widget.comment.body);
   }
 
   // 添加这个方法来构建标签
@@ -806,13 +743,13 @@ class _CommentItemState extends State<CommentItem> {
                     clipBehavior: Clip.antiAlias,
                     child: InkWell(
                       onTap: widget.comment.parent == null ? _showReplyDialog : null,
-                      child: CustomMarkdownBody(data: comment.body),
+                      child: CustomMarkdownBody(
+                        data: comment.body,
+                        showTranslationButton: false, // 不显示内部翻译按钮
+                        translationController: _translationController, // 使用外部控制器
+                      ),
                     ),
                   ),
-                  if (_translatedText != null) ...[
-                    const SizedBox(height: 8),
-                    _buildTranslatedContent(context),
-                  ],
                   const SizedBox(height: 8),
                   // 回复、翻译和操作按钮行
                   Row(
@@ -855,5 +792,4 @@ class _CommentItemState extends State<CommentItem> {
       size: 40
     );
   }
-
 }

@@ -1085,6 +1085,15 @@ class _TranslationsTranslationZhCn implements TranslationsTranslationEn {
 	@override String get aiTranslationWillBeDisabledDueToPromptChange => '由于修改了翻译提示词,AI翻译将被自动关闭';
 	@override String get aiTranslationWillBeDisabledDueToParamChange => '由于修改了参数配置,AI翻译将被自动关闭';
 	@override String get onlyOpenAIAPISupported => '当前仅支持OpenAI兼容的API格式（application/json请求体格式）';
+	@override String get streamingTranslation => '流式翻译';
+	@override String get streamingTranslationSupported => '支持流式翻译';
+	@override String get streamingTranslationNotSupported => '不支持流式翻译';
+	@override String get streamingTranslationDescription => '流式翻译可以在翻译过程中实时显示结果，提供更好的用户体验';
+	@override String get usingFullUrlWithHash => '使用完整URL（以#结尾）';
+	@override String get baseUrlInputHelperText => '当以#结尾时，将以输入的URL作为实际请求地址';
+	@override String currentActualUrl({required Object url}) => '当前实际URL: ${url}';
+	@override String get urlEndingWithHashTip => 'URL以#结尾时，将以输入的URL作为实际请求地址';
+	@override String get streamingTranslationWarning => '注意：此功能需要API服务支持流式传输，部分模型可能不支持';
 }
 
 // Path: forum.errors
@@ -2204,6 +2213,15 @@ extension on TranslationsZhCn {
 			case 'translation.aiTranslationWillBeDisabledDueToPromptChange': return '由于修改了翻译提示词,AI翻译将被自动关闭';
 			case 'translation.aiTranslationWillBeDisabledDueToParamChange': return '由于修改了参数配置,AI翻译将被自动关闭';
 			case 'translation.onlyOpenAIAPISupported': return '当前仅支持OpenAI兼容的API格式（application/json请求体格式）';
+			case 'translation.streamingTranslation': return '流式翻译';
+			case 'translation.streamingTranslationSupported': return '支持流式翻译';
+			case 'translation.streamingTranslationNotSupported': return '不支持流式翻译';
+			case 'translation.streamingTranslationDescription': return '流式翻译可以在翻译过程中实时显示结果，提供更好的用户体验';
+			case 'translation.usingFullUrlWithHash': return '使用完整URL（以#结尾）';
+			case 'translation.baseUrlInputHelperText': return '当以#结尾时，将以输入的URL作为实际请求地址';
+			case 'translation.currentActualUrl': return ({required Object url}) => '当前实际URL: ${url}';
+			case 'translation.urlEndingWithHashTip': return 'URL以#结尾时，将以输入的URL作为实际请求地址';
+			case 'translation.streamingTranslationWarning': return '注意：此功能需要API服务支持流式传输，部分模型可能不支持';
 			default: return null;
 		}
 	}

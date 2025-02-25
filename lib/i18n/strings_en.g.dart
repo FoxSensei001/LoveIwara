@@ -1084,6 +1084,15 @@ class TranslationsTranslationEn {
 	String get aiTranslationWillBeDisabledDueToPromptChange => 'Due to the change of translation prompt, AI translation will be disabled';
 	String get aiTranslationWillBeDisabledDueToParamChange => 'Due to the change of parameter configuration, AI translation will be disabled';
 	String get onlyOpenAIAPISupported => 'Currently only supports OpenAI-compatible API format (application/json request body)';
+	String get streamingTranslation => 'Streaming Translation';
+	String get streamingTranslationSupported => 'Streaming Translation Supported';
+	String get streamingTranslationNotSupported => 'Streaming Translation Not Supported';
+	String get streamingTranslationDescription => 'Streaming translation can display results in real-time during the translation process, providing a better user experience';
+	String get usingFullUrlWithHash => 'Using full URL (ending with #)';
+	String get baseUrlInputHelperText => 'When ending with #, it will be used as the actual request address';
+	String currentActualUrl({required Object url}) => 'Current actual URL: ${url}';
+	String get urlEndingWithHashTip => 'URL ending with # will be used directly without adding any suffix';
+	String get streamingTranslationWarning => 'Note: This feature requires API service support for streaming transmission, some models may not support it';
 }
 
 // Path: forum.errors
@@ -2198,6 +2207,15 @@ extension on Translations {
 			case 'translation.aiTranslationWillBeDisabledDueToPromptChange': return 'Due to the change of translation prompt, AI translation will be disabled';
 			case 'translation.aiTranslationWillBeDisabledDueToParamChange': return 'Due to the change of parameter configuration, AI translation will be disabled';
 			case 'translation.onlyOpenAIAPISupported': return 'Currently only supports OpenAI-compatible API format (application/json request body)';
+			case 'translation.streamingTranslation': return 'Streaming Translation';
+			case 'translation.streamingTranslationSupported': return 'Streaming Translation Supported';
+			case 'translation.streamingTranslationNotSupported': return 'Streaming Translation Not Supported';
+			case 'translation.streamingTranslationDescription': return 'Streaming translation can display results in real-time during the translation process, providing a better user experience';
+			case 'translation.usingFullUrlWithHash': return 'Using full URL (ending with #)';
+			case 'translation.baseUrlInputHelperText': return 'When ending with #, it will be used as the actual request address';
+			case 'translation.currentActualUrl': return ({required Object url}) => 'Current actual URL: ${url}';
+			case 'translation.urlEndingWithHashTip': return 'URL ending with # will be used directly without adding any suffix';
+			case 'translation.streamingTranslationWarning': return 'Note: This feature requires API service support for streaming transmission, some models may not support it';
 			default: return null;
 		}
 	}

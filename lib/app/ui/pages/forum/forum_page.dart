@@ -739,13 +739,9 @@ class _ForumPageState extends State<ForumPage> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(
-                    width: 32,
-                    child: Center(
-                      child: AvatarWidget(
-                        user: subCategory.lastThread!.lastPost?.user,
-                      ),
-                    ),
+                  AvatarWidget(
+                    user: subCategory.lastThread!.lastPost?.user,
+                    size: 32,
                   ),
                   Expanded(
                     child: Column(

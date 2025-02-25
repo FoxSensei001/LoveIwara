@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/services/config_service.dart';
-import 'package:i_iwara/app/services/translation_service.dart';
 import 'package:i_iwara/app/ui/widgets/translation_powered_by_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -11,6 +9,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/widgets/ai_translation_toggle_button.dart';
 import 'package:i_iwara/app/ui/widgets/translation_language_selector.dart';
+import 'package:i_iwara/app/ui/widgets/markdown_translation_controller.dart';
 
 class TranslationDialog extends StatefulWidget {
   final String text;
@@ -28,48 +27,40 @@ class TranslationDialog extends StatefulWidget {
 
 class _TranslationDialogState extends State<TranslationDialog> {
   final ConfigService _configService = Get.find();
-  final TranslationService _translationService = Get.find();
-
-  bool _isTranslating = false;
-  String? _translatedText;
+  late final MarkdownTranslationController _translationController;
   String? _error;
 
   Future<void> _handleTranslation() async {
-    if (_isTranslating) return;
-
-    if (!mounted) return;
-    setState(() {
-      _isTranslating = true;
-      _error = null;
-    });
-
     final targetLanguage = widget.defaultLanguageKeyMode 
         ? null 
         : _configService.currentTargetLanguage;
-
-    ApiResult<String> result = await _translationService.translate(
-      widget.text,
-      targetLanguage: targetLanguage,
-    );
-
-    if (!mounted) return;
-    setState(() {
-      _isTranslating = false;
-      if (result.isSuccess) {
-        _translatedText = result.data;
-      } else {
-        _error = result.message;
+        
+    try {
+      await _translationController.translate(widget.text, targetLanguage: targetLanguage);
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+        });
       }
-    });
+    }
   }
 
   @override
   void initState() {
     super.initState();
+    _translationController = MarkdownTranslationController();
+    
     // 弹窗出现后自动开始翻译
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _handleTranslation();
     });
+  }
+  
+  @override
+  void dispose() {
+    _translationController.dispose();
+    super.dispose();
   }
 
   Widget _buildLanguageSelector() {
@@ -96,7 +87,7 @@ class _TranslationDialogState extends State<TranslationDialog> {
           selectedLanguage: selectedSort,
           onLanguageSelected: (sort) {
             updateMethod(sort);
-            setState(() => _translatedText = null);
+            _translationController.clearTranslation();
             _handleTranslation();
           },
         ),
@@ -156,21 +147,27 @@ class _TranslationDialogState extends State<TranslationDialog> {
                     children: [
                       if (title == t.common.translationResult)
                         translationPoweredByWidget(context, fontSize: 12),
-                      if (title == t.common.translationResult && _translatedText != null)
-                        Tooltip(
-                          message: t.download.copy,
-                          child: IconButton(
-                            icon: const Icon(Icons.content_copy, size: 18),
-                            onPressed: () async {
-                              await Clipboard.setData(ClipboardData(text: _translatedText!));
-                              VibrateUtils.vibrate();
-                              Get.showSnackbar(GetSnackBar(
-                                message: t.download.copySuccess,
-                                duration: const Duration(seconds: 2),
-                              ));
-                            },
-                          ),
-                        ),
+                      if (title == t.common.translationResult)
+                        Obx(() {
+                          final translatedText = _translationController.translatedText.value;
+                          if (translatedText != null) {
+                            return Tooltip(
+                              message: t.download.copy,
+                              child: IconButton(
+                                icon: const Icon(Icons.content_copy, size: 18),
+                                onPressed: () async {
+                                  await Clipboard.setData(ClipboardData(text: translatedText));
+                                  VibrateUtils.vibrate();
+                                  Get.showSnackbar(GetSnackBar(
+                                    message: t.download.copySuccess,
+                                    duration: const Duration(seconds: 2),
+                                  ));
+                                },
+                              ),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        }),
                     ],
                   ),
                 ),
@@ -271,14 +268,21 @@ class _TranslationDialogState extends State<TranslationDialog> {
                       _buildTextContainer(
                         context,
                         title: t.common.translationResult,
-                        content: _isTranslating
-                            ? _buildShimmerLoading(theme)
-                            : _error != null
-                                ? Text(
-                                    _error!,
-                                    style: TextStyle(color: theme.colorScheme.error),
-                                  )
-                                : SelectableText(_translatedText ?? ''),
+                        content: _error != null
+                            ? Text(
+                                _error!,
+                                style: TextStyle(color: theme.colorScheme.error),
+                              )
+                            : Obx(() {
+                                final isTranslating = _translationController.isTranslating.value;
+                                final translatedText = _translationController.translatedText.value;
+                                
+                                if (isTranslating && translatedText == null) {
+                                  return _buildShimmerLoading(theme);
+                                } else {
+                                  return SelectableText(translatedText ?? '');
+                                }
+                              }),
                       ),
                     ],
                   ),

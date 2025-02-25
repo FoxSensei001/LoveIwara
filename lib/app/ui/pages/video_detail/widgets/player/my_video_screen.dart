@@ -458,7 +458,9 @@ class _MyVideoScreenState extends State<MyVideoScreen>
               },
               onHorizontalDragUpdate: (details) {
                 if (_horizontalDragStartX == null ||
-                    _horizontalDragStartPosition == null) return;
+                    _horizontalDragStartPosition == null) {
+                  return;
+                }
 
                 double dragDistance =
                     details.localPosition.dx - _horizontalDragStartX!;
@@ -515,7 +517,9 @@ class _MyVideoScreenState extends State<MyVideoScreen>
               },
               onHorizontalDragUpdate: (details) {
                 if (_horizontalDragStartX == null ||
-                    _horizontalDragStartPosition == null) return;
+                    _horizontalDragStartPosition == null) {
+                  return;
+                }
 
                 double dragDistance =
                     details.localPosition.dx - _horizontalDragStartX!;
@@ -572,7 +576,9 @@ class _MyVideoScreenState extends State<MyVideoScreen>
             },
             onHorizontalDragUpdate: (details) {
               if (_horizontalDragStartX == null ||
-                  _horizontalDragStartPosition == null) return;
+                  _horizontalDragStartPosition == null) {
+                return;
+              }
 
               double dragDistance =
                   details.localPosition.dx - _horizontalDragStartX!;
