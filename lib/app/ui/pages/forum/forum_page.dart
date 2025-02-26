@@ -19,6 +19,7 @@ import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/app/ui/pages/forum/controllers/recent_thread_repository.dart';
 import 'package:i_iwara/app/ui/pages/forum/forum_skeleton_page.dart';
 import 'package:i_iwara/app/ui/pages/home_page.dart';
+import 'package:shimmer/shimmer.dart';
 
 class ForumPage extends StatefulWidget with RefreshableMixin {
   static final globalKey = GlobalKey<_ForumPageState>();
@@ -114,7 +115,29 @@ class _ForumPageState extends State<ForumPage> {
           children: [
             IconButton(
               icon: Obx(() {
-                if (userService.isLogin) {
+                if (userService.isLogining.value) {
+                  return Material(
+                    color: Colors.transparent,
+                    child: SizedBox(
+                      width: 40,
+                      height: 40,
+                      child: Center(
+                        child: Shimmer.fromColors(
+                          baseColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                          highlightColor: Theme.of(context).colorScheme.surface,
+                          child: Container(
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                } else if (userService.isLogin) {
                   return Stack(
                     clipBehavior: Clip.none,
                     children: [

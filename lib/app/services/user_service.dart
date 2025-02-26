@@ -27,6 +27,7 @@ class UserService extends GetxService {
   Timer? _notificationTimer;
 
   bool get isLogin => currentUser.value != null;
+  RxBool isLogining = RxBool(false);
 
   String get userAvatar =>
       currentUser.value?.avatar?.avatarUrl ?? CommonConstants.defaultAvatarUrl;
@@ -97,6 +98,7 @@ class UserService extends GetxService {
   // 抓取用户资料
   Future<void> fetchUserProfile() async {
     try {
+      isLogining.value = true;
       LogUtils.d('$_tag 开始抓取用户资料');
       final response = await _apiService.get<Map<String, dynamic>>('/user');
       LogUtils.d('$_tag 获取到用户资料响应');
@@ -110,6 +112,8 @@ class UserService extends GetxService {
         throw AuthServiceException(t.errors.failedToOperate);
       }
       rethrow;
+    } finally {
+      isLogining.value = false;
     }
   }
 

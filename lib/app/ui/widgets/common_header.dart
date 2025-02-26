@@ -5,6 +5,7 @@ import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:shimmer/shimmer.dart';
 
 
 class CommonHeader extends StatelessWidget {
@@ -24,7 +25,35 @@ class CommonHeader extends StatelessWidget {
     return Row(
       children: [
         Obx(() {
-          if (userService.isLogin) {
+          if (userService.isLogining.value) {
+            return Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(24),
+                onTap: () {
+                  AppService.switchGlobalDrawer();
+                },
+                child: SizedBox(
+                  width: 48,
+                  height: 48,
+                  child: Center(
+                    child: Shimmer.fromColors(
+                      baseColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                      highlightColor: Theme.of(context).colorScheme.surface,
+                      child: Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          } else if (userService.isLogin) {
             return Stack(
               children: [
                AvatarWidget(
