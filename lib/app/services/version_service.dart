@@ -23,7 +23,6 @@ class VersionService extends GetxService {
   final errorMessage = ''.obs;
   final updateInfo = Rxn<UpdateInfo>();
 
-  final isForceUpdate = false.obs;
   final needMinVersionUpdate = false.obs;
 
   Future<VersionService> init() async {
@@ -66,10 +65,6 @@ class VersionService extends GetxService {
 
           if (hasUpdate.value) {
             if (updateInfo.value != null) {
-              isForceUpdate.value = updateInfo.value!.forceUpdate;
-              if (showDialog) {
-                CommonConstants.isForceUpdate = isForceUpdate.value;
-              }
               needMinVersionUpdate.value = _compareVersions(
                 currentVersion.value,
                 updateInfo.value!.minVersion,
@@ -131,79 +126,68 @@ class VersionService extends GetxService {
     final changes = update.getLocalizedChanges(currentLocale);
 
     Get.dialog(
-      PopScope(
-        canPop: !isForceUpdate.value,
-        onPopInvokedWithResult: (didPop, result) {
-          if (didPop) {
-            AppService.tryPop();
-          }
-        },
-        child: AlertDialog(
-          title: Text('${t.settings.newVersionAvailable}: ${latestVersion.value}'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('${t.settings.latestVersion}: ${latestVersion.value}'),
-                const SizedBox(height: 8),
-                Text('${t.settings.releaseDate}: ${update.date}'),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Text(t.settings.updateContent),
-                    const Spacer(),
-                    IconButton(
-                      icon: const Icon(Icons.translate),
-                      onPressed: () {
-                        Get.dialog(
-                          TranslationDialog(
-                            text: changes.join('\n\n'),
-                          ),
-                          barrierDismissible: true,
-                        );
-                      },
-                    ),
-                  ],
-                ),
-                ...changes.map((change) => Padding(
-                  padding: const EdgeInsets.only(top: 4),
-                  child: Text(change),
-                )),
-                if (needMinVersionUpdate.value)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 16),
-                    child: Text(
-                      t.settings.minVersionUpdateRequired,
-                      style: TextStyle(color: Get.theme.colorScheme.error),
-                    ),
+      AlertDialog(
+        title:
+            Text('${t.settings.newVersionAvailable}: ${latestVersion.value}'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('${t.settings.latestVersion}: ${latestVersion.value}'),
+              const SizedBox(height: 8),
+              Text('${t.settings.releaseDate}: ${update.date}'),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Text(t.settings.updateContent),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.translate),
+                    onPressed: () {
+                      Get.dialog(
+                        TranslationDialog(
+                          text: changes.join('\n\n'),
+                        ),
+                        barrierDismissible: true,
+                      );
+                    },
                   ),
-              ],
-            ),
-          ),
-          actions: [
-            if (!isForceUpdate.value) ...[
-              TextButton(
-                onPressed: () {
-                  _configService[ConfigKey.IGNORED_VERSION] =
-                      latestVersion.value;
-                  AppService.tryPop();
-                },
-                child: Text(t.settings.ignoreThisVersion),
+                ],
               ),
-              TextButton(
-                onPressed: () => AppService.tryPop(),
-                child: Text(t.common.cancel),
-              ),
+              ...changes.map((change) => Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(change),
+                  )),
+              if (needMinVersionUpdate.value)
+                Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: Text(
+                    t.settings.minVersionUpdateRequired,
+                    style: TextStyle(color: Get.theme.colorScheme.error),
+                  ),
+                ),
             ],
-            ElevatedButton(
-              onPressed: () => _openReleaseUrl(),
-              child: Text(t.settings.update),
-            ),
-          ],
+          ),
         ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              _configService[ConfigKey.IGNORED_VERSION] = latestVersion.value;
+              AppService.tryPop();
+            },
+            child: Text(t.settings.ignoreThisVersion),
+          ),
+          TextButton(
+            onPressed: () => AppService.tryPop(),
+            child: Text(t.common.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () => _openReleaseUrl(),
+            child: Text(t.settings.update),
+          ),
+        ],
       ),
-      barrierDismissible: !isForceUpdate.value,
     );
   }
 
@@ -225,8 +209,7 @@ class VersionService extends GetxService {
   }
 
   Future<void> _openReleaseUrl() async {
-    final url =
-        Uri.parse(_configService[ConfigKey.REMOTE_REPO_RELEASE_URL]);
+    final url = Uri.parse(_configService[ConfigKey.REMOTE_REPO_RELEASE_URL]);
     if (await canLaunchUrl(url)) {
       await launchUrl(url);
     } else {
@@ -244,7 +227,9 @@ class VersionService extends GetxService {
       if (response.statusCode == 200) {
         final yamlData = loadYaml(response.data);
         final yamlUpdates = yamlData['updates'] as YamlList;
-        updatesList = yamlUpdates.map<UpdateInfo>((update) => UpdateInfo.fromYaml(update)).toList();
+        updatesList = yamlUpdates
+            .map<UpdateInfo>((update) => UpdateInfo.fromYaml(update))
+            .toList();
       }
     } catch (e) {
       LogUtils.e('获取全部更新日志失败', error: e, tag: 'VersionService');

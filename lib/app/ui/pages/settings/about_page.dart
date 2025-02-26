@@ -232,16 +232,6 @@ class _AboutPageState extends State<AboutPage> {
                     ),
                   ),
                 ],
-                if (updateInfo?.forceUpdate == true) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    t.settings.forceUpdateTip,
-                    style: TextStyle(
-                      color: theme.colorScheme.error,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
                 const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,

@@ -97,10 +97,6 @@ class AppService extends GetxService {
 
   static void tryPop({bool closeAll = false}) {
     // LogUtils.d('tryPop', 'AppService');
-    if (CommonConstants.isForceUpdate) {
-      showToastWidget(MDToastWidget(message: slang.t.errors.forceUpdateNotPermittedToGoBack, type: MDToastType.error), position: ToastPosition.bottom);
-      return;
-    }
     if (AppService.globalDrawerKey.currentState!.isDrawerOpen) {
       AppService.globalDrawerKey.currentState!.openEndDrawer();
       // LogUtils.d('关闭Drawer', 'AppService');
