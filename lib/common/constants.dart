@@ -6,7 +6,7 @@ class CommonConstants {
   CommonConstants._internal();
 
   // 应用版本
-  static const String VERSION = '0.3.9';
+  static const String VERSION = '0.3.10';
 
   // 应用名称
   static String? applicationName = 'i_iwara';
@@ -29,6 +29,9 @@ class CommonConstants {
 
   // 网站基础URL
   static const String iwaraBaseUrl = 'https://www.iwara.tv';
+
+  // 网站domain
+  static const String iwaraDomain = 'iwara.tv';
 
   // api基础URL
   static const String iwaraApiBaseUrl = 'https://api.iwara.tv';

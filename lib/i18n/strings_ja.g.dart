@@ -454,7 +454,7 @@ class _TranslationsSearchJa implements TranslationsSearchEn {
 	@override String unsupportedSearchType({required Object searchType}) => 'サポートされていない検索タイプ: ${searchType}';
 	@override String get googleSearch => 'グーグル検索';
 	@override String googleSearchHint({required Object webName}) => '${webName} の検索機能は使いにくいですか？ グーグル検索を試してみてください！';
-	@override String googleSearchDescription({required Object baseUrl, required Object webName}) => 'SEO技術のおかげで、グーグル検索を使用し、キーワードの後に site:${baseUrl} を追加して、${webName} ウェブサイトのコンテンツを正確に検索できます。 その後、見つかったリンクをコピーしてアプリに戻り、サイドバーの「リンクジャンプ」からアプリ内で目的のコンテンツを閲覧できます。';
+	@override String get googleSearchDescription => 'Google Search の :site 検索演算子を使用して、サイトのコンテンツを検索します。これは、動画、ギャラリー、プレイリスト、ユーザーを検索する際に非常に便利です。';
 	@override String get googleSearchKeywordsHint => '検索するキーワードを入力してください';
 	@override String get openLinkJump => 'リンクジャンプを開く';
 	@override String get googleSearchButton => 'グーグル検索';
@@ -612,6 +612,7 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get lockButtonPositionBothSides => '両側に表示';
 	@override String get lockButtonPositionLeftSide => '左側のみ表示';
 	@override String get lockButtonPositionRightSide => '右側のみ表示';
+	@override String get jumpLink => 'リンクをジャンプ';
 }
 
 // Path: signIn
@@ -1639,7 +1640,7 @@ extension on TranslationsJa {
 			case 'search.unsupportedSearchType': return ({required Object searchType}) => 'サポートされていない検索タイプ: ${searchType}';
 			case 'search.googleSearch': return 'グーグル検索';
 			case 'search.googleSearchHint': return ({required Object webName}) => '${webName} の検索機能は使いにくいですか？ グーグル検索を試してみてください！';
-			case 'search.googleSearchDescription': return ({required Object baseUrl, required Object webName}) => 'SEO技術のおかげで、グーグル検索を使用し、キーワードの後に site:${baseUrl} を追加して、${webName} ウェブサイトのコンテンツを正確に検索できます。 その後、見つかったリンクをコピーしてアプリに戻り、サイドバーの「リンクジャンプ」からアプリ内で目的のコンテンツを閲覧できます。';
+			case 'search.googleSearchDescription': return 'Google Search の :site 検索演算子を使用して、サイトのコンテンツを検索します。これは、動画、ギャラリー、プレイリスト、ユーザーを検索する際に非常に便利です。';
 			case 'search.googleSearchKeywordsHint': return '検索するキーワードを入力してください';
 			case 'search.openLinkJump': return 'リンクジャンプを開く';
 			case 'search.googleSearchButton': return 'グーグル検索';
@@ -1779,6 +1780,7 @@ extension on TranslationsJa {
 			case 'settings.lockButtonPositionBothSides': return '両側に表示';
 			case 'settings.lockButtonPositionLeftSide': return '左側のみ表示';
 			case 'settings.lockButtonPositionRightSide': return '右側のみ表示';
+			case 'settings.jumpLink': return 'リンクをジャンプ';
 			case 'signIn.pleaseLoginFirst': return 'サインインする前にログインしてください';
 			case 'signIn.alreadySignedInToday': return '今日は既にサインインしています！';
 			case 'signIn.youDidNotStickToTheSignIn': return 'サインインを続けることができませんでした。';

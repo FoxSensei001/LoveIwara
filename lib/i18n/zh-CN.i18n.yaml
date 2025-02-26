@@ -337,7 +337,7 @@ search:
   unsupportedSearchType: '不支持的搜索类型: ${searchType}'
   googleSearch: "谷歌搜索"
   googleSearchHint: "${webName} 的搜索功能不好用？尝试谷歌搜索！"
-  googleSearchDescription: "得益于SEO技术，您可以使用谷歌搜索，在关键词后添加 site:${baseUrl} 来精确搜索 ${webName} 网站内容。之后你可以选择将找到的链接复制，然后回到应用，通过侧边栏的「跳转链接」在应用内浏览您想要的内容。"
+  googleSearchDescription: "借助谷歌搜索的 :site 搜索运算符，你可以通过外部引擎来对站内的内容进行检索，此功能在搜索 视频、图库、播放列表、用户 时非常有用。"
   googleSearchKeywordsHint: "输入要搜索的关键词"
   openLinkJump: "打开链接跳转"
   googleSearchButton: "谷歌搜索"
@@ -480,6 +480,7 @@ settings:
   lockButtonPositionBothSides: 两侧显示
   lockButtonPositionLeftSide: 仅左侧显示
   lockButtonPositionRightSide: 仅右侧显示
+  jumpLink: 跳转链接
 signIn:
   pleaseLoginFirst: 请先登录
   alreadySignedInToday: 您今天已经签到过了！

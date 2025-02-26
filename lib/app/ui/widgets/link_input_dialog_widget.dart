@@ -336,7 +336,7 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
           ElevatedButton(
             child: Text(slang.t.common.confirm),
             onPressed: () {
-              AppService.tryPop();
+              AppService.tryPop(closeAll: true);
               _openInBrowser(link);
             },
           ),

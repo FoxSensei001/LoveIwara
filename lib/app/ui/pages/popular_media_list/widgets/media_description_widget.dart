@@ -199,17 +199,34 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
           ),
           const SizedBox(height: 4),
           if (expanded)
-            TextButton.icon(
-              onPressed: () {
-                widget.isDescriptionExpanded.value = false;
-              },
-              icon: Icon(
-                Icons.keyboard_arrow_up,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              label: Text(t.common.collapse),
-              style: TextButton.styleFrom(
-                visualDensity: VisualDensity.compact,
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  widget.isDescriptionExpanded.value = false;
+                },
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          t.common.collapse,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Icon(
+                          Icons.keyboard_arrow_up,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
         ],

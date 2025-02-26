@@ -331,7 +331,7 @@ search:
   unsupportedSearchType: 'サポートされていない検索タイプ: ${searchType}'
   googleSearch: "グーグル検索"
   googleSearchHint: "${webName} の検索機能は使いにくいですか？ グーグル検索を試してみてください！"
-  googleSearchDescription: "SEO技術のおかげで、グーグル検索を使用し、キーワードの後に site:${baseUrl} を追加して、${webName} ウェブサイトのコンテンツを正確に検索できます。 その後、見つかったリンクをコピーしてアプリに戻り、サイドバーの「リンクジャンプ」からアプリ内で目的のコンテンツを閲覧できます。"
+  googleSearchDescription: "Google Search の :site 検索演算子を使用して、サイトのコンテンツを検索します。これは、動画、ギャラリー、プレイリスト、ユーザーを検索する際に非常に便利です。"
   googleSearchKeywordsHint: "検索するキーワードを入力してください"
   openLinkJump: "リンクジャンプを開く"
   googleSearchButton: "グーグル検索"
@@ -474,6 +474,7 @@ settings:
   lockButtonPositionBothSides: 両側に表示
   lockButtonPositionLeftSide: 左側のみ表示
   lockButtonPositionRightSide: 右側のみ表示
+  jumpLink: リンクをジャンプ
 signIn:
   pleaseLoginFirst: サインインする前にログインしてください
   alreadySignedInToday: 今日は既にサインインしています！

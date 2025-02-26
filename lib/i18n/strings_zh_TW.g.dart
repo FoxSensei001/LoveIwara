@@ -454,7 +454,7 @@ class _TranslationsSearchZhTw implements TranslationsSearchEn {
 	@override String unsupportedSearchType({required Object searchType}) => '不支援的搜尋類型: ${searchType}';
 	@override String get googleSearch => '谷歌搜尋';
 	@override String googleSearchHint({required Object webName}) => '${webName} 的搜尋功能不好用？嘗試谷歌搜尋！';
-	@override String googleSearchDescription({required Object baseUrl, required Object webName}) => '得益於SEO技術，您可以使用谷歌搜尋，在關鍵詞後添加 site:${baseUrl} 來精確搜尋 ${webName} 網站內容。之後您可以選擇將找到的連結複製，然後回到應用，通過側邊欄的「跳轉連結」在應用內瀏覽您想要的內容。';
+	@override String get googleSearchDescription => '借助谷歌搜索的 :site 搜索運算符，您可以通過外部引擎來對站內的內容進行檢索，此功能在搜尋 影片、圖庫、播放清單、用戶 時非常有用。';
 	@override String get googleSearchKeywordsHint => '輸入要搜尋的關鍵詞';
 	@override String get openLinkJump => '打開連結跳轉';
 	@override String get googleSearchButton => '谷歌搜尋';
@@ -612,6 +612,7 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get lockButtonPositionBothSides => '兩側顯示';
 	@override String get lockButtonPositionLeftSide => '僅左側顯示';
 	@override String get lockButtonPositionRightSide => '僅右側顯示';
+	@override String get jumpLink => '跳轉連結';
 }
 
 // Path: signIn
@@ -1642,7 +1643,7 @@ extension on TranslationsZhTw {
 			case 'search.unsupportedSearchType': return ({required Object searchType}) => '不支援的搜尋類型: ${searchType}';
 			case 'search.googleSearch': return '谷歌搜尋';
 			case 'search.googleSearchHint': return ({required Object webName}) => '${webName} 的搜尋功能不好用？嘗試谷歌搜尋！';
-			case 'search.googleSearchDescription': return ({required Object baseUrl, required Object webName}) => '得益於SEO技術，您可以使用谷歌搜尋，在關鍵詞後添加 site:${baseUrl} 來精確搜尋 ${webName} 網站內容。之後您可以選擇將找到的連結複製，然後回到應用，通過側邊欄的「跳轉連結」在應用內瀏覽您想要的內容。';
+			case 'search.googleSearchDescription': return '借助谷歌搜索的 :site 搜索運算符，您可以通過外部引擎來對站內的內容進行檢索，此功能在搜尋 影片、圖庫、播放清單、用戶 時非常有用。';
 			case 'search.googleSearchKeywordsHint': return '輸入要搜尋的關鍵詞';
 			case 'search.openLinkJump': return '打開連結跳轉';
 			case 'search.googleSearchButton': return '谷歌搜尋';
@@ -1782,6 +1783,7 @@ extension on TranslationsZhTw {
 			case 'settings.lockButtonPositionBothSides': return '兩側顯示';
 			case 'settings.lockButtonPositionLeftSide': return '僅左側顯示';
 			case 'settings.lockButtonPositionRightSide': return '僅右側顯示';
+			case 'settings.jumpLink': return '跳轉連結';
 			case 'signIn.pleaseLoginFirst': return '請先登入';
 			case 'signIn.alreadySignedInToday': return '您今天已經簽到過了！';
 			case 'signIn.youDidNotStickToTheSignIn': return '您未能持續簽到。';

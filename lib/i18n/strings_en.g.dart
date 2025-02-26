@@ -458,7 +458,7 @@ class TranslationsSearchEn {
 	String unsupportedSearchType({required Object searchType}) => 'Unsupported search type: ${searchType}';
 	String get googleSearch => 'Google Search';
 	String googleSearchHint({required Object webName}) => '${webName} \'s search function is not easy to use? Try Google Search!';
-	String googleSearchDescription({required Object baseUrl, required Object webName}) => 'Thanks to SEO technology, you can use Google Search, add site:${baseUrl} after the keyword to accurately search ${webName} website content. After that, you can choose to copy the found link, and then return to the app, through the sidebar\'s "Jump Link" to browse the content you want in the app.';
+	String get googleSearchDescription => 'Use the :site search operator of Google Search to search for content on the site. This is very useful when searching for videos, galleries, playlists, and users.';
 	String get googleSearchKeywordsHint => 'Enter keywords to search';
 	String get openLinkJump => 'Open Link Jump';
 	String get googleSearchButton => 'Google Search';
@@ -616,6 +616,7 @@ class TranslationsSettingsEn {
 	String get lockButtonPositionBothSides => 'Both Sides';
 	String get lockButtonPositionLeftSide => 'Left Side';
 	String get lockButtonPositionRightSide => 'Right Side';
+	String get jumpLink => 'Jump Link';
 }
 
 // Path: signIn
@@ -1643,7 +1644,7 @@ extension on Translations {
 			case 'search.unsupportedSearchType': return ({required Object searchType}) => 'Unsupported search type: ${searchType}';
 			case 'search.googleSearch': return 'Google Search';
 			case 'search.googleSearchHint': return ({required Object webName}) => '${webName} \'s search function is not easy to use? Try Google Search!';
-			case 'search.googleSearchDescription': return ({required Object baseUrl, required Object webName}) => 'Thanks to SEO technology, you can use Google Search, add site:${baseUrl} after the keyword to accurately search ${webName} website content. After that, you can choose to copy the found link, and then return to the app, through the sidebar\'s "Jump Link" to browse the content you want in the app.';
+			case 'search.googleSearchDescription': return 'Use the :site search operator of Google Search to search for content on the site. This is very useful when searching for videos, galleries, playlists, and users.';
 			case 'search.googleSearchKeywordsHint': return 'Enter keywords to search';
 			case 'search.openLinkJump': return 'Open Link Jump';
 			case 'search.googleSearchButton': return 'Google Search';
@@ -1783,6 +1784,7 @@ extension on Translations {
 			case 'settings.lockButtonPositionBothSides': return 'Both Sides';
 			case 'settings.lockButtonPositionLeftSide': return 'Left Side';
 			case 'settings.lockButtonPositionRightSide': return 'Right Side';
+			case 'settings.jumpLink': return 'Jump Link';
 			case 'signIn.pleaseLoginFirst': return 'Please login first';
 			case 'signIn.alreadySignedInToday': return 'You have already signed in today!';
 			case 'signIn.youDidNotStickToTheSignIn': return 'You did not stick to the sign in.';

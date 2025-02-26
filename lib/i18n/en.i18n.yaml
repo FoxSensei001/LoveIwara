@@ -330,7 +330,7 @@ search:
   unsupportedSearchType: 'Unsupported search type: ${searchType}'
   googleSearch: "Google Search"
   googleSearchHint: "${webName} 's search function is not easy to use? Try Google Search!"
-  googleSearchDescription: "Thanks to SEO technology, you can use Google Search, add site:${baseUrl} after the keyword to accurately search ${webName} website content. After that, you can choose to copy the found link, and then return to the app, through the sidebar's \"Jump Link\" to browse the content you want in the app."
+  googleSearchDescription: "Use the :site search operator of Google Search to search for content on the site. This is very useful when searching for videos, galleries, playlists, and users."
   googleSearchKeywordsHint: "Enter keywords to search"
   openLinkJump: "Open Link Jump"
   googleSearchButton: "Google Search"
@@ -473,6 +473,7 @@ settings:
   lockButtonPositionBothSides: Both Sides
   lockButtonPositionLeftSide: Left Side
   lockButtonPositionRightSide: Right Side
+  jumpLink: Jump Link
 signIn:
   pleaseLoginFirst: Please login first
   alreadySignedInToday: You have already signed in today!

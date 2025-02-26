@@ -1,5 +1,5 @@
 # 最新版本
-currentVersion: "0.3.9"
+currentVersion: "0.3.10"
 # 更新日志
 # 格式介绍
 # 1. version: 版本号
@@ -8,6 +8,30 @@ currentVersion: "0.3.9"
 # 4. forceUpdate: 是否强制更新
 # 5. minVersion: 最小版本号
 updates:
+  - version: "0.3.10"
+    date: "2025-02-26"
+    forceUpdate: false
+    minVersion: "0.3.0"
+    changes:
+      zh-CN:
+        - "新增跳转链接功能，可以帮助你将复制来的网站链接，尝试在应用内打开"
+        - "新增谷歌搜索辅助功能，可以帮助你通过谷歌搜索来对站内内容进行检索"
+        - "AI翻译功能支持流式输出内容"
+        - "新增修改播放器锁定按钮位置配置，目前支持显示在左侧、右侧、两侧"
+        - "播放视频时默认开启硬件加速"
+      en:
+        - "Added link jump function, which helps you try to open the copied website link in the app"
+        - "Added Google Search assistant function, which helps you search for content on the site through Google Search"
+        - "AI translation supports streaming output content"
+        - "Added configuration to modify the position of the player lock button, currently supports display on the left, right, or both sides"
+        - "Play videos with hardware acceleration enabled by default"
+      ja:
+        - "リンクジャンプ機能を追加しました。コピーしたウェブサイトのリンクをアプリ内で開くことができます。"
+        - "Google検索のサポート機能を追加しました。サイト内のコンテンツをGoogle検索で検索できます。"
+        - "AI翻訳はストリーミング出力をサポートします。"
+        - "プレイヤーのロックボタン位置を変更する設定を追加しました。現在は左、右、両側に表示できます。"
+        - "ハードウェアアクセラレーションをデフォルトで有効にします。"
+        
   - version: "0.3.9"
     date: "2025-02-17"
     forceUpdate: false

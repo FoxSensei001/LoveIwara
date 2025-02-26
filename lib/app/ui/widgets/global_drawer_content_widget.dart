@@ -156,7 +156,7 @@ class GlobalDrawerColumns extends StatelessWidget {
               const Divider(height: 1),
               // 使用IconButton而不是ListTile
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+                padding: EdgeInsets.only(left: 6, right: 6, bottom: MediaQuery.paddingOf(context).bottom),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -188,7 +188,7 @@ class GlobalDrawerColumns extends StatelessWidget {
                           ),
                           onPressed: () => LinkInputDialogWidget.show(),
                         ),
-                        const Text("跳转链接", style: TextStyle(fontSize: 12)),
+                        Text(t.settings.jumpLink, style: const TextStyle(fontSize: 12)),
                       ],
                     ),
                     // 退出按钮 - 仅在登录状态显示
@@ -210,7 +210,6 @@ class GlobalDrawerColumns extends StatelessWidget {
                   ],
                 ),
               ),
-              const SafeArea(child: SizedBox(height: 8)),
             ],
           ),
         ),

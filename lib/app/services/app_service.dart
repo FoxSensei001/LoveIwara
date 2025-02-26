@@ -95,7 +95,7 @@ class AppService extends GetxService {
     _currentIndex.value = value;
   }
 
-  static void tryPop() {
+  static void tryPop({bool closeAll = false}) {
     // LogUtils.d('tryPop', 'AppService');
     if (CommonConstants.isForceUpdate) {
       showToastWidget(MDToastWidget(message: slang.t.errors.forceUpdateNotPermittedToGoBack, type: MDToastType.error), position: ToastPosition.bottom);
@@ -107,10 +107,10 @@ class AppService extends GetxService {
     } else {
       // 先判断是否有打开的对话框或底部表单
       if (Get.isDialogOpen ?? false) {
-        Get.close(closeAll: false);
+        Get.close(closeAll: closeAll);
         // LogUtils.d('关闭Get.isDialogOpen', 'AppService');
       } else if (Get.isBottomSheetOpen ?? false) {
-        Get.close(closeAll: false);
+        Get.close(closeAll: closeAll);
         // LogUtils.d('关闭Get.isBottomSheetOpen', 'AppService');
       } else {
         GetDelegate? homeDele = Get.nestedKey(Routes.HOME);

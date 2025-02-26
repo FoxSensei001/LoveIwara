@@ -216,7 +216,7 @@ class _SearchContentState extends State<_SearchContent> {
     }
     
     final keyword = _googleSearchController.text.trim();
-    final searchQuery = "$keyword site:${CommonConstants.iwaraBaseUrl}";
+    final searchQuery = "$keyword site:${CommonConstants.iwaraDomain}";
     
     // 复制到剪贴板
     await Clipboard.setData(ClipboardData(text: searchQuery));
@@ -451,58 +451,60 @@ class _SearchContentState extends State<_SearchContent> {
                         ),
                         
                         // 展开的内容部分
-                        AnimatedCrossFade(
-                          firstChild: const SizedBox(height: 0),
-                          secondChild: Padding(
-                            padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  t.search.googleSearchDescription(webName: CommonConstants.webName, baseUrl: CommonConstants.iwaraBaseUrl),
-                                  style: const TextStyle(fontSize: 13),
-                                ),
-                                const SizedBox(height: 12),
-                                TextField(
-                                  controller: _googleSearchController,
-                                  decoration: InputDecoration(
-                                    hintText: t.search.googleSearchKeywordsHint,
-                                    border: const OutlineInputBorder(),
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 8,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                Row(
+                        AnimatedSize(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                          child: SizedBox(
+                            height: _isGoogleSearchPanelExpanded ? null : 0,
+                            child: FadeTransition(
+                              opacity: CurvedAnimation(
+                                parent: AlwaysStoppedAnimation(_isGoogleSearchPanelExpanded ? 1.0 : 0.0),
+                                curve: Curves.easeInOut,
+                              ),
+                              child: _isGoogleSearchPanelExpanded ? Padding(
+                                padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  spacing: 12,
                                   children: [
-                                    Expanded(
-                                      child: OutlinedButton.icon(
-                                        icon: const Icon(Icons.link),
-                                        label: Text(t.search.openLinkJump),
-                                        onPressed: () {
-                                          LinkInputDialogWidget.show();
-                                        },
+                                    Text(
+                                      t.search.googleSearchDescription,
+                                      style: const TextStyle(fontSize: 13),
+                                    ),
+                                    TextField(
+                                      controller: _googleSearchController,
+                                      decoration: InputDecoration(
+                                        hintText: t.search.googleSearchKeywordsHint,
+                                        border: const OutlineInputBorder(),
+                                        contentPadding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 8,
+                                        ),
                                       ),
                                     ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: ElevatedButton.icon(
-                                        icon: const Icon(Icons.search),
-                                        label: Text(t.search.googleSearchButton),
-                                        onPressed: _performGoogleSearch,
-                                      ),
+                                    Wrap(
+                                      spacing: 8.0, // 水平间距
+                                      runSpacing: 8.0, // 垂直间距
+                                      children: [
+                                        OutlinedButton.icon(
+                                          icon: const Icon(Icons.link),
+                                          label: Text(t.search.openLinkJump),
+                                          onPressed: () {
+                                            LinkInputDialogWidget.show();
+                                          },
+                                        ),
+                                        ElevatedButton.icon(
+                                          icon: const Icon(Icons.search),
+                                          label: Text(t.search.googleSearchButton),
+                                          onPressed: _performGoogleSearch,
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
-                              ],
+                              ) : const SizedBox(),
                             ),
                           ),
-                          crossFadeState: _isGoogleSearchPanelExpanded
-                              ? CrossFadeState.showSecond
-                              : CrossFadeState.showFirst,
-                          duration: const Duration(milliseconds: 300),
                         ),
                       ],
                     ),
