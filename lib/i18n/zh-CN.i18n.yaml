@@ -324,7 +324,7 @@ playList:
 
 search:
   searchTags: 搜索标签...
-  contentRating: 内容评级
+  contentRating: 内容分级
   removeTag: 移除标签
   pleaseEnterSearchContent: 请输入搜索内容
   searchHistory: 搜索历史
@@ -335,7 +335,15 @@ search:
   notSupportCurrentSearchType: '暂未实现当前搜索类型 ${searchType}，敬请期待'
   searchResult: 搜索结果
   unsupportedSearchType: '不支持的搜索类型: ${searchType}'
-
+  googleSearch: "谷歌搜索"
+  googleSearchHint: "${webName} 的搜索功能不好用？尝试谷歌搜索！"
+  googleSearchDescription: "得益于SEO技术，您可以使用谷歌搜索，在关键词后添加 site:${baseUrl} 来精确搜索 ${webName} 网站内容。之后你可以选择将找到的链接复制，然后回到应用，通过侧边栏的「跳转链接」在应用内浏览您想要的内容。"
+  googleSearchKeywordsHint: "输入要搜索的关键词"
+  openLinkJump: "打开链接跳转"
+  googleSearchButton: "谷歌搜索"
+  pleaseEnterSearchKeywords: "请输入搜索关键词"
+  googleSearchQueryCopied: "搜索语句已复制到剪贴板"
+  googleSearchBrowserOpenFailed: "无法打开浏览器: ${error}"
 mediaList:
   personalIntroduction: 个人简介
 
@@ -983,3 +991,23 @@ translation:
   currentActualUrl: "当前实际URL: ${url}"
   urlEndingWithHashTip: "URL以#结尾时，将以输入的URL作为实际请求地址"
   streamingTranslationWarning: "注意：此功能需要API服务支持流式传输，部分模型可能不支持"
+
+linkInputDialog:
+  title: "输入链接"
+  supportedLinksHint: "支持智能识别多个${webName}链接，并快速跳转到应用内对应页面(链接与其他文本之间用空格隔开)"
+  inputHint: "请输入${webName}链接"
+  validatorEmptyLink: "请输入链接"
+  validatorNoIwaraLink: "未检测到有效的${webName}链接"
+  multipleLinksDetected: "检测到多个链接，请选择一个："
+  notIwaraLink: "不是有效的${webName}链接"
+  linkParseError: "链接解析出错: ${error}"
+  unsupportedLinkDialogTitle: "不支持的链接"
+  unsupportedLinkDialogContent: "该链接类型当前应用无法直接打开，需要使用外部浏览器访问。\n\n是否使用浏览器打开此链接？"
+  openInBrowser: "用浏览器打开"
+  confirmOpenBrowserDialogTitle: "确认打开浏览器"
+  confirmOpenBrowserDialogContent: "即将使用外部浏览器打开以下链接："
+  confirmContinueBrowserOpen: "确定要继续吗？"
+  browserOpenFailed: "无法打开链接"
+  unsupportedLink: "不支持的链接"
+  cancel: "取消"
+  confirm: "用浏览器打开"

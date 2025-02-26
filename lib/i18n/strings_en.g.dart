@@ -60,6 +60,7 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final TranslationsDownloadEn download = TranslationsDownloadEn._(_root);
 	late final TranslationsFavoriteEn favorite = TranslationsFavoriteEn._(_root);
 	late final TranslationsTranslationEn translation = TranslationsTranslationEn._(_root);
+	late final TranslationsLinkInputDialogEn linkInputDialog = TranslationsLinkInputDialogEn._(_root);
 }
 
 // Path: common
@@ -455,6 +456,15 @@ class TranslationsSearchEn {
 	String notSupportCurrentSearchType({required Object searchType}) => 'Not support current search type ${searchType}, please wait for the update';
 	String get searchResult => 'Search Result';
 	String unsupportedSearchType({required Object searchType}) => 'Unsupported search type: ${searchType}';
+	String get googleSearch => 'Google Search';
+	String googleSearchHint({required Object webName}) => '${webName} \'s search function is not easy to use? Try Google Search!';
+	String googleSearchDescription({required Object baseUrl, required Object webName}) => 'Thanks to SEO technology, you can use Google Search, add site:${baseUrl} after the keyword to accurately search ${webName} website content. After that, you can choose to copy the found link, and then return to the app, through the sidebar\'s "Jump Link" to browse the content you want in the app.';
+	String get googleSearchKeywordsHint => 'Enter keywords to search';
+	String get openLinkJump => 'Open Link Jump';
+	String get googleSearchButton => 'Google Search';
+	String get pleaseEnterSearchKeywords => 'Please enter search keywords';
+	String get googleSearchQueryCopied => 'Search query copied to clipboard';
+	String googleSearchBrowserOpenFailed({required Object error}) => 'Failed to open browser: ${error}';
 }
 
 // Path: mediaList
@@ -1095,6 +1105,33 @@ class TranslationsTranslationEn {
 	String get streamingTranslationWarning => 'Note: This feature requires API service support for streaming transmission, some models may not support it';
 }
 
+// Path: linkInputDialog
+class TranslationsLinkInputDialogEn {
+	TranslationsLinkInputDialogEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get title => 'Input Link';
+	String supportedLinksHint({required Object webName}) => 'Support intelligently identify multiple ${webName} links and quickly jump to the corresponding page in the app (separate links from other text with spaces)';
+	String inputHint({required Object webName}) => 'Please enter ${webName} link';
+	String get validatorEmptyLink => 'Please enter link';
+	String validatorNoIwaraLink({required Object webName}) => 'No valid ${webName} link detected';
+	String get multipleLinksDetected => 'Multiple links detected, please select one:';
+	String notIwaraLink({required Object webName}) => 'Not a valid ${webName} link';
+	String linkParseError({required Object error}) => 'Link parsing error: ${error}';
+	String get unsupportedLinkDialogTitle => 'Unsupported Link';
+	String get unsupportedLinkDialogContent => 'This link type cannot be opened directly in the app and needs to be accessed using an external browser.\n\nDo you want to open this link in a browser?';
+	String get openInBrowser => 'Open in Browser';
+	String get confirmOpenBrowserDialogTitle => 'Confirm Open Browser';
+	String get confirmOpenBrowserDialogContent => 'The following link is about to be opened in an external browser:';
+	String get confirmContinueBrowserOpen => 'Are you sure you want to continue?';
+	String get browserOpenFailed => 'Failed to open link';
+	String get unsupportedLink => 'Unsupported Link';
+	String get cancel => 'Cancel';
+	String get confirm => 'Open in Browser';
+}
+
 // Path: forum.errors
 class TranslationsForumErrorsEn {
 	TranslationsForumErrorsEn._(this._root);
@@ -1604,6 +1641,15 @@ extension on Translations {
 			case 'search.notSupportCurrentSearchType': return ({required Object searchType}) => 'Not support current search type ${searchType}, please wait for the update';
 			case 'search.searchResult': return 'Search Result';
 			case 'search.unsupportedSearchType': return ({required Object searchType}) => 'Unsupported search type: ${searchType}';
+			case 'search.googleSearch': return 'Google Search';
+			case 'search.googleSearchHint': return ({required Object webName}) => '${webName} \'s search function is not easy to use? Try Google Search!';
+			case 'search.googleSearchDescription': return ({required Object baseUrl, required Object webName}) => 'Thanks to SEO technology, you can use Google Search, add site:${baseUrl} after the keyword to accurately search ${webName} website content. After that, you can choose to copy the found link, and then return to the app, through the sidebar\'s "Jump Link" to browse the content you want in the app.';
+			case 'search.googleSearchKeywordsHint': return 'Enter keywords to search';
+			case 'search.openLinkJump': return 'Open Link Jump';
+			case 'search.googleSearchButton': return 'Google Search';
+			case 'search.pleaseEnterSearchKeywords': return 'Please enter search keywords';
+			case 'search.googleSearchQueryCopied': return 'Search query copied to clipboard';
+			case 'search.googleSearchBrowserOpenFailed': return ({required Object error}) => 'Failed to open browser: ${error}';
 			case 'mediaList.personalIntroduction': return 'Personal Introduction';
 			case 'settings.showVideoProgressBottomBarWhenToolbarHidden': return 'Show Video Progress Bottom Bar When Toolbar Hidden';
 			case 'settings.showVideoProgressBottomBarWhenToolbarHiddenDesc': return 'This configuration determines whether the video progress bottom bar will be shown when the toolbar is hidden.';
@@ -2216,6 +2262,24 @@ extension on Translations {
 			case 'translation.currentActualUrl': return ({required Object url}) => 'Current actual URL: ${url}';
 			case 'translation.urlEndingWithHashTip': return 'URL ending with # will be used directly without adding any suffix';
 			case 'translation.streamingTranslationWarning': return 'Note: This feature requires API service support for streaming transmission, some models may not support it';
+			case 'linkInputDialog.title': return 'Input Link';
+			case 'linkInputDialog.supportedLinksHint': return ({required Object webName}) => 'Support intelligently identify multiple ${webName} links and quickly jump to the corresponding page in the app (separate links from other text with spaces)';
+			case 'linkInputDialog.inputHint': return ({required Object webName}) => 'Please enter ${webName} link';
+			case 'linkInputDialog.validatorEmptyLink': return 'Please enter link';
+			case 'linkInputDialog.validatorNoIwaraLink': return ({required Object webName}) => 'No valid ${webName} link detected';
+			case 'linkInputDialog.multipleLinksDetected': return 'Multiple links detected, please select one:';
+			case 'linkInputDialog.notIwaraLink': return ({required Object webName}) => 'Not a valid ${webName} link';
+			case 'linkInputDialog.linkParseError': return ({required Object error}) => 'Link parsing error: ${error}';
+			case 'linkInputDialog.unsupportedLinkDialogTitle': return 'Unsupported Link';
+			case 'linkInputDialog.unsupportedLinkDialogContent': return 'This link type cannot be opened directly in the app and needs to be accessed using an external browser.\n\nDo you want to open this link in a browser?';
+			case 'linkInputDialog.openInBrowser': return 'Open in Browser';
+			case 'linkInputDialog.confirmOpenBrowserDialogTitle': return 'Confirm Open Browser';
+			case 'linkInputDialog.confirmOpenBrowserDialogContent': return 'The following link is about to be opened in an external browser:';
+			case 'linkInputDialog.confirmContinueBrowserOpen': return 'Are you sure you want to continue?';
+			case 'linkInputDialog.browserOpenFailed': return 'Failed to open link';
+			case 'linkInputDialog.unsupportedLink': return 'Unsupported Link';
+			case 'linkInputDialog.cancel': return 'Cancel';
+			case 'linkInputDialog.confirm': return 'Open in Browser';
 			default: return null;
 		}
 	}

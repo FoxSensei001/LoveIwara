@@ -8,6 +8,45 @@ class DeepLinkService extends GetxService {
   bool _isReady = false;
   Uri? _pendingInitialLink;
   
+  /// 判断一个URI是否可以被应用内处理
+  static bool canHandleInternally(Uri uri) {
+    if (uri.pathSegments.isEmpty) return false;
+
+    final pathSegments = uri.pathSegments;
+    switch (pathSegments[0]) {
+      case 'video':
+      case 'playlist':
+      case 'image':
+      case 'post':
+        // 这些类型只需要第一个 pathSegment 就可以判断
+        return pathSegments.length > 1;
+
+      case 'profile':
+        // profile 可以是 /profile/userName 或者 /profile/userName/playlists
+        return pathSegments.length > 1;
+
+      case 'forum':
+        // forum 可以是 /forum/categoryId 或者 /forum/categoryId/threadId
+        return pathSegments.length > 1;
+
+      default:
+        return false;
+    }
+  }
+  
+  /// 判断一个链接字符串是否可以被应用内处理
+  static bool canHandleLink(String link) {
+    try {
+      final uri = Uri.parse(link);
+      // 检查是否是iwara链接
+      if (!uri.host.contains("iwara")) return false;
+      
+      return canHandleInternally(uri);
+    } catch (e) {
+      return false;
+    }
+  }
+  
   /// 如果需要添加更多链接 请在 {@link AndroidManifest.xml} 中也做配置
   Future<void> init() async {
     // 监听所有链接事件
@@ -45,11 +84,11 @@ class DeepLinkService extends GetxService {
 
     // 确保在主UI线程中执行导航操作
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _processLink(uri);
+      processLink(uri);
     });
   }
 
-  void _processLink(Uri uri) {
+  void processLink(Uri uri) {
     // 处理不同类型的链接
     final pathSegments = uri.pathSegments;
     
@@ -57,7 +96,7 @@ class DeepLinkService extends GetxService {
 
     // 确保路由系统已经准备就绪
     if (!Get.isRegistered<AppService>()) {
-      Future.delayed(const Duration(milliseconds: 500), () => _processLink(uri));
+      Future.delayed(const Duration(milliseconds: 500), () => processLink(uri));
       return;
     }
 
@@ -100,10 +139,12 @@ class DeepLinkService extends GetxService {
         
       case 'forum':
         // 论坛详情页 目前url可以识别 iwara.tv/forum/categoryId/threadId 和 iwara.tv/forum/categoryId 两种路径
+        // https://www.iwara.tv/forum/announcements/895468a8-bdd9-401d-a8d1-2fd4d2d68c7d/2025-q1-small-updateoror-rule-changes-recent-issues-and-other-topics
+        print('senko forum: ${pathSegments.length}, url: ${uri.toString()}');
         if (pathSegments.length > 1) {
           final categoryId = pathSegments[1];
-          if (pathSegments.length > 3) {
-            final threadId = pathSegments[3];
+          if (pathSegments.length > 2) {
+            final threadId = pathSegments[2];
             NaviService.navigateToForumThreadDetailPage(categoryId, threadId);
           } else {
             NaviService.navigateToForumThreadListPage(categoryId);

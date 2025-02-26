@@ -16,6 +16,7 @@ class CommonConstants {
   // 应用包名
   static String packageName = 'm.c.g.a.i_iwara';
 
+  static String webName = 'iwara';
 
   // 应用图标路径
   static String launcherIconPath = 'assets/icon/launcher_icon_v2.png';

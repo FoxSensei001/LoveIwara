@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/widgets/link_input_dialog_widget.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
@@ -37,7 +38,7 @@ class GlobalDrawerColumns extends StatelessWidget {
                   AppService.switchGlobalDrawer();
                 } else {
                   AppService.switchGlobalDrawer();
-                  showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error));
+                  showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error), position: ToastPosition.top);
                 }
               }),
               // 会话
@@ -47,7 +48,7 @@ class GlobalDrawerColumns extends StatelessWidget {
                   AppService.switchGlobalDrawer();
                 } else {
                   AppService.switchGlobalDrawer();
-                  showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error));
+                  showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error), position: ToastPosition.top);
                 }
               }),
               // Tag黑名单
@@ -57,7 +58,7 @@ class GlobalDrawerColumns extends StatelessWidget {
                   AppService.switchGlobalDrawer();
                 } else {
                   AppService.switchGlobalDrawer();
-                  showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error));
+                  showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error), position: ToastPosition.top);
                 }
               }),
               // 下载管理
@@ -77,7 +78,7 @@ class GlobalDrawerColumns extends StatelessWidget {
                   AppService.switchGlobalDrawer();
                 } else {
                   AppService.switchGlobalDrawer();
-                  showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error));
+                  showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error), position: ToastPosition.top);
                 }
               }),
               // 本地收藏
@@ -132,26 +133,84 @@ class GlobalDrawerColumns extends StatelessWidget {
                 NaviService.navigateToSignInPage();
                 AppService.switchGlobalDrawer();
               }),
-              // 设置
-              _buildMenuItem(Icons.settings, t.common.settings, () {
-                AppService.switchGlobalDrawer();
-                Get.toNamed(Routes.SETTINGS_PAGE);
-              }),
-              // // 关于
-              // _buildMenuItem(Icons.info, '关于', () {
-              //   userService.fetchUserProfile();
-              //   Get.snackbar('操作', '你点击了关于');
-              // }),
-              Obx(() => userService.isLogin
-                  ? Column(
+              // 留出底部空间
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+        // 底部固定按钮区域
+        Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 3,
+                offset: const Offset(0, -1),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Divider(height: 1),
+              // 使用IconButton而不是ListTile
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    // 设置按钮
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Divider(),
-                        _buildMenuItem(Icons.exit_to_app, t.common.logout,
-                            () => _showLogoutDialog(appService)),
+                        IconButton(
+                          icon: Icon(Icons.settings, 
+                            color: Get.isDarkMode ? Colors.white : null,
+                            size: 28,
+                          ),
+                          onPressed: () {
+                            AppService.switchGlobalDrawer();
+                            Get.toNamed(Routes.SETTINGS_PAGE);
+                          },
+                        ),
+                        Text(t.common.settings, style: const TextStyle(fontSize: 12)),
                       ],
-                    )
-                  : const SizedBox.shrink()),
-              const SafeArea(child: SizedBox.shrink()),
+                    ),
+                     // 自定义链接按钮
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.link, 
+                            color: Get.isDarkMode ? Colors.white : null,
+                            size: 28,
+                          ),
+                          onPressed: () => LinkInputDialogWidget.show(),
+                        ),
+                        const Text("跳转链接", style: TextStyle(fontSize: 12)),
+                      ],
+                    ),
+                    // 退出按钮 - 仅在登录状态显示
+                    Obx(() => userService.isLogin
+                        ? Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.exit_to_app, 
+                                  color: Get.isDarkMode ? Colors.white : null,
+                                  size: 28,
+                                ),
+                                onPressed: () => _showLogoutDialog(appService),
+                              ),
+                              Text(t.common.logout, style: const TextStyle(fontSize: 12)),
+                            ],
+                          )
+                        : const SizedBox.shrink()),
+                  ],
+                ),
+              ),
+              const SafeArea(child: SizedBox(height: 8)),
             ],
           ),
         ),
@@ -315,9 +374,9 @@ class GlobalDrawerColumns extends StatelessWidget {
 
   void _showLogoutDialog(AppService globalDrawerService) {
     AppService.switchGlobalDrawer();
-    showDialog(
-      context: Get.context!,
-      builder: (context) => LogoutDialog(userService: userService),
+    Get.dialog(
+      LogoutDialog(userService: userService),
+      barrierDismissible: true,
     );
   }
 }

@@ -56,6 +56,7 @@ class TranslationsJa implements Translations {
 	@override late final _TranslationsDownloadJa download = _TranslationsDownloadJa._(_root);
 	@override late final _TranslationsFavoriteJa favorite = _TranslationsFavoriteJa._(_root);
 	@override late final _TranslationsTranslationJa translation = _TranslationsTranslationJa._(_root);
+	@override late final _TranslationsLinkInputDialogJa linkInputDialog = _TranslationsLinkInputDialogJa._(_root);
 }
 
 // Path: common
@@ -440,7 +441,7 @@ class _TranslationsSearchJa implements TranslationsSearchEn {
 
 	// Translations
 	@override String get searchTags => 'タグを検索...';
-	@override String get contentRating => 'コンテンツ評価';
+	@override String get contentRating => 'コンテンツレーティング';
 	@override String get removeTag => 'タグを削除';
 	@override String get pleaseEnterSearchContent => '検索内容を入力してください';
 	@override String get searchHistory => '検索履歴';
@@ -451,6 +452,15 @@ class _TranslationsSearchJa implements TranslationsSearchEn {
 	@override String notSupportCurrentSearchType({required Object searchType}) => '現在の検索タイプ ${searchType} はまだ実装されていません。お楽しみに';
 	@override String get searchResult => '検索結果';
 	@override String unsupportedSearchType({required Object searchType}) => 'サポートされていない検索タイプ: ${searchType}';
+	@override String get googleSearch => 'グーグル検索';
+	@override String googleSearchHint({required Object webName}) => '${webName} の検索機能は使いにくいですか？ グーグル検索を試してみてください！';
+	@override String googleSearchDescription({required Object baseUrl, required Object webName}) => 'SEO技術のおかげで、グーグル検索を使用し、キーワードの後に site:${baseUrl} を追加して、${webName} ウェブサイトのコンテンツを正確に検索できます。 その後、見つかったリンクをコピーしてアプリに戻り、サイドバーの「リンクジャンプ」からアプリ内で目的のコンテンツを閲覧できます。';
+	@override String get googleSearchKeywordsHint => '検索するキーワードを入力してください';
+	@override String get openLinkJump => 'リンクジャンプを開く';
+	@override String get googleSearchButton => 'グーグル検索';
+	@override String get pleaseEnterSearchKeywords => '検索するキーワードを入力してください';
+	@override String get googleSearchQueryCopied => '検索語句をクリップボードにコピーしました';
+	@override String googleSearchBrowserOpenFailed({required Object error}) => 'ブラウザを開けませんでした: ${error}';
 }
 
 // Path: mediaList
@@ -1091,6 +1101,33 @@ class _TranslationsTranslationJa implements TranslationsTranslationEn {
 	@override String get streamingTranslationWarning => '注意：この機能はAPIサービスがストリーミング伝送をサポートする必要があり、一部のモデルではサポートされていない場合があります';
 }
 
+// Path: linkInputDialog
+class _TranslationsLinkInputDialogJa implements TranslationsLinkInputDialogEn {
+	_TranslationsLinkInputDialogJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'リンクを入力';
+	@override String supportedLinksHint({required Object webName}) => '複数の${webName}リンクをインテリジェントに識別し、アプリ内の対応するページにすばやくジャンプすることをサポートします（リンクと他のテキストはスペースで区切ります）';
+	@override String inputHint({required Object webName}) => '${webName}リンクを入力してください';
+	@override String get validatorEmptyLink => 'リンクを入力してください';
+	@override String validatorNoIwaraLink({required Object webName}) => '有効な${webName}リンクが検出されませんでした';
+	@override String get multipleLinksDetected => '複数のリンクが検出されました。1つ選択してください：';
+	@override String notIwaraLink({required Object webName}) => '有効な${webName}リンクではありません';
+	@override String linkParseError({required Object error}) => 'リンク解析エラー: ${error}';
+	@override String get unsupportedLinkDialogTitle => 'サポートされていないリンク';
+	@override String get unsupportedLinkDialogContent => 'このリンクタイプは現在アプリ内で直接開くことができず、外部ブラウザを使用してアクセスする必要があります。\n\nブラウザでこのリンクを開きますか？';
+	@override String get openInBrowser => 'ブラウザで開く';
+	@override String get confirmOpenBrowserDialogTitle => 'ブラウザを開くことを確認';
+	@override String get confirmOpenBrowserDialogContent => '次のリンクを外部ブラウザで開こうとしています：';
+	@override String get confirmContinueBrowserOpen => '続行してもよろしいですか？';
+	@override String get browserOpenFailed => 'リンクを開けませんでした';
+	@override String get unsupportedLink => 'サポートされていないリンク';
+	@override String get cancel => 'キャンセル';
+	@override String get confirm => 'ブラウザで開く';
+}
+
 // Path: forum.errors
 class _TranslationsForumErrorsJa implements TranslationsForumErrorsEn {
 	_TranslationsForumErrorsJa._(this._root);
@@ -1589,7 +1626,7 @@ extension on TranslationsJa {
 			case 'playList.createNewPlaylist': return '新しいプレイリストを作成';
 			case 'playList.videos': return '動画';
 			case 'search.searchTags': return 'タグを検索...';
-			case 'search.contentRating': return 'コンテンツ評価';
+			case 'search.contentRating': return 'コンテンツレーティング';
 			case 'search.removeTag': return 'タグを削除';
 			case 'search.pleaseEnterSearchContent': return '検索内容を入力してください';
 			case 'search.searchHistory': return '検索履歴';
@@ -1600,6 +1637,15 @@ extension on TranslationsJa {
 			case 'search.notSupportCurrentSearchType': return ({required Object searchType}) => '現在の検索タイプ ${searchType} はまだ実装されていません。お楽しみに';
 			case 'search.searchResult': return '検索結果';
 			case 'search.unsupportedSearchType': return ({required Object searchType}) => 'サポートされていない検索タイプ: ${searchType}';
+			case 'search.googleSearch': return 'グーグル検索';
+			case 'search.googleSearchHint': return ({required Object webName}) => '${webName} の検索機能は使いにくいですか？ グーグル検索を試してみてください！';
+			case 'search.googleSearchDescription': return ({required Object baseUrl, required Object webName}) => 'SEO技術のおかげで、グーグル検索を使用し、キーワードの後に site:${baseUrl} を追加して、${webName} ウェブサイトのコンテンツを正確に検索できます。 その後、見つかったリンクをコピーしてアプリに戻り、サイドバーの「リンクジャンプ」からアプリ内で目的のコンテンツを閲覧できます。';
+			case 'search.googleSearchKeywordsHint': return '検索するキーワードを入力してください';
+			case 'search.openLinkJump': return 'リンクジャンプを開く';
+			case 'search.googleSearchButton': return 'グーグル検索';
+			case 'search.pleaseEnterSearchKeywords': return '検索するキーワードを入力してください';
+			case 'search.googleSearchQueryCopied': return '検索語句をクリップボードにコピーしました';
+			case 'search.googleSearchBrowserOpenFailed': return ({required Object error}) => 'ブラウザを開けませんでした: ${error}';
 			case 'mediaList.personalIntroduction': return '個人紹介';
 			case 'settings.showVideoProgressBottomBarWhenToolbarHidden': return '底部プログレスバー';
 			case 'settings.showVideoProgressBottomBarWhenToolbarHiddenDesc': return 'この設定は、ツールバーが非表示のときに底部プログレスバーを表示するかどうかを決定します。';
@@ -2212,6 +2258,24 @@ extension on TranslationsJa {
 			case 'translation.usingFullUrlWithHash': return '完全なURL（#で終わる）を使用';
 			case 'translation.urlEndingWithHashTip': return 'URLが#で終わる場合、入力されたURLを実際のリクエストアドレスとして使用します';
 			case 'translation.streamingTranslationWarning': return '注意：この機能はAPIサービスがストリーミング伝送をサポートする必要があり、一部のモデルではサポートされていない場合があります';
+			case 'linkInputDialog.title': return 'リンクを入力';
+			case 'linkInputDialog.supportedLinksHint': return ({required Object webName}) => '複数の${webName}リンクをインテリジェントに識別し、アプリ内の対応するページにすばやくジャンプすることをサポートします（リンクと他のテキストはスペースで区切ります）';
+			case 'linkInputDialog.inputHint': return ({required Object webName}) => '${webName}リンクを入力してください';
+			case 'linkInputDialog.validatorEmptyLink': return 'リンクを入力してください';
+			case 'linkInputDialog.validatorNoIwaraLink': return ({required Object webName}) => '有効な${webName}リンクが検出されませんでした';
+			case 'linkInputDialog.multipleLinksDetected': return '複数のリンクが検出されました。1つ選択してください：';
+			case 'linkInputDialog.notIwaraLink': return ({required Object webName}) => '有効な${webName}リンクではありません';
+			case 'linkInputDialog.linkParseError': return ({required Object error}) => 'リンク解析エラー: ${error}';
+			case 'linkInputDialog.unsupportedLinkDialogTitle': return 'サポートされていないリンク';
+			case 'linkInputDialog.unsupportedLinkDialogContent': return 'このリンクタイプは現在アプリ内で直接開くことができず、外部ブラウザを使用してアクセスする必要があります。\n\nブラウザでこのリンクを開きますか？';
+			case 'linkInputDialog.openInBrowser': return 'ブラウザで開く';
+			case 'linkInputDialog.confirmOpenBrowserDialogTitle': return 'ブラウザを開くことを確認';
+			case 'linkInputDialog.confirmOpenBrowserDialogContent': return '次のリンクを外部ブラウザで開こうとしています：';
+			case 'linkInputDialog.confirmContinueBrowserOpen': return '続行してもよろしいですか？';
+			case 'linkInputDialog.browserOpenFailed': return 'リンクを開けませんでした';
+			case 'linkInputDialog.unsupportedLink': return 'サポートされていないリンク';
+			case 'linkInputDialog.cancel': return 'キャンセル';
+			case 'linkInputDialog.confirm': return 'ブラウザで開く';
 			default: return null;
 		}
 	}

@@ -56,6 +56,7 @@ class TranslationsZhTw implements Translations {
 	@override late final _TranslationsDownloadZhTw download = _TranslationsDownloadZhTw._(_root);
 	@override late final _TranslationsFavoriteZhTw favorite = _TranslationsFavoriteZhTw._(_root);
 	@override late final _TranslationsTranslationZhTw translation = _TranslationsTranslationZhTw._(_root);
+	@override late final _TranslationsLinkInputDialogZhTw linkInputDialog = _TranslationsLinkInputDialogZhTw._(_root);
 }
 
 // Path: common
@@ -440,7 +441,7 @@ class _TranslationsSearchZhTw implements TranslationsSearchEn {
 
 	// Translations
 	@override String get searchTags => '搜尋標籤...';
-	@override String get contentRating => '內容評級';
+	@override String get contentRating => '內容分級';
 	@override String get removeTag => '移除標籤';
 	@override String get pleaseEnterSearchContent => '請輸入搜尋內容';
 	@override String get searchHistory => '搜尋歷史';
@@ -451,6 +452,15 @@ class _TranslationsSearchZhTw implements TranslationsSearchEn {
 	@override String notSupportCurrentSearchType({required Object searchType}) => '目前尚未支援此搜尋類型 ${searchType}，敬請期待';
 	@override String get searchResult => '搜尋結果';
 	@override String unsupportedSearchType({required Object searchType}) => '不支援的搜尋類型: ${searchType}';
+	@override String get googleSearch => '谷歌搜尋';
+	@override String googleSearchHint({required Object webName}) => '${webName} 的搜尋功能不好用？嘗試谷歌搜尋！';
+	@override String googleSearchDescription({required Object baseUrl, required Object webName}) => '得益於SEO技術，您可以使用谷歌搜尋，在關鍵詞後添加 site:${baseUrl} 來精確搜尋 ${webName} 網站內容。之後您可以選擇將找到的連結複製，然後回到應用，通過側邊欄的「跳轉連結」在應用內瀏覽您想要的內容。';
+	@override String get googleSearchKeywordsHint => '輸入要搜尋的關鍵詞';
+	@override String get openLinkJump => '打開連結跳轉';
+	@override String get googleSearchButton => '谷歌搜尋';
+	@override String get pleaseEnterSearchKeywords => '請輸入搜尋關鍵詞';
+	@override String get googleSearchQueryCopied => '搜尋語句已複製到剪貼簿';
+	@override String googleSearchBrowserOpenFailed({required Object error}) => '無法打開瀏覽器: ${error}';
 }
 
 // Path: mediaList
@@ -1094,6 +1104,33 @@ class _TranslationsTranslationZhTw implements TranslationsTranslationEn {
 	@override String get streamingTranslationWarning => '注意：此功能需要API服務支持流式傳輸，部分模型可能不支持';
 }
 
+// Path: linkInputDialog
+class _TranslationsLinkInputDialogZhTw implements TranslationsLinkInputDialogEn {
+	_TranslationsLinkInputDialogZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '輸入連結';
+	@override String supportedLinksHint({required Object webName}) => '支持智能識別多個${webName}連結，並快速跳轉到應用內對應頁面(連結與其他文本之間用空格隔開)';
+	@override String inputHint({required Object webName}) => '請輸入${webName}連結';
+	@override String get validatorEmptyLink => '請輸入連結';
+	@override String validatorNoIwaraLink({required Object webName}) => '未檢測到有效的${webName}連結';
+	@override String get multipleLinksDetected => '檢測到多個連結，請選擇一個：';
+	@override String notIwaraLink({required Object webName}) => '不是有效的${webName}連結';
+	@override String linkParseError({required Object error}) => '連結解析出錯: ${error}';
+	@override String get unsupportedLinkDialogTitle => '不支援的連結';
+	@override String get unsupportedLinkDialogContent => '該連結類型當前應用無法直接打開，需要使用外部瀏覽器訪問。\n\n是否使用瀏覽器打開此連結？';
+	@override String get openInBrowser => '用瀏覽器打開';
+	@override String get confirmOpenBrowserDialogTitle => '確認打開瀏覽器';
+	@override String get confirmOpenBrowserDialogContent => '即將使用外部瀏覽器打開以下連結：';
+	@override String get confirmContinueBrowserOpen => '確定要繼續嗎？';
+	@override String get browserOpenFailed => '無法打開連結';
+	@override String get unsupportedLink => '不支援的連結';
+	@override String get cancel => '取消';
+	@override String get confirm => '用瀏覽器打開';
+}
+
 // Path: forum.errors
 class _TranslationsForumErrorsZhTw implements TranslationsForumErrorsEn {
 	_TranslationsForumErrorsZhTw._(this._root);
@@ -1592,7 +1629,7 @@ extension on TranslationsZhTw {
 			case 'playList.createNewPlaylist': return '創建新播放清單';
 			case 'playList.videos': return '影片';
 			case 'search.searchTags': return '搜尋標籤...';
-			case 'search.contentRating': return '內容評級';
+			case 'search.contentRating': return '內容分級';
 			case 'search.removeTag': return '移除標籤';
 			case 'search.pleaseEnterSearchContent': return '請輸入搜尋內容';
 			case 'search.searchHistory': return '搜尋歷史';
@@ -1603,6 +1640,15 @@ extension on TranslationsZhTw {
 			case 'search.notSupportCurrentSearchType': return ({required Object searchType}) => '目前尚未支援此搜尋類型 ${searchType}，敬請期待';
 			case 'search.searchResult': return '搜尋結果';
 			case 'search.unsupportedSearchType': return ({required Object searchType}) => '不支援的搜尋類型: ${searchType}';
+			case 'search.googleSearch': return '谷歌搜尋';
+			case 'search.googleSearchHint': return ({required Object webName}) => '${webName} 的搜尋功能不好用？嘗試谷歌搜尋！';
+			case 'search.googleSearchDescription': return ({required Object baseUrl, required Object webName}) => '得益於SEO技術，您可以使用谷歌搜尋，在關鍵詞後添加 site:${baseUrl} 來精確搜尋 ${webName} 網站內容。之後您可以選擇將找到的連結複製，然後回到應用，通過側邊欄的「跳轉連結」在應用內瀏覽您想要的內容。';
+			case 'search.googleSearchKeywordsHint': return '輸入要搜尋的關鍵詞';
+			case 'search.openLinkJump': return '打開連結跳轉';
+			case 'search.googleSearchButton': return '谷歌搜尋';
+			case 'search.pleaseEnterSearchKeywords': return '請輸入搜尋關鍵詞';
+			case 'search.googleSearchQueryCopied': return '搜尋語句已複製到剪貼簿';
+			case 'search.googleSearchBrowserOpenFailed': return ({required Object error}) => '無法打開瀏覽器: ${error}';
 			case 'mediaList.personalIntroduction': return '個人簡介';
 			case 'settings.showVideoProgressBottomBarWhenToolbarHidden': return '顯示底部進度條';
 			case 'settings.showVideoProgressBottomBarWhenToolbarHiddenDesc': return '此設定決定是否在工具欄隱藏時顯示底部進度條';
@@ -2218,6 +2264,24 @@ extension on TranslationsZhTw {
 			case 'translation.currentActualUrl': return ({required Object url}) => '目前實際URL: ${url}';
 			case 'translation.urlEndingWithHashTip': return 'URL以#結尾時，將以輸入的URL作為實際請求地址';
 			case 'translation.streamingTranslationWarning': return '注意：此功能需要API服務支持流式傳輸，部分模型可能不支持';
+			case 'linkInputDialog.title': return '輸入連結';
+			case 'linkInputDialog.supportedLinksHint': return ({required Object webName}) => '支持智能識別多個${webName}連結，並快速跳轉到應用內對應頁面(連結與其他文本之間用空格隔開)';
+			case 'linkInputDialog.inputHint': return ({required Object webName}) => '請輸入${webName}連結';
+			case 'linkInputDialog.validatorEmptyLink': return '請輸入連結';
+			case 'linkInputDialog.validatorNoIwaraLink': return ({required Object webName}) => '未檢測到有效的${webName}連結';
+			case 'linkInputDialog.multipleLinksDetected': return '檢測到多個連結，請選擇一個：';
+			case 'linkInputDialog.notIwaraLink': return ({required Object webName}) => '不是有效的${webName}連結';
+			case 'linkInputDialog.linkParseError': return ({required Object error}) => '連結解析出錯: ${error}';
+			case 'linkInputDialog.unsupportedLinkDialogTitle': return '不支援的連結';
+			case 'linkInputDialog.unsupportedLinkDialogContent': return '該連結類型當前應用無法直接打開，需要使用外部瀏覽器訪問。\n\n是否使用瀏覽器打開此連結？';
+			case 'linkInputDialog.openInBrowser': return '用瀏覽器打開';
+			case 'linkInputDialog.confirmOpenBrowserDialogTitle': return '確認打開瀏覽器';
+			case 'linkInputDialog.confirmOpenBrowserDialogContent': return '即將使用外部瀏覽器打開以下連結：';
+			case 'linkInputDialog.confirmContinueBrowserOpen': return '確定要繼續嗎？';
+			case 'linkInputDialog.browserOpenFailed': return '無法打開連結';
+			case 'linkInputDialog.unsupportedLink': return '不支援的連結';
+			case 'linkInputDialog.cancel': return '取消';
+			case 'linkInputDialog.confirm': return '用瀏覽器打開';
 			default: return null;
 		}
 	}

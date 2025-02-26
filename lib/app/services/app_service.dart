@@ -83,6 +83,10 @@ class AppService extends GetxService {
     }
   }
 
+  static void hideGlobalDrawer() {
+    globalDrawerKey.currentState!.closeDrawer();
+  }
+
   void toggleTitleBar() {
     _showTitleBar.value = !_showTitleBar.value;
   }
@@ -103,10 +107,10 @@ class AppService extends GetxService {
     } else {
       // 先判断是否有打开的对话框或底部表单
       if (Get.isDialogOpen ?? false) {
-        Get.closeAllDialogs();
+        Get.close(closeAll: false);
         // LogUtils.d('关闭Get.isDialogOpen', 'AppService');
       } else if (Get.isBottomSheetOpen ?? false) {
-        Get.closeAllBottomSheets();
+        Get.close(closeAll: false);
         // LogUtils.d('关闭Get.isBottomSheetOpen', 'AppService');
       } else {
         GetDelegate? homeDele = Get.nestedKey(Routes.HOME);

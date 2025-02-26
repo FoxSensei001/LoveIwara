@@ -113,7 +113,6 @@ class ApiService extends GetxService {
         
         if (accessToken != null) {
           options.headers['Authorization'] = 'Bearer $accessToken';
-          LogUtils.d('ApiService: 已添加 Authorization Header');
         }
         
         return handler.next(options);

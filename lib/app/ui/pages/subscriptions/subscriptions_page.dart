@@ -14,6 +14,7 @@ import '../../widgets/top_padding_height_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glow_notification_widget.dart';
 import 'package:i_iwara/app/ui/pages/home_page.dart';
+import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 
 class SubscriptionsPage extends StatefulWidget with RefreshableMixin {
   static final globalKey = GlobalKey<_SubscriptionsPageState>();
@@ -208,6 +209,37 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
                           curve: Curves.easeInOut,
                         );
                       },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.search),
+                      onPressed: () {
+                        SearchSegment segment;
+                        switch (_tabController.index) {
+                          case 0:
+                            segment = SearchSegment.video;
+                            break;
+                          case 1:
+                            segment = SearchSegment.image;
+                            break;
+                          case 2:
+                            segment = SearchSegment.post;
+                            break;
+                          default:
+                            segment = SearchSegment.video;
+                        }
+                        
+                        Get.dialog(SearchDialog(
+                          initialSearch: '',
+                          initialSegment: segment,
+                          onSearch: (searchInfo, segment) {
+                            NaviService.toSearchPage(
+                              searchInfo: searchInfo,
+                              segment: segment,
+                            );
+                          },
+                        ));
+                      },
+                      tooltip: t.common.search,
                     ),
                     RotationTransition(
                       turns: _refreshIconController,

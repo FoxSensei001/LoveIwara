@@ -328,6 +328,15 @@ search:
   notSupportCurrentSearchType: 'Not support current search type ${searchType}, please wait for the update'
   searchResult: Search Result
   unsupportedSearchType: 'Unsupported search type: ${searchType}'
+  googleSearch: "Google Search"
+  googleSearchHint: "${webName} 's search function is not easy to use? Try Google Search!"
+  googleSearchDescription: "Thanks to SEO technology, you can use Google Search, add site:${baseUrl} after the keyword to accurately search ${webName} website content. After that, you can choose to copy the found link, and then return to the app, through the sidebar's \"Jump Link\" to browse the content you want in the app."
+  googleSearchKeywordsHint: "Enter keywords to search"
+  openLinkJump: "Open Link Jump"
+  googleSearchButton: "Google Search"
+  pleaseEnterSearchKeywords: "Please enter search keywords"
+  googleSearchQueryCopied: "Search query copied to clipboard"
+  googleSearchBrowserOpenFailed: "Failed to open browser: ${error}"
 mediaList:
   personalIntroduction: Personal Introduction
 
@@ -975,3 +984,23 @@ translation:
   currentActualUrl: "Current actual URL: ${url}"
   urlEndingWithHashTip: "URL ending with # will be used directly without adding any suffix"
   streamingTranslationWarning: "Note: This feature requires API service support for streaming transmission, some models may not support it"
+
+linkInputDialog:
+  title: "Input Link"
+  supportedLinksHint: "Support intelligently identify multiple ${webName} links and quickly jump to the corresponding page in the app (separate links from other text with spaces)"
+  inputHint: "Please enter ${webName} link"
+  validatorEmptyLink: "Please enter link"
+  validatorNoIwaraLink: "No valid ${webName} link detected"
+  multipleLinksDetected: "Multiple links detected, please select one:"
+  notIwaraLink: "Not a valid ${webName} link"
+  linkParseError: "Link parsing error: ${error}"
+  unsupportedLinkDialogTitle: "Unsupported Link"
+  unsupportedLinkDialogContent: "This link type cannot be opened directly in the app and needs to be accessed using an external browser.\n\nDo you want to open this link in a browser?"
+  openInBrowser: "Open in Browser"
+  confirmOpenBrowserDialogTitle: "Confirm Open Browser"
+  confirmOpenBrowserDialogContent: "The following link is about to be opened in an external browser:"
+  confirmContinueBrowserOpen: "Are you sure you want to continue?"
+  browserOpenFailed: "Failed to open link"
+  unsupportedLink: "Unsupported Link"
+  cancel: "Cancel"
+  confirm: "Open in Browser"

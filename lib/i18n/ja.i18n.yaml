@@ -318,7 +318,7 @@ playList:
 
 search:
   searchTags: タグを検索...
-  contentRating: コンテンツ評価
+  contentRating: コンテンツレーティング
   removeTag: タグを削除
   pleaseEnterSearchContent: 検索内容を入力してください
   searchHistory: 検索履歴
@@ -329,6 +329,15 @@ search:
   notSupportCurrentSearchType: '現在の検索タイプ ${searchType} はまだ実装されていません。お楽しみに'
   searchResult: 検索結果
   unsupportedSearchType: 'サポートされていない検索タイプ: ${searchType}'
+  googleSearch: "グーグル検索"
+  googleSearchHint: "${webName} の検索機能は使いにくいですか？ グーグル検索を試してみてください！"
+  googleSearchDescription: "SEO技術のおかげで、グーグル検索を使用し、キーワードの後に site:${baseUrl} を追加して、${webName} ウェブサイトのコンテンツを正確に検索できます。 その後、見つかったリンクをコピーしてアプリに戻り、サイドバーの「リンクジャンプ」からアプリ内で目的のコンテンツを閲覧できます。"
+  googleSearchKeywordsHint: "検索するキーワードを入力してください"
+  openLinkJump: "リンクジャンプを開く"
+  googleSearchButton: "グーグル検索"
+  pleaseEnterSearchKeywords: "検索するキーワードを入力してください"
+  googleSearchQueryCopied: "検索語句をクリップボードにコピーしました"
+  googleSearchBrowserOpenFailed: "ブラウザを開けませんでした: ${error}"
 mediaList:
   personalIntroduction: 個人紹介
 
@@ -979,3 +988,23 @@ translation:
   usingFullUrlWithHash: "完全なURL（#で終わる）を使用"
   urlEndingWithHashTip: "URLが#で終わる場合、入力されたURLを実際のリクエストアドレスとして使用します"
   streamingTranslationWarning: "注意：この機能はAPIサービスがストリーミング伝送をサポートする必要があり、一部のモデルではサポートされていない場合があります"
+
+linkInputDialog:
+  title: "リンクを入力"
+  supportedLinksHint: "複数の${webName}リンクをインテリジェントに識別し、アプリ内の対応するページにすばやくジャンプすることをサポートします（リンクと他のテキストはスペースで区切ります）"
+  inputHint: "${webName}リンクを入力してください"
+  validatorEmptyLink: "リンクを入力してください"
+  validatorNoIwaraLink: "有効な${webName}リンクが検出されませんでした"
+  multipleLinksDetected: "複数のリンクが検出されました。1つ選択してください："
+  notIwaraLink: "有効な${webName}リンクではありません"
+  linkParseError: "リンク解析エラー: ${error}"
+  unsupportedLinkDialogTitle: "サポートされていないリンク"
+  unsupportedLinkDialogContent: "このリンクタイプは現在アプリ内で直接開くことができず、外部ブラウザを使用してアクセスする必要があります。\n\nブラウザでこのリンクを開きますか？"
+  openInBrowser: "ブラウザで開く"
+  confirmOpenBrowserDialogTitle: "ブラウザを開くことを確認"
+  confirmOpenBrowserDialogContent: "次のリンクを外部ブラウザで開こうとしています："
+  confirmContinueBrowserOpen: "続行してもよろしいですか？"
+  browserOpenFailed: "リンクを開けませんでした"
+  unsupportedLink: "サポートされていないリンク"
+  cancel: "キャンセル"
+  confirm: "ブラウザで開く"
