@@ -1,5 +1,5 @@
 # 最新版本
-currentVersion: "0.3.10"
+currentVersion: "0.3.11"
 # 更新日志
 # 格式介绍
 # 1. version: 版本号
@@ -7,6 +7,16 @@ currentVersion: "0.3.10"
 # 3. changes: 更新内容
 # 5. minVersion: 最小版本号
 updates:
+  - version: "0.3.11"
+    date: "2025-02-27"
+    minVersion: "0.3.0"
+    changes:
+      zh-CN:
+        - "修复进入图库详情页，错误的调用了新增特殊关注用户功能"
+      en:
+        - "Fixed the issue where the add special attention user function was incorrectly called in the image detail page"
+      ja:
+        - "画像詳細ページで、特殊な注目ユーザーを追加する機能が誤って呼び出されていた問題を修正"
   - version: "0.3.10"
     date: "2025-02-26"
     minVersion: "0.3.0"

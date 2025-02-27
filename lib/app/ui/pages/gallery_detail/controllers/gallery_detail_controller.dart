@@ -72,30 +72,6 @@ class GalleryDetailController extends GetxController {
         return;
       }
 
-      // 尝试更新作者信息
-      try {
-        User author = res.data!.user!;
-        UserDTO? userDTO = _userPreferenceService.getLikedUser(author.id);
-        if (userDTO == null) {
-          userDTO = UserDTO(
-            id: author.id,
-            username: author.username,
-            name: author.name,
-            avatarUrl: author.avatar?.avatarUrl ?? CommonConstants.defaultAvatarUrl
-          );
-          _userPreferenceService.addLikedUser(userDTO);
-        } else {
-          userDTO = userDTO.copyWith(
-            username: author.username,
-            name: author.name,
-            avatarUrl: author.avatar?.avatarUrl ?? CommonConstants.defaultAvatarUrl
-          );
-          _userPreferenceService.updateLikedUser(userDTO);
-        }
-      } catch (e) {
-        LogUtils.e('加载作者信息失败', tag: 'GalleryDetailController');
-      }
-
       otherAuthorzImageModelsController ??= OtherAuthorzMediasController(
         mediaId: imageModelId,
         userId: res.data!.user!.id,
