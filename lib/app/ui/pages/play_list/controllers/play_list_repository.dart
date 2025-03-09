@@ -7,13 +7,13 @@ import 'package:loading_more_list/loading_more_list.dart';
 class PlayListRepository extends LoadingMoreBase<PlaylistModel> {
   final PlayListService _playListService = Get.find<PlayListService>();
   final String userId;
-  PlayListRepository({required this.userId, this.maxLength = 300});
+
+  PlayListRepository({required this.userId});
   int _pageIndex = 0;
   bool _hasMore = true;
   bool forceRefresh = false;
   @override
-  bool get hasMore => (_hasMore && length < maxLength) || forceRefresh;
-  final int maxLength;
+  bool get hasMore => _hasMore || forceRefresh;
 
   @override
   Future<bool> refresh([bool notifyStateChanged = false]) async {

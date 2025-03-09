@@ -39,4 +39,9 @@ class PageData<T> {
             (key, value) => ['count', 'page', 'limit', 'results'].contains(key)),
     );
   }
+
+  @override
+  String toString() {
+    return 'PageData{count: $count, page: $page, limit: $limit, results: ${results.length} items${extras != null ? ", extras: $extras" : ""}}';
+  }
 }

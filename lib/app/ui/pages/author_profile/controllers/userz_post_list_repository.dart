@@ -7,15 +7,14 @@ import 'package:loading_more_list/loading_more_list.dart';
 class UserzPostListRepository extends LoadingMoreBase<PostModel> {
   final PostService _postService = Get.find<PostService>();
   final String userId;
-  UserzPostListRepository({required this.userId, this.maxLength = 300});
+  UserzPostListRepository({required this.userId});
   
   int _pageIndex = 0;
   bool _hasMore = true;
   bool forceRefresh = false;
-  final int maxLength;
 
   @override
-  bool get hasMore => (_hasMore && length < maxLength) || forceRefresh;
+  bool get hasMore => _hasMore || forceRefresh;
 
   @override
   Future<bool> refresh([bool notifyStateChanged = false]) async {

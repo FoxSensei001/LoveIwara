@@ -15,9 +15,8 @@ class ConversationListRepository extends LoadingMoreBase<ConversationModel> {
   bool forceRefresh = false;
   @override
   bool get hasMore => _hasMore || forceRefresh;
-  final int maxLength;
 
-  ConversationListRepository({this.maxLength = 300});
+  ConversationListRepository();
 
   @override
   Future<bool> refresh([bool notifyStateChanged = false]) async {

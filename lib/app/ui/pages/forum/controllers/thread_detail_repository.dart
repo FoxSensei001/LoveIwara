@@ -18,15 +18,13 @@ class ThreadDetailRepository extends LoadingMoreBase<ThreadCommentModel> {
     required this.categoryId,
     required this.threadId,
     this.updateThread,
-    this.maxLength = 300,
   });
 
   int _pageIndex = 0;
   bool _hasMore = true;
   bool forceRefresh = false;
   @override
-  bool get hasMore => (_hasMore && length < maxLength) || forceRefresh;
-  final int maxLength;
+  bool get hasMore => _hasMore || forceRefresh;
 
   @override
   Future<bool> refresh([bool notifyStateChanged = false]) async {

@@ -43,7 +43,6 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
   late TabController _tabController;
   String selectedId = '';
 
-  final ScrollController _scrollController = ScrollController();
   late AnimationController _refreshIconController;
 
   // 为每个列表保存一个GlobalKey，用于调用刷新方法
@@ -118,8 +117,8 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
   @override
   void dispose() {
     _tabController.dispose();
-    _scrollController.dispose();
     _refreshIconController.dispose();
+    _extendedScrollController.dispose();
     super.dispose();
   }
 

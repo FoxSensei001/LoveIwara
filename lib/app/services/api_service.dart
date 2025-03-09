@@ -109,7 +109,7 @@ class ApiService extends GetxService {
     _dio.interceptors.add(d_dio.InterceptorsWrapper(
       onRequest: (options, handler) async {
         final accessToken = _authService.accessToken;
-        LogUtils.d('ApiService: 拦截器处理请求: ${options.path}');
+        LogUtils.d('ApiService: 拦截器处理请求: ${options.path}, params: ${options.queryParameters}');
         
         if (accessToken != null) {
           options.headers['Authorization'] = 'Bearer $accessToken';

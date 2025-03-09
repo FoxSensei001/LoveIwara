@@ -17,7 +17,7 @@ class ApiResult<T> {
     String? message, 
     T? data, 
     int code = 200,
-    String? custMessage // 新增自定义消息参数
+    String? custMessage
   }) {
     return ApiResult._(custMessage ?? message ?? slang.t.common.success, data, code);
   }
@@ -26,6 +26,11 @@ class ApiResult<T> {
   factory ApiResult.fail(String message, {T? data, int code = 500}) {
     return ApiResult._(message, data, code);
   }
+  
+  @override
+  String toString() {
+    return 'ApiResult{message: $message, code: $code, data: $data, isSuccess: $isSuccess}';
+  }
 }
 
 // 测试结果模型
@@ -33,12 +38,17 @@ class AITestResult {
   final String? rawResponse;
   final String? translatedText;
   final bool connectionValid;
-  final String custMessage; // 改为必填字段
+  final String custMessage;
 
   AITestResult({
     this.rawResponse,
     this.translatedText,
     this.connectionValid = false,
-    required this.custMessage // 添加required修饰符
+    required this.custMessage
   });
+  
+  @override
+  String toString() {
+    return 'AITestResult{connectionValid: $connectionValid, custMessage: $custMessage, rawResponse: $rawResponse, translatedText: $translatedText}';
+  }
 }

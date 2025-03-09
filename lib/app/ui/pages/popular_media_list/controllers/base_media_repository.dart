@@ -14,7 +14,6 @@ abstract class BaseMediaRepository<T> extends LoadingMoreBase<T> {
     this.searchTagIds = const [],
     this.searchDate = '',
     this.searchRating = '',
-    this.maxLength = 300,
   });
 
   int _pageIndex = 0;
@@ -22,8 +21,7 @@ abstract class BaseMediaRepository<T> extends LoadingMoreBase<T> {
   bool forceRefresh = false;
 
   @override
-  bool get hasMore => (_hasMore && length < maxLength) || forceRefresh;
-  final int maxLength;
+  bool get hasMore => _hasMore || forceRefresh;
 
   @override
   Future<bool> refresh([bool notifyStateChanged = false]) async {

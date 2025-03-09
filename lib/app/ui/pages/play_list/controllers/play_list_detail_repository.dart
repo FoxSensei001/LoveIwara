@@ -9,16 +9,14 @@ class PlayListDetailRepository extends LoadingMoreBase<Video> {
 
   PlayListDetailRepository({
     required this.playlistId,
-    this.maxLength = 300,
   });
 
   int _pageIndex = 0;
   bool _hasMore = true;
   bool forceRefresh = false;
-  final int maxLength;
 
   @override
-  bool get hasMore => (_hasMore && length < maxLength) || forceRefresh;
+  bool get hasMore => _hasMore || forceRefresh;
 
   @override
   Future<bool> refresh([bool notifyStateChanged = false]) async {
