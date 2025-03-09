@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:i_iwara/app/models/post.model.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/post_card_list_item_widget.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:shimmer/shimmer.dart';
@@ -9,10 +9,12 @@ import '../controllers/subscription_post_repository.dart';
 
 class SubscriptionPostList extends StatefulWidget {
   final String userId;
+  final bool isPaginated;
 
   const SubscriptionPostList({
     super.key,
     required this.userId,
+    this.isPaginated = false,
   });
 
   @override
@@ -21,11 +23,41 @@ class SubscriptionPostList extends StatefulWidget {
 
 class SubscriptionPostListState extends State<SubscriptionPostList> with AutomaticKeepAliveClientMixin {
   late SubscriptionPostRepository listSourceRepository;
+  late MediaListView<PostModel> _mediaListView;
 
   @override
   void initState() {
     super.initState();
     listSourceRepository = SubscriptionPostRepository(userId: widget.userId);
+    _updateMediaListView();
+  }
+
+  void _updateMediaListView() {
+    _mediaListView = MediaListView<PostModel>(
+      sourceList: listSourceRepository,
+      emptyIcon: Icons.article_outlined,
+      isPaginated: widget.isPaginated,
+      itemBuilder: (context, post, index) {
+        return Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 4,
+          ),
+          child: PostCardListItemWidget(post: post),
+        );
+      },
+    );
+  }
+
+  @override
+  void didUpdateWidget(SubscriptionPostList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.isPaginated != widget.isPaginated || oldWidget.userId != widget.userId) {
+      if (oldWidget.userId != widget.userId) {
+        listSourceRepository = SubscriptionPostRepository(userId: widget.userId);
+      }
+      _updateMediaListView();
+      setState(() {});
+    }
   }
 
   @override
@@ -34,9 +66,14 @@ class SubscriptionPostListState extends State<SubscriptionPostList> with Automat
     super.dispose();
   }
 
-  // 提供一个刷新方法给外部调用
   Future<void> refresh() async {
-    await listSourceRepository.refresh(true);
+    if (widget.isPaginated) {
+      setState(() {
+        _updateMediaListView();
+      });
+    } else {
+      await listSourceRepository.refresh(true);
+    }
   }
 
   @override
@@ -47,37 +84,7 @@ class SubscriptionPostListState extends State<SubscriptionPostList> with Automat
     super.build(context);
     return RefreshIndicator(
       onRefresh: refresh,
-      child: LoadingMoreCustomScrollView(
-        slivers: <Widget>[
-          LoadingMoreSliverList(
-            SliverListConfig<PostModel>(
-              extendedListDelegate:
-                  SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: MediaQuery.of(context).size.width <= 600 ? 400 : 600,
-                crossAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
-                mainAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
-              ),
-              itemBuilder: (BuildContext context, PostModel post, int index) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 4,
-                  ),
-                  child: PostCardListItemWidget(post: post),
-                );
-              },
-              sourceList: listSourceRepository,
-              padding: EdgeInsets.only(
-                left: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
-                right: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
-                top: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
-                bottom: Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0,
-              ),
-              lastChildLayoutType: LastChildLayoutType.foot,
-              indicatorBuilder: _buildIndicator,
-            ),
-          ),
-        ],
-      ),
+      child: _mediaListView,
     );
   }
 

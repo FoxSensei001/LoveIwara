@@ -9,6 +9,7 @@ import 'package:i_iwara/app/ui/pages/subscriptions/widgets/subscription_post_lis
 import 'package:i_iwara/app/ui/pages/subscriptions/widgets/subscription_select_list_widget.dart';
 import 'package:i_iwara/app/ui/pages/subscriptions/widgets/subscription_video_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/common/constants.dart';
 import '../../../services/app_service.dart';
 import '../../widgets/top_padding_height_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
@@ -44,6 +45,9 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
   String selectedId = '';
 
   late AnimationController _refreshIconController;
+  
+  // 添加列表显示模式状态，并使用保存的值初始化
+  RxBool isPaginatedMode = CommonConstants.subscriptionPaginationMode.obs;
 
   // 为每个列表保存一个GlobalKey，用于调用刷新方法
   final Map<int, GlobalKey<State>> _listStateKeys = {
@@ -241,6 +245,22 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
                       },
                       tooltip: t.common.search,
                     ),
+                    // 添加列表模式切换按钮
+                    Obx(() => IconButton(
+                      icon: Icon(isPaginatedMode.value 
+                          ? Icons.view_stream 
+                          : Icons.view_agenda),
+                      onPressed: () {
+                        isPaginatedMode.value = !isPaginatedMode.value;
+                        // 保存用户的选择到常量中
+                        CommonConstants.subscriptionPaginationMode = isPaginatedMode.value;
+                      },
+                      tooltip: isPaginatedMode.value 
+                          // ? t.common.scrollMode 
+                          // : t.common.paginationMode,
+                          ? '瀑布流'
+                          : '分页',
+                    )),
                     RotationTransition(
                       turns: _refreshIconController,
                       child: IconButton(
@@ -262,26 +282,47 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
         controller: _tabController,
         children: [
           // 视频列表
-          GlowNotificationWidget(
-            child: SubscriptionVideoList(
-              key: _listStateKeys[0],
-              userId: selectedId,
-            ),
-          ),
+          Obx(() => GlowNotificationWidget(
+            child: isPaginatedMode.value
+                ? SubscriptionVideoList(
+                    key: _listStateKeys[0],
+                    userId: selectedId,
+                    isPaginated: true,
+                  )
+                : SubscriptionVideoList(
+                    key: _listStateKeys[0],
+                    userId: selectedId,
+                    isPaginated: false,
+                  ),
+          )),
           // 图片列表
-          GlowNotificationWidget(
-            child: SubscriptionImageList(
-              key: _listStateKeys[1],
-              userId: selectedId,
-            ),
-          ),
+          Obx(() => GlowNotificationWidget(
+            child: isPaginatedMode.value
+                ? SubscriptionImageList(
+                    key: _listStateKeys[1],
+                    userId: selectedId,
+                    isPaginated: true,
+                  )
+                : SubscriptionImageList(
+                    key: _listStateKeys[1],
+                    userId: selectedId,
+                    isPaginated: false,
+                  ),
+          )),
           // 帖子列表
-          GlowNotificationWidget(
-            child: SubscriptionPostList(
-              key: _listStateKeys[2],
-              userId: selectedId,
-            ),
-          ),
+          Obx(() => GlowNotificationWidget(
+            child: isPaginatedMode.value
+                ? SubscriptionPostList(
+                    key: _listStateKeys[2],
+                    userId: selectedId,
+                    isPaginated: true,
+                  )
+                : SubscriptionPostList(
+                    key: _listStateKeys[2],
+                    userId: selectedId,
+                    isPaginated: false,
+                  ),
+          )),
         ],
       ),
     );

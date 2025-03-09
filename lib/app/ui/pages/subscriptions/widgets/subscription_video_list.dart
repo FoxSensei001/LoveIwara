@@ -6,10 +6,12 @@ import '../controllers/subscription_video_repository.dart';
 
 class SubscriptionVideoList extends StatefulWidget {
   final String userId;
+  final bool isPaginated;
 
   const SubscriptionVideoList({
     super.key,
     required this.userId,
+    this.isPaginated = false,
   });
 
   @override
@@ -18,11 +20,45 @@ class SubscriptionVideoList extends StatefulWidget {
 
 class SubscriptionVideoListState extends State<SubscriptionVideoList> with AutomaticKeepAliveClientMixin {
   late SubscriptionVideoRepository listSourceRepository;
+  late MediaListView<Video> _mediaListView;
 
   @override
   void initState() {
     super.initState();
     listSourceRepository = SubscriptionVideoRepository(userId: widget.userId);
+    _updateMediaListView();
+  }
+
+  void _updateMediaListView() {
+    _mediaListView = MediaListView<Video>(
+      sourceList: listSourceRepository,
+      emptyIcon: Icons.video_library_outlined,
+      isPaginated: widget.isPaginated,
+      itemBuilder: (context, video, index) {
+        return Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
+            vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
+          ),
+          child: VideoCardListItemWidget(
+            video: video,
+            width: MediaQuery.of(context).size.width <= 600 ? MediaQuery.of(context).size.width / 2 - 8 : 200,
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  void didUpdateWidget(SubscriptionVideoList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.isPaginated != widget.isPaginated || oldWidget.userId != widget.userId) {
+      if (oldWidget.userId != widget.userId) {
+        listSourceRepository = SubscriptionVideoRepository(userId: widget.userId);
+      }
+      _updateMediaListView();
+      setState(() {});
+    }
   }
 
   @override
@@ -32,7 +68,13 @@ class SubscriptionVideoListState extends State<SubscriptionVideoList> with Autom
   }
 
   Future<void> refresh() async {
-    await listSourceRepository.refresh(true);
+    if (widget.isPaginated) {
+      setState(() {
+        _updateMediaListView();
+      });
+    } else {
+      await listSourceRepository.refresh(true);
+    }
   }
 
   @override
@@ -43,22 +85,7 @@ class SubscriptionVideoListState extends State<SubscriptionVideoList> with Autom
     super.build(context);
     return RefreshIndicator(
       onRefresh: refresh,
-      child: MediaListView<Video>(
-        sourceList: listSourceRepository,
-        emptyIcon: Icons.video_library_outlined,
-        itemBuilder: (context, video, index) {
-          return Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
-              vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
-            ),
-            child: VideoCardListItemWidget(
-              video: video,
-              width: MediaQuery.of(context).size.width <= 600 ? MediaQuery.of(context).size.width / 2 - 8 : 200,
-            ),
-          );
-        },
-      ),
+      child: _mediaListView,
     );
   }
 }

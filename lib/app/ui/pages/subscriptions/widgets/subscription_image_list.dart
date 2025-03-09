@@ -6,10 +6,12 @@ import '../controllers/subscription_image_repository.dart';
 
 class SubscriptionImageList extends StatefulWidget {
   final String userId;
+  final bool isPaginated;
 
   const SubscriptionImageList({
     super.key,
     required this.userId,
+    this.isPaginated = false,
   });
 
   @override
@@ -18,11 +20,45 @@ class SubscriptionImageList extends StatefulWidget {
 
 class SubscriptionImageListState extends State<SubscriptionImageList> with AutomaticKeepAliveClientMixin {
   late SubscriptionImageRepository listSourceRepository;
+  late MediaListView<ImageModel> _mediaListView;
 
   @override
   void initState() {
     super.initState();
     listSourceRepository = SubscriptionImageRepository(userId: widget.userId);
+    _updateMediaListView();
+  }
+
+  void _updateMediaListView() {
+    _mediaListView = MediaListView<ImageModel>(
+      sourceList: listSourceRepository,
+      emptyIcon: Icons.image_outlined,
+      isPaginated: widget.isPaginated,
+      itemBuilder: (context, image, index) {
+        return Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
+            vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
+          ),
+          child: ImageModelCardListItemWidget(
+            imageModel: image,
+            width: MediaQuery.of(context).size.width <= 600 ? MediaQuery.of(context).size.width / 2 - 8 : 200,
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  void didUpdateWidget(SubscriptionImageList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.isPaginated != widget.isPaginated || oldWidget.userId != widget.userId) {
+      if (oldWidget.userId != widget.userId) {
+        listSourceRepository = SubscriptionImageRepository(userId: widget.userId);
+      }
+      _updateMediaListView();
+      setState(() {});
+    }
   }
 
   @override
@@ -32,7 +68,13 @@ class SubscriptionImageListState extends State<SubscriptionImageList> with Autom
   }
 
   Future<void> refresh() async {
-    await listSourceRepository.refresh(true);
+    if (widget.isPaginated) {
+      setState(() {
+        _updateMediaListView();
+      });
+    } else {
+      await listSourceRepository.refresh(true);
+    }
   }
 
   @override
@@ -43,22 +85,7 @@ class SubscriptionImageListState extends State<SubscriptionImageList> with Autom
     super.build(context);
     return RefreshIndicator(
       onRefresh: refresh,
-      child: MediaListView<ImageModel>(
-        sourceList: listSourceRepository,
-        emptyIcon: Icons.image_outlined,
-        itemBuilder: (context, image, index) {
-          return Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
-              vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
-            ),
-            child: ImageModelCardListItemWidget(
-              imageModel: image,
-              width: MediaQuery.of(context).size.width <= 600 ? MediaQuery.of(context).size.width / 2 - 8 : 200,
-            ),
-          );
-        },
-      ),
+      child: _mediaListView,
     );
   }
 }

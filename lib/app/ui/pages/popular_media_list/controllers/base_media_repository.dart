@@ -19,6 +19,7 @@ abstract class BaseMediaRepository<T> extends LoadingMoreBase<T> {
   int _pageIndex = 0;
   bool _hasMore = true;
   bool forceRefresh = false;
+  int requestTotalCount = 0;
 
   @override
   bool get hasMore => _hasMore || forceRefresh;
@@ -27,6 +28,7 @@ abstract class BaseMediaRepository<T> extends LoadingMoreBase<T> {
   Future<bool> refresh([bool notifyStateChanged = false]) async {
     _hasMore = true;
     _pageIndex = 0;
+    requestTotalCount = 0;
     forceRefresh = !notifyStateChanged;
     final bool result = await super.refresh(notifyStateChanged);
     forceRefresh = false;
@@ -53,6 +55,7 @@ abstract class BaseMediaRepository<T> extends LoadingMoreBase<T> {
       }
 
       if (result.isSuccess && result.data != null) {
+        requestTotalCount = result.data!.count;
         final items = result.data!.results;
         for (final item in items) {
           add(item);
