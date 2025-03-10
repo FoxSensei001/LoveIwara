@@ -23,40 +23,21 @@ class SubscriptionPostList extends StatefulWidget {
 
 class SubscriptionPostListState extends State<SubscriptionPostList> with AutomaticKeepAliveClientMixin {
   late SubscriptionPostRepository listSourceRepository;
-  late MediaListView<PostModel> _mediaListView;
 
   @override
   void initState() {
     super.initState();
     listSourceRepository = SubscriptionPostRepository(userId: widget.userId);
-    _updateMediaListView();
-  }
-
-  void _updateMediaListView() {
-    _mediaListView = MediaListView<PostModel>(
-      sourceList: listSourceRepository,
-      emptyIcon: Icons.article_outlined,
-      isPaginated: widget.isPaginated,
-      itemBuilder: (context, post, index) {
-        return Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 4,
-          ),
-          child: PostCardListItemWidget(post: post),
-        );
-      },
-    );
   }
 
   @override
   void didUpdateWidget(SubscriptionPostList oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.isPaginated != widget.isPaginated || oldWidget.userId != widget.userId) {
-      if (oldWidget.userId != widget.userId) {
-        listSourceRepository = SubscriptionPostRepository(userId: widget.userId);
+    if (oldWidget.userId != widget.userId) {
+      listSourceRepository = SubscriptionPostRepository(userId: widget.userId);
+      if (mounted) {
+        setState(() {});
       }
-      _updateMediaListView();
-      setState(() {});
     }
   }
 
@@ -68,9 +49,7 @@ class SubscriptionPostListState extends State<SubscriptionPostList> with Automat
 
   Future<void> refresh() async {
     if (widget.isPaginated) {
-      setState(() {
-        _updateMediaListView();
-      });
+      setState(() {});
     } else {
       await listSourceRepository.refresh(true);
     }
@@ -82,9 +61,29 @@ class SubscriptionPostListState extends State<SubscriptionPostList> with Automat
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    
+    final mediaListView = MediaListView<PostModel>(
+      sourceList: listSourceRepository,
+      emptyIcon: Icons.article_outlined,
+      isPaginated: widget.isPaginated,
+      extendedListDelegate: SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: MediaQuery.of(context).size.width <= 600 ? 400 : 600,
+        crossAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
+        mainAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
+      ),
+      itemBuilder: (context, post, index) {
+        return Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 4,
+          ),
+          child: PostCardListItemWidget(post: post),
+        );
+      },
+    );
+    
     return RefreshIndicator(
       onRefresh: refresh,
-      child: _mediaListView,
+      child: mediaListView,
     );
   }
 

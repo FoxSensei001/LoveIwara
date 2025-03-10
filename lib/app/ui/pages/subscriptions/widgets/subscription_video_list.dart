@@ -20,17 +20,46 @@ class SubscriptionVideoList extends StatefulWidget {
 
 class SubscriptionVideoListState extends State<SubscriptionVideoList> with AutomaticKeepAliveClientMixin {
   late SubscriptionVideoRepository listSourceRepository;
-  late MediaListView<Video> _mediaListView;
 
   @override
   void initState() {
     super.initState();
     listSourceRepository = SubscriptionVideoRepository(userId: widget.userId);
-    _updateMediaListView();
   }
 
-  void _updateMediaListView() {
-    _mediaListView = MediaListView<Video>(
+  @override
+  void didUpdateWidget(SubscriptionVideoList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.userId != widget.userId) {
+      listSourceRepository = SubscriptionVideoRepository(userId: widget.userId);
+      if (mounted) {
+        setState(() {});
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    listSourceRepository.dispose();
+    super.dispose();
+  }
+
+  Future<void> refresh() async {
+    if (widget.isPaginated) {
+      setState(() {});
+    } else {
+      await listSourceRepository.refresh(true);
+    }
+  }
+
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    
+    final mediaListView = MediaListView<Video>(
       sourceList: listSourceRepository,
       emptyIcon: Icons.video_library_outlined,
       isPaginated: widget.isPaginated,
@@ -47,45 +76,10 @@ class SubscriptionVideoListState extends State<SubscriptionVideoList> with Autom
         );
       },
     );
-  }
-
-  @override
-  void didUpdateWidget(SubscriptionVideoList oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.isPaginated != widget.isPaginated || oldWidget.userId != widget.userId) {
-      if (oldWidget.userId != widget.userId) {
-        listSourceRepository = SubscriptionVideoRepository(userId: widget.userId);
-      }
-      _updateMediaListView();
-      setState(() {});
-    }
-  }
-
-  @override
-  void dispose() {
-    listSourceRepository.dispose();
-    super.dispose();
-  }
-
-  Future<void> refresh() async {
-    if (widget.isPaginated) {
-      setState(() {
-        _updateMediaListView();
-      });
-    } else {
-      await listSourceRepository.refresh(true);
-    }
-  }
-
-  @override
-  bool get wantKeepAlive => true;
-
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
+    
     return RefreshIndicator(
       onRefresh: refresh,
-      child: _mediaListView,
+      child: mediaListView,
     );
   }
 }

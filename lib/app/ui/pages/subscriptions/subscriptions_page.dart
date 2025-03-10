@@ -49,20 +49,45 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
   // 添加列表显示模式状态，并使用保存的值初始化
   RxBool isPaginatedMode = CommonConstants.subscriptionPaginationMode.obs;
 
-  // 为每个列表保存一个GlobalKey，用于调用刷新方法
-  final Map<int, GlobalKey<State>> _listStateKeys = {
-    0: GlobalKey<SubscriptionVideoListState>(),
-    1: GlobalKey<SubscriptionImageListState>(),
-    2: GlobalKey<SubscriptionPostListState>(),
-  };
+  // 替换原有的 GlobalKey Maps，使用工厂方法
+  // 使用缓存映射保存已创建的 key
+  final Map<String, GlobalKey<State>> _keyCache = {};
+
+  GlobalKey<State> _getKey(int tabIndex, bool isPaginated) {
+    // 创建稳定的 key 标识符，不再使用时间戳
+    String keyId = '${tabIndex}_${isPaginated ? 'paginated' : 'list'}_$selectedId';
+    
+    // 检查缓存中是否存在该 key
+    if (!_keyCache.containsKey(keyId)) {
+      // 根据 tabIndex 创建不同类型的 key
+      switch (tabIndex) {
+        case 0:
+          _keyCache[keyId] = GlobalKey<SubscriptionVideoListState>(debugLabel: keyId);
+        case 1:
+          _keyCache[keyId] = GlobalKey<SubscriptionImageListState>(debugLabel: keyId);
+        case 2:
+          _keyCache[keyId] = GlobalKey<SubscriptionPostListState>(debugLabel: keyId);
+        default:
+          _keyCache[keyId] = GlobalKey<State>(debugLabel: keyId);
+      }
+    }
+    
+    // 返回缓存的 key
+    return _keyCache[keyId]!;
+  }
+
+  // 当用户选择改变时清除相关缓存的 key
+  void _clearKeysForId(String id) {
+    final keysToRemove = _keyCache.keys.where((k) => k.contains(id)).toList();
+    for (var key in keysToRemove) {
+      _keyCache.remove(key);
+    }
+  }
 
   void tryRefreshCurrentList() {
     if (mounted) {
-      // 获取当前的列表
-      var currentKey = _listStateKeys[_tabController.index];
-      if (currentKey != null && currentKey.currentState != null) {
-        (currentKey.currentState as SubscriptionVideoListState).refresh();
-      }
+      // 强制重建视图来刷新
+      setState(() {});
     }
   }
 
@@ -81,16 +106,22 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
       duration: const Duration(seconds: 1),
       vsync: this,
     );
+    
+    // 添加对 isPaginatedMode 变化的监听
+    isPaginatedMode.listen((_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
   }
 
   void _onIdSelected(String id) {
     if (selectedId != id) {
+      // 清除旧 ID 对应的缓存键
+      _clearKeysForId(selectedId);
+      
       setState(() {
         selectedId = id;
-        // 为所有列表生成新的key
-        _listStateKeys[0] = GlobalKey<SubscriptionVideoListState>();
-        _listStateKeys[1] = GlobalKey<SubscriptionImageListState>();
-        _listStateKeys[2] = GlobalKey<SubscriptionPostListState>();
       });
     }
   }
@@ -99,19 +130,8 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
   Future<void> _refreshCurrentList() async {
     _refreshIconController.repeat();
     try {
-      final currentKey = _listStateKeys[_tabController.index];
-      if (currentKey?.currentState != null) {
-        if (_tabController.index == 0) {
-          await (currentKey!.currentState as SubscriptionVideoListState)
-              .refresh();
-        } else if (_tabController.index == 1) {
-          await (currentKey!.currentState as SubscriptionImageListState)
-              .refresh();
-        } else {
-          await (currentKey!.currentState as SubscriptionPostListState)
-              .refresh();
-        }
-      }
+      // 触发重建以刷新数据
+      setState(() {});
     } finally {
       _refreshIconController.stop();
       _refreshIconController.reset();
@@ -251,6 +271,12 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
                           ? Icons.view_stream 
                           : Icons.view_agenda),
                       onPressed: () {
+                        // 切换前先清除所有缓存键，以便在模式切换后重新创建
+                        for (int i = 0; i < 3; i++) {
+                          _clearKeysForId('${i}_paginated_$selectedId');
+                          _clearKeysForId('${i}_list_$selectedId');
+                        }
+                        
                         isPaginatedMode.value = !isPaginatedMode.value;
                         // 保存用户的选择到常量中
                         CommonConstants.subscriptionPaginationMode = isPaginatedMode.value;
@@ -282,47 +308,44 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
         controller: _tabController,
         children: [
           // 视频列表
-          Obx(() => GlowNotificationWidget(
-            child: isPaginatedMode.value
-                ? SubscriptionVideoList(
-                    key: _listStateKeys[0],
-                    userId: selectedId,
-                    isPaginated: true,
-                  )
-                : SubscriptionVideoList(
-                    key: _listStateKeys[0],
-                    userId: selectedId,
-                    isPaginated: false,
-                  ),
-          )),
+          Builder(
+            builder: (context) {
+              final isPaginated = isPaginatedMode.value;
+              return GlowNotificationWidget(
+                child: SubscriptionVideoList(
+                  key: _getKey(0, isPaginated),
+                  userId: selectedId,
+                  isPaginated: isPaginated,
+                ),
+              );
+            },
+          ),
           // 图片列表
-          Obx(() => GlowNotificationWidget(
-            child: isPaginatedMode.value
-                ? SubscriptionImageList(
-                    key: _listStateKeys[1],
-                    userId: selectedId,
-                    isPaginated: true,
-                  )
-                : SubscriptionImageList(
-                    key: _listStateKeys[1],
-                    userId: selectedId,
-                    isPaginated: false,
-                  ),
-          )),
+          Builder(
+            builder: (context) {
+              final isPaginated = isPaginatedMode.value;
+              return GlowNotificationWidget(
+                child: SubscriptionImageList(
+                  key: _getKey(1, isPaginated),
+                  userId: selectedId,
+                  isPaginated: isPaginated,
+                ),
+              );
+            },
+          ),
           // 帖子列表
-          Obx(() => GlowNotificationWidget(
-            child: isPaginatedMode.value
-                ? SubscriptionPostList(
-                    key: _listStateKeys[2],
-                    userId: selectedId,
-                    isPaginated: true,
-                  )
-                : SubscriptionPostList(
-                    key: _listStateKeys[2],
-                    userId: selectedId,
-                    isPaginated: false,
-                  ),
-          )),
+          Builder(
+            builder: (context) {
+              final isPaginated = isPaginatedMode.value;
+              return GlowNotificationWidget(
+                child: SubscriptionPostList(
+                  key: _getKey(2, isPaginated),
+                  userId: selectedId,
+                  isPaginated: isPaginated,
+                ),
+              );
+            },
+          ),
         ],
       ),
     );

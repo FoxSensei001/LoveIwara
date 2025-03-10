@@ -97,6 +97,7 @@ class MediaListView<T> extends StatefulWidget {
   final Widget Function(BuildContext context, T item, int index) itemBuilder;
   final IconData? emptyIcon;
   final bool isPaginated;
+  final ExtendedListDelegate? extendedListDelegate;
 
   const MediaListView({
     super.key,
@@ -104,6 +105,7 @@ class MediaListView<T> extends StatefulWidget {
     required this.itemBuilder,
     this.emptyIcon,
     this.isPaginated = false,
+    this.extendedListDelegate,
   });
 
   @override
@@ -269,12 +271,12 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
       slivers: <Widget>[
         LoadingMoreSliverList(
           SliverListConfig<T>(
-            extendedListDelegate:
+            extendedListDelegate: widget.extendedListDelegate ??
                 SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: MediaQuery.of(context).size.width <= 600 ? MediaQuery.of(context).size.width / 2 : 200,
-              crossAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
-              mainAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
-            ),
+                  maxCrossAxisExtent: MediaQuery.of(context).size.width <= 600 ? MediaQuery.of(context).size.width / 2 : 200,
+                  crossAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
+                  mainAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
+                ),
             itemBuilder: widget.itemBuilder,
             sourceList: widget.sourceList,
             padding: EdgeInsets.only(
