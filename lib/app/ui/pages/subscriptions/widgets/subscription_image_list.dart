@@ -7,11 +7,13 @@ import '../controllers/subscription_image_repository.dart';
 class SubscriptionImageList extends StatefulWidget {
   final String userId;
   final bool isPaginated;
+  final ScrollController? scrollController;
 
   const SubscriptionImageList({
     super.key,
     required this.userId,
     this.isPaginated = false,
+    this.scrollController,
   });
 
   @override
@@ -63,6 +65,7 @@ class SubscriptionImageListState extends State<SubscriptionImageList> with Autom
       sourceList: listSourceRepository,
       emptyIcon: Icons.image_outlined,
       isPaginated: widget.isPaginated,
+      scrollController: widget.scrollController,
       itemBuilder: (context, image, index) {
         return Padding(
           padding: EdgeInsets.symmetric(

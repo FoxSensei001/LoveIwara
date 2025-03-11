@@ -7,11 +7,13 @@ import '../controllers/subscription_video_repository.dart';
 class SubscriptionVideoList extends StatefulWidget {
   final String userId;
   final bool isPaginated;
+  final ScrollController? scrollController;
 
   const SubscriptionVideoList({
     super.key,
     required this.userId,
     this.isPaginated = false,
+    this.scrollController,
   });
 
   @override
@@ -63,6 +65,7 @@ class SubscriptionVideoListState extends State<SubscriptionVideoList> with Autom
       sourceList: listSourceRepository,
       emptyIcon: Icons.video_library_outlined,
       isPaginated: widget.isPaginated,
+      scrollController: widget.scrollController,
       itemBuilder: (context, video, index) {
         return Padding(
           padding: EdgeInsets.symmetric(

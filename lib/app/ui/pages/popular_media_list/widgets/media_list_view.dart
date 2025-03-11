@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/utils/logger_utils.dart' show LogUtils;
 import 'package:loading_more_list/loading_more_list.dart';
@@ -98,6 +99,7 @@ class MediaListView<T> extends StatefulWidget {
   final IconData? emptyIcon;
   final bool isPaginated;
   final ExtendedListDelegate? extendedListDelegate;
+  final ScrollController? scrollController;
 
   const MediaListView({
     super.key,
@@ -106,6 +108,7 @@ class MediaListView<T> extends StatefulWidget {
     this.emptyIcon,
     this.isPaginated = false,
     this.extendedListDelegate,
+    this.scrollController,
   });
 
   @override
@@ -120,6 +123,12 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
   final TextEditingController _pageController = TextEditingController();
   // 添加指示器状态
   IndicatorStatus _indicatorStatus = IndicatorStatus.fullScreenBusying;
+  
+  // 添加一个标志来跟踪是否是首次加载
+  bool _isFirstLoad = true;
+  
+  // 添加一个标志来跟踪模式是否已切换
+  bool _modeSwitched = false;
   
   int get totalItems {
     if (widget.sourceList is ExtendedLoadingMoreBase<T>) {
@@ -141,10 +150,38 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
   @override
   void didUpdateWidget(MediaListView<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.isPaginated != widget.isPaginated || oldWidget.sourceList != widget.sourceList) {
+    
+    // 检测模式切换
+    if (oldWidget.isPaginated != widget.isPaginated) {
+      _modeSwitched = true;
+      
+      // 从瀑布流切换到分页模式
       if (widget.isPaginated && !oldWidget.isPaginated) {
         currentPage = 0;
         _loadPaginatedData(currentPage);
+      }
+      // 从分页切换到瀑布流模式
+      else if (!widget.isPaginated && oldWidget.isPaginated) {
+        // 确保瀑布流模式下数据能正确加载
+        Future.microtask(() {
+          if (widget.sourceList.isEmpty) {
+            widget.sourceList.refresh(true);
+          }
+        });
+      }
+    }
+    // 检测数据源变化
+    else if (oldWidget.sourceList != widget.sourceList) {
+      if (widget.isPaginated) {
+        currentPage = 0;
+        _loadPaginatedData(currentPage);
+      } else {
+        // 确保瀑布流模式下数据能正确加载
+        Future.microtask(() {
+          if (widget.sourceList.isEmpty) {
+            widget.sourceList.refresh(true);
+          }
+        });
       }
     }
   }
@@ -154,9 +191,12 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
     
     setState(() {
       isLoading = true;
-      _indicatorStatus = page == 0 
-          ? IndicatorStatus.fullScreenBusying 
-          : IndicatorStatus.loadingMoreBusying;
+      // 根据是否是首次加载或模式切换来设置适当的指示器状态
+      if (_isFirstLoad || _modeSwitched || page == 0) {
+        _indicatorStatus = IndicatorStatus.fullScreenBusying;
+      } else {
+        _indicatorStatus = IndicatorStatus.loadingMoreBusying;
+      }
     });
     
     try {
@@ -164,10 +204,27 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
         final repo = widget.sourceList as ExtendedLoadingMoreBase<T>;
         final items = await repo.loadPageData(page, itemsPerPage);
         
+        // 确保组件仍然挂载
+        if (!mounted) return;
+        
+        // 添加过渡动画效果
+        if (items.isNotEmpty && paginatedItems.isNotEmpty && page != currentPage) {
+          // 先设置状态为过渡中
+          setState(() {
+            isLoading = true;
+            _indicatorStatus = IndicatorStatus.none;
+          });
+          
+          // 短暂延迟后更新数据，制造平滑过渡效果
+          await Future.delayed(const Duration(milliseconds: 150));
+        }
+        
         setState(() {
           paginatedItems = items;
           currentPage = page;
           isLoading = false;
+          _isFirstLoad = false;
+          _modeSwitched = false;
           
           // 根据结果设置适当的状态
           if (items.isEmpty && page == 0) {
@@ -179,58 +236,27 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
           }
         });
       } else {
+        if (!mounted) return;
+        
         setState(() {
           isLoading = false;
+          _isFirstLoad = false;
+          _modeSwitched = false;
           _indicatorStatus = IndicatorStatus.fullScreenError;
         });
       }
     } catch (e) {
+      if (!mounted) return;
+      
       setState(() {
         isLoading = false;
+        _isFirstLoad = false;
+        _modeSwitched = false;
         _indicatorStatus = page == 0 
             ? IndicatorStatus.fullScreenError 
             : IndicatorStatus.error;
       });
     }
-  }
-
-  void _nextPage() {
-    if (currentPage < totalPages - 1) {
-      _loadPaginatedData(currentPage + 1);
-    }
-  }
-
-  void _previousPage() {
-    if (currentPage > 0) {
-      _loadPaginatedData(currentPage - 1);
-    }
-  }
-
-  void _jumpToPage() {
-    try {
-      final targetPage = int.parse(_pageController.text);
-      if (targetPage >= 1 && targetPage <= totalPages) {
-        _loadPaginatedData(targetPage - 1);
-        FocusScope.of(context).unfocus();
-      } else {
-        // 显示错误提示
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('请输入有效页码 (1-$totalPages)'),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
-    } catch (e) {
-      // 输入非数字时显示错误提示
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('请输入有效页码'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
-    _pageController.clear();
   }
 
   Future<void> refresh() async {
@@ -267,6 +293,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
 
   Widget _buildInfiniteScrollView(BuildContext context) {
     return LoadingMoreCustomScrollView(
+      controller: widget.scrollController,
       physics: const ClampingScrollPhysics(),
       slivers: <Widget>[
         LoadingMoreSliverList(
@@ -319,13 +346,15 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
                 // 如果是SliverFillRemaining，需要套一层CustomScrollView
                 if (indicator is SliverFillRemaining) {
                   return LoadingMoreCustomScrollView(
-                    physics: const ClampingScrollPhysics(),
+                    controller: widget.scrollController,
+                    physics: const AlwaysScrollableScrollPhysics(),
                     slivers: [indicator],
                   );
                 }
                 
                 // 其他情况套一个SingleChildScrollView确保可滚动
                 return SingleChildScrollView(
+                  controller: widget.scrollController,
                   physics: const AlwaysScrollableScrollPhysics(),
                   child: SizedBox(
                     height: MediaQuery.of(context).size.height - 200, // 减去大致的头部和底部高度
@@ -336,7 +365,8 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
               
               // 数据已加载，显示内容
               return LoadingMoreCustomScrollView(
-                physics: const ClampingScrollPhysics(),
+                controller: widget.scrollController,
+                physics: const AlwaysScrollableScrollPhysics(),
                 slivers: <Widget>[
                   SliverPadding(
                     padding: EdgeInsets.only(
@@ -349,11 +379,13 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
                         (context, index) => widget.itemBuilder(context, paginatedItems[index], index),
                         childCount: paginatedItems.length,
                       ),
-                      gridDelegate: SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: MediaQuery.of(context).size.width <= 600 ? MediaQuery.of(context).size.width / 2 : 200,
-                        crossAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
-                        mainAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
-                      ),
+                      gridDelegate: (widget.extendedListDelegate is SliverWaterfallFlowDelegate)
+                        ? (widget.extendedListDelegate as SliverWaterfallFlowDelegate)
+                        : SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
+                          maxCrossAxisExtent: MediaQuery.of(context).size.width <= 600 ? MediaQuery.of(context).size.width / 2 : 200,
+                          crossAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
+                          mainAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
+                        ),
                     ),
                   ),
                   // 加载更多指示器
@@ -373,297 +405,15 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
             }(),
           ),
         ),
-        // 分页控制栏
-        Container(
-          height: 56,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.08),
-                blurRadius: 8,
-                offset: Offset(0, -2),
-              ),
-            ],
-          ),
-          // 使用LayoutBuilder来获取可用宽度，根据宽度渲染不同的布局
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              // 判断是否为窄屏设备 - 600px是平板和手机的常用断点
-              final isNarrow = constraints.maxWidth < 600;
-              
-              // 在窄屏设备上使用紧凑布局
-              if (isNarrow) {
-                return _buildCompactPaginationBar(context);
-              } else {
-                // 在宽屏上使用完整布局
-                return _buildFullPaginationBar(context);
-              }
-            },
-          ),
+        // 使用新的分页控制栏组件
+        PaginationBar(
+          currentPage: currentPage,
+          totalPages: totalPages,
+          totalItems: totalItems,
+          isLoading: isLoading,
+          onPageChanged: _loadPaginatedData,
         ),
       ],
-    );
-  }
-
-  // 构建完整的分页控制栏（适用于宽屏）
-  Widget _buildFullPaginationBar(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // 左侧总数信息
-          Container(
-            constraints: BoxConstraints(maxWidth: 100),
-            child: Text(
-              '共 $totalItems 项',
-              style: TextStyle(
-                fontSize: 13,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ),
-          
-          // 中间分页导航
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildNavButton(
-                icon: Icons.first_page,
-                enabled: currentPage > 0 && !isLoading,
-                onPressed: () => _loadPaginatedData(0),
-              ),
-              const SizedBox(width: 4),
-              _buildNavButton(
-                icon: Icons.chevron_left,
-                enabled: currentPage > 0 && !isLoading,
-                onPressed: _previousPage,
-              ),
-              const SizedBox(width: 8),
-              Container(
-                constraints: BoxConstraints(minWidth: 68),
-                height: 36,
-                padding: EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                child: Center(
-                  child: Text(
-                    '${currentPage + 1} / $totalPages',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              _buildNavButton(
-                icon: Icons.chevron_right,
-                enabled: currentPage < totalPages - 1 && !isLoading,
-                onPressed: _nextPage,
-              ),
-              const SizedBox(width: 4),
-              _buildNavButton(
-                icon: Icons.last_page,
-                enabled: currentPage < totalPages - 1 && !isLoading,
-                onPressed: () => _loadPaginatedData(totalPages - 1),
-              ),
-            ],
-          ),
-          
-          // 右侧跳转控件
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 44,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
-                  borderRadius: BorderRadius.horizontal(left: Radius.circular(18)),
-                ),
-                child: TextField(
-                  controller: _pageController,
-                  keyboardType: TextInputType.number,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14),
-                  decoration: InputDecoration(
-                    isDense: true,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 10),
-                    border: InputBorder.none,
-                    hintText: '页码',
-                    hintStyle: TextStyle(
-                      fontSize: 13,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.7),
-                    ),
-                  ),
-                  onSubmitted: (_) => _jumpToPage(),
-                ),
-              ),
-              InkWell(
-                onTap: isLoading ? null : _jumpToPage,
-                borderRadius: BorderRadius.horizontal(right: Radius.circular(18)),
-                child: Container(
-                  height: 36,
-                  padding: EdgeInsets.symmetric(horizontal: 12),
-                  decoration: BoxDecoration(
-                    color: isLoading 
-                        ? Theme.of(context).colorScheme.primary.withOpacity(0.5)
-                        : Theme.of(context).colorScheme.primary,
-                    borderRadius: BorderRadius.horizontal(right: Radius.circular(18)),
-                  ),
-                  child: Center(
-                    child: Text(
-                      '跳转',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-  
-  // 构建紧凑版的分页控制栏（适用于窄屏）
-  Widget _buildCompactPaginationBar(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // 左侧：当前页/总页数 - 点击可跳转
-          GestureDetector(
-            onTap: isLoading ? null : _showJumpPageDialog,
-            child: Container(
-              margin: EdgeInsets.zero,
-              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Text(
-                '${currentPage + 1} / $totalPages  (共 $totalItems 项)',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
-            ),
-          ),
-          
-          // 右侧：上一页和下一页按钮
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildNavButton(
-                icon: Icons.chevron_left,
-                enabled: currentPage > 0 && !isLoading,
-                onPressed: _previousPage,
-              ),
-              const SizedBox(width: 12),
-              _buildNavButton(
-                icon: Icons.chevron_right,
-                enabled: currentPage < totalPages - 1 && !isLoading,
-                onPressed: _nextPage,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // 辅助方法：构建导航按钮
-  Widget _buildNavButton({
-    required IconData icon,
-    required bool enabled,
-    required VoidCallback onPressed,
-  }) {
-    return Material(
-      color: Colors.transparent,
-      borderRadius: BorderRadius.circular(18),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(18),
-        onTap: enabled ? onPressed : null,
-        child: Opacity(
-          opacity: enabled ? 1.0 : 0.4,
-          child: Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: enabled 
-                  ? Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3)
-                  : Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Center(
-              child: Icon(
-                icon,
-                size: 18,
-                color: enabled
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // 显示页面跳转对话框
-  void _showJumpPageDialog() {
-    _pageController.clear();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('跳转到指定页面'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('请输入页码 (1-$totalPages)'),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _pageController,
-              keyboardType: TextInputType.number,
-              autofocus: true,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: '页码',
-              ),
-              onSubmitted: (_) {
-                Navigator.of(context).pop();
-                _jumpToPage();
-              },
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text('取消'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              _jumpToPage();
-            },
-            child: Text('跳转'),
-          ),
-        ],
-      ),
     );
   }
 } 

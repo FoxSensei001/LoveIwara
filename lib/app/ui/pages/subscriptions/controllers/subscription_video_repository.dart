@@ -7,7 +7,7 @@ import 'package:i_iwara/utils/logger_utils.dart';
 class SubscriptionVideoRepository extends ExtendedLoadingMoreBase<Video> {
   final VideoService _videoService = Get.find<VideoService>();
   final String userId;
-
+  
   SubscriptionVideoRepository({required this.userId});
 
   @override
@@ -59,4 +59,4 @@ class SubscriptionVideoRepository extends ExtendedLoadingMoreBase<Video> {
   void logError(String message, dynamic error, [StackTrace? stackTrace]) {
     LogUtils.e(message, error: error, stack: stackTrace, tag: 'SubscriptionVideoRepository');
   }
-} 
+}

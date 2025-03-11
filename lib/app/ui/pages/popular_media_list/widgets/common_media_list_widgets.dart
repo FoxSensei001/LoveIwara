@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/widgets/shimmer_card.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:shimmer/shimmer.dart';
@@ -227,4 +228,363 @@ class TagStyle {
 
   static const double iconSize = 10;
   static const double iconSpacing = 2;
+}
+
+// 分页控制栏组件
+class PaginationBar extends StatefulWidget {
+  final int currentPage;
+  final int totalPages;
+  final int totalItems;
+  final bool isLoading;
+  final Function(int) onPageChanged;
+  final VoidCallback? onRefresh;
+
+  const PaginationBar({
+    super.key,
+    required this.currentPage,
+    required this.totalPages,
+    required this.totalItems,
+    required this.isLoading,
+    required this.onPageChanged,
+    this.onRefresh,
+  });
+
+  @override
+  State<PaginationBar> createState() => _PaginationBarState();
+}
+
+class _PaginationBarState extends State<PaginationBar> {
+  final TextEditingController _pageController = TextEditingController();
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _jumpToPage() {
+    if (widget.isLoading) return;
+    
+    try {
+      final targetPage = int.parse(_pageController.text);
+      if (targetPage >= 1 && targetPage <= widget.totalPages) {
+        widget.onPageChanged(targetPage - 1);
+        FocusScope.of(context).unfocus();
+      } else {
+        // 显示错误提示
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('请输入有效页码 (1-${widget.totalPages})'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      // 输入非数字时显示错误提示
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('请输入有效页码'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+    _pageController.clear();
+  }
+
+  // 显示页面跳转对话框
+  void _showJumpPageDialog() {
+    _pageController.clear();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('跳转到指定页面'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('请输入页码 (1-${widget.totalPages})'),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _pageController,
+              keyboardType: TextInputType.number,
+              autofocus: true,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: '页码',
+              ),
+              onSubmitted: (_) {
+                Navigator.of(context).pop();
+                _jumpToPage();
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('取消'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _jumpToPage();
+            },
+            child: Text('跳转'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 56,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 8,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isNarrow = constraints.maxWidth < 600;
+          return isNarrow
+              ? _buildCompactPaginationBar(context)
+              : _buildFullPaginationBar(context);
+        },
+      ),
+    );
+  }
+
+  // 构建完整的分页控制栏（适用于宽屏）
+  Widget _buildFullPaginationBar(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // 左侧总数信息
+          Container(
+            constraints: const BoxConstraints(maxWidth: 100),
+            child: Text(
+              '共 ${widget.totalItems} 项',
+              style: TextStyle(
+                fontSize: 13,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+          
+          // 中间分页导航
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildNavButton(
+                icon: Icons.first_page,
+                enabled: widget.currentPage > 0 && !widget.isLoading,
+                onPressed: () => widget.onPageChanged(0),
+              ),
+              const SizedBox(width: 4),
+              _buildNavButton(
+                icon: Icons.chevron_left,
+                enabled: widget.currentPage > 0 && !widget.isLoading,
+                onPressed: () => widget.onPageChanged(widget.currentPage - 1),
+              ),
+              const SizedBox(width: 8),
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(18),
+                  onTap: widget.isLoading ? null : _showJumpPageDialog,
+                  child: Container(
+                    constraints: const BoxConstraints(minWidth: 68),
+                    height: 36,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Center(
+                      child: Text(
+                        '${widget.currentPage + 1} / ${widget.totalPages}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              _buildNavButton(
+                icon: Icons.chevron_right,
+                enabled: widget.currentPage < widget.totalPages - 1 && !widget.isLoading,
+                onPressed: () => widget.onPageChanged(widget.currentPage + 1),
+              ),
+              const SizedBox(width: 4),
+              _buildNavButton(
+                icon: Icons.last_page,
+                enabled: widget.currentPage < widget.totalPages - 1 && !widget.isLoading,
+                onPressed: () => widget.onPageChanged(widget.totalPages - 1),
+              ),
+            ],
+          ),
+          
+          // 右侧跳转控件
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 44,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                  borderRadius: const BorderRadius.horizontal(left: Radius.circular(18)),
+                ),
+                child: TextField(
+                  controller: _pageController,
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 14),
+                  decoration: InputDecoration(
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+                    border: InputBorder.none,
+                    hintText: '页码',
+                    hintStyle: TextStyle(
+                      fontSize: 13,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.7),
+                    ),
+                  ),
+                  onSubmitted: (_) => _jumpToPage(),
+                ),
+              ),
+              InkWell(
+                onTap: widget.isLoading ? null : _jumpToPage,
+                borderRadius: const BorderRadius.horizontal(right: Radius.circular(18)),
+                child: Container(
+                  height: 36,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: widget.isLoading 
+                        ? Theme.of(context).colorScheme.primary.withOpacity(0.5)
+                        : Theme.of(context).colorScheme.primary,
+                    borderRadius: const BorderRadius.horizontal(right: Radius.circular(18)),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '跳转',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+  
+  // 构建紧凑版的分页控制栏（适用于窄屏）
+  Widget _buildCompactPaginationBar(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // 左侧：当前页/总页数 - 点击可跳转
+          GestureDetector(
+            onTap: widget.isLoading ? null : _showJumpPageDialog,
+            child: Container(
+              margin: EdgeInsets.zero,
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Text(
+                '${widget.currentPage + 1} / ${widget.totalPages}  (共 ${widget.totalItems} 项)',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+            ),
+          ),
+          
+          // 右侧：上一页和下一页按钮
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildNavButton(
+                icon: Icons.chevron_left,
+                enabled: widget.currentPage > 0 && !widget.isLoading,
+                onPressed: () => widget.onPageChanged(widget.currentPage - 1),
+              ),
+              const SizedBox(width: 12),
+              _buildNavButton(
+                icon: Icons.chevron_right,
+                enabled: widget.currentPage < widget.totalPages - 1 && !widget.isLoading,
+                onPressed: () => widget.onPageChanged(widget.currentPage + 1),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 辅助方法：构建导航按钮
+  Widget _buildNavButton({
+    required IconData icon,
+    required bool enabled,
+    required VoidCallback onPressed,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(18),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: enabled ? () {
+          // 添加触感反馈
+          HapticFeedback.lightImpact();
+          onPressed();
+        } : null,
+        child: Opacity(
+          opacity: enabled ? 1.0 : 0.4,
+          child: Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: enabled 
+                  ? Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3)
+                  : Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Center(
+              child: Icon(
+                icon,
+                size: 18,
+                color: enabled
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 } 
