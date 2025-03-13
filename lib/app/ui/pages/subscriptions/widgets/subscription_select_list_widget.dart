@@ -23,22 +23,22 @@ class SubscriptionSelectItem {
 }
 
 class SubscriptionSelectList extends StatefulWidget {
-  final List<SubscriptionSelectItem> selectionList;
-  final String selectedId;
-  final Function(String) onIdSelected;
+  final List<SubscriptionSelectItem> userList;
+  final String selectedUserId;
+  final Function(String) onUserSelected;
 
   const SubscriptionSelectList({
     super.key,
-    required this.selectionList,
-    required this.selectedId,
-    required this.onIdSelected,
+    required this.userList,
+    required this.selectedUserId,
+    required this.onUserSelected,
   });
 
   @override
-  _SubscriptionSelectListState createState() => _SubscriptionSelectListState();
+  SubscriptionSelectListState createState() => SubscriptionSelectListState();
 }
 
-class _SubscriptionSelectListState extends State<SubscriptionSelectList> {
+class SubscriptionSelectListState extends State<SubscriptionSelectList> {
   final ScrollController _scrollController = ScrollController();
   bool _showButtons = false;
 
@@ -109,7 +109,7 @@ class _SubscriptionSelectListState extends State<SubscriptionSelectList> {
                         scrollDirection: Axis.horizontal,
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         child: Row(
-                          children: widget.selectionList
+                          children: widget.userList
                               .map((item) => _buildIconWithLabel(item, theme))
                               .toList(),
                         ),
@@ -172,15 +172,15 @@ class _SubscriptionSelectListState extends State<SubscriptionSelectList> {
     SubscriptionSelectItem selectItem,
     ThemeData theme,
   ) {
-    final bool isSelected = widget.selectedId == selectItem.id;
+    final bool isSelected = widget.selectedUserId == selectItem.id;
     final bool isSmallScreen = MediaQuery.of(context).size.width <= 600;
     return Container(
       width: isSmallScreen ? 60 : 70,
       padding: EdgeInsets.symmetric(horizontal: isSmallScreen ? 1.0 : 2.0),
       child: InkWell(
         onTap: () => {
-          if (widget.selectedId != selectItem.id)
-            widget.onIdSelected(selectItem.id)
+          if (widget.selectedUserId != selectItem.id)
+            widget.onUserSelected(selectItem.id)
         },
         onLongPress: selectItem.onLongPress,
         onSecondaryTap: selectItem.onLongPress,

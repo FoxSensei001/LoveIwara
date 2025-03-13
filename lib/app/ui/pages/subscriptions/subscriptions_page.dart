@@ -17,142 +17,51 @@ import 'package:i_iwara/app/ui/widgets/glow_notification_widget.dart';
 import 'package:i_iwara/app/ui/pages/home_page.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:shimmer/shimmer.dart';
+import 'controllers/media_list_controller.dart';
 
 class SubscriptionsPage extends StatefulWidget with RefreshableMixin {
-  static final globalKey = GlobalKey<_SubscriptionsPageState>();
+  static final globalKey = GlobalKey<SubscriptionsPageState>();
 
   const SubscriptionsPage({super.key});
 
   @override
-  State<SubscriptionsPage> createState() => _SubscriptionsPageState();
+  State<SubscriptionsPage> createState() => SubscriptionsPageState();
 
   @override
   void refreshCurrent() {
     final state = globalKey.currentState;
     if (state != null) {
-      state.tryRefreshCurrentList();
+      state.refreshCurrentList();
     }
   }
 }
 
-class _SubscriptionsPageState extends State<SubscriptionsPage>
+class SubscriptionsPageState extends State<SubscriptionsPage>
     with TickerProviderStateMixin {
   final UserService userService = Get.find<UserService>();
   final UserPreferenceService userPreferenceService =
       Get.find<UserPreferenceService>();
+  late final MediaListController mediaListController;
 
   late TabController _tabController;
   String selectedId = '';
-
-  late AnimationController _refreshIconController;
   
-  // 添加列表显示模式状态，并使用保存的值初始化
-  RxBool isPaginatedMode = CommonConstants.subscriptionPaginationMode.obs;
-
-  // 使用更稳定的键管理策略
-  // 为每个Tab和模式组合创建唯一的键
-  final Map<String, GlobalKey<State>> _keyCache = {};
-
-  // 为每个Tab添加独立的ScrollController缓存
-  final Map<String, ScrollController> _scrollControllerCache = {};
-
-  // 改进的键生成逻辑，使用更稳定的标识符
-  GlobalKey<State> _getKey(int tabIndex, bool isPaginated) {
-    // 创建稳定的键标识符
-    String keyId = '${tabIndex}_${isPaginated ? 'paginated' : 'list'}_$selectedId';
-    
-    // 检查缓存中是否存在该键
-    if (!_keyCache.containsKey(keyId)) {
-      // 根据tabIndex创建不同类型的键
-      switch (tabIndex) {
-        case 0:
-          _keyCache[keyId] = GlobalKey<SubscriptionVideoListState>(debugLabel: keyId);
-        case 1:
-          _keyCache[keyId] = GlobalKey<SubscriptionImageListState>(debugLabel: keyId);
-        case 2:
-          _keyCache[keyId] = GlobalKey<SubscriptionPostListState>(debugLabel: keyId);
-        default:
-          _keyCache[keyId] = GlobalKey<State>(debugLabel: keyId);
-      }
-    }
-    
-    return _keyCache[keyId]!;
-  }
-
-  // 优化的缓存清理逻辑，只清除特定ID相关的键
-  void _clearKeysForId(String id) {
-    if (id.isEmpty) return;
-    
-    final keysToRemove = _keyCache.keys.where((k) => k.contains(id)).toList();
-    for (var key in keysToRemove) {
-      _keyCache.remove(key);
-    }
-  }
-
-  // 获取或创建Tab的ScrollController，确保每个Tab和模式组合有独立的控制器
-  ScrollController _getScrollController(int tabIndex, bool isPaginated) {
-    String key = '${tabIndex}_${isPaginated ? 'paginated' : 'list'}_$selectedId';
-    if (!_scrollControllerCache.containsKey(key)) {
-      _scrollControllerCache[key] = ScrollController();
-    }
-    return _scrollControllerCache[key]!;
-  }
-  
-  // 优化的ScrollController清理逻辑
-  void _clearScrollControllersForId(String id) {
-    if (id.isEmpty) return;
-    
-    final keysToRemove = _scrollControllerCache.keys.where((k) => k.contains(id)).toList();
-    for (var key in keysToRemove) {
-      // 确保在移除前正确处理控制器的生命周期
-      if (_scrollControllerCache[key]?.hasClients == true) {
-        _scrollControllerCache[key]?.dispose();
-      }
-      _scrollControllerCache.remove(key);
-    }
-  }
-
-  // 改进的刷新逻辑，确保正确触发视图更新
-  void tryRefreshCurrentList() {
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
   final ScrollController _extendedScrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _tabController.addListener(() {
-      if (_tabController.indexIsChanging) {
-        setState(() {});
-      }
-    });
-    _refreshIconController = AnimationController(
-      duration: const Duration(seconds: 1),
-      vsync: this,
-    );
     
-    // 添加对isPaginatedMode变化的监听，确保状态正确更新
-    isPaginatedMode.listen((value) {
-      // 保存用户的选择到常量中
-      CommonConstants.subscriptionPaginationMode = value;
-      if (mounted) {
-        setState(() {});
-      }
-    });
+    // 初始化并注册MediaListController
+    mediaListController = MediaListController();
+    mediaListController.isPaginated.value = CommonConstants.subscriptionPaginationMode;
+    Get.put(mediaListController);
   }
 
   // 改进的ID选择处理逻辑
-  void _onIdSelected(String id) {
+  void _onUserSelected(String id) {
     if (selectedId != id) {
-      // 清除旧ID对应的缓存键
-      _clearKeysForId(selectedId);
-      // 清除旧ID对应的ScrollController
-      _clearScrollControllersForId(selectedId);
-      
       setState(() {
         selectedId = id;
       });
@@ -160,31 +69,15 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
   }
 
   // 改进的刷新逻辑
-  Future<void> _refreshCurrentList() async {
-    _refreshIconController.repeat();
-    try {
-      // 触发重建以刷新数据
-      setState(() {});
-    } finally {
-      _refreshIconController.stop();
-      _refreshIconController.reset();
-    }
+  Future<void> refreshCurrentList() async {
+    mediaListController.refreshList();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
-    _refreshIconController.dispose();
     _extendedScrollController.dispose();
-    
-    // 确保清理所有ScrollController
-    for (var controller in _scrollControllerCache.values) {
-      if (controller.hasClients) {
-        controller.dispose();
-      }
-    }
-    _scrollControllerCache.clear();
-    
+    Get.delete<MediaListController>();
     super.dispose();
   }
 
@@ -309,55 +202,20 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
                     ),
                     // 添加列表模式切换按钮
                     Obx(() => IconButton(
-                      icon: Icon(isPaginatedMode.value 
+                      icon: Icon(mediaListController.isPaginated.value 
                           ? Icons.grid_view 
                           : Icons.menu),
                       onPressed: () {
-                        // 切换模式前保存当前状态
-                        final currentTabIndex = _tabController.index;
-                        final currentId = selectedId;
-                        
                         // 切换分页模式
-                        isPaginatedMode.value = !isPaginatedMode.value;
-                        
-                        // 延迟执行，确保状态更新后再清理缓存
-                        Future.microtask(() {
-                          // 只清除当前Tab和ID的缓存，而不是所有缓存
-                          final keyPattern = '${currentTabIndex}_';
-                          final keysToRemove = _keyCache.keys
-                              .where((k) => k.contains(keyPattern) && k.contains(currentId))
-                              .toList();
-                          
-                          for (var key in keysToRemove) {
-                            _keyCache.remove(key);
-                          }
-                          
-                          // 同样只清除当前Tab和ID的ScrollController
-                          final controllerKeysToRemove = _scrollControllerCache.keys
-                              .where((k) => k.contains(keyPattern) && k.contains(currentId))
-                              .toList();
-                          
-                          for (var key in controllerKeysToRemove) {
-                            if (_scrollControllerCache[key]?.hasClients == true) {
-                              _scrollControllerCache[key]?.dispose();
-                            }
-                            _scrollControllerCache.remove(key);
-                          }
-                          
-                          // 强制更新UI
-                          if (mounted) setState(() {});
-                        });
+                        mediaListController.setPaginatedMode(!mediaListController.isPaginated.value);
                       },
-                      tooltip: isPaginatedMode.value 
+                      tooltip: mediaListController.isPaginated.value 
                            ? '瀑布流'
                            : '分页',
                     )),
-                    RotationTransition(
-                      turns: _refreshIconController,
-                      child: IconButton(
-                        icon: const Icon(Icons.refresh),
-                        onPressed: _refreshCurrentList,
-                      ),
+                    IconButton(
+                      icon: const Icon(Icons.refresh),
+                      onPressed: refreshCurrentList,
                     ),
                   ],
                 ),
@@ -372,57 +230,45 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
       body: TabBarView(
         controller: _tabController,
         children: [
-          // 视频列表 - 改进的构建逻辑
-          Builder(
-            builder: (context) {
-              final isPaginated = isPaginatedMode.value;
-              final key = _getKey(0, isPaginated);
-              final scrollController = _getScrollController(0, isPaginated);
-              
-              return GlowNotificationWidget(
-                child: SubscriptionVideoList(
-                  key: key,
-                  userId: selectedId,
-                  isPaginated: isPaginated,
-                  scrollController: scrollController,
-                ),
-              );
-            },
-          ),
-          // 图片列表 - 改进的构建逻辑
-          Builder(
-            builder: (context) {
-              final isPaginated = isPaginatedMode.value;
-              final key = _getKey(1, isPaginated);
-              final scrollController = _getScrollController(1, isPaginated);
-              
-              return GlowNotificationWidget(
-                child: SubscriptionImageList(
-                  key: key,
-                  userId: selectedId,
-                  isPaginated: isPaginated,
-                  scrollController: scrollController,
-                ),
-              );
-            },
-          ),
-          // 帖子列表 - 改进的构建逻辑
-          Builder(
-            builder: (context) {
-              final isPaginated = isPaginatedMode.value;
-              final key = _getKey(2, isPaginated);
-              final scrollController = _getScrollController(2, isPaginated);
-              
-              return GlowNotificationWidget(
-                child: SubscriptionPostList(
-                  key: key,
-                  userId: selectedId,
-                  isPaginated: isPaginated,
-                  scrollController: scrollController,
-                ),
-              );
-            },
-          ),
+          // 视频列表 - 使用全局状态控制器
+          Obx(() {
+            final isPaginated = mediaListController.isPaginated.value;
+            final rebuildKey = mediaListController.rebuildKey.value;
+            
+            return GlowNotificationWidget(
+              key: ValueKey('video_$rebuildKey'),
+              child: SubscriptionVideoList(
+                userId: selectedId,
+                isPaginated: isPaginated,
+              ),
+            );
+          }),
+          // 图片列表 - 使用全局状态控制器
+          Obx(() {
+            final isPaginated = mediaListController.isPaginated.value;
+            final rebuildKey = mediaListController.rebuildKey.value;
+            
+            return GlowNotificationWidget(
+              key: ValueKey('image_$rebuildKey'),
+              child: SubscriptionImageList(
+                userId: selectedId,
+                isPaginated: isPaginated,
+              ),
+            );
+          }),
+          // 帖子列表 - 使用全局状态控制器
+          Obx(() {
+            final isPaginated = mediaListController.isPaginated.value;
+            final rebuildKey = mediaListController.rebuildKey.value;
+            
+            return GlowNotificationWidget(
+              key: ValueKey('post_$rebuildKey'),
+              child: SubscriptionPostList(
+                userId: selectedId,
+                isPaginated: isPaginated,
+              ),
+            );
+          }),
         ],
       ),
     );
@@ -509,9 +355,9 @@ class _SubscriptionsPageState extends State<SubscriptionsPage>
             ))
         .toList();
     return SubscriptionSelectList(
-      selectionList: selectionList,
-      selectedId: selectedId,
-      onIdSelected: _onIdSelected,
+      userList: selectionList,
+      selectedUserId: selectedId,
+      onUserSelected: _onUserSelected,
     );
   }
 

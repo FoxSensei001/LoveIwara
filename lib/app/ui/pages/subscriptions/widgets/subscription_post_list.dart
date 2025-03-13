@@ -1,90 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/models/post.model.dart';
-import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/post_card_list_item_widget.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import '../controllers/subscription_post_repository.dart';
+import 'base_subscription_list.dart';
 
-class SubscriptionPostList extends StatefulWidget {
-  final String userId;
-  final bool isPaginated;
-  final ScrollController? scrollController;
-
+class SubscriptionPostList extends BaseSubscriptionList<PostModel, SubscriptionPostRepository> {
   const SubscriptionPostList({
     super.key,
-    required this.userId,
-    this.isPaginated = false,
-    this.scrollController,
+    required super.userId,
+    super.isPaginated = false,
   });
-
+  
   @override
-  SubscriptionPostListState createState() => SubscriptionPostListState();
+  State<SubscriptionPostList> createState() => SubscriptionPostListState();
 }
 
-class SubscriptionPostListState extends State<SubscriptionPostList> with AutomaticKeepAliveClientMixin {
-  late SubscriptionPostRepository listSourceRepository;
-
+class SubscriptionPostListState extends BaseSubscriptionListState<PostModel, SubscriptionPostRepository, SubscriptionPostList> {
   @override
-  void initState() {
-    super.initState();
-    listSourceRepository = SubscriptionPostRepository(userId: widget.userId);
+  SubscriptionPostRepository createRepository() {
+    return SubscriptionPostRepository(userId: widget.userId);
   }
-
+  
   @override
-  void didUpdateWidget(SubscriptionPostList oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.userId != widget.userId) {
-      listSourceRepository = SubscriptionPostRepository(userId: widget.userId);
-      if (mounted) {
-        setState(() {});
-      }
-    }
-  }
-
+  IconData get emptyIcon => Icons.article_outlined;
+  
   @override
-  void dispose() {
-    listSourceRepository.dispose();
-    super.dispose();
-  }
-
-  Future<void> refresh() async {
-    if (widget.isPaginated) {
-      setState(() {});
-    } else {
-      await listSourceRepository.refresh(true);
-    }
-  }
-
+  SliverWaterfallFlowDelegate get extendedListDelegate => SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
+    maxCrossAxisExtent: MediaQuery.of(context).size.width <= 600 ? 400 : 600,
+    crossAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
+    mainAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
+  );
+  
   @override
-  bool get wantKeepAlive => true;
-
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-    
-    final mediaListView = MediaListView<PostModel>(
-      sourceList: listSourceRepository,
-      emptyIcon: Icons.article_outlined,
-      isPaginated: widget.isPaginated,
-      scrollController: widget.scrollController,
-      extendedListDelegate: SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: MediaQuery.of(context).size.width <= 600 ? 400 : 600,
-        crossAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
-        mainAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
+  Widget buildListItem(BuildContext context, PostModel post, int index) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 4,
       ),
-      itemBuilder: (context, post, index) {
-        return Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 4,
-          ),
-          child: PostCardListItemWidget(post: post),
-        );
-      },
-    );
-    
-    return RefreshIndicator(
-      onRefresh: refresh,
-      child: mediaListView,
+      child: PostCardListItemWidget(post: post),
     );
   }
 }

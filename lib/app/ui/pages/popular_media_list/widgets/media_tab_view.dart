@@ -9,11 +9,15 @@ import 'package:loading_more_list/loading_more_list.dart';
 class MediaTabView<T> extends StatefulWidget {
   final LoadingMoreBase<T> repository;
   final IconData emptyIcon;
+  final bool isPaginated;
+  final String rebuildKey;
 
   const MediaTabView({
     super.key,
     required this.repository,
     required this.emptyIcon,
+    this.isPaginated = false,
+    this.rebuildKey = '',
   });
 
   @override
@@ -22,6 +26,14 @@ class MediaTabView<T> extends StatefulWidget {
 
 class MediaTabViewState<T> extends State<MediaTabView<T>>
     with AutomaticKeepAliveClientMixin {
+  final ScrollController _scrollController = ScrollController();
+  
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+  
   @override
   bool get wantKeepAlive => true;
 
@@ -30,11 +42,19 @@ class MediaTabViewState<T> extends State<MediaTabView<T>>
     super.build(context);
     return RefreshIndicator(
       onRefresh: () async {
-        await widget.repository.refresh(true);
+        if (widget.isPaginated) {
+          if (widget.repository is ExtendedLoadingMoreBase) {
+            await (widget.repository as ExtendedLoadingMoreBase).loadPageData(0, 20);
+          }
+        } else {
+          await widget.repository.refresh(true);
+        }
       },
       child: MediaListView<T>(
         sourceList: widget.repository,
         emptyIcon: widget.emptyIcon,
+        isPaginated: widget.isPaginated,
+        scrollController: _scrollController,
         itemBuilder: (context, item, index) {
           return Padding(
             padding: EdgeInsets.symmetric(

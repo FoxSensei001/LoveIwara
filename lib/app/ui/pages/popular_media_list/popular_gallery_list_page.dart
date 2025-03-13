@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/services/user_service.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/popular_media_list_controller.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/popular_media_search_config_widget.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -41,6 +43,9 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
   late TabController _tabController;
   late ScrollController _tabBarScrollController;
   final List<GlobalKey> _tabKeys = [];
+  
+  // 添加媒体列表控制器
+  late PopularMediaListController _mediaListController;
 
   final UserService userService = Get.find<UserService>();
 
@@ -65,6 +70,10 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
   @override
   void initState() {
     super.initState();
+    
+    // 初始化媒体列表控制器
+    _mediaListController = Get.put(PopularMediaListController(), tag: 'gallery');
+    
     for (var sort in sorts) {
       _tabKeys.add(GlobalKey());
       final controller = Get.put(PopularGalleryController(sortId: sort.id.name), tag: sort.id.name);
@@ -82,6 +91,10 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
     _tabController.removeListener(_onTabChange);
     _tabController.dispose();
     _tabBarScrollController.dispose();
+    
+    // 移除媒体列表控制器
+    Get.delete<PopularMediaListController>(tag: 'gallery');
+    
     for (var controller in _controllers.values) {
       Get.delete<PopularGalleryController>(tag: controller.sortId);
     }
@@ -108,6 +121,9 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
         searchRating: rating,
       );
     }
+    
+    // 增加重建键值强制刷新UI
+    _mediaListController.refreshList();
   }
 
   void _onTabChange() {
@@ -221,12 +237,30 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
                   ),
                 ),
               ),
+              // 添加分页/瀑布流切换按钮
+              Obx(() => IconButton(
+                icon: Icon(_mediaListController.isPaginated.value 
+                    ? Icons.grid_view 
+                    : Icons.menu),
+                onPressed: () {
+                  _mediaListController.setPaginatedMode(!_mediaListController.isPaginated.value);
+                },
+                tooltip: _mediaListController.isPaginated.value 
+                    ? '瀑布流'
+                    : '分页',
+              )),
               IconButton(
                 icon: const Icon(Icons.refresh),
                 onPressed: () {
                   var sortId = sorts[_tabController.index].id;
                   var repository = _repositories[sortId]!;
-                  repository.refresh(true);
+                  if (_mediaListController.isPaginated.value) {
+                    if (repository is ExtendedLoadingMoreBase) {
+                      (repository as ExtendedLoadingMoreBase).loadPageData(0, 20);
+                    }
+                  } else {
+                    repository.refresh(true);
+                  }
                 },
               ),
               IconButton(
@@ -236,15 +270,23 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
             ],
           ),
           Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: sorts.map((sort) {
-                return MediaTabView<ImageModel>(
-                  repository: _repositories[sort.id]!,
-                  emptyIcon: Icons.image_outlined,
-                );
-              }).toList(),
-            ),
+            child: Obx(() {
+              final isPaginated = _mediaListController.isPaginated.value;
+              final rebuildKey = _mediaListController.rebuildKey.value.toString();
+              
+              return TabBarView(
+                controller: _tabController,
+                children: sorts.map((sort) {
+                  return MediaTabView<ImageModel>(
+                    key: ValueKey('${sort.id}_$isPaginated$rebuildKey'),
+                    repository: _repositories[sort.id]!,
+                    emptyIcon: Icons.image_outlined,
+                    isPaginated: isPaginated,
+                    rebuildKey: rebuildKey,
+                  );
+                }).toList(),
+              );
+            }),
           ),
         ],
       ),
