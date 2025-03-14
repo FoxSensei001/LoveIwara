@@ -8,6 +8,7 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/popular_media_search_config_widget.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/common/constants.dart';
+import 'package:i_iwara/i18n/strings.g.dart' show t;
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/ui/widgets/common_header.dart';
 
@@ -246,8 +247,8 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
                   _mediaListController.setPaginatedMode(!_mediaListController.isPaginated.value);
                 },
                 tooltip: _mediaListController.isPaginated.value 
-                    ? '瀑布流'
-                    : '分页',
+                    ? t.common.pagination.waterfall
+                    : t.common.pagination.pagination,
               )),
               IconButton(
                 icon: const Icon(Icons.refresh),
@@ -255,10 +256,8 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
                   var sortId = sorts[_tabController.index].id;
                   var repository = _repositories[sortId]!;
                   if (_mediaListController.isPaginated.value) {
-                    if (repository is ExtendedLoadingMoreBase) {
-                      (repository as ExtendedLoadingMoreBase).loadPageData(0, 20);
-                    }
-                  } else {
+                    (repository as ExtendedLoadingMoreBase).loadPageData(0, 20);
+                                    } else {
                     repository.refresh(true);
                   }
                 },

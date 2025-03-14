@@ -4,7 +4,6 @@ import 'package:i_iwara/app/models/forum.model.dart';
 import 'package:i_iwara/app/services/forum_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:loading_more_list/loading_more_list.dart';
 
 /// 线程列表数据源，支持瀑布流和分页模式
 class ThreadListRepository extends ExtendedLoadingMoreBase<ForumThreadModel> {

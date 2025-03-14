@@ -244,6 +244,7 @@ class TranslationsCommonEn {
 	String get unsavedChanges => 'You have unsaved changes';
 	String get specialFollowsManagementTip => 'Drag to reorder • Swipe left to remove';
 	String get specialFollowsManagement => 'Special Follows Management';
+	late final TranslationsCommonPaginationEn pagination = TranslationsCommonPaginationEn._(_root);
 }
 
 // Path: auth
@@ -444,6 +445,7 @@ class TranslationsSearchEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+	String get googleSearchScope => 'Search Scope';
 	String get searchTags => 'Search Tags...';
 	String get contentRating => 'Content Rating';
 	String get removeTag => 'Remove Tag';
@@ -484,6 +486,9 @@ class TranslationsSettingsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+	String get listViewMode => 'List View Mode';
+	String get useTraditionalPaginationMode => 'Use Traditional Pagination Mode';
+	String get useTraditionalPaginationModeDesc => 'Enable traditional pagination mode, disable waterfall mode';
 	String get showVideoProgressBottomBarWhenToolbarHidden => 'Show Video Progress Bottom Bar When Toolbar Hidden';
 	String get showVideoProgressBottomBarWhenToolbarHiddenDesc => 'This configuration determines whether the video progress bottom bar will be shown when the toolbar is hidden.';
 	String get basicSettings => 'Basic Settings';
@@ -1133,6 +1138,24 @@ class TranslationsLinkInputDialogEn {
 	String get confirm => 'Open in Browser';
 }
 
+// Path: common.pagination
+class TranslationsCommonPaginationEn {
+	TranslationsCommonPaginationEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String totalItems({required Object num}) => 'Total ${num} items';
+	String get jumpToPage => 'Jump to page';
+	String pleaseEnterPageNumber({required Object max}) => 'Please enter page number (1-${max})';
+	String get pageNumber => 'Page number';
+	String get jump => 'Jump';
+	String invalidPageNumber({required Object max}) => 'Please enter a valid page number (1-${max})';
+	String get invalidInput => 'Please enter a valid page number';
+	String get waterfall => 'Waterfall';
+	String get pagination => 'Pagination';
+}
+
 // Path: forum.errors
 class TranslationsForumErrorsEn {
 	TranslationsForumErrorsEn._(this._root);
@@ -1502,6 +1525,15 @@ extension on Translations {
 			case 'common.unsavedChanges': return 'You have unsaved changes';
 			case 'common.specialFollowsManagementTip': return 'Drag to reorder • Swipe left to remove';
 			case 'common.specialFollowsManagement': return 'Special Follows Management';
+			case 'common.pagination.totalItems': return ({required Object num}) => 'Total ${num} items';
+			case 'common.pagination.jumpToPage': return 'Jump to page';
+			case 'common.pagination.pleaseEnterPageNumber': return ({required Object max}) => 'Please enter page number (1-${max})';
+			case 'common.pagination.pageNumber': return 'Page number';
+			case 'common.pagination.jump': return 'Jump';
+			case 'common.pagination.invalidPageNumber': return ({required Object max}) => 'Please enter a valid page number (1-${max})';
+			case 'common.pagination.invalidInput': return 'Please enter a valid page number';
+			case 'common.pagination.waterfall': return 'Waterfall';
+			case 'common.pagination.pagination': return 'Pagination';
 			case 'auth.login': return 'Login';
 			case 'auth.logout': return 'Logout';
 			case 'auth.email': return 'Email';
@@ -1630,6 +1662,7 @@ extension on Translations {
 			case 'playList.newPlaylistName': return 'New Playlist Name';
 			case 'playList.createNewPlaylist': return 'Create New Playlist';
 			case 'playList.videos': return 'Videos';
+			case 'search.googleSearchScope': return 'Search Scope';
 			case 'search.searchTags': return 'Search Tags...';
 			case 'search.contentRating': return 'Content Rating';
 			case 'search.removeTag': return 'Remove Tag';
@@ -1652,6 +1685,9 @@ extension on Translations {
 			case 'search.googleSearchQueryCopied': return 'Search query copied to clipboard';
 			case 'search.googleSearchBrowserOpenFailed': return ({required Object error}) => 'Failed to open browser: ${error}';
 			case 'mediaList.personalIntroduction': return 'Personal Introduction';
+			case 'settings.listViewMode': return 'List View Mode';
+			case 'settings.useTraditionalPaginationMode': return 'Use Traditional Pagination Mode';
+			case 'settings.useTraditionalPaginationModeDesc': return 'Enable traditional pagination mode, disable waterfall mode';
 			case 'settings.showVideoProgressBottomBarWhenToolbarHidden': return 'Show Video Progress Bottom Bar When Toolbar Hidden';
 			case 'settings.showVideoProgressBottomBarWhenToolbarHiddenDesc': return 'This configuration determines whether the video progress bottom bar will be shown when the toolbar is hidden.';
 			case 'settings.basicSettings': return 'Basic Settings';

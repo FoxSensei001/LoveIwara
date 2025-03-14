@@ -98,7 +98,7 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get unfollow => 'フォロー解除';
 	@override String get specialFollow => '特別フォロー';
 	@override String get specialFollowed => '特別フォロー済み';
-	@override String get specialFollowsManagementTip => 'ドラッグで並び替え • 左スワイプで削除';
+	@override String get specialFollowsManagementTip => 'ドラッグして並べ替え • 左スワイプで削除';
 	@override String get specialFollowsManagement => '特別フォロー管理';
 	@override String get gallery => 'ギャラリー';
 	@override String get playlist => 'プレイリスト';
@@ -240,6 +240,7 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get taskRunning => '既にタスクが実行中です。しばらくお待ちください。';
 	@override String get operationCancelled => '操作がキャンセルされました。';
 	@override String get unsavedChanges => '未保存の変更があります';
+	@override late final _TranslationsCommonPaginationJa pagination = _TranslationsCommonPaginationJa._(_root);
 }
 
 // Path: auth
@@ -440,6 +441,7 @@ class _TranslationsSearchJa implements TranslationsSearchEn {
 	final TranslationsJa _root; // ignore: unused_field
 
 	// Translations
+	@override String get googleSearchScope => '検索範囲';
 	@override String get searchTags => 'タグを検索...';
 	@override String get contentRating => 'コンテンツレーティング';
 	@override String get removeTag => 'タグを削除';
@@ -480,6 +482,9 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	final TranslationsJa _root; // ignore: unused_field
 
 	// Translations
+	@override String get listViewMode => 'リスト表示モード';
+	@override String get useTraditionalPaginationMode => '従来のページネーションモードを使用';
+	@override String get useTraditionalPaginationModeDesc => '従来のページネーションモードを使用すると、ページネーションモードが無効になります。';
 	@override String get showVideoProgressBottomBarWhenToolbarHidden => '底部プログレスバー';
 	@override String get showVideoProgressBottomBarWhenToolbarHiddenDesc => 'この設定は、ツールバーが非表示のときに底部プログレスバーを表示するかどうかを決定します。';
 	@override String get basicSettings => '基本設定';
@@ -1129,6 +1134,24 @@ class _TranslationsLinkInputDialogJa implements TranslationsLinkInputDialogEn {
 	@override String get confirm => 'ブラウザで開く';
 }
 
+// Path: common.pagination
+class _TranslationsCommonPaginationJa implements TranslationsCommonPaginationEn {
+	_TranslationsCommonPaginationJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String totalItems({required Object num}) => '全 ${num} 件';
+	@override String get jumpToPage => 'ページ指定';
+	@override String pleaseEnterPageNumber({required Object max}) => 'ページ番号を入力してください (1-${max})';
+	@override String get pageNumber => 'ページ番号';
+	@override String get jump => '移動';
+	@override String invalidPageNumber({required Object max}) => '有効なページ番号を入力してください (1-${max})';
+	@override String get invalidInput => '有効なページ番号を入力してください';
+	@override String get waterfall => 'ウォーターフォール';
+	@override String get pagination => 'ページネーション';
+}
+
 // Path: forum.errors
 class _TranslationsForumErrorsJa implements TranslationsForumErrorsEn {
 	_TranslationsForumErrorsJa._(this._root);
@@ -1356,7 +1379,7 @@ extension on TranslationsJa {
 			case 'common.unfollow': return 'フォロー解除';
 			case 'common.specialFollow': return '特別フォロー';
 			case 'common.specialFollowed': return '特別フォロー済み';
-			case 'common.specialFollowsManagementTip': return 'ドラッグで並び替え • 左スワイプで削除';
+			case 'common.specialFollowsManagementTip': return 'ドラッグして並べ替え • 左スワイプで削除';
 			case 'common.specialFollowsManagement': return '特別フォロー管理';
 			case 'common.gallery': return 'ギャラリー';
 			case 'common.playlist': return 'プレイリスト';
@@ -1498,6 +1521,15 @@ extension on TranslationsJa {
 			case 'common.taskRunning': return '既にタスクが実行中です。しばらくお待ちください。';
 			case 'common.operationCancelled': return '操作がキャンセルされました。';
 			case 'common.unsavedChanges': return '未保存の変更があります';
+			case 'common.pagination.totalItems': return ({required Object num}) => '全 ${num} 件';
+			case 'common.pagination.jumpToPage': return 'ページ指定';
+			case 'common.pagination.pleaseEnterPageNumber': return ({required Object max}) => 'ページ番号を入力してください (1-${max})';
+			case 'common.pagination.pageNumber': return 'ページ番号';
+			case 'common.pagination.jump': return '移動';
+			case 'common.pagination.invalidPageNumber': return ({required Object max}) => '有効なページ番号を入力してください (1-${max})';
+			case 'common.pagination.invalidInput': return '有効なページ番号を入力してください';
+			case 'common.pagination.waterfall': return 'ウォーターフォール';
+			case 'common.pagination.pagination': return 'ページネーション';
 			case 'auth.login': return 'ログイン';
 			case 'auth.logout': return 'ログアウト';
 			case 'auth.email': return 'メールアドレス';
@@ -1626,6 +1658,7 @@ extension on TranslationsJa {
 			case 'playList.newPlaylistName': return '新しいプレイリスト名';
 			case 'playList.createNewPlaylist': return '新しいプレイリストを作成';
 			case 'playList.videos': return '動画';
+			case 'search.googleSearchScope': return '検索範囲';
 			case 'search.searchTags': return 'タグを検索...';
 			case 'search.contentRating': return 'コンテンツレーティング';
 			case 'search.removeTag': return 'タグを削除';
@@ -1648,6 +1681,9 @@ extension on TranslationsJa {
 			case 'search.googleSearchQueryCopied': return '検索語句をクリップボードにコピーしました';
 			case 'search.googleSearchBrowserOpenFailed': return ({required Object error}) => 'ブラウザを開けませんでした: ${error}';
 			case 'mediaList.personalIntroduction': return '個人紹介';
+			case 'settings.listViewMode': return 'リスト表示モード';
+			case 'settings.useTraditionalPaginationMode': return '従来のページネーションモードを使用';
+			case 'settings.useTraditionalPaginationModeDesc': return '従来のページネーションモードを使用すると、ページネーションモードが無効になります。';
 			case 'settings.showVideoProgressBottomBarWhenToolbarHidden': return '底部プログレスバー';
 			case 'settings.showVideoProgressBottomBarWhenToolbarHiddenDesc': return 'この設定は、ツールバーが非表示のときに底部プログレスバーを表示するかどうかを決定します。';
 			case 'settings.basicSettings': return '基本設定';

@@ -33,7 +33,7 @@ common:
   unfollow: フォロー解除
   specialFollow: 特別フォロー
   specialFollowed: 特別フォロー済み
-  specialFollowsManagementTip: ドラッグで並び替え • 左スワイプで削除
+  specialFollowsManagementTip: ドラッグして並べ替え • 左スワイプで削除
   specialFollowsManagement: 特別フォロー管理
   gallery: ギャラリー
   playlist: プレイリスト
@@ -175,6 +175,17 @@ common:
   taskRunning: "既にタスクが実行中です。しばらくお待ちください。"
   operationCancelled: "操作がキャンセルされました。"
   unsavedChanges: "未保存の変更があります"
+  # ページネーション関連
+  pagination:
+    totalItems: '全 ${num} 件'
+    jumpToPage: 'ページ指定'
+    pleaseEnterPageNumber: 'ページ番号を入力してください (1-${max})'
+    pageNumber: 'ページ番号'
+    jump: '移動'
+    invalidPageNumber: '有効なページ番号を入力してください (1-${max})'
+    invalidInput: '有効なページ番号を入力してください'
+    waterfall: 'ウォーターフォール'
+    pagination: 'ページネーション'
 auth:
   login: ログイン
   logout: ログアウト
@@ -317,6 +328,7 @@ playList:
   videos: 動画
 
 search:
+  googleSearchScope: 検索範囲
   searchTags: タグを検索...
   contentRating: コンテンツレーティング
   removeTag: タグを削除
@@ -342,6 +354,9 @@ mediaList:
   personalIntroduction: 個人紹介
 
 settings:
+  listViewMode: リスト表示モード
+  useTraditionalPaginationMode: 従来のページネーションモードを使用
+  useTraditionalPaginationModeDesc: 従来のページネーションモードを使用すると、ページネーションモードが無効になります。
   showVideoProgressBottomBarWhenToolbarHidden: 底部プログレスバー
   showVideoProgressBottomBarWhenToolbarHiddenDesc: この設定は、ツールバーが非表示のときに底部プログレスバーを表示するかどうかを決定します。
   basicSettings: 基本設定

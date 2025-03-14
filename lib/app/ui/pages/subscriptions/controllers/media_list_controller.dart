@@ -1,10 +1,12 @@
 import 'package:get/get.dart';
+import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
+import 'package:i_iwara/common/constants.dart';
 
 /// 媒体列表控制器：统一管理分页/瀑布流切换和数据加载逻辑
 class MediaListController extends GetxController {
   // 分页模式状态
-  final RxBool isPaginated = false.obs;
+  final RxBool isPaginated = CommonConstants.isPaginated.obs;
   
   // 用于强制刷新的状态键
   final RxInt rebuildKey = 0.obs;
@@ -13,6 +15,8 @@ class MediaListController extends GetxController {
   void setPaginatedMode(bool value) {
     if (isPaginated.value != value) {
       isPaginated.value = value;
+      CommonConstants.isPaginated = value;
+      Get.find<ConfigService>()[ConfigKey.DEFAULT_PAGINATION_MODE] = value;
       rebuildKey.value++; // 增加重建键值强制更新视图
     }
   }

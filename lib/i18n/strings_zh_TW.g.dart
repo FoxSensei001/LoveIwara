@@ -238,8 +238,9 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get taskRunning => '任務正在進行中，請稍後再試。';
 	@override String get operationCancelled => '操作已取消。';
 	@override String get unsavedChanges => '您有未儲存的更改';
-	@override String get specialFollowsManagementTip => '拖動可排序 • 左滑可刪除';
+	@override String get specialFollowsManagementTip => '拖動可重新排序 • 向左滑動可移除';
 	@override String get specialFollowsManagement => '特別關注管理';
+	@override late final _TranslationsCommonPaginationZhTw pagination = _TranslationsCommonPaginationZhTw._(_root);
 }
 
 // Path: auth
@@ -440,6 +441,7 @@ class _TranslationsSearchZhTw implements TranslationsSearchEn {
 	final TranslationsZhTw _root; // ignore: unused_field
 
 	// Translations
+	@override String get googleSearchScope => '搜尋範圍';
 	@override String get searchTags => '搜尋標籤...';
 	@override String get contentRating => '內容分級';
 	@override String get removeTag => '移除標籤';
@@ -480,6 +482,9 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	final TranslationsZhTw _root; // ignore: unused_field
 
 	// Translations
+	@override String get listViewMode => '列表顯示模式';
+	@override String get useTraditionalPaginationMode => '使用傳統分頁模式';
+	@override String get useTraditionalPaginationModeDesc => '開啟後列表將使用傳統分頁模式，關閉則使用瀑布流模式';
 	@override String get showVideoProgressBottomBarWhenToolbarHidden => '顯示底部進度條';
 	@override String get showVideoProgressBottomBarWhenToolbarHiddenDesc => '此設定決定是否在工具欄隱藏時顯示底部進度條';
 	@override String get basicSettings => '基礎設定';
@@ -1132,6 +1137,24 @@ class _TranslationsLinkInputDialogZhTw implements TranslationsLinkInputDialogEn 
 	@override String get confirm => '用瀏覽器打開';
 }
 
+// Path: common.pagination
+class _TranslationsCommonPaginationZhTw implements TranslationsCommonPaginationEn {
+	_TranslationsCommonPaginationZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String totalItems({required Object num}) => '共 ${num} 項';
+	@override String get jumpToPage => '跳轉到指定頁面';
+	@override String pleaseEnterPageNumber({required Object max}) => '請輸入頁碼 (1-${max})';
+	@override String get pageNumber => '頁碼';
+	@override String get jump => '跳轉';
+	@override String invalidPageNumber({required Object max}) => '請輸入有效頁碼 (1-${max})';
+	@override String get invalidInput => '請輸入有效頁碼';
+	@override String get waterfall => '瀑布流';
+	@override String get pagination => '分頁';
+}
+
 // Path: forum.errors
 class _TranslationsForumErrorsZhTw implements TranslationsForumErrorsEn {
 	_TranslationsForumErrorsZhTw._(this._root);
@@ -1499,8 +1522,17 @@ extension on TranslationsZhTw {
 			case 'common.taskRunning': return '任務正在進行中，請稍後再試。';
 			case 'common.operationCancelled': return '操作已取消。';
 			case 'common.unsavedChanges': return '您有未儲存的更改';
-			case 'common.specialFollowsManagementTip': return '拖動可排序 • 左滑可刪除';
+			case 'common.specialFollowsManagementTip': return '拖動可重新排序 • 向左滑動可移除';
 			case 'common.specialFollowsManagement': return '特別關注管理';
+			case 'common.pagination.totalItems': return ({required Object num}) => '共 ${num} 項';
+			case 'common.pagination.jumpToPage': return '跳轉到指定頁面';
+			case 'common.pagination.pleaseEnterPageNumber': return ({required Object max}) => '請輸入頁碼 (1-${max})';
+			case 'common.pagination.pageNumber': return '頁碼';
+			case 'common.pagination.jump': return '跳轉';
+			case 'common.pagination.invalidPageNumber': return ({required Object max}) => '請輸入有效頁碼 (1-${max})';
+			case 'common.pagination.invalidInput': return '請輸入有效頁碼';
+			case 'common.pagination.waterfall': return '瀑布流';
+			case 'common.pagination.pagination': return '分頁';
 			case 'auth.login': return '登入';
 			case 'auth.logout': return '登出';
 			case 'auth.email': return '電子郵件';
@@ -1629,6 +1661,7 @@ extension on TranslationsZhTw {
 			case 'playList.newPlaylistName': return '新播放清單名稱';
 			case 'playList.createNewPlaylist': return '創建新播放清單';
 			case 'playList.videos': return '影片';
+			case 'search.googleSearchScope': return '搜尋範圍';
 			case 'search.searchTags': return '搜尋標籤...';
 			case 'search.contentRating': return '內容分級';
 			case 'search.removeTag': return '移除標籤';
@@ -1651,6 +1684,9 @@ extension on TranslationsZhTw {
 			case 'search.googleSearchQueryCopied': return '搜尋語句已複製到剪貼簿';
 			case 'search.googleSearchBrowserOpenFailed': return ({required Object error}) => '無法打開瀏覽器: ${error}';
 			case 'mediaList.personalIntroduction': return '個人簡介';
+			case 'settings.listViewMode': return '列表顯示模式';
+			case 'settings.useTraditionalPaginationMode': return '使用傳統分頁模式';
+			case 'settings.useTraditionalPaginationModeDesc': return '開啟後列表將使用傳統分頁模式，關閉則使用瀑布流模式';
 			case 'settings.showVideoProgressBottomBarWhenToolbarHidden': return '顯示底部進度條';
 			case 'settings.showVideoProgressBottomBarWhenToolbarHiddenDesc': return '此設定決定是否在工具欄隱藏時顯示底部進度條';
 			case 'settings.basicSettings': return '基礎設定';

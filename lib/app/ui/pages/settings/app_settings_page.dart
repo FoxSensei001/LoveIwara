@@ -369,6 +369,44 @@ class AppSettingsPage extends StatelessWidget {
               ],
             ),
           ),
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(
+                    slang.t.settings.listViewMode,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ),
+                const Divider(height: 1),
+                Obx(
+                  () => SwitchListTile(
+                    title: Text(slang.t.settings.useTraditionalPaginationMode),
+                    subtitle: Text(slang.t.settings.useTraditionalPaginationModeDesc),
+                    value: configService[ConfigKey.DEFAULT_PAGINATION_MODE],
+                    onChanged: (value) {
+                      configService[ConfigKey.DEFAULT_PAGINATION_MODE] = value;
+                      CommonConstants.isPaginated = value;
+                    },
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(16),
+                        bottomRight: Radius.circular(16),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
           const SafeArea(child: SizedBox.shrink()),
         ],
       ),

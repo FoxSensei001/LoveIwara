@@ -53,10 +53,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     
-    // 初始化并注册MediaListController
-    mediaListController = MediaListController();
-    mediaListController.isPaginated.value = CommonConstants.subscriptionPaginationMode;
-    Get.put(mediaListController);
+    mediaListController =  Get.put(MediaListController());
   }
 
   // 改进的ID选择处理逻辑
@@ -210,8 +207,8 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                         mediaListController.setPaginatedMode(!mediaListController.isPaginated.value);
                       },
                       tooltip: mediaListController.isPaginated.value 
-                           ? '瀑布流'
-                           : '分页',
+                           ? t.common.pagination.waterfall
+                           : t.common.pagination.pagination,
                     )),
                     IconButton(
                       icon: const Icon(Icons.refresh),

@@ -113,8 +113,8 @@ class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProvid
               _forumListController.setPaginatedMode(!_forumListController.isPaginated.value);
             },
             tooltip: _forumListController.isPaginated.value 
-                ? '瀑布流'
-                : '分页',
+                ? t.common.pagination.waterfall
+                : t.common.pagination.pagination,
             style: IconButton.styleFrom(
               visualDensity: VisualDensity.compact,
             ),

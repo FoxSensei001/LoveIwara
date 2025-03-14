@@ -174,6 +174,17 @@ common:
   unsavedChanges: "You have unsaved changes"
   specialFollowsManagementTip: Drag to reorder • Swipe left to remove
   specialFollowsManagement: Special Follows Management
+  # Pagination related
+  pagination:
+    totalItems: 'Total ${num} items'
+    jumpToPage: 'Jump to page'
+    pleaseEnterPageNumber: 'Please enter page number (1-${max})'
+    pageNumber: 'Page number'
+    jump: 'Jump'
+    invalidPageNumber: 'Please enter a valid page number (1-${max})'
+    invalidInput: 'Please enter a valid page number'
+    waterfall: 'Waterfall'
+    pagination: 'Pagination'
 auth:
   login: Login
   logout: Logout
@@ -316,6 +327,7 @@ playList:
   videos: Videos
 
 search:
+  googleSearchScope: Search Scope
   searchTags: Search Tags...
   contentRating: Content Rating
   removeTag: Remove Tag
@@ -341,6 +353,9 @@ mediaList:
   personalIntroduction: Personal Introduction
 
 settings:
+  listViewMode: List View Mode
+  useTraditionalPaginationMode: Use Traditional Pagination Mode
+  useTraditionalPaginationModeDesc: Enable traditional pagination mode, disable waterfall mode
   showVideoProgressBottomBarWhenToolbarHidden: Show Video Progress Bottom Bar When Toolbar Hidden
   showVideoProgressBottomBarWhenToolbarHiddenDesc: This configuration determines whether the video progress bottom bar will be shown when the toolbar is hidden.
   basicSettings: Basic Settings

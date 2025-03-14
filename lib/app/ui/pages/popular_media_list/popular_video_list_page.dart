@@ -8,6 +8,7 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/popular_media_search_config_widget.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/common/constants.dart';
+import 'package:i_iwara/i18n/strings.g.dart' show t;
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/ui/widgets/common_header.dart';
 
@@ -252,8 +253,8 @@ class _PopularVideoListPageState extends State<PopularVideoListPage>
                   _mediaListController.setPaginatedMode(!_mediaListController.isPaginated.value);
                 },
                 tooltip: _mediaListController.isPaginated.value 
-                    ? '瀑布流'
-                    : '分页',
+                    ? t.common.pagination.waterfall
+                    : t.common.pagination.pagination,
               )),
               // 添加刷新按钮
               IconButton(

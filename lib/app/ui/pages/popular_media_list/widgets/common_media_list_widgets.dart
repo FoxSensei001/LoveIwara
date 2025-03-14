@@ -21,7 +21,8 @@ Widget? buildIndicator(
       padding: EdgeInsets.zero,
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: MediaQuery.of(context).size.width <= 600 ? 180 : 200,
+        maxCrossAxisExtent:
+            MediaQuery.of(context).size.width <= 600 ? 180 : 200,
         crossAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
         mainAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
         childAspectRatio: 1 / 1.2,
@@ -36,7 +37,7 @@ Widget? buildIndicator(
   switch (status) {
     case IndicatorStatus.none:
       return null;
-      
+
     case IndicatorStatus.loadingMoreBusying:
     case IndicatorStatus.fullScreenBusying:
       final isFullScreen = status == IndicatorStatus.fullScreenBusying;
@@ -44,10 +45,12 @@ Widget? buildIndicator(
         baseColor: Colors.grey[300]!,
         highlightColor: Colors.grey[100]!,
         child: buildShimmerGrid(
-          itemCount: isFullScreen ? 8 : (MediaQuery.of(context).size.width <= 600 ? 2 : 6),
+          itemCount: isFullScreen
+              ? 8
+              : (MediaQuery.of(context).size.width <= 600 ? 2 : 6),
         ),
       );
-      
+
       if (isFullScreen) {
         return SliverFillRemaining(
           child: Padding(
@@ -58,7 +61,7 @@ Widget? buildIndicator(
           ),
         );
       }
-      
+
       return Padding(
         padding: EdgeInsets.symmetric(
           horizontal: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
@@ -88,7 +91,10 @@ Widget? buildIndicator(
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    slang.Translations.of(context).conversation.errors.loadFailedClickToRetry,
+                    slang.t
+                        .conversation
+                        .errors
+                        .loadFailedClickToRetry,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.error,
                     ),
@@ -119,7 +125,7 @@ Widget? buildIndicator(
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  slang.Translations.of(context).conversation.errors.loadFailed,
+                  slang.t.conversation.errors.loadFailed,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.error,
                     fontSize: 16,
@@ -128,7 +134,10 @@ Widget? buildIndicator(
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  slang.Translations.of(context).conversation.errors.clickToRetry,
+                  slang.t
+                      .conversation
+                      .errors
+                      .clickToRetry,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onErrorContainer,
                     fontSize: 14,
@@ -153,7 +162,7 @@ Widget? buildIndicator(
         padding: const EdgeInsets.all(8.0),
         child: Center(
           child: Text(
-            slang.Translations.of(context).common.noMoreDatas,
+            slang.t.common.noMoreDatas,
             style: TextStyle(
               color: Theme.of(context).textTheme.bodySmall?.color,
             ),
@@ -173,7 +182,7 @@ Widget? buildIndicator(
             ),
             const SizedBox(height: 16),
             Text(
-              slang.Translations.of(context).common.noData,
+              slang.t.common.noData,
               style: TextStyle(
                 color: Theme.of(context).hintColor,
                 fontSize: 16,
@@ -253,18 +262,114 @@ class PaginationBar extends StatefulWidget {
   State<PaginationBar> createState() => _PaginationBarState();
 }
 
-class _PaginationBarState extends State<PaginationBar> {
+class _PaginationBarState extends State<PaginationBar>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _pageController = TextEditingController();
+  late AnimationController _loadingAnimController;
+  late Animation<double> _progressAnimation;
+
+  // 控制进度条可见性
+  bool _showProgressBar = false;
+  // 控制进度条是否已满
+  bool _isProgressComplete = false;
+  // 控制进度条淡出效果
+  double _fadeOpacity = 1.0;
+
+  @override
+  void initState() {
+    super.initState();
+    // 初始化动画控制器
+    _loadingAnimController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
+
+    // 创建一个非线性的进度动画
+    _progressAnimation = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 0.0, end: 0.6)
+            .chain(CurveTween(curve: Curves.easeOut)),
+        weight: 60.0,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 0.6, end: 0.9)
+            .chain(CurveTween(curve: Curves.easeIn)),
+        weight: 30.0,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 0.9, end: 0.95)
+            .chain(CurveTween(curve: Curves.easeInOut)),
+        weight: 10.0,
+      ),
+    ]).animate(_loadingAnimController);
+
+    // 设置初始状态
+    _showProgressBar = widget.isLoading;
+    if (_showProgressBar) {
+      _loadingAnimController.repeat(reverse: true);
+    }
+  }
+
+  @override
+  void didUpdateWidget(PaginationBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // 当加载状态改变时，控制动画
+    if (widget.isLoading != oldWidget.isLoading) {
+      if (widget.isLoading) {
+        // 开始加载时，显示进度条并开始动画
+        setState(() {
+          _showProgressBar = true;
+          _isProgressComplete = false;
+          _fadeOpacity = 1.0;
+        });
+        _loadingAnimController.repeat(reverse: true);
+      } else {
+        // 加载结束时，先将进度推进到100%
+        _completeProgressAndFadeOut();
+      }
+    }
+  }
+
+  // 完成进度并淡出
+  void _completeProgressAndFadeOut() {
+    // 停止重复动画
+    _loadingAnimController.stop();
+
+    // 设置为完成状态
+    setState(() {
+      _isProgressComplete = true;
+    });
+
+    // 延迟一小段时间后开始淡出动画
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (!mounted) return;
+
+      // 使用AnimatedOpacity需要在setState中更新状态
+      setState(() {
+        _fadeOpacity = 0.0;
+      });
+
+      // 淡出完成后隐藏进度条
+      Future.delayed(const Duration(milliseconds: 400), () {
+        if (!mounted) return;
+        setState(() {
+          _showProgressBar = false;
+        });
+        _loadingAnimController.reset();
+      });
+    });
+  }
 
   @override
   void dispose() {
     _pageController.dispose();
+    _loadingAnimController.dispose();
     super.dispose();
   }
 
   void _jumpToPage() {
     if (widget.isLoading) return;
-    
+
     try {
       final targetPage = int.parse(_pageController.text);
       if (targetPage >= 1 && targetPage <= widget.totalPages) {
@@ -274,7 +379,7 @@ class _PaginationBarState extends State<PaginationBar> {
         // 显示错误提示
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('请输入有效页码 (1-${widget.totalPages})'),
+            content: Text(slang.t.common.pagination.invalidPageNumber(max: widget.totalPages)),
             duration: const Duration(seconds: 2),
           ),
         );
@@ -282,9 +387,9 @@ class _PaginationBarState extends State<PaginationBar> {
     } catch (e) {
       // 输入非数字时显示错误提示
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('请输入有效页码'),
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: Text(slang.t.common.pagination.invalidInput),
+          duration: const Duration(seconds: 2),
         ),
       );
     }
@@ -297,11 +402,11 @@ class _PaginationBarState extends State<PaginationBar> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('跳转到指定页面'),
+        title: Text(slang.t.common.pagination.jumpToPage),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('请输入页码 (1-${widget.totalPages})'),
+            Text(slang.t.common.pagination.pleaseEnterPageNumber(max: widget.totalPages)),
             const SizedBox(height: 16),
             TextField(
               controller: _pageController,
@@ -309,7 +414,7 @@ class _PaginationBarState extends State<PaginationBar> {
               autofocus: true,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
-                hintText: '页码',
+                hintText: slang.t.common.pagination.pageNumber,
               ),
               onSubmitted: (_) {
                 Navigator.of(context).pop();
@@ -321,14 +426,14 @@ class _PaginationBarState extends State<PaginationBar> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text('取消'),
+            child: Text(slang.t.common.cancel),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
               _jumpToPage();
             },
-            child: Text('跳转'),
+            child: Text(slang.t.common.pagination.jump),
           ),
         ],
       ),
@@ -337,25 +442,167 @@ class _PaginationBarState extends State<PaginationBar> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 56,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 8,
-            offset: const Offset(0, -2),
+    return Stack(
+      children: [
+        Container(
+          height: 56,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.08),
+                blurRadius: 8,
+                offset: const Offset(0, -2),
+              ),
+            ],
+          ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isNarrow = constraints.maxWidth < 600;
+              return isNarrow
+                  ? _buildCompactPaginationBar(context)
+                  : _buildFullPaginationBar(context);
+            },
+          ),
+        ),
+        // 动画进度指示器
+        if (_showProgressBar)
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: AnimatedOpacity(
+              opacity: _fadeOpacity,
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.easeOut,
+              child: _isProgressComplete
+                  ? _buildCompleteProgressIndicator(context)
+                  : AnimatedBuilder(
+                      animation: _progressAnimation,
+                      builder: (context, child) {
+                        return _buildProgressIndicator(
+                            context, _progressAnimation.value);
+                      },
+                    ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  // 构建已完成的进度指示器 (100%)
+  Widget _buildCompleteProgressIndicator(BuildContext context) {
+    final primaryColor = Theme.of(context).colorScheme.primary;
+    final secondaryColor = Theme.of(context).colorScheme.secondary;
+
+    return SizedBox(
+      height: 3,
+      child: Stack(
+        children: [
+          // 背景光晕效果
+          Container(
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  primaryColor.withOpacity(0.7),
+                  secondaryColor.withOpacity(0.7),
+                  primaryColor.withOpacity(0.7),
+                ],
+                stops: const [0.0, 0.5, 1.0],
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: primaryColor.withOpacity(0.5),
+                  blurRadius: 4,
+                  spreadRadius: 0,
+                ),
+              ],
+            ),
+          ),
+          // 前景进度条
+          Container(
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  primaryColor,
+                  secondaryColor,
+                  primaryColor,
+                ],
+                stops: const [0.0, 0.5, 1.0],
+              ),
+            ),
           ),
         ],
       ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final isNarrow = constraints.maxWidth < 600;
-          return isNarrow
-              ? _buildCompactPaginationBar(context)
-              : _buildFullPaginationBar(context);
-        },
+    );
+  }
+
+  // 构建优雅的进度指示器
+  Widget _buildProgressIndicator(BuildContext context, double value) {
+    final primaryColor = Theme.of(context).colorScheme.primary;
+    final secondaryColor = Theme.of(context).colorScheme.secondary;
+
+    return SizedBox(
+      height: 3,
+      child: Stack(
+        children: [
+          // 背景光晕效果
+          Container(
+            width: MediaQuery.of(context).size.width * value,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  primaryColor.withOpacity(0.7),
+                  secondaryColor.withOpacity(0.7),
+                  primaryColor.withOpacity(0.7),
+                ],
+                stops: const [0.0, 0.5, 1.0],
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: primaryColor.withOpacity(0.5),
+                  blurRadius: 4,
+                  spreadRadius: 0,
+                ),
+              ],
+            ),
+          ),
+          // 前景进度条
+          Container(
+            width: MediaQuery.of(context).size.width * value,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  primaryColor,
+                  secondaryColor,
+                  primaryColor,
+                ],
+                stops: const [0.0, 0.5, 1.0],
+              ),
+            ),
+          ),
+          // 进度条前端光点效果
+          Positioned(
+            right: 0,
+            top: 0,
+            bottom: 0,
+            child: Container(
+              width: 6,
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  colors: [
+                    Colors.white,
+                    secondaryColor,
+                  ],
+                  radius: 0.7,
+                ),
+                borderRadius: BorderRadius.circular(3),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -371,14 +618,14 @@ class _PaginationBarState extends State<PaginationBar> {
           Container(
             constraints: const BoxConstraints(maxWidth: 100),
             child: Text(
-              '共 ${widget.totalItems} 项',
+              slang.t.common.pagination.totalItems(num: widget.totalItems),
               style: TextStyle(
                 fontSize: 13,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ),
-          
+
           // 中间分页导航
           Row(
             mainAxisSize: MainAxisSize.min,
@@ -405,7 +652,10 @@ class _PaginationBarState extends State<PaginationBar> {
                     height: 36,
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surfaceContainerHighest
+                          .withOpacity(0.3),
                       borderRadius: BorderRadius.circular(18),
                     ),
                     child: Center(
@@ -424,18 +674,20 @@ class _PaginationBarState extends State<PaginationBar> {
               const SizedBox(width: 8),
               _buildNavButton(
                 icon: Icons.chevron_right,
-                enabled: widget.currentPage < widget.totalPages - 1 && !widget.isLoading,
+                enabled: widget.currentPage < widget.totalPages - 1 &&
+                    !widget.isLoading,
                 onPressed: () => widget.onPageChanged(widget.currentPage + 1),
               ),
               const SizedBox(width: 4),
               _buildNavButton(
                 icon: Icons.last_page,
-                enabled: widget.currentPage < widget.totalPages - 1 && !widget.isLoading,
+                enabled: widget.currentPage < widget.totalPages - 1 &&
+                    !widget.isLoading,
                 onPressed: () => widget.onPageChanged(widget.totalPages - 1),
               ),
             ],
           ),
-          
+
           // 右侧跳转控件
           Row(
             mainAxisSize: MainAxisSize.min,
@@ -444,8 +696,12 @@ class _PaginationBarState extends State<PaginationBar> {
                 width: 44,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
-                  borderRadius: const BorderRadius.horizontal(left: Radius.circular(18)),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .surfaceContainerHighest
+                      .withOpacity(0.3),
+                  borderRadius:
+                      const BorderRadius.horizontal(left: Radius.circular(18)),
                 ),
                 child: TextField(
                   controller: _pageController,
@@ -454,12 +710,16 @@ class _PaginationBarState extends State<PaginationBar> {
                   style: const TextStyle(fontSize: 14),
                   decoration: InputDecoration(
                     isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
                     border: InputBorder.none,
-                    hintText: '页码',
+                    hintText: slang.t.common.pagination.pageNumber,
                     hintStyle: TextStyle(
                       fontSize: 13,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.7),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurfaceVariant
+                          .withOpacity(0.7),
                     ),
                   ),
                   onSubmitted: (_) => _jumpToPage(),
@@ -467,19 +727,21 @@ class _PaginationBarState extends State<PaginationBar> {
               ),
               InkWell(
                 onTap: widget.isLoading ? null : _jumpToPage,
-                borderRadius: const BorderRadius.horizontal(right: Radius.circular(18)),
+                borderRadius:
+                    const BorderRadius.horizontal(right: Radius.circular(18)),
                 child: Container(
                   height: 36,
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
-                    color: widget.isLoading 
+                    color: widget.isLoading
                         ? Theme.of(context).colorScheme.primary.withOpacity(0.5)
                         : Theme.of(context).colorScheme.primary,
-                    borderRadius: const BorderRadius.horizontal(right: Radius.circular(18)),
+                    borderRadius: const BorderRadius.horizontal(
+                        right: Radius.circular(18)),
                   ),
                   child: Center(
                     child: Text(
-                      '跳转',
+                      slang.t.common.pagination.jump,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onPrimary,
                         fontSize: 13,
@@ -495,7 +757,7 @@ class _PaginationBarState extends State<PaginationBar> {
       ),
     );
   }
-  
+
   // 构建紧凑版的分页控制栏（适用于窄屏）
   Widget _buildCompactPaginationBar(BuildContext context) {
     return Padding(
@@ -504,26 +766,34 @@ class _PaginationBarState extends State<PaginationBar> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // 左侧：当前页/总页数 - 点击可跳转
-          GestureDetector(
-            onTap: widget.isLoading ? null : _showJumpPageDialog,
-            child: Container(
-              margin: EdgeInsets.zero,
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Text(
-                '${widget.currentPage + 1} / ${widget.totalPages}  (共 ${widget.totalItems} 项)',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.onSurface,
+          Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(16),
+            child: InkWell(
+              onTap: widget.isLoading ? null : _showJumpPageDialog,
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                margin: EdgeInsets.zero,
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .surfaceContainerHighest
+                      .withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Text(
+                  '${widget.currentPage + 1} / ${widget.totalPages}  (${slang.t.common.pagination.totalItems(num: widget.totalItems)})',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
               ),
             ),
           ),
-          
+
           // 右侧：上一页和下一页按钮
           Row(
             mainAxisSize: MainAxisSize.min,
@@ -536,7 +806,8 @@ class _PaginationBarState extends State<PaginationBar> {
               const SizedBox(width: 12),
               _buildNavButton(
                 icon: Icons.chevron_right,
-                enabled: widget.currentPage < widget.totalPages - 1 && !widget.isLoading,
+                enabled: widget.currentPage < widget.totalPages - 1 &&
+                    !widget.isLoading,
                 onPressed: () => widget.onPageChanged(widget.currentPage + 1),
               ),
             ],
@@ -557,20 +828,28 @@ class _PaginationBarState extends State<PaginationBar> {
       borderRadius: BorderRadius.circular(18),
       child: InkWell(
         borderRadius: BorderRadius.circular(18),
-        onTap: enabled ? () {
-          // 添加触感反馈
-          HapticFeedback.lightImpact();
-          onPressed();
-        } : null,
+        onTap: enabled
+            ? () {
+                // 添加触感反馈
+                HapticFeedback.lightImpact();
+                onPressed();
+              }
+            : null,
         child: Opacity(
           opacity: enabled ? 1.0 : 0.4,
           child: Container(
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: enabled 
-                  ? Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3)
-                  : Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.1),
+              color: enabled
+                  ? Theme.of(context)
+                      .colorScheme
+                      .surfaceContainerHighest
+                      .withOpacity(0.3)
+                  : Theme.of(context)
+                      .colorScheme
+                      .surfaceContainerHighest
+                      .withOpacity(0.1),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Center(
@@ -587,4 +866,4 @@ class _PaginationBarState extends State<PaginationBar> {
       ),
     );
   }
-} 
+}

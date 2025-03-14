@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/global_search_service.dart';
 import 'package:i_iwara/app/services/user_preference_service.dart';
-import 'package:i_iwara/app/ui/widgets/link_input_dialog_widget.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
-import 'package:i_iwara/common/constants.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:url_launcher/url_launcher.dart';
+import 'package:i_iwara/app/ui/widgets/google_search_panel_widget.dart';
 
 enum SearchSegment {
   video,
@@ -119,13 +114,9 @@ class _SearchContent extends StatefulWidget {
 
 class _SearchContentState extends State<_SearchContent> {
   final TextEditingController _controller = TextEditingController();
-  final TextEditingController _googleSearchController = TextEditingController();
   final FocusNode _focusNode = FocusNode(); // 添加 FocusNode
   late GlobalSearchService globalSearchService;
   late UserPreferenceService userPreferenceService;
-  
-  // 是否展开谷歌搜索辅助面板
-  bool _isGoogleSearchPanelExpanded = false;
   
   // 滚动控制器，用于在展开谷歌搜索面板时自动滚动
   final ScrollController _scrollController = ScrollController();
@@ -144,28 +135,6 @@ class _SearchContentState extends State<_SearchContent> {
     // 更新搜索建议
     globalSearchService
         .updateSearchPlaceholder(userPreferenceService.videoSearchHistory);
-  }
-  
-  // 展开或收起谷歌搜索面板
-  void _toggleGoogleSearchPanel() {
-    setState(() {
-      _isGoogleSearchPanelExpanded = !_isGoogleSearchPanelExpanded;
-    });
-    
-    // 如果是展开面板，延迟滚动到面板位置，确保UI已更新
-    if (_isGoogleSearchPanelExpanded) {
-      Future.delayed(const Duration(milliseconds: 100), () {
-        if (_scrollController.hasClients) {
-          // 计算谷歌搜索面板的大致位置并滚动到那里
-          final offset = _scrollController.position.pixels + 100.0;
-          _scrollController.animateTo(
-            offset,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-          );
-        }
-      });
-    }
   }
 
   void _removeHistoryItem(int index) {
@@ -199,51 +168,6 @@ class _SearchContentState extends State<_SearchContent> {
     globalSearchService.currentSearch.value = value;
     _dismiss();
     widget.onSearch(value, globalSearchService.selectedSegment.value);
-  }
-  
-  // 执行谷歌搜索
-  void _performGoogleSearch() async {
-    if (_googleSearchController.text.isEmpty) {
-      showToastWidget(
-        MDToastWidget(
-          // message: "请输入搜索关键词",
-          message: slang.t.search.pleaseEnterSearchKeywords,
-          type: MDToastType.warning,
-        ), 
-        position: ToastPosition.top
-      );
-      return;
-    }
-    
-    final keyword = _googleSearchController.text.trim();
-    final searchQuery = "$keyword site:${CommonConstants.iwaraDomain}";
-    
-    // 复制到剪贴板
-    await Clipboard.setData(ClipboardData(text: searchQuery));
-    showToastWidget(
-      MDToastWidget(
-        message: slang.t.search.googleSearchQueryCopied,
-        type: MDToastType.success,
-      ), 
-      position: ToastPosition.top
-    );
-    
-    // 构建谷歌搜索URL
-    final encodedQuery = Uri.encodeComponent(searchQuery);
-    final url = Uri.parse("https://www.google.com/search?q=$encodedQuery");
-    
-    // 打开浏览器搜索
-    try {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
-    } catch (e) {
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.search.googleSearchBrowserOpenFailed(error: e.toString()),
-          type: MDToastType.error,
-        ), 
-        position: ToastPosition.top
-      );
-    }
   }
 
   void _dismiss() {
@@ -393,121 +317,8 @@ class _SearchContentState extends State<_SearchContent> {
                 // 谷歌搜索辅助功能
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
-                  child: Card(
-                    clipBehavior: Clip.hardEdge,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(
-                        color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
-                        width: 1,
-                      ),
-                    ),
-                    elevation: 0,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // 标题部分，可点击展开/收起
-                        InkWell(
-                          onTap: _toggleGoogleSearchPanel,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.search,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        t.search.googleSearch,
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        t.search.googleSearchHint(webName: CommonConstants.webName),
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Icon(
-                                  _isGoogleSearchPanelExpanded
-                                      ? Icons.expand_less
-                                      : Icons.expand_more,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        
-                        // 展开的内容部分
-                        AnimatedSize(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                          child: SizedBox(
-                            height: _isGoogleSearchPanelExpanded ? null : 0,
-                            child: FadeTransition(
-                              opacity: CurvedAnimation(
-                                parent: AlwaysStoppedAnimation(_isGoogleSearchPanelExpanded ? 1.0 : 0.0),
-                                curve: Curves.easeInOut,
-                              ),
-                              child: _isGoogleSearchPanelExpanded ? Padding(
-                                padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  spacing: 12,
-                                  children: [
-                                    Text(
-                                      t.search.googleSearchDescription,
-                                      style: const TextStyle(fontSize: 13),
-                                    ),
-                                    TextField(
-                                      controller: _googleSearchController,
-                                      decoration: InputDecoration(
-                                        hintText: t.search.googleSearchKeywordsHint,
-                                        border: const OutlineInputBorder(),
-                                        contentPadding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 8,
-                                        ),
-                                      ),
-                                    ),
-                                    Wrap(
-                                      spacing: 8.0, // 水平间距
-                                      runSpacing: 8.0, // 垂直间距
-                                      children: [
-                                        OutlinedButton.icon(
-                                          icon: const Icon(Icons.link),
-                                          label: Text(t.search.openLinkJump),
-                                          onPressed: () {
-                                            LinkInputDialogWidget.show();
-                                          },
-                                        ),
-                                        ElevatedButton.icon(
-                                          icon: const Icon(Icons.search),
-                                          label: Text(t.search.googleSearchButton),
-                                          onPressed: _performGoogleSearch,
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ) : const SizedBox(),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                  child: GoogleSearchPanelWidget(
+                    scrollController: _scrollController,
                   ),
                 ),
                 
@@ -656,7 +467,6 @@ class _SearchContentState extends State<_SearchContent> {
   @override
   void dispose() {
     _controller.dispose();
-    _googleSearchController.dispose();
     _focusNode.dispose();
     _scrollController.dispose(); // 释放滚动控制器
     globalSearchService.clearSearchError();

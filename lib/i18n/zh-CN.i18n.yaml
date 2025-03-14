@@ -176,8 +176,19 @@ common:
   taskRunning: "任务正在进行中，请稍后再试。"
   operationCancelled: "操作已取消。"
   unsavedChanges: "您有未保存的更改"
-  specialFollowsManagementTip: 拖动可排序 • 左滑可删除
+  specialFollowsManagementTip: 拖动可重新排序 • 向左滑动可移除
   specialFollowsManagement: 特别关注管理
+  # 分页相关
+  pagination:
+    totalItems: '共 ${num} 项'
+    jumpToPage: '跳转到指定页面'
+    pleaseEnterPageNumber: '请输入页码 (1-${max})'
+    pageNumber: '页码'
+    jump: '跳转'
+    invalidPageNumber: '请输入有效页码 (1-${max})'
+    invalidInput: '请输入有效页码'
+    waterfall: '瀑布流'
+    pagination: '分页'
 auth:
   tagLimit: 标签上限
   login: 登录
@@ -323,6 +334,7 @@ playList:
   videos: 视频
 
 search:
+  googleSearchScope: 搜索范围
   searchTags: 搜索标签...
   contentRating: 内容分级
   removeTag: 移除标签
@@ -348,6 +360,9 @@ mediaList:
   personalIntroduction: 个人简介
 
 settings:
+  listViewMode: 列表显示模式
+  useTraditionalPaginationMode: 使用传统分页模式
+  useTraditionalPaginationModeDesc: 开启后列表将使用传统分页模式，关闭则使用瀑布流模式
   showVideoProgressBottomBarWhenToolbarHidden: 显示底部进度条
   showVideoProgressBottomBarWhenToolbarHiddenDesc: 此配置决定是否在工具栏隐藏时显示底部进度条
   basicSettings: 基础设置

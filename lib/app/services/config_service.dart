@@ -74,6 +74,7 @@ class ConfigService extends GetxService {
     CommonConstants.currentCustomHex = settings[ConfigKey.CURRENT_CUSTOM_HEX_KEY]!.value;
     CommonConstants.enableHistory = settings[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS]!.value;
     CommonConstants.enableVibration = settings[ConfigKey.ENABLE_VIBRATION]!.value;
+    CommonConstants.isPaginated = settings[ConfigKey.DEFAULT_PAGINATION_MODE]!.value;
     return this;
   }
 
@@ -198,6 +199,7 @@ enum ConfigKey {
   SHOW_FOLLOW_TIP_COUNT, // 告诉用户关注功能的次数，默认两次
   DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE, // 默认是否保持刚进入视频页时工具栏常驻
   VIDEO_TOOLBAR_LOCK_BUTTON_POSITION, // 视频工具栏锁定按钮位置
+  DEFAULT_PAGINATION_MODE, // 默认分页模式
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -256,6 +258,7 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.SHOW_FOLLOW_TIP_COUNT: return 'show_follow_tip_count';
       case ConfigKey.DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE: return 'default_keep_video_toolbar_visable';
       case ConfigKey.VIDEO_TOOLBAR_LOCK_BUTTON_POSITION: return 'video_toolbar_lock_button_position';
+      case ConfigKey.DEFAULT_PAGINATION_MODE: return 'default_pagination_mode';
     }
   }
 
@@ -367,6 +370,8 @@ extension ConfigKeyExtension on ConfigKey {
         return true;
       case ConfigKey.VIDEO_TOOLBAR_LOCK_BUTTON_POSITION:
         return 2;
+      case ConfigKey.DEFAULT_PAGINATION_MODE:
+        return false;
       default:
         throw Exception("Unknown ConfigKey: $this");
     }

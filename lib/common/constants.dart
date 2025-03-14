@@ -107,11 +107,11 @@ class CommonConstants {
   static String currentCustomHex = ''; // 自定义颜色
   static List<String> customThemeColors = []; // 自定义颜色列表
   
-  // 订阅页分页方式：false为瀑布流模式，true为分页模式
-  static bool subscriptionPaginationMode = false;
-
   static ColorScheme? dynamicLightColorScheme;
   static ColorScheme? dynamicDarkColorScheme;
+
+  // 是否启用分页模式
+  static bool isPaginated = false;
 
   // 用户头像原图 
   static String avatarOriginalUrl(String id, String name) => '$iwaraImageBaseUrl/image/original/$id/$name';
