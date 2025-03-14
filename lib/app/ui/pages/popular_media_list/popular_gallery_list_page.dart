@@ -44,7 +44,7 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
   late TabController _tabController;
   late ScrollController _tabBarScrollController;
   final List<GlobalKey> _tabKeys = [];
-  
+
   // 添加媒体列表控制器
   late PopularMediaListController _mediaListController;
 
@@ -62,8 +62,11 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
     if (mounted) {
       var sortId = sorts[_tabController.index].id;
       var repository = _repositories[sortId];
-      if (repository != null && !repository.isLoading) {
-        repository.refresh(true);
+      // 如果当前仓库不是瀑布流模式，则刷新
+      if (!_mediaListController.isPaginated.value) {
+        repository?.refresh(true);
+      } else {
+        _mediaListController.refreshPageUI();
       }
     }
   }
@@ -71,15 +74,18 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
   @override
   void initState() {
     super.initState();
-    
+
     // 初始化媒体列表控制器
-    _mediaListController = Get.put(PopularMediaListController(), tag: 'gallery');
-    
+    _mediaListController =
+        Get.put(PopularMediaListController(), tag: 'gallery');
+
     for (var sort in sorts) {
       _tabKeys.add(GlobalKey());
-      final controller = Get.put(PopularGalleryController(sortId: sort.id.name), tag: sort.id.name);
+      final controller = Get.put(PopularGalleryController(sortId: sort.id.name),
+          tag: sort.id.name);
       _controllers[sort.id] = controller;
-      _repositories[sort.id] = controller.repository as PopularGalleryRepository;
+      _repositories[sort.id] =
+          controller.repository as PopularGalleryRepository;
     }
     _tabController = TabController(length: sorts.length, vsync: this);
     _tabBarScrollController = ScrollController();
@@ -92,10 +98,10 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
     _tabController.removeListener(_onTabChange);
     _tabController.dispose();
     _tabBarScrollController.dispose();
-    
+
     // 移除媒体列表控制器
     Get.delete<PopularMediaListController>(tag: 'gallery');
-    
+
     for (var controller in _controllers.values) {
       Get.delete<PopularGalleryController>(tag: controller.sortId);
     }
@@ -111,7 +117,8 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
     this.year = year;
     this.rating = rating;
 
-    LogUtils.d('设置查询参数: tags: $tags, year: $year, rating: $rating', 'PopularGalleryListPage');
+    LogUtils.d('设置查询参数: tags: $tags, year: $year, rating: $rating',
+        'PopularGalleryListPage');
 
     // 设置每个controller的查询参数并重置数据
     for (var sort in sorts) {
@@ -122,9 +129,9 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
         searchRating: rating,
       );
     }
-    
+
     // 增加重建键值强制刷新UI
-    _mediaListController.refreshList();
+    _mediaListController.refreshPageUI();
   }
 
   void _onTabChange() {
@@ -240,24 +247,25 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
               ),
               // 添加分页/瀑布流切换按钮
               Obx(() => IconButton(
-                icon: Icon(_mediaListController.isPaginated.value 
-                    ? Icons.grid_view 
-                    : Icons.menu),
-                onPressed: () {
-                  _mediaListController.setPaginatedMode(!_mediaListController.isPaginated.value);
-                },
-                tooltip: _mediaListController.isPaginated.value 
-                    ? t.common.pagination.waterfall
-                    : t.common.pagination.pagination,
-              )),
+                    icon: Icon(_mediaListController.isPaginated.value
+                        ? Icons.grid_view
+                        : Icons.menu),
+                    onPressed: () {
+                      _mediaListController.setPaginatedMode(
+                          !_mediaListController.isPaginated.value);
+                    },
+                    tooltip: _mediaListController.isPaginated.value
+                        ? t.common.pagination.waterfall
+                        : t.common.pagination.pagination,
+                  )),
               IconButton(
                 icon: const Icon(Icons.refresh),
                 onPressed: () {
                   var sortId = sorts[_tabController.index].id;
                   var repository = _repositories[sortId]!;
                   if (_mediaListController.isPaginated.value) {
-                    (repository as ExtendedLoadingMoreBase).loadPageData(0, 20);
-                                    } else {
+                    _mediaListController.refreshPageUI();
+                  } else {
                     repository.refresh(true);
                   }
                 },
@@ -271,8 +279,9 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
           Expanded(
             child: Obx(() {
               final isPaginated = _mediaListController.isPaginated.value;
-              final rebuildKey = _mediaListController.rebuildKey.value.toString();
-              
+              final rebuildKey =
+                  _mediaListController.rebuildKey.value.toString();
+
               return TabBarView(
                 controller: _tabController,
                 children: sorts.map((sort) {

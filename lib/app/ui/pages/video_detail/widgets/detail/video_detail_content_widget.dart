@@ -715,8 +715,6 @@ class VideoDetailContent extends StatelessWidget {
                     source.name ?? 'unknown',
                   );
 
-                  print('senko savePath: $savePath');
-                  
                   if (savePath == null) {
                     showToastWidget(MDToastWidget(
                       message: t.common.operationCancelled,

@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
-import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/common/constants.dart';
 
 /// 流行媒体列表控制器：统一管理分页/瀑布流切换和数据加载逻辑
@@ -22,18 +21,7 @@ class PopularMediaListController extends GetxController {
   }
   
   // 刷新列表
-  void refreshList() {
+  void refreshPageUI() {
     rebuildKey.value++;
-  }
-  
-  // 加载数据 - 根据存储库类型和分页模式执行不同的加载逻辑
-  Future<void> loadData(ExtendedLoadingMoreBase repository, bool isPaginated) async {
-    if (isPaginated) {
-      // 分页模式：加载第一页数据
-      await repository.loadPageData(0, 20);
-    } else {
-      // 瀑布流模式：刷新所有数据
-      await repository.refresh(true);
-    }
   }
 } 

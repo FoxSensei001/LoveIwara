@@ -123,7 +123,7 @@ class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProvid
             icon: const Icon(Icons.refresh),
             onPressed: () {
               if (_forumListController.isPaginated.value) {
-                listSourceRepository.loadPageData(0, 20);
+                _forumListController.refreshPageUI();
               } else {
                 listSourceRepository.refresh();
               }

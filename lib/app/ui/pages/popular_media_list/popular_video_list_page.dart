@@ -43,7 +43,7 @@ class _PopularVideoListPageState extends State<PopularVideoListPage>
   late TabController _tabController;
   late ScrollController _tabBarScrollController;
   final List<GlobalKey> _tabKeys = [];
-  
+
   // 添加媒体列表控制器
   late PopularMediaListController _mediaListController;
 
@@ -56,8 +56,11 @@ class _PopularVideoListPageState extends State<PopularVideoListPage>
     if (mounted) {
       var sortId = sorts[_tabController.index].id;
       var repository = _repositories[sortId];
-      if (repository != null && !repository.isLoading) {
-        repository.refresh(true);
+      // 如果当前仓库不是瀑布流模式，则刷新
+      if (!_mediaListController.isPaginated.value) {
+        repository?.refresh(true);
+      } else {
+        _mediaListController.refreshPageUI();
       }
     }
   }
@@ -70,13 +73,14 @@ class _PopularVideoListPageState extends State<PopularVideoListPage>
   @override
   void initState() {
     super.initState();
-    
+
     // 初始化媒体列表控制器
     _mediaListController = Get.put(PopularMediaListController(), tag: 'video');
-    
+
     for (var sort in sorts) {
       _tabKeys.add(GlobalKey());
-      final controller = Get.put(PopularVideoController(sortId: sort.id.name), tag: sort.id.name);
+      final controller = Get.put(PopularVideoController(sortId: sort.id.name),
+          tag: sort.id.name);
       _controllers[sort.id] = controller;
       _repositories[sort.id] = controller.repository as PopularVideoRepository;
     }
@@ -86,16 +90,15 @@ class _PopularVideoListPageState extends State<PopularVideoListPage>
     _tabController.addListener(_onTabChange);
   }
 
-  
   @override
   void dispose() {
     _tabController.removeListener(_onTabChange);
     _tabController.dispose();
     _tabBarScrollController.dispose();
-    
+
     // 移除媒体列表控制器
     Get.delete<PopularMediaListController>(tag: 'video');
-    
+
     for (var controller in _controllers.values) {
       Get.delete<PopularVideoController>(tag: controller.sortId);
     }
@@ -111,7 +114,8 @@ class _PopularVideoListPageState extends State<PopularVideoListPage>
     this.year = year;
     this.rating = rating;
 
-    LogUtils.d('设置查询参数: tags: $tags, year: $year, rating: $rating', 'PopularVideoListPage');
+    LogUtils.d('设置查询参数: tags: $tags, year: $year, rating: $rating',
+        'PopularVideoListPage');
 
     // 设置每个controller的查询参数并重置数据
     for (var sort in sorts) {
@@ -122,9 +126,9 @@ class _PopularVideoListPageState extends State<PopularVideoListPage>
         searchRating: rating,
       );
     }
-    
+
     // 增加重建键值强制刷新UI
-    _mediaListController.refreshList();
+    _mediaListController.refreshPageUI();
   }
 
   void _onTabChange() {
@@ -246,16 +250,17 @@ class _PopularVideoListPageState extends State<PopularVideoListPage>
               ),
               // 添加分页/瀑布流切换按钮
               Obx(() => IconButton(
-                icon: Icon(_mediaListController.isPaginated.value 
-                    ? Icons.grid_view 
-                    : Icons.menu),
-                onPressed: () {
-                  _mediaListController.setPaginatedMode(!_mediaListController.isPaginated.value);
-                },
-                tooltip: _mediaListController.isPaginated.value 
-                    ? t.common.pagination.waterfall
-                    : t.common.pagination.pagination,
-              )),
+                    icon: Icon(_mediaListController.isPaginated.value
+                        ? Icons.grid_view
+                        : Icons.menu),
+                    onPressed: () {
+                      _mediaListController.setPaginatedMode(
+                          !_mediaListController.isPaginated.value);
+                    },
+                    tooltip: _mediaListController.isPaginated.value
+                        ? t.common.pagination.waterfall
+                        : t.common.pagination.pagination,
+                  )),
               // 添加刷新按钮
               IconButton(
                 icon: const Icon(Icons.refresh),
@@ -263,8 +268,8 @@ class _PopularVideoListPageState extends State<PopularVideoListPage>
                   var sortId = sorts[_tabController.index].id;
                   var repository = _repositories[sortId]!;
                   if (_mediaListController.isPaginated.value) {
-                    (repository as ExtendedLoadingMoreBase).loadPageData(0, 20);
-                                    } else {
+                    _mediaListController.refreshPageUI();
+                  } else {
                     repository.refresh(true);
                   }
                 },
@@ -279,8 +284,9 @@ class _PopularVideoListPageState extends State<PopularVideoListPage>
           Expanded(
             child: Obx(() {
               final isPaginated = _mediaListController.isPaginated.value;
-              final rebuildKey = _mediaListController.rebuildKey.value.toString();
-              
+              final rebuildKey =
+                  _mediaListController.rebuildKey.value.toString();
+
               return TabBarView(
                 controller: _tabController,
                 children: sorts.map((sort) {

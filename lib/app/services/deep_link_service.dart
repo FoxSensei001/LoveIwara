@@ -140,7 +140,6 @@ class DeepLinkService extends GetxService {
       case 'forum':
         // 论坛详情页 目前url可以识别 iwara.tv/forum/categoryId/threadId 和 iwara.tv/forum/categoryId 两种路径
         // https://www.iwara.tv/forum/announcements/895468a8-bdd9-401d-a8d1-2fd4d2d68c7d/2025-q1-small-updateoror-rule-changes-recent-issues-and-other-topics
-        print('senko forum: ${pathSegments.length}, url: ${uri.toString()}');
         if (pathSegments.length > 1) {
           final categoryId = pathSegments[1];
           if (pathSegments.length > 2) {

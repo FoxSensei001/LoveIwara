@@ -75,7 +75,6 @@ class _HomeNavigationLayoutState extends State<HomeNavigationLayout>
         'refresh_page',
         const Duration(seconds: 1), // 节流时间
         () {
-          LogUtils.d("refreshCurrent", "HomeNavigationLayout");
           VibrateUtils.vibrate();
           _lazyStackKey.currentState?.refreshCurrent();
         },
