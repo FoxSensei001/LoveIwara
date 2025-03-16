@@ -110,6 +110,10 @@ class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProvid
                 ? Icons.grid_view 
                 : Icons.menu),
             onPressed: () {
+              // 如果当前为瀑布流模式，则要执行刷新以清空数据
+              if (!_forumListController.isPaginated.value) {
+                listSourceRepository.refresh();
+              }
               _forumListController.setPaginatedMode(!_forumListController.isPaginated.value);
             },
             tooltip: _forumListController.isPaginated.value 

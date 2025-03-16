@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:loading_more_list/loading_more_list.dart';
-import '../controllers/media_list_controller.dart';
 
 /// 订阅列表基类 - 提供通用功能以减少子类重复代码
 abstract class BaseSubscriptionList<T, R extends ExtendedLoadingMoreBase<T>> extends StatefulWidget {
@@ -22,8 +20,6 @@ abstract class BaseSubscriptionListState<T, R extends ExtendedLoadingMoreBase<T>
     extends State<W> with AutomaticKeepAliveClientMixin {
   
   late R repository;
-  final ScrollController scrollController = ScrollController();
-  final MediaListController mediaController = Get.find<MediaListController>();
   
   @override
   void initState() {
@@ -54,7 +50,6 @@ abstract class BaseSubscriptionListState<T, R extends ExtendedLoadingMoreBase<T>
   @override
   void dispose() {
     repository.dispose();
-    scrollController.dispose();
     super.dispose();
   }
   
@@ -99,7 +94,6 @@ abstract class BaseSubscriptionListState<T, R extends ExtendedLoadingMoreBase<T>
       sourceList: repository,
       emptyIcon: emptyIcon,
       isPaginated: widget.isPaginated,
-      scrollController: scrollController,
       extendedListDelegate: extendedListDelegate,
       itemBuilder: buildListItem,
     );

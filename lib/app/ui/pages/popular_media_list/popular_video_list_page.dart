@@ -254,6 +254,11 @@ class _PopularVideoListPageState extends State<PopularVideoListPage>
                         ? Icons.grid_view
                         : Icons.menu),
                     onPressed: () {
+                      if (!_mediaListController.isPaginated.value) {
+                        var sortId = sorts[_tabController.index].id;
+                        var repository = _repositories[sortId]!;
+                        repository.refresh(true);
+                      }
                       _mediaListController.setPaginatedMode(
                           !_mediaListController.isPaginated.value);
                     },

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
-import 'package:i_iwara/app/services/global_search_service.dart';
 import 'package:i_iwara/app/services/user_preference_service.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/widgets/google_search_panel_widget.dart';
+import 'dart:math';
+import 'package:i_iwara/app/models/search_record.model.dart';
 
 enum SearchSegment {
   video,
@@ -114,9 +115,13 @@ class _SearchContent extends StatefulWidget {
 
 class _SearchContentState extends State<_SearchContent> {
   final TextEditingController _controller = TextEditingController();
-  final FocusNode _focusNode = FocusNode(); // 添加 FocusNode
-  late GlobalSearchService globalSearchService;
+  final FocusNode _focusNode = FocusNode();
   late UserPreferenceService userPreferenceService;
+  
+  // 搜索状态
+  final RxString _searchPlaceholder = ''.obs;
+  final RxString _searchErrorText = ''.obs;
+  final RxString _selectedSegment = 'video'.obs;
   
   // 滚动控制器，用于在展开谷歌搜索面板时自动滚动
   final ScrollController _scrollController = ScrollController();
@@ -124,17 +129,49 @@ class _SearchContentState extends State<_SearchContent> {
   @override
   void initState() {
     super.initState();
-    globalSearchService = Get.find<GlobalSearchService>();
     userPreferenceService = Get.find<UserPreferenceService>();
-    globalSearchService.clearSearchError();
-
+    
     // 设置初始搜索内容和 segment
     _controller.text = widget.initialSearch;
-    globalSearchService.selectedSegment.value = widget.initialSegment.name;
+    _selectedSegment.value = widget.initialSegment.name;
 
     // 更新搜索建议
-    globalSearchService
-        .updateSearchPlaceholder(userPreferenceService.videoSearchHistory);
+    updateSearchPlaceholder(userPreferenceService.videoSearchHistory);
+  }
+
+  void updateSearchPlaceholder(List<SearchRecord> history) {
+    if (history.isEmpty) {
+      _searchPlaceholder.value = '';
+      return;
+    }
+
+    // 计算最大使用次数，用于归一化
+    final maxUsedTimes = history.map((e) => e.usedTimes).reduce(max);
+
+    // 为每条记录计算权重分数
+    final now = DateTime.now();
+    List<(SearchRecord, double)> weightedRecords = history.map((record) {
+      // 使用频率得分 (0-40分)
+      double freqScore = (record.usedTimes / maxUsedTimes) * 40;
+
+      // 时间衰减得分 (0-40分)
+      double daysAgo = now.difference(record.lastUsedAt).inDays.toDouble();
+      double timeScore = (1 - (daysAgo / 30)).clamp(0.0, 1.0) * 40;
+
+      // 随机因素 (0-20分)
+      double randomScore = Random().nextDouble() * 20;
+
+      return (record, freqScore + timeScore + randomScore);
+    }).toList();
+
+    // 按总分排序
+    weightedRecords.sort((a, b) => b.$2.compareTo(a.$2));
+
+    // 从前3条中随机选择一条
+    final topCount = min(3, weightedRecords.length);
+    final selectedIndex = Random().nextInt(topCount);
+
+    _searchPlaceholder.value = weightedRecords[selectedIndex].$1.keyword;
   }
 
   void _removeHistoryItem(int index) {
@@ -147,27 +184,25 @@ class _SearchContentState extends State<_SearchContent> {
   }
 
   void _handleSubmit(String value) {
-    globalSearchService.clearSearchError();
+    _searchErrorText.value = '';
 
     if (value.isEmpty) {
-      if (globalSearchService.searchPlaceholder.isNotEmpty) {
-        _controller.text = globalSearchService.searchPlaceholder.value;
+      if (_searchPlaceholder.isNotEmpty) {
+        _controller.text = _searchPlaceholder.value;
         _focusNode.requestFocus(); // 重新聚焦 TextField
       } else {
-        globalSearchService.setSearchError(slang.t.search.pleaseEnterSearchContent);
+        _searchErrorText.value = slang.t.search.pleaseEnterSearchContent;
       }
       return;
     }
 
-    if (userPreferenceService.searchRecordEnabled.value &&
-        value != globalSearchService.currentSearch.value) {
+    if (userPreferenceService.searchRecordEnabled.value) {
       userPreferenceService.addVideoSearchHistory(value);
     }
 
-    LogUtils.d('搜索内容: $value, 类型: ${globalSearchService.selectedSegment}');
-    globalSearchService.currentSearch.value = value;
+    LogUtils.d('搜索内容: $value, 类型: ${_selectedSegment.value}');
     _dismiss();
-    widget.onSearch(value, globalSearchService.selectedSegment.value);
+    widget.onSearch(value, _selectedSegment.value);
   }
 
   void _dismiss() {
@@ -207,10 +242,9 @@ class _SearchContentState extends State<_SearchContent> {
                             color: Colors.black87,
                           ),
                           decoration: InputDecoration(
-                            hintText: globalSearchService
-                                    .searchPlaceholder.value.isEmpty
+                            hintText: _searchPlaceholder.value.isEmpty
                                 ? t.search.pleaseEnterSearchContent
-                                : '${t.search.searchSuggestion}: ${globalSearchService.searchPlaceholder.value}',
+                                : '${t.search.searchSuggestion}: ${_searchPlaceholder.value}',
                             hintStyle: TextStyle(
                               color: Colors.grey[400],
                               fontWeight: FontWeight.normal,
@@ -222,8 +256,8 @@ class _SearchContentState extends State<_SearchContent> {
                                   icon: const Icon(Icons.close),
                                   onPressed: () {
                                     _controller.clear();
-                                    globalSearchService.clearSearchError();
-                                    globalSearchService.searchPlaceholder.value = '';
+                                    _searchErrorText.value = '';
+                                    _searchPlaceholder.value = '';
                                     _focusNode.requestFocus();
                                   },
                                 ),
@@ -258,12 +292,12 @@ class _SearchContentState extends State<_SearchContent> {
                               ),
                             ),
                             errorText:
-                                globalSearchService.searchErrorText.value.isEmpty
+                                _searchErrorText.value.isEmpty
                                     ? null
-                                    : globalSearchService.searchErrorText.value,
+                                    : _searchErrorText.value,
                           ),
                           onChanged: (value) {
-                            globalSearchService.clearSearchError();
+                            _searchErrorText.value = '';
                           },
                           onSubmitted: _handleSubmit,
                         )),
@@ -298,11 +332,10 @@ class _SearchContentState extends State<_SearchContent> {
                               icon: const Icon(Icons.forum),
                             ),
                           ],
-                          selected: {globalSearchService.selectedSegment.value},
+                          selected: {_selectedSegment.value},
                           onSelectionChanged: (Set<String> selection) {
                             if (selection.isNotEmpty) {
-                              globalSearchService.selectedSegment.value =
-                                  selection.first;
+                              _selectedSegment.value = selection.first;
                             }
                           },
                           multiSelectionEnabled: false,
@@ -468,8 +501,7 @@ class _SearchContentState extends State<_SearchContent> {
   void dispose() {
     _controller.dispose();
     _focusNode.dispose();
-    _scrollController.dispose(); // 释放滚动控制器
-    globalSearchService.clearSearchError();
+    _scrollController.dispose();
     super.dispose();
   }
 }

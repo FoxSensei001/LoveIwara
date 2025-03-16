@@ -31,7 +31,6 @@ import 'app/my_app.dart';
 import 'app/services/api_service.dart';
 import 'app/services/auth_service.dart';
 import 'app/services/config_service.dart';
-import 'app/services/global_search_service.dart';
 import 'app/services/storage_service.dart';
 import 'app/services/user_preference_service.dart';
 import 'app/services/user_service.dart';
@@ -203,7 +202,6 @@ Future<void> _initializeBusinessServices() async {
   Get.lazyPut(() => PostService());
   Get.lazyPut(() => TagService());
   Get.lazyPut(() => LightService());
-  Get.lazyPut(() => GlobalSearchService());
   Get.lazyPut(() => PlayListService());
   Get.lazyPut(() => ForumService());
   Get.lazyPut(() => ConversationService());

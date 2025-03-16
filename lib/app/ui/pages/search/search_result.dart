@@ -1,48 +1,93 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:i_iwara/app/services/global_search_service.dart';
-import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/image_model_card_list_item_widget.dart';
-import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
-import 'package:i_iwara/app/ui/pages/video_detail/widgets/media_tile_list_loading_widget.dart';
-import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
-import 'package:i_iwara/app/ui/widgets/user_card.dart';
+import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/ui/pages/search/widgets/search_list_widgets.dart';
+import 'package:i_iwara/app/ui/widgets/glow_notification_widget.dart';
+import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/utils/logger_utils.dart';
 
 import 'search_dialog.dart';
-import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/post_card_list_item_widget.dart';
-import 'package:i_iwara/app/ui/pages/forum/widgets/thread_list_item_widget.dart';
+
+class SearchController extends GetxController {
+  // 搜索状态管理
+  final RxString currentSearch = ''.obs;
+  final RxString selectedSegment = 'video'.obs;
+  final RxBool isPaginated = CommonConstants.isPaginated.obs;
+  final RxInt rebuildKey = 0.obs;
+
+  // 更新当前搜索查询
+  void updateSearch(String query) {
+    currentSearch.value = query;
+  }
+  
+  // 更新当前搜索分段
+  void updateSegment(String segment) {
+    selectedSegment.value = segment;
+  }
+  
+  // 切换分页模式
+  void togglePaginationMode() {
+    if (isPaginated.value) {
+      isPaginated.value = false;
+      Get.find<ConfigService>().settings[ConfigKey.DEFAULT_PAGINATION_MODE]!.value = false;
+      CommonConstants.isPaginated = false;
+    } else {
+      isPaginated.value = true;
+      Get.find<ConfigService>().settings[ConfigKey.DEFAULT_PAGINATION_MODE]!.value = true;
+      CommonConstants.isPaginated = true;
+    }
+    rebuildKey.value++;
+  }
+  
+  // 刷新搜索结果
+  void refreshSearch() {
+    rebuildKey.value++;
+  }
+}
 
 class SearchResult extends StatefulWidget {
-  const SearchResult({super.key});
+  final String initialSearch;
+  final String initialSegment;
+
+  const SearchResult({
+    super.key, 
+    required this.initialSearch, 
+    required this.initialSegment
+  });
 
   @override
   _SearchResultState createState() => _SearchResultState();
 }
 
 class _SearchResultState extends State<SearchResult> {
-  final GlobalSearchService globalSearchService =
-      Get.find<GlobalSearchService>();
-
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  late SearchController searchController;
 
   @override
   void initState() {
     super.initState();
-    globalSearchService.fetchSearchResult(refresh: true);
-    _searchController.text = globalSearchService.currentSearch.value;
-
-    // 监听输入框变化并更新 observable
+    
+    // 初始化搜索控制器
+    searchController = Get.put(SearchController(), tag: 'search_controller');
+    searchController.updateSearch(widget.initialSearch);
+    searchController.updateSegment(widget.initialSegment);
+    
+    // 设置搜索文本
+    _searchController.text = widget.initialSearch;
+    
+    // 监听输入框变化
     _searchController.addListener(() {
-      globalSearchService.currentSearch.value = _searchController.text;
+      searchController.updateSearch(_searchController.text);
     });
   }
 
   @override
   void dispose() {
     _searchController.dispose();
-    _scrollController.dispose(); // Dispose scroll controller
-    globalSearchService.resetAll();
+    _scrollController.dispose();
+    Get.delete<SearchController>(tag: 'search_controller');
     super.dispose();
   }
 
@@ -52,372 +97,60 @@ class _SearchResultState extends State<SearchResult> {
     }
   }
 
-  Widget _buildSearchResult(BuildContext context) {
-    final t = slang.Translations.of(context);
+  Widget _buildCurrentSearchList() {
     return Obx(() {
-      if (globalSearchService.errorWidget.value != null) {
-        return globalSearchService.errorWidget.value!;
-      }
-
-      if (globalSearchService.isLoading.value &&
-          globalSearchService.isCurrentResultEmpty) {
-        return const Center(child: MediaTileListSkeletonWidget());
-      }
-
-      if (globalSearchService.isResultEmpty) {
-        return const Center(child: MyEmptyWidget());
-      }
-
+      final query = searchController.currentSearch.value;
+      final segment = searchController.selectedSegment.value;
+      final isPaginated = searchController.isPaginated.value;
+      final rebuildKey = searchController.rebuildKey.value;
+      
+      LogUtils.d('构建搜索列表: 关键词=$query, 类型=$segment, 使用分页=$isPaginated, 重建键=$rebuildKey', 'SearchResult');
+      
       Widget child;
-      switch (globalSearchService.selectedSegment.value) {
+      switch (segment) {
         case 'video':
-          child = _buildVideoResult();
+          child = VideoSearchList(
+            key: ValueKey('video_$rebuildKey'),
+            query: query,
+            isPaginated: isPaginated,
+          );
           break;
         case 'image':
-          child = _buildImageResult();
+          child = ImageSearchList(
+            key: ValueKey('image_$rebuildKey'),
+            query: query,
+            isPaginated: isPaginated,
+          );
           break;
         case 'user':
-          child = _buildUserResult();
+          child = UserSearchList(
+            key: ValueKey('user_$rebuildKey'),
+            query: query,
+            isPaginated: isPaginated,
+          );
           break;
         case 'post':
-          child = _buildPostResult();
+          child = PostSearchList(
+            key: ValueKey('post_$rebuildKey'),
+            query: query,
+            isPaginated: isPaginated,
+          );
           break;
         case 'forum':
-          child = _buildForumResult();
+          child = ForumSearchList(
+            key: ValueKey('forum_$rebuildKey'),
+            query: query,
+            isPaginated: isPaginated,
+          );
           break;
         default:
-          child = Text(
-            t.search.notSupportCurrentSearchType(searchType: globalSearchService.selectedSegment.value));
+          child = Center(
+            child: Text(slang.t.search.unsupportedSearchType(searchType: segment)),
+          );
       }
-
-      return child;
-    });
-  }
-
-  Widget _buildVideoResult() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final int columns = _calculateColumns(constraints.maxWidth);
-        final itemCount =
-            (globalSearchService.searchVideoResult.length / columns).ceil() + 1;
-
-        return NotificationListener<ScrollNotification>(
-          onNotification: (scrollInfo) {
-            if (!globalSearchService.isLoading.value &&
-                scrollInfo.metrics.pixels >=
-                    scrollInfo.metrics.maxScrollExtent - 100 &&
-                globalSearchService.hasMore) {
-              globalSearchService.fetchSearchResult();
-            }
-            return false;
-          },
-          child: ListView.builder(
-            controller: _scrollController, // Add controller here
-            padding: EdgeInsets.zero,
-            physics: const AlwaysScrollableScrollPhysics(),
-            itemCount: itemCount,
-            itemBuilder: (context, index) {
-              if (index < itemCount - 1) {
-                return _buildRow(index, columns, constraints.maxWidth);
-              } else {
-                return _buildLoadMoreIndicator(context);
-              }
-            },
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildRow(int index, int columns, double maxWidth) {
-    return Obx(() {
-      final startIndex = index * columns;
-      final endIndex = (startIndex + columns)
-          .clamp(0, globalSearchService.searchVideoResult.length);
-      final rowItems =
-          globalSearchService.searchVideoResult.sublist(startIndex, endIndex);
-      final remainingColumns = columns - rowItems.length;
-
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            ...rowItems.map((video) => Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                    child: VideoCardListItemWidget(
-                      video: video,
-                      width: maxWidth / columns - 8,
-                    ),
-                  ),
-                )),
-            // 添加空的占位 Expanded 来填充剩余空间
-            ...List.generate(
-              remainingColumns,
-              (index) => Expanded(child: Container()),
-            ),
-          ],
-        ),
-      );
-    });
-  }
-
-  int _calculateColumns(double availableWidth) {
-    if (availableWidth > 1200) return 5;
-    if (availableWidth > 900) return 4;
-    if (availableWidth > 600) return 3;
-    if (availableWidth > 300) return 2;
-    return 1;
-  }
-
-  Widget _buildLoadMoreIndicator(BuildContext context) {
-    final t = slang.Translations.of(context);
-    return Obx(() => globalSearchService.hasMore
-        ? const Padding(
-            padding: EdgeInsets.symmetric(vertical: 16.0),
-            child: Center(
-              child: CircularProgressIndicator(),
-            ),
-          )
-        : Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
-            child: Center(
-              child: Text(
-                t.common.noMoreDatas,
-                style: const TextStyle(color: Colors.grey),
-              ),
-            ),
-          ));
-  }
-
-  Widget _buildImageResult() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final int columns = _calculateColumns(constraints.maxWidth);
-        final itemCount =
-            (globalSearchService.searchImageResult.length / columns).ceil() + 1;
-
-        return NotificationListener<ScrollNotification>(
-          onNotification: (scrollInfo) {
-            if (!globalSearchService.isLoading.value &&
-                scrollInfo.metrics.pixels >=
-                    scrollInfo.metrics.maxScrollExtent - 100 &&
-                globalSearchService.hasMore) {
-              globalSearchService.fetchSearchResult();
-            }
-            return false;
-          },
-          child: ListView.builder(
-            controller: _scrollController, // Add controller here
-            padding: EdgeInsets.zero,
-            physics: const AlwaysScrollableScrollPhysics(),
-            itemCount: itemCount,
-            itemBuilder: (context, index) {
-              if (index < itemCount - 1) {
-                return _buildImageRow(index, columns, constraints.maxWidth);
-              } else {
-                return _buildLoadMoreIndicator(context);
-              }
-            },
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildImageRow(int index, int columns, double maxWidth) {
-    return Obx(() {
-      final startIndex = index * columns;
-      final endIndex = (startIndex + columns)
-          .clamp(0, globalSearchService.searchImageResult.length);
-      final rowItems =
-          globalSearchService.searchImageResult.sublist(startIndex, endIndex);
-      final remainingColumns = columns - rowItems.length;
-
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            ...rowItems.map((image) => Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                    child: ImageModelCardListItemWidget(
-                      imageModel: image,
-                      width: maxWidth / columns - 8,
-                    ),
-                  ),
-                )),
-            // 添加空的占位 Expanded 来填充剩余空间
-            ...List.generate(
-              remainingColumns,
-              (index) => Expanded(child: Container()),
-            ),
-          ],
-        ),
-      );
-    });
-  }
-
-  // Add new method for user results
-  Widget _buildUserResult() {
-    return NotificationListener<ScrollNotification>(
-      onNotification: (scrollInfo) {
-        if (!globalSearchService.isLoading.value &&
-            scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent - 100 &&
-            globalSearchService.hasMore) {
-          globalSearchService.fetchSearchResult();
-        }
-        return false;
-      },
-      child: ListView.builder(
-        controller: _scrollController,
-        padding: EdgeInsets.zero,
-        physics: const AlwaysScrollableScrollPhysics(),
-        itemCount: globalSearchService.searchUserResult.length + 1,
-        itemBuilder: (context, index) {
-          if (index < globalSearchService.searchUserResult.length) {
-            final user = globalSearchService.searchUserResult[index];
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
-              child: UserCard(
-                user: user,
-              ),
-            );
-          } else {
-            return _buildLoadMoreIndicator(context);
-          }
-        },
-      ),
-    );
-  }
-
-  Widget _buildPostResult() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final int columns = _calculateColumns(constraints.maxWidth);
-        final itemCount = (globalSearchService.searchPostResult.length / columns).ceil() + 1;
-
-        return NotificationListener<ScrollNotification>(
-          onNotification: (scrollInfo) {
-            if (!globalSearchService.isLoading.value &&
-                scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent - 100 &&
-                globalSearchService.hasMore) {
-              globalSearchService.fetchSearchResult();
-            }
-            return false;
-          },
-          child: ListView.builder(
-            controller: _scrollController,
-            padding: EdgeInsets.zero,
-            physics: const AlwaysScrollableScrollPhysics(),
-            itemCount: itemCount,
-            itemBuilder: (context, index) {
-              if (index < itemCount - 1) {
-                return _buildPostRow(index, columns, constraints.maxWidth);
-              } else {
-                return _buildLoadMoreIndicator(context);
-              }
-            },
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildPostRow(int index, int columns, double maxWidth) {
-    return Obx(() {
-      final startIndex = index * columns;
-      final endIndex = (startIndex + columns)
-          .clamp(0, globalSearchService.searchPostResult.length);
-      final rowItems = globalSearchService.searchPostResult.sublist(startIndex, endIndex);
-      final remainingColumns = columns - rowItems.length;
-
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            ...rowItems.map((post) => Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                    child: PostCardListItemWidget(
-                      post: post,
-                    ),
-                  ),
-                )),
-            ...List.generate(
-              remainingColumns,
-              (index) => Expanded(child: Container()),
-            ),
-          ],
-        ),
-      );
-    });
-  }
-
-  Widget _buildForumResult() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final int columns = _calculateColumns(constraints.maxWidth);
-        final itemCount = (globalSearchService.searchForumResult.length / columns).ceil() + 1;
-
-        return NotificationListener<ScrollNotification>(
-          onNotification: (scrollInfo) {
-            if (!globalSearchService.isLoading.value &&
-                scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent - 100 &&
-                globalSearchService.hasMore) {
-              globalSearchService.fetchSearchResult();
-            }
-            return false;
-          },
-          child: ListView.builder(
-            controller: _scrollController,
-            padding: EdgeInsets.zero,
-            physics: const AlwaysScrollableScrollPhysics(),
-            itemCount: itemCount,
-            itemBuilder: (context, index) {
-              if (index < itemCount - 1) {
-                return _buildForumRow(index, columns, constraints.maxWidth);
-              } else {
-                return _buildLoadMoreIndicator(context);
-              }
-            },
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildForumRow(int index, int columns, double maxWidth) {
-    return Obx(() {
-      final startIndex = index * columns;
-      final endIndex = (startIndex + columns)
-          .clamp(0, globalSearchService.searchForumResult.length);
-      final rowItems = globalSearchService.searchForumResult.sublist(startIndex, endIndex);
-      final remainingColumns = columns - rowItems.length;
-
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            ...rowItems.map((thread) => Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                    child: ThreadListItemWidget(
-                      thread: thread,
-                      categoryId: thread.section,
-                    ),
-                  ),
-                )),
-            ...List.generate(
-              remainingColumns,
-              (index) => Expanded(child: Container()),
-            ),
-          ],
-        ),
+      
+      return GlowNotificationWidget(
+        child: child,
       );
     });
   }
@@ -453,9 +186,9 @@ class _SearchResultState extends State<SearchResult> {
                           color: Theme.of(context).colorScheme.onSurface,
                         ),
                         decoration: InputDecoration(
-                          hintText: globalSearchService.searchPlaceholder.value.isEmpty
+                          hintText: searchController.currentSearch.value.isEmpty
                               ? t.search.pleaseEnterSearchContent
-                              : globalSearchService.searchPlaceholder.value,
+                              : searchController.currentSearch.value,
                           hintStyle: TextStyle(
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
@@ -471,18 +204,18 @@ class _SearchResultState extends State<SearchResult> {
                         ),
                         onTap: () {
                           Get.dialog(SearchDialog(
-                            initialSearch: globalSearchService.currentSearch.value,
-                            initialSegment: SearchSegment.fromValue(
-                                globalSearchService.selectedSegment.value),
+                            initialSearch: searchController.currentSearch.value,
+                            initialSegment: SearchSegment.fromValue(searchController.selectedSegment.value),
                             onSearch: (searchInfo, segment) {
-                              if (globalSearchService.selectedSegment.value != segment) {
-                                globalSearchService.selectedSegment.value = segment;
-                                globalSearchService.clearOtherSearchResult();
-                              } else {
-                                globalSearchService.selectedSegment.value = segment;
-                              }
-                              globalSearchService.fetchSearchResult(refresh: true);
+                              // 更新搜索参数
+                              searchController.updateSearch(searchInfo);
+                              searchController.updateSegment(segment);
+                              
+                              // 更新UI
                               _searchController.text = searchInfo;
+                              searchController.refreshSearch();
+                              
+                              // 关闭对话框
                               Get.back();
                             },
                           ));
@@ -491,6 +224,30 @@ class _SearchResultState extends State<SearchResult> {
                     ),
                   ),
                   const SizedBox(width: 8),
+                  // 分页模式切换按钮
+                  Material(
+                    borderRadius: BorderRadius.circular(12),
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                    clipBehavior: Clip.antiAlias,
+                    child: Obx(() => InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () {
+                        searchController.togglePaginationMode();
+                      },
+                      child: Container(
+                        width: 44,
+                        height: 44,
+                        alignment: Alignment.center,
+                        child: Icon(
+                          searchController.isPaginated.value ? Icons.grid_view : Icons.menu,
+                          size: 20,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    )),
+                  ),
+                  const SizedBox(width: 8),
+                  // 刷新按钮
                   Material(
                     borderRadius: BorderRadius.circular(12),
                     color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
@@ -498,7 +255,7 @@ class _SearchResultState extends State<SearchResult> {
                     child: InkWell(
                       borderRadius: BorderRadius.circular(12),
                       onTap: () {
-                        globalSearchService.fetchSearchResult(refresh: true);
+                        searchController.refreshSearch();
                       },
                       child: Container(
                         width: 44,
@@ -563,15 +320,11 @@ class _SearchResultState extends State<SearchResult> {
                               : null,
                           ),
                         ],
-                        selected: {globalSearchService.selectedSegment.value},
+                        selected: {searchController.selectedSegment.value},
                         onSelectionChanged: (Set<String> selection) {
                           if (selection.isNotEmpty) {
-                            globalSearchService.selectedSegment.value =
-                                selection.first;
+                            searchController.updateSegment(selection.first);
                             _safeScrollToTop();
-                            if (!globalSearchService.isCurrentResultInitialized) {
-                              globalSearchService.fetchSearchResult();
-                            }
                           }
                         },
                         multiSelectionEnabled: false,
@@ -600,7 +353,7 @@ class _SearchResultState extends State<SearchResult> {
 
             // 搜索结果区域
             Expanded(
-              child: _buildSearchResult(context),
+              child: _buildCurrentSearchList(),
             ),
           ],
         ),

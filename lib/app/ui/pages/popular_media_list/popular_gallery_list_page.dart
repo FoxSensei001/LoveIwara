@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/popular_media_list_controller.dart';
-import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/popular_media_search_config_widget.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -251,6 +250,11 @@ class _PopularGalleryListPageState extends State<PopularGalleryListPage>
                         ? Icons.grid_view
                         : Icons.menu),
                     onPressed: () {
+                      if (!_mediaListController.isPaginated.value) {
+                        var sortId = sorts[_tabController.index].id;
+                        var repository = _repositories[sortId]!;
+                        repository.refresh(true);
+                      }
                       _mediaListController.setPaginatedMode(
                           !_mediaListController.isPaginated.value);
                     },
