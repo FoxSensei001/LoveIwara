@@ -16,7 +16,7 @@ class ThreadListRepository extends ExtendedLoadingMoreBase<ForumThreadModel> {
   
   @override
   bool get hasMore => (super.hasMore && length < maxLength) || forceRefresh;
-
+  
   @override
   Future<Map<String, dynamic>> fetchDataFromSource(Map<String, dynamic> params, int page, int limit) async {
     final result = await _forumService.fetchForumThreads(
@@ -33,6 +33,22 @@ class ThreadListRepository extends ExtendedLoadingMoreBase<ForumThreadModel> {
     updateCategoryName?.call(section.name, section.description);
     
     return result.data!;
+  }
+  
+  @override
+  Future<List<ForumThreadModel>> loadPageData(int pageKey, int pageSize) async {
+    try {
+      final params = buildQueryParams(pageKey, pageSize);
+      final response = await fetchDataFromSource(params, pageKey, pageSize);
+      
+      requestTotalCount = extractTotalCount(response);
+      final data = extractDataList(response);
+      
+      return data;
+    } catch (e, stack) {
+      logError('加载分页数据失败', e, stack);
+      return [];
+    }
   }
 
   @override
@@ -51,7 +67,7 @@ class ThreadListRepository extends ExtendedLoadingMoreBase<ForumThreadModel> {
   @override
   int extractTotalCount(Map<String, dynamic> response) {
     final threads = response['results'] as List<ForumThreadModel>;
-    return response['total'] as int? ?? threads.length;
+    return response['count'] as int? ?? threads.length;
   }
   
   @override

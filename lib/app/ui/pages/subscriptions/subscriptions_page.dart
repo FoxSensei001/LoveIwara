@@ -158,6 +158,9 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                     IconButton(
                       icon: const Icon(Icons.vertical_align_top),
                       onPressed: () {
+                        // 先尝试使用控制器滚动所有列表
+                        mediaListController.scrollToTop();
+                        // 然后滚动主滚动视图到顶部
                         _extendedScrollController.animateTo(
                           0,
                           duration: const Duration(milliseconds: 300),

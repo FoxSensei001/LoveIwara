@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/app/ui/pages/search/repositories/search_repository.dart';
+import 'package:get/get.dart';
+import '../../search/search_result.dart' as search;
 
 /// 搜索列表基类
 abstract class BaseSearchList<T, R extends SearchRepository<T>> extends StatefulWidget {
@@ -17,11 +19,16 @@ abstract class BaseSearchList<T, R extends SearchRepository<T>> extends Stateful
 /// 搜索列表基类状态
 abstract class BaseSearchListState<T, R extends SearchRepository<T>, W extends BaseSearchList<T, R>> extends State<W> {
   late R repository;
+  final ScrollController _scrollController = ScrollController();
+  late final search.SearchController _searchController;
 
   @override
   void initState() {
     super.initState();
     repository = createRepository();
+    _searchController = Get.find<search.SearchController>(tag: 'search_controller');
+    // 注册滚动回调
+    _searchController.registerScrollToTopCallback(_scrollToTop);
   }
 
   @override
@@ -32,10 +39,31 @@ abstract class BaseSearchListState<T, R extends SearchRepository<T>, W extends B
     if (oldWidget.query != widget.query) {
       repository = createRepository();
     }
+    
+    // 分页模式变化时刷新并滚动到顶部
+    if (oldWidget.isPaginated != widget.isPaginated) {
+      Future.microtask(() {
+        _scrollToTop();
+      });
+    }
+  }
+  
+  // 滚动到顶部方法
+  void _scrollToTop() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
   }
 
   @override
   void dispose() {
+    // 注销滚动回调
+    _searchController.unregisterScrollToTopCallback(_scrollToTop);
+    _scrollController.dispose();
     repository.dispose();
     super.dispose();
   }
@@ -56,6 +84,7 @@ abstract class BaseSearchListState<T, R extends SearchRepository<T>, W extends B
       sourceList: repository,
       emptyIcon: emptyIcon,
       isPaginated: widget.isPaginated,
+      scrollController: _scrollController,
       itemBuilder: buildListItem,
     );
   }

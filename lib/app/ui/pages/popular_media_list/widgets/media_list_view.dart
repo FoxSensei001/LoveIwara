@@ -154,6 +154,15 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
     if (oldWidget.isPaginated != widget.isPaginated) {
       _modeSwitched = true;
       
+      // 如果有滚动控制器，滚动到顶部
+      if (widget.scrollController != null) {
+        widget.scrollController!.animateTo(
+          0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+      
       // 从瀑布流切换到分页模式
       if (widget.isPaginated && !oldWidget.isPaginated) {
         currentPage = 0;
@@ -198,6 +207,9 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
       }
     });
     
+    // 记录页面是否变化
+    final bool pageChanged = page != currentPage && !_isFirstLoad;
+    
     try {
       if (widget.sourceList is ExtendedLoadingMoreBase<T>) {
         final repo = widget.sourceList as ExtendedLoadingMoreBase<T>;
@@ -234,6 +246,17 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
             _indicatorStatus = IndicatorStatus.none;
           }
         });
+        
+        // 页面变化且数据加载成功后，滚动到顶部
+        if (pageChanged && widget.scrollController != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            widget.scrollController!.animateTo(
+              0,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOut,
+            );
+          });
+        }
       } else {
         if (!mounted) return;
         

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:loading_more_list/loading_more_list.dart';
+import '../controllers/media_list_controller.dart';
 
 /// 订阅列表基类 - 提供通用功能以减少子类重复代码
 abstract class BaseSubscriptionList<T, R extends ExtendedLoadingMoreBase<T>> extends StatefulWidget {
@@ -20,11 +22,16 @@ abstract class BaseSubscriptionListState<T, R extends ExtendedLoadingMoreBase<T>
     extends State<W> with AutomaticKeepAliveClientMixin {
   
   late R repository;
+  final ScrollController _scrollController = ScrollController();
+  late final MediaListController _mediaListController;
   
   @override
   void initState() {
     super.initState();
     repository = createRepository();
+    _mediaListController = Get.find<MediaListController>();
+    // 注册滚动回调
+    _mediaListController.registerScrollToTopCallback(_scrollToTop);
   }
   
   @override
@@ -39,16 +46,34 @@ abstract class BaseSubscriptionListState<T, R extends ExtendedLoadingMoreBase<T>
       }
     }
     
-    // 分页模式变化时刷新
+    // 分页模式变化时刷新并滚动到顶部
     if (oldWidget.isPaginated != widget.isPaginated) {
       if (mounted) {
-        Future.microtask(() => refresh());
+        Future.microtask(() {
+          refresh();
+          // 滚动到顶部
+          _scrollToTop();
+        });
       }
+    }
+  }
+  
+  // 滚动到顶部方法
+  void _scrollToTop() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
     }
   }
   
   @override
   void dispose() {
+    // 注销滚动回调
+    _mediaListController.unregisterScrollToTopCallback(_scrollToTop);
+    _scrollController.dispose();
     repository.dispose();
     super.dispose();
   }
@@ -73,6 +98,8 @@ abstract class BaseSubscriptionListState<T, R extends ExtendedLoadingMoreBase<T>
         if (mounted) {
           try {
             (repository as ExtendedLoadingMoreBase).loadPageData(0, 20);
+            // 滚动到顶部
+            _scrollToTop();
           } catch (e) {
             LogUtils.e('刷新数据失败', error: e);
           }
@@ -80,6 +107,8 @@ abstract class BaseSubscriptionListState<T, R extends ExtendedLoadingMoreBase<T>
       });
     } else {
       await repository.refresh(true);
+      // 滚动到顶部
+      _scrollToTop();
     }
   }
   
@@ -95,6 +124,7 @@ abstract class BaseSubscriptionListState<T, R extends ExtendedLoadingMoreBase<T>
       emptyIcon: emptyIcon,
       isPaginated: widget.isPaginated,
       extendedListDelegate: extendedListDelegate,
+      scrollController: _scrollController,
       itemBuilder: buildListItem,
     );
     

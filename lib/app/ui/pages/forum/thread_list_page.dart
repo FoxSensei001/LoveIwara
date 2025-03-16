@@ -48,10 +48,26 @@ class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProvid
       _categoryName.value = name;
       _categoryDescription.value = description;
     });
+    
+    // 注册滚动回调
+    _forumListController.registerScrollToTopCallback(_scrollToTop);
+  }
+  
+  // 滚动到顶部方法
+  void _scrollToTop() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
   }
 
   @override
   void dispose() {
+    // 注销滚动回调
+    _forumListController.unregisterScrollToTopCallback(_scrollToTop);
     _scrollController.dispose();
     listSourceRepository.dispose();
     Get.delete<ForumListController>(tag: widget.categoryId);
@@ -115,6 +131,9 @@ class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProvid
                 listSourceRepository.refresh();
               }
               _forumListController.setPaginatedMode(!_forumListController.isPaginated.value);
+              
+              // 滚动到顶部
+              _scrollToTop();
             },
             tooltip: _forumListController.isPaginated.value 
                 ? t.common.pagination.waterfall
@@ -130,6 +149,8 @@ class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProvid
                 _forumListController.refreshPageUI();
               } else {
                 listSourceRepository.refresh();
+                // 滚动到顶部
+                _scrollToTop();
               }
             },
             style: IconButton.styleFrom(

@@ -15,6 +15,28 @@ class SearchController extends GetxController {
   final RxString selectedSegment = 'video'.obs;
   final RxBool isPaginated = CommonConstants.isPaginated.obs;
   final RxInt rebuildKey = 0.obs;
+  
+  // 存储滚动回调
+  final List<Function()> _scrollToTopCallbacks = [];
+  
+  // 注册滚动到顶部的回调函数
+  void registerScrollToTopCallback(Function() callback) {
+    if (!_scrollToTopCallbacks.contains(callback)) {
+      _scrollToTopCallbacks.add(callback);
+    }
+  }
+  
+  // 注销滚动到顶部的回调函数
+  void unregisterScrollToTopCallback(Function() callback) {
+    _scrollToTopCallbacks.remove(callback);
+  }
+  
+  // 执行所有滚动到顶部的回调
+  void scrollToTop() {
+    for (var callback in _scrollToTopCallbacks) {
+      callback();
+    }
+  }
 
   // 更新当前搜索查询
   void updateSearch(String query) {
@@ -24,6 +46,8 @@ class SearchController extends GetxController {
   // 更新当前搜索分段
   void updateSegment(String segment) {
     selectedSegment.value = segment;
+    // 切换分段时滚动到顶部
+    scrollToTop();
   }
   
   // 切换分页模式
@@ -38,11 +62,15 @@ class SearchController extends GetxController {
       CommonConstants.isPaginated = true;
     }
     rebuildKey.value++;
+    // 切换分页模式后滚动到顶部
+    scrollToTop();
   }
   
   // 刷新搜索结果
   void refreshSearch() {
     rebuildKey.value++;
+    // 刷新后滚动到顶部
+    scrollToTop();
   }
 }
 
@@ -93,8 +121,14 @@ class _SearchResultState extends State<SearchResult> {
 
   void _safeScrollToTop() {
     if (_scrollController.hasClients) {
-      _scrollController.jumpTo(0);
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
     }
+    // 同时触发搜索控制器中的滚动回调
+    searchController.scrollToTop();
   }
 
   Widget _buildCurrentSearchList() {

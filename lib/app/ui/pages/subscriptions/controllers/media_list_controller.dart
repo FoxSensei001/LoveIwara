@@ -11,6 +11,28 @@ class MediaListController extends GetxController {
   // 用于强制刷新的状态键
   final RxInt rebuildKey = 0.obs;
   
+  // 存储可能的滚动回调
+  final List<Function()> _scrollToTopCallbacks = [];
+  
+  // 注册滚动到顶部的回调函数
+  void registerScrollToTopCallback(Function() callback) {
+    if (!_scrollToTopCallbacks.contains(callback)) {
+      _scrollToTopCallbacks.add(callback);
+    }
+  }
+  
+  // 注销滚动到顶部的回调函数
+  void unregisterScrollToTopCallback(Function() callback) {
+    _scrollToTopCallbacks.remove(callback);
+  }
+  
+  // 执行所有滚动到顶部的回调
+  void scrollToTop() {
+    for (var callback in _scrollToTopCallbacks) {
+      callback();
+    }
+  }
+  
   // 设置分页模式
   void setPaginatedMode(bool value) {
     if (isPaginated.value != value) {
@@ -18,12 +40,22 @@ class MediaListController extends GetxController {
       CommonConstants.isPaginated = value;
       Get.find<ConfigService>()[ConfigKey.DEFAULT_PAGINATION_MODE] = value;
       rebuildKey.value++; // 增加重建键值强制更新视图
+      
+      // 切换模式时滚动到顶部
+      scrollToTop();
     }
   }
   
   // 刷新列表
   void refreshList() {
     rebuildKey.value++;
+  }
+  
+  // 刷新页面UI并滚动到顶部
+  void refreshPageUI() {
+    rebuildKey.value++;
+    // 滚动到顶部
+    scrollToTop();
   }
   
   // 加载数据 - 根据存储库类型和分页模式执行不同的加载逻辑
@@ -35,5 +67,8 @@ class MediaListController extends GetxController {
       // 瀑布流模式：刷新所有数据
       await repository.refresh(true);
     }
+    
+    // 数据加载后滚动到顶部
+    scrollToTop();
   }
 } 

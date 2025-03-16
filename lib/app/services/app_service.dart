@@ -30,6 +30,14 @@ import '../ui/pages/author_profile/author_profile_page.dart';
 import '../ui/pages/gallery_detail/gallery_detail_page.dart';
 import '../ui/pages/search/search_result.dart';
 import '../ui/pages/post_detail/post_detail_page.dart';
+
+/// 定义转场动画类型
+enum TransitionType {
+  slideRight, // 从右向左滑动
+  fade,       // 淡入淡出
+  none,       // 无动画
+}
+
 class AppService extends GetxService {
   // 默认标题栏高度
   static const double titleBarHeight = 26.0;
@@ -141,69 +149,63 @@ class AppService extends GetxService {
 }
 
 class NaviService {
-  /// 跳转到作者个人主页
-  static void navigateToAuthorProfilePage(String username) {
+  /// 通用页面导航方法
+  static void _navigateToPage({
+    required String routeName,
+    required Widget page,
+    Duration transitionDuration = const Duration(milliseconds: 200),
+    TransitionType transitionType = TransitionType.slideRight,
+  }) {
     AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
-      settings: RouteSettings(name: Routes.AUTHOR_PROFILE(username)),
+      settings: RouteSettings(name: routeName),
       pageBuilder: (context, animation, secondaryAnimation) {
-        return AuthorProfilePage(
-          username: username,
-        );
+        return page;
       },
-      transitionDuration: const Duration(milliseconds: 200),
-      // 从右到左的原生动画
+      transitionDuration: transitionDuration,
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(1, 0),
-            end: Offset.zero,
-          ).animate(animation),
-          child: child,
-        );
+        switch (transitionType) {
+          case TransitionType.slideRight:
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1, 0),
+                end: Offset.zero,
+              ).animate(animation),
+              child: child,
+            );
+          case TransitionType.fade:
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          case TransitionType.none:
+            return child;
+        }
       },
     ));
+  }
+
+  /// 跳转到作者个人主页
+  static void navigateToAuthorProfilePage(String username) {
+    _navigateToPage(
+      routeName: Routes.AUTHOR_PROFILE(username),
+      page: AuthorProfilePage(username: username),
+    );
   }
 
   /// 跳转到图库详情页
   static void navigateToGalleryDetailPage(String id) {
-    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
-      settings: RouteSettings(name: Routes.GALLERY_DETAIL(id)),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return GalleryDetailPage(
-          imageModelId: id,
-        );
-      },
-      transitionDuration: const Duration(milliseconds: 200),
-      // 从右到左的原生动画
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(1, 0),
-            end: Offset.zero,
-          ).animate(animation),
-          child: child,
-        );
-      },
-    ));
+    _navigateToPage(
+      routeName: Routes.GALLERY_DETAIL(id),
+      page: GalleryDetailPage(imageModelId: id),
+    );
   }
 
   /// 跳转到视频详情页
   static void navigateToVideoDetailPage(String id) {
-    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
-      settings: RouteSettings(name: Routes.VIDEO_DETAIL(id)),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return MyVideoDetailPage(videoId: id);
-      },
-      transitionDuration: const Duration(milliseconds: 200),
-      // 从右到左的原生动画
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return SlideTransition(
-          position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero)
-              .animate(animation),
-          child: child,
-        );
-      },
-    ));
+    _navigateToPage(
+      routeName: Routes.VIDEO_DETAIL(id),
+      page: MyVideoDetailPage(videoId: id),
+    );
   }
 
   /// 跳转到登录页
@@ -212,410 +214,204 @@ class NaviService {
   }
 
   /// 跳转到搜索结果页
-  static void toSearchPage(
-      {required String searchInfo, required String segment}) {
-    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
-      settings: const RouteSettings(name: Routes.SEARCH_RESULT),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return SearchResult(
-          initialSearch: searchInfo,
-          initialSegment: segment,
-        );
-      },
-      transitionDuration: const Duration(milliseconds: 200),
-      // 从右到左的原生动画
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(1, 0),
-            end: Offset.zero,
-          ).animate(animation),
-          child: child,
-        );
-      },
-    ));
+  static void toSearchPage({required String searchInfo, required String segment}) {
+    _navigateToPage(
+      routeName: Routes.SEARCH_RESULT,
+      page: SearchResult(
+        initialSearch: searchInfo,
+        initialSegment: segment,
+      ),
+    );
   }
 
   /// 跳转到播放列表详情页
   static navigateToPlayListDetail(String id, {bool isMine = false}) {
-    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
-      settings: RouteSettings(name: Routes.PLAYLIST_DETAIL(id)),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return PlayListDetailPage(playlistId: id, isMine: isMine);
-      },
-      transitionDuration: const Duration(milliseconds: 200),
-      // 从右到左的原生动画
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return SlideTransition(
-          position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero)
-              .animate(animation),
-          child: child,
-        );
-      },
-    ));
+    _navigateToPage(
+      routeName: Routes.PLAYLIST_DETAIL(id),
+      page: PlayListDetailPage(playlistId: id, isMine: isMine),
+    );
   }
 
   /// 跳转到播放列表页
   static void navigateToPlayListPage(String userId, {bool isMine = false}) {
-    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
-      settings: const RouteSettings(name: Routes.PLAY_LIST),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return PlayListPage(userId: userId, isMine: isMine);
-      },
-      transitionDuration: const Duration(milliseconds: 200),
-      // 从右到左的原生动画
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return SlideTransition(
-          position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero)
-              .animate(animation),
-          child: child,
-        );
-      },
-    ));
+    _navigateToPage(
+      routeName: Routes.PLAY_LIST,
+      page: PlayListPage(userId: userId, isMine: isMine),
+    );
   }
 
   /// 跳转到最爱页
   static void navigateToFavoritePage() {
-    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
-      settings: const RouteSettings(name: Routes.FAVORITE),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return const MyFavorites();
-      },
-      transitionDuration: const Duration(milliseconds: 200),
-      // 从右到左的原生动画
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return SlideTransition(
-          position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero)
-              .animate(animation),
-          child: child,
-        );
-      },
-    ));
+    _navigateToPage(
+      routeName: Routes.FAVORITE,
+      page: const MyFavorites(),
+    );
   }
 
   /// 跳转到好友列表页
   static void navigateToFriendsPage() {
-    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
-      settings: const RouteSettings(name: Routes.FRIENDS),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return const FriendsPage();
-      },
-      transitionDuration: const Duration(milliseconds: 200),
-      // 从右到左的原生动画
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return SlideTransition(
-          position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero)
-              .animate(animation),
-          child: child,
-        );
-      },
-    ));
+    _navigateToPage(
+      routeName: Routes.FRIENDS,
+      page: const FriendsPage(),
+    );
   }
 
   /// 跳转到历史记录列表页
   static void navigateToHistoryListPage() {
-    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
-      settings: const RouteSettings(name: Routes.HISTORY_LIST),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return const HistoryListPage();
-      },
-      transitionDuration: const Duration(milliseconds: 200),
-      // 从右到左的原生动画
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return SlideTransition(
-          position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero)
-              .animate(animation),
-          child: child,
-        );
-      },
-    ));
+    _navigateToPage(
+      routeName: Routes.HISTORY_LIST,
+      page: const HistoryListPage(),
+    );
   }
 
   /// 跳转到全屏视频播放页
   static void navigateToFullScreenVideoPlayerScreenPage(
       MyVideoStateController myVideoStateController) {
-    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
-      settings: const RouteSettings(name: Routes.FULL_SCREEN_VIDEO_PLAYER_SCREEN),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return MyVideoScreen(
-          isFullScreen: true,
-          myVideoStateController: myVideoStateController,
-        );
-      },
-    ));
+    _navigateToPage(
+      routeName: Routes.FULL_SCREEN_VIDEO_PLAYER_SCREEN,
+      page: MyVideoScreen(
+        isFullScreen: true,
+        myVideoStateController: myVideoStateController,
+      ),
+      transitionType: TransitionType.none,
+      transitionDuration: Duration.zero,
+    );
   }
 
   static void navigateToFollowingListPage(String userId, String name, String username) {
-    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
-      settings: RouteSettings(name: Routes.FOLLOWING_LIST(userId)),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return FollowsPage( 
-          userId: userId,
-          name: name,
-          username: username,
-          initIsFollowing: true,
-        );
-      },
-      transitionDuration: const Duration(milliseconds: 200),
-      // 从右到左的原生动画
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return SlideTransition(
-          position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(animation),
-          child: child,
-        );
-      },
-    ));
+    _navigateToPage(
+      routeName: Routes.FOLLOWING_LIST(userId),
+      page: FollowsPage(
+        userId: userId,
+        name: name,
+        username: username,
+        initIsFollowing: true,
+      ),
+    );
   }
 
   static void navigateToFollowersListPage(String userId, String name, String username) {
-    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
-      settings: RouteSettings(name: Routes.FOLLOWERS_LIST(userId)),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return FollowsPage(
-          userId: userId,
-          name: name,
-          username: username,
-          initIsFollowing: false,
-        );
-      },
-      transitionDuration: const Duration(milliseconds: 200),
-      // 从右到左的原生动画
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return SlideTransition(
-          position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(animation),
-          child: child,
-        );
-      },
-    ));
+    _navigateToPage(
+      routeName: Routes.FOLLOWERS_LIST(userId),
+      page: FollowsPage(
+        userId: userId,
+        name: name,
+        username: username,
+        initIsFollowing: false,
+      ),
+    );
   }
 
   /// 跳转到帖子详情页
-  /// @param id 帖子ID
-  /// @param post 帖子模型，当值存在时可以用于初步渲染一些数据，以便用户快速浏览
   static void navigateToPostDetailPage(String id, PostModel? post) {
-    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
-      settings: RouteSettings(name: Routes.POST_DETAIL(id)),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return PostDetailPage(postId: id);
-      },
-      transitionDuration: const Duration(milliseconds: 200),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(1, 0),
-            end: Offset.zero,
-          ).animate(animation),
-          child: child,
-        );
-      },
-    ));
+    _navigateToPage(
+      routeName: Routes.POST_DETAIL(id),
+      page: PostDetailPage(postId: id),
+    );
   }
 
   /// 跳转到图片详情页
-  static void navigateToPhotoViewWrapper({required List<ImageItem> imageItems, required int initialIndex, required List<MenuItem> Function(dynamic context, dynamic item) menuItemsBuilder}) {
-    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
-      settings: const RouteSettings(name: Routes.PHOTO_VIEW_WRAPPER),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return MyGalleryPhotoViewWrapper(
-          galleryItems: imageItems,
-          initialIndex: initialIndex,
-          menuItemsBuilder: menuItemsBuilder,
-        );
-      },
-    ));
+  static void navigateToPhotoViewWrapper({
+    required List<ImageItem> imageItems,
+    required int initialIndex,
+    required List<MenuItem> Function(dynamic context, dynamic item) menuItemsBuilder,
+  }) {
+    _navigateToPage(
+      routeName: Routes.PHOTO_VIEW_WRAPPER,
+      page: MyGalleryPhotoViewWrapper(
+        galleryItems: imageItems,
+        initialIndex: initialIndex,
+        menuItemsBuilder: menuItemsBuilder,
+      ),
+      transitionDuration: const Duration(milliseconds: 300),
+      transitionType: TransitionType.fade,
+    );
   }
 
   /// 跳转到标签黑名单页
   static void navigateToTagBlacklistPage() {
-    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
-      settings: const RouteSettings(name: Routes.TAG_BLACKLIST),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return const TagBlacklistPage();
-      },
-      transitionDuration: const Duration(milliseconds: 200),
-      // 从右到左的原生动画
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return SlideTransition(
-          position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(animation),
-          child: child,
-        );
-      },
-    ));
+    _navigateToPage(
+      routeName: Routes.TAG_BLACKLIST,
+      page: const TagBlacklistPage(),
+    );
   }
 
   /// 跳转到论坛帖子列表页
   static void navigateToForumThreadListPage(String categoryId) {
-    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
-      settings: RouteSettings(name: Routes.FORUM_THREAD_LIST(categoryId)),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return ThreadListPage(
-          categoryId: categoryId,
-        );
-      },
-      transitionDuration: const Duration(milliseconds: 200),
-      // 从右到左的原生动画
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return SlideTransition(
-          position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(animation),
-          child: child,
-        );
-      },
-    ));
+    _navigateToPage(
+      routeName: Routes.FORUM_THREAD_LIST(categoryId),
+      page: ThreadListPage(categoryId: categoryId),
+    );
   }
 
   /// 跳转到论坛帖子详情页
   static void navigateToForumThreadDetailPage(String categoryId, String threadId) {
-    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
-      settings: RouteSettings(name: Routes.FORUM_THREAD_DETAIL(categoryId, threadId)),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return ThreadDetailPage(categoryId: categoryId, threadId: threadId);
-      },
-      transitionDuration: const Duration(milliseconds: 200),
-      // 从右到左的原生动画
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return SlideTransition(
-          position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(animation),
-          child: child,
-        );
-      },
-    ));
+    _navigateToPage(
+      routeName: Routes.FORUM_THREAD_DETAIL(categoryId, threadId),
+      page: ThreadDetailPage(categoryId: categoryId, threadId: threadId),
+    );
   }
 
   /// 跳转到通知列表页
   static void navigateToNotificationListPage() {
-    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
-      settings: const RouteSettings(name: Routes.NOTIFICATION_LIST),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return const NotificationListPage();
-      },
-      transitionDuration: const Duration(milliseconds: 200),
-      // 从右到左的原生动画
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return SlideTransition(
-          position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(animation),
-          child: child,
-        );
-      },
-    ));
+    _navigateToPage(
+      routeName: Routes.NOTIFICATION_LIST,
+      page: const NotificationListPage(),
+    );
   }
 
   /// 跳转到会话列表页
   static void navigateToConversationPage() {
-    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
-      settings: const RouteSettings(name: Routes.CONVERSATION),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return const ConversationPage();
-      },
-      transitionDuration: const Duration(milliseconds: 200),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(1, 0),
-            end: Offset.zero,
-          ).animate(animation),
-          child: child,
-        );
-      },
-    ));
+    _navigateToPage(
+      routeName: Routes.CONVERSATION,
+      page: const ConversationPage(),
+    );
   }
 
   // 跳转到下载任务列表页
   static void navigateToDownloadTaskListPage() {
-    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
-      settings: const RouteSettings(name: Routes.DOWNLOAD_TASK_LIST),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return const DownloadTaskListPage();
-      },
-      transitionDuration: const Duration(milliseconds: 200),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return SlideTransition(
-          position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(animation),
-          child: child,
-        );
-      },
-    ));
+    _navigateToPage(
+      routeName: Routes.DOWNLOAD_TASK_LIST,
+      page: const DownloadTaskListPage(),
+    );
   }
 
   // 跳转到图库下载任务详情页
   static void navigateToGalleryDownloadTaskDetailPage(String taskId) {
-    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
-      settings: RouteSettings(
-        name: Routes.GALLERY_DOWNLOAD_TASK_DETAIL,
-        arguments: taskId,
-      ),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return GalleryDownloadTaskDetailPage(taskId: taskId);
-      },
-      transitionDuration: const Duration(milliseconds: 200),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return SlideTransition(
-          position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(animation),
-          child: child,
-        );
-      },
-    ));
+    _navigateToPage(
+      routeName: Routes.GALLERY_DOWNLOAD_TASK_DETAIL,
+      page: GalleryDownloadTaskDetailPage(taskId: taskId),
+    );
   }
 
   /// 跳转到消息详情页
   static void navigateToMessagePage(ConversationModel conversation) {
-    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
-      settings: RouteSettings(name: Routes.MESSAGE_DETAIL(conversation.id)),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return MessageListWidget(
-          conversation: conversation,
-          fromNarrowScreen: true,
-        );
-      },
-      transitionDuration: const Duration(milliseconds: 200),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(1, 0),
-            end: Offset.zero,
-          ).animate(animation),
-          child: child,
-        );
-      },
-    ));
+    _navigateToPage(
+      routeName: Routes.MESSAGE_DETAIL(conversation.id),
+      page: MessageListWidget(
+        conversation: conversation,
+        fromNarrowScreen: true,
+      ),
+    );
   }
 
   /// 跳转到本地收藏页
   static void navigateToLocalFavoritePage() {
-    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
-      settings: const RouteSettings(name: Routes.LOCAL_FAVORITE),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return const FavoriteListPage();
-      },
-      transitionDuration: const Duration(milliseconds: 200),
-      // 从右到左的原生动画
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return SlideTransition(
-          position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(animation),
-          child: child,
-        );
-      },
-    ));
+    _navigateToPage(
+      routeName: Routes.LOCAL_FAVORITE,
+      page: const FavoriteListPage(),
+    );
   }
 
   /// 跳转到本地收藏夹详情页
   static void navigateToLocalFavoriteDetailPage(String folderId, String? folderTitle) {
-    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
-      settings: RouteSettings(name: Routes.LOCAL_FAVORITE_DETAIL(folderId)),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return FavoriteFolderDetailPage(
-          folderId: folderId,
-          folderTitle: folderTitle,
-        );
-      },
-      transitionDuration: const Duration(milliseconds: 200),
-      // 从右到左的原生动画
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return SlideTransition(
-          position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(animation),
-          child: child,
-        );
-      },
-    ));
+    _navigateToPage(
+      routeName: Routes.LOCAL_FAVORITE_DETAIL(folderId),
+      page: FavoriteFolderDetailPage(
+        folderId: folderId,
+        folderTitle: folderTitle,
+      ),
+    );
   }
 }
 
