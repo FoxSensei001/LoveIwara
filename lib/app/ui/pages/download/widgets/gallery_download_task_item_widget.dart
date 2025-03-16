@@ -33,6 +33,9 @@ class GalleryDownloadTaskItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
     final extData = galleryData;
+    final width = MediaQuery.of(context).size.width;
+    final isSmallScreen = width < 600;
+    
     if (extData == null) return const SizedBox.shrink();
 
     return Card(
@@ -179,9 +182,22 @@ class GalleryDownloadTaskItem extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              StatusLabel(
-                                  status: task.status,
-                                  text: _getStatusText(context)),
+                              // 修改状态标签显示方式，为窄屏优化
+                              if (isSmallScreen && task.status == DownloadStatus.downloading)
+                                Row(
+                                  children: [
+                                    StatusLabel(status: task.status, text: t.download.downloading),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      _getStatusText(context),
+                                      style: Theme.of(context).textTheme.bodySmall,
+                                    ),
+                                  ],
+                                )
+                              else
+                                StatusLabel(
+                                    status: task.status,
+                                    text: _getStatusText(context)),
                               if (task.error != null)
                                 Text(
                                   task.error!,
@@ -348,6 +364,9 @@ class GalleryDownloadTaskItem extends StatelessWidget {
 
   String _getStatusText(BuildContext context) {
     final t = slang.Translations.of(context);
+    final width = MediaQuery.of(context).size.width;
+    final isSmallScreen = width < 600;
+    
     switch (task.status) {
       case DownloadStatus.pending:
         return t.download.waitingForDownload;
@@ -357,6 +376,12 @@ class GalleryDownloadTaskItem extends StatelessWidget {
               (task.downloadedBytes / task.totalBytes * 100).toStringAsFixed(1);
           final downloaded = _formatFileSize(task.downloadedBytes);
           final total = _formatFileSize(task.totalBytes);
+          
+          // 窄屏设备使用更紧凑的格式
+          if (isSmallScreen) {
+            return '$downloaded/$total';
+          }
+          
           return t.download.downloadingProgressForImageProgress(
               downloaded: downloaded, total: total, progress: progress);
         } else {
@@ -369,17 +394,20 @@ class GalleryDownloadTaskItem extends StatelessWidget {
               (task.downloadedBytes / task.totalBytes * 100).toStringAsFixed(1);
           final downloaded = _formatFileSize(task.downloadedBytes);
           final total = _formatFileSize(task.totalBytes);
-          // return '已暂停 • $downloaded/$total ($progress%)';
+          
+          // 窄屏设备使用更紧凑的格式
+          if (isSmallScreen) {
+            return '$downloaded/$total';
+          }
+          
           return t.download.pausedForDownloadedAndTotal(
               downloaded: downloaded, total: total, progress: progress);
         } else {
           final downloaded = _formatFileSize(task.downloadedBytes);
-          // return '已暂停 • 已下载 $downloaded';
           return t.download.pausedAndDownloaded(downloaded: downloaded);
         }
       case DownloadStatus.completed:
         final size = _formatFileSize(task.downloadedBytes);
-        // return '下载完成 • $size';
         return t.download.downloadedWithSize(size: size);
       case DownloadStatus.failed:
         return t.download.errors.downloadFailed;
@@ -484,6 +512,9 @@ class GalleryDownloadTaskItem extends StatelessWidget {
   // 构建图库下载进度指示器
   Widget _buildGalleryProgressIndicator(BuildContext context) {
     final progress = DownloadService.to.getGalleryDownloadProgress(task.id);
+    final width = MediaQuery.of(context).size.width;
+    final isSmallScreen = width < 600;
+    
     if (progress == null) return const SizedBox.shrink();
 
     final totalImages = progress.length;

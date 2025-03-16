@@ -271,7 +271,20 @@ class VideoDownloadTaskItem extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              StatusLabel(status: task.status, text: _getStatusText(context)),
+                              // 修改状态标签显示方式，为窄屏优化
+                              if (isSmallScreen && task.status == DownloadStatus.downloading)
+                                Row(
+                                  children: [
+                                    StatusLabel(status: task.status, text: t.download.downloading),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      _getStatusText(context),
+                                      style: Theme.of(context).textTheme.bodySmall,
+                                    ),
+                                  ],
+                                )
+                              else
+                                StatusLabel(status: task.status, text: _getStatusText(context)),
                               if (task.error != null)
                                 Text(
                                   task.error!,
@@ -468,6 +481,8 @@ class VideoDownloadTaskItem extends StatelessWidget {
 
   String _getStatusText(BuildContext context) {
     final t = slang.Translations.of(context);
+    final isSmallScreen = MediaQuery.of(context).size.width < 600;
+    
     switch (task.status) {
       case DownloadStatus.pending:
         return t.download.waitingForDownload;
@@ -478,6 +493,12 @@ class VideoDownloadTaskItem extends StatelessWidget {
           final downloaded = _formatFileSize(task.downloadedBytes);
           final total = _formatFileSize(task.totalBytes);
           final speed = (task.speed / 1024 / 1024).toStringAsFixed(2);
+          
+          // 窄屏设备使用更紧凑的格式
+          if (isSmallScreen) {
+            return '$downloaded/$total\n${speed}MB/s';
+          }
+          
           return t.download.downloadingProgressForVideoTask(
               downloaded: downloaded,
               total: total,
@@ -486,6 +507,12 @@ class VideoDownloadTaskItem extends StatelessWidget {
         } else {
           final downloaded = _formatFileSize(task.downloadedBytes);
           final speed = (task.speed / 1024 / 1024).toStringAsFixed(2);
+          
+          // 窄屏设备使用更紧凑的格式
+          if (isSmallScreen) {
+            return '$downloaded\n${speed}MB/s';
+          }
+          
           return t.download.downloadingOnlyDownloadedAndSpeed(
               downloaded: downloaded, speed: speed);
         }
@@ -495,20 +522,22 @@ class VideoDownloadTaskItem extends StatelessWidget {
               (task.downloadedBytes / task.totalBytes * 100).toStringAsFixed(1);
           final downloaded = _formatFileSize(task.downloadedBytes);
           final total = _formatFileSize(task.totalBytes);
-          // return '已暂停 • $downloaded/$total ($progress%)';
+          
+          // 窄屏设备使用更紧凑的格式
+          if (isSmallScreen) {
+            return '$downloaded/$total';
+          }
+          
           return t.download.pausedForDownloadedAndTotal(
               downloaded: downloaded, total: total, progress: progress);
         } else {
           final downloaded = _formatFileSize(task.downloadedBytes);
-          // return '已暂停 • 已下载 $downloaded';
           return t.download.pausedAndDownloaded(downloaded: downloaded);
         }
       case DownloadStatus.completed:
         final size = _formatFileSize(task.downloadedBytes);
-        // return '下载完成 • $size';
         return t.download.downloadedWithSize(size: size);
       case DownloadStatus.failed:
-        // return '下载失败';
         return t.download.errors.downloadFailed;
     }
   }
