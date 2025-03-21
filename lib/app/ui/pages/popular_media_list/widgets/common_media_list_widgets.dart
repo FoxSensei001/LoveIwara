@@ -609,8 +609,9 @@ class _PaginationBarState extends State<PaginationBar>
 
   // 构建完整的分页控制栏（适用于宽屏）
   Widget _buildFullPaginationBar(BuildContext context) {
+    double paddingBottom = MediaQuery.paddingOf(context).bottom;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      padding: EdgeInsets.only(bottom: paddingBottom, right: 12, left: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -760,8 +761,9 @@ class _PaginationBarState extends State<PaginationBar>
 
   // 构建紧凑版的分页控制栏（适用于窄屏）
   Widget _buildCompactPaginationBar(BuildContext context) {
+    double paddingBottom = MediaQuery.paddingOf(context).bottom;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      padding: EdgeInsets.only(bottom: paddingBottom, right: 12, left: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

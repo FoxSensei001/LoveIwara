@@ -13,6 +13,8 @@ class MediaListController extends GetxController {
   
   // 存储可能的滚动回调
   final List<Function()> _scrollToTopCallbacks = [];
+  // 滚动监听回调集合 - 用于通知顶部组件滚动事件
+  final List<void Function(double)> _listScrollCallbacks = [];
   
   // 注册滚动到顶部的回调函数
   void registerScrollToTopCallback(Function() callback) {
@@ -24,6 +26,23 @@ class MediaListController extends GetxController {
   // 注销滚动到顶部的回调函数
   void unregisterScrollToTopCallback(Function() callback) {
     _scrollToTopCallbacks.remove(callback);
+  }
+  
+  // 注册列表滚动回调 - 新增
+  void registerListScrollCallback(void Function(double) callback) {
+    _listScrollCallbacks.add(callback);
+  }
+  
+  // 注销列表滚动回调 - 新增
+  void unregisterListScrollCallback(void Function(double) callback) {
+    _listScrollCallbacks.remove(callback);
+  }
+  
+  // 通知列表滚动事件 - 新增
+  void notifyListScroll(double offset) {
+    for (final callback in _listScrollCallbacks) {
+      callback(offset);
+    }
   }
   
   // 执行所有滚动到顶部的回调

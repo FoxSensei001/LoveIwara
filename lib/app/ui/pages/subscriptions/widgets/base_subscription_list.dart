@@ -32,6 +32,17 @@ abstract class BaseSubscriptionListState<T, R extends ExtendedLoadingMoreBase<T>
     _mediaListController = Get.find<MediaListController>();
     // 注册滚动回调
     _mediaListController.registerScrollToTopCallback(_scrollToTop);
+    
+    // 添加滚动监听 - 向上传递滚动事件
+    _scrollController.addListener(_handleScroll);
+  }
+  
+  // 处理滚动事件并通知控制器
+  void _handleScroll() {
+    if (_scrollController.hasClients) {
+      final double offset = _scrollController.offset;
+      _mediaListController.notifyListScroll(offset);
+    }
   }
   
   @override
@@ -73,6 +84,8 @@ abstract class BaseSubscriptionListState<T, R extends ExtendedLoadingMoreBase<T>
   void dispose() {
     // 注销滚动回调
     _mediaListController.unregisterScrollToTopCallback(_scrollToTop);
+    // 移除滚动监听
+    _scrollController.removeListener(_handleScroll);
     _scrollController.dispose();
     repository.dispose();
     super.dispose();
@@ -128,9 +141,6 @@ abstract class BaseSubscriptionListState<T, R extends ExtendedLoadingMoreBase<T>
       itemBuilder: buildListItem,
     );
     
-    return RefreshIndicator(
-      onRefresh: refresh,
-      child: mediaListView,
-    );
+    return mediaListView;
   }
 } 

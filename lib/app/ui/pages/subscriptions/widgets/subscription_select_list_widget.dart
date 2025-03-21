@@ -73,9 +73,11 @@ class SubscriptionSelectListState extends State<SubscriptionSelectList> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
+      elevation: 1,
+      margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+      child: Container(
+        height: 72, // 固定高度确保不需要垂直滚动
+        padding: const EdgeInsets.symmetric(vertical: 4.0),
         child: Row(
           children: [
             Padding(
@@ -154,7 +156,7 @@ class SubscriptionSelectListState extends State<SubscriptionSelectList> {
       child: FilledButton.tonal(
         style: FilledButton.styleFrom(
           shape: const CircleBorder(),
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(8),
           elevation: 0,
           backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
           foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
@@ -162,7 +164,7 @@ class SubscriptionSelectListState extends State<SubscriptionSelectList> {
         onPressed: () => _scrollToPage(isLeft),
         child: Icon(
           isLeft ? Icons.chevron_left : Icons.chevron_right,
-          size: 24,
+          size: 20,
         ),
       ),
     );
@@ -174,9 +176,8 @@ class SubscriptionSelectListState extends State<SubscriptionSelectList> {
   ) {
     final bool isSelected = widget.selectedUserId == selectItem.id;
     final bool isSmallScreen = MediaQuery.of(context).size.width <= 600;
-    return Container(
-      width: isSmallScreen ? 60 : 70,
-      padding: EdgeInsets.symmetric(horizontal: isSmallScreen ? 1.0 : 2.0),
+    return SizedBox(
+      width: isSmallScreen ? 60 : 68,
       child: InkWell(
         onTap: () => {
           if (widget.selectedUserId != selectItem.id)
@@ -185,98 +186,93 @@ class SubscriptionSelectListState extends State<SubscriptionSelectList> {
         onLongPress: selectItem.onLongPress,
         onSecondaryTap: selectItem.onLongPress,
         borderRadius: BorderRadius.circular(8),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            vertical: isSmallScreen ? 6.0 : 8.0, 
-            horizontal: isSmallScreen ? 2.0 : 4.0,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (selectItem.avatarUrl.isEmpty)
-                Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.transparent,
-                      width: 2,
-                    ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (selectItem.avatarUrl.isEmpty)
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.transparent,
+                    width: 2,
                   ),
-                  child: CircleAvatar(
-                    radius: isSmallScreen ? 16 : 20,
-                    backgroundColor: isSelected
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.surfaceContainerHighest,
-                    child: Icon(
-                      Icons.cloud,
-                      color: isSelected
-                          ? theme.colorScheme.onPrimary
-                          : theme.colorScheme.onSurfaceVariant,
-                      size: isSmallScreen ? 20 : 24,
-                    ),
+                ),
+                child: CircleAvatar(
+                  radius: isSmallScreen ? 16 : 18,
+                  backgroundColor: isSelected
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.surfaceContainerHighest,
+                  child: Icon(
+                    Icons.cloud,
+                    color: isSelected
+                        ? theme.colorScheme.onPrimary
+                        : theme.colorScheme.onSurfaceVariant,
+                    size: isSmallScreen ? 18 : 20,
                   ),
-                )
-              else
-                Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: isSelected
-                          ? theme.colorScheme.primary
-                          : Colors.transparent,
-                      width: 2,
-                    ),
-                  ),
-                  child: CircleAvatar(
-                    radius: isSmallScreen ? 16 : 20,
-                    backgroundColor: isSelected
+                ),
+              )
+            else
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: isSelected
                         ? theme.colorScheme.primary
                         : Colors.transparent,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(isSmallScreen ? 16 : 20),
-                      child: CachedNetworkImage(
-                        imageUrl: selectItem.avatarUrl,
-                        placeholder: (context, url) => Shimmer.fromColors(
-                          baseColor: Colors.grey[300]!,
-                          highlightColor: Colors.grey[100]!,
-                          child: CircleAvatar(
-                            radius: isSmallScreen ? 16 : 20,
-                            backgroundColor: Colors.white,
-                          ),
+                    width: 2,
+                  ),
+                ),
+                child: CircleAvatar(
+                  radius: isSmallScreen ? 16 : 18,
+                  backgroundColor: isSelected
+                      ? theme.colorScheme.primary
+                      : Colors.transparent,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(isSmallScreen ? 16 : 18),
+                    child: CachedNetworkImage(
+                      imageUrl: selectItem.avatarUrl,
+                      placeholder: (context, url) => Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: CircleAvatar(
+                          radius: isSmallScreen ? 16 : 18,
+                          backgroundColor: Colors.white,
                         ),
-                        errorWidget: (context, url, error) => CircleAvatar(
-                          radius: isSmallScreen ? 16 : 20,
-                          backgroundImage: const NetworkImage(CommonConstants.defaultAvatarUrl),
-                          onBackgroundImageError: (exception, stackTrace) => Icon(
-                            Icons.person,
-                            size: isSmallScreen ? 16 : 20,
-                          ),
-                        ),
-                        httpHeaders: const {
-                          'referer': CommonConstants.iwaraBaseUrl
-                        },
-                        fit: BoxFit.cover,
                       ),
+                      errorWidget: (context, url, error) => CircleAvatar(
+                        radius: isSmallScreen ? 16 : 18,
+                        backgroundImage: const NetworkImage(CommonConstants.defaultAvatarUrl),
+                        onBackgroundImageError: (exception, stackTrace) => Icon(
+                          Icons.person,
+                          size: isSmallScreen ? 16 : 18,
+                        ),
+                      ),
+                      httpHeaders: const {
+                        'referer': CommonConstants.iwaraBaseUrl
+                      },
+                      fit: BoxFit.cover,
                     ),
                   ),
                 ),
-              const SizedBox(height: 4),
-              Text(
-                selectItem.label,
-                style: TextStyle(
-                  fontSize: isSmallScreen ? 10 : 12,
-                  color: isSelected
-                      ? theme.colorScheme.primary
-                      : theme.textTheme.bodyMedium?.color,
-                  fontWeight:
-                      isSelected ? FontWeight.bold : FontWeight.normal,
-                ),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                textAlign: TextAlign.center,
               ),
-            ],
-          ),
+            const SizedBox(height: 2),
+            Text(
+              selectItem.label,
+              style: TextStyle(
+                fontSize: isSmallScreen ? 10 : 11,
+                color: isSelected
+                    ? theme.colorScheme.primary
+                    : theme.textTheme.bodyMedium?.color,
+                fontWeight:
+                    isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ),
     );
