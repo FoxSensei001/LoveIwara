@@ -99,6 +99,7 @@ class MediaListView<T> extends StatefulWidget {
   final bool isPaginated;
   final ExtendedListDelegate? extendedListDelegate;
   final ScrollController? scrollController;
+  final double paddingTop;
 
   const MediaListView({
     super.key,
@@ -108,6 +109,7 @@ class MediaListView<T> extends StatefulWidget {
     this.isPaginated = false,
     this.extendedListDelegate,
     this.scrollController,
+    this.paddingTop = 0,
   });
 
   @override
@@ -329,6 +331,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
             itemBuilder: widget.itemBuilder,
             sourceList: widget.sourceList,
             padding: EdgeInsets.only(
+              top: widget.paddingTop,
               left: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
               right: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
               bottom: Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0,
@@ -339,6 +342,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
               status,
               () => widget.sourceList.errorRefresh(),
               emptyIcon: widget.emptyIcon,
+              paddingTop: widget.paddingTop,
             ),
           ),
         ),
@@ -347,93 +351,107 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
   }
 
   Widget _buildPaginatedView(BuildContext context) {
-    return Column(
+    // 获取系统底部安全区域高度
+    final bottomPadding = Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0;
+    // 计算分页栏所需的底部边距
+    final paginationBarHeight = 56 + bottomPadding;
+    
+    return Stack(
       children: [
-        Expanded(
-          child: RefreshIndicator(
-            onRefresh: refresh,
-            child: () {
-              // 判断当前状态并显示相应的指示器
-              if (_indicatorStatus == IndicatorStatus.fullScreenBusying ||
-                  _indicatorStatus == IndicatorStatus.fullScreenError ||
-                  (_indicatorStatus == IndicatorStatus.empty && paginatedItems.isEmpty)) {
-                // 全屏状态直接显示指示器
-                final indicator = buildIndicator(
-                  context, 
-                  _indicatorStatus, 
-                  errorRefresh,
-                  emptyIcon: widget.emptyIcon,
-                );
-                
-                // 如果是SliverFillRemaining，需要套一层CustomScrollView
-                if (indicator is SliverFillRemaining) {
-                  return LoadingMoreCustomScrollView(
-                    controller: widget.scrollController,
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    slivers: [indicator],
-                  );
-                }
-                
-                // 其他情况套一个SingleChildScrollView确保可滚动
-                return SingleChildScrollView(
+        // 主内容区域
+        RefreshIndicator(
+          onRefresh: refresh,
+          child: () {
+            // 判断当前状态并显示相应的指示器
+            if (_indicatorStatus == IndicatorStatus.fullScreenBusying ||
+                _indicatorStatus == IndicatorStatus.fullScreenError ||
+                (_indicatorStatus == IndicatorStatus.empty && paginatedItems.isEmpty)) {
+              // 全屏状态直接显示指示器
+              final indicator = buildIndicator(
+                context, 
+                _indicatorStatus, 
+                errorRefresh,
+                emptyIcon: widget.emptyIcon,
+                paddingTop: widget.paddingTop,
+              );
+              
+              // 如果是SliverFillRemaining，需要套一层CustomScrollView
+              if (indicator is SliverFillRemaining) {
+                return LoadingMoreCustomScrollView(
                   controller: widget.scrollController,
                   physics: const AlwaysScrollableScrollPhysics(),
-                  child: SizedBox(
-                    height: MediaQuery.of(context).size.height - 200, // 减去大致的头部和底部高度
-                    child: Center(child: indicator ?? const SizedBox.shrink()),
-                  ),
+                  slivers: [indicator],
                 );
               }
               
-              // 数据已加载，显示内容
-              return LoadingMoreCustomScrollView(
+              // 其他情况套一个SingleChildScrollView确保可滚动
+              return SingleChildScrollView(
                 controller: widget.scrollController,
                 physics: const AlwaysScrollableScrollPhysics(),
-                slivers: <Widget>[
-                  SliverPadding(
-                    padding: EdgeInsets.only(
-                      left: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
-                      right: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
-                      bottom: 60, // 为分页控制栏留出空间
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height - 200, // 减去大致的头部和底部高度
+                  child: Center(child: indicator ?? const SizedBox.shrink()),
+                ),
+              );
+            }
+            
+            // 数据已加载，显示内容
+            return LoadingMoreCustomScrollView(
+              controller: widget.scrollController,
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: <Widget>[
+                SliverPadding(
+                  padding: EdgeInsets.only(
+                    top: widget.paddingTop,
+                    left: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
+                    right: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
+                    bottom: paginationBarHeight + 4, // 为分页控制栏留出空间
+                  ),
+                  sliver: SliverWaterfallFlow(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) => widget.itemBuilder(context, paginatedItems[index], index),
+                      childCount: paginatedItems.length,
                     ),
-                    sliver: SliverWaterfallFlow(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) => widget.itemBuilder(context, paginatedItems[index], index),
-                        childCount: paginatedItems.length,
+                    gridDelegate: (widget.extendedListDelegate is SliverWaterfallFlowDelegate)
+                      ? (widget.extendedListDelegate as SliverWaterfallFlowDelegate)
+                      : SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: MediaQuery.of(context).size.width <= 600 ? MediaQuery.of(context).size.width / 2 : 200,
+                        crossAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
+                        mainAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
                       ),
-                      gridDelegate: (widget.extendedListDelegate is SliverWaterfallFlowDelegate)
-                        ? (widget.extendedListDelegate as SliverWaterfallFlowDelegate)
-                        : SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: MediaQuery.of(context).size.width <= 600 ? MediaQuery.of(context).size.width / 2 : 200,
-                          crossAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
-                          mainAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
-                        ),
+                  ),
+                ),
+                // 加载更多指示器
+                if (_indicatorStatus == IndicatorStatus.loadingMoreBusying ||
+                    _indicatorStatus == IndicatorStatus.error ||
+                    _indicatorStatus == IndicatorStatus.noMoreLoad)
+                  SliverToBoxAdapter(
+                    child: buildIndicator(
+                      context, 
+                      _indicatorStatus, 
+                      errorRefresh,
+                      emptyIcon: widget.emptyIcon,
+                      paddingTop: widget.paddingTop,
                     ),
                   ),
-                  // 加载更多指示器
-                  if (_indicatorStatus == IndicatorStatus.loadingMoreBusying ||
-                      _indicatorStatus == IndicatorStatus.error ||
-                      _indicatorStatus == IndicatorStatus.noMoreLoad)
-                    SliverToBoxAdapter(
-                      child: buildIndicator(
-                        context, 
-                        _indicatorStatus, 
-                        errorRefresh,
-                        emptyIcon: widget.emptyIcon,
-                      ),
-                    ),
-                ],
-              );
-            }(),
-          ),
+              ],
+            );
+          }(),
         ),
-        // 使用新的分页控制栏组件
-        PaginationBar(
-          currentPage: currentPage,
-          totalPages: totalPages,
-          totalItems: totalItems,
-          isLoading: isLoading,
-          onPageChanged: _loadPaginatedData,
+        
+        // 分页控制栏 - 底部固定位置
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: PaginationBar(
+            currentPage: currentPage,
+            totalPages: totalPages,
+            totalItems: totalItems,
+            isLoading: isLoading,
+            onPageChanged: _loadPaginatedData,
+            useBlurEffect: true,
+          ),
         ),
       ],
     );

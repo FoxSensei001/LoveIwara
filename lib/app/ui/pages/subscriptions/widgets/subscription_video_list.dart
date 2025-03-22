@@ -9,6 +9,7 @@ class SubscriptionVideoList extends BaseSubscriptionList<Video, SubscriptionVide
     super.key,
     required super.userId,
     super.isPaginated = false,
+    super.paddingTop = 0,
   });
   
   @override

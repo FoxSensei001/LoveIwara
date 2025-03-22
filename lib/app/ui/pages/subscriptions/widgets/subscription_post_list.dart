@@ -10,6 +10,7 @@ class SubscriptionPostList extends BaseSubscriptionList<PostModel, SubscriptionP
     super.key,
     required super.userId,
     super.isPaginated = false,
+    super.paddingTop = 0,
   });
   
   @override

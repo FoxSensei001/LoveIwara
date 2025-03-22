@@ -11,6 +11,7 @@ class MediaTabView<T> extends StatefulWidget {
   final IconData emptyIcon;
   final bool isPaginated;
   final String rebuildKey;
+  final double paddingTop;
 
   const MediaTabView({
     super.key,
@@ -18,6 +19,7 @@ class MediaTabView<T> extends StatefulWidget {
     required this.emptyIcon,
     this.isPaginated = false,
     this.rebuildKey = '',
+    this.paddingTop = 0,
   });
 
   @override
@@ -55,6 +57,7 @@ class MediaTabViewState<T> extends State<MediaTabView<T>>
         emptyIcon: widget.emptyIcon,
         isPaginated: widget.isPaginated,
         scrollController: _scrollController,
+        paddingTop: widget.paddingTop,
         itemBuilder: (context, item, index) {
           return Padding(
             padding: EdgeInsets.symmetric(

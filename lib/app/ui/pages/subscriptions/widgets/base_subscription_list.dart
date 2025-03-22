@@ -9,11 +9,13 @@ import '../controllers/media_list_controller.dart';
 abstract class BaseSubscriptionList<T, R extends ExtendedLoadingMoreBase<T>> extends StatefulWidget {
   final String userId;
   final bool isPaginated;
+  final double paddingTop;
 
   const BaseSubscriptionList({
     super.key,
     required this.userId,
     this.isPaginated = false,
+    this.paddingTop = 0,
   });
 }
 
@@ -138,6 +140,7 @@ abstract class BaseSubscriptionListState<T, R extends ExtendedLoadingMoreBase<T>
       isPaginated: widget.isPaginated,
       extendedListDelegate: extendedListDelegate,
       scrollController: _scrollController,
+      paddingTop: widget.paddingTop,
       itemBuilder: buildListItem,
     );
     

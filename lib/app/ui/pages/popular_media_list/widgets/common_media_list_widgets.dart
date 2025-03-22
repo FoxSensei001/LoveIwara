@@ -4,6 +4,7 @@ import 'package:i_iwara/app/ui/widgets/shimmer_card.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'dart:ui';
 
 /// 构建加载指示器
 Widget? buildIndicator(
@@ -11,6 +12,7 @@ Widget? buildIndicator(
   IndicatorStatus status,
   VoidCallback onErrorRefresh, {
   IconData? emptyIcon,
+  double paddingTop = 0,
 }) {
   Widget? finalWidget;
 
@@ -54,8 +56,10 @@ Widget? buildIndicator(
       if (isFullScreen) {
         return SliverFillRemaining(
           child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
+            padding: EdgeInsets.only(
+              top: paddingTop,
+              left: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
+              right: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
             ),
             child: shimmerContent,
           ),
@@ -63,15 +67,22 @@ Widget? buildIndicator(
       }
 
       return Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
+        padding: EdgeInsets.only(
+          top: paddingTop,
+          left: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
+          right: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
         ),
         child: shimmerContent,
       );
 
     case IndicatorStatus.error:
       return Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: EdgeInsets.fromLTRB(
+          MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
+          paddingTop + 8.0,
+          MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
+          8.0
+        ),
         child: Card(
           elevation: 0,
           color: Theme.of(context).colorScheme.errorContainer,
@@ -152,14 +163,19 @@ Widget? buildIndicator(
         hasScrollBody: false,
         child: Center(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.only(
+              top: paddingTop,
+              left: 16.0,
+              right: 16.0,
+              bottom: 16.0,
+            ),
             child: finalWidget,
           ),
         ),
       );
     case IndicatorStatus.noMoreLoad:
       return Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: EdgeInsets.fromLTRB(8.0, paddingTop + 8.0, 8.0, 8.0),
         child: Center(
           child: Text(
             slang.t.common.noMoreDatas,
@@ -171,7 +187,12 @@ Widget? buildIndicator(
       );
     case IndicatorStatus.empty:
       finalWidget = Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.only(
+          top: paddingTop + 16,
+          left: 16,
+          right: 16,
+          bottom: 16,
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -247,6 +268,8 @@ class PaginationBar extends StatefulWidget {
   final bool isLoading;
   final Function(int) onPageChanged;
   final VoidCallback? onRefresh;
+  final bool useBlurEffect;
+  final double paddingBottom;
 
   const PaginationBar({
     super.key,
@@ -256,6 +279,8 @@ class PaginationBar extends StatefulWidget {
     required this.isLoading,
     required this.onPageChanged,
     this.onRefresh,
+    this.useBlurEffect = false,
+    this.paddingBottom = 0,
   });
 
   @override
@@ -442,13 +467,13 @@ class _PaginationBarState extends State<PaginationBar>
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    final barContent = Stack(
       children: [
         Container(
           height: 56,
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            boxShadow: [
+            color: widget.useBlurEffect ? Colors.transparent : Theme.of(context).colorScheme.surface,
+            boxShadow: widget.useBlurEffect ? [] : [
               BoxShadow(
                 color: Colors.black.withOpacity(0.08),
                 blurRadius: 8,
@@ -488,6 +513,23 @@ class _PaginationBarState extends State<PaginationBar>
           ),
       ],
     );
+
+    // 根据是否使用毛玻璃效果返回不同的Widget
+    if (widget.useBlurEffect) {
+      // 使用ClipRect和BackdropFilter实现毛玻璃效果
+      return ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+          child: Container(
+            color: Theme.of(context).colorScheme.surface.withOpacity(0.85),
+            child: barContent,
+          ),
+        ),
+      );
+    } else {
+      // 直接返回常规内容
+      return barContent;
+    }
   }
 
   // 构建已完成的进度指示器 (100%)
@@ -611,7 +653,7 @@ class _PaginationBarState extends State<PaginationBar>
 
   // 构建完整的分页控制栏（适用于宽屏）
   Widget _buildFullPaginationBar(BuildContext context) {
-    double paddingBottom = MediaQuery.paddingOf(context).bottom;
+    double paddingBottom = MediaQuery.paddingOf(context).bottom + widget.paddingBottom;
     return Padding(
       padding: EdgeInsets.only(bottom: paddingBottom, right: 12, left: 12),
       child: Row(
@@ -763,7 +805,7 @@ class _PaginationBarState extends State<PaginationBar>
 
   // 构建紧凑版的分页控制栏（适用于窄屏）
   Widget _buildCompactPaginationBar(BuildContext context) {
-    double paddingBottom = MediaQuery.paddingOf(context).bottom;
+    double paddingBottom = MediaQuery.paddingOf(context).bottom + widget.paddingBottom;
     return Padding(
       padding: EdgeInsets.only(bottom: paddingBottom, right: 12, left: 12),
       child: Row(

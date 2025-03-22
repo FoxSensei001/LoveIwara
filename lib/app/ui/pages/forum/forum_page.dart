@@ -20,6 +20,7 @@ import 'package:i_iwara/app/ui/pages/forum/controllers/recent_thread_repository.
 import 'package:i_iwara/app/ui/pages/forum/forum_skeleton_page.dart';
 import 'package:i_iwara/app/ui/pages/home_page.dart';
 import 'package:shimmer/shimmer.dart';
+import 'dart:ui';
 
 class ForumPage extends StatefulWidget with RefreshableMixin {
   static final globalKey = GlobalKey<_ForumPageState>();
@@ -46,6 +47,7 @@ class _ForumPageState extends State<ForumPage> {
   final UserService userService = Get.find<UserService>();
   int _selectedRailIndex = 0; // 修改变量名称：选中 rail 的索引（0 为 最近，其余从 _categories 中获取）
   late RecentThreadListRepository _recentThreadRepository;
+  final appBarHeight = 56.0;
 
   void tryRefreshCurrentList() {
     if (mounted) {
@@ -110,7 +112,19 @@ class _ForumPageState extends State<ForumPage> {
     final t = slang.Translations.of(context);
 
     return Scaffold(
+      extendBodyBehindAppBar: true, // 让内容延伸到AppBar下面，以便显示毛玻璃效果
       appBar: AppBar(
+        elevation: 0,
+        toolbarHeight: appBarHeight,
+        backgroundColor: Theme.of(context).colorScheme.surface.withOpacity(0.7), // 设置半透明背景
+        flexibleSpace: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10), // 毛玻璃效果参数
+            child: Container(
+              color: Colors.transparent,
+            ),
+          ),
+        ),
         title: Row(
           children: [
             IconButton(
@@ -285,8 +299,9 @@ class _ForumPageState extends State<ForumPage> {
               Expanded(
                 child: TabBarView(
                   children: [
-                    _buildRecentThreads(),
+                    _buildRecentThreads(context),
                     ..._categories!.map((category) => SingleChildScrollView(
+                          padding: EdgeInsets.zero,
                           child: _buildCategorySection(category),
                         )),
                   ],
@@ -351,8 +366,11 @@ class _ForumPageState extends State<ForumPage> {
             child: Padding(
               padding: const EdgeInsets.only(right: 8),
               child: _selectedRailIndex == 0
-                  ? _buildRecentThreads()
+                  ? _buildRecentThreads(context)
                   : SingleChildScrollView(
+                      padding: EdgeInsets.only(
+                        top: MediaQuery.of(context).padding.top + appBarHeight, // 为分类内容添加顶部边距
+                      ),
                       child: _buildCategorySection(
                           _categories![_selectedRailIndex - 1]),
                     ),
@@ -363,7 +381,8 @@ class _ForumPageState extends State<ForumPage> {
     );
   }
 
-  Widget _buildRecentThreads() {
+  Widget _buildRecentThreads(BuildContext context) {
+    double topPadding = MediaQuery.of(context).padding.top;
     return LoadingMoreCustomScrollView(
       slivers: <Widget>[
         LoadingMoreSliverList<ForumThreadModel>(
@@ -381,7 +400,9 @@ class _ForumPageState extends State<ForumPage> {
                   thread.section, thread.id),
             ),
             sourceList: _recentThreadRepository,
-            padding: const EdgeInsets.symmetric(horizontal: 5.0),
+            padding: EdgeInsets.only(
+              top: topPadding + appBarHeight,
+            ),
             indicatorBuilder: (context, status) => myLoadingMoreIndicator(
               context,
               status,
@@ -396,75 +417,87 @@ class _ForumPageState extends State<ForumPage> {
 
   Widget _buildCategorySection(ForumCategoryTreeModel category) {
     final bool isWideScreen = MediaQuery.of(context).size.width > 900;
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.only(bottom: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 分类标题栏
-          Container(
-            padding: const EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(12)),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  _getCategoryIcon(category.name),
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  category.name,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+    double topPadding = MediaQuery.of(context).padding.top;
+    bool isNarrowScreen = MediaQuery.of(context).size.width < 260;
+    bool isInTabView = isNarrowScreen || _selectedRailIndex > 0;
+    
+    return Padding(
+      padding: EdgeInsets.only(
+        top: isInTabView ? 0 : topPadding + appBarHeight, // 在TabView或NavigationRail中不需要额外顶部边距
+      ),
+      child: Card(
+        elevation: 2,
+        margin: isNarrowScreen ? 
+          EdgeInsets.zero : // 窄屏模式下不需要边距
+          const EdgeInsets.only(bottom: 16.0), // 宽屏模式只需要底部边距
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 分类标题栏
+            Container(
+              padding: const EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(12)),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    _getCategoryIcon(category.name),
+                    color: Theme.of(context).colorScheme.primary,
                   ),
-                ),
-              ],
+                  const SizedBox(width: 8),
+                  Text(
+                    category.name,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          // 子分类列表
-          if (isWideScreen)
-            Table(
-              columnWidths: const {
-                0: FlexColumnWidth(4), // 标题
-                1: FlexColumnWidth(1), // 主题数
-                2: FlexColumnWidth(1), // 回复数
-                3: FlexColumnWidth(3), // 最后回复
+            // 子分类列表
+            if (isWideScreen)
+              Table(
+                columnWidths: const {
+                  0: FlexColumnWidth(4), // 标题
+                  1: FlexColumnWidth(1), // 主题数
+                  2: FlexColumnWidth(1), // 回复数
+                  3: FlexColumnWidth(3), // 最后回复
+                },
+                children: [
+                  TableRow(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surfaceContainerHighest
+                          .withOpacity(0.5),
+                    ),
+                    children: [
+                      _buildTableHeader(context, slang.t.forum.category),
+                      _buildTableHeader(context, slang.t.forum.threads),
+                      _buildTableHeader(context, slang.t.forum.posts),
+                      _buildTableHeader(context, slang.t.forum.lastReply),
+                    ],
+                  ),
+                ],
+              ),
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: category.children.length,
+              padding: EdgeInsets.zero,
+              separatorBuilder: (context, index) => const Divider(height: 1),
+              itemBuilder: (context, index) {
+                final subCategory = category.children[index];
+                return _buildSubCategoryTile(subCategory, context);
               },
-              children: [
-                TableRow(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .surfaceContainerHighest
-                        .withOpacity(0.5),
-                  ),
-                  children: [
-                    _buildTableHeader(context, slang.t.forum.category),
-                    _buildTableHeader(context, slang.t.forum.threads),
-                    _buildTableHeader(context, slang.t.forum.posts),
-                    _buildTableHeader(context, slang.t.forum.lastReply),
-                  ],
-                ),
-              ],
             ),
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: category.children.length,
-            separatorBuilder: (context, index) => const Divider(height: 1),
-            itemBuilder: (context, index) {
-              final subCategory = category.children[index];
-              return _buildSubCategoryTile(subCategory, context);
-            },
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

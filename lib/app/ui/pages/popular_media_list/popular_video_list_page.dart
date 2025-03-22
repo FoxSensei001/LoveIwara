@@ -4,13 +4,13 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/popular_media_list_controller.dart';
-import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/popular_media_search_config_widget.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' show t;
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/ui/widgets/common_header.dart';
+import 'dart:ui';
 
 import '../../../models/sort.model.dart';
 import '../../../models/tag.model.dart';
@@ -193,104 +193,18 @@ class _PopularVideoListPageState extends State<PopularVideoListPage>
 
   @override
   Widget build(BuildContext context) {
+    // 计算TabBar的高度，用于设置paddingTop
+    const double tabBarHeight = 48.0;
+    const double headerHeight = 56.0;
+    
     return Scaffold(
-      body: Column(
+      body: Stack(
         children: [
-          TopPaddingHeightWidget(),
-          // 用抽离后的 CommonHeader 替换原有的头像和搜索框行
-          const CommonHeader(
-            searchSegment: SearchSegment.video,
-            avatarRadius: 20,
-          ),
-          // 一行，显示TabBar和筛选按钮
-          Row(
-            children: [
-              // TabBar
-              Expanded(
-                // 支持鼠标滚动 以及 tabbar 变动后位置调整
-                child: MouseRegion(
-                  child: Listener(
-                    onPointerSignal: (pointerSignal) {
-                      if (pointerSignal is PointerScrollEvent) {
-                        _handleScroll(pointerSignal.scrollDelta.dy);
-                      }
-                    },
-                    child: SingleChildScrollView(
-                      controller: _tabBarScrollController,
-                      scrollDirection: Axis.horizontal,
-                      physics: const ClampingScrollPhysics(),
-                      child: TabBar(
-                        isScrollable: true,
-                        overlayColor:
-                            WidgetStateProperty.all(Colors.transparent),
-                        tabAlignment: TabAlignment.start,
-                        dividerColor: Colors.transparent,
-                        padding: EdgeInsets.zero,
-                        controller: _tabController,
-                        tabs: sorts.asMap().entries.map((entry) {
-                          int index = entry.key;
-                          Sort sort = entry.value;
-                          return Container(
-                            key: _tabKeys[index], // 使用GlobalKey
-                            child: Tab(
-                              child: Row(
-                                children: [
-                                  sort.icon ?? const SizedBox(),
-                                  const SizedBox(width: 4),
-                                  Text(sort.label),
-                                ],
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              // 添加分页/瀑布流切换按钮
-              Obx(() => IconButton(
-                    icon: Icon(_mediaListController.isPaginated.value
-                        ? Icons.grid_view
-                        : Icons.menu),
-                    onPressed: () {
-                      if (!_mediaListController.isPaginated.value) {
-                        var sortId = sorts[_tabController.index].id;
-                        var repository = _repositories[sortId]!;
-                        repository.refresh(true);
-                      }
-                      _mediaListController.setPaginatedMode(
-                          !_mediaListController.isPaginated.value);
-                    },
-                    tooltip: _mediaListController.isPaginated.value
-                        ? t.common.pagination.waterfall
-                        : t.common.pagination.pagination,
-                  )),
-              // 添加刷新按钮
-              IconButton(
-                icon: const Icon(Icons.refresh),
-                onPressed: () {
-                  var sortId = sorts[_tabController.index].id;
-                  var repository = _repositories[sortId]!;
-                  if (_mediaListController.isPaginated.value) {
-                    _mediaListController.refreshPageUI();
-                  } else {
-                    repository.refresh(true);
-                  }
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.filter_list),
-                onPressed: _openParamsModal,
-              ),
-            ],
-          ),
-          // 使用 Expanded 包裹 TabBarView
-          Expanded(
+          // 1. 底层 TabBarView - 覆盖整个屏幕
+          Positioned.fill(
             child: Obx(() {
               final isPaginated = _mediaListController.isPaginated.value;
-              final rebuildKey =
-                  _mediaListController.rebuildKey.value.toString();
+              final rebuildKey = _mediaListController.rebuildKey.value.toString();
 
               return TabBarView(
                 controller: _tabController,
@@ -301,10 +215,125 @@ class _PopularVideoListPageState extends State<PopularVideoListPage>
                     emptyIcon: Icons.video_library_outlined,
                     isPaginated: isPaginated,
                     rebuildKey: rebuildKey,
+                    // 设置paddingTop加上状态栏高度和header高度和tabbar高度
+                    paddingTop: MediaQuery.of(context).padding.top + headerHeight + tabBarHeight - 12,
                   );
                 }).toList(),
               );
             }),
+          ),
+          
+          // 2. 顶层悬浮头部区域 - 带毛玻璃效果
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                child: Container(
+                  color: Theme.of(context).colorScheme.surface.withOpacity(0.85),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // 系统状态栏高度填充
+                      TopPaddingHeightWidget(),
+                      
+                      // 通用头部组件
+                      const CommonHeader(
+                        searchSegment: SearchSegment.video,
+                        avatarRadius: 20,
+                      ),
+                      
+                      // Tab区域
+                      SizedBox(
+                        height: tabBarHeight,
+                        child: Row(
+                          children: [
+                            // TabBar
+                            Expanded(
+                              child: MouseRegion(
+                                child: Listener(
+                                  onPointerSignal: (pointerSignal) {
+                                    if (pointerSignal is PointerScrollEvent) {
+                                      _handleScroll(pointerSignal.scrollDelta.dy);
+                                    }
+                                  },
+                                  child: SingleChildScrollView(
+                                    controller: _tabBarScrollController,
+                                    scrollDirection: Axis.horizontal,
+                                    physics: const ClampingScrollPhysics(),
+                                    child: TabBar(
+                                      isScrollable: true,
+                                      overlayColor: WidgetStateProperty.all(Colors.transparent),
+                                      tabAlignment: TabAlignment.start,
+                                      dividerColor: Colors.transparent,
+                                      padding: EdgeInsets.zero,
+                                      controller: _tabController,
+                                      tabs: sorts.asMap().entries.map((entry) {
+                                        int index = entry.key;
+                                        Sort sort = entry.value;
+                                        return Container(
+                                          key: _tabKeys[index],
+                                          child: Tab(
+                                            child: Row(
+                                              children: [
+                                                sort.icon ?? const SizedBox(),
+                                                const SizedBox(width: 4),
+                                                Text(sort.label),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            
+                            // 按钮区域
+                            Obx(() => IconButton(
+                              icon: Icon(_mediaListController.isPaginated.value
+                                  ? Icons.grid_view
+                                  : Icons.menu),
+                              onPressed: () {
+                                if (!_mediaListController.isPaginated.value) {
+                                  var sortId = sorts[_tabController.index].id;
+                                  var repository = _repositories[sortId]!;
+                                  repository.refresh(true);
+                                }
+                                _mediaListController.setPaginatedMode(
+                                    !_mediaListController.isPaginated.value);
+                              },
+                              tooltip: _mediaListController.isPaginated.value
+                                  ? t.common.pagination.waterfall
+                                  : t.common.pagination.pagination,
+                            )),
+                            IconButton(
+                              icon: const Icon(Icons.refresh),
+                              onPressed: () {
+                                var sortId = sorts[_tabController.index].id;
+                                var repository = _repositories[sortId]!;
+                                if (_mediaListController.isPaginated.value) {
+                                  _mediaListController.refreshPageUI();
+                                } else {
+                                  repository.refresh(true);
+                                }
+                              },
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.filter_list),
+                              onPressed: _openParamsModal,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ),
         ],
       ),
