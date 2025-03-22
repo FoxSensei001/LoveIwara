@@ -188,6 +188,10 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
     return ExtendedNestedScrollView(
       controller: _extendedScrollController,
       onlyOneScrollInBody: true,
+      physics: const NeverScrollableScrollPhysics(),
+      pinnedHeaderSliverHeightBuilder: () {
+        return MediaQuery.of(context).padding.top + kToolbarHeight;
+      },
       headerSliverBuilder: (context, innerBoxIsScrolled) {
         return [
           SliverToBoxAdapter(
@@ -277,60 +281,45 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                         ),
                       ),
                     ),
+                    // 置顶按钮
                     IconButton(
-                      icon: const Icon(Icons.search),
+                      icon: const Icon(Icons.vertical_align_top),
                       onPressed: () {
-                        SearchSegment segment;
-                        switch (_tabController.index) {
-                          case 0:
-                            segment = SearchSegment.video;
-                            break;
-                          case 1:
-                            segment = SearchSegment.image;
-                            break;
-                          case 2:
-                            segment = SearchSegment.post;
-                            break;
-                          default:
-                            segment = SearchSegment.video;
-                        }
-
-                        Get.dialog(SearchDialog(
-                          initialSearch: '',
-                          initialSegment: segment,
-                          onSearch: (searchInfo, segment) {
-                            NaviService.toSearchPage(
-                              searchInfo: searchInfo,
-                              segment: segment,
-                            );
-                          },
-                        ));
+                        // 先尝试使用控制器滚动所有列表
+                        mediaListController.scrollToTop();
+                        _extendedScrollController.animateTo(
+                          0,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        );
                       },
-                      tooltip: t.common.search,
                     ),
-                    // 添加列表模式切换按钮
+                    // 添加分页模式切换按钮
                     Obx(() => IconButton(
-                          icon: Icon(mediaListController.isPaginated.value
-                              ? Icons.grid_view
-                              : Icons.menu),
-                          onPressed: () {
-                            // 切换分页模式
-                            mediaListController.setPaginatedMode(
-                                !mediaListController.isPaginated.value);
-                          },
-                          tooltip: mediaListController.isPaginated.value
-                              ? t.common.pagination.waterfall
-                              : t.common.pagination.pagination,
-                        )),
+                      icon: Icon(mediaListController.isPaginated.value
+                          ? Icons.grid_view
+                          : Icons.menu),
+                      onPressed: () {
+                        // 切换分页模式
+                        mediaListController.setPaginatedMode(
+                            !mediaListController.isPaginated.value);
+                      },
+                      tooltip: mediaListController.isPaginated.value
+                          ? t.common.pagination.waterfall
+                          : t.common.pagination.pagination,
+                    )),
+                    // 刷新按钮
+                    IconButton(
+                      icon: const Icon(Icons.refresh),
+                      onPressed: refreshCurrentList,
+                      tooltip: t.common.refresh,
+                    ),
                   ],
                 ),
               ),
             ),
           ),
         ];
-      },
-      pinnedHeaderSliverHeightBuilder: () {
-        return MediaQuery.of(context).padding.top + kToolbarHeight;
       },
       body: TabBarView(
         controller: _tabController,
@@ -393,23 +382,37 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
             ),
           ),
         ),
-        // 添加置顶按钮
+        // 搜索按钮
         IconButton(
-          icon: const Icon(Icons.vertical_align_top),
+          icon: const Icon(Icons.search),
           onPressed: () {
-            // 先尝试使用控制器滚动所有列表
-            mediaListController.scrollToTop();
-            _extendedScrollController.animateTo(
-              0,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-            );
+            SearchSegment segment;
+            switch (_tabController.index) {
+              case 0:
+                segment = SearchSegment.video;
+                break;
+              case 1:
+                segment = SearchSegment.image;
+                break;
+              case 2:
+                segment = SearchSegment.post;
+                break;
+              default:
+                segment = SearchSegment.video;
+            }
+
+            Get.dialog(SearchDialog(
+              initialSearch: '',
+              initialSegment: segment,
+              onSearch: (searchInfo, segment) {
+                NaviService.toSearchPage(
+                  searchInfo: searchInfo,
+                  segment: segment,
+                );
+              },
+            ));
           },
-        ),
-        // 添加刷新按钮
-        IconButton(
-          icon: const Icon(Icons.refresh),
-          onPressed: refreshCurrentList,
+          tooltip: slang.Translations.of(context).common.search,
         ),
       ],
     );
@@ -440,23 +443,37 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
             );
           }),
         ),
-        // 添加置顶按钮
+        // 搜索按钮
         IconButton(
-          icon: const Icon(Icons.vertical_align_top),
+          icon: const Icon(Icons.search),
           onPressed: () {
-            // 先尝试使用控制器滚动所有列表
-            mediaListController.scrollToTop();
-            _extendedScrollController.animateTo(
-              0,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-            );
+            SearchSegment segment;
+            switch (_tabController.index) {
+              case 0:
+                segment = SearchSegment.video;
+                break;
+              case 1:
+                segment = SearchSegment.image;
+                break;
+              case 2:
+                segment = SearchSegment.post;
+                break;
+              default:
+                segment = SearchSegment.video;
+            }
+
+            Get.dialog(SearchDialog(
+              initialSearch: '',
+              initialSegment: segment,
+              onSearch: (searchInfo, segment) {
+                NaviService.toSearchPage(
+                  searchInfo: searchInfo,
+                  segment: segment,
+                );
+              },
+            ));
           },
-        ),
-        // 添加刷新按钮
-        IconButton(
-          icon: const Icon(Icons.refresh),
-          onPressed: refreshCurrentList,
+          tooltip: slang.Translations.of(context).common.search,
         ),
       ],
     );

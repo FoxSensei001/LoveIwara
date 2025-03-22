@@ -1,5 +1,5 @@
 # 最新版本
-currentVersion: "0.3.11"
+currentVersion: "0.3.12"
 # 更新日志
 # 格式介绍
 # 1. version: 版本号
@@ -7,6 +7,28 @@ currentVersion: "0.3.11"
 # 3. changes: 更新内容
 # 5. minVersion: 最小版本号
 updates:
+  - version: "0.3.12"
+    date: "2025-03-21"
+    minVersion: "0.3.0"
+    changes:
+      zh-CN:
+        - "为部分列表新增分页模式切换功能"
+        - "优化订阅列表页"
+        - "去除列表的最高300条加载数量限制"
+        - "还原回之前的下载逻辑"
+        - "修复有时候UI会变成乱码的问题"
+      en:
+        - "Added pagination mode switching function to some lists"
+        - "Optimized subscription list page"
+        - "Removed the limit of 300 items on the list"
+        - "Restored the previous download logic"
+        - "Fixed the issue where the UI sometimes becomes unreadable"
+      ja:
+        - "部分リストにページネーションモード切り替え機能を追加"
+        - "購読リストページを最適化"
+        - "リストの上限300件の制限を削除"
+        - "以前のダウンロードロジックに戻す"
+        - "UIが時々読めない問題を修正"
   - version: "0.3.11"
     date: "2025-02-27"
     minVersion: "0.3.0"

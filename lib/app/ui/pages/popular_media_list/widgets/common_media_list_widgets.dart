@@ -543,6 +543,7 @@ class _PaginationBarState extends State<PaginationBar>
   Widget _buildProgressIndicator(BuildContext context, double value) {
     final primaryColor = Theme.of(context).colorScheme.primary;
     final secondaryColor = Theme.of(context).colorScheme.secondary;
+    final progressWidth = MediaQuery.of(context).size.width * value;
 
     return SizedBox(
       height: 3,
@@ -550,7 +551,7 @@ class _PaginationBarState extends State<PaginationBar>
         children: [
           // 背景光晕效果
           Container(
-            width: MediaQuery.of(context).size.width * value,
+            width: progressWidth,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -571,7 +572,7 @@ class _PaginationBarState extends State<PaginationBar>
           ),
           // 前景进度条
           Container(
-            width: MediaQuery.of(context).size.width * value,
+            width: progressWidth,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -583,25 +584,26 @@ class _PaginationBarState extends State<PaginationBar>
               ),
             ),
           ),
-          // 进度条前端光点效果
-          Positioned(
-            right: 0,
-            top: 0,
-            bottom: 0,
-            child: Container(
-              width: 6,
-              decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  colors: [
-                    Colors.white,
-                    secondaryColor,
-                  ],
-                  radius: 0.7,
+          // 进度条前端光点效果 - 只在进度条有实际宽度时才显示
+          if (progressWidth > 6) // 确保进度条有足够宽度才显示光点
+            Positioned(
+              left: progressWidth - 6, // 从右侧改为左侧定位，基于实际进度宽度
+              top: 0,
+              bottom: 0,
+              child: Container(
+                width: 6,
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
+                    colors: [
+                      Colors.white,
+                      secondaryColor,
+                    ],
+                    radius: 0.7,
+                  ),
+                  borderRadius: BorderRadius.circular(3),
                 ),
-                borderRadius: BorderRadius.circular(3),
               ),
             ),
-          ),
         ],
       ),
     );
