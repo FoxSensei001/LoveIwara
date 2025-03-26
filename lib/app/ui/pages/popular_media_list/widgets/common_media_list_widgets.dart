@@ -41,47 +41,52 @@ Widget? buildIndicator(
       return null;
 
     case IndicatorStatus.loadingMoreBusying:
-    case IndicatorStatus.fullScreenBusying:
-      final isFullScreen = status == IndicatorStatus.fullScreenBusying;
+      // 加载更多时的 Shimmer 效果
       final shimmerContent = Shimmer.fromColors(
         baseColor: Colors.grey[300]!,
         highlightColor: Colors.grey[100]!,
         child: buildShimmerGrid(
-          itemCount: isFullScreen
-              ? 8
-              : (MediaQuery.of(context).size.width <= 600 ? 2 : 6),
+          // 加载更多时显示较少数量的骨架项
+          itemCount: (MediaQuery.of(context).size.width <= 600 ? 2 : 6),
         ),
       );
-
-      if (isFullScreen) {
-        return SliverFillRemaining(
-          child: Padding(
-            padding: EdgeInsets.only(
-              top: paddingTop,
-              left: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
-              right: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
-            ),
-            child: shimmerContent,
-          ),
-        );
-      }
-
+      // 加载更多指示器使用固定的垂直 Padding
       return Padding(
-        padding: EdgeInsets.only(
-          top: paddingTop,
-          left: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
-          right: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
+        padding: EdgeInsets.symmetric(
+          vertical: 8.0, // 使用固定的垂直 padding
+          horizontal: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
         ),
         child: shimmerContent,
       );
 
+    case IndicatorStatus.fullScreenBusying:
+      // 全屏加载时的 Shimmer 效果
+      final fullScreenShimmerContent = Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: buildShimmerGrid(
+          itemCount: 8, // 全屏加载时显示更多骨架项
+        ),
+      );
+      // 全屏指示器需要应用传入的 paddingTop
+      return SliverFillRemaining(
+        child: Padding(
+          padding: EdgeInsets.only(
+            top: paddingTop, // 应用传入的 paddingTop
+            left: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
+            right: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
+          ),
+          child: fullScreenShimmerContent,
+        ),
+      );
+
     case IndicatorStatus.error:
+      // 加载更多错误指示器
       return Padding(
-        padding: EdgeInsets.fromLTRB(
-          MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
-          paddingTop + 8.0,
-          MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
-          8.0
+        // 使用固定的垂直 Padding
+        padding: EdgeInsets.symmetric(
+          vertical: 8.0, // 使用固定的垂直 padding
+          horizontal: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
         ),
         child: Card(
           elevation: 0,
@@ -117,6 +122,7 @@ Widget? buildIndicator(
         ),
       );
     case IndicatorStatus.fullScreenError:
+      // 全屏错误指示器
       finalWidget = Card(
         elevation: 0,
         color: Theme.of(context).colorScheme.errorContainer,
@@ -163,8 +169,9 @@ Widget? buildIndicator(
         hasScrollBody: false,
         child: Center(
           child: Padding(
+            // 应用传入的 paddingTop
             padding: EdgeInsets.only(
-              top: paddingTop,
+              top: paddingTop, // 应用传入的 paddingTop
               left: 16.0,
               right: 16.0,
               bottom: 16.0,
@@ -174,8 +181,10 @@ Widget? buildIndicator(
         ),
       );
     case IndicatorStatus.noMoreLoad:
+      // 无更多数据指示器
       return Padding(
-        padding: EdgeInsets.fromLTRB(8.0, paddingTop + 8.0, 8.0, 8.0),
+        // 使用固定的垂直 Padding
+        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0), // 调整 Padding
         child: Center(
           child: Text(
             slang.t.common.noMoreDatas,
@@ -186,9 +195,11 @@ Widget? buildIndicator(
         ),
       );
     case IndicatorStatus.empty:
+      // 空状态指示器
       finalWidget = Container(
         padding: EdgeInsets.only(
-          top: paddingTop + 16,
+          // 应用传入的 paddingTop
+          top: paddingTop + 16, // 应用传入的 paddingTop
           left: 16,
           right: 16,
           bottom: 16,

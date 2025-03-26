@@ -110,6 +110,8 @@ class _ForumPageState extends State<ForumPage> {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
+    // 计算 AppBar 和状态栏的总高度
+    final double effectivePaddingTop = MediaQuery.of(context).padding.top + appBarHeight;
 
     return Scaffold(
       extendBodyBehindAppBar: true, // 让内容延伸到AppBar下面，以便显示毛玻璃效果
@@ -232,13 +234,13 @@ class _ForumPageState extends State<ForumPage> {
           ),
         ],
       ),
-      body: _buildBody(context),
+      body: _buildBody(context, effectivePaddingTop), // 传递 effectivePaddingTop
     );
   }
 
-  Widget _buildBody(BuildContext context) {
+  Widget _buildBody(BuildContext context, double effectivePaddingTop) { // 接收 effectivePaddingTop
     if (_isLoading) {
-      return const ForumSkeletonPage(); // 修改为使用 ForumSkeletonPage
+      return ForumSkeletonPage(paddingTop: effectivePaddingTop);
     }
 
     if (_error != null) {
@@ -273,6 +275,7 @@ class _ForumPageState extends State<ForumPage> {
     if (screenWidth < 260) {
       // 使用顶部 Tab 来切换"最近"及各分类内容
       return RefreshIndicator(
+        displacement: effectivePaddingTop, // 设置下拉指示器的偏移量
         onRefresh: _loadCategories,
         child: DefaultTabController(
           length: _categories!.length + 1,
@@ -299,10 +302,10 @@ class _ForumPageState extends State<ForumPage> {
               Expanded(
                 child: TabBarView(
                   children: [
-                    _buildRecentThreads(context),
+                    _buildRecentThreads(context, effectivePaddingTop), // 传递 effectivePaddingTop
                     ..._categories!.map((category) => SingleChildScrollView(
-                          padding: EdgeInsets.zero,
-                          child: _buildCategorySection(category),
+                          padding: EdgeInsets.only(top: effectivePaddingTop), // 为 TabView 中的分类内容添加顶部边距
+                          child: _buildCategorySection(category, true), // 传递 isInTabView = true
                         )),
                   ],
                 ),
@@ -315,6 +318,7 @@ class _ForumPageState extends State<ForumPage> {
 
     // 原有宽屏布局
     return RefreshIndicator(
+      displacement: effectivePaddingTop, // 设置下拉指示器的偏移量
       onRefresh: _loadCategories,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -366,13 +370,13 @@ class _ForumPageState extends State<ForumPage> {
             child: Padding(
               padding: const EdgeInsets.only(right: 8),
               child: _selectedRailIndex == 0
-                  ? _buildRecentThreads(context)
+                  ? _buildRecentThreads(context, effectivePaddingTop) // 传递 effectivePaddingTop
                   : SingleChildScrollView(
                       padding: EdgeInsets.only(
-                        top: MediaQuery.of(context).padding.top + appBarHeight, // 为分类内容添加顶部边距
+                        top: effectivePaddingTop, // 为分类内容添加顶部边距
                       ),
                       child: _buildCategorySection(
-                          _categories![_selectedRailIndex - 1]),
+                          _categories![_selectedRailIndex - 1], true), // 传递 isInTabView = true
                     ),
             ),
           ),
@@ -381,8 +385,7 @@ class _ForumPageState extends State<ForumPage> {
     );
   }
 
-  Widget _buildRecentThreads(BuildContext context) {
-    double topPadding = MediaQuery.of(context).padding.top;
+  Widget _buildRecentThreads(BuildContext context, double effectivePaddingTop) { // 接收 effectivePaddingTop
     return LoadingMoreCustomScrollView(
       slivers: <Widget>[
         LoadingMoreSliverList<ForumThreadModel>(
@@ -401,103 +404,108 @@ class _ForumPageState extends State<ForumPage> {
             ),
             sourceList: _recentThreadRepository,
             padding: EdgeInsets.only(
-              top: topPadding + appBarHeight,
+              top: effectivePaddingTop, // 使用计算好的顶部边距
+              bottom: MediaQuery.of(context).padding.bottom, // 添加底部安全区域边距
+              left: 8, // 统一左右边距
+              right: 8,
             ),
-            indicatorBuilder: (context, status) => myLoadingMoreIndicator(
-              context,
-              status,
-              isSliver: true,
-              loadingMoreBase: _recentThreadRepository,
-            ),
+            indicatorBuilder: (context, status) {
+              // 判断是否为全屏状态
+              final bool isFullScreenIndicator = status == IndicatorStatus.fullScreenBusying ||
+                                                status == IndicatorStatus.fullScreenError ||
+                                                status == IndicatorStatus.empty;
+              return myLoadingMoreIndicator(
+                context,
+                status,
+                isSliver: true,
+                loadingMoreBase: _recentThreadRepository,
+                // 传递 paddingTop 给指示器构建函数
+                paddingTop: isFullScreenIndicator ? effectivePaddingTop : 0,
+              );
+            },
           ),
         ),
       ],
     );
   }
 
-  Widget _buildCategorySection(ForumCategoryTreeModel category) {
+  Widget _buildCategorySection(ForumCategoryTreeModel category, bool isInTabView) { // 接收 isInTabView
     final bool isWideScreen = MediaQuery.of(context).size.width > 900;
-    double topPadding = MediaQuery.of(context).padding.top;
-    bool isNarrowScreen = MediaQuery.of(context).size.width < 260;
-    bool isInTabView = isNarrowScreen || _selectedRailIndex > 0;
-    
-    return Padding(
-      padding: EdgeInsets.only(
-        top: isInTabView ? 0 : topPadding + appBarHeight, // 在TabView或NavigationRail中不需要额外顶部边距
-      ),
-      child: Card(
-        elevation: 2,
-        margin: isNarrowScreen ? 
-          EdgeInsets.zero : // 窄屏模式下不需要边距
-          const EdgeInsets.only(bottom: 16.0), // 宽屏模式只需要底部边距
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 分类标题栏
-            Container(
-              padding: const EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(12)),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    _getCategoryIcon(category.name),
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    category.name,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
+    final bool isNarrowScreen = MediaQuery.of(context).size.width < 260;
+    // 移除外部 Padding，因为父级 SingleChildScrollView 或 TabBarView 已处理顶部边距
+    return Card(
+      elevation: 2,
+      margin: isNarrowScreen
+          ? EdgeInsets.zero // 窄屏模式下不需要边距
+          : const EdgeInsets.only(bottom: 16.0), // 宽屏模式只需要底部边距
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 分类标题栏
+          Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(12)),
             ),
-            // 子分类列表
-            if (isWideScreen)
-              Table(
-                columnWidths: const {
-                  0: FlexColumnWidth(4), // 标题
-                  1: FlexColumnWidth(1), // 主题数
-                  2: FlexColumnWidth(1), // 回复数
-                  3: FlexColumnWidth(3), // 最后回复
-                },
-                children: [
-                  TableRow(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .surfaceContainerHighest
-                          .withOpacity(0.5),
-                    ),
-                    children: [
-                      _buildTableHeader(context, slang.t.forum.category),
-                      _buildTableHeader(context, slang.t.forum.threads),
-                      _buildTableHeader(context, slang.t.forum.posts),
-                      _buildTableHeader(context, slang.t.forum.lastReply),
-                    ],
+            child: Row(
+              children: [
+                Icon(
+                  _getCategoryIcon(category.name),
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  category.name,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
-                ],
-              ),
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: category.children.length,
-              padding: EdgeInsets.zero,
-              separatorBuilder: (context, index) => const Divider(height: 1),
-              itemBuilder: (context, index) {
-                final subCategory = category.children[index];
-                return _buildSubCategoryTile(subCategory, context);
+                ),
+              ],
+            ),
+          ),
+          // 子分类列表
+          if (isWideScreen)
+            Table(
+              columnWidths: const {
+                0: FlexColumnWidth(4), // 标题
+                1: FlexColumnWidth(1), // 主题数
+                2: FlexColumnWidth(1), // 回复数
+                3: FlexColumnWidth(3), // 最后回复
               },
+              children: [
+                TableRow(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .surfaceContainerHighest
+                        .withOpacity(0.5),
+                  ),
+                  children: [
+                    _buildTableHeader(context, slang.t.forum.category),
+                    _buildTableHeader(context, slang.t.forum.threads),
+                    _buildTableHeader(context, slang.t.forum.posts),
+                    _buildTableHeader(context, slang.t.forum.lastReply),
+                  ],
+                ),
+              ],
             ),
-          ],
-        ),
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: category.children.length,
+            padding: EdgeInsets.zero,
+            separatorBuilder: (context, index) => const Divider(height: 1),
+            itemBuilder: (context, index) {
+              final subCategory = category.children[index];
+              // 传递 isNarrowTabLayout 参数给子项构建函数
+              return _buildSubCategoryTile(subCategory, context, isNarrowScreen && isInTabView);
+            },
+          ),
+        ],
       ),
     );
   }
@@ -517,10 +525,10 @@ class _ForumPageState extends State<ForumPage> {
   }
 
   Widget _buildSubCategoryTile(
-      ForumCategoryModel subCategory, BuildContext context) {
+      ForumCategoryModel subCategory, BuildContext context, bool isNarrowTabLayout) { // 接收 isNarrowTabLayout
     final t = slang.Translations.of(context);
     final bool isWideScreen = MediaQuery.of(context).size.width > 900;
-    final bool isNarrowTabLayout = MediaQuery.of(context).size.width < 260; // 新增窄屏Tab布局判断
+    // final bool isNarrowTabLayout = MediaQuery.of(context).size.width < 260; // 使用传入的参数
 
     if (isWideScreen) {
       return InkWell(

@@ -316,37 +316,47 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
   }
 
   Widget _buildInfiniteScrollView(BuildContext context) {
-    return LoadingMoreCustomScrollView(
-      controller: widget.scrollController,
-      physics: const ClampingScrollPhysics(),
-      slivers: <Widget>[
-        LoadingMoreSliverList(
-          SliverListConfig<T>(
-            extendedListDelegate: widget.extendedListDelegate ??
-                SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: MediaQuery.of(context).size.width <= 600 ? MediaQuery.of(context).size.width / 2 : 200,
-                  crossAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
-                  mainAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
-                ),
-            itemBuilder: widget.itemBuilder,
-            sourceList: widget.sourceList,
-            padding: EdgeInsets.only(
-              top: widget.paddingTop,
-              left: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
-              right: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
-              bottom: Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0,
-            ),
-            lastChildLayoutType: LastChildLayoutType.foot,
-            indicatorBuilder: (context, status) => buildIndicator(
-              context,
-              status,
-              () => widget.sourceList.errorRefresh(),
-              emptyIcon: widget.emptyIcon,
-              paddingTop: widget.paddingTop,
+    return RefreshIndicator(
+      displacement: widget.paddingTop,
+      onRefresh: () => widget.sourceList.refresh(true),
+      child: LoadingMoreCustomScrollView(
+        controller: widget.scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: <Widget>[
+          LoadingMoreSliverList(
+            SliverListConfig<T>(
+              extendedListDelegate: widget.extendedListDelegate ??
+                  SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 200,
+                    crossAxisSpacing: 5,
+                    mainAxisSpacing: 5,
+                  ),
+              itemBuilder: widget.itemBuilder,
+              sourceList: widget.sourceList,
+              padding: EdgeInsets.only(
+                top: widget.paddingTop,
+                left: 5.0,
+                right: 5.0,
+                bottom: Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0,
+              ),
+              lastChildLayoutType: LastChildLayoutType.foot,
+              indicatorBuilder: (context, status) {
+                // 判断是否为全屏状态
+                final bool isFullScreenIndicator = status == IndicatorStatus.fullScreenBusying ||
+                                                  status == IndicatorStatus.fullScreenError ||
+                                                  status == IndicatorStatus.empty;
+                return buildIndicator(
+                  context,
+                  status,
+                  () => widget.sourceList.errorRefresh(),
+                  emptyIcon: widget.emptyIcon,
+                  paddingTop: isFullScreenIndicator ? widget.paddingTop : 0,
+                );
+              },
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -360,6 +370,8 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
       children: [
         // 主内容区域
         RefreshIndicator(
+          // 设置下拉指示器的垂直偏移量
+          displacement: widget.paddingTop,
           onRefresh: refresh,
           child: () {
             // 判断当前状态并显示相应的指示器
@@ -372,6 +384,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
                 _indicatorStatus, 
                 errorRefresh,
                 emptyIcon: widget.emptyIcon,
+                // 全屏指示器需要应用 paddingTop
                 paddingTop: widget.paddingTop,
               );
               
@@ -403,8 +416,8 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
                 SliverPadding(
                   padding: EdgeInsets.only(
                     top: widget.paddingTop,
-                    left: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
-                    right: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
+                    left: 5.0,
+                    right: 5.0,
                     bottom: paginationBarHeight + 4, // 为分页控制栏留出空间
                   ),
                   sliver: SliverWaterfallFlow(
@@ -415,9 +428,9 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
                     gridDelegate: (widget.extendedListDelegate is SliverWaterfallFlowDelegate)
                       ? (widget.extendedListDelegate as SliverWaterfallFlowDelegate)
                       : SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: MediaQuery.of(context).size.width <= 600 ? MediaQuery.of(context).size.width / 2 : 200,
-                        crossAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
-                        mainAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
+                        maxCrossAxisExtent: 200,
+                        crossAxisSpacing: 5,
+                        mainAxisSpacing: 5,
                       ),
                   ),
                 ),
@@ -431,7 +444,8 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
                       _indicatorStatus, 
                       errorRefresh,
                       emptyIcon: widget.emptyIcon,
-                      paddingTop: widget.paddingTop,
+                      // 加载更多/错误/无更多 指示器不需要顶部padding
+                      paddingTop: 0,
                     ),
                   ),
               ],

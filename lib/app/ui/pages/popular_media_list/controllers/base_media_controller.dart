@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'base_media_repository.dart';
 
-abstract class BaseMediaController<T> extends GetxService {
+abstract class BaseMediaController<T> extends GetxController {
   final String sortId;
   late final BaseMediaRepository<T> repository;
 
@@ -9,12 +9,13 @@ abstract class BaseMediaController<T> extends GetxService {
   String searchDate = '';
   String searchRating = '';
 
-  BaseMediaController({required this.sortId});
+  BaseMediaController({required this.sortId}) {
+    repository = createRepository();
+  }
 
   @override
   void onInit() {
     super.onInit();
-    repository = createRepository();
   }
 
   @override

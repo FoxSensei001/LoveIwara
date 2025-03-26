@@ -20,6 +20,7 @@ import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:shimmer/shimmer.dart';
 import 'dart:ui';
 import 'controllers/media_list_controller.dart';
+import 'package:i_iwara/utils/easy_throttle.dart';
 
 class SubscriptionsPage extends StatefulWidget with RefreshableMixin {
   static final globalKey = GlobalKey<SubscriptionsPageState>();
@@ -52,6 +53,10 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
   double _scrollProgress = 0.0;
   // 最大折叠高度
   static const double _maxCollapsibleHeight = 60.0;
+  // 显式控制头部折叠状态
+  bool _isHeaderCollapsed = false;
+  // 记录上一次滚动位置
+  double _lastScrollOffset = 0.0;
   
   // 定义常量
   static const double _tabBarHeight = 48.0;
@@ -64,6 +69,10 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
   final ScrollController _extendedScrollController = ScrollController();
   final ScrollController _tabBarScrollController = ScrollController();
   final List<GlobalKey> _tabKeys = [];
+
+  // 定义节流标签
+  static const String _extendedScrollTag = 'subscriptionsPageExtendedScroll';
+  static const String _listScrollTag = 'subscriptionsPageListScroll';
 
   @override
   void initState() {
@@ -94,21 +103,64 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
   void _onExtendedScroll() {
     if (_extendedScrollController.hasClients) {
       final double offset = _extendedScrollController.offset;
-      _updateScrollProgress(offset);
+      // 使用 EasyThrottle.throttle
+      EasyThrottle.throttle(
+        _extendedScrollTag, // 使用定义的标签
+        const Duration(milliseconds: 50), // 节流间隔
+        () {
+          // 更新滚动状态（包括进度和折叠状态）
+          _updateScrollState(offset);
+          // 更新上一次滚动位置
+          _lastScrollOffset = offset;
+        },
+      );
     }
   }
 
   // 处理来自列表的滚动
   void _handleListScroll(double offset) {
-    _updateScrollProgress(offset);
+    // 使用 EasyThrottle.throttle
+    EasyThrottle.throttle(
+      _listScrollTag, // 使用不同的标签
+      const Duration(milliseconds: 50), // 节流间隔
+      () {
+        // 更新滚动状态（包括进度和折叠状态）
+        _updateScrollState(offset);
+        // 更新上一次滚动位置
+        _lastScrollOffset = offset;
+      },
+    );
   }
 
-  // 更新滚动进度值
-  void _updateScrollProgress(double offset) {
+  // 更新滚动状态，包括进度和折叠状态
+  void _updateScrollState(double offset) {
+    // 计算原始滚动进度
     final double progress = (offset / _maxCollapsibleHeight).clamp(0.0, 1.0);
-    if (progress != _scrollProgress) {
+    // 预设下一次的折叠状态为当前状态
+    bool shouldCollapse = _isHeaderCollapsed;
+
+    // 定义触发折叠和展开的阈值 (可以根据需要调整)
+    const double collapseThreshold = 0.2; // 向上滚动超过 20% 触发折叠
+    const double expandThreshold = 0.1;   // 向下滚动低于 10% 或到顶触发展开
+
+    // 判断滚动方向并根据阈值更新折叠状态
+    if (offset > _lastScrollOffset && offset > 0) { // 向上滚动
+      if (progress > collapseThreshold && !_isHeaderCollapsed) {
+        shouldCollapse = true; // 触发折叠
+      }
+    } else if (offset < _lastScrollOffset) { // 向下滚动
+      if (progress < expandThreshold && _isHeaderCollapsed) {
+        shouldCollapse = false; // 触发展开
+      }
+    } else if (offset <= 0 && _isHeaderCollapsed) { // 滚动到顶部时强制展开
+        shouldCollapse = false; // 强制展开
+    }
+
+    // 如果滚动进度或折叠状态发生变化，则更新UI
+    if (progress != _scrollProgress || shouldCollapse != _isHeaderCollapsed) {
       setState(() {
         _scrollProgress = progress;
+        _isHeaderCollapsed = shouldCollapse; // 更新折叠状态
       });
       // 更新动态内边距
       _updateDynamicPaddingTop();
@@ -117,11 +169,12 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
   
   // 更新动态内边距
   void _updateDynamicPaddingTop() {
+    // 检查 context 是否可用
+    if (!mounted) return;
     // 计算状态栏高度
     double statusBarHeight = MediaQuery.of(context).padding.top;
     // 计算展开/折叠状态下的头部高度
     double expandedHeaderHeight = _headerExpandedHeight;
-    double collapsedHeaderHeight = _headerExpandedHeight;
     // 用户列表随滚动进度动态变化的高度
     double userListHeight = _userListHeight * (1 - _scrollProgress);
     
@@ -201,6 +254,8 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
     _tabBarScrollController.dispose();
     // 注销滚动回调
     mediaListController.unregisterListScrollCallback(_handleListScroll);
+    EasyThrottle.cancel(_extendedScrollTag);
+    EasyThrottle.cancel(_listScrollTag);
     Get.delete<MediaListController>();
     super.dispose();
   }
@@ -217,11 +272,6 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
   }
 
   Widget _buildContent(BuildContext context) {
-    // 计算头部区域高度（包含用户选择器部分）
-    double expandedHeaderHeight = _headerExpandedHeight + _userListHeight;
-    double collapsedHeaderHeight = _headerExpandedHeight;
-    double headerHeight = collapsedHeaderHeight + (expandedHeaderHeight - collapsedHeaderHeight) * (1 - _scrollProgress);
-    
     final t = slang.Translations.of(context);
     
     return Stack(
@@ -291,143 +341,135 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
           top: 0,
           left: 0,
           right: 0,
-          child: NotificationListener<ScrollNotification>(
-            onNotification: (notification) {
-              // 捕获滚动事件，更新折叠状态
-              if (notification is ScrollUpdateNotification) {
-                _handleListScroll(notification.metrics.pixels);
-              }
-              return false;
-            },
-            child: ClipRect(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-                child: Container(
-                  color: Theme.of(context).colorScheme.surface.withOpacity(0.85),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // 系统状态栏高度填充
-                      TopPaddingHeightWidget(),
-                      
-                      // 头像和标题行 - 实现动画过渡
-                      AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        transitionBuilder: (Widget child, Animation<double> animation) {
-                          return FadeTransition(
-                            opacity: animation,
-                            child: child,
-                          );
-                        },
-                        child: _scrollProgress > 0.7
-                            ? _buildCollapsedHeader()
-                            : _buildExpandedHeader(),
+          child: ClipRect(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
+              child: Container(
+                color: Theme.of(context).colorScheme.surface.withOpacity(0.8),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // 系统状态栏高度填充
+                    const SafeArea(child: SizedBox()),
+                    
+                    // 头像和标题行 - 实现动画过渡
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      transitionBuilder: (Widget child, Animation<double> animation) {
+                        return FadeTransition(
+                          opacity: animation,
+                          child: child,
+                        );
+                      },
+                      child: _isHeaderCollapsed
+                          ? _buildCollapsedHeader()
+                          : _buildExpandedHeader(),
+                    ),
+                    
+                    // 订阅用户选择列表 - 会随滚动进度折叠
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      curve: Curves.easeInOut,
+                      height: _userListHeight * (1 - _scrollProgress),
+                      clipBehavior: Clip.hardEdge,
+                      decoration: const BoxDecoration(color: Colors.transparent),
+                      child: Opacity(
+                        opacity: (1 - _scrollProgress * 2).clamp(0.0, 1.0),
+                        child: Obx(() => _buildSubscriptionList()),
                       ),
-                      
-                      // 订阅用户选择列表 - 会随滚动进度折叠
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        curve: Curves.easeInOut,
-                        height: _userListHeight * (1 - _scrollProgress),
-                        clipBehavior: Clip.none,
-                        child: Opacity(
-                          opacity: 1 - _scrollProgress,
-                          child: Obx(() => _buildSubscriptionList()),
-                        ),
-                      ),
-                      
-                      // TabBar 区域
-                      Container(
-                        height: _tabBarHeight,
-                        color: Colors.transparent,
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: MouseRegion(
-                                child: Listener(
-                                  onPointerSignal: (pointerSignal) {
-                                    if (pointerSignal is PointerScrollEvent) {
-                                      _handleScroll(pointerSignal.scrollDelta.dy);
-                                    }
-                                  },
-                                  child: SingleChildScrollView(
-                                    controller: _tabBarScrollController,
-                                    scrollDirection: Axis.horizontal,
-                                    physics: const ClampingScrollPhysics(),
-                                    child: TabBar(
-                                      controller: _tabController,
-                                      isScrollable: true,
-                                      overlayColor: WidgetStateProperty.all(Colors.transparent),
-                                      tabAlignment: TabAlignment.start,
-                                      dividerColor: Colors.transparent,
-                                      labelStyle: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      unselectedLabelStyle: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                      tabs: [
-                                        Tab(
-                                          key: _tabKeys[0],
-                                          text: t.common.video,
-                                        ),
-                                        Tab(
-                                          key: _tabKeys[1],
-                                          text: t.common.gallery,
-                                        ),
-                                        Tab(
-                                          key: _tabKeys[2],
-                                          text: t.common.post,
-                                        ),
-                                      ],
+                    ),
+                    
+                    // TabBar 区域
+                    Container(
+                      height: _tabBarHeight,
+                      color: Colors.transparent,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: MouseRegion(
+                              child: Listener(
+                                onPointerSignal: (pointerSignal) {
+                                  if (pointerSignal is PointerScrollEvent) {
+                                    _handleScroll(pointerSignal.scrollDelta.dy);
+                                  }
+                                },
+                                child: SingleChildScrollView(
+                                  controller: _tabBarScrollController,
+                                  scrollDirection: Axis.horizontal,
+                                  physics: const ClampingScrollPhysics(),
+                                  child: TabBar(
+                                    controller: _tabController,
+                                    isScrollable: true,
+                                    overlayColor: WidgetStateProperty.all(Colors.transparent),
+                                    tabAlignment: TabAlignment.start,
+                                    dividerColor: Colors.transparent,
+                                    labelStyle: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
                                     ),
+                                    unselectedLabelStyle: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                    tabs: [
+                                      Tab(
+                                        key: _tabKeys[0],
+                                        text: t.common.video,
+                                      ),
+                                      Tab(
+                                        key: _tabKeys[1],
+                                        text: t.common.gallery,
+                                      ),
+                                      Tab(
+                                        key: _tabKeys[2],
+                                        text: t.common.post,
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
                             ),
-                            // 置顶按钮
-                            IconButton(
-                              icon: const Icon(Icons.vertical_align_top),
-                              onPressed: () {
-                                // 先尝试使用控制器滚动所有列表
-                                mediaListController.scrollToTop();
-                                // 检查_extendedScrollController是否已附加到滚动视图
-                                if (_extendedScrollController.hasClients) {
-                                  _extendedScrollController.animateTo(
-                                    0,
-                                    duration: const Duration(milliseconds: 300),
-                                    curve: Curves.easeInOut,
-                                  );
-                                }
-                              },
-                            ),
-                            // 添加分页模式切换按钮
-                            Obx(() => IconButton(
-                              icon: Icon(mediaListController.isPaginated.value
-                                  ? Icons.grid_view
-                                  : Icons.menu),
-                              onPressed: () {
-                                // 切换分页模式
-                                mediaListController.setPaginatedMode(
-                                    !mediaListController.isPaginated.value);
-                              },
-                              tooltip: mediaListController.isPaginated.value
-                                  ? t.common.pagination.waterfall
-                                  : t.common.pagination.pagination,
-                            )),
-                            // 刷新按钮
-                            IconButton(
-                              icon: const Icon(Icons.refresh),
-                              onPressed: refreshCurrentList,
-                              tooltip: t.common.refresh,
-                            ),
-                          ],
-                        ),
+                          ),
+                          // 置顶按钮
+                          IconButton(
+                            icon: const Icon(Icons.vertical_align_top),
+                            onPressed: () {
+                              // 先尝试使用控制器滚动所有列表
+                              mediaListController.scrollToTop();
+                              // 检查_extendedScrollController是否已附加到滚动视图
+                              if (_extendedScrollController.hasClients) {
+                                _extendedScrollController.animateTo(
+                                  0,
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                );
+                              }
+                            },
+                          ),
+                          // 添加分页模式切换按钮
+                          Obx(() => IconButton(
+                            icon: Icon(mediaListController.isPaginated.value
+                                ? Icons.grid_view
+                                : Icons.menu),
+                            onPressed: () {
+                              // 切换分页模式
+                              mediaListController.setPaginatedMode(
+                                  !mediaListController.isPaginated.value);
+                            },
+                            tooltip: mediaListController.isPaginated.value
+                                ? t.common.pagination.waterfall
+                                : t.common.pagination.pagination,
+                          )),
+                          // 刷新按钮
+                          IconButton(
+                            icon: const Icon(Icons.refresh),
+                            onPressed: refreshCurrentList,
+                            tooltip: t.common.refresh,
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -440,6 +482,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
   // 展开状态下的头部布局
   Widget _buildExpandedHeader() {
     return Row(
+      key: const ValueKey('expanded_header'),
       children: [
         Obx(() => _buildAvatarButton()),
         Expanded(
@@ -490,6 +533,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
   // 收缩状态下的头部布局 - 包含下拉选择控件
   Widget _buildCollapsedHeader() {
     return Row(
+      key: const ValueKey('collapsed_header'),
       children: [
         Expanded(
           child: Obx(() {
@@ -561,9 +605,8 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
             height: 48,
             child: Center(
               child: Shimmer.fromColors(
-                baseColor:
-                    Theme.of(context).colorScheme.surfaceContainerHighest,
-                highlightColor: Theme.of(context).colorScheme.surface,
+                baseColor: Theme.of(context).colorScheme.surface,
+                highlightColor: Theme.of(context).colorScheme.surfaceContainer,
                 child: Container(
                   width: 24,
                   height: 24,
@@ -649,10 +692,10 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
           children: [
             TopPaddingHeightWidget(),
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: EdgeInsets.all(16.0),
               child: Card(
                 child: Padding(
-                  padding: const EdgeInsets.all(24.0),
+                  padding: EdgeInsets.all(24.0),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -702,30 +745,5 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
         ),
       ),
     );
-  }
-}
-
-// 添加一个SliverPersistentHeaderDelegate来处理TabBar
-class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
-  final Widget child;
-
-  _SliverAppBarDelegate({
-    required this.child,
-  });
-
-  @override
-  double get minExtent => 48.0;
-  @override
-  double get maxExtent => 48.0;
-
-  @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return child;
-  }
-
-  @override
-  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
-    return false;
   }
 }

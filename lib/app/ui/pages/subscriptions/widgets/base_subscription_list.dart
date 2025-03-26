@@ -4,6 +4,7 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import '../controllers/media_list_controller.dart';
+import 'package:i_iwara/utils/easy_throttle.dart';
 
 /// 订阅列表基类 - 提供通用功能以减少子类重复代码
 abstract class BaseSubscriptionList<T, R extends ExtendedLoadingMoreBase<T>> extends StatefulWidget {
@@ -27,11 +28,17 @@ abstract class BaseSubscriptionListState<T, R extends ExtendedLoadingMoreBase<T>
   final ScrollController _scrollController = ScrollController();
   late final MediaListController _mediaListController;
   
+  late final String _baseListScrollTag;
+  
   @override
   void initState() {
     super.initState();
     repository = createRepository();
     _mediaListController = Get.find<MediaListController>();
+    
+    // 为每个列表实例生成唯一的 tag
+    _baseListScrollTag = 'baseListScroll_${widget.key?.toString() ?? hashCode}';
+    
     // 注册滚动回调
     _mediaListController.registerScrollToTopCallback(_scrollToTop);
     
@@ -43,7 +50,14 @@ abstract class BaseSubscriptionListState<T, R extends ExtendedLoadingMoreBase<T>
   void _handleScroll() {
     if (_scrollController.hasClients) {
       final double offset = _scrollController.offset;
-      _mediaListController.notifyListScroll(offset);
+      // 使用 EasyThrottle.throttle
+      EasyThrottle.throttle(
+        _baseListScrollTag, // 使用实例唯一的标签
+        const Duration(milliseconds: 50), // 节流间隔
+        () {
+           _mediaListController.notifyListScroll(offset);
+        },
+      );
     }
   }
   
@@ -89,6 +103,7 @@ abstract class BaseSubscriptionListState<T, R extends ExtendedLoadingMoreBase<T>
     // 移除滚动监听
     _scrollController.removeListener(_handleScroll);
     _scrollController.dispose();
+    EasyThrottle.cancel(_baseListScrollTag);
     repository.dispose();
     super.dispose();
   }
@@ -108,7 +123,9 @@ abstract class BaseSubscriptionListState<T, R extends ExtendedLoadingMoreBase<T>
   /// 统一刷新方法
   Future<void> refresh() async {
     if (widget.isPaginated) {
-      setState(() {});
+      if (mounted) { // 添加 mounted 检查
+        setState(() {});
+      }
       Future.microtask(() {
         if (mounted) {
           try {
