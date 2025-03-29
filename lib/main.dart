@@ -26,11 +26,13 @@ import 'package:i_iwara/utils/proxy/proxy_util.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
+import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/log_service.dart';
+import 'package:i_iwara/common/constants.dart';
 
 import 'app/my_app.dart';
 import 'app/services/api_service.dart';
 import 'app/services/auth_service.dart';
-import 'app/services/config_service.dart';
 import 'app/services/storage_service.dart';
 import 'app/services/user_preference_service.dart';
 import 'app/services/user_service.dart';
@@ -47,8 +49,12 @@ import 'package:i_iwara/app/services/config_backup_service.dart';
 void main() {
   // 确保Flutter初始化
   runZonedGuarded(() async {
-    // 日志初始化
-    LogUtils.init();
+    // 日志初始化 - 仅初始化基本功能，不依赖数据库
+    bool isProduction = !kDebugMode;
+    await LogUtils.init(isProduction: isProduction);
+    
+    // 记录应用启动信息
+    LogUtils.i('应用启动', '启动初始化');
 
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -60,6 +66,16 @@ void main() {
 
     // 确保Flutter初始化
     WidgetsFlutterBinding.ensureInitialized();
+
+    // 设置Flutter错误处理
+    FlutterError.onError = (FlutterErrorDetails details) {
+      LogUtils.e('Flutter框架错误',
+        tag: '全局错误处理',
+        error: details.exception,
+        stackTrace: details.stack
+      );
+      FlutterError.presentError(details);
+    };
 
     // 设置最高刷新率(仅在非Web的Android上)
     if (!kIsWeb && Platform.isAndroid) {
@@ -86,6 +102,8 @@ void main() {
   }, (error, stackTrace) {
     // 在这里处理未捕获的异常
     LogUtils.e('未捕获的异常: $error', tag: '全局异常处理', stackTrace: stackTrace);
+    
+    // TODO: 可以在这里添加额外处理，例如显示错误页面或重启应用
   });
 }
 
@@ -107,13 +125,17 @@ Future<void> _initializeBaseServices() async {
     LocaleSettings.setLocaleRaw('en');
   }
 
-  // 初始化数据库
-  final dbService = DatabaseService();
-  await dbService.init();
-
   // 初始化存储服务
   await GetStorage.init();
   await StorageService().init();
+
+  // 初始化数据库服务
+  final dbService = DatabaseService();
+  await dbService.init();
+
+  // 初始化日志服务 - 现在放在数据库服务之后
+  var logService = await LogService().init();
+  Get.put(logService);
 
   // 初始化消息服务
   Get.put(MessageService());
@@ -128,6 +150,10 @@ Future<void> _initializeBusinessServices() async {
   // 初始化配置服务
   var configService = await ConfigService().init();
   Get.put(configService);
+  
+  
+  LogUtils.setPersistenceEnabled(CommonConstants.enableLogPersistence);
+  LogUtils.i('日志配置已更新：持久化=${CommonConstants.enableLogPersistence}，大小限制=${CommonConstants.maxLogDatabaseSize / (1024 * 1024)}MB', '启动初始化');
 
   // 注册 ConfigBackupService 作为 GetxService
   Get.put(ConfigBackupService());
@@ -231,6 +257,19 @@ Future<void> _initializeDesktop() async {
   await windowManager.setMinimumSize(const Size(200, 200));
   await windowManager.show();
   await windowManager.focus();
+  
+  // 添加应用关闭监听，确保日志写入完成
+  windowManager.setPreventClose(true);
+  windowManager.addListener(DesktopWindowListener());
+}
+
+/// 桌面窗口事件监听器
+class DesktopWindowListener extends WindowListener {
+  @override
+  void onWindowClose() async {
+    await _closeServices();
+    await windowManager.destroy();
+  }
 }
 
 /// 代理设置
@@ -248,5 +287,15 @@ class MyHttpOverrides extends HttpOverrides {
       ..badCertificateCallback = (X509Certificate cert, String host, int port) {
         return true;
       };
+  }
+}
+
+/// 确保在应用退出前关闭日志文件
+Future<void> _closeServices() async {
+  try {
+    await LogUtils.close();
+  } catch (e) {
+    // 记录关闭服务时可能出现的错误
+    print('关闭服务失败: $e');
   }
 }

@@ -63,7 +63,7 @@ class _HomeNavigationLayoutState extends State<HomeNavigationLayout>
   void didHaveMemoryPressure() {
     super.didHaveMemoryPressure();
     _lazyStackKey.currentState?.releaseNonCurrent();
-    LogUtils.i("内存存在压力，释放其他页面", "HomeNavigationLayout");
+    LogUtils.d("内存存在压力，释放其他页面", "HomeNavigationLayout");
   }
 
   /// 新增的通用导航处理方法

@@ -8,19 +8,50 @@ import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/services/config_backup_service.dart';
 import 'package:i_iwara/utils/vibrate_utils.dart';
+import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:file_selector/file_selector.dart';
+import 'package:flutter_file_dialog/flutter_file_dialog.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
+import 'package:i_iwara/app/services/log_service.dart';
+import 'package:flutter/foundation.dart';
 
-class AppSettingsPage extends StatelessWidget {
+class AppSettingsPage extends StatefulWidget {
   final bool isWideScreen;
 
   const AppSettingsPage({super.key, this.isWideScreen = false});
 
   @override
+  State<AppSettingsPage> createState() => _AppSettingsPageState();
+}
+
+class _AppSettingsPageState extends State<AppSettingsPage> {
+  // 添加一个key来强制FutureBuilder重建
+  final ValueNotifier<int> _logUpdateTrigger = ValueNotifier<int>(0);
+  
+  // 添加一个方法来强制刷新日志UI
+  void _forceRefreshLogUI() {
+    _logUpdateTrigger.value = DateTime.now().millisecondsSinceEpoch;
+  }
+  
+  // 添加一个方法来刷新整个页面
+  void refreshPage() {
+    setState(() {});
+  }
+  
+  @override
+  void dispose() {
+    _logUpdateTrigger.dispose();
+    super.dispose();
+  }
+  
+  @override
   Widget build(BuildContext context) {
     final configService = Get.find<ConfigService>();
 
     return Scaffold(
-      appBar: isWideScreen
+      appBar: widget.isWideScreen
           ? null
           : AppBar(
               title: Text(slang.t.settings.appSettings,
@@ -340,7 +371,18 @@ class AppSettingsPage extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(
+                    slang.t.settings.exportConfig,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ),
+                const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.file_upload),
                   title: Text(slang.t.settings.exportConfig),
@@ -349,11 +391,10 @@ class AppSettingsPage extends StatelessWidget {
                     try {
                       await Get.find<ConfigBackupService>().exportConfig();
                     } catch (e) {
-                      showToastWidget(MDToastWidget(message: '${slang.t.settings.exportConfigFailed}: ${e.toString()}', type: MDToastType.error));
+                      showToastWidget(MDToastWidget(message: '${slang.t.settings.exportConfigFailed}: ${LogUtils.maskSensitiveData(e.toString())}', type: MDToastType.error));
                     }
                   },
                 ),
-                const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.file_download),
                   title: Text(slang.t.settings.importConfig),
@@ -362,7 +403,179 @@ class AppSettingsPage extends StatelessWidget {
                     try {
                       await Get.find<ConfigBackupService>().importConfig();
                     } catch (e) {
-                      showToastWidget(MDToastWidget(message: '${slang.t.settings.importConfigFailed}: ${e.toString()}', type: MDToastType.error));
+                      showToastWidget(MDToastWidget(message: '${slang.t.settings.importConfigFailed}: ${LogUtils.maskSensitiveData(e.toString())}', type: MDToastType.error));
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+          Card(
+            clipBehavior: Clip.hardEdge,
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "日志管理",
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(height: 1),
+                _buildLogSizeDetailWidget(context, configService),
+                Obx(
+                  () => SwitchListTile(
+                    title: const Text("持久化日志"), // 需要在翻译文件中添加
+                    subtitle: const Text("将日志保存到数据库以便于分析问题"), // 更新描述
+                    value: configService[ConfigKey.ENABLE_LOG_PERSISTENCE],
+                    onChanged: (value) {
+                      configService[ConfigKey.ENABLE_LOG_PERSISTENCE] = value;
+                      CommonConstants.enableLogPersistence = value;
+                    },
+                  ),
+                ),
+                Obx(
+                  () => ListTile(
+                    title: const Text("日志数据库大小上限"),
+                    subtitle: Text("当前: ${_formatSize(configService[ConfigKey.MAX_LOG_DATABASE_SIZE])}"),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                    onTap: () => _showLogSizeLimitDialog(context, configService),
+                  ),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.bug_report),
+                  title: const Text("导出当前日志"), 
+                  subtitle: const Text("导出当天应用日志以帮助开发者诊断问题"),
+                  onTap: () async {
+                    try {
+                      await _exportLogs(context);
+                      showToastWidget(
+                        MDToastWidget(
+                          message: "日志导出成功",
+                          type: MDToastType.success,
+                        ),
+                      );
+                    } catch (e) {
+                      showToastWidget(
+                        MDToastWidget(
+                          message: "日志导出失败: ${LogUtils.maskSensitiveData(e.toString())}",
+                          type: MDToastType.error,
+                        ),
+                      );
+                    }
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.history),
+                  title: const Text("导出历史日志"),
+                  subtitle: const Text("选择并导出特定日期的日志"),
+                  onTap: () async {
+                    try {
+                      await _exportHistoryLogs(context);
+                    } catch (e) {
+                      showToastWidget(
+                        MDToastWidget(
+                          message: "历史日志导出失败: ${LogUtils.maskSensitiveData(e.toString())}",
+                          type: MDToastType.error,
+                        ),
+                      );
+                    }
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.merge_type),
+                  title: const Text("导出合并日志"),
+                  subtitle: const Text("合并最近日志到单个文件"),
+                  onTap: () async {
+                    try {
+                      await _exportMergedLogs(context);
+                    } catch (e) {
+                      showToastWidget(
+                        MDToastWidget(
+                          message: "合并日志导出失败: ${LogUtils.maskSensitiveData(e.toString())}",
+                          type: MDToastType.error,
+                        ),
+                      );
+                    }
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.analytics),
+                  title: const Text("日志统计信息"),
+                  subtitle: const Text("查看各种类型日志的统计数据"),
+                  onTap: () async {
+                    try {
+                      await _showLogStats(context);
+                    } catch (e) {
+                      showToastWidget(
+                        MDToastWidget(
+                          message: "获取日志统计失败: ${LogUtils.maskSensitiveData(e.toString())}",
+                          type: MDToastType.error,
+                        ),
+                      );
+                    }
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.delete_outline),
+                  title: const Text("清理所有日志"),
+                  subtitle: const Text("清理所有日志数据"),
+                  onTap: () async {
+                    if (!context.mounted) return;
+                    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text("确认清理"),
+                        content: const Text("确定要清理所有日志数据吗？此操作不可撤销。"),
+                        actions: [
+                          TextButton(
+                            child: const Text("取消"),
+                            onPressed: () => Navigator.of(context).pop(false),
+                          ),
+                          TextButton(
+                            child: const Text("确定"),
+                            onPressed: () => Navigator.of(context).pop(true),
+                          ),
+                        ],
+                      ),
+                    );
+                    
+                    if (confirmed == true) {
+                      try {
+                        if (Get.isRegistered<LogService>()) {
+                          // 清理所有日志
+                          await Get.find<LogService>().clearLogs();
+
+                          // 清空缓存并强制刷新
+                          setState(() {});
+                          
+                          showToastWidget(
+                            MDToastWidget(
+                              message: "日志清理成功",
+                              type: MDToastType.success,
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        showToastWidget(
+                          MDToastWidget(
+                            message: "清理日志失败: ${LogUtils.maskSensitiveData(e.toString())}",
+                            type: MDToastType.error,
+                          ),
+                        );
+                      }
                     }
                   },
                 ),
@@ -412,5 +625,954 @@ class AppSettingsPage extends StatelessWidget {
       ),
     );
   }
+}
+
+/// 构建日志大小详情展示组件
+Widget _buildLogSizeDetailWidget(BuildContext context, ConfigService configService) {
+  if (!Get.isRegistered<LogService>()) {
+    return const SizedBox.shrink();
+  }
+  
+  final state = context.findAncestorStateOfType<_AppSettingsPageState>();
+  
+  return ValueListenableBuilder<int>(
+    valueListenable: state?._logUpdateTrigger ?? ValueNotifier<int>(0),
+    builder: (context, _, __) {
+      return FutureBuilder<Map<String, dynamic>>(
+        future: _getLogInfo(forceRefresh: true),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            );
+          }
+          
+          final data = snapshot.data;
+          if (data == null || snapshot.hasError) {
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                "无法获取日志大小信息",
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+            );
+          }
+          
+          final int size = data['size'] as int;
+          final int count = data['count'] as int;
+          final int maxSize = configService[ConfigKey.MAX_LOG_DATABASE_SIZE];
+          
+          // 计算使用率，确保不会超过1.0
+          final double rawUsageRatio = size / maxSize;
+          final double usageRatio = rawUsageRatio > 1.0 ? 1.0 : rawUsageRatio;
+          
+          // 确定使用率颜色
+          Color usageColor;
+          if (rawUsageRatio >= 1.0) {
+            usageColor = Colors.red.shade700; // 超出限制
+          } else if (rawUsageRatio >= 0.9) {
+            usageColor = Colors.red; // 接近限制
+          } else if (rawUsageRatio >= 0.7) {
+            usageColor = Colors.orange; // 中等使用率
+          } else {
+            usageColor = Colors.green; // 低使用率
+          }
+          
+          return Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text("当前日志大小:", style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text(
+                      _formatSize(size),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: rawUsageRatio >= 1.0 ? Colors.red : null,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text("日志数量:", style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text("$count 条"),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text("大小上限:", style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text(_formatSize(maxSize)),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      rawUsageRatio >= 1.0
+                          ? "使用率: ${(rawUsageRatio * 100).toStringAsFixed(1)}% (超出限制)"
+                          : "使用率: ${(rawUsageRatio * 100).toStringAsFixed(1)}%", 
+                      style: TextStyle(fontWeight: FontWeight.bold, color: usageColor),
+                    ),
+                    Text(
+                      rawUsageRatio >= 1.0
+                          ? "超出: ${_formatSize(size - maxSize)}"
+                          : "剩余: ${_formatSize(maxSize - size)}",
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: rawUsageRatio >= 1.0 ? Colors.red : null,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: LinearProgressIndicator(
+                    value: usageRatio,
+                    backgroundColor: Colors.grey.shade200,
+                    valueColor: AlwaysStoppedAnimation<Color>(usageColor),
+                    minHeight: 10,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                if (rawUsageRatio >= 0.9)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: Colors.red.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.warning_amber_rounded, size: 16, color: Colors.red.shade700),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            rawUsageRatio >= 1.0
+                                ? "日志空间已超出限制，建议立即清理旧日志或增加空间限制"
+                                : "日志空间即将用尽，建议清理旧日志",
+                            style: TextStyle(color: Colors.red.shade700, fontSize: 12),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                if (rawUsageRatio >= 1.0)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: OutlinedButton(
+                      onPressed: () async {
+                        // 显示清理进度
+                        if (context.mounted) {
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (context) => const Center(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  CircularProgressIndicator(),
+                                  SizedBox(height: 16),
+                                  Text(
+                                    "正在自动清理旧日志...",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }
+                        
+                        // 执行强制清理
+                        bool cleaned = false;
+                        try {
+                          cleaned = await Get.find<LogService>().forceCheckAndCleanupBySize();
+                          
+                          // 执行VACUUM操作确保数据库文件收缩
+                          await Get.find<LogService>().vacuum();
+                        } catch (e) {
+                          if (kDebugMode) {
+                            print("强制清理日志失败: ${LogUtils.maskSensitiveData(e.toString())}");
+                          }
+                        }
+                        
+                        // 关闭进度对话框
+                        if (context.mounted && Navigator.of(context).canPop()) {
+                          Navigator.of(context).pop();
+                        }
+                        
+                        // 强制刷新UI
+                        if (context.mounted) {
+                          // 使用刷新方式
+                          final state = context.findAncestorStateOfType<_AppSettingsPageState>();
+                          if (state != null) {
+                            state._forceRefreshLogUI();
+                          }
+                          
+                          showToastWidget(
+                            MDToastWidget(
+                              message: cleaned
+                                  ? "日志清理完成"
+                                  : "日志清理过程可能未完成",
+                              type: cleaned ? MDToastType.success : MDToastType.warning,
+                            ),
+                          );
+                        }
+                      },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.red,
+                        side: BorderSide(color: Colors.red.shade300),
+                      ),
+                      child: const Text("立即清理超出部分"),
+                    ),
+                  ),
+              ],
+            ),
+          );
+        },
+      );
+    },
+  );
+}
+
+/// 获取日志信息（大小和记录数）
+Future<Map<String, dynamic>> _getLogInfo({bool forceRefresh = false}) async {
+  try {
+    if (Get.isRegistered<LogService>()) {
+      // 强制刷新日志缓冲区
+      await Get.find<LogService>().flushBufferToDatabase();
+      
+      // 如果需要强制刷新，先执行VACUUM操作
+      if (forceRefresh) {
+        try {
+          await Get.find<LogService>().vacuum();
+        } catch (e) {
+          if (kDebugMode) {
+            print("执行VACUUM操作失败: $e");
+          }
+        }
+      }
+      
+      final size = await Get.find<LogService>().getLogDatabaseSize();
+      final count = await Get.find<LogService>().getLogCount();
+      
+      // 不再添加初始记录，直接返回真实数据
+      return {
+        'size': size,
+        'count': count,
+      };
+    }
+    return {
+      'size': 0,
+      'count': 0,
+    };
+  } catch (e) {
+    if (kDebugMode) {
+      print("获取日志信息失败: $e");
+    }
+    return {
+      'size': 0,
+      'count': 0,
+    };
+  }
+}
+
+/// 导出日志的方法
+Future<void> _exportLogs(BuildContext context) async {
+  try {
+    // 显示加载指示器
+    if (context.mounted) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+  
+    // 检查是否有日志
+    final count = await Get.find<LogService>().getLogCount();
+    if (count == 0) {
+      if (context.mounted) {
+        Navigator.of(context).pop(); // 关闭加载指示器
+        showToastWidget(
+          MDToastWidget(
+            message: "没有可导出的日志数据",
+            type: MDToastType.warning,
+          ),
+        );
+      }
+      return;
+    }
+  
+    // 生成导出文件名
+    final now = DateTime.now();
+    final formattedDate = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+    final fileName = "iwara_logs_$formattedDate.txt";
+    
+    if (GetPlatform.isDesktop) {
+      // 桌面平台使用file_selector
+      if (context.mounted) {
+        Navigator.of(context).pop(); // 关闭加载指示器
+        
+        final FileSaveLocation? result = await getSaveLocation(
+          suggestedName: fileName,
+          acceptedTypeGroups: [
+            const XTypeGroup(
+              label: 'Text files',
+              extensions: ['txt'],
+            ),
+          ],
+        );
+        
+        if (result != null && context.mounted) {
+          // 显示导出进度
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => const Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text("正在导出日志...", style: TextStyle(color: Colors.white)),
+                ],
+              ),
+            ),
+          );
+          
+          await LogUtils.exportLogFileEnhanced(
+            targetPath: result.path,
+          );
+          
+          if (context.mounted) {
+            Navigator.of(context).pop(); // 关闭进度对话框
+            
+            showToastWidget(
+              MDToastWidget(
+                message: "日志导出成功",
+                type: MDToastType.success,
+              ),
+            );
+          }
+        }
+      }
+    } else if (GetPlatform.isMobile) {
+      // 移动平台使用flutter_file_dialog
+      final tempDir = await getTemporaryDirectory();
+      final tempFilePath = path.join(tempDir.path, fileName);
+      
+      // 将日志复制到临时目录
+      await LogUtils.exportLogFileEnhanced(
+        targetPath: tempFilePath,
+      );
+      
+      if (context.mounted) {
+        Navigator.of(context).pop(); // 关闭加载指示器
+        
+        // 使用系统分享/保存功能
+        final params = SaveFileDialogParams(
+          sourceFilePath: tempFilePath,
+          fileName: fileName,
+        );
+        await FlutterFileDialog.saveFile(params: params);
+        
+        showToastWidget(
+          MDToastWidget(
+            message: "日志导出成功",
+            type: MDToastType.success,
+          ),
+        );
+      }
+    } else {
+      if (context.mounted) {
+        Navigator.of(context).pop(); // 确保关闭加载指示器
+      }
+    }
+  } catch (e) {
+    // 确保关闭可能存在的加载对话框
+    if (context.mounted && Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    }
+    
+    if (context.mounted) {
+      showToastWidget(
+        MDToastWidget(
+          message: "导出日志失败: ${LogUtils.maskSensitiveData(e.toString())}",
+          type: MDToastType.error,
+        ),
+      );
+    }
+  }
+}
+
+/// 导出历史日志
+Future<void> _exportHistoryLogs(BuildContext context) async {
+  try {
+    // 显示加载指示器
+    if (context.mounted) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+    
+    // 获取可用的日志日期列表
+    final dates = await LogUtils.getLogDates();
+    
+    // 关闭加载指示器
+    if (context.mounted) {
+      Navigator.of(context).pop();
+    
+      if (dates.isEmpty) {
+        showToastWidget(
+          MDToastWidget(
+            message: "尚无可导出的历史日志，请先使用应用一段时间再尝试",
+            type: MDToastType.warning,
+          ),
+        );
+        return;
+      }
+      
+      // 显示日期选择对话框
+      final selectedDate = await showDialog<DateTime>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("选择日志日期"),
+          content: SizedBox(
+            width: double.maxFinite,
+            height: 300,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: dates.length,
+              itemBuilder: (context, index) {
+                final date = dates[index];
+                final isToday = date.year == DateTime.now().year &&
+                                date.month == DateTime.now().month &&
+                                date.day == DateTime.now().day;
+                return ListTile(
+                  title: Text(
+                    "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}" +
+                    (isToday ? " (今天)" : "")
+                  ),
+                  onTap: () => Navigator.of(context).pop(date),
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("取消"),
+            ),
+          ],
+        ),
+      );
+      
+      if (selectedDate == null) {
+        return;
+      }
+      
+      if (!context.mounted) return;
+      
+      // 格式化选定的日期
+      final formattedDate = "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
+      final fileName = "iwara_logs_$formattedDate.txt";
+      
+      if (GetPlatform.isDesktop && context.mounted) {
+        // 桌面平台使用file_selector
+        final FileSaveLocation? result = await getSaveLocation(
+          suggestedName: fileName,
+          acceptedTypeGroups: [
+            const XTypeGroup(
+              label: 'Text files',
+              extensions: ['txt'],
+            ),
+          ],
+        );
+        
+        if (result != null && context.mounted) {
+          await LogUtils.exportLogFileEnhanced(
+            targetPath: result.path,
+            specificDate: selectedDate,
+          );
+          
+          showToastWidget(
+            MDToastWidget(
+              message: "历史日志导出成功",
+              type: MDToastType.success,
+            ),
+          );
+        }
+      } else if (GetPlatform.isMobile && context.mounted) {
+        // 移动平台使用flutter_file_dialog
+        final tempDir = await getTemporaryDirectory();
+        final tempFilePath = path.join(tempDir.path, fileName);
+        
+        // 将日志复制到临时目录
+        await LogUtils.exportLogFileEnhanced(
+          targetPath: tempFilePath,
+          specificDate: selectedDate,
+        );
+        
+        if (context.mounted) {
+          // 使用系统分享/保存功能
+          final params = SaveFileDialogParams(
+            sourceFilePath: tempFilePath,
+            fileName: fileName,
+          );
+          await FlutterFileDialog.saveFile(params: params);
+        }
+      }
+    }
+  } catch (e) {
+    // 关闭可能存在的加载对话框
+    if (context.mounted && Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    }
+    
+    if (context.mounted) {
+      showToastWidget(
+        MDToastWidget(
+          message: "历史日志获取失败: ${LogUtils.maskSensitiveData(e.toString())}",
+          type: MDToastType.error,
+        ),
+      );
+    }
+  }
+}
+
+/// 导出合并日志
+Future<void> _exportMergedLogs(BuildContext context) async {
+  try {
+    // 先检查是否有日志
+    if (context.mounted) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+    
+    // 检查是否有日志
+    final dates = await LogUtils.getLogDates();
+    
+    // 关闭加载对话框
+    if (context.mounted) {
+      Navigator.of(context).pop();
+    
+      if (dates.isEmpty) {
+        showToastWidget(
+          MDToastWidget(
+            message: "尚无可导出的日志，请先使用应用一段时间再尝试",
+            type: MDToastType.warning,
+          ),
+        );
+        return;
+      }
+      
+      // 展示选项对话框
+      final daysRange = await showDialog<int>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("选择合并范围"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text("请选择要合并的日志时间范围:"),
+              const SizedBox(height: 16),
+              ...[ 7, 14, 30, 60 ].map((days) => 
+                ListTile(
+                  title: Text("最近 $days 天"),
+                  onTap: () => Navigator.of(context).pop(days),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("取消"),
+            ),
+          ],
+        ),
+      );
+      
+      if (daysRange == null) {
+        return;
+      }
+      
+      if (!context.mounted) return;
+      
+      // 生成导出文件名
+      final now = DateTime.now();
+      final formattedDate = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+      final fileName = "iwara_merged_logs_${daysRange}days_$formattedDate.txt";
+      
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => const Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
+      }
+      
+      try {
+        if (GetPlatform.isDesktop && context.mounted) {
+          // 桌面平台使用file_selector
+          Navigator.of(context).pop(); // 关闭加载对话框
+          
+          final FileSaveLocation? result = await getSaveLocation(
+            suggestedName: fileName,
+            acceptedTypeGroups: [
+              const XTypeGroup(
+                label: 'Text files',
+                extensions: ['txt'],
+              ),
+            ],
+          );
+          
+          if (result != null && context.mounted) {
+            // 显示导出进度
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => const Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 16),
+                    Text("正在导出日志...", style: TextStyle(color: Colors.white)),
+                  ],
+                ),
+              ),
+            );
+            
+            await LogUtils.exportLogFileEnhanced(
+              targetPath: result.path,
+              allLogs: true,
+              daysRange: daysRange,
+            );
+            
+            if (context.mounted) {
+              Navigator.of(context).pop(); // 关闭进度对话框
+              
+              showToastWidget(
+                MDToastWidget(
+                  message: "合并日志导出成功",
+                  type: MDToastType.success,
+                ),
+              );
+            }
+          }
+        } else if (GetPlatform.isMobile && context.mounted) {
+          // 移动平台使用flutter_file_dialog
+          final tempDir = await getTemporaryDirectory();
+          final tempFilePath = path.join(tempDir.path, fileName);
+          
+          // 将合并日志保存到临时目录
+          await LogUtils.exportLogFileEnhanced(
+            targetPath: tempFilePath,
+            allLogs: true,
+            daysRange: daysRange,
+          );
+          
+          if (context.mounted) {
+            Navigator.of(context).pop(); // 关闭加载对话框
+            
+            // 使用系统分享/保存功能
+            final params = SaveFileDialogParams(
+              sourceFilePath: tempFilePath,
+              fileName: fileName,
+            );
+            await FlutterFileDialog.saveFile(params: params);
+            
+            showToastWidget(
+              MDToastWidget(
+                message: "合并日志导出成功",
+                type: MDToastType.success,
+              ),
+            );
+          }
+        }
+      } catch (e) {
+        // 确保关闭加载对话框
+        if (context.mounted && Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        }
+        
+        if (context.mounted) {
+          showToastWidget(
+            MDToastWidget(
+              message: "导出日志失败: ${LogUtils.maskSensitiveData(e.toString())}",
+              type: MDToastType.error,
+            ),
+          );
+        }
+      }
+    }
+  } catch (e) {
+    // 确保关闭加载对话框
+    if (context.mounted && Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    }
+    
+    if (context.mounted) {
+      showToastWidget(
+        MDToastWidget(
+          message: "合并日志导出失败: ${LogUtils.maskSensitiveData(e.toString())}",
+          type: MDToastType.error,
+        ),
+      );
+    }
+  }
+}
+
+/// 显示日志统计信息
+Future<void> _showLogStats(BuildContext context) {
+  if (!Get.isRegistered<LogService>() || !context.mounted) {
+    return Future.value();
+  }
+
+  return showDialog(
+    context: context,
+    builder: (context) {
+      return FutureBuilder<Map<String, int>>(
+        future: Get.find<LogService>().getLogStats(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const AlertDialog(
+              content: Center(
+                child: SizedBox(
+                  height: 50,
+                  width: 50,
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+            );
+          }
+
+          if (snapshot.hasError) {
+            return AlertDialog(
+              title: const Text('统计信息'),
+              content: Text('获取统计信息失败: ${LogUtils.maskSensitiveData(snapshot.error.toString())}'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('关闭'),
+                ),
+              ],
+            );
+          }
+
+          final stats = snapshot.data ?? {'today': 0, 'week': 0, 'total': 0};
+          
+          return AlertDialog(
+            title: const Text('日志统计信息'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('今日日志: ${stats['today']} 条'),
+                const SizedBox(height: 8),
+                Text('最近7天: ${stats['week']} 条'),
+                const SizedBox(height: 8),
+                Text('总计日志: ${stats['total']} 条'),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('关闭'),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
+
+/// 格式化文件大小
+String _formatSize(int bytes) {
+  if (bytes < 1024) {
+    return "$bytes B";
+  } else if (bytes < 1024 * 1024) {
+    return "${(bytes / 1024).toStringAsFixed(1)} KB";
+  } else if (bytes < 1024 * 1024 * 1024) {
+    return "${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB";
+  } else {
+    return "${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB";
+  }
+}
+
+/// 显示日志大小限制对话框
+Future<void> _showLogSizeLimitDialog(BuildContext context, ConfigService configService) async {
+  // 预设的大小选项（字节）
+  final sizeOptions = [
+    256 * 1024 * 1024,    // 256MB
+    512 * 1024 * 1024,    // 512MB
+    1024 * 1024 * 1024,   // 1GB
+    2 * 1024 * 1024 * 1024, // 2GB
+  ];
+  
+  // 当前选择的大小
+  int currentSize = configService[ConfigKey.MAX_LOG_DATABASE_SIZE];
+  
+  // 获取当前日志实际大小
+  Map<String, dynamic> logInfo = await _getLogInfo();
+  int currentLogSize = logInfo['size'] as int;
+  
+  // 获取App设置页面状态
+  final state = context.findAncestorStateOfType<_AppSettingsPageState>();
+  
+  await showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text("设置日志数据库大小上限"),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Text(
+                "当前日志大小: ${_formatSize(currentLogSize)}",
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            ...sizeOptions.map((size) => RadioListTile<int>(
+              title: Text(_formatSize(size)),
+              value: size,
+              groupValue: currentSize,
+              onChanged: (value) async {
+                if (value == null) return;
+                
+                // 关闭选择对话框
+                Navigator.of(context).pop();
+                
+                // 检查是否需要显示警告
+                if (currentLogSize > value) {
+                  // 日志大小已经超过了新的限制，需要警告用户
+                  // 显示确认对话框
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text("警告"),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "当前日志大小已超过新的限制。",
+                            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+                          ),
+                          const SizedBox(height: 12),
+                          Text("当前日志大小: ${_formatSize(currentLogSize)}"),
+                          Text("新的大小限制: ${_formatSize(value)}"),
+                          const SizedBox(height: 12),
+                          const Text("将会自动清理最早的日志记录，以将大小降低到限制以下。"),
+                          const SizedBox(height: 12),
+                          const Text("确定要继续吗？"),
+                        ],
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: const Text("取消"),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(true),
+                          child: const Text("确定"),
+                        ),
+                      ],
+                    ),
+                  );
+                  
+                  if (confirm != true) return;
+                  
+                  // 用户确认后，更新配置
+                  configService[ConfigKey.MAX_LOG_DATABASE_SIZE] = value;
+                  CommonConstants.maxLogDatabaseSize = value;
+                  
+                  // 执行强制清理
+                  try {
+                    await Get.find<LogService>().forceCheckAndCleanupBySize();
+                    await Get.find<LogService>().vacuum();
+                  } catch (e) {
+                    if (kDebugMode) {
+                      print("强制清理日志失败: ${LogUtils.maskSensitiveData(e.toString())}");
+                    }
+                  }
+                  
+                  // 强制刷新UI（使用ValueListenableBuilder机制）
+                  if (state != null) {
+                    state._forceRefreshLogUI();
+                  }
+                  
+                  // 显示结果
+                  if (context.mounted) {
+                    showToastWidget(
+                      MDToastWidget(
+                        message: "日志大小上限已设置为 ${_formatSize(value)}，旧日志已自动清理",
+                        type: MDToastType.success,
+                      ),
+                    );
+                  }
+                } else {
+                  // 当前日志大小未超过新限制，直接更新配置
+                  configService[ConfigKey.MAX_LOG_DATABASE_SIZE] = value;
+                  CommonConstants.maxLogDatabaseSize = value;
+                  
+                  // 强制刷新UI（使用ValueListenableBuilder机制）
+                  if (state != null) {
+                    state._forceRefreshLogUI();
+                  }
+                  
+                  // 通知用户设置已更改
+                  showToastWidget(
+                    MDToastWidget(
+                      message: "日志大小上限已设置为 ${_formatSize(value)}",
+                      type: MDToastType.success,
+                    ),
+                  );
+                }
+              },
+            )),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text("取消"),
+        ),
+      ],
+    ),
+  );
 }
 

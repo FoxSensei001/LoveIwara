@@ -2,6 +2,40 @@ import 'package:flutter/material.dart';
 import 'package:i_iwara/app/models/sort.model.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 
+/// 日志脱敏配置
+class LogMasking {
+  /// 用于替换敏感数据的占位符
+  static const String placeholder = '***';
+
+  /// 需要脱敏的正则表达式列表
+  static final List<RegExp> patterns = [
+    // 匹配密码字段
+    RegExp(r'"password"\s*:\s*".*?"', caseSensitive: false),
+    RegExp(r"'password'\s*:\s*'.*?'", caseSensitive: false),
+    RegExp(r'<password>.*?</password>', caseSensitive: false),
+
+    // 匹配电子邮件地址
+    RegExp(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'),
+
+    // 匹配API Key或Token格式
+    RegExp(r'"(token|key|secret)"\s*:\s*"[A-Za-z0-9\-_/+]+"', caseSensitive: false),
+    RegExp(r"'(token|key|secret)'\s*:\s*'[A-Za-z0-9\-_/+]+'", caseSensitive: false),
+    
+    // 匹配授权头部
+    RegExp(r'Authorization:\s*Bearer\s+[A-Za-z0-9\-_/+]+', caseSensitive: false),
+    RegExp(r'Authorization:\s*Basic\s+[A-Za-z0-9\-_/+]+', caseSensitive: false),
+
+    // 匹配手机号码(中国大陆)
+    RegExp(r'\b1[3-9]\d{9}\b'),
+
+    // 匹配身份证号(中国大陆)
+    RegExp(r'\b\d{17}[\dX]\b', caseSensitive: false),
+    
+    // 匹配IP地址
+    RegExp(r'\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b'),
+  ];
+}
+
 class CommonConstants {
   CommonConstants._internal();
 
@@ -49,6 +83,18 @@ class CommonConstants {
   // 默认用户背景URL
   static const String defaultProfileHeaderUrl =
       '$iwaraBaseUrl/images/default-background.jpg';
+      
+  /// ============================== 日志配置 Start ==============================
+  // 日志数据库大小上限(字节)
+  static int maxLogDatabaseSize = 1024 * 1024 * 1024; // 1GB
+  
+  // 日志保留天数
+  static const int logRetentionDays = 30;
+  
+  // 是否持久化日志
+  static bool enableLogPersistence = true;
+  
+  /// ============================== 日志配置 End ==============================
 
   static List<Sort> mediaSorts = [
     Sort(id: SortId.trending, label: t.common.trending, icon: const Icon(Icons.trending_up)),

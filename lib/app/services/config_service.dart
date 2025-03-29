@@ -75,6 +75,9 @@ class ConfigService extends GetxService {
     CommonConstants.enableHistory = settings[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS]!.value;
     CommonConstants.enableVibration = settings[ConfigKey.ENABLE_VIBRATION]!.value;
     CommonConstants.isPaginated = settings[ConfigKey.DEFAULT_PAGINATION_MODE]!.value;
+    // 更新日志相关常量
+    CommonConstants.maxLogDatabaseSize = settings[ConfigKey.MAX_LOG_DATABASE_SIZE]!.value;
+    CommonConstants.enableLogPersistence = settings[ConfigKey.ENABLE_LOG_PERSISTENCE]!.value;
     return this;
   }
 
@@ -200,6 +203,8 @@ enum ConfigKey {
   DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE, // 默认是否保持刚进入视频页时工具栏常驻
   VIDEO_TOOLBAR_LOCK_BUTTON_POSITION, // 视频工具栏锁定按钮位置
   DEFAULT_PAGINATION_MODE, // 默认分页模式
+  ENABLE_LOG_PERSISTENCE, // 是否持久化日志
+  MAX_LOG_DATABASE_SIZE, // 日志数据库大小上限(字节)
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -259,6 +264,8 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE: return 'default_keep_video_toolbar_visable';
       case ConfigKey.VIDEO_TOOLBAR_LOCK_BUTTON_POSITION: return 'video_toolbar_lock_button_position';
       case ConfigKey.DEFAULT_PAGINATION_MODE: return 'default_pagination_mode';
+      case ConfigKey.ENABLE_LOG_PERSISTENCE: return 'enable_log_persistence';
+      case ConfigKey.MAX_LOG_DATABASE_SIZE: return 'max_log_database_size';
     }
   }
 
@@ -372,6 +379,10 @@ extension ConfigKeyExtension on ConfigKey {
         return 2;
       case ConfigKey.DEFAULT_PAGINATION_MODE:
         return false;
+      case ConfigKey.ENABLE_LOG_PERSISTENCE:
+        return true;
+      case ConfigKey.MAX_LOG_DATABASE_SIZE:
+        return 1024 * 1024 * 1024; // 1GB
       default:
         throw Exception("Unknown ConfigKey: $this");
     }
