@@ -1,4 +1,3 @@
-import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:get/get.dart';
@@ -8,7 +7,6 @@ import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/subscriptions/widgets/compact_subscription_dropdown.dart';
 import 'package:i_iwara/app/ui/pages/subscriptions/widgets/subscription_image_list.dart';
 import 'package:i_iwara/app/ui/pages/subscriptions/widgets/subscription_post_list.dart';
-import 'package:i_iwara/app/ui/pages/subscriptions/widgets/subscription_select_list_widget.dart';
 import 'package:i_iwara/app/ui/pages/subscriptions/widgets/subscription_video_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import '../../../services/app_service.dart';
@@ -20,7 +18,6 @@ import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:shimmer/shimmer.dart';
 import 'dart:ui';
 import 'controllers/media_list_controller.dart';
-import 'package:i_iwara/utils/easy_throttle.dart';
 
 class SubscriptionsPage extends StatefulWidget with RefreshableMixin {
   static final globalKey = GlobalKey<SubscriptionsPageState>();
@@ -48,31 +45,13 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
 
   late TabController _tabController;
   String selectedId = '';
-
-  // 滚动进度值，0.0表示未折叠，1.0表示完全折叠
-  double _scrollProgress = 0.0;
-  // 最大折叠高度
-  static const double _maxCollapsibleHeight = 60.0;
-  // 显式控制头部折叠状态
-  bool _isHeaderCollapsed = false;
-  // 记录上一次滚动位置
-  double _lastScrollOffset = 0.0;
   
   // 定义常量
   static const double _tabBarHeight = 48.0;
-  static const double _headerExpandedHeight = 56.0;
-  static const double _userListHeight = 80.0;
+  static const double _headerHeight = 56.0;
 
-  // 动态内边距RX变量，用于实时更新paddingTop
-  final RxDouble _dynamicPaddingTop = 0.0.obs;
-
-  final ScrollController _extendedScrollController = ScrollController();
   final ScrollController _tabBarScrollController = ScrollController();
   final List<GlobalKey> _tabKeys = [];
-
-  // 定义节流标签
-  static const String _extendedScrollTag = 'subscriptionsPageExtendedScroll';
-  static const String _listScrollTag = 'subscriptionsPageListScroll';
 
   @override
   void initState() {
@@ -84,105 +63,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
     }
 
     _tabController.addListener(_onTabChange);
-
-    // 添加滚动监听器
-    _extendedScrollController.addListener(_onExtendedScroll);
-
     mediaListController = Get.put(MediaListController());
-
-    // 注册滚动回调以接收来自列表的滚动事件
-    mediaListController.registerListScrollCallback(_handleListScroll);
-    
-    // 初始化动态内边距
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _updateDynamicPaddingTop();
-    });
-  }
-
-  // 处理扩展滚动视图滚动
-  void _onExtendedScroll() {
-    if (_extendedScrollController.hasClients) {
-      final double offset = _extendedScrollController.offset;
-      // 使用 EasyThrottle.throttle
-      EasyThrottle.throttle(
-        _extendedScrollTag, // 使用定义的标签
-        const Duration(milliseconds: 50), // 节流间隔
-        () {
-          // 更新滚动状态（包括进度和折叠状态）
-          _updateScrollState(offset);
-          // 更新上一次滚动位置
-          _lastScrollOffset = offset;
-        },
-      );
-    }
-  }
-
-  // 处理来自列表的滚动
-  void _handleListScroll(double offset) {
-    // 使用 EasyThrottle.throttle
-    EasyThrottle.throttle(
-      _listScrollTag, // 使用不同的标签
-      const Duration(milliseconds: 50), // 节流间隔
-      () {
-        // 更新滚动状态（包括进度和折叠状态）
-        _updateScrollState(offset);
-        // 更新上一次滚动位置
-        _lastScrollOffset = offset;
-      },
-    );
-  }
-
-  // 更新滚动状态，包括进度和折叠状态
-  void _updateScrollState(double offset) {
-    // 计算原始滚动进度
-    final double progress = (offset / _maxCollapsibleHeight).clamp(0.0, 1.0);
-    // 预设下一次的折叠状态为当前状态
-    bool shouldCollapse = _isHeaderCollapsed;
-
-    // 定义触发折叠和展开的阈值 (可以根据需要调整)
-    const double collapseThreshold = 0.2; // 向上滚动超过 20% 触发折叠
-    const double expandThreshold = 0.1;   // 向下滚动低于 10% 或到顶触发展开
-
-    // 判断滚动方向并根据阈值更新折叠状态
-    if (offset > _lastScrollOffset && offset > 0) { // 向上滚动
-      if (progress > collapseThreshold && !_isHeaderCollapsed) {
-        shouldCollapse = true; // 触发折叠
-      }
-    } else if (offset < _lastScrollOffset) { // 向下滚动
-      if (progress < expandThreshold && _isHeaderCollapsed) {
-        shouldCollapse = false; // 触发展开
-      }
-    } else if (offset <= 0 && _isHeaderCollapsed) { // 滚动到顶部时强制展开
-        shouldCollapse = false; // 强制展开
-    }
-
-    // 如果滚动进度或折叠状态发生变化，则更新UI
-    if (progress != _scrollProgress || shouldCollapse != _isHeaderCollapsed) {
-      setState(() {
-        _scrollProgress = progress;
-        _isHeaderCollapsed = shouldCollapse; // 更新折叠状态
-      });
-      // 更新动态内边距
-      _updateDynamicPaddingTop();
-    }
-  }
-  
-  // 更新动态内边距
-  void _updateDynamicPaddingTop() {
-    // 检查 context 是否可用
-    if (!mounted) return;
-    // 计算状态栏高度
-    double statusBarHeight = MediaQuery.of(context).padding.top;
-    // 计算展开/折叠状态下的头部高度
-    double expandedHeaderHeight = _headerExpandedHeight;
-    // 用户列表随滚动进度动态变化的高度
-    double userListHeight = _userListHeight * (1 - _scrollProgress);
-    
-    // 总内边距 = 状态栏 + 头部高度 + 用户列表高度 + TabBar高度
-    double totalPaddingTop = statusBarHeight + expandedHeaderHeight + userListHeight + _tabBarHeight;
-    
-    // 更新动态内边距
-    _dynamicPaddingTop.value = totalPaddingTop;
   }
 
   void _onTabChange() {
@@ -249,13 +130,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
   void dispose() {
     _tabController.removeListener(_onTabChange);
     _tabController.dispose();
-    _extendedScrollController.removeListener(_onExtendedScroll);
-    _extendedScrollController.dispose();
     _tabBarScrollController.dispose();
-    // 注销滚动回调
-    mediaListController.unregisterListScrollCallback(_handleListScroll);
-    EasyThrottle.cancel(_extendedScrollTag);
-    EasyThrottle.cancel(_listScrollTag);
     Get.delete<MediaListController>();
     super.dispose();
   }
@@ -273,6 +148,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
 
   Widget _buildContent(BuildContext context) {
     final t = slang.Translations.of(context);
+    final paddingTop = MediaQuery.of(context).padding.top + _headerHeight + _tabBarHeight;
     
     return Stack(
       children: [
@@ -285,15 +161,12 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
               Obx(() {
                 final isPaginated = mediaListController.isPaginated.value;
                 final rebuildKey = mediaListController.rebuildKey.value;
-                // 使用动态内边距
-                final paddingTop = _dynamicPaddingTop.value;
 
                 return GlowNotificationWidget(
                   key: ValueKey('video_$rebuildKey'),
                   child: SubscriptionVideoList(
                     userId: selectedId,
                     isPaginated: isPaginated,
-                    // 使用动态计算的paddingTop
                     paddingTop: paddingTop,
                   ),
                 );
@@ -302,15 +175,12 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
               Obx(() {
                 final isPaginated = mediaListController.isPaginated.value;
                 final rebuildKey = mediaListController.rebuildKey.value;
-                // 使用动态内边距
-                final paddingTop = _dynamicPaddingTop.value;
 
                 return GlowNotificationWidget(
                   key: ValueKey('image_$rebuildKey'),
                   child: SubscriptionImageList(
                     userId: selectedId,
                     isPaginated: isPaginated,
-                    // 使用动态计算的paddingTop
                     paddingTop: paddingTop,
                   ),
                 );
@@ -319,15 +189,12 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
               Obx(() {
                 final isPaginated = mediaListController.isPaginated.value;
                 final rebuildKey = mediaListController.rebuildKey.value;
-                // 使用动态内边距
-                final paddingTop = _dynamicPaddingTop.value;
 
                 return GlowNotificationWidget(
                   key: ValueKey('post_$rebuildKey'),
                   child: SubscriptionPostList(
                     userId: selectedId,
                     isPaginated: isPaginated,
-                    // 使用动态计算的paddingTop
                     paddingTop: paddingTop,
                   ),
                 );
@@ -352,31 +219,74 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                     // 系统状态栏高度填充
                     const SafeArea(child: SizedBox()),
                     
-                    // 头像和标题行 - 实现动画过渡
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 300),
-                      transitionBuilder: (Widget child, Animation<double> animation) {
-                        return FadeTransition(
-                          opacity: animation,
-                          child: child,
-                        );
-                      },
-                      child: _isHeaderCollapsed
-                          ? _buildCollapsedHeader()
-                          : _buildExpandedHeader(),
-                    ),
-                    
-                    // 订阅用户选择列表 - 会随滚动进度折叠
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      curve: Curves.easeInOut,
-                      height: _userListHeight * (1 - _scrollProgress),
-                      clipBehavior: Clip.hardEdge,
-                      decoration: const BoxDecoration(color: Colors.transparent),
-                      child: Opacity(
-                        opacity: (1 - _scrollProgress * 2).clamp(0.0, 1.0),
-                        child: Obx(() => _buildSubscriptionList()),
-                      ),
+                    // 头像和用户选择器
+                    Row(
+                      children: [
+                        Obx(() => _buildAvatarButton()),
+                        // 添加订阅标题
+                        Text(
+                          t.common.subscriptions,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        // 喜欢的用户选择器
+                        Expanded(
+                          child: Obx(() {
+                            final likedUsers = userPreferenceService.likedUsers;
+                            List<SubscriptionDropdownItem> userDropdownItems = likedUsers
+                                .map((userDto) => SubscriptionDropdownItem(
+                                      id: userDto.id,
+                                      label: userDto.name,
+                                      avatarUrl: userDto.avatarUrl,
+                                      onLongPress: () =>
+                                          NaviService.navigateToAuthorProfilePage(
+                                              userDto.username),
+                                    ))
+                                .toList();
+
+                            return CompactSubscriptionDropdown(
+                              userList: userDropdownItems,
+                              selectedUserId: selectedId,
+                              onUserSelected: _onUserSelected,
+                            );
+                          }),
+                        ),
+                        // 搜索按钮
+                        IconButton(
+                          icon: const Icon(Icons.search),
+                          onPressed: () {
+                            SearchSegment segment;
+                            switch (_tabController.index) {
+                              case 0:
+                                segment = SearchSegment.video;
+                                break;
+                              case 1:
+                                segment = SearchSegment.image;
+                                break;
+                              case 2:
+                                segment = SearchSegment.post;
+                                break;
+                              default:
+                                segment = SearchSegment.video;
+                            }
+
+                            Get.dialog(SearchDialog(
+                              initialSearch: '',
+                              initialSegment: segment,
+                              onSearch: (searchInfo, segment) {
+                                NaviService.toSearchPage(
+                                  searchInfo: searchInfo,
+                                  segment: segment,
+                                );
+                              },
+                            ));
+                          },
+                          tooltip: t.common.search,
+                        ),
+                      ],
                     ),
                     
                     // TabBar 区域
@@ -434,16 +344,8 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                           IconButton(
                             icon: const Icon(Icons.vertical_align_top),
                             onPressed: () {
-                              // 先尝试使用控制器滚动所有列表
+                              // 滚动所有列表到顶部
                               mediaListController.scrollToTop();
-                              // 检查_extendedScrollController是否已附加到滚动视图
-                              if (_extendedScrollController.hasClients) {
-                                _extendedScrollController.animateTo(
-                                  0,
-                                  duration: const Duration(milliseconds: 300),
-                                  curve: Curves.easeInOut,
-                                );
-                              }
                             },
                           ),
                           // 添加分页模式切换按钮
@@ -474,119 +376,6 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
               ),
             ),
           ),
-        ),
-      ],
-    );
-  }
-
-  // 展开状态下的头部布局
-  Widget _buildExpandedHeader() {
-    return Row(
-      key: const ValueKey('expanded_header'),
-      children: [
-        Obx(() => _buildAvatarButton()),
-        Expanded(
-          child: Text(
-            slang.Translations.of(context).common.subscriptions,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        // 搜索按钮
-        IconButton(
-          icon: const Icon(Icons.search),
-          onPressed: () {
-            SearchSegment segment;
-            switch (_tabController.index) {
-              case 0:
-                segment = SearchSegment.video;
-                break;
-              case 1:
-                segment = SearchSegment.image;
-                break;
-              case 2:
-                segment = SearchSegment.post;
-                break;
-              default:
-                segment = SearchSegment.video;
-            }
-
-            Get.dialog(SearchDialog(
-              initialSearch: '',
-              initialSegment: segment,
-              onSearch: (searchInfo, segment) {
-                NaviService.toSearchPage(
-                  searchInfo: searchInfo,
-                  segment: segment,
-                );
-              },
-            ));
-          },
-          tooltip: slang.Translations.of(context).common.search,
-        ),
-      ],
-    );
-  }
-
-  // 收缩状态下的头部布局 - 包含下拉选择控件
-  Widget _buildCollapsedHeader() {
-    return Row(
-      key: const ValueKey('collapsed_header'),
-      children: [
-        Expanded(
-          child: Obx(() {
-            final likedUsers = userPreferenceService.likedUsers;
-            List<SubscriptionDropdownItem> userDropdownItems = likedUsers
-                .map((userDto) => SubscriptionDropdownItem(
-                      id: userDto.id,
-                      label: userDto.name,
-                      avatarUrl: userDto.avatarUrl,
-                      onLongPress: () =>
-                          NaviService.navigateToAuthorProfilePage(
-                              userDto.username),
-                    ))
-                .toList();
-
-            return CompactSubscriptionDropdown(
-              userList: userDropdownItems,
-              selectedUserId: selectedId,
-              onUserSelected: _onUserSelected,
-            );
-          }),
-        ),
-        // 搜索按钮
-        IconButton(
-          icon: const Icon(Icons.search),
-          onPressed: () {
-            SearchSegment segment;
-            switch (_tabController.index) {
-              case 0:
-                segment = SearchSegment.video;
-                break;
-              case 1:
-                segment = SearchSegment.image;
-                break;
-              case 2:
-                segment = SearchSegment.post;
-                break;
-              default:
-                segment = SearchSegment.video;
-            }
-
-            Get.dialog(SearchDialog(
-              initialSearch: '',
-              initialSegment: segment,
-              onSearch: (searchInfo, segment) {
-                NaviService.toSearchPage(
-                  searchInfo: searchInfo,
-                  segment: segment,
-                );
-              },
-            ));
-          },
-          tooltip: slang.Translations.of(context).common.search,
         ),
       ],
     );
@@ -654,26 +443,6 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
         onPressed: () => AppService.switchGlobalDrawer(),
       );
     }
-  }
-
-  // 抽取订阅列表构建方法
-  Widget _buildSubscriptionList() {
-    final likedUsers = userPreferenceService.likedUsers;
-
-    List<SubscriptionSelectItem> selectionList = likedUsers
-        .map((userDto) => SubscriptionSelectItem(
-              id: userDto.id,
-              label: userDto.name,
-              avatarUrl: userDto.avatarUrl,
-              onLongPress: () =>
-                  NaviService.navigateToAuthorProfilePage(userDto.username),
-            ))
-        .toList();
-    return SubscriptionSelectList(
-      userList: selectionList,
-      selectedUserId: selectedId,
-      onUserSelected: _onUserSelected,
-    );
   }
 
   Widget _buildLoggedInView(BuildContext context) {

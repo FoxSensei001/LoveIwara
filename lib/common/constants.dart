@@ -33,6 +33,15 @@ class LogMasking {
     
     // 匹配IP地址
     RegExp(r'\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b'),
+    
+    // 匹配JWT令牌 (eyJ开头的Base64编码字符串，包含两个点分隔的三段)
+    RegExp(r'eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+'),
+    
+    // 匹配Access Token文本后的JWT令牌
+    RegExp(r'Access Token:?\s*[A-Za-z0-9\-_/+]+\.[A-Za-z0-9\-_/+]+\.[A-Za-z0-9\-_/+]+', caseSensitive: false),
+    
+    // 匹配Auth token文本后的JWT令牌
+    RegExp(r'Auth [Tt]oken:?\s*[A-Za-z0-9\-_/+]+\.[A-Za-z0-9\-_/+]+\.[A-Za-z0-9\-_/+]+'),
   ];
 }
 

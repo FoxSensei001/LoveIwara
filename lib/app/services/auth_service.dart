@@ -301,8 +301,8 @@ class AuthService extends GetxService {
           await _storage.writeSecureData(KeyConstants.accessToken, newAccessToken);
           
           LogUtils.i('AuthService: Access Token 刷新成功');
-          LogUtils.d('AuthService: 旧 Access Token: $oldAccessToken');
-          LogUtils.d('AuthService: 新 Access Token: $accessToken');
+          // 不记录实际令牌值，避免泄露敏感信息
+          LogUtils.d('AuthService: Access Token 已更新');
           return true;
         }
       }

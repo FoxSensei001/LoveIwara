@@ -142,7 +142,8 @@ class LogUtils {
 
   // 记录调试日志
   static void d(String message, [String tag = _TAG]) {
-    final maskedMessage = maskSensitiveData(message);
+    // 对记录内容进行额外的脱敏检查
+    final maskedMessage = _enhancedMasking(message);
     
     if (!_isProduction) {
       _logger.d("[${_getTimeString()}][$tag] $maskedMessage");
@@ -158,7 +159,8 @@ class LogUtils {
 
   // 记录信息日志
   static void i(String message, [String tag = _TAG]) {
-    final maskedMessage = maskSensitiveData(message);
+    // 对记录内容进行额外的脱敏检查
+    final maskedMessage = _enhancedMasking(message);
     
     _logger.i("[${_getTimeString()}][$tag] $maskedMessage");
     
@@ -172,7 +174,8 @@ class LogUtils {
 
   // 记录警告日志
   static void w(String message, [String tag = _TAG]) {
-    final maskedMessage = maskSensitiveData(message);
+    // 对记录内容进行额外的脱敏检查
+    final maskedMessage = _enhancedMasking(message);
     
     _logger.w("[${_getTimeString()}][$tag] $maskedMessage");
     
@@ -188,7 +191,8 @@ class LogUtils {
   static void e(String message,
       {String tag = _TAG, Object? error, StackTrace? stackTrace, StackTrace? stack}) {
     
-    final maskedMessage = maskSensitiveData(message);
+    // 对记录内容进行额外的脱敏检查
+    final maskedMessage = _enhancedMasking(message);
     
     // 处理错误和堆栈信息
     String? details;
@@ -226,6 +230,58 @@ class LogUtils {
       tag, 
       details: details
     );
+  }
+  
+  // 增强的脱敏方法，确保敏感信息被过滤
+  static String _enhancedMasking(String? input) {
+    if (input == null || input.isEmpty) {
+      return '';
+    }
+    
+    // 先调用标准脱敏
+    String maskedInput = maskSensitiveData(input);
+    
+    try {
+      // 简单替换常见的敏感信息格式，避免复杂正则
+      
+      // 替换JWT格式的令牌
+      if (maskedInput.contains('eyJ')) {
+        maskedInput = maskedInput.replaceAllMapped(
+          RegExp(r'eyJ[A-Za-z0-9_\-]+\.[A-Za-z0-9_\-]+\.[A-Za-z0-9_\-]+'), 
+          (match) => '***JWT_TOKEN***'
+        );
+      }
+      
+      // 替换Access Token提及
+      if (maskedInput.toLowerCase().contains('access token')) {
+        maskedInput = maskedInput.replaceAllMapped(
+          RegExp(r'Access Token:?\s+.*', caseSensitive: false),
+          (match) => 'Access Token: ***'
+        );
+      }
+      
+      // 替换Auth Token提及
+      if (maskedInput.toLowerCase().contains('auth token')) {
+        maskedInput = maskedInput.replaceAllMapped(
+          RegExp(r'Auth Token:?\s+.*', caseSensitive: false),
+          (match) => 'Auth Token: ***'
+        );
+      }
+      
+      // 替换Bearer授权头
+      if (maskedInput.contains('Bearer ')) {
+        maskedInput = maskedInput.replaceAllMapped(
+          RegExp(r'Bearer\s+[A-Za-z0-9\-_./+=]+'),
+          (match) => 'Bearer ***'
+        );
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("增强脱敏处理失败: $e");
+      }
+    }
+    
+    return maskedInput;
   }
   
   // 关闭日志

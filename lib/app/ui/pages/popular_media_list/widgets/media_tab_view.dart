@@ -42,32 +42,21 @@ class MediaTabViewState<T> extends State<MediaTabView<T>>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return RefreshIndicator(
-      onRefresh: () async {
-        if (widget.isPaginated) {
-          if (widget.repository is ExtendedLoadingMoreBase) {
-            await (widget.repository as ExtendedLoadingMoreBase).loadPageData(0, 20);
-          }
-        } else {
-          await widget.repository.refresh(true);
-        }
+    return MediaListView<T>(
+      sourceList: widget.repository,
+      emptyIcon: widget.emptyIcon,
+      isPaginated: widget.isPaginated,
+      scrollController: _scrollController,
+      paddingTop: widget.paddingTop,
+      itemBuilder: (context, item, index) {
+        return Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
+            vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
+          ),
+          child: _buildItem(item, context),
+        );
       },
-      child: MediaListView<T>(
-        sourceList: widget.repository,
-        emptyIcon: widget.emptyIcon,
-        isPaginated: widget.isPaginated,
-        scrollController: _scrollController,
-        paddingTop: widget.paddingTop,
-        itemBuilder: (context, item, index) {
-          return Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
-              vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
-            ),
-            child: _buildItem(item, context),
-          );
-        },
-      ),
     );
   }
 
