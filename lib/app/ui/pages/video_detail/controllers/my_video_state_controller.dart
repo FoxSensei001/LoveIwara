@@ -148,70 +148,137 @@ class MyVideoStateController extends GetxController
   @override
   void onInit() async {
     super.onInit();
-    // 添加生命周期观察者
-    WidgetsBinding.instance.addObserver(this);
-    
-    // 动画
-    animationController = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
-    );
+    LogUtils.i('初始化 MyVideoStateController，videoId: $videoId', 'MyVideoStateController');
+    try {
+      // 添加生命周期观察者
+      WidgetsBinding.instance.addObserver(this);
+      LogUtils.d('已添加生命周期观察者', 'MyVideoStateController');
+      
+      // 动画
+      animationController = AnimationController(
+        duration: const Duration(milliseconds: 200),
+        vsync: this,
+      );
+      LogUtils.d('已初始化 animationController', 'MyVideoStateController');
 
-    topBarAnimation = Tween<Offset>(
-      begin: const Offset(0, -1),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: animationController,
-      curve: Curves.easeOut,
-    ));
+      topBarAnimation = Tween<Offset>(
+        begin: const Offset(0, -1),
+        end: Offset.zero,
+      ).animate(CurvedAnimation(
+        parent: animationController,
+        curve: Curves.easeOut,
+      ));
 
-    bottomBarAnimation = Tween<Offset>(
-      begin: const Offset(0, 1),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: animationController,
-      curve: Curves.easeOut,
-    ));
+      bottomBarAnimation = Tween<Offset>(
+        begin: const Offset(0, 1),
+        end: Offset.zero,
+      ).animate(CurvedAnimation(
+        parent: animationController,
+        curve: Curves.easeOut,
+      ));
 
-    // 初始状态显示工具栏
-    animationController.forward();
-    if (!_configService[ConfigKey.DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE]) {
-      // 添加自动隐藏工具栏的定时器
-      _resetAutoHideTimer();
-      // 添加自动隐藏锁定按钮的定时器
-      _lockButtonHideTimer = Timer(const Duration(seconds: 3), () {
-        if (isToolbarsLocked.value) {
-          isLockButtonVisible.value = false;
+      // 初始状态显示工具栏
+      animationController.forward();
+      if (!_configService[ConfigKey.DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE]) {
+        // 添加自动隐藏工具栏的定时器
+        _resetAutoHideTimer();
+        // 添加自动隐藏锁定按钮的定时器
+        _lockButtonHideTimer = Timer(const Duration(seconds: 3), () {
+          if (isToolbarsLocked.value) {
+            isLockButtonVisible.value = false;
+          }
+        });
+      }
+
+      // 初始化 VideoController
+      player = Player();
+      videoController = VideoController(player,
+        configuration: VideoControllerConfiguration(
+          enableHardwareAcceleration: true,
+          androidAttachSurfaceAfterVideoParameters: false
+        )
+      );
+
+      if (GetPlatform.isAndroid || GetPlatform.isIOS) {
+        // 初始化并关闭系统音量UI
+        volumeController = VolumeController();
+        volumeController?.showSystemUI = false;
+        // 添加音量监听
+        _volumeListenerDisposer = volumeController?.listener((volume) {
+          // 如果当前在long press状态，则不更新音量
+          if (isLongPressing.value || isSlidingVolumeZone.value || isSlidingBrightnessZone.value) return;
+          if (!_isAdjustingVolumeByGesture) {
+            _configService.setSetting(ConfigKey.VOLUME_KEY, volume, save: true);
+          }
+        });
+      }
+
+      if (videoId == null) {
+        mainErrorWidget.value = CommonErrorWidget(
+          text: slang.t.videoDetail.videoIdIsEmpty,
+          children: [
+            ElevatedButton(
+              onPressed: () => AppService.tryPop(),
+              child: Text(slang.t.common.back),
+            ),
+          ],
+        );
+        return;
+      }
+
+      // 是否沿用之前的音量
+      bool keepLastVolumeKey = _configService[ConfigKey.KEEP_LAST_VOLUME_KEY];
+      if (CommonConstants.isSetVolume) {
+        if (keepLastVolumeKey) {
+          // 保持之前的音量
+          double lastVolume = _configService[ConfigKey.VOLUME_KEY];
+          setVolume(lastVolume, save: false);
+        } else {
+          if (GetPlatform.isAndroid || GetPlatform.isIOS) {
+            // 更新配置为当前的系统音量
+            double currentVolume = await volumeController?.getVolume() ?? 0.0;
+            _configService[ConfigKey.VOLUME_KEY] = currentVolume;
+          }
         }
-      });
-    }
+      }
 
-    // 初始化 VideoController
-    player = Player();
-    videoController = VideoController(player,
-      configuration: VideoControllerConfiguration(
-        enableHardwareAcceleration: true,
-        androidAttachSurfaceAfterVideoParameters: false
-      )
-    );
+      // 设置亮度
+      setDefaultBrightness();
 
-    if (GetPlatform.isAndroid || GetPlatform.isIOS) {
-      // 初始化并关闭系统音量UI
-      volumeController = VolumeController();
-      volumeController?.showSystemUI = false;
-      // 添加音量监听
-      _volumeListenerDisposer = volumeController?.listener((volume) {
-        // 如果当前在long press状态，则不更新音量
-        if (isLongPressing.value || isSlidingVolumeZone.value || isSlidingBrightnessZone.value) return;
-        if (!_isAdjustingVolumeByGesture) {
-          _configService.setSetting(ConfigKey.VOLUME_KEY, volume, save: true);
+      // 想办法让native player默认走系统代理
+      if (player.platform is NativePlayer &&
+          _configService[ConfigKey.USE_PROXY]) {
+        bool useProxy = _configService[ConfigKey.USE_PROXY];
+        String proxyUrl = _configService[ConfigKey.PROXY_URL];
+        LogUtils.i('使用代理: $useProxy, 代理地址: $proxyUrl', 'MyVideoStateController');
+        if (useProxy && proxyUrl.isNotEmpty) {
+          // 如果是以 https 开头的地址，需要转换为 http
+          var finalProxyUrl = proxyUrl;
+          if (proxyUrl.startsWith('https://')) {
+            finalProxyUrl = proxyUrl.replaceFirst('https://', 'http://');
+          }
+          // 如果没有以 http 开头，需要加上 http://
+          if (!proxyUrl.startsWith('http://')) {
+            finalProxyUrl = 'http://$proxyUrl';
+          }
+          (player.platform as dynamic).setProperty(
+            'http-proxy',
+            finalProxyUrl,
+          );
         }
-      });
-    }
+      }
 
-    if (videoId == null) {
+      // 添加画中画状态监听
+      _setupPiPListener();
+
+      fetchVideoDetail(videoId!);
+
+      // 启动显示时间更新定时器
+      _startDisplayTimer();
+    } catch (e) {
+      LogUtils.e('初始化失败: $e', tag: 'MyVideoStateController', error: e);
       mainErrorWidget.value = CommonErrorWidget(
-        text: slang.t.videoDetail.videoIdIsEmpty,
+        text: slang.t.videoDetail.getVideoInfoFailed,
         children: [
           ElevatedButton(
             onPressed: () => AppService.tryPop(),
@@ -219,58 +286,7 @@ class MyVideoStateController extends GetxController
           ),
         ],
       );
-      return;
     }
-
-    // 是否沿用之前的音量
-    bool keepLastVolumeKey = _configService[ConfigKey.KEEP_LAST_VOLUME_KEY];
-    if (CommonConstants.isSetVolume) {
-      if (keepLastVolumeKey) {
-        // 保持之前的音量
-        double lastVolume = _configService[ConfigKey.VOLUME_KEY];
-        setVolume(lastVolume, save: false);
-      } else {
-        if (GetPlatform.isAndroid || GetPlatform.isIOS) {
-          // 更新配置为当前的系统音量
-          double currentVolume = await volumeController?.getVolume() ?? 0.0;
-          _configService[ConfigKey.VOLUME_KEY] = currentVolume;
-        }
-      }
-    }
-
-    // 设置亮度
-    setDefaultBrightness();
-
-    // 想办法让native player默认走系统代理
-    if (player.platform is NativePlayer &&
-        _configService[ConfigKey.USE_PROXY]) {
-      bool useProxy = _configService[ConfigKey.USE_PROXY];
-      String proxyUrl = _configService[ConfigKey.PROXY_URL];
-      LogUtils.i('使用代理: $useProxy, 代理地址: $proxyUrl', 'MyVideoStateController');
-      if (useProxy && proxyUrl.isNotEmpty) {
-        // 如果是以 https 开头的地址，需要转换为 http
-        var finalProxyUrl = proxyUrl;
-        if (proxyUrl.startsWith('https://')) {
-          finalProxyUrl = proxyUrl.replaceFirst('https://', 'http://');
-        }
-        // 如果没有以 http 开头，需要加上 http://
-        if (!proxyUrl.startsWith('http://')) {
-          finalProxyUrl = 'http://$proxyUrl';
-        }
-        (player.platform as dynamic).setProperty(
-          'http-proxy',
-          finalProxyUrl,
-        );
-      }
-    }
-
-    // 添加画中画状态监听
-    _setupPiPListener();
-
-    fetchVideoDetail(videoId!);
-
-    // 启动显示时间更新定时器
-    _startDisplayTimer();
   }
 
   void _setupPiPListener() {
@@ -313,47 +329,68 @@ class MyVideoStateController extends GetxController
 
   @override
   void onClose() {
-    // 移除生命周期观察者
-    WidgetsBinding.instance.removeObserver(this);
-    
-    // 保存播放记录
-    if (videoId != null && totalDuration.value.inMilliseconds > 0) {
-      final currentMs = currentPosition.inMilliseconds;
-      final totalMs = totalDuration.value.inMilliseconds;
-      
-      // 如果在开头5秒或结尾5秒,删除记录
-      if (currentMs <= 5000 || currentMs >= (totalMs - 5000)) {
-        _playbackHistoryService.deletePlaybackHistory(videoId!);
-      } else {
-        // 否则保存/更新记录
-        _playbackHistoryService.savePlaybackHistory(
-          videoId!,
-          totalMs,
-          currentMs,
-        );
+    LogUtils.i('MyVideoStateController onClose 被调用', 'MyVideoStateController');
+    try {
+      // 释放播放器资源
+      if (player != null) {
+        player.dispose();
+        LogUtils.d('播放器资源已释放', 'MyVideoStateController');
       }
+      
+      // 取消定时器
+      _positionUpdateThrottleTimer?.cancel();
+      _displayUpdateTimer?.cancel();
+      _lockButtonHideTimer?.cancel();
+      LogUtils.d('所有定时器已取消', 'MyVideoStateController');
+      
+      // 移除生命周期观察者
+      WidgetsBinding.instance.removeObserver(this);
+      LogUtils.d('生命周期观察者已移除', 'MyVideoStateController');
+      
+      // 销毁动画控制器
+      animationController.dispose();
+      
+      // 保存播放记录
+      if (videoId != null && totalDuration.value.inMilliseconds > 0) {
+        final currentMs = currentPosition.inMilliseconds;
+        final totalMs = totalDuration.value.inMilliseconds;
+        
+        // 如果在开头5秒或结尾5秒,删除记录
+        if (currentMs <= 5000 || currentMs >= (totalMs - 5000)) {
+          _playbackHistoryService.deletePlaybackHistory(videoId!);
+        } else {
+          // 否则保存/更新记录
+          _playbackHistoryService.savePlaybackHistory(
+            videoId!,
+            totalMs,
+            currentMs,
+          );
+        }
+      }
+      
+      _autoHideTimer?.cancel();
+      _cancelSubscriptions();
+      _volumeListenerDisposer?.cancel(); // 取消音量监听
+      _resumeTipTimer?.cancel();
+      _pipStatusSubscription?.cancel(); // 取消监听
+      super.onClose();
+    } catch (e) {
+      LogUtils.e('关闭控制器时发生错误: $e', tag: 'MyVideoStateController', error: e);
+      super.onClose();
     }
-    
-    _autoHideTimer?.cancel();
-    _cancelSubscriptions();
-    _volumeListenerDisposer?.cancel(); // 取消音量监听
-    player.dispose();
-    _resumeTipTimer?.cancel();
-    _pipStatusSubscription?.cancel(); // 取消监听
-    _positionUpdateThrottleTimer?.cancel(); // 清理节流定时器
-    _lockButtonHideTimer?.cancel();
-    _displayUpdateTimer?.cancel(); // 添加定时器清理
-    super.onClose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
+    LogUtils.d('应用生命周期状态变更: $state', 'MyVideoStateController');
     
     // 当应用从后台恢复到前台时
     if (state == AppLifecycleState.resumed) {
+      LogUtils.d('应用进入前台，设置默认屏幕亮度', 'MyVideoStateController');
       setDefaultBrightness();
     }
+    
+    super.didChangeAppLifecycleState(state);
   }
 
   // 取消监听
@@ -371,15 +408,19 @@ class MyVideoStateController extends GetxController
 
   /// 获取视频详情信息
   void fetchVideoDetail(String videoId) async {
-    try {
-      isVideoInfoLoading.value = true;
-      isVideoSourceLoading.value = true;
-      videoErrorMessage.value = null;
+    LogUtils.i('开始获取视频详情，videoId: $videoId', 'MyVideoStateController');
+    isVideoInfoLoading.value = true;
+    isVideoSourceLoading.value = true;
+    videoErrorMessage.value = null;
+    mainErrorWidget.value = null;
 
+    try {
       // 获取视频基本信息
       var res = await _apiService.get('/video/$videoId');
+      
       videoInfo.value = video_model.Video.fromJson(res.data);
       if (videoInfo.value == null) {
+        LogUtils.e('视频信息为空', tag: 'MyVideoStateController');
         mainErrorWidget.value = CommonErrorWidget(
           text: slang.t.videoDetail.videoInfoIsEmpty,
           children: [
@@ -391,6 +432,8 @@ class MyVideoStateController extends GetxController
         );
         return;
       }
+      
+      LogUtils.d('成功获取视频信息: ${videoInfo.value?.title}', 'MyVideoStateController');
 
       // 添加历史记录
       try {

@@ -47,28 +47,39 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
     videoId = widget.videoId;
 
     if (videoId.isEmpty) {
+      LogUtils.e('视频ID为空', tag: 'video_detail_page_v2');
       return;
     }
 
+    LogUtils.i('初始化视频详情页 videoId: $videoId', 'video_detail_page_v2');
+
     // 初始化控制器
-    controller = Get.put(
-      MyVideoStateController(videoId),
-      tag: uniqueTag,
-    );
+    try {
+      controller = Get.put(
+        MyVideoStateController(videoId),
+        tag: uniqueTag,
+      );
+      LogUtils.d('MyVideoStateController 初始化成功', 'video_detail_page_v2');
 
-    commentController = Get.put(
-      CommentController(id: videoId, type: CommentType.video),
-      tag: uniqueTag,
-    );
+      commentController = Get.put(
+        CommentController(id: videoId, type: CommentType.video),
+        tag: uniqueTag,
+      );
+      LogUtils.d('CommentController 初始化成功', 'video_detail_page_v2');
 
-    relatedVideoController = Get.put(
-      RelatedMediasController(mediaId: videoId, mediaType: MediaType.VIDEO),
-      tag: uniqueTag,
-    );
+      relatedVideoController = Get.put(
+        RelatedMediasController(mediaId: videoId, mediaType: MediaType.VIDEO),
+        tag: uniqueTag,
+      );
+      LogUtils.d('RelatedMediasController 初始化成功', 'video_detail_page_v2');
 
-    // 注册路由变化回调
-    HomeNavigationLayout.homeNavigatorObserver
-        .addRouteChangeCallback(_onRouteChange);
+      // 注册路由变化回调
+      HomeNavigationLayout.homeNavigatorObserver
+          .addRouteChangeCallback(_onRouteChange);
+      LogUtils.d('注册路由变化回调成功', 'video_detail_page_v2');
+    } catch (e) {
+      LogUtils.e('初始化控制器失败', tag: 'video_detail_page_v2', error: e);
+    }
   }
 
   /// 添加路由变化回调
@@ -80,8 +91,9 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
         "当前路由: ${route?.settings.name}, 上一个路由: ${previousRoute?.settings.name}, 操作类型: ${route?.isActive == true ? "进入" : "离开"}",
         '详情页路由监听');
 
-     // 如果操作类型是离开，上一个路由contains Routes.VIDEO_DETAIL，则setDefaultBrightness
+    // 如果操作类型是离开，上一个路由contains Routes.VIDEO_DETAIL，则setDefaultBrightness
     if (route?.isActive == false && previousRoute?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) == true) {
+      LogUtils.d('离开视频详情页，重置屏幕亮度', 'video_detail_page_v2');
       controller.setDefaultBrightness();
     }
 
@@ -89,22 +101,24 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
     if (route?.isActive == true && previousRoute?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) == true) {
       // 如果当前路由为null，则不pause
       if (route?.settings.name != null) {
+        LogUtils.d('进入非视频详情页，暂停播放', 'video_detail_page_v2');
         controller.player.pause();
       }
     }
 
     // 如果当前路由contains Routes.VIDEO_DETAIL，且操作类型是离开则resetBrightness
-    if (route?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) == true && previousRoute?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) == false) {
+    if (route?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) == true && 
+        previousRoute?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) == false) {
+      LogUtils.d('进入视频详情页，重置屏幕亮度', 'video_detail_page_v2');
       ScreenBrightness().resetScreenBrightness();
     }
     
-
     // 如果是从detail到其他页面，且当前为 应用全屏状态，则恢复UI
     if (previousRoute != null &&
-        previousRoute.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) ==
-            false &&
+        previousRoute.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) == false &&
         controller.isDesktopAppFullScreen.value) {
       if (route?.settings.name != null) {
+        LogUtils.d('恢复系统UI', 'video_detail_page_v2');
         appService.showSystemUI();
       }
     }
@@ -112,17 +126,21 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
 
   @override
   void dispose() {
+    LogUtils.i('销毁视频详情页', 'video_detail_page_v2');
+    
     // 移除路由变化回调
-    HomeNavigationLayout.homeNavigatorObserver
-        .removeRouteChangeCallback(_onRouteChange);
-
-    // 尝试删除controller
     try {
+      HomeNavigationLayout.homeNavigatorObserver
+          .removeRouteChangeCallback(_onRouteChange);
+      LogUtils.d('移除路由变化回调成功', 'video_detail_page_v2');
+
+      // 尝试删除controller
       Get.delete<MyVideoStateController>(tag: uniqueTag);
       Get.delete<CommentController>(tag: uniqueTag);
       Get.delete<RelatedMediasController>(tag: uniqueTag);
+      LogUtils.d('删除控制器成功', 'video_detail_page_v2');
     } catch (e) {
-      LogUtils.e('删除控制器失败', error: e, tag: 'video_detail_page_v2');
+      LogUtils.e('销毁视频详情页失败', error: e, tag: 'video_detail_page_v2');
     }
 
     super.dispose();
@@ -163,86 +181,92 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
   }
 
   void showCommentModal(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (BuildContext context) {
-        final t = slang.Translations.of(context);
-        return DraggableScrollableSheet(
-          initialChildSize: 0.8,
-          minChildSize: 0.2,
-          maxChildSize: 0.8,
-          expand: false,
-          builder: (context, scrollController) {
-            return Column(
-              children: [
-                // 顶部标题栏
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      Text(
-                        t.common.commentList,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+    LogUtils.d('显示评论模态框', 'video_detail_page_v2');
+    
+    try {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        builder: (BuildContext context) {
+          final t = slang.Translations.of(context);
+          return DraggableScrollableSheet(
+            initialChildSize: 0.8,
+            minChildSize: 0.2,
+            maxChildSize: 0.8,
+            expand: false,
+            builder: (context, scrollController) {
+              return Column(
+                children: [
+                  // 顶部标题栏
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Text(
+                          t.common.commentList,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      const Spacer(),
-                      // 添加评论按钮
-                      TextButton.icon(
-                        onPressed: () {
-                          Get.dialog(
-                            CommentInputDialog(
-                              title: t.common.sendComment,
-                              submitText: t.common.send,
-                              onSubmit: (text) async {
-                                if (text.trim().isEmpty) {
-                                  showToastWidget(MDToastWidget(
-                                      message: t.errors.commentCanNotBeEmpty,
-                                      type: MDToastType.error), position: ToastPosition.bottom);
-                                  return;
-                                }
-                                final UserService userService = Get.find();
-                                if (!userService.isLogin) {
-                                  showToastWidget(MDToastWidget(
-                                      message: t.errors.pleaseLoginFirst,
-                                      type: MDToastType.error), position: ToastPosition.bottom);
-                                  Get.toNamed(Routes.LOGIN);
-                                  return;
-                                }
-                                await commentController.postComment(text);
-                              },
-                            ),
-                            barrierDismissible: true,
-                          );
-                        },
-                        icon: const Icon(Icons.add_comment),
-                        label: Text(t.common.sendComment),
-                      ),
-                      // 关闭按钮
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
+                        const Spacer(),
+                        // 添加评论按钮
+                        TextButton.icon(
+                          onPressed: () {
+                            Get.dialog(
+                              CommentInputDialog(
+                                title: t.common.sendComment,
+                                submitText: t.common.send,
+                                onSubmit: (text) async {
+                                  if (text.trim().isEmpty) {
+                                    showToastWidget(MDToastWidget(
+                                        message: t.errors.commentCanNotBeEmpty,
+                                        type: MDToastType.error), position: ToastPosition.bottom);
+                                    return;
+                                  }
+                                  final UserService userService = Get.find();
+                                  if (!userService.isLogin) {
+                                    showToastWidget(MDToastWidget(
+                                        message: t.errors.pleaseLoginFirst,
+                                        type: MDToastType.error), position: ToastPosition.bottom);
+                                    Get.toNamed(Routes.LOGIN);
+                                    return;
+                                  }
+                                  await commentController.postComment(text);
+                                },
+                              ),
+                              barrierDismissible: true,
+                            );
+                          },
+                          icon: const Icon(Icons.add_comment),
+                          label: Text(t.common.sendComment),
+                        ),
+                        // 关闭按钮
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                // 评论列表
-                Expanded(
-                  child: Obx(() => CommentSection(
-                      controller: commentController,
-                      authorUserId: controller.videoInfo.value?.user?.id)),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
+                  // 评论列表
+                  Expanded(
+                    child: Obx(() => CommentSection(
+                        controller: commentController,
+                        authorUserId: controller.videoInfo.value?.user?.id)),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      );
+    } catch (e) {
+      LogUtils.e('显示评论模态框失败', error: e, tag: 'video_detail_page_v2');
+    }
   }
 
   @override

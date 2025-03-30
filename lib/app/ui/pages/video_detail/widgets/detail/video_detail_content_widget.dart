@@ -624,141 +624,162 @@ class VideoDetailContent extends StatelessWidget {
   }
 
   void _showDownloadDialog(BuildContext context) {
+    LogUtils.d('尝试显示下载对话框', 'VideoDetailContent');
     final t = slang.Translations.of(context);
     final sources = controller.currentVideoSourceList;
 
     if (sources.isEmpty) {
+      LogUtils.w('没有可用的下载源', 'VideoDetailContent');
       showToastWidget(MDToastWidget(message: t.download.errors.noDownloadSourceNowPleaseWaitInfoLoaded, type: MDToastType.error));
       return;
     }
     final UserService userService = Get.find();
     if (!userService.isLogin) {
+      LogUtils.w('用户未登录，无法下载', 'VideoDetailContent');
       showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error));
       Get.toNamed(Routes.LOGIN);
       return;
     }
 
-    Get.dialog(
-      AlertDialog(
-        title: Text(t.common.selectQuality),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: sources.map((source) {
-            return ListTile(
-              title: Text(source.name ?? t.download.errors.unknown),
-              onTap: () async {
-                AppService.tryPop();
+    try {
+      Get.dialog(
+        AlertDialog(
+          title: Text(t.common.selectQuality),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: sources.map((source) {
+              return ListTile(
+                title: Text(source.name ?? t.download.errors.unknown),
+                onTap: () async {
+                  LogUtils.d('选择下载质量: ${source.name}', 'VideoDetailContent');
+                  AppService.tryPop();
 
-                if (source.download == null) {
-                  showToastWidget(
-                    MDToastWidget(
-                      message: t.videoDetail.noDownloadUrl,
-                      type: MDToastType.error,
-                    ),
-                    position: ToastPosition.top,
-                  );
-                  return;
-                }
-
-                try {
-                  final videoInfo = controller.videoInfo.value;
-                  if (videoInfo == null) {
-                    throw Exception(t.download.errors.videoInfoNotFound);
-                  }
-
-                  // 创建视频下载的额外信息
-                  final videoExtData = VideoDownloadExtData(
-                    id: videoInfo.id,
-                    title: videoInfo.title,
-                    thumbnail: videoInfo.thumbnailUrl,
-                    authorName: videoInfo.user?.name,
-                    authorUsername: videoInfo.user?.username,
-                    authorAvatar: videoInfo.user?.avatar?.avatarUrl,
-                    duration: videoInfo.file?.duration,
-                    quality: source.name,
-                  );
-
-                  // 在创建下载任务之前获取保存路径
-                  final savePath = await _getSavePath(
-                    videoInfo.title ?? 'video',
-                    source.name ?? 'unknown',
-                  );
-
-                  if (savePath == null) {
-                    showToastWidget(MDToastWidget(
-                      message: t.common.operationCancelled,
-                      type: MDToastType.info
-                    ));
+                  if (source.download == null) {
+                    LogUtils.w('所选质量没有下载链接', 'VideoDetailContent');
+                    showToastWidget(
+                      MDToastWidget(
+                        message: t.videoDetail.noDownloadUrl,
+                        type: MDToastType.error,
+                      ),
+                      position: ToastPosition.top,
+                    );
                     return;
                   }
 
-                  final task = DownloadTask(
-                    id: VideoDownloadExtData.genExtDataIdByVideoInfo(videoInfo, source.name ?? 'unknown'),
-                    url: source.download!,
-                    savePath: savePath,
-                    fileName: '${videoInfo.title ?? 'video'}_${source.name}.mp4',
-                    supportsRange: true,
-                    extData: DownloadTaskExtData(
-                      type: DownloadTaskExtDataType.video,
-                      data: videoExtData.toJson(),
-                    ),
-                  );
+                  try {
+                    final videoInfo = controller.videoInfo.value;
+                    if (videoInfo == null) {
+                      LogUtils.e('下载失败：视频信息为空', tag: 'VideoDetailContent');
+                      throw Exception(t.download.errors.videoInfoNotFound);
+                    }
 
-                  await DownloadService.to.addTask(task);
+                    // 创建视频下载的额外信息
+                    final videoExtData = VideoDownloadExtData(
+                      id: videoInfo.id,
+                      title: videoInfo.title,
+                      thumbnail: videoInfo.thumbnailUrl,
+                      authorName: videoInfo.user?.name,
+                      authorUsername: videoInfo.user?.username,
+                      authorAvatar: videoInfo.user?.avatar?.avatarUrl,
+                      duration: videoInfo.file?.duration,
+                      quality: source.name,
+                    );
+                    LogUtils.d('创建下载任务元数据', 'VideoDetailContent');
 
-                  showToastWidget(
-                    MDToastWidget(
-                      message: t.videoDetail.startDownloading,
-                      type: MDToastType.success,
-                    ),
-                    position: ToastPosition.top,
-                  );
+                    // 在创建下载任务之前获取保存路径
+                    final savePath = await _getSavePath(
+                      videoInfo.title ?? 'video',
+                      source.name ?? 'unknown',
+                    );
 
-                  // 打开下载管理页面
-                  NaviService.navigateToDownloadTaskListPage();
-                } catch (e) {
-                  LogUtils.e('添加下载任务失败: $e',
-                      tag: 'VideoDetailContent', error: e);
-                  String message;
-                  if (e.toString().contains(t.download.errors.downloadTaskAlreadyExists)) {
-                    message = t.download.errors.downloadTaskAlreadyExists;
-                  } else if (e.toString().contains(t.download.errors.videoAlreadyDownloaded)) {
-                    message = t.download.errors.videoAlreadyDownloaded;
-                  } else {
-                    message = t.download.errors.downloadFailed;
+                    if (savePath == null) {
+                      LogUtils.d('用户取消了下载操作', 'VideoDetailContent');
+                      showToastWidget(MDToastWidget(
+                        message: t.common.operationCancelled,
+                        type: MDToastType.info
+                      ));
+                      return;
+                    }
+
+                    final task = DownloadTask(
+                      id: VideoDownloadExtData.genExtDataIdByVideoInfo(videoInfo, source.name ?? 'unknown'),
+                      url: source.download!,
+                      savePath: savePath,
+                      fileName: '${videoInfo.title ?? 'video'}_${source.name}.mp4',
+                      supportsRange: true,
+                      extData: DownloadTaskExtData(
+                        type: DownloadTaskExtDataType.video,
+                        data: videoExtData.toJson(),
+                      ),
+                    );
+                    LogUtils.d('添加下载任务: ${task.id}', 'VideoDetailContent');
+
+                    await DownloadService.to.addTask(task);
+
+                    showToastWidget(
+                      MDToastWidget(
+                        message: t.videoDetail.startDownloading,
+                        type: MDToastType.success,
+                      ),
+                      position: ToastPosition.top,
+                    );
+
+                    // 打开下载管理页面
+                    NaviService.navigateToDownloadTaskListPage();
+                  } catch (e) {
+                    LogUtils.e('添加下载任务失败: $e',
+                        tag: 'VideoDetailContent', error: e);
+                    String message;
+                    if (e.toString().contains(t.download.errors.downloadTaskAlreadyExists)) {
+                      message = t.download.errors.downloadTaskAlreadyExists;
+                    } else if (e.toString().contains(t.download.errors.videoAlreadyDownloaded)) {
+                      message = t.download.errors.videoAlreadyDownloaded;
+                    } else {
+                      message = t.download.errors.downloadFailed;
+                    }
+
+                    showToastWidget(
+                      MDToastWidget(
+                        message: message,
+                        type: MDToastType.error,
+                      ),
+                      position: ToastPosition.top,
+                    );
                   }
-
-                  showToastWidget(
-                    MDToastWidget(
-                      message: message,
-                      type: MDToastType.error,
-                    ),
-                    position: ToastPosition.top,
-                  );
-                }
-              },
-            );
-          }).toList(),
+                },
+              );
+            }).toList(),
+          ),
         ),
-      ),
-    );
+      );
+    } catch (e) {
+      LogUtils.e('显示下载对话框失败', error: e, tag: 'VideoDetailContent');
+    }
   }
 
   // 添加到收藏夹
   void _addToFavorite(BuildContext context) {
+    LogUtils.d('尝试添加视频到收藏夹', 'VideoDetailContent');
+    
     final videoInfo = controller.videoInfo.value;
     if (videoInfo == null) {
+      LogUtils.e('添加到收藏夹失败：视频信息为空', tag: 'VideoDetailContent');
       showToastWidget(MDToastWidget(message: slang.t.errors.failedToFetchData, type: MDToastType.error));
       return;
     }
 
-    Get.dialog(
-      AddToFavoriteDialog(
-        itemId: videoInfo.id,
-        onAdd: (folderId) async {
-          return await FavoriteService.to.addVideoToFolder(videoInfo, folderId);
-        },
-      ),
-    );
+    try {
+      Get.dialog(
+        AddToFavoriteDialog(
+          itemId: videoInfo.id,
+          onAdd: (folderId) async {
+            LogUtils.d('将视频添加到收藏夹ID: $folderId', 'VideoDetailContent');
+            return await FavoriteService.to.addVideoToFolder(videoInfo, folderId);
+          },
+        ),
+      );
+    } catch (e) {
+      LogUtils.e('打开收藏夹对话框失败', error: e, tag: 'VideoDetailContent');
+    }
   }
 }
