@@ -223,13 +223,25 @@ class LogUtils {
       _addToMemoryLog("[${_getTimeString()}][ERROR][$tag] $details");
     }
     
-    // 数据库写入 - 错误日志等级高，必须确保写入，不使用unawaited
-    _writeToDatabase(
-      LogLevel.error, 
-      maskedMessage, 
-      tag, 
-      details: details
-    );
+    // 数据库同步写入 - 错误日志必须立即同步写入，不使用unawaited
+    if (Get.isRegistered<LogService>()) {
+      try {
+        // 同步调用，确保写入完成
+        Get.find<LogService>().addLogSync(
+          level: LogLevel.error, 
+          tag: tag, 
+          message: maskedMessage, 
+          details: details
+        );
+      } catch (e) {
+        if (kDebugMode) {
+          print("错误日志同步写入失败: $e");
+        }
+      }
+    } else {
+      // 如果LogService未注册，记录错误信息以便后续处理
+      _writeToDatabase(LogLevel.error, maskedMessage, tag, details: details);
+    }
   }
   
   // 增强的脱敏方法，确保敏感信息被过滤
@@ -344,12 +356,6 @@ class LogUtils {
     
     // 如果数据库方式失败，从内存返回
     return _memoryLogs.join('\n');
-  }
-  
-  // 导出旧版日志文件（保留，但不建议使用）
-  @Deprecated('使用 exportLogFileEnhanced 方法替代')
-  static Future<File> exportLogFile(String targetPath) async {
-    return exportLogFileEnhanced(targetPath: targetPath);
   }
   
   // 增强的日志导出功能

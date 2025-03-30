@@ -111,9 +111,6 @@ class LogService extends GetxService {
   // 批量写入锁
   final _bufferLock = RxBool(false);
   
-  // 记录文件路径备份，用于兼容旧版本
-  String? _legacyLogFilePath;
-  
   // 上次清理时间
   DateTime? _lastCleanupTime;
   
@@ -139,9 +136,6 @@ class LogService extends GetxService {
         VALUES (?, ?, ?, ?, ?, ?)
       ''');
       
-      // 创建遗留日志目录（为了兼容性）
-      await _initLegacyLogFile();
-      
       // 启动定时写入器
       _startFlushTimer();
       
@@ -165,40 +159,6 @@ class LogService extends GetxService {
         print("日志系统初始化失败: $e");
       }
       rethrow;
-    }
-  }
-  
-  // 创建遗留日志文件目录（为了向后兼容）
-  Future<void> _initLegacyLogFile() async {
-    try {
-      final Directory appDocDir = await _getLegacyLogDirectory();
-      final String logDirPath = path.join(appDocDir.path, 'logs');
-      
-      // 确保日志目录存在
-      final Directory logDir = Directory(logDirPath);
-      if (!await logDir.exists()) {
-        await logDir.create(recursive: true);
-      }
-      
-      // 创建日志文件，使用日期作为文件名
-      final String today = DateTime.now().toString().split(' ')[0];
-      final String logFileName = 'iwara_log_$today.txt';
-      _legacyLogFilePath = path.join(logDirPath, logFileName);
-    } catch (e) {
-      if (kDebugMode) {
-        print("初始化遗留日志文件失败: $e");
-      }
-    }
-  }
-  
-  // 获取遗留日志目录
-  Future<Directory> _getLegacyLogDirectory() async {
-    if (GetPlatform.isDesktop) {
-      // 桌面端使用应用程序数据目录
-      return await getApplicationDocumentsDirectory();
-    } else {
-      // 移动端使用应用程序文档目录
-      return await getApplicationDocumentsDirectory();
     }
   }
   
@@ -450,11 +410,6 @@ class LogService extends GetxService {
       if (level == LogLevel.info) {
         unawaited(_checkDatabaseSizeBeforeAdd());
       }
-      
-      // 同时写入到遗留日志文件（如果有）
-      if (_legacyLogFilePath != null) {
-        unawaited(_writeToLegacyLog(entry));
-      }
     } catch (e) {
       // 如果添加日志过程中发生错误，不要抛出异常，而是在控制台打印错误
       if (kDebugMode) {
@@ -464,14 +419,31 @@ class LogService extends GetxService {
     }
   }
   
-  // 写入到遗留日志文件
-  Future<void> _writeToLegacyLog(LogEntry entry) async {
+  // 同步添加日志 - 用于错误日志立即写入
+  void addLogSync({
+    required LogLevel level,
+    String? tag,
+    required String message,
+    String? details,
+  }) {
     try {
-      final file = File(_legacyLogFilePath!);
-      final logLine = entry.toFormattedString();
-      await file.writeAsString('$logLine\n', mode: FileMode.append);
-    } catch (_) {
-      // 忽略文件写入错误
+      final now = DateTime.now();
+      final timestamp = now.millisecondsSinceEpoch ~/ 1000;
+      
+      // 直接执行SQL语句，不经过缓冲区
+      _insertLogStmt.execute([
+        timestamp,
+        LogEntry.levelToString(level),
+        tag,
+        message,
+        details,
+        _sessionId,
+      ]);
+    } catch (e) {
+      if (kDebugMode) {
+        print("同步添加日志失败: $e");
+        print("尝试添加的日志信息: $message");
+      }
     }
   }
   

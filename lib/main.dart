@@ -74,6 +74,17 @@ void main() {
         error: details.exception,
         stackTrace: details.stack
       );
+      
+      // 确保日志已写入
+      try {
+        if (Get.isRegistered<LogService>()) {
+          // 同步等待日志刷新完成
+          Get.find<LogService>().flushBufferToDatabase();
+        }
+      } catch (_) {
+        // Man, wut can i do
+      }
+      
       FlutterError.presentError(details);
     };
 
@@ -102,6 +113,16 @@ void main() {
   }, (error, stackTrace) {
     // 在这里处理未捕获的异常
     LogUtils.e('未捕获的异常: $error', tag: '全局异常处理', stackTrace: stackTrace);
+    
+    // 确保日志已写入
+    try {
+      if (Get.isRegistered<LogService>()) {
+        // 同步等待日志刷新完成
+        Get.find<LogService>().flushBufferToDatabase();
+      }
+    } catch (_) {
+      // Man, wut can i do
+    }
     
     // TODO: 可以在这里添加额外处理，例如显示错误页面或重启应用
   });
