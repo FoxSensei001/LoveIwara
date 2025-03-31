@@ -180,12 +180,14 @@ class ApiService extends GetxService {
 
   Future<d_dio.Response<T>> get<T>(String path,
       {Map<String, dynamic>? queryParameters,
-      Map<String, dynamic>? headers}) async {
+      Map<String, dynamic>? headers,
+      d_dio.CancelToken? cancelToken}) async {
     try {
       return await _dio.get<T>(
         path,
         queryParameters: queryParameters,
         options: d_dio.Options(headers: headers),
+        cancelToken: cancelToken,
       );
     } on d_dio.DioException catch (e) {
       LogUtils.e('GET请求失败: ${e.message}, Path: $path', tag: _tag, error: e);

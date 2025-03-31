@@ -143,11 +143,17 @@ class MyVideoStateController extends GetxController
   Timer? _lockButtonHideTimer;
   final RxBool isLockButtonVisible = true.obs;
 
+  // 添加 Dio CancelToken
+  final CancelToken _cancelToken = CancelToken();
+  // 添加 disposed 标志位
+  bool _isDisposed = false;
+
   MyVideoStateController(this.videoId);
 
   @override
   void onInit() async {
     super.onInit();
+    _isDisposed = false; // 初始化时确保标志位为 false
     LogUtils.i('初始化 MyVideoStateController，videoId: $videoId', 'MyVideoStateController');
     try {
       // 添加生命周期观察者
@@ -192,19 +198,14 @@ class MyVideoStateController extends GetxController
 
       // 初始化 VideoController
       player = Player();
-      videoController = VideoController(player,
-        configuration: VideoControllerConfiguration(
-          enableHardwareAcceleration: true,
-          androidAttachSurfaceAfterVideoParameters: false
-        )
-      );
+      videoController = VideoController(player);
 
       if (GetPlatform.isAndroid || GetPlatform.isIOS) {
         // 初始化并关闭系统音量UI
-        volumeController = VolumeController();
+        volumeController = VolumeController.instance;
         volumeController?.showSystemUI = false;
         // 添加音量监听
-        _volumeListenerDisposer = volumeController?.listener((volume) {
+        _volumeListenerDisposer = volumeController?.addListener((volume) {
           // 如果当前在long press状态，则不更新音量
           if (isLongPressing.value || isSlidingVolumeZone.value || isSlidingBrightnessZone.value) return;
           if (!_isAdjustingVolumeByGesture) {
@@ -225,6 +226,13 @@ class MyVideoStateController extends GetxController
         );
         return;
       }
+
+      // 使用 WidgetsBinding.instance.addPostFrameCallback 确保基础设置完成
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!_isDisposed) {
+          fetchVideoDetail(videoId!);
+        }
+      });
 
       // 是否沿用之前的音量
       bool keepLastVolumeKey = _configService[ConfigKey.KEEP_LAST_VOLUME_KEY];
@@ -271,21 +279,21 @@ class MyVideoStateController extends GetxController
       // 添加画中画状态监听
       _setupPiPListener();
 
-      fetchVideoDetail(videoId!);
-
       // 启动显示时间更新定时器
       _startDisplayTimer();
     } catch (e) {
       LogUtils.e('初始化失败: $e', tag: 'MyVideoStateController', error: e);
-      mainErrorWidget.value = CommonErrorWidget(
-        text: slang.t.videoDetail.getVideoInfoFailed,
-        children: [
-          ElevatedButton(
-            onPressed: () => AppService.tryPop(),
-            child: Text(slang.t.common.back),
-          ),
-        ],
-      );
+      if (!_isDisposed) {
+        mainErrorWidget.value = CommonErrorWidget(
+          text: slang.t.videoDetail.getVideoInfoFailed,
+          children: [
+            ElevatedButton(
+              onPressed: () => AppService.tryPop(),
+              child: Text(slang.t.common.back),
+            ),
+          ],
+        );
+      }
     }
   }
 
@@ -330,36 +338,53 @@ class MyVideoStateController extends GetxController
   @override
   void onClose() {
     LogUtils.i('MyVideoStateController onClose 被调用', 'MyVideoStateController');
+    _isDisposed = true;
+
+    // 取消网络请求
+    _cancelToken.cancel("Controller is being disposed");
+    LogUtils.d('网络请求已取消', 'MyVideoStateController');
+
     try {
-      // 释放播放器资源
-      if (player != null) {
-        player.dispose();
-        LogUtils.d('播放器资源已释放', 'MyVideoStateController');
-      }
-      
       // 取消定时器
       _positionUpdateThrottleTimer?.cancel();
       _displayUpdateTimer?.cancel();
       _lockButtonHideTimer?.cancel();
+      _autoHideTimer?.cancel();
+      _resumeTipTimer?.cancel();
       LogUtils.d('所有定时器已取消', 'MyVideoStateController');
-      
+
+      // 取消 Stream 订阅
+      _cancelSubscriptions();
+      _volumeListenerDisposer?.cancel();
+      _pipStatusSubscription?.cancel();
+      LogUtils.d('所有订阅已取消', 'MyVideoStateController');
+
+      // 释放播放器资源
+      try {
+        player.dispose();
+        LogUtils.w('播放器资源已释放', 'MyVideoStateController');
+      } catch (e) {
+        LogUtils.w('尝试释放播放器资源时出错: $e', 'MyVideoStateController');
+      }
+
       // 移除生命周期观察者
       WidgetsBinding.instance.removeObserver(this);
       LogUtils.d('生命周期观察者已移除', 'MyVideoStateController');
-      
+
       // 销毁动画控制器
       animationController.dispose();
-      
+
       // 保存播放记录
-      if (videoId != null && totalDuration.value.inMilliseconds > 0) {
-        final currentMs = currentPosition.inMilliseconds;
-        final totalMs = totalDuration.value.inMilliseconds;
-        
-        // 如果在开头5秒或结尾5秒,删除记录
+      final Duration lastPosition = currentPosition;
+      final Duration lastTotalDuration = totalDuration.value;
+
+      if (videoId != null && lastTotalDuration.inMilliseconds > 0) {
+        final currentMs = lastPosition.inMilliseconds;
+        final totalMs = lastTotalDuration.inMilliseconds;
+
         if (currentMs <= 5000 || currentMs >= (totalMs - 5000)) {
           _playbackHistoryService.deletePlaybackHistory(videoId!);
         } else {
-          // 否则保存/更新记录
           _playbackHistoryService.savePlaybackHistory(
             videoId!,
             totalMs,
@@ -367,12 +392,7 @@ class MyVideoStateController extends GetxController
           );
         }
       }
-      
-      _autoHideTimer?.cancel();
-      _cancelSubscriptions();
-      _volumeListenerDisposer?.cancel(); // 取消音量监听
-      _resumeTipTimer?.cancel();
-      _pipStatusSubscription?.cancel(); // 取消监听
+
       super.onClose();
     } catch (e) {
       LogUtils.e('关闭控制器时发生错误: $e', tag: 'MyVideoStateController', error: e);
@@ -408,31 +428,38 @@ class MyVideoStateController extends GetxController
 
   /// 获取视频详情信息
   void fetchVideoDetail(String videoId) async {
+    if (_isDisposed) return;
+
     LogUtils.i('开始获取视频详情，videoId: $videoId', 'MyVideoStateController');
     isVideoInfoLoading.value = true;
-    isVideoSourceLoading.value = true;
     videoErrorMessage.value = null;
     mainErrorWidget.value = null;
 
     try {
-      // 获取视频基本信息
-      var res = await _apiService.get('/video/$videoId');
-      
+      var res = await _apiService.get(
+        '/video/$videoId',
+        cancelToken: _cancelToken,
+      );
+
+      if (_isDisposed) return;
+
       videoInfo.value = video_model.Video.fromJson(res.data);
       if (videoInfo.value == null) {
         LogUtils.e('视频信息为空', tag: 'MyVideoStateController');
-        mainErrorWidget.value = CommonErrorWidget(
-          text: slang.t.videoDetail.videoInfoIsEmpty,
-          children: [
-            ElevatedButton(
-              onPressed: () => AppService.tryPop(),
-              child: Text(slang.t.common.back),
-            ),
-          ],
-        );
+        if (!_isDisposed) {
+          mainErrorWidget.value = CommonErrorWidget(
+            text: slang.t.videoDetail.videoInfoIsEmpty,
+            children: [
+              ElevatedButton(
+                onPressed: () => AppService.tryPop(),
+                child: Text(slang.t.common.back),
+              ),
+            ],
+          );
+        }
         return;
       }
-      
+
       LogUtils.d('成功获取视频信息: ${videoInfo.value?.title}', 'MyVideoStateController');
 
       // 添加历史记录
@@ -441,9 +468,12 @@ class MyVideoStateController extends GetxController
           final historyRecord = HistoryRecord.fromVideo(videoInfo.value!);
           LogUtils.d('添加历史记录: ${historyRecord.toJson()}', 'MyVideoStateController');
           await _historyRepository.addRecordWithCheck(historyRecord);
+          if (_isDisposed) return;
         }
       } catch (e) {
-        LogUtils.e('添加历史记录失败', tag: 'MyVideoStateController', error: e);
+        if (!_isDisposed) {
+          LogUtils.e('添加历史记录失败', tag: 'MyVideoStateController', error: e);
+        }
       }
 
       String? authorId = videoInfo.value!.user?.id;
@@ -453,15 +483,17 @@ class MyVideoStateController extends GetxController
         otherAuthorzVideosController!.fetchRelatedMedias();
       }
 
-      // 如果视频不是私密的且有文件URL，则获取视频源
       if (videoInfo.value!.private == false &&
           videoInfo.value!.fileUrl != null) {
-        fetchVideoSource();
+        await fetchVideoSource();
       }
-    } catch (e) {
-      // 处理 403 和 404 错误
-      LogUtils.e('获取视频详情失败: $e', tag: 'MyVideoStateController', error: e);
-      if (e is DioException) {
+    } on DioException catch (e) {
+      if (_isDisposed || e.type == DioExceptionType.cancel) {
+        LogUtils.w('请求被取消或Controller已销毁', 'MyVideoStateController');
+        return;
+      }
+      LogUtils.e('获取视频详情失败 (Dio): $e', tag: 'MyVideoStateController', error: e);
+      if (!_isDisposed) {
         if (e.response?.statusCode == 403) {
           var data = e.response?.data;
           if (data != null && 
@@ -469,41 +501,64 @@ class MyVideoStateController extends GetxController
               data['message'] == 'errors.privateVideo') {
             User author = User.fromJson(data['data']['user']);
             mainErrorWidget.value = PrivateOrDeletedVideoWidget(author: author, isPrivate: true);
-            return;
           }
         } else if (e.response?.statusCode == 404) {
-          // 处理404错误
           mainErrorWidget.value = PrivateOrDeletedVideoWidget(isPrivate: false);
-          return;
+        } else {
+          mainErrorWidget.value = CommonErrorWidget(
+            text: slang.t.videoDetail.getVideoInfoFailed,
+            children: [
+              ElevatedButton(
+                onPressed: () => AppService.tryPop(),
+                child: Text(slang.t.common.back),
+              ),
+            ],
+          );
         }
       }
-      mainErrorWidget.value = CommonErrorWidget(
-        text: slang.t.videoDetail.getVideoInfoFailed,
-        children: [
-          ElevatedButton(
-            onPressed: () => AppService.tryPop(),
-            child: Text(slang.t.common.back),
-          ),
-        ],
-      );
+    } catch (e) {
+      if (!_isDisposed) {
+        LogUtils.e('获取视频详情失败 (Other): $e', tag: 'MyVideoStateController', error: e);
+        mainErrorWidget.value = CommonErrorWidget(
+          text: slang.t.videoDetail.getVideoInfoFailed,
+          children: [
+            ElevatedButton(
+              onPressed: () => AppService.tryPop(),
+              child: Text(slang.t.common.back),
+            ),
+          ],
+        );
+      }
     } finally {
-      // 无论成功还是失败，都将加载状态设置为 false
-      isVideoInfoLoading.value = false;
-      isVideoSourceLoading.value = false;
+      if (!_isDisposed) {
+        isVideoInfoLoading.value = false;
+      }
     }
   }
 
   /// 获取视频源信息
   Future<void> fetchVideoSource() async {
-    try {
-      isVideoSourceLoading.value = true;
-      videoErrorMessage.value = null;
+    if (_isDisposed) return;
+    if (videoInfo.value?.fileUrl == null) {
+      LogUtils.w('视频 FileUrl 为空，无法获取源', 'MyVideoStateController');
+      return;
+    }
 
-      // 获取视频源数据
-      var res = await _apiService.get(videoInfo.value!.fileUrl!, headers: {
-        'X-Version':
-            XVersionCalculatorUtil.calculateXVersion(videoInfo.value!.fileUrl!),
-      });
+    isVideoSourceLoading.value = true;
+    videoErrorMessage.value = null;
+
+    try {
+      var res = await _apiService.get(
+        videoInfo.value!.fileUrl!,
+        headers: {
+          'X-Version':
+              XVersionCalculatorUtil.calculateXVersion(videoInfo.value!.fileUrl!),
+        },
+        cancelToken: _cancelToken,
+      );
+
+      if (_isDisposed) return;
+
       List<dynamic> data = res.data;
       List<VideoSource> sources =
           data.map((item) => VideoSource.fromJson(item)).toList();
@@ -511,9 +566,9 @@ class MyVideoStateController extends GetxController
 
       var lastUserSelectedResolution =
           _configService[ConfigKey.DEFAULT_QUALITY_KEY];
-      // 使用 Video 的 copyWith 方法来更新 videoSources
       videoInfo.value = videoInfo.value!.copyWith(videoSources: sources);
 
+      if (_isDisposed) return;
       await resetVideoInfo(
         title: videoInfo.value!.title ?? '',
         resolutionTag: lastUserSelectedResolution,
@@ -521,24 +576,39 @@ class MyVideoStateController extends GetxController
             videoInfo.value!.videoSources,
             filterPreview: true),
       );
-    } catch (e) {
-      // 如果是个 404 的DioException 
-      if (e is DioException && e.response?.statusCode == 404) {
-        videoErrorMessage.value = 'resource_404';
+    } on DioException catch (e) {
+      if (_isDisposed || e.type == DioExceptionType.cancel) {
+        LogUtils.w('请求被取消或Controller已销毁', 'MyVideoStateController');
         return;
       }
-
-      // 处理错误
-      LogUtils.e('获取视频源失败: $e', tag: 'MyVideoStateController', error: e);
-      videoErrorMessage.value = slang.t.videoDetail.getVideoInfoFailed;
+      LogUtils.e('获取视频源失败 (Dio): $e', tag: 'MyVideoStateController', error: e);
+      if (!_isDisposed) {
+        if (e.response?.statusCode == 404) {
+          videoErrorMessage.value = 'resource_404';
+        } else {
+          videoErrorMessage.value = slang.t.videoDetail.getVideoInfoFailed;
+        }
+      }
+    } catch (e) {
+      if (!_isDisposed) {
+        LogUtils.e('获取视频源失败 (Other): $e', tag: 'MyVideoStateController', error: e);
+        videoErrorMessage.value = slang.t.videoDetail.getVideoInfoFailed;
+      }
     } finally {
-      // 无论成功还是失败，都将加载状态设置为 false
-      isVideoSourceLoading.value = false;
+      if (!_isDisposed) {
+        isVideoSourceLoading.value = false;
+      }
     }
   }
 
   /// 切换清晰度
   Future<void> switchResolution(String resolutionTag) async {
+    // 检查控制器是否已销毁
+    if (_isDisposed) {
+      LogUtils.d('控制器已销毁，取消切换清晰度', 'MyVideoStateController');
+      return;
+    }
+    
     LogUtils.i('[切换清晰度] $resolutionTag', 'MyVideoStateController');
     if (resolutionTag == currentResolutionTag.value) {
       LogUtils.d('清晰度相同，无需切换', 'MyVideoStateController');
@@ -568,10 +638,13 @@ class MyVideoStateController extends GetxController
     required List<VideoResolution> videoResolutions,
     Duration position = Duration.zero,
   }) async {
+    if (_isDisposed) return;
     LogUtils.i('[重置视频] $title $resolutionTag $videoResolutions $position', 'MyVideoStateController');
 
+    if (_isDisposed) return;
     await _cancelSubscriptions();
-    // 清楚buffer
+    if (_isDisposed) return;
+
     _clearBuffers();
 
     videoIsReady.value = false;
@@ -580,104 +653,125 @@ class MyVideoStateController extends GetxController
     currentPosition = position;
     currentResolutionTag.value = resolutionTag;
     sliderDragLoadFinished.value = true;
-    _clearBuffers(); // 清空缓冲区
+    _clearBuffers();
 
-    // 通过tag找出对应的视频源
     String? url =
         CommonUtils.findUrlByResolutionTag(videoResolutions, resolutionTag);
     if (url == null) {
-      mainErrorWidget.value = CommonErrorWidget(
-        text: slang.t.videoDetail.noVideoSourceFound,
-        children: [
-          ElevatedButton(
-            onPressed: () => AppService.tryPop(),
-            child: Text(slang.t.common.back),
-          ),
-        ],
-      );
+      if (!_isDisposed) {
+        mainErrorWidget.value = CommonErrorWidget(
+          text: slang.t.videoDetail.noVideoSourceFound,
+          children: [
+            ElevatedButton(
+              onPressed: () => AppService.tryPop(),
+              child: Text(slang.t.common.back),
+            ),
+          ],
+        );
+      }
       return;
     }
 
-    await player.open(Media(url));
+    if (_isDisposed) return;
+    try {
+      await player.open(Media(url));
+      if (_isDisposed) return;
+      _setupListenersAfterOpen();
+    } catch (e) {
+      if (!_isDisposed) {
+        LogUtils.e('Player open 或设置监听器时出错: $e', tag: 'MyVideoStateController', error: e);
+        videoErrorMessage.value = slang.t.videoDetail.errorLoadingVideo;
+      } else {
+        LogUtils.w('Player open 或设置监听器时 Controller 已销毁: $e', 'MyVideoStateController');
+      }
+    }
+  }
 
-    // position监听器设置方法
+  // 封装监听器设置
+  void _setupListenersAfterOpen() {
+    if (_isDisposed) return;
+
     _setupPositionListener();
 
-    // 监听缓冲状态
     bufferingSubscription = player.stream.buffering.listen((buffering) async {
-      // LogUtils.d('[视频缓冲中] $buffering', 'MyVideoStateController');
+      if (_isDisposed) return;
       videoBuffering.value = buffering;
     });
 
-    // 监听视频总时长
     durationSubscription = player.stream.duration.listen((duration) {
-      LogUtils.d('[视频总时长] $duration', 'MyVideoStateController');
+      if (_isDisposed) return;
       totalDuration.value = duration;
     });
 
-    // 监听视频宽度
     widthSubscription = player.stream.width.listen((width) {
-      LogUtils.d('[视频宽度] $width', 'MyVideoStateController');
+      if (_isDisposed) return;
       if (width != null) {
         sourceVideoWidth.value = width;
       }
     });
 
-    // 监听视频高度
     heightSubscription = player.stream.height.listen((height) {
-      LogUtils.d('[视频高度] $height', 'MyVideoStateController');
+      if (_isDisposed) return;
       if (height != null) {
         sourceVideoHeight.value = height;
         _updateAspectRatio();
       }
     });
 
-    // 正在播放
     playingSubscription = player.stream.playing.listen((playing) {
+      if (_isDisposed) return;
       if (playing != videoPlaying.value) {
         videoPlaying.value = playing;
       }
     });
 
-    // 缓冲进度
     bufferSubscription = player.stream.buffer.listen((bufferDuration) {
+      if (_isDisposed) return;
       _addBufferRange(bufferDuration);
     });
   }
 
   /// 更新视频宽高比
   void _updateAspectRatio() async {
+    if (_isDisposed) return;
+
     aspectRatio.value = sourceVideoWidth.value / sourceVideoHeight.value;
     LogUtils.d(
         '[更新后的宽高比] $aspectRatio, 视频高度: $sourceVideoHeight, 视频宽度: $sourceVideoWidth', 'MyVideoStateController');
-    if (!videoIsReady.value) {
+    
+    if (!videoIsReady.value && !_isDisposed) {
       videoIsReady.value = true;
-      int targetPosition = 0;
+      int targetPositionMs = 0;
 
-      // 避免初次加载视频时，又被seek到0
-      if (firstLoaded) {
-        // 刷新率切换触发的更新
-        await player.seek(currentPosition);
-      } else {
-        // 新视频加载触发的更新
-        if (_configService[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS]) {
-          try {
-            final history = await _playbackHistoryService.getPlaybackHistory(videoId!);
-            if (history != null) {
-              // 设置初始播放位置为历史记录位置减去4秒，但不小于0
-              final playedDuration = history['played_duration'] as int;
-              final totalDuration = history['total_duration'] as int;
-              targetPosition = (playedDuration - 4000).clamp(0, totalDuration);
-              await player.seek(Duration(milliseconds: targetPosition));
-              showResumeFromPositionTip(Duration(milliseconds: targetPosition));
-            }
-            // 如果播放记录不存在，则不显示，不处理
-          } catch (e) {
-            LogUtils.e('获取播放记录失败', tag: 'MyVideoStateController', error: e);
+      try {
+        if (!firstLoaded && _configService[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS]) {
+          final history = await _playbackHistoryService.getPlaybackHistory(videoId!);
+          if (_isDisposed) return;
+
+          if (history != null) {
+            final playedDuration = history['played_duration'] as int;
+            final totalDurationMs = history['total_duration'] as int;
+            targetPositionMs = (playedDuration - 4000).clamp(0, totalDurationMs);
+            showResumeFromPositionTip(Duration(milliseconds: targetPositionMs));
           }
+        } else if (firstLoaded) {
+          targetPositionMs = currentPosition.inMilliseconds;
+        }
+
+        if (!_isDisposed) {
+          LogUtils.d('准备 Seek 到: ${Duration(milliseconds: targetPositionMs)}', 'MyVideoStateController');
+          await player.seek(Duration(milliseconds: targetPositionMs));
+          if (_isDisposed) return;
+        }
+      } catch (e) {
+        if (!_isDisposed) {
+          LogUtils.e('获取或恢复播放记录/Seek时失败: $e', tag: 'MyVideoStateController', error: e);
+        }
+      } finally {
+        if (!_isDisposed) {
+          firstLoaded = true;
         }
       }
-      firstLoaded = true;
     }
   }
 
@@ -945,6 +1039,9 @@ class MyVideoStateController extends GetxController
   // 修改position监听器
   void _setupPositionListener() {
     positionSubscription = player.stream.position.listen((position) async {
+      // 在回调中检查控制器是否已销毁
+      if (_isDisposed) return;
+      
       if (!videoIsReady.value) return;
 
       // 只有在不是等待seek完成的状态下才更新位置
@@ -962,6 +1059,7 @@ class MyVideoStateController extends GetxController
         
         _positionUpdateThrottleTimer = Timer(_positionUpdateThrottleInterval, () {
           // 定时器触发时，如果最新位置与当前显示位置不同，则更新
+          if (_isDisposed) return;
           if (_lastPosition != currentPosition) {
             currentPosition = _lastPosition;
           }
@@ -978,13 +1076,19 @@ class MyVideoStateController extends GetxController
           if (repeat) {
             LogUtils.d('[视频即将播放完成]，设置播放模式', 'MyVideoStateController');
             _clearBuffers();
-            player.setPlaylistMode(PlaylistMode.loop);
+            if (!_isDisposed) {
+              player.setPlaylistMode(PlaylistMode.loop);
+            }
           } else {
-            player.setPlaylistMode(PlaylistMode.single);
+            if (!_isDisposed) {
+              player.setPlaylistMode(PlaylistMode.single);
+            }
           }
           // 设置一个延时，在视频真正结束后重置标志位
           Future.delayed(const Duration(seconds: 3), () {
-            _isSettingPlayMode = false;
+            if (!_isDisposed) {
+              _isSettingPlayMode = false;
+            }
           });
         }
       }
