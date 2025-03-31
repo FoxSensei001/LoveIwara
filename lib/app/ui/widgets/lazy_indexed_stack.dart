@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../pages/home_page.dart';
+import 'package:get/get.dart';
 
 /// LazyIndexedStack：实现懒加载并缓存页面。
 class LazyIndexedStack extends StatefulWidget {
@@ -67,9 +68,59 @@ class LazyIndexedStackState extends State<LazyIndexedStack> {
   void refreshCurrent() {
     if (widget.index >= 0 && widget.index < _cache.length) {
       final currentWidget = _cache[widget.index];
+      debugPrint('LazyIndexedStack.refreshCurrent: currentWidget=${currentWidget.runtimeType}');
       if (currentWidget is HomeWidgetInterface) {
+        debugPrint('LazyIndexedStack.refreshCurrent: currentWidget is HomeWidgetInterface, calling refreshCurrent()');
         (currentWidget as HomeWidgetInterface).refreshCurrent();
+      } else {
+        debugPrint('LazyIndexedStack.refreshCurrent: currentWidget is NOT HomeWidgetInterface');
+        
+        // 尝试查找特定类型的接口实例
+        String widgetTypeName = '';
+        String controllerTag = '';
+        if (widget.index == 0) {
+          widgetTypeName = 'PopularVideoListPage';
+          controllerTag = 'video';
+        }
+        else if (widget.index == 1) {
+          widgetTypeName = 'PopularGalleryListPage';
+          controllerTag = 'gallery';
+        }
+        else if (widget.index == 2) {
+          widgetTypeName = 'SubscriptionsPage';
+          controllerTag = 'subscriptions';
+        }
+        else if (widget.index == 3) {
+          widgetTypeName = 'ForumPage';
+          controllerTag = 'forum';
+        }
+        
+        if (widgetTypeName.isNotEmpty) {
+          debugPrint('LazyIndexedStack.refreshCurrent: 尝试查找 $widgetTypeName 实例');
+          final instance = HomeWidgetInterface.findInstance(widgetTypeName);
+          if (instance != null) {
+            debugPrint('LazyIndexedStack.refreshCurrent: 找到 $widgetTypeName 实例，调用refreshCurrent()');
+            instance.refreshCurrent();
+          } else {
+            debugPrint('LazyIndexedStack.refreshCurrent: 未找到 $widgetTypeName 实例，尝试通过controller刷新');
+            try {
+              final controller = Get.find<dynamic>(tag: controllerTag);
+              if (controllerTag == 'video' || controllerTag == 'gallery') {
+                final popularController = Get.find<dynamic>(tag: controllerTag);
+                debugPrint('LazyIndexedStack.refreshCurrent: 找到controller: ${popularController.runtimeType}');
+                if (popularController != null) {
+                  popularController.refreshPageUI();
+                  debugPrint('LazyIndexedStack.refreshCurrent: 已通过controller刷新页面');
+                }
+              }
+            } catch (e) {
+              debugPrint('LazyIndexedStack.refreshCurrent: 通过controller刷新失败: $e');
+            }
+          }
+        }
       }
+    } else {
+      debugPrint('LazyIndexedStack.refreshCurrent: Invalid index ${widget.index} or empty cache');
     }
   }
 

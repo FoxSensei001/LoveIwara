@@ -57,6 +57,7 @@ class TranslationsJa implements Translations {
 	@override late final _TranslationsFavoriteJa favorite = _TranslationsFavoriteJa._(_root);
 	@override late final _TranslationsTranslationJa translation = _TranslationsTranslationJa._(_root);
 	@override late final _TranslationsLinkInputDialogJa linkInputDialog = _TranslationsLinkInputDialogJa._(_root);
+	@override late final _TranslationsLogJa log = _TranslationsLogJa._(_root);
 }
 
 // Path: common
@@ -1132,6 +1133,69 @@ class _TranslationsLinkInputDialogJa implements TranslationsLinkInputDialogEn {
 	@override String get unsupportedLink => 'サポートされていないリンク';
 	@override String get cancel => 'キャンセル';
 	@override String get confirm => 'ブラウザで開く';
+}
+
+// Path: log
+class _TranslationsLogJa implements TranslationsLogEn {
+	_TranslationsLogJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get logManagement => 'ログ管理';
+	@override String get enableLogPersistence => 'ログ保存を有効にする';
+	@override String get enableLogPersistenceDesc => 'ログをデータベースに保存して分析に使用';
+	@override String get logDatabaseSizeLimit => 'ログデータベースサイズ上限';
+	@override String logDatabaseSizeLimitDesc({required Object size}) => '現在: ${size}';
+	@override String get exportCurrentLogs => '現在のログをエクスポート';
+	@override String get exportCurrentLogsDesc => '現在のアプリケーションログを開発者が診断に使用できるようにエクスポート';
+	@override String get exportHistoryLogs => '履歴ログをエクスポート';
+	@override String get exportHistoryLogsDesc => '指定された日付範囲内のログをエクスポート';
+	@override String get exportMergedLogs => 'マージログをエクスポート';
+	@override String get exportMergedLogsDesc => '指定された日付範囲内のマージログをエクスポート';
+	@override String get showLogStats => 'ログ統計情報を表示';
+	@override String get logExportSuccess => 'ログエクスポート成功';
+	@override String logExportFailed({required Object error}) => 'ログエクスポート失敗: ${error}';
+	@override String get showLogStatsDesc => '様々なタイプのログの統計情報を表示';
+	@override String logExtractFailed({required Object error}) => 'ログ統計情報の取得に失敗しました: ${error}';
+	@override String get clearAllLogs => 'すべてのログをクリア';
+	@override String get clearAllLogsDesc => 'すべてのログデータをクリア';
+	@override String get confirmClearAllLogs => '確認クリア';
+	@override String get confirmClearAllLogsDesc => 'すべてのログデータをクリアしますか？この操作は元に戻すことができません';
+	@override String get clearAllLogsSuccess => 'ログクリア成功';
+	@override String clearAllLogsFailed({required Object error}) => 'ログクリア失敗: ${error}';
+	@override String get unableToGetLogSizeInfo => 'ログサイズ情報を取得できません';
+	@override String get currentLogSize => '現在のログサイズ:';
+	@override String get logCount => 'ログ数:';
+	@override String get logCountUnit => 'ログ';
+	@override String get logSizeLimit => 'ログサイズ上限:';
+	@override String get usageRate => '使用率:';
+	@override String get exceedLimit => '超過';
+	@override String get remaining => '残り';
+	@override String get currentLogSizeExceededPleaseCleanOldLogsOrIncreaseLogSizeLimit => '現在のログサイズが超過しています。古いログをクリアするか、ログサイズ上限を増加してください';
+	@override String get currentLogSizeAlmostExceededPleaseCleanOldLogs => '現在のログサイズがほぼ超過しています。古いログをクリアしてください';
+	@override String get cleaningOldLogs => '古いログを自動的にクリアしています...';
+	@override String get logCleaningCompleted => 'ログクリアが完了しました';
+	@override String get logCleaningProcessMayNotBeCompleted => 'ログクリア過程が完了しない可能性があります';
+	@override String get cleanExceededLogs => '超過ログをクリア';
+	@override String get noLogsToExport => 'エクスポート可能なログデータがありません';
+	@override String get exportingLogs => 'ログをエクスポートしています...';
+	@override String get noHistoryLogsToExport => '履歴ログをエクスポートするのに十分なデータがありません。アプリを使用してからしばらくしてから再試行してください';
+	@override String get selectLogDate => 'ログ日付を選択';
+	@override String get today => '今日';
+	@override String get selectMergeRange => 'マージ範囲を選択';
+	@override String get selectMergeRangeHint => 'マージするログの日付範囲を選択してください';
+	@override String selectMergeRangeDays({required Object days}) => '最近 ${days} 日';
+	@override String get logStats => 'ログ統計情報';
+	@override String todayLogs({required Object count}) => '今日のログ: ${count} 件';
+	@override String recent7DaysLogs({required Object count}) => '最近7日のログ: ${count} 件';
+	@override String totalLogs({required Object count}) => '合計ログ: ${count} 件';
+	@override String get setLogDatabaseSizeLimit => 'ログデータベースサイズ上限を設定';
+	@override String currentLogSizeWithSize({required Object size}) => '現在のログサイズ: ${size}';
+	@override String get warning => '警告';
+	@override String newSizeLimit({required Object size}) => '新しいサイズ上限: ${size}';
+	@override String get confirmToContinue => '続行してもよろしいですか？';
+	@override String logSizeLimitSetSuccess({required Object size}) => 'ログサイズ上限を ${size} に設定しました';
 }
 
 // Path: common.pagination
@@ -2314,6 +2378,60 @@ extension on TranslationsJa {
 			case 'linkInputDialog.unsupportedLink': return 'サポートされていないリンク';
 			case 'linkInputDialog.cancel': return 'キャンセル';
 			case 'linkInputDialog.confirm': return 'ブラウザで開く';
+			case 'log.logManagement': return 'ログ管理';
+			case 'log.enableLogPersistence': return 'ログ保存を有効にする';
+			case 'log.enableLogPersistenceDesc': return 'ログをデータベースに保存して分析に使用';
+			case 'log.logDatabaseSizeLimit': return 'ログデータベースサイズ上限';
+			case 'log.logDatabaseSizeLimitDesc': return ({required Object size}) => '現在: ${size}';
+			case 'log.exportCurrentLogs': return '現在のログをエクスポート';
+			case 'log.exportCurrentLogsDesc': return '現在のアプリケーションログを開発者が診断に使用できるようにエクスポート';
+			case 'log.exportHistoryLogs': return '履歴ログをエクスポート';
+			case 'log.exportHistoryLogsDesc': return '指定された日付範囲内のログをエクスポート';
+			case 'log.exportMergedLogs': return 'マージログをエクスポート';
+			case 'log.exportMergedLogsDesc': return '指定された日付範囲内のマージログをエクスポート';
+			case 'log.showLogStats': return 'ログ統計情報を表示';
+			case 'log.logExportSuccess': return 'ログエクスポート成功';
+			case 'log.logExportFailed': return ({required Object error}) => 'ログエクスポート失敗: ${error}';
+			case 'log.showLogStatsDesc': return '様々なタイプのログの統計情報を表示';
+			case 'log.logExtractFailed': return ({required Object error}) => 'ログ統計情報の取得に失敗しました: ${error}';
+			case 'log.clearAllLogs': return 'すべてのログをクリア';
+			case 'log.clearAllLogsDesc': return 'すべてのログデータをクリア';
+			case 'log.confirmClearAllLogs': return '確認クリア';
+			case 'log.confirmClearAllLogsDesc': return 'すべてのログデータをクリアしますか？この操作は元に戻すことができません';
+			case 'log.clearAllLogsSuccess': return 'ログクリア成功';
+			case 'log.clearAllLogsFailed': return ({required Object error}) => 'ログクリア失敗: ${error}';
+			case 'log.unableToGetLogSizeInfo': return 'ログサイズ情報を取得できません';
+			case 'log.currentLogSize': return '現在のログサイズ:';
+			case 'log.logCount': return 'ログ数:';
+			case 'log.logCountUnit': return 'ログ';
+			case 'log.logSizeLimit': return 'ログサイズ上限:';
+			case 'log.usageRate': return '使用率:';
+			case 'log.exceedLimit': return '超過';
+			case 'log.remaining': return '残り';
+			case 'log.currentLogSizeExceededPleaseCleanOldLogsOrIncreaseLogSizeLimit': return '現在のログサイズが超過しています。古いログをクリアするか、ログサイズ上限を増加してください';
+			case 'log.currentLogSizeAlmostExceededPleaseCleanOldLogs': return '現在のログサイズがほぼ超過しています。古いログをクリアしてください';
+			case 'log.cleaningOldLogs': return '古いログを自動的にクリアしています...';
+			case 'log.logCleaningCompleted': return 'ログクリアが完了しました';
+			case 'log.logCleaningProcessMayNotBeCompleted': return 'ログクリア過程が完了しない可能性があります';
+			case 'log.cleanExceededLogs': return '超過ログをクリア';
+			case 'log.noLogsToExport': return 'エクスポート可能なログデータがありません';
+			case 'log.exportingLogs': return 'ログをエクスポートしています...';
+			case 'log.noHistoryLogsToExport': return '履歴ログをエクスポートするのに十分なデータがありません。アプリを使用してからしばらくしてから再試行してください';
+			case 'log.selectLogDate': return 'ログ日付を選択';
+			case 'log.today': return '今日';
+			case 'log.selectMergeRange': return 'マージ範囲を選択';
+			case 'log.selectMergeRangeHint': return 'マージするログの日付範囲を選択してください';
+			case 'log.selectMergeRangeDays': return ({required Object days}) => '最近 ${days} 日';
+			case 'log.logStats': return 'ログ統計情報';
+			case 'log.todayLogs': return ({required Object count}) => '今日のログ: ${count} 件';
+			case 'log.recent7DaysLogs': return ({required Object count}) => '最近7日のログ: ${count} 件';
+			case 'log.totalLogs': return ({required Object count}) => '合計ログ: ${count} 件';
+			case 'log.setLogDatabaseSizeLimit': return 'ログデータベースサイズ上限を設定';
+			case 'log.currentLogSizeWithSize': return ({required Object size}) => '現在のログサイズ: ${size}';
+			case 'log.warning': return '警告';
+			case 'log.newSizeLimit': return ({required Object size}) => '新しいサイズ上限: ${size}';
+			case 'log.confirmToContinue': return '続行してもよろしいですか？';
+			case 'log.logSizeLimitSetSuccess': return ({required Object size}) => 'ログサイズ上限を ${size} に設定しました';
 			default: return null;
 		}
 	}

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
+import 'package:i_iwara/app/ui/pages/home_page.dart'; // 导入HomeWidgetInterface
 
 import 'controllers/popular_gallery_controller.dart';
 import 'controllers/popular_gallery_repository.dart';
@@ -14,6 +15,16 @@ class PopularGalleryListPage extends PopularMediaListPageBase<ImageModel,
   static final globalKey = GlobalKey<
       PopularMediaListPageBaseState<ImageModel, PopularGalleryController,
           PopularGalleryRepository, PopularGalleryListPage>>();
+  
+  // 增加静态方法实现HomeWidgetInterface的查找
+  static PopularGalleryListPage? _cachedInstance;
+  
+  static PopularGalleryListPage getInstance() {
+    if (_cachedInstance == null) {
+      _cachedInstance = PopularGalleryListPage(key: globalKey);
+    }
+    return _cachedInstance!;
+  }
 
   const PopularGalleryListPage({super.key})
       : super(

@@ -51,8 +51,19 @@ abstract class PopularMediaListPageBase<T, C extends GetxController,
   @override
   void refreshCurrent() {
     final state = pageGlobalKey.currentState;
+    print('refreshCurrent ${state != null}');
     if (state != null) {
       state.tryRefreshCurrentSort();
+    } else {
+      // 如果无法获取currentState，尝试使用Get.find查找实例进行刷新
+      final tag = controllerTag;
+      print('尝试通过controller tag刷新: $tag');
+      try {
+        final controller = Get.find<PopularMediaListController>(tag: tag);
+        controller.refreshPageUI();
+      } catch (e) {
+        print('通过controller刷新失败: $e');
+      }
     }
   }
 }
@@ -80,6 +91,7 @@ class PopularMediaListPageBaseState<
   String rating = '';
 
   void tryRefreshCurrentSort() {
+    print('tryRefreshCurrentSort');
     if (mounted) {
       var sortId = sorts[_tabController.index].id;
       var repository = _repositories[sortId];

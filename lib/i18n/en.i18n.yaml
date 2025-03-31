@@ -1020,3 +1020,59 @@ linkInputDialog:
   unsupportedLink: "Unsupported Link"
   cancel: "Cancel"
   confirm: "Open in Browser"
+
+log:
+  logManagement: Log Management
+  enableLogPersistence: Enable Log Persistence
+  enableLogPersistenceDesc: Save logs to the database for analysis
+  logDatabaseSizeLimit: Log Database Size Limit
+  logDatabaseSizeLimitDesc: 'Current: ${size}'
+  exportCurrentLogs: Export Current Logs
+  exportCurrentLogsDesc: Export the current application logs to help developers diagnose problems
+  exportHistoryLogs: Export History Logs
+  exportHistoryLogsDesc: Export logs within a specified date range
+  exportMergedLogs: Export Merged Logs
+  exportMergedLogsDesc: Export merged logs within a specified date range
+  showLogStats: Show Log Stats
+  logExportSuccess: Log export success
+  logExportFailed: 'Log export failed: ${error}'
+  showLogStatsDesc: View statistics of various types of logs
+  logExtractFailed: 'Failed to get log statistics: ${error}'
+  clearAllLogs: Clear All Logs
+  clearAllLogsDesc: Clear all log data
+  confirmClearAllLogs: Confirm Clear
+  confirmClearAllLogsDesc: Are you sure you want to clear all log data? This operation cannot be undone.
+  clearAllLogsSuccess: Log cleared successfully
+  clearAllLogsFailed: 'Failed to clear logs: ${error}'
+  unableToGetLogSizeInfo: Unable to get log size information
+  currentLogSize: 'Current Log Size:'
+  logCount: 'Log Count:'
+  logCountUnit: 'logs'
+  logSizeLimit: 'Log Size Limit:'
+  usageRate: 'Usage Rate:'
+  exceedLimit: 'Exceed Limit'
+  remaining: 'Remaining'
+  currentLogSizeExceededPleaseCleanOldLogsOrIncreaseLogSizeLimit: 'Current log size exceeded, please clean old logs or increase log size limit'
+  currentLogSizeAlmostExceededPleaseCleanOldLogs: 'Current log size almost exceeded, please clean old logs'
+  cleaningOldLogs: 'Cleaning old logs...'
+  logCleaningCompleted: 'Log cleaning completed'
+  logCleaningProcessMayNotBeCompleted: 'Log cleaning process may not be completed'
+  cleanExceededLogs: 'Clean exceeded logs'
+  noLogsToExport: 'No logs to export'
+  exportingLogs: 'Exporting logs...'
+  noHistoryLogsToExport: 'No history logs to export, please try using the app for a while first'
+  selectLogDate: 'Select Log Date'
+  today: 'Today'
+  selectMergeRange: 'Select Merge Range'
+  selectMergeRangeHint: 'Please select the log time range to merge'
+  selectMergeRangeDays: 'Recent ${days} days'
+  logStats: 'Log Stats'
+  todayLogs: 'Today Logs: ${count} logs'
+  recent7DaysLogs: 'Recent 7 Days Logs: ${count} logs'
+  totalLogs: 'Total Logs: ${count} logs'
+  setLogDatabaseSizeLimit: 'Set Log Database Size Limit'
+  currentLogSizeWithSize: 'Current Log Size: ${size}'
+  warning: 'Warning'
+  newSizeLimit: 'New size limit: ${size}'
+  confirmToContinue: 'Confirm to continue'
+  logSizeLimitSetSuccess: 'Log size limit set to ${size}'

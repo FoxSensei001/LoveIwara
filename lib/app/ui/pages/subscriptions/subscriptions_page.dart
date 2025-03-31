@@ -221,38 +221,38 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                     
                     // 头像和用户选择器
                     Row(
+                      // mainAxisAlignment: MainAxisAlignment.spaceBetween, // Removed spaceBetween
                       children: [
-                        Obx(() => _buildAvatarButton()),
-                        // 添加订阅标题
-                        Text(
-                          t.common.subscriptions,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
                         // 喜欢的用户选择器
-                        Expanded(
-                          child: Obx(() {
-                            final likedUsers = userPreferenceService.likedUsers;
-                            List<SubscriptionDropdownItem> userDropdownItems = likedUsers
-                                .map((userDto) => SubscriptionDropdownItem(
-                                      id: userDto.id,
-                                      label: userDto.name,
-                                      avatarUrl: userDto.avatarUrl,
-                                      onLongPress: () =>
-                                          NaviService.navigateToAuthorProfilePage(
-                                              userDto.username),
-                                    ))
-                                .toList();
+                        Obx(() {
+                          final likedUsers = userPreferenceService.likedUsers;
+                          List<SubscriptionDropdownItem> userDropdownItems = likedUsers
+                              .map((userDto) => SubscriptionDropdownItem(
+                                    id: userDto.id,
+                                    label: userDto.name,
+                                    avatarUrl: userDto.avatarUrl,
+                                    onLongPress: () =>
+                                        NaviService.navigateToAuthorProfilePage(
+                                            userDto.username),
+                                  ))
+                              .toList();
 
-                            return CompactSubscriptionDropdown(
-                              userList: userDropdownItems,
-                              selectedUserId: selectedId,
-                              onUserSelected: _onUserSelected,
-                            );
-                          }),
+                          return CompactSubscriptionDropdown(
+                            userList: userDropdownItems,
+                            selectedUserId: selectedId,
+                            onUserSelected: _onUserSelected,
+                          );
+                        }),
+                        const Spacer(), // Added Spacer to push icons to the right
+                        // 设置按钮
+                        IconButton(
+                          icon: Icon(
+                            Icons.settings,
+                            color: Get.isDarkMode ? Colors.white : null,
+                          ),
+                          onPressed: () {
+                            AppService.switchGlobalDrawer();
+                          },
                         ),
                         // 搜索按钮
                         IconButton(

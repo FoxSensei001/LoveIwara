@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart'; // 保留 SearchSegment 导入
 import 'package:i_iwara/app/ui/pages/popular_media_list/popular_media_list_base_page.dart'; // 导入基类
+import 'package:i_iwara/app/ui/pages/home_page.dart'; // 导入HomeWidgetInterface
 import 'controllers/popular_video_controller.dart';
 import 'controllers/popular_video_repository.dart';
 
@@ -10,6 +11,16 @@ import 'controllers/popular_video_repository.dart';
 class PopularVideoListPage extends PopularMediaListPageBase<Video, PopularVideoController, PopularVideoRepository> {
   // 提供 GlobalKey - 更新类型
   static final globalKey = GlobalKey<PopularMediaListPageBaseState<Video, PopularVideoController, PopularVideoRepository, PopularVideoListPage>>();
+  
+  // 增加静态方法实现HomeWidgetInterface的查找
+  static PopularVideoListPage? _cachedInstance;
+  
+  static PopularVideoListPage getInstance() {
+    if (_cachedInstance == null) {
+      _cachedInstance = PopularVideoListPage(key: globalKey);
+    }
+    return _cachedInstance!;
+  }
 
   const PopularVideoListPage({super.key})
       : super(

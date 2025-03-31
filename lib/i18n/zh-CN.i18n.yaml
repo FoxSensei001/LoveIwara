@@ -1027,3 +1027,59 @@ linkInputDialog:
   unsupportedLink: "不支持的链接"
   cancel: "取消"
   confirm: "用浏览器打开"
+
+log:
+  logManagement: 日志管理
+  enableLogPersistence: 启用日志持久化
+  enableLogPersistenceDesc: 将日志保存到数据库以便于分析问题
+  logDatabaseSizeLimit: 日志数据库大小上限
+  logDatabaseSizeLimitDesc: '当前: ${size}'
+  exportCurrentLogs: 导出当前日志
+  exportCurrentLogsDesc: 导出当天应用日志以帮助开发者诊断问题
+  exportHistoryLogs: 导出历史日志
+  exportHistoryLogsDesc: 导出指定日期范围的日志
+  exportMergedLogs: 导出合并日志
+  exportMergedLogsDesc: 导出指定日期范围的合并日志
+  showLogStats: 显示日志统计信息
+  logExportSuccess: 日志导出成功
+  logExportFailed: '日志导出失败: ${error}'
+  showLogStatsDesc: 查看各种类型日志的统计数据
+  logExtractFailed: '获取日志统计失败: ${error}'
+  clearAllLogs: 清理所有日志
+  clearAllLogsDesc: 清理所有日志数据
+  confirmClearAllLogs: 确认清理
+  confirmClearAllLogsDesc: 确定要清理所有日志数据吗？此操作不可撤销。
+  clearAllLogsSuccess: 日志清理成功
+  clearAllLogsFailed: '清理日志失败: ${error}'
+  unableToGetLogSizeInfo: 无法获取日志大小信息
+  currentLogSize: '当前日志大小:'
+  logCount: '日志数量:'
+  logCountUnit: '条'
+  logSizeLimit: '大小上限:'
+  usageRate: '使用率:'
+  exceedLimit: '超出限制'
+  remaining: '剩余'
+  currentLogSizeExceededPleaseCleanOldLogsOrIncreaseLogSizeLimit: '当前日志大小已超出限制，建议立即清理旧日志或增加空间限制'
+  currentLogSizeAlmostExceededPleaseCleanOldLogs: '当前日志大小即将用尽，建议清理旧日志'
+  cleaningOldLogs: '正在自动清理旧日志...'
+  logCleaningCompleted: '日志清理完成'
+  logCleaningProcessMayNotBeCompleted: '日志清理过程可能未完成'
+  cleanExceededLogs: '清理超出限制的日志'
+  noLogsToExport: '没有可导出的日志数据'
+  exportingLogs: '正在导出日志...'
+  noHistoryLogsToExport: '尚无可导出的历史日志，请先使用应用一段时间再尝试'
+  selectLogDate: '选择日志日期'
+  today: '今天'
+  selectMergeRange: '选择合并范围'
+  selectMergeRangeHint: '请选择要合并的日志时间范围'
+  selectMergeRangeDays: '最近 ${days} 天'
+  logStats: '日志统计信息'
+  todayLogs: '今日日志: ${count} 条'
+  recent7DaysLogs: '最近7天: ${count} 条'
+  totalLogs: '总计日志: ${count} 条'
+  setLogDatabaseSizeLimit: '设置日志数据库大小上限'
+  currentLogSizeWithSize: '当前日志大小: ${size}'
+  warning: '警告'
+  newSizeLimit: '新的大小限制: ${size}'
+  confirmToContinue: '确定要继续吗？'
+  logSizeLimitSetSuccess: '日志大小上限已设置为 ${size}'
