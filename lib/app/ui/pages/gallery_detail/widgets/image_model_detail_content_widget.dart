@@ -35,81 +35,11 @@ import 'package:i_iwara/app/ui/widgets/add_to_favorite_dialog.dart';
 
 class ImageModelDetailContent extends StatelessWidget {
   final GalleryDetailController controller;
-  final double paddingTop;
-  final double? imageModelHeight;
-  final double? imageModelWidth;
 
   const ImageModelDetailContent({
     super.key,
     required this.controller,
-    required this.paddingTop,
-    this.imageModelHeight,
-    this.imageModelWidth,
   });
-
-  // 构建图像库内容的布局
-  Widget _contentLayout(BuildContext context, Widget child) {
-    return Column(
-      children: [
-        _buildPaddingTop(),
-        _buildHeader(context),
-        _buildImageContent(context, child),
-      ],
-    );
-  }
-
-  // 构建顶部的透明间距
-  Widget _buildPaddingTop() {
-    return Container(
-      height: paddingTop,
-      color: Colors.transparent,
-    );
-  }
-
-  // 构建标题栏，包括返回按钮和标题
-  Widget _buildHeader(BuildContext context) {
-    return Row(
-      children: [
-        IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        // 主页
-        IconButton(
-          icon: const Icon(Icons.home),
-          onPressed: () {
-            AppService appService = Get.find();
-            int currentIndex = appService.currentIndex;
-            final routes = [
-              Routes.POPULAR_VIDEOS,
-              Routes.GALLERY,
-              Routes.SUBSCRIPTIONS,
-            ];
-            AppService.homeNavigatorKey.currentState!.pushNamedAndRemoveUntil(
-                routes[currentIndex], (route) => false);
-          },
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            controller.imageModelInfo.value?.title ?? '',
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
-    );
-  }
-
-  // 构建图片内容部分，主要是显示图库图片
-  Widget _buildImageContent(BuildContext context, Widget child) {
-    return SizedBox(
-      width: imageModelWidth,
-      height: (imageModelHeight ?? MediaQuery.sizeOf(context).width / 1.7),
-      child: child.paddingHorizontal(12),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -117,118 +47,9 @@ class ImageModelDetailContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        _buildGalleryArea(context),
         _buildGalleryDetails(context),
       ],
     );
-  }
-
-  // 构建图库区域，显示图片和加载错误信息
-  Widget _buildGalleryArea(BuildContext context) {
-    return ClipRect(
-      child: Stack(
-        children: [
-          Obx(() {
-            if (controller.errorMessage.value != null) {
-              return _buildErrorContent(context);
-            }
-            return _buildImageListContent(context);
-          }),
-        ],
-      ),
-    );
-  }
-
-  // 构建错误信息区域
-  Widget _buildErrorContent(BuildContext context) {
-    final t = slang.Translations.of(context);
-    return CommonErrorWidget(
-      text: controller.errorMessage.value ?? t.errors.errorWhileLoadingGallery,
-      children: [
-        ElevatedButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(t.common.back),
-        ),
-        ElevatedButton(
-          onPressed: () => controller.fetchGalleryDetail(),
-          child: Text(t.common.retry),
-        ),
-      ],
-    );
-  }
-
-  // 构建图片列表内容
-  Widget _buildImageListContent(BuildContext context) {
-    ImageModel? im = controller.imageModelInfo.value;
-    final t = slang.Translations.of(context);
-    if (im == null) {
-      return _contentLayout(
-          context, MyEmptyWidget(message: t.errors.howCouldThereBeNoDataItCantBePossible));
-    }
-
-    List<ImageItem> imageItems = im.files
-        .map((e) => ImageItem(
-              url: e.getLargeImageUrl(),
-              data: ImageItemData(
-                id: e.id,
-                url: e.getLargeImageUrl(),
-                originalUrl: e.getOriginalImageUrl(),
-              ),
-            ))
-        .toList();
-
-    return _contentLayout(
-      context,
-      MouseRegion(
-        onEnter: (_) => controller.isHoveringHorizontalList.value = true,
-        onExit: (_) => controller.isHoveringHorizontalList.value = false,
-        child: HorizontalImageList(
-          images: imageItems,
-          onItemTap: (item) => _onImageTap(context, item, imageItems),
-          menuItemsBuilder: (context, item) => _buildImageMenuItems(context, item),
-        ),
-      ),
-    );
-  }
-
-  // 处理图片点击事件
-  void _onImageTap(
-      BuildContext context, ImageItem item, List<ImageItem> imageItems) {
-    ImageItemData iid = item.data;
-    LogUtils.d('点击了图片：${iid.id}', 'ImageModelDetailContent');
-    int index = imageItems.indexWhere((element) => element.url == item.url);
-    if (index == -1) {
-      index = imageItems.indexWhere((element) => element.data.id == iid.id);
-    }
-    NaviService.navigateToPhotoViewWrapper(imageItems: imageItems, initialIndex: index, menuItemsBuilder: (context, item) => _buildImageMenuItems(context, item));
-  }
-
-  // 构建图片的菜单项
-  List<MenuItem> _buildImageMenuItems(BuildContext context, ImageItem item) {
-    final t = slang.Translations.of(context);
-    return [
-      MenuItem(
-        title: t.galleryDetail.copyLink,
-        icon: Icons.copy,
-        onTap: () => ImageUtils.copyLink(item),
-      ),
-      MenuItem(
-        title: t.galleryDetail.copyImage,
-        icon: Icons.copy,
-        onTap: () => ImageUtils.copyImage(item),
-      ),
-      if (GetPlatform.isDesktop && !GetPlatform.isWeb)
-        MenuItem(
-          title: t.galleryDetail.saveAs,
-          icon: Icons.download,
-          onTap: () => ImageUtils.downloadImageForDesktop(item),
-        ),
-      MenuItem(
-        title: t.galleryDetail.saveToAlbum,
-        icon: Icons.save,
-        onTap: () => ImageUtils.downloadImageToAppDirectory(item),
-      ),
-    ];
   }
 
   // 构建图库详情区域
@@ -546,12 +367,17 @@ class ImageModelDetailContent extends StatelessWidget {
                       showModalBottomSheet(
                         backgroundColor: Colors.transparent,
                         isScrollControlled: true,
-                        builder: (context) => ShareGalleryBottomSheet(
-                          galleryId: imageModelInfo.id,
-                          galleryTitle: imageModelInfo.title,
-                          authorName: imageModelInfo.user?.name ?? '',
-                          previewUrl: imageModelInfo.thumbnailUrl,
-                        ),
+                        builder: (context) {
+                          // Ensure imageModelInfo is not null before accessing its properties
+                          final info = controller.imageModelInfo.value;
+                          if (info == null) return const SizedBox.shrink(); // Or return an error/placeholder
+                          return ShareGalleryBottomSheet(
+                            galleryId: info.id,
+                            galleryTitle: info.title,
+                            authorName: info.user?.name ?? '',
+                            previewUrl: info.thumbnailUrl,
+                          );
+                        },
                         context: context,
                       );
                     },

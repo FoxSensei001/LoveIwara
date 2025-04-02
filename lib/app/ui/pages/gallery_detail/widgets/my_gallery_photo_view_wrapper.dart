@@ -441,72 +441,119 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                               child: KeyedSubtree(
                                 key: ValueKey(
                                     '${widget.galleryItems[index]}_${_reloadTimestamps[index] ?? 0}'),
-                                child: Image(
-                                  image: widget.galleryItems[index].data.url
-                                          .startsWith('file://')
-                                      ? FileImage(File(widget
-                                          .galleryItems[index].data.url
-                                          .replaceFirst('file://', '')))
-                                      : NetworkImage(imageUrl,
-                                          headers: widget.galleryItems[index]
-                                              .headers) as ImageProvider,
-                                  fit: BoxFit.contain,
-                                  loadingBuilder: (BuildContext context, Widget child,
-                                      ImageChunkEvent? loadingProgress) {
-                                    if (loadingProgress == null) {
-                                      return child;
-                                    }
-                                    return Center(
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          CircularProgressIndicator(
-                                            value:
-                                                loadingProgress.expectedTotalBytes !=
-                                                        null
-                                                    ? loadingProgress
-                                                            .cumulativeBytesLoaded /
-                                                        loadingProgress
-                                                            .expectedTotalBytes!
-                                                    : null,
-                                          ),
-                                          const SizedBox(height: 16),
-                                          if (loadingProgress.expectedTotalBytes !=
-                                              null) ...[
-                                            Text(
-                                              '${((loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!) * 100).toStringAsFixed(1)}%',
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 14,
-                                              ),
+                                child: Hero(
+                                  tag: widget.galleryItems[index].data.id,
+                                  child: Image(
+                                    image: widget.galleryItems[index].data.url
+                                            .startsWith('file://')
+                                        ? FileImage(File(widget
+                                            .galleryItems[index].data.url
+                                            .replaceFirst('file://', '')))
+                                        : NetworkImage(imageUrl,
+                                            headers: widget.galleryItems[index]
+                                                .headers) as ImageProvider,
+                                    fit: BoxFit.contain,
+                                    loadingBuilder: (BuildContext context, Widget child,
+                                        ImageChunkEvent? loadingProgress) {
+                                      if (loadingProgress == null) {
+                                        return child;
+                                      }
+                                      return Center(
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            CircularProgressIndicator(
+                                              value:
+                                                  loadingProgress.expectedTotalBytes !=
+                                                          null
+                                                      ? loadingProgress
+                                                              .cumulativeBytesLoaded /
+                                                          loadingProgress
+                                                              .expectedTotalBytes!
+                                                      : null,
                                             ),
-                                            const SizedBox(height: 8),
-                                            Text(
-                                              '${(loadingProgress.cumulativeBytesLoaded / 1024 / 1024).toStringAsFixed(1)}MB / ${(loadingProgress.expectedTotalBytes! / 1024 / 1024).toStringAsFixed(1)}MB',
-                                              style: const TextStyle(
-                                                color: Colors.white70,
-                                                fontSize: 12,
+                                            const SizedBox(height: 16),
+                                            if (loadingProgress.expectedTotalBytes !=
+                                                null) ...[
+                                              Text(
+                                                '${((loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!) * 100).toStringAsFixed(1)}%',
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 14,
+                                                ),
                                               ),
-                                            ),
+                                              const SizedBox(height: 8),
+                                              Text(
+                                                '${(loadingProgress.cumulativeBytesLoaded / 1024 / 1024).toStringAsFixed(1)}MB / ${(loadingProgress.expectedTotalBytes! / 1024 / 1024).toStringAsFixed(1)}MB',
+                                                style: const TextStyle(
+                                                  color: Colors.white70,
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ],
                                           ],
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                  errorBuilder: (context, error, stackTrace) {
-                                    final fileExtension =
-                                        CommonUtils.getFileExtension(imageUrl);
-                                    if (error is Exception &&
-                                        error
-                                            .toString()
-                                            .contains('Invalid image data')) {
-                                      LogUtils.e(
-                                        '图片格式不支持, 当前的图片地址是: $imageUrl\n'
-                                        '文件扩展名: $fileExtension\n'
-                                        '错误详情: ${error.toString()}',
-                                        tag: 'MyGalleryPhotoViewWrapper',
-                                        error: error,
+                                        ),
                                       );
+                                    },
+                                    errorBuilder: (context, error, stackTrace) {
+                                      final fileExtension =
+                                          CommonUtils.getFileExtension(imageUrl);
+                                      if (error is Exception &&
+                                          error
+                                              .toString()
+                                              .contains('Invalid image data')) {
+                                        LogUtils.e(
+                                          '图片格式不支持, 当前的图片地址是: $imageUrl\n'
+                                          '文件扩展名: $fileExtension\n'
+                                          '错误详情: ${error.toString()}',
+                                          tag: 'MyGalleryPhotoViewWrapper',
+                                          error: error,
+                                        );
+                                        return Center(
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              const Icon(
+                                                Icons.error_outline,
+                                                color: Colors.white,
+                                                size: 48,
+                                              ),
+                                              const SizedBox(height: 16),
+                                              Text(
+                                                slang.t.errors.unsupportedImageFormat(
+                                                    str: fileExtension),
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 16,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 16),
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: [
+                                                  LoadingButton(
+                                                    onPressed: () => Future(() {
+                                                      _triggerReload(index);
+                                                    }),
+                                                    text: slang.t.common.retry,
+                                                    backgroundColor: Colors.white,
+                                                    foregroundColor: Colors.black,
+                                                  ),
+                                                  const SizedBox(width: 16),
+                                                  LoadingButton(
+                                                    onPressed: () => Future(() {
+                                                      ImageUtils.downloadImageToAppDirectory(widget.galleryItems[index]);
+                                                    }),
+                                                    text: slang.t.common.download,
+                                                    backgroundColor: Colors.white,
+                                                    foregroundColor: Colors.black,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      }
                                       return Center(
                                         child: Column(
                                           mainAxisAlignment: MainAxisAlignment.center,
@@ -518,70 +565,26 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                                             ),
                                             const SizedBox(height: 16),
                                             Text(
-                                              slang.t.errors.unsupportedImageFormat(
-                                                  str: fileExtension),
+                                              slang.t.errors.errorWhileLoadingGallery,
                                               style: const TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 16,
                                               ),
                                             ),
                                             const SizedBox(height: 16),
-                                            Row(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              children: [
-                                                LoadingButton(
-                                                  onPressed: () => Future(() {
-                                                    _triggerReload(index);
-                                                  }),
-                                                  text: slang.t.common.retry,
-                                                  backgroundColor: Colors.white,
-                                                  foregroundColor: Colors.black,
-                                                ),
-                                                const SizedBox(width: 16),
-                                                LoadingButton(
-                                                  onPressed: () => Future(() {
-                                                    ImageUtils.downloadImageToAppDirectory(widget.galleryItems[index]);
-                                                  }),
-                                                  text: slang.t.common.download,
-                                                  backgroundColor: Colors.white,
-                                                  foregroundColor: Colors.black,
-                                                ),
-                                              ],
+                                            LoadingButton(
+                                              onPressed: () => Future(() {
+                                                _triggerReload(index);
+                                              }),
+                                              text: slang.t.common.retry,
+                                              backgroundColor: Colors.white,
+                                              foregroundColor: Colors.black,
                                             ),
                                           ],
                                         ),
                                       );
-                                    }
-                                    return Center(
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          const Icon(
-                                            Icons.error_outline,
-                                            color: Colors.white,
-                                            size: 48,
-                                          ),
-                                          const SizedBox(height: 16),
-                                          Text(
-                                            slang.t.errors.errorWhileLoadingGallery,
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 16),
-                                          LoadingButton(
-                                            onPressed: () => Future(() {
-                                              _triggerReload(index);
-                                            }),
-                                            text: slang.t.common.retry,
-                                            backgroundColor: Colors.white,
-                                            foregroundColor: Colors.black,
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
+                                    },
+                                  ),
                                 ),
                               ),
                             ),
@@ -592,9 +595,6 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                       maxScale: PhotoViewComputedScale.covered * 3,
                       initialScale: PhotoViewComputedScale.contained,
                       controller: controllers[index],
-                      heroAttributes: PhotoViewHeroAttributes(
-                        tag: widget.galleryItems[index].data.id,
-                      ),
                     );
                   },
                   itemCount: widget.galleryItems.length,

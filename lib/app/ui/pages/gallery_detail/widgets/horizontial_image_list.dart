@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart'; // Import TickerProvider
+import 'package:flutter/services.dart'; // Import for keyboard events
 import 'package:get/get.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/common_utils.dart';
@@ -92,23 +94,43 @@ class HorizontalImageList extends StatefulWidget {
   State<HorizontalImageList> createState() => _HorizontalImageListState();
 }
 
-class _HorizontalImageListState extends State<HorizontalImageList> {
+class _HorizontalImageListState extends State<HorizontalImageList>
+    with TickerProviderStateMixin { // Mixin TickerProvider
+  final FocusNode _focusNode = FocusNode(); // Add FocusNode
   final ScrollController _scrollController = ScrollController();
   bool _showLeftButton = false;
   late bool _showRightButton;
   final Map<String, double> _loadedAspectRatios = {};
   OverlayEntry? _overlayEntry;
 
+  // --- Continuous Scroll State ---
+  Ticker? _ticker;
+  bool _isScrollingLeft = false;
+  bool _isScrollingRight = false;
+  final double _scrollVelocity = 200.0; // Pixels per second
+  // ------------------------------
+
   @override
   void initState() {
     super.initState();
+    _ticker = createTicker(_tick); // Create ticker
+    // Request focus when the widget is initialized, if needed
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   if (mounted) {
+    //     FocusScope.of(context).requestFocus(_focusNode);
+    //   }
+    // });
     _showRightButton = widget.images.length > 1;
     _scrollController.addListener(_updateButtonVisibility);
   }
 
   @override
   void dispose() {
+    _focusNode.dispose(); // Dispose FocusNode
+    _ticker?.dispose(); // Dispose ticker
     _hideMenu();
+    _scrollController.removeListener(_updateButtonVisibility);
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -206,50 +228,88 @@ class _HorizontalImageListState extends State<HorizontalImageList> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        return ClipRRect(
-            borderRadius: BorderRadius.circular(8.0),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Listener(
-                  onPointerSignal: _handleMouseScroll,
-                  child: ListView.builder(
-                    controller: _scrollController,
-                    scrollDirection: Axis.horizontal,
-                    itemCount: widget.images.length,
-                    itemBuilder: (context, index) {
-                      final imageItem = widget.images[index];
-                      return _buildImageItem(context, imageItem, index,
-                          Size(constraints.maxWidth, constraints.maxHeight));
-                    },
-                  ),
-                ),
-                if (_showLeftButton)
-                  Positioned(
-                    left: 8,
-                    child: _buildScrollButton(
-                      Icons.arrow_back_ios_rounded,
-                      () => _scrollController.animateTo(
-                        _scrollController.offset - widget.scrollOffset,
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeOutCubic,
-                      ),
+        // Wrap with Focus to handle keyboard events
+        return Focus(
+          focusNode: _focusNode,
+          autofocus: true, // Automatically request focus
+          canRequestFocus: true,
+          onKeyEvent: (node, event) {
+            final bool isArrowLeft = event.logicalKey == LogicalKeyboardKey.arrowLeft;
+            final bool isArrowRight = event.logicalKey == LogicalKeyboardKey.arrowRight;
+
+            if (event is KeyDownEvent) {
+              if (isArrowLeft) {
+                _isScrollingLeft = true;
+                _isScrollingRight = false; // Ensure only one direction
+                _startScrolling();
+                return KeyEventResult.handled;
+              } else if (isArrowRight) {
+                _isScrollingRight = true;
+                _isScrollingLeft = false; // Ensure only one direction
+                _startScrolling();
+                return KeyEventResult.handled;
+              }
+            } else if (event is KeyUpEvent) {
+              if (isArrowLeft) {
+                _isScrollingLeft = false;
+                _stopScrollingIfIdle();
+                return KeyEventResult.handled;
+              } else if (isArrowRight) {
+                _isScrollingRight = false;
+                _stopScrollingIfIdle();
+                return KeyEventResult.handled;
+              }
+            }
+            return KeyEventResult.ignored; // Ignore other keys
+          },
+          child: ClipRRect(
+              borderRadius: BorderRadius.circular(8.0),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Use Listener for mouse wheel scroll
+                  Listener(
+                    onPointerSignal: _handleMouseScroll,
+                    child: ListView.builder(
+                      controller: _scrollController,
+                      scrollDirection: Axis.horizontal,
+                      itemCount: widget.images.length,
+                      itemBuilder: (context, index) {
+                        final imageItem = widget.images[index];
+                        return _buildImageItem(context, imageItem, index,
+                            Size(constraints.maxWidth, constraints.maxHeight));
+                      },
                     ),
                   ),
-                if (_showRightButton)
-                  Positioned(
-                    right: 8,
-                    child: _buildScrollButton(
-                      Icons.arrow_forward_ios_rounded,
-                      () => _scrollController.animateTo(
-                        _scrollController.offset + widget.scrollOffset,
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeOutCubic,
+                  // Scroll buttons (visibility handled by listener)
+                  if (_showLeftButton)
+                    Positioned(
+                      left: 8,
+                      child: _buildScrollButton(
+                        Icons.arrow_back_ios_rounded,
+                        () => _scrollController.animateTo(
+                          _scrollController.offset - widget.scrollOffset,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeOutCubic,
+                        ),
                       ),
                     ),
-                  ),
-              ],
-            ));
+                  if (_showRightButton)
+                    Positioned(
+                      right: 8,
+                      child: _buildScrollButton(
+                        Icons.arrow_forward_ios_rounded,
+                        () => _scrollController.animateTo(
+                          _scrollController.offset + widget.scrollOffset,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeOutCubic,
+                        ),
+                      ),
+                    ),
+                ],
+              )
+          ),
+        );
       },
     );
   }
@@ -413,4 +473,48 @@ class _HorizontalImageListState extends State<HorizontalImageList> {
       }),
     );
   }
+
+  // --- Ticker Callback for Continuous Scroll ---
+  void _tick(Duration elapsed) {
+    if (!mounted) return;
+
+    double delta = 0.0;
+    // Calculate scroll delta based on elapsed time and velocity
+    // Assume ~60 FPS for frame time calculation if needed, or use actual elapsed
+    final double frameTime = elapsed.inMilliseconds / 1000.0; // Time since last tick in seconds
+
+    if (_isScrollingLeft) {
+      delta = -_scrollVelocity * frameTime;
+    } else if (_isScrollingRight) {
+      delta = _scrollVelocity * frameTime;
+    }
+
+    if (delta != 0) {
+      final targetOffset = (_scrollController.offset + delta)
+          .clamp(0.0, _scrollController.position.maxScrollExtent);
+      // Use jumpTo for immediate response within the ticker loop
+      _scrollController.jumpTo(targetOffset);
+      // If jumpTo reaches the boundary, stop scrolling in that direction
+      if (targetOffset == 0.0 && _isScrollingLeft) {
+        _isScrollingLeft = false;
+        _stopScrollingIfIdle();
+      } else if (targetOffset == _scrollController.position.maxScrollExtent && _isScrollingRight) {
+        _isScrollingRight = false;
+        _stopScrollingIfIdle();
+      }
+    }
+  }
+
+  void _startScrolling() {
+    if (!_ticker!.isTicking) {
+      _ticker?.start();
+    }
+  }
+
+  void _stopScrollingIfIdle() {
+    if (!_isScrollingLeft && !_isScrollingRight && _ticker!.isTicking) {
+      _ticker?.stop();
+    }
+  }
+  // ------------------------------------------
 }
