@@ -28,18 +28,13 @@ class SubscriptionPostListState extends BaseSubscriptionListState<PostModel, Sub
   
   @override
   SliverWaterfallFlowDelegate get extendedListDelegate => SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-    maxCrossAxisExtent: MediaQuery.of(context).size.width <= 600 ? 400 : 600,
-    crossAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
-    mainAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
+    maxCrossAxisExtent: 400,
+    crossAxisSpacing: 4,
+    mainAxisSpacing: 4,
   );
   
   @override
   Widget buildListItem(BuildContext context, PostModel post, int index) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 4,
-      ),
-      child: PostCardListItemWidget(post: post),
-    );
+    return PostCardListItemWidget(post: post);
   }
 }

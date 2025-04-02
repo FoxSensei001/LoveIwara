@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/utils/logger_utils.dart' show LogUtils;
 import 'package:loading_more_list/loading_more_list.dart';
+import 'package:i_iwara/app/utils/media_layout_utils.dart';
 import 'common_media_list_widgets.dart';
 import 'package:flutter/scheduler.dart';
 import 'dart:developer';
@@ -412,6 +413,13 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
   }
 
   Widget _buildInfiniteScrollView(BuildContext context) {
+    // 获取屏幕宽度
+    final screenWidth = MediaQuery.of(context).size.width;
+    
+    // 使用工具类计算列数和最大交叉轴范围
+    final int crossAxisCount = MediaLayoutUtils.calculateCrossAxisCount(screenWidth);
+    final double maxCrossAxisExtent = screenWidth / crossAxisCount;
+    
     return NotificationListener<ScrollNotification>(
       onNotification: _handleScrollNotification,
       child: RefreshIndicator(
@@ -425,9 +433,9 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
               SliverListConfig<T>(
                 extendedListDelegate: widget.extendedListDelegate ??
                     SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: 200,
-                      crossAxisSpacing: 5,
-                      mainAxisSpacing: 5,
+                      maxCrossAxisExtent: maxCrossAxisExtent,
+                      crossAxisSpacing: MediaLayoutUtils.crossAxisSpacing,
+                      mainAxisSpacing: MediaLayoutUtils.mainAxisSpacing,
                     ),
                 itemBuilder: widget.itemBuilder,
                 sourceList: widget.sourceList,
@@ -464,6 +472,13 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
     final bottomPadding = Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0;
     // 计算分页栏所需的底部边距
     final paginationBarHeight = 56 + bottomPadding;
+    
+    // 获取屏幕宽度
+    final screenWidth = MediaQuery.of(context).size.width;
+    
+    // 使用工具类计算列数和最大交叉轴范围
+    final int crossAxisCount = MediaLayoutUtils.calculateCrossAxisCount(screenWidth);
+    final double maxCrossAxisExtent = screenWidth / crossAxisCount;
     
     return Stack(
       children: [
@@ -526,13 +541,11 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
                         (context, index) => widget.itemBuilder(context, paginatedItems[index], index),
                         childCount: paginatedItems.length,
                       ),
-                      gridDelegate: (widget.extendedListDelegate is SliverWaterfallFlowDelegate)
-                        ? (widget.extendedListDelegate as SliverWaterfallFlowDelegate)
-                        : SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: 200,
-                          crossAxisSpacing: 5,
-                          mainAxisSpacing: 5,
-                        ),
+                      gridDelegate: SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: maxCrossAxisExtent,
+                        crossAxisSpacing: MediaLayoutUtils.crossAxisSpacing,
+                        mainAxisSpacing: MediaLayoutUtils.mainAxisSpacing,
+                      ),
                     ),
                   ),
                   // 加载更多指示器

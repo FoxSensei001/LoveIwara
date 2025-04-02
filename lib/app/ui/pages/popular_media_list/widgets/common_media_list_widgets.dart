@@ -22,17 +22,14 @@ Widget? buildIndicator(
       shrinkWrap: true,
       padding: EdgeInsets.zero,
       physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent:
-            MediaQuery.of(context).size.width <= 600 ? 180 : 200,
-        crossAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
-        mainAxisSpacing: MediaQuery.of(context).size.width <= 600 ? 4 : 5,
-        childAspectRatio: 1 / 1.2,
+      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: 300,
+        crossAxisSpacing: 5,
+        mainAxisSpacing: 5,
+        childAspectRatio: 1,
       ),
       itemCount: itemCount,
-      itemBuilder: (context, index) => buildShimmerItem(
-        MediaQuery.of(context).size.width <= 600 ? 180 : 200,
-      ),
+      itemBuilder: (context, index) => buildShimmerItem(200),
     );
   }
 
@@ -46,15 +43,14 @@ Widget? buildIndicator(
         baseColor: Colors.grey[300]!,
         highlightColor: Colors.grey[100]!,
         child: buildShimmerGrid(
-          // 加载更多时显示较少数量的骨架项
-          itemCount: (MediaQuery.of(context).size.width <= 600 ? 2 : 6),
+          itemCount: 1
         ),
       );
       // 加载更多指示器使用固定的垂直 Padding
       return Padding(
-        padding: EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           vertical: 8.0, // 使用固定的垂直 padding
-          horizontal: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
+          horizontal: 5.0,
         ),
         child: shimmerContent,
       );
@@ -73,8 +69,8 @@ Widget? buildIndicator(
         child: Padding(
           padding: EdgeInsets.only(
             top: paddingTop, // 应用传入的 paddingTop
-            left: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
-            right: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
+            left: 5.0,
+            right: 5.0,
           ),
           child: fullScreenShimmerContent,
         ),
@@ -84,9 +80,9 @@ Widget? buildIndicator(
       // 加载更多错误指示器
       return Padding(
         // 使用固定的垂直 Padding
-        padding: EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           vertical: 8.0, // 使用固定的垂直 padding
-          horizontal: MediaQuery.of(context).size.width <= 600 ? 2.0 : 5.0,
+          horizontal: 5.0,
         ),
         child: Card(
           elevation: 0,
@@ -554,7 +550,7 @@ class _PaginationBarState extends State<PaginationBar>
         children: [
           // 背景光晕效果
           Container(
-            width: MediaQuery.of(context).size.width,
+            width: double.infinity,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -575,7 +571,7 @@ class _PaginationBarState extends State<PaginationBar>
           ),
           // 前景进度条
           Container(
-            width: MediaQuery.of(context).size.width,
+            width: double.infinity,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -596,7 +592,7 @@ class _PaginationBarState extends State<PaginationBar>
   Widget _buildProgressIndicator(BuildContext context, double value) {
     final primaryColor = Theme.of(context).colorScheme.primary;
     final secondaryColor = Theme.of(context).colorScheme.secondary;
-    final progressWidth = MediaQuery.of(context).size.width * value;
+    final progressWidth = value * 100;
 
     return SizedBox(
       height: 3,
@@ -664,9 +660,8 @@ class _PaginationBarState extends State<PaginationBar>
 
   // 构建完整的分页控制栏（适用于宽屏）
   Widget _buildFullPaginationBar(BuildContext context) {
-    double paddingBottom = MediaQuery.paddingOf(context).bottom + widget.paddingBottom;
     return Padding(
-      padding: EdgeInsets.only(bottom: paddingBottom, right: 12, left: 12),
+      padding: const EdgeInsets.only(bottom: 16, right: 12, left: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -816,9 +811,8 @@ class _PaginationBarState extends State<PaginationBar>
 
   // 构建紧凑版的分页控制栏（适用于窄屏）
   Widget _buildCompactPaginationBar(BuildContext context) {
-    double paddingBottom = MediaQuery.paddingOf(context).bottom + widget.paddingBottom;
     return Padding(
-      padding: EdgeInsets.only(bottom: paddingBottom, right: 12, left: 12),
+      padding: const EdgeInsets.only(bottom: 16, right: 12, left: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

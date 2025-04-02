@@ -128,15 +128,7 @@ abstract class BaseSubscriptionListState<T, R extends ExtendedLoadingMoreBase<T>
     final String cacheKey = '${item.hashCode}_$index';
 
     return _itemCache.putIfAbsent(cacheKey, () {
-      return RepaintBoundary(
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
-            vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
-          ),
-          child: buildListItem(context, item, index),
-        ),
-      );
+      return buildListItem(context, item, index);
     });
   }
 

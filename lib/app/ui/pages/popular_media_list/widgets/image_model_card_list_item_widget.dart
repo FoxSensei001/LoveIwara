@@ -77,20 +77,18 @@ class _Thumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isNarrowScreen = MediaQuery.of(context).size.width < BaseCardListItem.narrowScreenWidth;
-
     return Stack(
       fit: StackFit.expand,
       children: [
-        _buildImage(isNarrowScreen),
+        _buildImage(),
         ...(cachedTags ?? buildTags(context)),
       ],
     );
   }
 
-  Widget _buildImage(bool isNarrowScreen) {
+  Widget _buildImage() {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(isNarrowScreen ? 6 : 8),
+      borderRadius: BorderRadius.circular(8),
       child: _buildOptimizedImage(),
     );
   }

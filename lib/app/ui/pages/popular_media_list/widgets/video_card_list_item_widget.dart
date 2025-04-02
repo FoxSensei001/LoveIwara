@@ -20,6 +20,7 @@ class VideoCardListItemWidget extends StatefulWidget {
   @override
   State<VideoCardListItemWidget> createState() =>
       _VideoCardListItemWidgetState();
+
 }
 
 class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
@@ -93,22 +94,20 @@ class _Thumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isNarrowScreen =
-        MediaQuery.of(context).size.width < BaseCardListItem.narrowScreenWidth;
     final t = slang.Translations.of(context);
 
     return Stack(
       fit: StackFit.expand,
       children: [
-        _buildImage(isNarrowScreen),
+        _buildImage(),
         ...(cachedTags ?? buildTags(context, t)),
       ],
     );
   }
 
-  Widget _buildImage(bool isNarrowScreen) {
+  Widget _buildImage() {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(isNarrowScreen ? 6 : 8),
+      borderRadius: BorderRadius.circular(8),
       child: _buildThumbnailImage(),
     );
   }
