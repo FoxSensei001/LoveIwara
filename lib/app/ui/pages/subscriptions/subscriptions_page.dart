@@ -19,7 +19,7 @@ import 'package:shimmer/shimmer.dart';
 import 'dart:ui';
 import 'controllers/media_list_controller.dart';
 
-class SubscriptionsPage extends StatefulWidget with RefreshableMixin {
+class SubscriptionsPage extends StatefulWidget implements HomeWidgetInterface {
   static final globalKey = GlobalKey<SubscriptionsPageState>();
 
   const SubscriptionsPage({super.key});
@@ -45,13 +45,20 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
 
   late TabController _tabController;
   String selectedId = '';
-  
+
   // 定义常量
   static const double _tabBarHeight = 48.0;
   static const double _headerHeight = 56.0;
 
   final ScrollController _tabBarScrollController = ScrollController();
   final List<GlobalKey> _tabKeys = [];
+
+  // 添加列表缓存，避免重复创建
+  final Map<String, Widget> _listCache = {};
+
+  // 添加节流器避免频繁处理滚动事件
+  DateTime _lastScrollTime = DateTime.now();
+  static const Duration _scrollThrottleDuration = Duration(milliseconds: 16);
 
   @override
   void initState() {
@@ -71,12 +78,19 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
   }
 
   void _scrollToSelectedTab() {
+    // 添加节流以减少不必要的滚动计算
+    final now = DateTime.now();
+    if (now.difference(_lastScrollTime) < _scrollThrottleDuration) {
+      return;
+    }
+    _lastScrollTime = now;
+
     final GlobalKey currentTabKey = _tabKeys[_tabController.index];
 
     final RenderBox? renderBox =
         currentTabKey.currentContext?.findRenderObject() as RenderBox?;
 
-    if (renderBox != null) {
+    if (renderBox != null && _tabBarScrollController.hasClients) {
       final position = renderBox.localToGlobal(Offset.zero);
 
       final screenWidth = MediaQuery.of(context).size.width;
@@ -101,6 +115,13 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
   }
 
   void _handleScroll(double delta) {
+    // 添加节流以减少滚动事件处理频率
+    final now = DateTime.now();
+    if (now.difference(_lastScrollTime) < _scrollThrottleDuration) {
+      return;
+    }
+    _lastScrollTime = now;
+
     if (_tabBarScrollController.hasClients) {
       final double newOffset = _tabBarScrollController.offset + delta;
       if (newOffset < 0) {
@@ -116,6 +137,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
 
   void _onUserSelected(String id) {
     if (selectedId != id) {
+      _listCache.clear();
       setState(() {
         selectedId = id;
       });
@@ -132,6 +154,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
     _tabController.dispose();
     _tabBarScrollController.dispose();
     Get.delete<MediaListController>();
+    _listCache.clear();
     super.dispose();
   }
 
@@ -146,63 +169,76 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
     });
   }
 
+  // 使用缓存视图构建subscription列表
+  Widget _buildCachedList(
+      int index, bool isPaginated, double paddingTop, String rebuildKey) {
+    final cacheKey = '${index}_${selectedId}_$isPaginated$rebuildKey';
+
+    return _listCache.putIfAbsent(cacheKey, () {
+      Widget child;
+
+      switch (index) {
+        case 0: // 视频列表
+          child = SubscriptionVideoList(
+            userId: selectedId,
+            isPaginated: isPaginated,
+            paddingTop: paddingTop,
+          );
+          break;
+        case 1: // 图片列表
+          child = SubscriptionImageList(
+            userId: selectedId,
+            isPaginated: isPaginated,
+            paddingTop: paddingTop,
+          );
+          break;
+        case 2: // 帖子列表
+          child = SubscriptionPostList(
+            userId: selectedId,
+            isPaginated: isPaginated,
+            paddingTop: paddingTop,
+          );
+          break;
+        default:
+          child = const SizedBox.shrink();
+      }
+
+      return GlowNotificationWidget(
+        key: ValueKey('${index}_$rebuildKey'),
+        child: child,
+      );
+    });
+  }
+
   Widget _buildContent(BuildContext context) {
     final t = slang.Translations.of(context);
-    final paddingTop = MediaQuery.of(context).padding.top + _headerHeight + _tabBarHeight;
-    
+    final paddingTop =
+        MediaQuery.of(context).padding.top + _headerHeight + _tabBarHeight;
+
+    // 减少嵌套的Obx，提取出公共状态
+    final isPaginated = mediaListController.isPaginated.value;
+    final rebuildKey = mediaListController.rebuildKey.value;
+
     return Stack(
       children: [
         // 1. 底层TabBarView - 覆盖整个屏幕
         Positioned.fill(
-          child: TabBarView(
-            controller: _tabController,
-            children: [
-              // 视频列表 - 使用全局状态控制器
-              Obx(() {
-                final isPaginated = mediaListController.isPaginated.value;
-                final rebuildKey = mediaListController.rebuildKey.value;
-
-                return GlowNotificationWidget(
-                  key: ValueKey('video_$rebuildKey'),
-                  child: SubscriptionVideoList(
-                    userId: selectedId,
-                    isPaginated: isPaginated,
-                    paddingTop: paddingTop,
-                  ),
-                );
-              }),
-              // 图片列表 - 使用全局状态控制器
-              Obx(() {
-                final isPaginated = mediaListController.isPaginated.value;
-                final rebuildKey = mediaListController.rebuildKey.value;
-
-                return GlowNotificationWidget(
-                  key: ValueKey('image_$rebuildKey'),
-                  child: SubscriptionImageList(
-                    userId: selectedId,
-                    isPaginated: isPaginated,
-                    paddingTop: paddingTop,
-                  ),
-                );
-              }),
-              // 帖子列表 - 使用全局状态控制器
-              Obx(() {
-                final isPaginated = mediaListController.isPaginated.value;
-                final rebuildKey = mediaListController.rebuildKey.value;
-
-                return GlowNotificationWidget(
-                  key: ValueKey('post_$rebuildKey'),
-                  child: SubscriptionPostList(
-                    userId: selectedId,
-                    isPaginated: isPaginated,
-                    paddingTop: paddingTop,
-                  ),
-                );
-              }),
-            ],
+          child: RepaintBoundary(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                // 使用缓存构建列表
+                _buildCachedList(
+                    0, isPaginated, paddingTop, rebuildKey.toString()),
+                _buildCachedList(
+                    1, isPaginated, paddingTop, rebuildKey.toString()),
+                _buildCachedList(
+                    2, isPaginated, paddingTop, rebuildKey.toString()),
+              ],
+            ),
           ),
         ),
-        
+
         // 2. 顶部悬浮区域 - 带毛玻璃效果
         Positioned(
           top: 0,
@@ -218,24 +254,24 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                   children: [
                     // 系统状态栏高度填充
                     const SafeArea(child: SizedBox()),
-                    
+
                     // 头像和用户选择器
                     Row(
-                      // mainAxisAlignment: MainAxisAlignment.spaceBetween, // Removed spaceBetween
                       children: [
-                        // 喜欢的用户选择器
+                        // 用户选择器
                         Obx(() {
                           final likedUsers = userPreferenceService.likedUsers;
-                          List<SubscriptionDropdownItem> userDropdownItems = likedUsers
-                              .map((userDto) => SubscriptionDropdownItem(
-                                    id: userDto.id,
-                                    label: userDto.name,
-                                    avatarUrl: userDto.avatarUrl,
-                                    onLongPress: () =>
-                                        NaviService.navigateToAuthorProfilePage(
-                                            userDto.username),
-                                  ))
-                              .toList();
+                          List<SubscriptionDropdownItem> userDropdownItems =
+                              likedUsers
+                                  .map((userDto) => SubscriptionDropdownItem(
+                                        id: userDto.id,
+                                        label: userDto.name,
+                                        avatarUrl: userDto.avatarUrl,
+                                        onLongPress: () => NaviService
+                                            .navigateToAuthorProfilePage(
+                                                userDto.username),
+                                      ))
+                                  .toList();
 
                           return CompactSubscriptionDropdown(
                             userList: userDropdownItems,
@@ -243,7 +279,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                             onUserSelected: _onUserSelected,
                           );
                         }),
-                        const Spacer(), // Added Spacer to push icons to the right
+                        const Spacer(),
                         // 设置按钮
                         IconButton(
                           icon: Icon(
@@ -288,7 +324,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                         ),
                       ],
                     ),
-                    
+
                     // TabBar 区域
                     Container(
                       height: _tabBarHeight,
@@ -310,7 +346,8 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                                   child: TabBar(
                                     controller: _tabController,
                                     isScrollable: true,
-                                    overlayColor: WidgetStateProperty.all(Colors.transparent),
+                                    overlayColor: WidgetStateProperty.all(
+                                        Colors.transparent),
                                     tabAlignment: TabAlignment.start,
                                     dividerColor: Colors.transparent,
                                     labelStyle: const TextStyle(
@@ -350,18 +387,20 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                           ),
                           // 添加分页模式切换按钮
                           Obx(() => IconButton(
-                            icon: Icon(mediaListController.isPaginated.value
-                                ? Icons.grid_view
-                                : Icons.menu),
-                            onPressed: () {
-                              // 切换分页模式
-                              mediaListController.setPaginatedMode(
-                                  !mediaListController.isPaginated.value);
-                            },
-                            tooltip: mediaListController.isPaginated.value
-                                ? t.common.pagination.waterfall
-                                : t.common.pagination.pagination,
-                          )),
+                                icon: Icon(mediaListController.isPaginated.value
+                                    ? Icons.grid_view
+                                    : Icons.menu),
+                                onPressed: () {
+                                  // 切换分页模式
+                                  mediaListController.setPaginatedMode(
+                                      !mediaListController.isPaginated.value);
+                                  // 清除缓存，因为视图模式已变更
+                                  _listCache.clear();
+                                },
+                                tooltip: mediaListController.isPaginated.value
+                                    ? t.common.pagination.waterfall
+                                    : t.common.pagination.pagination,
+                              )),
                           // 刷新按钮
                           IconButton(
                             icon: const Icon(Icons.refresh),
@@ -399,7 +438,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                 child: Container(
                   width: 24,
                   height: 24,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
                   ),
@@ -451,6 +490,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
     );
   }
 
+  //  使用const构造器预构建非登录页面
   Widget _buildNotLoggedIn(BuildContext context) {
     final t = slang.Translations.of(context);
     return Scaffold(
@@ -461,10 +501,10 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
           children: [
             TopPaddingHeightWidget(),
             Padding(
-              padding: EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16.0),
               child: Card(
                 child: Padding(
-                  padding: EdgeInsets.all(24.0),
+                  padding: const EdgeInsets.all(24.0),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [

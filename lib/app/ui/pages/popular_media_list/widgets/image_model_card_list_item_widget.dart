@@ -5,7 +5,7 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/app/ui/widgets/base_card_list_item_widget.dart';
 
-class ImageModelCardListItemWidget extends StatelessWidget {
+class ImageModelCardListItemWidget extends StatefulWidget {
   final ImageModel imageModel;
   final double width;
 
@@ -16,22 +16,64 @@ class ImageModelCardListItemWidget extends StatelessWidget {
   });
 
   @override
+  State<ImageModelCardListItemWidget> createState() => _ImageModelCardListItemWidgetState();
+}
+
+class _ImageModelCardListItemWidgetState extends State<ImageModelCardListItemWidget> {
+  // 缓存标签组件
+  late List<Widget> _cachedTags;
+  bool _tagsInitialized = false;
+  
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_tagsInitialized) {
+      final thumbnail = _Thumbnail(imageModel: widget.imageModel, width: widget.width);
+      _cachedTags = thumbnail.buildTags(context);
+      _tagsInitialized = true;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BaseCardListItem(
-      width: width,
-      thumbnail: _Thumbnail(imageModel: imageModel),
-      title: imageModel.title,
-      createdAt: imageModel.createdAt,
-      user: imageModel.user,
-      onTap: () => NaviService.navigateToGalleryDetailPage(imageModel.id),
+    // 确保标签已初始化
+    if (!_tagsInitialized) {
+      final thumbnail = _Thumbnail(imageModel: widget.imageModel, width: widget.width);
+      _cachedTags = thumbnail.buildTags(context);
+      _tagsInitialized = true;
+    }
+    
+    return RepaintBoundary(
+      child: BaseCardListItem(
+        width: widget.width,
+        thumbnail: _buildCachedThumbnail(),
+        title: widget.imageModel.title,
+        createdAt: widget.imageModel.createdAt,
+        user: widget.imageModel.user,
+        onTap: () => NaviService.navigateToGalleryDetailPage(widget.imageModel.id),
+      ),
+    );
+  }
+  
+  Widget _buildCachedThumbnail() {
+    return _Thumbnail(
+      imageModel: widget.imageModel,
+      width: widget.width,
+      cachedTags: _cachedTags,
     );
   }
 }
 
 class _Thumbnail extends StatelessWidget {
   final ImageModel imageModel;
+  final double width;
+  final List<Widget>? cachedTags;
 
-  const _Thumbnail({required this.imageModel});
+  const _Thumbnail({
+    required this.imageModel, 
+    required this.width,
+    this.cachedTags,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +83,7 @@ class _Thumbnail extends StatelessWidget {
       fit: StackFit.expand,
       children: [
         _buildImage(isNarrowScreen),
-        ...buildTags(context),
+        ...(cachedTags ?? buildTags(context)),
       ],
     );
   }
@@ -49,13 +91,44 @@ class _Thumbnail extends StatelessWidget {
   Widget _buildImage(bool isNarrowScreen) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(isNarrowScreen ? 6 : 8),
-      child: CachedNetworkImage(
-        imageUrl: imageModel.thumbnailUrl,
-        fit: BoxFit.cover,
-        placeholder: (_, __) => Container(color: Colors.grey[300]),
-        errorWidget: (_, __, ___) => Container(
-          color: Colors.grey[200],
-          child: Icon(Icons.image_not_supported, size: 40, color: Colors.grey[600])
+      child: _buildOptimizedImage(),
+    );
+  }
+  
+  Widget _buildOptimizedImage() {
+    return CachedNetworkImage(
+      imageUrl: imageModel.thumbnailUrl,
+      fit: BoxFit.cover,
+      memCacheWidth: (width * 1.5).toInt(),
+      fadeInDuration: const Duration(milliseconds: 50),
+      placeholderFadeInDuration: const Duration(milliseconds: 0),
+      fadeOutDuration: const Duration(milliseconds: 0),
+      maxWidthDiskCache: 400,
+      maxHeightDiskCache: 400,
+      placeholder: _buildPlaceholder,
+      errorWidget: (_, __, ___) => _buildErrorPlaceholder(),
+    );
+  }
+  
+  // 使用更高效的占位符
+  Widget _buildPlaceholder(BuildContext context, String url) {
+    return const SizedBox.expand(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Color(0xFFE0E0E0),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorPlaceholder() {
+    return const SizedBox.expand(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Color(0xFFE0E0E0),
+        ),
+        child: Center(
+          child: Icon(Icons.image_not_supported, size: 32, color: Color(0xFF9E9E9E)),
         ),
       ),
     );

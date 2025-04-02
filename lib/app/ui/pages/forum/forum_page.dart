@@ -22,7 +22,7 @@ import 'package:i_iwara/app/ui/pages/home_page.dart';
 import 'package:shimmer/shimmer.dart';
 import 'dart:ui';
 
-class ForumPage extends StatefulWidget with RefreshableMixin {
+class ForumPage extends StatefulWidget implements HomeWidgetInterface {
   static final globalKey = GlobalKey<_ForumPageState>();
 
   const ForumPage({super.key});

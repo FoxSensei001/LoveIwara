@@ -29,6 +29,7 @@ import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/log_service.dart';
 import 'package:i_iwara/common/constants.dart';
+import 'dart:ui' show Canvas, PaintingStyle, Picture, PictureRecorder, Rect;
 
 import 'app/my_app.dart';
 import 'app/services/api_service.dart';
@@ -109,6 +110,9 @@ void main() {
     if (GetPlatform.isDesktop && !GetPlatform.isWeb) {
       await _initializeDesktop();
     }
+
+    // 在应用启动时配置图片缓存
+    configureImageCache();
 
   }, (error, stackTrace) {
     // 在这里处理未捕获的异常
@@ -319,4 +323,40 @@ Future<void> _closeServices() async {
     // 记录关闭服务时可能出现的错误
     print('关闭服务失败: $e');
   }
+}
+
+// 在应用启动时配置图片缓存
+void configureImageCache() {
+  // 适当调整图片缓存大小，平衡内存使用和性能
+  PaintingBinding.instance.imageCache.maximumSize = 200; // 增加到200张图片
+  PaintingBinding.instance.imageCache.maximumSizeBytes = 100 * 1024 * 1024; // 限制内存占用为100MB
+  
+  // 预热渲染管道
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    _prewarmRendering();
+  });
+}
+
+// 预热渲染管道，减少首次渲染时的卡顿
+void _prewarmRendering() {
+  // 创建一个离屏的图像进行渲染预热
+  final recorder = PictureRecorder();
+  final canvas = Canvas(recorder);
+  
+  // 预热一些常用的绘制操作
+  final paint = Paint()
+    ..color = Colors.transparent
+    ..style = PaintingStyle.fill;
+  
+  canvas.drawRect(Rect.fromLTWH(0, 0, 100, 100), paint);
+  canvas.drawRRect(RRect.fromRectAndRadius(
+    Rect.fromLTWH(0, 0, 100, 100),
+    const Radius.circular(8.0),
+  ), paint);
+  
+  // 确保预热的内容被光栅化
+  final Picture picture = recorder.endRecording();
+  picture.toImage(1, 1).then((image) {
+    image.dispose(); // 释放图像资源
+  });
 }

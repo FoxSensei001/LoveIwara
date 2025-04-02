@@ -41,6 +41,8 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   late ColorScheme lightColorScheme;
   late ColorScheme darkColorScheme;
+  ThemeService themeService = Get.find<ThemeService>();
+
   @override
   void initState() {
     super.initState();
@@ -53,7 +55,6 @@ class _MyAppState extends State<MyApp> {
       // 当系统亮度发生变化时，更新主题
       onThemeModeChange: (brightness) {
         int currentThemeMode = CommonConstants.themeMode; // 0: system(动态主题), 1: light, 2: dark
-        final themeService = Get.find<ThemeService>();
         final bool useDynamicColor = themeService.useDynamicColor;
         ColorScheme? colorScheme;
 
@@ -92,7 +93,6 @@ class _MyAppState extends State<MyApp> {
     return DynamicColorBuilder(
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
         int currentThemeMode = CommonConstants.themeMode; // 0: system(动态主题), 1: light, 2: dark
-        final themeService = Get.find<ThemeService>();
         final bool useDynamicColor = themeService.useDynamicColor;
         final Color seedColor = themeService.getCurrentThemeColor();
 

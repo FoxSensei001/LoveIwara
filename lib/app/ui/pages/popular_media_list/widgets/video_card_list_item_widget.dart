@@ -18,21 +18,56 @@ class VideoCardListItemWidget extends StatefulWidget {
   });
 
   @override
-  State<VideoCardListItemWidget> createState() => _VideoCardListItemWidgetState();
+  State<VideoCardListItemWidget> createState() =>
+      _VideoCardListItemWidgetState();
 }
 
 class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
+  // 缓存Tag组件以避免重建
+  late List<Widget> _cachedTags;
+  bool _tagsInitialized = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_tagsInitialized) {
+      // 在didChangeDependencies中安全地访问InheritedWidget
+      final thumbnail = _Thumbnail(video: widget.video, width: widget.width);
+      _cachedTags =
+          thumbnail.buildTags(context, slang.Translations.of(context));
+      _tagsInitialized = true;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BaseCardListItem(
+    // 确保tags已初始化
+    if (!_tagsInitialized) {
+      final thumbnail = _Thumbnail(video: widget.video, width: widget.width);
+      _cachedTags =
+          thumbnail.buildTags(context, slang.Translations.of(context));
+      _tagsInitialized = true;
+    }
+
+    return RepaintBoundary(
+      child: BaseCardListItem(
+        width: widget.width,
+        thumbnail: _buildCachedThumbnail(),
+        title: widget.video.title ?? '',
+        createdAt: widget.video.createdAt,
+        user: widget.video.user,
+        onTap: () => NaviService.navigateToVideoDetailPage(widget.video.id),
+        onSecondaryTap: _showDetailsModal,
+        onLongPress: _showDetailsModal,
+      ),
+    );
+  }
+
+  Widget _buildCachedThumbnail() {
+    return _Thumbnail(
+      video: widget.video,
       width: widget.width,
-      thumbnail: _Thumbnail(video: widget.video),
-      title: widget.video.title ?? '',
-      createdAt: widget.video.createdAt,
-      user: widget.video.user,
-      onTap: () => NaviService.navigateToVideoDetailPage(widget.video.id),
-      onSecondaryTap: _showDetailsModal,
-      onLongPress: _showDetailsModal,
+      cachedTags: _cachedTags,
     );
   }
 
@@ -47,19 +82,26 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
 
 class _Thumbnail extends StatelessWidget {
   final Video video;
+  final double width;
+  final List<Widget>? cachedTags;
 
-  const _Thumbnail({required this.video});
+  const _Thumbnail({
+    required this.video,
+    required this.width,
+    this.cachedTags,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final bool isNarrowScreen = MediaQuery.of(context).size.width < BaseCardListItem.narrowScreenWidth;
+    final bool isNarrowScreen =
+        MediaQuery.of(context).size.width < BaseCardListItem.narrowScreenWidth;
     final t = slang.Translations.of(context);
 
     return Stack(
       fit: StackFit.expand,
       children: [
         _buildImage(isNarrowScreen),
-        ...buildTags(context, t),
+        ...(cachedTags ?? buildTags(context, t)),
       ],
     );
   }
@@ -75,19 +117,38 @@ class _Thumbnail extends StatelessWidget {
     return CachedNetworkImage(
       imageUrl: video.thumbnailUrl,
       fit: BoxFit.cover,
+      memCacheWidth: (width * 1.5).toInt(),
+      fadeInDuration: const Duration(milliseconds: 50),
+      placeholderFadeInDuration: const Duration(milliseconds: 0),
       placeholder: _buildPlaceholder,
       errorWidget: (_, __, ___) => _buildErrorPlaceholder(),
+      maxWidthDiskCache: 400,
+      maxHeightDiskCache: 400,
+      fadeOutDuration: const Duration(milliseconds: 0),
     );
   }
 
   Widget _buildPlaceholder(BuildContext context, String url) {
-    return Container(color: Colors.grey[300]);
+    return const SizedBox.expand(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Color(0xFFE0E0E0),
+        ),
+      ),
+    );
   }
 
   Widget _buildErrorPlaceholder() {
-    return Container(
-      color: Colors.grey[200],
-      child: Icon(Icons.image_not_supported, size: 40, color: Colors.grey[600]),
+    return const SizedBox.expand(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Color(0xFFE0E0E0),
+        ),
+        child: Center(
+          child: Icon(Icons.image_not_supported,
+              size: 32, color: Color(0xFF9E9E9E)),
+        ),
+      ),
     );
   }
 

@@ -30,6 +30,9 @@ class MediaTabViewState<T> extends State<MediaTabView<T>>
     with AutomaticKeepAliveClientMixin {
   final ScrollController _scrollController = ScrollController();
   
+  // 缓存列表项
+  final Map<String, Widget> _itemCache = {};
+  
   @override
   void dispose() {
     _scrollController.dispose();
@@ -49,14 +52,21 @@ class MediaTabViewState<T> extends State<MediaTabView<T>>
       scrollController: _scrollController,
       paddingTop: widget.paddingTop,
       itemBuilder: (context, item, index) {
-        return Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
-            vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
-          ),
-          child: _buildItem(item, context),
-        );
+        final cacheKey = '${item.hashCode}_$index';
+        return _itemCache.putIfAbsent(cacheKey, () {
+          return _buildCachedItem(item, context, index);
+        });
       },
+    );
+  }
+  
+  Widget _buildCachedItem(T item, BuildContext context, int index) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
+        vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
+      ),
+      child: _buildItem(item, context),
     );
   }
 
