@@ -1,32 +1,26 @@
+import 'package:file_selector/file_selector.dart' as fs show FileSaveLocation, getSaveLocation, XTypeGroup;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
-import 'package:i_iwara/app/routes/app_routes.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
-import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
-import 'package:i_iwara/utils/image_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:i_iwara/utils/widget_extensions.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/share_gallery_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:path/path.dart' as path;
 
 import '../../../../../common/enums/media_enums.dart';
-import '../../../../models/image.model.dart';
 import '../../../../services/app_service.dart';
-import '../../../widgets/error_widget.dart';
 import '../../popular_media_list/widgets/media_description_widget.dart';
 import '../../video_detail/widgets/detail/expandable_tags_widget.dart';
 import '../../video_detail/widgets/detail/like_avatars_widget.dart';
 import '../controllers/gallery_detail_controller.dart';
-import 'horizontial_image_list.dart';
 import '../../../widgets/follow_button_widget.dart';
 import '../../../widgets/like_button_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -442,12 +436,19 @@ class ImageModelDetailContent extends StatelessWidget {
       );
 
       // 创建下载任务
+      final savePath = await _getSavePath(imageModel.title, imageModel.id);
+      if (savePath == null) {
+        showToastWidget(MDToastWidget(
+            message: t.common.operationCancelled,
+            type: MDToastType.info));
+        return;
+      }
       final task = DownloadTask(
         id: GalleryDownloadExtData.genExtDataIdByGalleryInfo(imageModel.id),
         url: imageModel.files.first.getOriginalImageUrl(), // 使用第一张图片的URL
         downloadedBytes: 0, // 已下载图片数量
         totalBytes: imageModel.files.length, // 总图片数量
-        savePath: await _getSavePath(imageModel.title, imageModel.id),  // 保存路径 [下载文件夹/galleries/图库标题_图库id]
+        savePath: savePath,  // 保存路径 [下载文件夹/galleries/图库标题_图库id]
         fileName: '${imageModel.title}_${imageModel.id}', // 文件名
         extData: DownloadTaskExtData(
           type: DownloadTaskExtDataType.gallery,
@@ -472,10 +473,28 @@ class ImageModelDetailContent extends StatelessWidget {
   }
 
   // 获取保存路径
-  Future<String> _getSavePath(String title, String id) async {
-    final dir = await CommonUtils.getAppDirectory(pathSuffix: path.join('downloads', 'galleries'));
-    final sanitizedTitle = title.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_');
-    return '${dir.path}/${sanitizedTitle}_$id';
+  Future<String?> _getSavePath(String title, String id) async {
+    if (GetPlatform.isDesktop) {
+      // 选择文件夹
+      final fs.FileSaveLocation? result = await fs.getSaveLocation(
+        suggestedName: '${title.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_')}_$id',
+        acceptedTypeGroups: [
+          fs.XTypeGroup(
+            label: 'folders',
+            extensions: [''],
+          ),
+        ],
+      );
+      if (result != null) {
+        return result.path;
+      } else {
+        return null;
+      }
+    } else {
+      final dir = await CommonUtils.getAppDirectory(pathSuffix: path.join('downloads', 'galleries'));
+      final sanitizedTitle = title.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_');
+      return '${dir.path}/${sanitizedTitle}_$id';
+    }
   }
 
   // 添加到收藏夹

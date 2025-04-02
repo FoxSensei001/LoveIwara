@@ -428,6 +428,18 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                             }
                           }
                         },
+                        onDoubleTap: () {
+                          final scale = controllers[index].scale;
+                          if (scale != null) {
+                            if (scale > 1.0) {
+                              // 如果当前已放大，则缩小到原始大小
+                              controllers[index].scale = 1.0;
+                            } else {
+                              // 如果当前是原始大小，则放大到2倍
+                              controllers[index].scale = 2.0;
+                            }
+                          }
+                        },
                         child: Stack(
                           children: [
                             // 添加一个透明的全屏手势层
