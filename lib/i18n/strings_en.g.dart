@@ -172,6 +172,7 @@ class TranslationsCommonEn {
 	String get r18 => 'R18';
 	String get sensitive => 'Sensitive';
 	String get year => 'Year';
+	String get month => 'Month';
 	String get tag => 'Tag';
 	String get private => 'Private';
 	String get noTitle => 'No Title';
@@ -1453,6 +1454,7 @@ extension on Translations {
 			case 'common.r18': return 'R18';
 			case 'common.sensitive': return 'Sensitive';
 			case 'common.year': return 'Year';
+			case 'common.month': return 'Month';
 			case 'common.tag': return 'Tag';
 			case 'common.private': return 'Private';
 			case 'common.noTitle': return 'No Title';

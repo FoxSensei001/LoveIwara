@@ -170,6 +170,7 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get r18 => 'R18';
 	@override String get sensitive => 'センシティブ';
 	@override String get year => '年';
+	@override String get month => '月';
 	@override String get tag => 'タグ';
 	@override String get private => 'プライベート';
 	@override String get noTitle => 'タイトルなし';
@@ -1451,6 +1452,7 @@ extension on TranslationsJa {
 			case 'common.r18': return 'R18';
 			case 'common.sensitive': return 'センシティブ';
 			case 'common.year': return '年';
+			case 'common.month': return '月';
 			case 'common.tag': return 'タグ';
 			case 'common.private': return 'プライベート';
 			case 'common.noTitle': return 'タイトルなし';

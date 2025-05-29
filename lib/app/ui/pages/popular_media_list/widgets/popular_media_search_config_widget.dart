@@ -34,22 +34,29 @@ class PopularMediaSearchConfig extends StatefulWidget {
 class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
   late List<Tag> tags; // 选中的标签
   late String year; // 选中的年份
+  late String month; // 选中的月份
   late String rating;
   late MediaRating _selectedRating;
   late UserPreferenceService _userPreferenceService;
   final ScrollController _scrollController = ScrollController();
+  final ScrollController _monthScrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     _userPreferenceService = Get.find<UserPreferenceService>();
     tags = List.from(widget.searchTags);
-    year = widget.searchYear;
     rating = widget.searchRating;
+    
+    // 解析年份和月份
+    final dateParts = widget.searchYear.split('-');
+    year = dateParts.isNotEmpty ? dateParts[0] : '';
+    month = dateParts.length > 1 ? dateParts[1] : '';
+    
     _selectedRating = MediaRating.values.firstWhere(
         (MediaRating rating) => rating.value == widget.searchRating);
     LogUtils.d(
-        'tags: $tags, year: $year rating: $rating', 'PopularVideoSearchConfig');
+        'tags: $tags, year: $year, month: $month, rating: $rating', 'PopularVideoSearchConfig');
   }
 
   @override
@@ -87,7 +94,15 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
                     child: IconButton(
                       icon: const Icon(Icons.check),
                       onPressed: () {
-                        widget.onConfirm(tags, year, _selectedRating.value);
+                        // 组合年份和月份为最终的日期字符串
+                        String finalDate = '';
+                        if (year.isNotEmpty) {
+                          finalDate = year;
+                          if (month.isNotEmpty) {
+                            finalDate = '$year-$month';
+                          }
+                        }
+                        widget.onConfirm(tags, finalDate, _selectedRating.value);
                         Navigator.of(context).pop();
                       },
                     ),
@@ -105,7 +120,15 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
             IconButton(
               icon: const Icon(Icons.check),
               onPressed: () {
-                widget.onConfirm(tags, year, _selectedRating.value);
+                // 组合年份和月份为最终的日期字符串
+                String finalDate = '';
+                if (year.isNotEmpty) {
+                  finalDate = year;
+                  if (month.isNotEmpty) {
+                    finalDate = '$year-$month';
+                  }
+                }
+                widget.onConfirm(tags, finalDate, _selectedRating.value);
                 Navigator.of(context).pop();
               },
             ),
@@ -127,6 +150,7 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
         children: [
           _buildContentRatingSection(context),
           _buildYearSelectionSection(context),
+          _buildMonthSelectionSection(context),
           _buildTagSelectionSection(context),
         ],
       ),
@@ -203,6 +227,7 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
                           if (selected) {
                             setState(() {
                               year = '';
+                              month = ''; // 清空年份时也清空月份
                             });
                           }
                         },
@@ -219,6 +244,80 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
                           if (selected) {
                             setState(() {
                               year = yearValue;
+                              month = ''; // 选择新年份时重置月份
+                            });
+                          }
+                        },
+                      ),
+                    );
+                  }
+                },
+              ),
+            ),
+          ),
+        ).paddingBottom(8),
+      ],
+    );
+  }
+
+  // 构建月份选择部分
+  Widget _buildMonthSelectionSection(BuildContext context) {
+    final t = slang.Translations.of(context);
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('${t.common.month}: ', style: const TextStyle(fontSize: 16)).paddingBottom(8),
+        ScrollConfiguration(
+          behavior: ScrollConfiguration.of(context).copyWith(
+            dragDevices: {
+              PointerDeviceKind.touch, // 触摸设备
+              PointerDeviceKind.mouse, // 鼠标设备
+            },
+            scrollbars: true,
+          ),
+          child: Listener(
+            onPointerSignal: (pointerSignal) {
+              if (pointerSignal is PointerScrollEvent) {
+                _monthScrollController.jumpTo(
+                  _monthScrollController.position.pixels +
+                      pointerSignal.scrollDelta.dy,
+                );
+              }
+            },
+            child: SizedBox(
+              height: 40,
+              child: ListView.builder(
+                controller: _monthScrollController,
+                scrollDirection: Axis.horizontal,
+                itemCount: 13, // "全部" + 12个月
+                itemBuilder: (context, index) {
+                  if (index == 0) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: ChoiceChip(
+                        label: Text(t.common.all),
+                        selected: month.isEmpty,
+                        onSelected: year.isEmpty ? null : (bool selected) {
+                          if (selected) {
+                            setState(() {
+                              month = '';
+                            });
+                          }
+                        },
+                      ),
+                    );
+                  } else {
+                    final monthValue = index.toString();
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: ChoiceChip(
+                        label: Text(monthValue),
+                        selected: month == monthValue,
+                        onSelected: year.isEmpty ? null : (bool selected) {
+                          if (selected) {
+                            setState(() {
+                              month = monthValue;
                             });
                           }
                         },
@@ -321,5 +420,12 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
         })
       ],
     );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _monthScrollController.dispose();
+    super.dispose();
   }
 }

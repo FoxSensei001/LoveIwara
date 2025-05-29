@@ -102,6 +102,7 @@ common:
   r18: R18
   sensitive: Sensitive
   year: Year
+  month: Month
   tag: Tag
   private: Private
   noTitle: No Title

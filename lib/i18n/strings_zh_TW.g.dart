@@ -168,6 +168,7 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get r18 => 'R18';
 	@override String get sensitive => '敏感';
 	@override String get year => '年份';
+	@override String get month => '月份';
 	@override String get tag => '標籤';
 	@override String get private => '私密';
 	@override String get noTitle => '無標題';
@@ -1452,6 +1453,7 @@ extension on TranslationsZhTw {
 			case 'common.r18': return 'R18';
 			case 'common.sensitive': return '敏感';
 			case 'common.year': return '年份';
+			case 'common.month': return '月份';
 			case 'common.tag': return '標籤';
 			case 'common.private': return '私密';
 			case 'common.noTitle': return '無標題';

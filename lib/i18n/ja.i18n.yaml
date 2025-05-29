@@ -105,6 +105,7 @@ common:
   r18: R18
   sensitive: センシティブ
   year: 年
+  month: 月
   tag: タグ
   private: プライベート
   noTitle: タイトルなし

@@ -104,6 +104,7 @@ common:
   r18: R18
   sensitive: 敏感
   year: 年份
+  month: 月份
   tag: 标签
   private: 私密
   noTitle: 无标题
