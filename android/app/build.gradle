@@ -68,7 +68,6 @@ android {
 dependencies {
     implementation 'com.google.errorprone:error_prone_annotations:2.10.0'
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
-    implementation 'com.arthenica:ffmpeg-kit-full:6.0'
 }
 
 flutter {
