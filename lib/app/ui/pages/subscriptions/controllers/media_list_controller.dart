@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:flutter/rendering.dart'; // Required for ScrollDirection
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -15,6 +16,9 @@ class MediaListController extends GetxController {
   final List<Function()> _scrollToTopCallbacks = [];
   // 滚动监听回调集合 - 用于通知顶部组件滚动事件
   final List<void Function(double)> _listScrollCallbacks = [];
+
+  final RxDouble currentScrollOffset = 0.0.obs;
+  final Rx<ScrollDirection> lastScrollDirection = ScrollDirection.idle.obs;
   
   // 注册滚动到顶部的回调函数
   void registerScrollToTopCallback(Function() callback) {
@@ -38,8 +42,9 @@ class MediaListController extends GetxController {
     _listScrollCallbacks.remove(callback);
   }
   
-  // 通知列表滚动事件 - 新增
-  void notifyListScroll(double offset) {
+  void notifyListScroll(double offset, ScrollDirection direction) {
+    currentScrollOffset.value = offset;
+    lastScrollDirection.value = direction;
     for (final callback in _listScrollCallbacks) {
       callback(offset);
     }
@@ -47,6 +52,11 @@ class MediaListController extends GetxController {
   
   // 执行所有滚动到顶部的回调
   void scrollToTop() {
+    // First, reset scroll state immediately for header animation
+    currentScrollOffset.value = 0.0;
+    lastScrollDirection.value = ScrollDirection.idle;
+    
+    // Then execute scroll callbacks
     for (var callback in _scrollToTopCallbacks) {
       callback();
     }
@@ -68,6 +78,8 @@ class MediaListController extends GetxController {
   // 刷新列表
   void refreshList() {
     rebuildKey.value++;
+    currentScrollOffset.value = 0.0;
+    lastScrollDirection.value = ScrollDirection.idle;
   }
   
   // 刷新页面UI并滚动到顶部

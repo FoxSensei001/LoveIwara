@@ -5,6 +5,8 @@ import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/app/utils/media_layout_utils.dart';
 import 'common_media_list_widgets.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/rendering.dart'; // 用于 ScrollDirection
+import 'package:i_iwara/app/ui/pages/subscriptions/controllers/media_list_controller.dart'; // 导入 MediaListController
 import 'dart:developer';
 
 // 添加性能监视类
@@ -196,6 +198,9 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
   
   final ScrollThrottler _scrollThrottler = ScrollThrottler();
   
+  // 添加 MediaListController 引用
+  MediaListController? _mediaListController;
+  
   int get totalItems {
     if (widget.sourceList is ExtendedLoadingMoreBase<T>) {
       return (widget.sourceList as ExtendedLoadingMoreBase<T>).requestTotalCount;
@@ -209,6 +214,18 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
   void initState() {
     super.initState();
     
+    // 尝试获取 MediaListController 实例（如果可用）
+    try {
+      _mediaListController = Get.find<MediaListController>();
+      // 如果控制器和滚动控制器可用，注册滚动到顶部回调
+      if (_mediaListController != null && widget.scrollController != null) {
+        _mediaListController!.registerScrollToTopCallback(_scrollToTop);
+      }
+    } catch (e) {
+      // 未找到 MediaListController，继续执行
+      _mediaListController = null;
+    }
+    
     // 初始化性能监控
     if (widget.enablePerformanceLogging) {
       PerformanceMonitor.initialize(true);
@@ -219,9 +236,32 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
     }
   }
 
+  // 添加滚动到顶部方法
+  void _scrollToTop() {
+    if (widget.scrollController != null && widget.scrollController!.hasClients) {
+      widget.scrollController!.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
   @override
   void didUpdateWidget(MediaListView<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
+    
+    // 处理滚动控制器变化
+    if (oldWidget.scrollController != widget.scrollController && _mediaListController != null) {
+      // 注销旧的回调
+      if (oldWidget.scrollController != null) {
+        _mediaListController!.unregisterScrollToTopCallback(_scrollToTop);
+      }
+      // 注册新的回调
+      if (widget.scrollController != null) {
+        _mediaListController!.registerScrollToTopCallback(_scrollToTop);
+      }
+    }
     
     // 检测模式切换
     if (oldWidget.isPaginated != widget.isPaginated) {
@@ -373,6 +413,10 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
 
   @override
   void dispose() {
+    // 如果已注册，注销滚动到顶部回调
+    if (_mediaListController != null && widget.scrollController != null) {
+      _mediaListController!.unregisterScrollToTopCallback(_scrollToTop);
+    }
     _pageController.dispose();
     super.dispose();
   }
@@ -388,14 +432,33 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
       return false;
     }
 
+    // 向 MediaListController 报告滚动事件，用于头部动画
+    if (notification is ScrollUpdateNotification && _mediaListController != null) {
+      ScrollDirection direction = ScrollDirection.idle;
+      if (notification.scrollDelta! > 0.1) { // 阈值，避免噪音
+        direction = ScrollDirection.reverse; // 向上滚动，内容向上移动
+      } else if (notification.scrollDelta! < -0.1) { // 阈值
+        direction = ScrollDirection.forward; // 向下滚动，内容向下移动
+      }
+      // 仅在确定方向或到达顶部/底部时通知
+      if (direction != ScrollDirection.idle || 
+          notification.metrics.pixels == 0 || 
+          notification.metrics.pixels == notification.metrics.maxScrollExtent) {
+         _mediaListController!.notifyListScroll(notification.metrics.pixels, direction);
+      }
+    }
+
     // 达到加载更多的像素点
-    if (notification is ScrollUpdateNotification) {
-      if (notification.metrics.pixels + 200 >= notification.metrics.maxScrollExtent) {
+    if (notification is ScrollUpdateNotification || notification is OverscrollNotification) {
+      if (notification.metrics.pixels + 200 >= notification.metrics.maxScrollExtent &&
+          notification.metrics.maxScrollExtent > 0) { // 确保有可滚动内容
         if (widget.isPaginated) {
           // 分页模式下不自动加载下一页
         } else {
           // 瀑布流模式下加载更多
-          widget.sourceList.loadMore();
+          if (widget.sourceList.hasMore && !widget.sourceList.isLoading) {
+            widget.sourceList.loadMore();
+          }
         }
       }
     }
@@ -471,7 +534,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
     // 获取系统底部安全区域高度
     final bottomPadding = Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0;
     // 计算分页栏所需的底部边距
-    final paginationBarHeight = 56 + bottomPadding;
+    final paginationBarHeight = 46 + bottomPadding;
     
     // 获取屏幕宽度
     final screenWidth = MediaQuery.of(context).size.width;
