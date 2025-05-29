@@ -3,6 +3,7 @@ import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/app/models/history_record.dart';
 import 'package:i_iwara/app/repositories/history_repository.dart';
@@ -18,13 +19,8 @@ class PostCardListItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isSmallScreen = MediaQuery.of(context).size.width <= 600;
     return Card(
       clipBehavior: Clip.antiAlias,
-      margin: EdgeInsets.symmetric(
-        vertical: isSmallScreen ? 4 : 6,
-        horizontal: isSmallScreen ? 4 : 6,
-      ),
       child: InkWell(
         onTap: () {
           // 添加历史记录
@@ -38,45 +34,36 @@ class PostCardListItemWidget extends StatelessWidget {
           NaviService.navigateToPostDetailPage(post.id, post);
         },
         child: SizedBox(
-          height: isSmallScreen ? 180 : 220,
+          height: 220,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // 用户信息
               ListTile(
-                dense: isSmallScreen,
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: isSmallScreen ? 6 : 8,
-                  vertical: isSmallScreen ? 4 : 8,
-                ),
+                dense: true,
                 leading: GestureDetector(
                   onTap: () => NaviService.navigateToAuthorProfilePage(
                     post.user.username,
                   ),
-                  child: _buildAvatar(post.user, isSmallScreen),
+                  child: _buildAvatar(post.user),
                 ),
                 title: GestureDetector(
                   onTap: () => NaviService.navigateToAuthorProfilePage(
                     post.user.username,
                   ),
-                  child: _buildDisplayName(post.user),
+                  child: buildUserName(context, post.user, bold: true, fontSize: 16),
                 ),
                 subtitle: Text(
                   '@${post.user.username}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: isSmallScreen ? 11 : 12),
+                  style: const TextStyle(fontSize: 12),
                 ),
               ),
               // 帖子内容
               Expanded(
                 child: Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    isSmallScreen ? 8 : 12,
-                    0,
-                    isSmallScreen ? 8 : 12,
-                    isSmallScreen ? 8 : 12,
-                  ),
+                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -84,20 +71,20 @@ class PostCardListItemWidget extends StatelessWidget {
                         post.title,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: isSmallScreen ? 14 : 16,
+                        style: const TextStyle(
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                           height: 1.2,
                         ),
                       ),
-                      SizedBox(height: isSmallScreen ? 4 : 8),
+                      const SizedBox(height: 8),
                       Expanded(
                         child: Text(
                           post.body,
-                          maxLines: isSmallScreen ? 2 : 3,
+                          maxLines: 3,
                           overflow: TextOverflow.ellipsis,
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontSize: isSmallScreen ? 12 : 14,
+                            fontSize: 14,
                             height: 1.4,
                           ),
                         ),
@@ -109,14 +96,14 @@ class PostCardListItemWidget extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(Icons.remove_red_eye, 
-                                size: isSmallScreen ? 14 : 16,
+                                size: 16,
                                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
-                              SizedBox(width: isSmallScreen ? 2 : 4),
+                              const SizedBox(width: 4),
                               Text(
                                 CommonUtils.formatFriendlyNumber(post.numViews),
                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  fontSize: isSmallScreen ? 11 : 12,
+                                  fontSize: 12,
                                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                               ),
@@ -126,15 +113,14 @@ class PostCardListItemWidget extends StatelessWidget {
                           final timeWidget = Text(
                             CommonUtils.formatFriendlyTimestamp(post.createdAt),
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              fontSize: isSmallScreen ? 11 : 12,
+                              fontSize: 12,
                               color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                           );
 
                           // 计算所需的总宽度
-                          final textSize = (isSmallScreen ? 11 : 12).toDouble();
-                          final viewsWidth = (isSmallScreen ? 14 : 16) + 
-                              (isSmallScreen ? 2 : 4) + // 图标和间距
+                          final textSize = 12.0;
+                          final viewsWidth = 16 + 4 + // 图标和间距
                               (CommonUtils.formatFriendlyNumber(post.numViews).length * textSize);
                           final timeWidth = CommonUtils.formatFriendlyTimestamp(post.createdAt).length * 
                               textSize;
@@ -147,7 +133,7 @@ class PostCardListItemWidget extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 viewsWidget,
-                                SizedBox(height: isSmallScreen ? 2 : 4),
+                                const SizedBox(height: 4),
                                 timeWidget,
                               ],
                             );
@@ -174,40 +160,10 @@ class PostCardListItemWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildAvatar(User user, bool isSmallScreen) {
+  Widget _buildAvatar(User user) {
     return AvatarWidget(
       user: user,
-      size: 30
-    );
-  }
-
-  Widget _buildDisplayName(User user) {
-    if (!user.premium) {
-      return Text(
-        user.name,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: const TextStyle(fontWeight: FontWeight.bold),
-      );
-    }
-
-    return ShaderMask(
-      shaderCallback: (bounds) => LinearGradient(
-        colors: [
-          Colors.purple.shade300,
-          Colors.blue.shade300,
-          Colors.pink.shade300,
-        ],
-      ).createShader(bounds),
-      child: Text(
-        user.name,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: const TextStyle(
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-      ),
+      size: 40
     );
   }
 } 

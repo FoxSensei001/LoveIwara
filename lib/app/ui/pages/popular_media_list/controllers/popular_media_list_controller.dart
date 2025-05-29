@@ -16,7 +16,7 @@ class PopularMediaListController extends GetxController {
       isPaginated.value = value;
       CommonConstants.isPaginated = value;
       Get.find<ConfigService>()[ConfigKey.DEFAULT_PAGINATION_MODE] = value;
-      rebuildKey.value++; // 增加重建键值强制更新视图
+      rebuildKey.value++;
     }
   }
   

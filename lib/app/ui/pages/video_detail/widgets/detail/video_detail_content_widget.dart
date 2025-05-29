@@ -617,10 +617,32 @@ class VideoDetailContent extends StatelessWidget {
     );
   }
   // 获取视频的下载地址
-  Future<String> _getSavePath(String title, String quality) async {
-    final dir = await CommonUtils.getAppDirectory(pathSuffix: p.join('downloads', 'videos'));
-    final sanitizedTitle = title.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_');
-    return '${dir.path}/${sanitizedTitle}_$quality.mp4';
+  Future<String?> _getSavePath(String title, String quality, String downloadUrl) async {
+    final uri = Uri.parse(downloadUrl);
+    String filename = uri.queryParameters['filename'] ?? '${title}_$quality.mp4';
+    if (GetPlatform.isDesktop) {
+      // 桌面平台使用file_selector让用户选择保存位置
+      final fs.FileSaveLocation? result = await fs.getSaveLocation(
+        suggestedName: filename,
+        acceptedTypeGroups: [
+          const fs.XTypeGroup(
+            label: 'MP4 Video',
+            extensions: ['mp4'],
+          ),
+        ],
+      );
+
+      if (result != null) {
+        return result.path;
+      } else {
+        return null; // 用户取消选择
+      }
+    } else {
+      // 移动平台使用默认路径
+      final dir = await CommonUtils.getAppDirectory(pathSuffix: p.join('downloads', 'videos'));
+      final sanitizedTitle = title.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_');
+      return '${dir.path}/${sanitizedTitle}_$quality.mp4';
+    }
   }
 
   void _showDownloadDialog(BuildContext context) {
@@ -690,6 +712,7 @@ class VideoDetailContent extends StatelessWidget {
                     final savePath = await _getSavePath(
                       videoInfo.title ?? 'video',
                       source.name ?? 'unknown',
+                      source.download ?? 'unknown'
                     );
 
                     if (savePath == null) {

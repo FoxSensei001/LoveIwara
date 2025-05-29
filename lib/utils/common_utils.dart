@@ -11,12 +11,19 @@ import 'package:i_iwara/utils/logger_utils.dart';
 import '../app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:path/path.dart' as p;
 class CommonUtils {
-  /// 格式化Duration 为 mm:ss
+  /// 格式化Duration 为 mm:ss 或 hh:mm:ss（适用于超过1小时的视频）
   static String formatDuration(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
+    final hours = twoDigits(duration.inHours);
     final minutes = twoDigits(duration.inMinutes.remainder(60));
     final seconds = twoDigits(duration.inSeconds.remainder(60));
-    return '$minutes:$seconds';
+    
+    // 如果时长超过1小时，添加小时显示
+    if (duration.inHours > 0) {
+      return '$hours:$minutes:$seconds';
+    } else {
+      return '$minutes:$seconds';
+    }
   }
 
   /// 进入全屏
@@ -261,5 +268,23 @@ class CommonUtils {
 
   static String formatDate(DateTime start) {
     return '${start.year}-${_twoDigits(start.month)}-${_twoDigits(start.day)}';
+  }
+
+  
+  // 根据屏幕宽度计算卡片宽度
+  static double calculateCardWidth(double screenWidth) {
+    if (screenWidth <= 600) {
+      // 窄屏设备，显示2列
+      return screenWidth / 2 - 8;
+    } else if (screenWidth <= 900) {
+      // 中等屏幕，显示3列
+      return screenWidth / 3 - 12;
+    } else if (screenWidth <= 1200) {
+      // 较大屏幕，显示4列
+      return screenWidth / 4 - 16;
+    } else {
+      // 大屏幕，显示5列
+      return screenWidth / 5 - 20;
+    }
   }
 }

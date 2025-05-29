@@ -20,7 +20,7 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/base_media_c
 
 // 定义抽象基类，包含泛型 T (媒体模型), C (特定媒体控制器), R (特定媒体仓库)
 abstract class PopularMediaListPageBase<T, C extends GetxController,
-    R extends LoadingMoreBase<T>> extends StatefulWidget with RefreshableMixin {
+    R extends LoadingMoreBase<T>> extends StatefulWidget implements HomeWidgetInterface {
   final String controllerTag;
   final SearchSegment searchSegment;
   final IconData emptyIcon;
@@ -37,22 +37,24 @@ abstract class PopularMediaListPageBase<T, C extends GetxController,
 
   // 抽象方法，由子类实现以获取特定的 Repository
   R getSpecificRepository(C controller);
-
-  // 子类需要提供 GlobalKey 以便外部调用 refreshCurrent
-  GlobalKey<
-      PopularMediaListPageBaseState<T, C, R,
-          PopularMediaListPageBase<T, C, R>>> get pageGlobalKey;
-
-  @override
-  State<PopularMediaListPageBase<T, C, R>> createState() =>
-      PopularMediaListPageBaseState<T, C, R,
-          PopularMediaListPageBase<T, C, R>>();
-
-  @override
-  void refreshCurrent() {
-    final state = pageGlobalKey.currentState;
-    if (state != null) {
+  
+  // 类静态变量，用于保存所有已创建的state实例的引用
+  static final Map<String, PopularMediaListPageBaseState> stateInstances = {};
+  
+  // 通用的refreshCurrent实现，子类可以直接调用此方法
+  void refreshCurrentImpl() {
+    // 通过controllerTag查找对应的state
+    final state = stateInstances[controllerTag];
+    if (state != null && state.mounted) {
       state.tryRefreshCurrentSort();
+      
+      // 同时刷新UI
+      try {
+        final controller = Get.find<PopularMediaListController>(tag: controllerTag);
+        controller.refreshPageUI();
+      } catch (e) {
+        debugPrint('刷新UI时出错: $e');
+      }
     }
   }
 }
@@ -97,6 +99,9 @@ class PopularMediaListPageBaseState<
     _mediaListController =
         Get.put(PopularMediaListController(), tag: widget.controllerTag);
 
+    // 注册到静态映射中，便于外部访问
+    PopularMediaListPageBase.stateInstances[widget.controllerTag] = this;
+
     for (var sort in sorts) {
       _tabKeys.add(GlobalKey());
       // 使用 widget 的抽象方法创建 Controller
@@ -116,6 +121,9 @@ class PopularMediaListPageBaseState<
     _tabController.dispose();
     _tabBarScrollController.dispose();
     Get.delete<PopularMediaListController>(tag: widget.controllerTag);
+    
+    // 从静态映射中移除
+    PopularMediaListPageBase.stateInstances.remove(widget.controllerTag);
 
     for (var controller in _controllers.values) {
       // 假设 Controller 有 sortId 属性
@@ -160,8 +168,7 @@ class PopularMediaListPageBaseState<
         // );
       }
     }
-    _mediaListController
-        .refreshPageUI();
+    _mediaListController.refreshPageUI();
   }
 
   void _onTabChange() {

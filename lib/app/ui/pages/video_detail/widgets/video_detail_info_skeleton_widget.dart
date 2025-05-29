@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
 class MediaDetailInfoSkeletonWidget extends StatelessWidget {
-  const MediaDetailInfoSkeletonWidget({super.key});
+  final double? mediaPlaceholderHeight;
+
+  const MediaDetailInfoSkeletonWidget({
+    super.key,
+    this.mediaPlaceholderHeight,
+  });
 
   // 提取常量
   static const double _horizontalPadding = 16.0;
@@ -39,9 +44,9 @@ class MediaDetailInfoSkeletonWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 播放器
+              // Media placeholder (video or image scroller)
               _buildShimmerContainer(
-                height: width * 9 / 16,
+                height: mediaPlaceholderHeight ?? (width * 9 / 16),
                 width: width,
                 borderRadius: BorderRadius.zero,
               ),

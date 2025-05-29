@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/utils/logger_utils.dart';
 import '../pages/home_page.dart';
 
 /// LazyIndexedStack：实现懒加载并缓存页面。
@@ -66,10 +67,15 @@ class LazyIndexedStackState extends State<LazyIndexedStack> {
   /// 刷新当前显示的页面
   void refreshCurrent() {
     if (widget.index >= 0 && widget.index < _cache.length) {
+      // 获取当前显示的页面
       final currentWidget = _cache[widget.index];
       if (currentWidget is HomeWidgetInterface) {
+        // 刷新当前页面
         (currentWidget as HomeWidgetInterface).refreshCurrent();
       }
+    } else {
+      // 如果索引超出范围，打印日志
+      LogUtils.w('LazyIndexedStack.refreshCurrent: 索引超出范围 ${widget.index}');
     }
   }
 

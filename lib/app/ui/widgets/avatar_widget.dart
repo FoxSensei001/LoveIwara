@@ -86,24 +86,19 @@ class AvatarWidget extends StatelessWidget {
                   imageUrl: finalAvatarUrl,
                   httpHeaders: headers ?? {},
                   fit: BoxFit.cover,
-                  placeholder: (context, url) => Shimmer.fromColors(
-                    baseColor: Colors.grey[300]!,
-                    highlightColor: Colors.grey[100]!,
-                    child: Container(
-                      color: Colors.white,
-                    ),
-                  ),
+                  memCacheWidth: (size! * 2).toInt(),
+                  fadeInDuration: const Duration(milliseconds: 50),
+                  placeholderFadeInDuration: const Duration(milliseconds: 0),
+                  fadeOutDuration: const Duration(milliseconds: 0),
+                  maxWidthDiskCache: 200,
+                  maxHeightDiskCache: 200,
+                  placeholder: (context, url) => _buildPlaceholder(),
                   errorWidget: (context, url, error) => CachedNetworkImage(
                     imageUrl: CommonConstants.defaultAvatarUrl,
                     httpHeaders: headers ?? {},
                     fit: BoxFit.cover,
-                    placeholder: (context, url) => Shimmer.fromColors(
-                      baseColor: Colors.grey[300]!,
-                      highlightColor: Colors.grey[100]!,
-                      child: Container(
-                        color: Colors.white,
-                      ),
-                    ),
+                    memCacheWidth: (size! * 2).toInt(),
+                    placeholder: (context, url) => _buildPlaceholder(),
                     errorWidget: (context, url, error) => const Icon(Icons.error),
                   ),
                 ),
@@ -128,6 +123,16 @@ class AvatarWidget extends StatelessWidget {
               ),
           ],
         ),
+      ),
+    );
+  }
+  
+  Widget _buildPlaceholder() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Container(
+        color: Colors.white,
       ),
     );
   }

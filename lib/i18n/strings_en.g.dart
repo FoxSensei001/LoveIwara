@@ -61,6 +61,7 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final TranslationsFavoriteEn favorite = TranslationsFavoriteEn._(_root);
 	late final TranslationsTranslationEn translation = TranslationsTranslationEn._(_root);
 	late final TranslationsLinkInputDialogEn linkInputDialog = TranslationsLinkInputDialogEn._(_root);
+	late final TranslationsLogEn log = TranslationsLogEn._(_root);
 }
 
 // Path: common
@@ -1137,6 +1138,69 @@ class TranslationsLinkInputDialogEn {
 	String get unsupportedLink => 'Unsupported Link';
 	String get cancel => 'Cancel';
 	String get confirm => 'Open in Browser';
+}
+
+// Path: log
+class TranslationsLogEn {
+	TranslationsLogEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get logManagement => 'Log Management';
+	String get enableLogPersistence => 'Enable Log Persistence';
+	String get enableLogPersistenceDesc => 'Save logs to the database for analysis';
+	String get logDatabaseSizeLimit => 'Log Database Size Limit';
+	String logDatabaseSizeLimitDesc({required Object size}) => 'Current: ${size}';
+	String get exportCurrentLogs => 'Export Current Logs';
+	String get exportCurrentLogsDesc => 'Export the current application logs to help developers diagnose problems';
+	String get exportHistoryLogs => 'Export History Logs';
+	String get exportHistoryLogsDesc => 'Export logs within a specified date range';
+	String get exportMergedLogs => 'Export Merged Logs';
+	String get exportMergedLogsDesc => 'Export merged logs within a specified date range';
+	String get showLogStats => 'Show Log Stats';
+	String get logExportSuccess => 'Log export success';
+	String logExportFailed({required Object error}) => 'Log export failed: ${error}';
+	String get showLogStatsDesc => 'View statistics of various types of logs';
+	String logExtractFailed({required Object error}) => 'Failed to get log statistics: ${error}';
+	String get clearAllLogs => 'Clear All Logs';
+	String get clearAllLogsDesc => 'Clear all log data';
+	String get confirmClearAllLogs => 'Confirm Clear';
+	String get confirmClearAllLogsDesc => 'Are you sure you want to clear all log data? This operation cannot be undone.';
+	String get clearAllLogsSuccess => 'Log cleared successfully';
+	String clearAllLogsFailed({required Object error}) => 'Failed to clear logs: ${error}';
+	String get unableToGetLogSizeInfo => 'Unable to get log size information';
+	String get currentLogSize => 'Current Log Size:';
+	String get logCount => 'Log Count:';
+	String get logCountUnit => 'logs';
+	String get logSizeLimit => 'Log Size Limit:';
+	String get usageRate => 'Usage Rate:';
+	String get exceedLimit => 'Exceed Limit';
+	String get remaining => 'Remaining';
+	String get currentLogSizeExceededPleaseCleanOldLogsOrIncreaseLogSizeLimit => 'Current log size exceeded, please clean old logs or increase log size limit';
+	String get currentLogSizeAlmostExceededPleaseCleanOldLogs => 'Current log size almost exceeded, please clean old logs';
+	String get cleaningOldLogs => 'Cleaning old logs...';
+	String get logCleaningCompleted => 'Log cleaning completed';
+	String get logCleaningProcessMayNotBeCompleted => 'Log cleaning process may not be completed';
+	String get cleanExceededLogs => 'Clean exceeded logs';
+	String get noLogsToExport => 'No logs to export';
+	String get exportingLogs => 'Exporting logs...';
+	String get noHistoryLogsToExport => 'No history logs to export, please try using the app for a while first';
+	String get selectLogDate => 'Select Log Date';
+	String get today => 'Today';
+	String get selectMergeRange => 'Select Merge Range';
+	String get selectMergeRangeHint => 'Please select the log time range to merge';
+	String selectMergeRangeDays({required Object days}) => 'Recent ${days} days';
+	String get logStats => 'Log Stats';
+	String todayLogs({required Object count}) => 'Today Logs: ${count} logs';
+	String recent7DaysLogs({required Object count}) => 'Recent 7 Days Logs: ${count} logs';
+	String totalLogs({required Object count}) => 'Total Logs: ${count} logs';
+	String get setLogDatabaseSizeLimit => 'Set Log Database Size Limit';
+	String currentLogSizeWithSize({required Object size}) => 'Current Log Size: ${size}';
+	String get warning => 'Warning';
+	String newSizeLimit({required Object size}) => 'New size limit: ${size}';
+	String get confirmToContinue => 'Confirm to continue';
+	String logSizeLimitSetSuccess({required Object size}) => 'Log size limit set to ${size}';
 }
 
 // Path: common.pagination
@@ -2320,6 +2384,60 @@ extension on Translations {
 			case 'linkInputDialog.unsupportedLink': return 'Unsupported Link';
 			case 'linkInputDialog.cancel': return 'Cancel';
 			case 'linkInputDialog.confirm': return 'Open in Browser';
+			case 'log.logManagement': return 'Log Management';
+			case 'log.enableLogPersistence': return 'Enable Log Persistence';
+			case 'log.enableLogPersistenceDesc': return 'Save logs to the database for analysis';
+			case 'log.logDatabaseSizeLimit': return 'Log Database Size Limit';
+			case 'log.logDatabaseSizeLimitDesc': return ({required Object size}) => 'Current: ${size}';
+			case 'log.exportCurrentLogs': return 'Export Current Logs';
+			case 'log.exportCurrentLogsDesc': return 'Export the current application logs to help developers diagnose problems';
+			case 'log.exportHistoryLogs': return 'Export History Logs';
+			case 'log.exportHistoryLogsDesc': return 'Export logs within a specified date range';
+			case 'log.exportMergedLogs': return 'Export Merged Logs';
+			case 'log.exportMergedLogsDesc': return 'Export merged logs within a specified date range';
+			case 'log.showLogStats': return 'Show Log Stats';
+			case 'log.logExportSuccess': return 'Log export success';
+			case 'log.logExportFailed': return ({required Object error}) => 'Log export failed: ${error}';
+			case 'log.showLogStatsDesc': return 'View statistics of various types of logs';
+			case 'log.logExtractFailed': return ({required Object error}) => 'Failed to get log statistics: ${error}';
+			case 'log.clearAllLogs': return 'Clear All Logs';
+			case 'log.clearAllLogsDesc': return 'Clear all log data';
+			case 'log.confirmClearAllLogs': return 'Confirm Clear';
+			case 'log.confirmClearAllLogsDesc': return 'Are you sure you want to clear all log data? This operation cannot be undone.';
+			case 'log.clearAllLogsSuccess': return 'Log cleared successfully';
+			case 'log.clearAllLogsFailed': return ({required Object error}) => 'Failed to clear logs: ${error}';
+			case 'log.unableToGetLogSizeInfo': return 'Unable to get log size information';
+			case 'log.currentLogSize': return 'Current Log Size:';
+			case 'log.logCount': return 'Log Count:';
+			case 'log.logCountUnit': return 'logs';
+			case 'log.logSizeLimit': return 'Log Size Limit:';
+			case 'log.usageRate': return 'Usage Rate:';
+			case 'log.exceedLimit': return 'Exceed Limit';
+			case 'log.remaining': return 'Remaining';
+			case 'log.currentLogSizeExceededPleaseCleanOldLogsOrIncreaseLogSizeLimit': return 'Current log size exceeded, please clean old logs or increase log size limit';
+			case 'log.currentLogSizeAlmostExceededPleaseCleanOldLogs': return 'Current log size almost exceeded, please clean old logs';
+			case 'log.cleaningOldLogs': return 'Cleaning old logs...';
+			case 'log.logCleaningCompleted': return 'Log cleaning completed';
+			case 'log.logCleaningProcessMayNotBeCompleted': return 'Log cleaning process may not be completed';
+			case 'log.cleanExceededLogs': return 'Clean exceeded logs';
+			case 'log.noLogsToExport': return 'No logs to export';
+			case 'log.exportingLogs': return 'Exporting logs...';
+			case 'log.noHistoryLogsToExport': return 'No history logs to export, please try using the app for a while first';
+			case 'log.selectLogDate': return 'Select Log Date';
+			case 'log.today': return 'Today';
+			case 'log.selectMergeRange': return 'Select Merge Range';
+			case 'log.selectMergeRangeHint': return 'Please select the log time range to merge';
+			case 'log.selectMergeRangeDays': return ({required Object days}) => 'Recent ${days} days';
+			case 'log.logStats': return 'Log Stats';
+			case 'log.todayLogs': return ({required Object count}) => 'Today Logs: ${count} logs';
+			case 'log.recent7DaysLogs': return ({required Object count}) => 'Recent 7 Days Logs: ${count} logs';
+			case 'log.totalLogs': return ({required Object count}) => 'Total Logs: ${count} logs';
+			case 'log.setLogDatabaseSizeLimit': return 'Set Log Database Size Limit';
+			case 'log.currentLogSizeWithSize': return ({required Object size}) => 'Current Log Size: ${size}';
+			case 'log.warning': return 'Warning';
+			case 'log.newSizeLimit': return ({required Object size}) => 'New size limit: ${size}';
+			case 'log.confirmToContinue': return 'Confirm to continue';
+			case 'log.logSizeLimitSetSuccess': return ({required Object size}) => 'Log size limit set to ${size}';
 			default: return null;
 		}
 	}

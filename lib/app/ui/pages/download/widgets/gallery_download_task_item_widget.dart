@@ -65,7 +65,7 @@ class GalleryDownloadTaskItem extends StatelessWidget {
                 ),
                 onTap: () => showDownloadDetailDialog(context, task),
               ),
-              if (task.status == DownloadStatus.completed || task.status == DownloadStatus.failed) ...[
+              if (Platform.isWindows || Platform.isMacOS || Platform.isLinux)
                 PopupMenuItem(
                   child: Row(
                     children: [
@@ -76,7 +76,6 @@ class GalleryDownloadTaskItem extends StatelessWidget {
                   ),
                   onTap: () => _showInFolder(context),
                 ),
-              ],
               PopupMenuItem(
                 child: Row(
                   children: [
@@ -436,7 +435,7 @@ class GalleryDownloadTaskItem extends StatelessWidget {
               title: Text(t.download.downloadDetail),
               onTap: () => showDownloadDetailDialog(context, task),
             ),
-            if (task.status == DownloadStatus.completed || task.status == DownloadStatus.failed) ...[
+            if (Platform.isWindows || Platform.isMacOS || Platform.isLinux)
               ListTile(
                 leading: const Icon(Icons.folder_open),
                 title: Text(t.download.showInFolder),
@@ -445,7 +444,6 @@ class GalleryDownloadTaskItem extends StatelessWidget {
                   _showInFolder(context);
                 },
               ),
-            ],
             ListTile(
               leading: const Icon(Icons.delete, color: Colors.red),
               title: Text(t.download.deleteTask,

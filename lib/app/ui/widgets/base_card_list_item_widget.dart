@@ -6,8 +6,6 @@ import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 
 class BaseCardListItem extends StatelessWidget {
-  static const double narrowScreenWidth = 600;
-
   final double width;
   final Widget thumbnail;
   final String title;
@@ -31,9 +29,8 @@ class BaseCardListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isNarrowScreen = MediaQuery.of(context).size.width < narrowScreenWidth;
     final TextTheme textTheme = Theme.of(context).textTheme;
-    final double borderRadius = isNarrowScreen ? 6 : 8;
+    final double borderRadius = 8;
 
     return SizedBox(
       width: width,
@@ -55,7 +52,6 @@ class BaseCardListItem extends StatelessWidget {
             title: title,
             createdAt: createdAt,
             user: user,
-            isNarrowScreen: isNarrowScreen,
             textTheme: textTheme,
           ),
         ),
@@ -69,7 +65,6 @@ class _CardContent extends StatelessWidget {
   final String title;
   final DateTime? createdAt;
   final User? user;
-  final bool isNarrowScreen;
   final TextTheme textTheme;
 
   const _CardContent({
@@ -77,7 +72,6 @@ class _CardContent extends StatelessWidget {
     required this.title,
     required this.createdAt,
     required this.user,
-    required this.isNarrowScreen,
     required this.textTheme,
   });
 
@@ -87,28 +81,25 @@ class _CardContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AspectRatio(
-          aspectRatio: isNarrowScreen ? 16 / 12 : 220 / 160,
+          aspectRatio: 1.375, // 11:8
           child: thumbnail,
         ),
         Padding(
-          padding: EdgeInsets.all(isNarrowScreen ? 6.0 : 8.0),
+          padding: const EdgeInsets.all(6.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _Title(
                 title: title,
-                isNarrowScreen: isNarrowScreen,
                 textTheme: textTheme,
               ),
               _TimeInfo(
                 createdAt: createdAt,
-                isNarrowScreen: isNarrowScreen,
                 textTheme: textTheme,
               ),
-              SizedBox(height: isNarrowScreen ? 4 : 8),
+              const SizedBox(height: 4),
               _AuthorInfo(
                 user: user,
-                isNarrowScreen: isNarrowScreen,
                 textTheme: textTheme,
               ),
             ],
@@ -167,27 +158,23 @@ class BaseTag extends StatelessWidget {
 
 class _Title extends StatelessWidget {
   final String title;
-  final bool isNarrowScreen;
   final TextTheme textTheme;
 
   const _Title({
     required this.title,
-    required this.isNarrowScreen,
     required this.textTheme,
   });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: textTheme.bodyLarge!.fontSize! * 3.0,
+      height: textTheme.bodyLarge!.fontSize! * 2.5,
       child: Text(
         title,
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
-          fontSize: isNarrowScreen 
-              ? textTheme.bodyLarge!.fontSize! * 0.9
-              : textTheme.bodyLarge!.fontSize,
+          fontSize: textTheme.bodyLarge!.fontSize! * 0.95,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -197,21 +184,20 @@ class _Title extends StatelessWidget {
 
 class _TimeInfo extends StatelessWidget {
   final DateTime? createdAt;
-  final bool isNarrowScreen;
   final TextTheme textTheme;
 
   const _TimeInfo({
     required this.createdAt,
-    required this.isNarrowScreen,
     required this.textTheme,
   });
 
   @override
   Widget build(BuildContext context) {
+    final fontSize = textTheme.bodySmall?.fontSize ?? 12;
     return Text(
       CommonUtils.formatFriendlyTimestamp(createdAt),
       style: textTheme.bodySmall?.copyWith(
-        fontSize: isNarrowScreen ? 11 : textTheme.bodySmall?.fontSize,
+        fontSize: fontSize * 0.9,
       ),
     );
   }
@@ -219,12 +205,10 @@ class _TimeInfo extends StatelessWidget {
 
 class _AuthorInfo extends StatelessWidget {
   final User? user;
-  final bool isNarrowScreen;
   final TextTheme textTheme;
 
   const _AuthorInfo({
     required this.user,
-    required this.isNarrowScreen,
     required this.textTheme,
   });
 
@@ -235,20 +219,20 @@ class _AuthorInfo extends StatelessWidget {
           user?.username ?? ''),
       child: Row(
         children: [
-          _buildAvatar(isNarrowScreen),
+          _buildAvatar(),
           const SizedBox(width: 4),
           Expanded(
-            child: buildUserName(context, user, bold: true, fontSize: isNarrowScreen ? 12 : 14)
+            child: buildUserName(context, user, bold: true, fontSize: 13)
           ),
         ],
       ),
     );
   }
 
-  Widget _buildAvatar(bool isNarrowScreen) {
+  Widget _buildAvatar() {
     return AvatarWidget(
       user: user,
-      size: 30
+      size: 24
     );
   }
 }

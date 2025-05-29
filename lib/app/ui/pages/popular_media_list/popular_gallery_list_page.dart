@@ -10,11 +10,7 @@ import 'popular_media_list_base_page.dart';
 // 继承基类，并指定泛型参数
 class PopularGalleryListPage extends PopularMediaListPageBase<ImageModel,
     PopularGalleryController, PopularGalleryRepository> {
-  // 提供 GlobalKey - 更新类型
-  static final globalKey = GlobalKey<
-      PopularMediaListPageBaseState<ImageModel, PopularGalleryController,
-          PopularGalleryRepository, PopularGalleryListPage>>();
-
+  
   const PopularGalleryListPage({super.key})
       : super(
           controllerTag: 'gallery',
@@ -33,16 +29,17 @@ class PopularGalleryListPage extends PopularMediaListPageBase<ImageModel,
   @override
   PopularGalleryRepository getSpecificRepository(
       PopularGalleryController controller) {
-    // 假设 Controller 有一个 repository 属性
     return controller.repository as PopularGalleryRepository;
   }
-
-  // 实现获取 GlobalKey 的 getter - 更新类型
+  
   @override
-  GlobalKey<
-      PopularMediaListPageBaseState<
-          ImageModel,
-          PopularGalleryController,
-          PopularGalleryRepository,
-          PopularGalleryListPage>> get pageGlobalKey => globalKey;
+  State<PopularGalleryListPage> createState() => PopularMediaListPageBaseState<ImageModel, PopularGalleryController, PopularGalleryRepository, PopularGalleryListPage>();
+
+  // 全局key，用于访问State
+  static final GlobalKey<PopularMediaListPageBaseState> globalKey = GlobalKey<PopularMediaListPageBaseState>();
+  
+  @override
+  void refreshCurrent() {
+    refreshCurrentImpl();
+  }
 }

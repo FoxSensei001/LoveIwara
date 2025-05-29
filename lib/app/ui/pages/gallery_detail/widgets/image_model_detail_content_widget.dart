@@ -1,32 +1,26 @@
+import 'package:file_selector/file_selector.dart' as fs show FileSaveLocation, getSaveLocation, XTypeGroup;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
-import 'package:i_iwara/app/routes/app_routes.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
-import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
-import 'package:i_iwara/utils/image_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:i_iwara/utils/widget_extensions.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/share_gallery_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:path/path.dart' as path;
 
 import '../../../../../common/enums/media_enums.dart';
-import '../../../../models/image.model.dart';
 import '../../../../services/app_service.dart';
-import '../../../widgets/error_widget.dart';
 import '../../popular_media_list/widgets/media_description_widget.dart';
 import '../../video_detail/widgets/detail/expandable_tags_widget.dart';
 import '../../video_detail/widgets/detail/like_avatars_widget.dart';
 import '../controllers/gallery_detail_controller.dart';
-import 'horizontial_image_list.dart';
 import '../../../widgets/follow_button_widget.dart';
 import '../../../widgets/like_button_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -35,81 +29,11 @@ import 'package:i_iwara/app/ui/widgets/add_to_favorite_dialog.dart';
 
 class ImageModelDetailContent extends StatelessWidget {
   final GalleryDetailController controller;
-  final double paddingTop;
-  final double? imageModelHeight;
-  final double? imageModelWidth;
 
   const ImageModelDetailContent({
     super.key,
     required this.controller,
-    required this.paddingTop,
-    this.imageModelHeight,
-    this.imageModelWidth,
   });
-
-  // 构建图像库内容的布局
-  Widget _contentLayout(BuildContext context, Widget child) {
-    return Column(
-      children: [
-        _buildPaddingTop(),
-        _buildHeader(context),
-        _buildImageContent(context, child),
-      ],
-    );
-  }
-
-  // 构建顶部的透明间距
-  Widget _buildPaddingTop() {
-    return Container(
-      height: paddingTop,
-      color: Colors.transparent,
-    );
-  }
-
-  // 构建标题栏，包括返回按钮和标题
-  Widget _buildHeader(BuildContext context) {
-    return Row(
-      children: [
-        IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        // 主页
-        IconButton(
-          icon: const Icon(Icons.home),
-          onPressed: () {
-            AppService appService = Get.find();
-            int currentIndex = appService.currentIndex;
-            final routes = [
-              Routes.POPULAR_VIDEOS,
-              Routes.GALLERY,
-              Routes.SUBSCRIPTIONS,
-            ];
-            AppService.homeNavigatorKey.currentState!.pushNamedAndRemoveUntil(
-                routes[currentIndex], (route) => false);
-          },
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            controller.imageModelInfo.value?.title ?? '',
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
-    );
-  }
-
-  // 构建图片内容部分，主要是显示图库图片
-  Widget _buildImageContent(BuildContext context, Widget child) {
-    return SizedBox(
-      width: imageModelWidth,
-      height: (imageModelHeight ?? MediaQuery.sizeOf(context).width / 1.7),
-      child: child.paddingHorizontal(12),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -117,118 +41,9 @@ class ImageModelDetailContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        _buildGalleryArea(context),
         _buildGalleryDetails(context),
       ],
     );
-  }
-
-  // 构建图库区域，显示图片和加载错误信息
-  Widget _buildGalleryArea(BuildContext context) {
-    return ClipRect(
-      child: Stack(
-        children: [
-          Obx(() {
-            if (controller.errorMessage.value != null) {
-              return _buildErrorContent(context);
-            }
-            return _buildImageListContent(context);
-          }),
-        ],
-      ),
-    );
-  }
-
-  // 构建错误信息区域
-  Widget _buildErrorContent(BuildContext context) {
-    final t = slang.Translations.of(context);
-    return CommonErrorWidget(
-      text: controller.errorMessage.value ?? t.errors.errorWhileLoadingGallery,
-      children: [
-        ElevatedButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(t.common.back),
-        ),
-        ElevatedButton(
-          onPressed: () => controller.fetchGalleryDetail(),
-          child: Text(t.common.retry),
-        ),
-      ],
-    );
-  }
-
-  // 构建图片列表内容
-  Widget _buildImageListContent(BuildContext context) {
-    ImageModel? im = controller.imageModelInfo.value;
-    final t = slang.Translations.of(context);
-    if (im == null) {
-      return _contentLayout(
-          context, MyEmptyWidget(message: t.errors.howCouldThereBeNoDataItCantBePossible));
-    }
-
-    List<ImageItem> imageItems = im.files
-        .map((e) => ImageItem(
-              url: e.getLargeImageUrl(),
-              data: ImageItemData(
-                id: e.id,
-                url: e.getLargeImageUrl(),
-                originalUrl: e.getOriginalImageUrl(),
-              ),
-            ))
-        .toList();
-
-    return _contentLayout(
-      context,
-      MouseRegion(
-        onEnter: (_) => controller.isHoveringHorizontalList.value = true,
-        onExit: (_) => controller.isHoveringHorizontalList.value = false,
-        child: HorizontalImageList(
-          images: imageItems,
-          onItemTap: (item) => _onImageTap(context, item, imageItems),
-          menuItemsBuilder: (context, item) => _buildImageMenuItems(context, item),
-        ),
-      ),
-    );
-  }
-
-  // 处理图片点击事件
-  void _onImageTap(
-      BuildContext context, ImageItem item, List<ImageItem> imageItems) {
-    ImageItemData iid = item.data;
-    LogUtils.d('点击了图片：${iid.id}', 'ImageModelDetailContent');
-    int index = imageItems.indexWhere((element) => element.url == item.url);
-    if (index == -1) {
-      index = imageItems.indexWhere((element) => element.data.id == iid.id);
-    }
-    NaviService.navigateToPhotoViewWrapper(imageItems: imageItems, initialIndex: index, menuItemsBuilder: (context, item) => _buildImageMenuItems(context, item));
-  }
-
-  // 构建图片的菜单项
-  List<MenuItem> _buildImageMenuItems(BuildContext context, ImageItem item) {
-    final t = slang.Translations.of(context);
-    return [
-      MenuItem(
-        title: t.galleryDetail.copyLink,
-        icon: Icons.copy,
-        onTap: () => ImageUtils.copyLink(item),
-      ),
-      MenuItem(
-        title: t.galleryDetail.copyImage,
-        icon: Icons.copy,
-        onTap: () => ImageUtils.copyImage(item),
-      ),
-      if (GetPlatform.isDesktop && !GetPlatform.isWeb)
-        MenuItem(
-          title: t.galleryDetail.saveAs,
-          icon: Icons.download,
-          onTap: () => ImageUtils.downloadImageForDesktop(item),
-        ),
-      MenuItem(
-        title: t.galleryDetail.saveToAlbum,
-        icon: Icons.save,
-        onTap: () => ImageUtils.downloadImageToAppDirectory(item),
-      ),
-    ];
   }
 
   // 构建图库详情区域
@@ -546,12 +361,17 @@ class ImageModelDetailContent extends StatelessWidget {
                       showModalBottomSheet(
                         backgroundColor: Colors.transparent,
                         isScrollControlled: true,
-                        builder: (context) => ShareGalleryBottomSheet(
-                          galleryId: imageModelInfo.id,
-                          galleryTitle: imageModelInfo.title,
-                          authorName: imageModelInfo.user?.name ?? '',
-                          previewUrl: imageModelInfo.thumbnailUrl,
-                        ),
+                        builder: (context) {
+                          // Ensure imageModelInfo is not null before accessing its properties
+                          final info = controller.imageModelInfo.value;
+                          if (info == null) return const SizedBox.shrink(); // Or return an error/placeholder
+                          return ShareGalleryBottomSheet(
+                            galleryId: info.id,
+                            galleryTitle: info.title,
+                            authorName: info.user?.name ?? '',
+                            previewUrl: info.thumbnailUrl,
+                          );
+                        },
                         context: context,
                       );
                     },
@@ -616,12 +436,19 @@ class ImageModelDetailContent extends StatelessWidget {
       );
 
       // 创建下载任务
+      final savePath = await _getSavePath(imageModel.title, imageModel.id);
+      if (savePath == null) {
+        showToastWidget(MDToastWidget(
+            message: t.common.operationCancelled,
+            type: MDToastType.info));
+        return;
+      }
       final task = DownloadTask(
         id: GalleryDownloadExtData.genExtDataIdByGalleryInfo(imageModel.id),
         url: imageModel.files.first.getOriginalImageUrl(), // 使用第一张图片的URL
         downloadedBytes: 0, // 已下载图片数量
         totalBytes: imageModel.files.length, // 总图片数量
-        savePath: await _getSavePath(imageModel.title, imageModel.id),  // 保存路径 [下载文件夹/galleries/图库标题_图库id]
+        savePath: savePath,  // 保存路径 [下载文件夹/galleries/图库标题_图库id]
         fileName: '${imageModel.title}_${imageModel.id}', // 文件名
         extData: DownloadTaskExtData(
           type: DownloadTaskExtDataType.gallery,
@@ -646,10 +473,28 @@ class ImageModelDetailContent extends StatelessWidget {
   }
 
   // 获取保存路径
-  Future<String> _getSavePath(String title, String id) async {
-    final dir = await CommonUtils.getAppDirectory(pathSuffix: path.join('downloads', 'galleries'));
-    final sanitizedTitle = title.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_');
-    return '${dir.path}/${sanitizedTitle}_$id';
+  Future<String?> _getSavePath(String title, String id) async {
+    if (GetPlatform.isDesktop) {
+      // 选择文件夹
+      final fs.FileSaveLocation? result = await fs.getSaveLocation(
+        suggestedName: '${title.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_')}_$id',
+        acceptedTypeGroups: [
+          fs.XTypeGroup(
+            label: 'folders',
+            extensions: [''],
+          ),
+        ],
+      );
+      if (result != null) {
+        return result.path;
+      } else {
+        return null;
+      }
+    } else {
+      final dir = await CommonUtils.getAppDirectory(pathSuffix: path.join('downloads', 'galleries'));
+      final sanitizedTitle = title.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_');
+      return '${dir.path}/${sanitizedTitle}_$id';
+    }
   }
 
   // 添加到收藏夹

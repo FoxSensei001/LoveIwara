@@ -3,6 +3,7 @@ import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/image_model_card_list_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
+import 'package:i_iwara/app/utils/media_layout_utils.dart';
 import 'media_list_view.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 
@@ -29,13 +30,16 @@ class MediaTabView<T> extends StatefulWidget {
 class MediaTabViewState<T> extends State<MediaTabView<T>>
     with AutomaticKeepAliveClientMixin {
   final ScrollController _scrollController = ScrollController();
-  
+
+  // 缓存列表项
+  final Map<String, Widget> _itemCache = {};
+
   @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();
   }
-  
+
   @override
   bool get wantKeepAlive => true;
 
@@ -49,33 +53,36 @@ class MediaTabViewState<T> extends State<MediaTabView<T>>
       scrollController: _scrollController,
       paddingTop: widget.paddingTop,
       itemBuilder: (context, item, index) {
-        return Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
-            vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
-          ),
-          child: _buildItem(item, context),
-        );
+        final cacheKey = '${item.hashCode}_$index';
+        return _itemCache.putIfAbsent(cacheKey, () {
+          return _buildCachedItem(item, context, index);
+        });
       },
     );
   }
 
-  Widget _buildItem(T item, BuildContext context) {
+  Widget _buildCachedItem(T item, BuildContext context, int index) {
+    // 获取屏幕宽度
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    // 使用工具类计算卡片宽度
+    final double cardWidth = MediaLayoutUtils.calculateCardWidth(screenWidth);
+
+    return _buildItem(item, context, cardWidth);
+  }
+
+  Widget _buildItem(T item, BuildContext context, double width) {
     if (T == Video) {
       return VideoCardListItemWidget(
         video: item as Video,
-        width: MediaQuery.of(context).size.width <= 600 
-            ? MediaQuery.of(context).size.width / 2 - 8 
-            : 200,
+        width: width,
       );
     } else if (T == ImageModel) {
       return ImageModelCardListItemWidget(
         imageModel: item as ImageModel,
-        width: MediaQuery.of(context).size.width <= 600 
-            ? MediaQuery.of(context).size.width / 2 - 8 
-            : 200,
+        width: width,
       );
     }
     throw Exception('Unsupported type: $T');
   }
-} 
+}

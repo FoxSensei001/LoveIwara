@@ -57,6 +57,7 @@ class TranslationsZhCn implements Translations {
 	@override late final _TranslationsFavoriteZhCn favorite = _TranslationsFavoriteZhCn._(_root);
 	@override late final _TranslationsTranslationZhCn translation = _TranslationsTranslationZhCn._(_root);
 	@override late final _TranslationsLinkInputDialogZhCn linkInputDialog = _TranslationsLinkInputDialogZhCn._(_root);
+	@override late final _TranslationsLogZhCn log = _TranslationsLogZhCn._(_root);
 }
 
 // Path: common
@@ -1138,6 +1139,69 @@ class _TranslationsLinkInputDialogZhCn implements TranslationsLinkInputDialogEn 
 	@override String get unsupportedLink => '不支持的链接';
 	@override String get cancel => '取消';
 	@override String get confirm => '用浏览器打开';
+}
+
+// Path: log
+class _TranslationsLogZhCn implements TranslationsLogEn {
+	_TranslationsLogZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get logManagement => '日志管理';
+	@override String get enableLogPersistence => '启用日志持久化';
+	@override String get enableLogPersistenceDesc => '将日志保存到数据库以便于分析问题';
+	@override String get logDatabaseSizeLimit => '日志数据库大小上限';
+	@override String logDatabaseSizeLimitDesc({required Object size}) => '当前: ${size}';
+	@override String get exportCurrentLogs => '导出当前日志';
+	@override String get exportCurrentLogsDesc => '导出当天应用日志以帮助开发者诊断问题';
+	@override String get exportHistoryLogs => '导出历史日志';
+	@override String get exportHistoryLogsDesc => '导出指定日期范围的日志';
+	@override String get exportMergedLogs => '导出合并日志';
+	@override String get exportMergedLogsDesc => '导出指定日期范围的合并日志';
+	@override String get showLogStats => '显示日志统计信息';
+	@override String get logExportSuccess => '日志导出成功';
+	@override String logExportFailed({required Object error}) => '日志导出失败: ${error}';
+	@override String get showLogStatsDesc => '查看各种类型日志的统计数据';
+	@override String logExtractFailed({required Object error}) => '获取日志统计失败: ${error}';
+	@override String get clearAllLogs => '清理所有日志';
+	@override String get clearAllLogsDesc => '清理所有日志数据';
+	@override String get confirmClearAllLogs => '确认清理';
+	@override String get confirmClearAllLogsDesc => '确定要清理所有日志数据吗？此操作不可撤销。';
+	@override String get clearAllLogsSuccess => '日志清理成功';
+	@override String clearAllLogsFailed({required Object error}) => '清理日志失败: ${error}';
+	@override String get unableToGetLogSizeInfo => '无法获取日志大小信息';
+	@override String get currentLogSize => '当前日志大小:';
+	@override String get logCount => '日志数量:';
+	@override String get logCountUnit => '条';
+	@override String get logSizeLimit => '大小上限:';
+	@override String get usageRate => '使用率:';
+	@override String get exceedLimit => '超出限制';
+	@override String get remaining => '剩余';
+	@override String get currentLogSizeExceededPleaseCleanOldLogsOrIncreaseLogSizeLimit => '当前日志大小已超出限制，建议立即清理旧日志或增加空间限制';
+	@override String get currentLogSizeAlmostExceededPleaseCleanOldLogs => '当前日志大小即将用尽，建议清理旧日志';
+	@override String get cleaningOldLogs => '正在自动清理旧日志...';
+	@override String get logCleaningCompleted => '日志清理完成';
+	@override String get logCleaningProcessMayNotBeCompleted => '日志清理过程可能未完成';
+	@override String get cleanExceededLogs => '清理超出限制的日志';
+	@override String get noLogsToExport => '没有可导出的日志数据';
+	@override String get exportingLogs => '正在导出日志...';
+	@override String get noHistoryLogsToExport => '尚无可导出的历史日志，请先使用应用一段时间再尝试';
+	@override String get selectLogDate => '选择日志日期';
+	@override String get today => '今天';
+	@override String get selectMergeRange => '选择合并范围';
+	@override String get selectMergeRangeHint => '请选择要合并的日志时间范围';
+	@override String selectMergeRangeDays({required Object days}) => '最近 ${days} 天';
+	@override String get logStats => '日志统计信息';
+	@override String todayLogs({required Object count}) => '今日日志: ${count} 条';
+	@override String recent7DaysLogs({required Object count}) => '最近7天: ${count} 条';
+	@override String totalLogs({required Object count}) => '总计日志: ${count} 条';
+	@override String get setLogDatabaseSizeLimit => '设置日志数据库大小上限';
+	@override String currentLogSizeWithSize({required Object size}) => '当前日志大小: ${size}';
+	@override String get warning => '警告';
+	@override String newSizeLimit({required Object size}) => '新的大小限制: ${size}';
+	@override String get confirmToContinue => '确定要继续吗？';
+	@override String logSizeLimitSetSuccess({required Object size}) => '日志大小上限已设置为 ${size}';
 }
 
 // Path: common.pagination
@@ -2326,6 +2390,60 @@ extension on TranslationsZhCn {
 			case 'linkInputDialog.unsupportedLink': return '不支持的链接';
 			case 'linkInputDialog.cancel': return '取消';
 			case 'linkInputDialog.confirm': return '用浏览器打开';
+			case 'log.logManagement': return '日志管理';
+			case 'log.enableLogPersistence': return '启用日志持久化';
+			case 'log.enableLogPersistenceDesc': return '将日志保存到数据库以便于分析问题';
+			case 'log.logDatabaseSizeLimit': return '日志数据库大小上限';
+			case 'log.logDatabaseSizeLimitDesc': return ({required Object size}) => '当前: ${size}';
+			case 'log.exportCurrentLogs': return '导出当前日志';
+			case 'log.exportCurrentLogsDesc': return '导出当天应用日志以帮助开发者诊断问题';
+			case 'log.exportHistoryLogs': return '导出历史日志';
+			case 'log.exportHistoryLogsDesc': return '导出指定日期范围的日志';
+			case 'log.exportMergedLogs': return '导出合并日志';
+			case 'log.exportMergedLogsDesc': return '导出指定日期范围的合并日志';
+			case 'log.showLogStats': return '显示日志统计信息';
+			case 'log.logExportSuccess': return '日志导出成功';
+			case 'log.logExportFailed': return ({required Object error}) => '日志导出失败: ${error}';
+			case 'log.showLogStatsDesc': return '查看各种类型日志的统计数据';
+			case 'log.logExtractFailed': return ({required Object error}) => '获取日志统计失败: ${error}';
+			case 'log.clearAllLogs': return '清理所有日志';
+			case 'log.clearAllLogsDesc': return '清理所有日志数据';
+			case 'log.confirmClearAllLogs': return '确认清理';
+			case 'log.confirmClearAllLogsDesc': return '确定要清理所有日志数据吗？此操作不可撤销。';
+			case 'log.clearAllLogsSuccess': return '日志清理成功';
+			case 'log.clearAllLogsFailed': return ({required Object error}) => '清理日志失败: ${error}';
+			case 'log.unableToGetLogSizeInfo': return '无法获取日志大小信息';
+			case 'log.currentLogSize': return '当前日志大小:';
+			case 'log.logCount': return '日志数量:';
+			case 'log.logCountUnit': return '条';
+			case 'log.logSizeLimit': return '大小上限:';
+			case 'log.usageRate': return '使用率:';
+			case 'log.exceedLimit': return '超出限制';
+			case 'log.remaining': return '剩余';
+			case 'log.currentLogSizeExceededPleaseCleanOldLogsOrIncreaseLogSizeLimit': return '当前日志大小已超出限制，建议立即清理旧日志或增加空间限制';
+			case 'log.currentLogSizeAlmostExceededPleaseCleanOldLogs': return '当前日志大小即将用尽，建议清理旧日志';
+			case 'log.cleaningOldLogs': return '正在自动清理旧日志...';
+			case 'log.logCleaningCompleted': return '日志清理完成';
+			case 'log.logCleaningProcessMayNotBeCompleted': return '日志清理过程可能未完成';
+			case 'log.cleanExceededLogs': return '清理超出限制的日志';
+			case 'log.noLogsToExport': return '没有可导出的日志数据';
+			case 'log.exportingLogs': return '正在导出日志...';
+			case 'log.noHistoryLogsToExport': return '尚无可导出的历史日志，请先使用应用一段时间再尝试';
+			case 'log.selectLogDate': return '选择日志日期';
+			case 'log.today': return '今天';
+			case 'log.selectMergeRange': return '选择合并范围';
+			case 'log.selectMergeRangeHint': return '请选择要合并的日志时间范围';
+			case 'log.selectMergeRangeDays': return ({required Object days}) => '最近 ${days} 天';
+			case 'log.logStats': return '日志统计信息';
+			case 'log.todayLogs': return ({required Object count}) => '今日日志: ${count} 条';
+			case 'log.recent7DaysLogs': return ({required Object count}) => '最近7天: ${count} 条';
+			case 'log.totalLogs': return ({required Object count}) => '总计日志: ${count} 条';
+			case 'log.setLogDatabaseSizeLimit': return '设置日志数据库大小上限';
+			case 'log.currentLogSizeWithSize': return ({required Object size}) => '当前日志大小: ${size}';
+			case 'log.warning': return '警告';
+			case 'log.newSizeLimit': return ({required Object size}) => '新的大小限制: ${size}';
+			case 'log.confirmToContinue': return '确定要继续吗？';
+			case 'log.logSizeLimitSetSuccess': return ({required Object size}) => '日志大小上限已设置为 ${size}';
 			default: return null;
 		}
 	}

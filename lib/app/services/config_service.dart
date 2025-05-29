@@ -380,7 +380,7 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.DEFAULT_PAGINATION_MODE:
         return false;
       case ConfigKey.ENABLE_LOG_PERSISTENCE:
-        return true;
+        return false;
       case ConfigKey.MAX_LOG_DATABASE_SIZE:
         return 1024 * 1024 * 1024; // 1GB
       default:

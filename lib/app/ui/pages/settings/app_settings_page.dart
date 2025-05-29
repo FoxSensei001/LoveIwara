@@ -425,7 +425,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "日志管理",
+                        slang.t.log.logManagement,
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
@@ -437,8 +437,8 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 _buildLogSizeDetailWidget(context, configService),
                 Obx(
                   () => SwitchListTile(
-                    title: const Text("持久化日志"), // 需要在翻译文件中添加
-                    subtitle: const Text("将日志保存到数据库以便于分析问题"), // 更新描述
+                    title: Text(slang.t.log.enableLogPersistence),
+                    subtitle: Text(slang.t.log.enableLogPersistenceDesc),
                     value: configService[ConfigKey.ENABLE_LOG_PERSISTENCE],
                     onChanged: (value) {
                       configService[ConfigKey.ENABLE_LOG_PERSISTENCE] = value;
@@ -448,29 +448,29 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
                 Obx(
                   () => ListTile(
-                    title: const Text("日志数据库大小上限"),
-                    subtitle: Text("当前: ${_formatSize(configService[ConfigKey.MAX_LOG_DATABASE_SIZE])}"),
+                    title: Text(slang.t.log.logDatabaseSizeLimit),
+                    subtitle: Text(slang.t.log.logDatabaseSizeLimitDesc(size: _formatSize(configService[ConfigKey.MAX_LOG_DATABASE_SIZE]))),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                     onTap: () => _showLogSizeLimitDialog(context, configService),
                   ),
                 ),
                 ListTile(
                   leading: const Icon(Icons.bug_report),
-                  title: const Text("导出当前日志"), 
-                  subtitle: const Text("导出当天应用日志以帮助开发者诊断问题"),
+                  title: Text(slang.t.log.exportCurrentLogs), 
+                  subtitle: Text(slang.t.log.exportCurrentLogsDesc),
                   onTap: () async {
                     try {
                       await _exportLogs(context);
                       showToastWidget(
                         MDToastWidget(
-                          message: "日志导出成功",
+                          message: slang.t.log.logExportSuccess,
                           type: MDToastType.success,
                         ),
                       );
                     } catch (e) {
                       showToastWidget(
                         MDToastWidget(
-                          message: "日志导出失败: ${LogUtils.maskSensitiveData(e.toString())}",
+                          message: slang.t.log.logExportFailed(error: LogUtils.maskSensitiveData(e.toString())),
                           type: MDToastType.error,
                         ),
                       );
@@ -479,15 +479,15 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.history),
-                  title: const Text("导出历史日志"),
-                  subtitle: const Text("选择并导出特定日期的日志"),
+                  title: Text(slang.t.log.exportHistoryLogs),
+                  subtitle: Text(slang.t.log.exportHistoryLogsDesc),
                   onTap: () async {
                     try {
                       await _exportHistoryLogs(context);
                     } catch (e) {
                       showToastWidget(
                         MDToastWidget(
-                          message: "历史日志导出失败: ${LogUtils.maskSensitiveData(e.toString())}",
+                          message: slang.t.log.logExportFailed(error: LogUtils.maskSensitiveData(e.toString())),
                           type: MDToastType.error,
                         ),
                       );
@@ -496,15 +496,15 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.merge_type),
-                  title: const Text("导出合并日志"),
-                  subtitle: const Text("合并最近日志到单个文件"),
+                  title: Text(slang.t.log.exportMergedLogs),
+                  subtitle: Text(slang.t.log.exportMergedLogsDesc),
                   onTap: () async {
                     try {
                       await _exportMergedLogs(context);
                     } catch (e) {
                       showToastWidget(
                         MDToastWidget(
-                          message: "合并日志导出失败: ${LogUtils.maskSensitiveData(e.toString())}",
+                          message: slang.t.log.logExportFailed(error: LogUtils.maskSensitiveData(e.toString())),
                           type: MDToastType.error,
                         ),
                       );
@@ -513,15 +513,15 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.analytics),
-                  title: const Text("日志统计信息"),
-                  subtitle: const Text("查看各种类型日志的统计数据"),
+                  title: Text(slang.t.log.showLogStats),
+                  subtitle: Text(slang.t.log.showLogStatsDesc),
                   onTap: () async {
                     try {
                       await _showLogStats(context);
                     } catch (e) {
                       showToastWidget(
                         MDToastWidget(
-                          message: "获取日志统计失败: ${LogUtils.maskSensitiveData(e.toString())}",
+                          message: slang.t.log.logExtractFailed(error: LogUtils.maskSensitiveData(e.toString())),
                           type: MDToastType.error,
                         ),
                       );
@@ -530,22 +530,22 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.delete_outline),
-                  title: const Text("清理所有日志"),
-                  subtitle: const Text("清理所有日志数据"),
+                  title: Text(slang.t.log.clearAllLogs),
+                  subtitle: Text(slang.t.log.clearAllLogsDesc),
                   onTap: () async {
                     if (!context.mounted) return;
                     final confirmed = await showDialog<bool>(
                       context: context,
                       builder: (context) => AlertDialog(
-                        title: const Text("确认清理"),
-                        content: const Text("确定要清理所有日志数据吗？此操作不可撤销。"),
+                        title: Text(slang.t.log.confirmClearAllLogs),
+                        content: Text(slang.t.log.confirmClearAllLogsDesc),
                         actions: [
                           TextButton(
-                            child: const Text("取消"),
+                            child: Text(slang.t.common.cancel),
                             onPressed: () => Navigator.of(context).pop(false),
                           ),
                           TextButton(
-                            child: const Text("确定"),
+                            child: Text(slang.t.common.confirm),
                             onPressed: () => Navigator.of(context).pop(true),
                           ),
                         ],
@@ -563,7 +563,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                           
                           showToastWidget(
                             MDToastWidget(
-                              message: "日志清理成功",
+                              message: slang.t.log.clearAllLogsSuccess,
                               type: MDToastType.success,
                             ),
                           );
@@ -571,7 +571,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       } catch (e) {
                         showToastWidget(
                           MDToastWidget(
-                            message: "清理日志失败: ${LogUtils.maskSensitiveData(e.toString())}",
+                            message: slang.t.log.clearAllLogsFailed(error: LogUtils.maskSensitiveData(e.toString())),
                             type: MDToastType.error,
                           ),
                         );
@@ -655,7 +655,7 @@ Widget _buildLogSizeDetailWidget(BuildContext context, ConfigService configServi
             return Padding(
               padding: const EdgeInsets.all(16),
               child: Text(
-                "无法获取日志大小信息",
+                slang.t.log.unableToGetLogSizeInfo,
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             );
@@ -689,7 +689,7 @@ Widget _buildLogSizeDetailWidget(BuildContext context, ConfigService configServi
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text("当前日志大小:", style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text(slang.t.log.currentLogSize, style: TextStyle(fontWeight: FontWeight.bold)),
                     Text(
                       _formatSize(size),
                       style: TextStyle(
@@ -703,15 +703,15 @@ Widget _buildLogSizeDetailWidget(BuildContext context, ConfigService configServi
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text("日志数量:", style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text("$count 条"),
+                    Text(slang.t.log.logCount, style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text("$count ${slang.t.log.logCountUnit}"),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text("大小上限:", style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text(slang.t.log.logSizeLimit, style: TextStyle(fontWeight: FontWeight.bold)),
                     Text(_formatSize(maxSize)),
                   ],
                 ),
@@ -721,14 +721,14 @@ Widget _buildLogSizeDetailWidget(BuildContext context, ConfigService configServi
                   children: [
                     Text(
                       rawUsageRatio >= 1.0
-                          ? "使用率: ${(rawUsageRatio * 100).toStringAsFixed(1)}% (超出限制)"
-                          : "使用率: ${(rawUsageRatio * 100).toStringAsFixed(1)}%", 
+                          ? "${slang.t.log.usageRate} ${(rawUsageRatio * 100).toStringAsFixed(1)}% (${slang.t.log.exceedLimit})"
+                          : "${slang.t.log.usageRate} ${(rawUsageRatio * 100).toStringAsFixed(1)}%", 
                       style: TextStyle(fontWeight: FontWeight.bold, color: usageColor),
                     ),
                     Text(
                       rawUsageRatio >= 1.0
-                          ? "超出: ${_formatSize(size - maxSize)}"
-                          : "剩余: ${_formatSize(maxSize - size)}",
+                          ? "${slang.t.log.exceedLimit}: ${_formatSize(size - maxSize)}"
+                          : "${slang.t.log.remaining}: ${_formatSize(maxSize - size)}",
                       style: TextStyle(
                         fontSize: 12,
                         color: rawUsageRatio >= 1.0 ? Colors.red : null,
@@ -762,8 +762,8 @@ Widget _buildLogSizeDetailWidget(BuildContext context, ConfigService configServi
                         Expanded(
                           child: Text(
                             rawUsageRatio >= 1.0
-                                ? "日志空间已超出限制，建议立即清理旧日志或增加空间限制"
-                                : "日志空间即将用尽，建议清理旧日志",
+                                ? slang.t.log.currentLogSizeExceededPleaseCleanOldLogsOrIncreaseLogSizeLimit
+                                : slang.t.log.currentLogSizeAlmostExceededPleaseCleanOldLogs,
                             style: TextStyle(color: Colors.red.shade700, fontSize: 12),
                           ),
                         ),
@@ -780,14 +780,14 @@ Widget _buildLogSizeDetailWidget(BuildContext context, ConfigService configServi
                           showDialog(
                             context: context,
                             barrierDismissible: false,
-                            builder: (context) => const Center(
+                            builder: (context) => Center(
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   CircularProgressIndicator(),
                                   SizedBox(height: 16),
                                   Text(
-                                    "正在自动清理旧日志...",
+                                    slang.t.log.cleaningOldLogs,
                                     style: TextStyle(color: Colors.white),
                                   ),
                                 ],
@@ -825,8 +825,8 @@ Widget _buildLogSizeDetailWidget(BuildContext context, ConfigService configServi
                           showToastWidget(
                             MDToastWidget(
                               message: cleaned
-                                  ? "日志清理完成"
-                                  : "日志清理过程可能未完成",
+                                  ? slang.t.log.logCleaningCompleted
+                                  : slang.t.log.logCleaningProcessMayNotBeCompleted,
                               type: cleaned ? MDToastType.success : MDToastType.warning,
                             ),
                           );
@@ -836,7 +836,7 @@ Widget _buildLogSizeDetailWidget(BuildContext context, ConfigService configServi
                         foregroundColor: Colors.red,
                         side: BorderSide(color: Colors.red.shade300),
                       ),
-                      child: const Text("立即清理超出部分"),
+                      child: Text(slang.t.log.cleanExceededLogs),
                     ),
                   ),
               ],
@@ -911,7 +911,7 @@ Future<void> _exportLogs(BuildContext context) async {
         Navigator.of(context).pop(); // 关闭加载指示器
         showToastWidget(
           MDToastWidget(
-            message: "没有可导出的日志数据",
+            message: slang.t.log.noLogsToExport,
             type: MDToastType.warning,
           ),
         );
@@ -944,13 +944,13 @@ Future<void> _exportLogs(BuildContext context) async {
           showDialog(
             context: context,
             barrierDismissible: false,
-            builder: (context) => const Center(
+            builder: (context) => Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   CircularProgressIndicator(),
                   SizedBox(height: 16),
-                  Text("正在导出日志...", style: TextStyle(color: Colors.white)),
+                  Text(slang.t.log.exportingLogs, style: TextStyle(color: Colors.white)),
                 ],
               ),
             ),
@@ -965,7 +965,7 @@ Future<void> _exportLogs(BuildContext context) async {
             
             showToastWidget(
               MDToastWidget(
-                message: "日志导出成功",
+                message: slang.t.log.logExportSuccess,
                 type: MDToastType.success,
               ),
             );
@@ -994,7 +994,7 @@ Future<void> _exportLogs(BuildContext context) async {
         
         showToastWidget(
           MDToastWidget(
-            message: "日志导出成功",
+            message: slang.t.log.logExportSuccess,
             type: MDToastType.success,
           ),
         );
@@ -1013,7 +1013,7 @@ Future<void> _exportLogs(BuildContext context) async {
     if (context.mounted) {
       showToastWidget(
         MDToastWidget(
-          message: "导出日志失败: ${LogUtils.maskSensitiveData(e.toString())}",
+          message: slang.t.log.logExportFailed(error: LogUtils.maskSensitiveData(e.toString())),
           type: MDToastType.error,
         ),
       );
@@ -1045,7 +1045,7 @@ Future<void> _exportHistoryLogs(BuildContext context) async {
       if (dates.isEmpty) {
         showToastWidget(
           MDToastWidget(
-            message: "尚无可导出的历史日志，请先使用应用一段时间再尝试",
+            message: slang.t.log.noHistoryLogsToExport,
             type: MDToastType.warning,
           ),
         );
@@ -1056,7 +1056,7 @@ Future<void> _exportHistoryLogs(BuildContext context) async {
       final selectedDate = await showDialog<DateTime>(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text("选择日志日期"),
+          title: Text(slang.t.log.selectLogDate),
           content: SizedBox(
             width: double.maxFinite,
             height: 300,
@@ -1071,7 +1071,7 @@ Future<void> _exportHistoryLogs(BuildContext context) async {
                 return ListTile(
                   title: Text(
                     "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}" +
-                    (isToday ? " (今天)" : "")
+                    (isToday ? " (${slang.t.log.today})" : "")
                   ),
                   onTap: () => Navigator.of(context).pop(date),
                 );
@@ -1081,7 +1081,7 @@ Future<void> _exportHistoryLogs(BuildContext context) async {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text("取消"),
+              child: Text(slang.t.common.cancel),
             ),
           ],
         ),
@@ -1117,7 +1117,7 @@ Future<void> _exportHistoryLogs(BuildContext context) async {
           
           showToastWidget(
             MDToastWidget(
-              message: "历史日志导出成功",
+              message: slang.t.log.logExportSuccess,
               type: MDToastType.success,
             ),
           );
@@ -1152,7 +1152,7 @@ Future<void> _exportHistoryLogs(BuildContext context) async {
     if (context.mounted) {
       showToastWidget(
         MDToastWidget(
-          message: "历史日志获取失败: ${LogUtils.maskSensitiveData(e.toString())}",
+          message: slang.t.log.logExportFailed(error: LogUtils.maskSensitiveData(e.toString())),
           type: MDToastType.error,
         ),
       );
@@ -1184,7 +1184,7 @@ Future<void> _exportMergedLogs(BuildContext context) async {
       if (dates.isEmpty) {
         showToastWidget(
           MDToastWidget(
-            message: "尚无可导出的日志，请先使用应用一段时间再尝试",
+            message: slang.t.log.noLogsToExport,
             type: MDToastType.warning,
           ),
         );
@@ -1195,16 +1195,16 @@ Future<void> _exportMergedLogs(BuildContext context) async {
       final daysRange = await showDialog<int>(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text("选择合并范围"),
+          title: Text(slang.t.log.selectMergeRange),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text("请选择要合并的日志时间范围:"),
+              Text(slang.t.log.selectMergeRangeHint),
               const SizedBox(height: 16),
               ...[ 7, 14, 30, 60 ].map((days) => 
                 ListTile(
-                  title: Text("最近 $days 天"),
+                  title: Text(slang.t.log.selectMergeRangeDays(days: days)),
                   onTap: () => Navigator.of(context).pop(days),
                 ),
               ),
@@ -1213,7 +1213,7 @@ Future<void> _exportMergedLogs(BuildContext context) async {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text("取消"),
+              child: Text(slang.t.common.cancel),
             ),
           ],
         ),
@@ -1260,13 +1260,13 @@ Future<void> _exportMergedLogs(BuildContext context) async {
             showDialog(
               context: context,
               barrierDismissible: false,
-              builder: (context) => const Center(
+              builder: (context) => Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     CircularProgressIndicator(),
                     SizedBox(height: 16),
-                    Text("正在导出日志...", style: TextStyle(color: Colors.white)),
+                    Text(slang.t.log.exportingLogs, style: TextStyle(color: Colors.white)),
                   ],
                 ),
               ),
@@ -1283,7 +1283,7 @@ Future<void> _exportMergedLogs(BuildContext context) async {
               
               showToastWidget(
                 MDToastWidget(
-                  message: "合并日志导出成功",
+                  message: slang.t.log.logExportSuccess,
                   type: MDToastType.success,
                 ),
               );
@@ -1313,7 +1313,7 @@ Future<void> _exportMergedLogs(BuildContext context) async {
             
             showToastWidget(
               MDToastWidget(
-                message: "合并日志导出成功",
+                message: slang.t.log.logExportSuccess,
                 type: MDToastType.success,
               ),
             );
@@ -1328,7 +1328,7 @@ Future<void> _exportMergedLogs(BuildContext context) async {
         if (context.mounted) {
           showToastWidget(
             MDToastWidget(
-              message: "导出日志失败: ${LogUtils.maskSensitiveData(e.toString())}",
+              message: slang.t.log.logExportFailed(error: LogUtils.maskSensitiveData(e.toString())),
               type: MDToastType.error,
             ),
           );
@@ -1344,7 +1344,7 @@ Future<void> _exportMergedLogs(BuildContext context) async {
     if (context.mounted) {
       showToastWidget(
         MDToastWidget(
-          message: "合并日志导出失败: ${LogUtils.maskSensitiveData(e.toString())}",
+          message: slang.t.log.logExportFailed(error: LogUtils.maskSensitiveData(e.toString())),
           type: MDToastType.error,
         ),
       );
@@ -1378,12 +1378,12 @@ Future<void> _showLogStats(BuildContext context) {
 
           if (snapshot.hasError) {
             return AlertDialog(
-              title: const Text('统计信息'),
-              content: Text('获取统计信息失败: ${LogUtils.maskSensitiveData(snapshot.error.toString())}'),
+              title: Text(slang.t.log.logStats),
+              content: Text(slang.t.log.logExtractFailed(error: LogUtils.maskSensitiveData(snapshot.error.toString()))),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('关闭'),
+                  child: Text(slang.t.common.close),
                 ),
               ],
             );
@@ -1392,22 +1392,22 @@ Future<void> _showLogStats(BuildContext context) {
           final stats = snapshot.data ?? {'today': 0, 'week': 0, 'total': 0};
           
           return AlertDialog(
-            title: const Text('日志统计信息'),
+            title: Text(slang.t.log.logStats),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('今日日志: ${stats['today']} 条'),
+                Text(slang.t.log.todayLogs(count: stats['today'] ?? 0)),
                 const SizedBox(height: 8),
-                Text('最近7天: ${stats['week']} 条'),
+                Text(slang.t.log.recent7DaysLogs(count: stats['week'] ?? 0)),
                 const SizedBox(height: 8),
-                Text('总计日志: ${stats['total']} 条'),
+                Text(slang.t.log.totalLogs(count: stats['total'] ?? 0)),
               ],
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('关闭'),
+                child: Text(slang.t.common.close),
               ),
             ],
           );
@@ -1448,12 +1448,15 @@ Future<void> _showLogSizeLimitDialog(BuildContext context, ConfigService configS
   int currentLogSize = logInfo['size'] as int;
   
   // 获取App设置页面状态
+  if (!context.mounted) return;
   final state = context.findAncestorStateOfType<_AppSettingsPageState>();
+  final t = slang.Translations.of(context);
+  final text = t.log.currentLogSizeWithSize(size: _formatSize(currentLogSize));
   
   await showDialog(
     context: context,
     builder: (context) => AlertDialog(
-      title: const Text("设置日志数据库大小上限"),
+      title: Text(slang.t.log.setLogDatabaseSizeLimit),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -1461,7 +1464,7 @@ Future<void> _showLogSizeLimitDialog(BuildContext context, ConfigService configS
             Padding(
               padding: const EdgeInsets.only(bottom: 16),
               child: Text(
-                "当前日志大小: ${_formatSize(currentLogSize)}",
+                text,
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
@@ -1482,32 +1485,34 @@ Future<void> _showLogSizeLimitDialog(BuildContext context, ConfigService configS
                   final confirm = await showDialog<bool>(
                     context: context,
                     builder: (context) => AlertDialog(
-                      title: const Text("警告"),
+                      title: Text(slang.t.log.warning),
                       content: Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            "当前日志大小已超过新的限制。",
-                            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+                          Text(
+                            slang.t.log.currentLogSizeExceededPleaseCleanOldLogsOrIncreaseLogSizeLimit,
+                            style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
                           ),
                           const SizedBox(height: 12),
-                          Text("当前日志大小: ${_formatSize(currentLogSize)}"),
-                          Text("新的大小限制: ${_formatSize(value)}"),
+                          Text(slang.t.log.currentLogSizeWithSize(size: _formatSize(currentLogSize))),
+                          Text(slang.t.log.newSizeLimit(size: _formatSize(value))),
                           const SizedBox(height: 12),
-                          const Text("将会自动清理最早的日志记录，以将大小降低到限制以下。"),
+                          Text(slang.t.log.logCleaningProcessMayNotBeCompleted),
                           const SizedBox(height: 12),
-                          const Text("确定要继续吗？"),
+                          Text(slang.t.log.cleanExceededLogs),
+                          const SizedBox(height: 12),
+                          Text(slang.t.log.confirmToContinue),
                         ],
                       ),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.of(context).pop(false),
-                          child: const Text("取消"),
+                          child: Text(slang.t.common.cancel),
                         ),
                         TextButton(
                           onPressed: () => Navigator.of(context).pop(true),
-                          child: const Text("确定"),
+                          child: Text(slang.t.common.confirm),
                         ),
                       ],
                     ),
@@ -1538,7 +1543,7 @@ Future<void> _showLogSizeLimitDialog(BuildContext context, ConfigService configS
                   if (context.mounted) {
                     showToastWidget(
                       MDToastWidget(
-                        message: "日志大小上限已设置为 ${_formatSize(value)}，旧日志已自动清理",
+                        message: slang.t.log.logSizeLimitSetSuccess(size: _formatSize(value)),
                         type: MDToastType.success,
                       ),
                     );
@@ -1556,7 +1561,7 @@ Future<void> _showLogSizeLimitDialog(BuildContext context, ConfigService configS
                   // 通知用户设置已更改
                   showToastWidget(
                     MDToastWidget(
-                      message: "日志大小上限已设置为 ${_formatSize(value)}",
+                      message: slang.t.log.logSizeLimitSetSuccess(size: _formatSize(value)),
                       type: MDToastType.success,
                     ),
                   );
@@ -1569,7 +1574,7 @@ Future<void> _showLogSizeLimitDialog(BuildContext context, ConfigService configS
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text("取消"),
+          child: Text(slang.t.common.cancel),
         ),
       ],
     ),

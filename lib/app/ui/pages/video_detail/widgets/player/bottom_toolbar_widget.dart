@@ -238,37 +238,36 @@ class BottomToolbar extends StatelessWidget {
                       ],
                     ),
                   // 分钟滑块
-                  if (totalMinutes > 0)
-                    Row(
-                      children: [
-                        Text(t.common.minute),
-                        Expanded(
-                          child: Slider(
-                            value: selectedMinutes.toDouble(),
-                            min: 0,
-                            max: (selectedHours < totalHours)
-                                ? 59
-                                : totalMinutes.toDouble(),
-                            divisions: (selectedHours < totalHours)
-                                ? 59
-                                : (totalMinutes > 0 ? totalMinutes : 1),
-                            label: '$selectedMinutes ${t.common.minute}',
-                            onChanged: (double value) {
-                              setState(() {
-                                selectedMinutes = value.round();
-                                // 确保总时长不被超过
-                                if (selectedHours == totalHours &&
-                                    selectedMinutes == totalMinutes &&
-                                    selectedSeconds > totalSeconds) {
-                                  selectedSeconds = totalSeconds;
-                                }
-                              });
-                            },
-                          ),
+                  Row(
+                    children: [
+                      Text(t.common.minute),
+                      Expanded(
+                        child: Slider(
+                          value: selectedMinutes.toDouble(),
+                          min: 0,
+                          max: (selectedHours < totalHours)
+                              ? 59
+                              : totalMinutes.toDouble(),
+                          divisions: (selectedHours < totalHours)
+                              ? 59
+                              : (totalMinutes > 0 ? totalMinutes : 1),
+                          label: '$selectedMinutes ${t.common.minute}',
+                          onChanged: (double value) {
+                            setState(() {
+                              selectedMinutes = value.round();
+                              // 确保总时长不被超过
+                              if (selectedHours == totalHours &&
+                                  selectedMinutes == totalMinutes &&
+                                  selectedSeconds > totalSeconds) {
+                                selectedSeconds = totalSeconds;
+                              }
+                            });
+                          },
                         ),
-                        Text('$selectedMinutes'),
-                      ],
-                    ),
+                      ),
+                      Text('$selectedMinutes'),
+                    ],
+                  ),
                   // 秒钟滑块
                   Row(
                     children: [

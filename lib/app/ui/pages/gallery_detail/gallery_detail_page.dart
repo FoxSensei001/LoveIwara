@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_routes.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_dialog.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/image_model_detail_content_widget.dart';
@@ -22,6 +23,7 @@ import '../popular_media_list/widgets/image_model_tile_list_item_widget.dart';
 import '../video_detail/controllers/related_media_controller.dart';
 import 'controllers/gallery_detail_controller.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'widgets/gallery_image_scroller_widget.dart';
 
 class GalleryDetailPage extends StatefulWidget {
   final String imageModelId;
@@ -40,7 +42,8 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
   late String uniqueTag;
 
   // 分配图库详情与附列表的宽度
-  final sideColumnMinWidth = 400.0;
+  final double sideColumnMinWidth = 400.0; // 右侧固定宽度
+  final double leftColumnMinWidth = 600.0; // 左侧内容的最小期望宽度，用于判断是否宽屏
 
   @override
   void didChangeDependencies() {
@@ -87,37 +90,47 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
     );
   }
 
-// 计算是否需要分两列
-  bool _shouldUseWideScreenLayout(double screenHeight, double screenWidth) {
-    // 固定使用1.7作为图库比例
-    const double imageModelRatio = 1.7;
-    // 图库的高度
-    final imageModelHeight = screenWidth / imageModelRatio;
-    // 如果图库高度超过屏幕高度的70%，并且屏幕宽度足够
-    return imageModelHeight > screenHeight * 0.5;
+  // 构建头部区域
+  Widget _buildHeader(BuildContext context, double paddingTop) {
+    return AppBar(
+        backgroundColor: Colors.transparent,
+        titleSpacing: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(
+                detailController.imageModelInfo.value?.title ?? '',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.home),
+              onPressed: () {
+                AppService appService = Get.find();
+                int currentIndex = appService.currentIndex;
+                final routes = [
+                  Routes.POPULAR_VIDEOS,
+                  Routes.GALLERY,
+                  Routes.SUBSCRIPTIONS,
+                ];
+                AppService.homeNavigatorKey.currentState!
+                    .pushNamedAndRemoveUntil(
+                        routes[currentIndex], (route) => false);
+              },
+            ),
+          ],
+        ));
   }
 
-  Size _calcImageModelColumnWidthAndHeight(double screenWidth,
-      double screenHeight, double sideColumnMinWidth, double paddingTop) {
-    const double imageModelRatio = 1.7;
-    LogUtils.d(
-        '[DEBUG] screenWidth: $screenWidth, screenHeight: $screenHeight, imageModelRatio: $imageModelRatio, sideColumnMinWidth: $sideColumnMinWidth');
-
-    double imageModelWidth = (screenHeight * 0.5) * imageModelRatio;
-    double renderImageModelWidth;
-    double renderImageModelHeight;
-
-    if (imageModelWidth + sideColumnMinWidth < screenWidth) {
-      renderImageModelWidth = imageModelWidth;
-      renderImageModelHeight =
-          renderImageModelWidth / imageModelRatio + paddingTop;
-    } else {
-      renderImageModelWidth = screenWidth - sideColumnMinWidth;
-      renderImageModelHeight =
-          renderImageModelWidth / imageModelRatio + paddingTop;
-    }
-
-    return Size(renderImageModelWidth, renderImageModelHeight);
+  // 计算是否需要分两列
+  bool _shouldUseWideScreenLayout(double screenHeight, double screenWidth) {
+    // 如果屏幕宽度足够容纳左侧最小宽度和右侧固定宽度，则使用宽屏布局
+    return screenWidth >= leftColumnMinWidth + sideColumnMinWidth;
   }
 
   void showCommentModal(BuildContext context) {
@@ -158,12 +171,22 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
                               submitText: slang.t.common.send,
                               onSubmit: (text) async {
                                 if (text.trim().isEmpty) {
-                                  showToastWidget(MDToastWidget(message: slang.t.errors.commentCanNotBeEmpty, type: MDToastType.error), position: ToastPosition.bottom);
+                                  showToastWidget(
+                                      MDToastWidget(
+                                          message: slang
+                                              .t.errors.commentCanNotBeEmpty,
+                                          type: MDToastType.error),
+                                      position: ToastPosition.bottom);
                                   return;
                                 }
                                 final UserService userService = Get.find();
                                 if (!userService.isLogin) {
-                                  showToastWidget(MDToastWidget(message: slang.t.errors.pleaseLoginFirst, type: MDToastType.error), position: ToastPosition.bottom);
+                                  showToastWidget(
+                                      MDToastWidget(
+                                          message:
+                                              slang.t.errors.pleaseLoginFirst,
+                                          type: MDToastType.error),
+                                      position: ToastPosition.bottom);
                                   Get.toNamed(Routes.LOGIN);
                                   return;
                                 }
@@ -188,7 +211,8 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
                 Expanded(
                   child: Obx(() => CommentSection(
                       controller: commentController,
-                      authorUserId: detailController.imageModelInfo.value?.user?.id)),
+                      authorUserId:
+                          detailController.imageModelInfo.value?.user?.id)),
                 ),
               ],
             );
@@ -219,6 +243,15 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
     double screenHeight = screenSize.height;
     double screenWidth = screenSize.width;
 
+    // 判断是否使用宽屏布局 (移出 Obx)
+    bool isWide = _shouldUseWideScreenLayout(screenHeight, screenWidth);
+
+    // 计算图片滚动区域的最大高度 (移出 Obx)
+    final double imageScrollerMaxHeight = screenHeight * 0.55;
+
+    // 只在构建时打印一次日志 (移出 Obx)
+    LogUtils.d('[DEBUG] 是否使用宽屏布局: $isWide', 'GalleryDetailPage');
+
     return Focus(
       autofocus: true,
       onKeyEvent: (node, event) {
@@ -234,7 +267,8 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
         body: Obx(() {
           if (detailController.errorMessage.value != null) {
             return CommonErrorWidget(
-              text: detailController.errorMessage.value ?? t.errors.errorWhileLoadingGallery,
+              text: detailController.errorMessage.value ??
+                  t.errors.errorWhileLoadingGallery,
               children: [
                 ElevatedButton(
                   onPressed: () => Navigator.of(context).pop(),
@@ -244,28 +278,22 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
             );
           }
 
-          // 判断是否使用宽屏布局
-          bool isWide = _shouldUseWideScreenLayout(screenHeight, screenWidth);
-          Size renderImageModelSize = _calcImageModelColumnWidthAndHeight(
-              screenWidth, screenHeight, sideColumnMinWidth, paddingTop);
-
-          LogUtils.d(
-              '[DEBUG] 是否使用宽屏布局: $isWide, 图库宽度: ${renderImageModelSize.width}, 图库高度: ${renderImageModelSize.height}',
-              'GalleryDetailPage');
-
           if (isWide) {
             // 宽屏布局
             if (detailController.isImageModelInfoLoading.value) {
               return Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 左侧图库详情
-                  SizedBox(
-                    width: renderImageModelSize.width,
-                    child: const MediaDetailInfoSkeletonWidget(),
+                  // 左侧图库详情骨架
+                  Expanded(
+                    child: MediaDetailInfoSkeletonWidget(
+                      mediaPlaceholderHeight: imageScrollerMaxHeight,
+                    ),
                   ),
-                  // 右侧评论列表
-                  // Expanded(child: ImageModelTileListSkeletonWidget()),
+                  // 右侧列表骨架
+                  SizedBox(
+                      width: sideColumnMinWidth,
+                      child: const MediaTileListSkeletonWidget()),
                 ],
               );
             }
@@ -277,85 +305,94 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
             return Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
-                  width: renderImageModelSize.width,
+                // Left Column (Scrollable Content)
+                Expanded(
                   child: SingleChildScrollView(
+                    // 左侧内容整体可滚动
                     physics: detailController.isHoveringHorizontalList.value
                         ? const NeverScrollableScrollPhysics()
                         : null,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // 1. Header (reusing or new widget)
+                        _buildHeader(context, paddingTop),
+                        // 2. Image Scroller with Max Height
+                        GalleryImageScrollerWidget(
+                          controller: detailController,
+                          maxHeight: imageScrollerMaxHeight,
+                        ),
+                        // 3. Gallery Details
                         ImageModelDetailContent(
                           controller: detailController,
-                          paddingTop: paddingTop,
-                          imageModelHeight: renderImageModelSize.height,
-                          imageModelWidth: renderImageModelSize.width,
                         ),
+                        // 4. Comment Entry Button
                         CommentEntryAreaButtonWidget(
-                            commentController: commentController,
-                            onClickButton: () {
-                              showCommentModal(context);
-                            }).paddingVertical(16),
+                          commentController: commentController,
+                          onClickButton: () => showCommentModal(context),
+                        ).paddingVertical(16),
+                        // 5. Safe Area Bottom Padding
                         const SafeArea(child: SizedBox.shrink()),
                       ],
                     ),
                   ),
                 ),
-                Expanded(
+                // Right Column (Fixed Width, Scrollable List)
+                SizedBox(
+                  // 右侧固定宽度
+                  width: sideColumnMinWidth,
                   child: SingleChildScrollView(
+                    // 右侧列表独立滚动
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        SizedBox(height: paddingTop + 16),
+                        SizedBox(height: paddingTop + 16), // Adjust top padding
+                        // Author's other galleries title
                         Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16),
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: Text(t.galleryDetail.authorOtherGalleries,
                                 style: const TextStyle(fontSize: 18))),
                         const SizedBox(height: 16),
-                        // 作者的其他图库
+                        // Author's other galleries list (logic remains)
                         if (detailController
                                     .otherAuthorzImageModelsController !=
                                 null &&
-                            detailController
-                                .otherAuthorzImageModelsController!
-                                .isLoading
-                                .value)
+                            detailController.otherAuthorzImageModelsController!
+                                .isLoading.value)
                           const MediaTileListSkeletonWidget()
                         else if (detailController
                             .otherAuthorzImageModelsController!
                             .imageModels
                             .isEmpty)
                           const MyEmptyWidget()
-                        else ...[
-                          // 构建作者的其他图库列表
-                          for (var imageModel in detailController
-                              .otherAuthorzImageModelsController!
-                              .imageModels)
-                            ImageModelTileListItem(
-                                imageModel: imageModel),
-                        ],
+                        else
+                          ...detailController
+                              .otherAuthorzImageModelsController!.imageModels
+                              .map((imageModel) => ImageModelTileListItem(
+                                  imageModel: imageModel))
+                              .toList(),
                         const SizedBox(height: 16),
+                        // Related galleries title
                         Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16),
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: Text(t.galleryDetail.relatedGalleries,
                                 style: const TextStyle(fontSize: 18))),
                         const SizedBox(height: 16),
+                        // Related galleries list (logic remains)
                         if (relatedMediasController.isLoading.value)
                           const MediaTileListSkeletonWidget()
-                        else if (relatedMediasController
-                            .imageModels.isEmpty)
+                        else if (relatedMediasController.imageModels.isEmpty)
                           const MyEmptyWidget()
                         else
-                          // 构建相关图库列表
-                          for (var imageModel
-                              in relatedMediasController.imageModels)
-                            ImageModelTileListItem(
-                                imageModel: imageModel),
-                        const SafeArea(child: SizedBox.shrink()),
+                          ...relatedMediasController.imageModels
+                              .map((imageModel) => ImageModelTileListItem(
+                                  imageModel: imageModel))
+                              .toList(),
+                        const SafeArea(
+                            child:
+                                SizedBox.shrink()), // Safe area bottom padding
                       ],
                     ),
                   ),
@@ -363,15 +400,22 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
               ],
             );
           } else {
+            // Narrow Screen Layout
+            // --- Loading State --- (调整骨架)
             if (detailController.isImageModelInfoLoading.value) {
-              return const MediaDetailInfoSkeletonWidget();
+              return MediaDetailInfoSkeletonWidget(
+                mediaPlaceholderHeight: imageScrollerMaxHeight,
+              );
             }
 
+            // --- Empty State --- (保持不变)
             if (detailController.imageModelInfo.value == null) {
               return const MyEmptyWidget();
             }
 
+            // --- Loaded State --- (调整布局)
             return SingleChildScrollView(
+              // 整个页面可滚动
               physics: detailController.isHoveringHorizontalList.value
                   ? const NeverScrollableScrollPhysics()
                   : null,
@@ -379,59 +423,62 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // 图库详情
+                  // 1. Header
+                  _buildHeader(context, paddingTop),
+                  // 2. Image Scroller with Max Height
+                  GalleryImageScrollerWidget(
+                    controller: detailController,
+                    maxHeight: imageScrollerMaxHeight,
+                  ),
+                  // 3. Gallery Details
                   ImageModelDetailContent(
                     controller: detailController,
-                    paddingTop: paddingTop,
                   ),
-                  // 评论区域
+                  // 4. Comment Entry Area Button
                   Container(
                       padding: const EdgeInsets.all(16),
                       child: CommentEntryAreaButtonWidget(
                         commentController: commentController,
-                        onClickButton: () {
-                          showCommentModal(context);
-                        },
+                        onClickButton: () => showCommentModal(context),
                       ).paddingVertical(16)),
-                  // 作者的其他图库
+                  // 5. Author's Other Galleries Title
                   Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(t.galleryDetail.authorOtherGalleries,
                           style: const TextStyle(fontSize: 18))),
-                  if (detailController
-                              .otherAuthorzImageModelsController !=
+                  // 6. Author's Other Galleries List (logic remains)
+                  if (detailController.otherAuthorzImageModelsController !=
                           null &&
-                      detailController.otherAuthorzImageModelsController!
-                          .isLoading.value)
+                      detailController
+                          .otherAuthorzImageModelsController!.isLoading.value)
                     const MediaTileListSkeletonWidget()
                   else if (detailController
-                      .otherAuthorzImageModelsController!
-                      .imageModels
-                      .isEmpty)
+                      .otherAuthorzImageModelsController!.imageModels.isEmpty)
                     const MyEmptyWidget()
-                  else ...[
-                    // 构建作者的其他图库列表
-                    for (var imageModel in detailController
-                        .otherAuthorzImageModelsController!.imageModels)
-                      ImageModelTileListItem(imageModel: imageModel),
-                  ],
-                  // 相关图库
+                  else
+                    ...detailController
+                        .otherAuthorzImageModelsController!.imageModels
+                        .map((imageModel) =>
+                            ImageModelTileListItem(imageModel: imageModel))
+                        .toList(),
+                  // 7. Related Galleries Title
                   const SizedBox(height: 16),
                   Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(t.galleryDetail.relatedGalleries,
                           style: const TextStyle(fontSize: 18))),
                   const SizedBox(height: 16),
+                  // 8. Related Galleries List (logic remains)
                   if (relatedMediasController.isLoading.value)
                     const MediaTileListSkeletonWidget()
                   else if (relatedMediasController.imageModels.isEmpty)
                     const MyEmptyWidget()
-                  else ...[
-                    // 构建相关图库列表
-                    for (var imageModel
-                        in relatedMediasController.imageModels)
-                      ImageModelTileListItem(imageModel: imageModel),
-                  ],
+                  else
+                    ...relatedMediasController.imageModels
+                        .map((imageModel) =>
+                            ImageModelTileListItem(imageModel: imageModel))
+                        .toList(),
+                  // 9. Safe Area Bottom Padding
                   const SafeArea(child: SizedBox.shrink()),
                 ],
               ),
