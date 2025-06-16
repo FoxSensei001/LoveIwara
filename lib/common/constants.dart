@@ -49,7 +49,7 @@ class CommonConstants {
   CommonConstants._internal();
 
   // 应用版本
-  static const String VERSION = '0.3.12';
+  static const String VERSION = '0.3.13';
 
   // 应用名称
   static String? applicationName = 'i_iwara';

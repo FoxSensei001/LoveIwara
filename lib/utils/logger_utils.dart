@@ -503,7 +503,7 @@ class LogUtils {
         // 回退方案：使用硬编码信息
         i("应用名称: i_iwara", "设备信息");
         i("应用描述: A new Flutter project.", "设备信息");
-        i("版本: 0.3.12+1", "设备信息");
+        i("版本: ${CommonConstants.VERSION}", "设备信息");
       }
       
       // 记录设备信息
