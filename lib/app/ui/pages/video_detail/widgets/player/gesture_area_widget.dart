@@ -230,7 +230,7 @@ class _GestureAreaState extends State<GestureArea>
       // 使用节流控制亮度调节
       EasyThrottle.throttle('setBrightness', const Duration(milliseconds: 20), () {
         _configService.setSetting(ConfigKey.BRIGHTNESS_KEY, rx, save: false);
-        _screenBrightness?.setScreenBrightness(rx);
+        _screenBrightness?.setApplicationScreenBrightness(rx);
       });
 
       widget.setLongPressing?.call(LongPressType.brightness, true);
@@ -291,9 +291,9 @@ class _GestureAreaState extends State<GestureArea>
       onVerticalDragStart: (_) {
         widget.myVideoStateController.setInteracting(true);
       },
-      onVerticalDragEnd: (_) {
+      onVerticalDragEnd: (details) {
         widget.myVideoStateController.setInteracting(false);
-        _onVerticalDragEnd(_);
+        _onVerticalDragEnd(details);
       },
       onVerticalDragUpdate: (widget.region == GestureRegion.left ||
               widget.region == GestureRegion.right)
