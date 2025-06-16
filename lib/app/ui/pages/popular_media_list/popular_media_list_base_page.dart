@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/sort.model.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
@@ -81,6 +82,13 @@ class PopularMediaListPageBaseState<
   String year = '';
   String rating = '';
 
+  // 头部折叠相关变量
+  bool _isHeaderCollapsed = false;
+  final double _headerCollapseThreshold = 50.0; // 触发折叠/展开的滚动阈值（像素）
+  
+  // 头部滚动监听器
+  VoidCallback? _scrollListenerDisposer;
+
   void tryRefreshCurrentSort() {
     if (mounted) {
       var sortId = sorts[_tabController.index].id;
@@ -113,10 +121,41 @@ class PopularMediaListPageBaseState<
     _tabController = TabController(length: sorts.length, vsync: this);
     _tabBarScrollController = ScrollController();
     _tabController.addListener(_onTabChange);
+
+    // 监听 PopularMediaListController 的滚动变化
+    _scrollListenerDisposer = ever(_mediaListController.currentScrollOffset, (double offset) {
+      final direction = _mediaListController.lastScrollDirection.value;
+      bool shouldCollapse = _isHeaderCollapsed;
+
+      if (direction == ScrollDirection.reverse && // 向上滚动
+          offset > _headerCollapseThreshold &&
+          !_isHeaderCollapsed) {
+        shouldCollapse = true;
+      } else if (direction == ScrollDirection.forward && _isHeaderCollapsed) { // 向下滚动
+         // 如果向下滚动足够或接近顶部，则展开
+        if (offset < (_headerCollapseThreshold * 0.8) || offset < 10.0) {
+          shouldCollapse = false;
+        }
+      } else if (offset <= 5.0 && _isHeaderCollapsed) { // 如果在顶部或接近顶部，则始终展开
+        shouldCollapse = false;
+      }
+      
+      // 特殊情况：如果用户刚刚切换了标签或数据，offset 可能为 0。
+      if (offset == 0.0 && direction == ScrollDirection.idle && _isHeaderCollapsed) {
+          shouldCollapse = false; // 如果新列表从顶部开始，则展开
+      }
+
+      if (mounted && _isHeaderCollapsed != shouldCollapse) {
+        setState(() {
+          _isHeaderCollapsed = shouldCollapse;
+        });
+      }
+    });
   }
 
   @override
   void dispose() {
+    _scrollListenerDisposer?.call(); // 销毁滚动监听器
     _tabController.removeListener(_onTabChange);
     _tabController.dispose();
     _tabBarScrollController.dispose();
@@ -173,6 +212,17 @@ class PopularMediaListPageBaseState<
 
   void _onTabChange() {
     _scrollToSelectedTab();
+    
+    // 切换 tab 时展开顶部区域，避免新 tab 内容与收缩状态不匹配
+    if (_isHeaderCollapsed) {
+      setState(() {
+        _isHeaderCollapsed = false;
+      });
+      
+      // 重置滚动状态，让新的 tab 从正确的状态开始
+      _mediaListController.currentScrollOffset.value = 0.0;
+      _mediaListController.lastScrollDirection.value = ScrollDirection.idle;
+    }
   }
 
   void _scrollToSelectedTab() {
@@ -233,6 +283,14 @@ class PopularMediaListPageBaseState<
   Widget build(BuildContext context) {
     const double tabBarHeight = 48.0;
     const double headerHeight = 56.0;
+    final systemStatusBarHeight = MediaQuery.of(context).padding.top;
+
+    // 根据折叠状态计算动态高度
+    final double currentTopBarVisibleHeight = _isHeaderCollapsed
+        ? tabBarHeight
+        : (headerHeight + tabBarHeight);
+    
+    final double listPaddingTop = systemStatusBarHeight + currentTopBarVisibleHeight;
 
     return Scaffold(
       body: Stack(
@@ -252,10 +310,8 @@ class PopularMediaListPageBaseState<
                     emptyIcon: widget.emptyIcon, // 使用 widget 的 emptyIcon
                     isPaginated: isPaginated,
                     rebuildKey: rebuildKey,
-                    paddingTop: MediaQuery.of(context).padding.top +
-                        headerHeight +
-                        tabBarHeight -
-                        6,
+                    paddingTop: listPaddingTop,
+                    mediaListController: _mediaListController, // 传递控制器用于滚动监听
                   );
                 }).toList(),
               );
@@ -268,17 +324,31 @@ class PopularMediaListPageBaseState<
             child: ClipRect(
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-                child: Container(
-                  color:
-                      Theme.of(context).colorScheme.surface.withOpacity(0.85),
+                child: AnimatedContainer( // 动画头部整体高度
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeInOut,
+                  height: systemStatusBarHeight + currentTopBarVisibleHeight,
+                  color: Theme.of(context).colorScheme.surface.withOpacity(0.85),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      TopPaddingHeightWidget(),
-                      CommonHeader(
-                        searchSegment:
-                            widget.searchSegment, // 使用 widget 的 searchSegment
-                        avatarRadius: 20,
+                      SizedBox(height: systemStatusBarHeight),
+                      
+                      // CommonHeader 区域 - 动画其不透明度和 Offstage 状态
+                      AnimatedOpacity(
+                        opacity: _isHeaderCollapsed ? 0.0 : 1.0,
+                        duration: const Duration(milliseconds: 150),
+                        child: Offstage(
+                          offstage: _isHeaderCollapsed,
+                          child: SizedBox(
+                            height: headerHeight,
+                            child: CommonHeader(
+                              searchSegment:
+                                  widget.searchSegment, // 使用 widget 的 searchSegment
+                              avatarRadius: 20,
+                            ),
+                          ),
+                        ),
                       ),
                       SizedBox(
                         height: tabBarHeight,
@@ -348,6 +418,11 @@ class PopularMediaListPageBaseState<
                                           ? t.common.pagination.waterfall
                                           : t.common.pagination.pagination,
                                 )),
+                            IconButton(
+                              icon: const Icon(Icons.vertical_align_top),
+                              onPressed: () => _mediaListController.scrollToTop(),
+                              tooltip: t.common.scrollToTop,
+                            ),
                             IconButton(
                               icon: const Icon(Icons.refresh),
                               onPressed:

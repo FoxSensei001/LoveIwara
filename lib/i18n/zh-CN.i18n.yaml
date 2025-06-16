@@ -7,6 +7,7 @@ common:
   save: 保存
   delete: 删除
   loading: 加载中...
+  scrollToTop: 滚动到顶部
   # 隐私内容，不与展示
   privacyHint: 隐私内容，不与展示
   latest: 最新

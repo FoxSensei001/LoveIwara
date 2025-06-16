@@ -113,6 +113,17 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
 
   void _onTabChange() {
     _scrollToSelectedTab();
+    
+    // 切换 tab 时展开顶部区域，避免新 tab 内容与收缩状态不匹配
+    if (_isHeaderCollapsed) {
+      setState(() {
+        _isHeaderCollapsed = false;
+      });
+      
+      // 重置滚动状态，让新的 tab 从正确的状态开始
+      mediaListController.currentScrollOffset.value = 0.0;
+      mediaListController.lastScrollDirection.value = ScrollDirection.idle;
+    }
   }
 
   void _scrollToSelectedTab() {
@@ -178,6 +189,8 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
       _listCache.clear();
       setState(() {
         selectedId = id;
+        // 切换用户时也展开顶部区域，确保新内容正确显示
+        _isHeaderCollapsed = false;
       });
       // Reset header state when user changes, as new data will load
       mediaListController.currentScrollOffset.value = 0.0;
@@ -273,7 +286,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
           child: RepaintBoundary(
             child: TabBarView(
               controller: _tabController,
-              physics: const NeverScrollableScrollPhysics(), // 禁用 TabBarView 自身的滑动
+              physics: const ClampingScrollPhysics(), // 允许手势滑动切换标签
               children: [
                 _buildCachedList(0, isPaginated, listPaddingTop, rebuildKey.toString()),
                 _buildCachedList(1, isPaginated, listPaddingTop, rebuildKey.toString()),

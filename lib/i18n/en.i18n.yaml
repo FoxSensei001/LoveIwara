@@ -6,6 +6,7 @@ common:
   save: Save
   delete: Delete
   loading: Loading...
+  scrollToTop: Scroll to Top
   privacyHint: Privacy content, not displayed
   latest: Latest
   likesCount: Likes

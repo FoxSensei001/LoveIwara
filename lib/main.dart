@@ -25,7 +25,6 @@ import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/proxy/proxy_util.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/log_service.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -46,6 +45,7 @@ import 'app/repositories/history_repository.dart';
 import 'app/services/message_service.dart';
 import 'app/services/favorite_service.dart';
 import 'package:i_iwara/app/services/config_backup_service.dart';
+import 'package:i_iwara/utils/refresh_rate_helper.dart';
 
 void main() {
   // 确保Flutter初始化
@@ -90,15 +90,6 @@ void main() {
       FlutterError.presentError(details);
     };
 
-    // 设置最高刷新率(仅在非Web的Android上)
-    if (!kIsWeb && Platform.isAndroid) {
-      try {
-        await FlutterDisplayMode.setHighRefreshRate();
-      } catch (e) {
-        LogUtils.e('设置刷新率失败', tag: '启动初始化', error: e);
-      }
-    }
-
     // 初始化基础服务
     await _initializeBaseServices();
 
@@ -114,6 +105,19 @@ void main() {
 
     // 在应用启动时配置图片缓存
     configureImageCache();
+
+    // 启用高刷新率（仅限Android）
+    if (GetPlatform.isAndroid) {
+      RefreshRateHelper.enableHighRefreshRate().then((success) {
+        if (success) {
+          LogUtils.i('高刷新率已启用', '启动初始化');
+        } else {
+          LogUtils.w('启用高刷新率失败，使用默认刷新率', '启动初始化');
+        }
+      }).catchError((error) {
+        LogUtils.e('启用高刷新率时发生错误', tag: '启动初始化', error: error);
+      });
+    }
 
   }, (error, stackTrace) {
     // 在这里处理未捕获的异常

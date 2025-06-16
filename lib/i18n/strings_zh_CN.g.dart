@@ -13,9 +13,9 @@ import 'strings.g.dart';
 class TranslationsZhCn implements Translations {
 	/// You can call this constructor and build your own translation instance of this locale.
 	/// Constructing via the enum [AppLocale.build] is preferred.
-	TranslationsZhCn({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver})
+	TranslationsZhCn({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
 		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
-		  $meta = TranslationMetadata(
+		  $meta = meta ?? TranslationMetadata(
 		    locale: AppLocale.zhCn,
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
@@ -31,6 +31,9 @@ class TranslationsZhCn implements Translations {
 	@override dynamic operator[](String key) => $meta.getTranslation(key);
 
 	late final TranslationsZhCn _root = this; // ignore: unused_field
+
+	@override 
+	TranslationsZhCn $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => TranslationsZhCn(meta: meta ?? this.$meta);
 
 	// Translations
 	@override late final _TranslationsCommonZhCn common = _TranslationsCommonZhCn._(_root);
@@ -73,6 +76,7 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String get save => '保存';
 	@override String get delete => '删除';
 	@override String get loading => '加载中...';
+	@override String get scrollToTop => '滚动到顶部';
 	@override String get privacyHint => '隐私内容，不与展示';
 	@override String get latest => '最新';
 	@override String get likesCount => '点赞数';
@@ -1423,6 +1427,7 @@ extension on TranslationsZhCn {
 			case 'common.save': return '保存';
 			case 'common.delete': return '删除';
 			case 'common.loading': return '加载中...';
+			case 'common.scrollToTop': return '滚动到顶部';
 			case 'common.privacyHint': return '隐私内容，不与展示';
 			case 'common.latest': return '最新';
 			case 'common.likesCount': return '点赞数';

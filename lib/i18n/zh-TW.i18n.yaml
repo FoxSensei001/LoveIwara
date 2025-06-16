@@ -5,6 +5,7 @@ common:
   save: 儲存
   delete: 刪除
   loading: 載入中...
+  scrollToTop: 滾動到頂部
   # 隱私內容，不與展示
   privacyHint: 隱私內容，不與展示
   latest: 最新

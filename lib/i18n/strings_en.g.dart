@@ -17,9 +17,9 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 
 	/// You can call this constructor and build your own translation instance of this locale.
 	/// Constructing via the enum [AppLocale.build] is preferred.
-	Translations({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver})
+	Translations({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
 		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
-		  $meta = TranslationMetadata(
+		  $meta = meta ?? TranslationMetadata(
 		    locale: AppLocale.en,
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
@@ -35,6 +35,8 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	dynamic operator[](String key) => $meta.getTranslation(key);
 
 	late final Translations _root = this; // ignore: unused_field
+
+	Translations $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => Translations(meta: meta ?? this.$meta);
 
 	// Translations
 	late final TranslationsCommonEn common = TranslationsCommonEn._(_root);
@@ -77,6 +79,7 @@ class TranslationsCommonEn {
 	String get save => 'Save';
 	String get delete => 'Delete';
 	String get loading => 'Loading...';
+	String get scrollToTop => 'Scroll to Top';
 	String get privacyHint => 'Privacy content, not displayed';
 	String get latest => 'Latest';
 	String get likesCount => 'Likes';
@@ -1422,6 +1425,7 @@ extension on Translations {
 			case 'common.save': return 'Save';
 			case 'common.delete': return 'Delete';
 			case 'common.loading': return 'Loading...';
+			case 'common.scrollToTop': return 'Scroll to Top';
 			case 'common.privacyHint': return 'Privacy content, not displayed';
 			case 'common.latest': return 'Latest';
 			case 'common.likesCount': return 'Likes';

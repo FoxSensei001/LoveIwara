@@ -6,6 +6,7 @@ common:
   save: 保存
   delete: 削除
   loading: 読み込み中...
+  scrollToTop: トップに戻る
   # プライバシー内容、表示しない
   privacyHint: プライバシー内容、表示しません
   latest: 最新

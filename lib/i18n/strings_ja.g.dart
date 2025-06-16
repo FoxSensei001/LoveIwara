@@ -13,9 +13,9 @@ import 'strings.g.dart';
 class TranslationsJa implements Translations {
 	/// You can call this constructor and build your own translation instance of this locale.
 	/// Constructing via the enum [AppLocale.build] is preferred.
-	TranslationsJa({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver})
+	TranslationsJa({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
 		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
-		  $meta = TranslationMetadata(
+		  $meta = meta ?? TranslationMetadata(
 		    locale: AppLocale.ja,
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
@@ -31,6 +31,9 @@ class TranslationsJa implements Translations {
 	@override dynamic operator[](String key) => $meta.getTranslation(key);
 
 	late final TranslationsJa _root = this; // ignore: unused_field
+
+	@override 
+	TranslationsJa $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => TranslationsJa(meta: meta ?? this.$meta);
 
 	// Translations
 	@override late final _TranslationsCommonJa common = _TranslationsCommonJa._(_root);
@@ -73,6 +76,7 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get save => '保存';
 	@override String get delete => '削除';
 	@override String get loading => '読み込み中...';
+	@override String get scrollToTop => 'トップに戻る';
 	@override String get privacyHint => 'プライバシー内容、表示しません';
 	@override String get latest => '最新';
 	@override String get likesCount => 'いいね数';
@@ -1418,6 +1422,7 @@ extension on TranslationsJa {
 			case 'common.save': return '保存';
 			case 'common.delete': return '削除';
 			case 'common.loading': return '読み込み中...';
+			case 'common.scrollToTop': return 'トップに戻る';
 			case 'common.privacyHint': return 'プライバシー内容、表示しません';
 			case 'common.latest': return '最新';
 			case 'common.likesCount': return 'いいね数';
