@@ -50,6 +50,10 @@ import 'package:i_iwara/app/services/config_backup_service.dart';
 void main() {
   // 确保Flutter初始化
   runZonedGuarded(() async {
+
+    // 确保Flutter初始化
+    WidgetsFlutterBinding.ensureInitialized();
+
     // 日志初始化 - 仅初始化基本功能，不依赖数据库
     bool isProduction = !kDebugMode;
     await LogUtils.init(isProduction: isProduction);
@@ -64,9 +68,6 @@ void main() {
       systemNavigationBarIconBrightness: Brightness.dark,
       systemNavigationBarDividerColor: Colors.transparent.withAlpha(0x01)/*Android=28,不能用全透明 */
     ));
-
-    // 确保Flutter初始化
-    WidgetsFlutterBinding.ensureInitialized();
 
     // 设置Flutter错误处理
     FlutterError.onError = (FlutterErrorDetails details) {

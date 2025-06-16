@@ -151,56 +151,170 @@ class _Thumbnail extends StatelessWidget {
     );
   }
 
+  /// 格式化数字显示（如1.2K、1.5M等）
+  String _formatNumber(int? number) {
+    if (number == null || number == 0) return '0';
+    
+    if (number < 1000) {
+      return number.toString();
+    } else if (number < 1000000) {
+      double k = number / 1000.0;
+      return k >= 10 ? '${k.toInt()}K' : '${k.toStringAsFixed(1)}K';
+    } else if (number < 1000000000) {
+      double m = number / 1000000.0;
+      return m >= 10 ? '${m.toInt()}M' : '${m.toStringAsFixed(1)}M';
+    } else {
+      double b = number / 1000000000.0;
+      return b >= 10 ? '${b.toInt()}B' : '${b.toStringAsFixed(1)}B';
+    }
+  }
+
   List<Widget> buildTags(BuildContext context, slang.Translations t) {
-    const tagBorderRadius = BorderRadius.only(
-      topRight: Radius.circular(6),
-      bottomLeft: Radius.circular(4),
-    );
-    const privateTagBorderRadius = BorderRadius.only(
-      topLeft: Radius.circular(4),
-      bottomRight: Radius.circular(6),
-    );
     const durationTagBorderRadius = BorderRadius.only(
       topLeft: Radius.circular(6),
       bottomRight: Radius.circular(4),
     );
 
-    return [
-      if (video.rating == 'ecchi')
-        Positioned(
-          left: 0,
-          bottom: 0,
-          child: BaseTag(
-            text: 'R18',
-            backgroundColor: Colors.red,
-            borderRadius: tagBorderRadius,
-            textColor: Theme.of(context).colorScheme.onSecondary,
-          ),
-        ),
-      if (video.private == true)
+    List<Widget> tags = [];
+
+    // 点赞数和播放量标签组（左上角）
+    bool hasLikes = video.numLikes != null && video.numLikes! > 0;
+    bool hasViews = video.numViews != null && video.numViews! > 0;
+    
+    if (hasLikes || hasViews) {
+      tags.add(
         Positioned(
           left: 0,
           top: 0,
-          child: BaseTag(
-            text: t.common.private,
-            icon: Icons.lock,
-            backgroundColor: Colors.black54,
-            borderRadius: privateTagBorderRadius,
-            textColor: Theme.of(context).colorScheme.onPrimary,
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Colors.black54,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(8),
+                bottomRight: Radius.circular(4),
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (hasLikes) ...[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.favorite, size: 10, color: Colors.white),
+                        const SizedBox(width: 2),
+                        Text(
+                          _formatNumber(video.numLikes),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 10,
+                            decoration: TextDecoration.none,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                if (hasViews) ...[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.visibility, size: 10, color: Colors.white),
+                        const SizedBox(width: 2),
+                        Text(
+                          _formatNumber(video.numViews),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 10,
+                            decoration: TextDecoration.none,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ),
         ),
-      if (video.minutesDuration != null)
+      );
+    }
+
+    // Private标签和R18标签组（左下角）
+    bool isPrivate = video.private == true;
+    bool isR18 = video.rating == 'ecchi';
+    
+    if (isPrivate || isR18) {
+      // 如果有R18，整个标签组使用红色背景，否则使用黑色背景
+      Color backgroundColor = isR18 ? Colors.red : Colors.black54;
+      Color textColor = isR18 ? Theme.of(context).colorScheme.onSecondary : Colors.white;
+      
+      tags.add(
         Positioned(
-          right: 0,
+          left: 0,
           bottom: 0,
-          child: BaseTag(
-            text: video.minutesDuration!,
-            icon: Icons.access_time,
-            backgroundColor: Colors.black54,
-            borderRadius: durationTagBorderRadius,
+          child: Container(
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: const BorderRadius.only(
+                topRight: Radius.circular(6),
+                bottomLeft: Radius.circular(4),
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (isR18) ...[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                    child: Text(
+                      'R18',
+                      style: TextStyle(
+                        color: textColor,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 10,
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
+                  ),
+                ],
+                if (isPrivate) ...[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.lock, size: 10, color: textColor),
+                        const SizedBox(width: 2),
+                        Text(
+                          t.common.private,
+                          style: TextStyle(
+                            color: textColor,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 10,
+                            decoration: TextDecoration.none,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ),
         ),
-      if (video.isExternalVideo)
+      );
+    }
+
+    // 时长或外链标签（右下角）
+    if (video.isExternalVideo) {
+      tags.add(
         Positioned(
           right: 0,
           bottom: 0,
@@ -211,6 +325,22 @@ class _Thumbnail extends StatelessWidget {
             borderRadius: durationTagBorderRadius,
           ),
         ),
-    ];
+      );
+    } else if (video.minutesDuration != null) {
+      tags.add(
+        Positioned(
+          right: 0,
+          bottom: 0,
+          child: BaseTag(
+            text: video.minutesDuration!,
+            icon: Icons.access_time,
+            backgroundColor: Colors.black54,
+            borderRadius: durationTagBorderRadius,
+          ),
+        ),
+      );
+    }
+
+    return tags;
   }
 }

@@ -30,6 +30,24 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
     super.dispose();
   }
 
+  /// 格式化数字显示（如1.2K、1.5M等）
+  String _formatNumber(int? number) {
+    if (number == null || number == 0) return '0';
+    
+    if (number < 1000) {
+      return number.toString();
+    } else if (number < 1000000) {
+      double k = number / 1000.0;
+      return k >= 10 ? '${k.toInt()}K' : '${k.toStringAsFixed(1)}K';
+    } else if (number < 1000000000) {
+      double m = number / 1000000.0;
+      return m >= 10 ? '${m.toInt()}M' : '${m.toStringAsFixed(1)}M';
+    } else {
+      double b = number / 1000000000.0;
+      return b >= 10 ? '${b.toInt()}B' : '${b.toStringAsFixed(1)}B';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool isDesktopPlatform = _isDesktop();
@@ -114,13 +132,153 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
             ),
           ),
         ),
-        // 添加标签
-        if (widget.video.rating == 'ecchi') _buildRatingTag(context),
-        if (widget.video.private == true) _buildPrivateTag(context),
+        // 点赞数和播放量标签组（左上角）
+        ..._buildStatsTagsGroup(context),
+        // Private标签和R18标签组
+        ..._buildBottomLeftTagsGroup(context),
         if (widget.video.minutesDuration != null) _buildDurationTag(context),
         if (widget.video.isExternalVideo) _buildExternalVideoTag(context),
       ],
     );
+  }
+
+  /// 构建统计数据标签组
+  List<Widget> _buildStatsTagsGroup(BuildContext context) {
+    bool hasLikes = widget.video.numLikes != null && widget.video.numLikes! > 0;
+    bool hasViews = widget.video.numViews != null && widget.video.numViews! > 0;
+    
+    if (!hasLikes && !hasViews) return [];
+
+    return [
+      Positioned(
+        left: 0,
+        top: 0,
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.black54,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(8),
+              bottomRight: Radius.circular(4),
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (hasLikes) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.favorite, size: 10, color: Colors.white),
+                      const SizedBox(width: 2),
+                      Text(
+                        _formatNumber(widget.video.numLikes),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 10,
+                          decoration: TextDecoration.none,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              if (hasViews) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.visibility, size: 10, color: Colors.white),
+                      const SizedBox(width: 2),
+                      Text(
+                        _formatNumber(widget.video.numViews),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 10,
+                          decoration: TextDecoration.none,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    ];
+  }
+
+
+
+  /// 构建左下角标签组（Private和R18）
+  List<Widget> _buildBottomLeftTagsGroup(BuildContext context) {
+    final t = slang.Translations.of(context);
+    bool isPrivate = widget.video.private == true;
+    bool isR18 = widget.video.rating == 'ecchi';
+    
+    if (!isPrivate && !isR18) return [];
+    
+    // 如果有R18，整个标签组使用红色背景，否则使用黑色背景
+    Color backgroundColor = isR18 ? Colors.red : Colors.black54;
+    Color textColor = Colors.white;
+    
+    return [
+      Positioned(
+        left: 0,
+        bottom: 0,
+        child: Container(
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (isR18) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  child: Text(
+                    'R18',
+                    style: TextStyle(
+                      color: textColor,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 10,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                ),
+              ],
+              if (isPrivate) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.lock, size: 10, color: textColor),
+                      const SizedBox(width: 2),
+                      Text(
+                        t.common.private,
+                        style: TextStyle(
+                          color: textColor,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 10,
+                          decoration: TextDecoration.none,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    ];
   }
 
   /// 构建视频信息部分（标题、作者和创建时间）
@@ -168,31 +326,7 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
     );
   }
 
-  /// 构建 R18 标签
-  Widget _buildRatingTag(BuildContext context) {
-    return Positioned(
-      left: 0,
-      bottom: 0,
-      child: _buildTag(
-        label: 'R18',
-        backgroundColor: Colors.red,
-      ),
-    );
-  }
 
-  /// 构建 Private 标签
-  Widget _buildPrivateTag(BuildContext context) {
-    final t = slang.Translations.of(context);
-    return Positioned(
-      left: 0,
-      top: 0,
-      child: _buildTag(
-        label: t.common.private,
-        backgroundColor: Colors.black54,
-        icon: Icons.lock,
-      ),
-    );
-  }
 
   /// 构建站外视频标签
   Widget _buildExternalVideoTag(BuildContext context) {

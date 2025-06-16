@@ -5,10 +5,10 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as path;
 import 'package:get/get.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:i_iwara/app/services/log_service.dart';
 import 'package:i_iwara/common/constants.dart';
+import 'package:yaml/yaml.dart';
 
 /// 日志工具类，提供统一的日志接口
 /// 
@@ -469,14 +469,42 @@ class LogUtils {
     };
   }
   
+  // 读取 pubspec.yaml 文件信息
+  static Future<Map<String, dynamic>?> _readPubspecInfo() async {
+    try {
+      final pubspecFile = File('pubspec.yaml');
+      if (await pubspecFile.exists()) {
+        final content = await pubspecFile.readAsString();
+        final yamlMap = loadYaml(content);
+        return Map<String, dynamic>.from(yamlMap);
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("读取 pubspec.yaml 失败: $e");
+      }
+    }
+    return null;
+  }
+
   // 记录设备和应用信息
   static Future<void> _logDeviceInfo() async {
     try {
       // 记录应用信息
-      PackageInfo packageInfo = await PackageInfo.fromPlatform();
-      i("应用名称: ${packageInfo.appName}", "设备信息");
-      i("包名: ${packageInfo.packageName}", "设备信息");
-      i("版本: ${packageInfo.version}+${packageInfo.buildNumber}", "设备信息");
+      final pubspecInfo = await _readPubspecInfo();
+      if (pubspecInfo != null) {
+        final appName = pubspecInfo['name'] ?? 'Unknown';
+        final version = pubspecInfo['version'] ?? 'Unknown';
+        final description = pubspecInfo['description'] ?? 'Unknown';
+        
+        i("应用名称: $appName", "设备信息");
+        i("应用描述: $description", "设备信息");
+        i("版本: $version", "设备信息");
+      } else {
+        // 回退方案：使用硬编码信息
+        i("应用名称: i_iwara", "设备信息");
+        i("应用描述: A new Flutter project.", "设备信息");
+        i("版本: 0.3.12+1", "设备信息");
+      }
       
       // 记录设备信息
       DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();

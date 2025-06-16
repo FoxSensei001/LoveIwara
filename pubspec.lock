@@ -282,13 +282,13 @@ packages:
     source: hosted
     version: "0.7.11"
   device_info_plus:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: device_info_plus
-      sha256: "0c6396126421b590089447154c5f98a5de423b70cfb15b1578fd018843ee6f53"
+      sha256: a7fd703482b391a87d60b6061d04dfdeab07826b96f9abd8f5ed98068acc0074
       url: "https://pub.dev"
     source: hosted
-    version: "11.4.0"
+    version: "10.1.2"
   device_info_plus_platform_interface:
     dependency: transitive
     description:
@@ -998,7 +998,7 @@ packages:
     source: hosted
     version: "2.2.0"
   package_info_plus:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: package_info_plus
       sha256: "7976bfe4c583170d6cdc7077e3237560b364149fcd268b5f53d95a991963b191"
@@ -1462,18 +1462,18 @@ packages:
     dependency: "direct main"
     description:
       name: super_clipboard
-      sha256: "5203c881d24033c3e6154c2ae01afd94e7f0a3201280373f28e540f1defa3f40"
+      sha256: "4a6ae6dfaa282ec1f2bff750976f535517ed8ca842d5deae13985eb11c00ac1f"
       url: "https://pub.dev"
     source: hosted
-    version: "0.9.0-dev.6"
+    version: "0.8.24"
   super_native_extensions:
     dependency: transitive
     description:
       name: super_native_extensions
-      sha256: "09ccc40c475e6f91770eaeb2553bf4803812d7beadc3759aa57d643370619c86"
+      sha256: a433bba8186cd6b707560c42535bf284804665231c00bca86faf1aa4968b7637
       url: "https://pub.dev"
     source: hosted
-    version: "0.9.0-dev.6"
+    version: "0.8.24"
   synchronized:
     dependency: transitive
     description:
@@ -1726,10 +1726,10 @@ packages:
     dependency: transitive
     description:
       name: win32_registry
-      sha256: "6f1b564492d0147b330dd794fee8f512cec4977957f310f9951b5f9d83618dae"
+      sha256: "21ec76dfc731550fd3e2ce7a33a9ea90b828fdf19a5c3bcf556fa992cfa99852"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.0"
+    version: "1.1.5"
   window_manager:
     dependency: "direct main"
     description:
