@@ -1,4 +1,4 @@
-import 'package:dio/dio.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/update_info.model.dart';
@@ -14,7 +14,7 @@ import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 
 class VersionService extends GetxService {
   final ConfigService _configService = Get.find();
-  final Dio _dio = Dio();
+  final http.Client _httpClient = http.Client();
 
   final currentVersion = ''.obs;
   final latestVersion = ''.obs;
@@ -24,6 +24,14 @@ class VersionService extends GetxService {
   final updateInfo = Rxn<UpdateInfo>();
 
   final needMinVersionUpdate = false.obs;
+
+  // 处理HTTP响应
+  Future<String> _handleResponse(http.Response response) async {
+    if (response.statusCode >= 400) {
+      throw Exception('HTTP ${response.statusCode}: ${response.reasonPhrase}');
+    }
+    return response.body;
+  }
 
   Future<VersionService> init() async {
     // 从 pubspec.yaml 读取当前版本
@@ -44,12 +52,12 @@ class VersionService extends GetxService {
       isChecking.value = true;
       errorMessage.value = '';
 
-      final response = await _dio.get(
-        _configService[ConfigKey.REMOTE_REPO_UPDATE_LOGS_YAML_URL],
+      final response = await _httpClient.get(
+        Uri.parse(_configService[ConfigKey.REMOTE_REPO_UPDATE_LOGS_YAML_URL]),
       );
 
       if (response.statusCode == 200) {
-        final yaml = loadYaml(response.data);
+        final yaml = loadYaml(response.body);
         final remoteVersion = yaml['currentVersion']?.toString().split('+')[0];
 
         LogUtils.d('远程版本: $remoteVersion', 'VersionService');
@@ -94,12 +102,12 @@ class VersionService extends GetxService {
   /// 获取更新日志
   Future<void> _fetchUpdateInfo(String version) async {
     try {
-      final response = await _dio.get(
-        _configService[ConfigKey.REMOTE_REPO_UPDATE_LOGS_YAML_URL],
+      final response = await _httpClient.get(
+        Uri.parse(_configService[ConfigKey.REMOTE_REPO_UPDATE_LOGS_YAML_URL]),
       );
 
       if (response.statusCode == 200) {
-        final yaml = loadYaml(response.data);
+        final yaml = loadYaml(response.body);
         final updates = yaml['updates'] as YamlList;
 
         for (var update in updates) {
@@ -221,11 +229,11 @@ class VersionService extends GetxService {
   Future<List<UpdateInfo>> fetchAllUpdateLogs() async {
     List<UpdateInfo> updatesList = [];
     try {
-      final response = await _dio.get(
-        _configService[ConfigKey.REMOTE_REPO_UPDATE_LOGS_YAML_URL],
+      final response = await _httpClient.get(
+        Uri.parse(_configService[ConfigKey.REMOTE_REPO_UPDATE_LOGS_YAML_URL]),
       );
       if (response.statusCode == 200) {
-        final yamlData = loadYaml(response.data);
+        final yamlData = loadYaml(response.body);
         final yamlUpdates = yamlData['updates'] as YamlList;
         updatesList = yamlUpdates
             .map<UpdateInfo>((update) => UpdateInfo.fromYaml(update))
@@ -235,5 +243,11 @@ class VersionService extends GetxService {
       LogUtils.e('获取全部更新日志失败', error: e, tag: 'VersionService');
     }
     return updatesList;
+  }
+
+  @override
+  void onClose() {
+    _httpClient.close();
+    super.onClose();
   }
 }

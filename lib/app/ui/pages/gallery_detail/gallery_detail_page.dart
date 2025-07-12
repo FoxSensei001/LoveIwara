@@ -15,6 +15,7 @@ import 'package:oktoast/oktoast.dart';
 
 import '../../../../common/enums/media_enums.dart';
 import '../../../../utils/logger_utils.dart';
+import '../../../../app/utils/layout_calculator.dart';
 import '../../widgets/error_widget.dart';
 import '../comment/controllers/comment_controller.dart';
 import '../comment/widgets/comment_entry_area_widget.dart';
@@ -31,15 +32,18 @@ class GalleryDetailPage extends StatefulWidget {
   const GalleryDetailPage({super.key, required this.imageModelId});
 
   @override
-  _GalleryDetailPageState createState() => _GalleryDetailPageState();
+  GalleryDetailPageState createState() => GalleryDetailPageState();
 }
 
-class _GalleryDetailPageState extends State<GalleryDetailPage> {
+class GalleryDetailPageState extends State<GalleryDetailPage> {
   late String imageModelId;
   late GalleryDetailController detailController;
   late CommentController commentController;
   late RelatedMediasController relatedMediasController;
   late String uniqueTag;
+
+  // 布局计算器
+  final LayoutCalculator _layoutCalculator = LayoutCalculator();
 
   // 分配图库详情与附列表的宽度
   final double sideColumnMinWidth = 400.0; // 右侧固定宽度
@@ -131,6 +135,23 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
   bool _shouldUseWideScreenLayout(double screenHeight, double screenWidth) {
     // 如果屏幕宽度足够容纳左侧最小宽度和右侧固定宽度，则使用宽屏布局
     return screenWidth >= leftColumnMinWidth + sideColumnMinWidth;
+  }
+
+  /// 计算图片滚动区域的智能高度
+  double _calculateImageScrollerHeight(Size screenSize, double paddingTop) {
+    final result = _layoutCalculator.calculateGalleryScrollerHeight(
+      screenSize: screenSize,
+      paddingTop: paddingTop,
+    );
+    
+    LogUtils.d(
+      '[智能布局] 屏幕: ${screenSize.width.toInt()}x${screenSize.height.toInt()}, '
+      '设备类型: ${result.isMobile ? "手机" : result.isTablet ? "平板" : "桌面"}, '
+      '图片区域高度: ${result.maxHeight.toInt()}px', 
+      'GalleryDetailPage'
+    );
+    
+    return result.maxHeight;
   }
 
   void showCommentModal(BuildContext context) {
@@ -246,11 +267,8 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
     // 判断是否使用宽屏布局 (移出 Obx)
     bool isWide = _shouldUseWideScreenLayout(screenHeight, screenWidth);
 
-    // 计算图片滚动区域的最大高度 (移出 Obx)
-    final double imageScrollerMaxHeight = screenHeight * 0.55;
-
-    // 只在构建时打印一次日志 (移出 Obx)
-    LogUtils.d('[DEBUG] 是否使用宽屏布局: $isWide', 'GalleryDetailPage');
+    // 使用智能布局计算器计算图片滚动区域的最大高度 (移出 Obx)
+    final double imageScrollerMaxHeight = _calculateImageScrollerHeight(screenSize, paddingTop);
 
     return Focus(
       autofocus: true,
@@ -371,8 +389,7 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
                           ...detailController
                               .otherAuthorzImageModelsController!.imageModels
                               .map((imageModel) => ImageModelTileListItem(
-                                  imageModel: imageModel))
-                              .toList(),
+                                  imageModel: imageModel)),
                         const SizedBox(height: 16),
                         // Related galleries title
                         Container(
@@ -388,8 +405,7 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
                         else
                           ...relatedMediasController.imageModels
                               .map((imageModel) => ImageModelTileListItem(
-                                  imageModel: imageModel))
-                              .toList(),
+                                  imageModel: imageModel)),
                         const SafeArea(
                             child:
                                 SizedBox.shrink()), // Safe area bottom padding
@@ -459,8 +475,7 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
                     ...detailController
                         .otherAuthorzImageModelsController!.imageModels
                         .map((imageModel) =>
-                            ImageModelTileListItem(imageModel: imageModel))
-                        .toList(),
+                            ImageModelTileListItem(imageModel: imageModel)),
                   // 7. Related Galleries Title
                   const SizedBox(height: 16),
                   Container(
@@ -476,8 +491,7 @@ class _GalleryDetailPageState extends State<GalleryDetailPage> {
                   else
                     ...relatedMediasController.imageModels
                         .map((imageModel) =>
-                            ImageModelTileListItem(imageModel: imageModel))
-                        .toList(),
+                            ImageModelTileListItem(imageModel: imageModel)),
                   // 9. Safe Area Bottom Padding
                   const SafeArea(child: SizedBox.shrink()),
                 ],

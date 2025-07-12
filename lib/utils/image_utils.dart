@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:dio/dio.dart';
 import 'package:file_selector/file_selector.dart';
+import 'package:get/get.dart'; // 导入 Get 包
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/services/api_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -46,10 +46,10 @@ class ImageUtils {
     }
 
     try {
-      var apiService = await ApiService.getInstance();
-      Uint8List bytes = (await apiService.dio
-              .get(url, options: Options(responseType: ResponseType.bytes)))
-          .data;
+      var apiService = Get.find<ApiService>();
+      // 使用 HTTP 包获取图片数据
+      var response = await apiService.get<List<int>>(url);
+      Uint8List bytes = Uint8List.fromList(response.data);
       final dataWriterItem =
           DataWriterItem(suggestedName: '${item.data.id}.png');
       dataWriterItem.add(Formats.png(bytes));
@@ -132,10 +132,10 @@ class ImageUtils {
       final String sanitizedFileName = _sanitizeFileName('${item.data.id}.png');
       final String filePath = path.join(directoryPath, sanitizedFileName);
 
-      var apiService = await ApiService.getInstance();
-      Uint8List bytes = (await apiService.dio
-              .get(url, options: Options(responseType: ResponseType.bytes)))
-          .data;
+      var apiService = Get.find<ApiService>();
+      // 使用 HTTP 包获取图片数据
+      var response = await apiService.get<List<int>>(url);
+      Uint8List bytes = Uint8List.fromList(response.data);
 
       await File(filePath).writeAsBytes(bytes);
       showToastWidget(MDToastWidget(

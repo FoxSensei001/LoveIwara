@@ -101,7 +101,7 @@ class CommonConstants {
   static const int logRetentionDays = 30;
   
   // 是否持久化日志
-  static bool enableLogPersistence = true;
+  static bool enableLogPersistence = false;
   
   /// ============================== 日志配置 End ==============================
 
@@ -191,6 +191,10 @@ class KeyConstants {
 
   // Access Token
   static const String accessToken = 'access_token';
+
+  static const String cfClearance = 'cfClearance';
+
+  static const String userAgent = 'userAgent';
 }
 
 class ApiConstants {

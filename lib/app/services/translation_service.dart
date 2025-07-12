@@ -1,5 +1,3 @@
-import 'package:dio/dio.dart';
-import 'package:dio/io.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/services/config_service.dart';
@@ -9,10 +7,11 @@ import 'package:i_iwara/utils/logger_utils.dart';
 import 'dart:convert';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'dart:async';
+import 'package:http/http.dart' as http;
 
 class TranslationService extends GetxService {
   final ConfigService _configService = Get.find();
-  final Dio dio = Dio();
+  final http.Client _httpClient = http.Client();
   
   // 存储当前正在进行的流式翻译
   final Map<String, StreamController<String>> _activeStreamTranslations = {};
@@ -73,18 +72,19 @@ class TranslationService extends GetxService {
   /// 使用Google翻译服务
   Future<ApiResult<String>> _translateWithGoogle(String text, String? targetLanguage) async {
     try {
-      final response = await dio.get(
-        "https://translate.googleapis.com/translate_a/t",
-        queryParameters: {
-          "client": "gtx",
-          "sl": "auto",
-          "tl": _getCurrentLanguage(targetLanguage),
-          "dt": "t",
-          "q": text,
-        },
-      );
-
-      String res = response.data[0][0] as String;
+      final uri = Uri.https('translate.googleapis.com', '/translate_a/t', {
+        "client": "gtx",
+        "sl": "auto",
+        "tl": _getCurrentLanguage(targetLanguage),
+        "dt": "t",
+        "q": text,
+      });
+      final response = await _httpClient.get(uri);
+      if (response.statusCode != 200) {
+        return ApiResult.fail(t.errors.failedToOperate);
+      }
+      final data = json.decode(response.body);
+      String res = data[0][0] as String;
       return ApiResult.success(message: '', data: res);
     } catch (e) {
       LogUtils.e('翻译失败', tag: 'TranslationService', error: e);
@@ -98,18 +98,16 @@ class TranslationService extends GetxService {
       final stream = _getConfig<bool>(ConfigKey.AI_TRANSLATION_SUPPORTS_STREAMING) ?? false;
       final requestData = _buildAIRequestData(text, targetLanguage: targetLanguage, stream: stream);
       final url = getFinalUrl(_getConfig<String>(ConfigKey.AI_TRANSLATION_BASE_URL) ?? '');
-      
-      final response = await dio.post(
-        url,
-        data: requestData,
-        options: Options(headers: _getAuthHeaders())
+      final uri = Uri.parse(url);
+      final response = await _httpClient.post(
+        uri,
+        headers: _getAuthHeaders(),
+        body: json.encode(requestData),
       );
-
       if (response.statusCode != 200) {
         return ApiResult.fail(t.errors.translationFailedPleaseTryAgainLater);
       }
-
-      return _parseAIResponse(response.data);
+      return _parseAIResponse(json.decode(response.body));
     } catch (e) {
       LogUtils.e('AI翻译失败', tag: 'TranslationService', error: e);
       return ApiResult.fail(t.errors.translationFailedPleaseTryAgainLater);
@@ -168,46 +166,38 @@ class TranslationService extends GetxService {
       {String? targetLanguage}) async {
     try {
       const testText = "Hello";
-      
       final currentLanguage = _getCurrentLanguage(targetLanguage);
       final prompt = _getConfig<String>(ConfigKey.AI_TRANSLATION_PROMPT)
           ?.replaceAll(CommonConstants.defaultLanguagePlaceholder, currentLanguage) ?? '';
-
       final messages = [
         {"role": "system", "content": prompt},
         {"role": "user", "content": testText}
       ];
-
-      final testDio = Dio();
       final url = getFinalUrl(baseUrl);
-      final response = await testDio.post(
-        url,
-        data: {
+      final uri = Uri.parse(url);
+      final response = await _httpClient.post(
+        uri,
+        headers: {
+          'Authorization': 'Bearer $apiKey',
+          'Content-Type': 'application/json'
+        },
+        body: json.encode({
           "model": model,
           "messages": messages,
           "temperature": _getConfig<double>(ConfigKey.AI_TRANSLATION_TEMPERATURE) ?? 0.7,
           "max_tokens": _getConfig<int>(ConfigKey.AI_TRANSLATION_MAX_TOKENS) ?? 1000
-        },
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $apiKey',
-            'Content-Type': 'application/json'
-          },
-          validateStatus: (status) => status! < 500
-        )
+        }),
       );
-
       if (response.statusCode != 200) {
         return ApiResult.success(
           code: response.statusCode ?? 500,
           data: AITestResult(
-            custMessage: 'HTTP ${response.statusCode}',
+            custMessage: 'HTTP  ${response.statusCode}',
             connectionValid: false
           )
         );
       }
-
-      final data = response.data;
+      final data = json.decode(response.body);
       if (data is! Map<String, dynamic> || 
           data['choices'] == null ||
           (data['choices'] as List).isEmpty ||
@@ -219,9 +209,7 @@ class TranslationService extends GetxService {
           )
         );
       }
-
       final content = data['choices'][0]['message']['content'] as String? ?? '';
-      
       return ApiResult.success(
         data: AITestResult(
           rawResponse: jsonEncode(data),
@@ -243,7 +231,8 @@ class TranslationService extends GetxService {
   
   /// 重置HTTP代理
   void resetProxy() {
-    dio.httpClientAdapter = IOHttpClientAdapter();
+    // http 包的代理通过 HttpOverrides.global 统一设置，无需单独处理
+    LogUtils.d('TranslationService: 代理重置 - HTTP包通过HttpOverrides.global处理');
   }
 
   // 流式翻译相关方法 ---------------------------
@@ -314,34 +303,25 @@ class TranslationService extends GetxService {
   
   /// 使用流式传输进行AI翻译
   Future<void> _translateWithAIStream(String text, String translationId, {String? targetLanguage}) async {
-    // 获取流控制器，如果不存在则返回
     final streamController = _activeStreamTranslations[translationId];
     if (streamController == null) return;
-    
     try {
       final requestData = _buildAIRequestData(text, targetLanguage: targetLanguage, stream: true);
       final url = getFinalUrl(_getConfig<String>(ConfigKey.AI_TRANSLATION_BASE_URL) ?? '');
-      
-      final response = await dio.post(
-        url,
-        data: requestData,
-        options: Options(
-          headers: _getAuthHeaders(),
-          responseType: ResponseType.stream,
-          receiveTimeout: const Duration(seconds: 30),
-        ),
-      );
-      
-      // 处理流式响应
+      final uri = Uri.parse(url);
+      final request = http.Request('POST', uri)
+        ..headers.addAll(_getAuthHeaders())
+        ..headers['Content-Type'] = 'application/json'
+        ..body = json.encode(requestData);
+      final streamedResponse = await _httpClient.send(request);
+      if (streamedResponse.statusCode != 200) {
+        streamController.addError('翻译请求失败');
+        await streamController.close();
+        _cleanupTranslationResources(translationId);
+        return;
+      }
       String fullTranslation = '';
-      
-      // 获取响应流
-      final responseStream = response.data.stream as Stream<List<int>>;
-      
-      // 创建活动监听标志
       bool isActive = true;
-      
-      // 设置数据接收超时
       Timer? inactivityTimer;
       void resetInactivityTimer() {
         inactivityTimer?.cancel();
@@ -354,26 +334,14 @@ class TranslationService extends GetxService {
           }
         });
       }
-      
-      // 初始化超时计时器
       resetInactivityTimer();
-      
-      // 监听流数据
-      await for (final chunk in responseStream) {
-        // 收到数据，重置超时计时器
+      final utf8Stream = streamedResponse.stream.transform(utf8.decoder);
+      await for (final chunkString in utf8Stream) {
         resetInactivityTimer();
-        
-        // 如果流控制器已关闭或不再活动，停止处理
         if (streamController.isClosed || !isActive) break;
-        
-        // 将字节数据转换为字符串
-        final chunkString = utf8.decode(chunk);
-        
-        // 处理SSE格式的数据
         final lines = chunkString.split('\n')
             .where((line) => line.startsWith('data: ') && line != 'data: [DONE]')
             .map((line) => line.substring(6));
-        
         for (final line in lines) {
           try {
             final data = jsonDecode(line) as Map<String, dynamic>;
@@ -381,11 +349,8 @@ class TranslationService extends GetxService {
                 (data['choices'] as List).isNotEmpty && 
                 data['choices'][0].containsKey('delta') &&
                 data['choices'][0]['delta'].containsKey('content')) {
-              
               final content = data['choices'][0]['delta']['content'] as String;
               fullTranslation += content;
-              
-              // 将新内容发送到流
               streamController.add(fullTranslation);
             }
           } catch (e) {
@@ -393,22 +358,14 @@ class TranslationService extends GetxService {
           }
         }
       }
-      
-      // 取消数据接收超时计时器
       inactivityTimer?.cancel();
-      
-      // 完成翻译后关闭流
       if (!streamController.isClosed && isActive) {
         await streamController.close();
       }
-      
     } catch (e) {
       LogUtils.e('流式翻译失败', error: e);
-      
-      // 降级：使用普通翻译方式
       if (!streamController.isClosed) {
         try {
-          // 使用普通翻译获取结果
           final result = await _translateWithAI(text, targetLanguage: targetLanguage);
           if (result.isSuccess && result.data != null) {
             streamController.add(result.data!);
@@ -419,12 +376,10 @@ class TranslationService extends GetxService {
           LogUtils.e('降级到普通翻译也失败', error: fallbackError);
           streamController.addError(fallbackError);
         } finally {
-          // 关闭流
           await streamController.close();
         }
       }
     } finally {
-      // 确保清理所有相关资源
       _cleanupTranslationResources(translationId);
     }
   }

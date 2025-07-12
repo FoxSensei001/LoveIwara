@@ -33,6 +33,7 @@ import 'dart:ui' show Canvas, PaintingStyle, Picture, PictureRecorder, Rect;
 import 'app/my_app.dart';
 import 'app/services/api_service.dart';
 import 'app/services/auth_service.dart';
+import 'app/services/cloudflare_service.dart';
 import 'app/services/storage_service.dart';
 import 'app/services/user_preference_service.dart';
 import 'app/services/user_service.dart';
@@ -207,6 +208,7 @@ Future<void> _initializeBusinessServices() async {
   // 初始化认证服务和API服务
   try {
     LogUtils.d('开始初始化认证服务', '启动初始化');
+    Get.put(CloudflareService());
     AuthService authService = await AuthService().init();
     Get.put(authService);
 

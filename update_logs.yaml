@@ -5,24 +5,24 @@ currentVersion: "0.3.13"
 # 1. version: 版本号
 # 2. date: 更新日期
 # 3. changes: 更新内容
-# 5. minVersion: 最小版本号
+# 4. minVersion: 最小版本号
 updates:
- - version: "0.3.13"
-   date: "2025-06-16"
-   minVersion: "0.3.0"
-   changes:
-     zh-CN:
-       - "新增日志导出功能"
-       - "优化部分UI样式"
-       - "修复在部分设备上观看视频会导致应用崩溃的问题"
-     en:
-       - "Added log export function"
-       - "Optimized some UI styles"
-       - "Fixed the issue where watching videos on some devices could cause the app to crash"
-     ja:
-       - "ログエクスポート機能を追加"
-       - "一部UIスタイルを最適化"
-       - "部分デバイスでのビデオ視聴時にアプリがクラッシュする問題を修正"
+  - version: "0.3.13"
+    date: "2025-06-16"
+    minVersion: "0.3.0"
+    changes:
+      zh-CN:
+        - "新增日志导出功能"
+        - "优化部分UI样式"
+        - "修复在部分设备上观看视频会导致应用崩溃的问题"
+      en:
+        - "Added log export function"
+        - "Optimized some UI styles"
+        - "Fixed the issue where watching videos on some devices could cause the app to crash"
+      ja:
+        - "ログエクスポート機能を追加"
+        - "一部UIスタイルを最適化"
+        - "部分デバイスでのビデオ視聴時にアプリがクラッシュする問題を修正"
   - version: "0.3.12"
     date: "2025-03-21"
     minVersion: "0.3.0"

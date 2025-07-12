@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/history_record.dart';
@@ -143,8 +142,6 @@ class MyVideoStateController extends GetxController
   Timer? _lockButtonHideTimer;
   final RxBool isLockButtonVisible = true.obs;
 
-  // 添加 Dio CancelToken
-  final CancelToken _cancelToken = CancelToken();
   // 添加 disposed 标志位
   bool _isDisposed = false;
 
@@ -340,9 +337,7 @@ class MyVideoStateController extends GetxController
     LogUtils.i('MyVideoStateController onClose 被调用', 'MyVideoStateController');
     _isDisposed = true;
 
-    // 取消网络请求
-    _cancelToken.cancel("Controller is being disposed");
-    LogUtils.d('网络请求已取消', 'MyVideoStateController');
+    LogUtils.d('控制器正在销毁', 'MyVideoStateController');
 
     try {
       // 取消定时器
@@ -438,7 +433,6 @@ class MyVideoStateController extends GetxController
     try {
       var res = await _apiService.get(
         '/video/$videoId',
-        cancelToken: _cancelToken,
       );
 
       if (_isDisposed) return;
@@ -487,22 +481,22 @@ class MyVideoStateController extends GetxController
           videoInfo.value!.fileUrl != null) {
         await fetchVideoSource();
       }
-    } on DioException catch (e) {
-      if (_isDisposed || e.type == DioExceptionType.cancel) {
-        LogUtils.w('请求被取消或Controller已销毁', 'MyVideoStateController');
+    } on ApiException catch (e) {
+      if (_isDisposed) {
+        LogUtils.w('Controller已销毁', 'MyVideoStateController');
         return;
       }
-      LogUtils.e('获取视频详情失败 (Dio): $e', tag: 'MyVideoStateController', error: e);
+      LogUtils.e('获取视频详情失败 (Api): $e', tag: 'MyVideoStateController', error: e);
       if (!_isDisposed) {
-        if (e.response?.statusCode == 403) {
-          var data = e.response?.data;
+        if (e.statusCode == 403) {
+          var data = e.data;
           if (data != null && 
               data['message'] != null && 
               data['message'] == 'errors.privateVideo') {
             User author = User.fromJson(data['data']['user']);
             mainErrorWidget.value = PrivateOrDeletedVideoWidget(author: author, isPrivate: true);
           }
-        } else if (e.response?.statusCode == 404) {
+        } else if (e.statusCode == 404) {
           mainErrorWidget.value = PrivateOrDeletedVideoWidget(isPrivate: false);
         } else {
           mainErrorWidget.value = CommonErrorWidget(
@@ -554,7 +548,6 @@ class MyVideoStateController extends GetxController
           'X-Version':
               XVersionCalculatorUtil.calculateXVersion(videoInfo.value!.fileUrl!),
         },
-        cancelToken: _cancelToken,
       );
 
       if (_isDisposed) return;
@@ -576,14 +569,14 @@ class MyVideoStateController extends GetxController
             videoInfo.value!.videoSources,
             filterPreview: true),
       );
-    } on DioException catch (e) {
-      if (_isDisposed || e.type == DioExceptionType.cancel) {
-        LogUtils.w('请求被取消或Controller已销毁', 'MyVideoStateController');
+    } on ApiException catch (e) {
+      if (_isDisposed) {
+        LogUtils.w('Controller已销毁', 'MyVideoStateController');
         return;
       }
-      LogUtils.e('获取视频源失败 (Dio): $e', tag: 'MyVideoStateController', error: e);
+      LogUtils.e('获取视频源失败 (Api): $e', tag: 'MyVideoStateController', error: e);
       if (!_isDisposed) {
-        if (e.response?.statusCode == 404) {
+        if (e.statusCode == 404) {
           videoErrorMessage.value = 'resource_404';
         } else {
           videoErrorMessage.value = slang.t.videoDetail.getVideoInfoFailed;

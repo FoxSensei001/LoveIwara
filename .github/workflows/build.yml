@@ -65,28 +65,24 @@ jobs:
         with:
           name: android-arm64-v8a
           path: build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
-          compression-level: 9
 
       - name: Upload ARMv7 APK
         uses: actions/upload-artifact@v4
         with:
           name: android-armeabi-v7a
           path: build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
-          compression-level: 9
 
       - name: Upload x86_64 APK
         uses: actions/upload-artifact@v4
         with:
           name: android-x86_64
           path: build/app/outputs/flutter-apk/app-x86_64-release.apk
-          compression-level: 9
 
       - name: Upload Universal APK
         uses: actions/upload-artifact@v4
         with:
           name: android-universal
           path: build/app/outputs/flutter-apk/app-release.apk
-          compression-level: 9
 
   build-windows:
     if: ${{ inputs.build_windows }}
@@ -186,4 +182,3 @@ jobs:
         with:
           name: ios-release
           path: build/ios/iphoneos/app-release.ipa
-          compression-level: 9

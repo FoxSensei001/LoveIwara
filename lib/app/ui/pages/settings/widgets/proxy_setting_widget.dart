@@ -1,8 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:dio/dio.dart';
-import 'package:dio/io.dart';
+import 'package:http/http.dart' as http;
 import 'package:i_iwara/app/ui/pages/settings/widgets/setting_item_widget.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:oktoast/oktoast.dart';
@@ -44,8 +43,8 @@ class _ProxySettingsWidgetState extends State<ProxySettingsWidget> {
   final RxBool _isProxyEnabled = false.obs;
   final RxBool _isChecking = false.obs;
 
-  // 创建一个全局的 Dio 实例
-  final Dio dio = Dio();
+  // 创建一个全局的 HTTP 客户端
+  late http.Client _httpClient;
 
   // 定义中文标签
   static const String _tag = '代理设置';
@@ -53,15 +52,13 @@ class _ProxySettingsWidgetState extends State<ProxySettingsWidget> {
   @override
   void initState() {
     super.initState();
+    _httpClient = http.Client();
+    
     // 初始化控件的值
     _proxyController.text =
         widget.configService[ConfigKey.PROXY_URL]?.toString() ?? '';
     _isProxyEnabled.value =
         widget.configService[ConfigKey.USE_PROXY] as bool? ?? false;
-
-    if (_isProxyEnabled.value) {
-      _setProxy(_proxyController.text.trim());
-    }
 
     LogUtils.d(
         '初始化完成, 代理地址: ${_proxyController.text}, 是否启用代理: $_isProxyEnabled',
@@ -71,25 +68,9 @@ class _ProxySettingsWidgetState extends State<ProxySettingsWidget> {
   @override
   void dispose() {
     _proxyController.dispose();
+    _httpClient.close();
     super.dispose();
     LogUtils.d('代理设置组件已销毁', _tag);
-  }
-
-  // 设置 Dio 的代理
-  void _setProxy(String proxyUrl) {
-    dio.httpClientAdapter = IOHttpClientAdapter(
-      createHttpClient: () {
-        final client = HttpClient();
-        client.findProxy = (uri) {
-          return 'PROXY $proxyUrl';
-        };
-        // 根据需要忽略证书错误
-        client.badCertificateCallback =
-            (X509Certificate cert, String host, int port) => true;
-        return client;
-      },
-    );
-    LogUtils.d('设置 Dio 代理: $proxyUrl', _tag);
   }
 
   // 校验代理地址
@@ -132,25 +113,8 @@ class _ProxySettingsWidgetState extends State<ProxySettingsWidget> {
     LogUtils.d('开始发送测试请求以检测代理', _tag);
 
     try {
-      // 临时设置代理
-      dio.httpClientAdapter = IOHttpClientAdapter(
-        createHttpClient: () {
-          final client = HttpClient();
-          client.findProxy = (uri) {
-            return 'PROXY $proxyUrl';
-          };
-          client.badCertificateCallback =
-              (X509Certificate cert, String host, int port) => true;
-          return client;
-        },
-      );
-
-      // 发送请求到谷歌
-      final response = await dio.get('https://www.google.com',
-          options: Options(
-            followRedirects: false,
-            validateStatus: (status) => status! < 500,
-          ));
+      // 使用 HTTP 包发送请求到谷歌
+      final response = await _httpClient.get(Uri.parse('https://www.google.com'));
       if (response.statusCode == 200 || response.statusCode == 302) {
         showToastWidget(
             MDToastWidget(
@@ -305,7 +269,6 @@ class _ProxySettingsWidgetState extends State<ProxySettingsWidget> {
                         widget.configService[ConfigKey.PROXY_URL] = value;
                         LogUtils.d('保存代理地址: $value', _tag);
                         if (_isProxyEnabled.value) {
-                          _setProxy(value.trim());
                           _setFlutterEngineProxy(value.trim());
                         }
                       },
@@ -361,14 +324,11 @@ class _ProxySettingsWidgetState extends State<ProxySettingsWidget> {
                                   widget.configService[
                                       ConfigKey.USE_PROXY] = value;
                                   if (value) {
-                                    _setProxy(_proxyController.text.trim());
                                     _setFlutterEngineProxy(
                                         _proxyController.text.trim());
                                     LogUtils.i('代理已启用', _tag);
                                   } else {
-                                    dio.httpClientAdapter =
-                                        IOHttpClientAdapter();
-                                    _setFlutterEngineProxy('');
+                                    HttpOverrides.global = null;
                                     LogUtils.i('代理已禁用', _tag);
                                   }
                                 },

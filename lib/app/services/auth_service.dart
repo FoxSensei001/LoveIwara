@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:dio/dio.dart' as dio;
-import 'package:dio/io.dart';
+import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
+import 'package:i_iwara/app/services/api_service.dart' show ApiException;
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
@@ -27,12 +27,53 @@ enum TokenValidationResult {
 class AuthService extends GetxService {
   final StorageService _storage = StorageService();
   final MessageService _messageService = Get.find<MessageService>();
-  final dio.Dio _dio = dio.Dio(dio.BaseOptions(
-    baseUrl: CommonConstants.iwaraApiBaseUrl,
-    headers: {'Content-Type': 'application/json'},
-  ));
+  final http.Client _httpClient = http.Client();
 
   static const String _tag = '认证服务';
+
+  // 默认请求头
+  final Map<String, String> _defaultHeaders = {
+    'Content-Type': 'application/json',
+  };
+
+  // 构建完整的URL
+  String _buildUrl(String path) {
+    if (path.startsWith('http')) {
+      return path;
+    }
+    return '${CommonConstants.iwaraApiBaseUrl}$path';
+  }
+
+  // 构建请求头
+  Map<String, String> _buildHeaders({Map<String, String>? additionalHeaders}) {
+    final headers = Map<String, String>.from(_defaultHeaders);
+    
+    if (additionalHeaders != null) {
+      headers.addAll(additionalHeaders);
+    }
+    
+    return headers;
+  }
+
+  // 处理HTTP响应
+  Future<Map<String, dynamic>> _handleResponse(http.Response response) async {
+    if (response.statusCode >= 400) {
+      String errorMessage = '请求失败';
+      try {
+        final errorData = json.decode(response.body);
+        errorMessage = errorData['message'] ?? errorMessage;
+      } catch (e) {
+        // 如果解析失败，使用默认错误消息
+      }
+      throw Exception('HTTP ${response.statusCode}: $errorMessage');
+    }
+    
+    try {
+      return json.decode(response.body) as Map<String, dynamic>;
+    } catch (e) {
+      throw Exception('响应解析失败: $e');
+    }
+  }
 
   /// access_token 有效期约1小时（1736997366 - 1736993766 = 3600秒），用于访问API
   /// refresh_token(auth_token) 有效期约30天（1739268222 - 1736676222 = 2592000秒）, 用于刷新access_token
@@ -282,17 +323,15 @@ class AuthService extends GetxService {
     final oldAccessToken = accessToken;
     
     try {
-      final response = await _dio.post(
-        '/user/token',
-        options: dio.Options(
-          headers: {'Authorization': 'Bearer $_authToken'},
-          sendTimeout: const Duration(seconds: 10),
-          receiveTimeout: const Duration(seconds: 10),
-        ),
-      );
+      final response = await _httpClient.post(
+        Uri.parse('${CommonConstants.iwaraApiBaseUrl}/user/token'),
+        headers: {'Authorization': 'Bearer $_authToken'},
+      ).timeout(const Duration(seconds: 10));
 
-      if (response.statusCode == 200 && response.data['accessToken'] != null) {
-        final newAccessToken = response.data['accessToken'];
+      final responseBody = await _handleResponse(response);
+
+      if (response.statusCode == 200 && responseBody['accessToken'] != null) {
+        final newAccessToken = responseBody['accessToken'];
         final tokenResult = validateToken(newAccessToken, false);
         
         if (tokenResult == TokenValidationResult.valid) {
@@ -343,7 +382,7 @@ class AuthService extends GetxService {
 
   // resetProxy
   void resetProxy() {
-    _dio.httpClientAdapter = IOHttpClientAdapter();
+    // No-op for http.Client
   }
 
   // 优化刷新定时器逻辑
@@ -378,6 +417,7 @@ class AuthService extends GetxService {
   @override
   void onClose() {
     _tokenRefreshTimer?.cancel();
+    _httpClient.close();
     super.onClose();
   }
 
@@ -386,17 +426,20 @@ class AuthService extends GetxService {
     try {
       LogUtils.d('开始登录流程...', _tag);
 
-      final response = await _dio.post('/user/login', data: {
-        'email': email,
-        'password': password,
-      });
+      final response = await _httpClient.post(
+        Uri.parse('${CommonConstants.iwaraApiBaseUrl}/user/login'),
+        body: jsonEncode({'email': email, 'password': password}),
+        headers: _defaultHeaders,
+      );
 
-      if (response.statusCode == 200 && response.data['token'] != null) {
+      final responseBody = await _handleResponse(response);
+
+      if (response.statusCode == 200 && responseBody['token'] != null) {
         // 打印返回信息
-        LogUtils.d('登录成功: ${response.data}', _tag);
+        LogUtils.d('登录成功: ${responseBody}', _tag);
         
         // 先保存 auth token
-        _authToken = response.data['token'];
+        _authToken = responseBody['token'];
         _updateTokenExpireTime(_authToken!, true);
         await _storage.writeSecureData(KeyConstants.authToken, _authToken!);
         
@@ -413,7 +456,7 @@ class AuthService extends GetxService {
         LogUtils.i('登录流程完成', _tag);
         return ApiResult.success();
       }
-      return ApiResult.fail(response.data['message'] ?? t.errors.loginFailed);
+      return ApiResult.fail(responseBody['message'] ?? t.errors.loginFailed);
     } catch (e) {
       LogUtils.e('登录失败', tag: _tag, error: e);
       return ApiResult.fail(_getErrorMessage(e));
@@ -422,8 +465,8 @@ class AuthService extends GetxService {
 
   // 错误处理方法
   String _getErrorMessage(Object e) {
-    if (e is dio.DioException) {
-      String message = e.response?.data['message'];
+    if (e is http.ClientException) {
+      String message = e.message;
       switch (message) {
         case "errors.invalidLogin":
           return t.errors.invalidLogin;
@@ -461,14 +504,18 @@ class AuthService extends GetxService {
   // 抓取注册验证码
   Future<ApiResult<Captcha>> fetchCaptcha() async {
     try {
-      final response = await _dio.get('/captcha');
+      final response = await _httpClient.get(
+        Uri.parse('${CommonConstants.iwaraApiBaseUrl}/captcha'),
+      );
+      final responseBody = await _handleResponse(response);
+
       if (response.statusCode == 200) {
         LogUtils.d('成功获取验证码', _tag);
-        return ApiResult.success(data: Captcha.fromJson(response.data));
+        return ApiResult.success(data: Captcha.fromJson(responseBody));
       } else {
         return ApiResult.fail(t.errors.failedToFetchCaptcha);
       }
-    } on dio.DioException catch (e) {
+    } on http.ClientException catch (e) {
       LogUtils.e('抓取验证码失败: ${e.message}', tag: _tag);
       return ApiResult.fail(t.errors.networkError);
     } catch (e) {
@@ -488,25 +535,31 @@ class AuthService extends GetxService {
         'email': email,
         'locale': Get.locale?.countryCode ?? 'en',
       };
-      final response = await _dio.post(
-        '/user/register',
-        data: data,
-        options: dio.Options(headers: headers),
+      final response = await _httpClient.post(
+        Uri.parse('${CommonConstants.iwaraApiBaseUrl}/user/register'),
+        body: jsonEncode(data),
+        headers: _buildHeaders(additionalHeaders: headers),
       );
 
+      final responseBody = await _handleResponse(response);
+
       if (response.statusCode == 200 &&
-          response.data['message'] == 'register.emailInstructionsSent') {
+          responseBody['message'] == 'register.emailInstructionsSent') {
         LogUtils.d('注册成功，邮件指令已发送', _tag);
         return ApiResult.success();
       } else {
         return ApiResult.fail(
-            response.data['message'] ?? t.errors.registerFailed);
+            responseBody['message'] ?? t.errors.registerFailed);
       }
-    } on dio.DioException catch (e) {
+    } on http.ClientException catch (e) {
       LogUtils.e('注册失败: ${e.message}', tag: _tag);
-      if (e.response != null && e.response?.data != null) {
-        var errorMessage = e.response!.data['errors']?[0]['message'] ??
-            e.response!.data['message'] ??
+      return ApiResult.fail(t.errors.networkError);
+    } catch (e) {
+      LogUtils.e('注册过程中发生意外错误: $e', tag: _tag);
+      // 如果是 ApiException，处理特定错误
+      if (e is ApiException && e.data != null) {
+        var errorMessage = e.data!['errors']?[0]['message'] ??
+            e.data!['message'] ??
             t.errors.unknownError;
         switch (errorMessage) {
           case 'errors.invalidEmail':
@@ -521,11 +574,8 @@ class AuthService extends GetxService {
             return ApiResult.fail(errorMessage);
         }
       } else {
-        return ApiResult.fail(t.errors.networkError);
+        return ApiResult.fail(t.errors.unknownError);
       }
-    } catch (e) {
-      LogUtils.e('注册过程中发生意外错误: $e', tag: _tag);
-      return ApiResult.fail(t.errors.unknownError);
     }
   }
 
