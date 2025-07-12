@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/history_record.dart';
@@ -55,7 +56,7 @@ class MyVideoStateController extends GetxController
   final RxDouble playerPlaybackSpeed = 1.0.obs; // 播放速度
   final RxBool isDesktopAppFullScreen = false.obs; // 是否是应用全屏
   bool firstLoaded = false;
-    // 显示用的时间变量
+  // 显示用的时间变量
   final Rx<Duration> toShowCurrentPosition = Duration.zero.obs;
   Timer? _displayUpdateTimer;
 
@@ -134,7 +135,7 @@ class MyVideoStateController extends GetxController
   Timer? _positionUpdateThrottleTimer;
   static const _positionUpdateThrottleInterval = Duration(milliseconds: 200); // 200ms节流间隔
   Duration _lastPosition = Duration.zero;
-  
+
   // 播放模式设置标志位
   bool _isSettingPlayMode = false;
 
@@ -142,6 +143,8 @@ class MyVideoStateController extends GetxController
   Timer? _lockButtonHideTimer;
   final RxBool isLockButtonVisible = true.obs;
 
+  // 添加 Dio CancelToken
+  final CancelToken _cancelToken = CancelToken();
   // 添加 disposed 标志位
   bool _isDisposed = false;
 
@@ -156,7 +159,7 @@ class MyVideoStateController extends GetxController
       // 添加生命周期观察者
       WidgetsBinding.instance.addObserver(this);
       LogUtils.d('已添加生命周期观察者', 'MyVideoStateController');
-      
+
       // 动画
       animationController = AnimationController(
         duration: const Duration(milliseconds: 200),
@@ -299,16 +302,16 @@ class MyVideoStateController extends GetxController
       // 添加防抖
       Timer? debounceTimer;
       _pipStatusSubscription = Floating().pipStatusStream
-        .distinct() // 避免重复状态
-        .listen((status) {
-          debounceTimer?.cancel();
-          debounceTimer = Timer(const Duration(milliseconds: 100), () {
-            if (status == PiPStatus.enabled && !isPiPMode.value) {
-              enterPiPMode();
-            } else if (status != PiPStatus.enabled && isPiPMode.value) {
-              exitPiPMode();
-            }
-          });
+          .distinct() // 避免重复状态
+          .listen((status) {
+        debounceTimer?.cancel();
+        debounceTimer = Timer(const Duration(milliseconds: 100), () {
+          if (status == PiPStatus.enabled && !isPiPMode.value) {
+            enterPiPMode();
+          } else if (status != PiPStatus.enabled && isPiPMode.value) {
+            exitPiPMode();
+          }
+        });
       });
     }
   }
@@ -319,7 +322,7 @@ class MyVideoStateController extends GetxController
     if (!CommonConstants.isSetBrightness) return;
     if (GetPlatform.isAndroid || GetPlatform.isIOS) {
       bool keepLastBrightnessKey =
-          _configService[ConfigKey.KEEP_LAST_BRIGHTNESS_KEY];
+      _configService[ConfigKey.KEEP_LAST_BRIGHTNESS_KEY];
       if (keepLastBrightnessKey) {
         double lastBrightness = _configService[ConfigKey.BRIGHTNESS_KEY];
         try {
@@ -337,7 +340,9 @@ class MyVideoStateController extends GetxController
     LogUtils.i('MyVideoStateController onClose 被调用', 'MyVideoStateController');
     _isDisposed = true;
 
-    LogUtils.d('控制器正在销毁', 'MyVideoStateController');
+    // 取消网络请求
+    _cancelToken.cancel("Controller is being disposed");
+    LogUtils.d('网络请求已取消', 'MyVideoStateController');
 
     try {
       // 取消定时器
@@ -398,13 +403,13 @@ class MyVideoStateController extends GetxController
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     LogUtils.d('应用生命周期状态变更: $state', 'MyVideoStateController');
-    
+
     // 当应用从后台恢复到前台时
     if (state == AppLifecycleState.resumed) {
       LogUtils.d('应用进入前台，设置默认屏幕亮度', 'MyVideoStateController');
       setDefaultBrightness();
     }
-    
+
     super.didChangeAppLifecycleState(state);
   }
 
@@ -433,6 +438,7 @@ class MyVideoStateController extends GetxController
     try {
       var res = await _apiService.get(
         '/video/$videoId',
+        cancelToken: _cancelToken,
       );
 
       if (_isDisposed) return;
@@ -481,22 +487,22 @@ class MyVideoStateController extends GetxController
           videoInfo.value!.fileUrl != null) {
         await fetchVideoSource();
       }
-    } on ApiException catch (e) {
-      if (_isDisposed) {
-        LogUtils.w('Controller已销毁', 'MyVideoStateController');
+    } on DioException catch (e) {
+      if (_isDisposed || e.type == DioExceptionType.cancel) {
+        LogUtils.w('请求被取消或Controller已销毁', 'MyVideoStateController');
         return;
       }
-      LogUtils.e('获取视频详情失败 (Api): $e', tag: 'MyVideoStateController', error: e);
+      LogUtils.e('获取视频详情失败 (Dio): $e', tag: 'MyVideoStateController', error: e);
       if (!_isDisposed) {
-        if (e.statusCode == 403) {
-          var data = e.data;
-          if (data != null && 
-              data['message'] != null && 
+        if (e.response?.statusCode == 403) {
+          var data = e.response?.data;
+          if (data != null &&
+              data['message'] != null &&
               data['message'] == 'errors.privateVideo') {
             User author = User.fromJson(data['data']['user']);
             mainErrorWidget.value = PrivateOrDeletedVideoWidget(author: author, isPrivate: true);
           }
-        } else if (e.statusCode == 404) {
+        } else if (e.response?.statusCode == 404) {
           mainErrorWidget.value = PrivateOrDeletedVideoWidget(isPrivate: false);
         } else {
           mainErrorWidget.value = CommonErrorWidget(
@@ -546,19 +552,20 @@ class MyVideoStateController extends GetxController
         videoInfo.value!.fileUrl!,
         headers: {
           'X-Version':
-              XVersionCalculatorUtil.calculateXVersion(videoInfo.value!.fileUrl!),
+          XVersionCalculatorUtil.calculateXVersion(videoInfo.value!.fileUrl!),
         },
+        cancelToken: _cancelToken,
       );
 
       if (_isDisposed) return;
 
       List<dynamic> data = res.data;
       List<VideoSource> sources =
-          data.map((item) => VideoSource.fromJson(item)).toList();
+      data.map((item) => VideoSource.fromJson(item)).toList();
       currentVideoSourceList.value = sources;
 
       var lastUserSelectedResolution =
-          _configService[ConfigKey.DEFAULT_QUALITY_KEY];
+      _configService[ConfigKey.DEFAULT_QUALITY_KEY];
       videoInfo.value = videoInfo.value!.copyWith(videoSources: sources);
 
       if (_isDisposed) return;
@@ -569,14 +576,14 @@ class MyVideoStateController extends GetxController
             videoInfo.value!.videoSources,
             filterPreview: true),
       );
-    } on ApiException catch (e) {
-      if (_isDisposed) {
-        LogUtils.w('Controller已销毁', 'MyVideoStateController');
+    } on DioException catch (e) {
+      if (_isDisposed || e.type == DioExceptionType.cancel) {
+        LogUtils.w('请求被取消或Controller已销毁', 'MyVideoStateController');
         return;
       }
-      LogUtils.e('获取视频源失败 (Api): $e', tag: 'MyVideoStateController', error: e);
+      LogUtils.e('获取视频源失败 (Dio): $e', tag: 'MyVideoStateController', error: e);
       if (!_isDisposed) {
-        if (e.statusCode == 404) {
+        if (e.response?.statusCode == 404) {
           videoErrorMessage.value = 'resource_404';
         } else {
           videoErrorMessage.value = slang.t.videoDetail.getVideoInfoFailed;
@@ -601,7 +608,7 @@ class MyVideoStateController extends GetxController
       LogUtils.d('控制器已销毁，取消切换清晰度', 'MyVideoStateController');
       return;
     }
-    
+
     LogUtils.i('[切换清晰度] $resolutionTag', 'MyVideoStateController');
     if (resolutionTag == currentResolutionTag.value) {
       LogUtils.d('清晰度相同，无需切换', 'MyVideoStateController');
@@ -610,7 +617,7 @@ class MyVideoStateController extends GetxController
 
     // 通过tag找出对应的视频源
     String? url =
-        CommonUtils.findUrlByResolutionTag(videoResolutions, resolutionTag);
+    CommonUtils.findUrlByResolutionTag(videoResolutions, resolutionTag);
     if (url == null) {
       showToastWidget(MDToastWidget(message: slang.t.videoDetail.noVideoSourceFound, type: MDToastType.error),position: ToastPosition.top);
       return;
@@ -649,7 +656,7 @@ class MyVideoStateController extends GetxController
     _clearBuffers();
 
     String? url =
-        CommonUtils.findUrlByResolutionTag(videoResolutions, resolutionTag);
+    CommonUtils.findUrlByResolutionTag(videoResolutions, resolutionTag);
     if (url == null) {
       if (!_isDisposed) {
         mainErrorWidget.value = CommonErrorWidget(
@@ -731,7 +738,7 @@ class MyVideoStateController extends GetxController
     aspectRatio.value = sourceVideoWidth.value / sourceVideoHeight.value;
     LogUtils.d(
         '[更新后的宽高比] $aspectRatio, 视频高度: $sourceVideoHeight, 视频宽度: $sourceVideoWidth', 'MyVideoStateController');
-    
+
     if (!videoIsReady.value && !_isDisposed) {
       videoIsReady.value = true;
       int targetPositionMs = 0;
@@ -775,7 +782,7 @@ class MyVideoStateController extends GetxController
     isFullscreen.value = true;
     appS.hideSystemUI();
     bool renderVerticalVideoInVerticalScreen =
-        _configService[ConfigKey.RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN];
+    _configService[ConfigKey.RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN];
     NaviService.navigateToFullScreenVideoPlayerScreenPage(this);
     if (renderVerticalVideoInVerticalScreen && aspectRatio.value < 1) {
       await CommonUtils.defaultEnterNativeFullscreen(toVerticalScreen: true);
@@ -809,10 +816,10 @@ class MyVideoStateController extends GetxController
   // 重置自动隐藏定时器
   void _resetAutoHideTimer() {
     _autoHideTimer?.cancel();
-    
+
     // 如果正在交互或悬浮在工具栏上，不启动定时器
     if (_isInteracting.value || _isHoveringToolbar.value) return;
-    
+
     _autoHideTimer = Timer(_autoHideDelay, () {
       // 如果正在交互或悬浮在工具栏上，不执行隐藏
       if (!_isInteracting.value && !_isHoveringToolbar.value && animationController.value == 1.0) {
@@ -899,7 +906,7 @@ class MyVideoStateController extends GetxController
   void _addBufferRange(Duration bufferDuration) {
     // 如果总时长为0，说明视频还未加载，不处理缓冲
     if (totalDuration.value.inMilliseconds == 0) return;
-    
+
     final Duration start = currentPosition;
     final Duration end = bufferDuration;
 
@@ -928,9 +935,9 @@ class MyVideoStateController extends GetxController
 
     // 对缓冲区进行排序并移除无效的缓冲区
     updatedBuffers.sort((a, b) => a.start.compareTo(b.start));
-    updatedBuffers.removeWhere((range) => 
-      range.end <= currentPosition || 
-      range.start >= totalDuration.value
+    updatedBuffers.removeWhere((range) =>
+    range.end <= currentPosition ||
+        range.start >= totalDuration.value
     );
 
     // 合并相邻的缓冲区
@@ -947,7 +954,7 @@ class MyVideoStateController extends GetxController
   void _handleSeek(Duration newPosition) async {
     // 标记正在等待seek完成
     isWaitingForSeek.value = true;
-    
+
     // 如果是回退进度，则清空缓冲区
     if (newPosition < currentPosition) {
       _clearBuffers();
@@ -959,13 +966,13 @@ class MyVideoStateController extends GetxController
 
       buffers.value = updatedBuffers;
     }
-    
+
     // 先更新UI位置
     currentPosition = newPosition;
-    
+
     // 执行实际的seek操作
     await player.seek(newPosition);
-    
+
     // seek完成后标记状态
     isWaitingForSeek.value = false;
   }
@@ -978,7 +985,7 @@ class MyVideoStateController extends GetxController
   void showSeekPreview(bool show) {
     isSeekPreviewVisible.value = show;
   }
-  
+
   /// 更新预览位置
   void updateSeekPreview(Duration position) {
     previewPosition.value = position;
@@ -992,7 +999,7 @@ class MyVideoStateController extends GetxController
   void showResumeFromPositionTip(Duration position) {
     resumePosition.value = position;
     showResumePositionTip.value = true;
-    
+
     // 3秒后自动隐藏
     _resumeTipTimer?.cancel();
     _resumeTipTimer = Timer(const Duration(seconds: 3), () {
@@ -1034,7 +1041,7 @@ class MyVideoStateController extends GetxController
     positionSubscription = player.stream.position.listen((position) async {
       // 在回调中检查控制器是否已销毁
       if (_isDisposed) return;
-      
+
       if (!videoIsReady.value) return;
 
       // 只有在不是等待seek完成的状态下才更新位置
@@ -1049,7 +1056,7 @@ class MyVideoStateController extends GetxController
         // 更新位置并设置节流定时器
         currentPosition = position;
         _lastPosition = position;
-        
+
         _positionUpdateThrottleTimer = Timer(_positionUpdateThrottleInterval, () {
           // 定时器触发时，如果最新位置与当前显示位置不同，则更新
           if (_isDisposed) return;

@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:dio/dio.dart';
 import 'package:file_selector/file_selector.dart';
-import 'package:get/get.dart'; // 导入 Get 包
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/services/api_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -21,7 +21,7 @@ class ImageUtils {
   // 复制链接到剪贴板
   static void copyLink(ImageItem item) {
     String url =
-        item.data.originalUrl.isEmpty ? item.data.url : item.data.originalUrl;
+    item.data.originalUrl.isEmpty ? item.data.url : item.data.originalUrl;
     if (url.isEmpty) {
       showToastWidget(MDToastWidget(
           message: slang.t.common.linkIsEmpty, type: MDToastType.error));
@@ -38,7 +38,7 @@ class ImageUtils {
   // 复制图片到剪贴板
   static void copyImage(ImageItem item) async {
     String url =
-        item.data.originalUrl.isEmpty ? item.data.url : item.data.originalUrl;
+    item.data.originalUrl.isEmpty ? item.data.url : item.data.originalUrl;
     if (url.isEmpty) {
       showToastWidget(MDToastWidget(
           message: slang.t.common.linkIsEmpty, type: MDToastType.error));
@@ -46,12 +46,12 @@ class ImageUtils {
     }
 
     try {
-      var apiService = Get.find<ApiService>();
-      // 使用 HTTP 包获取图片数据
-      var response = await apiService.get<List<int>>(url);
-      Uint8List bytes = Uint8List.fromList(response.data);
+      var apiService = await ApiService.getInstance();
+      Uint8List bytes = (await apiService.dio
+          .get(url, options: Options(responseType: ResponseType.bytes)))
+          .data;
       final dataWriterItem =
-          DataWriterItem(suggestedName: '${item.data.id}.png');
+      DataWriterItem(suggestedName: '${item.data.id}.png');
       dataWriterItem.add(Formats.png(bytes));
       SystemClipboard.instance?.write([dataWriterItem]);
       showToastWidget(MDToastWidget(
@@ -121,7 +121,7 @@ class ImageUtils {
       }
 
       String url =
-          item.data.originalUrl.isEmpty ? item.data.url : item.data.originalUrl;
+      item.data.originalUrl.isEmpty ? item.data.url : item.data.originalUrl;
       if (url.isEmpty) {
         showToastWidget(MDToastWidget(
             message: slang.t.common.linkIsEmpty, type: MDToastType.error));
@@ -132,10 +132,10 @@ class ImageUtils {
       final String sanitizedFileName = _sanitizeFileName('${item.data.id}.png');
       final String filePath = path.join(directoryPath, sanitizedFileName);
 
-      var apiService = Get.find<ApiService>();
-      // 使用 HTTP 包获取图片数据
-      var response = await apiService.get<List<int>>(url);
-      Uint8List bytes = Uint8List.fromList(response.data);
+      var apiService = await ApiService.getInstance();
+      Uint8List bytes = (await apiService.dio
+          .get(url, options: Options(responseType: ResponseType.bytes)))
+          .data;
 
       await File(filePath).writeAsBytes(bytes);
       showToastWidget(MDToastWidget(

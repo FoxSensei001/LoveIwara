@@ -16,7 +16,6 @@ dependencies:
   get: ^5.0.0-release-candidate-9.2.1
   window_manager: ^0.5.0
   crypto: ^3.0.6
-  http: ^1.4.0
   win32: ^5.14.0
   logger: ^2.5.0
   flutter_secure_storage: ^9.2.4
@@ -62,6 +61,8 @@ dependencies:
   media_kit_libs_video: ^1.0.6
 
   flutter_inappwebview: ^6.1.5
+  dio: ^5.8.0+1
+  native_dio_adapter: ^1.4.0
 
 dev_dependencies:
   flutter_test:

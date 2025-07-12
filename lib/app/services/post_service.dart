@@ -1,4 +1,5 @@
 
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/models/page_data.model.dart';
@@ -8,7 +9,6 @@ import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-
 class PostService extends GetxService {
   final ApiService _apiService = Get.find();
 
@@ -81,8 +81,8 @@ class PostService extends GetxService {
       await _apiService.post(ApiConstants.posts(), data: {'title': title, 'body': body, 'rulesAgreement': true});
       return ApiResult.success();
     } catch (e) {
-      if (e is ApiException) {
-        String message = e.message;
+      if (e is DioException) {
+        String message = e.response?.data['message'];
         switch (message) {
           case "errors.tooManyRequests":
             return ApiResult.fail(slang.t.errors.tooManyRequests);
