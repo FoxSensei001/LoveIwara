@@ -83,8 +83,6 @@
 	</array>
 	<key>FlutterDeepLinkingEnabled</key>
 	<true/>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
 
 </dict>
 </plist>
