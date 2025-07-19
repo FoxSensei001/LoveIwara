@@ -1,5 +1,5 @@
 # 最新版本
-currentVersion: "0.3.13"
+currentVersion: "0.3.14"
 # 更新日志
 # 格式介绍
 # 1. version: 版本号
@@ -7,6 +7,16 @@ currentVersion: "0.3.13"
 # 3. changes: 更新内容
 # 4. minVersion: 最小版本号
 updates:
+  - version: "0.3.14"
+    date: "2025-07-19"
+    minVersion: "0.3.0"
+    changes:
+      zh-CN:
+        - "解决部分网络环境下无法访问的问题"
+      en:
+        - "Fixed the issue where the app cannot be accessed in some network environments"
+      ja:
+        - "一部ネットワーク環境でアプリがアクセスできない問題を修正"
   - version: "0.3.13"
     date: "2025-06-16"
     minVersion: "0.3.0"

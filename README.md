@@ -121,10 +121,13 @@ Thank you for your understanding and support! If you're also a Flutter beginner,
 - **🔍 More features to be discovered**
 
 #### Upcoming Features
-- **Temporary no new features planned, you can submit your ideas in the [Issues](https://github.com/FoxSensei001/i_iwara/issues) area**
+- **Temporary no new features planned, you can submit your ideas in the [Issues](https://github.com/FoxSensei001/i_iwara/issues) or [Communication Group](https://t.me/+OtpMbe9DkjYzMGM1)**
 - **Enhanced User Experience**
 - **Others**
-  
+
+### 📱 Communication Group
+Click [here](https://t.me/+OtpMbe9DkjYzMGM1) to join the communication group.
+
 ### 📱 Screenshots
 | | |
 |:-------------------------:|:-------------------------:|
