@@ -6,13 +6,15 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/sort.model.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/services/user_service.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/home_page.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/popular_media_list_controller.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_tab_view.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/popular_media_search_config_widget.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/common_header.dart';
-import 'package:i_iwara/app/ui/widgets/top_padding_height_widget.dart';
+import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/app/ui/widgets/grid_speed_dial.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' show t;
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -20,8 +22,13 @@ import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/base_media_controller.dart';
 
 // 定义抽象基类，包含泛型 T (媒体模型), C (特定媒体控制器), R (特定媒体仓库)
-abstract class PopularMediaListPageBase<T, C extends GetxController,
-    R extends LoadingMoreBase<T>> extends StatefulWidget implements HomeWidgetInterface {
+abstract class PopularMediaListPageBase<
+  T,
+  C extends GetxController,
+  R extends LoadingMoreBase<T>
+>
+    extends StatefulWidget
+    implements HomeWidgetInterface {
   final String controllerTag;
   final SearchSegment searchSegment;
   final IconData emptyIcon;
@@ -38,20 +45,22 @@ abstract class PopularMediaListPageBase<T, C extends GetxController,
 
   // 抽象方法，由子类实现以获取特定的 Repository
   R getSpecificRepository(C controller);
-  
+
   // 类静态变量，用于保存所有已创建的state实例的引用
   static final Map<String, PopularMediaListPageBaseState> stateInstances = {};
-  
+
   // 通用的refreshCurrent实现，子类可以直接调用此方法
   void refreshCurrentImpl() {
     // 通过controllerTag查找对应的state
     final state = stateInstances[controllerTag];
     if (state != null && state.mounted) {
       state.tryRefreshCurrentSort();
-      
+
       // 同时刷新UI
       try {
-        final controller = Get.find<PopularMediaListController>(tag: controllerTag);
+        final controller = Get.find<PopularMediaListController>(
+          tag: controllerTag,
+        );
         controller.refreshPageUI();
       } catch (e) {
         debugPrint('刷新UI时出错: $e');
@@ -62,10 +71,12 @@ abstract class PopularMediaListPageBase<T, C extends GetxController,
 
 // 基类的 State - 移除下划线，设为公开
 class PopularMediaListPageBaseState<
-        T,
-        C extends GetxController,
-        R extends LoadingMoreBase<T>,
-        W extends PopularMediaListPageBase<T, C, R>> extends State<W>
+  T,
+  C extends GetxController,
+  R extends LoadingMoreBase<T>,
+  W extends PopularMediaListPageBase<T, C, R>
+>
+    extends State<W>
     with SingleTickerProviderStateMixin {
   final List<Sort> sorts = CommonConstants.mediaSorts;
   late TabController _tabController;
@@ -85,7 +96,7 @@ class PopularMediaListPageBaseState<
   // 头部折叠相关变量
   bool _isHeaderCollapsed = false;
   final double _headerCollapseThreshold = 50.0; // 触发折叠/展开的滚动阈值（像素）
-  
+
   // 头部滚动监听器
   VoidCallback? _scrollListenerDisposer;
 
@@ -101,11 +112,26 @@ class PopularMediaListPageBaseState<
     }
   }
 
+  // 打开搜索对话框
+  void _openSearchDialog() {
+    Get.dialog(
+      SearchDialog(
+        initialSearch: '',
+        initialSegment: widget.searchSegment,
+        onSearch: (searchInfo, segment) {
+          NaviService.toSearchPage(searchInfo: searchInfo, segment: segment);
+        },
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
-    _mediaListController =
-        Get.put(PopularMediaListController(), tag: widget.controllerTag);
+    _mediaListController = Get.put(
+      PopularMediaListController(),
+      tag: widget.controllerTag,
+    );
 
     // 注册到静态映射中，便于外部访问
     PopularMediaListPageBase.stateInstances[widget.controllerTag] = this;
@@ -123,7 +149,9 @@ class PopularMediaListPageBaseState<
     _tabController.addListener(_onTabChange);
 
     // 监听 PopularMediaListController 的滚动变化
-    _scrollListenerDisposer = ever(_mediaListController.currentScrollOffset, (double offset) {
+    _scrollListenerDisposer = ever(_mediaListController.currentScrollOffset, (
+      double offset,
+    ) {
       final direction = _mediaListController.lastScrollDirection.value;
       bool shouldCollapse = _isHeaderCollapsed;
 
@@ -131,18 +159,22 @@ class PopularMediaListPageBaseState<
           offset > _headerCollapseThreshold &&
           !_isHeaderCollapsed) {
         shouldCollapse = true;
-      } else if (direction == ScrollDirection.forward && _isHeaderCollapsed) { // 向下滚动
-         // 如果向下滚动足够或接近顶部，则展开
+      } else if (direction == ScrollDirection.forward && _isHeaderCollapsed) {
+        // 向下滚动
+        // 如果向下滚动足够或接近顶部，则展开
         if (offset < (_headerCollapseThreshold * 0.8) || offset < 10.0) {
           shouldCollapse = false;
         }
-      } else if (offset <= 5.0 && _isHeaderCollapsed) { // 如果在顶部或接近顶部，则始终展开
+      } else if (offset <= 5.0 && _isHeaderCollapsed) {
+        // 如果在顶部或接近顶部，则始终展开
         shouldCollapse = false;
       }
-      
+
       // 特殊情况：如果用户刚刚切换了标签或数据，offset 可能为 0。
-      if (offset == 0.0 && direction == ScrollDirection.idle && _isHeaderCollapsed) {
-          shouldCollapse = false; // 如果新列表从顶部开始，则展开
+      if (offset == 0.0 &&
+          direction == ScrollDirection.idle &&
+          _isHeaderCollapsed) {
+        shouldCollapse = false; // 如果新列表从顶部开始，则展开
       }
 
       if (mounted && _isHeaderCollapsed != shouldCollapse) {
@@ -150,7 +182,7 @@ class PopularMediaListPageBaseState<
           _isHeaderCollapsed = shouldCollapse;
         });
       }
-    });
+    }).call;
   }
 
   @override
@@ -160,7 +192,7 @@ class PopularMediaListPageBaseState<
     _tabController.dispose();
     _tabBarScrollController.dispose();
     Get.delete<PopularMediaListController>(tag: widget.controllerTag);
-    
+
     // 从静态映射中移除
     PopularMediaListPageBase.stateInstances.remove(widget.controllerTag);
 
@@ -173,14 +205,19 @@ class PopularMediaListPageBaseState<
     super.dispose();
   }
 
-  void setParams(
-      {List<Tag> tags = const [], String year = '', String rating = ''}) {
+  void setParams({
+    List<Tag> tags = const [],
+    String year = '',
+    String rating = '',
+  }) {
     this.tags = tags;
     this.year = year;
     this.rating = rating;
 
-    LogUtils.d('设置查询参数: tags: $tags, year: $year, rating: $rating',
-        'PopularMediaListPageBase');
+    LogUtils.d(
+      '设置查询参数: tags: $tags, year: $year, rating: $rating',
+      'PopularMediaListPageBase',
+    );
 
     for (var sort in sorts) {
       var controller = _controllers[sort.id]!;
@@ -197,8 +234,9 @@ class PopularMediaListPageBaseState<
       } else {
         // 如果你的 Controller 结构更复杂，可能需要不同的处理方式
         LogUtils.w(
-            'Controller type mismatch: Expected BaseMediaController but got ${controller.runtimeType}',
-            'PopularMediaListPageBase');
+          'Controller type mismatch: Expected BaseMediaController but got ${controller.runtimeType}',
+          'PopularMediaListPageBase',
+        );
         // 或者保留之前的 dynamic 调用，但不推荐
         // (controller as dynamic).updateSearchParams(
         //   searchTagIds: tags.map((e) => e.id).toList(),
@@ -212,13 +250,13 @@ class PopularMediaListPageBaseState<
 
   void _onTabChange() {
     _scrollToSelectedTab();
-    
+
     // 切换 tab 时展开顶部区域，避免新 tab 内容与收缩状态不匹配
     if (_isHeaderCollapsed) {
       setState(() {
         _isHeaderCollapsed = false;
       });
-      
+
       // 重置滚动状态，让新的 tab 从正确的状态开始
       _mediaListController.currentScrollOffset.value = 0.0;
       _mediaListController.lastScrollDirection.value = ScrollDirection.idle;
@@ -239,12 +277,15 @@ class PopularMediaListPageBaseState<
       final position = renderBox.localToGlobal(Offset.zero);
       final screenWidth = MediaQuery.of(context).size.width;
       final tabWidth = renderBox.size.width;
-      final targetScroll = _tabBarScrollController.offset +
+      final targetScroll =
+          _tabBarScrollController.offset +
           position.dx -
           (screenWidth / 2) +
           (tabWidth / 2);
       final double finalScroll = targetScroll.clamp(
-          0.0, _tabBarScrollController.position.maxScrollExtent);
+        0.0,
+        _tabBarScrollController.position.maxScrollExtent,
+      );
 
       _tabBarScrollController.animateTo(
         finalScroll,
@@ -260,8 +301,9 @@ class PopularMediaListPageBaseState<
       if (newOffset < 0) {
         _tabBarScrollController.jumpTo(0);
       } else if (newOffset > _tabBarScrollController.position.maxScrollExtent) {
-        _tabBarScrollController
-            .jumpTo(_tabBarScrollController.position.maxScrollExtent);
+        _tabBarScrollController.jumpTo(
+          _tabBarScrollController.position.maxScrollExtent,
+        );
       } else {
         _tabBarScrollController.jumpTo(newOffset);
       }
@@ -269,14 +311,16 @@ class PopularMediaListPageBaseState<
   }
 
   void _openParamsModal() {
-    Get.dialog(PopularMediaSearchConfig(
-      searchTags: tags,
-      searchYear: year,
-      searchRating: rating,
-      onConfirm: (tags, year, rating) {
-        setParams(tags: tags, year: year, rating: rating);
-      },
-    ));
+    Get.dialog(
+      PopularMediaSearchConfig(
+        searchTags: tags,
+        searchYear: year,
+        searchRating: rating,
+        onConfirm: (tags, year, rating) {
+          setParams(tags: tags, year: year, rating: rating);
+        },
+      ),
+    );
   }
 
   @override
@@ -289,8 +333,9 @@ class PopularMediaListPageBaseState<
     final double currentTopBarVisibleHeight = _isHeaderCollapsed
         ? tabBarHeight
         : (headerHeight + tabBarHeight);
-    
-    final double listPaddingTop = systemStatusBarHeight + currentTopBarVisibleHeight;
+
+    final double listPaddingTop =
+        systemStatusBarHeight + currentTopBarVisibleHeight;
 
     return Scaffold(
       body: Stack(
@@ -298,8 +343,8 @@ class PopularMediaListPageBaseState<
           Positioned.fill(
             child: Obx(() {
               final isPaginated = _mediaListController.isPaginated.value;
-              final rebuildKey =
-                  _mediaListController.rebuildKey.value.toString();
+              final rebuildKey = _mediaListController.rebuildKey.value
+                  .toString();
 
               return TabBarView(
                 controller: _tabController,
@@ -307,7 +352,8 @@ class PopularMediaListPageBaseState<
                   return MediaTabView<T>(
                     key: ValueKey('${sort.id}_$isPaginated$rebuildKey'),
                     repository: _repositories[sort.id]!,
-                    emptyIcon: widget.emptyIcon, // 使用 widget 的 emptyIcon
+                    emptyIcon: widget.emptyIcon,
+                    // 使用 widget 的 emptyIcon
                     isPaginated: isPaginated,
                     rebuildKey: rebuildKey,
                     paddingTop: listPaddingTop,
@@ -324,16 +370,19 @@ class PopularMediaListPageBaseState<
             child: ClipRect(
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-                child: AnimatedContainer( // 动画头部整体高度
+                child: AnimatedContainer(
+                  // 动画头部整体高度
                   duration: const Duration(milliseconds: 200),
                   curve: Curves.easeInOut,
                   height: systemStatusBarHeight + currentTopBarVisibleHeight,
-                  color: Theme.of(context).colorScheme.surface.withOpacity(0.85),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.surface.withValues(alpha: 0.85),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       SizedBox(height: systemStatusBarHeight),
-                      
+
                       // CommonHeader 区域 - 动画其不透明度和 Offstage 状态
                       AnimatedOpacity(
                         opacity: _isHeaderCollapsed ? 0.0 : 1.0,
@@ -343,8 +392,8 @@ class PopularMediaListPageBaseState<
                           child: SizedBox(
                             height: headerHeight,
                             child: CommonHeader(
-                              searchSegment:
-                                  widget.searchSegment, // 使用 widget 的 searchSegment
+                              searchSegment: widget
+                                  .searchSegment, // 使用 widget 的 searchSegment
                               avatarRadius: 20,
                             ),
                           ),
@@ -360,7 +409,8 @@ class PopularMediaListPageBaseState<
                                   onPointerSignal: (pointerSignal) {
                                     if (pointerSignal is PointerScrollEvent) {
                                       _handleScroll(
-                                          pointerSignal.scrollDelta.dy);
+                                        pointerSignal.scrollDelta.dy,
+                                      );
                                     }
                                   },
                                   child: SingleChildScrollView(
@@ -370,7 +420,8 @@ class PopularMediaListPageBaseState<
                                     child: TabBar(
                                       isScrollable: true,
                                       overlayColor: WidgetStateProperty.all(
-                                          Colors.transparent),
+                                        Colors.transparent,
+                                      ),
                                       tabAlignment: TabAlignment.start,
                                       dividerColor: Colors.transparent,
                                       padding: EdgeInsets.zero,
@@ -396,31 +447,32 @@ class PopularMediaListPageBaseState<
                                 ),
                               ),
                             ),
-                            Obx(() => IconButton(
-                                  icon: Icon(
-                                      _mediaListController.isPaginated.value
-                                          ? Icons.grid_view
-                                          : Icons.menu),
-                                  onPressed: () {
-                                    if (!_mediaListController
-                                        .isPaginated.value) {
-                                      var sortId =
-                                          sorts[_tabController.index].id;
-                                      var repository = _repositories[sortId]!;
-                                      repository.refresh(true);
-                                    }
-                                    _mediaListController.setPaginatedMode(
-                                        !_mediaListController
-                                            .isPaginated.value);
-                                  },
-                                  tooltip:
-                                      _mediaListController.isPaginated.value
-                                          ? t.common.pagination.waterfall
-                                          : t.common.pagination.pagination,
-                                )),
+                            Obx(
+                              () => IconButton(
+                                icon: Icon(
+                                  _mediaListController.isPaginated.value
+                                      ? Icons.grid_view
+                                      : Icons.menu,
+                                ),
+                                onPressed: () {
+                                  if (!_mediaListController.isPaginated.value) {
+                                    var sortId = sorts[_tabController.index].id;
+                                    var repository = _repositories[sortId]!;
+                                    repository.refresh(true);
+                                  }
+                                  _mediaListController.setPaginatedMode(
+                                    !_mediaListController.isPaginated.value,
+                                  );
+                                },
+                                tooltip: _mediaListController.isPaginated.value
+                                    ? t.common.pagination.waterfall
+                                    : t.common.pagination.pagination,
+                              ),
+                            ),
                             IconButton(
                               icon: const Icon(Icons.vertical_align_top),
-                              onPressed: () => _mediaListController.scrollToTop(),
+                              onPressed: () =>
+                                  _mediaListController.scrollToTop(),
                               tooltip: t.common.scrollToTop,
                             ),
                             IconButton(
@@ -443,6 +495,128 @@ class PopularMediaListPageBaseState<
           ),
         ],
       ),
+      floatingActionButton: _isHeaderCollapsed
+          ? Obx(
+              () => Padding(
+                padding: EdgeInsets.only(
+                  bottom: _mediaListController.isPaginated.value ? 40 : 20,
+                  right: 0,
+                ),
+                child: GridSpeedDial(
+                  icon: Icons.menu,
+                  activeIcon: Icons.close,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                  spacing: 6,
+                  spaceBetweenChildren: 4,
+                  direction: SpeedDialDirection.up,
+                  childPadding: const EdgeInsets.all(6),
+                  childrens: [
+                    [
+                      // 第一列
+                      SpeedDialChild(
+                        child: const Icon(Icons.vertical_align_top),
+                        backgroundColor:
+                            Theme.of(context).colorScheme.primaryContainer,
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onPrimaryContainer,
+                        onTap: () => _mediaListController.scrollToTop(),
+                      ),
+                      SpeedDialChild(
+                        child: const Icon(Icons.search),
+                        backgroundColor:
+                            Theme.of(context).colorScheme.primaryContainer,
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onPrimaryContainer,
+                        onTap: _openSearchDialog,
+                      ),
+                    ],
+                    [
+                      // 第二列
+                      SpeedDialChild(
+                        child: Obx(
+                          () => Icon(
+                            _mediaListController.isPaginated.value
+                                ? Icons.grid_view
+                                : Icons.menu,
+                          ),
+                        ),
+                        backgroundColor:
+                            Theme.of(context).colorScheme.secondaryContainer,
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onSecondaryContainer,
+                        onTap: () {
+                          if (!_mediaListController.isPaginated.value) {
+                            var sortId = sorts[_tabController.index].id;
+                            var repository = _repositories[sortId]!;
+                            repository.refresh(true);
+                          }
+                          _mediaListController.setPaginatedMode(
+                            !_mediaListController.isPaginated.value,
+                          );
+                        },
+                      ),
+                      SpeedDialChild(
+                        child: const Icon(Icons.filter_list),
+                        backgroundColor:
+                            Theme.of(context).colorScheme.secondaryContainer,
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onSecondaryContainer,
+                        onTap: _openParamsModal,
+                      ),
+                      SpeedDialChild(
+                        child: Obx(() {
+                          if (userService.isLogin &&
+                              userService.currentUser.value != null) {
+                            return Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                AvatarWidget(
+                                  user: userService.currentUser.value,
+                                  size: 28,
+                                ),
+                                Positioned(
+                                  right: 0,
+                                  top: 0,
+                                  child: Obx(() {
+                                    final count =
+                                        userService.notificationCount.value +
+                                            userService.messagesCount.value;
+                                    if (count > 0) {
+                                      return Container(
+                                        width: 8,
+                                        height: 8,
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .error,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      );
+                                    }
+                                    return const SizedBox.shrink();
+                                  }),
+                                ),
+                              ],
+                            );
+                          } else {
+                            return const Icon(Icons.account_circle);
+                          }
+                        }),
+                        backgroundColor: Theme.of(context).colorScheme.surface,
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onSurface,
+                        onTap: () {
+                          AppService.switchGlobalDrawer();
+                        },
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            )
+          : null,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }

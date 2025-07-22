@@ -250,6 +250,7 @@ class TranslationsCommonEn {
 	String get specialFollowsManagementTip => 'Drag to reorder • Swipe left to remove';
 	String get specialFollowsManagement => 'Special Follows Management';
 	late final TranslationsCommonPaginationEn pagination = TranslationsCommonPaginationEn._(_root);
+	String get notice => 'Notice';
 }
 
 // Path: auth
@@ -666,6 +667,8 @@ class TranslationsSubscriptionsEn {
 
 	// Translations
 	String get pleaseLoginFirstToViewYourSubscriptions => 'Please login first to view your subscriptions.';
+	String get selectUser => 'Select User';
+	String get noSubscribedUsers => 'No subscribed users';
 }
 
 // Path: videoDetail
@@ -1604,6 +1607,7 @@ extension on Translations {
 			case 'common.pagination.invalidInput': return 'Please enter a valid page number';
 			case 'common.pagination.waterfall': return 'Waterfall';
 			case 'common.pagination.pagination': return 'Pagination';
+			case 'common.notice': return 'Notice';
 			case 'auth.login': return 'Login';
 			case 'auth.logout': return 'Logout';
 			case 'auth.email': return 'Email';
@@ -1912,6 +1916,8 @@ extension on Translations {
 			case 'signIn.totalSignIns': return 'Total Sign Ins';
 			case 'signIn.pleaseSelectSignInStatus': return 'Please select sign in status';
 			case 'subscriptions.pleaseLoginFirstToViewYourSubscriptions': return 'Please login first to view your subscriptions.';
+			case 'subscriptions.selectUser': return 'Select User';
+			case 'subscriptions.noSubscribedUsers': return 'No subscribed users';
 			case 'videoDetail.pipMode': return 'PiP Mode';
 			case 'videoDetail.resumeFromLastPosition': return ({required Object position}) => 'Resume from last position: ${position}';
 			case 'videoDetail.videoIdIsEmpty': return 'Video ID is empty';

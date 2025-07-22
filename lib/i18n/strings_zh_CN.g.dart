@@ -249,6 +249,7 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String get specialFollowsManagementTip => '拖动可重新排序 • 向左滑动可移除';
 	@override String get specialFollowsManagement => '特别关注管理';
 	@override late final _TranslationsCommonPaginationZhCn pagination = _TranslationsCommonPaginationZhCn._(_root);
+	@override String get notice => '通知';
 }
 
 // Path: auth
@@ -668,6 +669,8 @@ class _TranslationsSubscriptionsZhCn implements TranslationsSubscriptionsEn {
 
 	// Translations
 	@override String get pleaseLoginFirstToViewYourSubscriptions => '请登录以查看您的订阅内容。';
+	@override String get selectUser => '选择用户';
+	@override String get noSubscribedUsers => '暂无已订阅的用户';
 }
 
 // Path: videoDetail
@@ -1608,6 +1611,7 @@ extension on TranslationsZhCn {
 			case 'common.pagination.invalidInput': return '请输入有效页码';
 			case 'common.pagination.waterfall': return '瀑布流';
 			case 'common.pagination.pagination': return '分页';
+			case 'common.notice': return '通知';
 			case 'auth.tagLimit': return '标签上限';
 			case 'auth.login': return '登录';
 			case 'auth.logout': return '退出登录';
@@ -1919,6 +1923,8 @@ extension on TranslationsZhCn {
 			case 'signIn.totalSignIns': return '总成功签到';
 			case 'signIn.pleaseSelectSignInStatus': return '请选择签到状态';
 			case 'subscriptions.pleaseLoginFirstToViewYourSubscriptions': return '请登录以查看您的订阅内容。';
+			case 'subscriptions.selectUser': return '选择用户';
+			case 'subscriptions.noSubscribedUsers': return '暂无已订阅的用户';
 			case 'videoDetail.pipMode': return '画中画模式';
 			case 'videoDetail.resumeFromLastPosition': return ({required Object position}) => '从上次播放位置继续播放: ${position}';
 			case 'videoDetail.videoIdIsEmpty': return '视频ID为空';

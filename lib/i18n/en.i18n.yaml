@@ -187,6 +187,7 @@ common:
     invalidInput: 'Please enter a valid page number'
     waterfall: 'Waterfall'
     pagination: 'Pagination'
+  notice: Notice
 auth:
   login: Login
   logout: Logout
@@ -515,6 +516,8 @@ signIn:
 
 subscriptions:
   pleaseLoginFirstToViewYourSubscriptions: Please login first to view your subscriptions.
+  selectUser: Select User
+  noSubscribedUsers: No subscribed users
 
 videoDetail:
   pipMode: PiP Mode

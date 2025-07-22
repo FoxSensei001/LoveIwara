@@ -177,6 +177,7 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get year => '年';
 	@override String get month => '月';
 	@override String get tag => 'タグ';
+	@override String get notice => 'お知らせ';
 	@override String get private => 'プライベート';
 	@override String get noTitle => 'タイトルなし';
 	@override String get search => '検索';
@@ -663,6 +664,8 @@ class _TranslationsSubscriptionsJa implements TranslationsSubscriptionsEn {
 
 	// Translations
 	@override String get pleaseLoginFirstToViewYourSubscriptions => 'サブスクリプションを表示するにはログインしてください。';
+	@override String get selectUser => 'ユーザーを選択してください';
+	@override String get noSubscribedUsers => '購読中のユーザーがいません';
 }
 
 // Path: videoDetail
@@ -1523,6 +1526,7 @@ extension on TranslationsJa {
 			case 'common.year': return '年';
 			case 'common.month': return '月';
 			case 'common.tag': return 'タグ';
+			case 'common.notice': return 'お知らせ';
 			case 'common.private': return 'プライベート';
 			case 'common.noTitle': return 'タイトルなし';
 			case 'common.search': return '検索';
@@ -1909,6 +1913,8 @@ extension on TranslationsJa {
 			case 'signIn.totalSignIns': return '合計サインイン数';
 			case 'signIn.pleaseSelectSignInStatus': return 'サインインステータスを選択してください';
 			case 'subscriptions.pleaseLoginFirstToViewYourSubscriptions': return 'サブスクリプションを表示するにはログインしてください。';
+			case 'subscriptions.selectUser': return 'ユーザーを選択してください';
+			case 'subscriptions.noSubscribedUsers': return '購読中のユーザーがいません';
 			case 'videoDetail.pipMode': return 'ピプモード';
 			case 'videoDetail.resumeFromLastPosition': return ({required Object position}) => '${position} から続けて再生';
 			case 'videoDetail.videoIdIsEmpty': return 'ビデオIDが空です';

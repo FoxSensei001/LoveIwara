@@ -108,6 +108,7 @@ common:
   year: 年
   month: 月
   tag: タグ
+  notice: お知らせ
   private: プライベート
   noTitle: タイトルなし
   search: 検索
@@ -516,6 +517,8 @@ signIn:
 
 subscriptions:
   pleaseLoginFirstToViewYourSubscriptions: サブスクリプションを表示するにはログインしてください。
+  selectUser: ユーザーを選択してください
+  noSubscribedUsers: 購読中のユーザーがいません
 
 videoDetail:
   pipMode: ピプモード

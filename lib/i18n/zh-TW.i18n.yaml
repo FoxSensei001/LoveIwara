@@ -187,6 +187,7 @@ common:
     invalidInput: '請輸入有效頁碼'
     waterfall: '瀑布流'
     pagination: '分頁'
+  notice: 通知
 
 auth:
   login: 登入
@@ -517,6 +518,8 @@ signIn:
 
 subscriptions:
   pleaseLoginFirstToViewYourSubscriptions: 請登入以查看您的訂閱內容。
+  selectUser: 選擇用戶
+  noSubscribedUsers: 尚無已訂閱用戶
 
 videoDetail:
   pipMode: 畫中畫模式
