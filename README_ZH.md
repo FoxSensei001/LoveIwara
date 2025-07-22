@@ -42,6 +42,7 @@ Love Iwara（又名 i_iwara 或 2i）是一个使用 Flutter 构建的 Iwara 第
 - **已知问题**
   - 由于经验有限，项目可能存在性能优化空间
   - 部分功能可能不够完善
+  - 在 Android 平台上，由于 Impeller 渲染引擎存在严重性能问题，目前已默认禁用。这可能会影响未来的版本更新。如需重新启用，请修改 `android/app/src/main/AndroidManifest.xml` 文件，在 `<application>` 节点中添加 `<meta-data android:name="flutter.embedding.android.EnableImpeller" android:value="true" />`。如果您有任何优化建议或解决方案，欢迎通过提交 PR、创建 [Issues](https://github.com/FoxSensei001/i_iwara/issues) 或加入 [交流群组](https://t.me/+OtpMbe9DkjYzMGM1) 参与讨论。
   - 欢迎提出建议帮助改进
 
 感谢理解与支持！如果你也是 Flutter 初学者，希望我们能在学习过程中共同进步。
