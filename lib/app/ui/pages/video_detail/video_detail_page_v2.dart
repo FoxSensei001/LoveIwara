@@ -118,15 +118,12 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage> with TickerProvide
       ScreenBrightness().resetApplicationScreenBrightness();
     }
     
-    // 如果是从detail到其他页面，且当前为 应用全屏状态，则恢复UI
-    if (previousRoute != null &&
-        previousRoute.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) == true &&
-        route?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) == false &&
+    // 如果当前路由是视频详情页，且操作类型是离开，且当前为 应用全屏状态，则恢复UI
+    if (route?.isActive == false &&
+        route?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) == true &&
         controller.isDesktopAppFullScreen.value) {
-      if (route?.settings.name != null) {
-        LogUtils.d('恢复系统UI', 'video_detail_page_v2');
-        appService.showSystemUI();
-      }
+      LogUtils.d('离开视频详情页，恢复系统UI', 'video_detail_page_v2');
+      appService.showSystemUI();
     }
   }
 
