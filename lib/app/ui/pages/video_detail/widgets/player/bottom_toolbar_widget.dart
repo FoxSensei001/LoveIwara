@@ -632,6 +632,7 @@ class BottomToolbar extends StatelessWidget {
               myVideoStateController.videoController.player.pause();
             } else {
               myVideoStateController.videoController.player.play();
+              myVideoStateController.animateToTop();
             }
           },
         )),

@@ -358,6 +358,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                               widget.myVideoStateController.player.pause();
                             } else {
                               widget.myVideoStateController.player.play();
+                              widget.myVideoStateController.animateToTop();
                             }
                           } else if (event.logicalKey ==
                               LogicalKeyboardKey.arrowUp) {
@@ -564,6 +565,14 @@ class _MyVideoScreenState extends State<MyVideoScreen>
           child: GestureArea(
             setLongPressing: _setLongPressing,
             onTap: _onTap,
+            onDoubleTap: () {
+              if (widget.myVideoStateController.videoPlaying.value) {
+                widget.myVideoStateController.player.pause();
+              } else {
+                widget.myVideoStateController.player.play();
+                widget.myVideoStateController.animateToTop();
+              }
+            },
             region: GestureRegion.center,
             myVideoStateController: widget.myVideoStateController,
             screenSize: screenSize,
@@ -709,9 +718,12 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                   // 添加震动反馈
                   VibrateUtils.vibrate();
 
-                  myVideoStateController.videoPlaying.value
-                      ? myVideoStateController.player.pause()
-                      : myVideoStateController.player.play();
+                  if (myVideoStateController.videoPlaying.value) {
+                    myVideoStateController.player.pause();
+                  } else {
+                    myVideoStateController.player.play();
+                    myVideoStateController.animateToTop();
+                  }
                 },
                 customBorder: const CircleBorder(),
                 child: AnimatedScale(

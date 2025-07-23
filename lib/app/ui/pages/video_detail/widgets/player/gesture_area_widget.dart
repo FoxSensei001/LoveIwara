@@ -23,6 +23,7 @@ class GestureArea extends StatefulWidget {
   // 添加回调函数
   final VoidCallback? onDoubleTapLeft;
   final VoidCallback? onDoubleTapRight;
+  final VoidCallback? onDoubleTap;
   final VoidCallback? onTap;
   final Function(LongPressType?, bool)? setLongPressing;
   final Function(double)? onVolumeChange;
@@ -38,6 +39,7 @@ class GestureArea extends StatefulWidget {
     required this.myVideoStateController,
     this.onDoubleTapLeft,
     this.onDoubleTapRight,
+    this.onDoubleTap,
     this.onTap,
     required this.screenSize,
     this.setLongPressing,
@@ -88,9 +90,7 @@ class _GestureAreaState extends State<GestureArea>
 
     switch (widget.region) {
       case GestureRegion.center:
-        widget.myVideoStateController.videoPlaying.value
-            ? widget.myVideoStateController.player.pause()
-            : widget.myVideoStateController.player.play();
+        widget.onDoubleTap?.call();
         break;
       case GestureRegion.left:
         // 触发左侧波纹动画
