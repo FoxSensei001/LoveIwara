@@ -138,16 +138,25 @@ jobs:
       - name: Build macOS
         run: flutter build macos --release
 
-      - name: Create ZIP archive
+      - name: Create DMG
         run: |
-          cd build/macos/Build/Products/Release
-          zip -r ../../../../macos-release.zip *.app
+          mkdir -p dist
+          mkdir -p dist/dmg_contents
+          cp -R build/macos/Build/Products/Release/i_iwara.app dist/dmg_contents/
+          ln -s /Applications dist/dmg_contents/Applications
+          hdiutil create -volname "i_iwara" -srcfolder dist/dmg_contents -ov -format UDZO "dist/i_iwara.dmg"
+
+      - name: Add version to filename
+        run: |
+          APP_VERSION=$(grep "version:" pubspec.yaml | cut -d':' -f2 | tr -d ' ' | cut -d'+' -f1)
+          mkdir -p result
+          mv dist/i_iwara.dmg result/i_iwara-macos-$APP_VERSION.dmg
+
       - name: Upload macOS build
         uses: actions/upload-artifact@v4
         with:
           name: macos-release
-          path: macos-release.zip
-          compression-level: 9
+          path: result/
 
   build-ios:
     if: ${{ inputs.build_ios }}
