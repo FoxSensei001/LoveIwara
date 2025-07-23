@@ -500,6 +500,8 @@ settings:
   lockButtonPositionLeftSide: 仅左侧显示
   lockButtonPositionRightSide: 仅右侧显示
   jumpLink: 跳转链接
+  language: 语言
+  languageChanged: 语言设置已更改，请重启应用以生效。
 signIn:
   pleaseLoginFirst: 请先登录
   alreadySignedInToday: 您今天已经签到过了！

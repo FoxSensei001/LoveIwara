@@ -625,6 +625,8 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get lockButtonPositionLeftSide => '左側のみ表示';
 	@override String get lockButtonPositionRightSide => '右側のみ表示';
 	@override String get jumpLink => 'リンクをジャンプ';
+	@override String get language => '言語';
+	@override String get languageChanged => '言語設定が変更されました。アプリを再起動して有効にしてください。';
 }
 
 // Path: signIn
@@ -1892,6 +1894,8 @@ extension on TranslationsJa {
 			case 'settings.lockButtonPositionLeftSide': return '左側のみ表示';
 			case 'settings.lockButtonPositionRightSide': return '右側のみ表示';
 			case 'settings.jumpLink': return 'リンクをジャンプ';
+			case 'settings.language': return '言語';
+			case 'settings.languageChanged': return '言語設定が変更されました。アプリを再起動して有効にしてください。';
 			case 'signIn.pleaseLoginFirst': return 'サインインする前にログインしてください';
 			case 'signIn.alreadySignedInToday': return '今日は既にサインインしています！';
 			case 'signIn.youDidNotStickToTheSignIn': return 'サインインを続けることができませんでした。';

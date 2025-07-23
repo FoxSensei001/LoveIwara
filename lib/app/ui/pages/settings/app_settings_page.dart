@@ -27,6 +27,55 @@ class AppSettingsPage extends StatefulWidget {
 }
 
 class _AppSettingsPageState extends State<AppSettingsPage> {
+  final Map<String, String> _languageOptions = {
+    'system': 'Follow system',
+    'en': 'English',
+    'ja': '日本語',
+    'zh-CN': '简体中文',
+    'zh-TW': '繁体中文',
+  };
+
+  void _showLanguageDialog(BuildContext context, ConfigService configService) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(slang.t.settings.language),
+          content: SizedBox(
+            width: double.minPositive,
+            child: Obx(() => ListView(
+                  shrinkWrap: true,
+                  children: _languageOptions.entries.map((entry) {
+                    return RadioListTile<String>(
+                      title: Text(entry.value),
+                      value: entry.key,
+                      groupValue: configService[ConfigKey.APPLICATION_LOCALE],
+                      onChanged: (String? value) {
+                        if (value != null) {
+                          configService.updateApplicationLocale(value);
+                          Navigator.of(context).pop();
+                          showToastWidget(MDToastWidget(
+                              message: slang.t.settings.languageChanged,
+                              type: MDToastType.info));
+                        }
+                      },
+                    );
+                  }).toList(),
+                )),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text(slang.t.common.cancel),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   // 添加一个key来强制FutureBuilder重建
   final ValueNotifier<int> _logUpdateTrigger = ValueNotifier<int>(0);
   
@@ -177,6 +226,43 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     ],
               ),
             ),
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(
+                    slang.t.settings.language,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ),
+                const Divider(height: 1),
+                Obx(
+                  () => ListTile(
+                    title: Text(slang.t.settings.language),
+                    subtitle: Text(_languageOptions[
+                            configService[ConfigKey.APPLICATION_LOCALE]] ??
+                        ''),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                    onTap: () => _showLanguageDialog(context, configService),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(16),
+                        bottomRight: Radius.circular(16),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
           if (GetPlatform.isAndroid)
             Card(
               elevation: 2,
@@ -1580,4 +1666,3 @@ Future<void> _showLogSizeLimitDialog(BuildContext context, ConfigService configS
     ),
   );
 }
-

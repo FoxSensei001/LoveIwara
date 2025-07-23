@@ -145,16 +145,6 @@ Future<void> _initializeBaseServices() async {
   await deepLinkService.init();
   Get.put(deepLinkService);
 
-  // 初始化语言设置
-  String systemLanguage = CommonUtils.getDeviceLocale();
-  if (systemLanguage == 'zh' || systemLanguage == 'zh-CN' || systemLanguage == 'ja' || systemLanguage == 'zh-TW') {
-    LocaleSettings.useDeviceLocale();
-  } else if (systemLanguage == 'zh-HK') {
-    LocaleSettings.setLocaleRaw('zh-TW');
-  } else {
-    LocaleSettings.setLocaleRaw('en');
-  }
-
   // 初始化存储服务
   await GetStorage.init();
   await StorageService().init();
@@ -180,7 +170,25 @@ Future<void> _initializeBusinessServices() async {
   // 初始化配置服务
   var configService = await ConfigService().init();
   Get.put(configService);
-  
+
+   // 初始化语言设置
+  String applicationLocale = configService[ConfigKey.APPLICATION_LOCALE];
+  if (applicationLocale == 'system') {
+    LocaleSettings.useDeviceLocale();
+  } else {
+    AppLocale? targetLocale;
+    for (final locale in AppLocale.values) {
+      if (locale.languageTag.toLowerCase() == applicationLocale.toLowerCase()) {
+        targetLocale = locale;
+        break;
+      }
+    }
+    if (targetLocale != null) {
+      LocaleSettings.setLocale(targetLocale);
+    } else {
+      LocaleSettings.useDeviceLocale();
+    }
+  }
   
   LogUtils.setPersistenceEnabled(CommonConstants.enableLogPersistence);
   LogUtils.i('日志配置已更新：持久化=${CommonConstants.enableLogPersistence}，大小限制=${CommonConstants.maxLogDatabaseSize / (1024 * 1024)}MB', '启动初始化');

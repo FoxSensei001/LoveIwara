@@ -625,6 +625,8 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get lockButtonPositionLeftSide => '僅左側顯示';
 	@override String get lockButtonPositionRightSide => '僅右側顯示';
 	@override String get jumpLink => '跳轉連結';
+	@override String get language => '語言';
+	@override String get languageChanged => '語言設定已更改，請重新啟動應用以生效。';
 }
 
 // Path: signIn
@@ -1895,6 +1897,8 @@ extension on TranslationsZhTw {
 			case 'settings.lockButtonPositionLeftSide': return '僅左側顯示';
 			case 'settings.lockButtonPositionRightSide': return '僅右側顯示';
 			case 'settings.jumpLink': return '跳轉連結';
+			case 'settings.language': return '語言';
+			case 'settings.languageChanged': return '語言設定已更改，請重新啟動應用以生效。';
 			case 'signIn.pleaseLoginFirst': return '請先登入';
 			case 'signIn.alreadySignedInToday': return '您今天已經簽到過了！';
 			case 'signIn.youDidNotStickToTheSignIn': return '您未能持續簽到。';

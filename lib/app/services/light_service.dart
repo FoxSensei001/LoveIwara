@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
+import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -78,7 +79,11 @@ class LightService extends GetxService {
       }
 
       final data = response.data as Map<String, dynamic>;
-      final currentLocale = CommonUtils.getDeviceLocale();
+      final configService = Get.find<ConfigService>();
+      String currentLocale = configService.settings[ConfigKey.APPLICATION_LOCALE]?.value ?? 'en';
+      if (currentLocale == 'system') {
+        currentLocale = CommonUtils.getDeviceLocale();
+      }
       String? title;
 
       // 尝试获取当前语言的标题

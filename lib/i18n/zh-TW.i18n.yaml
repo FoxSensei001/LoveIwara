@@ -494,6 +494,8 @@ settings:
   lockButtonPositionLeftSide: 僅左側顯示
   lockButtonPositionRightSide: 僅右側顯示
   jumpLink: 跳轉連結
+  language: 語言
+  languageChanged: 語言設定已更改，請重新啟動應用以生效。
 signIn:
   pleaseLoginFirst: 請先登入
   alreadySignedInToday: 您今天已經簽到過了！

@@ -198,7 +198,10 @@ class _AboutPageState extends State<AboutPage> {
 
           if (_versionService.hasUpdate.value) {
             final updateInfo = _versionService.updateInfo.value;
-            String currentLocale = CommonUtils.getDeviceLocale();
+            String currentLocale = _configService[ConfigKey.APPLICATION_LOCALE] ?? 'en';
+            if (currentLocale == 'system') {
+              currentLocale = CommonUtils.getDeviceLocale();
+            }
             final changes = updateInfo?.getLocalizedChanges(currentLocale) ?? [];
 
             return Column(

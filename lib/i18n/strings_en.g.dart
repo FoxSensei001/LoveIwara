@@ -628,6 +628,8 @@ class TranslationsSettingsEn {
 	String get lockButtonPositionLeftSide => 'Left Side';
 	String get lockButtonPositionRightSide => 'Right Side';
 	String get jumpLink => 'Jump Link';
+	String get language => 'Language';
+	String get languageChanged => 'Language setting has been changed, please restart the app to take effect.';
 }
 
 // Path: signIn
@@ -1895,6 +1897,8 @@ extension on Translations {
 			case 'settings.lockButtonPositionLeftSide': return 'Left Side';
 			case 'settings.lockButtonPositionRightSide': return 'Right Side';
 			case 'settings.jumpLink': return 'Jump Link';
+			case 'settings.language': return 'Language';
+			case 'settings.languageChanged': return 'Language setting has been changed, please restart the app to take effect.';
 			case 'signIn.pleaseLoginFirst': return 'Please login first';
 			case 'signIn.alreadySignedInToday': return 'You have already signed in today!';
 			case 'signIn.youDidNotStickToTheSignIn': return 'You did not stick to the sign in.';

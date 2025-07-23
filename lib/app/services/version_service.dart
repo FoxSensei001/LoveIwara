@@ -122,7 +122,10 @@ class VersionService extends GetxService {
       return;
     }
 
-    String currentLocale = CommonUtils.getDeviceLocale();
+    String currentLocale = _configService[ConfigKey.APPLICATION_LOCALE] ?? 'en';
+    if (currentLocale == 'system') {
+      currentLocale = CommonUtils.getDeviceLocale();
+    }
     final changes = update.getLocalizedChanges(currentLocale);
 
     Get.dialog(

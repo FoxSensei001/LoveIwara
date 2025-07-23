@@ -493,6 +493,8 @@ settings:
   lockButtonPositionLeftSide: 左側のみ表示
   lockButtonPositionRightSide: 右側のみ表示
   jumpLink: リンクをジャンプ
+  language: 言語
+  languageChanged: 言語設定が変更されました。アプリを再起動して有効にしてください。
 signIn:
   pleaseLoginFirst: サインインする前にログインしてください
   alreadySignedInToday: 今日は既にサインインしています！

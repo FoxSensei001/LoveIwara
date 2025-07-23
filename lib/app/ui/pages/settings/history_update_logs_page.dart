@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/update_info.model.dart';
+import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/version_service.dart';
-import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/utils/common_utils.dart';
 class HistoryUpdateLogsPage extends StatefulWidget {
   const HistoryUpdateLogsPage({super.key});
 
@@ -80,7 +81,11 @@ class _HistoryUpdateLogsPageState extends State<HistoryUpdateLogsPage> {
       itemCount: _updateLogs.length,
       itemBuilder: (context, index) {
         final update = _updateLogs[index];
-        String locale = CommonUtils.getDeviceLocale();
+        final configService = Get.find<ConfigService>();
+        String locale = configService[ConfigKey.APPLICATION_LOCALE] ?? 'en';
+        if (locale == 'system') {
+          locale = CommonUtils.getDeviceLocale();
+        }
         List<String> changes = update.getLocalizedChanges(locale);
         return ExpansionTile(
           title: Text(

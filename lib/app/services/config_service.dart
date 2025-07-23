@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:i_iwara/app/models/sort.model.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/db/database_service.dart';
+import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:sqlite3/common.dart';
 import 'dart:convert';
 
@@ -136,6 +137,10 @@ class ConfigService extends GetxService {
     setSetting(key, value, save: true);
   }
   
+  void updateApplicationLocale(String localeStr) {
+    setSetting(ConfigKey.APPLICATION_LOCALE, localeStr);
+  }
+
   void updateTranslationLanguage(Sort sort) {
     _currentTranslationSort.value = sort;
     setSetting(ConfigKey.DEFAULT_LANGUAGE_KEY, sort.extData);
@@ -218,6 +223,7 @@ enum ConfigKey {
   WINDOW_WIDTH, // 窗口宽度
   WINDOW_HEIGHT, // 窗口高度
   ENABLE_HARDWARE_ACCELERATION, // 是否开启硬件加速
+  APPLICATION_LOCALE, // 应用语言
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -282,6 +288,7 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.WINDOW_WIDTH: return 'window_width';
       case ConfigKey.WINDOW_HEIGHT: return 'window_height';
       case ConfigKey.ENABLE_HARDWARE_ACCELERATION: return 'enable_hardware_acceleration';
+      case ConfigKey.APPLICATION_LOCALE: return 'application_locale';
     }
   }
 
@@ -405,6 +412,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 600.0;
       case ConfigKey.ENABLE_HARDWARE_ACCELERATION:
         return true;
+      case ConfigKey.APPLICATION_LOCALE:
+        return 'system';
       default:
         throw Exception("Unknown ConfigKey: $this");
     }

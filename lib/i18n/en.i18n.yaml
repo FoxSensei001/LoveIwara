@@ -492,6 +492,8 @@ settings:
   lockButtonPositionLeftSide: Left Side
   lockButtonPositionRightSide: Right Side
   jumpLink: Jump Link
+  language: Language
+  languageChanged: Language setting has been changed, please restart the app to take effect.
 signIn:
   pleaseLoginFirst: Please login first
   alreadySignedInToday: You have already signed in today!
