@@ -333,7 +333,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage> with TickerProvide
               
               // 播放器内容
               Positioned.fill(
-                top: paddingTop,
+                top: 0,
                 child: _buildVideoPlayerContent(),
               ),
             ],
@@ -472,28 +472,23 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage> with TickerProvide
       color: Theme.of(context).scaffoldBackgroundColor,
       child: TabBar(
         controller: tabController,
-        labelColor: Theme.of(context).colorScheme.primary,
-        unselectedLabelColor: Colors.grey[600],
-        indicatorColor: Theme.of(context).colorScheme.primary,
+        indicatorSize: TabBarIndicatorSize.tab,
         labelStyle: const TextStyle(
-          fontSize: 16,
+          fontSize: 14,
           fontWeight: FontWeight.w600,
         ),
         unselectedLabelStyle: const TextStyle(
           fontSize: 14,
-          fontWeight: FontWeight.normal,
+          fontWeight: FontWeight.w500,
         ),
         tabs: const [
           Tab(
-            icon: Icon(Icons.info_outline),
             text: '详情',
           ),
           Tab(
-            icon: Icon(Icons.comment_outlined),
             text: '评论',
           ),
           Tab(
-            icon: Icon(Icons.video_library_outlined),
             text: '相关',
           ),
         ],
@@ -509,7 +504,6 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage> with TickerProvide
         // 视频详情Tab
         VideoInfoTabWidget(
           controller: controller,
-          paddingTop: 0,
         ),
         
         // 评论Tab

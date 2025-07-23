@@ -4,6 +4,7 @@ import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_con
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/related_media_controller.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/media_tile_list_loading_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_tile_list_item_widget.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constants.dart'; // 导入共享常量和组件
 
 class RelatedVideosTabWidget extends StatelessWidget {
   final MyVideoStateController videoController;
@@ -18,16 +19,13 @@ class RelatedVideosTabWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(UIConstants.pagePadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // 作者的其他视频部分
           _buildAuthorOtherVideos(),
-          
-          const SizedBox(height: 24),
-          
-          // 相关视频部分
+          const SizedBox(height: UIConstants.sectionSpacing), // 统一区块间距
           _buildRelatedVideos(),
         ],
       ),
@@ -37,32 +35,10 @@ class RelatedVideosTabWidget extends StatelessWidget {
   Widget _buildAuthorOtherVideos() {
     return Obx(() {
       final otherVideosController = videoController.otherAuthorzVideosController;
-      
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 标题
-          Row(
-            children: [
-              Icon(
-                Icons.person,
-                size: 20,
-                color: Colors.grey[600],
-              ),
-              const SizedBox(width: 8),
-              const Text(
-                '作者的其他视频',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          
-          const SizedBox(height: 16),
-          
-          // 内容
+          const SectionHeader(icon: Icons.person, title: '作者的其他视频'), // 使用共享的SectionHeader
           if (otherVideosController == null)
             const SizedBox.shrink()
           else if (otherVideosController.isLoading.value)
@@ -70,13 +46,12 @@ class RelatedVideosTabWidget extends StatelessWidget {
           else if (otherVideosController.videos.isEmpty)
             _buildEmptyState('作者暂无其他视频')
           else
-            Column(
-              children: otherVideosController.videos
-                  .map((video) => Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: VideoTileListItem(video: video),
-                      ))
-                  .toList(),
+            ListView.separated(
+              itemCount: otherVideosController.videos.length,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              separatorBuilder: (_, __) => const SizedBox(height: UIConstants.listSpacing),
+              itemBuilder: (_, index) => VideoTileListItem(video: otherVideosController.videos[index]),
             ),
         ],
       );
@@ -88,48 +63,27 @@ class RelatedVideosTabWidget extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 标题
-          Row(
-            children: [
-              Icon(
-                Icons.recommend,
-                size: 20,
-                color: Colors.grey[600],
-              ),
-              const SizedBox(width: 8),
-              const Text(
-                '相关视频',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const Spacer(),
-              // 刷新按钮
-              IconButton(
-                onPressed: () => relatedVideoController.fetchRelatedMedias(),
-                icon: const Icon(Icons.refresh),
-                tooltip: '刷新相关视频',
-              ),
-            ],
+          SectionHeader( // 使用共享的SectionHeader
+            icon: Icons.recommend,
+            title: '相关视频',
+            action: IconButton(
+              onPressed: relatedVideoController.fetchRelatedMedias,
+              icon: const Icon(Icons.refresh),
+              tooltip: '刷新相关视频',
+            ),
           ),
-          
-          const SizedBox(height: 16),
-          
-          // 内容
           if (relatedVideoController.isLoading.value)
             const MediaTileListSkeletonWidget()
           else if (relatedVideoController.videos.isEmpty)
             _buildEmptyState('暂无相关视频')
           else
-            Column(
-              children: relatedVideoController.videos
-                  .map((video) => Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: VideoTileListItem(video: video),
-                      ))
-                  .toList(),
-            ),
+            ListView.separated(
+              itemCount: relatedVideoController.videos.length,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              separatorBuilder: (_, __) => const SizedBox(height: UIConstants.listSpacing),
+              itemBuilder: (_, index) => VideoTileListItem(video: relatedVideoController.videos[index]),
+            )
         ],
       );
     });
@@ -142,21 +96,11 @@ class RelatedVideosTabWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.video_library_outlined,
-            size: 48,
-            color: Colors.grey[400],
-          ),
+          Icon(Icons.video_library_outlined, size: 48, color: Colors.grey[400]),
           const SizedBox(height: 16),
-          Text(
-            message,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey[600],
-            ),
-          ),
+          Text(message, style: TextStyle(fontSize: 16, color: Colors.grey[600])),
         ],
       ),
     );
   }
-} 
+}
