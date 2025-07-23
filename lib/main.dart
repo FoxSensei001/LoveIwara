@@ -277,6 +277,27 @@ Future<void> _initializeBusinessServices() async {
 Future<void> _initializeDesktop() async {
   await windowManager.ensureInitialized();
   await windowManager.waitUntilReadyToShow();
+
+  final configService = Get.find<ConfigService>();
+  double? storedWidth = configService.settings[ConfigKey.WINDOW_WIDTH]?.value;
+  double? storedHeight = configService.settings[ConfigKey.WINDOW_HEIGHT]?.value;
+
+  // 设置一个合理的默认最小尺寸，以防存储的值无效
+  const defaultWidth = 800.0;
+  const defaultHeight = 600.0;
+  const minWidth = 200.0;
+  const minHeight = 200.0;
+
+  if (storedWidth != null && storedHeight != null &&
+      storedWidth >= minWidth && storedHeight >= minHeight) {
+    await windowManager.setSize(Size(storedWidth, storedHeight));
+    LogUtils.d('已从配置恢复窗口大小: ${storedWidth}x$storedHeight', '桌面初始化');
+  } else {
+    // 如果没有存储的尺寸或尺寸无效，则使用默认尺寸
+    await windowManager.setSize(const Size(defaultWidth, defaultHeight));
+     LogUtils.d('使用默认窗口大小: ${defaultWidth}x$defaultHeight', '桌面初始化');
+  }
+
   await windowManager.setTitleBarStyle(
     TitleBarStyle.hidden,
     windowButtonVisibility: GetPlatform.isMacOS,
@@ -284,22 +305,57 @@ Future<void> _initializeDesktop() async {
   if (GetPlatform.isLinux) {
     await windowManager.setBackgroundColor(Colors.transparent);
   }
-  await windowManager.setMinimumSize(const Size(200, 200));
+
   await windowManager.show();
   await windowManager.focus();
-  
+
+  // --- 修改：添加窗口大小变化监听器 ---
+  windowManager.addListener(DesktopWindowListener());
+
   // 添加应用关闭监听，确保日志写入完成
   windowManager.setPreventClose(true);
-  windowManager.addListener(DesktopWindowListener());
 }
 
 /// 桌面窗口事件监听器
 class DesktopWindowListener extends WindowListener {
+  Timer? _debounceTimer; // 新增：防抖定时器
+  final Duration _debounceDuration = const Duration(milliseconds: 500); // 新增：防抖延迟
   @override
   void onWindowClose() async {
     await _closeServices();
     await windowManager.destroy();
   }
+
+  // --- 新增：监听窗口大小变化 ---
+  @override
+  void onWindowResize() async {
+    _debounceTimer?.cancel(); // 取消之前的定时器
+    _debounceTimer = Timer(_debounceDuration, () async { // 设置新的定时器
+      try {
+        final size = await windowManager.getSize();
+        final configService = Get.find<ConfigService>();
+
+        // 更新配置服务中的值（内存中）
+        configService.updateSetting(ConfigKey.WINDOW_WIDTH, size.width);
+        configService.updateSetting(ConfigKey.WINDOW_HEIGHT, size.height);
+
+        // 异步保存到持久化存储
+        unawaited(
+          configService.saveSettingToStorage(ConfigKey.WINDOW_WIDTH, size.width)
+            .then((_) => configService.saveSettingToStorage(ConfigKey.WINDOW_HEIGHT, size.height))
+            .then((_) {
+              LogUtils.d('窗口大小已保存: ${size.width}x${size.height}', '桌面监听器');
+            })
+            .catchError((error, stackTrace) {
+              LogUtils.e('保存窗口大小失败', tag: '桌面监听器', error: error, stackTrace: stackTrace);
+            })
+        );
+      } catch (e, s) {
+         LogUtils.e('获取或保存窗口大小时出错', tag: '桌面监听器', error: e, stackTrace: s);
+      }
+    });
+  }
+  // --- 新增结束 ---
 }
 
 /// 代理设置

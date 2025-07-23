@@ -146,6 +146,16 @@ class ConfigService extends GetxService {
     _currentTargetLanguageSort.value = sort;
     setSetting(ConfigKey.USER_TARGET_LANGUAGE_KEY, sort.extData);
   }
+
+  // 更新内存中的设置值，不立即保存到数据库
+  void updateSetting(ConfigKey key, dynamic value) {
+    settings[key]!.value = value;
+  }
+
+  // 将指定键的设置保存到持久化存储
+  Future<void> saveSettingToStorage(ConfigKey key, dynamic value) async {
+    await _saveSetting(key, value);
+  }
 }
 
 enum ConfigKey {
@@ -205,6 +215,8 @@ enum ConfigKey {
   DEFAULT_PAGINATION_MODE, // 默认分页模式
   ENABLE_LOG_PERSISTENCE, // 是否持久化日志
   MAX_LOG_DATABASE_SIZE, // 日志数据库大小上限(字节)
+  WINDOW_WIDTH, // 窗口宽度
+  WINDOW_HEIGHT, // 窗口高度
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -266,6 +278,8 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.DEFAULT_PAGINATION_MODE: return 'default_pagination_mode';
       case ConfigKey.ENABLE_LOG_PERSISTENCE: return 'enable_log_persistence';
       case ConfigKey.MAX_LOG_DATABASE_SIZE: return 'max_log_database_size';
+      case ConfigKey.WINDOW_WIDTH: return 'window_width';
+      case ConfigKey.WINDOW_HEIGHT: return 'window_height';
     }
   }
 
@@ -383,6 +397,10 @@ extension ConfigKeyExtension on ConfigKey {
         return false;
       case ConfigKey.MAX_LOG_DATABASE_SIZE:
         return 1024 * 1024 * 1024; // 1GB
+      case ConfigKey.WINDOW_WIDTH:
+        return 800.0;
+      case ConfigKey.WINDOW_HEIGHT:
+        return 600.0;
       default:
         throw Exception("Unknown ConfigKey: $this");
     }
