@@ -209,7 +209,14 @@ class MyVideoStateController extends GetxController
 
       // 初始化 VideoController
       player = Player();
-      videoController = VideoController(player);
+      final enableHardwareAcceleration =
+          _configService[ConfigKey.ENABLE_HARDWARE_ACCELERATION] as bool;
+      videoController = VideoController(
+        player,
+        configuration: VideoControllerConfiguration(
+          enableHardwareAcceleration: enableHardwareAcceleration,
+        ),
+      );
 
       // 初始化滚动相关变量
       _initializeScrollSettings();

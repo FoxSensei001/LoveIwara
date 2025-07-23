@@ -217,6 +217,7 @@ enum ConfigKey {
   MAX_LOG_DATABASE_SIZE, // 日志数据库大小上限(字节)
   WINDOW_WIDTH, // 窗口宽度
   WINDOW_HEIGHT, // 窗口高度
+  ENABLE_HARDWARE_ACCELERATION, // 是否开启硬件加速
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -280,6 +281,7 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.MAX_LOG_DATABASE_SIZE: return 'max_log_database_size';
       case ConfigKey.WINDOW_WIDTH: return 'window_width';
       case ConfigKey.WINDOW_HEIGHT: return 'window_height';
+      case ConfigKey.ENABLE_HARDWARE_ACCELERATION: return 'enable_hardware_acceleration';
     }
   }
 
@@ -401,6 +403,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 800.0;
       case ConfigKey.WINDOW_HEIGHT:
         return 600.0;
+      case ConfigKey.ENABLE_HARDWARE_ACCELERATION:
+        return true;
       default:
         throw Exception("Unknown ConfigKey: $this");
     }

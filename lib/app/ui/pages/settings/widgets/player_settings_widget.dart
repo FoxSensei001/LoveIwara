@@ -275,9 +275,21 @@ class PlayerSettingsWidget extends StatelessWidget {
                       infoMessage: t.settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain,
                       rxValue: _configService.settings[ConfigKey.KEEP_LAST_BRIGHTNESS_KEY]!,
                       onChanged: (value) {
-                        _configService[ConfigKey.KEEP_LAST_BRIGHTNESS_KEY] = value;
-                      },
-                    ),
+                      _configService[ConfigKey.KEEP_LAST_BRIGHTNESS_KEY] = value;
+                    },
+                  ),
+                  // 开启硬件加速
+                  _buildSwitchSetting(
+                    context: context,
+                    iconData: Icons.hardware,
+                    label: '开启硬件加速',
+                    showInfoCard: true,
+                    infoMessage: '开启或关闭播放器硬件加速，关闭可以解决部分视频的兼容性问题，但会增加CPU消耗。',
+                    rxValue: _configService.settings[ConfigKey.ENABLE_HARDWARE_ACCELERATION]!,
+                    onChanged: (value) {
+                      _configService[ConfigKey.ENABLE_HARDWARE_ACCELERATION] = value;
+                    },
+                  ),
                   // 添加记录和恢复播放进度的设置
                   _buildSwitchSetting(
                     context: context,
