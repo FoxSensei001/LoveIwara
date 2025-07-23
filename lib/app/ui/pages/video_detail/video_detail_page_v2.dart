@@ -2,23 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_routes.dart';
 import 'package:i_iwara/app/services/app_service.dart';
-import 'package:i_iwara/app/services/user_service.dart';
-import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_dialog.dart';
 import 'package:i_iwara/app/ui/pages/home/home_navigation_layout.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/media_tile_list_loading_widget.dart';
-import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/video_detail_content_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/my_video_screen.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/video_detail_info_skeleton_widget.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/video_info_tab_widget.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/comments_tab_widget.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/related_videos_tab_widget.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import '../../../../common/enums/media_enums.dart';
 import '../../widgets/error_widget.dart';
 import '../comment/controllers/comment_controller.dart';
-import '../comment/widgets/comment_entry_area_widget.dart';
-import '../comment/widgets/comment_section_widget.dart';
-import '../popular_media_list/widgets/video_tile_list_item_widget.dart';
 import 'controllers/my_video_state_controller.dart';
 import 'controllers/related_media_controller.dart';
 import '../../../../i18n/strings.g.dart' as slang;
@@ -29,10 +24,10 @@ class MyVideoDetailPage extends StatefulWidget {
   const MyVideoDetailPage({super.key, required this.videoId});
 
   @override
-  _MyVideoDetailPageState createState() => _MyVideoDetailPageState();
+  MyVideoDetailPageState createState() => MyVideoDetailPageState();
 }
 
-class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
+class MyVideoDetailPageState extends State<MyVideoDetailPage> with TickerProviderStateMixin {
   final String uniqueTag = UniqueKey().toString();
   late String videoId;
   final AppService appService = Get.find();
@@ -40,11 +35,21 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
   late MyVideoStateController controller;
   late CommentController commentController;
   late RelatedMediasController relatedVideoController;
+  
+  // Tab控制器
+  late TabController tabController;
+  final RxInt currentTabIndex = 0.obs;
 
   @override
   void initState() {
     super.initState();
     videoId = widget.videoId;
+    
+    // 初始化Tab控制器
+    tabController = TabController(length: 3, vsync: this);
+    tabController.addListener(() {
+      currentTabIndex.value = tabController.index;
+    });
 
     if (videoId.isEmpty) {
       LogUtils.e('视频ID为空', tag: 'video_detail_page_v2');
@@ -110,12 +115,13 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
     if (route?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) == true && 
         previousRoute?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) == false) {
       LogUtils.d('进入视频详情页，重置屏幕亮度', 'video_detail_page_v2');
-      ScreenBrightness().resetScreenBrightness();
+      ScreenBrightness().resetApplicationScreenBrightness();
     }
     
     // 如果是从detail到其他页面，且当前为 应用全屏状态，则恢复UI
     if (previousRoute != null &&
-        previousRoute.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) == false &&
+        previousRoute.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) == true &&
+        route?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) == false &&
         controller.isDesktopAppFullScreen.value) {
       if (route?.settings.name != null) {
         LogUtils.d('恢复系统UI', 'video_detail_page_v2');
@@ -127,6 +133,9 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
   @override
   void dispose() {
     LogUtils.i('销毁视频详情页', 'video_detail_page_v2');
+    
+    // 销毁Tab控制器
+    tabController.dispose();
     
     // 移除路由变化回调
     try {
@@ -157,118 +166,6 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
     return videoHeight > screenHeight * 0.7;
   }
 
-  Size _calcVideoColumnWidthAndHeight(double screenWidth, double screenHeight,
-      double videoRatio, double sideColumnMinWidth, double paddingTop) {
-    LogUtils.d(
-        '[DEBUG] screenWidth: $screenWidth, screenHeight: $screenHeight, videoRatio: $videoRatio, sideColumnMinWidth: $sideColumnMinWidth',
-        'video_detail_page_v2');
-    // 使用有效的视频比例，如果比例小于1，则使用1.7
-    final effectiveVideoRatio = videoRatio < 1 ? 1.7 : videoRatio;
-    // 先获取70%屏幕高度时的视频宽度
-    double videoWidth = (screenHeight * 0.7) * effectiveVideoRatio;
-    // 如果视频宽度加上侧边栏宽度小于屏幕宽度，就使用这个宽度
-    double renderVideoWidth;
-    double renderVideoHeight;
-    if (videoWidth + sideColumnMinWidth < screenWidth) {
-      renderVideoWidth = videoWidth;
-      renderVideoHeight = renderVideoWidth / effectiveVideoRatio + paddingTop;
-    } else {
-      renderVideoWidth = screenWidth - sideColumnMinWidth;
-      renderVideoHeight = renderVideoWidth / effectiveVideoRatio + paddingTop;
-    }
-
-    return Size(renderVideoWidth, renderVideoHeight);
-  }
-
-  void showCommentModal(BuildContext context) {
-    LogUtils.d('显示评论模态框', 'video_detail_page_v2');
-    
-    try {
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        builder: (BuildContext context) {
-          final t = slang.Translations.of(context);
-          return DraggableScrollableSheet(
-            initialChildSize: 0.8,
-            minChildSize: 0.2,
-            maxChildSize: 0.8,
-            expand: false,
-            builder: (context, scrollController) {
-              return Column(
-                children: [
-                  // 顶部标题栏
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        Text(
-                          t.common.commentList,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const Spacer(),
-                        // 添加评论按钮
-                        TextButton.icon(
-                          onPressed: () {
-                            Get.dialog(
-                              CommentInputDialog(
-                                title: t.common.sendComment,
-                                submitText: t.common.send,
-                                onSubmit: (text) async {
-                                  if (text.trim().isEmpty) {
-                                    showToastWidget(MDToastWidget(
-                                        message: t.errors.commentCanNotBeEmpty,
-                                        type: MDToastType.error), position: ToastPosition.bottom);
-                                    return;
-                                  }
-                                  final UserService userService = Get.find();
-                                  if (!userService.isLogin) {
-                                    showToastWidget(MDToastWidget(
-                                        message: t.errors.pleaseLoginFirst,
-                                        type: MDToastType.error), position: ToastPosition.bottom);
-                                    Get.toNamed(Routes.LOGIN);
-                                    return;
-                                  }
-                                  await commentController.postComment(text);
-                                },
-                              ),
-                              barrierDismissible: true,
-                            );
-                          },
-                          icon: const Icon(Icons.add_comment),
-                          label: Text(t.common.sendComment),
-                        ),
-                        // 关闭按钮
-                        IconButton(
-                          icon: const Icon(Icons.close),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // 评论列表
-                  Expanded(
-                    child: Obx(() => CommentSection(
-                        controller: commentController,
-                        authorUserId: controller.videoInfo.value?.user?.id)),
-                  ),
-                ],
-              );
-            },
-          );
-        },
-      );
-    } catch (e) {
-      LogUtils.e('显示评论模态框失败', error: e, tag: 'video_detail_page_v2');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
@@ -290,7 +187,6 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
     final double screenHeight = screenSize.height;
     final double screenWidth = screenSize.width;
 
-    // 使用 RepaintBoundary 包裹整个 Scaffold body
     return Scaffold(
       body: RepaintBoundary(
         child: Obx(() {
@@ -301,229 +197,333 @@ class _MyVideoDetailPageState extends State<MyVideoDetailPage> {
               isFullScreen: false,
             );
           }
+          
           if (controller.mainErrorWidget.value != null) {
             return controller.mainErrorWidget.value!;
           }
+          
           bool isDesktopAppFullScreen = controller.isDesktopAppFullScreen.value;
-
+          
           // 判断是否使用宽屏布局
           bool isWide = _shouldUseWideScreenLayout(
               screenHeight, screenWidth, controller.aspectRatio.value);
-          // 分配视频详情与附列表的宽度
-          const sideColumnMinWidth = 400.0;
-          Size renderVideoSize = _calcVideoColumnWidthAndHeight(
-              screenWidth,
-              screenHeight,
-              controller.aspectRatio.value,
-              sideColumnMinWidth,
-              paddingTop);
-
-
+          
           if (isWide) {
-            // 宽屏布局
-            if (controller.isVideoInfoLoading.value) {
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 左侧视频详情
-                  SizedBox(
-                    width: renderVideoSize.width,
-                    child: const MediaDetailInfoSkeletonWidget(),
-                  ),
-                  // 右侧评论列表
-                  const Expanded(child: MediaTileListSkeletonWidget()),
-                ],
-              );
-            }
-
-            // 如果videoInfo不为空且videoInfo!.isPrivate为true，则显示私有视频提示
-            if (controller.videoInfo.value?.private == true) {
-              return const SizedBox.shrink();
-            }
-
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 左侧视频详情，使用SingleChildScrollView以确保内容可滚动
-                SizedBox(
-                  width: isDesktopAppFullScreen
-                      ? screenWidth
-                      : renderVideoSize.width,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        VideoDetailContent(
-                          controller: controller,
-                          paddingTop: paddingTop,
-                          videoHeight: renderVideoSize.height,
-                        ),
-                        if (!isDesktopAppFullScreen)...[
-                          Container(
-                            padding: const EdgeInsets.all(16),
-                            child: CommentEntryAreaButtonWidget(
-                                commentController: commentController,
-                                onClickButton: () {
-                                  showCommentModal(context);
-                                }),
-                          ),
-                          const SafeArea(child: SizedBox.shrink()),
-                        ]
-                      ],
-                    ),
-                  ),
-                ),
-                if (!controller.isDesktopAppFullScreen.value)
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // 相关视频
-                          Container(
-                              height: paddingTop,
-                              color: Colors.transparent),
-                          // 作者的其他视频
-                          if (controller.otherAuthorzVideosController !=
-                                  null &&
-                              controller.otherAuthorzVideosController!
-                                  .isLoading.value) ...[
-                            Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16),
-                                child: Text(t.videoDetail.authorOtherVideos,
-                                    style: const TextStyle(fontSize: 18))),
-                            const MediaTileListSkeletonWidget()
-                          ] else if (controller
-                                      .otherAuthorzVideosController !=
-                                  null &&
-                              controller.otherAuthorzVideosController!
-                                  .videos.isEmpty)
-                            const SizedBox.shrink()
-                          else ...[
-                            Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16),
-                                child: Text(t.videoDetail.authorOtherVideos,
-                                    style: const TextStyle(fontSize: 18))),
-                            // 构建作者的其他视频列表
-                            if (controller.otherAuthorzVideosController !=
-                                null)
-                              for (var video in controller
-                                  .otherAuthorzVideosController!.videos)
-                                VideoTileListItem(video: video),
-                          ],
-                          if (relatedVideoController.isLoading.value) ...[
-                            const SizedBox(height: 16),
-                            Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16),
-                                child: Text(t.videoDetail.relatedVideos,
-                                    style: const TextStyle(fontSize: 18))),
-                            const MediaTileListSkeletonWidget()
-                          ] else if (relatedVideoController.videos.isEmpty)
-                            const SizedBox.shrink()
-                          else ...[
-                            const SizedBox(height: 16),
-                            Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16),
-                                child: Text(t.videoDetail.relatedVideos,
-                                    style: const TextStyle(fontSize: 18))),
-                            // 构建相关视频列表
-                            for (var video in relatedVideoController.videos)
-                              VideoTileListItem(video: video),
-                          ],
-                          const SafeArea(child: SizedBox.shrink()),
-                        ],
-                      ),
-                    ),
-                  )
-              ],
-            );
+            return _buildWideScreenLayout(context, screenSize, paddingTop, isDesktopAppFullScreen);
           } else {
-            if (controller.isVideoInfoLoading.value) {
-              return const MediaDetailInfoSkeletonWidget();
-            }
-            return SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // 视频详情
-                  VideoDetailContent(
-                    controller: controller,
-                    paddingTop: paddingTop,
-                  ),
-                  if (!controller.isDesktopAppFullScreen.value) ...[
-                    // 评论区域
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      child: CommentEntryAreaButtonWidget(
-                        commentController: commentController,
-                        onClickButton: () {
-                          showCommentModal(context);
-                        },
-                      ),
-                    ),
-                    // 作者的其他视频
-                    if (controller.otherAuthorzVideosController != null &&
-                        controller.otherAuthorzVideosController!.isLoading
-                            .value) ...[
-                      Container(
-                          padding:
-                              const EdgeInsets.symmetric(horizontal: 16),
-                          child: Text(t.videoDetail.authorOtherVideos,
-                              style: const TextStyle(fontSize: 18))),
-                      const MediaTileListSkeletonWidget()
-                    ] else if (controller.otherAuthorzVideosController !=
-                            null &&
-                        controller
-                            .otherAuthorzVideosController!.videos.isEmpty)
-                      const SizedBox.shrink()
-                    else ...[
-                      Container(
-                          padding:
-                              const EdgeInsets.symmetric(horizontal: 16),
-                          child: Text(t.videoDetail.authorOtherVideos,
-                              style: const TextStyle(fontSize: 18))),
-                      // 构建作者的其他视频列表
-                      if (controller.otherAuthorzVideosController != null)
-                        for (var video in controller
-                            .otherAuthorzVideosController!.videos)
-                          VideoTileListItem(video: video),
-                    ],
-                    // 相关视频
-                    if (relatedVideoController.isLoading.value) ...[
-                      const SizedBox(height: 16),
-                      Container(
-                          padding:
-                              const EdgeInsets.symmetric(horizontal: 16),
-                          child: Text(t.videoDetail.relatedVideos,
-                              style: const TextStyle(fontSize: 18))),
-                      const MediaTileListSkeletonWidget()
-                    ] else if (relatedVideoController.videos.isEmpty)
-                      const SizedBox.shrink()
-                    else ...[
-                      const SizedBox(height: 16),
-                      Container(
-                          padding:
-                              const EdgeInsets.symmetric(horizontal: 16),
-                          child: Text(t.videoDetail.relatedVideos,
-                              style: const TextStyle(fontSize: 18))),
-                      // 构建相关视频列表
-                      for (var video in relatedVideoController.videos)
-                        VideoTileListItem(video: video),
-                    ],
-                    const SafeArea(child: SizedBox.shrink()),
-                  ]
-                ],
-              ),
-            );
+            return _buildNarrowScreenLayout(context, screenSize, paddingTop, isDesktopAppFullScreen);
           }
         }),
       ),
+    );
+  }
+
+  // 宽屏布局：播放器在左侧，Tab内容在右侧
+  Widget _buildWideScreenLayout(BuildContext context, Size screenSize, double paddingTop, bool isDesktopAppFullScreen) {
+    const double tabsAreaWidth = 400.0; // 固定Tab区域宽度
+    
+    if (controller.isVideoInfoLoading.value) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 左侧视频播放器骨架
+          Expanded(
+            child: Container(
+              height: screenSize.height,
+              color: Colors.black,
+              child: const Center(child: CircularProgressIndicator()),
+            ),
+          ),
+          // 右侧Tab内容骨架
+          SizedBox(
+            width: tabsAreaWidth,
+            child: const MediaTileListSkeletonWidget(),
+          ),
+        ],
+      );
+    }
+
+    // 如果videoInfo不为空且videoInfo!.isPrivate为true，则显示私有视频提示
+    if (controller.videoInfo.value?.private == true) {
+      return const SizedBox.shrink();
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 左侧纯播放器区域（自适应宽度）
+        Expanded(
+          child: _buildPureVideoPlayer(screenSize.height, paddingTop),
+        ),
+        
+        // 右侧Tab内容区域（固定宽度）
+        if (!isDesktopAppFullScreen)
+          SizedBox(
+            width: tabsAreaWidth,
+            child: _buildTabSection(context, paddingTop),
+          ),
+      ],
+    );
+  }
+
+  // 窄屏布局：播放器在顶部，Tab内容在下方
+  Widget _buildNarrowScreenLayout(BuildContext context, Size screenSize, double paddingTop, bool isDesktopAppFullScreen) {
+    if (controller.isVideoInfoLoading.value) {
+      return const MediaDetailInfoSkeletonWidget();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 顶部播放器区域
+        _buildVideoPlayerWithAspectRatio(paddingTop),
+        
+        // 底部Tab内容区域
+        if (!isDesktopAppFullScreen)
+          Expanded(
+            child: _buildTabSection(context, 0),
+          ),
+      ],
+    );
+  }
+
+  // 构建纯播放器（宽屏时使用，占满整个容器）
+  Widget _buildPureVideoPlayer(double screenHeight, double paddingTop) {
+    return Container(
+      height: screenHeight,
+      color: Colors.black,
+      child: Obx(() {
+        // 如果视频加载出错，显示错误组件
+        if (controller.videoErrorMessage.value != null) {
+          return _buildVideoErrorWidget();
+        }
+        // 如果是站外视频，显示站外视频提示
+        else if (controller.videoInfo.value?.isExternalVideo == true) {
+          return _buildExternalVideoWidget();
+        }
+        // 正常显示播放器
+        else if (!controller.isFullscreen.value) {
+          return MyVideoScreen(
+            isFullScreen: false,
+            myVideoStateController: controller,
+          );
+        } else {
+          return const SizedBox.shrink();
+        }
+      }),
+    );
+  }
+
+  // 构建带宽高比的播放器（窄屏时使用）
+  Widget _buildVideoPlayerWithAspectRatio(double paddingTop) {
+    return Obx(() {
+      final aspectRatio = controller.aspectRatio.value < 1 ? 16/9 : controller.aspectRatio.value;
+      
+      return AspectRatio(
+        aspectRatio: aspectRatio,
+        child: Container(
+          color: Colors.black,
+          child: Stack(
+            children: [
+              // 顶部安全区域
+              Container(
+                height: paddingTop,
+                color: Colors.black,
+              ),
+              
+              // 播放器内容
+              Positioned.fill(
+                top: paddingTop,
+                child: _buildVideoPlayerContent(),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
+  }
+
+  // 构建播放器内容
+  Widget _buildVideoPlayerContent() {
+    return Obx(() {
+      // 如果视频加载出错，显示错误组件
+      if (controller.videoErrorMessage.value != null) {
+        return _buildVideoErrorWidget();
+      }
+      // 如果是站外视频，显示站外视频提示
+      else if (controller.videoInfo.value?.isExternalVideo == true) {
+        return _buildExternalVideoWidget();
+      }
+      // 正常显示播放器
+      else if (!controller.isFullscreen.value) {
+        return MyVideoScreen(
+          isFullScreen: false,
+          myVideoStateController: controller,
+        );
+      } else {
+        return const SizedBox.shrink();
+      }
+    });
+  }
+
+  // 构建视频错误提示
+  Widget _buildVideoErrorWidget() {
+    return Center(
+      child: controller.videoErrorMessage.value == 'resource_404'
+        ? Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.not_interested, size: 48, color: Colors.white),
+              const SizedBox(height: 12),
+              const Text(
+                '资源已删除',
+                style: TextStyle(fontSize: 18, color: Colors.white),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton.icon(
+                onPressed: () => AppService.tryPop(),
+                icon: const Icon(Icons.arrow_back),
+                label: const Text('返回'),
+              ),
+            ],
+          )
+        : CommonErrorWidget(
+            text: controller.videoErrorMessage.value ?? '视频加载错误',
+            children: [
+              ElevatedButton.icon(
+                onPressed: () => AppService.tryPop(),
+                icon: const Icon(Icons.arrow_back),
+                label: const Text('返回'),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton.icon(
+                onPressed: () => controller.fetchVideoDetail(controller.videoId ?? ''),
+                icon: const Icon(Icons.refresh),
+                label: const Text('重试'),
+              ),
+            ],
+          ),
+    );
+  }
+
+  // 构建外链视频提示
+  Widget _buildExternalVideoWidget() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.link, size: 48, color: Colors.white),
+          const SizedBox(height: 12),
+          Text(
+            '外链视频: ${controller.videoInfo.value?.externalVideoDomain}',
+            style: const TextStyle(fontSize: 18, color: Colors.white),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 12),
+          Row(
+            spacing: 16,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton.icon(
+                onPressed: () => AppService.tryPop(),
+                icon: const Icon(Icons.arrow_back),
+                label: const Text('返回'),
+              ),
+              ElevatedButton.icon(
+                onPressed: () {
+                  if (controller.videoInfo.value?.embedUrl != null) {
+                    // TODO: 实现打开浏览器功能
+                  }
+                },
+                icon: const Icon(Icons.open_in_new),
+                label: const Text('在浏览器中打开'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 构建Tab区域
+  Widget _buildTabSection(BuildContext context, double paddingTop) {
+    return Column(
+      children: [
+        Container(
+          height: paddingTop,
+          color: Colors.transparent,
+        ),
+        
+        // Tab导航栏
+        _buildTabBar(context),
+        
+        // Tab内容
+        Expanded(
+          child: _buildTabBarView(),
+        ),
+      ],
+    );
+  }
+
+  // 构建Tab导航栏
+  Widget _buildTabBar(BuildContext context) {
+    return Container(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: TabBar(
+        controller: tabController,
+        labelColor: Theme.of(context).colorScheme.primary,
+        unselectedLabelColor: Colors.grey[600],
+        indicatorColor: Theme.of(context).colorScheme.primary,
+        labelStyle: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+        ),
+        unselectedLabelStyle: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.normal,
+        ),
+        tabs: const [
+          Tab(
+            icon: Icon(Icons.info_outline),
+            text: '详情',
+          ),
+          Tab(
+            icon: Icon(Icons.comment_outlined),
+            text: '评论',
+          ),
+          Tab(
+            icon: Icon(Icons.video_library_outlined),
+            text: '相关',
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 构建Tab内容视图
+  Widget _buildTabBarView() {
+    return TabBarView(
+      controller: tabController,
+      children: [
+        // 视频详情Tab
+        VideoInfoTabWidget(
+          controller: controller,
+          paddingTop: 0,
+        ),
+        
+        // 评论Tab
+        CommentsTabWidget(
+          commentController: commentController,
+          videoController: controller,
+        ),
+        
+        // 相关视频Tab
+        RelatedVideosTabWidget(
+          videoController: controller,
+          relatedVideoController: relatedVideoController,
+        ),
+      ],
     );
   }
 }
