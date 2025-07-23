@@ -135,19 +135,40 @@ jobs:
       - name: Enable macOS
         run: flutter config --enable-macos-desktop
 
-      - name: Build macOS
-        run: flutter build macos --release
+      - name: Build macOS ARM64
+        run: flutter build macos --release --target-platform darwin-arm64
 
-      - name: Create APP ZIP
+      - name: Create ARM64 ZIP
         run: |
           cd build/macos/Build/Products/Release
-          zip -r macos-release.zip *.app
+          zip -r macos-arm64-release.zip *.app
 
-      - name: Upload macOS build
+      - name: Upload macOS ARM64 build
         uses: actions/upload-artifact@v4
         with:
-          name: macos-release
-          path: build/macos/Build/Products/Release/macos-release.zip
+          name: macos-arm64-release
+          path: build/macos/Build/Products/Release/macos-arm64-release.zip
+          compression-level: 9
+
+      - name: Clean build directory
+        run: flutter clean
+
+      - name: Get dependencies again
+        run: flutter pub get
+
+      - name: Build macOS x86_64
+        run: flutter build macos --release --target-platform darwin-x64
+
+      - name: Create x86_64 ZIP
+        run: |
+          cd build/macos/Build/Products/Release
+          zip -r macos-x64-release.zip *.app
+
+      - name: Upload macOS x86_64 build
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-x64-release
+          path: build/macos/Build/Products/Release/macos-x64-release.zip
           compression-level: 9
 
   build-ios:
