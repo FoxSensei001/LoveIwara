@@ -17,10 +17,20 @@ import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/app/ui/widgets/add_to_favorite_dialog.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
 import 'package:i_iwara/utils/common_utils.dart';
+import 'package:i_iwara/utils/logger_utils.dart' show LogUtils;
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constants.dart'; // 导入共享常量和组件
+
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/add_video_to_playlist_dialog.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/share_video_bottom_sheet.dart';
+import 'package:i_iwara/app/services/download_service.dart';
+import 'package:i_iwara/app/models/download/download_task.model.dart';
+import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
+import 'package:path/path.dart' as p;
+import 'package:file_selector/file_selector.dart' as fs;
+
 
 class VideoInfoTabWidget extends StatelessWidget {
   final MyVideoStateController controller;
@@ -162,7 +172,7 @@ class VideoInfoTabWidget extends StatelessWidget {
           : const SizedBox.shrink();
     });
   }
-  
+
   /// A more responsive action button row using Wrap.
   Widget _buildActionButtons(BuildContext context) {
     final t = slang.Translations.of(context);
@@ -190,11 +200,16 @@ class VideoInfoTabWidget extends StatelessWidget {
           icon: Icons.playlist_add,
           label: t.common.playList,
           onTap: () {
-            // TODO: Add to playlist logic
-             final UserService userService = Get.find();
+            final UserService userService = Get.find();
             if (!userService.isLogin) {
               showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error), position: ToastPosition.bottom);
               Get.toNamed(Routes.LOGIN);
+            } else {
+              Get.dialog(
+                AddVideoToPlayListDialog(
+                  videoId: controller.videoInfo.value?.id ?? '',
+                ),
+              );
             }
           },
         ),
@@ -206,15 +221,23 @@ class VideoInfoTabWidget extends StatelessWidget {
          _ActionButton(
           icon: Icons.download,
           label: t.common.download,
-          onTap: () {
-            // TODO: Download logic
-          },
+          onTap: () => _showDownloadDialog(context), // Call the new method
         ),
          _ActionButton(
           icon: Icons.share,
           label: t.common.share,
           onTap: () {
-            // TODO: Share logic
+            showModalBottomSheet(
+              backgroundColor: Colors.transparent,
+              isScrollControlled: true,
+              builder: (context) => ShareVideoBottomSheet(
+                videoId: controller.videoInfo.value?.id ?? '',
+                videoTitle: controller.videoInfo.value?.title ?? '',
+                authorName: controller.videoInfo.value?.user?.name ?? '',
+                previewUrl: controller.videoInfo.value?.previewUrl ?? '',
+              ),
+              context: context,
+            );
           },
         ),
       ],
@@ -258,5 +281,169 @@ class VideoInfoTabWidget extends StatelessWidget {
         onAdd: (folderId) => FavoriteService.to.addVideoToFolder(videoInfo, folderId),
       ),
     );
+  }
+
+  // 获取视频的下载地址
+  Future<String?> _getSavePath(String title, String quality, String downloadUrl) async {
+    final uri = Uri.parse(downloadUrl);
+    String filename = uri.queryParameters['filename'] ?? '${title}_$quality.mp4';
+    if (GetPlatform.isDesktop) {
+      // 桌面平台使用file_selector让用户选择保存位置
+      final fs.FileSaveLocation? result = await fs.getSaveLocation(
+        suggestedName: filename,
+        acceptedTypeGroups: [
+          const fs.XTypeGroup(
+            label: 'MP4 Video',
+            extensions: ['mp4'],
+          ),
+        ],
+      );
+
+      if (result != null) {
+        return result.path;
+      } else {
+        return null; // 用户取消选择
+      }
+    } else {
+      // 移动平台使用默认路径
+      final dir = await CommonUtils.getAppDirectory(pathSuffix: p.join('downloads', 'videos'));
+      final sanitizedTitle = title.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_');
+      return '${dir.path}/${sanitizedTitle}_$quality.mp4';
+    }
+  }
+
+  void _showDownloadDialog(BuildContext context) {
+    LogUtils.d('尝试显示下载对话框', 'VideoInfoTabWidget'); // Changed tag for clarity
+    final t = slang.Translations.of(context);
+    final sources = controller.currentVideoSourceList;
+
+    if (sources.isEmpty) {
+      LogUtils.w('没有可用的下载源', 'VideoInfoTabWidget');
+      showToastWidget(MDToastWidget(message: t.download.errors.noDownloadSourceNowPleaseWaitInfoLoaded, type: MDToastType.error));
+      return;
+    }
+    final UserService userService = Get.find();
+    if (!userService.isLogin) {
+      LogUtils.w('用户未登录，无法下载', 'VideoInfoTabWidget');
+      showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error));
+      Get.toNamed(Routes.LOGIN);
+      return;
+    }
+
+    try {
+      Get.dialog(
+        AlertDialog(
+          title: Text(t.common.selectQuality),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: sources.map((source) {
+              return ListTile(
+                title: Text(source.name ?? t.download.errors.unknown),
+                onTap: () async {
+                  LogUtils.d('选择下载质量: ${source.name}', 'VideoInfoTabWidget');
+                  AppService.tryPop();
+
+                  if (source.download == null) {
+                    LogUtils.w('所选质量没有下载链接', 'VideoInfoTabWidget');
+                    showToastWidget(
+                      MDToastWidget(
+                        message: t.videoDetail.noDownloadUrl,
+                        type: MDToastType.error,
+                      ),
+                      position: ToastPosition.top,
+                    );
+                    return;
+                  }
+
+                  try {
+                    final videoInfo = controller.videoInfo.value;
+                    if (videoInfo == null) {
+                      LogUtils.e('下载失败：视频信息为空', tag: 'VideoInfoTabWidget');
+                      throw Exception(t.download.errors.videoInfoNotFound);
+                    }
+
+                    // 创建视频下载的额外信息
+                    final videoExtData = VideoDownloadExtData(
+                      id: videoInfo.id,
+                      title: videoInfo.title,
+                      thumbnail: videoInfo.thumbnailUrl,
+                      authorName: videoInfo.user?.name,
+                      authorUsername: videoInfo.user?.username,
+                      authorAvatar: videoInfo.user?.avatar?.avatarUrl,
+                      duration: videoInfo.file?.duration,
+                      quality: source.name,
+                    );
+                    LogUtils.d('创建下载任务元数据', 'VideoInfoTabWidget');
+
+                    // 在创建下载任务之前获取保存路径
+                    final savePath = await _getSavePath(
+                      videoInfo.title ?? 'video',
+                      source.name ?? 'unknown',
+                      source.download ?? 'unknown'
+                    );
+
+                    if (savePath == null) {
+                      LogUtils.d('用户取消了下载操作', 'VideoInfoTabWidget');
+                      showToastWidget(MDToastWidget(
+                        message: t.common.operationCancelled,
+                        type: MDToastType.info
+                      ));
+                      return;
+                    }
+
+                    final task = DownloadTask(
+                      id: VideoDownloadExtData.genExtDataIdByVideoInfo(videoInfo, source.name ?? 'unknown'),
+                      url: source.download!,
+                      savePath: savePath,
+                      fileName: '${videoInfo.title ?? 'video'}_${source.name}.mp4',
+                      supportsRange: true,
+                      extData: DownloadTaskExtData(
+                        type: DownloadTaskExtDataType.video,
+                        data: videoExtData.toJson(),
+                      ),
+                    );
+                    LogUtils.d('添加下载任务: ${task.id}', 'VideoInfoTabWidget');
+
+                    await DownloadService.to.addTask(task);
+
+                    showToastWidget(
+                      MDToastWidget(
+                        message: t.videoDetail.startDownloading,
+                        type: MDToastType.success,
+                      ),
+                      position: ToastPosition.top,
+                    );
+
+                    // 打开下载管理页面
+                    NaviService.navigateToDownloadTaskListPage();
+                  } catch (e) {
+                    LogUtils.e('添加下载任务失败: $e',
+                        tag: 'VideoInfoTabWidget', error: e);
+                    String message;
+                    if (e.toString().contains(t.download.errors.downloadTaskAlreadyExists)) {
+                      message = t.download.errors.downloadTaskAlreadyExists;
+                    } else if (e.toString().contains(t.download.errors.videoAlreadyDownloaded)) {
+                      message = t.download.errors.videoAlreadyDownloaded;
+                    } else {
+                      message = t.download.errors.downloadFailed;
+                    }
+
+                    showToastWidget(
+                      MDToastWidget(
+                        message: message,
+                        type: MDToastType.error,
+                      ),
+                      position: ToastPosition.top,
+                    );
+                  }
+                },
+              );
+            }).toList(),
+          ),
+        ),
+      );
+    } catch (e) {
+      LogUtils.e('显示下载对话框失败', error: e, tag: 'VideoInfoTabWidget');
+    }
   }
 }

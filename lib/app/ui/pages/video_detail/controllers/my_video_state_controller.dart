@@ -148,6 +148,16 @@ class MyVideoStateController extends GetxController
   // 添加 disposed 标志位
   bool _isDisposed = false;
 
+  // 滚动相关状态管理
+  final RxDouble scrollRatio = 0.0.obs; // 滚动比例
+  late final ScrollController scrollController = ScrollController();
+  final RxBool isExpanding = false.obs; // 是否正在展开
+  final RxBool isCollapsing = false.obs; // 是否正在收缩
+  late final double minVideoHeight; // 最小视频高度
+  late final double maxVideoHeight; // 最大视频高度
+  late final double videoHeight; // 当前视频高度
+  bool isInitialized = false;
+
   MyVideoStateController(this.videoId);
 
   @override
@@ -199,6 +209,9 @@ class MyVideoStateController extends GetxController
       // 初始化 VideoController
       player = Player();
       videoController = VideoController(player);
+
+      // 初始化滚动相关变量
+      _initializeScrollSettings();
 
       if (GetPlatform.isAndroid || GetPlatform.isIOS) {
         // 初始化并关闭系统音量UI
@@ -327,7 +340,7 @@ class MyVideoStateController extends GetxController
         double lastBrightness = _configService[ConfigKey.BRIGHTNESS_KEY];
         try {
           LogUtils.d("设置亮度: $lastBrightness", '详情页路由监听');
-          ScreenBrightness().setScreenBrightness(lastBrightness);
+          ScreenBrightness().setApplicationScreenBrightness(lastBrightness);
         } catch (e) {
           LogUtils.e('设置亮度失败: $e', tag: 'MyVideoStateController', error: e);
         }
@@ -373,6 +386,13 @@ class MyVideoStateController extends GetxController
 
       // 销毁动画控制器
       animationController.dispose();
+
+      // 清理滚动控制器
+      if (isInitialized) {
+        scrollController.removeListener(_scrollListener);
+        scrollController.dispose();
+        LogUtils.d('滚动控制器已清理', 'MyVideoStateController');
+      }
 
       // 保存播放记录
       final Duration lastPosition = currentPosition;
@@ -1136,6 +1156,63 @@ class MyVideoStateController extends GetxController
       }
     });
   }
+
+  // 滚动相关方法
+  void _initializeScrollSettings() {
+    // 计算视频高度范围
+    final screenSize = Get.size;
+    minVideoHeight = screenSize.shortestSide * 9 / 16;
+    maxVideoHeight = screenSize.longestSide * 0.65;
+    videoHeight = minVideoHeight;
+    
+    // 添加滚动监听器
+    scrollController.addListener(_scrollListener);
+    
+    isInitialized = true;
+    LogUtils.d('滚动设置初始化完成: minHeight=$minVideoHeight, maxHeight=$maxVideoHeight', 'MyVideoStateController');
+  }
+
+  void _scrollListener() {
+    if (!scrollController.hasClients || !isInitialized) return;
+    
+    final offset = scrollController.offset;
+    final videoHeight = getCurrentVideoHeight();
+    
+    // 计算滚动比例
+    if (offset == 0) {
+      scrollRatio.value = 0.0;
+    } else {
+      final offsetAfterVideo = offset - (videoHeight - minVideoHeight);
+      if (offsetAfterVideo > 0) {
+        scrollRatio.value = (offsetAfterVideo / (minVideoHeight - kToolbarHeight)).clamp(0.0, 1.0);
+      } else {
+        scrollRatio.value = 0.0;
+      }
+    }
+  }
+
+  double getCurrentVideoHeight() {
+    // 根据视频状态确定高度
+    if (isVideoInfoLoading.value || !videoIsReady.value) {
+      return minVideoHeight;
+    }
+    
+    // 根据视频方向和宽高比调整高度
+    final direction = sourceVideoWidth.value > sourceVideoHeight.value ? 'horizontal' : 'vertical';
+    return direction == 'vertical' ? maxVideoHeight : minVideoHeight;
+  }
+
+  void animateToTop() {
+    if (scrollController.hasClients) {
+      scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+
 }
 
 /// 视频清晰度模型

@@ -7,11 +7,8 @@ import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_dialog.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_section_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
-import 'package:i_iwara/app/ui/widgets/avatar_widget.dart' show AvatarWidget;
-import 'package:i_iwara/common/constants.dart' show CommonConstants;
 import 'package:oktoast/oktoast.dart';
-import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constants.dart'; // 导入共享常量和组件
-import 'package:i_iwara/app/ui/widgets/grid_speed_dial.dart'; // 导入GridSpeedDial
+import 'package:i_iwara/app/ui/widgets/grid_speed_dial.dart';
 
 class CommentsTabWidget extends StatelessWidget {
   final CommentController commentController;
@@ -37,41 +34,63 @@ class CommentsTabWidget extends StatelessWidget {
           ),
         ],
       ),
-      // 使用GridSpeedDial替代固定头部
-      floatingActionButton: GridSpeedDial(
-        // 主按钮图标
-        icon: Icons.more_vert,
-        activeIcon: Icons.close,
-        backgroundColor: Theme.of(context).primaryColor,
-        foregroundColor: Colors.white,
-        elevation: 8,
-        animationDuration: const Duration(milliseconds: 300),
-        direction: SpeedDialDirection.up,
-        spacing: 8,
-        spaceBetweenChildren: 8,
-        
-        // 子按钮配置
-        childrens: [
-          [
-            // 第一列：刷新评论
-            SpeedDialChild(
-              child: const Icon(Icons.refresh, color: Colors.white),
-              backgroundColor: Colors.blue,
-              onTap: () {
-                commentController.refreshComments();
-              },
+      // 使用GridSpeedDial替代固定头部，并添加评论数量徽章
+      floatingActionButton: Obx(() {
+        final commentCount = commentController.comments.length;
+        return Stack(
+          clipBehavior: Clip.none, // Allows badge to overflow
+          alignment: Alignment.center,
+          children: [
+            GridSpeedDial(
+              // 主按钮图标
+              icon: Icons.more_vert,
+              activeIcon: Icons.close,
+              backgroundColor: Theme.of(context).primaryColor,
+              foregroundColor: Colors.white,
+              elevation: 8,
+              animationDuration: const Duration(milliseconds: 300),
+              direction: SpeedDialDirection.up,
+              spacing: 8,
+              spaceBetweenChildren: 8,
+              
+              // 子按钮配置
+              childrens: [
+                [
+                  // 第一列：刷新评论
+                  SpeedDialChild(
+                    child: const Icon(Icons.refresh, color: Colors.white),
+                    backgroundColor: Colors.blue,
+                    onTap: () {
+                      commentController.refreshComments();
+                    },
+                  ),
+                ],
+                [
+                  // 第二列：写评论
+                  SpeedDialChild(
+                    child: const Icon(Icons.send, color: Colors.white),
+                    backgroundColor: Colors.green,
+                    onTap: () => _showCommentDialog(context),
+                  ),
+                ],
+              ],
             ),
+            // 添加评论数量徽章
+            if (commentCount > 0)
+              Positioned(
+                top: -8, // Adjust as needed to position the badge above the icon
+                right: -8, // Adjust as needed to position the badge to the right of the icon
+                child: Badge(
+                  label: Text('$commentCount'),
+                  backgroundColor: Colors.red,
+                  textColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), // Adjust padding for better appearance
+                  alignment: Alignment.center,
+                ),
+              ),
           ],
-          [
-            // 第二列：写评论
-            SpeedDialChild(
-              child: const Icon(Icons.send, color: Colors.white),
-              backgroundColor: Colors.green,
-              onTap: () => _showCommentDialog(context),
-            ),
-          ],
-        ],
-      ),
+        );
+      }),
     );
   }
 

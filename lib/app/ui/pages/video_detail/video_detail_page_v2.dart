@@ -9,10 +9,12 @@ import 'package:i_iwara/app/ui/pages/video_detail/widgets/video_detail_info_skel
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/video_info_tab_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/comments_tab_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/related_videos_tab_widget.dart';
+import 'package:i_iwara/app/ui/widgets/error_widget.dart'
+    show CommonErrorWidget;
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:screen_brightness/screen_brightness.dart';
+import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import '../../../../common/enums/media_enums.dart';
-import '../../widgets/error_widget.dart';
 import '../comment/controllers/comment_controller.dart';
 import 'controllers/my_video_state_controller.dart';
 import 'controllers/related_media_controller.dart';
@@ -27,7 +29,8 @@ class MyVideoDetailPage extends StatefulWidget {
   MyVideoDetailPageState createState() => MyVideoDetailPageState();
 }
 
-class MyVideoDetailPageState extends State<MyVideoDetailPage> with TickerProviderStateMixin {
+class MyVideoDetailPageState extends State<MyVideoDetailPage>
+    with TickerProviderStateMixin {
   final String uniqueTag = UniqueKey().toString();
   late String videoId;
   final AppService appService = Get.find();
@@ -35,7 +38,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage> with TickerProvide
   late MyVideoStateController controller;
   late CommentController commentController;
   late RelatedMediasController relatedVideoController;
-  
+
   // Tab控制器
   late TabController tabController;
   final RxInt currentTabIndex = 0.obs;
@@ -44,7 +47,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage> with TickerProvide
   void initState() {
     super.initState();
     videoId = widget.videoId;
-    
+
     // 初始化Tab控制器
     tabController = TabController(length: 3, vsync: this);
     tabController.addListener(() {
@@ -60,10 +63,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage> with TickerProvide
 
     // 初始化控制器
     try {
-      controller = Get.put(
-        MyVideoStateController(videoId),
-        tag: uniqueTag,
-      );
+      controller = Get.put(MyVideoStateController(videoId), tag: uniqueTag);
       LogUtils.d('MyVideoStateController 初始化成功', 'video_detail_page_v2');
 
       commentController = Get.put(
@@ -79,8 +79,9 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage> with TickerProvide
       LogUtils.d('RelatedMediasController 初始化成功', 'video_detail_page_v2');
 
       // 注册路由变化回调
-      HomeNavigationLayout.homeNavigatorObserver
-          .addRouteChangeCallback(_onRouteChange);
+      HomeNavigationLayout.homeNavigatorObserver.addRouteChangeCallback(
+        _onRouteChange,
+      );
       LogUtils.d('注册路由变化回调成功', 'video_detail_page_v2');
     } catch (e) {
       LogUtils.e('初始化控制器失败', tag: 'video_detail_page_v2', error: e);
@@ -93,17 +94,22 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage> with TickerProvide
   /// - `previousRoute`: 上一个路由
   void _onRouteChange(Route? route, Route? previousRoute) {
     LogUtils.d(
-        "当前路由: ${route?.settings.name}, 上一个路由: ${previousRoute?.settings.name}, 操作类型: ${route?.isActive == true ? "进入" : "离开"}",
-        '详情页路由监听');
+      "当前路由: ${route?.settings.name}, 上一个路由: ${previousRoute?.settings.name}, 操作类型: ${route?.isActive == true ? "进入" : "离开"}",
+      '详情页路由监听',
+    );
 
     // 如果操作类型是离开，上一个路由contains Routes.VIDEO_DETAIL，则setDefaultBrightness
-    if (route?.isActive == false && previousRoute?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) == true) {
+    if (route?.isActive == false &&
+        previousRoute?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) ==
+            true) {
       LogUtils.d('离开视频详情页，重置屏幕亮度', 'video_detail_page_v2');
       controller.setDefaultBrightness();
     }
 
     // 如果操作类型是进入，上一个路由contains Routes.VIDEO_DETAIL，则暂停
-    if (route?.isActive == true && previousRoute?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) == true) {
+    if (route?.isActive == true &&
+        previousRoute?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) ==
+            true) {
       // 如果当前路由为null，则不pause
       if (route?.settings.name != null) {
         LogUtils.d('进入非视频详情页，暂停播放', 'video_detail_page_v2');
@@ -112,12 +118,14 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage> with TickerProvide
     }
 
     // 如果当前路由contains Routes.VIDEO_DETAIL，且操作类型是离开则resetBrightness
-    if (route?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) == true && 
-        previousRoute?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) == false) {
+    if (route?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) == true &&
+        (previousRoute?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) ??
+                true) ==
+            false) {
       LogUtils.d('进入视频详情页，重置屏幕亮度', 'video_detail_page_v2');
       ScreenBrightness().resetApplicationScreenBrightness();
     }
-    
+
     // 如果当前路由是视频详情页，且操作类型是离开，且当前为 应用全屏状态，则恢复UI
     if (route?.isActive == false &&
         route?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) == true &&
@@ -130,14 +138,15 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage> with TickerProvide
   @override
   void dispose() {
     LogUtils.i('销毁视频详情页', 'video_detail_page_v2');
-    
+
     // 销毁Tab控制器
     tabController.dispose();
-    
+
     // 移除路由变化回调
     try {
-      HomeNavigationLayout.homeNavigatorObserver
-          .removeRouteChangeCallback(_onRouteChange);
+      HomeNavigationLayout.homeNavigatorObserver.removeRouteChangeCallback(
+        _onRouteChange,
+      );
       LogUtils.d('移除路由变化回调成功', 'video_detail_page_v2');
 
       // 尝试删除controller
@@ -154,7 +163,10 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage> with TickerProvide
 
   // 计算是否需要分两列
   bool _shouldUseWideScreenLayout(
-      double screenHeight, double screenWidth, double videoRatio) {
+    double screenHeight,
+    double screenWidth,
+    double videoRatio,
+  ) {
     // 使用有效的视频比例，如果比例小于1，则使用1.7
     final effectiveVideoRatio = videoRatio < 1 ? 1.7 : videoRatio;
     // 视频的高度
@@ -194,21 +206,36 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage> with TickerProvide
               isFullScreen: false,
             );
           }
-          
+
           if (controller.mainErrorWidget.value != null) {
             return controller.mainErrorWidget.value!;
           }
-          
+
           bool isDesktopAppFullScreen = controller.isDesktopAppFullScreen.value;
-          
+
           // 判断是否使用宽屏布局
           bool isWide = _shouldUseWideScreenLayout(
-              screenHeight, screenWidth, controller.aspectRatio.value);
-          
+            screenHeight,
+            screenWidth,
+            controller.aspectRatio.value,
+          );
+
           if (isWide) {
-            return _buildWideScreenLayout(context, screenSize, paddingTop, isDesktopAppFullScreen);
+            return _buildWideScreenLayout(
+              context,
+              screenSize,
+              paddingTop,
+              isDesktopAppFullScreen,
+              t,
+            );
           } else {
-            return _buildNarrowScreenLayout(context, screenSize, paddingTop, isDesktopAppFullScreen);
+            return _buildNarrowScreenLayout(
+              context,
+              screenSize,
+              paddingTop,
+              isDesktopAppFullScreen,
+              t,
+            );
           }
         }),
       ),
@@ -216,9 +243,15 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage> with TickerProvide
   }
 
   // 宽屏布局：播放器在左侧，Tab内容在右侧
-  Widget _buildWideScreenLayout(BuildContext context, Size screenSize, double paddingTop, bool isDesktopAppFullScreen) {
+  Widget _buildWideScreenLayout(
+    BuildContext context,
+    Size screenSize,
+    double paddingTop,
+    bool isDesktopAppFullScreen,
+    slang.Translations t,
+  ) {
     const double tabsAreaWidth = 400.0; // 固定Tab区域宽度
-    
+
     if (controller.isVideoInfoLoading.value) {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -249,38 +282,69 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage> with TickerProvide
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // 左侧纯播放器区域（自适应宽度）
-        Expanded(
-          child: _buildPureVideoPlayer(screenSize.height, paddingTop),
-        ),
-        
+        Expanded(child: _buildPureVideoPlayer(screenSize.height, paddingTop)),
+
         // 右侧Tab内容区域（固定宽度）
         if (!isDesktopAppFullScreen)
           SizedBox(
             width: tabsAreaWidth,
-            child: _buildTabSection(context, paddingTop),
+            child: _buildTabSection(context, paddingTop, t),
           ),
       ],
     );
   }
 
-  // 窄屏布局：播放器在顶部，Tab内容在下方
-  Widget _buildNarrowScreenLayout(BuildContext context, Size screenSize, double paddingTop, bool isDesktopAppFullScreen) {
+  // 窄屏布局：使用 ExtendedNestedScrollView 实现播放器固定效果
+  Widget _buildNarrowScreenLayout(
+    BuildContext context,
+    Size screenSize,
+    double paddingTop,
+    bool isDesktopAppFullScreen,
+    slang.Translations t,
+  ) {
     if (controller.isVideoInfoLoading.value) {
       return const MediaDetailInfoSkeletonWidget();
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // 顶部播放器区域
-        _buildVideoPlayerWithAspectRatio(paddingTop),
-        
-        // 底部Tab内容区域
-        if (!isDesktopAppFullScreen)
-          Expanded(
-            child: _buildTabSection(context, 0),
+    return ExtendedNestedScrollView(
+      controller: controller.scrollController,
+      physics: const ClampingScrollPhysics(),
+      pinnedHeaderSliverHeightBuilder: () {
+        final paddingTop = MediaQuery.paddingOf(context).top;
+        // 只有播放时固定播放器高度，否则 header 不固定
+        if (controller.videoPlaying.value) {
+          return controller.minVideoHeight;
+        }
+        return kToolbarHeight + paddingTop;
+      },
+      headerSliverBuilder: (context, innerBoxIsScrolled) {
+        return [
+          Obx(
+            () => SliverAppBar(
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              primary: false,
+              automaticallyImplyLeading: false,
+              pinned: true,
+              // 动态 pinned
+              expandedHeight: controller.videoPlaying.value
+                  ? controller.minVideoHeight
+                  : controller.getCurrentVideoHeight(),
+              flexibleSpace: Stack(
+                children: [
+                  // 视频播放器
+                  _buildVideoPlayerForNestedScroll(screenSize, paddingTop),
+                  // 顶部工具栏（根据滚动状态显示）
+                  Obx(() => _buildTopToolbarOverlay(context, t)),
+                ],
+              ),
+            ),
           ),
-      ],
+        ];
+      },
+      body: !isDesktopAppFullScreen
+          ? _buildTabSection(context, 0, t)
+          : const SizedBox.shrink(),
     );
   }
 
@@ -311,35 +375,6 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage> with TickerProvide
     );
   }
 
-  // 构建带宽高比的播放器（窄屏时使用）
-  Widget _buildVideoPlayerWithAspectRatio(double paddingTop) {
-    return Obx(() {
-      final aspectRatio = controller.aspectRatio.value < 1 ? 16/9 : controller.aspectRatio.value;
-      
-      return AspectRatio(
-        aspectRatio: aspectRatio,
-        child: Container(
-          color: Colors.black,
-          child: Stack(
-            children: [
-              // 顶部安全区域
-              Container(
-                height: paddingTop,
-                color: Colors.black,
-              ),
-              
-              // 播放器内容
-              Positioned.fill(
-                top: 0,
-                child: _buildVideoPlayerContent(),
-              ),
-            ],
-          ),
-        ),
-      );
-    });
-  }
-
   // 构建播放器内容
   Widget _buildVideoPlayerContent() {
     return Obx(() {
@@ -367,40 +402,41 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage> with TickerProvide
   Widget _buildVideoErrorWidget() {
     return Center(
       child: controller.videoErrorMessage.value == 'resource_404'
-        ? Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.not_interested, size: 48, color: Colors.white),
-              const SizedBox(height: 12),
-              const Text(
-                '资源已删除',
-                style: TextStyle(fontSize: 18, color: Colors.white),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 12),
-              ElevatedButton.icon(
-                onPressed: () => AppService.tryPop(),
-                icon: const Icon(Icons.arrow_back),
-                label: const Text('返回'),
-              ),
-            ],
-          )
-        : CommonErrorWidget(
-            text: controller.videoErrorMessage.value ?? '视频加载错误',
-            children: [
-              ElevatedButton.icon(
-                onPressed: () => AppService.tryPop(),
-                icon: const Icon(Icons.arrow_back),
-                label: const Text('返回'),
-              ),
-              const SizedBox(width: 8),
-              ElevatedButton.icon(
-                onPressed: () => controller.fetchVideoDetail(controller.videoId ?? ''),
-                icon: const Icon(Icons.refresh),
-                label: const Text('重试'),
-              ),
-            ],
-          ),
+          ? Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.not_interested, size: 48, color: Colors.white),
+                const SizedBox(height: 12),
+                const Text(
+                  '资源已删除',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton.icon(
+                  onPressed: () => AppService.tryPop(),
+                  icon: const Icon(Icons.arrow_back),
+                  label: const Text('返回'),
+                ),
+              ],
+            )
+          : CommonErrorWidget(
+              text: controller.videoErrorMessage.value ?? '视频加载错误',
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () => AppService.tryPop(),
+                  icon: const Icon(Icons.arrow_back),
+                  label: const Text('返回'),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton.icon(
+                  onPressed: () =>
+                      controller.fetchVideoDetail(controller.videoId ?? ''),
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('重试'),
+                ),
+              ],
+            ),
     );
   }
 
@@ -444,50 +480,46 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage> with TickerProvide
   }
 
   // 构建Tab区域
-  Widget _buildTabSection(BuildContext context, double paddingTop) {
+  Widget _buildTabSection(
+    BuildContext context,
+    double paddingTop,
+    slang.Translations t,
+  ) {
     return Column(
       children: [
-        Container(
-          height: paddingTop,
-          color: Colors.transparent,
-        ),
-        
+        Container(height: paddingTop, color: Colors.transparent),
+
         // Tab导航栏
-        _buildTabBar(context),
-        
+        _buildTabBar(context, t),
+
         // Tab内容
-        Expanded(
-          child: _buildTabBarView(),
-        ),
+        Expanded(child: _buildTabBarView()),
       ],
     );
   }
 
   // 构建Tab导航栏
-  Widget _buildTabBar(BuildContext context) {
+  Widget _buildTabBar(BuildContext context, slang.Translations t) {
     return Container(
       color: Theme.of(context).scaffoldBackgroundColor,
       child: TabBar(
         controller: tabController,
         indicatorSize: TabBarIndicatorSize.tab,
-        labelStyle: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-        ),
+        labelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
         unselectedLabelStyle: const TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
-        tabs: const [
-          Tab(
-            text: '详情',
-          ),
-          Tab(
-            text: '评论',
-          ),
-          Tab(
-            text: '相关',
-          ),
+        onTap: (index) {
+          // 点击Tab时滚动到顶部
+          if (!tabController.indexIsChanging) {
+            controller.animateToTop();
+          }
+        },
+        tabs: [
+          Tab(text: t.videoDetail.videoPlayerInfo),
+          Tab(text: t.common.commentList),
+          Tab(text: t.videoDetail.relatedVideos),
         ],
       ),
     );
@@ -499,22 +531,96 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage> with TickerProvide
       controller: tabController,
       children: [
         // 视频详情Tab
-        VideoInfoTabWidget(
-          controller: controller,
-        ),
-        
+        VideoInfoTabWidget(controller: controller),
+
         // 评论Tab
         CommentsTabWidget(
           commentController: commentController,
           videoController: controller,
         ),
-        
+
         // 相关视频Tab
         RelatedVideosTabWidget(
           videoController: controller,
           relatedVideoController: relatedVideoController,
         ),
       ],
+    );
+  }
+
+  // 为 ExtendedNestedScrollView 构建视频播放器
+  Widget _buildVideoPlayerForNestedScroll(Size screenSize, double paddingTop) {
+    return Container(
+      width: screenSize.width,
+      height: controller.getCurrentVideoHeight(),
+      color: Colors.black,
+      child: Stack(
+        children: [
+          // 安全区域占位
+          Container(height: paddingTop, color: Colors.black),
+
+          // 播放器内容
+          Positioned.fill(top: 0, child: _buildVideoPlayerContent()),
+        ],
+      ),
+    );
+  }
+
+  // 构建顶部工具栏覆盖层
+  Widget _buildTopToolbarOverlay(BuildContext context, slang.Translations t) {
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: IgnorePointer(
+        ignoring: controller.scrollRatio.value <= 0,
+        child: SizedBox(
+          height: kToolbarHeight + MediaQuery.paddingOf(context).top,
+          child: Opacity(
+            opacity: (controller.scrollRatio.value / 0.8).clamp(0.0, 1.0),
+            child: Container(
+              color: Theme.of(context).colorScheme.surface,
+              child: SafeArea(
+                child: AppBar(
+                  title: Text(
+                    controller.videoInfo.value?.title ?? '',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  leading: IconButton(
+                    onPressed: () => AppService.tryPop(),
+                    icon: const Icon(Icons.arrow_back),
+                  ),
+                  actions: [
+                    // 播放/暂停按钮
+                    IconButton(
+                      onPressed: () {
+                        if (controller.videoPlaying.value) {
+                          controller.player.pause();
+                        } else {
+                          controller.player.play();
+                        }
+                        controller.animateToTop();
+                      },
+                      icon: Icon(
+                        controller.videoPlaying.value
+                            ? Icons.pause
+                            : Icons.play_arrow,
+                      ),
+                    ),
+                  ],
+                  elevation: 0,
+                  backgroundColor: Colors.transparent,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
