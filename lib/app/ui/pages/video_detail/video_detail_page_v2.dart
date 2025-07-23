@@ -211,7 +211,10 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
             return controller.mainErrorWidget.value!;
           }
 
-          bool isDesktopAppFullScreen = controller.isDesktopAppFullScreen.value;
+          // 优先处理应用内全屏
+          if (controller.isDesktopAppFullScreen.value) {
+            return _buildPureVideoPlayer(screenHeight, paddingTop);
+          }
 
           // 判断是否使用宽屏布局
           bool isWide = _shouldUseWideScreenLayout(
@@ -225,7 +228,6 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
               context,
               screenSize,
               paddingTop,
-              isDesktopAppFullScreen,
               t,
             );
           } else {
@@ -233,7 +235,6 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
               context,
               screenSize,
               paddingTop,
-              isDesktopAppFullScreen,
               t,
             );
           }
@@ -247,7 +248,6 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     BuildContext context,
     Size screenSize,
     double paddingTop,
-    bool isDesktopAppFullScreen,
     slang.Translations t,
   ) {
     const double tabsAreaWidth = 400.0; // 固定Tab区域宽度
@@ -285,11 +285,10 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
         Expanded(child: _buildPureVideoPlayer(screenSize.height, paddingTop)),
 
         // 右侧Tab内容区域（固定宽度）
-        if (!isDesktopAppFullScreen)
-          SizedBox(
-            width: tabsAreaWidth,
-            child: _buildTabSection(context, paddingTop, t),
-          ),
+        SizedBox(
+          width: tabsAreaWidth,
+          child: _buildTabSection(context, paddingTop, t),
+        ),
       ],
     );
   }
@@ -299,7 +298,6 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     BuildContext context,
     Size screenSize,
     double paddingTop,
-    bool isDesktopAppFullScreen,
     slang.Translations t,
   ) {
     if (controller.isVideoInfoLoading.value) {
@@ -310,10 +308,11 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       controller: controller.scrollController,
       physics: const ClampingScrollPhysics(),
       pinnedHeaderSliverHeightBuilder: () {
-        final paddingTop = MediaQuery.paddingOf(context).top;
         // 只有播放时固定播放器高度，否则 header 不固定
         if (controller.videoPlaying.value) {
-          return controller.minVideoHeight;
+          // 播放时，返回当前视频的高度，以防止在滚动时收缩
+          return controller.getCurrentVideoHeight(
+              screenSize.width, screenSize.height, paddingTop);
         }
         return kToolbarHeight + paddingTop;
       },
@@ -327,9 +326,8 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
               automaticallyImplyLeading: false,
               pinned: true,
               // 动态 pinned
-              expandedHeight: controller.videoPlaying.value
-                  ? controller.minVideoHeight
-                  : controller.getCurrentVideoHeight(),
+              expandedHeight: controller.getCurrentVideoHeight(
+                  screenSize.width, screenSize.height, paddingTop),
               flexibleSpace: Stack(
                 children: [
                   // 视频播放器
@@ -342,9 +340,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
           ),
         ];
       },
-      body: !isDesktopAppFullScreen
-          ? _buildTabSection(context, 0, t)
-          : const SizedBox.shrink(),
+      body: _buildTabSection(context, 0, t),
     );
   }
 
@@ -552,7 +548,8 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
   Widget _buildVideoPlayerForNestedScroll(Size screenSize, double paddingTop) {
     return Container(
       width: screenSize.width,
-      height: controller.getCurrentVideoHeight(),
+      height: controller.getCurrentVideoHeight(
+          screenSize.width, screenSize.height, paddingTop),
       color: Colors.black,
       child: Stack(
         children: [

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -1174,10 +1175,14 @@ class MyVideoStateController extends GetxController
 
   void _scrollListener() {
     if (!scrollController.hasClients || !isInitialized) return;
-    
+
     final offset = scrollController.offset;
-    final videoHeight = getCurrentVideoHeight();
-    
+    final screenSize = Get.size;
+    final paddingTop =
+        Get.context != null ? MediaQuery.of(Get.context!).padding.top : 0;
+    final videoHeight =
+        getCurrentVideoHeight(screenSize.width, screenSize.height, paddingTop.toDouble());
+
     // 计算滚动比例
     if (offset == 0) {
       scrollRatio.value = 0.0;
@@ -1191,15 +1196,24 @@ class MyVideoStateController extends GetxController
     }
   }
 
-  double getCurrentVideoHeight() {
+  double getCurrentVideoHeight(
+      double screenWidth, double screenHeight, double paddingTop) {
     // 根据视频状态确定高度
     if (isVideoInfoLoading.value || !videoIsReady.value) {
       return minVideoHeight;
     }
-    
-    // 根据视频方向和宽高比调整高度
-    final direction = sourceVideoWidth.value > sourceVideoHeight.value ? 'horizontal' : 'vertical';
-    return direction == 'vertical' ? maxVideoHeight : minVideoHeight;
+
+    // 1. 获取应用的宽度，然后通过 aspectRatio 得到高度1
+    if (aspectRatio.value <= 0) {
+      return minVideoHeight; // Return a safe default
+    }
+    final double height1 = screenWidth / aspectRatio.value;
+
+    // 2. 接着获取应用的高度, 高度 ✖️ 70%
+    final double height3 = screenHeight * 0.7;
+
+    // 3. 然后比对高度 1 和高度 3
+    return min(height1, height3);
   }
 
   void animateToTop() {
