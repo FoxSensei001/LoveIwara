@@ -659,8 +659,10 @@ class _GridSpeedDialState extends State<GridSpeedDial>
       if (!mounted) return;
 
       _controller.forward();
-      if (widget.renderOverlay) Overlay.of(context).insert(backgroundOverlay!);
-      Overlay.of(context).insert(overlayEntry!);
+      if (widget.renderOverlay) {
+        Overlay.of(context, rootOverlay: true)!.insert(backgroundOverlay!);
+      }
+      Overlay.of(context, rootOverlay: true)!.insert(overlayEntry!);
     }
 
     if (!mounted) return;

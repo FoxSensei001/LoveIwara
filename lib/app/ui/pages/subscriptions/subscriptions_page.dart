@@ -641,48 +641,30 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
   }
 
   Widget _buildLoggedInView(BuildContext context) {
-
     return Scaffold(
       body: _buildContent(context),
       // 使用 GridSpeedDial 作为浮动按钮菜单，参考 popular_media_list_base_page.dart
       floatingActionButton: _isHeaderCollapsed
           ? Obx(
-              () => Padding(
-                padding: EdgeInsets.only(
-                  bottom: mediaListController.isPaginated.value ? 40 : 20,
-                  right: 0,
-                ),
-                child: GridSpeedDial(
-                  icon: Icons.menu,
-                  activeIcon: Icons.close,
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                  spacing: 6,
-                  spaceBetweenChildren: 4,
-                  direction: SpeedDialDirection.up,
-                  childPadding: const EdgeInsets.all(6),
+              () {
+                final t = slang.Translations.of(context); // 在这里获取 t
+                return Padding(
+                  padding: EdgeInsets.only(
+                    bottom: mediaListController.isPaginated.value ? 40 : 20,
+                    right: 0,
+                  ),
+                  child: GridSpeedDial(
+                    icon: Icons.menu,
+                    activeIcon: Icons.close,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    spacing: 6,
+                    spaceBetweenChildren: 4,
+                    direction: SpeedDialDirection.up,
+                    childPadding: const EdgeInsets.all(6),
                   childrens: [
                     [
                       // 第一列
-                      SpeedDialChild(
-                        child: const Icon(Icons.vertical_align_top),
-                        backgroundColor:
-                            Theme.of(context).colorScheme.primaryContainer,
-                        foregroundColor:
-                            Theme.of(context).colorScheme.onPrimaryContainer,
-                        onTap: () => mediaListController.scrollToTop(),
-                      ),
-                      SpeedDialChild(
-                        child: const Icon(Icons.search),
-                        backgroundColor:
-                            Theme.of(context).colorScheme.primaryContainer,
-                        foregroundColor:
-                            Theme.of(context).colorScheme.onPrimaryContainer,
-                        onTap: _openSearchDialog,
-                      ),
-                    ],
-                    [
-                      // 第二列
                       SpeedDialChild(
                         child: Obx(
                           () => Icon(
@@ -691,10 +673,12 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                                 : Icons.view_stream,
                           ),
                         ),
-                        backgroundColor:
-                            Theme.of(context).colorScheme.secondaryContainer,
-                        foregroundColor:
-                            Theme.of(context).colorScheme.onSecondaryContainer,
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.secondaryContainer,
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onSecondaryContainer,
                         onTap: () {
                           mediaListController.setPaginatedMode(
                             !mediaListController.isPaginated.value,
@@ -703,11 +687,46 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                         },
                       ),
                       SpeedDialChild(
+                        child: const Icon(Icons.search),
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.primaryContainer,
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onPrimaryContainer,
+                        onTap: _openSearchDialog,
+                      ),
+                      SpeedDialChild(
+                        child: const Icon(Icons.refresh),
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.primaryContainer,
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onPrimaryContainer,
+                        onTap: refreshCurrentList,
+                      ),
+                    ],
+                    [
+                      // 第二列
+                      SpeedDialChild(
+                        child: const Icon(Icons.vertical_align_top),
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.primaryContainer,
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onPrimaryContainer,
+                        onTap: () => mediaListController.scrollToTop(),
+                      ),
+                      SpeedDialChild(
                         child: const Icon(Icons.people),
-                        backgroundColor:
-                            Theme.of(context).colorScheme.secondaryContainer,
-                        foregroundColor:
-                            Theme.of(context).colorScheme.onSecondaryContainer,
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.secondaryContainer,
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onSecondaryContainer,
                         onTap: () => _showUserSelectionDialog(context),
                       ),
                       SpeedDialChild(
@@ -727,15 +746,15 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                                   child: Obx(() {
                                     final count =
                                         userService.notificationCount.value +
-                                            userService.messagesCount.value;
+                                        userService.messagesCount.value;
                                     if (count > 0) {
                                       return Container(
                                         width: 8,
                                         height: 8,
                                         decoration: BoxDecoration(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .error,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.error,
                                           shape: BoxShape.circle,
                                         ),
                                       );
@@ -749,17 +768,20 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                             return const Icon(Icons.account_circle);
                           }
                         }),
-                        backgroundColor: Theme.of(context).colorScheme.surface,
-                        foregroundColor:
-                            Theme.of(context).colorScheme.onSurface,
+                        backgroundColor:
+                            Theme.of(context).colorScheme.surface,
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onSurface,
                         onTap: () {
                           AppService.switchGlobalDrawer();
                         },
                       ),
                     ],
                   ],
-                ),
-              ),
+                  ),
+                );
+              },
             )
           : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,

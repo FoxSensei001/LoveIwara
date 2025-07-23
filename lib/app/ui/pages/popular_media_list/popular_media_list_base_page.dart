@@ -323,6 +323,21 @@ class PopularMediaListPageBaseState<
     );
   }
 
+  // 创建可动画的 IconButton
+  Widget _buildAnimatedIconButton({
+    required Widget child,
+    required bool isVisible,
+  }) {
+    return ClipRect(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+        width: isVisible ? 48.0 : 0.0,
+        child: child,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     const double tabBarHeight = 48.0;
@@ -447,42 +462,59 @@ class PopularMediaListPageBaseState<
                                 ),
                               ),
                             ),
-                            Obx(
-                              () => IconButton(
-                                icon: Icon(
-                                  _mediaListController.isPaginated.value
-                                      ? Icons.grid_view
-                                      : Icons.menu,
+                            _buildAnimatedIconButton(
+                              isVisible: !_isHeaderCollapsed,
+                              child: Obx(
+                                () => IconButton(
+                                  icon: Icon(
+                                    _mediaListController.isPaginated.value
+                                        ? Icons.grid_view
+                                        : Icons.menu,
+                                  ),
+                                  onPressed: () {
+                                    if (!_mediaListController
+                                        .isPaginated.value) {
+                                      var sortId =
+                                          sorts[_tabController.index].id;
+                                      var repository = _repositories[sortId]!;
+                                      repository.refresh(true);
+                                    }
+                                    _mediaListController.setPaginatedMode(
+                                      !_mediaListController.isPaginated.value,
+                                    );
+                                  },
+                                  tooltip:
+                                      _mediaListController.isPaginated.value
+                                          ? t.common.pagination.waterfall
+                                          : t.common.pagination.pagination,
                                 ),
-                                onPressed: () {
-                                  if (!_mediaListController.isPaginated.value) {
-                                    var sortId = sorts[_tabController.index].id;
-                                    var repository = _repositories[sortId]!;
-                                    repository.refresh(true);
-                                  }
-                                  _mediaListController.setPaginatedMode(
-                                    !_mediaListController.isPaginated.value,
-                                  );
-                                },
-                                tooltip: _mediaListController.isPaginated.value
-                                    ? t.common.pagination.waterfall
-                                    : t.common.pagination.pagination,
                               ),
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.vertical_align_top),
-                              onPressed: () =>
-                                  _mediaListController.scrollToTop(),
-                              tooltip: t.common.scrollToTop,
+                            _buildAnimatedIconButton(
+                              isVisible: !_isHeaderCollapsed,
+                              child: IconButton(
+                                icon: const Icon(Icons.vertical_align_top),
+                                onPressed: () =>
+                                    _mediaListController.scrollToTop(),
+                                tooltip: t.common.scrollToTop,
+                              ),
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.refresh),
-                              onPressed:
-                                  tryRefreshCurrentSort, // 直接调用 state 的方法
+                            _buildAnimatedIconButton(
+                              isVisible: !_isHeaderCollapsed,
+                              child: IconButton(
+                                icon: const Icon(Icons.refresh),
+                                onPressed:
+                                    tryRefreshCurrentSort, // 直接调用 state 的方法
+                                tooltip: t.common.refresh,
+                              ),
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.filter_list),
-                              onPressed: _openParamsModal,
+                            _buildAnimatedIconButton(
+                              isVisible: !_isHeaderCollapsed,
+                              child: IconButton(
+                                icon: const Icon(Icons.filter_list),
+                                onPressed: _openParamsModal,
+                                tooltip: t.common.search,
+                              ),
                             ),
                           ],
                         ),
@@ -515,25 +547,6 @@ class PopularMediaListPageBaseState<
                     [
                       // 第一列
                       SpeedDialChild(
-                        child: const Icon(Icons.vertical_align_top),
-                        backgroundColor:
-                            Theme.of(context).colorScheme.primaryContainer,
-                        foregroundColor:
-                            Theme.of(context).colorScheme.onPrimaryContainer,
-                        onTap: () => _mediaListController.scrollToTop(),
-                      ),
-                      SpeedDialChild(
-                        child: const Icon(Icons.search),
-                        backgroundColor:
-                            Theme.of(context).colorScheme.primaryContainer,
-                        foregroundColor:
-                            Theme.of(context).colorScheme.onPrimaryContainer,
-                        onTap: _openSearchDialog,
-                      ),
-                    ],
-                    [
-                      // 第二列
-                      SpeedDialChild(
                         child: Obx(
                           () => Icon(
                             _mediaListController.isPaginated.value
@@ -541,10 +554,12 @@ class PopularMediaListPageBaseState<
                                 : Icons.menu,
                           ),
                         ),
-                        backgroundColor:
-                            Theme.of(context).colorScheme.secondaryContainer,
-                        foregroundColor:
-                            Theme.of(context).colorScheme.onSecondaryContainer,
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.secondaryContainer,
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onSecondaryContainer,
                         onTap: () {
                           if (!_mediaListController.isPaginated.value) {
                             var sortId = sorts[_tabController.index].id;
@@ -557,11 +572,46 @@ class PopularMediaListPageBaseState<
                         },
                       ),
                       SpeedDialChild(
+                        child: const Icon(Icons.search),
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.primaryContainer,
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onPrimaryContainer,
+                        onTap: _openSearchDialog,
+                      ),
+                      SpeedDialChild(
+                        child: const Icon(Icons.refresh),
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.primaryContainer,
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onPrimaryContainer,
+                        onTap: tryRefreshCurrentSort,
+                      ),
+                    ],
+                    [
+                      // 第二列
+                      SpeedDialChild(
+                        child: const Icon(Icons.vertical_align_top),
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.primaryContainer,
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onPrimaryContainer,
+                        onTap: () => _mediaListController.scrollToTop(),
+                      ),
+                      SpeedDialChild(
                         child: const Icon(Icons.filter_list),
-                        backgroundColor:
-                            Theme.of(context).colorScheme.secondaryContainer,
-                        foregroundColor:
-                            Theme.of(context).colorScheme.onSecondaryContainer,
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.secondaryContainer,
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onSecondaryContainer,
                         onTap: _openParamsModal,
                       ),
                       SpeedDialChild(
@@ -581,15 +631,15 @@ class PopularMediaListPageBaseState<
                                   child: Obx(() {
                                     final count =
                                         userService.notificationCount.value +
-                                            userService.messagesCount.value;
+                                        userService.messagesCount.value;
                                     if (count > 0) {
                                       return Container(
                                         width: 8,
                                         height: 8,
                                         decoration: BoxDecoration(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .error,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.error,
                                           shape: BoxShape.circle,
                                         ),
                                       );
@@ -604,8 +654,9 @@ class PopularMediaListPageBaseState<
                           }
                         }),
                         backgroundColor: Theme.of(context).colorScheme.surface,
-                        foregroundColor:
-                            Theme.of(context).colorScheme.onSurface,
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onSurface,
                         onTap: () {
                           AppService.switchGlobalDrawer();
                         },
