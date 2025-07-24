@@ -14,6 +14,7 @@ import 'package:i_iwara/app/ui/widgets/error_widget.dart'
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../common/enums/media_enums.dart';
 import '../comment/controllers/comment_controller.dart';
 import 'controllers/my_video_state_controller.dart';
@@ -224,19 +225,9 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
           );
 
           if (isWide) {
-            return _buildWideScreenLayout(
-              context,
-              screenSize,
-              paddingTop,
-              t,
-            );
+            return _buildWideScreenLayout(context, screenSize, paddingTop, t);
           } else {
-            return _buildNarrowScreenLayout(
-              context,
-              screenSize,
-              paddingTop,
-              t,
-            );
+            return _buildNarrowScreenLayout(context, screenSize, paddingTop, t);
           }
         }),
       ),
@@ -305,6 +296,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     }
 
     return ExtendedNestedScrollView(
+      key: controller.nestedScrollViewKey,
       controller: controller.scrollController,
       physics: const ClampingScrollPhysics(),
       pinnedHeaderSliverHeightBuilder: () {
@@ -312,7 +304,10 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
         if (controller.videoPlaying.value) {
           // 播放时，返回当前视频的高度，以防止在滚动时收缩
           return controller.getCurrentVideoHeight(
-              screenSize.width, screenSize.height, paddingTop);
+            screenSize.width,
+            screenSize.height,
+            paddingTop,
+          );
         }
         return kToolbarHeight + paddingTop;
       },
@@ -327,7 +322,10 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
               pinned: true,
               // 动态 pinned
               expandedHeight: controller.getCurrentVideoHeight(
-                  screenSize.width, screenSize.height, paddingTop),
+                screenSize.width,
+                screenSize.height,
+                paddingTop,
+              ),
               flexibleSpace: Stack(
                 children: [
                   // 视频播放器
@@ -462,7 +460,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
               ElevatedButton.icon(
                 onPressed: () {
                   if (controller.videoInfo.value?.embedUrl != null) {
-                    // TODO: 实现打开浏览器功能
+                    launchUrl(Uri.parse(controller.videoInfo.value!.embedUrl!));
                   }
                 },
                 icon: const Icon(Icons.open_in_new),
@@ -549,7 +547,10 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     return Container(
       width: screenSize.width,
       height: controller.getCurrentVideoHeight(
-          screenSize.width, screenSize.height, paddingTop),
+        screenSize.width,
+        screenSize.height,
+        paddingTop,
+      ),
       color: Colors.black,
       child: Stack(
         children: [

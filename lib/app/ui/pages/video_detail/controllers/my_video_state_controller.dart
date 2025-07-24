@@ -159,7 +159,14 @@ class MyVideoStateController extends GetxController
   late final double videoHeight; // 当前视频高度
   bool isInitialized = false;
 
+  final GlobalKey<State<StatefulWidget>> nestedScrollViewKey = GlobalKey<State<StatefulWidget>>();
+
   MyVideoStateController(this.videoId);
+
+  void refreshScrollView() {
+    // 触发重建
+    nestedScrollViewKey.currentState?.setState(() {});
+  }
 
   @override
   void onInit() async {
@@ -753,6 +760,10 @@ class MyVideoStateController extends GetxController
       if (_isDisposed) return;
       if (playing != videoPlaying.value) {
         videoPlaying.value = playing;
+        // 当播放状态改变时，刷新滚动视图
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          refreshScrollView();
+        });
       }
     });
 
