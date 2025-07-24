@@ -8,8 +8,12 @@ import 'search_repository.dart';
 
 /// 视频搜索仓库
 class VideoSearchRepository extends SearchRepository<Video> {
-  VideoSearchRepository({required super.query})
-      : super(segment: 'video');
+  final String? sortType;
+  
+  VideoSearchRepository({
+    required super.query,
+    this.sortType,
+  }) : super(segment: 'video');
 
   @override
   Future<ApiResult> fetchSearchResults(int page, int limit, String keyword) {
@@ -17,14 +21,19 @@ class VideoSearchRepository extends SearchRepository<Video> {
       page: page,
       limit: limit,
       query: keyword,
+      sort: sortType,
     );
   }
 }
 
 /// 图片搜索仓库
 class ImageSearchRepository extends SearchRepository<ImageModel> {
-  ImageSearchRepository({required super.query})
-      : super(segment: 'image');
+  final String? sortType;
+  
+  ImageSearchRepository({
+    required super.query,
+    this.sortType,
+  }) : super(segment: 'image');
 
   @override
   Future<ApiResult> fetchSearchResults(int page, int limit, String keyword) {
@@ -32,6 +41,7 @@ class ImageSearchRepository extends SearchRepository<ImageModel> {
       page: page,
       limit: limit,
       query: keyword,
+      sort: sortType,
     );
   }
 }

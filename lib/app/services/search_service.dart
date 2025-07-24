@@ -22,16 +22,24 @@ class SearchService extends GetxController {
     String query = '',
     required String type,
     required T Function(Map<String, dynamic>) fromJson,
+    String? sort,
   }) async {
     try {
+      final queryParameters = {
+        'query': query,
+        'page': page,
+        'limit': limit,
+        'type': type,
+      };
+      
+      // 如果提供了 sort 参数，添加到查询参数中
+      if (sort != null && sort.isNotEmpty) {
+        queryParameters['sort'] = sort;
+      }
+
       final response = await _apiService.get(
         ApiConstants.search(),
-        queryParameters: {
-          'query': query,
-          'page': page,
-          'limit': limit,
-          'type': type,
-        },
+        queryParameters: queryParameters,
       );
 
       final pageData = response.data;
@@ -57,12 +65,14 @@ class SearchService extends GetxController {
     int page = 0,
     int limit = 20,
     String query = '',
+    String? sort,
   }) => fetchDataByType<Video>(
     page: page,
     limit: limit,
     query: query,
     type: SearchSegment.video.name,
     fromJson: Video.fromJson,
+    sort: sort,
   );
 
   /// 获取图库
@@ -70,12 +80,14 @@ class SearchService extends GetxController {
     int page = 0,
     int limit = 20,
     String query = '',
+    String? sort,
   }) => fetchDataByType<ImageModel>(
     page: page,
     limit: limit,
     query: query,
     type: SearchSegment.image.name,
     fromJson: ImageModel.fromJson,
+    sort: sort,
   );
 
   /// 获取用户

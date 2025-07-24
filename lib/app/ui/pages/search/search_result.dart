@@ -15,6 +15,7 @@ class SearchController extends GetxController {
   final RxString selectedSegment = 'video'.obs;
   final RxBool isPaginated = CommonConstants.isPaginated.obs;
   final RxInt rebuildKey = 0.obs;
+  final RxString selectedSort = 'trending'.obs; // 添加 sort 状态管理
   
   // 存储滚动回调
   final List<Function()> _scrollToTopCallbacks = [];
@@ -48,6 +49,13 @@ class SearchController extends GetxController {
     selectedSegment.value = segment;
     // 切换分段时滚动到顶部
     scrollToTop();
+  }
+  
+  // 更新排序方式
+  void updateSort(String sort) {
+    selectedSort.value = sort;
+    // 切换排序时刷新搜索结果
+    refreshSearch();
   }
   
   // 切换分页模式
@@ -85,7 +93,7 @@ class SearchResult extends StatefulWidget {
   });
 
   @override
-  _SearchResultState createState() => _SearchResultState();
+  State<SearchResult> createState() => _SearchResultState();
 }
 
 class _SearchResultState extends State<SearchResult> {
@@ -137,8 +145,9 @@ class _SearchResultState extends State<SearchResult> {
       final segment = searchController.selectedSegment.value;
       final isPaginated = searchController.isPaginated.value;
       final rebuildKey = searchController.rebuildKey.value;
+      final sort = searchController.selectedSort.value;
       
-      LogUtils.d('构建搜索列表: 关键词=$query, 类型=$segment, 使用分页=$isPaginated, 重建键=$rebuildKey', 'SearchResult');
+      LogUtils.d('构建搜索列表: 关键词=$query, 类型=$segment, 使用分页=$isPaginated, 重建键=$rebuildKey, 排序=$sort', 'SearchResult');
       
       Widget child;
       switch (segment) {
@@ -147,6 +156,7 @@ class _SearchResultState extends State<SearchResult> {
             key: ValueKey('video_$rebuildKey'),
             query: query,
             isPaginated: isPaginated,
+            sortType: sort,
           );
           break;
         case 'image':
@@ -154,6 +164,7 @@ class _SearchResultState extends State<SearchResult> {
             key: ValueKey('image_$rebuildKey'),
             query: query,
             isPaginated: isPaginated,
+            sortType: sort,
           );
           break;
         case 'user':
@@ -208,7 +219,7 @@ class _SearchResultState extends State<SearchResult> {
                   Expanded(
                     child: Material(
                       elevation: 0,
-                      color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(12),
                       clipBehavior: Clip.antiAlias,
                       child: TextField(
@@ -257,11 +268,61 @@ class _SearchResultState extends State<SearchResult> {
                       ),
                     ),
                   ),
+                  // 排序下拉框（仅视频和图库显示）
+                  Obx(() {
+                    final segment = searchController.selectedSegment.value;
+                    // final currentSort = searchController.selectedSort.value;
+                    if (segment != 'video' && segment != 'image') {
+                      return const SizedBox.shrink();
+                    }
+                    return Container(
+                      margin: const EdgeInsets.only(left: 8),
+                      height: 44,
+                      alignment: Alignment.center,
+                      child: PopupMenuButton<String>(
+                        initialValue: searchController.selectedSort.value,
+                        onSelected: (String newValue) {
+                          searchController.updateSort(newValue);
+                        },
+                        itemBuilder: (BuildContext context) {
+                          return CommonConstants.mediaSorts.map((sort) {
+                            return PopupMenuItem<String>(
+                              value: sort.id.name,
+                              child: Row(
+                                children: [
+                                  if (sort.icon != null) ...[
+                                    sort.icon!,
+                                    const SizedBox(width: 8),
+                                  ],
+                                  Text(sort.label),
+                                ],
+                              ),
+                            );
+                          }).toList();
+                        },
+                        child: Material(
+                          borderRadius: BorderRadius.circular(12),
+                          color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                          clipBehavior: Clip.antiAlias,
+                          child: Container(
+                            width: 44,
+                            height: 44,
+                            alignment: Alignment.center,
+                            child: Icon(
+                              Icons.sort,
+                              size: 20,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
                   const SizedBox(width: 8),
                   // 分页模式切换按钮
                   Material(
                     borderRadius: BorderRadius.circular(12),
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                     clipBehavior: Clip.antiAlias,
                     child: Obx(() => InkWell(
                       borderRadius: BorderRadius.circular(12),
@@ -284,7 +345,7 @@ class _SearchResultState extends State<SearchResult> {
                   // 刷新按钮
                   Material(
                     borderRadius: BorderRadius.circular(12),
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                     clipBehavior: Clip.antiAlias,
                     child: InkWell(
                       borderRadius: BorderRadius.circular(12),

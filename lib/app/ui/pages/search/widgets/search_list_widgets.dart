@@ -15,10 +15,13 @@ import 'base_search_list.dart';
 
 /// 视频搜索列表
 class VideoSearchList extends BaseSearchList<Video, VideoSearchRepository> {
+  final String? sortType;
+  
   const VideoSearchList({
     super.key,
     required super.query,
     super.isPaginated = false,
+    this.sortType,
   });
   
   @override
@@ -28,7 +31,10 @@ class VideoSearchList extends BaseSearchList<Video, VideoSearchRepository> {
 class VideoSearchListState extends BaseSearchListState<Video, VideoSearchRepository, VideoSearchList> {
   @override
   VideoSearchRepository createRepository() {
-    return VideoSearchRepository(query: widget.query);
+    return VideoSearchRepository(
+      query: widget.query,
+      sortType: widget.sortType,
+    );
   }
   
   @override
@@ -36,6 +42,9 @@ class VideoSearchListState extends BaseSearchListState<Video, VideoSearchReposit
   
   @override
   Widget buildListItem(BuildContext context, Video video, int index) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final itemWidth = screenWidth <= 600 ? (screenWidth - 8) / 2 : (screenWidth - 24) / 3;
+    
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
@@ -43,7 +52,7 @@ class VideoSearchListState extends BaseSearchListState<Video, VideoSearchReposit
       ),
       child: VideoCardListItemWidget(
         video: video,
-        width: MediaQuery.of(context).size.width <= 600 ? MediaQuery.of(context).size.width / 2 - 8 : 200,
+        width: itemWidth,
       ),
     );
   }
@@ -51,10 +60,13 @@ class VideoSearchListState extends BaseSearchListState<Video, VideoSearchReposit
 
 /// 图片搜索列表
 class ImageSearchList extends BaseSearchList<ImageModel, ImageSearchRepository> {
+  final String? sortType;
+  
   const ImageSearchList({
     super.key,
     required super.query,
     super.isPaginated = false,
+    this.sortType,
   });
   
   @override
@@ -64,7 +76,10 @@ class ImageSearchList extends BaseSearchList<ImageModel, ImageSearchRepository> 
 class ImageSearchListState extends BaseSearchListState<ImageModel, ImageSearchRepository, ImageSearchList> {
   @override
   ImageSearchRepository createRepository() {
-    return ImageSearchRepository(query: widget.query);
+    return ImageSearchRepository(
+      query: widget.query,
+      sortType: widget.sortType,
+    );
   }
   
   @override
@@ -72,6 +87,9 @@ class ImageSearchListState extends BaseSearchListState<ImageModel, ImageSearchRe
   
   @override
   Widget buildListItem(BuildContext context, ImageModel image, int index) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final itemWidth = screenWidth <= 600 ? (screenWidth - 8) / 2 : (screenWidth - 24) / 3;
+    
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
@@ -79,7 +97,7 @@ class ImageSearchListState extends BaseSearchListState<ImageModel, ImageSearchRe
       ),
       child: ImageModelCardListItemWidget(
         imageModel: image,
-        width: MediaQuery.of(context).size.width <= 600 ? MediaQuery.of(context).size.width / 2 - 8 : 200,
+        width: itemWidth,
       ),
     );
   }
@@ -109,7 +127,10 @@ class UserSearchListState extends BaseSearchListState<User, UserSearchRepository
   @override
   Widget buildListItem(BuildContext context, User user, int index) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+      padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
+        vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
+      ),
       child: UserCard(
         user: user,
       ),
@@ -141,7 +162,10 @@ class PostSearchListState extends BaseSearchListState<PostModel, PostSearchRepos
   @override
   Widget buildListItem(BuildContext context, PostModel post, int index) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+      padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
+        vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
+      ),
       child: PostCardListItemWidget(
         post: post,
       ),
@@ -171,12 +195,15 @@ class ForumSearchListState extends BaseSearchListState<ForumThreadModel, ForumSe
   IconData get emptyIcon => Icons.forum_outlined;
   
   @override
-  Widget buildListItem(BuildContext context, ForumThreadModel thread, int index) {
+  Widget buildListItem(BuildContext context, ForumThreadModel forum, int index) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+      padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
+        vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
+      ),
       child: ThreadListItemWidget(
-        thread: thread,
-        categoryId: thread.section,
+        thread: forum,
+        categoryId: forum.section,
       ),
     );
   }
