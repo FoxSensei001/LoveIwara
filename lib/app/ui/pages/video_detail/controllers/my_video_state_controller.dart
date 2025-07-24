@@ -1238,7 +1238,8 @@ class MyVideoStateController extends GetxController
   }
 
   void animateToTop() {
-    if (scrollController.hasClients) {
+    // 仅当播放器未完全展开时才触发
+    if (scrollController.hasClients && scrollController.offset > 0) {
       scrollController.animateTo(
         0,
         duration: const Duration(milliseconds: 500),

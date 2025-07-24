@@ -402,7 +402,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                 const Icon(Icons.not_interested, size: 48, color: Colors.white),
                 const SizedBox(height: 12),
                 const Text(
-                  '资源已删除',
+                  '您所寻找的资源已被删除或不存在',
                   style: TextStyle(fontSize: 18, color: Colors.white),
                   textAlign: TextAlign.center,
                 ),
@@ -511,7 +511,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
           }
         },
         tabs: [
-          Tab(text: t.videoDetail.videoPlayerInfo),
+          Tab(text: '详情'),
           Tab(text: t.common.commentList),
           Tab(text: t.videoDetail.relatedVideos),
         ],

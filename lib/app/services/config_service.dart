@@ -41,7 +41,7 @@ class ConfigService extends GetxService {
     // 初始化翻译语言
     String savedLanguage = settings[ConfigKey.DEFAULT_LANGUAGE_KEY]!.value;
     _currentTranslationSort.value = CommonConstants.translationSorts.firstWhere(
-      (sort) => sort.extData == savedLanguage,
+          (sort) => sort.extData == savedLanguage,
       orElse: () => CommonConstants.translationSorts.first,
     );
 
@@ -54,9 +54,9 @@ class ConfigService extends GetxService {
     // 初始化目标翻译语言（处理方式与源语言相同）
     String savedTargetLanguage = settings[ConfigKey.USER_TARGET_LANGUAGE_KEY]!.value;
     _currentTargetLanguageSort = Rx<Sort>(CommonConstants.translationSorts.firstWhere(
-      (sort) => sort.extData == savedTargetLanguage,
+          (sort) => sort.extData == savedTargetLanguage,
       orElse: () => CommonConstants.translationSorts.firstWhere(
-        (sort) => sort.extData == ConfigKey.USER_TARGET_LANGUAGE_KEY.defaultValue
+              (sort) => sort.extData == ConfigKey.USER_TARGET_LANGUAGE_KEY.defaultValue
       ),
     ));
 
@@ -136,7 +136,7 @@ class ConfigService extends GetxService {
   void operator []=(ConfigKey key, dynamic value) {
     setSetting(key, value, save: true);
   }
-  
+
   void updateApplicationLocale(String localeStr) {
     setSetting(ConfigKey.APPLICATION_LOCALE, localeStr);
   }
@@ -222,7 +222,6 @@ enum ConfigKey {
   MAX_LOG_DATABASE_SIZE, // 日志数据库大小上限(字节)
   WINDOW_WIDTH, // 窗口宽度
   WINDOW_HEIGHT, // 窗口高度
-  ENABLE_HARDWARE_ACCELERATION, // 是否开启硬件加速
   APPLICATION_LOCALE, // 应用语言
 }
 
@@ -287,7 +286,6 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.MAX_LOG_DATABASE_SIZE: return 'max_log_database_size';
       case ConfigKey.WINDOW_WIDTH: return 'window_width';
       case ConfigKey.WINDOW_HEIGHT: return 'window_height';
-      case ConfigKey.ENABLE_HARDWARE_ACCELERATION: return 'enable_hardware_acceleration';
       case ConfigKey.APPLICATION_LOCALE: return 'application_locale';
     }
   }
@@ -410,8 +408,6 @@ extension ConfigKeyExtension on ConfigKey {
         return 800.0;
       case ConfigKey.WINDOW_HEIGHT:
         return 600.0;
-      case ConfigKey.ENABLE_HARDWARE_ACCELERATION:
-        return true;
       case ConfigKey.APPLICATION_LOCALE:
         return 'system';
       default:
