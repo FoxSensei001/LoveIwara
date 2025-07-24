@@ -55,9 +55,6 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
   final ScrollController _tabBarScrollController = ScrollController();
   final List<GlobalKey> _tabKeys = [];
 
-  // 添加列表缓存，避免重复创建
-  final Map<String, Widget> _listCache = {};
-
   // 添加节流器避免频繁处理滚动事件
   DateTime _lastScrollTime = DateTime.now();
   static const Duration _scrollThrottleDuration = Duration(milliseconds: 16);
@@ -216,14 +213,10 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
         shouldCollapse = false;
       }
 
-      // 特殊情况：如果用户刚刚切换了标签或数据，offset 可能为 0。
-      if (offset == 0.0 &&
-          direction == ScrollDirection.idle &&
-          _isHeaderCollapsed) {
-        shouldCollapse = false; // 如果新列表从顶部开始，则展开
-      }
-
-      if (mounted && _isHeaderCollapsed != shouldCollapse) {
+      // 仅在用户滚动时更新状态，忽略因 tab 切换等编程方式触发的滚动重置
+      if (direction != ScrollDirection.idle &&
+          mounted &&
+          _isHeaderCollapsed != shouldCollapse) {
         setState(() {
           _isHeaderCollapsed = shouldCollapse;
         });
@@ -234,16 +227,16 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
   void _onTabChange() {
     _scrollToSelectedTab();
 
-    // 切换 tab 时展开顶部区域，避免新 tab 内容与收缩状态不匹配
-    if (_isHeaderCollapsed) {
-      setState(() {
-        _isHeaderCollapsed = false;
-      });
+    // 切换 tab 时不再强制展开顶部区域
+    // if (_isHeaderCollapsed) {
+    //   setState(() {
+    //     _isHeaderCollapsed = false;
+    //   });
+    // }
 
-      // 重置滚动状态，让新的 tab 从正确的状态开始
-      mediaListController.currentScrollOffset.value = 0.0;
-      mediaListController.lastScrollDirection.value = ScrollDirection.idle;
-    }
+    // 重置滚动状态，让新的 tab 从正确的状态开始
+    mediaListController.currentScrollOffset.value = 0.0;
+    mediaListController.lastScrollDirection.value = ScrollDirection.idle;
   }
 
   void _scrollToSelectedTab() {
@@ -308,7 +301,6 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
 
   void _onUserSelected(String id) {
     if (selectedId != id) {
-      _listCache.clear();
       setState(() {
         selectedId = id;
         // 切换用户时也展开顶部区域，确保新内容正确显示
@@ -331,7 +323,6 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
     _tabController.dispose();
     _tabBarScrollController.dispose();
     Get.delete<MediaListController>();
-    _listCache.clear();
     super.dispose();
   }
 
@@ -343,51 +334,6 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
       } else {
         return _buildNotLoggedIn(context);
       }
-    });
-  }
-
-  // 使用缓存视图构建subscription列表
-  Widget _buildCachedList(
-    int index,
-    bool isPaginated,
-    double paddingTop,
-    String rebuildKey,
-  ) {
-    final cacheKey = '${index}_${selectedId}_$isPaginated$rebuildKey';
-
-    return _listCache.putIfAbsent(cacheKey, () {
-      Widget child;
-
-      switch (index) {
-        case 0: // 视频列表
-          child = SubscriptionVideoList(
-            userId: selectedId,
-            isPaginated: isPaginated,
-            paddingTop: paddingTop,
-          );
-          break;
-        case 1: // 图片列表
-          child = SubscriptionImageList(
-            userId: selectedId,
-            isPaginated: isPaginated,
-            paddingTop: paddingTop,
-          );
-          break;
-        case 2: // 帖子列表
-          child = SubscriptionPostList(
-            userId: selectedId,
-            isPaginated: isPaginated,
-            paddingTop: paddingTop,
-          );
-          break;
-        default:
-          child = const SizedBox.shrink();
-      }
-
-      return GlowNotificationWidget(
-        key: ValueKey('${index}_$rebuildKey'),
-        child: child,
-      );
     });
   }
 
@@ -415,23 +361,38 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
               controller: _tabController,
               physics: const ClampingScrollPhysics(), // 允许手势滑动切换标签
               children: [
-                _buildCachedList(
-                  0,
-                  isPaginated,
-                  listPaddingTop,
-                  rebuildKey.toString(),
+                // 视频列表
+                GlowNotificationWidget(
+                  key: ValueKey(
+                    'video_${selectedId}_${isPaginated}_$rebuildKey',
+                  ),
+                  child: SubscriptionVideoList(
+                    userId: selectedId,
+                    isPaginated: isPaginated,
+                    paddingTop: listPaddingTop,
+                  ),
                 ),
-                _buildCachedList(
-                  1,
-                  isPaginated,
-                  listPaddingTop,
-                  rebuildKey.toString(),
+                // 图片列表
+                GlowNotificationWidget(
+                  key: ValueKey(
+                    'image_${selectedId}_${isPaginated}_$rebuildKey',
+                  ),
+                  child: SubscriptionImageList(
+                    userId: selectedId,
+                    isPaginated: isPaginated,
+                    paddingTop: listPaddingTop,
+                  ),
                 ),
-                _buildCachedList(
-                  2,
-                  isPaginated,
-                  listPaddingTop,
-                  rebuildKey.toString(),
+                // 帖子列表
+                GlowNotificationWidget(
+                  key: ValueKey(
+                    'post_${selectedId}_${isPaginated}_$rebuildKey',
+                  ),
+                  child: SubscriptionPostList(
+                    userId: selectedId,
+                    isPaginated: isPaginated,
+                    paddingTop: listPaddingTop,
+                  ),
                 ),
               ],
             ),
@@ -615,7 +576,6 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                                 mediaListController.setPaginatedMode(
                                   !mediaListController.isPaginated.value,
                                 );
-                                _listCache.clear();
                               },
                               tooltip: mediaListController.isPaginated.value
                                   ? t.common.pagination.waterfall
@@ -683,7 +643,6 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                           mediaListController.setPaginatedMode(
                             !mediaListController.isPaginated.value,
                           );
-                          _listCache.clear();
                         },
                       ),
                       SpeedDialChild(

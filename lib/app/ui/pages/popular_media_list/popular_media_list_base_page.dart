@@ -237,12 +237,6 @@ class PopularMediaListPageBaseState<
           'Controller type mismatch: Expected BaseMediaController but got ${controller.runtimeType}',
           'PopularMediaListPageBase',
         );
-        // 或者保留之前的 dynamic 调用，但不推荐
-        // (controller as dynamic).updateSearchParams(
-        //   searchTagIds: tags.map((e) => e.id).toList(),
-        //   searchDate: year,
-        //   searchRating: rating,
-        // );
       }
     }
     _mediaListController.refreshPageUI();
@@ -250,17 +244,6 @@ class PopularMediaListPageBaseState<
 
   void _onTabChange() {
     _scrollToSelectedTab();
-
-    // 切换 tab 时展开顶部区域，避免新 tab 内容与收缩状态不匹配
-    if (_isHeaderCollapsed) {
-      setState(() {
-        _isHeaderCollapsed = false;
-      });
-
-      // 重置滚动状态，让新的 tab 从正确的状态开始
-      _mediaListController.currentScrollOffset.value = 0.0;
-      _mediaListController.lastScrollDirection.value = ScrollDirection.idle;
-    }
   }
 
   void _scrollToSelectedTab() {
