@@ -5,6 +5,7 @@ import 'package:i_iwara/app/ui/pages/video_detail/controllers/related_media_cont
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/media_tile_list_loading_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_tile_list_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constants.dart'; // 导入共享常量和组件
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class RelatedVideosTabWidget extends StatelessWidget {
   final MyVideoStateController videoController;
@@ -18,33 +19,34 @@ class RelatedVideosTabWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = slang.Translations.of(context);
     return SingleChildScrollView(
       padding: const EdgeInsets.all(UIConstants.pagePadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // 作者的其他视频部分
-          _buildAuthorOtherVideos(),
+          _buildAuthorOtherVideos(t),
           const SizedBox(height: UIConstants.sectionSpacing), // 统一区块间距
-          _buildRelatedVideos(),
+          _buildRelatedVideos(t),
         ],
       ),
     );
   }
 
-  Widget _buildAuthorOtherVideos() {
+  Widget _buildAuthorOtherVideos(slang.Translations t) {
     return Obx(() {
       final otherVideosController = videoController.otherAuthorzVideosController;
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(icon: Icons.person, title: '作者的其他视频'), // 使用共享的SectionHeader
+          SectionHeader(icon: Icons.person, title: t.videoDetail.authorOtherVideos), // 使用共享的SectionHeader
           if (otherVideosController == null)
             const SizedBox.shrink()
           else if (otherVideosController.isLoading.value)
             const MediaTileListSkeletonWidget()
           else if (otherVideosController.videos.isEmpty)
-            _buildEmptyState('作者暂无其他视频')
+            _buildEmptyState(t.videoDetail.authorNoOtherVideos)
           else
             ListView.separated(
               itemCount: otherVideosController.videos.length,
@@ -58,24 +60,24 @@ class RelatedVideosTabWidget extends StatelessWidget {
     });
   }
 
-  Widget _buildRelatedVideos() {
+  Widget _buildRelatedVideos(slang.Translations t) {
     return Obx(() {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SectionHeader( // 使用共享的SectionHeader
             icon: Icons.recommend,
-            title: '相关视频',
+            title: t.videoDetail.relatedVideos,
             action: IconButton(
               onPressed: relatedVideoController.fetchRelatedMedias,
               icon: const Icon(Icons.refresh),
-              tooltip: '刷新相关视频',
+              tooltip: t.common.refresh,
             ),
           ),
           if (relatedVideoController.isLoading.value)
             const MediaTileListSkeletonWidget()
           else if (relatedVideoController.videos.isEmpty)
-            _buildEmptyState('暂无相关视频')
+            _buildEmptyState(t.videoDetail.noRelatedVideos)
           else
             ListView.separated(
               itemCount: relatedVideoController.videos.length,

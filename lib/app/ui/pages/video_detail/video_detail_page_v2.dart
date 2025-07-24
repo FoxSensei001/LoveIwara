@@ -19,7 +19,7 @@ import '../../../../common/enums/media_enums.dart';
 import '../comment/controllers/comment_controller.dart';
 import 'controllers/my_video_state_controller.dart';
 import 'controllers/related_media_controller.dart';
-import '../../../../i18n/strings.g.dart' as slang;
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class MyVideoDetailPage extends StatefulWidget {
   final String videoId;
@@ -350,11 +350,11 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       child: Obx(() {
         // 如果视频加载出错，显示错误组件
         if (controller.videoErrorMessage.value != null) {
-          return _buildVideoErrorWidget();
+          return _buildVideoErrorWidget(context);
         }
         // 如果是站外视频，显示站外视频提示
         else if (controller.videoInfo.value?.isExternalVideo == true) {
-          return _buildExternalVideoWidget();
+          return _buildExternalVideoWidget(context);
         }
         // 正常显示播放器
         else if (!controller.isFullscreen.value) {
@@ -374,11 +374,11 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     return Obx(() {
       // 如果视频加载出错，显示错误组件
       if (controller.videoErrorMessage.value != null) {
-        return _buildVideoErrorWidget();
+        return _buildVideoErrorWidget(context);
       }
       // 如果是站外视频，显示站外视频提示
       else if (controller.videoInfo.value?.isExternalVideo == true) {
-        return _buildExternalVideoWidget();
+        return _buildExternalVideoWidget(context);
       }
       // 正常显示播放器
       else if (!controller.isFullscreen.value) {
@@ -393,7 +393,8 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
   }
 
   // 构建视频错误提示
-  Widget _buildVideoErrorWidget() {
+  Widget _buildVideoErrorWidget(BuildContext context) {
+    final t = slang.Translations.of(context);
     return Center(
       child: controller.videoErrorMessage.value == 'resource_404'
           ? Column(
@@ -401,8 +402,8 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
               children: [
                 const Icon(Icons.not_interested, size: 48, color: Colors.white),
                 const SizedBox(height: 12),
-                const Text(
-                  '您所寻找的资源已被删除或不存在',
+                Text(
+                  t.videoDetail.resourceNotFound,
                   style: TextStyle(fontSize: 18, color: Colors.white),
                   textAlign: TextAlign.center,
                 ),
@@ -410,24 +411,24 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                 ElevatedButton.icon(
                   onPressed: () => AppService.tryPop(),
                   icon: const Icon(Icons.arrow_back),
-                  label: const Text('返回'),
+                  label: Text(t.common.back),
                 ),
               ],
             )
           : CommonErrorWidget(
-              text: controller.videoErrorMessage.value ?? '视频加载错误',
+              text: controller.videoErrorMessage.value ?? t.videoDetail.videoLoadError,
               children: [
                 ElevatedButton.icon(
                   onPressed: () => AppService.tryPop(),
                   icon: const Icon(Icons.arrow_back),
-                  label: const Text('返回'),
+                  label: Text(t.common.back),
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton.icon(
                   onPressed: () =>
                       controller.fetchVideoDetail(controller.videoId ?? ''),
                   icon: const Icon(Icons.refresh),
-                  label: const Text('重试'),
+                  label: Text(t.common.retry),
                 ),
               ],
             ),
@@ -435,7 +436,8 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
   }
 
   // 构建外链视频提示
-  Widget _buildExternalVideoWidget() {
+  Widget _buildExternalVideoWidget(BuildContext context) {
+    final t = slang.Translations.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -443,7 +445,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
           const Icon(Icons.link, size: 48, color: Colors.white),
           const SizedBox(height: 12),
           Text(
-            '外链视频: ${controller.videoInfo.value?.externalVideoDomain}',
+            '${t.videoDetail.externalVideo}: ${controller.videoInfo.value?.externalVideoDomain}',
             style: const TextStyle(fontSize: 18, color: Colors.white),
             textAlign: TextAlign.center,
           ),
@@ -455,7 +457,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
               ElevatedButton.icon(
                 onPressed: () => AppService.tryPop(),
                 icon: const Icon(Icons.arrow_back),
-                label: const Text('返回'),
+                label: Text(t.common.back),
               ),
               ElevatedButton.icon(
                 onPressed: () {
@@ -464,7 +466,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                   }
                 },
                 icon: const Icon(Icons.open_in_new),
-                label: const Text('在浏览器中打开'),
+                label: Text(t.videoDetail.openInBrowser),
               ),
             ],
           ),
@@ -511,7 +513,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
           }
         },
         tabs: [
-          Tab(text: '详情'),
+          Tab(text: t.common.detail),
           Tab(text: t.common.commentList),
           Tab(text: t.videoDetail.relatedVideos),
         ],

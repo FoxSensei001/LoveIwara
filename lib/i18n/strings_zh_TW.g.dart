@@ -248,6 +248,7 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get specialFollowsManagement => '特別關注管理';
 	@override late final _TranslationsCommonPaginationZhTw pagination = _TranslationsCommonPaginationZhTw._(_root);
 	@override String get notice => '通知';
+	@override String get detail => '詳情';
 }
 
 // Path: auth
@@ -730,6 +731,10 @@ class _TranslationsVideoDetailZhTw implements TranslationsVideoDetailEn {
 	@override String get downloadSuccess => '下載成功';
 	@override String get download => '下載';
 	@override String get downloadManager => '下載管理';
+	@override String get videoLoadError => '影片加載錯誤';
+	@override String get resourceNotFound => '資源未找到';
+	@override String get authorNoOtherVideos => '作者暫無其他影片';
+	@override String get noRelatedVideos => '暫無相關影片';
 }
 
 // Path: share
@@ -1610,6 +1615,7 @@ extension on TranslationsZhTw {
 			case 'common.pagination.waterfall': return '瀑布流';
 			case 'common.pagination.pagination': return '分頁';
 			case 'common.notice': return '通知';
+			case 'common.detail': return '詳情';
 			case 'auth.login': return '登入';
 			case 'auth.logout': return '登出';
 			case 'auth.email': return '電子郵件';
@@ -1975,6 +1981,10 @@ extension on TranslationsZhTw {
 			case 'videoDetail.downloadSuccess': return '下載成功';
 			case 'videoDetail.download': return '下載';
 			case 'videoDetail.downloadManager': return '下載管理';
+			case 'videoDetail.videoLoadError': return '影片加載錯誤';
+			case 'videoDetail.resourceNotFound': return '資源未找到';
+			case 'videoDetail.authorNoOtherVideos': return '作者暫無其他影片';
+			case 'videoDetail.noRelatedVideos': return '暫無相關影片';
 			case 'share.sharePlayList': return '分享播放列表';
 			case 'share.wowDidYouSeeThis': return '哇哦，你看过这个吗？';
 			case 'share.nameIs': return '名字叫做';

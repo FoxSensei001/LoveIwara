@@ -251,6 +251,7 @@ class TranslationsCommonEn {
 	String get specialFollowsManagement => 'Special Follows Management';
 	late final TranslationsCommonPaginationEn pagination = TranslationsCommonPaginationEn._(_root);
 	String get notice => 'Notice';
+	String get detail => 'Detail';
 }
 
 // Path: auth
@@ -733,6 +734,10 @@ class TranslationsVideoDetailEn {
 	String get downloadSuccess => 'Download success';
 	String get download => 'Download';
 	String get downloadManager => 'Download Manager';
+	String get resourceNotFound => 'Resource not found';
+	String get videoLoadError => 'Video load error';
+	String get authorNoOtherVideos => 'Author has no other videos';
+	String get noRelatedVideos => 'No related videos';
 }
 
 // Path: share
@@ -1610,6 +1615,7 @@ extension on Translations {
 			case 'common.pagination.waterfall': return 'Waterfall';
 			case 'common.pagination.pagination': return 'Pagination';
 			case 'common.notice': return 'Notice';
+			case 'common.detail': return 'Detail';
 			case 'auth.login': return 'Login';
 			case 'auth.logout': return 'Logout';
 			case 'auth.email': return 'Email';
@@ -1975,6 +1981,10 @@ extension on Translations {
 			case 'videoDetail.downloadSuccess': return 'Download success';
 			case 'videoDetail.download': return 'Download';
 			case 'videoDetail.downloadManager': return 'Download Manager';
+			case 'videoDetail.resourceNotFound': return 'Resource not found';
+			case 'videoDetail.videoLoadError': return 'Video load error';
+			case 'videoDetail.authorNoOtherVideos': return 'Author has no other videos';
+			case 'videoDetail.noRelatedVideos': return 'No related videos';
 			case 'share.sharePlayList': return 'Share Play List';
 			case 'share.wowDidYouSeeThis': return 'Wow, did you see this?';
 			case 'share.nameIs': return 'Name is';

@@ -188,7 +188,7 @@ common:
     waterfall: '瀑布流'
     pagination: '分頁'
   notice: 通知
-
+  detail: 詳情
 auth:
   login: 登入
   logout: 登出
@@ -577,6 +577,10 @@ videoDetail:
   downloadSuccess: 下載成功
   download: 下載
   downloadManager: 下載管理
+  videoLoadError: 影片加載錯誤
+  resourceNotFound: 資源未找到
+  authorNoOtherVideos: 作者暫無其他影片
+  noRelatedVideos: 暫無相關影片
 
 share:
   sharePlayList: 分享播放列表

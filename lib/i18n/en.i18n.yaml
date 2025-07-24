@@ -188,6 +188,7 @@ common:
     waterfall: 'Waterfall'
     pagination: 'Pagination'
   notice: Notice
+  detail: Detail
 auth:
   login: Login
   logout: Logout
@@ -575,6 +576,10 @@ videoDetail:
   downloadSuccess: Download success
   download: Download
   downloadManager: Download Manager
+  resourceNotFound: Resource not found
+  videoLoadError: Video load error
+  authorNoOtherVideos: Author has no other videos
+  noRelatedVideos: No related videos
 
 share:
   sharePlayList: Share Play List

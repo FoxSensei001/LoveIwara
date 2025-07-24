@@ -189,6 +189,7 @@ common:
     invalidInput: '有効なページ番号を入力してください'
     waterfall: 'ウォーターフォール'
     pagination: 'ページネーション'
+  detail: 詳細
 auth:
   login: ログイン
   logout: ログアウト
@@ -576,6 +577,10 @@ videoDetail:
   downloadSuccess: ダウンロードに成功しました
   download: ダウンロード
   downloadManager: ダウンロード管理
+  videoLoadError: ビデオの読み込みに失敗しました
+  resourceNotFound: リソースが見つかりませんでした
+  authorNoOtherVideos: 作者は他のビデオを所有していません
+  noRelatedVideos: 関連するビデオはありません
 
 share:
   sharePlayList: プレイリストを共有

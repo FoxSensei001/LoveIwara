@@ -248,6 +248,7 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get operationCancelled => '操作がキャンセルされました。';
 	@override String get unsavedChanges => '未保存の変更があります';
 	@override late final _TranslationsCommonPaginationJa pagination = _TranslationsCommonPaginationJa._(_root);
+	@override String get detail => '詳細';
 }
 
 // Path: auth
@@ -730,6 +731,10 @@ class _TranslationsVideoDetailJa implements TranslationsVideoDetailEn {
 	@override String get downloadSuccess => 'ダウンロードに成功しました';
 	@override String get download => 'ダウンロード';
 	@override String get downloadManager => 'ダウンロード管理';
+	@override String get videoLoadError => 'ビデオの読み込みに失敗しました';
+	@override String get resourceNotFound => 'リソースが見つかりませんでした';
+	@override String get authorNoOtherVideos => '作者は他のビデオを所有していません';
+	@override String get noRelatedVideos => '関連するビデオはありません';
 }
 
 // Path: share
@@ -1607,6 +1612,7 @@ extension on TranslationsJa {
 			case 'common.pagination.invalidInput': return '有効なページ番号を入力してください';
 			case 'common.pagination.waterfall': return 'ウォーターフォール';
 			case 'common.pagination.pagination': return 'ページネーション';
+			case 'common.detail': return '詳細';
 			case 'auth.login': return 'ログイン';
 			case 'auth.logout': return 'ログアウト';
 			case 'auth.email': return 'メールアドレス';
@@ -1972,6 +1978,10 @@ extension on TranslationsJa {
 			case 'videoDetail.downloadSuccess': return 'ダウンロードに成功しました';
 			case 'videoDetail.download': return 'ダウンロード';
 			case 'videoDetail.downloadManager': return 'ダウンロード管理';
+			case 'videoDetail.videoLoadError': return 'ビデオの読み込みに失敗しました';
+			case 'videoDetail.resourceNotFound': return 'リソースが見つかりませんでした';
+			case 'videoDetail.authorNoOtherVideos': return '作者は他のビデオを所有していません';
+			case 'videoDetail.noRelatedVideos': return '関連するビデオはありません';
 			case 'share.sharePlayList': return 'プレイリストを共有';
 			case 'share.wowDidYouSeeThis': return 'ああ、見たの？';
 			case 'share.nameIs': return '名前は';

@@ -9,6 +9,7 @@ import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_con
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/ui/widgets/grid_speed_dial.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class CommentsTabWidget extends StatelessWidget {
   final CommentController commentController;
@@ -95,20 +96,21 @@ class CommentsTabWidget extends StatelessWidget {
   }
 
   void _showCommentDialog(BuildContext context) {
+    final t = slang.Translations.of(context);
     if (!Get.find<UserService>().isLogin) {
-      showToastWidget(const MDToastWidget(message: '请先登录', type: MDToastType.error));
+      showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error));
       Get.toNamed(Routes.LOGIN);
       return;
     }
     Get.dialog(
       CommentInputDialog(
-        title: '发表评论',
-        submitText: '发送', // 添加 submitText 参数
+        title: t.common.sendComment,
+        submitText: t.common.send, // 添加 submitText 参数
         onSubmit: (text) async {
           if (text.trim().isNotEmpty) {
             await commentController.postComment(text);
           } else {
-            showToastWidget(const MDToastWidget(message: '评论内容不能为空', type: MDToastType.error));
+            showToastWidget(MDToastWidget(message: t.errors.commentCanNotBeEmpty, type: MDToastType.error));
           }
         },
       ),

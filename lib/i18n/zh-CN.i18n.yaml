@@ -192,7 +192,7 @@ common:
     waterfall: '瀑布流'
     pagination: '分页'
   notice: 通知
-
+  detail: 详情
 auth:
   tagLimit: 标签上限
   login: 登录
@@ -583,6 +583,10 @@ videoDetail:
   downloadSuccess: 下载成功
   download: 下载
   downloadManager: 下载管理
+  videoLoadError: 视频加载错误
+  resourceNotFound: 资源未找到
+  authorNoOtherVideos: 作者暂无其他视频
+  noRelatedVideos: 暂无相关视频
 
 share:
   sharePlayList: 分享播放列表
