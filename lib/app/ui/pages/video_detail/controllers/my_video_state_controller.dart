@@ -1123,7 +1123,7 @@ class MyVideoStateController extends GetxController
             }
           } else {
             if (!_isDisposed) {
-              player.setPlaylistMode(PlaylistMode.single);
+              player.setPlaylistMode(PlaylistMode.none);
             }
           }
           // 设置一个延时，在视频真正结束后重置标志位
