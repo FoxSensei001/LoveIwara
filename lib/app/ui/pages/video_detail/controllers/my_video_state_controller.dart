@@ -1183,7 +1183,7 @@ class MyVideoStateController extends GetxController
   void _initializeScrollSettings() {
     // 计算视频高度范围
     final screenSize = Get.size;
-    minVideoHeight = screenSize.shortestSide * 9 / 16;
+    minVideoHeight = max(screenSize.shortestSide * 9 / 16, 250);
     maxVideoHeight = screenSize.longestSide * 0.65;
     videoHeight = minVideoHeight;
     

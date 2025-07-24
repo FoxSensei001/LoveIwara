@@ -37,7 +37,7 @@ class CommentsTabWidget extends StatelessWidget {
       ),
       // 使用GridSpeedDial替代固定头部，并添加评论数量徽章
       floatingActionButton: Obx(() {
-        final commentCount = commentController.comments.length;
+        final commentCount = commentController.totalComments.value;
         return Stack(
           clipBehavior: Clip.none, // Allows badge to overflow
           alignment: Alignment.center,
