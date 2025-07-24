@@ -8,6 +8,7 @@ import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/services/config_backup_service.dart';
 import 'package:i_iwara/utils/vibrate_utils.dart';
+import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:file_selector/file_selector.dart';
@@ -35,6 +36,13 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     'zh-TW': '繁体中文',
   };
 
+  final Map<String, String> _languageChangedMessages = {
+    'en': 'You need to restart the app for the language change to take effect.',
+    'ja': '言語の変更を反映するにはアプリを再起動してください。',
+    'zh-CN': '需重启应用以生效',
+    'zh-TW': '需重新啟動應用程式以生效',
+  };
+
   void _showLanguageDialog(BuildContext context, ConfigService configService) {
     showDialog(
       context: context,
@@ -54,8 +62,17 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                         if (value != null) {
                           configService.updateApplicationLocale(value);
                           Navigator.of(context).pop();
+                          
+                          String message;
+                          String localeKey = value;
+                          if (localeKey == 'system') {
+                            localeKey = CommonUtils.getDeviceLocale();
+                          }
+                          
+                          message = _languageChangedMessages[localeKey] ?? _languageChangedMessages['en']!;
+
                           showToastWidget(MDToastWidget(
-                              message: slang.t.settings.languageChanged,
+                              message: message,
                               type: MDToastType.info));
                         }
                       },

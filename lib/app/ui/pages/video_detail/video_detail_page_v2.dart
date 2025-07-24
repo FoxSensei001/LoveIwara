@@ -241,7 +241,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     double paddingTop,
     slang.Translations t,
   ) {
-    const double tabsAreaWidth = 400.0; // 固定Tab区域宽度
+    const double tabsAreaWidth = 350.0; // 固定Tab区域宽度，适当缩窄以优化播放器显示区域
 
     if (controller.isVideoInfoLoading.value) {
       return Row(

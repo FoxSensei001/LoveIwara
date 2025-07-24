@@ -1233,8 +1233,9 @@ class MyVideoStateController extends GetxController
     // 2. 接着获取应用的高度, 高度 ✖️ 70%
     final double height3 = screenHeight * 0.7;
 
-    // 3. 然后比对高度 1 和高度 3
-    return min(height1, height3);
+    // 3. 然后比对高度 1 和高度 3，但确保不低于最小高度
+    // 这样可以防止宽视频在窄屏上高度过低的问题
+    return max(min(height1, height3), minVideoHeight);
   }
 
   void animateToTop() {
