@@ -249,6 +249,7 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override late final _TranslationsCommonPaginationZhTw pagination = _TranslationsCommonPaginationZhTw._(_root);
 	@override String get notice => '通知';
 	@override String get detail => '詳情';
+	@override String get parseExceptionDestopHint => ' - 桌面端用戶可以在設置中配置代理';
 }
 
 // Path: auth
@@ -348,6 +349,7 @@ class _TranslationsErrorsZhTw implements TranslationsErrorsEn {
 	@override String get failedToLoadSavedCredentials => '載入保存的登入資訊失敗';
 	@override String specialFollowLimitReached({required Object cnt}) => '特別關注上限超出，上限: ${cnt}，請於關注列表頁中調整';
 	@override String get notFound => '內容不存在或已被刪除';
+	@override late final _TranslationsErrorsNetworkZhTw network = _TranslationsErrorsNetworkZhTw._(_root);
 }
 
 // Path: friends
@@ -1234,6 +1236,35 @@ class _TranslationsCommonPaginationZhTw implements TranslationsCommonPaginationE
 	@override String get pagination => '分頁';
 }
 
+// Path: errors.network
+class _TranslationsErrorsNetworkZhTw implements TranslationsErrorsNetworkEn {
+	_TranslationsErrorsNetworkZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get basicPrefix => '網路錯誤 - ';
+	@override String get failedToConnectToServer => '連接伺服器失敗';
+	@override String get serverNotAvailable => '伺服器不可用';
+	@override String get requestTimeout => '請求超時';
+	@override String get unexpectedError => '意外錯誤';
+	@override String get invalidResponse => '無效的回應';
+	@override String get invalidRequest => '無效的請求';
+	@override String get invalidUrl => '無效的URL';
+	@override String get invalidMethod => '無效的方法';
+	@override String get invalidHeader => '無效的頭部';
+	@override String get invalidBody => '無效的體';
+	@override String get invalidStatusCode => '無效的狀態碼';
+	@override String get serverError => '伺服器錯誤';
+	@override String get requestCanceled => '請求已取消';
+	@override String get invalidPort => '無効な埠口';
+	@override String get proxyPortError => '代理埠口設定異常';
+	@override String get connectionRefused => '連接被拒絕';
+	@override String get networkUnreachable => '網路不可達';
+	@override String get noRouteToHost => '無法找到主機';
+	@override String get connectionFailed => '連接失敗';
+}
+
 // Path: forum.errors
 class _TranslationsForumErrorsZhTw implements TranslationsForumErrorsEn {
 	_TranslationsForumErrorsZhTw._(this._root);
@@ -1616,6 +1647,7 @@ extension on TranslationsZhTw {
 			case 'common.pagination.pagination': return '分頁';
 			case 'common.notice': return '通知';
 			case 'common.detail': return '詳情';
+			case 'common.parseExceptionDestopHint': return ' - 桌面端用戶可以在設置中配置代理';
 			case 'auth.login': return '登入';
 			case 'auth.logout': return '登出';
 			case 'auth.email': return '電子郵件';
@@ -1697,6 +1729,26 @@ extension on TranslationsZhTw {
 			case 'errors.failedToLoadSavedCredentials': return '載入保存的登入資訊失敗';
 			case 'errors.specialFollowLimitReached': return ({required Object cnt}) => '特別關注上限超出，上限: ${cnt}，請於關注列表頁中調整';
 			case 'errors.notFound': return '內容不存在或已被刪除';
+			case 'errors.network.basicPrefix': return '網路錯誤 - ';
+			case 'errors.network.failedToConnectToServer': return '連接伺服器失敗';
+			case 'errors.network.serverNotAvailable': return '伺服器不可用';
+			case 'errors.network.requestTimeout': return '請求超時';
+			case 'errors.network.unexpectedError': return '意外錯誤';
+			case 'errors.network.invalidResponse': return '無效的回應';
+			case 'errors.network.invalidRequest': return '無效的請求';
+			case 'errors.network.invalidUrl': return '無效的URL';
+			case 'errors.network.invalidMethod': return '無效的方法';
+			case 'errors.network.invalidHeader': return '無效的頭部';
+			case 'errors.network.invalidBody': return '無效的體';
+			case 'errors.network.invalidStatusCode': return '無效的狀態碼';
+			case 'errors.network.serverError': return '伺服器錯誤';
+			case 'errors.network.requestCanceled': return '請求已取消';
+			case 'errors.network.invalidPort': return '無効な埠口';
+			case 'errors.network.proxyPortError': return '代理埠口設定異常';
+			case 'errors.network.connectionRefused': return '連接被拒絕';
+			case 'errors.network.networkUnreachable': return '網路不可達';
+			case 'errors.network.noRouteToHost': return '無法找到主機';
+			case 'errors.network.connectionFailed': return '連接失敗';
 			case 'friends.clickToRestoreFriend': return '點擊恢復朋友';
 			case 'friends.friendsList': return '朋友列表';
 			case 'friends.friendRequests': return '朋友請求';

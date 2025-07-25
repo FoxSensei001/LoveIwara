@@ -252,6 +252,7 @@ class TranslationsCommonEn {
 	late final TranslationsCommonPaginationEn pagination = TranslationsCommonPaginationEn._(_root);
 	String get notice => 'Notice';
 	String get detail => 'Detail';
+	String get parseExceptionDestopHint => ' - Desktop users can configure proxy in settings';
 }
 
 // Path: auth
@@ -351,6 +352,7 @@ class TranslationsErrorsEn {
 	String get failedToLoadSavedCredentials => 'Failed to load saved credentials';
 	String specialFollowLimitReached({required Object cnt}) => 'Special follow limit exceeded, limit: ${cnt}, please adjust in the follow list page';
 	String get notFound => 'Content not found or has been deleted';
+	late final TranslationsErrorsNetworkEn network = TranslationsErrorsNetworkEn._(_root);
 }
 
 // Path: friends
@@ -1234,6 +1236,35 @@ class TranslationsCommonPaginationEn {
 	String get pagination => 'Pagination';
 }
 
+// Path: errors.network
+class TranslationsErrorsNetworkEn {
+	TranslationsErrorsNetworkEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get basicPrefix => 'Network error - ';
+	String get failedToConnectToServer => 'Failed to connect to server';
+	String get serverNotAvailable => 'Server not available';
+	String get requestTimeout => 'Request timeout';
+	String get unexpectedError => 'Unexpected error';
+	String get invalidResponse => 'Invalid response';
+	String get invalidRequest => 'Invalid request';
+	String get invalidUrl => 'Invalid URL';
+	String get invalidMethod => 'Invalid method';
+	String get invalidHeader => 'Invalid header';
+	String get invalidBody => 'Invalid body';
+	String get invalidStatusCode => 'Invalid status code';
+	String get serverError => 'Server error';
+	String get requestCanceled => 'Request canceled';
+	String get invalidPort => 'Invalid port';
+	String get proxyPortError => 'Proxy port error';
+	String get connectionRefused => 'Connection refused';
+	String get networkUnreachable => 'Network unreachable';
+	String get noRouteToHost => 'No route to host';
+	String get connectionFailed => 'Connection failed';
+}
+
 // Path: forum.errors
 class TranslationsForumErrorsEn {
 	TranslationsForumErrorsEn._(this._root);
@@ -1616,6 +1647,7 @@ extension on Translations {
 			case 'common.pagination.pagination': return 'Pagination';
 			case 'common.notice': return 'Notice';
 			case 'common.detail': return 'Detail';
+			case 'common.parseExceptionDestopHint': return ' - Desktop users can configure proxy in settings';
 			case 'auth.login': return 'Login';
 			case 'auth.logout': return 'Logout';
 			case 'auth.email': return 'Email';
@@ -1697,6 +1729,26 @@ extension on Translations {
 			case 'errors.failedToLoadSavedCredentials': return 'Failed to load saved credentials';
 			case 'errors.specialFollowLimitReached': return ({required Object cnt}) => 'Special follow limit exceeded, limit: ${cnt}, please adjust in the follow list page';
 			case 'errors.notFound': return 'Content not found or has been deleted';
+			case 'errors.network.basicPrefix': return 'Network error - ';
+			case 'errors.network.failedToConnectToServer': return 'Failed to connect to server';
+			case 'errors.network.serverNotAvailable': return 'Server not available';
+			case 'errors.network.requestTimeout': return 'Request timeout';
+			case 'errors.network.unexpectedError': return 'Unexpected error';
+			case 'errors.network.invalidResponse': return 'Invalid response';
+			case 'errors.network.invalidRequest': return 'Invalid request';
+			case 'errors.network.invalidUrl': return 'Invalid URL';
+			case 'errors.network.invalidMethod': return 'Invalid method';
+			case 'errors.network.invalidHeader': return 'Invalid header';
+			case 'errors.network.invalidBody': return 'Invalid body';
+			case 'errors.network.invalidStatusCode': return 'Invalid status code';
+			case 'errors.network.serverError': return 'Server error';
+			case 'errors.network.requestCanceled': return 'Request canceled';
+			case 'errors.network.invalidPort': return 'Invalid port';
+			case 'errors.network.proxyPortError': return 'Proxy port error';
+			case 'errors.network.connectionRefused': return 'Connection refused';
+			case 'errors.network.networkUnreachable': return 'Network unreachable';
+			case 'errors.network.noRouteToHost': return 'No route to host';
+			case 'errors.network.connectionFailed': return 'Connection failed';
 			case 'friends.clickToRestoreFriend': return 'Click to restore friend';
 			case 'friends.friendsList': return 'Friends List';
 			case 'friends.friendRequests': return 'Friend Requests';

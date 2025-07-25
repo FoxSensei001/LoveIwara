@@ -251,6 +251,7 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override late final _TranslationsCommonPaginationZhCn pagination = _TranslationsCommonPaginationZhCn._(_root);
 	@override String get notice => '通知';
 	@override String get detail => '详情';
+	@override String get parseExceptionDestopHint => ' - 桌面端用户可以在设置中配置代理';
 }
 
 // Path: auth
@@ -353,6 +354,7 @@ class _TranslationsErrorsZhCn implements TranslationsErrorsEn {
 	@override String get failedToLoadSavedCredentials => '加载保存的登录信息失败';
 	@override String specialFollowLimitReached({required Object cnt}) => '特别关注上限超出，上限: ${cnt}，请于关注列表页中调整';
 	@override String get notFound => '内容不存在或已被删除';
+	@override late final _TranslationsErrorsNetworkZhCn network = _TranslationsErrorsNetworkZhCn._(_root);
 }
 
 // Path: friends
@@ -1236,6 +1238,35 @@ class _TranslationsCommonPaginationZhCn implements TranslationsCommonPaginationE
 	@override String get pagination => '分页';
 }
 
+// Path: errors.network
+class _TranslationsErrorsNetworkZhCn implements TranslationsErrorsNetworkEn {
+	_TranslationsErrorsNetworkZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get basicPrefix => '网络错误 - ';
+	@override String get failedToConnectToServer => '连接服务器失败';
+	@override String get serverNotAvailable => '服务器不可用';
+	@override String get requestTimeout => '请求超时';
+	@override String get unexpectedError => '意外错误';
+	@override String get invalidResponse => '无效响应';
+	@override String get invalidRequest => '无效请求';
+	@override String get invalidUrl => '无效URL';
+	@override String get invalidMethod => '无效方法';
+	@override String get invalidHeader => '无效头';
+	@override String get invalidBody => '无效体';
+	@override String get invalidStatusCode => '无效状态码';
+	@override String get serverError => '服务器错误';
+	@override String get requestCanceled => '请求已取消';
+	@override String get invalidPort => '无效端口';
+	@override String get proxyPortError => '代理端口设置异常';
+	@override String get connectionRefused => '连接被拒绝';
+	@override String get networkUnreachable => '网络不可达';
+	@override String get noRouteToHost => '无法找到主机';
+	@override String get connectionFailed => '连接失败';
+}
+
 // Path: forum.errors
 class _TranslationsForumErrorsZhCn implements TranslationsForumErrorsEn {
 	_TranslationsForumErrorsZhCn._(this._root);
@@ -1620,6 +1651,7 @@ extension on TranslationsZhCn {
 			case 'common.pagination.pagination': return '分页';
 			case 'common.notice': return '通知';
 			case 'common.detail': return '详情';
+			case 'common.parseExceptionDestopHint': return ' - 桌面端用户可以在设置中配置代理';
 			case 'auth.tagLimit': return '标签上限';
 			case 'auth.login': return '登录';
 			case 'auth.logout': return '退出登录';
@@ -1704,6 +1736,26 @@ extension on TranslationsZhCn {
 			case 'errors.failedToLoadSavedCredentials': return '加载保存的登录信息失败';
 			case 'errors.specialFollowLimitReached': return ({required Object cnt}) => '特别关注上限超出，上限: ${cnt}，请于关注列表页中调整';
 			case 'errors.notFound': return '内容不存在或已被删除';
+			case 'errors.network.basicPrefix': return '网络错误 - ';
+			case 'errors.network.failedToConnectToServer': return '连接服务器失败';
+			case 'errors.network.serverNotAvailable': return '服务器不可用';
+			case 'errors.network.requestTimeout': return '请求超时';
+			case 'errors.network.unexpectedError': return '意外错误';
+			case 'errors.network.invalidResponse': return '无效响应';
+			case 'errors.network.invalidRequest': return '无效请求';
+			case 'errors.network.invalidUrl': return '无效URL';
+			case 'errors.network.invalidMethod': return '无效方法';
+			case 'errors.network.invalidHeader': return '无效头';
+			case 'errors.network.invalidBody': return '无效体';
+			case 'errors.network.invalidStatusCode': return '无效状态码';
+			case 'errors.network.serverError': return '服务器错误';
+			case 'errors.network.requestCanceled': return '请求已取消';
+			case 'errors.network.invalidPort': return '无效端口';
+			case 'errors.network.proxyPortError': return '代理端口设置异常';
+			case 'errors.network.connectionRefused': return '连接被拒绝';
+			case 'errors.network.networkUnreachable': return '网络不可达';
+			case 'errors.network.noRouteToHost': return '无法找到主机';
+			case 'errors.network.connectionFailed': return '连接失败';
 			case 'friends.clickToRestoreFriend': return '点击恢复好友';
 			case 'friends.friendsList': return '好友列表';
 			case 'friends.friendRequests': return '好友请求';

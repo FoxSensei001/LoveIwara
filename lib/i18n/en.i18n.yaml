@@ -189,6 +189,7 @@ common:
     pagination: 'Pagination'
   notice: Notice
   detail: Detail
+  parseExceptionDestopHint: ' - Desktop users can configure proxy in settings'
 auth:
   login: Login
   logout: Logout
@@ -273,6 +274,27 @@ errors:
   failedToLoadSavedCredentials: "Failed to load saved credentials"
   specialFollowLimitReached: 'Special follow limit exceeded, limit: ${cnt}, please adjust in the follow list page'
   notFound: 'Content not found or has been deleted'
+  network:
+    basicPrefix: 'Network error - '
+    failedToConnectToServer: 'Failed to connect to server'
+    serverNotAvailable: 'Server not available'
+    requestTimeout: 'Request timeout'
+    unexpectedError: 'Unexpected error'
+    invalidResponse: 'Invalid response'
+    invalidRequest: 'Invalid request'
+    invalidUrl: 'Invalid URL'
+    invalidMethod: 'Invalid method'
+    invalidHeader: 'Invalid header'
+    invalidBody: 'Invalid body'
+    invalidStatusCode: 'Invalid status code'
+    serverError: 'Server error'
+    requestCanceled: 'Request canceled'
+    invalidPort: 'Invalid port'
+    proxyPortError: 'Proxy port error'
+    connectionRefused: 'Connection refused'
+    networkUnreachable: 'Network unreachable'
+    noRouteToHost: 'No route to host'
+    connectionFailed: 'Connection failed'
 friends:
   clickToRestoreFriend: Click to restore friend
   friendsList: Friends List

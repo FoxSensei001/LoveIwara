@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 
 import '../../common/constants.dart';
 import '../../utils/logger_utils.dart';
+import '../ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'auth_service.dart';
 import 'message_service.dart';
 
@@ -188,6 +189,8 @@ class ApiService extends GetxService {
         cancelToken: cancelToken,
       );
     } on d_dio.DioException catch (e) {
+      // 记录到全局错误监听器
+      GlobalErrorListener.recordDioException(e);
       LogUtils.e('GET请求失败: ${e.message}, Path: $path', tag: _tag, error: e);
       rethrow;
     }
@@ -199,6 +202,8 @@ class ApiService extends GetxService {
       return await _dio.post<T>(path,
           data: data, queryParameters: queryParameters);
     } on d_dio.DioException catch (e) {
+      // 记录到全局错误监听器
+      GlobalErrorListener.recordDioException(e);
       LogUtils.e('POST请求失败: ${e.message}', tag: _tag, error: e);
       rethrow;
     }
@@ -209,6 +214,8 @@ class ApiService extends GetxService {
     try {
       return await _dio.delete<T>(path, queryParameters: queryParameters);
     } on d_dio.DioException catch (e) {
+      // 记录到全局错误监听器
+      GlobalErrorListener.recordDioException(e);
       LogUtils.e('DELETE请求失败: ${e.message}', tag: _tag, error: e);
       rethrow;
     }
@@ -220,6 +227,8 @@ class ApiService extends GetxService {
       return await _dio.put<T>(path,
           data: data, queryParameters: queryParameters);
     } on d_dio.DioException catch (e) {
+      // 记录到全局错误监听器
+      GlobalErrorListener.recordDioException(e);
       LogUtils.e('PUT请求失败: ${e.message}', tag: _tag, error: e);
       rethrow;
     }

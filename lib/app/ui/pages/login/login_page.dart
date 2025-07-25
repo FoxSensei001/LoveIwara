@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
-import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:i_iwara/utils/logger_utils.dart' show LogUtils;
 import 'package:oktoast/oktoast.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -89,10 +89,12 @@ class _LoginPageState extends State<LoginPage>
       }
     } catch (e) {
       LogUtils.e('加载保存的凭据失败: $e', tag: 'LoginPage');
-      showToastWidget(MDToastWidget(
-        message: slang.t.errors.failedToLoadSavedCredentials,
-        type: MDToastType.warning
-      ));
+      showToastWidget(
+        MDToastWidget(
+          message: slang.t.errors.failedToLoadSavedCredentials,
+          type: MDToastType.warning,
+        ),
+      );
     }
   }
 
@@ -128,7 +130,9 @@ class _LoginPageState extends State<LoginPage>
           });
         }
       } else {
-        showToastWidget(MDToastWidget(message: res.message, type: MDToastType.error));
+        showToastWidget(
+          MDToastWidget(message: res.message, type: MDToastType.error),
+        );
       }
     } finally {
       if (mounted) {
@@ -160,10 +164,7 @@ class _LoginPageState extends State<LoginPage>
           preferredSize: const Size.fromHeight(kToolbarHeight),
           child: Container(
             width: 400,
-            margin: const EdgeInsets.symmetric(
-              horizontal: 0,
-              vertical: 8,
-            ),
+            margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
             child: Stack(
               alignment: Alignment.centerRight,
               children: [
@@ -177,8 +178,9 @@ class _LoginPageState extends State<LoginPage>
                   indicatorSize: TabBarIndicatorSize.tab,
                   dividerColor: Colors.transparent,
                   labelColor: Theme.of(context).colorScheme.onPrimary,
-                  unselectedLabelColor:
-                      Theme.of(context).colorScheme.onSurfaceVariant,
+                  unselectedLabelColor: Theme.of(
+                    context,
+                  ).colorScheme.onSurfaceVariant,
                   labelStyle: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -196,10 +198,7 @@ class _LoginPageState extends State<LoginPage>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          _buildLoginForm(context),
-          _buildRegisterForm(context),
-        ],
+        children: [_buildLoginForm(context), _buildRegisterForm(context)],
       ),
     );
   }
@@ -244,8 +243,9 @@ class _LoginPageState extends State<LoginPage>
                           return null;
                         },
                         onFieldSubmitted: (_) {
-                          FocusScope.of(context)
-                              .requestFocus(_loginPasswordFocus);
+                          FocusScope.of(
+                            context,
+                          ).requestFocus(_loginPasswordFocus);
                         },
                       ),
                       const SizedBox(height: 16),
@@ -255,9 +255,11 @@ class _LoginPageState extends State<LoginPage>
                           labelText: t.auth.password,
                           prefixIcon: const Icon(Icons.lock),
                           suffixIcon: IconButton(
-                            icon: Icon(_isPasswordVisible
-                                ? Icons.visibility
-                                : Icons.visibility_off),
+                            icon: Icon(
+                              _isPasswordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
                             onPressed: () {
                               if (mounted) {
                                 setState(() {
@@ -292,7 +294,9 @@ class _LoginPageState extends State<LoginPage>
                               _toggleRememberMe(!_rememberMe);
                             },
                             icon: Icon(
-                              _rememberMe ? Icons.check_box : Icons.check_box_outline_blank,
+                              _rememberMe
+                                  ? Icons.check_box
+                                  : Icons.check_box_outline_blank,
                               size: 20,
                               color: Theme.of(context).colorScheme.primary,
                             ),
@@ -329,7 +333,10 @@ class _LoginPageState extends State<LoginPage>
                                   strokeWidth: 2,
                                 ),
                               )
-                            : Text(t.auth.login, style: const TextStyle(fontSize: 16)),
+                            : Text(
+                                t.auth.login,
+                                style: const TextStyle(fontSize: 16),
+                              ),
                       ),
                     ],
                   ),
@@ -386,8 +393,9 @@ class _LoginPageState extends State<LoginPage>
                         },
                         onFieldSubmitted: (_) {
                           if (_captcha.value != null) {
-                            FocusScope.of(context)
-                                .requestFocus(_registerCaptchaFocus);
+                            FocusScope.of(
+                              context,
+                            ).requestFocus(_registerCaptchaFocus);
                           }
                         },
                       ),
@@ -405,26 +413,47 @@ class _LoginPageState extends State<LoginPage>
                                           return Container(
                                             width: constraints.maxWidth,
                                             decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(8),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                               border: Border.all(
-                                                color: Theme.of(context).dividerColor,
-                                                width: 1
-                                              )
+                                                color: Theme.of(
+                                                  context,
+                                                ).dividerColor,
+                                                width: 1,
+                                              ),
                                             ),
                                             child: ClipRRect(
-                                              borderRadius: BorderRadius.circular(8),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                               child: _captcha.value != null
                                                   ? Image.memory(
-                                                      base64Decode(_captcha.value!.data.split(',')[1]),
+                                                      base64Decode(
+                                                        _captcha.value!.data
+                                                            .split(',')[1],
+                                                      ),
                                                       fit: BoxFit.contain,
-                                                      frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-                                                        if (frame == null || _isCaptchaLoading) {
-                                                          return _buildCaptchaShimmer(constraints.maxWidth);
-                                                        }
-                                                        return child;
-                                                      },
+                                                      frameBuilder:
+                                                          (
+                                                            context,
+                                                            child,
+                                                            frame,
+                                                            wasSynchronouslyLoaded,
+                                                          ) {
+                                                            if (frame == null ||
+                                                                _isCaptchaLoading) {
+                                                              return _buildCaptchaShimmer(
+                                                                constraints
+                                                                    .maxWidth,
+                                                              );
+                                                            }
+                                                            return child;
+                                                          },
                                                     )
-                                                  : Center(child: Text(t.auth.captchaNotLoaded)),
+                                                  : Center(
+                                                      child: Text(
+                                                        t.auth.captchaNotLoaded,
+                                                      ),
+                                                    ),
                                             ),
                                           );
                                         },
@@ -432,8 +461,13 @@ class _LoginPageState extends State<LoginPage>
                               ),
                               const SizedBox(width: 8),
                               IconButton(
-                                icon: Icon(Icons.refresh, color: Theme.of(context).primaryColor),
-                                onPressed: _isCaptchaLoading ? null : _fetchCaptcha,
+                                icon: Icon(
+                                  Icons.refresh,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                                onPressed: _isCaptchaLoading
+                                    ? null
+                                    : _fetchCaptcha,
                                 tooltip: t.auth.refreshCaptcha,
                               ),
                             ],
@@ -488,7 +522,10 @@ class _LoginPageState extends State<LoginPage>
                                   strokeWidth: 2,
                                 ),
                               )
-                            : Text(t.auth.register, style: const TextStyle(fontSize: 16)),
+                            : Text(
+                                t.auth.register,
+                                style: const TextStyle(fontSize: 16),
+                              ),
                       ),
                     ],
                   ),
@@ -510,7 +547,7 @@ class _LoginPageState extends State<LoginPage>
         height: 50,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(8)
+          borderRadius: BorderRadius.circular(8),
         ),
       ),
     );
@@ -526,45 +563,40 @@ class _LoginPageState extends State<LoginPage>
       });
     }
 
-    try {
-      ApiResult result = await _authService.login(usernameOrEmail, password);
+    ApiResult result = await _authService.login(usernameOrEmail, password);
 
-      if (result.isSuccess) {
-        await _userService.fetchUserProfile();
-        showToastWidget(MDToastWidget(message: slang.t.auth.loginSuccess, type: MDToastType.success));
-        _userService.startNotificationTimer();
-        
-        if (_rememberMe) {
-          try {
-            await _storage.writeCredentials(usernameOrEmail, password);
-          } catch (e) {
-            LogUtils.e('保存登录凭据失败: $e', tag: 'LoginPage');
-            showToastWidget(MDToastWidget(
-              message: slang.t.errors.failedToSaveCredentials,
-              type: MDToastType.warning
-            ));
-          }
-        } else {
-          await _storage.clearCredentials();
-        }
-        
-        if (Get.previousRoute == Routes.LOGIN) {
-          Get.offAllNamed(Routes.HOME);
-        } else {
-          Get.back();
-        }
+    if (result.isSuccess) {
+      await _userService.fetchUserProfile();
+      showToastWidget(
+        MDToastWidget(
+          message: slang.t.auth.loginSuccess,
+          type: MDToastType.success,
+        ),
+      );
+      _userService.startNotificationTimer();
+
+      if (_rememberMe) {
+        await _storage.writeCredentials(usernameOrEmail, password);
       } else {
-        showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
+        await _storage.clearCredentials();
       }
-    } catch (e) {
-      LogUtils.e('登录过程中发生意外错误: $e', tag: 'LoginPage');
-      showToastWidget(MDToastWidget(message: slang.t.errors.unknownError, type: MDToastType.error), position: ToastPosition.bottom);
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
+
+      if (Get.previousRoute == Routes.LOGIN) {
+        Get.offAllNamed(Routes.HOME);
+      } else {
+        Get.back();
       }
+    } else {
+      showToastWidget(
+        MDToastWidget(message: result.message, type: MDToastType.error),
+        position: ToastPosition.bottom,
+      );
+    }
+
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -573,7 +605,13 @@ class _LoginPageState extends State<LoginPage>
     final captchaAnswer = _captchaController.text.trim();
 
     if (_captcha.value == null) {
-      showToastWidget(MDToastWidget(message: slang.t.auth.captchaNotLoaded, type: MDToastType.error), position: ToastPosition.bottom);
+      showToastWidget(
+        MDToastWidget(
+          message: slang.t.auth.captchaNotLoaded,
+          type: MDToastType.error,
+        ),
+        position: ToastPosition.bottom,
+      );
       return;
     }
 
@@ -584,14 +622,25 @@ class _LoginPageState extends State<LoginPage>
     }
 
     try {
-      ApiResult result =
-          await _authService.register(email, _captcha.value!.id, captchaAnswer);
+      ApiResult result = await _authService.register(
+        email,
+        _captcha.value!.id,
+        captchaAnswer,
+      );
       if (result.isSuccess) {
-        showToastWidget(MDToastWidget(message: slang.t.auth.emailVerificationSent, type: MDToastType.success));
+        showToastWidget(
+          MDToastWidget(
+            message: slang.t.auth.emailVerificationSent,
+            type: MDToastType.success,
+          ),
+        );
         // 切换回登录标签
         _tabController.index = 0;
       } else {
-        showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
+        showToastWidget(
+          MDToastWidget(message: result.message, type: MDToastType.error),
+          position: ToastPosition.bottom,
+        );
         // 发生错误时刷新验证码
         _fetchCaptcha();
       }

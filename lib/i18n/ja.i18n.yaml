@@ -190,6 +190,7 @@ common:
     waterfall: 'ウォーターフォール'
     pagination: 'ページネーション'
   detail: 詳細
+  parseExceptionDestopHint: ' - デスクトップユーザーは設定でプロキシを構成できます'
 auth:
   login: ログイン
   logout: ログアウト
@@ -274,6 +275,27 @@ errors:
   failedToLoadSavedCredentials: "保存されたログイン情報の読み込みに失敗しました"
   specialFollowLimitReached: '特別フォローの上限を超えています。上限: ${cnt}，フォローリストページで調整してください'
   notFound: 'コンテンツが見つかりませんまたは削除されました'
+  network:
+    basicPrefix: 'ネットワークエラー - '
+    failedToConnectToServer: 'サーバーへの接続に失敗しました'
+    serverNotAvailable: 'サーバーが利用できません'
+    requestTimeout: 'リクエストタイムアウト'
+    unexpectedError: '予期しないエラー'
+    invalidResponse: '無効なレスポンス'
+    invalidRequest: '無効なリクエスト'
+    invalidUrl: '無効なURL'
+    invalidMethod: '無効なメソッド'
+    invalidHeader: '無効なヘッダー'
+    invalidBody: '無効なボディ'
+    invalidStatusCode: '無効なステータスコード'
+    serverError: 'サーバーエラー'
+    requestCanceled: 'リクエストがキャンセルされました'
+    invalidPort: '無効なポート'
+    proxyPortError: 'プロキシポートエラー'
+    connectionRefused: '接続が拒否されました'
+    networkUnreachable: 'ネットワークに到達できません'
+    noRouteToHost: 'ホストに到達できません'
+    connectionFailed: '接続に失敗しました'
 friends:
   clickToRestoreFriend: 友達を復元するにはクリックしてください
   friendsList: 友達リスト

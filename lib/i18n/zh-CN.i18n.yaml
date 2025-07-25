@@ -193,6 +193,7 @@ common:
     pagination: '分页'
   notice: 通知
   detail: 详情
+  parseExceptionDestopHint: ' - 桌面端用户可以在设置中配置代理'
 auth:
   tagLimit: 标签上限
   login: 登录
@@ -280,6 +281,27 @@ errors:
   failedToLoadSavedCredentials: "加载保存的登录信息失败"
   specialFollowLimitReached: '特别关注上限超出，上限: ${cnt}，请于关注列表页中调整'
   notFound: '内容不存在或已被删除'
+  network:
+    basicPrefix: '网络错误 - '
+    failedToConnectToServer: '连接服务器失败'
+    serverNotAvailable: '服务器不可用'
+    requestTimeout: '请求超时'
+    unexpectedError: '意外错误'
+    invalidResponse: '无效响应'
+    invalidRequest: '无效请求'
+    invalidUrl: '无效URL'
+    invalidMethod: '无效方法'
+    invalidHeader: '无效头'
+    invalidBody: '无效体'
+    invalidStatusCode: '无效状态码'
+    serverError: '服务器错误'
+    requestCanceled: '请求已取消'
+    invalidPort: '无效端口'
+    proxyPortError: '代理端口设置异常'
+    connectionRefused: '连接被拒绝'
+    networkUnreachable: '网络不可达'
+    noRouteToHost: '无法找到主机'
+    connectionFailed: '连接失败'
 friends:
   clickToRestoreFriend: 点击恢复好友
   friendsList: 好友列表

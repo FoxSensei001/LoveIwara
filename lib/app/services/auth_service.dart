@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
+import 'package:i_iwara/utils/common_utils.dart' show CommonUtils;
 
 import '../../common/constants.dart';
 import '../../utils/logger_utils.dart';
@@ -422,8 +423,16 @@ class AuthService extends GetxService {
 
   // 错误处理方法
   String _getErrorMessage(Object e) {
+    String errorMessage;
     if (e is dio.DioException) {
-      String message = e.response?.data['message'];
+      String? message;
+      // 先判断response是否为null
+      if (e.response != null && e.response?.data != null) {
+        // 兼容data为Map或其他类型
+        if (e.response!.data is Map && e.response!.data.containsKey('message')) {
+          message = e.response!.data['message'] as String?;
+        }
+      }
       switch (message) {
         case "errors.invalidLogin":
           return t.errors.invalidLogin;
@@ -431,11 +440,11 @@ class AuthService extends GetxService {
           return t.errors.invalidCaptcha;
         case "errors.tooManyRequests":
           return t.errors.tooManyRequests;
-        default:
-          return message;
       }
     }
-    return t.errors.unknownError;
+    // 默认返回通用网络错误信息
+    errorMessage = CommonUtils.parseExceptionMessage(e);
+    return errorMessage;
   }
 
   // 登出方法

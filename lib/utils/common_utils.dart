@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:dio/dio.dart';
 import 'package:i_iwara/app/models/video_source.model.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -10,6 +11,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import '../app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:path/path.dart' as p;
+
 class CommonUtils {
   /// 格式化Duration 为 mm:ss 或 hh:mm:ss（适用于超过1小时的视频）
   static String formatDuration(Duration duration) {
@@ -17,7 +19,7 @@ class CommonUtils {
     final hours = twoDigits(duration.inHours);
     final minutes = twoDigits(duration.inMinutes.remainder(60));
     final seconds = twoDigits(duration.inSeconds.remainder(60));
-    
+
     // 如果时长超过1小时，添加小时显示
     if (duration.inHours > 0) {
       return '$hours:$minutes:$seconds';
@@ -28,32 +30,30 @@ class CommonUtils {
 
   /// 进入全屏
   /// toVerticalScreen: 是否进入竖屏全屏（仅IOS Android有效）
-  static Future<void> defaultEnterNativeFullscreen(
-      {bool toVerticalScreen = false}) async {
+  static Future<void> defaultEnterNativeFullscreen({
+    bool toVerticalScreen = false,
+  }) async {
     try {
       if (Platform.isAndroid || Platform.isIOS) {
-        await Future.wait(
-          [
-            SystemChrome.setEnabledSystemUIMode(
-              SystemUiMode.immersiveSticky,
-              overlays: [],
-            ),
-            SystemChrome.setPreferredOrientations(
-              toVerticalScreen
-                  ? [DeviceOrientation.portraitUp]
-                  : [
-                      DeviceOrientation.landscapeLeft,
-                      DeviceOrientation.landscapeRight,
-                    ],
-            ),
-          ],
-        );
+        await Future.wait([
+          SystemChrome.setEnabledSystemUIMode(
+            SystemUiMode.immersiveSticky,
+            overlays: [],
+          ),
+          SystemChrome.setPreferredOrientations(
+            toVerticalScreen
+                ? [DeviceOrientation.portraitUp]
+                : [
+                    DeviceOrientation.landscapeLeft,
+                    DeviceOrientation.landscapeRight,
+                  ],
+          ),
+        ]);
       } else if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
         // 此处使用media_kit_video的MethodChannel，
-        await const MethodChannel('com.alexmercerind/media_kit_video')
-            .invokeMethod(
-          'Utils.EnterNativeFullscreen',
-        );
+        await const MethodChannel(
+          'com.alexmercerind/media_kit_video',
+        ).invokeMethod('Utils.EnterNativeFullscreen');
       }
     } catch (exception, stacktrace) {
       debugPrint(exception.toString());
@@ -63,8 +63,9 @@ class CommonUtils {
 
   /// 将videoSources转换成videoResolutions
   static List<VideoResolution> convertVideoSourcesToResolutions(
-      List<VideoSource>? videoSources,
-      {filterPreview = false}) {
+    List<VideoSource>? videoSources, {
+    filterPreview = false,
+  }) {
     // VideoSource#src#view 是视频播放源
     final List<VideoResolution> videoResolutions = [];
     if (videoSources == null) {
@@ -92,7 +93,9 @@ class CommonUtils {
 
   /// 根据清晰度标签查找对应的视频源
   static String? findUrlByResolutionTag(
-      List<VideoResolution>? videoResolutions, String? resolutionTag) {
+    List<VideoResolution>? videoResolutions,
+    String? resolutionTag,
+  ) {
     if (videoResolutions == null || resolutionTag == null) {
       return null;
     }
@@ -191,7 +194,11 @@ class CommonUtils {
   static Future<Directory> getAppDirectory({String pathSuffix = ''}) async {
     final directory = await getApplicationDocumentsDirectory();
     // join 上 applicationName
-    final path = p.join(directory.path, CommonConstants.applicationName, pathSuffix);
+    final path = p.join(
+      directory.path,
+      CommonConstants.applicationName,
+      pathSuffix,
+    );
     final dir = Directory(path);
     if (!await dir.exists()) {
       await dir.create(recursive: true);
@@ -236,7 +243,7 @@ class CommonUtils {
   // 通过path来格式化uri
   static String formatSavePathUriByPath(String path) {
     if (path.isEmpty) return '';
-    
+
     try {
       // 统一处理路径分隔符
       String formattedPath = path;
@@ -253,12 +260,12 @@ class CommonUtils {
         // 处理可能的多个连续正斜杠
         formattedPath = formattedPath.replaceAll(RegExp(r'/+'), '/');
       }
-      
+
       // 处理空格和其他特殊字符
       formattedPath = formattedPath
-          .replaceAll(RegExp(r'\s+'), '_')  // 空白字符替换为下划线
-          .replaceAll(RegExp(r'_{2,}'), '_');  // 多个连续下划线替换为单个
-      
+          .replaceAll(RegExp(r'\s+'), '_') // 空白字符替换为下划线
+          .replaceAll(RegExp(r'_{2,}'), '_'); // 多个连续下划线替换为单个
+
       return formattedPath;
     } catch (e) {
       LogUtils.e('格式化URI失败', tag: 'CommonUtils', error: e);
@@ -270,7 +277,6 @@ class CommonUtils {
     return '${start.year}-${_twoDigits(start.month)}-${_twoDigits(start.day)}';
   }
 
-  
   // 根据屏幕宽度计算卡片宽度
   static double calculateCardWidth(double screenWidth) {
     if (screenWidth <= 600) {
@@ -286,5 +292,76 @@ class CommonUtils {
       // 大屏幕，显示5列
       return screenWidth / 5 - 20;
     }
+  }
+
+  /// 分析网络错误并返回用户友好的错误消息
+  static String parseExceptionMessage(dynamic error) {
+    final bool isDesktop = Platform.isMacOS || Platform.isWindows || Platform.isLinux;
+
+    String withDesktopHint(String msg) => isDesktop ? '$msg${slang.t.common.parseExceptionDestopHint}' : msg;
+
+    String extractPort(String message) {
+      final match = RegExp(r'Invalid port (\d+)').firstMatch(message);
+      return match != null ? match.group(1) ?? '' : '';
+    }
+
+    if (error is DioException) {
+      final String errorMessage = error.message ?? error.error?.toString() ?? '';
+      final statusCode = error.response?.statusCode;
+
+      switch (error.type) {
+        case DioExceptionType.connectionTimeout:
+        case DioExceptionType.sendTimeout:
+        case DioExceptionType.receiveTimeout:
+          return withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.requestTimeout}');
+        case DioExceptionType.badResponse:
+          return statusCode != null
+              ? withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.serverError} ($statusCode)')
+              : withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.unexpectedError}');
+        case DioExceptionType.cancel:
+          // return withDesktopHint('请求已取消');
+          return withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.requestCanceled}');
+        case DioExceptionType.connectionError:
+          if (errorMessage.contains('Invalid port')) {
+            final port = extractPort(errorMessage);
+            return port.isNotEmpty
+                ? withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.invalidPort}: $port')
+                : withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.proxyPortError}');
+          }
+          if (errorMessage.contains('Connection refused')) {
+            return withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.connectionRefused}');
+          }
+          if (errorMessage.contains('Network is unreachable')) {
+            return withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.networkUnreachable}');
+          }
+          if (errorMessage.contains('No route to host')) {
+            return withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.noRouteToHost}');
+          }
+          return withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.connectionFailed}');
+        case DioExceptionType.unknown:
+          if (errorMessage.contains('Invalid port')) {
+            final port = extractPort(errorMessage);
+            return port.isNotEmpty
+                ? withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.invalidPort}: $port')
+                : withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.proxyPortError}');
+          }
+          // 兜底返回原始错误信息
+          return errorMessage.isNotEmpty
+              ? errorMessage
+              : withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.unexpectedError}');
+        default:
+          return errorMessage.isNotEmpty
+              ? errorMessage
+              : withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.unexpectedError}');
+      }
+    }
+
+    // 处理非DioException类型的错误
+    final String errorString = error?.toString() ?? '';
+    if (errorString.isNotEmpty && errorString != 'null') {
+      return errorString;
+    }
+
+    return slang.t.errors.errorWhileFetching;
   }
 }

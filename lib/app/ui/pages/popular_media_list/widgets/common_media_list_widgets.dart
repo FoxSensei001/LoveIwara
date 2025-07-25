@@ -4,7 +4,39 @@ import 'package:i_iwara/app/ui/widgets/shimmer_card.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:dio/dio.dart';
 import 'dart:ui';
+
+/// 全局错误监听器，用于捕获最近的DioException
+class GlobalErrorListener {
+  static DioException? _lastDioException;
+  static DateTime? _lastErrorTime;
+  static const Duration _errorValidDuration = Duration(seconds: 5);
+
+  /// 记录DioException
+  static void recordDioException(DioException exception) {
+    _lastDioException = exception;
+    _lastErrorTime = DateTime.now();
+  }
+
+  /// 获取最近的DioException（如果在有效时间内）
+  static DioException? getRecentDioException() {
+    if (_lastDioException != null && _lastErrorTime != null) {
+      final now = DateTime.now();
+      if (now.difference(_lastErrorTime!) <= _errorValidDuration) {
+        return _lastDioException;
+      }
+    }
+    return null;
+  }
+
+  /// 清除记录的异常
+  static void clearException() {
+    _lastDioException = null;
+    _lastErrorTime = null;
+  }
+}
+
 
 /// 构建加载指示器
 Widget? buildIndicator(
@@ -13,6 +45,7 @@ Widget? buildIndicator(
   VoidCallback onErrorRefresh, {
   IconData? emptyIcon,
   double paddingTop = 0,
+  String? errorMessage,
 }) {
   Widget? finalWidget;
 
@@ -92,25 +125,41 @@ Widget? buildIndicator(
             borderRadius: BorderRadius.circular(12),
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  Icon(
-                    Icons.error_outline,
-                    size: 20,
-                    color: Theme.of(context).colorScheme.error,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Icon(
+                        Icons.error_outline,
+                        size: 20,
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          errorMessage ?? slang.t.conversation.errors.loadFailedClickToRetry,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 8),
-                  Text(
-                    slang.t
-                        .conversation
-                        .errors
-                        .loadFailedClickToRetry,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
+                  if (errorMessage != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      slang.t.conversation.errors.clickToRetry,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onErrorContainer,
+                        fontSize: 12,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                  ),
+                  ],
                 ],
               ),
             ),
@@ -138,23 +187,22 @@ Widget? buildIndicator(
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  slang.t.conversation.errors.loadFailed,
+                  errorMessage ?? slang.t.conversation.errors.loadFailed,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.error,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
+                  textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  slang.t
-                      .conversation
-                      .errors
-                      .clickToRetry,
+                  slang.t.conversation.errors.clickToRetry,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onErrorContainer,
                     fontSize: 14,
                   ),
+                  textAlign: TextAlign.center,
                 ),
               ],
             ),

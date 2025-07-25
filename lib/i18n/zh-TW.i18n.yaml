@@ -189,6 +189,7 @@ common:
     pagination: '分頁'
   notice: 通知
   detail: 詳情
+  parseExceptionDestopHint: ' - 桌面端用戶可以在設置中配置代理'
 auth:
   login: 登入
   logout: 登出
@@ -273,6 +274,27 @@ errors:
   failedToLoadSavedCredentials: "載入保存的登入資訊失敗"
   specialFollowLimitReached: '特別關注上限超出，上限: ${cnt}，請於關注列表頁中調整'
   notFound: '內容不存在或已被刪除'
+  network:
+    basicPrefix: '網路錯誤 - '
+    failedToConnectToServer: '連接伺服器失敗'
+    serverNotAvailable: '伺服器不可用'
+    requestTimeout: '請求超時'
+    unexpectedError: '意外錯誤'
+    invalidResponse: '無效的回應'
+    invalidRequest: '無效的請求'
+    invalidUrl: '無效的URL'
+    invalidMethod: '無效的方法'
+    invalidHeader: '無效的頭部'
+    invalidBody: '無效的體'
+    invalidStatusCode: '無效的狀態碼'
+    serverError: '伺服器錯誤'
+    requestCanceled: '請求已取消'
+    invalidPort: '無効な埠口'
+    proxyPortError: '代理埠口設定異常'
+    connectionRefused: '連接被拒絕'
+    networkUnreachable: '網路不可達'
+    noRouteToHost: '無法找到主機'
+    connectionFailed: '連接失敗'
 friends:
   clickToRestoreFriend: 點擊恢復朋友
   friendsList: 朋友列表

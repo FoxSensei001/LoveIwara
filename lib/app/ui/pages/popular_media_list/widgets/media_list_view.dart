@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/utils/logger_utils.dart' show LogUtils;
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/app/utils/media_layout_utils.dart';
+import 'package:i_iwara/utils/common_utils.dart' show CommonUtils;
 import 'common_media_list_widgets.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/rendering.dart'; // 用于 ScrollDirection
@@ -73,6 +74,7 @@ abstract class ExtendedLoadingMoreBase<T> extends LoadingMoreBase<T> {
   int _pageIndex = 0;
   bool _hasMore = true;
   bool forceRefresh = false;
+  String? lastErrorMessage;
   
   @override
   bool get hasMore => _hasMore || forceRefresh;
@@ -106,6 +108,8 @@ abstract class ExtendedLoadingMoreBase<T> extends LoadingMoreBase<T> {
       requestTotalCount = extractTotalCount(response);
       return extractDataList(response);
     } catch (e) {
+      // 存储错误消息
+      lastErrorMessage = CommonUtils.parseExceptionMessage(e);
       // 子类可通过覆盖logError方法来自定义错误日志
       logError('加载分页数据失败', e);
       return [];
@@ -132,6 +136,8 @@ abstract class ExtendedLoadingMoreBase<T> extends LoadingMoreBase<T> {
       isSuccess = true;
     } catch (e) {
       isSuccess = false;
+      // 存储错误消息
+      lastErrorMessage = CommonUtils.parseExceptionMessage(e);
       logError('加载数据列表失败', e);
     }
     return isSuccess;
@@ -189,10 +195,13 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
   final TextEditingController _pageController = TextEditingController();
   // 添加指示器状态
   IndicatorStatus _indicatorStatus = IndicatorStatus.fullScreenBusying;
-  
+
+  // 错误消息
+  String? _errorMessage;
+
   // 添加一个标志来跟踪是否是首次加载
   bool _isFirstLoad = true;
-  
+
   // 添加一个标志来跟踪模式是否已切换
   bool _modeSwitched = false;
   
@@ -382,13 +391,14 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
       }
     } catch (e) {
       if (!mounted) return;
-      
+
       setState(() {
         isLoading = false;
         _isFirstLoad = false;
         _modeSwitched = false;
-        _indicatorStatus = page == 0 
-            ? IndicatorStatus.fullScreenError 
+        _errorMessage = CommonUtils.parseExceptionMessage(e);
+        _indicatorStatus = page == 0
+            ? IndicatorStatus.fullScreenError
             : IndicatorStatus.error;
       });
     }
@@ -514,12 +524,20 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
                   final bool isFullScreenIndicator = status == IndicatorStatus.fullScreenBusying ||
                                                     status == IndicatorStatus.fullScreenError ||
                                                     status == IndicatorStatus.empty;
+                  // 获取错误消息
+                  String? errorMessage = _errorMessage;
+                  if (widget.sourceList is ExtendedLoadingMoreBase<T>) {
+                    final extendedList = widget.sourceList as ExtendedLoadingMoreBase<T>;
+                    errorMessage = extendedList.lastErrorMessage ?? _errorMessage;
+                  }
+
                   return buildIndicator(
                     context,
                     status,
                     () => widget.sourceList.errorRefresh(),
                     emptyIcon: widget.emptyIcon,
                     paddingTop: isFullScreenIndicator ? widget.paddingTop : 0,
+                    errorMessage: errorMessage,
                   );
                 },
               ),
@@ -559,12 +577,13 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
                   (_indicatorStatus == IndicatorStatus.empty && paginatedItems.isEmpty)) {
                 // 全屏状态直接显示指示器
                 final indicator = buildIndicator(
-                  context, 
-                  _indicatorStatus, 
+                  context,
+                  _indicatorStatus,
                   errorRefresh,
                   emptyIcon: widget.emptyIcon,
                   // 全屏指示器需要应用 paddingTop
                   paddingTop: widget.paddingTop,
+                  errorMessage: _errorMessage,
                 );
                 
                 // 如果是SliverFillRemaining，需要套一层CustomScrollView
@@ -617,12 +636,13 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
                       _indicatorStatus == IndicatorStatus.noMoreLoad)
                     SliverToBoxAdapter(
                       child: buildIndicator(
-                        context, 
-                        _indicatorStatus, 
+                        context,
+                        _indicatorStatus,
                         errorRefresh,
                         emptyIcon: widget.emptyIcon,
                         // 加载更多/错误/无更多 指示器不需要顶部padding
                         paddingTop: 0,
+                        errorMessage: _errorMessage,
                       ),
                     ),
                 ],

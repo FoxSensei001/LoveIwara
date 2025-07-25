@@ -249,6 +249,7 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get unsavedChanges => '未保存の変更があります';
 	@override late final _TranslationsCommonPaginationJa pagination = _TranslationsCommonPaginationJa._(_root);
 	@override String get detail => '詳細';
+	@override String get parseExceptionDestopHint => ' - デスクトップユーザーは設定でプロキシを構成できます';
 }
 
 // Path: auth
@@ -348,6 +349,7 @@ class _TranslationsErrorsJa implements TranslationsErrorsEn {
 	@override String get failedToLoadSavedCredentials => '保存されたログイン情報の読み込みに失敗しました';
 	@override String specialFollowLimitReached({required Object cnt}) => '特別フォローの上限を超えています。上限: ${cnt}，フォローリストページで調整してください';
 	@override String get notFound => 'コンテンツが見つかりませんまたは削除されました';
+	@override late final _TranslationsErrorsNetworkJa network = _TranslationsErrorsNetworkJa._(_root);
 }
 
 // Path: friends
@@ -1231,6 +1233,35 @@ class _TranslationsCommonPaginationJa implements TranslationsCommonPaginationEn 
 	@override String get pagination => 'ページネーション';
 }
 
+// Path: errors.network
+class _TranslationsErrorsNetworkJa implements TranslationsErrorsNetworkEn {
+	_TranslationsErrorsNetworkJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get basicPrefix => 'ネットワークエラー - ';
+	@override String get failedToConnectToServer => 'サーバーへの接続に失敗しました';
+	@override String get serverNotAvailable => 'サーバーが利用できません';
+	@override String get requestTimeout => 'リクエストタイムアウト';
+	@override String get unexpectedError => '予期しないエラー';
+	@override String get invalidResponse => '無効なレスポンス';
+	@override String get invalidRequest => '無効なリクエスト';
+	@override String get invalidUrl => '無効なURL';
+	@override String get invalidMethod => '無効なメソッド';
+	@override String get invalidHeader => '無効なヘッダー';
+	@override String get invalidBody => '無効なボディ';
+	@override String get invalidStatusCode => '無効なステータスコード';
+	@override String get serverError => 'サーバーエラー';
+	@override String get requestCanceled => 'リクエストがキャンセルされました';
+	@override String get invalidPort => '無効なポート';
+	@override String get proxyPortError => 'プロキシポートエラー';
+	@override String get connectionRefused => '接続が拒否されました';
+	@override String get networkUnreachable => 'ネットワークに到達できません';
+	@override String get noRouteToHost => 'ホストに到達できません';
+	@override String get connectionFailed => '接続に失敗しました';
+}
+
 // Path: forum.errors
 class _TranslationsForumErrorsJa implements TranslationsForumErrorsEn {
 	_TranslationsForumErrorsJa._(this._root);
@@ -1613,6 +1644,7 @@ extension on TranslationsJa {
 			case 'common.pagination.waterfall': return 'ウォーターフォール';
 			case 'common.pagination.pagination': return 'ページネーション';
 			case 'common.detail': return '詳細';
+			case 'common.parseExceptionDestopHint': return ' - デスクトップユーザーは設定でプロキシを構成できます';
 			case 'auth.login': return 'ログイン';
 			case 'auth.logout': return 'ログアウト';
 			case 'auth.email': return 'メールアドレス';
@@ -1694,6 +1726,26 @@ extension on TranslationsJa {
 			case 'errors.failedToLoadSavedCredentials': return '保存されたログイン情報の読み込みに失敗しました';
 			case 'errors.specialFollowLimitReached': return ({required Object cnt}) => '特別フォローの上限を超えています。上限: ${cnt}，フォローリストページで調整してください';
 			case 'errors.notFound': return 'コンテンツが見つかりませんまたは削除されました';
+			case 'errors.network.basicPrefix': return 'ネットワークエラー - ';
+			case 'errors.network.failedToConnectToServer': return 'サーバーへの接続に失敗しました';
+			case 'errors.network.serverNotAvailable': return 'サーバーが利用できません';
+			case 'errors.network.requestTimeout': return 'リクエストタイムアウト';
+			case 'errors.network.unexpectedError': return '予期しないエラー';
+			case 'errors.network.invalidResponse': return '無効なレスポンス';
+			case 'errors.network.invalidRequest': return '無効なリクエスト';
+			case 'errors.network.invalidUrl': return '無効なURL';
+			case 'errors.network.invalidMethod': return '無効なメソッド';
+			case 'errors.network.invalidHeader': return '無効なヘッダー';
+			case 'errors.network.invalidBody': return '無効なボディ';
+			case 'errors.network.invalidStatusCode': return '無効なステータスコード';
+			case 'errors.network.serverError': return 'サーバーエラー';
+			case 'errors.network.requestCanceled': return 'リクエストがキャンセルされました';
+			case 'errors.network.invalidPort': return '無効なポート';
+			case 'errors.network.proxyPortError': return 'プロキシポートエラー';
+			case 'errors.network.connectionRefused': return '接続が拒否されました';
+			case 'errors.network.networkUnreachable': return 'ネットワークに到達できません';
+			case 'errors.network.noRouteToHost': return 'ホストに到達できません';
+			case 'errors.network.connectionFailed': return '接続に失敗しました';
 			case 'friends.clickToRestoreFriend': return '友達を復元するにはクリックしてください';
 			case 'friends.friendsList': return '友達リスト';
 			case 'friends.friendRequests': return '友達リクエスト';
