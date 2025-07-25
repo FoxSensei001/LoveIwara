@@ -1,5 +1,5 @@
 # 最新版本
-currentVersion: "0.3.14"
+currentVersion: "0.3.15"
 # 更新日志
 # 格式介绍
 # 1. version: 版本号
@@ -7,6 +7,31 @@ currentVersion: "0.3.14"
 # 3. changes: 更新内容
 # 4. minVersion: 最小版本号
 updates:
+  - version: "0.3.15"
+    date: "2025-07-25"
+    minVersion: "0.3.0"
+    changes:
+      zh-CN:
+        - "新增语言切换功能"
+        - "优化首页和订阅页的UI和交互体验"
+        - "视频、图库的搜索新增排序功能"
+        - "新的视频详情页UI"
+        - "修复关闭循环播放时，播放器仍会循环播放的问题"
+        - "安卓平台下关闭 Flutter Impeller 渲染引擎，切换为 Skia 渲染，以解决部分高通处理器设备上的性能问题"
+      en:
+        - "Added language switching function"
+        - "Optimized the UI and interaction experience of the home page and subscription page"
+        - "Added sorting function to video and gallery search"
+        - "New video detail page UI"
+        - "Fixed the issue where the player would still loop when the loop playback was closed"
+        - "On Android platforms, Flutter Impeller rendering engine is disabled and switched to Skia rendering to address performance issues on some Qualcomm devices"
+      ja:
+        - "言語切り替え機能を追加"
+        - "ホームページと購読ページのUIとインタラクション体験を最適化"
+        - "ビデオとギャラリーの検索に並べ替え機能を追加"
+        - "新しいビデオ詳細ページUI"
+        - "ループ再生を閉じた場合でもプレイヤーがループ再生する問題を修正"
+        - "Android プラットフォームで Flutter Impeller レンダリングエンジンを無効化し、Skia レンダリングに切り替えて、一部の Qualcomm プロセッサー搭載デバイスのパフォーマンス問題を解決"
   - version: "0.3.14"
     date: "2025-07-19"
     minVersion: "0.3.0"
