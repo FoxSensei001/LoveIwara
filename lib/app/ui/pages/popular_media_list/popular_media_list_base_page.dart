@@ -1,3 +1,4 @@
+import 'dart:io' show Platform;
 import 'dart:ui';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -311,6 +312,17 @@ class PopularMediaListPageBaseState<
     required Widget child,
     required bool isVisible,
   }) {
+    // 检查当前平台是否为 Windows 或 macOS
+    final bool isDesktop = Platform.isWindows || Platform.isMacOS;
+
+    // 如果是桌面平台，则始终可见，禁用动画收缩效果
+    if (isDesktop) {
+      return SizedBox(
+        width: 48.0, // 固定宽度
+        child: child,
+      );
+    }
+
     return ClipRect(
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
