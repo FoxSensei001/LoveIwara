@@ -450,26 +450,39 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),
-          Row(
-            spacing: 16,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton.icon(
-                onPressed: () => AppService.tryPop(),
-                icon: const Icon(Icons.arrow_back),
-                label: Text(t.common.back),
+          // 使用 Obx 包裹，根据滚动比例隐藏按钮
+          Obx(() {
+            // 当 header 收缩时（scrollRatio > 0.8），隐藏按钮
+            final isCollapsed = controller.scrollRatio.value > 0.8;
+            return AnimatedOpacity(
+              opacity: isCollapsed ? 0.0 : 1.0,
+              duration: const Duration(milliseconds: 200),
+              child: IgnorePointer(
+                ignoring: isCollapsed,
+                child: Row(
+                  spacing: 16,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () => AppService.tryPop(),
+                      icon: const Icon(Icons.arrow_back),
+                      label: Text(t.common.back),
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        if (controller.videoInfo.value?.embedUrl != null) {
+                          launchUrl(
+                              Uri.parse(controller.videoInfo.value!.embedUrl!));
+                        }
+                      },
+                      icon: const Icon(Icons.open_in_new),
+                      label: Text(t.videoDetail.openInBrowser),
+                    ),
+                  ],
+                ),
               ),
-              ElevatedButton.icon(
-                onPressed: () {
-                  if (controller.videoInfo.value?.embedUrl != null) {
-                    launchUrl(Uri.parse(controller.videoInfo.value!.embedUrl!));
-                  }
-                },
-                icon: const Icon(Icons.open_in_new),
-                label: Text(t.videoDetail.openInBrowser),
-              ),
-            ],
-          ),
+            );
+          }),
         ],
       ),
     );
