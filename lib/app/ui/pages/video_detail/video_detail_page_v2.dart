@@ -438,6 +438,10 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
   // 构建外链视频提示
   Widget _buildExternalVideoWidget(BuildContext context) {
     final t = slang.Translations.of(context);
+    final screenSize = MediaQuery.sizeOf(context);
+    final screenHeight = screenSize.height;
+    final screenWidth = screenSize.width;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -452,8 +456,13 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
           const SizedBox(height: 12),
           // 使用 Obx 包裹，根据滚动比例隐藏按钮
           Obx(() {
+            final isWide = _shouldUseWideScreenLayout(
+              screenHeight,
+              screenWidth,
+              controller.aspectRatio.value,
+            );
             // 当 header 收缩时（scrollRatio > 0.8），隐藏按钮
-            final isCollapsed = controller.scrollRatio.value > 0.8;
+            final isCollapsed = !isWide && controller.scrollRatio.value > 0.8;
             return AnimatedOpacity(
               opacity: isCollapsed ? 0.0 : 1.0,
               duration: const Duration(milliseconds: 200),
