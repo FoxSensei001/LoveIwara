@@ -288,6 +288,8 @@ Future<void> _initializeDesktop() async {
   final configService = Get.find<ConfigService>();
   double? storedWidth = configService.settings[ConfigKey.WINDOW_WIDTH]?.value;
   double? storedHeight = configService.settings[ConfigKey.WINDOW_HEIGHT]?.value;
+  double? storedX = configService.settings[ConfigKey.WINDOW_X]?.value;
+  double? storedY = configService.settings[ConfigKey.WINDOW_Y]?.value;
 
   // 设置一个合理的默认最小尺寸，以防存储的值无效
   const defaultWidth = 800.0;
@@ -295,6 +297,7 @@ Future<void> _initializeDesktop() async {
   const minWidth = 200.0;
   const minHeight = 200.0;
 
+  // 先设置窗口大小（不需要补偿，因为此时标题栏还未隐藏）
   if (storedWidth != null && storedHeight != null &&
       storedWidth >= minWidth && storedHeight >= minHeight) {
     await windowManager.setSize(Size(storedWidth, storedHeight));
@@ -305,12 +308,20 @@ Future<void> _initializeDesktop() async {
      LogUtils.d('使用默认窗口大小: ${defaultWidth}x$defaultHeight', '桌面初始化');
   }
 
+  // 先设置标题栏样式为隐藏
   await windowManager.setTitleBarStyle(
     TitleBarStyle.hidden,
     windowButtonVisibility: GetPlatform.isMacOS,
   );
   if (GetPlatform.isLinux) {
     await windowManager.setBackgroundColor(Colors.transparent);
+  }
+
+  // 在隐藏标题栏之后再恢复窗口位置，此时需要减去系统标题栏高度进行补偿
+  if (storedX != null && storedY != null && storedX != -1.0 && storedY != -1.0) {
+    final adjustedY = storedY;
+    await windowManager.setPosition(Offset(storedX, adjustedY));
+    LogUtils.d('已从配置恢复窗口位置: x=$storedX, y=$storedY (调整后: x=$storedX, y=$adjustedY)', '桌面初始化');
   }
 
   await windowManager.show();
@@ -325,44 +336,93 @@ Future<void> _initializeDesktop() async {
 
 /// 桌面窗口事件监听器
 class DesktopWindowListener extends WindowListener {
-  Timer? _debounceTimer; // 新增：防抖定时器
-  final Duration _debounceDuration = const Duration(milliseconds: 500); // 新增：防抖延迟
   @override
   void onWindowClose() async {
     await _closeServices();
     await windowManager.destroy();
   }
 
-  // --- 新增：监听窗口大小变化 ---
   @override
-  void onWindowResize() async {
-    _debounceTimer?.cancel(); // 取消之前的定时器
-    _debounceTimer = Timer(_debounceDuration, () async { // 设置新的定时器
-      try {
-        final size = await windowManager.getSize();
-        final configService = Get.find<ConfigService>();
-
-        // 更新配置服务中的值（内存中）
-        configService.updateSetting(ConfigKey.WINDOW_WIDTH, size.width);
-        configService.updateSetting(ConfigKey.WINDOW_HEIGHT, size.height);
-
-        // 异步保存到持久化存储
-        unawaited(
-          configService.saveSettingToStorage(ConfigKey.WINDOW_WIDTH, size.width)
-            .then((_) => configService.saveSettingToStorage(ConfigKey.WINDOW_HEIGHT, size.height))
-            .then((_) {
-              LogUtils.d('窗口大小已保存: ${size.width}x${size.height}', '桌面监听器');
-            })
-            .catchError((error, stackTrace) {
-              LogUtils.e('保存窗口大小失败', tag: '桌面监听器', error: error, stackTrace: stackTrace);
-            })
-        );
-      } catch (e, s) {
-         LogUtils.e('获取或保存窗口大小时出错', tag: '桌面监听器', error: e, stackTrace: s);
-      }
-    });
+  void onWindowResized() {
+    _saveWindowSize();
   }
-  // --- 新增结束 ---
+
+  @override
+  void onWindowMoved() {
+    _saveWindowPosition();
+  }
+
+  @override
+  void onWindowMaximize() {
+    LogUtils.d('窗口最大化', '桌面监听器');
+    _saveWindowSize();
+    _saveWindowPosition();
+  }
+
+  @override
+  void onWindowUnmaximize() {
+    LogUtils.d('窗口取消最大化', '桌面监听器');
+  }
+
+  @override
+  void onWindowEnterFullScreen() {
+    LogUtils.d('窗口进入全屏', '桌面监听器');
+  }
+
+  @override
+  void onWindowLeaveFullScreen() {
+    LogUtils.d('窗口退出全屏', '桌面监听器');
+  }
+
+  Future<void> _saveWindowSize() async {
+    try {
+      final size = await windowManager.getSize();
+      final configService = Get.find<ConfigService>();
+
+      // 更新配置服务中的值（内存中）
+      configService.updateSetting(ConfigKey.WINDOW_WIDTH, size.width);
+      configService.updateSetting(ConfigKey.WINDOW_HEIGHT, size.height);
+
+      // 异步保存到持久化存储
+      unawaited(
+        configService.saveSettingToStorage(ConfigKey.WINDOW_WIDTH, size.width)
+          .then((_) => configService.saveSettingToStorage(ConfigKey.WINDOW_HEIGHT, size.height))
+          .then((_) {
+            LogUtils.d('窗口大小已保存: ${size.width}x${size.height}', '桌面监听器');
+          })
+          .catchError((error, stackTrace) {
+            LogUtils.e('保存窗口大小失败', tag: '桌面监听器', error: error, stackTrace: stackTrace);
+          })
+      );
+    } catch (e, s) {
+        LogUtils.e('获取或保存窗口大小时出错', tag: '桌面监听器', error: e, stackTrace: s);
+    }
+  }
+
+  Future<void> _saveWindowPosition() async {
+    try {
+      final position = await windowManager.getPosition();
+      final configService = Get.find<ConfigService>();
+
+      final adjustedY = position.dy;
+
+      configService.updateSetting(ConfigKey.WINDOW_X, position.dx);
+      configService.updateSetting(ConfigKey.WINDOW_Y, adjustedY);
+
+      unawaited(
+        configService.saveSettingToStorage(ConfigKey.WINDOW_X, position.dx)
+          .then((_) => configService.saveSettingToStorage(ConfigKey.WINDOW_Y, adjustedY))
+          .then((_) {
+            LogUtils.d('窗口位置已保存: x=${position.dx}, y=${position.dy} (存储为: x=${position.dx}, y=$adjustedY)', '桌面监听器');
+          })
+          .catchError((error, stackTrace) {
+            LogUtils.e('保存窗口位置失败', tag: '桌面监听器', error: error, stackTrace: stackTrace);
+          })
+      );
+    } catch (e, s) {
+      LogUtils.e('获取或保存窗口位置时出错', tag: '桌面监听器', error: e, stackTrace: s);
+    }
+  }
 }
 
 /// 代理设置

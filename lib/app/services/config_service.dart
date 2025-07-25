@@ -222,6 +222,8 @@ enum ConfigKey {
   MAX_LOG_DATABASE_SIZE, // 日志数据库大小上限(字节)
   WINDOW_WIDTH, // 窗口宽度
   WINDOW_HEIGHT, // 窗口高度
+  WINDOW_X, // 窗口X坐标
+  WINDOW_Y, // 窗口Y坐标
   APPLICATION_LOCALE, // 应用语言
 }
 
@@ -286,6 +288,8 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.MAX_LOG_DATABASE_SIZE: return 'max_log_database_size';
       case ConfigKey.WINDOW_WIDTH: return 'window_width';
       case ConfigKey.WINDOW_HEIGHT: return 'window_height';
+      case ConfigKey.WINDOW_X: return 'window_x';
+      case ConfigKey.WINDOW_Y: return 'window_y';
       case ConfigKey.APPLICATION_LOCALE: return 'application_locale';
     }
   }
@@ -408,6 +412,10 @@ extension ConfigKeyExtension on ConfigKey {
         return 800.0;
       case ConfigKey.WINDOW_HEIGHT:
         return 600.0;
+      case ConfigKey.WINDOW_X:
+        return -1.0;
+      case ConfigKey.WINDOW_Y:
+        return -1.0;
       case ConfigKey.APPLICATION_LOCALE:
         return 'system';
       default:
