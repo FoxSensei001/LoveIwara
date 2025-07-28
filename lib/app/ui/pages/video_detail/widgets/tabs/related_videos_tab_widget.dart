@@ -29,6 +29,7 @@ class RelatedVideosTabWidget extends StatelessWidget {
           _buildAuthorOtherVideos(t),
           const SizedBox(height: UIConstants.sectionSpacing), // 统一区块间距
           _buildRelatedVideos(t),
+          const SafeArea(child: SizedBox.shrink()),
         ],
       ),
     );

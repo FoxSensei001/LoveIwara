@@ -358,66 +358,64 @@ class VideoDownloadTaskItem extends StatelessWidget {
     final t = slang.Translations.of(context);
     showModalBottomSheet(
       context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // 查看下载详情
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // 查看下载详情
+          ListTile(
+            leading: const Icon(Icons.info),
+            title: Text(t.download.downloadDetail),
+            onTap: () => showDownloadDetailDialog(context, task),
+          ),
+          // 复制下载链接
+          ListTile(
+            leading: const Icon(Icons.link),
+            title: Text(t.download.copyDownloadUrl),
+            onTap: () {
+              Navigator.pop(context);
+              _copyDownloadUrl(context);
+            },
+          ),
+          if (task.status == DownloadStatus.completed) ...[
             ListTile(
-              leading: const Icon(Icons.info),
-              title: Text(t.download.downloadDetail),
-              onTap: () => showDownloadDetailDialog(context, task),
-            ),
-            // 复制下载链接
-            ListTile(
-              leading: const Icon(Icons.link),
-              title: Text(t.download.copyDownloadUrl),
+              leading: const Icon(Icons.open_in_new),
+              title: Text(t.download.openFile),
               onTap: () {
                 Navigator.pop(context);
-                _copyDownloadUrl(context);
+                _openFile(context);
               },
             ),
-            if (task.status == DownloadStatus.completed) ...[
+            if (Platform.isWindows || Platform.isMacOS || Platform.isLinux)
               ListTile(
-                leading: const Icon(Icons.open_in_new),
-                title: Text(t.download.openFile),
+                leading: const Icon(Icons.folder_open),
+                title: Text(t.download.showInFolder),
                 onTap: () {
                   Navigator.pop(context);
-                  _openFile(context);
+                  _showInFolder(context);
                 },
               ),
-              if (Platform.isWindows || Platform.isMacOS || Platform.isLinux)
-                ListTile(
-                  leading: const Icon(Icons.folder_open),
-                  title: Text(t.download.showInFolder),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _showInFolder(context);
-                  },
-                ),
-            ],
-            ListTile(
-              leading: const Icon(Icons.delete, color: Colors.red),
-              title: Text(t.download.deleteTask,
-                  style: const TextStyle(color: Colors.red)),
-              onTap: () {
-                Navigator.pop(context);
-                _showDeleteConfirmDialog(context);
-              },
-            ),
-            // 强制删除
-            PopupMenuItem(
-              child: Row(
-                children: [
-                  const Icon(Icons.delete, color: Colors.red),
-                  const SizedBox(width: 8),
-                  Text(t.download.forceDeleteTask, style: const TextStyle(color: Colors.red)),
-                ],
-              ),
-              onTap: () => _showDeleteConfirmDialog(context, force: true),
-            ),
           ],
-        ),
+          ListTile(
+            leading: const Icon(Icons.delete, color: Colors.red),
+            title: Text(t.download.deleteTask,
+                style: const TextStyle(color: Colors.red)),
+            onTap: () {
+              Navigator.pop(context);
+              _showDeleteConfirmDialog(context);
+            },
+          ),
+          // 强制删除
+          ListTile(
+            leading: const Icon(Icons.delete, color: Colors.red),
+            title: Text(t.download.forceDeleteTask, style: const TextStyle(color: Colors.red)),
+            onTap: () {
+              Navigator.pop(context);
+              _showDeleteConfirmDialog(context, force: true);
+            },
+          ),
+          // 底部安全区域
+          const SafeArea(child: SizedBox.shrink()),
+        ],
       ),
     );
   }
@@ -665,21 +663,27 @@ class VideoDownloadTaskItem extends StatelessWidget {
   void _showDeleteConfirmDialog(BuildContext context, {bool force = false}) {
     final t = slang.Translations.of(context);
     Get.dialog(
-      AlertDialog(
-        title: Text(t.download.deleteTask),
-        content: Text(t.download.clearAllFailedTasksConfirmation),
-        actions: [
-          TextButton(
-            onPressed: () => AppService.tryPop(),
-            child: Text(t.common.cancel),
+      Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          AlertDialog(
+            title: Text(t.download.deleteTask),
+            content: Text(t.download.clearAllFailedTasksConfirmation),
+            actions: [
+              TextButton(
+                onPressed: () => AppService.tryPop(),
+                child: Text(t.common.cancel),
+              ),
+              TextButton(
+                onPressed: () {
+                  AppService.tryPop();
+                  DownloadService.to.deleteTask(task.id, ignoreFileDeleteError: force);
+                },
+                child: Text(t.common.confirm),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () {
-              AppService.tryPop();
-              DownloadService.to.deleteTask(task.id, ignoreFileDeleteError: force);
-            },
-            child: Text(t.common.confirm),
-          ),
+          const SafeArea(child: SizedBox.shrink()),
         ],
       ),
     );

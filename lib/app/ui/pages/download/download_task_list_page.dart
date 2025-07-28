@@ -336,6 +336,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage>
 
  void showDownloadDetailDialog(BuildContext context, DownloadTask task) async {
     final t = slang.Translations.of(context);
+    final theme = Theme.of(context);
 
     // 获取相关任务信息
     final DownloadService downloadService = DownloadService.to;
@@ -359,55 +360,61 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage>
     final String prettyJson = const JsonEncoder.withIndent('  ').convert(fullTaskInfo);
 
     Get.dialog(
-      AlertDialog(
-        title: Text(t.download.downloadDetail),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: SelectableText(
-                    prettyJson,
-                    style: const TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 12,
+      Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          AlertDialog(
+            title: Text(t.download.downloadDetail),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: SelectableText(
+                        prettyJson,
+                        style: const TextStyle(
+                          fontFamily: 'monospace',
+                          fontSize: 12,
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () async {
-              final item = DataWriterItem();
-              item.add(Formats.plainText(prettyJson));
-              await SystemClipboard.instance?.write([item]);
+            actions: [
+              TextButton(
+                onPressed: () async {
+                  final item = DataWriterItem();
+                  item.add(Formats.plainText(prettyJson));
+                  await SystemClipboard.instance?.write([item]);
 
-              if (context.mounted) {
-                showToastWidget(
-                  MDToastWidget(
-                    message: t.download.copySuccess,
-                    type: MDToastType.success,
-                  ),
-                );
-              }
-            },
-            child: Text(t.download.copy),
+                  if (context.mounted) {
+                    showToastWidget(
+                      MDToastWidget(
+                        message: t.download.copySuccess,
+                        type: MDToastType.success,
+                      ),
+                    );
+                  }
+                },
+                child: Text(t.download.copy),
+              ),
+              TextButton(
+                onPressed: () => AppService.tryPop(),
+                child: Text(t.common.close),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => AppService.tryPop(),
-            child: Text(t.common.close),
-          ),
+          const SafeArea(child: SizedBox.shrink()),
         ],
       ),
     );

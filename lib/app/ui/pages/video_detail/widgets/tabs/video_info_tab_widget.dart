@@ -71,6 +71,7 @@ class VideoInfoTabWidget extends StatelessWidget {
             _buildLikeAvatars(context),
             const SizedBox(height: UIConstants.sectionSpacing), // More space before actions
             _buildActionButtons(context),
+            const SafeArea(child: SizedBox.shrink()),
           ],
         ),
       );
