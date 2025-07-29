@@ -236,10 +236,10 @@ class _SearchContentState extends State<_SearchContent> {
                           controller: _controller,
                           focusNode: _focusNode,
                           autofocus: true,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
-                            color: Colors.black87,
+                            color: Theme.of(context).textTheme.bodyLarge?.color,
                           ),
                           decoration: InputDecoration(
                             hintText: _searchPlaceholder.value.isEmpty
