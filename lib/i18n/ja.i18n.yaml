@@ -518,6 +518,13 @@ settings:
   jumpLink: リンクをジャンプ
   language: 言語
   languageChanged: 言語設定が変更されました。アプリを再起動して有効にしてください。
+  gestureControl: ジェスチャー制御
+  leftDoubleTapRewind: 左側ダブルタップリワインド
+  rightDoubleTapFastForward: 右側ダブルタップファストフォワード
+  doubleTapPause: ダブルタップポーズ
+  leftVerticalSwipeVolume: 左側垂直スワイプボリューム（新ページに入った時に有効）
+  rightVerticalSwipeBrightness: 右側垂直スワイプブライトネス（新ページに入った時に有効）
+  longPressFastForward: 長押しファストフォワード
 signIn:
   pleaseLoginFirst: サインインする前にログインしてください
   alreadySignedInToday: 今日は既にサインインしています！

@@ -450,6 +450,8 @@ class _MyVideoScreenState extends State<MyVideoScreen>
               myVideoStateController: widget.myVideoStateController,
               onDoubleTapLeft: _triggerLeftRipple,
               screenSize: screenSize,
+              onVolumeChange: (volume) =>
+                  widget.myVideoStateController.setVolume(volume, save: false),
               onHorizontalDragStart: (details) {
                 _horizontalDragStartX = details.localPosition.dx;
                 _horizontalDragStartPosition =
@@ -507,8 +509,6 @@ class _MyVideoScreenState extends State<MyVideoScreen>
               myVideoStateController: widget.myVideoStateController,
               onDoubleTapRight: _triggerRightRipple,
               screenSize: screenSize,
-              onVolumeChange: (volume) =>
-                  widget.myVideoStateController.setVolume(volume, save: false),
               onHorizontalDragStart: (details) {
                 _horizontalDragStartX = details.localPosition.dx;
                 _horizontalDragStartPosition =

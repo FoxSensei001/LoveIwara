@@ -449,6 +449,102 @@ class PlayerSettingsWidget extends StatelessWidget {
               ),
             ),
           ),
+          const SizedBox(height: 16),
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    // '手势控制',
+                    t.settings.gestureControl,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // 左侧双击后退开关
+                  _buildSwitchSetting(
+                    context: context,
+                    iconData: Icons.fast_rewind,
+                    // label: '左侧双击后退',
+                    label: t.settings.leftDoubleTapRewind,
+                    showInfoCard: false,
+                    rxValue: _configService.settings[ConfigKey.ENABLE_LEFT_DOUBLE_TAP_REWIND]!,
+                    onChanged: (value) {
+                      _configService[ConfigKey.ENABLE_LEFT_DOUBLE_TAP_REWIND] = value;
+                    },
+                  ),
+                  // 右侧双击快进开关
+                  _buildSwitchSetting(
+                    context: context,
+                    iconData: Icons.fast_forward,
+                    // label: '右侧双击快进',
+                    label: t.settings.rightDoubleTapFastForward,
+                    showInfoCard: false,
+                    rxValue: _configService.settings[ConfigKey.ENABLE_RIGHT_DOUBLE_TAP_FAST_FORWARD]!,
+                    onChanged: (value) {
+                      _configService[ConfigKey.ENABLE_RIGHT_DOUBLE_TAP_FAST_FORWARD] = value;
+                    },
+                  ),
+                  // 双击暂停开关
+                  _buildSwitchSetting(
+                    context: context,
+                    iconData: Icons.pause,
+                    // label: '双击暂停',
+                    label: t.settings.doubleTapPause,
+                    showInfoCard: false,
+                    rxValue: _configService.settings[ConfigKey.ENABLE_DOUBLE_TAP_PAUSE]!,
+                    onChanged: (value) {
+                      _configService[ConfigKey.ENABLE_DOUBLE_TAP_PAUSE] = value;
+                    },
+                  ),
+                  // 左侧上下滑动调整音量开关
+                  _buildSwitchSetting(
+                    context: context,
+                    iconData: Icons.volume_up,
+                    // label: '左侧上下滑动调整音量（进入新页面时生效）',
+                    label: t.settings.leftVerticalSwipeVolume,
+                    showInfoCard: false,
+                    rxValue: _configService.settings[ConfigKey.ENABLE_LEFT_VERTICAL_SWIPE_VOLUME]!,
+                    onChanged: (value) {
+                      _configService[ConfigKey.ENABLE_LEFT_VERTICAL_SWIPE_VOLUME] = value;
+                    },
+                  ),
+                  // 右侧上下滑动调整亮度开关
+                  _buildSwitchSetting(
+                    context: context,
+                    iconData: Icons.brightness_medium,
+                    // label: '右侧上下滑动调整亮度（进入新页面时生效）',
+                    label: t.settings.rightVerticalSwipeBrightness,
+                    showInfoCard: false,
+                    rxValue: _configService.settings[ConfigKey.ENABLE_RIGHT_VERTICAL_SWIPE_BRIGHTNESS]!,
+                    onChanged: (value) {
+                      _configService[ConfigKey.ENABLE_RIGHT_VERTICAL_SWIPE_BRIGHTNESS] = value;
+                    },
+                  ),
+                  // 长按快进开关
+                  _buildSwitchSetting(
+                    context: context,
+                    iconData: Icons.fast_forward,
+                    // label: '长按快进',
+                    label: t.settings.longPressFastForward,
+                    showInfoCard: false,
+                    rxValue: _configService.settings[ConfigKey.ENABLE_LONG_PRESS_FAST_FORWARD]!,
+                    onChanged: (value) {
+                      _configService[ConfigKey.ENABLE_LONG_PRESS_FAST_FORWARD] = value;
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
           Card(
             elevation: 2,
             shape: RoundedRectangleBorder(

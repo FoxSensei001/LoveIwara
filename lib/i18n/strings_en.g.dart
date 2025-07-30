@@ -633,6 +633,13 @@ class TranslationsSettingsEn {
 	String get jumpLink => 'Jump Link';
 	String get language => 'Language';
 	String get languageChanged => 'Language setting has been changed, please restart the app to take effect.';
+	String get gestureControl => 'Gesture Control';
+	String get leftDoubleTapRewind => 'Left Double Tap Rewind';
+	String get rightDoubleTapFastForward => 'Right Double Tap Fast Forward';
+	String get doubleTapPause => 'Double Tap Pause';
+	String get leftVerticalSwipeVolume => 'Left Vertical Swipe Volume (Effective when entering a new page)';
+	String get rightVerticalSwipeBrightness => 'Right Vertical Swipe Brightness (Effective when entering a new page)';
+	String get longPressFastForward => 'Long Press Fast Forward';
 }
 
 // Path: signIn
@@ -1957,6 +1964,13 @@ extension on Translations {
 			case 'settings.jumpLink': return 'Jump Link';
 			case 'settings.language': return 'Language';
 			case 'settings.languageChanged': return 'Language setting has been changed, please restart the app to take effect.';
+			case 'settings.gestureControl': return 'Gesture Control';
+			case 'settings.leftDoubleTapRewind': return 'Left Double Tap Rewind';
+			case 'settings.rightDoubleTapFastForward': return 'Right Double Tap Fast Forward';
+			case 'settings.doubleTapPause': return 'Double Tap Pause';
+			case 'settings.leftVerticalSwipeVolume': return 'Left Vertical Swipe Volume (Effective when entering a new page)';
+			case 'settings.rightVerticalSwipeBrightness': return 'Right Vertical Swipe Brightness (Effective when entering a new page)';
+			case 'settings.longPressFastForward': return 'Long Press Fast Forward';
 			case 'signIn.pleaseLoginFirst': return 'Please login first';
 			case 'signIn.alreadySignedInToday': return 'You have already signed in today!';
 			case 'signIn.youDidNotStickToTheSignIn': return 'You did not stick to the sign in.';

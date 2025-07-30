@@ -517,6 +517,13 @@ settings:
   jumpLink: Jump Link
   language: Language
   languageChanged: Language setting has been changed, please restart the app to take effect.
+  gestureControl: Gesture Control
+  leftDoubleTapRewind: Left Double Tap Rewind
+  rightDoubleTapFastForward: Right Double Tap Fast Forward
+  doubleTapPause: Double Tap Pause
+  leftVerticalSwipeVolume: Left Vertical Swipe Volume (Effective when entering a new page)
+  rightVerticalSwipeBrightness: Right Vertical Swipe Brightness (Effective when entering a new page)
+  longPressFastForward: Long Press Fast Forward
 signIn:
   pleaseLoginFirst: Please login first
   alreadySignedInToday: You have already signed in today!

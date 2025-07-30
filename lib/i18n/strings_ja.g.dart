@@ -630,6 +630,13 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get jumpLink => 'リンクをジャンプ';
 	@override String get language => '言語';
 	@override String get languageChanged => '言語設定が変更されました。アプリを再起動して有効にしてください。';
+	@override String get gestureControl => 'ジェスチャー制御';
+	@override String get leftDoubleTapRewind => '左側ダブルタップリワインド';
+	@override String get rightDoubleTapFastForward => '右側ダブルタップファストフォワード';
+	@override String get doubleTapPause => 'ダブルタップポーズ';
+	@override String get leftVerticalSwipeVolume => '左側垂直スワイプボリューム（新ページに入った時に有効）';
+	@override String get rightVerticalSwipeBrightness => '右側垂直スワイプブライトネス（新ページに入った時に有効）';
+	@override String get longPressFastForward => '長押しファストフォワード';
 }
 
 // Path: signIn
@@ -1954,6 +1961,13 @@ extension on TranslationsJa {
 			case 'settings.jumpLink': return 'リンクをジャンプ';
 			case 'settings.language': return '言語';
 			case 'settings.languageChanged': return '言語設定が変更されました。アプリを再起動して有効にしてください。';
+			case 'settings.gestureControl': return 'ジェスチャー制御';
+			case 'settings.leftDoubleTapRewind': return '左側ダブルタップリワインド';
+			case 'settings.rightDoubleTapFastForward': return '右側ダブルタップファストフォワード';
+			case 'settings.doubleTapPause': return 'ダブルタップポーズ';
+			case 'settings.leftVerticalSwipeVolume': return '左側垂直スワイプボリューム（新ページに入った時に有効）';
+			case 'settings.rightVerticalSwipeBrightness': return '右側垂直スワイプブライトネス（新ページに入った時に有効）';
+			case 'settings.longPressFastForward': return '長押しファストフォワード';
 			case 'signIn.pleaseLoginFirst': return 'サインインする前にログインしてください';
 			case 'signIn.alreadySignedInToday': return '今日は既にサインインしています！';
 			case 'signIn.youDidNotStickToTheSignIn': return 'サインインを続けることができませんでした。';

@@ -630,6 +630,13 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get jumpLink => '跳轉連結';
 	@override String get language => '語言';
 	@override String get languageChanged => '語言設定已更改，請重新啟動應用以生效。';
+	@override String get gestureControl => '手勢控制';
+	@override String get leftDoubleTapRewind => '左側雙擊後退';
+	@override String get rightDoubleTapFastForward => '右側雙擊快進';
+	@override String get doubleTapPause => '雙擊暫停';
+	@override String get leftVerticalSwipeVolume => '左側上下滑動調整音量（進入新頁面時生效）';
+	@override String get rightVerticalSwipeBrightness => '右側上下滑動調整亮度（進入新頁面時生效）';
+	@override String get longPressFastForward => '長按快進';
 }
 
 // Path: signIn
@@ -1957,6 +1964,13 @@ extension on TranslationsZhTw {
 			case 'settings.jumpLink': return '跳轉連結';
 			case 'settings.language': return '語言';
 			case 'settings.languageChanged': return '語言設定已更改，請重新啟動應用以生效。';
+			case 'settings.gestureControl': return '手勢控制';
+			case 'settings.leftDoubleTapRewind': return '左側雙擊後退';
+			case 'settings.rightDoubleTapFastForward': return '右側雙擊快進';
+			case 'settings.doubleTapPause': return '雙擊暫停';
+			case 'settings.leftVerticalSwipeVolume': return '左側上下滑動調整音量（進入新頁面時生效）';
+			case 'settings.rightVerticalSwipeBrightness': return '右側上下滑動調整亮度（進入新頁面時生效）';
+			case 'settings.longPressFastForward': return '長按快進';
 			case 'signIn.pleaseLoginFirst': return '請先登入';
 			case 'signIn.alreadySignedInToday': return '您今天已經簽到過了！';
 			case 'signIn.youDidNotStickToTheSignIn': return '您未能持續簽到。';

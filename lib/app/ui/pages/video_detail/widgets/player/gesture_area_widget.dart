@@ -85,24 +85,30 @@ class _GestureAreaState extends State<GestureArea>
   }
 
   void _onDoubleTap() {
-    // 如果是中心区域，双击切换播放状态
     VibrateUtils.vibrate();
 
     switch (widget.region) {
       case GestureRegion.center:
-        widget.onDoubleTap?.call();
+        // 检查双击暂停配置
+        if (_configService[ConfigKey.ENABLE_DOUBLE_TAP_PAUSE] == true) {
+          widget.onDoubleTap?.call();
+        }
         break;
       case GestureRegion.left:
-        // 触发左侧波纹动画
-        widget.onDoubleTapLeft?.call();
-        _showInfoMessage();
+        // 检查左侧双击后退配置
+        if (_configService[ConfigKey.ENABLE_LEFT_DOUBLE_TAP_REWIND] == true) {
+          // 触发左侧波纹动画
+          widget.onDoubleTapLeft?.call();
+          _showInfoMessage();
+        }
         break;
       case GestureRegion.right:
-        // 触发右侧波纹动画
-        widget.onDoubleTapRight?.call();
-        _showInfoMessage();
-        break;
-      default:
+        // 检查右侧双击快进配置
+        if (_configService[ConfigKey.ENABLE_RIGHT_DOUBLE_TAP_FAST_FORWARD] == true) {
+          // 触发右侧波纹动画
+          widget.onDoubleTapRight?.call();
+          _showInfoMessage();
+        }
         break;
     }
   }
@@ -143,6 +149,11 @@ class _GestureAreaState extends State<GestureArea>
   }
 
   void _onLongPressStart(LongPressStartDetails details) async {
+    // 检查长按快进配置
+    if (_configService[ConfigKey.ENABLE_LONG_PRESS_FAST_FORWARD] != true) {
+      return;
+    }
+
     VibrateUtils.vibrate(type: HapticFeedback.vibrate);
     // 如果视频在暂停或buffering状态，不处理
     if (!widget.myVideoStateController.videoPlaying.value ||
@@ -153,6 +164,11 @@ class _GestureAreaState extends State<GestureArea>
   }
 
   void _onLongPressEnd(LongPressEndDetails details) async {
+    // 检查长按快进配置
+    if (_configService[ConfigKey.ENABLE_LONG_PRESS_FAST_FORWARD] != true) {
+      return;
+    }
+
     // 震动
     VibrateUtils.vibrate(type: HapticFeedback.lightImpact);
 
@@ -168,12 +184,20 @@ class _GestureAreaState extends State<GestureArea>
       return false;
     }
 
-    // PC设备和Web不处理亮度调节
-    if (widget.region == GestureRegion.left &&
-        (GetPlatform.isDesktop || GetPlatform.isWeb)) {
-      return false;
+    // 检查左侧音量调节配置
+    if (widget.region == GestureRegion.left) {
+      return _configService[ConfigKey.ENABLE_LEFT_VERTICAL_SWIPE_VOLUME] == true;
     }
-    return true;
+
+    // 检查右侧亮度调节配置，PC设备和Web不处理亮度调节
+    if (widget.region == GestureRegion.right) {
+      if (GetPlatform.isDesktop || GetPlatform.isWeb) {
+        return false;
+      }
+      return _configService[ConfigKey.ENABLE_RIGHT_VERTICAL_SWIPE_BRIGHTNESS] == true;
+    }
+
+    return false;
   }
 
   void _onVerticalDragEnd(DragEndDetails details) {
@@ -183,17 +207,17 @@ class _GestureAreaState extends State<GestureArea>
 
     LongPressType? type;
     if (widget.region == GestureRegion.left) {
-      type = LongPressType.brightness;
-      // 在亮度调节结束时保存设置
-      _configService.setSetting(ConfigKey.BRIGHTNESS_KEY, _configService[ConfigKey.BRIGHTNESS_KEY], save: true);
-      // 保存亮度设置
-      CommonConstants.isSetBrightness = true;
-    } else if (widget.region == GestureRegion.right) {
       type = LongPressType.volume;
       // 在音量调节结束时保存设置
       _configService.setSetting(ConfigKey.VOLUME_KEY, _configService[ConfigKey.VOLUME_KEY], save: true);
       // 保存音量设置
       CommonConstants.isSetVolume = true;
+    } else if (widget.region == GestureRegion.right) {
+      type = LongPressType.brightness;
+      // 在亮度调节结束时保存设置
+      _configService.setSetting(ConfigKey.BRIGHTNESS_KEY, _configService[ConfigKey.BRIGHTNESS_KEY], save: true);
+      // 保存亮度设置
+      CommonConstants.isSetBrightness = true;
     }
 
     widget.setLongPressing?.call(type, false);
@@ -213,20 +237,32 @@ class _GestureAreaState extends State<GestureArea>
       return;
     }
 
-    // 缩放因子，调低因子以加快调整速度：亮度区域设置为0.2，音量区域设置为0.3
-    var scalingFactor = widget.region == GestureRegion.left ? 0.2 : 0.3;
+    // 缩放因子，调低因子以加快调整速度：音量区域设置为0.3，亮度区域设置为0.2
+    var scalingFactor = widget.region == GestureRegion.left ? 0.3 : 0.2;
     final double max = widget.screenSize.height * scalingFactor;
 
-    if (widget.region == GestureRegion.left &&
+    if (widget.region == GestureRegion.left) {
+      // 左侧调整音量
+      double rx = _configService[ConfigKey.VOLUME_KEY] -
+          details.primaryDelta! / max;
+      rx = rx.clamp(0.0, 1.0);
+
+      // 使用节流控制音量调节
+      EasyThrottle.throttle('setVolume', const Duration(milliseconds: 20), () {
+        widget.onVolumeChange?.call(rx);
+      });
+
+      widget.setLongPressing?.call(LongPressType.volume, true);
+    } else if (widget.region == GestureRegion.right &&
         !GetPlatform.isWeb &&
         !GetPlatform.isLinux &&
         !GetPlatform.isWindows &&
         !GetPlatform.isMacOS) {
-      // 只在移动设备上调整亮度
+      // 右侧只在移动设备上调整亮度
       double rx = _configService[ConfigKey.BRIGHTNESS_KEY] -
           details.primaryDelta! / max;
       rx = rx.clamp(0.0, 1.0);
-      
+
       // 使用节流控制亮度调节
       EasyThrottle.throttle('setBrightness', const Duration(milliseconds: 20), () {
         _configService.setSetting(ConfigKey.BRIGHTNESS_KEY, rx, save: false);
@@ -234,18 +270,6 @@ class _GestureAreaState extends State<GestureArea>
       });
 
       widget.setLongPressing?.call(LongPressType.brightness, true);
-    } else if (widget.region == GestureRegion.right) {
-      // 调整音量
-      double rx = _configService[ConfigKey.VOLUME_KEY] -
-          details.primaryDelta! / max;
-      rx = rx.clamp(0.0, 1.0);
-      
-      // 使用节流控制音量调节
-      EasyThrottle.throttle('setVolume', const Duration(milliseconds: 20), () {
-        widget.onVolumeChange?.call(rx);
-      });
-      
-      widget.setLongPressing?.call(LongPressType.volume, true);
     }
   }
 

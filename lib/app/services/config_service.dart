@@ -225,6 +225,13 @@ enum ConfigKey {
   WINDOW_X, // 窗口X坐标
   WINDOW_Y, // 窗口Y坐标
   APPLICATION_LOCALE, // 应用语言
+  // 播放器手势控制开关
+  ENABLE_LEFT_DOUBLE_TAP_REWIND, // 左侧双击后退
+  ENABLE_RIGHT_DOUBLE_TAP_FAST_FORWARD, // 右侧双击快进
+  ENABLE_DOUBLE_TAP_PAUSE, // 双击暂停
+  ENABLE_LEFT_VERTICAL_SWIPE_VOLUME, // 左侧上下滑动调整音量
+  ENABLE_RIGHT_VERTICAL_SWIPE_BRIGHTNESS, // 右侧上下滑动调整亮度
+  ENABLE_LONG_PRESS_FAST_FORWARD, // 长按快进
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -291,6 +298,12 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.WINDOW_X: return 'window_x';
       case ConfigKey.WINDOW_Y: return 'window_y';
       case ConfigKey.APPLICATION_LOCALE: return 'application_locale';
+      case ConfigKey.ENABLE_LEFT_DOUBLE_TAP_REWIND: return 'enable_left_double_tap_rewind';
+      case ConfigKey.ENABLE_RIGHT_DOUBLE_TAP_FAST_FORWARD: return 'enable_right_double_tap_fast_forward';
+      case ConfigKey.ENABLE_DOUBLE_TAP_PAUSE: return 'enable_double_tap_pause';
+      case ConfigKey.ENABLE_LEFT_VERTICAL_SWIPE_VOLUME: return 'enable_left_vertical_swipe_volume';
+      case ConfigKey.ENABLE_RIGHT_VERTICAL_SWIPE_BRIGHTNESS: return 'enable_right_vertical_swipe_brightness';
+      case ConfigKey.ENABLE_LONG_PRESS_FAST_FORWARD: return 'enable_long_press_fast_forward';
     }
   }
 
@@ -418,8 +431,18 @@ extension ConfigKeyExtension on ConfigKey {
         return -1.0;
       case ConfigKey.APPLICATION_LOCALE:
         return 'system';
-      default:
-        throw Exception("Unknown ConfigKey: $this");
+      case ConfigKey.ENABLE_LEFT_DOUBLE_TAP_REWIND:
+        return true;
+      case ConfigKey.ENABLE_RIGHT_DOUBLE_TAP_FAST_FORWARD:
+        return true;
+      case ConfigKey.ENABLE_DOUBLE_TAP_PAUSE:
+        return true;
+      case ConfigKey.ENABLE_LEFT_VERTICAL_SWIPE_VOLUME:
+        return true;
+      case ConfigKey.ENABLE_RIGHT_VERTICAL_SWIPE_BRIGHTNESS:
+        return true;
+      case ConfigKey.ENABLE_LONG_PRESS_FAST_FORWARD:
+        return true;
     }
   }
 }
