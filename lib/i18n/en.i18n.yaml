@@ -527,6 +527,8 @@ settings:
   leftVerticalSwipeVolume: Left Vertical Swipe Volume (Effective when entering a new page)
   rightVerticalSwipeBrightness: Right Vertical Swipe Brightness (Effective when entering a new page)
   longPressFastForward: Long Press Fast Forward
+  enableMouseHoverShowToolbar: Enable Mouse Hover Show Toolbar
+  enableMouseHoverShowToolbarInfo: When enabled, the video toolbar will be shown when the mouse is hovering over the player. It will be automatically hidden after 3 seconds of inactivity.
 signIn:
   pleaseLoginFirst: Please login first
   alreadySignedInToday: You have already signed in today!

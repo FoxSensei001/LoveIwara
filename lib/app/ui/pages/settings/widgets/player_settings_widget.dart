@@ -314,6 +314,20 @@ class PlayerSettingsWidget extends StatelessWidget {
                       _configService[ConfigKey.DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE] = value;
                     },
                   ),
+                  // 添加鼠标悬浮显示工具栏开关
+                  _buildSwitchSetting(
+                    context: context,
+                    iconData: Icons.mouse,
+                    // label: '鼠标悬浮时显示工具栏',
+                    label: t.settings.enableMouseHoverShowToolbar,
+                    showInfoCard: true,
+                    // infoMessage: '开启后，当鼠标悬浮在播放器上移动时会自动显示工具栏，停止移动3秒后自动隐藏',
+                    infoMessage: t.settings.enableMouseHoverShowToolbarInfo,
+                    rxValue: _configService.settings[ConfigKey.ENABLE_MOUSE_HOVER_SHOW_TOOLBAR]!,
+                    onChanged: (value) {
+                      _configService[ConfigKey.ENABLE_MOUSE_HOVER_SHOW_TOOLBAR] = value;
+                    },
+                  ),
                   // 添加锁定按钮位置设置
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),

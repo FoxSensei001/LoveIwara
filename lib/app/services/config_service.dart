@@ -232,6 +232,7 @@ enum ConfigKey {
   ENABLE_LEFT_VERTICAL_SWIPE_VOLUME, // 左侧上下滑动调整音量
   ENABLE_RIGHT_VERTICAL_SWIPE_BRIGHTNESS, // 右侧上下滑动调整亮度
   ENABLE_LONG_PRESS_FAST_FORWARD, // 长按快进
+  ENABLE_MOUSE_HOVER_SHOW_TOOLBAR, // 鼠标悬浮显示工具栏
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -304,6 +305,7 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.ENABLE_LEFT_VERTICAL_SWIPE_VOLUME: return 'enable_left_vertical_swipe_volume';
       case ConfigKey.ENABLE_RIGHT_VERTICAL_SWIPE_BRIGHTNESS: return 'enable_right_vertical_swipe_brightness';
       case ConfigKey.ENABLE_LONG_PRESS_FAST_FORWARD: return 'enable_long_press_fast_forward';
+      case ConfigKey.ENABLE_MOUSE_HOVER_SHOW_TOOLBAR: return 'enable_mouse_hover_show_toolbar';
     }
   }
 
@@ -442,6 +444,8 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.ENABLE_RIGHT_VERTICAL_SWIPE_BRIGHTNESS:
         return true;
       case ConfigKey.ENABLE_LONG_PRESS_FAST_FORWARD:
+        return true;
+      case ConfigKey.ENABLE_MOUSE_HOVER_SHOW_TOOLBAR:
         return true;
     }
   }

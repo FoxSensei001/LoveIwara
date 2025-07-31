@@ -645,6 +645,8 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get leftVerticalSwipeVolume => '左侧上下滑动调整音量（进入新页面时生效）';
 	@override String get rightVerticalSwipeBrightness => '右侧上下滑动调整亮度（进入新页面时生效）';
 	@override String get longPressFastForward => '长按快进';
+	@override String get enableMouseHoverShowToolbar => '鼠标悬浮时显示工具栏';
+	@override String get enableMouseHoverShowToolbarInfo => '开启后，当鼠标悬浮在播放器上移动时会自动显示工具栏，停止移动3秒后自动隐藏';
 }
 
 // Path: signIn
@@ -1984,6 +1986,8 @@ extension on TranslationsZhCn {
 			case 'settings.leftVerticalSwipeVolume': return '左侧上下滑动调整音量（进入新页面时生效）';
 			case 'settings.rightVerticalSwipeBrightness': return '右侧上下滑动调整亮度（进入新页面时生效）';
 			case 'settings.longPressFastForward': return '长按快进';
+			case 'settings.enableMouseHoverShowToolbar': return '鼠标悬浮时显示工具栏';
+			case 'settings.enableMouseHoverShowToolbarInfo': return '开启后，当鼠标悬浮在播放器上移动时会自动显示工具栏，停止移动3秒后自动隐藏';
 			case 'signIn.pleaseLoginFirst': return '请先登录';
 			case 'signIn.alreadySignedInToday': return '您今天已经签到过了！';
 			case 'signIn.youDidNotStickToTheSignIn': return '您未能坚持签到。';

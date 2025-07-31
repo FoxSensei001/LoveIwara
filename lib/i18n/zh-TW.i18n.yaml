@@ -528,6 +528,8 @@ settings:
   leftVerticalSwipeVolume: 左側上下滑動調整音量（進入新頁面時生效）
   rightVerticalSwipeBrightness: 右側上下滑動調整亮度（進入新頁面時生效）
   longPressFastForward: 長按快進
+  enableMouseHoverShowToolbar: 鼠標懸停時顯示工具欄
+  enableMouseHoverShowToolbarInfo: 開啟後，當鼠標懸停在播放器上移動時會自動顯示工具欄，停止移動3秒後自動隱藏
 signIn:
   pleaseLoginFirst: 請先登入
   alreadySignedInToday: 您今天已經簽到過了！

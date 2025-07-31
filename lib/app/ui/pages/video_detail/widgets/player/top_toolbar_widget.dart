@@ -36,125 +36,139 @@ class TopToolbar extends StatelessWidget {
       position: myVideoStateController.topBarAnimation,
       child: FadeTransition(
         opacity: myVideoStateController.animationController, // 使用透明度动画
-        child: Container(
-          // 容器高度包括状态栏高度
-          height: 60 + statusBarHeight,
-          // 添加顶部内边距以避免内容覆盖状态栏
-          padding: EdgeInsets.only(top: statusBarHeight),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Colors.black.withOpacity(0.7),
-                Colors.transparent,
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.3),
-                offset: const Offset(0, 2),
-                blurRadius: 4,
+        child: MouseRegion(
+          onEnter: (_) => myVideoStateController.setToolbarHovering(true),
+          onExit: (_) => myVideoStateController.setToolbarHovering(false),
+          child: Container(
+            // 容器高度包括状态栏高度
+            height: 60 + statusBarHeight,
+            // 添加顶部内边距以避免内容覆盖状态栏
+            padding: EdgeInsets.only(top: statusBarHeight),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.black.withOpacity(0.7), Colors.transparent],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
               ),
-            ],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // 左侧: 返回、主页按钮和标题
-              Expanded(
-                // 使用 Expanded 包裹左侧的内容
-                child: Row(
-                  children: [
-                    // 返回按钮
-                    IconButton(
-                      tooltip: t.common.back,
-                      icon: _backIcon,
-                      onPressed: () {
-                        if (currentScreenIsFullScreen) {
-                          myVideoStateController.exitFullscreen();
-                        } else {
-                          AppService.tryPop();
-                        }
-                      },
-                    ),
-                    // 主页按钮
-                    // 如果当前是fullScreen，则不显示主页按钮
-                    if (!currentScreenIsFullScreen && !myVideoStateController.isDesktopAppFullScreen.value)
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  offset: const Offset(0, 2),
+                  blurRadius: 4,
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // 左侧: 返回、主页按钮和标题
+                Expanded(
+                  // 使用 Expanded 包裹左侧的内容
+                  child: Row(
+                    children: [
+                      // 返回按钮
                       IconButton(
-                        tooltip: t.videoDetail.home,
-                        icon: _homeIcon,
+                        tooltip: t.common.back,
+                        icon: _backIcon,
                         onPressed: () {
-                          AppService appService = Get.find();
-                          int currentIndex = appService.currentIndex;
-                          final routes = [
-                            Routes.POPULAR_VIDEOS,
-                            Routes.GALLERY,
-                            Routes.SUBSCRIPTIONS,
-                          ];
-                          AppService.homeNavigatorKey.currentState!
-                              .pushNamedAndRemoveUntil(
-                            routes[currentIndex],
-                            (route) => false,
-                          );
+                          if (currentScreenIsFullScreen) {
+                            myVideoStateController.exitFullscreen();
+                          } else {
+                            AppService.tryPop();
+                          }
                         },
                       ),
-                    // 使用 Expanded 包裹标题，避免超出
-                    Expanded(
-                      child: Obx(() => Text(
-                        myVideoStateController.videoInfo.value?.title ??
-                            t.videoDetail.videoPlayer,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
+                      // 主页按钮
+                      // 如果当前是fullScreen，则不显示主页按钮
+                      if (!currentScreenIsFullScreen &&
+                          !myVideoStateController.isDesktopAppFullScreen.value)
+                        IconButton(
+                          tooltip: t.videoDetail.home,
+                          icon: _homeIcon,
+                          onPressed: () {
+                            AppService appService = Get.find();
+                            int currentIndex = appService.currentIndex;
+                            final routes = [
+                              Routes.POPULAR_VIDEOS,
+                              Routes.GALLERY,
+                              Routes.SUBSCRIPTIONS,
+                            ];
+                            AppService.homeNavigatorKey.currentState!
+                                .pushNamedAndRemoveUntil(
+                                  routes[currentIndex],
+                                  (route) => false,
+                                );
+                          },
                         ),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      )),
+                      // 使用 Expanded 包裹标题，避免超出
+                      Expanded(
+                        child: Obx(
+                          () => Text(
+                            myVideoStateController.videoInfo.value?.title ??
+                                t.videoDetail.videoPlayer,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // 右侧: 画中画按钮、问号按钮和更多按钮
+                Row(
+                  children: [
+                    if (GetPlatform.isAndroid)
+                      // 画中画按钮
+                      IconButton(
+                        tooltip: t.videoDetail.pipMode,
+                        icon: const Icon(
+                          Icons.picture_in_picture_alt,
+                          color: Colors.white,
+                        ),
+                        onPressed: () async {
+                          final floating = Floating();
+                          if (await floating.isPipAvailable) {
+                            final status = await floating.pipStatus;
+                            if (status == PiPStatus.disabled ||
+                                status == PiPStatus.automatic) {
+                              // 关闭全屏和桌面全屏模式
+                              if (currentScreenIsFullScreen)
+                                AppService.tryPop();
+                              if (myVideoStateController
+                                  .isDesktopAppFullScreen
+                                  .value) {
+                                myVideoStateController
+                                        .isDesktopAppFullScreen
+                                        .value =
+                                    false;
+                              }
+                              myVideoStateController.enterPiPMode();
+                            } else if (status == PiPStatus.enabled) {
+                              myVideoStateController.exitPiPMode();
+                            }
+                          }
+                        },
+                      ),
+                    // 问号信息按钮
+                    IconButton(
+                      tooltip: t.videoDetail.videoPlayerInfo,
+                      icon: _helpIcon,
+                      onPressed: () => showInfoModal(context),
+                    ),
+                    // 更多设置按钮
+                    IconButton(
+                      tooltip: t.videoDetail.moreSettings,
+                      icon: _moreIcon,
+                      onPressed: () => showSettingsModal(context),
                     ),
                   ],
                 ),
-              ),
-              // 右侧: 画中画按钮、问号按钮和更多按钮
-              Row(
-                children: [
-                  if(GetPlatform.isAndroid)
-                    // 画中画按钮
-                    IconButton(
-                      tooltip: t.videoDetail.pipMode,
-                      icon: const Icon(Icons.picture_in_picture_alt, color: Colors.white),
-                      onPressed: () async {
-                        final floating = Floating();
-                        if (await floating.isPipAvailable) {
-                          final status = await floating.pipStatus;
-                          if (status == PiPStatus.disabled || status == PiPStatus.automatic) {
-                            // 关闭全屏和桌面全屏模式
-                            if (currentScreenIsFullScreen) AppService.tryPop();
-                            if (myVideoStateController.isDesktopAppFullScreen.value) {
-                              myVideoStateController.isDesktopAppFullScreen.value = false;
-                            }
-                            myVideoStateController.enterPiPMode();
-                          } else if (status == PiPStatus.enabled) {
-                            myVideoStateController.exitPiPMode();
-                          }
-                        }
-                      },
-                    ),
-                  // 问号信息按钮
-                  IconButton(
-                    tooltip: t.videoDetail.videoPlayerInfo,
-                    icon: _helpIcon,
-                    onPressed: () => showInfoModal(context),
-                  ),
-                  // 更多设置按钮
-                  IconButton(
-                    tooltip: t.videoDetail.moreSettings,
-                    icon: _moreIcon,
-                    onPressed: () => showSettingsModal(context),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -180,7 +194,8 @@ class TopToolbar extends StatelessWidget {
             return SingleChildScrollView(
               controller: scrollController,
               child: SettingsContent(
-                  myVideoStateController: myVideoStateController),
+                myVideoStateController: myVideoStateController,
+              ),
             );
           },
         );
@@ -210,7 +225,9 @@ class TopToolbar extends StatelessWidget {
                 children: [
                   const Icon(Icons.fast_forward),
                   const SizedBox(width: 8),
-                  Expanded(child: Text(slang.t.videoDetail.rewindAndFastForward)),
+                  Expanded(
+                    child: Text(slang.t.videoDetail.rewindAndFastForward),
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
@@ -219,7 +236,9 @@ class TopToolbar extends StatelessWidget {
                 children: [
                   const Icon(Icons.volume_up),
                   const SizedBox(width: 8),
-                  Expanded(child: Text(slang.t.videoDetail.volumeAndBrightness)),
+                  Expanded(
+                    child: Text(slang.t.videoDetail.volumeAndBrightness),
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
@@ -228,7 +247,11 @@ class TopToolbar extends StatelessWidget {
                 children: [
                   const Icon(Icons.pause_circle_filled),
                   const SizedBox(width: 8),
-                  Expanded(child: Text(slang.t.videoDetail.centerAreaDoubleTapPauseOrPlay)),
+                  Expanded(
+                    child: Text(
+                      slang.t.videoDetail.centerAreaDoubleTapPauseOrPlay,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
@@ -238,7 +261,11 @@ class TopToolbar extends StatelessWidget {
                   children: [
                     const Icon(Icons.screen_rotation),
                     const SizedBox(width: 8),
-                    Expanded(child: Text(slang.t.videoDetail.showVerticalVideoInFullScreen)),
+                    Expanded(
+                      child: Text(
+                        slang.t.videoDetail.showVerticalVideoInFullScreen,
+                      ),
+                    ),
                   ],
                 ),
               if (GetPlatform.isAndroid || GetPlatform.isIOS)
@@ -248,7 +275,11 @@ class TopToolbar extends StatelessWidget {
                 children: [
                   const Icon(Icons.settings_backup_restore),
                   const SizedBox(width: 8),
-                  Expanded(child: Text(slang.t.videoDetail.keepLastVolumeAndBrightness)),
+                  Expanded(
+                    child: Text(
+                      slang.t.videoDetail.keepLastVolumeAndBrightness,
+                    ),
+                  ),
                 ],
               ),
               // 设置代理（如果支持平台）
@@ -267,7 +298,9 @@ class TopToolbar extends StatelessWidget {
                 children: [
                   const Icon(Icons.thumb_up),
                   const SizedBox(width: 8),
-                  Expanded(child: Text(slang.t.videoDetail.moreFeaturesToBeDiscovered)),
+                  Expanded(
+                    child: Text(slang.t.videoDetail.moreFeaturesToBeDiscovered),
+                  ),
                 ],
               ),
             ],
@@ -295,7 +328,10 @@ class SettingsContent extends StatelessWidget {
 
   /// 三段式滑块的回调方法
   void _onThreeSectionSliderChangeFinished(
-      double leftRatio, double middleRatio, double rightRatio) {
+    double leftRatio,
+    double middleRatio,
+    double rightRatio,
+  ) {
     _configService[ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO] =
         leftRatio;
   }
@@ -327,9 +363,9 @@ class SettingsContent extends StatelessWidget {
           Text(
             t.videoDetail.videoPlayerSettings,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).primaryColor,
-                ),
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).primaryColor,
+            ),
           ),
           const SizedBox(height: 24),
           PlayerSettingsWidget(),

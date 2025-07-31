@@ -643,6 +643,8 @@ class TranslationsSettingsEn {
 	String get leftVerticalSwipeVolume => 'Left Vertical Swipe Volume (Effective when entering a new page)';
 	String get rightVerticalSwipeBrightness => 'Right Vertical Swipe Brightness (Effective when entering a new page)';
 	String get longPressFastForward => 'Long Press Fast Forward';
+	String get enableMouseHoverShowToolbar => 'Enable Mouse Hover Show Toolbar';
+	String get enableMouseHoverShowToolbarInfo => 'When enabled, the video toolbar will be shown when the mouse is hovering over the player. It will be automatically hidden after 3 seconds of inactivity.';
 }
 
 // Path: signIn
@@ -1977,6 +1979,8 @@ extension on Translations {
 			case 'settings.leftVerticalSwipeVolume': return 'Left Vertical Swipe Volume (Effective when entering a new page)';
 			case 'settings.rightVerticalSwipeBrightness': return 'Right Vertical Swipe Brightness (Effective when entering a new page)';
 			case 'settings.longPressFastForward': return 'Long Press Fast Forward';
+			case 'settings.enableMouseHoverShowToolbar': return 'Enable Mouse Hover Show Toolbar';
+			case 'settings.enableMouseHoverShowToolbarInfo': return 'When enabled, the video toolbar will be shown when the mouse is hovering over the player. It will be automatically hidden after 3 seconds of inactivity.';
 			case 'signIn.pleaseLoginFirst': return 'Please login first';
 			case 'signIn.alreadySignedInToday': return 'You have already signed in today!';
 			case 'signIn.youDidNotStickToTheSignIn': return 'You did not stick to the sign in.';

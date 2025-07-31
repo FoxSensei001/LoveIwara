@@ -100,6 +100,8 @@ class MyVideoStateController extends GetxController
   final _autoHideDelay = const Duration(seconds: 3); // 3秒后自动隐藏
   final RxBool _isInteracting = false.obs; // 是否正在交互（如拖动进度条）
   final RxBool _isHoveringToolbar = false.obs; // 是否正在悬浮在工具栏上
+  final RxBool _isMouseHoveringPlayer = false.obs; // 是否鼠标悬浮在播放器上
+  Timer? _mouseMovementTimer; // 鼠标移动检测定时器
 
   // 是否显示进度预览
   final RxBool isSeekPreviewVisible = false.obs;
@@ -373,6 +375,7 @@ class MyVideoStateController extends GetxController
       _displayUpdateTimer?.cancel();
       _lockButtonHideTimer?.cancel();
       _autoHideTimer?.cancel();
+      _mouseMovementTimer?.cancel();
       _resumeTipTimer?.cancel();
       LogUtils.d('所有定时器已取消', 'MyVideoStateController');
 
@@ -897,6 +900,52 @@ class MyVideoStateController extends GetxController
       // 离开时重置定时器
       _resetAutoHideTimer();
     }
+  }
+
+  // 设置鼠标悬浮播放器状态
+  void setMouseHoveringPlayer(bool value) {
+    // 检查是否启用了鼠标悬浮显示工具栏功能
+    if (!_configService[ConfigKey.ENABLE_MOUSE_HOVER_SHOW_TOOLBAR]) {
+      return;
+    }
+
+    _isMouseHoveringPlayer.value = value;
+    if (value) {
+      // 鼠标进入播放器时显示工具栏
+      if (!animationController.isCompleted) {
+        animationController.forward();
+        isLockButtonVisible.value = true;
+      }
+    } else {
+      // 鼠标离开播放器时取消所有定时器并重置
+      _mouseMovementTimer?.cancel();
+      _resetAutoHideTimer();
+    }
+  }
+
+  // 处理鼠标在播放器内移动
+  void onMouseMoveInPlayer() {
+    // 检查是否启用了鼠标悬浮显示工具栏功能
+    if (!_configService[ConfigKey.ENABLE_MOUSE_HOVER_SHOW_TOOLBAR]) {
+      return;
+    }
+
+    // 显示工具栏
+    if (!animationController.isCompleted) {
+      animationController.forward();
+      isLockButtonVisible.value = true;
+    }
+
+    // 取消之前的移动定时器
+    _mouseMovementTimer?.cancel();
+
+    // 设置新的定时器，鼠标停止移动3秒后启动自动隐藏
+    _mouseMovementTimer = Timer(_autoHideDelay, () {
+      // 只有在鼠标还在播放器内且没有其他交互时才隐藏
+      if (_isMouseHoveringPlayer.value && !_isInteracting.value && !_isHoveringToolbar.value) {
+        _resetAutoHideTimer();
+      }
+    });
   }
 
   // 修改现有的 toggleToolbars 方法

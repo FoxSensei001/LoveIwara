@@ -341,75 +341,89 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                   return FocusScope(
                     autofocus: true,
                     canRequestFocus: true,
-                    child: KeyboardListener(
-                      focusNode: _focusNode,
-                      onKeyEvent: (KeyEvent event) {
-                        if (event is KeyDownEvent) {
-                          if (event.logicalKey ==
-                              LogicalKeyboardKey.arrowLeft) {
-                            _handleLeftKeyPress();
-                          } else if (event.logicalKey ==
-                              LogicalKeyboardKey.arrowRight) {
-                            _handleRightKeyPress();
-                          } else if (event.logicalKey ==
-                              LogicalKeyboardKey.space) {
-                            if (widget
-                                .myVideoStateController.videoPlaying.value) {
-                              widget.myVideoStateController.player.pause();
-                            } else {
-                              widget.myVideoStateController.player.play();
-                              widget.myVideoStateController.animateToTop();
-                            }
-                          } else if (event.logicalKey ==
-                              LogicalKeyboardKey.arrowUp) {
-                            // 获取当前音量
-                            double currentVolume =
-                                _configService[ConfigKey.VOLUME_KEY];
-                            // 增加音量，每次增加0.1，最大为1.0
-                            double newVolume =
-                                (currentVolume + 0.1).clamp(0.0, 1.0);
-                            widget.myVideoStateController.setVolume(newVolume);
-                            // 显示音量提示
-                            _showVolumeInfo();
-                          } else if (event.logicalKey ==
-                              LogicalKeyboardKey.arrowDown) {
-                            // 获取当前音量
-                            double currentVolume =
-                                _configService[ConfigKey.VOLUME_KEY];
-                            // 减少音量，每次减少0.1，最小为0.0
-                            double newVolume =
-                                (currentVolume - 0.1).clamp(0.0, 1.0);
-                            widget.myVideoStateController.setVolume(newVolume);
-                            // 显示音量提示
-                            _showVolumeInfo();
-                          }
-                        }
+                    child: MouseRegion(
+                      onEnter: (_) {
+                        // 鼠标进入播放器区域
+                        widget.myVideoStateController.setMouseHoveringPlayer(true);
                       },
-                      child: Container(
-                        padding: EdgeInsets.only(top: paddingTop),
-                        child: Stack(
-                          children: [
-                            // 视频播放区域
-                            _buildVideoPlayer(),
-                            // 手势监听区域（抽取后减少整体重绘）
-                            ..._buildGestureAreas(screenSize),
-                            // 工具栏部分
-                            ..._buildToolbars(),
-                            // 双击波纹动画等效果
-                            _buildRippleEffects(screenSize, maxRadius),
-                            // 中央控制面板，比如播放/暂停按钮
-                            _buildVideoControlOverlay(
-                                playPauseIconSize, bufferingSize),
-                            // InfoMessage 提示区域
-                            _buildInfoMessage(),
-                            _buildSeekPreview(),
-                            // 添加底部进度条
-                            _buildBottomProgressBar(),
-                            // 添加遮罩层
-                            _buildMaskLayer(),
-                            // 添加锁定按钮
-                            _buildLockButton(),
-                          ],
+                      onExit: (_) {
+                        // 鼠标离开播放器区域
+                        widget.myVideoStateController.setMouseHoveringPlayer(false);
+                      },
+                      onHover: (_) {
+                        // 鼠标在播放器区域内移动时，处理移动事件
+                        widget.myVideoStateController.onMouseMoveInPlayer();
+                      },
+                      child: KeyboardListener(
+                        focusNode: _focusNode,
+                        onKeyEvent: (KeyEvent event) {
+                          if (event is KeyDownEvent) {
+                            if (event.logicalKey ==
+                                LogicalKeyboardKey.arrowLeft) {
+                              _handleLeftKeyPress();
+                            } else if (event.logicalKey ==
+                                LogicalKeyboardKey.arrowRight) {
+                              _handleRightKeyPress();
+                            } else if (event.logicalKey ==
+                                LogicalKeyboardKey.space) {
+                              if (widget
+                                  .myVideoStateController.videoPlaying.value) {
+                                widget.myVideoStateController.player.pause();
+                              } else {
+                                widget.myVideoStateController.player.play();
+                                widget.myVideoStateController.animateToTop();
+                              }
+                            } else if (event.logicalKey ==
+                                LogicalKeyboardKey.arrowUp) {
+                              // 获取当前音量
+                              double currentVolume =
+                                  _configService[ConfigKey.VOLUME_KEY];
+                              // 增加音量，每次增加0.1，最大为1.0
+                              double newVolume =
+                                  (currentVolume + 0.1).clamp(0.0, 1.0);
+                              widget.myVideoStateController.setVolume(newVolume);
+                              // 显示音量提示
+                              _showVolumeInfo();
+                            } else if (event.logicalKey ==
+                                LogicalKeyboardKey.arrowDown) {
+                              // 获取当前音量
+                              double currentVolume =
+                                  _configService[ConfigKey.VOLUME_KEY];
+                              // 减少音量，每次减少0.1，最小为0.0
+                              double newVolume =
+                                  (currentVolume - 0.1).clamp(0.0, 1.0);
+                              widget.myVideoStateController.setVolume(newVolume);
+                              // 显示音量提示
+                              _showVolumeInfo();
+                            }
+                          }
+                        },
+                        child: Container(
+                          padding: EdgeInsets.only(top: paddingTop),
+                          child: Stack(
+                            children: [
+                              // 视频播放区域
+                              _buildVideoPlayer(),
+                              // 手势监听区域（抽取后减少整体重绘）
+                              ..._buildGestureAreas(screenSize),
+                              // 工具栏部分
+                              ..._buildToolbars(),
+                              // 双击波纹动画等效果
+                              _buildRippleEffects(screenSize, maxRadius),
+                              // 中央控制面板，比如播放/暂停按钮
+                              _buildVideoControlOverlay(
+                                  playPauseIconSize, bufferingSize),
+                              // InfoMessage 提示区域
+                              _buildInfoMessage(),
+                              _buildSeekPreview(),
+                              // 添加底部进度条
+                              _buildBottomProgressBar(),
+                              // 添加遮罩层
+                              _buildMaskLayer(),
+                              // 添加锁定按钮
+                              _buildLockButton(),
+                            ],
+                          ),
                         ),
                       ),
                     ),

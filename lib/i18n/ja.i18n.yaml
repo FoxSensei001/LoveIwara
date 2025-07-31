@@ -528,6 +528,8 @@ settings:
   leftVerticalSwipeVolume: 左側垂直スワイプボリューム（新ページに入った時に有効）
   rightVerticalSwipeBrightness: 右側垂直スワイプブライトネス（新ページに入った時に有効）
   longPressFastForward: 長押しファストフォワード
+  enableMouseHoverShowToolbar: マウスホバー時にツールバーを表示
+  enableMouseHoverShowToolbarInfo: 有効にすると、マウスがプレーヤー上にあるときにツールバーが表示されます。3秒間の非アクティブ時に自動的に非表示になります。
 signIn:
   pleaseLoginFirst: サインインする前にログインしてください
   alreadySignedInToday: 今日は既にサインインしています！
