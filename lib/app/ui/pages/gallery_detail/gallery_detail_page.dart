@@ -94,8 +94,8 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
     );
   }
 
-  // 构建头部区域
-  Widget _buildHeader(BuildContext context, double paddingTop) {
+  // 构建AppBar
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
         backgroundColor: Colors.transparent,
         titleSpacing: 0,
@@ -106,11 +106,11 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
         title: Row(
           children: [
             Expanded(
-              child: Text(
+              child: Obx(() => Text(
                 detailController.imageModelInfo.value?.title ?? '',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-              ),
+              )),
             ),
             IconButton(
               icon: const Icon(Icons.home),
@@ -282,6 +282,7 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
         return KeyEventResult.ignored;
       },
       child: Scaffold(
+        appBar: isWide ? null : _buildAppBar(context),
         body: Obx(() {
           if (detailController.errorMessage.value != null) {
             return CommonErrorWidget(
@@ -323,37 +324,44 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
             return Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Left Column (Scrollable Content)
+                // Left Column (Scrollable Content with AppBar)
                 Expanded(
-                  child: SingleChildScrollView(
-                    // 左侧内容整体可滚动
-                    physics: detailController.isHoveringHorizontalList.value
-                        ? const NeverScrollableScrollPhysics()
-                        : null,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // 1. Header (reusing or new widget)
-                        _buildHeader(context, paddingTop),
-                        // 2. Image Scroller with Max Height
-                        GalleryImageScrollerWidget(
-                          controller: detailController,
-                          maxHeight: imageScrollerMaxHeight,
+                  child: Column(
+                    children: [
+                      // AppBar for wide screen layout
+                      _buildAppBar(context),
+                      // Scrollable content
+                      Expanded(
+                        child: SingleChildScrollView(
+                          // 左侧内容整体可滚动
+                          physics: detailController.isHoveringHorizontalList.value
+                              ? const NeverScrollableScrollPhysics()
+                              : null,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // 1. Image Scroller with Max Height
+                              GalleryImageScrollerWidget(
+                                controller: detailController,
+                                maxHeight: imageScrollerMaxHeight,
+                              ),
+                              // 2. Gallery Details
+                              ImageModelDetailContent(
+                                controller: detailController,
+                              ),
+                              // 3. Comment Entry Button
+                              CommentEntryAreaButtonWidget(
+                                commentController: commentController,
+                                onClickButton: () => showCommentModal(context),
+                              ).paddingVertical(16),
+                              // 4. Safe Area Bottom Padding
+                              const SafeArea(child: SizedBox.shrink()),
+                            ],
+                          ),
                         ),
-                        // 3. Gallery Details
-                        ImageModelDetailContent(
-                          controller: detailController,
-                        ),
-                        // 4. Comment Entry Button
-                        CommentEntryAreaButtonWidget(
-                          commentController: commentController,
-                          onClickButton: () => showCommentModal(context),
-                        ).paddingVertical(16),
-                        // 5. Safe Area Bottom Padding
-                        const SafeArea(child: SizedBox.shrink()),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
                 // Right Column (Fixed Width, Scrollable List)
@@ -366,7 +374,7 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        SizedBox(height: paddingTop + 16), // Adjust top padding
+                        const SizedBox(height: 16), // Top padding
                         // Author's other galleries title
                         Container(
                             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -439,9 +447,7 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // 1. Header
-                  _buildHeader(context, paddingTop),
-                  // 2. Image Scroller with Max Height
+                  // 1. Image Scroller with Max Height
                   GalleryImageScrollerWidget(
                     controller: detailController,
                     maxHeight: imageScrollerMaxHeight,
