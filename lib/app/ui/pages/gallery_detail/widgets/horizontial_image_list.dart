@@ -8,8 +8,15 @@ import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:media_kit/media_kit.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 
 import 'menu_item_widget.dart';
+
+enum MediaItemType {
+  image,
+  video,
+}
 
 class ImageItem {
   final String url;
@@ -18,6 +25,7 @@ class ImageItem {
   double? height;
   // headers
   Map<String, String>? headers;
+  final MediaItemType mediaType;
 
   ImageItem({
     required this.url,
@@ -25,7 +33,24 @@ class ImageItem {
     this.height,
     required this.data,
     this.headers,
-  });
+    MediaItemType? mediaType,
+  }) : mediaType = mediaType ?? _detectMediaType(url);
+
+  // 自动检测媒体类型
+  static MediaItemType _detectMediaType(String url) {
+    final extension = CommonUtils.getFileExtension(url).toLowerCase();
+
+    // 视频格式
+    if (['mp4', 'webm', 'mov', 'avi', 'mkv', 'flv', 'wmv', 'm4v'].contains(extension)) {
+      return MediaItemType.video;
+    }
+
+    // 默认为图片
+    return MediaItemType.image;
+  }
+
+  bool get isVideo => mediaType == MediaItemType.video;
+  bool get isImage => mediaType == MediaItemType.image;
 }
 
 class ImageItemData {
@@ -362,82 +387,7 @@ class _HorizontalImageListState extends State<HorizontalImageList>
               clipBehavior: Clip.antiAlias, // 确保圆角裁剪生效
               child: InkWell(
                 onTap: () => widget.onItemTap?.call(imageItem),
-                child: CachedNetworkImage(
-                  imageUrl: imageItem.url,
-                  placeholder: (context, url) =>
-                      widget.placeholderBuilder?.call(context, url) ??
-                      _buildPlaceholder(context, url),
-                  fit: widget.imageFit,
-                  errorWidget: (context, url, error) {
-                    LogUtils.e('加载图片失败: $url', tag: 'ImageList', error: error);
-
-                    final fileExtension = CommonUtils.getFileExtension(url);
-                    final isUnsupportedFormat = error is Exception &&
-                        error.toString().contains('Invalid image data');
-
-                    return widget.errorBuilder?.call(context, url, error) ??
-                        Center(
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .errorContainer
-                                  .withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.broken_image_rounded,
-                                  color: Theme.of(context).colorScheme.error,
-                                  size: 48,
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  isUnsupportedFormat
-                                      ? t.download.errors.unsupportedImageFormatWithMessage(extension: fileExtension.toUpperCase())
-                                      : t.download.errors.imageLoadFailed,
-                                  style: TextStyle(
-                                    color: Theme.of(context).colorScheme.error,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                if (isUnsupportedFormat) ...[
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    t.download.errors.pleaseTryOtherViewer,
-                                    style: TextStyle(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .error
-                                          .withOpacity(0.7),
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                        );
-                  },
-                  imageBuilder: (context, imageProvider) {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      _updateImageSize(imageProvider, imageItem.url);
-                    });
-                    return Hero(
-                        tag: imageItem.data.id,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: imageProvider,
-                              fit: widget.imageFit,
-                            ),
-                          ),
-                        ));
-                  },
-                ),
+                child: _buildMediaContent(context, imageItem),
               ),
             ),
           ),
@@ -517,4 +467,328 @@ class _HorizontalImageListState extends State<HorizontalImageList>
     }
   }
   // ------------------------------------------
+
+  // 构建媒体内容（图片或视频）
+  Widget _buildMediaContent(BuildContext context, ImageItem imageItem) {
+    if (imageItem.isVideo) {
+      return _buildVideoContent(context, imageItem);
+    } else {
+      return _buildImageContent(context, imageItem);
+    }
+  }
+
+  // 构建图片内容
+  Widget _buildImageContent(BuildContext context, ImageItem imageItem) {
+    return CachedNetworkImage(
+      imageUrl: imageItem.url,
+      placeholder: (context, url) =>
+          widget.placeholderBuilder?.call(context, url) ??
+          _buildPlaceholder(context, url),
+      fit: widget.imageFit,
+      errorWidget: (context, url, error) {
+        LogUtils.e('加载图片失败: $url', tag: 'ImageList', error: error);
+
+        final fileExtension = CommonUtils.getFileExtension(url);
+        final isUnsupportedFormat = error is Exception &&
+            error.toString().contains('Invalid image data');
+
+        return widget.errorBuilder?.call(context, url, error) ??
+            Center(
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .errorContainer
+                      .withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.broken_image_rounded,
+                      color: Theme.of(context).colorScheme.error,
+                      size: 48,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      isUnsupportedFormat
+                          ? t.download.errors.unsupportedImageFormatWithMessage(extension: fileExtension.toUpperCase())
+                          : t.download.errors.imageLoadFailed,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                        fontSize: 14,
+                      ),
+                    ),
+                    if (isUnsupportedFormat) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        t.download.errors.pleaseTryOtherViewer,
+                        style: TextStyle(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .error
+                              .withValues(alpha: 0.7),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            );
+      },
+      imageBuilder: (context, imageProvider) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _updateImageSize(imageProvider, imageItem.url);
+        });
+        return Hero(
+            tag: imageItem.data.id,
+            child: Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: imageProvider,
+                  fit: widget.imageFit,
+                ),
+              ),
+            ));
+      },
+    );
+  }
+
+  // 构建视频内容
+  Widget _buildVideoContent(BuildContext context, ImageItem imageItem) {
+    return _VideoThumbnailWidget(
+      videoUrl: imageItem.url,
+      imageItem: imageItem,
+      fit: widget.imageFit,
+      onError: (error) {
+        LogUtils.e('加载视频失败: ${imageItem.url}', tag: 'ImageList', error: error);
+      },
+    );
+  }
+}
+
+// 视频缩略图组件
+class _VideoThumbnailWidget extends StatefulWidget {
+  final String videoUrl;
+  final ImageItem imageItem;
+  final BoxFit fit;
+  final Function(dynamic)? onError;
+
+  const _VideoThumbnailWidget({
+    required this.videoUrl,
+    required this.imageItem,
+    required this.fit,
+    this.onError,
+  });
+
+  @override
+  State<_VideoThumbnailWidget> createState() => _VideoThumbnailWidgetState();
+}
+
+class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
+  late Player _player;
+  late VideoController _videoController;
+  bool _isInitialized = false;
+  bool _hasError = false;
+  String? _errorMessage;
+  bool _isHovered = false;
+  bool _shouldAutoPlay = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializePlayer();
+  }
+
+  Future<void> _initializePlayer() async {
+    try {
+      _player = Player();
+      _videoController = VideoController(_player);
+
+      // 监听播放器状态
+      _player.stream.error.listen((error) {
+        if (mounted) {
+          setState(() {
+            _hasError = true;
+            _errorMessage = error;
+          });
+          widget.onError?.call(error);
+        }
+      });
+
+      _player.stream.buffering.listen((buffering) {
+        if (mounted && !buffering && !_isInitialized) {
+          setState(() {
+            _isInitialized = true;
+          });
+        }
+      });
+
+      // 打开视频但不自动播放
+      await _player.open(Media(widget.videoUrl));
+      await _player.pause(); // 确保暂停状态
+
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _hasError = true;
+          _errorMessage = e.toString();
+        });
+        widget.onError?.call(e);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _player.dispose();
+    super.dispose();
+  }
+
+  void _onHover(bool isHovered) {
+    setState(() {
+      _isHovered = isHovered;
+    });
+
+    if (isHovered && _isInitialized && !_hasError) {
+      // 鼠标悬停时播放预览
+      _player.play();
+      _shouldAutoPlay = true;
+    } else if (!isHovered && _shouldAutoPlay) {
+      // 鼠标离开时暂停并回到开始
+      _player.pause();
+      _player.seek(Duration.zero);
+      _shouldAutoPlay = false;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_hasError) {
+      return _buildErrorWidget();
+    }
+
+    return MouseRegion(
+      onEnter: (_) => _onHover(true),
+      onExit: (_) => _onHover(false),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // 视频播放器
+          if (_isInitialized)
+            Hero(
+              tag: widget.imageItem.data.id,
+              child: Video(
+                controller: _videoController,
+                controls: null,
+                fit: widget.fit,
+              ),
+            )
+          else
+            _buildLoadingWidget(),
+
+          // 播放图标覆盖层
+          if (!_isHovered || !_isInitialized)
+            Center(
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.6),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.play_arrow,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ),
+            ),
+
+          // 视频标识
+          Positioned(
+            top: 8,
+            right: 8,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.7),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.videocam,
+                    color: Colors.white,
+                    size: 12,
+                  ),
+                  SizedBox(width: 2),
+                  Text(
+                    'VIDEO',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoadingWidget() {
+    return Container(
+      color: Colors.grey[300],
+      child: const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+
+  Widget _buildErrorWidget() {
+    final fileExtension = CommonUtils.getFileExtension(widget.videoUrl);
+
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.red.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.error_outline,
+              color: Colors.red,
+              size: 48,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '视频加载失败',
+              style: TextStyle(
+                color: Colors.red,
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '格式: ${fileExtension.toUpperCase()}',
+              style: TextStyle(
+                color: Colors.red.withValues(alpha: 0.7),
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

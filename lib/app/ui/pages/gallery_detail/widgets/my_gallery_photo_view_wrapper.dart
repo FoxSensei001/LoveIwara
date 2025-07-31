@@ -7,13 +7,10 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:i_iwara/utils/image_utils.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
-import '../../../widgets/loading_button_widget.dart';
 import 'menu_item_widget.dart';
 
 class MyGalleryPhotoViewWrapper extends StatefulWidget {
@@ -28,16 +25,17 @@ class MyGalleryPhotoViewWrapper extends StatefulWidget {
   final List<ImageItem> galleryItems;
   final int initialIndex;
   final Widget Function(BuildContext, ImageItem, Offset)?
-      menuBuilder; // 自定义菜单构建器
+  menuBuilder; // 自定义菜单构建器
   final List<MenuItem> Function(BuildContext, ImageItem)?
-      menuItemsBuilder; // 动态菜单项生成器
+  menuItemsBuilder; // 动态菜单项生成器
 
   @override
   State<MyGalleryPhotoViewWrapper> createState() =>
       _MyGalleryPhotoViewWrapperState();
 }
 
-class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
+class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
+    with TickerProviderStateMixin {
   static const platform = MethodChannel('i_iwara/volume_key');
   late int currentIndex = widget.initialIndex;
   late PageController pageController;
@@ -53,6 +51,12 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
   // 使用Map存储每个图片的重新加载时间戳
   final Map<int, int> _reloadTimestamps = {};
 
+  // 添加左右侧点击反馈动画控制器
+  late AnimationController _leftSideAnimationController;
+  late AnimationController _rightSideAnimationController;
+  late Animation<double> _leftSideAnimation;
+  late Animation<double> _rightSideAnimation;
+
   @override
   void initState() {
     super.initState();
@@ -61,6 +65,33 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
     controllers = List.generate(
       widget.galleryItems.length,
       (index) => PhotoViewController(),
+    );
+
+    // 初始化动画控制器
+    _leftSideAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      reverseDuration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _rightSideAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      reverseDuration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+
+    // 创建动画
+    _leftSideAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _leftSideAnimationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    _rightSideAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _rightSideAnimationController,
+        curve: Curves.easeInOut,
+      ),
     );
 
     // 仅在移动平台添加音量键监听
@@ -104,6 +135,9 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
     for (var controller in controllers) {
       controller.dispose();
     }
+    // 释放动画控制器
+    _leftSideAnimationController.dispose();
+    _rightSideAnimationController.dispose();
     super.dispose();
   }
 
@@ -171,12 +205,6 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
     }
   }
 
-  void _triggerReload(int index) {
-    setState(() {
-      _reloadTimestamps[index] = DateTime.now().millisecondsSinceEpoch;
-    });
-  }
-
   void _showInfoModal(BuildContext context) {
     Get.dialog(
       AlertDialog(
@@ -190,8 +218,10 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                   const Icon(Icons.arrow_right_alt),
                   const SizedBox(width: 8),
                   Expanded(
-                      child: Text(slang
-                          .t.galleryDetail.clickLeftAndRightEdgeToSwitchImage)),
+                    child: Text(
+                      slang.t.galleryDetail.clickLeftAndRightEdgeToSwitchImage,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
@@ -201,8 +231,10 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                   const Icon(Icons.save),
                   const SizedBox(width: 8),
                   Expanded(
-                      child: Text(
-                          slang.t.galleryDetail.rightClickToSaveSingleImage)),
+                    child: Text(
+                      slang.t.galleryDetail.rightClickToSaveSingleImage,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
@@ -212,8 +244,10 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                   const Icon(Icons.keyboard_arrow_left),
                   const SizedBox(width: 8),
                   Expanded(
-                      child: Text(
-                          slang.t.galleryDetail.keyboardLeftAndRightToSwitch)),
+                    child: Text(
+                      slang.t.galleryDetail.keyboardLeftAndRightToSwitch,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
@@ -223,8 +257,8 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                   const Icon(Icons.keyboard_arrow_up),
                   const SizedBox(width: 8),
                   Expanded(
-                      child:
-                          Text(slang.t.galleryDetail.keyboardUpAndDownToZoom)),
+                    child: Text(slang.t.galleryDetail.keyboardUpAndDownToZoom),
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
@@ -234,7 +268,8 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                   const Icon(Icons.swap_vert),
                   const SizedBox(width: 8),
                   Expanded(
-                      child: Text(slang.t.galleryDetail.mouseWheelToSwitch)),
+                    child: Text(slang.t.galleryDetail.mouseWheelToSwitch),
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
@@ -244,8 +279,8 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                   const Icon(Icons.zoom_in),
                   const SizedBox(width: 8),
                   Expanded(
-                      child:
-                          Text(slang.t.galleryDetail.ctrlAndMouseWheelToZoom)),
+                    child: Text(slang.t.galleryDetail.ctrlAndMouseWheelToZoom),
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
@@ -255,8 +290,10 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                   const Icon(Icons.thumb_up),
                   const SizedBox(width: 8),
                   Expanded(
-                      child: Text(
-                          slang.t.galleryDetail.moreFeaturesToBeDiscovered)),
+                    child: Text(
+                      slang.t.galleryDetail.moreFeaturesToBeDiscovered,
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -295,10 +332,7 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
       item: item,
       onDismiss: _hideMenu,
       customBuilder: widget.menuBuilder,
-      constraints: const BoxConstraints(
-        maxWidth: 300,
-        maxHeight: 400,
-      ),
+      constraints: const BoxConstraints(maxWidth: 300, maxHeight: 400),
       position: Offset(dx, dy),
       // 使用计算后的相对位置
       menuItems: menuItems, // 传递菜单项列表
@@ -313,19 +347,14 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
             child: GestureDetector(
               onTap: _hideMenu,
               onSecondaryTap: _hideMenu,
-              child: Container(
-                color: Colors.transparent,
-              ),
+              child: Container(color: Colors.transparent),
             ),
           ),
           // 显示菜单
           Positioned(
             left: dx,
             top: dy,
-            child: Material(
-              color: Colors.transparent,
-              child: menuWidget,
-            ),
+            child: Material(color: Colors.transparent, child: menuWidget),
           ),
         ],
       ),
@@ -338,29 +367,14 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
     }
   }
 
-  // 添加新的方法来构建点击区域
-  Widget _buildTapArea({
-    required bool isLeft,
-    required double width,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: width,
-        height: double.infinity,
-        color: Colors.transparent,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     // 获取屏幕宽度
     final screenWidth = MediaQuery.of(context).size.width;
     // 计算点击区域宽度，宽屏和窄屏使用不同的比例
-    final tapAreaWidth =
-        screenWidth > 600 ? screenWidth * 0.2 : screenWidth * 0.25;
+    final tapAreaWidth = screenWidth > 600
+        ? screenWidth * 0.2
+        : screenWidth * 0.25;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -387,12 +401,18 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
           },
           child: GestureDetector(
             onLongPressStart: (details) {
-              _showImageMenu(context, widget.galleryItems[currentIndex],
-                  details.globalPosition);
+              _showImageMenu(
+                context,
+                widget.galleryItems[currentIndex],
+                details.globalPosition,
+              );
             },
             onSecondaryTapDown: (details) {
-              _showImageMenu(context, widget.galleryItems[currentIndex],
-                  details.globalPosition);
+              _showImageMenu(
+                context,
+                widget.galleryItems[currentIndex],
+                details.globalPosition,
+              );
             },
             child: Stack(
               alignment: Alignment.topCenter,
@@ -406,28 +426,9 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                         ? '${widget.galleryItems[index].data.originalUrl}?reload=${_reloadTimestamps[index]}'
                         : widget.galleryItems[index].data.originalUrl;
 
-                    // 包裹图片用 GestureDetector 来检测 tap 事件
+                    // 简化的图片显示，只保留双击缩放
                     return PhotoViewGalleryPageOptions.customChild(
                       child: GestureDetector(
-                        onTapUp: (details) {
-                          final screenWidth = MediaQuery.of(context).size.width;
-                          // 这里保持原 tap 区域比例，比如宽屏 20%，窄屏 25%
-                          final threshold = screenWidth > 600
-                              ? screenWidth * 0.2
-                              : screenWidth * 0.25;
-                          if (details.globalPosition.dx < threshold) {
-                            // 点击左侧，切换上一页
-                            if (currentIndex > 0) {
-                              goToPreviousPage();
-                            }
-                          } else if (details.globalPosition.dx >
-                              screenWidth - threshold) {
-                            // 点击右侧，切换下一页
-                            if (currentIndex < widget.galleryItems.length - 1) {
-                              goToNextPage();
-                            }
-                          }
-                        },
                         onDoubleTap: () {
                           final scale = controllers[index].scale;
                           if (scale != null) {
@@ -440,167 +441,25 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                             }
                           }
                         },
-                        child: Stack(
-                          children: [
-                            // 添加一个透明的全屏手势层
-                            Positioned.fill(
-                              child: Container(
-                                color: Colors.transparent,
+                        child: Container(
+                          color: Colors.transparent,
+                          child: Center(
+                            child: KeyedSubtree(
+                              key: ValueKey(
+                                '${widget.galleryItems[index]}_${_reloadTimestamps[index] ?? 0}',
                               ),
+                              child: imageUrl.startsWith('file://')
+                                  ? Image.file(
+                                      File(imageUrl.replaceFirst('file://', '')),
+                                      fit: BoxFit.contain,
+                                    )
+                                  : Image.network(
+                                      imageUrl,
+                                      fit: BoxFit.contain,
+                                      headers: widget.galleryItems[index].headers,
+                                    ),
                             ),
-                            // 图片加载部分
-                            Center(
-                              child: KeyedSubtree(
-                                key: ValueKey(
-                                    '${widget.galleryItems[index]}_${_reloadTimestamps[index] ?? 0}'),
-                                child: Hero(
-                                  tag: widget.galleryItems[index].data.id,
-                                  child: Image(
-                                    image: widget.galleryItems[index].data.url
-                                            .startsWith('file://')
-                                        ? FileImage(File(widget
-                                            .galleryItems[index].data.url
-                                            .replaceFirst('file://', '')))
-                                        : NetworkImage(imageUrl,
-                                            headers: widget.galleryItems[index]
-                                                .headers) as ImageProvider,
-                                    fit: BoxFit.contain,
-                                    loadingBuilder: (BuildContext context, Widget child,
-                                        ImageChunkEvent? loadingProgress) {
-                                      if (loadingProgress == null) {
-                                        return child;
-                                      }
-                                      return Center(
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            CircularProgressIndicator(
-                                              value:
-                                                  loadingProgress.expectedTotalBytes !=
-                                                          null
-                                                      ? loadingProgress
-                                                              .cumulativeBytesLoaded /
-                                                          loadingProgress
-                                                              .expectedTotalBytes!
-                                                      : null,
-                                            ),
-                                            const SizedBox(height: 16),
-                                            if (loadingProgress.expectedTotalBytes !=
-                                                null) ...[
-                                              Text(
-                                                '${((loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!) * 100).toStringAsFixed(1)}%',
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 8),
-                                              Text(
-                                                '${(loadingProgress.cumulativeBytesLoaded / 1024 / 1024).toStringAsFixed(1)}MB / ${(loadingProgress.expectedTotalBytes! / 1024 / 1024).toStringAsFixed(1)}MB',
-                                                style: const TextStyle(
-                                                  color: Colors.white70,
-                                                  fontSize: 12,
-                                                ),
-                                              ),
-                                            ],
-                                          ],
-                                        ),
-                                      );
-                                    },
-                                    errorBuilder: (context, error, stackTrace) {
-                                      final fileExtension =
-                                          CommonUtils.getFileExtension(imageUrl);
-                                      if (error is Exception &&
-                                          error
-                                              .toString()
-                                              .contains('Invalid image data')) {
-                                        LogUtils.e(
-                                          '图片格式不支持, 当前的图片地址是: $imageUrl\n'
-                                          '文件扩展名: $fileExtension\n'
-                                          '错误详情: ${error.toString()}',
-                                          tag: 'MyGalleryPhotoViewWrapper',
-                                          error: error,
-                                        );
-                                        return Center(
-                                          child: Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              const Icon(
-                                                Icons.error_outline,
-                                                color: Colors.white,
-                                                size: 48,
-                                              ),
-                                              const SizedBox(height: 16),
-                                              Text(
-                                                slang.t.errors.unsupportedImageFormat(
-                                                    str: fileExtension),
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 16,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 16),
-                                              Row(
-                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                children: [
-                                                  LoadingButton(
-                                                    onPressed: () => Future(() {
-                                                      _triggerReload(index);
-                                                    }),
-                                                    text: slang.t.common.retry,
-                                                    backgroundColor: Colors.white,
-                                                    foregroundColor: Colors.black,
-                                                  ),
-                                                  const SizedBox(width: 16),
-                                                  LoadingButton(
-                                                    onPressed: () => Future(() {
-                                                      ImageUtils.downloadImageToAppDirectory(widget.galleryItems[index]);
-                                                    }),
-                                                    text: slang.t.common.download,
-                                                    backgroundColor: Colors.white,
-                                                    foregroundColor: Colors.black,
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      }
-                                      return Center(
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            const Icon(
-                                              Icons.error_outline,
-                                              color: Colors.white,
-                                              size: 48,
-                                            ),
-                                            const SizedBox(height: 16),
-                                            Text(
-                                              slang.t.errors.errorWhileLoadingGallery,
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 16,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 16),
-                                            LoadingButton(
-                                              onPressed: () => Future(() {
-                                                _triggerReload(index);
-                                              }),
-                                              text: slang.t.common.retry,
-                                              backgroundColor: Colors.white,
-                                              foregroundColor: Colors.black,
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ),
                       minScale: PhotoViewComputedScale.contained * 0.5,
@@ -617,6 +476,167 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                     });
                   },
                 ),
+                // 固定在容器左右两边的切换区域
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  bottom: 0,
+                  width: tapAreaWidth, // Use the calculated tapAreaWidth
+                  child: MouseRegion(
+                    onEnter: (_) {
+                      if (!_leftSideAnimationController.isAnimating &&
+                          _leftSideAnimationController.value == 0.0) {
+                        _leftSideAnimationController.forward();
+                      }
+                      if (_rightSideAnimationController.value > 0.0) {
+                        _rightSideAnimationController.reverse();
+                      }
+                    },
+                    onExit: (_) {
+                      _leftSideAnimationController.reverse();
+                    },
+                    child: GestureDetector(
+                      onTapDown: (_) {
+                        _leftSideAnimationController.forward();
+                      },
+                      onTapUp: (_) {
+                        _leftSideAnimationController.reverse();
+                        if (currentIndex > 0) {
+                          goToPreviousPage();
+                        }
+                      },
+                      onTapCancel: () {
+                        _leftSideAnimationController.reverse();
+                      },
+                      child: Container(
+                        color: Colors.transparent,
+                        child: AnimatedBuilder(
+                          animation: _leftSideAnimation,
+                          builder: (context, child) {
+                            if (_leftSideAnimation.value == 0.0) {
+                              return const SizedBox.expand();
+                            }
+                            return Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                  colors: [
+                                    Colors.white.withValues(
+                                      alpha: 0.3 * _leftSideAnimation.value,
+                                    ),
+                                    Colors.white.withValues(
+                                      alpha: 0.15 * _leftSideAnimation.value,
+                                    ),
+                                    Colors.transparent,
+                                  ],
+                                ),
+                              ),
+                              child: Center(
+                                child: Transform.scale(
+                                  scale: 0.8 + (0.2 * _leftSideAnimation.value),
+                                  child: const Icon(
+                                    Icons.arrow_back_ios,
+                                    color: Colors.white,
+                                    size: 32,
+                                    shadows: [
+                                      Shadow(
+                                        blurRadius: 8.0,
+                                        color: Colors.black54,
+                                        offset: Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                // 右侧导航区域
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                  width: tapAreaWidth, // Use the calculated tapAreaWidth
+                  child: MouseRegion(
+                    onEnter: (_) {
+                      if (!_rightSideAnimationController.isAnimating &&
+                          _rightSideAnimationController.value == 0.0) {
+                        _rightSideAnimationController.forward();
+                      }
+                      if (_leftSideAnimationController.value > 0.0) {
+                        _leftSideAnimationController.reverse();
+                      }
+                    },
+                    onExit: (_) {
+                      _rightSideAnimationController.reverse();
+                    },
+                    child: GestureDetector(
+                      onTapDown: (_) {
+                        _rightSideAnimationController.forward();
+                      },
+                      onTapUp: (_) {
+                        _rightSideAnimationController.reverse();
+                        if (currentIndex < widget.galleryItems.length - 1) {
+                          goToNextPage();
+                        }
+                      },
+                      onTapCancel: () {
+                        _rightSideAnimationController.reverse();
+                      },
+                      child: Container(
+                        color: Colors.transparent,
+                        child: AnimatedBuilder(
+                          animation: _rightSideAnimation,
+                          builder: (context, child) {
+                            if (_rightSideAnimation.value == 0.0) {
+                              return const SizedBox.expand();
+                            }
+                            return Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.centerRight,
+                                  end: Alignment.centerLeft,
+                                  colors: [
+                                    Colors.white.withValues(
+                                      alpha: 0.3 * _rightSideAnimation.value,
+                                    ),
+                                    Colors.white.withValues(
+                                      alpha: 0.15 * _rightSideAnimation.value,
+                                    ),
+                                    Colors.transparent,
+                                  ],
+                                ),
+                              ),
+                              child: Center(
+                                child: Transform.scale(
+                                  scale:
+                                      0.8 + (0.2 * _rightSideAnimation.value),
+                                  child: const Icon(
+                                    Icons.arrow_forward_ios,
+                                    color: Colors.white,
+                                    size: 32,
+                                    shadows: [
+                                      Shadow(
+                                        blurRadius: 8.0,
+                                        color: Colors.black54,
+                                        offset: Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
                 SafeArea(
                   child: Container(
                     padding: const EdgeInsets.all(16.0),
@@ -631,9 +651,14 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                           children: [
                             // 问号信息按钮
                             IconButton(
-                              tooltip: slang.t.common.tips,
-                              icon: const Icon(Icons.help_outline,
-                                  color: Colors.white),
+                              tooltip: slang
+                                  .t
+                                  .common
+                                  .tips, // Assuming slang is available
+                              icon: const Icon(
+                                Icons.help_outline,
+                                color: Colors.white,
+                              ),
                               onPressed: () {
                                 _showInfoModal(context);
                               },
@@ -649,7 +674,7 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper> {
                               ),
                             ),
                           ],
-                        )
+                        ),
                       ],
                     ),
                   ),
