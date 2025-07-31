@@ -190,6 +190,9 @@ common:
   notice: Notice
   detail: Detail
   parseExceptionDestopHint: ' - Desktop users can configure proxy in settings'
+  iwaraTags: Iwara Tags
+  likeThisVideo: Like This Video
+  operation: Operation
 auth:
   login: Login
   logout: Logout

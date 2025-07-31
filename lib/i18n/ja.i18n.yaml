@@ -191,6 +191,9 @@ common:
     pagination: 'ページネーション'
   detail: 詳細
   parseExceptionDestopHint: ' - デスクトップユーザーは設定でプロキシを構成できます'
+  iwaraTags: Iwara タグ
+  likeThisVideo: この動画が好きな人
+  operation: 操作
 auth:
   login: ログイン
   logout: ログアウト

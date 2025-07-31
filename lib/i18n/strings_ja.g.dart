@@ -250,6 +250,9 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override late final _TranslationsCommonPaginationJa pagination = _TranslationsCommonPaginationJa._(_root);
 	@override String get detail => '詳細';
 	@override String get parseExceptionDestopHint => ' - デスクトップユーザーは設定でプロキシを構成できます';
+	@override String get iwaraTags => 'Iwara タグ';
+	@override String get likeThisVideo => 'この動画が好きな人';
+	@override String get operation => '操作';
 }
 
 // Path: auth
@@ -1652,6 +1655,9 @@ extension on TranslationsJa {
 			case 'common.pagination.pagination': return 'ページネーション';
 			case 'common.detail': return '詳細';
 			case 'common.parseExceptionDestopHint': return ' - デスクトップユーザーは設定でプロキシを構成できます';
+			case 'common.iwaraTags': return 'Iwara タグ';
+			case 'common.likeThisVideo': return 'この動画が好きな人';
+			case 'common.operation': return '操作';
 			case 'auth.login': return 'ログイン';
 			case 'auth.logout': return 'ログアウト';
 			case 'auth.email': return 'メールアドレス';

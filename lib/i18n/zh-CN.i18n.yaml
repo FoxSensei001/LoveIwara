@@ -194,6 +194,9 @@ common:
   notice: 通知
   detail: 详情
   parseExceptionDestopHint: ' - 桌面端用户可以在设置中配置代理'
+  iwaraTags: Iwara 标签
+  likeThisVideo: 喜欢这个视频的人
+  operation: 操作
 auth:
   tagLimit: 标签上限
   login: 登录

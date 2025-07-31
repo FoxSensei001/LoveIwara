@@ -31,14 +31,10 @@ import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:path/path.dart' as p;
 import 'package:file_selector/file_selector.dart' as fs;
 
-
 class VideoInfoTabWidget extends StatelessWidget {
   final MyVideoStateController controller;
 
-  const VideoInfoTabWidget({
-    super.key,
-    required this.controller,
-  });
+  const VideoInfoTabWidget({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -61,16 +57,8 @@ class VideoInfoTabWidget extends StatelessWidget {
             _buildVideoTitle(context),
             const SizedBox(height: UIConstants.interElementSpacing),
             _buildAuthorInfo(context),
-            const SizedBox(height: UIConstants.interElementSpacing),
-            _buildVideoStats(context),
-            const SizedBox(height: UIConstants.interElementSpacing),
-            _buildVideoDescription(context),
-            const SizedBox(height: UIConstants.interElementSpacing),
-            _buildVideoTags(context),
-            const SizedBox(height: UIConstants.interElementSpacing),
-            _buildLikeAvatars(context),
-            const SizedBox(height: UIConstants.sectionSpacing), // More space before actions
-            _buildActionButtons(context),
+            const SizedBox(height: UIConstants.sectionSpacing),
+            _buildVideoDetailsSection(context),
             const SafeArea(child: SizedBox.shrink()),
           ],
         ),
@@ -85,7 +73,11 @@ class VideoInfoTabWidget extends StatelessWidget {
         Expanded(
           child: SelectableText(
             controller.videoInfo.value?.title ?? '',
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, height: 1.3),
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              height: 1.3,
+            ),
           ),
         ),
         if (controller.videoInfo.value?.title?.isNotEmpty == true)
@@ -93,7 +85,9 @@ class VideoInfoTabWidget extends StatelessWidget {
             icon: const Icon(Icons.translate, size: 20),
             padding: const EdgeInsets.only(left: 8),
             constraints: const BoxConstraints(),
-            onPressed: () => Get.dialog(TranslationDialog(text: controller.videoInfo.value!.title!)),
+            onPressed: () => Get.dialog(
+              TranslationDialog(text: controller.videoInfo.value!.title!),
+            ),
           ),
       ],
     );
@@ -103,22 +97,35 @@ class VideoInfoTabWidget extends StatelessWidget {
     return Row(
       children: [
         GestureDetector(
-          onTap: () => NaviService.navigateToAuthorProfilePage(controller.videoInfo.value!.user!.username),
+          onTap: () => NaviService.navigateToAuthorProfilePage(
+            controller.videoInfo.value!.user!.username,
+          ),
           child: AvatarWidget(user: controller.videoInfo.value?.user, size: 40),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: GestureDetector(
-            onTap: () => NaviService.navigateToAuthorProfilePage(controller.videoInfo.value!.user!.username),
+            onTap: () => NaviService.navigateToAuthorProfilePage(
+              controller.videoInfo.value!.user!.username,
+            ),
             behavior: HitTestBehavior.opaque,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                buildUserName(context, controller.videoInfo.value?.user, fontSize: 16, bold: true),
+                buildUserName(
+                  context,
+                  controller.videoInfo.value?.user,
+                  fontSize: 16,
+                  bold: true,
+                ),
                 Text(
                   '@${controller.videoInfo.value?.user?.username ?? ''}',
-                  style: TextStyle(fontSize: 13, color: Colors.grey[600], height: 1.2),
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey[600],
+                    height: 1.2,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -132,7 +139,8 @@ class VideoInfoTabWidget extends StatelessWidget {
             child: FollowButtonWidget(
               user: controller.videoInfo.value!.user!,
               onUserUpdated: (updatedUser) {
-                controller.videoInfo.value = controller.videoInfo.value?.copyWith(user: updatedUser);
+                controller.videoInfo.value = controller.videoInfo.value
+                    ?.copyWith(user: updatedUser);
               },
             ),
           ),
@@ -140,38 +148,221 @@ class VideoInfoTabWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildVideoStats(BuildContext context) {
+  Widget _buildVideoDetailsSection(BuildContext context) {
     final t = slang.Translations.of(context);
-    return Obx(() => Text(
-      '${t.galleryDetail.publishedAt}：${CommonUtils.formatFriendlyTimestamp(controller.videoInfo.value?.createdAt)}  ·  ${CommonUtils.formatFriendlyNumber(controller.videoInfo.value?.numViews)} ${t.galleryDetail.viewsCount}',
-      style: TextStyle(color: Colors.grey[600], fontSize: 13),
-    ));
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 视频统计信息卡片
+        _buildVideoStatsCard(context),
+        const SizedBox(height: UIConstants.interElementSpacing),
+
+        // 视频描述
+        _buildVideoDescriptionSection(context),
+        const SizedBox(height: UIConstants.interElementSpacing),
+
+        // 视频标签
+        _buildVideoTagsSection(context),
+        const SizedBox(height: UIConstants.interElementSpacing),
+
+        // 点赞头像区域
+        _buildLikeAvatarsSection(context),
+        const SizedBox(height: UIConstants.sectionSpacing),
+
+        // 操作按钮区域
+        _buildActionButtonsSection(context),
+      ],
+    );
   }
 
-  Widget _buildVideoDescription(BuildContext context) {
-    return Obx(() => VideoDescriptionWidget(
-      description: controller.videoInfo.value?.body,
-      isDescriptionExpanded: controller.isDescriptionExpanded,
-      onToggleDescription: controller.isDescriptionExpanded.toggle,
-    ));
+  Widget _buildVideoStatsCard(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return Obx(() {
+      final videoInfo = controller.videoInfo.value;
+      if (videoInfo == null) return const SizedBox.shrink();
+
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.schedule, size: 16, color: Colors.grey[600]),
+                      const SizedBox(width: 6),
+                      Text(
+                        '${t.galleryDetail.publishedAt}：${CommonUtils.formatFriendlyTimestamp(videoInfo.createdAt)}',
+                        style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(Icons.visibility, size: 16, color: Colors.grey[600]),
+                      const SizedBox(width: 6),
+                      Text(
+                        '${CommonUtils.formatFriendlyNumber(videoInfo.numViews)} ${t.galleryDetail.viewsCount}',
+                        style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            if (videoInfo.file?.duration != null)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.play_circle_outline,
+                      size: 14,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      CommonUtils.formatDuration(
+                        Duration(seconds: videoInfo.file!.duration!),
+                      ),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(context).primaryColor,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      );
+    });
   }
 
-  Widget _buildVideoTags(BuildContext context) {
+  Widget _buildVideoDescriptionSection(BuildContext context) {
+    return Obx(() {
+      final description = controller.videoInfo.value?.body;
+      if (description == null || description.isEmpty) return const SizedBox.shrink();
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 8),
+          VideoDescriptionWidget(
+            description: description,
+            isDescriptionExpanded: controller.isDescriptionExpanded,
+            onToggleDescription: controller.isDescriptionExpanded.toggle,
+          ),
+        ],
+      );
+    });
+  }
+
+  Widget _buildVideoTagsSection(BuildContext context) {
+    final t = slang.Translations.of(context);
     return Obx(() {
       final tags = controller.videoInfo.value?.tags;
-      return (tags != null && tags.isNotEmpty)
-          ? ExpandableTagsWidget(tags: tags)
-          : const SizedBox.shrink();
+      if (tags == null || tags.isEmpty) return const SizedBox.shrink();
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.label, size: 16, color: Colors.grey[600]),
+              const SizedBox(width: 6),
+              Text(
+                t.common.iwaraTags,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey[700],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          ExpandableTagsWidget(tags: tags),
+        ],
+      );
     });
   }
 
-  Widget _buildLikeAvatars(BuildContext context) {
+  Widget _buildLikeAvatarsSection(BuildContext context) {
+    final t = slang.Translations.of(context);
     return Obx(() {
       final videoId = controller.videoInfo.value?.id;
-      return videoId != null
-          ? SizedBox(height: 40, child: LikeAvatarsWidget(mediaId: videoId, mediaType: MediaType.VIDEO))
-          : const SizedBox.shrink();
+      if (videoId == null) return const SizedBox.shrink();
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.favorite, size: 16, color: Colors.grey[600]),
+              const SizedBox(width: 6), 
+              Text(
+                t.common.likeThisVideo,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey[700],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 40,
+            child: LikeAvatarsWidget(
+              mediaId: videoId,
+              mediaType: MediaType.VIDEO,
+            ),
+          ),
+        ],
+      );
     });
+  }
+
+  Widget _buildActionButtonsSection(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final videoInfo = controller.videoInfo.value;
+    if (videoInfo == null) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.build, size: 16, color: Colors.grey[600]),
+            const SizedBox(width: 6),
+            Text(
+              t.common.operation,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey[700],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        _buildActionButtons(context),
+      ],
+    );
   }
 
   /// A more responsive action button row using Wrap.
@@ -188,12 +379,16 @@ class VideoInfoTabWidget extends StatelessWidget {
           mediaId: videoInfo.id,
           liked: videoInfo.liked ?? false,
           likeCount: videoInfo.numLikes ?? 0,
-          onLike: (id) async => (await Get.find<VideoService>().likeVideo(id)).isSuccess,
-          onUnlike: (id) async => (await Get.find<VideoService>().unlikeVideo(id)).isSuccess,
+          onLike: (id) async =>
+              (await Get.find<VideoService>().likeVideo(id)).isSuccess,
+          onUnlike: (id) async =>
+              (await Get.find<VideoService>().unlikeVideo(id)).isSuccess,
           onLikeChanged: (liked) {
             controller.videoInfo.value = controller.videoInfo.value?.copyWith(
               liked: liked,
-              numLikes: (controller.videoInfo.value?.numLikes ?? 0) + (liked ? 1 : -1),
+              numLikes:
+                  (controller.videoInfo.value?.numLikes ?? 0) +
+                  (liked ? 1 : -1),
             );
           },
         ),
@@ -203,7 +398,13 @@ class VideoInfoTabWidget extends StatelessWidget {
           onTap: () {
             final UserService userService = Get.find();
             if (!userService.isLogin) {
-              showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error), position: ToastPosition.bottom);
+              showToastWidget(
+                MDToastWidget(
+                  message: t.errors.pleaseLoginFirst,
+                  type: MDToastType.error,
+                ),
+                position: ToastPosition.bottom,
+              );
               Get.toNamed(Routes.LOGIN);
             } else {
               Get.dialog(
@@ -214,17 +415,17 @@ class VideoInfoTabWidget extends StatelessWidget {
             }
           },
         ),
-         _ActionButton(
+        _ActionButton(
           icon: Icons.bookmark_border,
           label: t.favorite.localizeFavorite,
           onTap: () => _addToFavorite(context, videoInfo),
         ),
-         _ActionButton(
+        _ActionButton(
           icon: Icons.download,
           label: t.common.download,
           onTap: () => _showDownloadDialog(context), // Call the new method
         ),
-         _ActionButton(
+        _ActionButton(
           icon: Icons.share,
           label: t.common.share,
           onTap: () {
@@ -266,7 +467,10 @@ class VideoInfoTabWidget extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 label,
-                style: TextStyle(fontSize: 14, color: Get.theme.textTheme.bodyMedium?.color),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Get.theme.textTheme.bodyMedium?.color,
+                ),
               ),
             ],
           ),
@@ -279,24 +483,27 @@ class VideoInfoTabWidget extends StatelessWidget {
     Get.dialog(
       AddToFavoriteDialog(
         itemId: videoInfo.id,
-        onAdd: (folderId) => FavoriteService.to.addVideoToFolder(videoInfo, folderId),
+        onAdd: (folderId) =>
+            FavoriteService.to.addVideoToFolder(videoInfo, folderId),
       ),
     );
   }
 
   // 获取视频的下载地址
-  Future<String?> _getSavePath(String title, String quality, String downloadUrl) async {
+  Future<String?> _getSavePath(
+    String title,
+    String quality,
+    String downloadUrl,
+  ) async {
     final uri = Uri.parse(downloadUrl);
-    String filename = uri.queryParameters['filename'] ?? '${title}_$quality.mp4';
+    String filename =
+        uri.queryParameters['filename'] ?? '${title}_$quality.mp4';
     if (GetPlatform.isDesktop) {
       // 桌面平台使用file_selector让用户选择保存位置
       final fs.FileSaveLocation? result = await fs.getSaveLocation(
         suggestedName: filename,
         acceptedTypeGroups: [
-          const fs.XTypeGroup(
-            label: 'MP4 Video',
-            extensions: ['mp4'],
-          ),
+          const fs.XTypeGroup(label: 'MP4 Video', extensions: ['mp4']),
         ],
       );
 
@@ -307,7 +514,9 @@ class VideoInfoTabWidget extends StatelessWidget {
       }
     } else {
       // 移动平台使用默认路径
-      final dir = await CommonUtils.getAppDirectory(pathSuffix: p.join('downloads', 'videos'));
+      final dir = await CommonUtils.getAppDirectory(
+        pathSuffix: p.join('downloads', 'videos'),
+      );
       final sanitizedTitle = title.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_');
       return '${dir.path}/${sanitizedTitle}_$quality.mp4';
     }
@@ -320,13 +529,23 @@ class VideoInfoTabWidget extends StatelessWidget {
 
     if (sources.isEmpty) {
       LogUtils.w('没有可用的下载源', 'VideoInfoTabWidget');
-      showToastWidget(MDToastWidget(message: t.download.errors.noDownloadSourceNowPleaseWaitInfoLoaded, type: MDToastType.error));
+      showToastWidget(
+        MDToastWidget(
+          message: t.download.errors.noDownloadSourceNowPleaseWaitInfoLoaded,
+          type: MDToastType.error,
+        ),
+      );
       return;
     }
     final UserService userService = Get.find();
     if (!userService.isLogin) {
       LogUtils.w('用户未登录，无法下载', 'VideoInfoTabWidget');
-      showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error));
+      showToastWidget(
+        MDToastWidget(
+          message: t.errors.pleaseLoginFirst,
+          type: MDToastType.error,
+        ),
+      );
       Get.toNamed(Routes.LOGIN);
       return;
     }
@@ -380,23 +599,29 @@ class VideoInfoTabWidget extends StatelessWidget {
                     final savePath = await _getSavePath(
                       videoInfo.title ?? 'video',
                       source.name ?? 'unknown',
-                      source.download ?? 'unknown'
+                      source.download ?? 'unknown',
                     );
 
                     if (savePath == null) {
                       LogUtils.d('用户取消了下载操作', 'VideoInfoTabWidget');
-                      showToastWidget(MDToastWidget(
-                        message: t.common.operationCancelled,
-                        type: MDToastType.info
-                      ));
+                      showToastWidget(
+                        MDToastWidget(
+                          message: t.common.operationCancelled,
+                          type: MDToastType.info,
+                        ),
+                      );
                       return;
                     }
 
                     final task = DownloadTask(
-                      id: VideoDownloadExtData.genExtDataIdByVideoInfo(videoInfo, source.name ?? 'unknown'),
+                      id: VideoDownloadExtData.genExtDataIdByVideoInfo(
+                        videoInfo,
+                        source.name ?? 'unknown',
+                      ),
                       url: source.download!,
                       savePath: savePath,
-                      fileName: '${videoInfo.title ?? 'video'}_${source.name}.mp4',
+                      fileName:
+                          '${videoInfo.title ?? 'video'}_${source.name}.mp4',
                       supportsRange: true,
                       extData: DownloadTaskExtData(
                         type: DownloadTaskExtDataType.video,
@@ -418,22 +643,26 @@ class VideoInfoTabWidget extends StatelessWidget {
                     // 打开下载管理页面
                     NaviService.navigateToDownloadTaskListPage();
                   } catch (e) {
-                    LogUtils.e('添加下载任务失败: $e',
-                        tag: 'VideoInfoTabWidget', error: e);
+                    LogUtils.e(
+                      '添加下载任务失败: $e',
+                      tag: 'VideoInfoTabWidget',
+                      error: e,
+                    );
                     String message;
-                    if (e.toString().contains(t.download.errors.downloadTaskAlreadyExists)) {
+                    if (e.toString().contains(
+                      t.download.errors.downloadTaskAlreadyExists,
+                    )) {
                       message = t.download.errors.downloadTaskAlreadyExists;
-                    } else if (e.toString().contains(t.download.errors.videoAlreadyDownloaded)) {
+                    } else if (e.toString().contains(
+                      t.download.errors.videoAlreadyDownloaded,
+                    )) {
                       message = t.download.errors.videoAlreadyDownloaded;
                     } else {
                       message = t.download.errors.downloadFailed;
                     }
 
                     showToastWidget(
-                      MDToastWidget(
-                        message: message,
-                        type: MDToastType.error,
-                      ),
+                      MDToastWidget(message: message, type: MDToastType.error),
                       position: ToastPosition.top,
                     );
                   }

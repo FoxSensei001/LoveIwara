@@ -253,6 +253,9 @@ class TranslationsCommonEn {
 	String get notice => 'Notice';
 	String get detail => 'Detail';
 	String get parseExceptionDestopHint => ' - Desktop users can configure proxy in settings';
+	String get iwaraTags => 'Iwara Tags';
+	String get likeThisVideo => 'Like This Video';
+	String get operation => 'Operation';
 }
 
 // Path: auth
@@ -1655,6 +1658,9 @@ extension on Translations {
 			case 'common.notice': return 'Notice';
 			case 'common.detail': return 'Detail';
 			case 'common.parseExceptionDestopHint': return ' - Desktop users can configure proxy in settings';
+			case 'common.iwaraTags': return 'Iwara Tags';
+			case 'common.likeThisVideo': return 'Like This Video';
+			case 'common.operation': return 'Operation';
 			case 'auth.login': return 'Login';
 			case 'auth.logout': return 'Logout';
 			case 'auth.email': return 'Email';

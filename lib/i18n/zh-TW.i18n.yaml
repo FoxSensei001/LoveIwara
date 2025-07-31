@@ -190,6 +190,9 @@ common:
   notice: 通知
   detail: 詳情
   parseExceptionDestopHint: ' - 桌面端用戶可以在設置中配置代理'
+  iwaraTags: Iwara 標籤
+  likeThisVideo: 喜歡這個影片的人
+  operation: 操作
 auth:
   login: 登入
   logout: 登出

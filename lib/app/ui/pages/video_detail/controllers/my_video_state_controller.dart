@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/history_record.dart';
 import 'package:i_iwara/app/repositories/history_repository.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/oreno3d_client.dart' show Oreno3dClient;
 import 'package:i_iwara/app/services/playback_history_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/related_media_controller.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
@@ -216,15 +217,6 @@ class MyVideoStateController extends GetxController
 
       // 初始化 VideoController
       player = Player();
-      // TODO 暂时禁用硬件加速
-      // final enableHardwareAcceleration =
-      //     _configService[ConfigKey.ENABLE_HARDWARE_ACCELERATION] as bool;
-      // videoController = VideoController(
-      //   player,
-      //   configuration: VideoControllerConfiguration(
-      //     enableHardwareAcceleration: enableHardwareAcceleration,
-      //   ),
-      // );
 
       videoController = VideoController(player);
 
@@ -498,7 +490,19 @@ class MyVideoStateController extends GetxController
         return;
       }
 
-      LogUtils.d('成功获取视频信息: ${videoInfo.value?.title}', 'MyVideoStateController');
+      LogUtils.d('成功获取视频信息: ${videoInfo.value?.title}, 作者: ${videoInfo.value?.user?.name}', 'MyVideoStateController');
+
+      // TODO: 创建 oreno3dClient
+      // try {
+      //   final oreno3dClient = Oreno3dClient();
+      //   // 获取 oreno3d 视频信息
+      //   final oreno3dVideo = await oreno3dClient.searchVideos(keyword: videoInfo.value!.title!);
+      //   LogUtils.d('成功获取 oreno3d 视频信息 ${oreno3dVideo.videos.length}, 第一个视频: ${oreno3dVideo.videos.first.title},第一个视频的作者: ${oreno3dVideo.videos.first.author}', 'MyVideoStateController');
+      // } catch (e) {
+      //   LogUtils.e('获取 oreno3d 视频信息失败: $e', tag: 'MyVideoStateController', error: e);
+      // }
+
+
 
       // 添加历史记录
       try {

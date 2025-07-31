@@ -252,6 +252,9 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String get notice => '通知';
 	@override String get detail => '详情';
 	@override String get parseExceptionDestopHint => ' - 桌面端用户可以在设置中配置代理';
+	@override String get iwaraTags => 'Iwara 标签';
+	@override String get likeThisVideo => '喜欢这个视频的人';
+	@override String get operation => '操作';
 }
 
 // Path: auth
@@ -1659,6 +1662,9 @@ extension on TranslationsZhCn {
 			case 'common.notice': return '通知';
 			case 'common.detail': return '详情';
 			case 'common.parseExceptionDestopHint': return ' - 桌面端用户可以在设置中配置代理';
+			case 'common.iwaraTags': return 'Iwara 标签';
+			case 'common.likeThisVideo': return '喜欢这个视频的人';
+			case 'common.operation': return '操作';
 			case 'auth.tagLimit': return '标签上限';
 			case 'auth.login': return '登录';
 			case 'auth.logout': return '退出登录';

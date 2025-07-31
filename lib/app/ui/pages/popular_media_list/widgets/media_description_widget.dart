@@ -52,25 +52,29 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Obx(() => IconButton(
-          onPressed: _translationController.isTranslating.value ? null : () => _handleTranslation(),
-          icon: _translationController.isTranslating.value
-              ? SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      Theme.of(context).colorScheme.primary,
+        Obx(
+          () => IconButton(
+            onPressed: _translationController.isTranslating.value
+                ? null
+                : () => _handleTranslation(),
+            icon: _translationController.isTranslating.value
+                ? SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Theme.of(context).colorScheme.primary,
+                      ),
                     ),
+                  )
+                : Icon(
+                    Icons.translate,
+                    size: 24,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
-                )
-              : Icon(
-                  Icons.translate,
-                  size: 24,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-        )),
+          ),
+        ),
         TranslationLanguageSelector(
           compact: true,
           selectedLanguage: _configService.currentTranslationSort,
@@ -102,12 +106,19 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                t.mediaList.personalIntroduction,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+              Row(
+                children: [
+                  Icon(Icons.description, size: 16, color: Colors.grey[600]),
+                  const SizedBox(width: 6),
+                  Text(
+                    t.mediaList.personalIntroduction,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                ],
               ),
               _buildTranslationButton(context),
             ],
@@ -161,14 +172,12 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
                               colors: [
-                                Theme.of(context)
-                                    .colorScheme
-                                    .surface
-                                    .withOpacity(0.0),
-                                Theme.of(context)
-                                    .colorScheme
-                                    .surface
-                                    .withOpacity(0.9),
+                                Theme.of(
+                                  context,
+                                ).colorScheme.surface.withOpacity(0.0),
+                                Theme.of(
+                                  context,
+                                ).colorScheme.surface.withOpacity(0.9),
                               ],
                             ),
                           ),
@@ -179,7 +188,9 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
                                 Text(
                                   t.common.expand,
                                   style: TextStyle(
-                                    color: Theme.of(context).colorScheme.primary,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),

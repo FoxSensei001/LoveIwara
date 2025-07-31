@@ -64,6 +64,7 @@ dependencies:
 #  flutter_inappwebview: ^6.1.5
   dio: ^5.8.0+1
 #  native_dio_adapter: ^1.4.0
+  html: ^0.15.6
 
 dev_dependencies:
   flutter_test:

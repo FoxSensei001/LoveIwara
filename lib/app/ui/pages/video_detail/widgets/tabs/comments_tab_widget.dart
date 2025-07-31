@@ -38,58 +38,61 @@ class CommentsTabWidget extends StatelessWidget {
       // 使用GridSpeedDial替代固定头部，并添加评论数量徽章
       floatingActionButton: Obx(() {
         final commentCount = commentController.totalComments.value;
-        return Stack(
-          clipBehavior: Clip.none, // Allows badge to overflow
-          alignment: Alignment.center,
-          children: [
-            GridSpeedDial(
-              // 主按钮图标
-              icon: Icons.more_vert,
-              activeIcon: Icons.close,
-              backgroundColor: Theme.of(context).primaryColor,
-              foregroundColor: Colors.white,
-              elevation: 8,
-              animationDuration: const Duration(milliseconds: 300),
-              direction: SpeedDialDirection.up,
-              spacing: 8,
-              spaceBetweenChildren: 8,
-              
-              // 子按钮配置
-              childrens: [
-                [
-                  // 第一列：刷新评论
-                  SpeedDialChild(
-                    child: const Icon(Icons.refresh, color: Colors.white),
-                    backgroundColor: Colors.blue,
-                    onTap: () {
-                      commentController.refreshComments();
-                    },
-                  ),
+        return Padding(
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+          child: Stack(
+            clipBehavior: Clip.none, // Allows badge to overflow
+            alignment: Alignment.center,
+            children: [
+              GridSpeedDial(
+                // 主按钮图标
+                icon: Icons.more_vert,
+                activeIcon: Icons.close,
+                backgroundColor: Theme.of(context).primaryColor,
+                foregroundColor: Colors.white,
+                elevation: 8,
+                animationDuration: const Duration(milliseconds: 300),
+                direction: SpeedDialDirection.up,
+                spacing: 8,
+                spaceBetweenChildren: 8,
+                
+                // 子按钮配置
+                childrens: [
+                  [
+                    // 第一列：刷新评论
+                    SpeedDialChild(
+                      child: const Icon(Icons.refresh, color: Colors.white),
+                      backgroundColor: Colors.blue,
+                      onTap: () {
+                        commentController.refreshComments();
+                      },
+                    ),
+                  ],
+                  [
+                    // 第二列：写评论
+                    SpeedDialChild(
+                      child: const Icon(Icons.send, color: Colors.white),
+                      backgroundColor: Colors.green,
+                      onTap: () => _showCommentDialog(context),
+                    ),
+                  ],
                 ],
-                [
-                  // 第二列：写评论
-                  SpeedDialChild(
-                    child: const Icon(Icons.send, color: Colors.white),
-                    backgroundColor: Colors.green,
-                    onTap: () => _showCommentDialog(context),
-                  ),
-                ],
-              ],
-            ),
-            // 添加评论数量徽章
-            if (commentCount > 0)
-              Positioned(
-                top: -8, // Adjust as needed to position the badge above the icon
-                right: -8, // Adjust as needed to position the badge to the right of the icon
-                child: Badge(
-                  label: Text('$commentCount'),
-                  backgroundColor: Colors.red,
-                  textColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), // Adjust padding for better appearance
-                  alignment: Alignment.center,
-                ),
               ),
-          ],
+              // 添加评论数量徽章
+              if (commentCount > 0)
+                Positioned(
+                  top: -8, // Adjust as needed to position the badge above the icon
+                  right: -8, // Adjust as needed to position the badge to the right of the icon
+                  child: Badge(
+                    label: Text('$commentCount'),
+                    backgroundColor: Colors.red,
+                    textColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), // Adjust padding for better appearance
+                    alignment: Alignment.center,
+                  ),
+                ),
+            ],
+          ),
         );
       }),
     );
