@@ -4,6 +4,7 @@ import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/services/permission_service.dart';
 import 'package:i_iwara/app/services/filename_template_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:oktoast/oktoast.dart';
 import 'dart:io';
 
@@ -21,6 +22,7 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final t = slang.Translations.of(context);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -35,7 +37,7 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  '功能测试', // TODO: 添加到国际化
+                  t.settings.downloadSettings.functionalTest,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -43,32 +45,32 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
                 const Spacer(),
                 ElevatedButton.icon(
                   onPressed: _isTesting ? null : _runTests,
-                  icon: _isTesting 
+                  icon: _isTesting
                       ? const SizedBox(
                           width: 16,
                           height: 16,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.play_arrow),
-                  label: Text(_isTesting ? '测试中...' : '运行测试'), // TODO: 添加到国际化
+                  label: Text(_isTesting ? t.settings.downloadSettings.testInProgress : t.settings.downloadSettings.runTest),
                 ),
               ],
             ),
             const SizedBox(height: 8),
             Text(
-              '测试下载路径和权限配置是否正常工作', // TODO: 添加到国际化
+              t.settings.downloadSettings.testDownloadPathAndPermissions,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(context).textTheme.bodySmall?.color,
               ),
             ),
-            
+
             if (_testResults.isNotEmpty) ...[
               const SizedBox(height: 16),
               const Divider(),
               const SizedBox(height: 16),
-              
+
               Text(
-                '测试结果', // TODO: 添加到国际化
+                t.settings.downloadSettings.testResults,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -115,6 +117,7 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
   }
 
   Future<void> _runTests() async {
+    final t = slang.Translations.of(context);
     setState(() {
       _isTesting = true;
       _testResults.clear();
@@ -122,29 +125,29 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
 
     try {
       final results = <TestResult>[];
-      
+
       // 测试1: 权限检查
       results.add(await _testPermissions());
-      
+
       // 测试2: 路径验证
       results.add(await _testPathValidation());
-      
+
       // 测试3: 文件命名模板
       results.add(await _testFilenameTemplates());
-      
+
       // 测试4: 目录创建和写入
       results.add(await _testDirectoryOperations());
-      
+
       setState(() {
         _testResults = results;
       });
-      
+
       final passedCount = results.where((r) => r.passed).length;
       final totalCount = results.length;
-      
-      showToast('测试完成: $passedCount/$totalCount 项通过'); // TODO: 添加到国际化
+
+      showToast('${t.settings.downloadSettings.testCompleted}: $passedCount/$totalCount ${t.settings.downloadSettings.testPassed}');
     } catch (e) {
-      showToast('测试失败: $e'); // TODO: 添加到国际化
+      showToast('${t.settings.downloadSettings.testFailed}: $e');
     } finally {
       setState(() {
         _isTesting = false;
@@ -153,73 +156,77 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
   }
 
   Future<TestResult> _testPermissions() async {
+    final t = slang.Translations.of(context);
     try {
       final permissionService = Get.find<PermissionService>();
       final hasPermission = await permissionService.hasStoragePermission();
-      
+
       return TestResult(
-        name: '存储权限检查',
+        name: t.settings.downloadSettings.testStoragePermissionCheck,
         passed: true,
-        message: hasPermission ? '已获得存储权限' : '缺少存储权限，部分功能可能受限',
+        message: hasPermission ? t.settings.downloadSettings.testStoragePermissionGranted : t.settings.downloadSettings.testStoragePermissionMissing,
       );
     } catch (e) {
       return TestResult(
-        name: '存储权限检查',
+        name: t.settings.downloadSettings.testStoragePermissionCheck,
         passed: false,
-        message: '权限检查失败: $e',
+        message: '${t.settings.downloadSettings.testPermissionCheckFailed}: $e',
       );
     }
   }
 
   Future<TestResult> _testPathValidation() async {
+    final t = slang.Translations.of(context);
     try {
       final downloadPathService = Get.find<DownloadPathService>();
       final pathInfo = await downloadPathService.getPathStatusInfo();
-      
+
       return TestResult(
-        name: '下载路径验证',
+        name: t.settings.downloadSettings.testDownloadPathValidation,
         passed: pathInfo.isValid,
         message: pathInfo.validationResult.message,
       );
     } catch (e) {
       return TestResult(
-        name: '下载路径验证',
+        name: t.settings.downloadSettings.testDownloadPathValidation,
         passed: false,
-        message: '路径验证失败: $e',
+        message: '${t.settings.downloadSettings.testPathValidationFailed}: $e',
       );
     }
   }
 
   Future<TestResult> _testFilenameTemplates() async {
+    final t = slang.Translations.of(context);
     try {
       final filenameService = Get.find<FilenameTemplateService>();
       final configService = Get.find<ConfigService>();
-      
+
       final videoTemplate = configService[ConfigKey.VIDEO_FILENAME_TEMPLATE] as String;
       final galleryTemplate = configService[ConfigKey.GALLERY_FILENAME_TEMPLATE] as String;
       final imageTemplate = configService[ConfigKey.IMAGE_FILENAME_TEMPLATE] as String;
-      
+
       final videoValid = filenameService.validateTemplate(videoTemplate);
       final galleryValid = filenameService.validateTemplate(galleryTemplate);
       final imageValid = filenameService.validateTemplate(imageTemplate);
-      
+
       final allValid = videoValid && galleryValid && imageValid;
-      
+
       return TestResult(
-        name: '文件命名模板验证',
+        name: t.settings.downloadSettings.testFilenameTemplateValidation,
         passed: allValid,
-        message: allValid ? '所有模板都有效' : '部分模板包含无效字符',
+        message: allValid ? t.settings.downloadSettings.testAllTemplatesValid : t.settings.downloadSettings.testSomeTemplatesInvalid,
       );
     } catch (e) {
       return TestResult(
-        name: '文件命名模板验证',
+        name: t.settings.downloadSettings.testFilenameTemplateValidation,
         passed: false,
-        message: '模板验证失败: $e',
+        message: '${t.settings.downloadSettings.testTemplateValidationFailed}: $e',
       );
     }
   }
 
   Future<TestResult> _testDirectoryOperations() async {
+    final t = slang.Translations.of(context);
     try {
       final downloadPathService = Get.find<DownloadPathService>();
       final pathInfo = await downloadPathService.getPathStatusInfo();
@@ -242,15 +249,15 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
       }
 
       return TestResult(
-        name: '目录操作测试',
+        name: t.settings.downloadSettings.testDirectoryOperationTest,
         passed: true,
-        message: '目录创建和文件写入正常',
+        message: t.settings.downloadSettings.testDirectoryOperationNormal,
       );
     } catch (e) {
       return TestResult(
-        name: '目录操作测试',
+        name: t.settings.downloadSettings.testDirectoryOperationTest,
         passed: false,
-        message: '目录操作失败: $e',
+        message: '${t.settings.downloadSettings.testDirectoryOperationFailed}: $e',
       );
     }
   }

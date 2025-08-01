@@ -530,6 +530,117 @@ settings:
   longPressFastForward: 長按快進
   enableMouseHoverShowToolbar: 鼠標懸停時顯示工具欄
   enableMouseHoverShowToolbarInfo: 開啟後，當鼠標懸停在播放器上移動時會自動顯示工具欄，停止移動3秒後自動隱藏
+  downloadSettings:
+    downloadSettings: 下載設定
+    storagePermissionStatus: 存儲權限狀態
+    accessPublicDirectoryNeedStoragePermission: 訪問公共目錄需要存儲權限
+    checkingPermissionStatus: 檢查權限狀態...
+    storagePermissionGranted: 已授權存儲權限
+    storagePermissionNotGranted: 需要存儲權限
+    storagePermissionGrantSuccess: 存儲權限授權成功
+    storagePermissionGrantFailedButSomeFeaturesMayBeLimited: 存儲權限授權失敗，部分功能可能受限
+    grantStoragePermission: 授權存儲權限
+    customDownloadPath: 自定義下載位置
+    customDownloadPathDescription: 啟用後可以為下載的檔案選擇自定義儲存位置
+    androidWarning: Android提示：避免選擇公共目錄（如下載資料夾），建議使用應用程式專用目錄以確保存取權限。
+    enableCustomDownloadPath: 啟用自定義下載路徑
+    disableCustomDownloadPath: 關閉時使用應用程式預設路徑
+    customDownloadPathLabel: 自定義下載路徑
+    selectDownloadFolder: 選擇下載資料夾
+    recommendedPath: 推薦路徑
+    selectFolder: 選擇資料夾
+    filenameTemplate: 檔案命名範本
+    filenameTemplateDescription: 自定義下載檔案的命名規則，支援變數替換
+    videoFilenameTemplate: 影片檔案命名範本
+    galleryFolderTemplate: 圖庫資料夾範本
+    imageFilenameTemplate: 單張圖片命名範本
+    resetToDefault: 重設為預設值
+    supportedVariables: 支援的變數
+    supportedVariablesDescription: 在檔案命名範本中可以使用以下變數：
+    warningPublicDirectory: 警告：選擇的是公共目錄，可能無法存取。建議選擇應用程式專用目錄。
+    downloadPathUpdated: 下載路徑已更新
+    selectPathFailed: 選擇路徑失敗
+    recommendedPathSet: 已設定為推薦路徑
+    setRecommendedPathFailed: 設定推薦路徑失敗
+    templateResetToDefault: 已重設為預設範本
+    # 下載測試相關
+    functionalTest: 功能測試
+    testInProgress: 測試中...
+    runTest: 執行測試
+    testDownloadPathAndPermissions: 測試下載路徑和權限配置是否正常運作
+    testResults: 測試結果
+    testCompleted: 測試完成
+    testPassed: 項通過
+    testFailed: 測試失敗
+    testStoragePermissionCheck: 存儲權限檢查
+    testStoragePermissionGranted: 已獲得存儲權限
+    testStoragePermissionMissing: 缺少存儲權限，部分功能可能受限
+    testPermissionCheckFailed: 權限檢查失敗
+    testDownloadPathValidation: 下載路徑驗證
+    testPathValidationFailed: 路徑驗證失敗
+    testFilenameTemplateValidation: 檔案命名範本驗證
+    testAllTemplatesValid: 所有範本都有效
+    testSomeTemplatesInvalid: 部分範本包含無效字元
+    testTemplateValidationFailed: 範本驗證失敗
+    testDirectoryOperationTest: 目錄操作測試
+    testDirectoryOperationNormal: 目錄建立和檔案寫入正常
+    testDirectoryOperationFailed: 目錄操作失敗
+    # 路徑狀態相關
+    checkingPathStatus: 檢查路徑狀態...
+    unableToGetPathStatus: 無法獲取路徑狀態
+    currentDownloadPath: 目前下載路徑
+    actualPathDifferentFromSelected: 注意：實際使用路徑與選擇路徑不同
+    grantPermission: 授權權限
+    fixIssue: 修復問題
+    issueFixed: 問題已修復
+    fixFailed: 修復失敗，請手動處理
+    # 下載路徑服務相關
+    lackStoragePermission: 缺少存儲權限
+    cannotAccessPublicDirectory: 無法訪問公共目錄，需要「所有檔案存取權限」
+    cannotCreateDirectory: 無法建立目錄
+    directoryNotWritable: 目錄不可寫入
+    insufficientSpace: 可用空間不足
+    pathValid: 路徑有效
+    validationFailed: 驗證失敗
+    usingDefaultAppDirectory: 使用預設應用程式目錄
+    appPrivateDirectory: 應用程式專用目錄
+    appPrivateDirectoryDesc: 安全可靠，無需額外權限
+    downloadDirectory: 下載目錄
+    downloadDirectoryDesc: 系統預設下載位置，便於管理
+    moviesDirectory: 影片目錄
+    moviesDirectoryDesc: 系統影片目錄，媒體應用程式可識別
+    documentsDirectory: 文件目錄
+    documentsDirectoryDesc: iOS應用程式文件目錄
+    requiresStoragePermission: 需要存儲權限才能存取
+    # 推薦路徑組件相關
+    recommendedPaths: 推薦路徑
+    selectRecommendedDownloadLocation: 選擇一個推薦的下載位置
+    noRecommendedPaths: 暫無推薦路徑
+    recommended: 推薦
+    requiresPermission: 需要權限
+    authorizeAndSelect: 授權並選擇
+    select: 選擇
+    permissionAuthorizationFailed: 權限授權失敗，無法選擇此路徑
+    pathValidationFailed: 路徑驗證失敗
+    downloadPathSetTo: 下載路徑已設定為
+    setPathFailed: 設定路徑失敗
+    # 檔案命名範本變數
+    variableTitle: 標題
+    variableAuthor: 作者名稱
+    variableUsername: 作者使用者名稱
+    variableQuality: 影片品質
+    variableFilename: 原始檔案名稱
+    variableId: 內容ID
+    variableCount: 圖庫圖片數量
+    variableDate: 目前日期 (YYYY-MM-DD)
+    variableTime: 目前時間 (HH-MM-SS)
+    variableDatetime: 目前日期時間 (YYYY-MM-DD_HH-MM-SS)
+    # 設定頁面
+    downloadSettingsTitle: 下載設定
+    downloadSettingsSubtitle: 設定下載路徑和檔案命名規則
+    suchAsTitleQuality: '例如: %title_%quality'
+    suchAsTitleId: '例如: %title_%id'
+    suchAsTitleFilename: '例如: %title_%filename'
 signIn:
   pleaseLoginFirst: 請先登入
   alreadySignedInToday: 您今天已經簽到過了！

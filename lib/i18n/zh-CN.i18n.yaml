@@ -536,6 +536,117 @@ settings:
   longPressFastForward: 长按快进
   enableMouseHoverShowToolbar: 鼠标悬浮时显示工具栏
   enableMouseHoverShowToolbarInfo: 开启后，当鼠标悬浮在播放器上移动时会自动显示工具栏，停止移动3秒后自动隐藏
+  downloadSettings:
+    downloadSettings: 下载设置
+    storagePermissionStatus: 存储权限状态
+    accessPublicDirectoryNeedStoragePermission: 访问公共目录需要存储权限
+    checkingPermissionStatus: 检查权限状态...
+    storagePermissionGranted: 已授权存储权限
+    storagePermissionNotGranted: 需要存储权限
+    storagePermissionGrantSuccess: 存储权限授权成功
+    storagePermissionGrantFailedButSomeFeaturesMayBeLimited: 存储权限授权失败，部分功能可能受限
+    grantStoragePermission: 授权存储权限
+    customDownloadPath: 自定义下载位置
+    customDownloadPathDescription: 启用后可以为下载的文件选择自定义保存位置
+    androidWarning: Android提示：避免选择公共目录（如下载文件夹），建议使用应用专用目录以确保访问权限。
+    enableCustomDownloadPath: 启用自定义下载路径
+    disableCustomDownloadPath: 关闭时使用应用默认路径
+    customDownloadPathLabel: 自定义下载路径
+    selectDownloadFolder: 选择下载文件夹
+    recommendedPath: 推荐路径
+    selectFolder: 选择文件夹
+    filenameTemplate: 文件命名模板
+    filenameTemplateDescription: 自定义下载文件的命名规则，支持变量替换
+    videoFilenameTemplate: 视频文件命名模板
+    galleryFolderTemplate: 图库文件夹命名模板
+    imageFilenameTemplate: 单张图片命名模板
+    resetToDefault: 重置为默认值
+    supportedVariables: 支持的变量
+    supportedVariablesDescription: 在文件命名模板中可以使用以下变量：
+    warningPublicDirectory: 警告：选择的是公共目录，可能无法访问。建议选择应用专用目录。
+    downloadPathUpdated: 下载路径已更新
+    selectPathFailed: 选择路径失败
+    recommendedPathSet: 已设置为推荐路径
+    setRecommendedPathFailed: 设置推荐路径失败
+    templateResetToDefault: 已重置为默认模板
+    # 下载测试相关
+    functionalTest: 功能测试
+    testInProgress: 测试中...
+    runTest: 运行测试
+    testDownloadPathAndPermissions: 测试下载路径和权限配置是否正常工作
+    testResults: 测试结果
+    testCompleted: 测试完成
+    testPassed: 项通过
+    testFailed: 测试失败
+    testStoragePermissionCheck: 存储权限检查
+    testStoragePermissionGranted: 已获得存储权限
+    testStoragePermissionMissing: 缺少存储权限，部分功能可能受限
+    testPermissionCheckFailed: 权限检查失败
+    testDownloadPathValidation: 下载路径验证
+    testPathValidationFailed: 路径验证失败
+    testFilenameTemplateValidation: 文件命名模板验证
+    testAllTemplatesValid: 所有模板都有效
+    testSomeTemplatesInvalid: 部分模板包含无效字符
+    testTemplateValidationFailed: 模板验证失败
+    testDirectoryOperationTest: 目录操作测试
+    testDirectoryOperationNormal: 目录创建和文件写入正常
+    testDirectoryOperationFailed: 目录操作失败
+    # 路径状态相关
+    checkingPathStatus: 检查路径状态...
+    unableToGetPathStatus: 无法获取路径状态
+    currentDownloadPath: 当前下载路径
+    actualPathDifferentFromSelected: 注意：实际使用路径与选择路径不同
+    grantPermission: 授权权限
+    fixIssue: 修复问题
+    issueFixed: 问题已修复
+    fixFailed: 修复失败，请手动处理
+    # 下载路径服务相关
+    lackStoragePermission: 缺少存储权限
+    cannotAccessPublicDirectory: 无法访问公共目录，需要"所有文件访问权限"
+    cannotCreateDirectory: 无法创建目录
+    directoryNotWritable: 目录不可写
+    insufficientSpace: 可用空间不足
+    pathValid: 路径有效
+    validationFailed: 验证失败
+    usingDefaultAppDirectory: 使用默认应用目录
+    appPrivateDirectory: 应用专用目录
+    appPrivateDirectoryDesc: 安全可靠，无需额外权限
+    downloadDirectory: 下载目录
+    downloadDirectoryDesc: 系统默认下载位置，便于管理
+    moviesDirectory: 影片目录
+    moviesDirectoryDesc: 系统影片目录，媒体应用可识别
+    documentsDirectory: 文档目录
+    documentsDirectoryDesc: iOS应用文档目录
+    requiresStoragePermission: 需要存储权限才能访问
+    # 推荐路径组件相关
+    recommendedPaths: 推荐路径
+    selectRecommendedDownloadLocation: 选择一个推荐的下载位置
+    noRecommendedPaths: 暂无推荐路径
+    recommended: 推荐
+    requiresPermission: 需要权限
+    authorizeAndSelect: 授权并选择
+    select: 选择
+    permissionAuthorizationFailed: 权限授权失败，无法选择此路径
+    pathValidationFailed: 路径验证失败
+    downloadPathSetTo: 下载路径已设置为
+    setPathFailed: 设置路径失败
+    # 文件命名模板变量
+    variableTitle: 标题
+    variableAuthor: 作者名称
+    variableUsername: 作者用户名
+    variableQuality: 视频质量
+    variableFilename: 原始文件名
+    variableId: 内容ID
+    variableCount: 图库图片数量
+    variableDate: 当前日期 (YYYY-MM-DD)
+    variableTime: 当前时间 (HH-MM-SS)
+    variableDatetime: 当前日期时间 (YYYY-MM-DD_HH-MM-SS)
+    # 设置页面
+    downloadSettingsTitle: 下载设置
+    downloadSettingsSubtitle: 配置下载路径和文件命名规则
+    suchAsTitleQuality: '例如: %title_%quality'
+    suchAsTitleId: '例如: %title_%id'
+    suchAsTitleFilename: '例如: %title_%filename'
 signIn:
   pleaseLoginFirst: 请先登录
   alreadySignedInToday: 您今天已经签到过了！

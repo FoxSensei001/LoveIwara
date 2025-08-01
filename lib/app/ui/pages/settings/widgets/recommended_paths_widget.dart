@@ -4,6 +4,7 @@ import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/permission_service.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:oktoast/oktoast.dart';
 
 /// 推荐路径选择组件
@@ -24,6 +25,7 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final t = slang.Translations.of(context);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -31,14 +33,14 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '推荐路径', // TODO: 添加到国际化
+              t.settings.downloadSettings.recommendedPaths,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              '选择一个推荐的下载位置', // TODO: 添加到国际化
+              t.settings.downloadSettings.selectRecommendedDownloadLocation,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(context).textTheme.bodySmall?.color,
               ),
@@ -56,7 +58,7 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
 
                 final paths = snapshot.data ?? [];
                 if (paths.isEmpty) {
-                  return const Text('暂无推荐路径'); // TODO: 添加到国际化
+                  return Text(t.settings.downloadSettings.noRecommendedPaths);
                 }
 
                 return Column(
@@ -73,6 +75,7 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
   }
 
   Widget _buildPathTile(RecommendedPath recommendedPath) {
+    final t = slang.Translations.of(context);
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: Padding(
@@ -112,9 +115,9 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
                                 color: Colors.green,
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              child: const Text(
-                                '推荐', // TODO: 添加到国际化
-                                style: TextStyle(
+                              child: Text(
+                                t.settings.downloadSettings.recommended,
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
@@ -128,9 +131,9 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
                                 color: Colors.orange,
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              child: const Text(
-                                '需要权限', // TODO: 添加到国际化
-                                style: TextStyle(
+                              child: Text(
+                                t.settings.downloadSettings.requiresPermission,
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
@@ -182,7 +185,7 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
                     ? () => _requestPermissionAndSelect(recommendedPath)
                     : () => _selectPath(recommendedPath),
                 child: Text(
-                  recommendedPath.requiresPermission ? '授权并选择' : '选择', // TODO: 添加到国际化
+                  recommendedPath.requiresPermission ? t.settings.downloadSettings.authorizeAndSelect : t.settings.downloadSettings.select,
                 ),
               ),
             ),
@@ -206,15 +209,16 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
   }
 
   Future<void> _requestPermissionAndSelect(RecommendedPath recommendedPath) async {
+    final t = slang.Translations.of(context);
     final permissionService = Get.find<PermissionService>();
     final granted = await permissionService.requestStoragePermission();
-    
+
     if (granted) {
       await _selectPath(recommendedPath);
     } else {
       showToastWidget(
         MDToastWidget(
-          message: '权限授权失败，无法选择此路径', // TODO: 添加到国际化
+          message: t.settings.downloadSettings.permissionAuthorizationFailed,
           type: MDToastType.error,
         ),
       );
@@ -222,6 +226,7 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
   }
 
   Future<void> _selectPath(RecommendedPath recommendedPath) async {
+    final t = slang.Translations.of(context);
     try {
       // 验证路径
       final downloadPathService = Get.find<DownloadPathService>();
@@ -230,7 +235,7 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
       if (!validationResult.isValid) {
         showToastWidget(
           MDToastWidget(
-            message: '路径验证失败: ${validationResult.message}', // TODO: 添加到国际化
+            message: '${t.settings.downloadSettings.pathValidationFailed}: ${validationResult.message}',
             type: MDToastType.error,
           ),
         );
@@ -243,7 +248,7 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
       
       showToastWidget(
         MDToastWidget(
-          message: '下载路径已设置为: ${recommendedPath.name}', // TODO: 添加到国际化
+          message: '${t.settings.downloadSettings.downloadPathSetTo}: ${recommendedPath.name}',
           type: MDToastType.success,
         ),
       );
@@ -252,7 +257,7 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
     } catch (e) {
       showToastWidget(
         MDToastWidget(
-          message: '设置路径失败: $e', // TODO: 添加到国际化
+          message: '${t.settings.downloadSettings.setPathFailed}: $e',
           type: MDToastType.error,
         ),
       );

@@ -64,8 +64,8 @@ class _SettingsPageState extends State<SettingsPage> {
         route: Routes.APP_SETTINGS_PAGE,
       ),
       SettingItem(
-        title: '下载设置', // TODO: 添加到国际化
-        subtitle: '配置下载路径和文件命名规则', // TODO: 添加到国际化
+        title: t.settings.downloadSettings.downloadSettingsTitle,
+        subtitle: t.settings.downloadSettings.downloadSettingsSubtitle,
         icon: Icons.download,
         page: DownloadSettingsPage(isWideScreen: isWideScreen),
         route: Routes.DOWNLOAD_SETTINGS_PAGE,

@@ -530,6 +530,117 @@ settings:
   longPressFastForward: 長押しファストフォワード
   enableMouseHoverShowToolbar: マウスホバー時にツールバーを表示
   enableMouseHoverShowToolbarInfo: 有効にすると、マウスがプレーヤー上にあるときにツールバーが表示されます。3秒間の非アクティブ時に自動的に非表示になります。
+  downloadSettings:
+    downloadSettings: ダウンロード設定
+    storagePermissionStatus: ストレージ権限状態
+    accessPublicDirectoryNeedStoragePermission: パブリックディレクトリにアクセスするにはストレージ権限が必要です
+    checkingPermissionStatus: 権限状態を確認中...
+    storagePermissionGranted: ストレージ権限が付与されました
+    storagePermissionNotGranted: ストレージ権限が付与されていません
+    storagePermissionGrantSuccess: ストレージ権限が付与されました
+    storagePermissionGrantFailedButSomeFeaturesMayBeLimited: ストレージ権限が付与されませんでしたが、一部の機能が制限される可能性があります
+    grantStoragePermission: ストレージ権限を付与
+    customDownloadPath: カスタムダウンロードパス
+    customDownloadPathDescription: 有効にすると、ダウンロードファイルのカスタム保存場所を選択できます
+    androidWarning: Android注意：パブリックディレクトリ（ダウンロードフォルダなど）の選択を避け、アクセス権限を確保するためにアプリ専用ディレクトリの使用をお勧めします。
+    enableCustomDownloadPath: カスタムダウンロードパスを有効にする
+    disableCustomDownloadPath: 無効時はアプリのデフォルトパスを使用
+    customDownloadPathLabel: カスタムダウンロードパス
+    selectDownloadFolder: ダウンロードフォルダを選択
+    recommendedPath: 推奨パス
+    selectFolder: フォルダを選択
+    filenameTemplate: ファイル名テンプレート
+    filenameTemplateDescription: ダウンロードファイルの命名規則をカスタマイズし、変数置換をサポート
+    videoFilenameTemplate: 動画ファイル名テンプレート
+    galleryFolderTemplate: ギャラリーフォルダテンプレート
+    imageFilenameTemplate: 画像ファイル名テンプレート
+    resetToDefault: デフォルトにリセット
+    supportedVariables: サポートされている変数
+    supportedVariablesDescription: ファイル名テンプレートで以下の変数を使用できます：
+    warningPublicDirectory: 警告：選択されたパブリックディレクトリにアクセスできない可能性があります。アプリ専用ディレクトリの選択をお勧めします。
+    downloadPathUpdated: ダウンロードパスが更新されました
+    selectPathFailed: パスの選択に失敗しました
+    recommendedPathSet: 推奨パスに設定されました
+    setRecommendedPathFailed: 推奨パスの設定に失敗しました
+    templateResetToDefault: デフォルトテンプレートにリセットされました
+    # ダウンロードテスト関連
+    functionalTest: 機能テスト
+    testInProgress: テスト中...
+    runTest: テスト実行
+    testDownloadPathAndPermissions: ダウンロードパスと権限設定が正常に動作するかテストします
+    testResults: テスト結果
+    testCompleted: テスト完了
+    testPassed: 項目が通過しました
+    testFailed: テスト失敗
+    testStoragePermissionCheck: ストレージ権限チェック
+    testStoragePermissionGranted: ストレージ権限が付与されています
+    testStoragePermissionMissing: ストレージ権限がありません、一部の機能が制限される可能性があります
+    testPermissionCheckFailed: 権限チェックに失敗しました
+    testDownloadPathValidation: ダウンロードパス検証
+    testPathValidationFailed: パス検証に失敗しました
+    testFilenameTemplateValidation: ファイル名テンプレート検証
+    testAllTemplatesValid: すべてのテンプレートが有効です
+    testSomeTemplatesInvalid: 一部のテンプレートに無効な文字が含まれています
+    testTemplateValidationFailed: テンプレート検証に失敗しました
+    testDirectoryOperationTest: ディレクトリ操作テスト
+    testDirectoryOperationNormal: ディレクトリ作成とファイル書き込みが正常です
+    testDirectoryOperationFailed: ディレクトリ操作に失敗しました
+    # パス状態関連
+    checkingPathStatus: パス状態を確認中...
+    unableToGetPathStatus: パス状態を取得できません
+    currentDownloadPath: 現在のダウンロードパス
+    actualPathDifferentFromSelected: 注意：実際のパスが選択されたパスと異なります
+    grantPermission: 権限を付与
+    fixIssue: 問題を修正
+    issueFixed: 問題が修正されました
+    fixFailed: 修正に失敗しました、手動で処理してください
+    # ダウンロードパスサービス関連
+    lackStoragePermission: ストレージ権限がありません
+    cannotAccessPublicDirectory: パブリックディレクトリにアクセスできません、「すべてのファイルアクセス権限」が必要です
+    cannotCreateDirectory: ディレクトリを作成できません
+    directoryNotWritable: ディレクトリに書き込みできません
+    insufficientSpace: 利用可能な容量が不足しています
+    pathValid: パスが有効です
+    validationFailed: 検証に失敗しました
+    usingDefaultAppDirectory: デフォルトアプリディレクトリを使用
+    appPrivateDirectory: アプリ専用ディレクトリ
+    appPrivateDirectoryDesc: 安全で信頼性があり、追加の権限は不要
+    downloadDirectory: ダウンロードディレクトリ
+    downloadDirectoryDesc: システムデフォルトのダウンロード場所、管理が簡単
+    moviesDirectory: 動画ディレクトリ
+    moviesDirectoryDesc: システム動画ディレクトリ、メディアアプリで認識可能
+    documentsDirectory: ドキュメントディレクトリ
+    documentsDirectoryDesc: iOSアプリドキュメントディレクトリ
+    requiresStoragePermission: アクセスにはストレージ権限が必要
+    # 推奨パスウィジェット関連
+    recommendedPaths: 推奨パス
+    selectRecommendedDownloadLocation: 推奨されるダウンロード場所を選択
+    noRecommendedPaths: 推奨パスがありません
+    recommended: 推奨
+    requiresPermission: 権限が必要
+    authorizeAndSelect: 認証して選択
+    select: 選択
+    permissionAuthorizationFailed: 権限認証に失敗しました、このパスを選択できません
+    pathValidationFailed: パス検証に失敗しました
+    downloadPathSetTo: ダウンロードパスが設定されました
+    setPathFailed: パスの設定に失敗しました
+    # ファイル名テンプレート変数
+    variableTitle: タイトル
+    variableAuthor: 作者名
+    variableUsername: 作者ユーザー名
+    variableQuality: 動画品質
+    variableFilename: 元のファイル名
+    variableId: コンテンツID
+    variableCount: ギャラリー画像数
+    variableDate: 現在の日付 (YYYY-MM-DD)
+    variableTime: 現在の時刻 (HH-MM-SS)
+    variableDatetime: 現在の日時 (YYYY-MM-DD_HH-MM-SS)
+    # 設定ページ
+    downloadSettingsTitle: ダウンロード設定
+    downloadSettingsSubtitle: ダウンロードパスとファイル命名規則を設定
+    suchAsTitleQuality: '例: %title_%quality'
+    suchAsTitleId: '例: %title_%id'
+    suchAsTitleFilename: '例: %title_%filename'
 signIn:
   pleaseLoginFirst: サインインする前にログインしてください
   alreadySignedInToday: 今日は既にサインインしています！

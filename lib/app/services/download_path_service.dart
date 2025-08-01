@@ -8,6 +8,7 @@ import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/services/permission_service.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:path/path.dart' as path;
 
 /// 路径验证原因枚举
@@ -48,6 +49,16 @@ class DownloadPathService extends GetxService {
 
   final ConfigService _configService = Get.find<ConfigService>();
   late FilenameTemplateService _filenameTemplateService;
+
+  /// 获取翻译实例
+  slang.TranslationsSettingsDownloadSettingsEn get _t {
+    final context = Get.context;
+    if (context != null) {
+      return slang.Translations.of(context).settings.downloadSettings;
+    }
+    // 如果没有上下文，返回默认英文翻译
+    return slang.TranslationsEn().settings.downloadSettings;
+  }
 
   @override
   void onInit() {
@@ -328,7 +339,7 @@ class DownloadPathService extends GetxService {
         return PathValidationResult(
           isValid: false,
           reason: PathValidationReason.noPermission,
-          message: '缺少存储权限',
+          message: _t.lackStoragePermission,
           canFix: true,
         );
       }
@@ -340,7 +351,7 @@ class DownloadPathService extends GetxService {
           return PathValidationResult(
             isValid: false,
             reason: PathValidationReason.noPublicDirectoryAccess,
-            message: '无法访问公共目录，需要"所有文件访问权限"',
+            message: _t.cannotAccessPublicDirectory,
             canFix: true,
           );
         }
@@ -354,7 +365,7 @@ class DownloadPathService extends GetxService {
           return PathValidationResult(
             isValid: false,
             reason: PathValidationReason.cannotCreate,
-            message: '无法创建目录: ${e.toString()}',
+            message: '${_t.cannotCreateDirectory}: ${e.toString()}',
             canFix: false,
           );
         }
@@ -365,7 +376,7 @@ class DownloadPathService extends GetxService {
         return PathValidationResult(
           isValid: false,
           reason: PathValidationReason.notWritable,
-          message: '目录不可写',
+          message: _t.directoryNotWritable,
           canFix: false,
         );
       }
@@ -376,7 +387,7 @@ class DownloadPathService extends GetxService {
         return PathValidationResult(
           isValid: true,
           reason: PathValidationReason.lowSpace,
-          message: '可用空间不足 (${_formatBytes(freeSpace)})',
+          message: '${_t.insufficientSpace} (${_formatBytes(freeSpace)})',
           canFix: false,
         );
       }
@@ -384,7 +395,7 @@ class DownloadPathService extends GetxService {
       return PathValidationResult(
         isValid: true,
         reason: PathValidationReason.valid,
-        message: '路径有效',
+        message: _t.pathValid,
         canFix: false,
         availableSpace: freeSpace,
       );
@@ -393,7 +404,7 @@ class DownloadPathService extends GetxService {
       return PathValidationResult(
         isValid: false,
         reason: PathValidationReason.unknown,
-        message: '验证失败: ${e.toString()}',
+        message: '${_t.validationFailed}: ${e.toString()}',
         canFix: false,
       );
     }
@@ -468,7 +479,7 @@ class DownloadPathService extends GetxService {
         validationResult: PathValidationResult(
           isValid: true,
           reason: PathValidationReason.valid,
-          message: '使用默认应用目录',
+          message: _t.usingDefaultAppDirectory,
           canFix: false,
         ),
       );
@@ -494,8 +505,8 @@ class DownloadPathService extends GetxService {
     final appDir = await CommonUtils.getAppDirectory(pathSuffix: 'downloads');
     paths.add(RecommendedPath(
       path: appDir.path,
-      name: '应用专用目录',
-      description: '安全可靠，无需额外权限',
+      name: _t.appPrivateDirectory,
+      description: _t.appPrivateDirectoryDesc,
       type: RecommendedPathType.appPrivate,
       isRecommended: true,
     ));
@@ -508,8 +519,8 @@ class DownloadPathService extends GetxService {
         // 2. 下载目录
         paths.add(RecommendedPath(
           path: '/storage/emulated/0/Download',
-          name: '下载目录',
-          description: '系统默认下载位置，便于管理',
+          name: _t.downloadDirectory,
+          description: _t.downloadDirectoryDesc,
           type: RecommendedPathType.publicDownload,
           isRecommended: true,
         ));
@@ -517,8 +528,8 @@ class DownloadPathService extends GetxService {
         // 3. 影片目录
         paths.add(RecommendedPath(
           path: '/storage/emulated/0/Movies',
-          name: '影片目录',
-          description: '系统影片目录，媒体应用可识别',
+          name: _t.moviesDirectory,
+          description: _t.moviesDirectoryDesc,
           type: RecommendedPathType.publicMovies,
           isRecommended: false,
         ));
@@ -526,8 +537,8 @@ class DownloadPathService extends GetxService {
         // 无权限时显示但标记为不可用
         paths.add(RecommendedPath(
           path: '/storage/emulated/0/Download',
-          name: '下载目录',
-          description: '需要存储权限才能访问',
+          name: _t.downloadDirectory,
+          description: _t.requiresStoragePermission,
           type: RecommendedPathType.publicDownload,
           isRecommended: false,
           requiresPermission: true,
@@ -539,8 +550,8 @@ class DownloadPathService extends GetxService {
         final documentsDir = await CommonUtils.getAppDirectory();
         paths.add(RecommendedPath(
           path: documentsDir.path,
-          name: '文档目录',
-          description: 'iOS应用文档目录',
+          name: _t.documentsDirectory,
+          description: _t.documentsDirectoryDesc,
           type: RecommendedPathType.appPrivate,
           isRecommended: true,
         ));

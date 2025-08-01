@@ -529,6 +529,117 @@ settings:
   longPressFastForward: Long Press Fast Forward
   enableMouseHoverShowToolbar: Enable Mouse Hover Show Toolbar
   enableMouseHoverShowToolbarInfo: When enabled, the video toolbar will be shown when the mouse is hovering over the player. It will be automatically hidden after 3 seconds of inactivity.
+  downloadSettings:
+    downloadSettings: Download Settings
+    storagePermissionStatus: Storage Permission Status
+    accessPublicDirectoryNeedStoragePermission: Access Public Directory Need Storage Permission
+    checkingPermissionStatus: Checking Permission Status...
+    storagePermissionGranted: Storage Permission Granted
+    storagePermissionNotGranted: Storage Permission Not Granted
+    storagePermissionGrantSuccess: Storage Permission Grant Success
+    storagePermissionGrantFailedButSomeFeaturesMayBeLimited: Storage Permission Grant Failed But Some Features May Be Limited
+    grantStoragePermission: Grant Storage Permission
+    customDownloadPath: Custom Download Path
+    customDownloadPathDescription: When enabled, you can choose a custom save location for downloaded files
+    androidWarning: "Android Note: Avoid selecting public directories (such as Downloads folder), recommend using app-specific directories to ensure access permissions."
+    enableCustomDownloadPath: Enable Custom Download Path
+    disableCustomDownloadPath: Use app default path when disabled
+    customDownloadPathLabel: Custom Download Path
+    selectDownloadFolder: Select download folder
+    recommendedPath: Recommended Path
+    selectFolder: Select Folder
+    filenameTemplate: Filename Template
+    filenameTemplateDescription: Customize the naming rules for downloaded files, supports variable substitution
+    videoFilenameTemplate: Video Filename Template
+    galleryFolderTemplate: Gallery Folder Template
+    imageFilenameTemplate: Image Filename Template
+    resetToDefault: Reset to Default
+    supportedVariables: Supported Variables
+    supportedVariablesDescription: "The following variables can be used in filename templates:"
+    warningPublicDirectory: "Warning: Selected public directory may not be accessible. Recommend selecting app-specific directory."
+    downloadPathUpdated: Download path updated
+    selectPathFailed: Failed to select path
+    recommendedPathSet: Set to recommended path
+    setRecommendedPathFailed: Failed to set recommended path
+    templateResetToDefault: Reset to default template
+    # Download test related
+    functionalTest: Functional Test
+    testInProgress: Testing...
+    runTest: Run Test
+    testDownloadPathAndPermissions: Test if download path and permission configuration work properly
+    testResults: Test Results
+    testCompleted: Test completed
+    testPassed: items passed
+    testFailed: Test failed
+    testStoragePermissionCheck: Storage Permission Check
+    testStoragePermissionGranted: Storage permission granted
+    testStoragePermissionMissing: Storage permission missing, some features may be limited
+    testPermissionCheckFailed: Permission check failed
+    testDownloadPathValidation: Download Path Validation
+    testPathValidationFailed: Path validation failed
+    testFilenameTemplateValidation: Filename Template Validation
+    testAllTemplatesValid: All templates are valid
+    testSomeTemplatesInvalid: Some templates contain invalid characters
+    testTemplateValidationFailed: Template validation failed
+    testDirectoryOperationTest: Directory Operation Test
+    testDirectoryOperationNormal: Directory creation and file writing are normal
+    testDirectoryOperationFailed: Directory operation failed
+    # Path status related
+    checkingPathStatus: Checking path status...
+    unableToGetPathStatus: Unable to get path status
+    currentDownloadPath: Current Download Path
+    actualPathDifferentFromSelected: "Note: Actual path differs from selected path"
+    grantPermission: Grant Permission
+    fixIssue: Fix Issue
+    issueFixed: Issue fixed
+    fixFailed: Fix failed, please handle manually
+    # Download path service related
+    lackStoragePermission: Lack storage permission
+    cannotAccessPublicDirectory: Cannot access public directory, need "All files access permission"
+    cannotCreateDirectory: Cannot create directory
+    directoryNotWritable: Directory not writable
+    insufficientSpace: Insufficient available space
+    pathValid: Path is valid
+    validationFailed: Validation failed
+    usingDefaultAppDirectory: Using default app directory
+    appPrivateDirectory: App Private Directory
+    appPrivateDirectoryDesc: Safe and reliable, no additional permissions required
+    downloadDirectory: Download Directory
+    downloadDirectoryDesc: System default download location, easy to manage
+    moviesDirectory: Movies Directory
+    moviesDirectoryDesc: System movies directory, recognizable by media apps
+    documentsDirectory: Documents Directory
+    documentsDirectoryDesc: iOS app documents directory
+    requiresStoragePermission: Requires storage permission to access
+    # Recommended paths widget related
+    recommendedPaths: Recommended Paths
+    selectRecommendedDownloadLocation: Select a recommended download location
+    noRecommendedPaths: No recommended paths available
+    recommended: Recommended
+    requiresPermission: Requires Permission
+    authorizeAndSelect: Authorize and Select
+    select: Select
+    permissionAuthorizationFailed: Permission authorization failed, cannot select this path
+    pathValidationFailed: Path validation failed
+    downloadPathSetTo: Download path set to
+    setPathFailed: Failed to set path
+    # Filename template variables
+    variableTitle: Title
+    variableAuthor: Author name
+    variableUsername: Author username
+    variableQuality: Video quality
+    variableFilename: Original filename
+    variableId: Content ID
+    variableCount: Gallery image count
+    variableDate: Current date (YYYY-MM-DD)
+    variableTime: Current time (HH-MM-SS)
+    variableDatetime: Current date time (YYYY-MM-DD_HH-MM-SS)
+    # Settings page
+    downloadSettingsTitle: Download Settings
+    downloadSettingsSubtitle: Configure download path and file naming rules
+    suchAsTitleQuality: 'For example: %title_%quality'
+    suchAsTitleId: 'For example: %title_%id'
+    suchAsTitleFilename: 'For example: %title_%filename'
 signIn:
   pleaseLoginFirst: Please login first
   alreadySignedInToday: You have already signed in today!

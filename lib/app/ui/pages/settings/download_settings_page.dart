@@ -7,9 +7,7 @@ import 'package:i_iwara/app/services/filename_template_service.dart';
 import 'package:i_iwara/app/services/permission_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/path_status_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/recommended_paths_widget.dart';
-import 'package:i_iwara/app/ui/pages/settings/widgets/download_status_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/download_test_widget.dart';
-import 'package:i_iwara/utils/widget_extensions.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:oktoast/oktoast.dart' show showToastWidget, ToastPosition;
 
@@ -66,7 +64,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
     return Scaffold(
       appBar: widget.isWideScreen ? null : AppBar(
         title: Text(
-          '下载设置', // TODO: 添加到国际化
+          t.settings.downloadSettings.downloadSettings,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         elevation: 2,
@@ -79,7 +77,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
           children: [
             if (widget.isWideScreen) ...[
               Text(
-                '下载设置', // TODO: 添加到国际化
+                t.settings.downloadSettings.downloadSettings,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -115,14 +113,6 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
             _buildVariableHelpSection(context),
             const SizedBox(height: 24),
 
-            // 下载状态监控
-            const DownloadStatusWidget(),
-            const SizedBox(height: 24),
-
-            // 下载统计
-            const DownloadStatsWidget(),
-            const SizedBox(height: 24),
-
             // 功能测试
             const DownloadTestWidget(),
             const SafeArea(child: SizedBox.shrink()),
@@ -137,21 +127,23 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
       return const SizedBox.shrink(); // 非Android平台不显示权限状态
     }
 
+    final t = slang.Translations.of(context);
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              '存储权限状态', // TODO: 添加到国际化
+            Text( 
+              t.settings.downloadSettings.storagePermissionStatus,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              '访问公共目录需要存储权限', // TODO: 添加到国际化
+              t.settings.downloadSettings.accessPublicDirectoryNeedStoragePermission,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(context).textTheme.bodySmall?.color,
               ),
@@ -162,7 +154,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
               future: Get.find<PermissionService>().hasStoragePermission(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Row(
+                  return Row(
                     children: [
                       SizedBox(
                         width: 16,
@@ -170,7 +162,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       ),
                       SizedBox(width: 12),
-                      Text('检查权限状态...'), // TODO: 添加到国际化
+                      Text(t.settings.downloadSettings.checkingPermissionStatus),
                     ],
                   );
                 }
@@ -189,7 +181,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            hasPermission ? '已授权存储权限' : '需要存储权限', // TODO: 添加到国际化
+                            hasPermission ? t.settings.downloadSettings.storagePermissionGranted : t.settings.downloadSettings.storagePermissionNotGranted,
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: hasPermission ? Colors.green : Colors.orange,
                               fontWeight: FontWeight.w500,
@@ -211,14 +203,14 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                             if (granted) {
                               showToastWidget(
                                 MDToastWidget(
-                                  message: '权限授权成功', // TODO: 添加到国际化
+                                  message: t.settings.downloadSettings.storagePermissionGrantSuccess,
                                   type: MDToastType.success,
                                 ),
                               );
                             } else {
                               showToastWidget(
                                 MDToastWidget(
-                                  message: '权限授权失败，部分功能可能受限', // TODO: 添加到国际化
+                                  message: t.settings.downloadSettings.storagePermissionGrantFailedButSomeFeaturesMayBeLimited,
                                   type: MDToastType.warning,
                                 ),
                               );
@@ -228,7 +220,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                             setState(() {});
                           },
                           icon: const Icon(Icons.security),
-                          label: const Text('授权存储权限'), // TODO: 添加到国际化
+                          label: Text(t.settings.downloadSettings.grantStoragePermission),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -250,6 +242,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
   }
 
   Widget _buildCustomPathSection(BuildContext context) {
+    final t = slang.Translations.of(context);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -257,14 +250,14 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '自定义下载位置', // TODO: 添加到国际化
+              t.settings.downloadSettings.customDownloadPath,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              '启用后可以为下载的文件选择自定义保存位置', // TODO: 添加到国际化
+              t.settings.downloadSettings.customDownloadPathDescription,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(context).textTheme.bodySmall?.color,
               ),
@@ -294,7 +287,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'Android提示：避免选择公共目录（如下载文件夹），建议使用应用专用目录以确保访问权限。', // TODO: 添加到国际化
+                            t.settings.downloadSettings.androidWarning,
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: Theme.of(context).colorScheme.error,
                             ),
@@ -310,8 +303,8 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
             
             // 启用开关
             Obx(() => SwitchListTile(
-              title: const Text('启用自定义下载路径'), // TODO: 添加到国际化
-              subtitle: const Text('关闭时使用应用默认路径'), // TODO: 添加到国际化
+              title: Text(t.settings.downloadSettings.enableCustomDownloadPath),
+              subtitle: Text(t.settings.downloadSettings.disableCustomDownloadPath),
               value: configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] ?? false,
               onChanged: (value) {
                 configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] = value;
@@ -332,8 +325,8 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                       enabled: isEnabled,
                       maxLines: null,
                       decoration: InputDecoration(
-                        labelText: '自定义下载路径', // TODO: 添加到国际化
-                        hintText: '选择下载文件夹', // TODO: 添加到国际化
+                        labelText: t.settings.downloadSettings.customDownloadPathLabel,
+                        hintText: t.settings.downloadSettings.selectDownloadFolder,
                         border: const OutlineInputBorder(),
                         alignLabelWithHint: true,
                       ),
@@ -349,7 +342,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                             child: ElevatedButton.icon(
                               onPressed: _useRecommendedPath,
                               icon: const Icon(Icons.recommend, size: 18),
-                              label: const Text('推荐路径'), // TODO: 添加到国际化
+                              label: Text(t.settings.downloadSettings.recommendedPath),
                             ),
                           ),
                         if (GetPlatform.isAndroid && isEnabled)
@@ -358,7 +351,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                           child: ElevatedButton.icon(
                             onPressed: isEnabled ? _selectDownloadPath : null,
                             icon: const Icon(Icons.folder_open, size: 18),
-                            label: const Text('选择文件夹'), // TODO: 添加到国际化
+                            label: Text(t.settings.downloadSettings.selectFolder),
                           ),
                         ),
                       ],
@@ -374,6 +367,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
   }
 
   Widget _buildFilenameTemplateSection(BuildContext context) {
+    final t = slang.Translations.of(context);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -381,14 +375,14 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '文件命名模板', // TODO: 添加到国际化
+              t.settings.downloadSettings.filenameTemplate,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              '自定义下载文件的命名规则，支持变量替换', // TODO: 添加到国际化
+              t.settings.downloadSettings.filenameTemplateDescription,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(context).textTheme.bodySmall?.color,
               ),
@@ -399,8 +393,8 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
             _buildTemplateField(
               context,
               controller: _videoTemplateController,
-              label: '视频文件命名模板', // TODO: 添加到国际化
-              hint: '例如: %title_%quality',
+              label: t.settings.downloadSettings.videoFilenameTemplate,
+              hint: t.settings.downloadSettings.suchAsTitleQuality,
               configKey: ConfigKey.VIDEO_FILENAME_TEMPLATE,
             ),
             const SizedBox(height: 16),
@@ -409,8 +403,8 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
             _buildTemplateField(
               context,
               controller: _galleryTemplateController,
-              label: '图库文件夹命名模板', // TODO: 添加到国际化
-              hint: '例如: %title_%id',
+              label: t.settings.downloadSettings.galleryFolderTemplate,
+              hint: t.settings.downloadSettings.suchAsTitleId,
               configKey: ConfigKey.GALLERY_FILENAME_TEMPLATE,
             ),
             const SizedBox(height: 16),
@@ -419,8 +413,8 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
             _buildTemplateField(
               context,
               controller: _imageTemplateController,
-              label: '单张图片命名模板', // TODO: 添加到国际化
-              hint: '例如: %title_%filename',
+              label: t.settings.downloadSettings.imageFilenameTemplate,
+              hint: t.settings.downloadSettings.suchAsTitleFilename,
               configKey: ConfigKey.IMAGE_FILENAME_TEMPLATE,
             ),
           ],
@@ -436,6 +430,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
     required String hint,
     required ConfigKey configKey,
   }) {
+    final t = slang.Translations.of(context);
     return TextField(
       controller: controller,
       decoration: InputDecoration(
@@ -445,7 +440,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
         suffixIcon: IconButton(
           icon: const Icon(Icons.refresh),
           onPressed: () => _resetTemplate(controller, configKey),
-          tooltip: '重置为默认值', // TODO: 添加到国际化
+          tooltip: t.settings.downloadSettings.resetToDefault,
         ),
       ),
       onChanged: (value) {
@@ -457,8 +452,9 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
   }
 
   Widget _buildVariableHelpSection(BuildContext context) {
+    final t = slang.Translations.of(context);
     final variables = filenameTemplateService.getSupportedVariables();
-    
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -466,14 +462,14 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '支持的变量', // TODO: 添加到国际化
+              t.settings.downloadSettings.supportedVariables,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              '在文件命名模板中可以使用以下变量：', // TODO: 添加到国际化
+              t.settings.downloadSettings.supportedVariablesDescription,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(context).textTheme.bodySmall?.color,
               ),
@@ -522,6 +518,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
   }
 
   Future<void> _selectDownloadPath() async {
+    final t = slang.Translations.of(context);
     try {
       final String? directoryPath = await getDirectoryPath();
       if (directoryPath != null) {
@@ -529,7 +526,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
         if (GetPlatform.isAndroid && _isPublicDirectory(directoryPath)) {
           showToastWidget(
             MDToastWidget(
-              message: '警告：选择的是公共目录，可能无法访问。建议选择应用专用目录。', // TODO: 添加到国际化
+              message: t.settings.downloadSettings.warningPublicDirectory,
               type: MDToastType.warning,
             ),
           );
@@ -540,7 +537,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
 
         showToastWidget(
           MDToastWidget(
-            message: '下载路径已更新', // TODO: 添加到国际化
+            message: t.settings.downloadSettings.downloadPathUpdated,
             type: MDToastType.success,
           ),
           position: ToastPosition.bottom,
@@ -549,7 +546,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
     } catch (e) {
       showToastWidget(
         MDToastWidget(
-          message: '选择路径失败: $e', // TODO: 添加到国际化
+          message: '${t.settings.downloadSettings.selectPathFailed}: $e',
           type: MDToastType.error,
         ),
         position: ToastPosition.bottom,
@@ -578,6 +575,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
   }
 
   Future<void> _useRecommendedPath() async {
+    final t = slang.Translations.of(context);
     try {
       if (!Get.isRegistered<DownloadPathService>()) {
         Get.put(DownloadPathService());
@@ -590,14 +588,14 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
 
       showToastWidget(
         MDToastWidget(
-          message: '已设置为推荐路径', // TODO: 添加到国际化
+          message: t.settings.downloadSettings.recommendedPathSet,
           type: MDToastType.success,
         ),
       );
     } catch (e) {
       showToastWidget(
         MDToastWidget(
-          message: '设置推荐路径失败: $e', // TODO: 添加到国际化
+          message: '${t.settings.downloadSettings.setRecommendedPathFailed}: $e',
           type: MDToastType.error,
         ),
       );
@@ -605,13 +603,14 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
   }
 
   void _resetTemplate(TextEditingController controller, ConfigKey configKey) {
+    final t = slang.Translations.of(context);
     final defaultValue = configKey.defaultValue as String;
     controller.text = defaultValue;
     configService[configKey] = defaultValue;
 
     showToastWidget(
       MDToastWidget(
-        message: '已重置为默认模板', // TODO: 添加到国际化
+        message: t.settings.downloadSettings.templateResetToDefault,
         type: MDToastType.success,
       ),
     );

@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:path/path.dart' as path;
 
@@ -186,16 +187,16 @@ class FilenameTemplateService extends GetxService {
   /// 获取支持的变量列表
   List<TemplateVariable> getSupportedVariables() {
     return [
-      TemplateVariable('%title', '标题'),
-      TemplateVariable('%author', '作者名称'),
-      TemplateVariable('%username', '作者用户名'),
-      TemplateVariable('%quality', '视频质量'),
-      TemplateVariable('%filename', '原始文件名'),
-      TemplateVariable('%id', '内容ID'),
-      TemplateVariable('%count', '图库图片数量'),
-      TemplateVariable('%date', '当前日期 (YYYY-MM-DD)'),
-      TemplateVariable('%time', '当前时间 (HH-MM-SS)'),
-      TemplateVariable('%datetime', '当前日期时间 (YYYY-MM-DD_HH-MM-SS)'),
+      TemplateVariable('%title', slang.t.settings.downloadSettings.variableTitle),
+      TemplateVariable('%author', slang.t.settings.downloadSettings.variableAuthor),
+      TemplateVariable('%username', slang.t.settings.downloadSettings.variableUsername),
+      TemplateVariable('%quality', slang.t.settings.downloadSettings.variableQuality),
+      TemplateVariable('%filename', slang.t.settings.downloadSettings.variableFilename),
+      TemplateVariable('%id', slang.t.settings.downloadSettings.variableId),
+      TemplateVariable('%count', slang.t.settings.downloadSettings.variableCount),
+      TemplateVariable('%date', slang.t.settings.downloadSettings.variableDate),
+      TemplateVariable('%time', slang.t.settings.downloadSettings.variableTime),
+      TemplateVariable('%datetime', slang.t.settings.downloadSettings.variableDatetime),
     ];
   }
 

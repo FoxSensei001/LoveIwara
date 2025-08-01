@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:oktoast/oktoast.dart';
 
 /// 路径状态显示组件
@@ -20,22 +21,23 @@ class PathStatusWidget extends StatefulWidget {
 class _PathStatusWidgetState extends State<PathStatusWidget> {
   @override
   Widget build(BuildContext context) {
+    final t = slang.Translations.of(context);
     return FutureBuilder<PathStatusInfo>(
       future: Get.find<DownloadPathService>().getPathStatusInfo(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Card(
+          return Card(
             child: Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  SizedBox(
+                  const SizedBox(
                     width: 16,
                     height: 16,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   ),
-                  SizedBox(width: 12),
-                  Text('检查路径状态...'), // TODO: 添加到国际化
+                  const SizedBox(width: 12),
+                  Text(t.settings.downloadSettings.checkingPathStatus),
                 ],
               ),
             ),
@@ -44,14 +46,14 @@ class _PathStatusWidgetState extends State<PathStatusWidget> {
 
         final pathInfo = snapshot.data;
         if (pathInfo == null) {
-          return const Card(
+          return Card(
             child: Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  Icon(Icons.error, color: Colors.red),
-                  SizedBox(width: 12),
-                  Text('无法获取路径状态'), // TODO: 添加到国际化
+                  const Icon(Icons.error, color: Colors.red),
+                  const SizedBox(width: 12),
+                  Text(t.settings.downloadSettings.unableToGetPathStatus),
                 ],
               ),
             ),
@@ -73,7 +75,7 @@ class _PathStatusWidgetState extends State<PathStatusWidget> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      '当前下载路径', // TODO: 添加到国际化
+                      t.settings.downloadSettings.currentDownloadPath,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -99,11 +101,11 @@ class _PathStatusWidgetState extends State<PathStatusWidget> {
                           fontFamily: 'monospace',
                         ),
                       ),
-                      if (pathInfo.selectedPath != null && 
+                      if (pathInfo.selectedPath != null &&
                           pathInfo.selectedPath != pathInfo.currentPath) ...[
                         const SizedBox(height: 4),
                         Text(
-                          '注意：实际使用路径与选择路径不同', // TODO: 添加到国际化
+                          t.settings.downloadSettings.actualPathDifferentFromSelected,
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Colors.orange,
                             fontStyle: FontStyle.italic,
@@ -183,23 +185,25 @@ class _PathStatusWidgetState extends State<PathStatusWidget> {
   }
 
   String _getFixButtonText(PathValidationReason reason) {
+    final t = slang.Translations.of(context);
     switch (reason) {
       case PathValidationReason.noPermission:
       case PathValidationReason.noPublicDirectoryAccess:
-        return '授权权限'; // TODO: 添加到国际化
+        return t.settings.downloadSettings.grantPermission;
       default:
-        return '修复问题'; // TODO: 添加到国际化
+        return t.settings.downloadSettings.fixIssue;
     }
   }
 
   Future<void> _fixPathIssue(PathValidationReason reason) async {
+    final t = slang.Translations.of(context);
     final downloadPathService = Get.find<DownloadPathService>();
     final success = await downloadPathService.fixPathIssue(reason);
-    
+
     if (success) {
       showToastWidget(
         MDToastWidget(
-          message: '问题已修复', // TODO: 添加到国际化
+          message: t.settings.downloadSettings.issueFixed,
           type: MDToastType.success,
         ),
       );
@@ -208,7 +212,7 @@ class _PathStatusWidgetState extends State<PathStatusWidget> {
     } else {
       showToastWidget(
         MDToastWidget(
-          message: '修复失败，请手动处理', // TODO: 添加到国际化
+          message: t.settings.downloadSettings.fixFailed,
           type: MDToastType.error,
         ),
       );
