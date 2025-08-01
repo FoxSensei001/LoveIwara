@@ -1024,6 +1024,8 @@ download:
   copyDownloadUrl: 复制下载链接
   showInFolder: 在文件夹中显示
   deleteTask: 删除任务
+  deleteTaskConfirmation: '确定要删除这个下载任务吗？\n任务的文件也会被删除。'
+  forceDeleteTaskConfirmation: '确定要强制删除这个下载任务吗？\n任务的文件也会被删除，即使文件被占用也会尝试删除。'
   downloadingProgressForVideoTask: '下载中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s'
   downloadingOnlyDownloadedAndSpeed: '下载中 ${downloaded} • ${speed}MB/s'
   pausedForDownloadedAndTotal: '已暂停 • ${downloaded}/${total} (${progress}%)'

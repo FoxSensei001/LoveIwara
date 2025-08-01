@@ -1,5 +1,5 @@
 # 最新版本
-currentVersion: "0.3.15"
+currentVersion: "0.3.16"
 # 更新日志
 # 格式介绍
 # 1. version: 版本号
@@ -7,6 +7,37 @@ currentVersion: "0.3.15"
 # 3. changes: 更新内容
 # 4. minVersion: 最小版本号
 updates:
+  # - version: "0.3.16"
+  #   date: "2025-07-31"
+  #   minVersion: "0.3.0"
+  #   changes:
+  #     zh-CN:
+  #       - "PC 端新增窗口位置和大小记忆与恢复功能"
+  #       - "PC 端播放器新增鼠标悬停时自动显示工具栏功能，并提供配置选项开关"
+  #       - "播放器新增控制选项，可自定义双击、滑动手势行为的启用状态"
+  #       - "图库页面现已支持 WebP 格式图片渲染"
+  #       - "优化图库页面 AppBar 的显示效果"
+  #       - "图库浏览大图时，点击左右两侧翻页新增动画反馈，提升用户体验"
+  #       - "修复深色模式下搜索弹窗的样式问题"
+  #       - "修复视频详情页的布局问题"
+  #     en:
+  #       - "PC: Added window position and size memory and restoration feature"
+  #       - "Added auto-show toolbar feature when hovering over the player on PC, with configuration option to toggle"
+  #       - "Added player control options to customize the enablement of double-click and swipe gestures"
+  #       - "Gallery page now supports WebP format image rendering"
+  #       - "Optimized the display effect of the AppBar on the gallery page"
+  #       - "Added animation feedback when flipping pages by clicking on the left and right sides while viewing large images in the gallery"
+  #       - "Fixed style issues with the search popup in dark mode"
+  #       - "Fixed layout issues on the video detail page"
+  #     ja:
+  #       - "PC版にウィンドウの位置とサイズを記憶・復元する機能を追加しました"
+  #       - "PC版プレーヤーに、マウスオーバー時にツールバーを自動表示する機能を追加し、設定オプションで切り替え可能にしました"
+  #       - "プレーヤーにコントロールオプションを追加し、ダブルクリックやスワイプジェスチャーの有効化をカスタマイズ可能にしました"
+  #       - "ギャラリーページでWebP形式の画像レンダリングをサポートしました"
+  #       - "ギャラリーページのAppBar表示効果を最適化しました"
+  #       - "ギャラリーで大画像を表示中に左右の側面をクリックしてページをめくる際に、アニメーションフィードバックを追加し、ユーザーエクスペリエンスを向上させました"
+  #       - "ダークモード時の検索ポップアップのスタイル問題を修正しました"
+  #       - "ビデオ詳細ページのレイアウト問題を修正しました"
   - version: "0.3.15"
     date: "2025-07-25"
     minVersion: "0.3.0"
@@ -283,4 +314,4 @@ updates:
       ja:
         - "初期バージョンリリース"
       zh-TW:
-        - "初始版本發布" 
+        - "初始版本發布"

@@ -992,6 +992,8 @@ class _TranslationsDownloadZhCn implements TranslationsDownloadEn {
 	@override String get copyDownloadUrl => '复制下载链接';
 	@override String get showInFolder => '在文件夹中显示';
 	@override String get deleteTask => '删除任务';
+	@override String get deleteTaskConfirmation => '确定要删除这个下载任务吗？\n任务的文件也会被删除。';
+	@override String get forceDeleteTaskConfirmation => '确定要强制删除这个下载任务吗？\n任务的文件也会被删除，即使文件被占用也会尝试删除。';
 	@override String downloadingProgressForVideoTask({required Object downloaded, required Object total, required Object progress, required Object speed}) => '下载中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
 	@override String downloadingOnlyDownloadedAndSpeed({required Object downloaded, required Object speed}) => '下载中 ${downloaded} • ${speed}MB/s';
 	@override String pausedForDownloadedAndTotal({required Object downloaded, required Object total, required Object progress}) => '已暂停 • ${downloaded}/${total} (${progress}%)';
@@ -2556,6 +2558,8 @@ extension on TranslationsZhCn {
 			case 'download.copyDownloadUrl': return '复制下载链接';
 			case 'download.showInFolder': return '在文件夹中显示';
 			case 'download.deleteTask': return '删除任务';
+			case 'download.deleteTaskConfirmation': return '确定要删除这个下载任务吗？\n任务的文件也会被删除。';
+			case 'download.forceDeleteTaskConfirmation': return '确定要强制删除这个下载任务吗？\n任务的文件也会被删除，即使文件被占用也会尝试删除。';
 			case 'download.downloadingProgressForVideoTask': return ({required Object downloaded, required Object total, required Object progress, required Object speed}) => '下载中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
 			case 'download.downloadingOnlyDownloadedAndSpeed': return ({required Object downloaded, required Object speed}) => '下载中 ${downloaded} • ${speed}MB/s';
 			case 'download.pausedForDownloadedAndTotal': return ({required Object downloaded, required Object total, required Object progress}) => '已暂停 • ${downloaded}/${total} (${progress}%)';

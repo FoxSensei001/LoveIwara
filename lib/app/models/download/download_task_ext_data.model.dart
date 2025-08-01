@@ -76,10 +76,6 @@ class VideoDownloadExtData {
       'quality': quality,
     };
   }
-
-  static String genExtDataIdByVideoInfo(Video videoInfo, String sourceName) {
-    return '${DownloadTaskExtDataType.video.name}_${videoInfo.id}_$sourceName';
-  }
 }
 
 class GalleryDownloadExtData {
@@ -131,9 +127,5 @@ class GalleryDownloadExtData {
       'image_list': imageList,
       'local_paths': localPaths,
     };
-  }
-
-  static String genExtDataIdByGalleryInfo(String id) {
-    return '${DownloadTaskExtDataType.gallery.name}_$id';
   }
 }

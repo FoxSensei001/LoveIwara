@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:i_iwara/utils/snowflake_id_generator.dart';
 import 'download_task_ext_data.model.dart';
 
 class DownloadTask {
@@ -18,7 +19,7 @@ class DownloadTask {
   int lastDownloadedBytes = 0; // 上次下载的字节数
   
   DownloadTask({
-    required this.id,
+    String? id,
     required this.url,
     required this.savePath,
     required this.fileName,
@@ -28,7 +29,7 @@ class DownloadTask {
     this.supportsRange = false,
     this.error,
     this.extData,
-  });
+  }) : id = id ?? SnowflakeIdGenerator.getInstance().nextId();
 
   // 从数据库行转换
   factory DownloadTask.fromRow(Map<String, dynamic> row) {

@@ -83,7 +83,6 @@ class ImageUtils {
 
       // 创建下载任务
       final task = DownloadTask(
-        id: 'single_${item.data.id}_$fileName',
         url: url,
         savePath: await _getSavePath(item.data.title ?? fileExtension.replaceAll('.', ''), fileName),
         supportsRange: true,

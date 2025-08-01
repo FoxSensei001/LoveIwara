@@ -446,7 +446,6 @@ class ImageModelDetailContent extends StatelessWidget {
         return;
       }
       final task = DownloadTask(
-        id: GalleryDownloadExtData.genExtDataIdByGalleryInfo(imageModel.id),
         url: imageModel.files.first.getOriginalImageUrl(), // 使用第一张图片的URL
         downloadedBytes: 0, // 已下载图片数量
         totalBytes: imageModel.files.length, // 总图片数量

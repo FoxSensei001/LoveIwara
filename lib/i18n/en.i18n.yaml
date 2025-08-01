@@ -1016,7 +1016,9 @@ download:
   copyDownloadUrl: Copy Download URL
   showInFolder: Show in Folder
   deleteTask: Delete Task
+  deleteTaskConfirmation: 'Are you sure you want to delete this download task?\nThe task file will also be deleted.'
   forceDeleteTask: Force Delete Task
+  forceDeleteTaskConfirmation: 'Are you sure you want to force delete this download task?\nThe task file will also be deleted, even if the file is being used.'
   downloadingProgressForVideoTask: 'Downloading ${downloaded}/${total} (${progress}%) • ${speed}MB/s'
   downloadingOnlyDownloadedAndSpeed: 'Downloading ${downloaded} • ${speed}MB/s'
   pausedForDownloadedAndTotal: 'Paused ${downloaded}/${total} (${progress}%)'

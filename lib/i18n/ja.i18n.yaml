@@ -1020,6 +1020,8 @@ download:
   copyDownloadUrl: ダウンロードリンクをコピー
   showInFolder: フォルダーで表示
   deleteTask: タスクを削除
+  deleteTaskConfirmation: 'このダウンロードタスクを削除しますか？\nタスクのファイルも削除されます。'
+  forceDeleteTaskConfirmation: 'このダウンロードタスクを強制削除しますか？\nファイルが使用中でも削除を試行し、タスクのファイルも削除されます。'
   downloadingProgressForVideoTask: 'ダウンロード中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s'
   downloadingOnlyDownloadedAndSpeed: 'ダウンロード中 ${downloaded} • ${speed}MB/s'
   pausedForDownloadedAndTotal: '一時停止中 ${downloaded}/${total} (${progress}%)'

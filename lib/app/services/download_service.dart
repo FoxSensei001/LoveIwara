@@ -143,69 +143,15 @@ class DownloadService extends GetxService {
   }
 
   // 添加任务
-  // 如果任务已存在且为暂停或失败状态，则更新状态为等待中
   Future<void> addTask(DownloadTask task) async {
     LogUtils.d('添加任务: ${task.id}', 'DownloadService');
 
-    // 判断任务是否在activeTasks里正在被处理
-    if (_activeTasks.containsKey(task.id)) {
-      LogUtils.d('任务已存在，不允许重复添加: ${task.id}', 'DownloadService');
-      _showMessage(
-          slang.t.download.errors.taskAlreadyProcessing, Colors.orange);
-      return;
-    }
     // 格式化task的下载路径
     task.savePath = CommonUtils.formatSavePathUriByPath(task.savePath);
     try {
-      // 先从数据库中查询任务是否存在
-      DownloadTask? existingTask = await _repository.getTaskById(task.id);
-
-      if (existingTask != null) {
-        LogUtils.d('任务成功从数据库中获取: ${existingTask.id}', 'DownloadService');
-
-        // 如果任务已存在且已完成，直接拒绝并提示用户
-        if (existingTask.status == DownloadStatus.completed) {
-          LogUtils.d(
-              '任务已存在且已完成，直接拒绝并提示用户: ${existingTask.id}', 'DownloadService');
-          _showMessage(slang.t.download.errors.taskAlreadyCompletedDoNotAdd,
-              Colors.orange);
-          return;
-        }
-
-        // 如果任务已存在且为暂停或失败状态，则更新状态为等待中
-        if (existingTask.status == DownloadStatus.paused ||
-            existingTask.status == DownloadStatus.failed) {
-          LogUtils.d('任务已存在且为暂停或失败状态，则更新状态为等待中: ${existingTask.id}',
-              'DownloadService');
-          // 如果是[视频任务]，需要验证链接有效性
-          if (existingTask.extData?.type == DownloadTaskExtDataType.video) {
-            DownloadTask? newTask = await refreshVideoTask(existingTask);
-            if (newTask != null) {
-              newTask.status = DownloadStatus.pending;
-              task = newTask;
-              await _repository.updateTask(newTask); // [更新持久化信息]
-            } else {
-              _showMessage(
-                  slang.t.download.errors.canNotRefreshVideoTask, Colors.red);
-              // 让任务变为失败状态
-              existingTask.status = DownloadStatus.failed;
-              await _repository.updateTask(existingTask); // [更新持久化信息]
-              _clearMemoryTask(existingTask.id, '刷新视频任务失败，无法处理');
-              LogUtils.d(
-                  '刷新视频任务失败，无法处理: ${existingTask.id}', 'DownloadService');
-              return;
-            }
-          } else {
-            existingTask.status = DownloadStatus.pending;
-            task = existingTask;
-            await _repository.updateTask(existingTask); // [更新持久化信息]
-          }
-        }
-      } else {
-        // 如果数据库任务不存在，则插入数据库
-        task.status = DownloadStatus.pending;
-        await _repository.insertTask(task); // [更新持久化信息]
-      }
+      // 直接插入数据库，因为ID是唯一的
+      task.status = DownloadStatus.pending;
+      await _repository.insertTask(task);
 
       // 添加到活跃任务列表和下载队列
       _activeTasks[task.id] = task;
@@ -214,7 +160,7 @@ class DownloadService extends GetxService {
       LogUtils.i('添加下载任务: ${task.fileName}', 'DownloadService');
       _processQueue();
     } catch (e) {
-      LogUtils.e('添加或重试下载任务失败', tag: 'DownloadService', error: e);
+      LogUtils.e('添加下载任务失败', tag: 'DownloadService', error: e);
       _showMessage(
           slang.t.download.errors
               .downloadFailedForMessage(errorInfo: _getErrorMessage(e)),

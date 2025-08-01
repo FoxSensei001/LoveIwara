@@ -1021,6 +1021,8 @@ download:
   copyDownloadUrl: 複製下載連結
   showInFolder: 在文件夾中顯示
   deleteTask: 刪除任務
+  deleteTaskConfirmation: '確定要刪除這個下載任務嗎？\n任務的文件也會被刪除。'
+  forceDeleteTaskConfirmation: '確定要強制刪除這個下載任務嗎？\n任務的文件也會被刪除，即使文件被佔用也會嘗試刪除。'
   downloadingProgressForVideoTask: '下載中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s'
   downloadingOnlyDownloadedAndSpeed: '下載中 ${downloaded} • ${speed}MB/s'
   pausedForDownloadedAndTotal: '已暫停 • ${downloaded}/${total} (${progress}%)'

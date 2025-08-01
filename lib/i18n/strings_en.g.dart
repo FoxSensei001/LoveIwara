@@ -989,7 +989,9 @@ class TranslationsDownloadEn {
 	String get copyDownloadUrl => 'Copy Download URL';
 	String get showInFolder => 'Show in Folder';
 	String get deleteTask => 'Delete Task';
+	String get deleteTaskConfirmation => 'Are you sure you want to delete this download task?\nThe task file will also be deleted.';
 	String get forceDeleteTask => 'Force Delete Task';
+	String get forceDeleteTaskConfirmation => 'Are you sure you want to force delete this download task?\nThe task file will also be deleted, even if the file is being used.';
 	String downloadingProgressForVideoTask({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'Downloading ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
 	String downloadingOnlyDownloadedAndSpeed({required Object downloaded, required Object speed}) => 'Downloading ${downloaded} • ${speed}MB/s';
 	String pausedForDownloadedAndTotal({required Object downloaded, required Object total, required Object progress}) => 'Paused ${downloaded}/${total} (${progress}%)';
@@ -2548,7 +2550,9 @@ extension on Translations {
 			case 'download.copyDownloadUrl': return 'Copy Download URL';
 			case 'download.showInFolder': return 'Show in Folder';
 			case 'download.deleteTask': return 'Delete Task';
+			case 'download.deleteTaskConfirmation': return 'Are you sure you want to delete this download task?\nThe task file will also be deleted.';
 			case 'download.forceDeleteTask': return 'Force Delete Task';
+			case 'download.forceDeleteTaskConfirmation': return 'Are you sure you want to force delete this download task?\nThe task file will also be deleted, even if the file is being used.';
 			case 'download.downloadingProgressForVideoTask': return ({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'Downloading ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
 			case 'download.downloadingOnlyDownloadedAndSpeed': return ({required Object downloaded, required Object speed}) => 'Downloading ${downloaded} • ${speed}MB/s';
 			case 'download.pausedForDownloadedAndTotal': return ({required Object downloaded, required Object total, required Object progress}) => 'Paused ${downloaded}/${total} (${progress}%)';

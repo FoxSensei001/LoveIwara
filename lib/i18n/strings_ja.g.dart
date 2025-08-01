@@ -987,6 +987,8 @@ class _TranslationsDownloadJa implements TranslationsDownloadEn {
 	@override String get copyDownloadUrl => 'ダウンロードリンクをコピー';
 	@override String get showInFolder => 'フォルダーで表示';
 	@override String get deleteTask => 'タスクを削除';
+	@override String get deleteTaskConfirmation => 'このダウンロードタスクを削除しますか？\nタスクのファイルも削除されます。';
+	@override String get forceDeleteTaskConfirmation => 'このダウンロードタスクを強制削除しますか？\nファイルが使用中でも削除を試行し、タスクのファイルも削除されます。';
 	@override String downloadingProgressForVideoTask({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'ダウンロード中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
 	@override String downloadingOnlyDownloadedAndSpeed({required Object downloaded, required Object speed}) => 'ダウンロード中 ${downloaded} • ${speed}MB/s';
 	@override String pausedForDownloadedAndTotal({required Object downloaded, required Object total, required Object progress}) => '一時停止中 ${downloaded}/${total} (${progress}%)';
@@ -2546,6 +2548,8 @@ extension on TranslationsJa {
 			case 'download.copyDownloadUrl': return 'ダウンロードリンクをコピー';
 			case 'download.showInFolder': return 'フォルダーで表示';
 			case 'download.deleteTask': return 'タスクを削除';
+			case 'download.deleteTaskConfirmation': return 'このダウンロードタスクを削除しますか？\nタスクのファイルも削除されます。';
+			case 'download.forceDeleteTaskConfirmation': return 'このダウンロードタスクを強制削除しますか？\nファイルが使用中でも削除を試行し、タスクのファイルも削除されます。';
 			case 'download.downloadingProgressForVideoTask': return ({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'ダウンロード中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
 			case 'download.downloadingOnlyDownloadedAndSpeed': return ({required Object downloaded, required Object speed}) => 'ダウンロード中 ${downloaded} • ${speed}MB/s';
 			case 'download.pausedForDownloadedAndTotal': return ({required Object downloaded, required Object total, required Object progress}) => '一時停止中 ${downloaded}/${total} (${progress}%)';

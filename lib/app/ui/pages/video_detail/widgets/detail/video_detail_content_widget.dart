@@ -717,7 +717,6 @@ class VideoDetailContent extends StatelessWidget {
                     }
 
                     final task = DownloadTask(
-                      id: VideoDownloadExtData.genExtDataIdByVideoInfo(videoInfo, source.name ?? 'unknown'),
                       url: source.download!,
                       savePath: savePath,
                       fileName: '${videoInfo.title ?? 'video'}_${source.name}.mp4',

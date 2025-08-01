@@ -606,10 +606,6 @@ class VideoInfoTabWidget extends StatelessWidget {
                     }
 
                     final task = DownloadTask(
-                      id: VideoDownloadExtData.genExtDataIdByVideoInfo(
-                        videoInfo,
-                        source.name ?? 'unknown',
-                      ),
                       url: source.download!,
                       savePath: savePath,
                       fileName:

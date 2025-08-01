@@ -990,6 +990,8 @@ class _TranslationsDownloadZhTw implements TranslationsDownloadEn {
 	@override String get copyDownloadUrl => '複製下載連結';
 	@override String get showInFolder => '在文件夾中顯示';
 	@override String get deleteTask => '刪除任務';
+	@override String get deleteTaskConfirmation => '確定要刪除這個下載任務嗎？\n任務的文件也會被刪除。';
+	@override String get forceDeleteTaskConfirmation => '確定要強制刪除這個下載任務嗎？\n任務的文件也會被刪除，即使文件被佔用也會嘗試刪除。';
 	@override String downloadingProgressForVideoTask({required Object downloaded, required Object total, required Object progress, required Object speed}) => '下載中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
 	@override String downloadingOnlyDownloadedAndSpeed({required Object downloaded, required Object speed}) => '下載中 ${downloaded} • ${speed}MB/s';
 	@override String pausedForDownloadedAndTotal({required Object downloaded, required Object total, required Object progress}) => '已暫停 • ${downloaded}/${total} (${progress}%)';
@@ -2552,6 +2554,8 @@ extension on TranslationsZhTw {
 			case 'download.copyDownloadUrl': return '複製下載連結';
 			case 'download.showInFolder': return '在文件夾中顯示';
 			case 'download.deleteTask': return '刪除任務';
+			case 'download.deleteTaskConfirmation': return '確定要刪除這個下載任務嗎？\n任務的文件也會被刪除。';
+			case 'download.forceDeleteTaskConfirmation': return '確定要強制刪除這個下載任務嗎？\n任務的文件也會被刪除，即使文件被佔用也會嘗試刪除。';
 			case 'download.downloadingProgressForVideoTask': return ({required Object downloaded, required Object total, required Object progress, required Object speed}) => '下載中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
 			case 'download.downloadingOnlyDownloadedAndSpeed': return ({required Object downloaded, required Object speed}) => '下載中 ${downloaded} • ${speed}MB/s';
 			case 'download.pausedForDownloadedAndTotal': return ({required Object downloaded, required Object total, required Object progress}) => '已暫停 • ${downloaded}/${total} (${progress}%)';

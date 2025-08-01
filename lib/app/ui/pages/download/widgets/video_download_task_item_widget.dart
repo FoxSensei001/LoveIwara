@@ -674,8 +674,8 @@ class VideoDownloadTaskItem extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           AlertDialog(
-            title: Text(t.download.deleteTask),
-            content: Text(t.download.clearAllFailedTasksConfirmation),
+            title: Text(force ? t.download.forceDeleteTask : t.download.deleteTask),
+            content: Text(force ? t.download.forceDeleteTaskConfirmation : t.download.deleteTaskConfirmation),
             actions: [
               TextButton(
                 onPressed: () => AppService.tryPop(),
@@ -686,7 +686,10 @@ class VideoDownloadTaskItem extends StatelessWidget {
                   AppService.tryPop();
                   DownloadService.to.deleteTask(task.id, ignoreFileDeleteError: force);
                 },
-                child: Text(t.common.confirm),
+                child: Text(
+                  t.common.confirm,
+                  style: const TextStyle(color: Colors.red),
+                ),
               ),
             ],
           ),
