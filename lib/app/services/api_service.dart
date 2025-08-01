@@ -117,7 +117,7 @@ class ApiService extends GetxService {
         return handler.next(options);
       },
       onError: (error, handler) async {
-        if (error.response?.statusCode == 401 || error.response?.statusCode == 403) {
+        if (error.response?.statusCode == 401) {
           LogUtils.e('ApiService: 认证错误 ${error.response?.statusCode}');
 
           // 如果是刷新token的请求失败，直接处理认证错误
