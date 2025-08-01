@@ -14,8 +14,11 @@ class PlayListDetailPage extends StatefulWidget {
   final String playlistId;
   final bool isMine;
 
-  const PlayListDetailPage(
-      {super.key, required this.playlistId, required this.isMine});
+  const PlayListDetailPage({
+    super.key,
+    required this.playlistId,
+    required this.isMine,
+  });
 
   @override
   State<PlayListDetailPage> createState() => _PlayListDetailPageState();
@@ -29,8 +32,9 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
   @override
   void initState() {
     super.initState();
-    controller =
-        Get.put(PlayListDetailController(playlistId: widget.playlistId));
+    controller = Get.put(
+      PlayListDetailController(playlistId: widget.playlistId),
+    );
 
     // 添加滚动监听
     _scrollController.addListener(() {
@@ -54,51 +58,71 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(context),
-      body: RefreshIndicator(
-        onRefresh: () => controller.repository.refresh(true),
-        child: LoadingMoreCustomScrollView(
-          controller: _scrollController,
-          slivers: <Widget>[
-            LoadingMoreSliverList<Video>(
-              SliverListConfig<Video>(
-                extendedListDelegate:
-                    const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 300,
-                  crossAxisSpacing: 5,
-                  mainAxisSpacing: 5,
+      body: Stack(
+        children: [
+          RefreshIndicator(
+            onRefresh: () => controller.repository.refresh(true),
+            child: LoadingMoreCustomScrollView(
+              controller: _scrollController,
+              slivers: <Widget>[
+                LoadingMoreSliverList<Video>(
+                  SliverListConfig<Video>(
+                    extendedListDelegate:
+                        const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
+                          maxCrossAxisExtent: 300,
+                          crossAxisSpacing: 5,
+                          mainAxisSpacing: 5,
+                        ),
+                    itemBuilder: buildVideoItem,
+                    sourceList: controller.repository,
+                    padding: EdgeInsets.only(
+                      left: 5.0,
+                      right: 5.0,
+                      top: 5.0,
+                      bottom: Get.context != null
+                          ? MediaQuery.of(Get.context!).padding.bottom
+                          : 0, // 添加底部安全区域
+                    ),
+                    lastChildLayoutType: LastChildLayoutType.foot,
+                    indicatorBuilder: (context, status) =>
+                        myLoadingMoreIndicator(
+                          context,
+                          status,
+                          isSliver: true,
+                          loadingMoreBase: controller.repository,
+                        ),
+                  ),
                 ),
-                itemBuilder: buildVideoItem,
-                sourceList: controller.repository,
-                padding: EdgeInsets.only(
-                  left: 5.0,
-                  right: 5.0,
-                  top: 5.0,
-                  bottom: Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0, // 添加底部安全区域
-                ),
-                lastChildLayoutType: LastChildLayoutType.foot,
-                indicatorBuilder: (context, status) => myLoadingMoreIndicator(
-                    context, status,
-                    isSliver: true, loadingMoreBase: controller.repository),
-              ),
-            )
-          ],
-        ),
+              ],
+            ),
+          ),
+          // 底部多选栏
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: _buildMultiSelectBar(),
+          ),
+        ],
       ),
-      floatingActionButton: Obx(() => _showBackToTop.value
-          ? FloatingActionButton(
-              onPressed: () {
-                _scrollController.animateTo(
-                  0,
-                  duration: const Duration(milliseconds: 500),
-                  curve: Curves.easeInOut,
-                );
-              },
-              child: const Icon(Icons.arrow_upward),
-            ).paddingBottom(Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0)
-          : const SizedBox()),
-      bottomNavigationBar: Obx(() => controller.isMultiSelect.value
-          ? _buildMultiSelectBottomBar()
-          : const SizedBox()),
+      floatingActionButton: Obx(
+        () => _showBackToTop.value
+            ? FloatingActionButton(
+                onPressed: () {
+                  _scrollController.animateTo(
+                    0,
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeInOut,
+                  );
+                },
+                child: const Icon(Icons.arrow_upward),
+              ).paddingBottom(
+                Get.context != null
+                    ? MediaQuery.of(Get.context!).padding.bottom
+                    : 0,
+              )
+            : const SizedBox(),
+      ),
     );
   }
 
@@ -111,10 +135,7 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
         clipBehavior: Clip.antiAlias,
         child: Stack(
           children: [
-            VideoCardListItemWidget(
-              video: video,
-              width: 300,
-            ),
+            VideoCardListItemWidget(video: video, width: 300),
             if (isMultiSelect)
               Positioned.fill(
                 child: Material(
@@ -151,7 +172,9 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
             onPressed: () {
               AppService.tryPop();
               ShareService.sharePlayListDetail(
-                  widget.playlistId, controller.playlistTitle.value);
+                widget.playlistId,
+                controller.playlistTitle.value,
+              );
             },
             child: Text(slang.t.common.share),
           ),
@@ -273,21 +296,25 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
       AlertDialog(
         title: Text(slang.t.common.confirmDelete),
         content: Text(
-            slang.t.common.areYouSureYouWantToDeleteSelectedItems(
-                num: controller.selectedVideos.length)),
+          slang.t.common.areYouSureYouWantToDeleteSelectedItems(
+            num: controller.selectedVideos.length,
+          ),
+        ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => AppService.tryPop(),
             child: Text(slang.t.common.cancel),
           ),
           TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              controller.deleteSelected();
+            onPressed: () async {
+              AppService.tryPop();
+              await controller.deleteSelected();
+              // 删除完成后关闭多选模式
+              if (controller.selectedVideos.isEmpty && controller.isMultiSelect.value) {
+                controller.toggleMultiSelect();
+              }
             },
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.red,
-            ),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: Text(slang.t.common.delete),
           ),
         ],
@@ -311,9 +338,7 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
             onPressed: () {
               controller.deleteCurPlaylist();
             },
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.red,
-            ),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('删除'),
           ),
         ],
@@ -321,42 +346,94 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
     );
   }
 
-  Widget _buildMultiSelectBottomBar() {
-    return BottomAppBar(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Obx(() => Text(
-                  '已选择 ${controller.selectedVideos.length} 个视频',
-                  style: const TextStyle(fontSize: 16),
-                )),
-            Row(
-              children: [
-                TextButton(
-                  onPressed: controller.selectAll,
-                  // 全选、取消全选
-                  child: Text(controller.isAllSelected ? '取消全选' : '全选'),
-                ),
-                const SizedBox(width: 16),
-                TextButton(
-                  onPressed: controller.toggleMultiSelect,
-                  child: const Text('退出编辑模式'),
-                ),
-                const SizedBox(width: 16),
-                ElevatedButton(
-                  onPressed: () => _showDeleteConfirmDialog(),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
+  Widget _buildMultiSelectBar() {
+    return Obx(
+      () => controller.isMultiSelect.value
+          ? BottomSheet(
+              enableDrag: false,
+              backgroundColor: Theme.of(
+                context,
+              ).bottomSheetTheme.backgroundColor,
+              onClosing: () {},
+              builder: (context) => SafeArea(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 16.0,
                   ),
-                  child: const Text('删除'),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Obx(
+                            () => Text(
+                              slang.t.common.selectedRecords(
+                                num: controller.selectedVideos.length,
+                              ),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          const Spacer(),
+                          IconButton(
+                            onPressed: controller.toggleMultiSelect,
+                            icon: const Icon(Icons.close),
+                            tooltip: slang.t.common.exitEditMode,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: controller.selectAll,
+                              icon: Icon(
+                                controller.isAllSelected
+                                    ? Icons.deselect
+                                    : Icons.select_all,
+                              ),
+                              label: Text(
+                                controller.isAllSelected
+                                    ? slang.t.common.cancelSelectAll
+                                    : slang.t.common.selectAll,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Obx(() => FilledButton.icon(
+                              onPressed: controller.isDeleting.value || controller.selectedVideos.isEmpty
+                                  ? null
+                                  : () => _showDeleteConfirmDialog(),
+                              icon: controller.isDeleting.value
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : const Icon(Icons.delete),
+                              label: Text(slang.t.common.delete),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: Colors.red,
+                              ),
+                            )),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            ),
-          ],
-        ),
-      ),
+              ),
+            )
+          : const SizedBox(),
     );
   }
 }

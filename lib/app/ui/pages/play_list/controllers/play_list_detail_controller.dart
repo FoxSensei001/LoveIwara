@@ -7,18 +7,19 @@ import 'package:oktoast/oktoast.dart';
 class PlayListDetailController extends GetxController {
   final PlayListService _playListService = Get.find<PlayListService>();
   late PlayListDetailRepository repository;
-  
+
   final RxBool isMultiSelect = false.obs;
   final RxSet<String> selectedVideos = <String>{}.obs;
   final RxString playlistTitle = ''.obs;
-  
+  final RxBool isDeleting = false.obs;
+
   final String playlistId;
 
   PlayListDetailController({required this.playlistId}) {
     repository = PlayListDetailRepository(playlistId: playlistId);
   }
 
-  get isAllSelected => selectedVideos.length == repository.length;
+  bool get isAllSelected => selectedVideos.length == repository.length;
   
   @override
   void onInit() {
@@ -69,13 +70,50 @@ class PlayListDetailController extends GetxController {
   }
   
   Future<void> deleteSelected() async {
-    for (var videoId in selectedVideos) {
-      await _playListService.removeFromPlaylist(
-        videoId: videoId,
-        playlistId: playlistId,
+    if (isDeleting.value || selectedVideos.isEmpty) return;
+
+    isDeleting.value = true;
+    final List<String> videosToDelete = selectedVideos.toList();
+
+    try {
+      // 执行删除操作
+      for (var videoId in videosToDelete) {
+        final result = await _playListService.removeFromPlaylist(
+          videoId: videoId,
+          playlistId: playlistId,
+        );
+
+        if (!result.isSuccess) {
+          throw Exception(result.message);
+        }
+      }
+
+      // 删除成功后清空选择状态
+      selectedVideos.clear();
+
+      // 刷新列表数据
+      await repository.refresh();
+
+      // 显示成功提示
+      showToastWidget(
+        MDToastWidget(
+          message: slang.t.common.success,
+          type: MDToastType.success,
+        ),
       );
+
+    } catch (error) {
+      // 如果删除失败，显示错误
+      showToastWidget(
+        MDToastWidget(
+          message: 'Delete failed: $error',
+          type: MDToastType.error,
+        ),
+        position: ToastPosition.bottom,
+      );
+    } finally {
+      isDeleting.value = false;
     }
-    selectedVideos.clear();
   }
   
   void deleteCurPlaylist() {
