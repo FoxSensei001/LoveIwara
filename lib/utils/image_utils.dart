@@ -77,14 +77,19 @@ class ImageUtils {
       }
 
       Uri uri = Uri.parse(url);
-      // 通过uri获取文件名和扩展名
+      // 通过uri获取文件名
       String fileName = uri.pathSegments.last;
-      String fileExtension = path.extension(fileName);
 
       // 创建下载任务
+      // 确保title不包含扩展名
+      String title = item.data.title ?? path.basenameWithoutExtension(fileName);
+      if (title.contains('.')) {
+        title = path.basenameWithoutExtension(title);
+      }
+
       final task = DownloadTask(
         url: url,
-        savePath: await _getSavePath(item.data.title ?? fileExtension.replaceAll('.', ''), fileName),
+        savePath: await _getSavePath(title, fileName),
         supportsRange: true,
         fileName: fileName,
       );

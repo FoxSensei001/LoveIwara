@@ -423,54 +423,90 @@ class GalleryDownloadTaskItem extends StatelessWidget {
 
   void _showMoreOptionsDialog(BuildContext context) {
     final t = slang.Translations.of(context);
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(t.common.more),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // 查看下载详情
-            ListTile(
-              leading: const Icon(Icons.info),
-              title: Text(t.download.downloadDetail),
-              onTap: () => showDownloadDetailDialog(context, task),
+      isScrollControlled: true,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.5,
+        minChildSize: 0.3,
+        maxChildSize: 0.8,
+        expand: false,
+        builder: (context, scrollController) => SafeArea(
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 标题
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  child: Row(
+                    children: [
+                      Text(
+                        t.common.more,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.close),
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(height: 1),
+                // 可滚动的选项列表
+                Expanded(
+                  child: SingleChildScrollView(
+                    controller: scrollController,
+                    child: Column(
+                      children: [
+                        // 查看下载详情
+                        ListTile(
+                          leading: const Icon(Icons.info),
+                          title: Text(t.download.downloadDetail),
+                          onTap: () => showDownloadDetailDialog(context, task),
+                        ),
+                        if (Platform.isWindows || Platform.isMacOS || Platform.isLinux)
+                          ListTile(
+                            leading: const Icon(Icons.folder_open),
+                            title: Text(t.download.showInFolder),
+                            onTap: () {
+                              Navigator.pop(context);
+                              _showInFolder(context);
+                            },
+                          ),
+                        const Divider(height: 1),
+                        ListTile(
+                          leading: const Icon(Icons.delete, color: Colors.red),
+                          title: Text(t.download.deleteTask,
+                              style: const TextStyle(color: Colors.red)),
+                          onTap: () {
+                            Navigator.pop(context);
+                            _showDeleteConfirmDialog(context);
+                          },
+                        ),
+                        // 强制删除
+                        ListTile(
+                          leading: const Icon(Icons.delete, color: Colors.red),
+                          title: Text(t.download.forceDeleteTask, style: const TextStyle(color: Colors.red)),
+                          onTap: () {
+                            Navigator.pop(context);
+                            _showDeleteConfirmDialog(context, force: true);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-            if (Platform.isWindows || Platform.isMacOS || Platform.isLinux)
-              ListTile(
-                leading: const Icon(Icons.folder_open),
-                title: Text(t.download.showInFolder),
-                onTap: () {
-                  Navigator.pop(context);
-                  _showInFolder(context);
-                },
-              ),
-            ListTile(
-              leading: const Icon(Icons.delete, color: Colors.red),
-              title: Text(t.download.deleteTask,
-                  style: const TextStyle(color: Colors.red)),
-              onTap: () {
-                Navigator.pop(context);
-                _showDeleteConfirmDialog(context);
-              },
-            ),
-            // 强制删除
-            ListTile(
-              leading: const Icon(Icons.delete, color: Colors.red),
-              title: Text(t.download.forceDeleteTask, style: const TextStyle(color: Colors.red)),
-              onTap: () {
-                Navigator.pop(context);
-                _showDeleteConfirmDialog(context, force: true);
-              },
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(t.common.cancel),
           ),
-        ],
+        ),
       ),
     );
   }
