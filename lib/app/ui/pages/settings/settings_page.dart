@@ -9,6 +9,7 @@ import 'app_settings_page.dart';
 import 'player_settings_page.dart';
 import 'proxy_settings_page.dart';
 import 'theme_settings_page.dart';
+import 'download_settings_page.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'about_page.dart';
 
@@ -63,6 +64,13 @@ class _SettingsPageState extends State<SettingsPage> {
         route: Routes.APP_SETTINGS_PAGE,
       ),
       SettingItem(
+        title: '下载设置', // TODO: 添加到国际化
+        subtitle: '配置下载路径和文件命名规则', // TODO: 添加到国际化
+        icon: Icons.download,
+        page: DownloadSettingsPage(isWideScreen: isWideScreen),
+        route: Routes.DOWNLOAD_SETTINGS_PAGE,
+      ),
+      SettingItem(
         title: t.settings.playerSettings,
         subtitle: t.settings.customizeYourPlaybackExperience,
         icon: Icons.play_circle_outline,
@@ -115,7 +123,8 @@ class _SettingsPageState extends State<SettingsPage> {
         items: settingItems.where((item) =>
             item.icon == Icons.wifi ||
             item.icon == Icons.translate ||
-            item.icon == Icons.settings).toList(),
+            item.icon == Icons.settings ||
+            item.icon == Icons.download).toList(),
       ),
       _SettingGroup(
         // title: '个性化',
@@ -227,7 +236,8 @@ class _SettingsPageState extends State<SettingsPage> {
           items: settingItems.where((item) =>
               item.icon == Icons.wifi ||
               item.icon == Icons.translate ||
-              item.icon == Icons.settings).toList(),
+              item.icon == Icons.settings ||
+              item.icon == Icons.download).toList(),
         ),
         _buildSettingsGroup(
           context,

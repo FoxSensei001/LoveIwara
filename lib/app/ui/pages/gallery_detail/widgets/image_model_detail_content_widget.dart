@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
+import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/services/download_service.dart';
+import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
@@ -474,27 +476,19 @@ class ImageModelDetailContent extends StatelessWidget {
 
   // 获取保存路径
   Future<String?> _getSavePath(String title, String id) async {
-    if (GetPlatform.isDesktop) {
-      // 选择文件夹
-      final fs.FileSaveLocation? result = await fs.getSaveLocation(
-        suggestedName: '${title.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_')}_$id',
-        acceptedTypeGroups: [
-          fs.XTypeGroup(
-            label: 'folders',
-            extensions: [''],
-          ),
-        ],
-      );
-      if (result != null) {
-        return result.path;
-      } else {
-        return null;
-      }
-    } else {
-      final dir = await CommonUtils.getAppDirectory(pathSuffix: path.join('downloads', 'galleries'));
-      final sanitizedTitle = title.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_');
-      return '${dir.path}/${sanitizedTitle}_$id';
-    }
+    // 使用下载路径服务
+    final downloadPathService = Get.find<DownloadPathService>();
+
+    // 创建临时图库对象用于路径生成
+    final imageModel = controller.imageModelInfo.value;
+    final gallery = ImageModel(
+      id: id,
+      title: title,
+      user: imageModel?.user,
+      files: imageModel?.files ?? [],
+    );
+
+    return await downloadPathService.getGalleryDownloadPath(gallery: gallery);
   }
 
   // 添加到收藏夹

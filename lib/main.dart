@@ -43,6 +43,9 @@ import 'app/services/version_service.dart';
 import 'app/repositories/history_repository.dart';
 import 'app/services/message_service.dart';
 import 'app/services/favorite_service.dart';
+import 'app/services/download_path_service.dart';
+import 'app/services/filename_template_service.dart';
+import 'app/services/permission_service.dart';
 import 'package:i_iwara/app/services/config_backup_service.dart';
 import 'package:i_iwara/utils/refresh_rate_helper.dart';
 
@@ -268,7 +271,10 @@ Future<void> _initializeBusinessServices() async {
   Get.lazyPut(() => PlayListService());
   Get.lazyPut(() => ForumService());
   Get.lazyPut(() => ConversationService());
+  Get.put(PermissionService());
   Get.put(DownloadService());
+  Get.put(DownloadPathService());
+  Get.put(FilenameTemplateService());
   Get.put(TranslationService());
   Get.put(FavoriteService());
   Get.put(PlaybackHistoryService());

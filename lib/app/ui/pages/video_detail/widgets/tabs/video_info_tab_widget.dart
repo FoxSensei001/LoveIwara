@@ -26,8 +26,10 @@ import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constan
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/add_video_to_playlist_dialog.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/share_video_bottom_sheet.dart';
 import 'package:i_iwara/app/services/download_service.dart';
+import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
+import 'package:i_iwara/app/models/video.model.dart';
 import 'package:path/path.dart' as p;
 import 'package:file_selector/file_selector.dart' as fs;
 
@@ -495,31 +497,21 @@ class VideoInfoTabWidget extends StatelessWidget {
     String quality,
     String downloadUrl,
   ) async {
-    final uri = Uri.parse(downloadUrl);
-    String filename =
-        uri.queryParameters['filename'] ?? '${title}_$quality.mp4';
-    if (GetPlatform.isDesktop) {
-      // 桌面平台使用file_selector让用户选择保存位置
-      final fs.FileSaveLocation? result = await fs.getSaveLocation(
-        suggestedName: filename,
-        acceptedTypeGroups: [
-          const fs.XTypeGroup(label: 'MP4 Video', extensions: ['mp4']),
-        ],
-      );
+    // 使用下载路径服务
+    final downloadPathService = Get.find<DownloadPathService>();
 
-      if (result != null) {
-        return result.path;
-      } else {
-        return null; // 用户取消选择
-      }
-    } else {
-      // 移动平台使用默认路径
-      final dir = await CommonUtils.getAppDirectory(
-        pathSuffix: p.join('downloads', 'videos'),
-      );
-      final sanitizedTitle = title.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_');
-      return '${dir.path}/${sanitizedTitle}_$quality.mp4';
-    }
+    // 创建临时视频对象用于路径生成
+    final video = Video(
+      id: controller.videoInfo.value?.id ?? 'unknown',
+      title: title,
+      user: controller.videoInfo.value?.user,
+    );
+
+    return await downloadPathService.getVideoDownloadPath(
+      video: video,
+      quality: quality,
+      downloadUrl: downloadUrl,
+    );
   }
 
   void _showDownloadDialog(BuildContext context) {

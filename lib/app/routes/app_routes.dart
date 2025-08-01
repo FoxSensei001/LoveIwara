@@ -72,6 +72,7 @@ abstract class Routes {
   static LOCAL_FAVORITE_DETAIL(String folderId) => '/local_favorite_detail/$folderId';
 
   static const AI_TRANSLATION_SETTINGS_PAGE = _Paths.AI_TRANSLATION_SETTINGS_PAGE;
+  static const DOWNLOAD_SETTINGS_PAGE = _Paths.DOWNLOAD_SETTINGS_PAGE;
 }
 
 abstract class _Paths {
@@ -102,4 +103,5 @@ abstract class _Paths {
   static const ROOT = '/';
   static const HISTORY_LIST = '/history_list';
   static const AI_TRANSLATION_SETTINGS_PAGE = '/ai_translation_settings';
+  static const DOWNLOAD_SETTINGS_PAGE = '/download_settings';
 }

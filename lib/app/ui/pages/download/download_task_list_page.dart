@@ -360,19 +360,28 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage>
     final String prettyJson = const JsonEncoder.withIndent('  ').convert(fullTaskInfo);
 
     Get.dialog(
-      Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          AlertDialog(
-            title: Text(t.download.downloadDetail),
-            content: SizedBox(
-              width: double.maxFinite,
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
+      Dialog(
+        child: Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.8,
+            maxWidth: MediaQuery.of(context).size.width * 0.9,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  t.download.downloadDetail,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: SingleChildScrollView(
+                    child: Container(
+                      width: double.infinity,
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: theme.colorScheme.surfaceContainerHighest,
@@ -386,36 +395,42 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage>
                         ),
                       ),
                     ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () async {
+                        final item = DataWriterItem();
+                        item.add(Formats.plainText(prettyJson));
+                        await SystemClipboard.instance?.write([item]);
+
+                        if (context.mounted) {
+                          showToastWidget(
+                            MDToastWidget(
+                              message: t.download.copySuccess,
+                              type: MDToastType.success,
+                            ),
+                          );
+                        }
+                      },
+                      child: Text(t.download.copy),
+                    ),
+                    const SizedBox(width: 8),
+                    TextButton(
+                      onPressed: () => AppService.tryPop(),
+                      child: Text(t.common.close),
+                    ),
                   ],
                 ),
               ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () async {
-                  final item = DataWriterItem();
-                  item.add(Formats.plainText(prettyJson));
-                  await SystemClipboard.instance?.write([item]);
-
-                  if (context.mounted) {
-                    showToastWidget(
-                      MDToastWidget(
-                        message: t.download.copySuccess,
-                        type: MDToastType.success,
-                      ),
-                    );
-                  }
-                },
-                child: Text(t.download.copy),
-              ),
-              TextButton(
-                onPressed: () => AppService.tryPop(),
-                child: Text(t.common.close),
-              ),
             ],
           ),
-          const SafeArea(child: SizedBox.shrink()),
-        ],
+        ),
       ),
     );
   }

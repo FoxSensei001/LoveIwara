@@ -233,6 +233,12 @@ enum ConfigKey {
   ENABLE_RIGHT_VERTICAL_SWIPE_BRIGHTNESS, // 右侧上下滑动调整亮度
   ENABLE_LONG_PRESS_FAST_FORWARD, // 长按快进
   ENABLE_MOUSE_HOVER_SHOW_TOOLBAR, // 鼠标悬浮显示工具栏
+  // 下载设置
+  CUSTOM_DOWNLOAD_PATH, // 自定义下载路径
+  ENABLE_CUSTOM_DOWNLOAD_PATH, // 启用自定义下载路径
+  VIDEO_FILENAME_TEMPLATE, // 视频文件命名模板
+  GALLERY_FILENAME_TEMPLATE, // 图库文件命名模板
+  IMAGE_FILENAME_TEMPLATE, // 单张图片文件命名模板
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -306,6 +312,11 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.ENABLE_RIGHT_VERTICAL_SWIPE_BRIGHTNESS: return 'enable_right_vertical_swipe_brightness';
       case ConfigKey.ENABLE_LONG_PRESS_FAST_FORWARD: return 'enable_long_press_fast_forward';
       case ConfigKey.ENABLE_MOUSE_HOVER_SHOW_TOOLBAR: return 'enable_mouse_hover_show_toolbar';
+      case ConfigKey.CUSTOM_DOWNLOAD_PATH: return 'custom_download_path';
+      case ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH: return 'enable_custom_download_path';
+      case ConfigKey.VIDEO_FILENAME_TEMPLATE: return 'video_filename_template';
+      case ConfigKey.GALLERY_FILENAME_TEMPLATE: return 'gallery_filename_template';
+      case ConfigKey.IMAGE_FILENAME_TEMPLATE: return 'image_filename_template';
     }
   }
 
@@ -447,6 +458,16 @@ extension ConfigKeyExtension on ConfigKey {
         return true;
       case ConfigKey.ENABLE_MOUSE_HOVER_SHOW_TOOLBAR:
         return true;
+      case ConfigKey.CUSTOM_DOWNLOAD_PATH:
+        return '';
+      case ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH:
+        return false;
+      case ConfigKey.VIDEO_FILENAME_TEMPLATE:
+        return '%title_%quality';
+      case ConfigKey.GALLERY_FILENAME_TEMPLATE:
+        return '%title_%id';
+      case ConfigKey.IMAGE_FILENAME_TEMPLATE:
+        return '%title_%filename';
     }
   }
 }

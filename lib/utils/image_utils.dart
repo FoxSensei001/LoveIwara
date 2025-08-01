@@ -7,7 +7,9 @@ import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/services/api_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
+import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
+import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
@@ -106,9 +108,16 @@ class ImageUtils {
 
   /// title: 可能为空字符串
   static Future<String> _getSavePath(String title, String fileName) async {
-    final dir = await CommonUtils.getAppDirectory(pathSuffix: path.join('downloads', 'single'));
-    final sanitizedTitle = title.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_');
-    return path.join(dir.path, sanitizedTitle, fileName);
+    // 使用下载路径服务
+    final downloadPathService = Get.find<DownloadPathService>();
+
+    return await downloadPathService.getImageDownloadPath(
+      title: title,
+      authorName: null,
+      authorUsername: null,
+      id: null,
+      originalFilename: fileName,
+    );
   }
 
   static void downloadImageForDesktop(ImageItem item) async {
