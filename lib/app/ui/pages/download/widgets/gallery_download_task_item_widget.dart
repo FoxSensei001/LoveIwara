@@ -423,46 +423,53 @@ class GalleryDownloadTaskItem extends StatelessWidget {
 
   void _showMoreOptionsDialog(BuildContext context) {
     final t = slang.Translations.of(context);
-    showModalBottomSheet(
+    showDialog(
       context: context,
-      builder: (context) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // 查看下载详情
-          ListTile(
-            leading: const Icon(Icons.info),
-            title: Text(t.download.downloadDetail),
-            onTap: () => showDownloadDetailDialog(context, task),
-          ),
-          if (Platform.isWindows || Platform.isMacOS || Platform.isLinux)
+      builder: (context) => AlertDialog(
+        title: Text(t.common.more),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 查看下载详情
             ListTile(
-              leading: const Icon(Icons.folder_open),
-              title: Text(t.download.showInFolder),
+              leading: const Icon(Icons.info),
+              title: Text(t.download.downloadDetail),
+              onTap: () => showDownloadDetailDialog(context, task),
+            ),
+            if (Platform.isWindows || Platform.isMacOS || Platform.isLinux)
+              ListTile(
+                leading: const Icon(Icons.folder_open),
+                title: Text(t.download.showInFolder),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showInFolder(context);
+                },
+              ),
+            ListTile(
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: Text(t.download.deleteTask,
+                  style: const TextStyle(color: Colors.red)),
               onTap: () {
                 Navigator.pop(context);
-                _showInFolder(context);
+                _showDeleteConfirmDialog(context);
               },
             ),
-          ListTile(
-            leading: const Icon(Icons.delete, color: Colors.red),
-            title: Text(t.download.deleteTask,
-                style: const TextStyle(color: Colors.red)),
-            onTap: () {
-              Navigator.pop(context);
-              _showDeleteConfirmDialog(context);
-            },
+            // 强制删除
+            ListTile(
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: Text(t.download.forceDeleteTask, style: const TextStyle(color: Colors.red)),
+              onTap: () {
+                Navigator.pop(context);
+                _showDeleteConfirmDialog(context, force: true);
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(t.common.cancel),
           ),
-          // 强制删除
-          ListTile(
-            leading: const Icon(Icons.delete, color: Colors.red),
-            title: Text(t.download.forceDeleteTask, style: const TextStyle(color: Colors.red)),
-            onTap: () {
-              Navigator.pop(context);
-              _showDeleteConfirmDialog(context, force: true);
-            },
-          ),
-          // 底部安全区域
-          const SafeArea(child: SizedBox.shrink()),
         ],
       ),
     );
@@ -508,9 +515,7 @@ class GalleryDownloadTaskItem extends StatelessWidget {
   // 构建图库下载进度指示器
   Widget _buildGalleryProgressIndicator(BuildContext context) {
     final progress = DownloadService.to.getGalleryDownloadProgress(task.id);
-    final width = MediaQuery.of(context).size.width;
-    final isSmallScreen = width < 600;
-    
+
     if (progress == null) return const SizedBox.shrink();
 
     final totalImages = progress.length;
