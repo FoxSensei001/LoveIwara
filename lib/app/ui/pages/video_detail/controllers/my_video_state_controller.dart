@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/history_record.dart';
@@ -137,7 +138,8 @@ class MyVideoStateController extends GetxController
 
   // 节流相关变量
   Timer? _positionUpdateThrottleTimer;
-  static const _positionUpdateThrottleInterval = Duration(milliseconds: 200); // 200ms节流间隔
+  static const _positionUpdateThrottleInterval = Duration(milliseconds: 200); // 正常模式200ms节流间隔
+  static const _longPressPositionUpdateInterval = Duration(milliseconds: 500); // 长按模式500ms节流间隔
   Duration _lastPosition = Duration.zero;
 
   // 播放模式设置标志位
@@ -151,6 +153,10 @@ class MyVideoStateController extends GetxController
   final CancelToken _cancelToken = CancelToken();
   // 添加 disposed 标志位
   bool _isDisposed = false;
+
+  // 添加倍速播放防抖定时器
+  Timer? _speedChangeDebouncer;
+  Timer? _bufferUpdateThrottleTimer;
 
   // 滚动相关状态管理
   final RxDouble scrollRatio = 0.0.obs; // 滚动比例
@@ -218,7 +224,26 @@ class MyVideoStateController extends GetxController
       }
 
       // 初始化 VideoController
-      player = Player();
+      player = Player(
+        configuration: PlayerConfiguration(
+          bufferSize: 16 * 1024 * 1024, // 减少缓冲区大小到16MB，提高加载速度
+          title: 'i_iwara Video Player',
+          // 启用异步模式以提高性能
+          async: true,
+          // 设置合适的协议白名单
+          protocolWhitelist: const [
+            'udp',
+            'rtp', 
+            'tcp',
+            'tls',
+            'data',
+            'file',
+            'http',
+            'https',
+            'crypto',
+          ],
+        ),
+      );
 
       videoController = VideoController(player);
 
@@ -306,6 +331,9 @@ class MyVideoStateController extends GetxController
 
       // 启动显示时间更新定时器
       _startDisplayTimer();
+      
+      // 在调试模式下启动性能监控
+      _startPerformanceMonitoring();
     } catch (e) {
       LogUtils.e('初始化失败: $e', tag: 'MyVideoStateController', error: e);
       if (!_isDisposed) {
@@ -377,6 +405,8 @@ class MyVideoStateController extends GetxController
       _autoHideTimer?.cancel();
       _mouseMovementTimer?.cancel();
       _resumeTipTimer?.cancel();
+      _speedChangeDebouncer?.cancel();
+      _bufferUpdateThrottleTimer?.cancel();
       LogUtils.d('所有定时器已取消', 'MyVideoStateController');
 
       // 取消 Stream 订阅
@@ -435,11 +465,11 @@ class MyVideoStateController extends GetxController
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    LogUtils.d('应用生命周期状态变更: $state', 'MyVideoStateController');
+    // LogUtils.d('应用生命周期状态变更: $state', 'MyVideoStateController');
 
     // 当应用从后台恢复到前台时
     if (state == AppLifecycleState.resumed) {
-      LogUtils.d('应用进入前台，设置默认屏幕亮度', 'MyVideoStateController');
+      // LogUtils.d('应用进入前台，设置默认屏幕亮度', 'MyVideoStateController');
       setDefaultBrightness();
     }
 
@@ -979,8 +1009,17 @@ class MyVideoStateController extends GetxController
   }
 
   void setLongPressPlaybackSpeedByConfiguration() {
-    double speed = _configService[ConfigKey.LONG_PRESS_PLAYBACK_SPEED_KEY];
-    player.setRate(speed);
+    // 取消之前的防抖定时器
+    _speedChangeDebouncer?.cancel();
+    
+    // 使用防抖机制，避免频繁设置播放速度
+    _speedChangeDebouncer = Timer(const Duration(milliseconds: 50), () {
+      if (!_isDisposed) {
+        double speed = _configService[ConfigKey.LONG_PRESS_PLAYBACK_SPEED_KEY];
+        player.setRate(speed);
+        LogUtils.d('设置长按播放速度: ${speed}x', 'MyVideoStateController');
+      }
+    });
   }
 
   /// 设置音量
@@ -1002,6 +1041,16 @@ class MyVideoStateController extends GetxController
     // 如果总时长为0，说明视频还未加载，不处理缓冲
     if (totalDuration.value.inMilliseconds == 0) return;
 
+    // 使用节流机制，避免频繁的缓冲区操作
+    if (_bufferUpdateThrottleTimer?.isActive ?? false) return;
+
+    _bufferUpdateThrottleTimer = Timer(const Duration(milliseconds: 300), () {
+      if (_isDisposed) return;
+      _performBufferUpdate(bufferDuration);
+    });
+  }
+
+  void _performBufferUpdate(Duration bufferDuration) {
     final Duration start = currentPosition;
     final Duration end = bufferDuration;
 
@@ -1013,14 +1062,13 @@ class MyVideoStateController extends GetxController
     BufferRange newRange = BufferRange(start: start, end: end);
     List<BufferRange> updatedBuffers = List<BufferRange>.from(buffers);
 
-    // 尝试合并重叠的缓冲区
+    // 简化的缓冲区合并逻辑
     bool merged = false;
-    for (int i = 0; i < updatedBuffers.length; i++) {
+    for (int i = 0; i < updatedBuffers.length && !merged; i++) {
       BufferRange existingRange = updatedBuffers[i];
       if (existingRange.overlapsOrAdjacent(newRange)) {
         updatedBuffers[i] = existingRange.merge(newRange);
         merged = true;
-        break;
       }
     }
 
@@ -1028,19 +1076,12 @@ class MyVideoStateController extends GetxController
       updatedBuffers.add(newRange);
     }
 
-    // 对缓冲区进行排序并移除无效的缓冲区
-    updatedBuffers.sort((a, b) => a.start.compareTo(b.start));
+    // 移除过期的缓冲区并排序
     updatedBuffers.removeWhere((range) =>
-    range.end <= currentPosition ||
-        range.start >= totalDuration.value
-    );
-
-    // 合并相邻的缓冲区
-    for (int i = updatedBuffers.length - 2; i >= 0; i--) {
-      if (updatedBuffers[i].overlapsOrAdjacent(updatedBuffers[i + 1])) {
-        updatedBuffers[i] = updatedBuffers[i].merge(updatedBuffers[i + 1]);
-        updatedBuffers.removeAt(i + 1);
-      }
+        range.end <= currentPosition || range.start >= totalDuration.value);
+    
+    if (updatedBuffers.isNotEmpty) {
+      updatedBuffers.sort((a, b) => a.start.compareTo(b.start));
     }
 
     buffers.value = updatedBuffers;
@@ -1141,6 +1182,11 @@ class MyVideoStateController extends GetxController
 
       // 只有在不是等待seek完成的状态下才更新位置
       if (!isWaitingForSeek.value) {
+        // 根据当前状态选择节流间隔
+        final throttleInterval = isLongPressing.value 
+            ? _longPressPositionUpdateInterval 
+            : _positionUpdateThrottleInterval;
+        
         // 节流处理
         if (_positionUpdateThrottleTimer?.isActive ?? false) {
           // 保存最新位置，但不立即更新
@@ -1152,7 +1198,7 @@ class MyVideoStateController extends GetxController
         currentPosition = position;
         _lastPosition = position;
 
-        _positionUpdateThrottleTimer = Timer(_positionUpdateThrottleInterval, () {
+        _positionUpdateThrottleTimer = Timer(throttleInterval, () {
           // 定时器触发时，如果最新位置与当前显示位置不同，则更新
           if (_isDisposed) return;
           if (_lastPosition != currentPosition) {
@@ -1225,9 +1271,29 @@ class MyVideoStateController extends GetxController
   // 添加启动定时器的方法
   void _startDisplayTimer() {
     _displayUpdateTimer?.cancel();
-    _displayUpdateTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+    
+    // 根据当前状态选择更新频率
+    Duration updateInterval = const Duration(milliseconds: 500);
+    if (isLongPressing.value || isSlidingBrightnessZone.value || isSlidingVolumeZone.value) {
+      // 在长按或滑动期间降低更新频率
+      updateInterval = const Duration(milliseconds: 1000);
+    }
+    
+    _displayUpdateTimer = Timer.periodic(updateInterval, (timer) {
+      if (_isDisposed) {
+        timer.cancel();
+        return;
+      }
+      
       if (videoIsReady.value && !isWaitingForSeek.value) {
         toShowCurrentPosition.value = currentPosition;
+      }
+      
+      // 动态调整更新频率
+      if (isLongPressing.value || isSlidingBrightnessZone.value || isSlidingVolumeZone.value) {
+        if (timer.tick % 2 == 0) { // 每隔一次更新
+          return;
+        }
       }
     });
   }
@@ -1299,6 +1365,26 @@ class MyVideoStateController extends GetxController
         duration: const Duration(milliseconds: 500),
         curve: Curves.easeInOut,
       );
+    }
+  }
+
+  // 添加性能监控方法
+  void _startPerformanceMonitoring() {
+    if (kDebugMode) {
+      Timer.periodic(const Duration(seconds: 10), (timer) {
+        if (_isDisposed) {
+          timer.cancel();
+          return;
+        }
+        
+        LogUtils.d('播放器性能状态 - '
+            '缓冲=${videoBuffering.value}, '
+            '播放=${videoPlaying.value}, '
+            '位置=${currentPosition.inSeconds}s, '
+            '长按=${isLongPressing.value}, '
+            '缓冲区数量=${buffers.length}', 
+            'Performance');
+      });
     }
   }
 

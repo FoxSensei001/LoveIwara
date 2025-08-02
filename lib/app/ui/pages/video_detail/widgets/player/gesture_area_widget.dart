@@ -1,4 +1,5 @@
 
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -173,8 +174,13 @@ class _GestureAreaState extends State<GestureArea>
     VibrateUtils.vibrate(type: HapticFeedback.lightImpact);
 
     widget.setLongPressing?.call(LongPressType.normal, false);
-    // 恢复正常播放速度
-    widget.myVideoStateController.player.setRate(1.0);
+    
+    // 使用防抖机制恢复正常播放速度，避免频繁调用
+    Timer(const Duration(milliseconds: 50), () {
+      if (mounted) {
+        widget.myVideoStateController.player.setRate(1.0);
+      }
+    });
   }
 
   // 检查左侧和中心区域是否可以处理垂直拖动
