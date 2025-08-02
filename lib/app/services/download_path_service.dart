@@ -107,7 +107,7 @@ class DownloadPathService extends GetxService {
         return result?.path;
       } else {
         // 移动平台或桌面端启用自定义路径：使用配置的路径
-        final basePath = await _getBasePath('videos');
+        final basePath = await _getBasePath('');
         return path.join(basePath, filename);
       }
     } catch (e) {
@@ -144,7 +144,7 @@ class DownloadPathService extends GetxService {
         return result?.path;
       } else {
         // 移动平台或桌面端启用自定义路径：使用配置的路径
-        final basePath = await _getBasePath('galleries');
+        final basePath = await _getBasePath('');
         return path.join(basePath, foldername);
       }
     } catch (e) {
@@ -174,13 +174,13 @@ class DownloadPathService extends GetxService {
       );
 
       // 移动平台：使用配置的路径（单张图片下载通常在移动端）
-      final basePath = await _getBasePath('single');
+      final basePath = await _getBasePath('');
       final sanitizedTitle = title.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_');
       return path.join(basePath, sanitizedTitle, filename);
     } catch (e) {
       LogUtils.e('获取图片下载路径失败', tag: 'DownloadPathService', error: e);
       // 返回默认路径
-      final basePath = await _getBasePath('single');
+      final basePath = await _getBasePath('');
       return path.join(basePath, originalFilename ?? 'image.jpg');
     }
   }
@@ -199,7 +199,7 @@ class DownloadPathService extends GetxService {
 
       if (!hasPermission) {
         LogUtils.w('无存储权限，使用应用专用目录', 'DownloadPathService');
-        final appDir = await CommonUtils.getAppDirectory(pathSuffix: path.join('downloads', subPath));
+        final appDir = await CommonUtils.getAppDirectory(pathSuffix: subPath.isEmpty ? 'downloads' : path.join('downloads', subPath));
         return appDir.path;
       }
 
@@ -213,17 +213,17 @@ class DownloadPathService extends GetxService {
           final canAccessPublic = await permissionService.canAccessPublicDirectories();
           if (!canAccessPublic) {
             LogUtils.w('无公共目录访问权限，使用应用专用目录替代: $customPath', 'DownloadPathService');
-            final appDir = await CommonUtils.getAppDirectory(pathSuffix: path.join('downloads', subPath));
+            final appDir = await CommonUtils.getAppDirectory(pathSuffix: subPath.isEmpty ? 'downloads' : path.join('downloads', subPath));
             finalPath = appDir.path;
           } else {
-            finalPath = path.join(customPath, subPath);
+            finalPath = subPath.isEmpty ? customPath : path.join(customPath, subPath);
           }
         } else {
-          finalPath = path.join(customPath, subPath);
+          finalPath = subPath.isEmpty ? customPath : path.join(customPath, subPath);
         }
       } else {
         // 其他平台直接使用自定义路径
-        finalPath = path.join(customPath, subPath);
+        finalPath = subPath.isEmpty ? customPath : path.join(customPath, subPath);
       }
 
       final customDir = Directory(finalPath);
@@ -233,7 +233,7 @@ class DownloadPathService extends GetxService {
           LogUtils.d('创建自定义目录: ${customDir.path}', 'DownloadPathService');
         } catch (e) {
           LogUtils.e('创建自定义目录失败，使用应用专用目录', tag: 'DownloadPathService', error: e);
-          final appDir = await CommonUtils.getAppDirectory(pathSuffix: path.join('downloads', subPath));
+          final appDir = await CommonUtils.getAppDirectory(pathSuffix: subPath.isEmpty ? 'downloads' : path.join('downloads', subPath));
           return appDir.path;
         }
       }
@@ -244,12 +244,12 @@ class DownloadPathService extends GetxService {
         return customDir.path;
       } else {
         LogUtils.w('自定义目录不可写，使用应用专用目录', 'DownloadPathService');
-        final appDir = await CommonUtils.getAppDirectory(pathSuffix: path.join('downloads', subPath));
+        final appDir = await CommonUtils.getAppDirectory(pathSuffix: subPath.isEmpty ? 'downloads' : path.join('downloads', subPath));
         return appDir.path;
       }
     } else {
       // 使用默认应用路径
-      final dir = await CommonUtils.getAppDirectory(pathSuffix: path.join('downloads', subPath));
+      final dir = await CommonUtils.getAppDirectory(pathSuffix: subPath.isEmpty ? 'downloads' : path.join('downloads', subPath));
       LogUtils.d('使用默认路径: ${dir.path}', 'DownloadPathService');
       return dir.path;
     }

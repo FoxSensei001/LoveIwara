@@ -332,77 +332,136 @@ class VideoInfoTabWidget extends StatelessWidget {
         return const SizedBox.shrink();
       }
 
-      // 有数据时显示内容，带动画效果
-      return AnimatedSize(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-        child: AnimatedOpacity(
-          duration: const Duration(milliseconds: 300),
-          opacity: oreno3dDetail != null ? 1.0 : 0.0,
-          child: oreno3dDetail != null ? Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      // 检查是否有实际内容可显示（原作、标签、角色）
+      if (oreno3dDetail != null) {
+        final hasOrigin = oreno3dDetail.origin != null;
+        final hasTags = oreno3dDetail.tags.isNotEmpty;
+        final hasCharacters = oreno3dDetail.characters.isNotEmpty;
+        
+        // 如果三者都为空，也不显示
+        if (!hasOrigin && !hasTags && !hasCharacters) {
+          return const SizedBox.shrink();
+        }
+      }
+
+      // 有数据时显示内容
+      return oreno3dDetail != null ? Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  Icon(Icons.view_in_ar, size: 16, color: Colors.grey[600]),
-                  const SizedBox(width: 6),
-                  Text(
-                    t.oreno3d.name,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.grey[700],
+              Icon(Icons.view_in_ar, size: 16, color: Colors.grey[600]),
+              const SizedBox(width: 6),
+              Text(
+                t.oreno3d.name,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey[700],
+                ),
+              ),
+              const Spacer(),
+              Material(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(16),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(16),
+                  onTap: () => _showOreno3dInfoDialog(context),
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: Icon(
+                      Icons.help_outline,
+                      size: 14,
+                      color: Colors.grey[500],
                     ),
                   ),
-                  const Spacer(),
-                  Material(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(16),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(16),
-                      onTap: () => _showOreno3dInfoDialog(context),
-                      child: Padding(
-                        padding: const EdgeInsets.all(4.0),
-                        child: Icon(
-                          Icons.help_outline,
-                          size: 14,
-                          color: Colors.grey[500],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+
+          SizedBox(
+            width: double.infinity,
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 原作信息
+                  if (oreno3dDetail.origin != null) ...[
+                    Text(
+                      t.oreno3d.origin,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () => _handleOreno3dSearch(
+                          oreno3dDetail.origin!.id ?? oreno3dDetail.origin!.name,
+                          'origin',
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                        child: MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.green.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: Colors.green.withValues(alpha: 0.3),
+                              ),
+                            ),
+                            child: Text(
+                              oreno3dDetail.origin!.name,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: Colors.green,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
+                  ],
 
-              SizedBox(
-                width: double.infinity,
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 原作信息
-                      if (oreno3dDetail.origin != null) ...[
-                        Text(
-                          t.oreno3d.origin,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Material(
+                  // Oreno3D标签
+                  if (oreno3dDetail.tags.isNotEmpty) ...[
+                    if (oreno3dDetail.origin != null)
+                      const SizedBox(height: 12),
+                    Text(
+                      t.oreno3d.tags,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      children: oreno3dDetail.tags.map((tag) {
+                        return Material(
                           color: Colors.transparent,
                           child: InkWell(
                             onTap: () => _handleOreno3dSearch(
-                              oreno3dDetail.origin!.id ?? oreno3dDetail.origin!.name,
-                              'origin',
+                              tag.id ?? tag.name,
+                              'tag',
                             ),
                             borderRadius: BorderRadius.circular(12),
                             child: MouseRegion(
@@ -413,144 +472,89 @@ class VideoInfoTabWidget extends StatelessWidget {
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Colors.green.withValues(alpha: 0.1),
+                                  color: Colors.purple.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
-                                    color: Colors.green.withValues(alpha: 0.3),
+                                    color: Colors.purple.withValues(alpha: 0.3),
                                   ),
                                 ),
                                 child: Text(
-                                  oreno3dDetail.origin!.name,
+                                  tag.name,
                                   style: const TextStyle(
                                     fontSize: 11,
-                                    color: Colors.green,
+                                    color: Colors.purple,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        );
+                      }).toList(),
+                    ),
+                  ],
 
-                      // Oreno3D标签
-                      if (oreno3dDetail.tags.isNotEmpty) ...[
-                        if (oreno3dDetail.origin != null)
-                          const SizedBox(height: 12),
-                        Text(
-                          t.oreno3d.tags,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Wrap(
-                          spacing: 6,
-                          runSpacing: 4,
-                          children: oreno3dDetail.tags.map((tag) {
-                            return Material(
-                              color: Colors.transparent,
-                              child: InkWell(
-                                onTap: () => _handleOreno3dSearch(
-                                  tag.id ?? tag.name,
-                                  'tag',
+                  // 角色信息
+                  if (oreno3dDetail.characters.isNotEmpty) ...[
+                    if (oreno3dDetail.tags.isNotEmpty || oreno3dDetail.origin != null)
+                      const SizedBox(height: 12),
+                    Text(
+                      // 'キャラ：',
+                      t.oreno3d.characters,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      children: oreno3dDetail.characters.map((character) {
+                        return Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () => _handleOreno3dSearch(
+                              character.id ?? character.name,
+                              'character',
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            child: MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
                                 ),
-                                borderRadius: BorderRadius.circular(12),
-                                child: MouseRegion(
-                                  cursor: SystemMouseCursors.click,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.purple.withValues(alpha: 0.1),
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(
-                                        color: Colors.purple.withValues(alpha: 0.3),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      tag.name,
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        color: Colors.purple,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: Colors.blue.withValues(alpha: 0.3),
+                                  ),
+                                ),
+                                child: Text(
+                                  character.name,
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
                               ),
-                            );
-                          }).toList(),
-                        ),
-                      ],
-
-                      // 角色信息
-                      if (oreno3dDetail.characters.isNotEmpty) ...[
-                        if (oreno3dDetail.tags.isNotEmpty || oreno3dDetail.origin != null)
-                          const SizedBox(height: 12),
-                        Text(
-                          // 'キャラ：',
-                          t.oreno3d.characters,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 6),
-                        Wrap(
-                          spacing: 6,
-                          runSpacing: 4,
-                          children: oreno3dDetail.characters.map((character) {
-                            return Material(
-                              color: Colors.transparent,
-                              child: InkWell(
-                                onTap: () => _handleOreno3dSearch(
-                                  character.id ?? character.name,
-                                  'character',
-                                ),
-                                borderRadius: BorderRadius.circular(12),
-                                child: MouseRegion(
-                                  cursor: SystemMouseCursors.click,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.blue.withValues(alpha: 0.1),
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(
-                                        color: Colors.blue.withValues(alpha: 0.3),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      character.name,
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        color: Colors.blue,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ],
               ),
-            ],
-          ) : const SizedBox.shrink(),
-        ),
-      );
+            ),
+          ),
+        ],
+      ) : const SizedBox.shrink();
     });
   }
 
@@ -594,61 +598,66 @@ class VideoInfoTabWidget extends StatelessWidget {
         const SizedBox(height: 8),
 
         // Shimmer loading 效果
-        Shimmer.fromColors(
-          baseColor: Colors.grey[300]!,
-          highlightColor: Colors.grey[100]!,
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 模拟原作信息
-                Container(
-                  width: 60,
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 模拟原作信息
+              Shimmer.fromColors(
+                baseColor: Colors.grey[300]!,
+                highlightColor: Colors.grey[100]!,
+                child: Container(
+                  width: 30,
                   height: 12,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
-                const SizedBox(height: 6),
-                Container(
-                  width: 80,
+              ),
+              const SizedBox(height: 6),
+              Shimmer.fromColors(
+                baseColor: Colors.grey[300]!,
+                highlightColor: Colors.grey[100]!,
+                child: Container(
+                  width: 70,
                   height: 20,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                const SizedBox(height: 12),
+              ),
+              const SizedBox(height: 12),
 
-                // 模拟标签信息
-                Container(
-                  width: 40,
+              // 模拟标签信息
+              Shimmer.fromColors(
+                baseColor: Colors.grey[300]!,
+                highlightColor: Colors.grey[100]!,
+                child: Container(
+                  width: 25,
                   height: 12,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    Container(
-                      width: 60,
-                      height: 20,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Container(
+              ),
+              const SizedBox(height: 6),
+              Wrap(
+                spacing: 6,
+                runSpacing: 4,
+                children: [
+                  Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(
                       width: 50,
                       height: 20,
                       decoration: BoxDecoration(
@@ -656,19 +665,80 @@ class VideoInfoTabWidget extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    const SizedBox(width: 6),
-                    Container(
-                      width: 70,
+                  ),
+                  Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(
+                      width: 65,
                       height: 20,
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                  ],
+                  ),
+                  Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(
+                      width: 45,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              // 模拟角色信息
+              Shimmer.fromColors(
+                baseColor: Colors.grey[300]!,
+                highlightColor: Colors.grey[100]!,
+                child: Container(
+                  width: 25,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 6),
+              Wrap(
+                spacing: 6,
+                runSpacing: 4,
+                children: [
+                  Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(
+                      width: 55,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                  Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(
+                      width: 60,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ],
