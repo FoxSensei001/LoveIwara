@@ -194,7 +194,7 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
       return TestResult(
         name: t.settings.downloadSettings.testDownloadPathValidation,
         passed: pathInfo.isValid,
-        message: '${pathInfo.validationResult.message}\n当前路径: ${pathInfo.currentPath}',
+        message: '${pathInfo.validationResult.message}\n${t.settings.downloadSettings.currentDownloadPath}: ${pathInfo.currentPath}',
       );
     } catch (e) {
       return TestResult(
@@ -222,9 +222,9 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
       final allValid = videoValid && galleryValid && imageValid;
 
       String details = '';
-      details += '视频模板: $videoTemplate (${videoValid ? '有效' : '无效'})\n';
-      details += '图库模板: $galleryTemplate (${galleryValid ? '有效' : '无效'})\n';
-      details += '图片模板: $imageTemplate (${imageValid ? '有效' : '无效'})';
+      details += '${t.settings.downloadSettings.testVideoTemplate}: $videoTemplate (${videoValid ? t.settings.downloadSettings.testValid : t.settings.downloadSettings.testInvalid})\n';
+      details += '${t.settings.downloadSettings.testGalleryTemplate}: $galleryTemplate (${galleryValid ? t.settings.downloadSettings.testValid : t.settings.downloadSettings.testInvalid})\n';
+      details += '${t.settings.downloadSettings.testImageTemplate}: $imageTemplate (${imageValid ? t.settings.downloadSettings.testValid : t.settings.downloadSettings.testInvalid})';
 
       return TestResult(
         name: t.settings.downloadSettings.testFilenameTemplateValidation,
@@ -267,11 +267,11 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
       }
 
       String details = '';
-      details += '测试路径: $testPath\n';
-      details += '基础路径: ${pathInfo.currentPath}\n';
-      details += '目录创建: ${dirExists ? '成功' : '失败'}\n';
-      details += '文件写入: ${fileExists ? '成功' : '失败'}\n';
-      details += '文件内容: ${fileContent == 'test' ? '正确' : '错误'}';
+      details += '${t.settings.downloadSettings.testPath}: $testPath\n';
+      details += '${t.settings.downloadSettings.testBasePath}: ${pathInfo.currentPath}\n';
+      details += '${t.settings.downloadSettings.testDirectoryCreation}: ${dirExists ? t.settings.downloadSettings.testSuccess : t.settings.downloadSettings.testFailed}\n';
+      details += '${t.settings.downloadSettings.testFileWriting}: ${fileExists ? t.settings.downloadSettings.testSuccess : t.settings.downloadSettings.testFailed}\n';
+      details += '${t.settings.downloadSettings.testFileContent}: ${fileContent == 'test' ? t.settings.downloadSettings.testCorrect : t.settings.downloadSettings.testError}';
 
       return TestResult(
         name: t.settings.downloadSettings.testDirectoryOperationTest,

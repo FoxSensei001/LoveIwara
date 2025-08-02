@@ -600,6 +600,20 @@ settings:
     testDirectoryOperationTest: 目录操作测试
     testDirectoryOperationNormal: 目录创建和文件写入正常
     testDirectoryOperationFailed: 目录操作失败
+    # 测试详情相关
+    testVideoTemplate: 视频模板
+    testGalleryTemplate: 图库模板
+    testImageTemplate: 图片模板
+    testValid: 有效
+    testInvalid: 无效
+    testSuccess: 成功
+    testCorrect: 正确
+    testError: 错误
+    testPath: 测试路径
+    testBasePath: 基础路径
+    testDirectoryCreation: 目录创建
+    testFileWriting: 文件写入
+    testFileContent: 文件内容
     # 路径状态相关
     checkingPathStatus: 检查路径状态...
     unableToGetPathStatus: 无法获取路径状态

@@ -594,6 +594,20 @@ settings:
     testDirectoryOperationTest: ディレクトリ操作テスト
     testDirectoryOperationNormal: ディレクトリ作成とファイル書き込みが正常です
     testDirectoryOperationFailed: ディレクトリ操作に失敗しました
+    # テスト詳細関連
+    testVideoTemplate: 動画テンプレート
+    testGalleryTemplate: ギャラリーテンプレート
+    testImageTemplate: 画像テンプレート
+    testValid: 有効
+    testInvalid: 無効
+    testSuccess: 成功
+    testCorrect: 正しい
+    testError: エラー
+    testPath: テストパス
+    testBasePath: 基本パス
+    testDirectoryCreation: ディレクトリ作成
+    testFileWriting: ファイル書き込み
+    testFileContent: ファイル内容
     # パス状態関連
     checkingPathStatus: パス状態を確認中...
     unableToGetPathStatus: パス状態を取得できません

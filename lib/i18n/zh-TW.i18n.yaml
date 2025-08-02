@@ -594,6 +594,20 @@ settings:
     testDirectoryOperationTest: 目錄操作測試
     testDirectoryOperationNormal: 目錄建立和檔案寫入正常
     testDirectoryOperationFailed: 目錄操作失敗
+    # 測試詳情相關
+    testVideoTemplate: 視頻模板
+    testGalleryTemplate: 圖庫模板
+    testImageTemplate: 圖片模板
+    testValid: 有效
+    testInvalid: 無效
+    testSuccess: 成功
+    testCorrect: 正確
+    testError: 錯誤
+    testPath: 測試路徑
+    testBasePath: 基礎路徑
+    testDirectoryCreation: 目錄創建
+    testFileWriting: 檔案寫入
+    testFileContent: 檔案內容
     # 路徑狀態相關
     checkingPathStatus: 檢查路徑狀態...
     unableToGetPathStatus: 無法獲取路徑狀態

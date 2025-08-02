@@ -593,6 +593,20 @@ settings:
     testDirectoryOperationTest: Directory Operation Test
     testDirectoryOperationNormal: Directory creation and file writing are normal
     testDirectoryOperationFailed: Directory operation failed
+    # Test details related
+    testVideoTemplate: Video Template
+    testGalleryTemplate: Gallery Template
+    testImageTemplate: Image Template
+    testValid: Valid
+    testInvalid: Invalid
+    testSuccess: Success
+    testCorrect: Correct
+    testError: Error
+    testPath: Test Path
+    testBasePath: Base Path
+    testDirectoryCreation: Directory Creation
+    testFileWriting: File Writing
+    testFileContent: File Content
     # Path status related
     checkingPathStatus: Checking path status...
     unableToGetPathStatus: Unable to get path status
