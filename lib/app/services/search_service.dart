@@ -144,6 +144,8 @@ class SearchService extends GetxController {
     int limit = 20,
     String query = '',
     String? sort,
+    String? searchType, // 新增搜索类型参数：origin, tag, character
+    Map<String, dynamic>? extData, // 新增扩展数据参数
   }) async {
     try {
       // 将排序类型转换为Oreno3dSortType
@@ -167,10 +169,57 @@ class SearchService extends GetxController {
         }
       }
 
+      // 根据扩展数据或搜索类型确定API端点
+      String api = '/search';
+      String searchKeyword = query;
+
+      if (extData != null) {
+        final type = extData['searchType'] as String?;
+        final id = extData['id'] as String?;
+
+        if (type != null && id != null) {
+          switch (type) {
+            case 'origin':
+              api = '/origins/$id';
+              searchKeyword = ''; // 特定类型搜索不需要关键词
+              break;
+            case 'tag':
+              api = '/tags/$id';
+              searchKeyword = ''; // 特定类型搜索不需要关键词
+              break;
+            case 'character':
+              api = '/characters/$id';
+              searchKeyword = ''; // 特定类型搜索不需要关键词
+              break;
+            default:
+              api = '/search';
+          }
+        }
+      } else if (searchType != null && query.isNotEmpty) {
+        // 保持向后兼容性
+        switch (searchType) {
+          case 'origin':
+            api = '/origins/$query';
+            searchKeyword = '';
+            break;
+          case 'tag':
+            api = '/tags/$query';
+            searchKeyword = '';
+            break;
+          case 'character':
+            api = '/characters/$query';
+            searchKeyword = '';
+            break;
+          default:
+            api = '/search';
+        }
+      }
+
       final result = await _oreno3dClient.searchVideos(
-        keyword: query,
+        keyword: searchKeyword,
         page: page + 1, // oreno3d使用1基页码
         sortType: sortType,
+        api: api,
       );
 
       return ApiResult.success(

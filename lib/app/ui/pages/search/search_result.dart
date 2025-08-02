@@ -16,6 +16,8 @@ class SearchController extends GetxController {
   final RxBool isPaginated = CommonConstants.isPaginated.obs;
   final RxInt rebuildKey = 0.obs;
   final RxString selectedSort = 'trending'.obs; // 添加 sort 状态管理
+  final RxString searchType = ''.obs; // 添加搜索类型状态管理（用于 oreno3d）
+  final Rx<Map<String, dynamic>?> extData = Rx<Map<String, dynamic>?>(null); // 添加扩展数据管理
 
   // 存储滚动回调
   final List<Function()> _scrollToTopCallbacks = [];
@@ -59,6 +61,16 @@ class SearchController extends GetxController {
     scrollToTop();
   }
 
+  // 更新搜索类型（用于 oreno3d）
+  void updateSearchType(String type) {
+    searchType.value = type;
+  }
+
+  // 更新扩展数据
+  void updateExtData(Map<String, dynamic>? data) {
+    extData.value = data;
+  }
+
   // 更新排序方式
   void updateSort(String sort) {
     selectedSort.value = sort;
@@ -99,11 +111,15 @@ class SearchController extends GetxController {
 class SearchResult extends StatefulWidget {
   final String initialSearch;
   final String initialSegment;
+  final String? initialSearchType; // 新增搜索类型参数
+  final Map<String, dynamic>? extData; // 新增扩展数据参数
 
   const SearchResult({
     super.key,
     required this.initialSearch,
     required this.initialSegment,
+    this.initialSearchType,
+    this.extData,
   });
 
   @override
@@ -123,6 +139,17 @@ class _SearchResultState extends State<SearchResult> {
     searchController = Get.put(SearchController(), tag: 'search_controller');
     searchController.updateSearch(widget.initialSearch);
     searchController.updateSegment(widget.initialSegment);
+
+    // 处理扩展数据
+    if (widget.extData != null) {
+      searchController.updateExtData(widget.extData);
+      final searchType = widget.extData!['searchType'] as String?;
+      if (searchType != null) {
+        searchController.updateSearchType(searchType);
+      }
+    } else if (widget.initialSearchType != null) {
+      searchController.updateSearchType(widget.initialSearchType!);
+    }
 
     // 设置搜索文本
     _searchController.text = widget.initialSearch;
@@ -188,9 +215,11 @@ class _SearchResultState extends State<SearchResult> {
       final isPaginated = searchController.isPaginated.value;
       final rebuildKey = searchController.rebuildKey.value;
       final sort = searchController.selectedSort.value;
+      final searchType = searchController.searchType.value;
+      final extData = searchController.extData.value;
 
       LogUtils.d(
-        '构建搜索列表: 关键词=$query, 类型=$segment, 使用分页=$isPaginated, 重建键=$rebuildKey, 排序=$sort',
+        '构建搜索列表: 关键词=$query, 类型=$segment, 使用分页=$isPaginated, 重建键=$rebuildKey, 排序=$sort, 搜索类型=$searchType, 扩展数据=$extData',
         'SearchResult',
       );
 
@@ -239,6 +268,8 @@ class _SearchResultState extends State<SearchResult> {
             query: query,
             isPaginated: isPaginated,
             sortType: sort,
+            searchType: searchType.isNotEmpty ? searchType : null,
+            extData: extData,
           );
           break;
         default:

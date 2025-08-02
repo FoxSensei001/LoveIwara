@@ -98,40 +98,46 @@ class VideoInfoTabWidget extends StatelessWidget {
   Widget _buildAuthorInfo(BuildContext context) {
     return Row(
       children: [
-        GestureDetector(
-          onTap: () => NaviService.navigateToAuthorProfilePage(
-            controller.videoInfo.value!.user!.username,
-          ),
-          child: AvatarWidget(user: controller.videoInfo.value?.user, size: 40),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
+        MouseRegion(
+          cursor: SystemMouseCursors.click,
           child: GestureDetector(
             onTap: () => NaviService.navigateToAuthorProfilePage(
               controller.videoInfo.value!.user!.username,
             ),
-            behavior: HitTestBehavior.opaque,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                buildUserName(
-                  context,
-                  controller.videoInfo.value?.user,
-                  fontSize: 16,
-                  bold: true,
-                ),
-                Text(
-                  '@${controller.videoInfo.value?.user?.username ?? ''}',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey[600],
-                    height: 1.2,
+            child: AvatarWidget(user: controller.videoInfo.value?.user, size: 40),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onTap: () => NaviService.navigateToAuthorProfilePage(
+                controller.videoInfo.value!.user!.username,
+              ),
+              behavior: HitTestBehavior.opaque,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  buildUserName(
+                    context,
+                    controller.videoInfo.value?.user,
+                    fontSize: 16,
+                    bold: true,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                  Text(
+                    '@${controller.videoInfo.value?.user?.username ?? ''}',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey[600],
+                      height: 1.2,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -260,8 +266,9 @@ class VideoInfoTabWidget extends StatelessWidget {
   Widget _buildVideoDescriptionSection(BuildContext context) {
     return Obx(() {
       final description = controller.videoInfo.value?.body;
-      if (description == null || description.isEmpty)
+      if (description == null || description.isEmpty) {
         return const SizedBox.shrink();
+      }
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -371,24 +378,37 @@ class VideoInfoTabWidget extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.green.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Colors.green.withValues(alpha: 0.3),
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () => _handleOreno3dSearch(
+                          oreno3dDetail.origin!.id ?? oreno3dDetail.origin!.name,
+                          'origin',
                         ),
-                      ),
-                      child: Text(
-                        oreno3dDetail.origin!.name,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: Colors.green,
-                          fontWeight: FontWeight.w500,
+                        borderRadius: BorderRadius.circular(12),
+                        child: MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.green.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: Colors.green.withValues(alpha: 0.3),
+                              ),
+                            ),
+                            child: Text(
+                              oreno3dDetail.origin!.name,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: Colors.green,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -411,24 +431,37 @@ class VideoInfoTabWidget extends StatelessWidget {
                       spacing: 6,
                       runSpacing: 4,
                       children: oreno3dDetail.tags.map((tag) {
-                        return Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.purple.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: Colors.purple.withValues(alpha: 0.3),
+                        return Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () => _handleOreno3dSearch(
+                              tag.id ?? tag.name,
+                              'tag',
                             ),
-                          ),
-                          child: Text(
-                            tag.name,
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: Colors.purple,
-                              fontWeight: FontWeight.w500,
+                            borderRadius: BorderRadius.circular(12),
+                            child: MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.purple.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: Colors.purple.withValues(alpha: 0.3),
+                                  ),
+                                ),
+                                child: Text(
+                                  tag.name,
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.purple,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         );
@@ -454,24 +487,37 @@ class VideoInfoTabWidget extends StatelessWidget {
                       spacing: 6,
                       runSpacing: 4,
                       children: oreno3dDetail.characters.map((character) {
-                        return Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: Colors.blue.withValues(alpha: 0.3),
+                        return Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () => _handleOreno3dSearch(
+                              character.id ?? character.name,
+                              'character',
                             ),
-                          ),
-                          child: Text(
-                            character.name,
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: Colors.blue,
-                              fontWeight: FontWeight.w500,
+                            borderRadius: BorderRadius.circular(12),
+                            child: MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: Colors.blue.withValues(alpha: 0.3),
+                                  ),
+                                ),
+                                child: Text(
+                                  character.name,
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         );
@@ -578,7 +624,7 @@ class VideoInfoTabWidget extends StatelessWidget {
             );
           },
         ),
-        _ActionButton(
+        _buildActionButton(
           icon: Icons.playlist_add,
           label: t.common.playList,
           onTap: () {
@@ -601,17 +647,17 @@ class VideoInfoTabWidget extends StatelessWidget {
             }
           },
         ),
-        _ActionButton(
+        _buildActionButton(
           icon: Icons.bookmark_border,
           label: t.favorite.localizeFavorite,
           onTap: () => _addToFavorite(context, videoInfo),
         ),
-        _ActionButton(
+        _buildActionButton(
           icon: Icons.download,
           label: t.common.download,
           onTap: () => _showDownloadDialog(context), // Call the new method
         ),
-        _ActionButton(
+        _buildActionButton(
           icon: Icons.share,
           label: t.common.share,
           onTap: () {
@@ -633,7 +679,7 @@ class VideoInfoTabWidget extends StatelessWidget {
   }
 
   /// Reusable widget for creating action buttons to reduce code duplication.
-  Widget _ActionButton({
+  Widget _buildActionButton({
     required IconData icon,
     required String label,
     required VoidCallback onTap,
@@ -894,6 +940,22 @@ class VideoInfoTabWidget extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  /// 处理 Oreno3D 搜索点击事件
+  void _handleOreno3dSearch(String id, String type) {
+    LogUtils.d('Oreno3D 搜索: id=$id, type=$type', 'VideoInfoTabWidget');
+
+    // 跳转到搜索页面，自动选择 oreno3d 模式
+    // 传递空的搜索关键词，通过 extData 传递 ID 和类型信息
+    NaviService.toSearchPage(
+      searchInfo: '',
+      segment: 'oreno3d',
+      extData: {
+        'searchType': type,
+        'id': id,
+      },
     );
   }
 }

@@ -60,13 +60,69 @@ class Oreno3dClient {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
+          // 记录请求信息
+          final requestInfo = {
+            'method': options.method,
+            'url': '${options.baseUrl}${options.path}',
+            'query': options.queryParameters,
+            'headers': options.headers,
+            'data': options.data,
+          };
+          LogUtils.i('🚀 发送请求: ${options.method} ${options.baseUrl}${options.path}', 'Oreno3dClient');
+          LogUtils.d('请求详情: $requestInfo', 'Oreno3dClient');
           handler.next(options);
         },
         onResponse: (response, handler) {
+          // 记录响应信息
+          final responseInfo = {
+            'statusCode': response.statusCode,
+            'url': '${response.requestOptions.baseUrl}${response.requestOptions.path}',
+            'responseHeaders': response.headers.map,
+            'responseSize': response.data?.toString().length ?? 0,
+            'duration': response.requestOptions.extra['duration'] ?? 'unknown',
+          };
+          LogUtils.i('✅ 收到响应: ${response.statusCode} ${response.requestOptions.baseUrl}${response.requestOptions.path}', 'Oreno3dClient');
+          LogUtils.d('响应详情: $responseInfo', 'Oreno3dClient');
           handler.next(response);
         },
         onError: (error, handler) {
-          LogUtils.e('请求 ereno3d 错误', error: error, tag: 'Oreno3dClient');
+          // 记录错误信息
+          final errorInfo = {
+            'method': error.requestOptions.method,
+            'url': '${error.requestOptions.baseUrl}${error.requestOptions.path}',
+            'statusCode': error.response?.statusCode,
+            'errorType': error.type.toString(),
+            'errorMessage': error.message,
+          };
+          LogUtils.e('❌ 请求失败: ${error.requestOptions.method} ${error.requestOptions.baseUrl}${error.requestOptions.path}', 
+            error: error, tag: 'Oreno3dClient');
+          LogUtils.d('错误详情: $errorInfo', 'Oreno3dClient');
+          handler.next(error);
+        },
+      ),
+    );
+
+    // 添加请求时间拦截器
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          options.extra['startTime'] = DateTime.now();
+          handler.next(options);
+        },
+        onResponse: (response, handler) {
+          final startTime = response.requestOptions.extra['startTime'] as DateTime?;
+          if (startTime != null) {
+            final duration = DateTime.now().difference(startTime);
+            response.requestOptions.extra['duration'] = '${duration.inMilliseconds}ms';
+          }
+          handler.next(response);
+        },
+        onError: (error, handler) {
+          final startTime = error.requestOptions.extra['startTime'] as DateTime?;
+          if (startTime != null) {
+            final duration = DateTime.now().difference(startTime);
+            error.requestOptions.extra['duration'] = '${duration.inMilliseconds}ms';
+          }
           handler.next(error);
         },
       ),
@@ -77,14 +133,16 @@ class Oreno3dClient {
   /// [keyword] 搜索关键词
   /// [page] 页码，从1开始
   /// [sortType] 排序类型
+  /// [api] 搜索API，默认是/search，有 /origins/:originId、/tags/:tagId、/characters/:characterId
   Future<Oreno3dSearchResult> searchVideos({
     required String keyword,
     int page = 1,
     Oreno3dSortType sortType = Oreno3dSortType.hot,
+    String api = '/search',
   }) async {
     try {
       final response = await _dio.get(
-        '/search',
+        api,
         queryParameters: {
           'keyword': keyword,
           'page': page > 1 ? page : null,
@@ -100,13 +158,13 @@ class Oreno3dClient {
           requestOptions: response.requestOptions,
           response: response,
           type: DioExceptionType.badResponse,
-          message: '请求失败，状态码: ${response.statusCode}',
+          message: '${slang.t.oreno3d.errors.requestFailed} ${response.statusCode}',
         );
       }
     } on DioException catch (e) {
       throw _handleDioException(e);
     } catch (e) {
-      throw Exception('搜索视频时发生未知错误: $e');
+      throw Exception('${slang.t.oreno3d.errors.searchVideoError}: $e');
     }
   }
 
@@ -132,13 +190,13 @@ class Oreno3dClient {
           requestOptions: response.requestOptions,
           response: response,
           type: DioExceptionType.badResponse,
-          message: '请求失败，状态码: ${response.statusCode}',
+          message: '${slang.t.oreno3d.errors.requestFailed} ${response.statusCode}',
         );
       }
     } on DioException catch (e) {
       throw _handleDioException(e);
     } catch (e) {
-      throw Exception('获取热门视频时发生未知错误: $e');
+      throw Exception('${slang.t.oreno3d.errors.getPopularVideoError}: $e');
     }
   }
 
@@ -160,13 +218,13 @@ class Oreno3dClient {
           requestOptions: response.requestOptions,
           response: response,
           type: DioExceptionType.badResponse,
-          message: '请求失败，状态码: ${response.statusCode}',
+          message: '${slang.t.oreno3d.errors.requestFailed} ${response.statusCode}',
         );
       }
     } on DioException catch (e) {
       throw _handleDioException(e);
     } catch (e) {
-      throw Exception('获取视频详情时发生未知错误: $e');
+      throw Exception('${slang.t.oreno3d.errors.getVideoDetailError}: $e');
     }
   }
 
@@ -177,7 +235,7 @@ class Oreno3dClient {
       final htmlContent = await getVideoDetail('/movies/$videoId');
       return Oreno3dHtmlParser.parseVideoDetail(htmlContent, videoId);
     } on DioException catch (e) {
-      LogUtils.e("获取 oreno3d 详情失败", error: e);
+      LogUtils.e(slang.t.oreno3d.messages.getVideoDetailFailed, error: e);
 
       // 如果是404错误，返回null表示视频不存在
       if (e.response?.statusCode == 404) {
@@ -185,7 +243,7 @@ class Oreno3dClient {
       }
       throw _handleDioException(e);
     } catch (e) {
-      throw Exception('获取并解析视频详情时发生未知错误: $e');
+      throw Exception('${slang.t.oreno3d.errors.parseVideoDetailError}: $e');
     }
   }
 
@@ -214,7 +272,7 @@ class Oreno3dClient {
     } on DioException catch (e) {
       throw _handleDioException(e);
     } catch (e) {
-      throw Exception('下载文件时发生未知错误: $e');
+      throw Exception('${slang.t.oreno3d.errors.downloadFileError}: $e');
     }
   }
 
@@ -222,34 +280,34 @@ class Oreno3dClient {
   Exception _handleDioException(DioException e) {
     switch (e.type) {
       case DioExceptionType.connectionTimeout:
-        return Exception('连接超时，请检查网络连接');
+        return Exception(slang.t.oreno3d.errors.connectionTimeout);
       case DioExceptionType.sendTimeout:
-        return Exception('发送请求超时');
+        return Exception(slang.t.oreno3d.errors.sendTimeout);
       case DioExceptionType.receiveTimeout:
-        return Exception('接收响应超时');
+        return Exception(slang.t.oreno3d.errors.receiveTimeout);
       case DioExceptionType.badCertificate:
-        return Exception('证书验证失败');
+        return Exception(slang.t.oreno3d.errors.badCertificate);
       case DioExceptionType.badResponse:
         final statusCode = e.response?.statusCode;
         switch (statusCode) {
           case 404:
-            return Exception('请求的资源不存在');
+            return Exception(slang.t.oreno3d.errors.resourceNotFound);
           case 403:
-            return Exception('访问被拒绝，可能需要验证或权限');
+            return Exception(slang.t.oreno3d.errors.accessDenied);
           case 500:
-            return Exception('服务器内部错误');
+            return Exception(slang.t.oreno3d.errors.serverError);
           case 503:
-            return Exception('サービス暂时不可用');
+            return Exception(slang.t.oreno3d.errors.serviceUnavailable);
           default:
-            return Exception('请求失败，状态码: $statusCode');
+            return Exception('${slang.t.oreno3d.errors.requestFailed} $statusCode');
         }
       case DioExceptionType.cancel:
-        return Exception('请求已取消');
+        return Exception(slang.t.oreno3d.errors.requestCancelled);
       case DioExceptionType.connectionError:
-        return Exception('网络连接错误，请检查网络设置');
+        return Exception(slang.t.oreno3d.errors.connectionError);
       case DioExceptionType.unknown:
       default:
-        return Exception('网络请求失败: ${e.message}');
+        return Exception(slang.t.oreno3d.errors.networkRequestFailed);
     }
   }
 

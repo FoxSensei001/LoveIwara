@@ -214,12 +214,19 @@ class NaviService {
   }
 
   /// 跳转到搜索结果页
-  static void toSearchPage({required String searchInfo, required String segment}) {
+  static void toSearchPage({
+    required String searchInfo,
+    required String segment,
+    String? searchType,
+    Map<String, dynamic>? extData,
+  }) {
     _navigateToPage(
       routeName: Routes.SEARCH_RESULT,
       page: SearchResult(
         initialSearch: searchInfo,
         initialSegment: segment,
+        initialSearchType: searchType,
+        extData: extData,
       ),
     );
   }

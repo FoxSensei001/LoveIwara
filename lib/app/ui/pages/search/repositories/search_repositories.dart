@@ -95,10 +95,14 @@ class ForumSearchRepository extends SearchRepository<ForumThreadModel> {
 /// Oreno3d搜索仓库
 class Oreno3dSearchRepository extends SearchRepository<Oreno3dVideo> {
   final String? sortType;
+  final String? searchType; // 新增搜索类型参数
+  final Map<String, dynamic>? extData; // 新增扩展数据参数
 
   Oreno3dSearchRepository({
     required super.query,
     this.sortType,
+    this.searchType,
+    this.extData,
   }) : super(segment: 'oreno3d');
 
   @override
@@ -108,6 +112,8 @@ class Oreno3dSearchRepository extends SearchRepository<Oreno3dVideo> {
       limit: limit,
       query: keyword,
       sort: sortType,
+      searchType: searchType,
+      extData: extData,
     );
   }
 }

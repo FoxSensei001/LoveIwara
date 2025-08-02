@@ -214,12 +214,16 @@ class ForumSearchListState extends BaseSearchListState<ForumThreadModel, ForumSe
 /// Oreno3d视频搜索列表
 class Oreno3dSearchList extends BaseSearchList<Oreno3dVideo, Oreno3dSearchRepository> {
   final String? sortType;
+  final String? searchType; // 新增搜索类型参数
+  final Map<String, dynamic>? extData; // 新增扩展数据参数
 
   const Oreno3dSearchList({
     super.key,
     required super.query,
     super.isPaginated = false,
     this.sortType,
+    this.searchType,
+    this.extData,
   });
 
   @override
@@ -232,6 +236,8 @@ class Oreno3dSearchListState extends BaseSearchListState<Oreno3dVideo, Oreno3dSe
     return Oreno3dSearchRepository(
       query: widget.query,
       sortType: widget.sortType,
+      searchType: widget.searchType,
+      extData: widget.extData,
     );
   }
 
