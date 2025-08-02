@@ -466,7 +466,40 @@ class DownloadPathService extends GetxService {
   }
 
   /// 获取路径状态信息
-  Future<PathStatusInfo> getPathStatusInfo() async {
+  PathStatusInfo getPathStatusInfo() {
+    final isCustomPathEnabled = _configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] as bool;
+    final customPath = _configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] as String;
+
+    if (!isCustomPathEnabled || customPath.isEmpty) {
+      return PathStatusInfo(
+        currentPath: '',  // Will be resolved asynchronously
+        isCustomPath: false,
+        isValid: true,
+        validationResult: PathValidationResult(
+          isValid: true,
+          reason: PathValidationReason.valid,
+          message: _t.usingDefaultAppDirectory,
+          canFix: false,
+        ),
+      );
+    }
+
+    return PathStatusInfo(
+      currentPath: customPath,
+      isCustomPath: true,
+      isValid: false,  // Will be validated asynchronously
+      validationResult: PathValidationResult(
+        isValid: false,
+        reason: PathValidationReason.unknown,
+        message: _t.checkingPathStatus,
+        canFix: false,
+      ),
+      selectedPath: customPath,
+    );
+  }
+
+  /// 获取路径状态信息（异步版本，用于详细验证）
+  Future<PathStatusInfo> getPathStatusInfoAsync() async {
     final isCustomPathEnabled = _configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] as bool;
     final customPath = _configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] as String;
 

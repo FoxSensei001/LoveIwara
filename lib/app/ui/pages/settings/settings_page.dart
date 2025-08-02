@@ -22,6 +22,35 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   Worker? _selectedIndexWorker;
+  bool? _wasWideScreen;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    
+    // 只有当前页面是设置页面时才处理屏幕切换
+    final currentRoute = ModalRoute.of(context)?.settings.name;
+    if (currentRoute != '/settings_page') {
+      return;
+    }
+    
+    final screenWidth = MediaQuery.of(context).size.width;
+    const double wideScreenThreshold = 800;
+    final bool isWideScreen = screenWidth >= wideScreenThreshold;
+    
+    // 处理从窄屏到宽屏的切换
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_wasWideScreen != null && _wasWideScreen == false && isWideScreen) {
+        // 从窄屏切换到宽屏，如果有其他页面在栈上，则回到设置页
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).popUntil((route) => 
+            route.settings.name == '/settings_page'
+          );
+        }
+      }
+      _wasWideScreen = isWideScreen;
+    });
+  }
 
   @override
   void dispose() {
@@ -32,15 +61,24 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    // 获取屏幕宽度
-    final double screenWidth = MediaQuery.of(context).size.width;
-    // 定义宽屏的阈值
-    const double wideScreenThreshold = 800;
-    // 是否是宽屏
-    final bool isWideScreen = screenWidth >= wideScreenThreshold;
 
-    // 定义设置项列表
-    final List<SettingItem> settingItems = [
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(t.settings.settings,
+            style: const TextStyle(fontWeight: FontWeight.bold)),
+        elevation: 2,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        iconTheme: IconThemeData(color: Get.isDarkMode ? Colors.white : null),
+      ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          // 定义宽屏的阈值
+          const double wideScreenThreshold = 800;
+          // 是否是宽屏
+          final bool isWideScreen = constraints.maxWidth >= wideScreenThreshold;
+
+          // 定义设置项列表
+          final List<SettingItem> settingItems = [
       if (ProxyUtil.isSupportedPlatform())
         SettingItem(
           title: t.settings.networkSettings,
@@ -91,19 +129,13 @@ class _SettingsPageState extends State<SettingsPage> {
         page: AboutPage(isWideScreen: isWideScreen),
         route: Routes.ABOUT_PAGE,
       ),
-    ];
+          ];
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(t.settings.settings,
-            style: const TextStyle(fontWeight: FontWeight.bold)),
-        elevation: 2,
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        iconTheme: IconThemeData(color: Get.isDarkMode ? Colors.white : null),
+          return isWideScreen
+              ? _buildWideScreenLayout(context, settingItems)
+              : _buildNarrowScreenLayout(context, settingItems);
+        },
       ),
-      body: isWideScreen
-          ? _buildWideScreenLayout(context, settingItems)
-          : _buildNarrowScreenLayout(context, settingItems),
     );
   }
 
