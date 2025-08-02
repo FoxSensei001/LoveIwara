@@ -9,6 +9,7 @@ import 'package:i_iwara/app/models/history_record.dart';
 import 'package:i_iwara/app/repositories/history_repository.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/oreno3d_client.dart' show Oreno3dClient;
+import 'package:i_iwara/app/models/oreno3d_video.model.dart';
 import 'package:i_iwara/app/services/playback_history_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/related_media_controller.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
@@ -37,6 +38,7 @@ import 'package:floating/floating.dart';
 class MyVideoStateController extends GetxController
     with GetSingleTickerProviderStateMixin, WidgetsBindingObserver {
   final String? videoId;
+  final Map<String, dynamic>? extData;
   final AppService appS = Get.find();
   late Player player;
   late VideoController videoController;
@@ -44,6 +46,10 @@ class MyVideoStateController extends GetxController
   final PlaybackHistoryService _playbackHistoryService = Get.find();
   final ApiService _apiService = Get.find();
   final ConfigService _configService = Get.find();
+
+  // Oreno3D相关状态
+  final Rxn<Oreno3dVideoDetail> oreno3dVideoDetail = Rxn<Oreno3dVideoDetail>();
+  final RxBool isOreno3dVideoMatched = false.obs;
 
   // 视频详情页信息
   RxBool isCommentSheetVisible = false.obs; // 评论面板是否可见
@@ -170,7 +176,7 @@ class MyVideoStateController extends GetxController
 
   final GlobalKey<State<StatefulWidget>> nestedScrollViewKey = GlobalKey<State<StatefulWidget>>();
 
-  MyVideoStateController(this.videoId);
+  MyVideoStateController(this.videoId, {this.extData});
 
   void refreshScrollView() {
     // 触发重建
@@ -281,6 +287,8 @@ class MyVideoStateController extends GetxController
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!_isDisposed) {
           fetchVideoDetail(videoId!);
+          // 处理从oreno3d传入的详情信息
+          _handleOreno3dExtData();
         }
       });
 
@@ -367,6 +375,81 @@ class MyVideoStateController extends GetxController
         });
       });
     }
+  }
+
+  // 设置亮度
+  /// 处理从oreno3d传入的扩展数据
+  void _handleOreno3dExtData() {
+    if (extData != null && extData!.containsKey('oreno3dVideoDetailInfo')) {
+      try {
+        final oreno3dData = extData!['oreno3dVideoDetailInfo'] as Map<String, dynamic>;
+        oreno3dVideoDetail.value = Oreno3dVideoDetail.fromJson(oreno3dData);
+        isOreno3dVideoMatched.value = true;
+        LogUtils.d('成功从extData获取oreno3d视频详情信息: ${oreno3dVideoDetail.value?.title}', 'MyVideoStateController');
+      } catch (e) {
+        LogUtils.e('解析oreno3d扩展数据失败: $e', tag: 'MyVideoStateController', error: e);
+      }
+    }
+  }
+
+  /// 通过视频标题和作者名匹配oreno3d视频信息
+  Future<void> _tryMatchOreno3dVideo() async {
+    if (isOreno3dVideoMatched.value || videoInfo.value == null) return;
+    
+    final videoTitle = videoInfo.value?.title;
+    final authorName = videoInfo.value?.user?.name;
+    
+    if (videoTitle == null || videoTitle.isEmpty) return;
+    
+    try {
+      LogUtils.d('尝试通过标题匹配oreno3d视频: $videoTitle, 作者: $authorName', 'MyVideoStateController');
+      final oreno3dClient = Oreno3dClient();
+      final searchResult = await oreno3dClient.searchVideos(keyword: videoTitle);
+      
+      // 查找匹配的视频（优先匹配作者名，其次匹配标题相似度）
+      Oreno3dVideo? matchedVideo;
+      for (final video in searchResult.videos) {
+        // 如果作者名完全匹配，优先选择
+        if (authorName != null && video.author.toLowerCase() == authorName.toLowerCase()) {
+          matchedVideo = video;
+          break;
+        }
+        // 如果标题高度相似，也可以作为候选
+        if (_calculateTitleSimilarity(videoTitle, video.title) > 0.8) {
+          matchedVideo = video;
+        }
+      }
+      
+      if (matchedVideo != null) {
+        // 获取详细信息
+        final detail = await oreno3dClient.getVideoDetailParsed(matchedVideo.id);
+        if (detail != null) {
+          oreno3dVideoDetail.value = detail;
+          isOreno3dVideoMatched.value = true;
+          LogUtils.d('成功匹配oreno3d视频: ${detail.title}', 'MyVideoStateController');
+        }
+      }
+    } catch (e) {
+      LogUtils.e('匹配oreno3d视频失败: $e', tag: 'MyVideoStateController', error: e);
+    }
+  }
+  
+  /// 计算标题相似度（简单的字符匹配）
+  double _calculateTitleSimilarity(String title1, String title2) {
+    final words1 = title1.toLowerCase().split(' ');
+    final words2 = title2.toLowerCase().split(' ');
+    
+    int matchCount = 0;
+    for (final word1 in words1) {
+      for (final word2 in words2) {
+        if (word1.contains(word2) || word2.contains(word1)) {
+          matchCount++;
+          break;
+        }
+      }
+    }
+    
+    return matchCount / words1.length;
   }
 
   // 设置亮度
@@ -524,6 +607,11 @@ class MyVideoStateController extends GetxController
       }
 
       LogUtils.d('成功获取视频信息: ${videoInfo.value?.title}, 作者: ${videoInfo.value?.user?.name}', 'MyVideoStateController');
+
+      // 如果没有从extData获取到oreno3d信息，尝试通过标题和作者匹配
+      if (!isOreno3dVideoMatched.value) {
+        _tryMatchOreno3dVideo();
+      }
 
       // TODO: 创建 oreno3dClient
       // try {

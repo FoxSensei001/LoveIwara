@@ -76,6 +76,7 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String get cancel => '取消';
 	@override String get save => '保存';
 	@override String get delete => '删除';
+	@override String get visit => '访问';
 	@override String get loading => '加载中...';
 	@override String get scrollToTop => '滚动到顶部';
 	@override String get privacyHint => '隐私内容，不与展示';
@@ -659,6 +660,10 @@ class _TranslationsOreno3dZhCn implements TranslationsOreno3dEn {
 
 	// Translations
 	@override String get name => 'Oreno3D';
+	@override String get tags => '标签';
+	@override String get characters => '角色';
+	@override String get origin => '原作';
+	@override String get thirdPartyTagsExplanation => '此处显示的**标签**、**角色**和**原作**信息来自第三方站点 **Oreno3D**，仅供参考。\n\n由于此信息来源只有日文，目前缺乏国际化适配。\n\n如果你有兴趣参与国际化建设，欢迎访问相关仓库贡献你的力量！';
 	@override late final _TranslationsOreno3dSortTypesZhCn sortTypes = _TranslationsOreno3dSortTypesZhCn._(_root);
 	@override late final _TranslationsOreno3dErrorsZhCn errors = _TranslationsOreno3dErrorsZhCn._(_root);
 	@override late final _TranslationsOreno3dLoadingZhCn loading = _TranslationsOreno3dLoadingZhCn._(_root);
@@ -1693,6 +1698,7 @@ extension on TranslationsZhCn {
 			case 'common.cancel': return '取消';
 			case 'common.save': return '保存';
 			case 'common.delete': return '删除';
+			case 'common.visit': return '访问';
 			case 'common.loading': return '加载中...';
 			case 'common.scrollToTop': return '滚动到顶部';
 			case 'common.privacyHint': return '隐私内容，不与展示';
@@ -2328,6 +2334,10 @@ extension on TranslationsZhCn {
 			case 'settings.downloadSettings.suchAsTitleId': return '例如: %title_%id';
 			case 'settings.downloadSettings.suchAsTitleFilename': return '例如: %title_%filename';
 			case 'oreno3d.name': return 'Oreno3D';
+			case 'oreno3d.tags': return '标签';
+			case 'oreno3d.characters': return '角色';
+			case 'oreno3d.origin': return '原作';
+			case 'oreno3d.thirdPartyTagsExplanation': return '此处显示的**标签**、**角色**和**原作**信息来自第三方站点 **Oreno3D**，仅供参考。\n\n由于此信息来源只有日文，目前缺乏国际化适配。\n\n如果你有兴趣参与国际化建设，欢迎访问相关仓库贡献你的力量！';
 			case 'oreno3d.sortTypes.hot': return '急上昇';
 			case 'oreno3d.sortTypes.favorites': return '高評価';
 			case 'oreno3d.sortTypes.latest': return '新着';

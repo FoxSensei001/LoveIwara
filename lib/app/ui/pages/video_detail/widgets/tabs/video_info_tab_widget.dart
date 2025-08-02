@@ -22,6 +22,8 @@ import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constants.dart'; // 导入共享常量和组件
+import 'package:url_launcher/url_launcher.dart';
+import 'package:markdown_widget/markdown_widget.dart';
 
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/add_video_to_playlist_dialog.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/share_video_bottom_sheet.dart';
@@ -30,8 +32,6 @@ import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
-import 'package:path/path.dart' as p;
-import 'package:file_selector/file_selector.dart' as fs;
 
 class VideoInfoTabWidget extends StatelessWidget {
   final MyVideoStateController controller;
@@ -151,7 +151,6 @@ class VideoInfoTabWidget extends StatelessWidget {
   }
 
   Widget _buildVideoDetailsSection(BuildContext context) {
-    final t = slang.Translations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -165,6 +164,10 @@ class VideoInfoTabWidget extends StatelessWidget {
 
         // 视频标签
         _buildVideoTagsSection(context),
+        const SizedBox(height: UIConstants.interElementSpacing),
+
+        // Oreno3D信息区域
+        _buildOreno3dSection(context),
         const SizedBox(height: UIConstants.interElementSpacing),
 
         // 点赞头像区域
@@ -257,7 +260,8 @@ class VideoInfoTabWidget extends StatelessWidget {
   Widget _buildVideoDescriptionSection(BuildContext context) {
     return Obx(() {
       final description = controller.videoInfo.value?.body;
-      if (description == null || description.isEmpty) return const SizedBox.shrink();
+      if (description == null || description.isEmpty)
+        return const SizedBox.shrink();
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -303,6 +307,186 @@ class VideoInfoTabWidget extends StatelessWidget {
     });
   }
 
+  Widget _buildOreno3dSection(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return Obx(() {
+      final oreno3dDetail = controller.oreno3dVideoDetail.value;
+      if (oreno3dDetail == null) return const SizedBox.shrink();
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.view_in_ar, size: 16, color: Colors.grey[600]),
+              const SizedBox(width: 6),
+              Text(
+                t.oreno3d.name,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey[700],
+                ),
+              ),
+              const Spacer(),
+              Material(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(16),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(16),
+                  onTap: () => _showOreno3dInfoDialog(context),
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: Icon(
+                      Icons.help_outline,
+                      size: 14,
+                      color: Colors.grey[500],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+
+          SizedBox(
+            width: double.infinity,
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 原作信息
+                  if (oreno3dDetail.origin != null) ...[
+                    Text(
+                      t.oreno3d.origin,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.green.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.green.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Text(
+                        oreno3dDetail.origin!.name,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Colors.green,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+
+                  // Oreno3D标签
+                  if (oreno3dDetail.tags.isNotEmpty) ...[
+                    if (oreno3dDetail.origin != null)
+                      const SizedBox(height: 12),
+                    Text(
+                      t.oreno3d.tags,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      children: oreno3dDetail.tags.map((tag) {
+                        return Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.purple.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.purple.withValues(alpha: 0.3),
+                            ),
+                          ),
+                          child: Text(
+                            tag.name,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: Colors.purple,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+
+                  // 角色信息
+                  if (oreno3dDetail.characters.isNotEmpty) ...[
+                    if (oreno3dDetail.tags.isNotEmpty || oreno3dDetail.origin != null)
+                      const SizedBox(height: 12),
+                    Text(
+                      // 'キャラ：',
+                      t.oreno3d.characters,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      children: oreno3dDetail.characters.map((character) {
+                        return Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.blue.withValues(alpha: 0.3),
+                            ),
+                          ),
+                          child: Text(
+                            character.name,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: Colors.blue,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    });
+  }
+
   Widget _buildLikeAvatarsSection(BuildContext context) {
     final t = slang.Translations.of(context);
     return Obx(() {
@@ -315,7 +499,7 @@ class VideoInfoTabWidget extends StatelessWidget {
           Row(
             children: [
               Icon(Icons.favorite, size: 16, color: Colors.grey[600]),
-              const SizedBox(width: 6), 
+              const SizedBox(width: 6),
               Text(
                 t.common.likeThisVideo,
                 style: TextStyle(
@@ -663,5 +847,53 @@ class VideoInfoTabWidget extends StatelessWidget {
     } catch (e) {
       LogUtils.e('显示下载对话框失败', error: e, tag: 'VideoInfoTabWidget');
     }
+  }
+
+  void _showOreno3dInfoDialog(BuildContext context) {
+    final t = slang.Translations.of(context);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(t.oreno3d.name),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: MarkdownWidget(
+            data: t.oreno3d.thirdPartyTagsExplanation,
+            shrinkWrap: true,
+            selectable: true,
+            config: MarkdownConfig(
+              configs: [
+                const PConfig(
+                  textStyle: TextStyle(fontSize: 14, height: 1.5),
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(t.common.cancel),
+          ),
+          FilledButton.icon(
+            onPressed: () async {
+              const url = 'https://github.com/FoxSensei001/oreno3d_i18n';
+              try {
+                if (await canLaunchUrl(Uri.parse(url))) {
+                  await launchUrl(
+                    Uri.parse(url),
+                    mode: LaunchMode.externalApplication,
+                  );
+                }
+              } catch (e) {
+                LogUtils.e('打开链接失败', error: e, tag: 'VideoInfoTabWidget');
+              }
+            },
+            icon: const Icon(Icons.open_in_new, size: 16),
+            label: Text(t.common.visit),
+          ),
+        ],
+      ),
+    );
   }
 }

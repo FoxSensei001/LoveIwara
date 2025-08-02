@@ -65,7 +65,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
 
     // 初始化控制器
     try {
-      controller = Get.put(MyVideoStateController(videoId), tag: uniqueTag);
+      controller = Get.put(MyVideoStateController(videoId, extData: widget.extData), tag: uniqueTag);
       LogUtils.d('MyVideoStateController 初始化成功', 'video_detail_page_v2');
 
       commentController = Get.put(

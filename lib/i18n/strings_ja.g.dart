@@ -76,6 +76,7 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get cancel => 'キャンセル';
 	@override String get save => '保存';
 	@override String get delete => '削除';
+	@override String get visit => 'アクセス';
 	@override String get loading => '読み込み中...';
 	@override String get scrollToTop => 'トップに戻る';
 	@override String get privacyHint => 'プライバシー内容、表示しません';
@@ -654,6 +655,10 @@ class _TranslationsOreno3dJa implements TranslationsOreno3dEn {
 
 	// Translations
 	@override String get name => 'Oreno3D';
+	@override String get tags => 'タグ';
+	@override String get characters => 'キャラクター';
+	@override String get origin => '原作';
+	@override String get thirdPartyTagsExplanation => 'ここに表示される**タグ**、**キャラクター**、**原作**情報は第三者サイト **Oreno3D** が提供するものであり、参考情報です。\n\nこの情報ソースは日本語のみのため、現在国際化対応が不足しています。\n\nもし国際化開発にご興味があれば、ぜひリポジトリにアクセスしてご協力ください！';
 	@override late final _TranslationsOreno3dSortTypesJa sortTypes = _TranslationsOreno3dSortTypesJa._(_root);
 	@override late final _TranslationsOreno3dErrorsJa errors = _TranslationsOreno3dErrorsJa._(_root);
 	@override late final _TranslationsOreno3dLoadingJa loading = _TranslationsOreno3dLoadingJa._(_root);
@@ -1688,6 +1693,7 @@ extension on TranslationsJa {
 			case 'common.cancel': return 'キャンセル';
 			case 'common.save': return '保存';
 			case 'common.delete': return '削除';
+			case 'common.visit': return 'アクセス';
 			case 'common.loading': return '読み込み中...';
 			case 'common.scrollToTop': return 'トップに戻る';
 			case 'common.privacyHint': return 'プライバシー内容、表示しません';
@@ -2318,6 +2324,10 @@ extension on TranslationsJa {
 			case 'settings.downloadSettings.suchAsTitleId': return '例: %title_%id';
 			case 'settings.downloadSettings.suchAsTitleFilename': return '例: %title_%filename';
 			case 'oreno3d.name': return 'Oreno3D';
+			case 'oreno3d.tags': return 'タグ';
+			case 'oreno3d.characters': return 'キャラクター';
+			case 'oreno3d.origin': return '原作';
+			case 'oreno3d.thirdPartyTagsExplanation': return 'ここに表示される**タグ**、**キャラクター**、**原作**情報は第三者サイト **Oreno3D** が提供するものであり、参考情報です。\n\nこの情報ソースは日本語のみのため、現在国際化対応が不足しています。\n\nもし国際化開発にご興味があれば、ぜひリポジトリにアクセスしてご協力ください！';
 			case 'oreno3d.sortTypes.hot': return '急上昇';
 			case 'oreno3d.sortTypes.favorites': return '高評価';
 			case 'oreno3d.sortTypes.latest': return '新着';

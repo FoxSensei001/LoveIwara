@@ -79,6 +79,7 @@ class TranslationsCommonEn {
 	String get cancel => 'Cancel';
 	String get save => 'Save';
 	String get delete => 'Delete';
+	String get visit => 'Visit';
 	String get loading => 'Loading...';
 	String get scrollToTop => 'Scroll to Top';
 	String get privacyHint => 'Privacy content, not displayed';
@@ -657,6 +658,10 @@ class TranslationsOreno3dEn {
 
 	// Translations
 	String get name => 'Oreno3D';
+	String get tags => 'Tags';
+	String get characters => 'Characters';
+	String get origin => 'Origin';
+	String get thirdPartyTagsExplanation => 'The **tags**, **characters**, and **origin** information displayed here are provided by the third-party site **Oreno3D** for reference only.\n\nSince this information source is only available in Japanese, it currently lacks internationalization adaptation.\n\nIf you are interested in contributing to internationalization efforts, please visit the repository to help improve it!';
 	late final TranslationsOreno3dSortTypesEn sortTypes = TranslationsOreno3dSortTypesEn._(_root);
 	late final TranslationsOreno3dErrorsEn errors = TranslationsOreno3dErrorsEn._(_root);
 	late final TranslationsOreno3dLoadingEn loading = TranslationsOreno3dLoadingEn._(_root);
@@ -1691,6 +1696,7 @@ extension on Translations {
 			case 'common.cancel': return 'Cancel';
 			case 'common.save': return 'Save';
 			case 'common.delete': return 'Delete';
+			case 'common.visit': return 'Visit';
 			case 'common.loading': return 'Loading...';
 			case 'common.scrollToTop': return 'Scroll to Top';
 			case 'common.privacyHint': return 'Privacy content, not displayed';
@@ -2321,6 +2327,10 @@ extension on Translations {
 			case 'settings.downloadSettings.suchAsTitleId': return 'For example: %title_%id';
 			case 'settings.downloadSettings.suchAsTitleFilename': return 'For example: %title_%filename';
 			case 'oreno3d.name': return 'Oreno3D';
+			case 'oreno3d.tags': return 'Tags';
+			case 'oreno3d.characters': return 'Characters';
+			case 'oreno3d.origin': return 'Origin';
+			case 'oreno3d.thirdPartyTagsExplanation': return 'The **tags**, **characters**, and **origin** information displayed here are provided by the third-party site **Oreno3D** for reference only.\n\nSince this information source is only available in Japanese, it currently lacks internationalization adaptation.\n\nIf you are interested in contributing to internationalization efforts, please visit the repository to help improve it!';
 			case 'oreno3d.sortTypes.hot': return 'Hot';
 			case 'oreno3d.sortTypes.favorites': return 'Favorites';
 			case 'oreno3d.sortTypes.latest': return 'Latest';

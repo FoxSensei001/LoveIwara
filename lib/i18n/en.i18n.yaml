@@ -5,6 +5,7 @@ common:
   cancel: Cancel
   save: Save
   delete: Delete
+  visit: Visit
   loading: Loading...
   scrollToTop: Scroll to Top
   privacyHint: Privacy content, not displayed
@@ -664,6 +665,17 @@ settings:
     suchAsTitleFilename: 'For example: %title_%filename'
 oreno3d:
   name: Oreno3D
+  tags: Tags
+  characters: Characters
+  origin: Origin
+  thirdPartyTagsExplanation: >-
+    The **tags**, **characters**, and **origin** information displayed here are provided by the third-party site **Oreno3D** for reference only.
+
+
+    Since this information source is only available in Japanese, it currently lacks internationalization adaptation.
+
+
+    If you are interested in contributing to internationalization efforts, please visit the repository to help improve it!
   sortTypes:
     hot: Hot
     favorites: Favorites

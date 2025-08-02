@@ -272,7 +272,9 @@ class Oreno3dHtmlParser {
           final authorLink = authorSection.querySelector('a.tag-btn');
           if (authorLink != null) {
             final authorUrl = authorLink.attributes['href'] ?? '';
-            final authorName = authorLink.querySelector('.video-center')?.text?.trim() ?? '';
+            // 确保获取正确的文本内容，排除图标
+            final authorNameElement = authorLink.querySelector('div.video-center');
+            final authorName = authorNameElement?.text?.trim() ?? '';
             final authorId = _extractAuthorIdFromUrl(authorUrl);
             
             if (authorName.isNotEmpty) {
@@ -295,7 +297,9 @@ class Oreno3dHtmlParser {
           final originLink = section.querySelector('a.tag-btn');
           if (originLink != null) {
             final originUrl = originLink.attributes['href'] ?? '';
-            final originName = originLink.querySelector('.video-center')?.text?.trim() ?? '';
+            // 确保获取正确的文本内容，排除图标
+            final originNameElement = originLink.querySelector('div.video-center');
+            final originName = originNameElement?.text?.trim() ?? '';
             final originId = _extractOriginIdFromUrl(originUrl);
             
             if (originName.isNotEmpty) {
@@ -318,7 +322,9 @@ class Oreno3dHtmlParser {
           final characterLinks = section.querySelectorAll('a.tag-btn');
           for (final characterLink in characterLinks) {
             final characterUrl = characterLink.attributes['href'] ?? '';
-            final characterName = characterLink.querySelector('.video-center')?.text?.trim() ?? '';
+            // 确保获取正确的文本内容，排除图标
+            final characterNameElement = characterLink.querySelector('div.video-center');
+            final characterName = characterNameElement?.text?.trim() ?? '';
             final characterId = _extractCharacterIdFromUrl(characterUrl);
             
             if (characterName.isNotEmpty) {

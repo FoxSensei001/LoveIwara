@@ -10,11 +10,7 @@ class Oreno3dVideoCard extends StatefulWidget {
   final Oreno3dVideo video;
   final double width;
 
-  const Oreno3dVideoCard({
-    super.key,
-    required this.video,
-    required this.width,
-  });
+  const Oreno3dVideoCard({super.key, required this.video, required this.width});
 
   @override
   State<Oreno3dVideoCard> createState() => _Oreno3dVideoCardState();
@@ -41,14 +37,14 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
         child: Card(
           margin: EdgeInsets.zero,
           clipBehavior: Clip.antiAlias,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           child: InkWell(
             onTap: _isLoading ? null : () => _handleVideoTap(),
             hoverColor: Theme.of(context).hoverColor.withValues(alpha: 0.1),
             splashColor: Theme.of(context).splashColor.withValues(alpha: 0.2),
-            highlightColor: Theme.of(context).highlightColor.withValues(alpha: 0.1),
+            highlightColor: Theme.of(
+              context,
+            ).highlightColor.withValues(alpha: 0.1),
             child: _buildContent(),
           ),
         ),
@@ -94,9 +90,7 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
           fit: BoxFit.cover,
           placeholder: (context, url) => Container(
             color: Colors.grey[300],
-            child: const Center(
-              child: CircularProgressIndicator(),
-            ),
+            child: const Center(child: CircularProgressIndicator()),
           ),
           errorWidget: (context, url, error) => Container(
             color: Colors.grey[300],
@@ -140,10 +134,7 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
   Widget _buildTitle() {
     return Text(
       widget.video.title,
-      style: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w500,
-      ),
+      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
     );
@@ -246,13 +237,13 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
               children: [
                 const CircularProgressIndicator(),
                 const SizedBox(height: 16),
-                                  Text(
-                    slang.t.oreno3d.loading.gettingVideoInfo,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontSize: 16,
-                    ),
+                Text(
+                  slang.t.oreno3d.loading.gettingVideoInfo,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontSize: 16,
                   ),
+                ),
                 const SizedBox(height: 16),
                 TextButton(
                   onPressed: () {
@@ -261,7 +252,7 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
                     });
                     Navigator.of(context).pop();
                   },
-                                      child: Text(slang.t.oreno3d.loading.cancel),
+                  child: Text(slang.t.oreno3d.loading.cancel),
                 ),
               ],
             ),
@@ -283,8 +274,10 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
 
     try {
       // 获取oreno3d详情
-      final detail = await _searchService.getOreno3dVideoDetail(widget.video.id);
-      
+      final detail = await _searchService.getOreno3dVideoDetail(
+        widget.video.id,
+      );
+
       // 关闭loading dialog
       if (mounted && _isLoading) {
         Navigator.of(context, rootNavigator: true).pop();
@@ -292,12 +285,14 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
           _isLoading = false;
         });
       }
-      
+
       if (detail == null) {
         // 视频不存在或获取失败
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(slang.t.oreno3d.messages.videoNotFoundOrDeleted)),
+            SnackBar(
+              content: Text(slang.t.oreno3d.messages.videoNotFoundOrDeleted),
+            ),
           );
         }
         return;
@@ -305,12 +300,14 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
 
       // 提取iwara视频ID
       final iwaraId = detail.extractIwaraId();
-      
+
       if (iwaraId == null || iwaraId.isEmpty) {
         // 无法提取iwara ID，显示错误
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(slang.t.oreno3d.messages.unableToGetVideoPlayLink)),
+            SnackBar(
+              content: Text(slang.t.oreno3d.messages.unableToGetVideoPlayLink),
+            ),
           );
         }
         return;
@@ -320,7 +317,6 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
       NaviService.navigateToVideoDetailPage(iwaraId, {
         'oreno3dVideoDetailInfo': detail.toJson(),
       });
-
     } catch (e) {
       // 关闭loading dialog
       if (mounted && _isLoading) {
@@ -329,14 +325,17 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
           _isLoading = false;
         });
       }
-      
+
       // 处理错误
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${slang.t.oreno3d.messages.getVideoDetailFailed}: $e')),
+          SnackBar(
+            content: Text(
+              '${slang.t.oreno3d.messages.getVideoDetailFailed}: $e',
+            ),
+          ),
         );
       }
     }
   }
-
 }

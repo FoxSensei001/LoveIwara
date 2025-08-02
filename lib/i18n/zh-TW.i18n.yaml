@@ -4,6 +4,7 @@ common:
   cancel: 取消
   save: 儲存
   delete: 刪除
+  visit: 訪問
   loading: 載入中...
   scrollToTop: 滾動到頂部
   # 隱私內容，不與展示
@@ -665,6 +666,17 @@ settings:
     suchAsTitleFilename: '例如: %title_%filename'
 oreno3d:
   name: Oreno3D
+  tags: 標籤
+  characters: 角色
+  origin: 原作
+  thirdPartyTagsExplanation: >-
+    此處顯示的**標籤**、**角色**和**原作**資訊來自第三方站點 **Oreno3D**，僅供參考。
+
+
+    由於此資訊來源只有日文，目前缺乏國際化適配。
+
+
+    如果你有興趣參與國際化建設，歡迎訪問相關倉庫貢獻你的力量！
   sortTypes:
     hot: 急上昇
     favorites: 高評價

@@ -6,6 +6,7 @@ common:
   cancel: 取消
   save: 保存
   delete: 删除
+  visit: 访问
   loading: 加载中...
   scrollToTop: 滚动到顶部
   # 隐私内容，不与展示
@@ -671,6 +672,17 @@ settings:
     suchAsTitleFilename: '例如: %title_%filename'
 oreno3d:
   name: Oreno3D
+  tags: 标签
+  characters: 角色
+  origin: 原作
+  thirdPartyTagsExplanation: >-
+    此处显示的**标签**、**角色**和**原作**信息来自第三方站点 **Oreno3D**，仅供参考。
+
+
+    由于此信息来源只有日文，目前缺乏国际化适配。
+
+
+    如果你有兴趣参与国际化建设，欢迎访问相关仓库贡献你的力量！
   sortTypes:
     hot: 急上昇
     favorites: 高評価
