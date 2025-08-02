@@ -816,6 +816,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                     ],
 
                     const SizedBox(height: 8),
+                    // 推荐路径和选择文件夹按钮放在一行
                     Row(
                       children: [
                         if (GetPlatform.isAndroid && isEnabled)
@@ -839,18 +840,22 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        ElevatedButton.icon(
-                          onPressed: isEnabled ? () => DownloadTestWidget.showTestDialog(context) : null,
-                          icon: const Icon(Icons.bug_report, size: 18),
-                          label: Text(
-                            t.settings.downloadSettings.runTest,
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          ),
-                        ),
                       ],
+                    ),
+                    // 运行测试按钮单独一行
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: isEnabled ? () => DownloadTestWidget.showTestDialog(context) : null,
+                        icon: const Icon(Icons.bug_report, size: 18),
+                        label: Text(
+                          t.settings.downloadSettings.runTest,
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        ),
+                      ),
                     ),
                   ],
                 ),
