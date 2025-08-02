@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:dio/dio.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
@@ -236,9 +237,12 @@ class SearchService extends GetxController {
   }
 
   /// 获取Oreno3d视频详情
-  Future<Oreno3dVideoDetail?> getOreno3dVideoDetail(String videoId) async {
+  Future<Oreno3dVideoDetail?> getOreno3dVideoDetail(
+    String videoId, {
+    CancelToken? cancelToken,
+  }) async {
     try {
-      return await _oreno3dClient.getVideoDetailParsed(videoId);
+      return await _oreno3dClient.getVideoDetailParsed(videoId, cancelToken: cancelToken);
     } catch (e) {
       rethrow;
     }

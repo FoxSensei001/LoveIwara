@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:dio/dio.dart';
 import 'package:i_iwara/app/models/oreno3d_video.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/search_service.dart';
@@ -19,11 +20,13 @@ class Oreno3dVideoCard extends StatefulWidget {
 class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
   final SearchService _searchService = Get.find<SearchService>();
   bool _isLoading = false;
+  CancelToken? _cancelToken;
 
   @override
   void dispose() {
-    // 如果组件销毁时还在loading，关闭dialog
+    // 如果组件销毁时还在loading，取消请求并关闭dialog
     if (_isLoading && mounted) {
+      _cancelToken?.cancel('组件销毁');
       Navigator.of(context, rootNavigator: true).pop();
     }
     super.dispose();
@@ -82,52 +85,15 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
   }
 
   Widget _buildThumbnail() {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        CachedNetworkImage(
-          imageUrl: widget.video.thumbnailUrl,
-          fit: BoxFit.cover,
-          placeholder: (context, url) => Container(
-            color: Colors.grey[300],
-            child: const Center(child: CircularProgressIndicator()),
-          ),
-          errorWidget: (context, url, error) => Container(
-            color: Colors.grey[300],
-            child: const Icon(Icons.error),
-          ),
-        ),
-        // Oreno3D标识
-        Positioned(
-          top: 8,
-          left: 8,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: Colors.purple.withValues(alpha: 0.8),
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: const Text(
-              'Oreno3D',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ),
-        // 播放按钮
-        Positioned.fill(
-          child: Center(
-            child: const Icon(
-              Icons.play_circle_outline,
-              size: 48,
-              color: Colors.white,
-            ),
-          ),
-        ),
-      ],
+    return CachedNetworkImage(
+      imageUrl: widget.video.thumbnailUrl,
+      fit: BoxFit.cover,
+      placeholder: (context, url) => Container(
+        color: Colors.grey[300],
+        child: const Center(child: CircularProgressIndicator()),
+      ),
+      errorWidget: (context, url, error) =>
+          Container(color: Colors.grey[300], child: const Icon(Icons.error)),
     );
   }
 
@@ -222,39 +188,103 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
   void _showLoadingDialog() {
     showDialog(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: true,
       builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const CircularProgressIndicator(),
-                const SizedBox(height: 16),
-                Text(
-                  slang.t.oreno3d.loading.gettingVideoInfo,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontSize: 16,
+        return PopScope(
+          canPop: false,
+          onPopInvoked: (didPop) {
+            if (didPop) return;
+            // 用户点击返回键或点击弹窗外面时取消操作
+            _cancelToken?.cancel('用户取消');
+            setState(() {
+              _isLoading = false;
+            });
+            Navigator.of(context).pop();
+          },
+          child: Dialog(
+            backgroundColor: Colors.transparent,
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
                   ),
-                ),
-                const SizedBox(height: 16),
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      _isLoading = false;
-                    });
-                    Navigator.of(context).pop();
-                  },
-                  child: Text(slang.t.oreno3d.loading.cancel),
-                ),
-              ],
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 加载动画容器
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Center(
+                      child: SizedBox(
+                        width: 32,
+                        height: 32,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 3,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  // 标题文本
+                  Text(
+                    slang.t.oreno3d.loading.gettingVideoInfo,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+                  // 取消按钮
+                  OutlinedButton(
+                    onPressed: () {
+                      // 取消网络请求
+                      _cancelToken?.cancel('用户取消');
+                      setState(() {
+                        _isLoading = false;
+                      });
+                      Navigator.of(context).pop();
+                    },
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      side: BorderSide(
+                        color: Theme.of(context).colorScheme.outline,
+                      ),
+                    ),
+                    child: Text(
+                      slang.t.oreno3d.loading.cancel,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -269,13 +299,17 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
       _isLoading = true;
     });
 
+    // 创建新的 CancelToken
+    _cancelToken = CancelToken();
+
     // 显示loading dialog
     _showLoadingDialog();
 
     try {
-      // 获取oreno3d详情
+      // 获取oreno3d详情，传入 CancelToken
       final detail = await _searchService.getOreno3dVideoDetail(
         widget.video.id,
+        cancelToken: _cancelToken,
       );
 
       // 关闭loading dialog
@@ -318,6 +352,12 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
         'oreno3dVideoDetailInfo': detail.toJson(),
       });
     } catch (e) {
+      // 如果是取消请求，不显示错误信息
+      if (e is DioException && e.type == DioExceptionType.cancel) {
+        // 请求被取消，不需要显示错误
+        return;
+      }
+
       // 关闭loading dialog
       if (mounted && _isLoading) {
         Navigator.of(context, rootNavigator: true).pop();

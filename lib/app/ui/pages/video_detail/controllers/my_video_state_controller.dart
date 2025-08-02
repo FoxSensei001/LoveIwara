@@ -50,6 +50,7 @@ class MyVideoStateController extends GetxController
   // Oreno3D相关状态
   final Rxn<Oreno3dVideoDetail> oreno3dVideoDetail = Rxn<Oreno3dVideoDetail>();
   final RxBool isOreno3dVideoMatched = false.obs;
+  final RxBool isOreno3dMatching = false.obs; // 是否正在匹配oreno3d视频
 
   // 视频详情页信息
   RxBool isCommentSheetVisible = false.obs; // 评论面板是否可见
@@ -395,17 +396,20 @@ class MyVideoStateController extends GetxController
   /// 通过视频标题和作者名匹配oreno3d视频信息
   Future<void> _tryMatchOreno3dVideo() async {
     if (isOreno3dVideoMatched.value || videoInfo.value == null) return;
-    
+
     final videoTitle = videoInfo.value?.title;
     final authorName = videoInfo.value?.user?.name;
-    
+
     if (videoTitle == null || videoTitle.isEmpty) return;
-    
+
+    // 设置加载状态
+    isOreno3dMatching.value = true;
+
     try {
       LogUtils.d('尝试通过标题匹配oreno3d视频: $videoTitle, 作者: $authorName', 'MyVideoStateController');
       final oreno3dClient = Oreno3dClient();
       final searchResult = await oreno3dClient.searchVideos(keyword: videoTitle);
-      
+
       // 查找匹配的视频（优先匹配作者名，其次匹配标题相似度）
       Oreno3dVideo? matchedVideo;
       for (final video in searchResult.videos) {
@@ -419,7 +423,7 @@ class MyVideoStateController extends GetxController
           matchedVideo = video;
         }
       }
-      
+
       if (matchedVideo != null) {
         // 获取详细信息
         final detail = await oreno3dClient.getVideoDetailParsed(matchedVideo.id);
@@ -431,6 +435,9 @@ class MyVideoStateController extends GetxController
       }
     } catch (e) {
       LogUtils.e('匹配oreno3d视频失败: $e', tag: 'MyVideoStateController', error: e);
+    } finally {
+      // 无论成功还是失败，都要清除加载状态
+      isOreno3dMatching.value = false;
     }
   }
   

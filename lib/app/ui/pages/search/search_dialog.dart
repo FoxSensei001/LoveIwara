@@ -267,10 +267,64 @@ class _SearchContentState extends State<_SearchContent> {
             ),
             child: Column(
               children: [
-                // 搜索输入框和分段选择器区域
+                // 搜索输入框区域
                 Container(
                   padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+                  child: Material(
+                    elevation: 1,
+                    color: Theme.of(context).colorScheme.surfaceContainer,
+                    borderRadius: BorderRadius.circular(12),
+                    clipBehavior: Clip.hardEdge,
+                    child: Obx(() => TextField(
+                          controller: _controller,
+                          focusNode: _focusNode,
+                          autofocus: true,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: _searchPlaceholder.value.isEmpty
+                                ? t.search.pleaseEnterSearchContent
+                                : '${t.search.searchSuggestion}: ${_searchPlaceholder.value}',
+                            hintStyle: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            border: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            suffixIcon: IconButton(
+                              icon: const Icon(Icons.close),
+                              onPressed: () {
+                                _controller.clear();
+                                _searchErrorText.value = '';
+                                _searchPlaceholder.value = '';
+                                _focusNode.requestFocus();
+                              },
+                            ),
+                            filled: true,
+                            fillColor: Colors.transparent,
+                            errorText: _searchErrorText.value.isEmpty
+                                ? null
+                                : _searchErrorText.value,
+                          ),
+                          onChanged: (value) {
+                            _searchErrorText.value = '';
+                          },
+                          onSubmitted: _handleSubmit,
+                        )),
+                  ),
+                ),
+                
+                // 分段选择器和搜索按钮区域
+                Container(
+                  padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       // 分段选择下拉框
                       Container(
@@ -384,67 +438,29 @@ class _SearchContentState extends State<_SearchContent> {
                           ),
                         ),
                       ),
-                      Expanded(
+                      // 搜索按钮
+                      Container(
+                        height: 44,
                         child: Material(
-                          elevation: 1,
-                          color: Theme.of(context).colorScheme.surfaceContainer,
                           borderRadius: BorderRadius.circular(12),
+                          color: Theme.of(context).colorScheme.primary,
+                          elevation: 1,
                           clipBehavior: Clip.hardEdge,
-                          child: Obx(() => TextField(
-                                controller: _controller,
-                                focusNode: _focusNode,
-                                autofocus: true,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: Theme.of(context).colorScheme.onSurface,
-                                ),
-                                decoration: InputDecoration(
-                                  hintText: _searchPlaceholder.value.isEmpty
-                                      ? t.search.pleaseEnterSearchContent
-                                      : '${t.search.searchSuggestion}: ${_searchPlaceholder.value}',
-                                  hintStyle: TextStyle(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                  ),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 12,
-                                  ),
-                                  border: InputBorder.none,
-                                  focusedBorder: InputBorder.none,
-                                  prefixIcon: Icon(
-                                    Icons.search,
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                  ),
-                                  suffixIcon: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      IconButton(
-                                        icon: const Icon(Icons.close),
-                                        onPressed: () {
-                                          _controller.clear();
-                                          _searchErrorText.value = '';
-                                          _searchPlaceholder.value = '';
-                                          _focusNode.requestFocus();
-                                        },
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.search),
-                                        onPressed: () => _handleSubmit(_controller.text),
-                                      ),
-                                    ],
-                                  ),
-                                  filled: true,
-                                  fillColor: Colors.transparent,
-                                  errorText: _searchErrorText.value.isEmpty
-                                      ? null
-                                      : _searchErrorText.value,
-                                ),
-                                onChanged: (value) {
-                                  _searchErrorText.value = '';
-                                },
-                                onSubmitted: _handleSubmit,
-                              )),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: () => _handleSubmit(_controller.text),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 10,
+                              ),
+                              child: const Icon(
+                                Icons.search,
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ],

@@ -202,14 +202,17 @@ class Oreno3dClient {
 
   /// 获取视频详情页面HTML
   /// [videoUrl] 视频URL或路径
-  Future<String> getVideoDetail(String videoUrl) async {
+  Future<String> getVideoDetail(
+    String videoUrl, {
+    CancelToken? cancelToken,
+  }) async {
     try {
       String url = videoUrl;
       if (!url.startsWith('http')) {
         url = url.startsWith('/') ? url : '/$url';
       }
 
-      final response = await _dio.get(url);
+      final response = await _dio.get(url, cancelToken: cancelToken);
 
       if (response.statusCode == 200) {
         return response.data as String;
@@ -222,6 +225,10 @@ class Oreno3dClient {
         );
       }
     } on DioException catch (e) {
+      // 如果是取消请求，直接重新抛出，保持 DioException 类型
+      if (e.type == DioExceptionType.cancel) {
+        rethrow;
+      }
       throw _handleDioException(e);
     } catch (e) {
       throw Exception('${slang.t.oreno3d.errors.getVideoDetailError}: $e');
@@ -230,11 +237,19 @@ class Oreno3dClient {
 
   /// 获取视频详情
   /// [videoId] 视频ID
-  Future<Oreno3dVideoDetail?> getVideoDetailParsed(String videoId) async {
+  Future<Oreno3dVideoDetail?> getVideoDetailParsed(
+    String videoId, {
+    CancelToken? cancelToken,
+  }) async {
     try {
-      final htmlContent = await getVideoDetail('/movies/$videoId');
+      final htmlContent = await getVideoDetail('/movies/$videoId', cancelToken: cancelToken);
       return Oreno3dHtmlParser.parseVideoDetail(htmlContent, videoId);
     } on DioException catch (e) {
+      // 如果是取消请求，直接重新抛出，保持 DioException 类型
+      if (e.type == DioExceptionType.cancel) {
+        rethrow;
+      }
+
       LogUtils.e(slang.t.oreno3d.messages.getVideoDetailFailed, error: e);
 
       // 如果是404错误，返回null表示视频不存在
@@ -306,7 +321,6 @@ class Oreno3dClient {
       case DioExceptionType.connectionError:
         return Exception(slang.t.oreno3d.errors.connectionError);
       case DioExceptionType.unknown:
-      default:
         return Exception(slang.t.oreno3d.errors.networkRequestFailed);
     }
   }

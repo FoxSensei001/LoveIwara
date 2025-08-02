@@ -188,26 +188,6 @@ class _SearchResultState extends State<SearchResult> {
     }
   }
 
-  // 获取分段标签
-  String _getSegmentLabel(String segment, slang.Translations t) {
-    switch (segment) {
-      case 'video':
-        return t.common.video;
-      case 'image':
-        return t.common.gallery;
-      case 'post':
-        return t.common.post;
-      case 'user':
-        return t.common.user;
-      case 'forum':
-        return t.forum.forum;
-      case 'oreno3d':
-        return 'Oreno3D';
-      default:
-        return segment;
-    }
-  }
-
   Widget _buildCurrentSearchList() {
     return Obx(() {
       final query = searchController.currentSearch.value;
@@ -326,17 +306,82 @@ class _SearchResultState extends State<SearchResult> {
               padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
               child: Row(
                 children: [
-                  // 分段选择下拉框
+                  Expanded(
+                    child: Material(
+                      elevation: 0,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surfaceContainerHighest
+                          .withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(12),
+                      clipBehavior: Clip.antiAlias,
+                      child: TextField(
+                        controller: _searchController,
+                        readOnly: true,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: searchController.currentSearch.value.isEmpty
+                              ? t.search.pleaseEnterSearchContent
+                              : searchController.currentSearch.value,
+                          hintStyle: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          border: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          prefixIcon: Icon(
+                            Icons.search,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                          ),
+                          filled: true,
+                          fillColor: Colors.transparent,
+                        ),
+                        onTap: () {
+                          Get.dialog(
+                            SearchDialog(
+                              initialSearch:
+                                  searchController.currentSearch.value,
+                              initialSegment: SearchSegment.fromValue(
+                                searchController.selectedSegment.value,
+                              ),
+                              onSearch: (searchInfo, segment) {
+                                // 更新搜索参数
+                                searchController.updateSearch(searchInfo);
+                                searchController.updateSegment(segment);
+
+                                // 更新UI
+                                _searchController.text = searchInfo;
+                                searchController.refreshSearch();
+
+                                // 关闭对话框
+                                Get.back();
+                              },
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  // 分段选择下拉框（图标样式）
                   Container(
-                    margin: const EdgeInsets.only(right: 8),
+                    margin: const EdgeInsets.only(left: 4),
                     height: 44,
                     child: Obx(
                       () => PopupMenuButton<String>(
-                        // --- FIX: 添加 shape 属性 ---
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        // --- END FIX ---
                         initialValue: searchController.selectedSegment.value,
                         onSelected: (String newValue) {
                           searchController.updateSegment(newValue);
@@ -413,108 +458,14 @@ class _SearchResultState extends State<SearchResult> {
                               .withValues(alpha: 0.5),
                           clipBehavior: Clip.antiAlias,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 10,
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                _getSegmentIcon(
-                                  searchController.selectedSegment.value,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  _getSegmentLabel(
-                                    searchController.selectedSegment.value,
-                                    t,
-                                  ),
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                                Icon(
-                                  Icons.arrow_drop_down,
-                                  size: 20,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurfaceVariant,
-                                ),
-                              ],
+                            width: 44,
+                            height: 44,
+                            alignment: Alignment.center,
+                            child: _getSegmentIcon(
+                              searchController.selectedSegment.value,
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Material(
-                      elevation: 0,
-                      color: Theme.of(context)
-                          .colorScheme
-                          .surfaceContainerHighest
-                          .withValues(alpha: 0.5),
-                      borderRadius: BorderRadius.circular(12),
-                      clipBehavior: Clip.antiAlias,
-                      child: TextField(
-                        controller: _searchController,
-                        readOnly: true,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: searchController.currentSearch.value.isEmpty
-                              ? t.search.pleaseEnterSearchContent
-                              : searchController.currentSearch.value,
-                          hintStyle: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurfaceVariant,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                          border: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          prefixIcon: Icon(
-                            Icons.search,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurfaceVariant,
-                          ),
-                          filled: true,
-                          fillColor: Colors.transparent,
-                        ),
-                        onTap: () {
-                          Get.dialog(
-                            SearchDialog(
-                              initialSearch:
-                                  searchController.currentSearch.value,
-                              initialSegment: SearchSegment.fromValue(
-                                searchController.selectedSegment.value,
-                              ),
-                              onSearch: (searchInfo, segment) {
-                                // 更新搜索参数
-                                searchController.updateSearch(searchInfo);
-                                searchController.updateSegment(segment);
-
-                                // 更新UI
-                                _searchController.text = searchInfo;
-                                searchController.refreshSearch();
-
-                                // 关闭对话框
-                                Get.back();
-                              },
-                            ),
-                          );
-                        },
                       ),
                     ),
                   ),
@@ -525,15 +476,13 @@ class _SearchResultState extends State<SearchResult> {
                       return const SizedBox.shrink();
                     }
                     return Container(
-                      margin: const EdgeInsets.only(left: 8),
+                      margin: const EdgeInsets.only(left: 4),
                       height: 44,
                       alignment: Alignment.center,
                       child: PopupMenuButton<String>(
-                        // --- FIX: 添加 shape 属性 ---
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        // --- END FIX ---
                         initialValue: searchController.selectedSort.value,
                         onSelected: (String newValue) {
                           searchController.updateSort(newValue);
@@ -549,7 +498,7 @@ class _SearchResultState extends State<SearchResult> {
                                   children: [
                                     const Icon(Icons.trending_up, size: 20),
                                     const SizedBox(width: 8),
-                                    Text('急上昇'),
+                                    Text(t.oreno3d.sortTypes.hot),
                                   ],
                                 ),
                               ),
@@ -559,7 +508,7 @@ class _SearchResultState extends State<SearchResult> {
                                   children: [
                                     const Icon(Icons.favorite, size: 20),
                                     const SizedBox(width: 8),
-                                    Text('高評価'),
+                                    Text(t.oreno3d.sortTypes.favorites),
                                   ],
                                 ),
                               ),
@@ -569,7 +518,7 @@ class _SearchResultState extends State<SearchResult> {
                                   children: [
                                     const Icon(Icons.schedule, size: 20),
                                     const SizedBox(width: 8),
-                                    Text('新着'),
+                                    Text(t.oreno3d.sortTypes.latest),
                                   ],
                                 ),
                               ),
@@ -579,7 +528,7 @@ class _SearchResultState extends State<SearchResult> {
                                   children: [
                                     const Icon(Icons.star, size: 20),
                                     const SizedBox(width: 8),
-                                    Text('人気'),
+                                    Text(t.oreno3d.sortTypes.popularity),
                                   ],
                                 ),
                               ),

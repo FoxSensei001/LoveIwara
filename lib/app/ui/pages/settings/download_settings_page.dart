@@ -1080,62 +1080,65 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                                           .withValues(alpha: 0.2),
                                     ),
                                   ),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 6,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.primaryContainer,
-                                          borderRadius: BorderRadius.circular(
-                                            6,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          variable.variable,
-                                          style: TextStyle(
-                                            fontFamily: 'monospace',
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.onPrimaryContainer,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 13,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: Text(
-                                          variable.description,
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.bodyMedium,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      IconButton(
-                                        onPressed: () =>
-                                            _copyVariableToClipboard(
-                                              variable.variable,
-                                              context,
+                                      Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 6,
                                             ),
-                                        icon: const Icon(Icons.copy, size: 18),
-                                        tooltip: t
-                                            .settings
-                                            .downloadSettings
-                                            .copyVariable,
-                                        visualDensity: VisualDensity.compact,
-                                        style: IconButton.styleFrom(
-                                          minimumSize: const Size(36, 36),
-                                          tapTargetSize:
-                                              MaterialTapTargetSize.shrinkWrap,
-                                        ),
+                                            decoration: BoxDecoration(
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.primaryContainer,
+                                              borderRadius: BorderRadius.circular(
+                                                6,
+                                              ),
+                                            ),
+                                            child: Text(
+                                              variable.variable,
+                                              style: TextStyle(
+                                                fontFamily: 'monospace',
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.onPrimaryContainer,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 13,
+                                              ),
+                                            ),
+                                          ),
+                                          const Spacer(),
+                                          IconButton(
+                                            onPressed: () =>
+                                                _copyVariableToClipboard(
+                                                  variable.variable,
+                                                  context,
+                                                ),
+                                            icon: const Icon(Icons.copy, size: 18),
+                                            tooltip: t
+                                                .settings
+                                                .downloadSettings
+                                                .copyVariable,
+                                            visualDensity: VisualDensity.compact,
+                                            style: IconButton.styleFrom(
+                                              minimumSize: const Size(36, 36),
+                                              tapTargetSize:
+                                                  MaterialTapTargetSize.shrinkWrap,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        variable.description,
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.bodyMedium,
                                       ),
                                     ],
                                   ),
