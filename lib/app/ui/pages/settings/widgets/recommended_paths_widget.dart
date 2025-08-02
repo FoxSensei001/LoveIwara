@@ -61,34 +61,13 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
                   return Text(t.settings.downloadSettings.noRecommendedPaths);
                 }
 
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    final isWideScreen = constraints.maxWidth > 600;
-                    
-                    if (isWideScreen) {
-                      return GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: constraints.maxWidth > 900 ? 3 : 2,
-                          childAspectRatio: 2.5,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
-                        ),
-                        itemCount: paths.length,
-                        itemBuilder: (context, index) => _buildPathTile(paths[index]),
-                      );
-                    } else {
-                      return Column(
-                        children: paths.map((recommendedPath) => 
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: _buildPathTile(recommendedPath),
-                          )
-                        ).toList(),
-                      );
-                    }
-                  },
+                return Column(
+                  children: paths.map((recommendedPath) =>
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _buildPathTile(recommendedPath),
+                    )
+                  ).toList(),
                 );
               },
             ),
