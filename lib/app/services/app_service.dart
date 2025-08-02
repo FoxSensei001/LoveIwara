@@ -201,10 +201,10 @@ class NaviService {
   }
 
   /// 跳转到视频详情页
-  static void navigateToVideoDetailPage(String id) {
+  static void navigateToVideoDetailPage(String id, [Map<String, dynamic>? extData]) { // 注意 extData 外面的 []
     _navigateToPage(
       routeName: Routes.VIDEO_DETAIL(id),
-      page: MyVideoDetailPage(videoId: id),
+      page: MyVideoDetailPage(videoId: id, extData: extData),
     );
   }
 

@@ -50,6 +50,7 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final TranslationsSearchEn search = TranslationsSearchEn._(_root);
 	late final TranslationsMediaListEn mediaList = TranslationsMediaListEn._(_root);
 	late final TranslationsSettingsEn settings = TranslationsSettingsEn._(_root);
+	late final TranslationsOreno3dEn oreno3d = TranslationsOreno3dEn._(_root);
 	late final TranslationsSignInEn signIn = TranslationsSignInEn._(_root);
 	late final TranslationsSubscriptionsEn subscriptions = TranslationsSubscriptionsEn._(_root);
 	late final TranslationsVideoDetailEn videoDetail = TranslationsVideoDetailEn._(_root);
@@ -646,6 +647,20 @@ class TranslationsSettingsEn {
 	String get enableMouseHoverShowToolbar => 'Enable Mouse Hover Show Toolbar';
 	String get enableMouseHoverShowToolbarInfo => 'When enabled, the video toolbar will be shown when the mouse is hovering over the player. It will be automatically hidden after 3 seconds of inactivity.';
 	late final TranslationsSettingsDownloadSettingsEn downloadSettings = TranslationsSettingsDownloadSettingsEn._(_root);
+}
+
+// Path: oreno3d
+class TranslationsOreno3dEn {
+	TranslationsOreno3dEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get name => 'Oreno3D';
+	late final TranslationsOreno3dSortTypesEn sortTypes = TranslationsOreno3dSortTypesEn._(_root);
+	late final TranslationsOreno3dErrorsEn errors = TranslationsOreno3dErrorsEn._(_root);
+	late final TranslationsOreno3dLoadingEn loading = TranslationsOreno3dLoadingEn._(_root);
+	late final TranslationsOreno3dMessagesEn messages = TranslationsOreno3dMessagesEn._(_root);
 }
 
 // Path: signIn
@@ -1399,6 +1414,68 @@ class TranslationsSettingsDownloadSettingsEn {
 	String get suchAsTitleQuality => 'For example: %title_%quality';
 	String get suchAsTitleId => 'For example: %title_%id';
 	String get suchAsTitleFilename => 'For example: %title_%filename';
+}
+
+// Path: oreno3d.sortTypes
+class TranslationsOreno3dSortTypesEn {
+	TranslationsOreno3dSortTypesEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get hot => 'Hot';
+	String get favorites => 'Favorites';
+	String get latest => 'Latest';
+	String get popularity => 'Popular';
+}
+
+// Path: oreno3d.errors
+class TranslationsOreno3dErrorsEn {
+	TranslationsOreno3dErrorsEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get requestFailed => 'Request failed, status code';
+	String get connectionTimeout => 'Connection timeout, please check network connection';
+	String get sendTimeout => 'Send request timeout';
+	String get receiveTimeout => 'Receive response timeout';
+	String get badCertificate => 'Certificate verification failed';
+	String get resourceNotFound => 'Requested resource not found';
+	String get accessDenied => 'Access denied, may require authentication or permission';
+	String get serverError => 'Internal server error';
+	String get serviceUnavailable => 'Service temporarily unavailable';
+	String get requestCancelled => 'Request cancelled';
+	String get connectionError => 'Network connection error, please check network settings';
+	String get networkRequestFailed => 'Network request failed';
+	String get searchVideoError => 'Unknown error occurred while searching videos';
+	String get getPopularVideoError => 'Unknown error occurred while getting popular videos';
+	String get getVideoDetailError => 'Unknown error occurred while getting video details';
+	String get parseVideoDetailError => 'Unknown error occurred while getting and parsing video details';
+	String get downloadFileError => 'Unknown error occurred while downloading file';
+}
+
+// Path: oreno3d.loading
+class TranslationsOreno3dLoadingEn {
+	TranslationsOreno3dLoadingEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get gettingVideoInfo => 'Getting video information...';
+	String get cancel => 'Cancel';
+}
+
+// Path: oreno3d.messages
+class TranslationsOreno3dMessagesEn {
+	TranslationsOreno3dMessagesEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get videoNotFoundOrDeleted => 'Video not found or has been deleted';
+	String get unableToGetVideoPlayLink => 'Unable to get video playback link';
+	String get getVideoDetailFailed => 'Failed to get video details';
 }
 
 // Path: forum.errors
@@ -2217,6 +2294,33 @@ extension on Translations {
 			case 'settings.downloadSettings.suchAsTitleQuality': return 'For example: %title_%quality';
 			case 'settings.downloadSettings.suchAsTitleId': return 'For example: %title_%id';
 			case 'settings.downloadSettings.suchAsTitleFilename': return 'For example: %title_%filename';
+			case 'oreno3d.name': return 'Oreno3D';
+			case 'oreno3d.sortTypes.hot': return 'Hot';
+			case 'oreno3d.sortTypes.favorites': return 'Favorites';
+			case 'oreno3d.sortTypes.latest': return 'Latest';
+			case 'oreno3d.sortTypes.popularity': return 'Popular';
+			case 'oreno3d.errors.requestFailed': return 'Request failed, status code';
+			case 'oreno3d.errors.connectionTimeout': return 'Connection timeout, please check network connection';
+			case 'oreno3d.errors.sendTimeout': return 'Send request timeout';
+			case 'oreno3d.errors.receiveTimeout': return 'Receive response timeout';
+			case 'oreno3d.errors.badCertificate': return 'Certificate verification failed';
+			case 'oreno3d.errors.resourceNotFound': return 'Requested resource not found';
+			case 'oreno3d.errors.accessDenied': return 'Access denied, may require authentication or permission';
+			case 'oreno3d.errors.serverError': return 'Internal server error';
+			case 'oreno3d.errors.serviceUnavailable': return 'Service temporarily unavailable';
+			case 'oreno3d.errors.requestCancelled': return 'Request cancelled';
+			case 'oreno3d.errors.connectionError': return 'Network connection error, please check network settings';
+			case 'oreno3d.errors.networkRequestFailed': return 'Network request failed';
+			case 'oreno3d.errors.searchVideoError': return 'Unknown error occurred while searching videos';
+			case 'oreno3d.errors.getPopularVideoError': return 'Unknown error occurred while getting popular videos';
+			case 'oreno3d.errors.getVideoDetailError': return 'Unknown error occurred while getting video details';
+			case 'oreno3d.errors.parseVideoDetailError': return 'Unknown error occurred while getting and parsing video details';
+			case 'oreno3d.errors.downloadFileError': return 'Unknown error occurred while downloading file';
+			case 'oreno3d.loading.gettingVideoInfo': return 'Getting video information...';
+			case 'oreno3d.loading.cancel': return 'Cancel';
+			case 'oreno3d.messages.videoNotFoundOrDeleted': return 'Video not found or has been deleted';
+			case 'oreno3d.messages.unableToGetVideoPlayLink': return 'Unable to get video playback link';
+			case 'oreno3d.messages.getVideoDetailFailed': return 'Failed to get video details';
 			case 'signIn.pleaseLoginFirst': return 'Please login first';
 			case 'signIn.alreadySignedInToday': return 'You have already signed in today!';
 			case 'signIn.youDidNotStickToTheSignIn': return 'You did not stick to the sign in.';

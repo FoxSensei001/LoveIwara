@@ -6,14 +6,23 @@ import 'package:i_iwara/app/models/page_data.model.dart';
 import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
+import 'package:i_iwara/app/models/oreno3d_video.model.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 
 import 'api_service.dart';
+import 'oreno3d_client.dart';
 
 class SearchService extends GetxController {
   final ApiService _apiService = Get.find<ApiService>();
+  late final Oreno3dClient _oreno3dClient;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _oreno3dClient = Oreno3dClient();
+  }
 
   /// 通用查询方法
   Future<ApiResult<PageData<T>>> fetchDataByType<T>({
@@ -128,4 +137,61 @@ class SearchService extends GetxController {
     type: SearchSegment.forum.name,
     fromJson: ForumThreadModel.fromJson,
   );
+
+  /// 获取Oreno3d视频
+  Future<ApiResult<PageData<Oreno3dVideo>>> fetchOreno3dByQuery({
+    int page = 0,
+    int limit = 20,
+    String query = '',
+    String? sort,
+  }) async {
+    try {
+      // 将排序类型转换为Oreno3dSortType
+      Oreno3dSortType sortType = Oreno3dSortType.hot;
+      if (sort != null) {
+        switch (sort) {
+          case 'hot':
+            sortType = Oreno3dSortType.hot;
+            break;
+          case 'favorites':
+            sortType = Oreno3dSortType.favorites;
+            break;
+          case 'latest':
+            sortType = Oreno3dSortType.latest;
+            break;
+          case 'popularity':
+            sortType = Oreno3dSortType.popularity;
+            break;
+          default:
+            sortType = Oreno3dSortType.hot;
+        }
+      }
+
+      final result = await _oreno3dClient.searchVideos(
+        keyword: query,
+        page: page + 1, // oreno3d使用1基页码
+        sortType: sortType,
+      );
+
+      return ApiResult.success(
+        data: PageData<Oreno3dVideo>(
+          page: page,
+          limit: limit,
+          count: result.totalPages * limit, // 估算总数
+          results: result.videos,
+        ),
+      );
+    } catch (e) {
+      return ApiResult.fail('搜索Oreno3d视频失败: $e');
+    }
+  }
+
+  /// 获取Oreno3d视频详情
+  Future<Oreno3dVideoDetail?> getOreno3dVideoDetail(String videoId) async {
+    try {
+      return await _oreno3dClient.getVideoDetailParsed(videoId);
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

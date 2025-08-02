@@ -649,6 +649,38 @@ settings:
     suchAsTitleQuality: '例: %title_%quality'
     suchAsTitleId: '例: %title_%id'
     suchAsTitleFilename: '例: %title_%filename'
+oreno3d:
+  name: Oreno3D
+  sortTypes:
+    hot: 急上昇
+    favorites: 高評価
+    latest: 新着
+    popularity: 人気
+  errors:
+    requestFailed: リクエストが失敗しました、ステータスコード
+    connectionTimeout: 接続がタイムアウトしました、ネットワーク接続を確認してください
+    sendTimeout: リクエスト送信がタイムアウトしました
+    receiveTimeout: レスポンス受信がタイムアウトしました
+    badCertificate: 証明書の検証に失敗しました
+    resourceNotFound: 要求されたリソースが見つかりません
+    accessDenied: アクセスが拒否されました、認証または権限が必要な可能性があります
+    serverError: サーバー内部エラー
+    serviceUnavailable: サービスが一時的に利用できません
+    requestCancelled: リクエストがキャンセルされました
+    connectionError: ネットワーク接続エラー、ネットワーク設定を確認してください
+    networkRequestFailed: ネットワークリクエストが失敗しました
+    searchVideoError: 動画検索中に不明なエラーが発生しました
+    getPopularVideoError: 人気動画取得中に不明なエラーが発生しました
+    getVideoDetailError: 動画詳細取得中に不明なエラーが発生しました
+    parseVideoDetailError: 動画詳細の取得と解析中に不明なエラーが発生しました
+    downloadFileError: ファイルダウンロード中に不明なエラーが発生しました
+  loading:
+    gettingVideoInfo: 動画情報を取得中...
+    cancel: キャンセル
+  messages:
+    videoNotFoundOrDeleted: 動画が見つからないか削除されました
+    unableToGetVideoPlayLink: 動画再生リンクを取得できません
+    getVideoDetailFailed: 動画詳細の取得に失敗しました
 signIn:
   pleaseLoginFirst: サインインする前にログインしてください
   alreadySignedInToday: 今日は既にサインインしています！

@@ -648,6 +648,38 @@ settings:
     suchAsTitleQuality: 'For example: %title_%quality'
     suchAsTitleId: 'For example: %title_%id'
     suchAsTitleFilename: 'For example: %title_%filename'
+oreno3d:
+  name: Oreno3D
+  sortTypes:
+    hot: Hot
+    favorites: Favorites
+    latest: Latest
+    popularity: Popular
+  errors:
+    requestFailed: Request failed, status code
+    connectionTimeout: Connection timeout, please check network connection
+    sendTimeout: Send request timeout
+    receiveTimeout: Receive response timeout
+    badCertificate: Certificate verification failed
+    resourceNotFound: Requested resource not found
+    accessDenied: Access denied, may require authentication or permission
+    serverError: Internal server error
+    serviceUnavailable: Service temporarily unavailable
+    requestCancelled: Request cancelled
+    connectionError: Network connection error, please check network settings
+    networkRequestFailed: Network request failed
+    searchVideoError: Unknown error occurred while searching videos
+    getPopularVideoError: Unknown error occurred while getting popular videos
+    getVideoDetailError: Unknown error occurred while getting video details
+    parseVideoDetailError: Unknown error occurred while getting and parsing video details
+    downloadFileError: Unknown error occurred while downloading file
+  loading:
+    gettingVideoInfo: Getting video information...
+    cancel: Cancel
+  messages:
+    videoNotFoundOrDeleted: Video not found or has been deleted
+    unableToGetVideoPlayLink: Unable to get video playback link
+    getVideoDetailFailed: Failed to get video details
 signIn:
   pleaseLoginFirst: Please login first
   alreadySignedInToday: You have already signed in today!

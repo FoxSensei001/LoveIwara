@@ -4,12 +4,14 @@ import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
+import 'package:i_iwara/app/models/oreno3d_video.model.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/thread_list_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/image_model_card_list_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/post_card_list_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/search/repositories/search_repositories.dart';
 import 'package:i_iwara/app/ui/widgets/user_card.dart';
+import 'package:i_iwara/app/ui/widgets/oreno3d_video_card.dart';
 
 import 'base_search_list.dart';
 
@@ -180,7 +182,7 @@ class ForumSearchList extends BaseSearchList<ForumThreadModel, ForumSearchReposi
     required super.query,
     super.isPaginated = false,
   });
-  
+
   @override
   State<ForumSearchList> createState() => ForumSearchListState();
 }
@@ -190,10 +192,10 @@ class ForumSearchListState extends BaseSearchListState<ForumThreadModel, ForumSe
   ForumSearchRepository createRepository() {
     return ForumSearchRepository(query: widget.query);
   }
-  
+
   @override
   IconData get emptyIcon => Icons.forum_outlined;
-  
+
   @override
   Widget buildListItem(BuildContext context, ForumThreadModel forum, int index) {
     return Padding(
@@ -207,4 +209,49 @@ class ForumSearchListState extends BaseSearchListState<ForumThreadModel, ForumSe
       ),
     );
   }
-} 
+}
+
+/// Oreno3d视频搜索列表
+class Oreno3dSearchList extends BaseSearchList<Oreno3dVideo, Oreno3dSearchRepository> {
+  final String? sortType;
+
+  const Oreno3dSearchList({
+    super.key,
+    required super.query,
+    super.isPaginated = false,
+    this.sortType,
+  });
+
+  @override
+  State<Oreno3dSearchList> createState() => Oreno3dSearchListState();
+}
+
+class Oreno3dSearchListState extends BaseSearchListState<Oreno3dVideo, Oreno3dSearchRepository, Oreno3dSearchList> {
+  @override
+  Oreno3dSearchRepository createRepository() {
+    return Oreno3dSearchRepository(
+      query: widget.query,
+      sortType: widget.sortType,
+    );
+  }
+
+  @override
+  IconData get emptyIcon => Icons.view_in_ar_outlined;
+
+  @override
+  Widget buildListItem(BuildContext context, Oreno3dVideo video, int index) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final itemWidth = screenWidth <= 600 ? (screenWidth - 8) / 2 : (screenWidth - 24) / 3;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
+        vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
+      ),
+      child: Oreno3dVideoCard(
+        video: video,
+        width: itemWidth,
+      ),
+    );
+  }
+}

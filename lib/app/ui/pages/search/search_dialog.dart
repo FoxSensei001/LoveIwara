@@ -14,6 +14,7 @@ enum SearchSegment {
   post,
   user,
   forum,
+  oreno3d,
   ;
 
   static SearchSegment fromValue(String value) {
@@ -139,6 +140,46 @@ class _SearchContentState extends State<_SearchContent> {
     updateSearchPlaceholder(userPreferenceService.videoSearchHistory);
   }
 
+  // 获取分段图标
+  Widget _getSegmentIcon(String segment) {
+    switch (segment) {
+      case 'video':
+        return const Icon(Icons.video_library, size: 20);
+      case 'image':
+        return const Icon(Icons.image, size: 20);
+      case 'post':
+        return const Icon(Icons.article, size: 20);
+      case 'user':
+        return const Icon(Icons.person, size: 20);
+      case 'forum':
+        return const Icon(Icons.forum, size: 20);
+      case 'oreno3d':
+        return const Icon(Icons.view_in_ar, size: 20);
+      default:
+        return const Icon(Icons.search, size: 20);
+    }
+  }
+
+  // 获取分段标签
+  String _getSegmentLabel(String segment, slang.Translations t) {
+    switch (segment) {
+      case 'video':
+        return t.common.video;
+      case 'image':
+        return t.common.gallery;
+      case 'post':
+        return t.common.post;
+      case 'user':
+        return t.common.user;
+      case 'forum':
+        return t.forum.forum;
+      case 'oreno3d':
+        return 'Oreno3D';
+      default:
+        return segment;
+    }
+  }
+
   void updateSearchPlaceholder(List<SearchRecord> history) {
     if (history.isEmpty) {
       _searchPlaceholder.value = '';
@@ -226,130 +267,193 @@ class _SearchContentState extends State<_SearchContent> {
             ),
             child: Column(
               children: [
-                // 搜索输入框
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
-                  child: Material(
-                    elevation: 2,
-                    borderRadius: BorderRadius.circular(8),
-                    child: Obx(() => TextField(
-                          controller: _controller,
-                          focusNode: _focusNode,
-                          autofocus: true,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).textTheme.bodyLarge?.color,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: _searchPlaceholder.value.isEmpty
-                                ? t.search.pleaseEnterSearchContent
-                                : '${t.search.searchSuggestion}: ${_searchPlaceholder.value}',
-                            hintStyle: TextStyle(
-                              color: Colors.grey[400],
-                              fontWeight: FontWeight.normal,
+                // 搜索输入框和分段选择器区域
+                Container(
+                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+                  child: Row(
+                    children: [
+                      // 分段选择下拉框
+                      Container(
+                        margin: const EdgeInsets.only(right: 8),
+                        height: 44,
+                        child: Obx(
+                          () => PopupMenuButton<String>(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                            suffixIcon: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.close),
-                                  onPressed: () {
-                                    _controller.clear();
-                                    _searchErrorText.value = '';
-                                    _searchPlaceholder.value = '';
-                                    _focusNode.requestFocus();
-                                  },
+                            initialValue: _selectedSegment.value,
+                            onSelected: (String newValue) {
+                              _selectedSegment.value = newValue;
+                            },
+                            itemBuilder: (BuildContext context) {
+                              return [
+                                PopupMenuItem<String>(
+                                  value: 'video',
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.video_library, size: 20),
+                                      const SizedBox(width: 8),
+                                      Text(t.common.video),
+                                    ],
+                                  ),
                                 ),
-                                IconButton(
-                                  icon: const Icon(Icons.search),
-                                  onPressed: () => _handleSubmit(_controller.text),
+                                PopupMenuItem<String>(
+                                  value: 'image',
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.image, size: 20),
+                                      const SizedBox(width: 8),
+                                      Text(t.common.gallery),
+                                    ],
+                                  ),
                                 ),
-                              ],
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(
-                                color: Theme.of(context).primaryColor,
-                                width: 2,
+                                PopupMenuItem<String>(
+                                  value: 'post',
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.article, size: 20),
+                                      const SizedBox(width: 8),
+                                      Text(t.common.post),
+                                    ],
+                                  ),
+                                ),
+                                PopupMenuItem<String>(
+                                  value: 'user',
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.person, size: 20),
+                                      const SizedBox(width: 8),
+                                      Text(t.common.user),
+                                    ],
+                                  ),
+                                ),
+                                PopupMenuItem<String>(
+                                  value: 'forum',
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.forum, size: 20),
+                                      const SizedBox(width: 8),
+                                      Text(t.forum.forum),
+                                    ],
+                                  ),
+                                ),
+                                PopupMenuItem<String>(
+                                  value: 'oreno3d',
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.view_in_ar, size: 20),
+                                      const SizedBox(width: 8),
+                                      Text('Oreno3D'),
+                                    ],
+                                  ),
+                                ),
+                              ];
+                            },
+                            child: Material(
+                              borderRadius: BorderRadius.circular(12),
+                              color: Theme.of(context).colorScheme.surfaceContainer,
+                              elevation: 1,
+                              clipBehavior: Clip.hardEdge,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 10,
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    _getSegmentIcon(_selectedSegment.value),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      _getSegmentLabel(_selectedSegment.value, t),
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Icon(
+                                      Icons.arrow_drop_down,
+                                      size: 20,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                            errorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(
-                                color: Theme.of(context).colorScheme.error,
-                                width: 1,
-                              ),
-                            ),
-                            focusedErrorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(
-                                color: Theme.of(context).colorScheme.error,
-                                width: 2,
-                              ),
-                            ),
-                            errorText:
-                                _searchErrorText.value.isEmpty
-                                    ? null
-                                    : _searchErrorText.value,
                           ),
-                          onChanged: (value) {
-                            _searchErrorText.value = '';
-                          },
-                          onSubmitted: _handleSubmit,
-                        )),
-                  ),
-                ),
-                
-                // 分类选项卡
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Obx(() => SegmentedButton<String>(
-                          segments: [
-                            ButtonSegment(
-                              value: SearchSegment.video.name,
-                              icon: const Icon(Icons.video_library),
-                            ),
-                            ButtonSegment(
-                              value: SearchSegment.image.name,
-                              icon: const Icon(Icons.image),
-                            ),
-                            ButtonSegment(
-                              value: SearchSegment.post.name,
-                              icon: const Icon(Icons.article),
-                            ),
-                            ButtonSegment(
-                              value: SearchSegment.user.name,
-                              icon: const Icon(Icons.person),
-                            ),
-                            ButtonSegment(
-                              value: SearchSegment.forum.name,
-                              icon: const Icon(Icons.forum),
-                            ),
-                          ],
-                          selected: {_selectedSegment.value},
-                          onSelectionChanged: (Set<String> selection) {
-                            if (selection.isNotEmpty) {
-                              _selectedSegment.value = selection.first;
-                            }
-                          },
-                          multiSelectionEnabled: false,
-                          style: const ButtonStyle(
-                            visualDensity: VisualDensity.compact,
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
-                        )),
+                        ),
+                      ),
+                      Expanded(
+                        child: Material(
+                          elevation: 1,
+                          color: Theme.of(context).colorScheme.surfaceContainer,
+                          borderRadius: BorderRadius.circular(12),
+                          clipBehavior: Clip.hardEdge,
+                          child: Obx(() => TextField(
+                                controller: _controller,
+                                focusNode: _focusNode,
+                                autofocus: true,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                ),
+                                decoration: InputDecoration(
+                                  hintText: _searchPlaceholder.value.isEmpty
+                                      ? t.search.pleaseEnterSearchContent
+                                      : '${t.search.searchSuggestion}: ${_searchPlaceholder.value}',
+                                  hintStyle: TextStyle(
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 12,
+                                  ),
+                                  border: InputBorder.none,
+                                  focusedBorder: InputBorder.none,
+                                  prefixIcon: Icon(
+                                    Icons.search,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  ),
+                                  suffixIcon: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.close),
+                                        onPressed: () {
+                                          _controller.clear();
+                                          _searchErrorText.value = '';
+                                          _searchPlaceholder.value = '';
+                                          _focusNode.requestFocus();
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.search),
+                                        onPressed: () => _handleSubmit(_controller.text),
+                                      ),
+                                    ],
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.transparent,
+                                  errorText: _searchErrorText.value.isEmpty
+                                      ? null
+                                      : _searchErrorText.value,
+                                ),
+                                onChanged: (value) {
+                                  _searchErrorText.value = '';
+                                },
+                                onSubmitted: _handleSubmit,
+                              )),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 
                 // 谷歌搜索辅助功能
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
+                  padding: const EdgeInsets.fromLTRB(6, 0, 6, 0),
                   child: GoogleSearchPanelWidget(
                     scrollController: _scrollController,
                   ),

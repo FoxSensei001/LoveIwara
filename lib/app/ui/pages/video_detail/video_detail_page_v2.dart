@@ -23,8 +23,9 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class MyVideoDetailPage extends StatefulWidget {
   final String videoId;
+  final Map<String, dynamic>? extData;
 
-  const MyVideoDetailPage({super.key, required this.videoId});
+  const MyVideoDetailPage({super.key, required this.videoId, this.extData = const {}});
 
   @override
   MyVideoDetailPageState createState() => MyVideoDetailPageState();

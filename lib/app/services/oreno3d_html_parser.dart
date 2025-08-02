@@ -199,4 +199,235 @@ class Oreno3dHtmlParser {
     final sortMatch = RegExp(r'sort=(\w+)').firstMatch(href);
     return sortMatch?.group(1) ?? 'hot';
   }
+
+  /// 解析视频详情页面HTML，提取详细信息
+  static Oreno3dVideoDetail? parseVideoDetail(String htmlContent, String videoId) {
+    final document = html_parser.parse(htmlContent);
+    
+    // 查找主要视频文章元素
+    final articleElement = document.querySelector('.g-main-video-article');
+    if (articleElement == null) {
+      // 可能是404页面或页面结构改变
+      return null;
+    }
+    
+    try {
+      // 提取标题
+      final titleElement = articleElement.querySelector('h1.video-h1');
+      final title = titleElement?.text?.trim() ?? '';
+      
+      // 提取缩略图URL
+      final imgElement = articleElement.querySelector('.video-figure img.video-img');
+      final thumbnailUrl = imgElement?.attributes['src'] ?? '';
+      final fullThumbnailUrl = thumbnailUrl.startsWith('http') 
+          ? thumbnailUrl 
+          : 'https://oreno3d.com$thumbnailUrl';
+      
+      // 提取播放链接
+      final playLinkElement = articleElement.querySelector('.video-figure a.pop_separate, a.video-watch-btn2[target="_blank"]');
+      final playUrl = playLinkElement?.attributes['href'] ?? '';
+      
+      // 提取发布日期和时间
+      DateTime? publishedAt;
+      final dateElements = articleElement.querySelectorAll('.video-views .f-label-in');
+      for (final dateElement in dateElements) {
+        final iconElement = dateElement.querySelector('i.material-icons');
+        if (iconElement?.text?.trim() == 'calendar_month') {
+          final dateTexts = dateElement.querySelectorAll('.video-text');
+          if (dateTexts.length >= 2) {
+            final dateStr = dateTexts[0].text?.trim() ?? '';
+            final timeStr = dateTexts[1].text?.trim() ?? '';
+            publishedAt = _parseDateTime(dateStr, timeStr);
+          }
+          break;
+        }
+      }
+      
+      // 提取观看数和点赞数
+      int viewCount = 0;
+      int favoriteCount = 0;
+      final viewElements = articleElement.querySelectorAll('.video-views .f-label-in');
+      for (final viewElement in viewElements) {
+        final iconElement = viewElement.querySelector('i.material-icons');
+        final textElement = viewElement.querySelector('.video-text');
+        
+        if (iconElement != null && textElement != null) {
+          final iconText = iconElement.text?.trim();
+          final countText = textElement.text?.trim() ?? '';
+          
+          if (iconText == 'remove_red_eye') {
+            viewCount = _parseCountString(countText);
+          } else if (iconText == 'favorite') {
+            favoriteCount = _parseCountString(countText);
+          }
+        }
+      }
+      
+      // 提取作者信息
+      Oreno3dLinkItem? author;
+      final authorSection = articleElement.querySelector('.video-section-tag');
+      if (authorSection != null) {
+        final authorH2 = authorSection.querySelector('h2.video-h2-information');
+        if (authorH2?.text?.trim() == '作成者：') {
+          final authorLink = authorSection.querySelector('a.tag-btn');
+          if (authorLink != null) {
+            final authorUrl = authorLink.attributes['href'] ?? '';
+            final authorName = authorLink.querySelector('.video-center')?.text?.trim() ?? '';
+            final authorId = _extractAuthorIdFromUrl(authorUrl);
+            
+            if (authorName.isNotEmpty) {
+              author = Oreno3dLinkItem(
+                id: authorId,
+                name: authorName,
+                url: authorUrl.startsWith('http') ? authorUrl : 'https://oreno3d.com$authorUrl',
+              );
+            }
+          }
+        }
+      }
+      
+      // 提取原作信息
+      Oreno3dLinkItem? origin;
+      final sections = articleElement.querySelectorAll('.video-section-tag');
+      for (final section in sections) {
+        final h2Element = section.querySelector('h2.video-h2-information');
+        if (h2Element?.text?.trim() == '原作：') {
+          final originLink = section.querySelector('a.tag-btn');
+          if (originLink != null) {
+            final originUrl = originLink.attributes['href'] ?? '';
+            final originName = originLink.querySelector('.video-center')?.text?.trim() ?? '';
+            final originId = _extractOriginIdFromUrl(originUrl);
+            
+            if (originName.isNotEmpty) {
+              origin = Oreno3dLinkItem(
+                id: originId,
+                name: originName,
+                url: originUrl.startsWith('http') ? originUrl : 'https://oreno3d.com$originUrl',
+              );
+            }
+          }
+          break;
+        }
+      }
+      
+      // 提取角色信息
+      final characters = <Oreno3dLinkItem>[];
+      for (final section in sections) {
+        final h2Element = section.querySelector('h2.video-h2-information');
+        if (h2Element?.text?.trim() == 'キャラ：') {
+          final characterLinks = section.querySelectorAll('a.tag-btn');
+          for (final characterLink in characterLinks) {
+            final characterUrl = characterLink.attributes['href'] ?? '';
+            final characterName = characterLink.querySelector('.video-center')?.text?.trim() ?? '';
+            final characterId = _extractCharacterIdFromUrl(characterUrl);
+            
+            if (characterName.isNotEmpty) {
+              characters.add(Oreno3dLinkItem(
+                id: characterId,
+                name: characterName,
+                url: characterUrl.startsWith('http') ? characterUrl : 'https://oreno3d.com$characterUrl',
+              ));
+            }
+          }
+          break;
+        }
+      }
+      
+      // 提取标签信息
+      final tags = <Oreno3dLinkItem>[];
+      for (final section in sections) {
+        final h2Element = section.querySelector('h2.video-h2-information');
+        if (h2Element?.text?.trim() == 'タグ：') {
+          final tagLinks = section.querySelectorAll('.video-tag .tag-btn');
+          for (final tagLink in tagLinks) {
+            final tagUrl = tagLink.attributes['href'] ?? '';
+            final tagName = tagLink.querySelector('.tag-text')?.text?.trim() ?? '';
+            final tagId = _extractTagIdFromUrl(tagUrl);
+            
+            if (tagName.isNotEmpty) {
+              tags.add(Oreno3dLinkItem(
+                id: tagId,
+                name: tagName,
+                url: tagUrl.startsWith('http') ? tagUrl : 'https://oreno3d.com$tagUrl',
+              ));
+            }
+          }
+          break;
+        }
+      }
+      
+      // 提取作者评论
+      final commentElement = articleElement.querySelector('.video-information-comment');
+      final authorComment = commentElement?.text?.trim();
+      
+      return Oreno3dVideoDetail(
+        id: videoId,
+        title: title,
+        thumbnailUrl: fullThumbnailUrl,
+        oreno3dUrl: 'https://oreno3d.com/movies/$videoId',
+        playUrl: playUrl,
+        publishedAt: publishedAt,
+        viewCount: viewCount,
+        favoriteCount: favoriteCount,
+        author: author,
+        origin: origin,
+        characters: characters,
+        tags: tags,
+        authorComment: authorComment,
+      );
+    } catch (e) {
+      print('解析视频详情失败: $e');
+      return null;
+    }
+  }
+
+  /// 解析日期时间字符串
+  static DateTime? _parseDateTime(String dateStr, String timeStr) {
+    try {
+      // 日期格式: 2020-05-06, 时间格式: 19:00
+      final dateParts = dateStr.split('-');
+      final timeParts = timeStr.split(':');
+      
+      if (dateParts.length == 3 && timeParts.length == 2) {
+        final year = int.parse(dateParts[0]);
+        final month = int.parse(dateParts[1]);
+        final day = int.parse(dateParts[2]);
+        final hour = int.parse(timeParts[0]);
+        final minute = int.parse(timeParts[1]);
+        
+        return DateTime(year, month, day, hour, minute);
+      }
+    } catch (e) {
+      print('解析日期时间失败: $e');
+    }
+    return null;
+  }
+
+  /// 从作者URL中提取ID
+  static String _extractAuthorIdFromUrl(String url) {
+    final regex = RegExp(r'/authors/(\d+)');
+    final match = regex.firstMatch(url);
+    return match?.group(1) ?? '';
+  }
+
+  /// 从原作URL中提取ID
+  static String _extractOriginIdFromUrl(String url) {
+    final regex = RegExp(r'/origins/(\d+)');
+    final match = regex.firstMatch(url);
+    return match?.group(1) ?? '';
+  }
+
+  /// 从角色URL中提取ID
+  static String _extractCharacterIdFromUrl(String url) {
+    final regex = RegExp(r'/characters/(\d+)');
+    final match = regex.firstMatch(url);
+    return match?.group(1) ?? '';
+  }
+
+  /// 从标签URL中提取ID
+  static String _extractTagIdFromUrl(String url) {
+    final regex = RegExp(r'/tags/(\d+)');
+    final match = regex.firstMatch(url);
+    return match?.group(1) ?? '';
+  }
 }

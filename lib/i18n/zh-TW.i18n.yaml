@@ -649,6 +649,38 @@ settings:
     suchAsTitleQuality: '例如: %title_%quality'
     suchAsTitleId: '例如: %title_%id'
     suchAsTitleFilename: '例如: %title_%filename'
+oreno3d:
+  name: Oreno3D
+  sortTypes:
+    hot: 急上昇
+    favorites: 高評價
+    latest: 新着
+    popularity: 人氣
+  errors:
+    requestFailed: 請求失敗，狀態碼
+    connectionTimeout: 連接超時，請檢查網路連接
+    sendTimeout: 發送請求超時
+    receiveTimeout: 接收響應超時
+    badCertificate: 證書驗證失敗
+    resourceNotFound: 請求的資源不存在
+    accessDenied: 訪問被拒絕，可能需要驗證或權限
+    serverError: 伺服器內部錯誤
+    serviceUnavailable: 服務暫時不可用
+    requestCancelled: 請求已取消
+    connectionError: 網路連接錯誤，請檢查網路設置
+    networkRequestFailed: 網路請求失敗
+    searchVideoError: 搜索視頻時發生未知錯誤
+    getPopularVideoError: 獲取熱門視頻時發生未知錯誤
+    getVideoDetailError: 獲取視頻詳情時發生未知錯誤
+    parseVideoDetailError: 獲取並解析視頻詳情時發生未知錯誤
+    downloadFileError: 下載文件時發生未知錯誤
+  loading:
+    gettingVideoInfo: 正在獲取視頻信息...
+    cancel: 取消
+  messages:
+    videoNotFoundOrDeleted: 視頻不存在或已被刪除
+    unableToGetVideoPlayLink: 無法獲取視頻播放鏈接
+    getVideoDetailFailed: 獲取視頻詳情失敗
 signIn:
   pleaseLoginFirst: 請先登入
   alreadySignedInToday: 您今天已經簽到過了！

@@ -16,22 +16,22 @@ class SearchController extends GetxController {
   final RxBool isPaginated = CommonConstants.isPaginated.obs;
   final RxInt rebuildKey = 0.obs;
   final RxString selectedSort = 'trending'.obs; // 添加 sort 状态管理
-  
+
   // 存储滚动回调
   final List<Function()> _scrollToTopCallbacks = [];
-  
+
   // 注册滚动到顶部的回调函数
   void registerScrollToTopCallback(Function() callback) {
     if (!_scrollToTopCallbacks.contains(callback)) {
       _scrollToTopCallbacks.add(callback);
     }
   }
-  
+
   // 注销滚动到顶部的回调函数
   void unregisterScrollToTopCallback(Function() callback) {
     _scrollToTopCallbacks.remove(callback);
   }
-  
+
   // 执行所有滚动到顶部的回调
   void scrollToTop() {
     for (var callback in _scrollToTopCallbacks) {
@@ -43,37 +43,51 @@ class SearchController extends GetxController {
   void updateSearch(String query) {
     currentSearch.value = query;
   }
-  
+
   // 更新当前搜索分段
   void updateSegment(String segment) {
     selectedSegment.value = segment;
+
+    // 根据分段设置合适的默认排序
+    if (segment == 'oreno3d') {
+      selectedSort.value = 'hot'; // oreno3d默认使用hot排序
+    } else if (segment == 'video' || segment == 'image') {
+      selectedSort.value = 'trending'; // 视频和图片使用trending排序
+    }
+
     // 切换分段时滚动到顶部
     scrollToTop();
   }
-  
+
   // 更新排序方式
   void updateSort(String sort) {
     selectedSort.value = sort;
     // 切换排序时刷新搜索结果
     refreshSearch();
   }
-  
+
   // 切换分页模式
   void togglePaginationMode() {
     if (isPaginated.value) {
       isPaginated.value = false;
-      Get.find<ConfigService>().settings[ConfigKey.DEFAULT_PAGINATION_MODE]!.value = false;
+      Get.find<ConfigService>()
+              .settings[ConfigKey.DEFAULT_PAGINATION_MODE]!
+              .value =
+          false;
       CommonConstants.isPaginated = false;
     } else {
       isPaginated.value = true;
-      Get.find<ConfigService>().settings[ConfigKey.DEFAULT_PAGINATION_MODE]!.value = true;
+      Get.find<ConfigService>()
+              .settings[ConfigKey.DEFAULT_PAGINATION_MODE]!
+              .value =
+          true;
       CommonConstants.isPaginated = true;
     }
     rebuildKey.value++;
     // 切换分页模式后滚动到顶部
     scrollToTop();
   }
-  
+
   // 刷新搜索结果
   void refreshSearch() {
     rebuildKey.value++;
@@ -87,9 +101,9 @@ class SearchResult extends StatefulWidget {
   final String initialSegment;
 
   const SearchResult({
-    super.key, 
-    required this.initialSearch, 
-    required this.initialSegment
+    super.key,
+    required this.initialSearch,
+    required this.initialSegment,
   });
 
   @override
@@ -104,15 +118,15 @@ class _SearchResultState extends State<SearchResult> {
   @override
   void initState() {
     super.initState();
-    
+
     // 初始化搜索控制器
     searchController = Get.put(SearchController(), tag: 'search_controller');
     searchController.updateSearch(widget.initialSearch);
     searchController.updateSegment(widget.initialSegment);
-    
+
     // 设置搜索文本
     _searchController.text = widget.initialSearch;
-    
+
     // 监听输入框变化
     _searchController.addListener(() {
       searchController.updateSearch(_searchController.text);
@@ -127,16 +141,44 @@ class _SearchResultState extends State<SearchResult> {
     super.dispose();
   }
 
-  void _safeScrollToTop() {
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        0,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
+  // 获取分段图标
+  Widget _getSegmentIcon(String segment) {
+    switch (segment) {
+      case 'video':
+        return const Icon(Icons.video_library, size: 20);
+      case 'image':
+        return const Icon(Icons.image, size: 20);
+      case 'post':
+        return const Icon(Icons.article, size: 20);
+      case 'user':
+        return const Icon(Icons.person, size: 20);
+      case 'forum':
+        return const Icon(Icons.forum, size: 20);
+      case 'oreno3d':
+        return const Icon(Icons.view_in_ar, size: 20);
+      default:
+        return const Icon(Icons.search, size: 20);
     }
-    // 同时触发搜索控制器中的滚动回调
-    searchController.scrollToTop();
+  }
+
+  // 获取分段标签
+  String _getSegmentLabel(String segment, slang.Translations t) {
+    switch (segment) {
+      case 'video':
+        return t.common.video;
+      case 'image':
+        return t.common.gallery;
+      case 'post':
+        return t.common.post;
+      case 'user':
+        return t.common.user;
+      case 'forum':
+        return t.forum.forum;
+      case 'oreno3d':
+        return 'Oreno3D';
+      default:
+        return segment;
+    }
   }
 
   Widget _buildCurrentSearchList() {
@@ -146,9 +188,12 @@ class _SearchResultState extends State<SearchResult> {
       final isPaginated = searchController.isPaginated.value;
       final rebuildKey = searchController.rebuildKey.value;
       final sort = searchController.selectedSort.value;
-      
-      LogUtils.d('构建搜索列表: 关键词=$query, 类型=$segment, 使用分页=$isPaginated, 重建键=$rebuildKey, 排序=$sort', 'SearchResult');
-      
+
+      LogUtils.d(
+        '构建搜索列表: 关键词=$query, 类型=$segment, 使用分页=$isPaginated, 重建键=$rebuildKey, 排序=$sort',
+        'SearchResult',
+      );
+
       Widget child;
       switch (segment) {
         case 'video':
@@ -188,15 +233,23 @@ class _SearchResultState extends State<SearchResult> {
             isPaginated: isPaginated,
           );
           break;
+        case 'oreno3d':
+          child = Oreno3dSearchList(
+            key: ValueKey('oreno3d_$rebuildKey'),
+            query: query,
+            isPaginated: isPaginated,
+            sortType: sort,
+          );
+          break;
         default:
           child = Center(
-            child: Text(slang.t.search.unsupportedSearchType(searchType: segment)),
+            child: Text(
+              slang.t.search.unsupportedSearchType(searchType: segment),
+            ),
           );
       }
-      
-      return GlowNotificationWidget(
-        child: child,
-      );
+
+      return GlowNotificationWidget(child: child);
     });
   }
 
@@ -206,20 +259,174 @@ class _SearchResultState extends State<SearchResult> {
     return Scaffold(
       appBar: AppBar(
         title: Text(t.search.searchResult),
+        actions: [
+          // 刷新按钮
+          IconButton(
+            onPressed: () {
+              searchController.refreshSearch();
+            },
+            icon: const Icon(Icons.refresh),
+            tooltip: t.common.refresh,
+          ),
+          // 分页模式切换按钮
+          Obx(
+            () => IconButton(
+              onPressed: () {
+                searchController.togglePaginationMode();
+              },
+              icon: Icon(
+                searchController.isPaginated.value
+                    ? Icons.grid_view
+                    : Icons.menu,
+              ),
+              tooltip: searchController.isPaginated.value
+                  ? t.common.pagination.waterfall
+                  : t.common.pagination.pagination,
+            ),
+          ),
+        ],
       ),
       body: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            // 搜索框和刷新按钮区域
+            // 搜索框和分段选择器区域
             Container(
               padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
               child: Row(
                 children: [
+                  // 分段选择下拉框
+                  Container(
+                    margin: const EdgeInsets.only(right: 8),
+                    height: 44,
+                    child: Obx(
+                      () => PopupMenuButton<String>(
+                        // --- FIX: 添加 shape 属性 ---
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        // --- END FIX ---
+                        initialValue: searchController.selectedSegment.value,
+                        onSelected: (String newValue) {
+                          searchController.updateSegment(newValue);
+                        },
+                        itemBuilder: (BuildContext context) {
+                          return [
+                            PopupMenuItem<String>(
+                              value: 'video',
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.video_library, size: 20),
+                                  const SizedBox(width: 8),
+                                  Text(t.common.video),
+                                ],
+                              ),
+                            ),
+                            PopupMenuItem<String>(
+                              value: 'image',
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.image, size: 20),
+                                  const SizedBox(width: 8),
+                                  Text(t.common.gallery),
+                                ],
+                              ),
+                            ),
+                            PopupMenuItem<String>(
+                              value: 'post',
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.article, size: 20),
+                                  const SizedBox(width: 8),
+                                  Text(t.common.post),
+                                ],
+                              ),
+                            ),
+                            PopupMenuItem<String>(
+                              value: 'user',
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.person, size: 20),
+                                  const SizedBox(width: 8),
+                                  Text(t.common.user),
+                                ],
+                              ),
+                            ),
+                            PopupMenuItem<String>(
+                              value: 'forum',
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.forum, size: 20),
+                                  const SizedBox(width: 8),
+                                  Text(t.forum.forum),
+                                ],
+                              ),
+                            ),
+                            PopupMenuItem<String>(
+                              value: 'oreno3d',
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.view_in_ar, size: 20),
+                                  const SizedBox(width: 8),
+                                  Text('Oreno3D'),
+                                ],
+                              ),
+                            ),
+                          ];
+                        },
+                        child: Material(
+                          borderRadius: BorderRadius.circular(12),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest
+                              .withValues(alpha: 0.5),
+                          clipBehavior: Clip.antiAlias,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 10,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _getSegmentIcon(
+                                  searchController.selectedSegment.value,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  _getSegmentLabel(
+                                    searchController.selectedSegment.value,
+                                    t,
+                                  ),
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Icon(
+                                  Icons.arrow_drop_down,
+                                  size: 20,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                   Expanded(
                     child: Material(
                       elevation: 0,
-                      color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surfaceContainerHighest
+                          .withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(12),
                       clipBehavior: Clip.antiAlias,
                       child: TextField(
@@ -235,44 +442,55 @@ class _SearchResultState extends State<SearchResult> {
                               ? t.search.pleaseEnterSearchContent
                               : searchController.currentSearch.value,
                           hintStyle: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                           ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
                           border: InputBorder.none,
                           focusedBorder: InputBorder.none,
                           prefixIcon: Icon(
                             Icons.search,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                           ),
                           filled: true,
                           fillColor: Colors.transparent,
                         ),
                         onTap: () {
-                          Get.dialog(SearchDialog(
-                            initialSearch: searchController.currentSearch.value,
-                            initialSegment: SearchSegment.fromValue(searchController.selectedSegment.value),
-                            onSearch: (searchInfo, segment) {
-                              // 更新搜索参数
-                              searchController.updateSearch(searchInfo);
-                              searchController.updateSegment(segment);
-                              
-                              // 更新UI
-                              _searchController.text = searchInfo;
-                              searchController.refreshSearch();
-                              
-                              // 关闭对话框
-                              Get.back();
-                            },
-                          ));
+                          Get.dialog(
+                            SearchDialog(
+                              initialSearch:
+                                  searchController.currentSearch.value,
+                              initialSegment: SearchSegment.fromValue(
+                                searchController.selectedSegment.value,
+                              ),
+                              onSearch: (searchInfo, segment) {
+                                // 更新搜索参数
+                                searchController.updateSearch(searchInfo);
+                                searchController.updateSegment(segment);
+
+                                // 更新UI
+                                _searchController.text = searchInfo;
+                                searchController.refreshSearch();
+
+                                // 关闭对话框
+                                Get.back();
+                              },
+                            ),
+                          );
                         },
                       ),
                     ),
                   ),
-                  // 排序下拉框（仅视频和图库显示）
+                  // 排序下拉框（仅视频、图库和oreno3d显示）
                   Obx(() {
                     final segment = searchController.selectedSegment.value;
-                    // final currentSort = searchController.selectedSort.value;
-                    if (segment != 'video' && segment != 'image') {
+                    if (segment != 'video' && segment != 'image' && segment != 'oreno3d') {
                       return const SizedBox.shrink();
                     }
                     return Container(
@@ -280,29 +498,85 @@ class _SearchResultState extends State<SearchResult> {
                       height: 44,
                       alignment: Alignment.center,
                       child: PopupMenuButton<String>(
+                        // --- FIX: 添加 shape 属性 ---
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        // --- END FIX ---
                         initialValue: searchController.selectedSort.value,
                         onSelected: (String newValue) {
                           searchController.updateSort(newValue);
                         },
                         itemBuilder: (BuildContext context) {
-                          return CommonConstants.mediaSorts.map((sort) {
-                            return PopupMenuItem<String>(
-                              value: sort.id.name,
-                              child: Row(
-                                children: [
-                                  if (sort.icon != null) ...[
-                                    sort.icon!,
+                          final segment = searchController.selectedSegment.value;
+                          if (segment == 'oreno3d') {
+                            // Oreno3d专用排序选项
+                            return [
+                              PopupMenuItem<String>(
+                                value: 'hot',
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.trending_up, size: 20),
                                     const SizedBox(width: 8),
+                                    Text('急上昇'),
                                   ],
-                                  Text(sort.label),
-                                ],
+                                ),
                               ),
-                            );
-                          }).toList();
+                              PopupMenuItem<String>(
+                                value: 'favorites',
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.favorite, size: 20),
+                                    const SizedBox(width: 8),
+                                    Text('高評価'),
+                                  ],
+                                ),
+                              ),
+                              PopupMenuItem<String>(
+                                value: 'latest',
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.schedule, size: 20),
+                                    const SizedBox(width: 8),
+                                    Text('新着'),
+                                  ],
+                                ),
+                              ),
+                              PopupMenuItem<String>(
+                                value: 'popularity',
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.star, size: 20),
+                                    const SizedBox(width: 8),
+                                    Text('人気'),
+                                  ],
+                                ),
+                              ),
+                            ];
+                          } else {
+                            // 标准排序选项
+                            return CommonConstants.mediaSorts.map((sort) {
+                              return PopupMenuItem<String>(
+                                value: sort.id.name,
+                                child: Row(
+                                  children: [
+                                    if (sort.icon != null) ...[
+                                      sort.icon!,
+                                      const SizedBox(width: 8),
+                                    ],
+                                    Text(sort.label),
+                                  ],
+                                ),
+                              );
+                            }).toList();
+                          }
                         },
                         child: Material(
                           borderRadius: BorderRadius.circular(12),
-                          color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest
+                              .withValues(alpha: 0.5),
                           clipBehavior: Clip.antiAlias,
                           child: Container(
                             width: 44,
@@ -311,145 +585,21 @@ class _SearchResultState extends State<SearchResult> {
                             child: Icon(
                               Icons.sort,
                               size: 20,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ),
                       ),
                     );
                   }),
-                  const SizedBox(width: 8),
-                  // 分页模式切换按钮
-                  Material(
-                    borderRadius: BorderRadius.circular(12),
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                    clipBehavior: Clip.antiAlias,
-                    child: Obx(() => InkWell(
-                      borderRadius: BorderRadius.circular(12),
-                      onTap: () {
-                        searchController.togglePaginationMode();
-                      },
-                      child: Container(
-                        width: 44,
-                        height: 44,
-                        alignment: Alignment.center,
-                        child: Icon(
-                          searchController.isPaginated.value ? Icons.grid_view : Icons.menu,
-                          size: 20,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    )),
-                  ),
-                  const SizedBox(width: 8),
-                  // 刷新按钮
-                  Material(
-                    borderRadius: BorderRadius.circular(12),
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                    clipBehavior: Clip.antiAlias,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(12),
-                      onTap: () {
-                        searchController.refreshSearch();
-                      },
-                      child: Container(
-                        width: 44,
-                        height: 44,
-                        alignment: Alignment.center,
-                        child: Icon(
-                          Icons.refresh,
-                          size: 20,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
-            
-            // 分段控制器区域
-            Container(
-              height: 48,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              child: Obx(() => Row(
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: SegmentedButton<String>(
-                        segments: [
-                          ButtonSegment(
-                            value: 'video',
-                            icon: const Icon(Icons.video_library, size: 20),
-                            label: MediaQuery.of(context).size.width > 360 
-                              ? Text(t.common.video) 
-                              : null,
-                          ),
-                          ButtonSegment(
-                            value: 'image',
-                            icon: const Icon(Icons.image, size: 20),
-                            label: MediaQuery.of(context).size.width > 360 
-                              ? Text(t.common.gallery) 
-                              : null,
-                          ),
-                          ButtonSegment(
-                            value: 'post',
-                            icon: const Icon(Icons.article, size: 20),
-                            label: MediaQuery.of(context).size.width > 360 
-                              ? Text(t.common.post) 
-                              : null,
-                          ),
-                          ButtonSegment(
-                            value: 'user',
-                            icon: const Icon(Icons.person, size: 20),
-                            label: MediaQuery.of(context).size.width > 360 
-                              ? Text(t.common.user) 
-                              : null,
-                          ),
-                          ButtonSegment(
-                            value: 'forum',
-                            icon: const Icon(Icons.forum, size: 20),
-                            label: MediaQuery.of(context).size.width > 360 
-                              ? Text(t.forum.forum) 
-                              : null,
-                          ),
-                        ],
-                        selected: {searchController.selectedSegment.value},
-                        onSelectionChanged: (Set<String> selection) {
-                          if (selection.isNotEmpty) {
-                            searchController.updateSegment(selection.first);
-                            _safeScrollToTop();
-                          }
-                        },
-                        multiSelectionEnabled: false,
-                        style: ButtonStyle(
-                          visualDensity: VisualDensity.compact,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          backgroundColor: WidgetStateProperty.resolveWith((states) {
-                            if (states.contains(WidgetState.selected)) {
-                              return Theme.of(context).colorScheme.primaryContainer;
-                            }
-                            return null;
-                          }),
-                          foregroundColor: WidgetStateProperty.resolveWith((states) {
-                            if (states.contains(WidgetState.selected)) {
-                              return Theme.of(context).colorScheme.onPrimaryContainer;
-                            }
-                            return Theme.of(context).colorScheme.onSurfaceVariant;
-                          }),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              )),
-            ),
 
             // 搜索结果区域
-            Expanded(
-              child: _buildCurrentSearchList(),
-            ),
+            Expanded(child: _buildCurrentSearchList()),
           ],
         ),
       ),

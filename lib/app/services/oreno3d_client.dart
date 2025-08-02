@@ -2,16 +2,29 @@ import 'package:dio/dio.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import '../models/oreno3d_video.model.dart';
 import 'oreno3d_html_parser.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 enum Oreno3dSortType {
-  hot('hot', '急上昇'),
-  favorites('favorites', '高評価'),
-  latest('latest', '新着'),
-  popularity('popularity', '人気');
+  hot('hot'),
+  favorites('favorites'),
+  latest('latest'),
+  popularity('popularity');
 
-  const Oreno3dSortType(this.value, this.displayName);
+  const Oreno3dSortType(this.value);
   final String value;
-  final String displayName;
+
+  String get displayName {
+    switch (this) {
+      case Oreno3dSortType.hot:
+        return slang.t.oreno3d.sortTypes.hot;
+      case Oreno3dSortType.favorites:
+        return slang.t.oreno3d.sortTypes.favorites;
+      case Oreno3dSortType.latest:
+        return slang.t.oreno3d.sortTypes.latest;
+      case Oreno3dSortType.popularity:
+        return slang.t.oreno3d.sortTypes.popularity;
+    }
+  }
 }
 
 class Oreno3dClient {
@@ -154,6 +167,25 @@ class Oreno3dClient {
       throw _handleDioException(e);
     } catch (e) {
       throw Exception('获取视频详情时发生未知错误: $e');
+    }
+  }
+
+  /// 获取视频详情
+  /// [videoId] 视频ID
+  Future<Oreno3dVideoDetail?> getVideoDetailParsed(String videoId) async {
+    try {
+      final htmlContent = await getVideoDetail('/movies/$videoId');
+      return Oreno3dHtmlParser.parseVideoDetail(htmlContent, videoId);
+    } on DioException catch (e) {
+      LogUtils.e("获取 oreno3d 详情失败", error: e);
+
+      // 如果是404错误，返回null表示视频不存在
+      if (e.response?.statusCode == 404) {
+        return null;
+      }
+      throw _handleDioException(e);
+    } catch (e) {
+      throw Exception('获取并解析视频详情时发生未知错误: $e');
     }
   }
 

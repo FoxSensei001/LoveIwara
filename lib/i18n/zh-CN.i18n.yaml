@@ -655,6 +655,38 @@ settings:
     suchAsTitleQuality: '例如: %title_%quality'
     suchAsTitleId: '例如: %title_%id'
     suchAsTitleFilename: '例如: %title_%filename'
+oreno3d:
+  name: Oreno3D
+  sortTypes:
+    hot: 急上昇
+    favorites: 高評価
+    latest: 新着
+    popularity: 人気
+  errors:
+    requestFailed: 请求失败，状态码
+    connectionTimeout: 连接超时，请检查网络连接
+    sendTimeout: 发送请求超时
+    receiveTimeout: 接收响应超时
+    badCertificate: 证书验证失败
+    resourceNotFound: 请求的资源不存在
+    accessDenied: 访问被拒绝，可能需要验证或权限
+    serverError: 服务器内部错误
+    serviceUnavailable: 服务暂时不可用
+    requestCancelled: 请求已取消
+    connectionError: 网络连接错误，请检查网络设置
+    networkRequestFailed: 网络请求失败
+    searchVideoError: 搜索视频时发生未知错误
+    getPopularVideoError: 获取热门视频时发生未知错误
+    getVideoDetailError: 获取视频详情时发生未知错误
+    parseVideoDetailError: 获取并解析视频详情时发生未知错误
+    downloadFileError: 下载文件时发生未知错误
+  loading:
+    gettingVideoInfo: 正在获取视频信息...
+    cancel: 取消
+  messages:
+    videoNotFoundOrDeleted: 视频不存在或已被删除
+    unableToGetVideoPlayLink: 无法获取视频播放链接
+    getVideoDetailFailed: 获取视频详情失败
 signIn:
   pleaseLoginFirst: 请先登录
   alreadySignedInToday: 您今天已经签到过了！

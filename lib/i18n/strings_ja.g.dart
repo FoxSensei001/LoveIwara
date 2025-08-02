@@ -47,6 +47,7 @@ class TranslationsJa implements Translations {
 	@override late final _TranslationsSearchJa search = _TranslationsSearchJa._(_root);
 	@override late final _TranslationsMediaListJa mediaList = _TranslationsMediaListJa._(_root);
 	@override late final _TranslationsSettingsJa settings = _TranslationsSettingsJa._(_root);
+	@override late final _TranslationsOreno3dJa oreno3d = _TranslationsOreno3dJa._(_root);
 	@override late final _TranslationsSignInJa signIn = _TranslationsSignInJa._(_root);
 	@override late final _TranslationsSubscriptionsJa subscriptions = _TranslationsSubscriptionsJa._(_root);
 	@override late final _TranslationsVideoDetailJa videoDetail = _TranslationsVideoDetailJa._(_root);
@@ -643,6 +644,20 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get enableMouseHoverShowToolbar => 'マウスホバー時にツールバーを表示';
 	@override String get enableMouseHoverShowToolbarInfo => '有効にすると、マウスがプレーヤー上にあるときにツールバーが表示されます。3秒間の非アクティブ時に自動的に非表示になります。';
 	@override late final _TranslationsSettingsDownloadSettingsJa downloadSettings = _TranslationsSettingsDownloadSettingsJa._(_root);
+}
+
+// Path: oreno3d
+class _TranslationsOreno3dJa implements TranslationsOreno3dEn {
+	_TranslationsOreno3dJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get name => 'Oreno3D';
+	@override late final _TranslationsOreno3dSortTypesJa sortTypes = _TranslationsOreno3dSortTypesJa._(_root);
+	@override late final _TranslationsOreno3dErrorsJa errors = _TranslationsOreno3dErrorsJa._(_root);
+	@override late final _TranslationsOreno3dLoadingJa loading = _TranslationsOreno3dLoadingJa._(_root);
+	@override late final _TranslationsOreno3dMessagesJa messages = _TranslationsOreno3dMessagesJa._(_root);
 }
 
 // Path: signIn
@@ -1396,6 +1411,68 @@ class _TranslationsSettingsDownloadSettingsJa implements TranslationsSettingsDow
 	@override String get suchAsTitleQuality => '例: %title_%quality';
 	@override String get suchAsTitleId => '例: %title_%id';
 	@override String get suchAsTitleFilename => '例: %title_%filename';
+}
+
+// Path: oreno3d.sortTypes
+class _TranslationsOreno3dSortTypesJa implements TranslationsOreno3dSortTypesEn {
+	_TranslationsOreno3dSortTypesJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get hot => '急上昇';
+	@override String get favorites => '高評価';
+	@override String get latest => '新着';
+	@override String get popularity => '人気';
+}
+
+// Path: oreno3d.errors
+class _TranslationsOreno3dErrorsJa implements TranslationsOreno3dErrorsEn {
+	_TranslationsOreno3dErrorsJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get requestFailed => 'リクエストが失敗しました、ステータスコード';
+	@override String get connectionTimeout => '接続がタイムアウトしました、ネットワーク接続を確認してください';
+	@override String get sendTimeout => 'リクエスト送信がタイムアウトしました';
+	@override String get receiveTimeout => 'レスポンス受信がタイムアウトしました';
+	@override String get badCertificate => '証明書の検証に失敗しました';
+	@override String get resourceNotFound => '要求されたリソースが見つかりません';
+	@override String get accessDenied => 'アクセスが拒否されました、認証または権限が必要な可能性があります';
+	@override String get serverError => 'サーバー内部エラー';
+	@override String get serviceUnavailable => 'サービスが一時的に利用できません';
+	@override String get requestCancelled => 'リクエストがキャンセルされました';
+	@override String get connectionError => 'ネットワーク接続エラー、ネットワーク設定を確認してください';
+	@override String get networkRequestFailed => 'ネットワークリクエストが失敗しました';
+	@override String get searchVideoError => '動画検索中に不明なエラーが発生しました';
+	@override String get getPopularVideoError => '人気動画取得中に不明なエラーが発生しました';
+	@override String get getVideoDetailError => '動画詳細取得中に不明なエラーが発生しました';
+	@override String get parseVideoDetailError => '動画詳細の取得と解析中に不明なエラーが発生しました';
+	@override String get downloadFileError => 'ファイルダウンロード中に不明なエラーが発生しました';
+}
+
+// Path: oreno3d.loading
+class _TranslationsOreno3dLoadingJa implements TranslationsOreno3dLoadingEn {
+	_TranslationsOreno3dLoadingJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get gettingVideoInfo => '動画情報を取得中...';
+	@override String get cancel => 'キャンセル';
+}
+
+// Path: oreno3d.messages
+class _TranslationsOreno3dMessagesJa implements TranslationsOreno3dMessagesEn {
+	_TranslationsOreno3dMessagesJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get videoNotFoundOrDeleted => '動画が見つからないか削除されました';
+	@override String get unableToGetVideoPlayLink => '動画再生リンクを取得できません';
+	@override String get getVideoDetailFailed => '動画詳細の取得に失敗しました';
 }
 
 // Path: forum.errors
@@ -2214,6 +2291,33 @@ extension on TranslationsJa {
 			case 'settings.downloadSettings.suchAsTitleQuality': return '例: %title_%quality';
 			case 'settings.downloadSettings.suchAsTitleId': return '例: %title_%id';
 			case 'settings.downloadSettings.suchAsTitleFilename': return '例: %title_%filename';
+			case 'oreno3d.name': return 'Oreno3D';
+			case 'oreno3d.sortTypes.hot': return '急上昇';
+			case 'oreno3d.sortTypes.favorites': return '高評価';
+			case 'oreno3d.sortTypes.latest': return '新着';
+			case 'oreno3d.sortTypes.popularity': return '人気';
+			case 'oreno3d.errors.requestFailed': return 'リクエストが失敗しました、ステータスコード';
+			case 'oreno3d.errors.connectionTimeout': return '接続がタイムアウトしました、ネットワーク接続を確認してください';
+			case 'oreno3d.errors.sendTimeout': return 'リクエスト送信がタイムアウトしました';
+			case 'oreno3d.errors.receiveTimeout': return 'レスポンス受信がタイムアウトしました';
+			case 'oreno3d.errors.badCertificate': return '証明書の検証に失敗しました';
+			case 'oreno3d.errors.resourceNotFound': return '要求されたリソースが見つかりません';
+			case 'oreno3d.errors.accessDenied': return 'アクセスが拒否されました、認証または権限が必要な可能性があります';
+			case 'oreno3d.errors.serverError': return 'サーバー内部エラー';
+			case 'oreno3d.errors.serviceUnavailable': return 'サービスが一時的に利用できません';
+			case 'oreno3d.errors.requestCancelled': return 'リクエストがキャンセルされました';
+			case 'oreno3d.errors.connectionError': return 'ネットワーク接続エラー、ネットワーク設定を確認してください';
+			case 'oreno3d.errors.networkRequestFailed': return 'ネットワークリクエストが失敗しました';
+			case 'oreno3d.errors.searchVideoError': return '動画検索中に不明なエラーが発生しました';
+			case 'oreno3d.errors.getPopularVideoError': return '人気動画取得中に不明なエラーが発生しました';
+			case 'oreno3d.errors.getVideoDetailError': return '動画詳細取得中に不明なエラーが発生しました';
+			case 'oreno3d.errors.parseVideoDetailError': return '動画詳細の取得と解析中に不明なエラーが発生しました';
+			case 'oreno3d.errors.downloadFileError': return 'ファイルダウンロード中に不明なエラーが発生しました';
+			case 'oreno3d.loading.gettingVideoInfo': return '動画情報を取得中...';
+			case 'oreno3d.loading.cancel': return 'キャンセル';
+			case 'oreno3d.messages.videoNotFoundOrDeleted': return '動画が見つからないか削除されました';
+			case 'oreno3d.messages.unableToGetVideoPlayLink': return '動画再生リンクを取得できません';
+			case 'oreno3d.messages.getVideoDetailFailed': return '動画詳細の取得に失敗しました';
 			case 'signIn.pleaseLoginFirst': return 'サインインする前にログインしてください';
 			case 'signIn.alreadySignedInToday': return '今日は既にサインインしています！';
 			case 'signIn.youDidNotStickToTheSignIn': return 'サインインを続けることができませんでした。';

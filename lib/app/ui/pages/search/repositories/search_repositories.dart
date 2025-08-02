@@ -4,6 +4,7 @@ import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
+import 'package:i_iwara/app/models/oreno3d_video.model.dart';
 import 'search_repository.dart';
 
 /// 视频搜索仓库
@@ -89,4 +90,24 @@ class ForumSearchRepository extends SearchRepository<ForumThreadModel> {
       query: keyword,
     );
   }
-} 
+}
+
+/// Oreno3d搜索仓库
+class Oreno3dSearchRepository extends SearchRepository<Oreno3dVideo> {
+  final String? sortType;
+
+  Oreno3dSearchRepository({
+    required super.query,
+    this.sortType,
+  }) : super(segment: 'oreno3d');
+
+  @override
+  Future<ApiResult> fetchSearchResults(int page, int limit, String keyword) {
+    return searchService.fetchOreno3dByQuery(
+      page: page,
+      limit: limit,
+      query: keyword,
+      sort: sortType,
+    );
+  }
+}

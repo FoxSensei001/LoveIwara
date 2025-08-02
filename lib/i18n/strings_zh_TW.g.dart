@@ -47,6 +47,7 @@ class TranslationsZhTw implements Translations {
 	@override late final _TranslationsSearchZhTw search = _TranslationsSearchZhTw._(_root);
 	@override late final _TranslationsMediaListZhTw mediaList = _TranslationsMediaListZhTw._(_root);
 	@override late final _TranslationsSettingsZhTw settings = _TranslationsSettingsZhTw._(_root);
+	@override late final _TranslationsOreno3dZhTw oreno3d = _TranslationsOreno3dZhTw._(_root);
 	@override late final _TranslationsSignInZhTw signIn = _TranslationsSignInZhTw._(_root);
 	@override late final _TranslationsSubscriptionsZhTw subscriptions = _TranslationsSubscriptionsZhTw._(_root);
 	@override late final _TranslationsVideoDetailZhTw videoDetail = _TranslationsVideoDetailZhTw._(_root);
@@ -643,6 +644,20 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get enableMouseHoverShowToolbar => '鼠標懸停時顯示工具欄';
 	@override String get enableMouseHoverShowToolbarInfo => '開啟後，當鼠標懸停在播放器上移動時會自動顯示工具欄，停止移動3秒後自動隱藏';
 	@override late final _TranslationsSettingsDownloadSettingsZhTw downloadSettings = _TranslationsSettingsDownloadSettingsZhTw._(_root);
+}
+
+// Path: oreno3d
+class _TranslationsOreno3dZhTw implements TranslationsOreno3dEn {
+	_TranslationsOreno3dZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get name => 'Oreno3D';
+	@override late final _TranslationsOreno3dSortTypesZhTw sortTypes = _TranslationsOreno3dSortTypesZhTw._(_root);
+	@override late final _TranslationsOreno3dErrorsZhTw errors = _TranslationsOreno3dErrorsZhTw._(_root);
+	@override late final _TranslationsOreno3dLoadingZhTw loading = _TranslationsOreno3dLoadingZhTw._(_root);
+	@override late final _TranslationsOreno3dMessagesZhTw messages = _TranslationsOreno3dMessagesZhTw._(_root);
 }
 
 // Path: signIn
@@ -1399,6 +1414,68 @@ class _TranslationsSettingsDownloadSettingsZhTw implements TranslationsSettingsD
 	@override String get suchAsTitleQuality => '例如: %title_%quality';
 	@override String get suchAsTitleId => '例如: %title_%id';
 	@override String get suchAsTitleFilename => '例如: %title_%filename';
+}
+
+// Path: oreno3d.sortTypes
+class _TranslationsOreno3dSortTypesZhTw implements TranslationsOreno3dSortTypesEn {
+	_TranslationsOreno3dSortTypesZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get hot => '急上昇';
+	@override String get favorites => '高評價';
+	@override String get latest => '新着';
+	@override String get popularity => '人氣';
+}
+
+// Path: oreno3d.errors
+class _TranslationsOreno3dErrorsZhTw implements TranslationsOreno3dErrorsEn {
+	_TranslationsOreno3dErrorsZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get requestFailed => '請求失敗，狀態碼';
+	@override String get connectionTimeout => '連接超時，請檢查網路連接';
+	@override String get sendTimeout => '發送請求超時';
+	@override String get receiveTimeout => '接收響應超時';
+	@override String get badCertificate => '證書驗證失敗';
+	@override String get resourceNotFound => '請求的資源不存在';
+	@override String get accessDenied => '訪問被拒絕，可能需要驗證或權限';
+	@override String get serverError => '伺服器內部錯誤';
+	@override String get serviceUnavailable => '服務暫時不可用';
+	@override String get requestCancelled => '請求已取消';
+	@override String get connectionError => '網路連接錯誤，請檢查網路設置';
+	@override String get networkRequestFailed => '網路請求失敗';
+	@override String get searchVideoError => '搜索視頻時發生未知錯誤';
+	@override String get getPopularVideoError => '獲取熱門視頻時發生未知錯誤';
+	@override String get getVideoDetailError => '獲取視頻詳情時發生未知錯誤';
+	@override String get parseVideoDetailError => '獲取並解析視頻詳情時發生未知錯誤';
+	@override String get downloadFileError => '下載文件時發生未知錯誤';
+}
+
+// Path: oreno3d.loading
+class _TranslationsOreno3dLoadingZhTw implements TranslationsOreno3dLoadingEn {
+	_TranslationsOreno3dLoadingZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get gettingVideoInfo => '正在獲取視頻信息...';
+	@override String get cancel => '取消';
+}
+
+// Path: oreno3d.messages
+class _TranslationsOreno3dMessagesZhTw implements TranslationsOreno3dMessagesEn {
+	_TranslationsOreno3dMessagesZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get videoNotFoundOrDeleted => '視頻不存在或已被刪除';
+	@override String get unableToGetVideoPlayLink => '無法獲取視頻播放鏈接';
+	@override String get getVideoDetailFailed => '獲取視頻詳情失敗';
 }
 
 // Path: forum.errors
@@ -2217,6 +2294,33 @@ extension on TranslationsZhTw {
 			case 'settings.downloadSettings.suchAsTitleQuality': return '例如: %title_%quality';
 			case 'settings.downloadSettings.suchAsTitleId': return '例如: %title_%id';
 			case 'settings.downloadSettings.suchAsTitleFilename': return '例如: %title_%filename';
+			case 'oreno3d.name': return 'Oreno3D';
+			case 'oreno3d.sortTypes.hot': return '急上昇';
+			case 'oreno3d.sortTypes.favorites': return '高評價';
+			case 'oreno3d.sortTypes.latest': return '新着';
+			case 'oreno3d.sortTypes.popularity': return '人氣';
+			case 'oreno3d.errors.requestFailed': return '請求失敗，狀態碼';
+			case 'oreno3d.errors.connectionTimeout': return '連接超時，請檢查網路連接';
+			case 'oreno3d.errors.sendTimeout': return '發送請求超時';
+			case 'oreno3d.errors.receiveTimeout': return '接收響應超時';
+			case 'oreno3d.errors.badCertificate': return '證書驗證失敗';
+			case 'oreno3d.errors.resourceNotFound': return '請求的資源不存在';
+			case 'oreno3d.errors.accessDenied': return '訪問被拒絕，可能需要驗證或權限';
+			case 'oreno3d.errors.serverError': return '伺服器內部錯誤';
+			case 'oreno3d.errors.serviceUnavailable': return '服務暫時不可用';
+			case 'oreno3d.errors.requestCancelled': return '請求已取消';
+			case 'oreno3d.errors.connectionError': return '網路連接錯誤，請檢查網路設置';
+			case 'oreno3d.errors.networkRequestFailed': return '網路請求失敗';
+			case 'oreno3d.errors.searchVideoError': return '搜索視頻時發生未知錯誤';
+			case 'oreno3d.errors.getPopularVideoError': return '獲取熱門視頻時發生未知錯誤';
+			case 'oreno3d.errors.getVideoDetailError': return '獲取視頻詳情時發生未知錯誤';
+			case 'oreno3d.errors.parseVideoDetailError': return '獲取並解析視頻詳情時發生未知錯誤';
+			case 'oreno3d.errors.downloadFileError': return '下載文件時發生未知錯誤';
+			case 'oreno3d.loading.gettingVideoInfo': return '正在獲取視頻信息...';
+			case 'oreno3d.loading.cancel': return '取消';
+			case 'oreno3d.messages.videoNotFoundOrDeleted': return '視頻不存在或已被刪除';
+			case 'oreno3d.messages.unableToGetVideoPlayLink': return '無法獲取視頻播放鏈接';
+			case 'oreno3d.messages.getVideoDetailFailed': return '獲取視頻詳情失敗';
 			case 'signIn.pleaseLoginFirst': return '請先登入';
 			case 'signIn.alreadySignedInToday': return '您今天已經簽到過了！';
 			case 'signIn.youDidNotStickToTheSignIn': return '您未能持續簽到。';
