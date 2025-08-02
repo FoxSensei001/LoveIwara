@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:i_iwara/app/services/config_service.dart';
@@ -9,6 +10,7 @@ import 'package:i_iwara/app/ui/pages/settings/widgets/path_status_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/recommended_paths_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/download_test_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart' show showToastWidget, ToastPosition;
 
 import '../../widgets/MDToastWidget.dart' show MDToastWidget, MDToastType;
@@ -87,31 +89,27 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
 
             // 权限状态显示
             _buildPermissionSection(context),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
 
             // 路径状态显示
             PathStatusWidget(
               onPathChanged: () => setState(() {}),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
 
             // 推荐路径选择
             RecommendedPathsWidget(
               onPathSelected: () => setState(() {}),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
 
             // 自定义下载路径设置
             _buildCustomPathSection(context),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
 
             // 文件命名模板设置
             _buildFilenameTemplateSection(context),
-            const SizedBox(height: 24),
-
-            // 支持的变量说明
-            _buildVariableHelpSection(context),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
 
             // 功能测试
             const DownloadTestWidget(),
@@ -130,16 +128,27 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
     final t = slang.Translations.of(context);
 
     return Card(
+      elevation: 2,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text( 
-              t.settings.downloadSettings.storagePermissionStatus,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+            Row(
+              children: [
+                Icon(
+                  Icons.security,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  t.settings.downloadSettings.storagePermissionStatus,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 8),
             Text(
@@ -244,16 +253,27 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
   Widget _buildCustomPathSection(BuildContext context) {
     final t = slang.Translations.of(context);
     return Card(
+      elevation: 2,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              t.settings.downloadSettings.customDownloadPath,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+            Row(
+              children: [
+                Icon(
+                  Icons.folder_outlined,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  t.settings.downloadSettings.customDownloadPath,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 8),
             Text(
@@ -262,6 +282,39 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                 color: Theme.of(context).textTheme.bodySmall?.color,
               ),
             ),
+            const SizedBox(height: 12),
+
+            // 通用提示信息
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                ),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.lightbulb_outline,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      t.settings.downloadSettings.customDownloadPathTip,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
             if (GetPlatform.isAndroid) ...[
               const SizedBox(height: 8),
               Container(
@@ -314,6 +367,9 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
             // 路径选择
             Obx(() {
               final isEnabled = configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] ?? false;
+              final currentPath = configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] ?? '';
+              final isPublicDirectory = GetPlatform.isAndroid && currentPath.isNotEmpty && _isPublicDirectory(currentPath);
+
               return AnimatedOpacity(
                 opacity: isEnabled ? 1.0 : 0.5,
                 duration: const Duration(milliseconds: 200),
@@ -334,6 +390,97 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                         configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] = value;
                       },
                     ),
+
+                    // 公共目录权限提示
+                    if (isEnabled && isPublicDirectory) ...[
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: Colors.orange.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.info_outline,
+                              color: Colors.orange,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    t.settings.downloadSettings.publicDirectoryPermissionTip,
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Colors.orange.shade800,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  FutureBuilder<bool>(
+                                    future: Get.find<PermissionService>().hasStoragePermission(),
+                                    builder: (context, snapshot) {
+                                      final hasPermission = snapshot.data ?? false;
+                                      if (!hasPermission) {
+                                        return SizedBox(
+                                          width: double.infinity,
+                                          child: ElevatedButton.icon(
+                                            onPressed: () async {
+                                              final permissionService = Get.find<PermissionService>();
+                                              final granted = await permissionService.requestStoragePermission();
+                                              if (granted) {
+                                                showToastWidget(
+                                                  MDToastWidget(
+                                                    message: t.settings.downloadSettings.storagePermissionGrantSuccess,
+                                                    type: MDToastType.success,
+                                                  ),
+                                                );
+                                              }
+                                              setState(() {});
+                                            },
+                                            icon: const Icon(Icons.security, size: 16),
+                                            label: Text(t.settings.downloadSettings.grantStoragePermission),
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.orange,
+                                              foregroundColor: Colors.white,
+                                            ),
+                                          ),
+                                        );
+                                      } else {
+                                        return Row(
+                                          children: [
+                                            Icon(
+                                              Icons.check_circle,
+                                              color: Colors.green,
+                                              size: 16,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              t.settings.downloadSettings.storagePermissionGranted,
+                                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                color: Colors.green,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+
                     const SizedBox(height: 8),
                     Row(
                       children: [
@@ -369,16 +516,27 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
   Widget _buildFilenameTemplateSection(BuildContext context) {
     final t = slang.Translations.of(context);
     return Card(
+      elevation: 2,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              t.settings.downloadSettings.filenameTemplate,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+            Row(
+              children: [
+                Icon(
+                  Icons.text_fields,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  t.settings.downloadSettings.filenameTemplate,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 8),
             Text(
@@ -417,6 +575,20 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
               hint: t.settings.downloadSettings.suchAsTitleFilename,
               configKey: ConfigKey.IMAGE_FILENAME_TEMPLATE,
             ),
+            const SizedBox(height: 16),
+
+            // 查看支持的变量按钮
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () => _showVariableHelpDialog(context),
+                icon: const Icon(Icons.help_outline, size: 18),
+                label: Text(t.settings.downloadSettings.supportedVariables),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -451,69 +623,146 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
     );
   }
 
-  Widget _buildVariableHelpSection(BuildContext context) {
+  void _showVariableHelpDialog(BuildContext context) {
     final t = slang.Translations.of(context);
     final variables = filenameTemplateService.getSupportedVariables();
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              t.settings.downloadSettings.supportedVariables,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Container(
+            constraints: const BoxConstraints(
+              maxWidth: 600,
+              maxHeight: 600,
             ),
-            const SizedBox(height: 8),
-            Text(
-              t.settings.downloadSettings.supportedVariablesDescription,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).textTheme.bodySmall?.color,
-              ),
-            ),
-            const SizedBox(height: 16),
-            
-            ...variables.map((variable) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // 标题栏
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
+                    ),
+                  ),
+                  child: Row(
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primaryContainer,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          variable.variable,
-                          style: TextStyle(
-                            fontFamily: 'monospace',
-                            color: Theme.of(context).colorScheme.onPrimaryContainer,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                      Icon(
+                        Icons.help_outline,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 24,
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          variable.description,
-                          style: Theme.of(context).textTheme.bodyMedium,
+                          t.settings.downloadSettings.supportedVariables,
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onPrimaryContainer,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        icon: Icon(
+                          Icons.close,
+                          color: Theme.of(context).colorScheme.onPrimaryContainer,
                         ),
                       ),
                     ],
                   ),
-                ],
-              ),
-            )),
-          ],
-        ),
-      ),
+                ),
+
+                // 内容区域
+                Flexible(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          t.settings.downloadSettings.supportedVariablesDescription,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).textTheme.bodySmall?.color,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        ...variables.map((variable) => Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          child: Material(
+                            color: Theme.of(context).colorScheme.surface,
+                            borderRadius: BorderRadius.circular(8),
+                            child: InkWell(
+                              onTap: () => _copyVariableToClipboard(variable.variable, context),
+                              borderRadius: BorderRadius.circular(8),
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                                  ),
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context).colorScheme.primaryContainer,
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Text(
+                                        variable.variable,
+                                        style: TextStyle(
+                                          fontFamily: 'monospace',
+                                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Text(
+                                        variable.description,
+                                        style: Theme.of(context).textTheme.bodyMedium,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    IconButton(
+                                      onPressed: () => _copyVariableToClipboard(variable.variable, context),
+                                      icon: const Icon(Icons.copy, size: 18),
+                                      tooltip: t.settings.downloadSettings.copyVariable,
+                                      visualDensity: VisualDensity.compact,
+                                      style: IconButton.styleFrom(
+                                        minimumSize: const Size(36, 36),
+                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        )),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -522,28 +771,46 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
     try {
       final String? directoryPath = await getDirectoryPath();
       if (directoryPath != null) {
-        // 检查是否为Android公共目录
-        if (GetPlatform.isAndroid && _isPublicDirectory(directoryPath)) {
-          showToastWidget(
-            MDToastWidget(
-              message: t.settings.downloadSettings.warningPublicDirectory,
-              type: MDToastType.warning,
-            ),
-          );
-        }
-
         _customPathController.text = directoryPath;
         configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] = directoryPath;
 
-        showToastWidget(
-          MDToastWidget(
-            message: t.settings.downloadSettings.downloadPathUpdated,
-            type: MDToastType.success,
-          ),
-          position: ToastPosition.bottom,
-        );
+        // 检查是否为Android公共目录并给出相应提示
+        if (GetPlatform.isAndroid && _isPublicDirectory(directoryPath)) {
+          // 检查权限状态
+          final permissionService = Get.find<PermissionService>();
+          final hasPermission = await permissionService.hasStoragePermission();
+
+          if (!hasPermission) {
+            showToastWidget(
+              MDToastWidget(
+                message: t.settings.downloadSettings.permissionRequiredForPublicDirectory,
+                type: MDToastType.warning,
+              ),
+            );
+          } else {
+            showToastWidget(
+              MDToastWidget(
+                message: t.settings.downloadSettings.downloadPathUpdated,
+                type: MDToastType.success,
+              ),
+              position: ToastPosition.bottom,
+            );
+          }
+        } else {
+          showToastWidget(
+            MDToastWidget(
+              message: t.settings.downloadSettings.downloadPathUpdated,
+              type: MDToastType.success,
+            ),
+            position: ToastPosition.bottom,
+          );
+        }
+
+        // 刷新UI以显示权限提示
+        setState(() {});
       }
     } catch (e) {
+      LogUtils.e('选择下载路径失败', error: e, tag: 'DownloadSettingsPage');
       showToastWidget(
         MDToastWidget(
           message: '${t.settings.downloadSettings.selectPathFailed}: $e',
@@ -611,6 +878,17 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
     showToastWidget(
       MDToastWidget(
         message: t.settings.downloadSettings.templateResetToDefault,
+        type: MDToastType.success,
+      ),
+    );
+  }
+
+  void _copyVariableToClipboard(String variable, BuildContext context) {
+    final t = slang.Translations.of(context);
+    Clipboard.setData(ClipboardData(text: variable));
+    showToastWidget(
+      MDToastWidget(
+        message: '${t.settings.downloadSettings.variableCopied}: $variable',
         type: MDToastType.success,
       ),
     );

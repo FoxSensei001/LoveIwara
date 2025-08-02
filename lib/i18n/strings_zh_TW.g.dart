@@ -1298,7 +1298,14 @@ class _TranslationsSettingsDownloadSettingsZhTw implements TranslationsSettingsD
 	@override String get grantStoragePermission => '授權存儲權限';
 	@override String get customDownloadPath => '自定義下載位置';
 	@override String get customDownloadPathDescription => '啟用後可以為下載的檔案選擇自定義儲存位置';
+	@override String get customDownloadPathTip => '💡 提示：選擇公共目錄（如下載資料夾）需要授予儲存權限，建議優先使用推薦路徑';
 	@override String get androidWarning => 'Android提示：避免選擇公共目錄（如下載資料夾），建議使用應用程式專用目錄以確保存取權限。';
+	@override String get publicDirectoryPermissionTip => '⚠️ 注意：您選擇的是公共目錄，需要儲存權限才能正常下載檔案';
+	@override String get permissionRequiredForPublicDirectory => '選擇公共目錄需要儲存權限';
+	@override String get currentDownloadPath => '目前下載路徑';
+	@override String get defaultAppDirectory => '預設應用程式目錄';
+	@override String get permissionGranted => '已授權';
+	@override String get permissionRequired => '需要權限';
 	@override String get enableCustomDownloadPath => '啟用自定義下載路徑';
 	@override String get disableCustomDownloadPath => '關閉時使用應用程式預設路徑';
 	@override String get customDownloadPathLabel => '自定義下載路徑';
@@ -1313,6 +1320,8 @@ class _TranslationsSettingsDownloadSettingsZhTw implements TranslationsSettingsD
 	@override String get resetToDefault => '重設為預設值';
 	@override String get supportedVariables => '支援的變數';
 	@override String get supportedVariablesDescription => '在檔案命名範本中可以使用以下變數：';
+	@override String get copyVariable => '複製變數';
+	@override String get variableCopied => '變數已複製';
 	@override String get warningPublicDirectory => '警告：選擇的是公共目錄，可能無法存取。建議選擇應用程式專用目錄。';
 	@override String get downloadPathUpdated => '下載路徑已更新';
 	@override String get selectPathFailed => '選擇路徑失敗';
@@ -1342,7 +1351,6 @@ class _TranslationsSettingsDownloadSettingsZhTw implements TranslationsSettingsD
 	@override String get testDirectoryOperationFailed => '目錄操作失敗';
 	@override String get checkingPathStatus => '檢查路徑狀態...';
 	@override String get unableToGetPathStatus => '無法獲取路徑狀態';
-	@override String get currentDownloadPath => '目前下載路徑';
 	@override String get actualPathDifferentFromSelected => '注意：實際使用路徑與選擇路徑不同';
 	@override String get grantPermission => '授權權限';
 	@override String get fixIssue => '修復問題';
@@ -2108,7 +2116,14 @@ extension on TranslationsZhTw {
 			case 'settings.downloadSettings.grantStoragePermission': return '授權存儲權限';
 			case 'settings.downloadSettings.customDownloadPath': return '自定義下載位置';
 			case 'settings.downloadSettings.customDownloadPathDescription': return '啟用後可以為下載的檔案選擇自定義儲存位置';
+			case 'settings.downloadSettings.customDownloadPathTip': return '💡 提示：選擇公共目錄（如下載資料夾）需要授予儲存權限，建議優先使用推薦路徑';
 			case 'settings.downloadSettings.androidWarning': return 'Android提示：避免選擇公共目錄（如下載資料夾），建議使用應用程式專用目錄以確保存取權限。';
+			case 'settings.downloadSettings.publicDirectoryPermissionTip': return '⚠️ 注意：您選擇的是公共目錄，需要儲存權限才能正常下載檔案';
+			case 'settings.downloadSettings.permissionRequiredForPublicDirectory': return '選擇公共目錄需要儲存權限';
+			case 'settings.downloadSettings.currentDownloadPath': return '目前下載路徑';
+			case 'settings.downloadSettings.defaultAppDirectory': return '預設應用程式目錄';
+			case 'settings.downloadSettings.permissionGranted': return '已授權';
+			case 'settings.downloadSettings.permissionRequired': return '需要權限';
 			case 'settings.downloadSettings.enableCustomDownloadPath': return '啟用自定義下載路徑';
 			case 'settings.downloadSettings.disableCustomDownloadPath': return '關閉時使用應用程式預設路徑';
 			case 'settings.downloadSettings.customDownloadPathLabel': return '自定義下載路徑';
@@ -2123,6 +2138,8 @@ extension on TranslationsZhTw {
 			case 'settings.downloadSettings.resetToDefault': return '重設為預設值';
 			case 'settings.downloadSettings.supportedVariables': return '支援的變數';
 			case 'settings.downloadSettings.supportedVariablesDescription': return '在檔案命名範本中可以使用以下變數：';
+			case 'settings.downloadSettings.copyVariable': return '複製變數';
+			case 'settings.downloadSettings.variableCopied': return '變數已複製';
 			case 'settings.downloadSettings.warningPublicDirectory': return '警告：選擇的是公共目錄，可能無法存取。建議選擇應用程式專用目錄。';
 			case 'settings.downloadSettings.downloadPathUpdated': return '下載路徑已更新';
 			case 'settings.downloadSettings.selectPathFailed': return '選擇路徑失敗';
@@ -2152,7 +2169,6 @@ extension on TranslationsZhTw {
 			case 'settings.downloadSettings.testDirectoryOperationFailed': return '目錄操作失敗';
 			case 'settings.downloadSettings.checkingPathStatus': return '檢查路徑狀態...';
 			case 'settings.downloadSettings.unableToGetPathStatus': return '無法獲取路徑狀態';
-			case 'settings.downloadSettings.currentDownloadPath': return '目前下載路徑';
 			case 'settings.downloadSettings.actualPathDifferentFromSelected': return '注意：實際使用路徑與選擇路徑不同';
 			case 'settings.downloadSettings.grantPermission': return '授權權限';
 			case 'settings.downloadSettings.fixIssue': return '修復問題';

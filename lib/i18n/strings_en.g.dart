@@ -1298,7 +1298,14 @@ class TranslationsSettingsDownloadSettingsEn {
 	String get grantStoragePermission => 'Grant Storage Permission';
 	String get customDownloadPath => 'Custom Download Path';
 	String get customDownloadPathDescription => 'When enabled, you can choose a custom save location for downloaded files';
+	String get customDownloadPathTip => '💡 Tip: Selecting public directories (like Downloads folder) requires storage permission, recommend using recommended paths first';
 	String get androidWarning => 'Android Note: Avoid selecting public directories (such as Downloads folder), recommend using app-specific directories to ensure access permissions.';
+	String get publicDirectoryPermissionTip => '⚠️ Notice: You selected a public directory, storage permission is required for normal file downloads';
+	String get permissionRequiredForPublicDirectory => 'Storage permission required for public directories';
+	String get currentDownloadPath => 'Current Download Path';
+	String get defaultAppDirectory => 'Default App Directory';
+	String get permissionGranted => 'Granted';
+	String get permissionRequired => 'Permission Required';
 	String get enableCustomDownloadPath => 'Enable Custom Download Path';
 	String get disableCustomDownloadPath => 'Use app default path when disabled';
 	String get customDownloadPathLabel => 'Custom Download Path';
@@ -1313,6 +1320,8 @@ class TranslationsSettingsDownloadSettingsEn {
 	String get resetToDefault => 'Reset to Default';
 	String get supportedVariables => 'Supported Variables';
 	String get supportedVariablesDescription => 'The following variables can be used in filename templates:';
+	String get copyVariable => 'Copy Variable';
+	String get variableCopied => 'Variable copied';
 	String get warningPublicDirectory => 'Warning: Selected public directory may not be accessible. Recommend selecting app-specific directory.';
 	String get downloadPathUpdated => 'Download path updated';
 	String get selectPathFailed => 'Failed to select path';
@@ -1342,7 +1351,6 @@ class TranslationsSettingsDownloadSettingsEn {
 	String get testDirectoryOperationFailed => 'Directory operation failed';
 	String get checkingPathStatus => 'Checking path status...';
 	String get unableToGetPathStatus => 'Unable to get path status';
-	String get currentDownloadPath => 'Current Download Path';
 	String get actualPathDifferentFromSelected => 'Note: Actual path differs from selected path';
 	String get grantPermission => 'Grant Permission';
 	String get fixIssue => 'Fix Issue';
@@ -2108,7 +2116,14 @@ extension on Translations {
 			case 'settings.downloadSettings.grantStoragePermission': return 'Grant Storage Permission';
 			case 'settings.downloadSettings.customDownloadPath': return 'Custom Download Path';
 			case 'settings.downloadSettings.customDownloadPathDescription': return 'When enabled, you can choose a custom save location for downloaded files';
+			case 'settings.downloadSettings.customDownloadPathTip': return '💡 Tip: Selecting public directories (like Downloads folder) requires storage permission, recommend using recommended paths first';
 			case 'settings.downloadSettings.androidWarning': return 'Android Note: Avoid selecting public directories (such as Downloads folder), recommend using app-specific directories to ensure access permissions.';
+			case 'settings.downloadSettings.publicDirectoryPermissionTip': return '⚠️ Notice: You selected a public directory, storage permission is required for normal file downloads';
+			case 'settings.downloadSettings.permissionRequiredForPublicDirectory': return 'Storage permission required for public directories';
+			case 'settings.downloadSettings.currentDownloadPath': return 'Current Download Path';
+			case 'settings.downloadSettings.defaultAppDirectory': return 'Default App Directory';
+			case 'settings.downloadSettings.permissionGranted': return 'Granted';
+			case 'settings.downloadSettings.permissionRequired': return 'Permission Required';
 			case 'settings.downloadSettings.enableCustomDownloadPath': return 'Enable Custom Download Path';
 			case 'settings.downloadSettings.disableCustomDownloadPath': return 'Use app default path when disabled';
 			case 'settings.downloadSettings.customDownloadPathLabel': return 'Custom Download Path';
@@ -2123,6 +2138,8 @@ extension on Translations {
 			case 'settings.downloadSettings.resetToDefault': return 'Reset to Default';
 			case 'settings.downloadSettings.supportedVariables': return 'Supported Variables';
 			case 'settings.downloadSettings.supportedVariablesDescription': return 'The following variables can be used in filename templates:';
+			case 'settings.downloadSettings.copyVariable': return 'Copy Variable';
+			case 'settings.downloadSettings.variableCopied': return 'Variable copied';
 			case 'settings.downloadSettings.warningPublicDirectory': return 'Warning: Selected public directory may not be accessible. Recommend selecting app-specific directory.';
 			case 'settings.downloadSettings.downloadPathUpdated': return 'Download path updated';
 			case 'settings.downloadSettings.selectPathFailed': return 'Failed to select path';
@@ -2152,7 +2169,6 @@ extension on Translations {
 			case 'settings.downloadSettings.testDirectoryOperationFailed': return 'Directory operation failed';
 			case 'settings.downloadSettings.checkingPathStatus': return 'Checking path status...';
 			case 'settings.downloadSettings.unableToGetPathStatus': return 'Unable to get path status';
-			case 'settings.downloadSettings.currentDownloadPath': return 'Current Download Path';
 			case 'settings.downloadSettings.actualPathDifferentFromSelected': return 'Note: Actual path differs from selected path';
 			case 'settings.downloadSettings.grantPermission': return 'Grant Permission';
 			case 'settings.downloadSettings.fixIssue': return 'Fix Issue';

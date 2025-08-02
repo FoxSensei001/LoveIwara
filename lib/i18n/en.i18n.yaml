@@ -541,7 +541,14 @@ settings:
     grantStoragePermission: Grant Storage Permission
     customDownloadPath: Custom Download Path
     customDownloadPathDescription: When enabled, you can choose a custom save location for downloaded files
+    customDownloadPathTip: "💡 Tip: Selecting public directories (like Downloads folder) requires storage permission, recommend using recommended paths first"
     androidWarning: "Android Note: Avoid selecting public directories (such as Downloads folder), recommend using app-specific directories to ensure access permissions."
+    publicDirectoryPermissionTip: "⚠️ Notice: You selected a public directory, storage permission is required for normal file downloads"
+    permissionRequiredForPublicDirectory: Storage permission required for public directories
+    currentDownloadPath: Current Download Path
+    defaultAppDirectory: Default App Directory
+    permissionGranted: Granted
+    permissionRequired: Permission Required
     enableCustomDownloadPath: Enable Custom Download Path
     disableCustomDownloadPath: Use app default path when disabled
     customDownloadPathLabel: Custom Download Path
@@ -556,6 +563,8 @@ settings:
     resetToDefault: Reset to Default
     supportedVariables: Supported Variables
     supportedVariablesDescription: "The following variables can be used in filename templates:"
+    copyVariable: Copy Variable
+    variableCopied: Variable copied
     warningPublicDirectory: "Warning: Selected public directory may not be accessible. Recommend selecting app-specific directory."
     downloadPathUpdated: Download path updated
     selectPathFailed: Failed to select path
@@ -587,7 +596,6 @@ settings:
     # Path status related
     checkingPathStatus: Checking path status...
     unableToGetPathStatus: Unable to get path status
-    currentDownloadPath: Current Download Path
     actualPathDifferentFromSelected: "Note: Actual path differs from selected path"
     grantPermission: Grant Permission
     fixIssue: Fix Issue

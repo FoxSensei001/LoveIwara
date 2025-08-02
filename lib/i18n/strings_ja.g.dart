@@ -1295,7 +1295,14 @@ class _TranslationsSettingsDownloadSettingsJa implements TranslationsSettingsDow
 	@override String get grantStoragePermission => 'ストレージ権限を付与';
 	@override String get customDownloadPath => 'カスタムダウンロードパス';
 	@override String get customDownloadPathDescription => '有効にすると、ダウンロードファイルのカスタム保存場所を選択できます';
+	@override String get customDownloadPathTip => '💡 ヒント：パブリックディレクトリ（ダウンロードフォルダなど）を選択するにはストレージ権限が必要です。推奨パスの使用をお勧めします';
 	@override String get androidWarning => 'Android注意：パブリックディレクトリ（ダウンロードフォルダなど）の選択を避け、アクセス権限を確保するためにアプリ専用ディレクトリの使用をお勧めします。';
+	@override String get publicDirectoryPermissionTip => '⚠️ 注意：パブリックディレクトリを選択しました。正常にファイルをダウンロードするにはストレージ権限が必要です';
+	@override String get permissionRequiredForPublicDirectory => 'パブリックディレクトリにはストレージ権限が必要です';
+	@override String get currentDownloadPath => '現在のダウンロードパス';
+	@override String get defaultAppDirectory => 'デフォルトアプリディレクトリ';
+	@override String get permissionGranted => '付与済み';
+	@override String get permissionRequired => '権限が必要';
 	@override String get enableCustomDownloadPath => 'カスタムダウンロードパスを有効にする';
 	@override String get disableCustomDownloadPath => '無効時はアプリのデフォルトパスを使用';
 	@override String get customDownloadPathLabel => 'カスタムダウンロードパス';
@@ -1310,6 +1317,8 @@ class _TranslationsSettingsDownloadSettingsJa implements TranslationsSettingsDow
 	@override String get resetToDefault => 'デフォルトにリセット';
 	@override String get supportedVariables => 'サポートされている変数';
 	@override String get supportedVariablesDescription => 'ファイル名テンプレートで以下の変数を使用できます：';
+	@override String get copyVariable => '変数をコピー';
+	@override String get variableCopied => '変数がコピーされました';
 	@override String get warningPublicDirectory => '警告：選択されたパブリックディレクトリにアクセスできない可能性があります。アプリ専用ディレクトリの選択をお勧めします。';
 	@override String get downloadPathUpdated => 'ダウンロードパスが更新されました';
 	@override String get selectPathFailed => 'パスの選択に失敗しました';
@@ -1339,7 +1348,6 @@ class _TranslationsSettingsDownloadSettingsJa implements TranslationsSettingsDow
 	@override String get testDirectoryOperationFailed => 'ディレクトリ操作に失敗しました';
 	@override String get checkingPathStatus => 'パス状態を確認中...';
 	@override String get unableToGetPathStatus => 'パス状態を取得できません';
-	@override String get currentDownloadPath => '現在のダウンロードパス';
 	@override String get actualPathDifferentFromSelected => '注意：実際のパスが選択されたパスと異なります';
 	@override String get grantPermission => '権限を付与';
 	@override String get fixIssue => '問題を修正';
@@ -2105,7 +2113,14 @@ extension on TranslationsJa {
 			case 'settings.downloadSettings.grantStoragePermission': return 'ストレージ権限を付与';
 			case 'settings.downloadSettings.customDownloadPath': return 'カスタムダウンロードパス';
 			case 'settings.downloadSettings.customDownloadPathDescription': return '有効にすると、ダウンロードファイルのカスタム保存場所を選択できます';
+			case 'settings.downloadSettings.customDownloadPathTip': return '💡 ヒント：パブリックディレクトリ（ダウンロードフォルダなど）を選択するにはストレージ権限が必要です。推奨パスの使用をお勧めします';
 			case 'settings.downloadSettings.androidWarning': return 'Android注意：パブリックディレクトリ（ダウンロードフォルダなど）の選択を避け、アクセス権限を確保するためにアプリ専用ディレクトリの使用をお勧めします。';
+			case 'settings.downloadSettings.publicDirectoryPermissionTip': return '⚠️ 注意：パブリックディレクトリを選択しました。正常にファイルをダウンロードするにはストレージ権限が必要です';
+			case 'settings.downloadSettings.permissionRequiredForPublicDirectory': return 'パブリックディレクトリにはストレージ権限が必要です';
+			case 'settings.downloadSettings.currentDownloadPath': return '現在のダウンロードパス';
+			case 'settings.downloadSettings.defaultAppDirectory': return 'デフォルトアプリディレクトリ';
+			case 'settings.downloadSettings.permissionGranted': return '付与済み';
+			case 'settings.downloadSettings.permissionRequired': return '権限が必要';
 			case 'settings.downloadSettings.enableCustomDownloadPath': return 'カスタムダウンロードパスを有効にする';
 			case 'settings.downloadSettings.disableCustomDownloadPath': return '無効時はアプリのデフォルトパスを使用';
 			case 'settings.downloadSettings.customDownloadPathLabel': return 'カスタムダウンロードパス';
@@ -2120,6 +2135,8 @@ extension on TranslationsJa {
 			case 'settings.downloadSettings.resetToDefault': return 'デフォルトにリセット';
 			case 'settings.downloadSettings.supportedVariables': return 'サポートされている変数';
 			case 'settings.downloadSettings.supportedVariablesDescription': return 'ファイル名テンプレートで以下の変数を使用できます：';
+			case 'settings.downloadSettings.copyVariable': return '変数をコピー';
+			case 'settings.downloadSettings.variableCopied': return '変数がコピーされました';
 			case 'settings.downloadSettings.warningPublicDirectory': return '警告：選択されたパブリックディレクトリにアクセスできない可能性があります。アプリ専用ディレクトリの選択をお勧めします。';
 			case 'settings.downloadSettings.downloadPathUpdated': return 'ダウンロードパスが更新されました';
 			case 'settings.downloadSettings.selectPathFailed': return 'パスの選択に失敗しました';
@@ -2149,7 +2166,6 @@ extension on TranslationsJa {
 			case 'settings.downloadSettings.testDirectoryOperationFailed': return 'ディレクトリ操作に失敗しました';
 			case 'settings.downloadSettings.checkingPathStatus': return 'パス状態を確認中...';
 			case 'settings.downloadSettings.unableToGetPathStatus': return 'パス状態を取得できません';
-			case 'settings.downloadSettings.currentDownloadPath': return '現在のダウンロードパス';
 			case 'settings.downloadSettings.actualPathDifferentFromSelected': return '注意：実際のパスが選択されたパスと異なります';
 			case 'settings.downloadSettings.grantPermission': return '権限を付与';
 			case 'settings.downloadSettings.fixIssue': return '問題を修正';

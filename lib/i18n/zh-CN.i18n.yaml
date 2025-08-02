@@ -548,7 +548,14 @@ settings:
     grantStoragePermission: 授权存储权限
     customDownloadPath: 自定义下载位置
     customDownloadPathDescription: 启用后可以为下载的文件选择自定义保存位置
+    customDownloadPathTip: 💡 提示：选择公共目录（如下载文件夹）需要授予存储权限，建议优先使用推荐路径
     androidWarning: Android提示：避免选择公共目录（如下载文件夹），建议使用应用专用目录以确保访问权限。
+    publicDirectoryPermissionTip: ⚠️ 注意：您选择的是公共目录，需要存储权限才能正常下载文件
+    permissionRequiredForPublicDirectory: 选择公共目录需要存储权限
+    currentDownloadPath: 当前下载路径
+    defaultAppDirectory: 应用默认目录
+    permissionGranted: 已授权
+    permissionRequired: 需要权限
     enableCustomDownloadPath: 启用自定义下载路径
     disableCustomDownloadPath: 关闭时使用应用默认路径
     customDownloadPathLabel: 自定义下载路径
@@ -563,6 +570,8 @@ settings:
     resetToDefault: 重置为默认值
     supportedVariables: 支持的变量
     supportedVariablesDescription: 在文件命名模板中可以使用以下变量：
+    copyVariable: 复制变量
+    variableCopied: 变量已复制
     warningPublicDirectory: 警告：选择的是公共目录，可能无法访问。建议选择应用专用目录。
     downloadPathUpdated: 下载路径已更新
     selectPathFailed: 选择路径失败
@@ -594,7 +603,6 @@ settings:
     # 路径状态相关
     checkingPathStatus: 检查路径状态...
     unableToGetPathStatus: 无法获取路径状态
-    currentDownloadPath: 当前下载路径
     actualPathDifferentFromSelected: 注意：实际使用路径与选择路径不同
     grantPermission: 授权权限
     fixIssue: 修复问题

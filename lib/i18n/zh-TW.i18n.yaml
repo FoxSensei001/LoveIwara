@@ -542,7 +542,14 @@ settings:
     grantStoragePermission: 授權存儲權限
     customDownloadPath: 自定義下載位置
     customDownloadPathDescription: 啟用後可以為下載的檔案選擇自定義儲存位置
+    customDownloadPathTip: 💡 提示：選擇公共目錄（如下載資料夾）需要授予儲存權限，建議優先使用推薦路徑
     androidWarning: Android提示：避免選擇公共目錄（如下載資料夾），建議使用應用程式專用目錄以確保存取權限。
+    publicDirectoryPermissionTip: ⚠️ 注意：您選擇的是公共目錄，需要儲存權限才能正常下載檔案
+    permissionRequiredForPublicDirectory: 選擇公共目錄需要儲存權限
+    currentDownloadPath: 目前下載路徑
+    defaultAppDirectory: 預設應用程式目錄
+    permissionGranted: 已授權
+    permissionRequired: 需要權限
     enableCustomDownloadPath: 啟用自定義下載路徑
     disableCustomDownloadPath: 關閉時使用應用程式預設路徑
     customDownloadPathLabel: 自定義下載路徑
@@ -557,6 +564,8 @@ settings:
     resetToDefault: 重設為預設值
     supportedVariables: 支援的變數
     supportedVariablesDescription: 在檔案命名範本中可以使用以下變數：
+    copyVariable: 複製變數
+    variableCopied: 變數已複製
     warningPublicDirectory: 警告：選擇的是公共目錄，可能無法存取。建議選擇應用程式專用目錄。
     downloadPathUpdated: 下載路徑已更新
     selectPathFailed: 選擇路徑失敗
@@ -588,7 +597,6 @@ settings:
     # 路徑狀態相關
     checkingPathStatus: 檢查路徑狀態...
     unableToGetPathStatus: 無法獲取路徑狀態
-    currentDownloadPath: 目前下載路徑
     actualPathDifferentFromSelected: 注意：實際使用路徑與選擇路徑不同
     grantPermission: 授權權限
     fixIssue: 修復問題

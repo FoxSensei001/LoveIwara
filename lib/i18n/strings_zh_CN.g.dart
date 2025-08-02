@@ -1300,7 +1300,14 @@ class _TranslationsSettingsDownloadSettingsZhCn implements TranslationsSettingsD
 	@override String get grantStoragePermission => '授权存储权限';
 	@override String get customDownloadPath => '自定义下载位置';
 	@override String get customDownloadPathDescription => '启用后可以为下载的文件选择自定义保存位置';
+	@override String get customDownloadPathTip => '💡 提示：选择公共目录（如下载文件夹）需要授予存储权限，建议优先使用推荐路径';
 	@override String get androidWarning => 'Android提示：避免选择公共目录（如下载文件夹），建议使用应用专用目录以确保访问权限。';
+	@override String get publicDirectoryPermissionTip => '⚠️ 注意：您选择的是公共目录，需要存储权限才能正常下载文件';
+	@override String get permissionRequiredForPublicDirectory => '选择公共目录需要存储权限';
+	@override String get currentDownloadPath => '当前下载路径';
+	@override String get defaultAppDirectory => '应用默认目录';
+	@override String get permissionGranted => '已授权';
+	@override String get permissionRequired => '需要权限';
 	@override String get enableCustomDownloadPath => '启用自定义下载路径';
 	@override String get disableCustomDownloadPath => '关闭时使用应用默认路径';
 	@override String get customDownloadPathLabel => '自定义下载路径';
@@ -1315,6 +1322,8 @@ class _TranslationsSettingsDownloadSettingsZhCn implements TranslationsSettingsD
 	@override String get resetToDefault => '重置为默认值';
 	@override String get supportedVariables => '支持的变量';
 	@override String get supportedVariablesDescription => '在文件命名模板中可以使用以下变量：';
+	@override String get copyVariable => '复制变量';
+	@override String get variableCopied => '变量已复制';
 	@override String get warningPublicDirectory => '警告：选择的是公共目录，可能无法访问。建议选择应用专用目录。';
 	@override String get downloadPathUpdated => '下载路径已更新';
 	@override String get selectPathFailed => '选择路径失败';
@@ -1344,7 +1353,6 @@ class _TranslationsSettingsDownloadSettingsZhCn implements TranslationsSettingsD
 	@override String get testDirectoryOperationFailed => '目录操作失败';
 	@override String get checkingPathStatus => '检查路径状态...';
 	@override String get unableToGetPathStatus => '无法获取路径状态';
-	@override String get currentDownloadPath => '当前下载路径';
 	@override String get actualPathDifferentFromSelected => '注意：实际使用路径与选择路径不同';
 	@override String get grantPermission => '授权权限';
 	@override String get fixIssue => '修复问题';
@@ -2115,7 +2123,14 @@ extension on TranslationsZhCn {
 			case 'settings.downloadSettings.grantStoragePermission': return '授权存储权限';
 			case 'settings.downloadSettings.customDownloadPath': return '自定义下载位置';
 			case 'settings.downloadSettings.customDownloadPathDescription': return '启用后可以为下载的文件选择自定义保存位置';
+			case 'settings.downloadSettings.customDownloadPathTip': return '💡 提示：选择公共目录（如下载文件夹）需要授予存储权限，建议优先使用推荐路径';
 			case 'settings.downloadSettings.androidWarning': return 'Android提示：避免选择公共目录（如下载文件夹），建议使用应用专用目录以确保访问权限。';
+			case 'settings.downloadSettings.publicDirectoryPermissionTip': return '⚠️ 注意：您选择的是公共目录，需要存储权限才能正常下载文件';
+			case 'settings.downloadSettings.permissionRequiredForPublicDirectory': return '选择公共目录需要存储权限';
+			case 'settings.downloadSettings.currentDownloadPath': return '当前下载路径';
+			case 'settings.downloadSettings.defaultAppDirectory': return '应用默认目录';
+			case 'settings.downloadSettings.permissionGranted': return '已授权';
+			case 'settings.downloadSettings.permissionRequired': return '需要权限';
 			case 'settings.downloadSettings.enableCustomDownloadPath': return '启用自定义下载路径';
 			case 'settings.downloadSettings.disableCustomDownloadPath': return '关闭时使用应用默认路径';
 			case 'settings.downloadSettings.customDownloadPathLabel': return '自定义下载路径';
@@ -2130,6 +2145,8 @@ extension on TranslationsZhCn {
 			case 'settings.downloadSettings.resetToDefault': return '重置为默认值';
 			case 'settings.downloadSettings.supportedVariables': return '支持的变量';
 			case 'settings.downloadSettings.supportedVariablesDescription': return '在文件命名模板中可以使用以下变量：';
+			case 'settings.downloadSettings.copyVariable': return '复制变量';
+			case 'settings.downloadSettings.variableCopied': return '变量已复制';
 			case 'settings.downloadSettings.warningPublicDirectory': return '警告：选择的是公共目录，可能无法访问。建议选择应用专用目录。';
 			case 'settings.downloadSettings.downloadPathUpdated': return '下载路径已更新';
 			case 'settings.downloadSettings.selectPathFailed': return '选择路径失败';
@@ -2159,7 +2176,6 @@ extension on TranslationsZhCn {
 			case 'settings.downloadSettings.testDirectoryOperationFailed': return '目录操作失败';
 			case 'settings.downloadSettings.checkingPathStatus': return '检查路径状态...';
 			case 'settings.downloadSettings.unableToGetPathStatus': return '无法获取路径状态';
-			case 'settings.downloadSettings.currentDownloadPath': return '当前下载路径';
 			case 'settings.downloadSettings.actualPathDifferentFromSelected': return '注意：实际使用路径与选择路径不同';
 			case 'settings.downloadSettings.grantPermission': return '授权权限';
 			case 'settings.downloadSettings.fixIssue': return '修复问题';

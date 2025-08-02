@@ -542,7 +542,14 @@ settings:
     grantStoragePermission: ストレージ権限を付与
     customDownloadPath: カスタムダウンロードパス
     customDownloadPathDescription: 有効にすると、ダウンロードファイルのカスタム保存場所を選択できます
+    customDownloadPathTip: 💡 ヒント：パブリックディレクトリ（ダウンロードフォルダなど）を選択するにはストレージ権限が必要です。推奨パスの使用をお勧めします
     androidWarning: Android注意：パブリックディレクトリ（ダウンロードフォルダなど）の選択を避け、アクセス権限を確保するためにアプリ専用ディレクトリの使用をお勧めします。
+    publicDirectoryPermissionTip: ⚠️ 注意：パブリックディレクトリを選択しました。正常にファイルをダウンロードするにはストレージ権限が必要です
+    permissionRequiredForPublicDirectory: パブリックディレクトリにはストレージ権限が必要です
+    currentDownloadPath: 現在のダウンロードパス
+    defaultAppDirectory: デフォルトアプリディレクトリ
+    permissionGranted: 付与済み
+    permissionRequired: 権限が必要
     enableCustomDownloadPath: カスタムダウンロードパスを有効にする
     disableCustomDownloadPath: 無効時はアプリのデフォルトパスを使用
     customDownloadPathLabel: カスタムダウンロードパス
@@ -557,6 +564,8 @@ settings:
     resetToDefault: デフォルトにリセット
     supportedVariables: サポートされている変数
     supportedVariablesDescription: ファイル名テンプレートで以下の変数を使用できます：
+    copyVariable: 変数をコピー
+    variableCopied: 変数がコピーされました
     warningPublicDirectory: 警告：選択されたパブリックディレクトリにアクセスできない可能性があります。アプリ専用ディレクトリの選択をお勧めします。
     downloadPathUpdated: ダウンロードパスが更新されました
     selectPathFailed: パスの選択に失敗しました
@@ -588,7 +597,6 @@ settings:
     # パス状態関連
     checkingPathStatus: パス状態を確認中...
     unableToGetPathStatus: パス状態を取得できません
-    currentDownloadPath: 現在のダウンロードパス
     actualPathDifferentFromSelected: 注意：実際のパスが選択されたパスと異なります
     grantPermission: 権限を付与
     fixIssue: 問題を修正

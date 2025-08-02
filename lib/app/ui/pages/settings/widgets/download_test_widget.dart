@@ -87,30 +87,40 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
 
   Widget _buildTestResultItem(TestResult result) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            result.passed ? Icons.check_circle : Icons.error,
-            color: result.passed ? Colors.green : Colors.red,
-            size: 16,
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              result.name,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-          ),
-          if (result.message.isNotEmpty)
-            Tooltip(
-              message: result.message,
-              child: Icon(
-                Icons.info_outline,
+          Row(
+            children: [
+              Icon(
+                result.passed ? Icons.check_circle : Icons.error,
+                color: result.passed ? Colors.green : Colors.red,
                 size: 16,
-                color: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  result.name,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (result.message.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Padding(
+              padding: const EdgeInsets.only(left: 24),
+              child: Text(
+                result.message,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: result.passed ? Colors.green.shade600 : Colors.red.shade600,
+                ),
               ),
             ),
+          ],
         ],
       ),
     );
@@ -184,7 +194,7 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
       return TestResult(
         name: t.settings.downloadSettings.testDownloadPathValidation,
         passed: pathInfo.isValid,
-        message: pathInfo.validationResult.message,
+        message: '${pathInfo.validationResult.message}\n当前路径: ${pathInfo.currentPath}',
       );
     } catch (e) {
       return TestResult(
@@ -211,10 +221,15 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
 
       final allValid = videoValid && galleryValid && imageValid;
 
+      String details = '';
+      details += '视频模板: $videoTemplate (${videoValid ? '有效' : '无效'})\n';
+      details += '图库模板: $galleryTemplate (${galleryValid ? '有效' : '无效'})\n';
+      details += '图片模板: $imageTemplate (${imageValid ? '有效' : '无效'})';
+
       return TestResult(
         name: t.settings.downloadSettings.testFilenameTemplateValidation,
         passed: allValid,
-        message: allValid ? t.settings.downloadSettings.testAllTemplatesValid : t.settings.downloadSettings.testSomeTemplatesInvalid,
+        message: allValid ? t.settings.downloadSettings.testAllTemplatesValid : '${t.settings.downloadSettings.testSomeTemplatesInvalid}\n$details',
       );
     } catch (e) {
       return TestResult(
@@ -232,26 +247,36 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
       final pathInfo = await downloadPathService.getPathStatusInfo();
       final testPath = '${pathInfo.currentPath}/test';
 
-      // 尝试创建测试目录
       final testDir = Directory(testPath);
-      if (!await testDir.exists()) {
+      final testFile = File('$testPath/.download_test');
+      
+      final dirExistedBefore = await testDir.exists();
+      
+      if (!dirExistedBefore) {
         await testDir.create(recursive: true);
       }
 
-      // 尝试写入测试文件
-      final testFile = File('$testPath/.download_test');
       await testFile.writeAsString('test');
+      final fileContent = await testFile.readAsString();
+      final fileExists = await testFile.exists();
+      final dirExists = await testDir.exists();
 
-      // 清理测试文件
       await testFile.delete();
-      if (await testDir.exists()) {
+      if (!dirExistedBefore && await testDir.exists()) {
         await testDir.delete();
       }
+
+      String details = '';
+      details += '测试路径: $testPath\n';
+      details += '基础路径: ${pathInfo.currentPath}\n';
+      details += '目录创建: ${dirExists ? '成功' : '失败'}\n';
+      details += '文件写入: ${fileExists ? '成功' : '失败'}\n';
+      details += '文件内容: ${fileContent == 'test' ? '正确' : '错误'}';
 
       return TestResult(
         name: t.settings.downloadSettings.testDirectoryOperationTest,
         passed: true,
-        message: t.settings.downloadSettings.testDirectoryOperationNormal,
+        message: '${t.settings.downloadSettings.testDirectoryOperationNormal}\n$details',
       );
     } catch (e) {
       return TestResult(
