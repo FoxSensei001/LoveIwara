@@ -266,11 +266,42 @@ class CommonUtils {
           .replaceAll(RegExp(r'\s+'), '_') // 空白字符替换为下划线
           .replaceAll(RegExp(r'_{2,}'), '_'); // 多个连续下划线替换为单个
 
+      // 检查文件是否已存在，如果存在则自动重命名
+      formattedPath = _generateUniqueFilePath(formattedPath);
+
       return formattedPath;
     } catch (e) {
       LogUtils.e('格式化URI失败', tag: 'CommonUtils', error: e);
       return path;
     }
+  }
+
+  /// 生成唯一的文件路径，如果文件已存在则自动添加序号
+  static String _generateUniqueFilePath(String originalPath) {
+    File file = File(originalPath);
+    
+    // 如果文件不存在，直接返回原路径
+    if (!file.existsSync()) {
+      return originalPath;
+    }
+
+    // 分离目录、文件名和扩展名
+    String directory = p.dirname(originalPath);
+    String fileName = p.basenameWithoutExtension(originalPath);
+    String extension = p.extension(originalPath);
+
+    int counter = 1;
+    String newPath;
+    
+    // 循环查找可用的文件名
+    do {
+      String newFileName = '$fileName($counter)';
+      newPath = p.join(directory, '$newFileName$extension');
+      file = File(newPath);
+      counter++;
+    } while (file.existsSync());
+
+    return newPath;
   }
 
   static String formatDate(DateTime start) {

@@ -28,7 +28,7 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
     final t = slang.Translations.of(context);
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -61,10 +61,34 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
                   return Text(t.settings.downloadSettings.noRecommendedPaths);
                 }
 
-                return Column(
-                  children: paths.map((recommendedPath) => 
-                    _buildPathTile(recommendedPath)
-                  ).toList(),
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isWideScreen = constraints.maxWidth > 600;
+                    
+                    if (isWideScreen) {
+                      return GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: constraints.maxWidth > 900 ? 3 : 2,
+                          childAspectRatio: 2.5,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                        ),
+                        itemCount: paths.length,
+                        itemBuilder: (context, index) => _buildPathTile(paths[index]),
+                      );
+                    } else {
+                      return Column(
+                        children: paths.map((recommendedPath) => 
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: _buildPathTile(recommendedPath),
+                          )
+                        ).toList(),
+                      );
+                    }
+                  },
                 );
               },
             ),
@@ -76,121 +100,123 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
 
   Widget _buildPathTile(RecommendedPath recommendedPath) {
     final t = slang.Translations.of(context);
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 头部：图标、名称和标签
-            Row(
-              children: [
-                Icon(
-                  _getPathIcon(recommendedPath.type),
-                  color: recommendedPath.isRecommended ? Colors.green : 
-                         recommendedPath.requiresPermission ? Colors.orange : Colors.grey,
-                  size: 20,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        recommendedPath.name,
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      if (recommendedPath.isRecommended || recommendedPath.requiresPermission)
-                        const SizedBox(height: 4),
-                      Wrap(
-                        spacing: 6,
-                        children: [
-                          if (recommendedPath.isRecommended)
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Text(
-                                t.settings.downloadSettings.recommended,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          if (recommendedPath.requiresPermission)
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: Colors.orange,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Text(
-                                t.settings.downloadSettings.requiresPermission,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            
-            // 描述
-            Text(
-              recommendedPath.description,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 4),
-            
-            // 路径
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                recommendedPath.path,
-                style: TextStyle(
-                  fontFamily: 'monospace',
-                  fontSize: 12,
-                  color: Theme.of(context).textTheme.bodySmall?.color,
-                ),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 2,
-              ),
-            ),
-            const SizedBox(height: 12),
-            
-            // 按钮
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: recommendedPath.requiresPermission 
-                    ? () => _requestPermissionAndSelect(recommendedPath)
-                    : () => _selectPath(recommendedPath),
-                child: Text(
-                  recommendedPath.requiresPermission ? t.settings.downloadSettings.authorizeAndSelect : t.settings.downloadSettings.select,
-                ),
-              ),
-            ),
-          ],
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Theme.of(context).dividerColor,
+          width: 1,
         ),
+        borderRadius: BorderRadius.circular(8),
+        color: Theme.of(context).colorScheme.surface,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                _getPathIcon(recommendedPath.type),
+                color: recommendedPath.isRecommended ? Colors.green : 
+                       recommendedPath.requiresPermission ? Colors.orange : Colors.grey,
+                size: 20,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      recommendedPath.name,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    if (recommendedPath.isRecommended || recommendedPath.requiresPermission)
+                      const SizedBox(height: 4),
+                    Wrap(
+                      spacing: 6,
+                      children: [
+                        if (recommendedPath.isRecommended)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.green,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              t.settings.downloadSettings.recommended,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        if (recommendedPath.requiresPermission)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.orange,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              t.settings.downloadSettings.requiresPermission,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          
+          Text(
+            recommendedPath.description,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          const SizedBox(height: 8),
+          
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text(
+              recommendedPath.path,
+              style: TextStyle(
+                fontFamily: 'monospace',
+                fontSize: 11,
+                color: Theme.of(context).textTheme.bodySmall?.color,
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+          ),
+          const SizedBox(height: 12),
+          
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: recommendedPath.requiresPermission 
+                  ? () => _requestPermissionAndSelect(recommendedPath)
+                  : () => _selectPath(recommendedPath),
+              child: Text(
+                recommendedPath.requiresPermission ? t.settings.downloadSettings.authorizeAndSelect : t.settings.downloadSettings.select,
+                style: const TextStyle(fontSize: 12),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

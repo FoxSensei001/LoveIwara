@@ -10,7 +10,27 @@ import 'dart:io';
 
 /// 下载功能测试组件
 class DownloadTestWidget extends StatefulWidget {
-  const DownloadTestWidget({super.key});
+  final bool showInDialog;
+  
+  const DownloadTestWidget({super.key, this.showInDialog = false});
+
+  /// 显示测试对话框
+  static void showTestDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 600, maxHeight: 700),
+            child: const DownloadTestWidget(showInDialog: true),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   State<DownloadTestWidget> createState() => _DownloadTestWidgetState();
@@ -23,65 +43,126 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+    
+    if (widget.showInDialog) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // 标题栏
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primaryContainer,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
+              ),
+            ),
+            child: Row(
               children: [
                 Icon(
                   Icons.science,
                   color: Theme.of(context).colorScheme.primary,
+                  size: 24,
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  t.settings.downloadSettings.functionalTest,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    t.settings.downloadSettings.functionalTest,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    ),
                   ),
                 ),
-                const Spacer(),
-                ElevatedButton.icon(
-                  onPressed: _isTesting ? null : _runTests,
-                  icon: _isTesting
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.play_arrow),
-                  label: Text(_isTesting ? t.settings.downloadSettings.testInProgress : t.settings.downloadSettings.runTest),
+                IconButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: Icon(
+                    Icons.close,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-            Text(
-              t.settings.downloadSettings.testDownloadPathAndPermissions,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).textTheme.bodySmall?.color,
-              ),
+          ),
+          
+          // 内容区域
+          Flexible(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
+              child: _buildTestContent(context),
             ),
+          ),
+        ],
+      );
+    }
+    
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: _buildTestContent(context),
+      ),
+    );
+  }
 
-            if (_testResults.isNotEmpty) ...[
-              const SizedBox(height: 16),
-              const Divider(),
-              const SizedBox(height: 16),
-
+  Widget _buildTestContent(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            if (!widget.showInDialog) ...[
+              Icon(
+                Icons.science,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(width: 8),
               Text(
-                t.settings.downloadSettings.testResults,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                t.settings.downloadSettings.functionalTest,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 8),
-              
-              ..._testResults.map((result) => _buildTestResultItem(result)),
+              const Spacer(),
             ],
+            ElevatedButton.icon(
+              onPressed: _isTesting ? null : _runTests,
+              icon: _isTesting
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.play_arrow),
+              label: Text(_isTesting ? t.settings.downloadSettings.testInProgress : t.settings.downloadSettings.runTest),
+            ),
           ],
         ),
-      ),
+        const SizedBox(height: 8),
+        Text(
+          t.settings.downloadSettings.testDownloadPathAndPermissions,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: Theme.of(context).textTheme.bodySmall?.color,
+          ),
+        ),
+
+        if (_testResults.isNotEmpty) ...[ 
+          const SizedBox(height: 16),
+          const Divider(),
+          const SizedBox(height: 16),
+
+          Text(
+            t.settings.downloadSettings.testResults,
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          
+          ..._testResults.map((result) => _buildTestResultItem(result)),
+        ],
+      ],
     );
   }
 
@@ -189,7 +270,7 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
     final t = slang.Translations.of(context);
     try {
       final downloadPathService = Get.find<DownloadPathService>();
-      final pathInfo = await downloadPathService.getPathStatusInfo();
+      final pathInfo = await downloadPathService.getPathStatusInfoAsync();
 
       return TestResult(
         name: t.settings.downloadSettings.testDownloadPathValidation,
@@ -244,7 +325,7 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
     final t = slang.Translations.of(context);
     try {
       final downloadPathService = Get.find<DownloadPathService>();
-      final pathInfo = await downloadPathService.getPathStatusInfo();
+      final pathInfo = await downloadPathService.getPathStatusInfoAsync();
       final testPath = '${pathInfo.currentPath}/test';
 
       final testDir = Directory(testPath);

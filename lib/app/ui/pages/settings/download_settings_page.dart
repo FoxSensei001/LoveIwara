@@ -81,26 +81,22 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 8,
           children: [
-            // 权限状态显示
-            _buildPermissionSection(context),
-            const SizedBox(height: 16),
-
-            // 路径状态显示
-            _buildPathStatusWidget(context),
-            const SizedBox(height: 16),
+            // 文件命名模板设置
+            _buildFilenameTemplateSection(context),
 
             // 推荐路径选择
             RecommendedPathsWidget(onPathSelected: () => setState(() {})),
-            const SizedBox(height: 16),
+
+            // 权限状态显示
+            _buildPermissionSection(context),
+
+            // 路径状态显示
+            _buildPathStatusWidget(context),
 
             // 自定义下载路径设置
             _buildCustomPathSection(context),
-            const SizedBox(height: 16),
-
-            // 文件命名模板设置
-            _buildFilenameTemplateSection(context),
-            const SizedBox(height: 16),
 
             // 功能测试
             const DownloadTestWidget(),
@@ -121,7 +117,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
     return Card(
       elevation: 2,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -137,6 +133,16 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                   t.settings.downloadSettings.storagePermissionStatus,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Spacer(),
+                IconButton(
+                  onPressed: () => DownloadTestWidget.showTestDialog(context),
+                  icon: const Icon(Icons.bug_report, size: 18),
+                  tooltip: t.settings.downloadSettings.functionalTest,
+                  style: IconButton.styleFrom(
+                    padding: const EdgeInsets.all(8),
+                    minimumSize: const Size(32, 32),
                   ),
                 ),
               ],
@@ -286,7 +292,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                 snapshot.data == null) {
               return Card(
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Row(
                     children: [
                       const SizedBox(
@@ -342,7 +348,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
     if (pathInfo.currentPath.isEmpty) {
       return Card(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             children: [
               const Icon(Icons.error, color: Colors.red),
@@ -356,7 +362,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -374,6 +380,16 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                const Spacer(),
+                IconButton(
+                  onPressed: () => DownloadTestWidget.showTestDialog(context),
+                  icon: const Icon(Icons.bug_report, size: 18),
+                  tooltip: t.settings.downloadSettings.functionalTest,
+                  style: IconButton.styleFrom(
+                    padding: const EdgeInsets.all(8),
+                    minimumSize: const Size(32, 32),
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 12),
@@ -385,7 +401,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
               decoration: BoxDecoration(
                 color: Theme.of(
                   context,
-                ).colorScheme.surfaceVariant.withOpacity(0.5),
+                ).colorScheme.surfaceContainerHighest.withOpacity(0.5),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Column(
@@ -523,7 +539,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
     return Card(
       elevation: 2,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -823,6 +839,17 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                             ),
                           ),
                         ),
+                        const SizedBox(width: 8),
+                        ElevatedButton.icon(
+                          onPressed: isEnabled ? () => DownloadTestWidget.showTestDialog(context) : null,
+                          icon: const Icon(Icons.bug_report, size: 18),
+                          label: Text(
+                            t.settings.downloadSettings.runTest,
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -840,7 +867,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
     return Card(
       elevation: 2,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
