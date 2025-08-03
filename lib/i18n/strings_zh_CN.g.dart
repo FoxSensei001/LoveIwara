@@ -1468,10 +1468,10 @@ class _TranslationsOreno3dSortTypesZhCn implements TranslationsOreno3dSortTypesE
 	final TranslationsZhCn _root; // ignore: unused_field
 
 	// Translations
-	@override String get hot => '急上昇';
-	@override String get favorites => '高評価';
-	@override String get latest => '新着';
-	@override String get popularity => '人気';
+	@override String get hot => '热门';
+	@override String get favorites => '高评价';
+	@override String get latest => '最新';
+	@override String get popularity => '人气';
 }
 
 // Path: oreno3d.errors
@@ -2388,10 +2388,10 @@ extension on TranslationsZhCn {
 			case 'oreno3d.characters': return '角色';
 			case 'oreno3d.origin': return '原作';
 			case 'oreno3d.thirdPartyTagsExplanation': return '此处显示的**标签**、**角色**和**原作**信息来自第三方站点 **Oreno3D**，仅供参考。\n\n由于此信息来源只有日文，目前缺乏国际化适配。\n\n如果你有兴趣参与国际化建设，欢迎访问相关仓库贡献你的力量！';
-			case 'oreno3d.sortTypes.hot': return '急上昇';
-			case 'oreno3d.sortTypes.favorites': return '高評価';
-			case 'oreno3d.sortTypes.latest': return '新着';
-			case 'oreno3d.sortTypes.popularity': return '人気';
+			case 'oreno3d.sortTypes.hot': return '热门';
+			case 'oreno3d.sortTypes.favorites': return '高评价';
+			case 'oreno3d.sortTypes.latest': return '最新';
+			case 'oreno3d.sortTypes.popularity': return '人气';
 			case 'oreno3d.errors.requestFailed': return '请求失败，状态码';
 			case 'oreno3d.errors.connectionTimeout': return '连接超时，请检查网络连接';
 			case 'oreno3d.errors.sendTimeout': return '发送请求超时';

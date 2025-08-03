@@ -712,10 +712,10 @@ oreno3d:
 
     如果你有兴趣参与国际化建设，欢迎访问相关仓库贡献你的力量！
   sortTypes:
-    hot: 急上昇
-    favorites: 高評価
-    latest: 新着
-    popularity: 人気
+    hot: 热门
+    favorites: 高评价
+    latest: 最新
+    popularity: 人气
   errors:
     requestFailed: 请求失败，状态码
     connectionTimeout: 连接超时，请检查网络连接

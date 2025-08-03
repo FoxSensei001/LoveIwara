@@ -706,9 +706,9 @@ oreno3d:
 
     如果你有興趣參與國際化建設，歡迎訪問相關倉庫貢獻你的力量！
   sortTypes:
-    hot: 急上昇
+    hot: 熱門
     favorites: 高評價
-    latest: 新着
+    latest: 最新
     popularity: 人氣
   errors:
     requestFailed: 請求失敗，狀態碼

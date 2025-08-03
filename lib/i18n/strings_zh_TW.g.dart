@@ -1466,9 +1466,9 @@ class _TranslationsOreno3dSortTypesZhTw implements TranslationsOreno3dSortTypesE
 	final TranslationsZhTw _root; // ignore: unused_field
 
 	// Translations
-	@override String get hot => '急上昇';
+	@override String get hot => '熱門';
 	@override String get favorites => '高評價';
-	@override String get latest => '新着';
+	@override String get latest => '最新';
 	@override String get popularity => '人氣';
 }
 
@@ -2381,9 +2381,9 @@ extension on TranslationsZhTw {
 			case 'oreno3d.characters': return '角色';
 			case 'oreno3d.origin': return '原作';
 			case 'oreno3d.thirdPartyTagsExplanation': return '此處顯示的**標籤**、**角色**和**原作**資訊來自第三方站點 **Oreno3D**，僅供參考。\n\n由於此資訊來源只有日文，目前缺乏國際化適配。\n\n如果你有興趣參與國際化建設，歡迎訪問相關倉庫貢獻你的力量！';
-			case 'oreno3d.sortTypes.hot': return '急上昇';
+			case 'oreno3d.sortTypes.hot': return '熱門';
 			case 'oreno3d.sortTypes.favorites': return '高評價';
-			case 'oreno3d.sortTypes.latest': return '新着';
+			case 'oreno3d.sortTypes.latest': return '最新';
 			case 'oreno3d.sortTypes.popularity': return '人氣';
 			case 'oreno3d.errors.requestFailed': return '請求失敗，狀態碼';
 			case 'oreno3d.errors.connectionTimeout': return '連接超時，請檢查網路連接';

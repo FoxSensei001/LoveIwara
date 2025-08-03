@@ -264,6 +264,20 @@ class _SearchResultState extends State<SearchResult> {
     });
   }
 
+  // 检查是否应该隐藏搜索输入框
+  bool _shouldHideSearchInput() {
+    final segment = searchController.selectedSegment.value;
+    final extData = searchController.extData.value;
+    
+    // 如果是 oreno3d 模式且有扩展数据（表示不是 /search API）
+    if (segment == 'oreno3d' && extData != null) {
+      final searchType = extData['searchType'] as String?;
+      return searchType != null && ['origin', 'tag', 'character'].contains(searchType);
+    }
+    
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
@@ -306,72 +320,76 @@ class _SearchResultState extends State<SearchResult> {
               padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
               child: Row(
                 children: [
-                  Expanded(
-                    child: Material(
-                      elevation: 0,
-                      color: Theme.of(context)
-                          .colorScheme
-                          .surfaceContainerHighest
-                          .withValues(alpha: 0.5),
-                      borderRadius: BorderRadius.circular(12),
-                      clipBehavior: Clip.antiAlias,
-                      child: TextField(
-                        controller: _searchController,
-                        readOnly: true,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: searchController.currentSearch.value.isEmpty
-                              ? t.search.pleaseEnterSearchContent
-                              : searchController.currentSearch.value,
-                          hintStyle: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurfaceVariant,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                          border: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          prefixIcon: Icon(
-                            Icons.search,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurfaceVariant,
-                          ),
-                          filled: true,
-                          fillColor: Colors.transparent,
-                        ),
-                        onTap: () {
-                          Get.dialog(
-                            SearchDialog(
-                              initialSearch:
-                                  searchController.currentSearch.value,
-                              initialSegment: SearchSegment.fromValue(
-                                searchController.selectedSegment.value,
-                              ),
-                              onSearch: (searchInfo, segment) {
-                                // 更新搜索参数
-                                searchController.updateSearch(searchInfo);
-                                searchController.updateSegment(segment);
-
-                                // 更新UI
-                                _searchController.text = searchInfo;
-                                searchController.refreshSearch();
-
-                                // 关闭对话框
-                                Get.back();
-                              },
+                  // 根据条件决定是否显示搜索输入框
+                  Obx(() => _shouldHideSearchInput() 
+                    ? const Spacer() // 使用 Spacer 推动右侧按钮到右边
+                    : Expanded(
+                        child: Material(
+                          elevation: 0,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest
+                              .withValues(alpha: 0.5),
+                          borderRadius: BorderRadius.circular(12),
+                          clipBehavior: Clip.antiAlias,
+                          child: TextField(
+                            controller: _searchController,
+                            readOnly: true,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
-                          );
-                        },
+                            decoration: InputDecoration(
+                              hintText: searchController.currentSearch.value.isEmpty
+                                  ? t.search.pleaseEnterSearchContent
+                                  : searchController.currentSearch.value,
+                              hintStyle: TextStyle(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
+                              border: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              prefixIcon: Icon(
+                                Icons.search,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
+                              filled: true,
+                              fillColor: Colors.transparent,
+                            ),
+                            onTap: () {
+                              Get.dialog(
+                                SearchDialog(
+                                  initialSearch:
+                                      searchController.currentSearch.value,
+                                  initialSegment: SearchSegment.fromValue(
+                                    searchController.selectedSegment.value,
+                                  ),
+                                  onSearch: (searchInfo, segment) {
+                                    // 更新搜索参数
+                                    searchController.updateSearch(searchInfo);
+                                    searchController.updateSegment(segment);
+
+                                    // 更新UI
+                                    _searchController.text = searchInfo;
+                                    searchController.refreshSearch();
+
+                                    // 关闭对话框
+                                    Get.back();
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                        ),
                       ),
-                    ),
                   ),
                   // 分段选择下拉框（图标样式）
                   Container(
