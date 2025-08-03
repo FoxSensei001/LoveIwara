@@ -559,6 +559,14 @@ class _HorizontalImageListState extends State<HorizontalImageList>
 
   // 构建视频内容
   Widget _buildVideoContent(BuildContext context, ImageItem imageItem) {
+    final fileExtension = CommonUtils.getFileExtension(imageItem.url).toLowerCase();
+    
+    // 对于webm格式，直接显示静态预览而不是实际加载视频
+    if (fileExtension == 'webm') {
+      return _buildWebmPlaceholder(context, imageItem);
+    }
+    
+    // 对于其他视频格式，使用原来的视频缩略图组件
     return _VideoThumbnailWidget(
       videoUrl: imageItem.url,
       imageItem: imageItem,
@@ -566,6 +574,90 @@ class _HorizontalImageListState extends State<HorizontalImageList>
       onError: (error) {
         LogUtils.e('加载视频失败: ${imageItem.url}', tag: 'ImageList', error: error);
       },
+    );
+  }
+
+  // 构建webm占位符
+  Widget _buildWebmPlaceholder(BuildContext context, ImageItem imageItem) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey[900],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // 背景渐变
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.grey[800]!,
+                  Colors.grey[900]!,
+                ],
+              ),
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          
+          // 视频图标和文字
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.play_circle_outline,
+                  color: Colors.white,
+                  size: 48,
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'WEBM',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // 视频标识
+          Positioned(
+            top: 8,
+            right: 8,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.7),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.videocam,
+                    color: Colors.white,
+                    size: 12,
+                  ),
+                  SizedBox(width: 2),
+                  Text(
+                    'WEBM',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -627,11 +719,16 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
         }
       });
 
+      // 添加额外的配置来支持 webm 格式
+      await _player.setAudioTrack(AudioTrack.no());  // 禁用音频避免权限问题
+      
       // 打开视频但不自动播放
-      await _player.open(Media(widget.videoUrl));
+      final media = Media(widget.videoUrl);
+      await _player.open(media);
       await _player.pause(); // 确保暂停状态
 
     } catch (e) {
+      LogUtils.e('视频初始化失败: ${widget.videoUrl}', tag: 'VideoThumbnail', error: e);
       if (mounted) {
         setState(() {
           _hasError = true;
@@ -766,24 +863,17 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(
-              Icons.error_outline,
-              color: Colors.red,
+              Icons.video_library,
+              color: Colors.orange,
               size: 48,
             ),
             const SizedBox(height: 8),
             Text(
-              '视频加载失败',
+              'WEBM',
               style: TextStyle(
-                color: Colors.red,
+                color: Colors.orange,
                 fontSize: 14,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              '格式: ${fileExtension.toUpperCase()}',
-              style: TextStyle(
-                color: Colors.red.withValues(alpha: 0.7),
-                fontSize: 12,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ],

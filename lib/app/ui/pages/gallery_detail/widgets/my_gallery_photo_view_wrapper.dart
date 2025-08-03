@@ -8,8 +8,12 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:i_iwara/utils/common_utils.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:media_kit/media_kit.dart';
+import 'package:media_kit_video/media_kit_video.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import 'menu_item_widget.dart';
 
@@ -50,6 +54,21 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
 
   // 使用Map存储每个图片的重新加载时间戳
   final Map<int, int> _reloadTimestamps = {};
+
+  // 检测媒体类型
+  bool _isVideo(String url) {
+    final extension = CommonUtils.getFileExtension(url).toLowerCase();
+    return [
+      'mp4',
+      'webm',
+      'mov',
+      'avi',
+      'mkv',
+      'flv',
+      'wmv',
+      'm4v',
+    ].contains(extension);
+  }
 
   // 添加左右侧点击反馈动画控制器
   late AnimationController _leftSideAnimationController;
@@ -426,7 +445,9 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                         ? '${widget.galleryItems[index].data.originalUrl}?reload=${_reloadTimestamps[index]}'
                         : widget.galleryItems[index].data.originalUrl;
 
-                    // 简化的图片显示，只保留双击缩放
+                    // 检查是否为视频文件
+                    bool isVideo = _isVideo(imageUrl);
+
                     return PhotoViewGalleryPageOptions.customChild(
                       child: GestureDetector(
                         onDoubleTap: () {
@@ -448,14 +469,21 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                               key: ValueKey(
                                 '${widget.galleryItems[index]}_${_reloadTimestamps[index] ?? 0}',
                               ),
-                              child: imageUrl.startsWith('file://')
+                              child: isVideo
+                                  ? _VideoPlayerWidget(
+                                      videoUrl: imageUrl,
+                                      headers:
+                                          widget.galleryItems[index].headers,
+                                    )
+                                  : imageUrl.startsWith('file://')
                                   ? Image.file(
-                                      File(imageUrl.replaceFirst('file://', '')),
+                                      File(
+                                        imageUrl.replaceFirst('file://', ''),
+                                      ),
                                       fit: BoxFit.contain,
                                     )
-                                  : Image.network(
-                                      imageUrl,
-                                      fit: BoxFit.contain,
+                                  : _ImageWidget(
+                                      imageUrl: imageUrl,
                                       headers: widget.galleryItems[index].headers,
                                     ),
                             ),
@@ -481,7 +509,8 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                   left: 0,
                   top: 0,
                   bottom: 0,
-                  width: tapAreaWidth, // Use the calculated tapAreaWidth
+                  width: tapAreaWidth,
+                  // Use the calculated tapAreaWidth
                   child: MouseRegion(
                     onEnter: (_) {
                       if (!_leftSideAnimationController.isAnimating &&
@@ -561,7 +590,8 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                   right: 0,
                   top: 0,
                   bottom: 0,
-                  width: tapAreaWidth, // Use the calculated tapAreaWidth
+                  width: tapAreaWidth,
+                  // Use the calculated tapAreaWidth
                   child: MouseRegion(
                     onEnter: (_) {
                       if (!_rightSideAnimationController.isAnimating &&
@@ -684,6 +714,326 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
           ),
         ),
       ),
+    );
+  }
+}
+
+// 视频播放器组件
+class _VideoPlayerWidget extends StatefulWidget {
+  final String videoUrl;
+  final Map<String, String>? headers;
+
+  const _VideoPlayerWidget({required this.videoUrl, this.headers});
+
+  @override
+  State<_VideoPlayerWidget> createState() => _VideoPlayerWidgetState();
+}
+
+class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
+  late Player _player;
+  late VideoController _videoController;
+  bool _isInitialized = false;
+  bool _hasError = false;
+  String? _errorMessage;
+  bool _isPlaying = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializePlayer();
+  }
+
+  Future<void> _initializePlayer() async {
+    try {
+      _player = Player();
+      _videoController = VideoController(_player);
+
+      // 监听播放器状态
+      _player.stream.error.listen((error) {
+        if (mounted) {
+          setState(() {
+            _hasError = true;
+            _errorMessage = error;
+          });
+        }
+      });
+
+      _player.stream.buffering.listen((buffering) {
+        if (mounted && !buffering && !_isInitialized) {
+          setState(() {
+            _isInitialized = true;
+          });
+        }
+      });
+
+      _player.stream.playing.listen((playing) {
+        if (mounted) {
+          setState(() {
+            _isPlaying = playing;
+          });
+        }
+      });
+
+      // 打开视频但不自动播放
+      if (widget.videoUrl.startsWith('file://')) {
+        await _player.open(Media(widget.videoUrl));
+      } else {
+        await _player.open(Media(widget.videoUrl));
+      }
+      await _player.pause(); // 确保暂停状态
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _hasError = true;
+          _errorMessage = e.toString();
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _player.dispose();
+    super.dispose();
+  }
+
+  void _togglePlayPause() {
+    if (_isPlaying) {
+      _player.pause();
+    } else {
+      _player.play();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_hasError) {
+      return _buildErrorWidget();
+    }
+
+    if (!_isInitialized) {
+      return _buildLoadingWidget();
+    }
+
+    return GestureDetector(
+      onTap: _togglePlayPause,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // 视频播放器
+          Video(
+            controller: _videoController,
+            controls: NoVideoControls,
+            fit: BoxFit.contain,
+          ),
+
+          // 播放/暂停图标覆盖层
+          if (!_isPlaying)
+            Center(
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.6),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.play_arrow,
+                  color: Colors.white,
+                  size: 48,
+                ),
+              ),
+            ),
+
+          // 视频标识
+          Positioned(
+            top: 16,
+            right: 16,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.7),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.videocam, color: Colors.white, size: 16),
+                  SizedBox(width: 4),
+                  Text(
+                    'VIDEO',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoadingWidget() {
+    return Container(
+      color: Colors.black,
+      child: const Center(
+        child: CircularProgressIndicator(color: Colors.white),
+      ),
+    );
+  }
+
+  Widget _buildErrorWidget() {
+    final fileExtension = CommonUtils.getFileExtension(widget.videoUrl);
+
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        margin: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.red.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.error_outline, color: Colors.red, size: 64),
+            const SizedBox(height: 16),
+            const Text(
+              '视频加载失败',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '格式: ${fileExtension.toUpperCase()}',
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.7),
+                fontSize: 14,
+              ),
+            ),
+            if (_errorMessage != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                _errorMessage!,
+                style: TextStyle(
+                  color: Colors.red.withValues(alpha: 0.8),
+                  fontSize: 12,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// 图片组件，带有加载进度条
+class _ImageWidget extends StatelessWidget {
+  final String imageUrl;
+  final Map<String, String>? headers;
+
+  const _ImageWidget({
+    required this.imageUrl,
+    this.headers,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return CachedNetworkImage(
+      imageUrl: imageUrl,
+      httpHeaders: headers,
+      fit: BoxFit.contain,
+      errorWidget: (context, url, error) {
+        LogUtils.e('图片加载失败: $url', tag: 'ImageWidget', error: error);
+
+        final fileExtension = CommonUtils.getFileExtension(url);
+        final isUnsupportedFormat = error is Exception &&
+            error.toString().contains('Invalid image data');
+
+        return Center(
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            margin: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.red.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.broken_image_rounded,
+                  color: Colors.red,
+                  size: 64,
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  '图片加载失败',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '格式: ${fileExtension.toUpperCase()}',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.7),
+                    fontSize: 14,
+                  ),
+                ),
+                if (isUnsupportedFormat) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    '不支持的图片格式，请尝试其他查看器',
+                    style: TextStyle(
+                      color: Colors.red.withValues(alpha: 0.8),
+                      fontSize: 12,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
+      progressIndicatorBuilder: (context, url, downloadProgress) {
+        return Container(
+          color: Colors.black,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(
+                  value: downloadProgress.progress,
+                  color: Colors.white,
+                  strokeWidth: 2.0,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  '加载中... ${downloadProgress.progress != null ? '${(downloadProgress.progress! * 100).toInt()}%' : ''}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
