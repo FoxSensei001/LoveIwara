@@ -300,6 +300,7 @@ errors:
     networkUnreachable: 'ネットワークに到達できません'
     noRouteToHost: 'ホストに到達できません'
     connectionFailed: '接続に失敗しました'
+    sslConnectionFailed: 'SSL接続に失敗しました。ネットワーク設定を確認してください'
 friends:
   clickToRestoreFriend: 友達を復元するにはクリックしてください
   friendsList: 友達リスト

@@ -11,6 +11,7 @@ import 'package:i_iwara/app/models/oreno3d_video.model.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
+import 'package:i_iwara/utils/common_utils.dart';
 
 import 'api_service.dart';
 import 'oreno3d_client.dart';
@@ -66,7 +67,26 @@ class SearchService extends GetxController {
         ),
       );
     } catch (e) {
-      return ApiResult.fail(t.errors.failedToFetchData);
+      // 保留原始错误信息而不是使用通用消息
+      String errorMessage;
+      
+      // 使用CommonUtils.parseExceptionMessage来统一处理错误信息
+      errorMessage = CommonUtils.parseExceptionMessage(e);
+      
+      // 如果还是空或者null，提供默认错误信息
+      if (errorMessage.isEmpty || errorMessage == 'null') {
+        if (e.toString().contains('HandshakeException')) {
+          errorMessage = '网络连接失败，请检查网络设置或稍后重试';
+        } else if (e.toString().contains('SocketException')) {
+          errorMessage = '无法连接到服务器，请检查网络连接';
+        } else if (e.toString().contains('TimeoutException')) {
+          errorMessage = '请求超时，请稍后重试';
+        } else {
+          errorMessage = '搜索失败，请稍后重试';
+        }
+      }
+      
+      return ApiResult.fail(errorMessage);
     }
   }
 

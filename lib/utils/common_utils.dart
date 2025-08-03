@@ -376,6 +376,9 @@ class CommonUtils {
                 ? withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.invalidPort}: $port')
                 : withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.proxyPortError}');
           }
+          if (errorMessage.contains('HandshakeException') || errorMessage.contains('Connection terminated during handshake')) {
+            return withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.sslConnectionFailed}');
+          }
           // 兜底返回原始错误信息
           return errorMessage.isNotEmpty
               ? errorMessage
@@ -390,6 +393,10 @@ class CommonUtils {
     // 处理非DioException类型的错误
     final String errorString = error?.toString() ?? '';
     if (errorString.isNotEmpty && errorString != 'null') {
+      // 检查是否为HandshakeException
+      if (errorString.contains('HandshakeException') || errorString.contains('Connection terminated during handshake')) {
+        return withDesktopHint('${slang.t.errors.network.basicPrefix}${slang.t.errors.network.sslConnectionFailed}');
+      }
       return errorString;
     }
 

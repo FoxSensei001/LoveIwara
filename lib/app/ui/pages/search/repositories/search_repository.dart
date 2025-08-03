@@ -33,16 +33,14 @@ abstract class SearchRepository<T> extends ExtendedLoadingMoreBase<T> {
           'data': response.data,
         };
       } else {
-        return {
-          'success': false,
-          'error': response.message,
-        };
+        // 存储错误消息到当前实例
+        lastErrorMessage = response.message;
+        throw Exception(response.message);
       }
     } catch (e) {
-      return {
-        'success': false,
-        'error': e.toString(),
-      };
+      // 存储错误消息到当前实例
+      lastErrorMessage = e.toString();
+      rethrow; // 重新抛出异常以便被ExtendedLoadingMoreBase捕获
     }
   }
   
@@ -51,18 +49,16 @@ abstract class SearchRepository<T> extends ExtendedLoadingMoreBase<T> {
   
   @override
   List<T> extractDataList(Map<String, dynamic> response) {
-    if (response['success'] == true) {
-      return response['data'].results as List<T>;
-    }
-    return [];
+    // 由于我们在 fetchDataFromSource 中已经处理了错误情况
+    // 这里只会收到成功的响应
+    return response['data'].results as List<T>;
   }
   
   @override
   int extractTotalCount(Map<String, dynamic> response) {
-    if (response['success'] == true) {
-      return response['data'].count as int;
-    }
-    return 0;
+    // 由于我们在 fetchDataFromSource 中已经处理了错误情况
+    // 这里只会收到成功的响应
+    return response['data'].count as int;
   }
   
   @override

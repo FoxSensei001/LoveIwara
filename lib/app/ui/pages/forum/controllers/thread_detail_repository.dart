@@ -4,6 +4,7 @@ import 'package:i_iwara/app/models/history_record.dart';
 import 'package:i_iwara/app/repositories/history_repository.dart';
 import 'package:i_iwara/app/services/forum_service.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:i_iwara/utils/common_utils.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 
 class ThreadDetailRepository extends LoadingMoreBase<ThreadCommentModel> {
@@ -13,6 +14,9 @@ class ThreadDetailRepository extends LoadingMoreBase<ThreadCommentModel> {
   final Function(ForumThreadModel thread)? updateThread;
   bool firstLoad = true;
   final HistoryRepository _historyRepository = HistoryRepository();
+  
+  // 添加错误消息存储
+  String? lastErrorMessage;
 
   ThreadDetailRepository({
     required this.categoryId,
@@ -48,6 +52,8 @@ class ThreadDetailRepository extends LoadingMoreBase<ThreadCommentModel> {
       );
 
       if (!result.isSuccess) {
+        // 存储错误消息
+        lastErrorMessage = result.message;
         throw Exception(result.message);
       }
 
@@ -75,6 +81,8 @@ class ThreadDetailRepository extends LoadingMoreBase<ThreadCommentModel> {
       isSuccess = true;
     } catch (exception, stack) {
       isSuccess = false;
+      // 存储具体的错误消息
+      lastErrorMessage = CommonUtils.parseExceptionMessage(exception);
       LogUtils.e('加载帖子评论列表失败',
           error: exception, stack: stack, tag: 'ThreadDetailRepository');
     }

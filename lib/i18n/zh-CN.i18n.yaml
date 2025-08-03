@@ -306,6 +306,7 @@ errors:
     networkUnreachable: '网络不可达'
     noRouteToHost: '无法找到主机'
     connectionFailed: '连接失败'
+    sslConnectionFailed: 'SSL连接失败，请检查网络设置'
 friends:
   clickToRestoreFriend: 点击恢复好友
   friendsList: 好友列表

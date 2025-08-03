@@ -4,6 +4,7 @@ import 'package:i_iwara/app/models/forum.model.dart';
 import 'package:i_iwara/app/services/forum_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:i_iwara/utils/common_utils.dart';
 
 /// 线程列表数据源，支持瀑布流和分页模式
 class ThreadListRepository extends ExtendedLoadingMoreBase<ForumThreadModel> {
@@ -26,6 +27,8 @@ class ThreadListRepository extends ExtendedLoadingMoreBase<ForumThreadModel> {
     );
 
     if (!result.isSuccess) {
+      // 存储错误消息到当前实例
+      lastErrorMessage = result.message;
       throw Exception(result.message);
     }
 
@@ -46,6 +49,8 @@ class ThreadListRepository extends ExtendedLoadingMoreBase<ForumThreadModel> {
       
       return data;
     } catch (e, stack) {
+      // 存储具体的错误消息
+      lastErrorMessage = CommonUtils.parseExceptionMessage(e);
       logError('加载分页数据失败', e, stack);
       return [];
     }

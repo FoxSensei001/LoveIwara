@@ -20,39 +20,42 @@ class SubscriptionVideoRepository extends ExtendedLoadingMoreBase<Video> {
 
   @override
   Future<Map<String, dynamic>> fetchDataFromSource(Map<String, dynamic> params, int page, int limit) async {
-    final result = await _videoService.fetchVideosByParams(
-      params: params,
-      page: page,
-      limit: limit,
-    );
-    
-    if (result.isSuccess && result.data != null) {
-      return {
-        'success': true,
-        'data': result.data!,
-      };
+    try {
+      final result = await _videoService.fetchVideosByParams(
+        params: params,
+        page: page,
+        limit: limit,
+      );
+      
+      if (result.isSuccess && result.data != null) {
+        return {
+          'success': true,
+          'data': result.data!,
+        };
+      } else {
+        // 存储错误消息到当前实例
+        lastErrorMessage = result.message;
+        throw Exception(result.message);
+      }
+    } catch (e) {
+      // 存储错误消息到当前实例
+      lastErrorMessage = e.toString();
+      rethrow; // 重新抛出异常以便被ExtendedLoadingMoreBase捕获
     }
-    
-    return {
-      'success': false,
-      'error': result.message,
-    };
   }
   
   @override
   List<Video> extractDataList(Map<String, dynamic> response) {
-    if (response['success'] == true) {
-      return response['data'].results as List<Video>;
-    }
-    return [];
+    // 由于我们在 fetchDataFromSource 中已经处理了错误情况
+    // 这里只会收到成功的响应
+    return response['data'].results as List<Video>;
   }
   
   @override
   int extractTotalCount(Map<String, dynamic> response) {
-    if (response['success'] == true) {
-      return response['data'].count as int;
-    }
-    return 0;
+    // 由于我们在 fetchDataFromSource 中已经处理了错误情况
+    // 这里只会收到成功的响应
+    return response['data'].count as int;
   }
   
   @override

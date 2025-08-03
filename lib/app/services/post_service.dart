@@ -8,6 +8,7 @@ import 'package:i_iwara/app/services/api_service.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 class PostService extends GetxService {
   final ApiService _apiService = Get.find();
@@ -20,7 +21,8 @@ class PostService extends GetxService {
       return ApiResult.success(data: PostModel.fromJson(response.data));
     } catch (e) {
       LogUtils.e('获取帖子详情失败', tag: 'PostService', error: e);
-      return ApiResult.fail(t.errors.failedToFetchData);
+      final errorMessage = CommonUtils.parseExceptionMessage(e);
+      return ApiResult.fail(errorMessage, exception: e);
     }
   }
 
@@ -53,7 +55,8 @@ class PostService extends GetxService {
       return ApiResult.success(data: pageData);
     } catch (e) {
       LogUtils.e('获取帖子列表失败', tag: 'PostService', error: e);
-      return ApiResult.fail(t.errors.failedToFetchData);
+      final errorMessage = CommonUtils.parseExceptionMessage(e);
+      return ApiResult.fail(errorMessage, exception: e);
     }
   }
 
@@ -91,7 +94,8 @@ class PostService extends GetxService {
         }
       }
       LogUtils.e('发送帖子失败', tag: 'PostService', error: e);
-      return ApiResult.fail(t.errors.failedToOperate);
+      final errorMessage = CommonUtils.parseExceptionMessage(e);
+      return ApiResult.fail(errorMessage, exception: e);
     }
   }
 
@@ -107,7 +111,8 @@ class PostService extends GetxService {
       return ApiResult.success(data: PostCooldownModel.fromJson(response.data));
     } catch (e) {
       LogUtils.e('获取冷却时间失败', tag: 'PostService', error: e);
-      return ApiResult.fail(t.errors.failedToFetchData);
+      final errorMessage = CommonUtils.parseExceptionMessage(e);
+      return ApiResult.fail(errorMessage, exception: e);
     }
   }
 }

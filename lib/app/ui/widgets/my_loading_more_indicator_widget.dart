@@ -9,11 +9,35 @@ Widget myLoadingMoreIndicator(
   bool isSliver = true,
   LoadingMoreBase? loadingMoreBase,
   double paddingTop = 0,
+  IconData? emptyIcon,
 }) {
   Widget? widget;
   final t = slang.Translations.of(context);
 
-  switch (status) {
+  // 尝试获取具体的错误消息
+  String? errorMessage;
+  if (loadingMoreBase != null) {
+    try {
+      final dynamic repository = loadingMoreBase;
+      // 检查是否有lastErrorMessage属性
+      if (repository.lastErrorMessage != null) {
+        errorMessage = repository.lastErrorMessage as String?;
+      }
+    } catch (_) {
+      // 如果获取失败，使用默认错误消息
+    }
+  }
+
+  // 如果有错误消息且列表为空且状态为empty，强制显示错误状态
+  IndicatorStatus actualStatus = status;
+  if (errorMessage != null && 
+      errorMessage.isNotEmpty && 
+      status == IndicatorStatus.empty && 
+      (loadingMoreBase?.isEmpty ?? false)) {
+    actualStatus = IndicatorStatus.fullScreenError;
+  }
+
+  switch (actualStatus) {
     case IndicatorStatus.none:
       widget = Container(height: 0.0);
       break;
@@ -70,7 +94,7 @@ Widget myLoadingMoreIndicator(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 const Icon(Icons.error, color: Colors.red),
-                Text(t.errors.errorOccurred),
+                Text(errorMessage?.isNotEmpty == true ? errorMessage! : t.errors.errorOccurred),
               ],
             ),
           ),
@@ -84,7 +108,7 @@ Widget myLoadingMoreIndicator(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Icon(Icons.error, color: Colors.red),
-            Text(t.errors.errorOccurred),
+            Text(errorMessage?.isNotEmpty == true ? errorMessage! : t.errors.errorOccurred),
           ],
         ),
       );

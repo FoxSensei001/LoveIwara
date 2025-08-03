@@ -1323,6 +1323,7 @@ class _TranslationsErrorsNetworkZhTw implements TranslationsErrorsNetworkEn {
 	@override String get networkUnreachable => '網路不可達';
 	@override String get noRouteToHost => '無法找到主機';
 	@override String get connectionFailed => '連接失敗';
+	@override String get sslConnectionFailed => 'SSL連接失敗，請檢查網絡設置';
 }
 
 // Path: settings.downloadSettings
@@ -2009,6 +2010,7 @@ extension on TranslationsZhTw {
 			case 'errors.network.networkUnreachable': return '網路不可達';
 			case 'errors.network.noRouteToHost': return '無法找到主機';
 			case 'errors.network.connectionFailed': return '連接失敗';
+			case 'errors.network.sslConnectionFailed': return 'SSL連接失敗，請檢查網絡設置';
 			case 'friends.clickToRestoreFriend': return '點擊恢復朋友';
 			case 'friends.friendsList': return '朋友列表';
 			case 'friends.friendRequests': return '朋友請求';

@@ -299,6 +299,7 @@ errors:
     networkUnreachable: 'Network unreachable'
     noRouteToHost: 'No route to host'
     connectionFailed: 'Connection failed'
+    sslConnectionFailed: 'SSL connection failed, please check your network settings'
 friends:
   clickToRestoreFriend: Click to restore friend
   friendsList: Friends List

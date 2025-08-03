@@ -299,6 +299,7 @@ errors:
     networkUnreachable: '網路不可達'
     noRouteToHost: '無法找到主機'
     connectionFailed: '連接失敗'
+    sslConnectionFailed: 'SSL連接失敗，請檢查網絡設置'
 friends:
   clickToRestoreFriend: 點擊恢復朋友
   friendsList: 朋友列表

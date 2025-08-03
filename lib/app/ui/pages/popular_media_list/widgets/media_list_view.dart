@@ -520,10 +520,6 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
                 ),
                 lastChildLayoutType: LastChildLayoutType.foot,
                 indicatorBuilder: (context, status) {
-                  // 判断是否为全屏状态
-                  final bool isFullScreenIndicator = status == IndicatorStatus.fullScreenBusying ||
-                                                    status == IndicatorStatus.fullScreenError ||
-                                                    status == IndicatorStatus.empty;
                   // 获取错误消息
                   String? errorMessage = _errorMessage;
                   if (widget.sourceList is ExtendedLoadingMoreBase<T>) {
@@ -531,9 +527,23 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
                     errorMessage = extendedList.lastErrorMessage ?? _errorMessage;
                   }
 
+                  // 如果有错误消息且列表为空，强制显示全屏错误状态
+                  IndicatorStatus actualStatus = status;
+                  if (errorMessage != null && 
+                      errorMessage.isNotEmpty && 
+                      status == IndicatorStatus.empty && 
+                      widget.sourceList.isEmpty) {
+                    actualStatus = IndicatorStatus.fullScreenError;
+                  }
+
+                  // 判断是否为全屏状态
+                  final bool isFullScreenIndicator = actualStatus == IndicatorStatus.fullScreenBusying ||
+                                                    actualStatus == IndicatorStatus.fullScreenError ||
+                                                    actualStatus == IndicatorStatus.empty;
+
                   return buildIndicator(
                     context,
-                    status,
+                    actualStatus,
                     () => widget.sourceList.errorRefresh(),
                     emptyIcon: widget.emptyIcon,
                     paddingTop: isFullScreenIndicator ? widget.paddingTop : 0,

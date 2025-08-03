@@ -7,6 +7,7 @@ import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/services/api_service.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 // 分类名称映射
@@ -85,7 +86,8 @@ class ForumService extends GetxService {
       jsonBody['title'] = title;
     } catch (e) {
       LogUtils.e('在编辑帖子标题时，获取帖子详情失败', tag: 'ForumService', error: e);
-      return ApiResult.fail(slang.t.errors.failedToFetchData);
+      final errorMessage = CommonUtils.parseExceptionMessage(e);
+      return ApiResult.fail(errorMessage, exception: e);
     }
 
     try {
@@ -93,7 +95,8 @@ class ForumService extends GetxService {
       return ApiResult.success();
     } catch (e) {
       LogUtils.e('在编辑帖子标题时，编辑帖子标题失败', tag: 'ForumService', error: e);
-      return ApiResult.fail(slang.t.errors.failedToOperate);
+      final errorMessage = CommonUtils.parseExceptionMessage(e);
+      return ApiResult.fail(errorMessage, exception: e);
     }
   }
 
@@ -106,7 +109,8 @@ class ForumService extends GetxService {
       return ApiResult.success();
     } catch (e) {
       LogUtils.e('在编辑帖子回复时，编辑帖子回复失败', tag: 'ForumService', error: e);
-      return ApiResult.fail(slang.t.errors.failedToOperate);
+      final errorMessage = CommonUtils.parseExceptionMessage(e);
+      return ApiResult.fail(errorMessage, exception: e);
     }
   }
 
@@ -122,7 +126,8 @@ class ForumService extends GetxService {
       return ApiResult.success();
     } catch (e) {
       LogUtils.e('回复帖子失败', tag: 'ForumService', error: e);
-      return ApiResult.fail(slang.t.errors.failedToOperate);
+      final errorMessage = CommonUtils.parseExceptionMessage(e);
+      return ApiResult.fail(errorMessage, exception: e);
     }
   }
 
@@ -151,7 +156,8 @@ class ForumService extends GetxService {
       });
     } catch (e) {
       LogUtils.e('获取帖子详情失败', tag: 'ForumService', error: e);
-      return ApiResult.fail(slang.t.errors.failedToFetchData);
+      final errorMessage = CommonUtils.parseExceptionMessage(e);
+      return ApiResult.fail(errorMessage, exception: e);
     }
   }
 
@@ -185,7 +191,8 @@ class ForumService extends GetxService {
       return ApiResult.success(data: pageData);
     } catch (e) {
       LogUtils.e('获取论坛帖子列表失败', tag: 'ForumService', error: e);
-      return ApiResult.fail(slang.t.errors.failedToFetchData);
+      final errorMessage = CommonUtils.parseExceptionMessage(e);
+      return ApiResult.fail(errorMessage, exception: e);
     }
   }
 
@@ -196,7 +203,8 @@ class ForumService extends GetxService {
       return ApiResult.success(data: PostCooldownModel.fromJson(response.data));
     } catch (e) {
       LogUtils.e('获取冷却时间失败', tag: 'PostService', error: e);
-      return ApiResult.fail(slang.t.errors.failedToFetchData);
+      final errorMessage = CommonUtils.parseExceptionMessage(e);
+      return ApiResult.fail(errorMessage, exception: e);
     }
   }
 
@@ -211,7 +219,8 @@ class ForumService extends GetxService {
               .toList());
     } catch (e) {
       LogUtils.e('获取论坛总表失败', tag: 'ForumService', error: e);
-      return ApiResult.fail(slang.t.errors.failedToFetchData);
+      final errorMessage = CommonUtils.parseExceptionMessage(e);
+      return ApiResult.fail(errorMessage, exception: e);
     }
   }
 
@@ -221,12 +230,14 @@ class ForumService extends GetxService {
     try {
       final result = await fetchForumList();
       if (!result.isSuccess) {
-        return ApiResult.fail(result.message);
+        final errorMessage = CommonUtils.parseExceptionMessage(result.message);
+        return ApiResult.fail(errorMessage);
       }
 
       final categories = result.data;
       if (categories == null) {
-        return ApiResult.fail(slang.t.errors.failedToFetchData);
+        final errorMessage = CommonUtils.parseExceptionMessage('Failed to fetch forum data');
+        return ApiResult.fail(errorMessage);
       }
 
       // 按照group对分类进行分组，并转换名称
@@ -278,7 +289,8 @@ class ForumService extends GetxService {
       return ApiResult.success(data: tree);
     } catch (e) {
       LogUtils.e('获取论坛分类树失败', tag: 'ForumService', error: e);
-      return ApiResult.fail(slang.t.errors.failedToFetchData);
+      final errorMessage = CommonUtils.parseExceptionMessage(e);
+      return ApiResult.fail(errorMessage, exception: e);
     }
   }
 
@@ -294,7 +306,8 @@ class ForumService extends GetxService {
       return ApiResult.success(data: ForumThreadModel.fromJson(response.data));
     } catch (e) {
       LogUtils.e('发布帖子失败', tag: 'ForumService', error: e);
-      return ApiResult.fail(slang.t.errors.failedToOperate);
+      final errorMessage = CommonUtils.parseExceptionMessage(e);
+      return ApiResult.fail(errorMessage, exception: e);
     }
   }
 
@@ -311,7 +324,8 @@ class ForumService extends GetxService {
       return ApiResult.success(data: pageData);
     } catch (e) {
       LogUtils.e('获取最近的帖子失败', tag: 'ForumService', error: e);
-      return ApiResult.fail(slang.t.errors.failedToFetchData);
+      final errorMessage = CommonUtils.parseExceptionMessage(e);
+      return ApiResult.fail(errorMessage, exception: e);
     }
   }
 

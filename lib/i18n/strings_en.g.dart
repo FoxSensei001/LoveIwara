@@ -1323,6 +1323,7 @@ class TranslationsErrorsNetworkEn {
 	String get networkUnreachable => 'Network unreachable';
 	String get noRouteToHost => 'No route to host';
 	String get connectionFailed => 'Connection failed';
+	String get sslConnectionFailed => 'SSL connection failed, please check your network settings';
 }
 
 // Path: settings.downloadSettings
@@ -2009,6 +2010,7 @@ extension on Translations {
 			case 'errors.network.networkUnreachable': return 'Network unreachable';
 			case 'errors.network.noRouteToHost': return 'No route to host';
 			case 'errors.network.connectionFailed': return 'Connection failed';
+			case 'errors.network.sslConnectionFailed': return 'SSL connection failed, please check your network settings';
 			case 'friends.clickToRestoreFriend': return 'Click to restore friend';
 			case 'friends.friendsList': return 'Friends List';
 			case 'friends.friendRequests': return 'Friend Requests';

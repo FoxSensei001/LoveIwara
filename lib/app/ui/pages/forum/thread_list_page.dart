@@ -214,6 +214,7 @@ class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProvid
                     status,
                     isSliver: true,
                     loadingMoreBase: listSourceRepository,
+                    emptyIcon: Icons.forum_outlined,
                   ),
                 ),
               ),

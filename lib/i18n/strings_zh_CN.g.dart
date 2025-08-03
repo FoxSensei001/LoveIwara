@@ -1325,6 +1325,7 @@ class _TranslationsErrorsNetworkZhCn implements TranslationsErrorsNetworkEn {
 	@override String get networkUnreachable => '网络不可达';
 	@override String get noRouteToHost => '无法找到主机';
 	@override String get connectionFailed => '连接失败';
+	@override String get sslConnectionFailed => 'SSL连接失败，请检查网络设置';
 }
 
 // Path: settings.downloadSettings
@@ -2016,6 +2017,7 @@ extension on TranslationsZhCn {
 			case 'errors.network.networkUnreachable': return '网络不可达';
 			case 'errors.network.noRouteToHost': return '无法找到主机';
 			case 'errors.network.connectionFailed': return '连接失败';
+			case 'errors.network.sslConnectionFailed': return 'SSL连接失败，请检查网络设置';
 			case 'friends.clickToRestoreFriend': return '点击恢复好友';
 			case 'friends.friendsList': return '好友列表';
 			case 'friends.friendRequests': return '好友请求';

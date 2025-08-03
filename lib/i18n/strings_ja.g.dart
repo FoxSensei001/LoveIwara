@@ -1320,6 +1320,7 @@ class _TranslationsErrorsNetworkJa implements TranslationsErrorsNetworkEn {
 	@override String get networkUnreachable => 'ネットワークに到達できません';
 	@override String get noRouteToHost => 'ホストに到達できません';
 	@override String get connectionFailed => '接続に失敗しました';
+	@override String get sslConnectionFailed => 'SSL接続に失敗しました。ネットワーク設定を確認してください';
 }
 
 // Path: settings.downloadSettings
@@ -2006,6 +2007,7 @@ extension on TranslationsJa {
 			case 'errors.network.networkUnreachable': return 'ネットワークに到達できません';
 			case 'errors.network.noRouteToHost': return 'ホストに到達できません';
 			case 'errors.network.connectionFailed': return '接続に失敗しました';
+			case 'errors.network.sslConnectionFailed': return 'SSL接続に失敗しました。ネットワーク設定を確認してください';
 			case 'friends.clickToRestoreFriend': return '友達を復元するにはクリックしてください';
 			case 'friends.friendsList': return '友達リスト';
 			case 'friends.friendRequests': return '友達リクエスト';
