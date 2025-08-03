@@ -239,6 +239,12 @@ enum ConfigKey {
   VIDEO_FILENAME_TEMPLATE, // 视频文件命名模板
   GALLERY_FILENAME_TEMPLATE, // 图库文件命名模板
   IMAGE_FILENAME_TEMPLATE, // 单张图片文件命名模板
+  // 音视频配置
+  EXPAND_BUFFER, // 扩大缓冲区
+  VIDEO_SYNC, // 视频同步
+  HARDWARE_DECODING, // 硬解模式
+  ENABLE_HARDWARE_ACCELERATION, // 启用硬件加速
+  USE_OPENSLES, // 使用OpenSLES音频输出
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -317,6 +323,11 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.VIDEO_FILENAME_TEMPLATE: return 'video_filename_template';
       case ConfigKey.GALLERY_FILENAME_TEMPLATE: return 'gallery_filename_template';
       case ConfigKey.IMAGE_FILENAME_TEMPLATE: return 'image_filename_template';
+      case ConfigKey.EXPAND_BUFFER: return 'expand_buffer';
+      case ConfigKey.VIDEO_SYNC: return 'video_sync';
+      case ConfigKey.HARDWARE_DECODING: return 'hardware_decoding';
+      case ConfigKey.ENABLE_HARDWARE_ACCELERATION: return 'enable_hardware_acceleration';
+      case ConfigKey.USE_OPENSLES: return 'use_opensles';
     }
   }
 
@@ -468,6 +479,16 @@ extension ConfigKeyExtension on ConfigKey {
         return '%title_%id';
       case ConfigKey.IMAGE_FILENAME_TEMPLATE:
         return '%title_%filename';
+      case ConfigKey.EXPAND_BUFFER:
+        return false;
+      case ConfigKey.VIDEO_SYNC:
+        return 'display-resample';
+      case ConfigKey.HARDWARE_DECODING:
+        return GetPlatform.isAndroid ? 'auto-safe' : 'auto';
+      case ConfigKey.ENABLE_HARDWARE_ACCELERATION:
+        return true;
+      case ConfigKey.USE_OPENSLES:
+        return true;
     }
   }
 }

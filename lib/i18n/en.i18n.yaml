@@ -530,6 +530,34 @@ settings:
   longPressFastForward: Long Press Fast Forward
   enableMouseHoverShowToolbar: Enable Mouse Hover Show Toolbar
   enableMouseHoverShowToolbarInfo: When enabled, the video toolbar will be shown when the mouse is hovering over the player. It will be automatically hidden after 3 seconds of inactivity.
+  # Audio Video Configuration
+  audioVideoConfig: Audio Video Configuration
+  expandBuffer: Expand Buffer
+  expandBufferInfo: When enabled, the buffer size increases, loading time becomes longer but playback is smoother
+  videoSyncMode: Video Sync Mode
+  videoSyncModeSubtitle: Audio-video synchronization strategy
+  hardwareDecodingMode: Hardware Decoding Mode
+  hardwareDecodingModeSubtitle: Hardware decoding settings
+  enableHardwareAcceleration: Enable Hardware Acceleration
+  enableHardwareAccelerationInfo: Enabling hardware acceleration can improve decoding performance, but some devices may not be compatible
+  useOpenSLESAudioOutput: Use OpenSLES Audio Output
+  useOpenSLESAudioOutputInfo: Use low-latency audio output, may improve audio performance
+  # Video sync options
+  videoSyncAudio: Audio Sync
+  videoSyncDisplayResample: Display Resample
+  videoSyncDisplayResampleVdrop: Display Resample (Drop Frames)
+  videoSyncDisplayResampleDesync: Display Resample (Desync)
+  videoSyncDisplayTempo: Display Tempo
+  videoSyncDisplayVdrop: Display Drop Video Frames
+  videoSyncDisplayAdrop: Display Drop Audio Frames
+  videoSyncDisplayDesync: Display Desync
+  videoSyncDesync: Desync
+  # Hardware decoding options
+  hardwareDecodingAuto: Auto
+  hardwareDecodingAutoCopy: Auto Copy
+  hardwareDecodingAutoSafe: Auto Safe
+  hardwareDecodingNo: Disabled
+  hardwareDecodingYes: Force Enable
   downloadSettings:
     downloadSettings: Download Settings
     storagePermissionStatus: Storage Permission Status

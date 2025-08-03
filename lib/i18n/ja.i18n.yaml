@@ -531,6 +531,34 @@ settings:
   longPressFastForward: 長押しファストフォワード
   enableMouseHoverShowToolbar: マウスホバー時にツールバーを表示
   enableMouseHoverShowToolbarInfo: 有効にすると、マウスがプレーヤー上にあるときにツールバーが表示されます。3秒間の非アクティブ時に自動的に非表示になります。
+  # オーディオビデオ設定
+  audioVideoConfig: オーディオビデオ設定
+  expandBuffer: バッファ拡張
+  expandBufferInfo: 有効にすると、バッファサイズが増加し、読み込み時間が長くなりますが、再生がスムーズになります
+  videoSyncMode: ビデオ同期モード
+  videoSyncModeSubtitle: オーディオビデオ同期戦略
+  hardwareDecodingMode: ハードウェアデコードモード
+  hardwareDecodingModeSubtitle: ハードウェアデコード設定
+  enableHardwareAcceleration: ハードウェアアクセラレーションを有効にする
+  enableHardwareAccelerationInfo: ハードウェアアクセラレーションを有効にすると、デコード性能が向上しますが、一部のデバイスでは互換性がない場合があります
+  useOpenSLESAudioOutput: OpenSLESオーディオ出力を使用
+  useOpenSLESAudioOutputInfo: 低遅延オーディオ出力を使用し、オーディオ性能が向上する可能性があります
+  # ビデオ同期オプション
+  videoSyncAudio: オーディオ同期
+  videoSyncDisplayResample: ディスプレイリサンプル
+  videoSyncDisplayResampleVdrop: ディスプレイリサンプル（フレームドロップ）
+  videoSyncDisplayResampleDesync: ディスプレイリサンプル（非同期）
+  videoSyncDisplayTempo: ディスプレイテンポ
+  videoSyncDisplayVdrop: ディスプレイビデオフレームドロップ
+  videoSyncDisplayAdrop: ディスプレイオーディオフレームドロップ
+  videoSyncDisplayDesync: ディスプレイ非同期
+  videoSyncDesync: 非同期
+  # ハードウェアデコードオプション
+  hardwareDecodingAuto: 自動
+  hardwareDecodingAutoCopy: 自動コピー
+  hardwareDecodingAutoSafe: 自動セーフ
+  hardwareDecodingNo: 無効
+  hardwareDecodingYes: 強制有効
   downloadSettings:
     downloadSettings: ダウンロード設定
     storagePermissionStatus: ストレージ権限状態

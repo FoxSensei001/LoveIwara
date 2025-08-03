@@ -109,6 +109,147 @@ class PlayerSettingsWidget extends StatelessWidget {
     );
   }
 
+  // 构建选择设置项
+  Widget _buildSelectionSetting({
+    required IconData iconData,
+    required String label,
+    required String currentValue,
+    required List<String> options,
+    required Function(String) onChanged,
+    required BuildContext context,
+    String? subtitle,
+    Map<String, String>? optionLabels,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Theme.of(Get.context!).cardColor,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => _showSelectionDialog(
+          context: context,
+          title: label,
+          currentValue: currentValue,
+          options: options,
+          optionLabels: optionLabels,
+          onChanged: onChanged,
+        ),
+        child: Row(
+          children: [
+            Icon(
+              iconData,
+              color: Get.isDarkMode ? Colors.white : null,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: Theme.of(Get.context!)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  if (subtitle != null)
+                    Text(
+                      subtitle,
+                      style: Theme.of(Get.context!)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(
+                            color: Colors.grey,
+                          ),
+                    ),
+                ],
+              ),
+            ),
+            Text(
+              optionLabels?[currentValue] ?? currentValue,
+              style: Theme.of(Get.context!)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(
+                    color: Theme.of(Get.context!).primaryColor,
+                  ),
+            ),
+            const SizedBox(width: 8),
+            Icon(
+              Icons.chevron_right,
+              color: Get.isDarkMode ? Colors.white : null,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 显示选择对话框
+  Future<void> _showSelectionDialog({
+    required BuildContext context,
+    required String title,
+    required String currentValue,
+    required List<String> options,
+    required Function(String) onChanged,
+    Map<String, String>? optionLabels,
+  }) async {
+    final t = slang.Translations.of(context);
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Expanded(child: Text(title)),
+            IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () => Navigator.pop(context),
+              tooltip: t.common.close,
+            ),
+          ],
+        ),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.6, // 限制最大高度为屏幕高度的60%
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: options.map((option) =>
+                  ListTile(
+                    title: Text(optionLabels?[option] ?? option),
+                    trailing: currentValue == option
+                        ? Icon(Icons.check, color: Theme.of(context).primaryColor)
+                        : null,
+                    onTap: () => Navigator.pop(context, option),
+                  )
+                ).toList(),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    
+    if (result != null && result != currentValue) {
+      onChanged(result);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
@@ -591,6 +732,119 @@ class PlayerSettingsWidget extends StatelessWidget {
                       _configService[ConfigKey.THEATER_MODE_KEY] = value;
                     },
                   ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          // 音视频配置卡片
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    t.settings.audioVideoConfig,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // 扩大缓冲区
+                  _buildSwitchSetting(
+                    context: context,
+                    iconData: Icons.memory,
+                    label: t.settings.expandBuffer,
+                    showInfoCard: true,
+                    infoMessage: t.settings.expandBufferInfo,
+                    rxValue: _configService.settings[ConfigKey.EXPAND_BUFFER]!,
+                    onChanged: (value) {
+                      _configService[ConfigKey.EXPAND_BUFFER] = value;
+                    },
+                  ),
+                  // 视频同步
+                  Obx(() => _buildSelectionSetting(
+                    iconData: Icons.sync,
+                    label: t.settings.videoSyncMode,
+                    subtitle: t.settings.videoSyncModeSubtitle,
+                    currentValue: _configService[ConfigKey.VIDEO_SYNC],
+                    options: const [
+                      'audio',
+                      'display-resample',
+                      'display-resample-vdrop',
+                      'display-resample-desync',
+                      'display-tempo',
+                      'display-vdrop',
+                      'display-adrop',
+                      'display-desync',
+                      'desync'
+                    ],
+                    optionLabels: {
+                      'audio': t.settings.videoSyncAudio,
+                      'display-resample': t.settings.videoSyncDisplayResample,
+                      'display-resample-vdrop': t.settings.videoSyncDisplayResampleVdrop,
+                      'display-resample-desync': t.settings.videoSyncDisplayResampleDesync,
+                      'display-tempo': t.settings.videoSyncDisplayTempo,
+                      'display-vdrop': t.settings.videoSyncDisplayVdrop,
+                      'display-adrop': t.settings.videoSyncDisplayAdrop,
+                      'display-desync': t.settings.videoSyncDisplayDesync,
+                      'desync': t.settings.videoSyncDesync,
+                    },
+                    onChanged: (value) {
+                      _configService[ConfigKey.VIDEO_SYNC] = value;
+                    },
+                    context: context,
+                  )),
+                  // 硬解模式
+                  Obx(() => _buildSelectionSetting(
+                    iconData: Icons.hardware,
+                    label: t.settings.hardwareDecodingMode,
+                    subtitle: t.settings.hardwareDecodingModeSubtitle,
+                    currentValue: _configService[ConfigKey.HARDWARE_DECODING],
+                    options: const ['auto', 'auto-copy', 'auto-safe', 'no', 'yes'],
+                    optionLabels: {
+                      'auto': t.settings.hardwareDecodingAuto,
+                      'auto-copy': t.settings.hardwareDecodingAutoCopy,
+                      'auto-safe': t.settings.hardwareDecodingAutoSafe,
+                      'no': t.settings.hardwareDecodingNo,
+                      'yes': t.settings.hardwareDecodingYes,
+                    },
+                    onChanged: (value) {
+                      _configService[ConfigKey.HARDWARE_DECODING] = value;
+                    },
+                    context: context,
+                  )),
+                  // 启用硬件加速
+                  _buildSwitchSetting(
+                    context: context,
+                    iconData: Icons.speed,
+                    label: t.settings.enableHardwareAcceleration,
+                    showInfoCard: true,
+                    infoMessage: t.settings.enableHardwareAccelerationInfo,
+                    rxValue: _configService.settings[ConfigKey.ENABLE_HARDWARE_ACCELERATION]!,
+                    onChanged: (value) {
+                      _configService[ConfigKey.ENABLE_HARDWARE_ACCELERATION] = value;
+                    },
+                  ),
+                  // OpenSLES音频输出(仅Android)
+                  if (GetPlatform.isAndroid)
+                    _buildSwitchSetting(
+                      context: context,
+                      iconData: Icons.audiotrack,
+                      label: t.settings.useOpenSLESAudioOutput,
+                      showInfoCard: true,
+                      infoMessage: t.settings.useOpenSLESAudioOutputInfo,
+                      rxValue: _configService.settings[ConfigKey.USE_OPENSLES]!,
+                      onChanged: (value) {
+                        _configService[ConfigKey.USE_OPENSLES] = value;
+                      },
+                    ),
                 ],
               ),
             ),

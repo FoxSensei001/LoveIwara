@@ -531,6 +531,34 @@ settings:
   longPressFastForward: 長按快進
   enableMouseHoverShowToolbar: 鼠標懸停時顯示工具欄
   enableMouseHoverShowToolbarInfo: 開啟後，當鼠標懸停在播放器上移動時會自動顯示工具欄，停止移動3秒後自動隱藏
+  # 音視頻配置相關
+  audioVideoConfig: 音視頻配置
+  expandBuffer: 擴大緩衝區
+  expandBufferInfo: 開啟後緩衝區增大，載入時間變長但播放更流暢
+  videoSyncMode: 視頻同步模式
+  videoSyncModeSubtitle: 音視頻同步策略
+  hardwareDecodingMode: 硬解模式
+  hardwareDecodingModeSubtitle: 硬體解碼設定
+  enableHardwareAcceleration: 啟用硬體加速
+  enableHardwareAccelerationInfo: 開啟硬體加速可以提高解碼效能，但某些裝置可能不相容
+  useOpenSLESAudioOutput: 使用OpenSLES音頻輸出
+  useOpenSLESAudioOutputInfo: 使用低延遲音頻輸出，可能提高音頻效能
+  # 視頻同步選項
+  videoSyncAudio: 音頻同步
+  videoSyncDisplayResample: 顯示重採樣
+  videoSyncDisplayResampleVdrop: 顯示重採樣(丟幀)
+  videoSyncDisplayResampleDesync: 顯示重採樣(去同步)
+  videoSyncDisplayTempo: 顯示節拍
+  videoSyncDisplayVdrop: 顯示丟視頻幀
+  videoSyncDisplayAdrop: 顯示丟音頻幀
+  videoSyncDisplayDesync: 顯示去同步
+  videoSyncDesync: 去同步
+  # 硬體解碼選項
+  hardwareDecodingAuto: 自動
+  hardwareDecodingAutoCopy: 自動複製
+  hardwareDecodingAutoSafe: 自動安全
+  hardwareDecodingNo: 禁用
+  hardwareDecodingYes: 強制啟用
   downloadSettings:
     downloadSettings: 下載設定
     storagePermissionStatus: 存儲權限狀態

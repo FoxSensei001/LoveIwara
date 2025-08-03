@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -233,7 +234,7 @@ class MyVideoStateController extends GetxController
       // 初始化 VideoController
       player = Player(
         configuration: PlayerConfiguration(
-          bufferSize: 16 * 1024 * 1024, // 减少缓冲区大小到16MB，提高加载速度
+          bufferSize: _getBufferSize(), // 根据配置设置缓冲区大小
           title: 'i_iwara Video Player',
           // 启用异步模式以提高性能
           async: true,
@@ -252,7 +253,15 @@ class MyVideoStateController extends GetxController
         ),
       );
 
-      videoController = VideoController(player);
+      videoController = VideoController(
+        player,
+        configuration: VideoControllerConfiguration(
+          enableHardwareAcceleration: _configService[ConfigKey.ENABLE_HARDWARE_ACCELERATION],
+          hwdec: _configService[ConfigKey.ENABLE_HARDWARE_ACCELERATION] 
+              ? _configService[ConfigKey.HARDWARE_DECODING] 
+              : null,
+        ),
+      );
 
       // 初始化滚动相关变量
       _initializeScrollSettings();
@@ -334,6 +343,9 @@ class MyVideoStateController extends GetxController
           );
         }
       }
+
+      // 应用音视频配置
+      _applyPlayerConfiguration();
 
       // 添加画中画状态监听
       _setupPiPListener();
@@ -475,6 +487,51 @@ class MyVideoStateController extends GetxController
           LogUtils.e('设置亮度失败: $e', tag: 'MyVideoStateController', error: e);
         }
       }
+    }
+  }
+
+  // 获取缓冲区大小
+  int _getBufferSize() {
+    bool expandBuffer = _configService[ConfigKey.EXPAND_BUFFER];
+    if (expandBuffer) {
+      return 32 * 1024 * 1024; // 32MB
+    } else {
+      return 16 * 1024 * 1024; // 16MB
+    }
+  }
+
+  // 应用播放器配置
+  Future<void> _applyPlayerConfiguration() async {
+    if (player.platform is! NativePlayer) return;
+    
+    final platform = player.platform as NativePlayer;
+    
+    try {
+      // 设置视频同步模式
+      String videoSync = _configService[ConfigKey.VIDEO_SYNC];
+      await platform.setProperty("video-sync", videoSync);
+      LogUtils.d('设置视频同步模式: $videoSync', 'MyVideoStateController');
+
+      // 设置音频输出（仅Android）
+      if (Platform.isAndroid) {
+        bool useOpenSLES = _configService[ConfigKey.USE_OPENSLES];
+        String ao = useOpenSLES ? "opensles,audiotrack" : "audiotrack,opensles";
+        await platform.setProperty("ao", ao);
+        LogUtils.d('设置音频输出: $ao', 'MyVideoStateController');
+      }
+
+      // 设置硬件解码
+      bool enableHA = _configService[ConfigKey.ENABLE_HARDWARE_ACCELERATION];
+      if (enableHA) {
+        String hwdec = _configService[ConfigKey.HARDWARE_DECODING];
+        await platform.setProperty("hwdec", hwdec);
+        LogUtils.d('设置硬件解码: $hwdec', 'MyVideoStateController');
+      } else {
+        await platform.setProperty("hwdec", "no");
+        LogUtils.d('禁用硬件解码', 'MyVideoStateController');
+      }
+    } catch (e) {
+      LogUtils.e('应用播放器配置失败: $e', tag: 'MyVideoStateController', error: e);
     }
   }
 
