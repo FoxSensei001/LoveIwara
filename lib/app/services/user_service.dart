@@ -14,10 +14,12 @@ import '../models/user.model.dart';
 import '../routes/app_routes.dart';
 import 'api_service.dart';
 import 'auth_service.dart';
+import 'storage_service.dart';
 
 class UserService extends GetxService {
   final AuthService _authService = Get.find<AuthService>();
   final ApiService _apiService = Get.find<ApiService>();
+  final StorageService _storage = StorageService();
 
   final String _tag = '[UserService]';
 
@@ -26,9 +28,20 @@ class UserService extends GetxService {
   RxInt friendRequestsCount = RxInt(0);
   RxInt messagesCount = RxInt(0);
   Timer? _notificationTimer;
+  
+  // 认证状态监听
+  StreamSubscription<bool>? _authStateSubscription;
+
+  // 缓存相关
+  User? _cachedUser;
+  DateTime? _lastUserDataUpdate;
+  static const Duration _cacheValidDuration = Duration(hours: 1);
 
   bool get isLogin => currentUser.value != null;
   RxBool isLogining = RxBool(false);
+
+  // 新增：基于token的认证状态
+  bool get isAuthenticated => _authService.isAuthenticated;
 
   String get userAvatar =>
       currentUser.value?.avatar?.avatarUrl ?? CommonConstants.defaultAvatarUrl;
@@ -78,15 +91,46 @@ class UserService extends GetxService {
   @override
   void onClose() {
     stopNotificationTimer();
+    _authStateSubscription?.cancel();
     super.onClose();
   }
 
   UserService() {
     LogUtils.d('$_tag 初始化用户服务');
+    
+    // 监听认证状态变化
+    _setupAuthStateListener();
+    
+    // 如果当前已经认证，初始化用户数据
+    if (_authService.isAuthenticated) {
+      _initializeUserData();
+    }
+  }
+  
+  // 设置认证状态监听器
+  void _setupAuthStateListener() {
+    _authStateSubscription = _authService.authStateStream.listen((isAuthenticated) {
+      LogUtils.d('$_tag 认证状态变化: $isAuthenticated');
+      
+      if (isAuthenticated) {
+        // 用户已认证，初始化用户数据
+        _initializeUserData();
+      } else {
+        // 用户未认证，清理数据
+        _clearUserData();
+      }
+    });
+  }
+  
+  // 初始化用户数据
+  void _initializeUserData() {
     if (_authService.hasToken) {
       try {
-        LogUtils.d('$_tag 存在有效TOKEN，尝试获取用户资料');
-        fetchUserProfile();
+        LogUtils.d('$_tag 存在有效TOKEN，尝试加载用户数据');
+        // 先尝试加载缓存的用户数据
+        _loadCachedUserData();
+        // 后台异步刷新用户数据
+        _refreshUserDataInBackground();
       } catch (e) {
         LogUtils.e('$_tag 初始化用户失败', error: e);
         // 错误处理已经在 AuthService 中统一处理
@@ -94,6 +138,16 @@ class UserService extends GetxService {
     } else {
       LogUtils.d('$_tag 未登录');
     }
+  }
+  
+  // 清理用户数据
+  void _clearUserData() {
+    currentUser.value = null;
+    _cachedUser = null;
+    _lastUserDataUpdate = null;
+    clearAllNotificationCounts();
+    stopNotificationTimer();
+    LogUtils.d('$_tag 用户数据已清理');
   }
 
   // 抓取用户资料
@@ -103,8 +157,14 @@ class UserService extends GetxService {
       LogUtils.d('$_tag 开始抓取用户资料');
       final response = await _apiService.get<Map<String, dynamic>>('/user');
       LogUtils.d('$_tag 获取到用户资料响应');
-      currentUser.value = User.fromJson(response.data!['user']);
-      LogUtils.d('$_tag 用户资料解析完成: ${currentUser.value}');
+
+      final user = User.fromJson(response.data!['user']);
+      currentUser.value = user;
+
+      // 保存到缓存
+      await _saveCachedUserData(user);
+
+      LogUtils.d('$_tag 用户资料解析完成: ${user.name}');
       // 获取到用户资料后启动通知计数定时器
       startNotificationTimer();
     } catch (e) {
@@ -449,20 +509,118 @@ class UserService extends GetxService {
     }
   }
 
-  // 添加处理登出的方法
+  // 添加处理登出的方法（优化版）
   void handleLogout() {
-    // 清理用户信息
-    currentUser.value = null;
+    LogUtils.d('$_tag 接收到登出通知');
+    _clearUserData();
     
-    // 清理通知状态
-    clearAllNotificationCounts();
-    stopNotificationTimer();
-    
-    // 清理其他状态
-    notificationCount.value = 0;
-    friendRequestsCount.value = 0;
-    messagesCount.value = 0;
+    // 清理缓存文件
+    _clearCachedUserData();
 
-    LogUtils.d('用户服务状态已清理', _tag);
+    LogUtils.d('$_tag 用户服务状态已清理');
+  }
+
+  // 加载缓存的用户数据
+  Future<void> _loadCachedUserData() async {
+    try {
+      final cachedUserJson = await _storage.readSecureData('cached_user_data');
+      final lastUpdateStr = await _storage.readSecureData('cached_user_data_timestamp');
+
+      if (cachedUserJson != null && lastUpdateStr != null) {
+        final lastUpdate = DateTime.tryParse(lastUpdateStr);
+        if (lastUpdate != null) {
+          _lastUserDataUpdate = lastUpdate;
+
+          // 检查缓存是否还有效
+          final now = DateTime.now();
+          final cacheAge = now.difference(lastUpdate);
+
+          if (cacheAge <= _cacheValidDuration) {
+            final userMap = jsonDecode(cachedUserJson) as Map<String, dynamic>;
+            _cachedUser = User.fromJson(userMap);
+            currentUser.value = _cachedUser;
+
+            LogUtils.d('$_tag 成功加载缓存的用户数据，缓存年龄: ${cacheAge.inMinutes}分钟');
+
+            // 启动通知计数定时器
+            startNotificationTimer();
+            return;
+          } else {
+            LogUtils.d('$_tag 缓存的用户数据已过期，缓存年龄: ${cacheAge.inHours}小时');
+          }
+        }
+      }
+
+      LogUtils.d('$_tag 没有有效的缓存用户数据');
+    } catch (e) {
+      LogUtils.e('$_tag 加载缓存用户数据失败', error: e);
+    }
+  }
+
+  // 保存用户数据到缓存
+  Future<void> _saveCachedUserData(User user) async {
+    try {
+      _cachedUser = user;
+      _lastUserDataUpdate = DateTime.now();
+
+      final userJson = jsonEncode(user.toJson());
+      await _storage.writeSecureData('cached_user_data', userJson);
+      await _storage.writeSecureData('cached_user_data_timestamp', _lastUserDataUpdate!.toIso8601String());
+
+      LogUtils.d('$_tag 用户数据已缓存');
+    } catch (e) {
+      LogUtils.e('$_tag 缓存用户数据失败', error: e);
+    }
+  }
+
+  // 清理缓存的用户数据
+  Future<void> _clearCachedUserData() async {
+    try {
+      await _storage.deleteSecureData('cached_user_data');
+      await _storage.deleteSecureData('cached_user_data_timestamp');
+      LogUtils.d('$_tag 缓存用户数据已清理');
+    } catch (e) {
+      LogUtils.e('$_tag 清理缓存用户数据失败', error: e);
+    }
+  }
+
+  // 后台异步刷新用户数据
+  void _refreshUserDataInBackground() {
+    Future.microtask(() async {
+      if (_authService.hasToken) {
+        try {
+          LogUtils.d('$_tag 开始后台刷新用户数据');
+          await _fetchUserProfileSilently();
+        } catch (e) {
+          LogUtils.w('$_tag 后台刷新用户数据失败: $e');
+          // 网络错误时不清理现有的用户数据和token
+        }
+      }
+    });
+  }
+
+  // 静默获取用户资料（不影响UI状态）
+  Future<void> _fetchUserProfileSilently() async {
+    try {
+      LogUtils.d('$_tag 开始静默抓取用户资料');
+      final response = await _apiService.get<Map<String, dynamic>>('/user');
+      LogUtils.d('$_tag 静默获取到用户资料响应');
+
+      final user = User.fromJson(response.data!['user']);
+      currentUser.value = user;
+
+      // 保存到缓存
+      await _saveCachedUserData(user);
+
+      LogUtils.d('$_tag 用户资料静默更新完成: ${user.name}');
+
+      // 获取到用户资料后启动通知计数定时器
+      startNotificationTimer();
+    } catch (e) {
+      LogUtils.e('$_tag 静默抓取用户资料失败', error: e);
+      // 这里不抛出异常，避免影响启动流程
+      // 如果是认证错误，让API拦截器处理
+      rethrow;
+    }
   }
 }

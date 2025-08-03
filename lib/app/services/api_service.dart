@@ -126,20 +126,40 @@ class ApiService extends GetxService {
             return handler.next(error);
           }
 
-          final result = await _refreshQueue.add(() async {
-            return await _authService.refreshAccessToken();
-          });
+          // 检查是否还有有效的refresh token
+          if (!_authService.hasToken || _authService.isAuthTokenExpired) {
+            LogUtils.w('ApiService: 没有有效的refresh token，直接登出');
+            await handleAuthError();
+            return handler.next(error);
+          }
 
-          if (result) {
-            try {
-              final response = await _retryRequest(error.requestOptions);
-              return handler.resolve(response);
-            } catch (e) {
-              LogUtils.e('重试请求失败', error: e);
+          // 只有401错误且有有效refresh token才尝试刷新
+          try {
+            final result = await _refreshQueue.add(() async {
+              return await _authService.refreshAccessToken();
+            });
+
+            if (result) {
+              try {
+                final response = await _retryRequest(error.requestOptions);
+                return handler.resolve(response);
+              } catch (e) {
+                LogUtils.e('ApiService: 重试请求失败', error: e);
+                await handleAuthError();
+              }
+            } else {
+              LogUtils.w('ApiService: token刷新失败，执行登出');
               await handleAuthError();
             }
-          } else {
-            await handleAuthError();
+          } catch (e) {
+            if (e is NetworkException) {
+              LogUtils.w('ApiService: 刷新token时网络错误，保持原错误: $e');
+              // 网络错误时不清理认证状态，直接返回原始错误
+              return handler.next(error);
+            } else {
+              LogUtils.e('ApiService: 刷新token时发生未知错误', error: e);
+              await handleAuthError();
+            }
           }
         }
         return handler.next(error);
@@ -158,6 +178,13 @@ class ApiService extends GetxService {
     final accessToken = _authService.accessToken;
     if (accessToken != null) {
       options.headers['Authorization'] = 'Bearer $accessToken';
+    } else {
+      LogUtils.w('ApiService: 重试时没有可用的access token');
+      throw d_dio.DioException(
+        requestOptions: options,
+        error: 'No valid access token for retry',
+        type: d_dio.DioExceptionType.unknown,
+      );
     }
 
     LogUtils.d('ApiService: 重试请求 Headers: ${options.headers}');

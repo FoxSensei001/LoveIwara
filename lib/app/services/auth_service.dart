@@ -44,19 +44,11 @@ class AuthService extends GetxService {
 
   bool get hasToken => _authToken != null && _accessToken != null;
 
-  // 刷新token的completer
-  Completer<void>? _refreshTokenCompleter;
-
+  // token刷新状态管理
+  Completer<bool>? _refreshTokenCompleter;
+  bool _isRefreshing = false;
+  
   Timer? _tokenRefreshTimer;
-
-  // 添加token过期时间
-  DateTime? _tokenExpireTime;
-
-  // 检查token是否过期
-  bool get isTokenExpired {
-    if (_tokenExpireTime == null) return true;
-    return DateTime.now().isAfter(_tokenExpireTime!);
-  }
 
   // token过期时间解析, 此处返回的是秒级的时间戳
   int? _getTokenExpiration(String token) {
@@ -145,9 +137,12 @@ class AuthService extends GetxService {
     }
   }
 
-  // 添加一个统一的状态管理
+  // 统一的认证状态管理
   final RxBool _isAuthenticated = false.obs;
-  bool get isAuthenticated => hasToken && isTokenValid;
+  bool get isAuthenticated => _isAuthenticated.value;
+  
+  // 认证状态变化流
+  Stream<bool> get authStateStream => _isAuthenticated.stream;
 
   // 修改 token 检查逻辑
   bool get isTokenValid {
@@ -157,6 +152,17 @@ class AuthService extends GetxService {
       return true;
     }());
     return valid;
+  }
+
+  // 更新认证状态
+  void _updateAuthenticationState() {
+    final wasAuthenticated = _isAuthenticated.value;
+    final isNowAuthenticated = hasToken && isTokenValid;
+    
+    if (wasAuthenticated != isNowAuthenticated) {
+      _isAuthenticated.value = isNowAuthenticated;
+      LogUtils.d('$_tag 认证状态变化: $wasAuthenticated -> $isNowAuthenticated');
+    }
   }
 
   // 添加token验证方法
@@ -257,32 +263,57 @@ class AuthService extends GetxService {
   // 添加后台刷新token的方法
   void _refreshTokenInBackground() {
     Future.microtask(() async {
-      if (hasToken) {
+      if (hasToken && !_isRefreshing) {
         try {
           final success = await refreshAccessToken();
           if (success) {
             _startTokenRefreshTimer();
           } else {
-            LogUtils.w('后台刷新token失败', _tag);
+            LogUtils.w('$_tag 后台刷新token失败');
             await _handleTokenExpiredSilently();
           }
         } catch (e) {
-          LogUtils.e('后台刷新token发生错误', tag: _tag, error: e);
-          await _handleTokenExpiredSilently();
+          if (e is NetworkException) {
+            LogUtils.w('$_tag 后台刷新token网络错误，保持当前状态: ${e.message}');
+            // 网络错误时不清理token，稍后重试
+            Future.delayed(const Duration(minutes: 5), () {
+              if (hasToken && isAccessTokenExpired && !_isRefreshing) {
+                _refreshTokenInBackground();
+              }
+            });
+          } else {
+            LogUtils.e('$_tag 后台刷新token发生错误', error: e);
+            await _handleTokenExpiredSilently();
+          }
         }
       }
     });
   }
 
-  // token刷新逻辑
+  // token刷新逻辑（并发安全）
   static const int maxRefreshRetries = 3;
   static const Duration refreshRetryDelay = Duration(seconds: 1);
 
   Future<bool> refreshAccessToken() async {
-    LogUtils.d('AuthService: 开始刷新 Access Token');
-    final oldAccessToken = accessToken;
+    // 防止并发刷新
+    if (_isRefreshing) {
+      LogUtils.d('$_tag token正在刷新中，等待完成');
+      return _refreshTokenCompleter?.future ?? false;
+    }
+
+    _isRefreshing = true;
+    _refreshTokenCompleter = Completer<bool>();
+    
+    LogUtils.d('$_tag 开始刷新 Access Token');
 
     try {
+      // 验证refresh token是否还有效
+      if (isAuthTokenExpired) {
+        LogUtils.w('$_tag refresh token已过期，无法刷新');
+        _completeRefresh(false);
+        return false;
+      }
+
       final response = await _dio.post(
         '/user/token',
         options: dio.Options(
@@ -301,29 +332,59 @@ class AuthService extends GetxService {
           _updateTokenExpireTime(newAccessToken, false);
           await _storage.writeSecureData(KeyConstants.accessToken, newAccessToken);
 
-          LogUtils.i('AuthService: Access Token 刷新成功');
-          // 不记录实际令牌值，避免泄露敏感信息
-          LogUtils.d('AuthService: Access Token 已更新');
+          // 更新认证状态
+          _updateAuthenticationState();
+
+          LogUtils.i('$_tag Access Token 刷新成功');
+          _completeRefresh(true);
           return true;
         }
       }
 
-      LogUtils.e('刷新token失败：响应无效');
+      LogUtils.e('$_tag 刷新token失败：响应无效');
+      _completeRefresh(false);
       return false;
+    } on dio.DioException catch (e) {
+      // 区分网络错误和认证错误
+      if (e.response?.statusCode == 401) {
+        LogUtils.e('$_tag 刷新token失败：认证错误 401 Unauthorized', error: e);
+        // 401认证错误，refresh token可能已过期
+        _completeRefresh(false);
+        return false;
+      } else {
+        LogUtils.w('$_tag 刷新token失败：网络错误或其他错误 ${e.response?.statusCode ?? e.type}');
+        // 非401错误（包括403权限错误、网络错误等），不应该清理token
+        _completeRefresh(false);
+        throw NetworkException('网络错误或服务器错误，请稍后重试');
+      }
     } catch (e) {
-      LogUtils.e('刷新token失败', error: e);
+      LogUtils.e('$_tag 刷新token失败：未知错误', error: e);
+      _completeRefresh(false);
       return false;
     }
   }
 
-  // 错误处理方法
+  // 完成token刷新
+  void _completeRefresh(bool success) {
+    _isRefreshing = false;
+    _refreshTokenCompleter?.complete(success);
+    _refreshTokenCompleter = null;
+  }
+
+  // 错误处理方法（用于显示用户提示）
   Future<void> handleTokenExpired() async {
     if (!_isAuthenticated.value) return;
+
+    // 取消正在进行的token刷新
+    if (_isRefreshing) {
+      _completeRefresh(false);
+    }
 
     _isAuthenticated.value = false;
     _accessToken = null;
     _authToken = null;
     _accessTokenExpireTime = null;
+    _authTokenExpireTime = null;
 
     await _storage.deleteSecureData(KeyConstants.authToken);
     await _storage.deleteSecureData(KeyConstants.accessToken);
@@ -331,7 +392,7 @@ class AuthService extends GetxService {
     try {
       Get.find<UserService>().handleLogout();
     } catch (e) {
-      LogUtils.e('通知用户服务登出失败', error: e);
+      LogUtils.e('$_tag 通知用户服务登出失败', error: e);
     }
 
     _messageService.showMessage(
@@ -339,7 +400,7 @@ class AuthService extends GetxService {
       MDToastType.warning,
     );
 
-    LogUtils.d('用户已登出');
+    LogUtils.d('$_tag 用户已登出');
   }
 
   // resetProxy
@@ -452,7 +513,8 @@ class AuthService extends GetxService {
     try {
       _authToken = null;
       _accessToken = null;
-      _tokenExpireTime = null;
+      _authTokenExpireTime = null;
+      _accessTokenExpireTime = null;
       _tokenRefreshTimer?.cancel();
       _isAuthenticated.value = false;
       await _storage.deleteSecureData(KeyConstants.authToken);
@@ -462,7 +524,8 @@ class AuthService extends GetxService {
       LogUtils.e('登出过程中发生错误', tag: _tag, error: e);
       _authToken = null;
       _accessToken = null;
-      _tokenExpireTime = null;
+      _authTokenExpireTime = null;
+      _accessTokenExpireTime = null;
       _isAuthenticated.value = false;
     }
   }
