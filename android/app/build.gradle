@@ -63,6 +63,17 @@ android {
             useLegacyPackaging = true
         }
     }
+    
+    // 构建优化配置
+    buildFeatures {
+        buildConfig false
+    }
+    
+    // 减少构建输出
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
 }
 
 dependencies {

@@ -48,3 +48,10 @@ build/
 
 # FVM Version Cache
 .fvm/
+
+# Android NDK build cache files
+android/app/.cxx/
+android/app/.gradle/
+android/app/build/
+android/.gradle/
+android/build/
