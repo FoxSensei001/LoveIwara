@@ -1255,6 +1255,32 @@ translation:
   urlEndingWithHashTip: "URL ending with # will be used directly without adding any suffix"
   streamingTranslationWarning: "Note: This feature requires API service support for streaming transmission, some models may not support it"
 
+# Media Player Widgets
+mediaPlayer:
+  # Video Player Widget
+  videoPlayerError: "Video Player Error"
+  videoLoadFailed: "Video Load Failed"
+  videoCodecNotSupported: "Video Codec Not Supported"
+  networkConnectionIssue: "Network Connection Issue"
+  insufficientPermission: "Insufficient Permission"
+  unsupportedVideoFormat: "Unsupported Video Format"
+  retry: "Retry"
+  externalPlayer: "External Player"
+  detailedErrorInfo: "Detailed Error Information"
+  format: "Format"
+  suggestion: "Suggestion"
+  androidWebmCompatibilityIssue: "Android devices have limited support for WEBM format. It is recommended to use an external player or download a player app that supports WEBM"
+  currentDeviceCodecNotSupported: "Current device does not support the codec for this video format"
+  checkNetworkConnection: "Please check your network connection and try again"
+  appMayLackMediaPermission: "The app may lack necessary media playback permissions"
+  tryOtherVideoPlayer: "Please try using other video players"
+  video: "VIDEO"
+  
+  # Image Widget
+  imageLoadFailed: "Image Load Failed"
+  unsupportedImageFormat: "Unsupported Image Format"
+  tryOtherViewer: "Please try using other viewers"
+
 linkInputDialog:
   title: "Input Link"
   supportedLinksHint: "Support intelligently identify multiple ${webName} links and quickly jump to the corresponding page in the app (separate links from other text with spaces)"

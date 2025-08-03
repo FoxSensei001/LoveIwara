@@ -60,6 +60,7 @@ class TranslationsZhCn implements Translations {
 	@override late final _TranslationsDownloadZhCn download = _TranslationsDownloadZhCn._(_root);
 	@override late final _TranslationsFavoriteZhCn favorite = _TranslationsFavoriteZhCn._(_root);
 	@override late final _TranslationsTranslationZhCn translation = _TranslationsTranslationZhCn._(_root);
+	@override late final _TranslationsMediaPlayerZhCn mediaPlayer = _TranslationsMediaPlayerZhCn._(_root);
 	@override late final _TranslationsLinkInputDialogZhCn linkInputDialog = _TranslationsLinkInputDialogZhCn._(_root);
 	@override late final _TranslationsLogZhCn log = _TranslationsLogZhCn._(_root);
 }
@@ -1188,6 +1189,35 @@ class _TranslationsTranslationZhCn implements TranslationsTranslationEn {
 	@override String currentActualUrl({required Object url}) => '当前实际URL: ${url}';
 	@override String get urlEndingWithHashTip => 'URL以#结尾时，将以输入的URL作为实际请求地址';
 	@override String get streamingTranslationWarning => '注意：此功能需要API服务支持流式传输，部分模型可能不支持';
+}
+
+// Path: mediaPlayer
+class _TranslationsMediaPlayerZhCn implements TranslationsMediaPlayerEn {
+	_TranslationsMediaPlayerZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get videoPlayerError => '视频播放器错误';
+	@override String get videoLoadFailed => '视频加载失败';
+	@override String get videoCodecNotSupported => '视频编解码器不支持';
+	@override String get networkConnectionIssue => '网络连接问题';
+	@override String get insufficientPermission => '权限不足';
+	@override String get unsupportedVideoFormat => '不支持的视频格式';
+	@override String get retry => '重试';
+	@override String get externalPlayer => '外部播放器';
+	@override String get detailedErrorInfo => '详细错误信息';
+	@override String get format => '格式';
+	@override String get suggestion => '建议';
+	@override String get androidWebmCompatibilityIssue => 'Android设备对WEBM格式支持有限，建议使用外部播放器或下载支持WEBM的播放器应用';
+	@override String get currentDeviceCodecNotSupported => '当前设备不支持此视频格式的编解码器';
+	@override String get checkNetworkConnection => '请检查网络连接后重试';
+	@override String get appMayLackMediaPermission => '应用可能缺少必要的媒体播放权限';
+	@override String get tryOtherVideoPlayer => '请尝试使用其他视频播放器';
+	@override String get video => '视频';
+	@override String get imageLoadFailed => '图片加载失败';
+	@override String get unsupportedImageFormat => '不支持的图片格式';
+	@override String get tryOtherViewer => '请尝试使用其他查看器';
 }
 
 // Path: linkInputDialog
@@ -2903,6 +2933,26 @@ extension on TranslationsZhCn {
 			case 'translation.currentActualUrl': return ({required Object url}) => '当前实际URL: ${url}';
 			case 'translation.urlEndingWithHashTip': return 'URL以#结尾时，将以输入的URL作为实际请求地址';
 			case 'translation.streamingTranslationWarning': return '注意：此功能需要API服务支持流式传输，部分模型可能不支持';
+			case 'mediaPlayer.videoPlayerError': return '视频播放器错误';
+			case 'mediaPlayer.videoLoadFailed': return '视频加载失败';
+			case 'mediaPlayer.videoCodecNotSupported': return '视频编解码器不支持';
+			case 'mediaPlayer.networkConnectionIssue': return '网络连接问题';
+			case 'mediaPlayer.insufficientPermission': return '权限不足';
+			case 'mediaPlayer.unsupportedVideoFormat': return '不支持的视频格式';
+			case 'mediaPlayer.retry': return '重试';
+			case 'mediaPlayer.externalPlayer': return '外部播放器';
+			case 'mediaPlayer.detailedErrorInfo': return '详细错误信息';
+			case 'mediaPlayer.format': return '格式';
+			case 'mediaPlayer.suggestion': return '建议';
+			case 'mediaPlayer.androidWebmCompatibilityIssue': return 'Android设备对WEBM格式支持有限，建议使用外部播放器或下载支持WEBM的播放器应用';
+			case 'mediaPlayer.currentDeviceCodecNotSupported': return '当前设备不支持此视频格式的编解码器';
+			case 'mediaPlayer.checkNetworkConnection': return '请检查网络连接后重试';
+			case 'mediaPlayer.appMayLackMediaPermission': return '应用可能缺少必要的媒体播放权限';
+			case 'mediaPlayer.tryOtherVideoPlayer': return '请尝试使用其他视频播放器';
+			case 'mediaPlayer.video': return '视频';
+			case 'mediaPlayer.imageLoadFailed': return '图片加载失败';
+			case 'mediaPlayer.unsupportedImageFormat': return '不支持的图片格式';
+			case 'mediaPlayer.tryOtherViewer': return '请尝试使用其他查看器';
 			case 'linkInputDialog.title': return '输入链接';
 			case 'linkInputDialog.supportedLinksHint': return ({required Object webName}) => '支持智能识别多个${webName}链接，并快速跳转到应用内对应页面(链接与其他文本之间用空格隔开)';
 			case 'linkInputDialog.inputHint': return ({required Object webName}) => '请输入${webName}链接';

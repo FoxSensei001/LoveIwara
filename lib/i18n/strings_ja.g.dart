@@ -60,6 +60,7 @@ class TranslationsJa implements Translations {
 	@override late final _TranslationsDownloadJa download = _TranslationsDownloadJa._(_root);
 	@override late final _TranslationsFavoriteJa favorite = _TranslationsFavoriteJa._(_root);
 	@override late final _TranslationsTranslationJa translation = _TranslationsTranslationJa._(_root);
+	@override late final _TranslationsMediaPlayerJa mediaPlayer = _TranslationsMediaPlayerJa._(_root);
 	@override late final _TranslationsLinkInputDialogJa linkInputDialog = _TranslationsLinkInputDialogJa._(_root);
 	@override late final _TranslationsLogJa log = _TranslationsLogJa._(_root);
 }
@@ -1183,6 +1184,35 @@ class _TranslationsTranslationJa implements TranslationsTranslationEn {
 	@override String get usingFullUrlWithHash => '完全なURL（#で終わる）を使用';
 	@override String get urlEndingWithHashTip => 'URLが#で終わる場合、入力されたURLを実際のリクエストアドレスとして使用します';
 	@override String get streamingTranslationWarning => '注意：この機能はAPIサービスがストリーミング伝送をサポートする必要があり、一部のモデルではサポートされていない場合があります';
+}
+
+// Path: mediaPlayer
+class _TranslationsMediaPlayerJa implements TranslationsMediaPlayerEn {
+	_TranslationsMediaPlayerJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get videoPlayerError => 'ビデオプレイヤーエラー';
+	@override String get videoLoadFailed => 'ビデオ読み込み失敗';
+	@override String get videoCodecNotSupported => 'ビデオコーデックがサポートされていません';
+	@override String get networkConnectionIssue => 'ネットワーク接続の問題';
+	@override String get insufficientPermission => '権限不足';
+	@override String get unsupportedVideoFormat => 'サポートされていないビデオ形式';
+	@override String get retry => '再試行';
+	@override String get externalPlayer => '外部プレイヤー';
+	@override String get detailedErrorInfo => '詳細エラー情報';
+	@override String get format => '形式';
+	@override String get suggestion => '提案';
+	@override String get androidWebmCompatibilityIssue => 'AndroidデバイスはWEBM形式のサポートが限定的です。外部プレイヤーの使用またはWEBMをサポートするプレイヤーアプリのダウンロードをお勧めします';
+	@override String get currentDeviceCodecNotSupported => '現在のデバイスはこのビデオ形式のコーデックをサポートしていません';
+	@override String get checkNetworkConnection => 'ネットワーク接続を確認して再試行してください';
+	@override String get appMayLackMediaPermission => 'アプリに必要なメディア再生権限が不足している可能性があります';
+	@override String get tryOtherVideoPlayer => '他のビデオプレイヤーをお試しください';
+	@override String get video => 'ビデオ';
+	@override String get imageLoadFailed => '画像読み込み失敗';
+	@override String get unsupportedImageFormat => 'サポートされていない画像形式';
+	@override String get tryOtherViewer => '他のビューアーをお試しください';
 }
 
 // Path: linkInputDialog
@@ -2893,6 +2923,26 @@ extension on TranslationsJa {
 			case 'translation.usingFullUrlWithHash': return '完全なURL（#で終わる）を使用';
 			case 'translation.urlEndingWithHashTip': return 'URLが#で終わる場合、入力されたURLを実際のリクエストアドレスとして使用します';
 			case 'translation.streamingTranslationWarning': return '注意：この機能はAPIサービスがストリーミング伝送をサポートする必要があり、一部のモデルではサポートされていない場合があります';
+			case 'mediaPlayer.videoPlayerError': return 'ビデオプレイヤーエラー';
+			case 'mediaPlayer.videoLoadFailed': return 'ビデオ読み込み失敗';
+			case 'mediaPlayer.videoCodecNotSupported': return 'ビデオコーデックがサポートされていません';
+			case 'mediaPlayer.networkConnectionIssue': return 'ネットワーク接続の問題';
+			case 'mediaPlayer.insufficientPermission': return '権限不足';
+			case 'mediaPlayer.unsupportedVideoFormat': return 'サポートされていないビデオ形式';
+			case 'mediaPlayer.retry': return '再試行';
+			case 'mediaPlayer.externalPlayer': return '外部プレイヤー';
+			case 'mediaPlayer.detailedErrorInfo': return '詳細エラー情報';
+			case 'mediaPlayer.format': return '形式';
+			case 'mediaPlayer.suggestion': return '提案';
+			case 'mediaPlayer.androidWebmCompatibilityIssue': return 'AndroidデバイスはWEBM形式のサポートが限定的です。外部プレイヤーの使用またはWEBMをサポートするプレイヤーアプリのダウンロードをお勧めします';
+			case 'mediaPlayer.currentDeviceCodecNotSupported': return '現在のデバイスはこのビデオ形式のコーデックをサポートしていません';
+			case 'mediaPlayer.checkNetworkConnection': return 'ネットワーク接続を確認して再試行してください';
+			case 'mediaPlayer.appMayLackMediaPermission': return 'アプリに必要なメディア再生権限が不足している可能性があります';
+			case 'mediaPlayer.tryOtherVideoPlayer': return '他のビデオプレイヤーをお試しください';
+			case 'mediaPlayer.video': return 'ビデオ';
+			case 'mediaPlayer.imageLoadFailed': return '画像読み込み失敗';
+			case 'mediaPlayer.unsupportedImageFormat': return 'サポートされていない画像形式';
+			case 'mediaPlayer.tryOtherViewer': return '他のビューアーをお試しください';
 			case 'linkInputDialog.title': return 'リンクを入力';
 			case 'linkInputDialog.supportedLinksHint': return ({required Object webName}) => '複数の${webName}リンクをインテリジェントに識別し、アプリ内の対応するページにすばやくジャンプすることをサポートします（リンクと他のテキストはスペースで区切ります）';
 			case 'linkInputDialog.inputHint': return ({required Object webName}) => '${webName}リンクを入力してください';

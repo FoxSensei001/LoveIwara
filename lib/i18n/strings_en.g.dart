@@ -63,6 +63,7 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final TranslationsDownloadEn download = TranslationsDownloadEn._(_root);
 	late final TranslationsFavoriteEn favorite = TranslationsFavoriteEn._(_root);
 	late final TranslationsTranslationEn translation = TranslationsTranslationEn._(_root);
+	late final TranslationsMediaPlayerEn mediaPlayer = TranslationsMediaPlayerEn._(_root);
 	late final TranslationsLinkInputDialogEn linkInputDialog = TranslationsLinkInputDialogEn._(_root);
 	late final TranslationsLogEn log = TranslationsLogEn._(_root);
 }
@@ -1186,6 +1187,35 @@ class TranslationsTranslationEn {
 	String currentActualUrl({required Object url}) => 'Current actual URL: ${url}';
 	String get urlEndingWithHashTip => 'URL ending with # will be used directly without adding any suffix';
 	String get streamingTranslationWarning => 'Note: This feature requires API service support for streaming transmission, some models may not support it';
+}
+
+// Path: mediaPlayer
+class TranslationsMediaPlayerEn {
+	TranslationsMediaPlayerEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get videoPlayerError => 'Video Player Error';
+	String get videoLoadFailed => 'Video Load Failed';
+	String get videoCodecNotSupported => 'Video Codec Not Supported';
+	String get networkConnectionIssue => 'Network Connection Issue';
+	String get insufficientPermission => 'Insufficient Permission';
+	String get unsupportedVideoFormat => 'Unsupported Video Format';
+	String get retry => 'Retry';
+	String get externalPlayer => 'External Player';
+	String get detailedErrorInfo => 'Detailed Error Information';
+	String get format => 'Format';
+	String get suggestion => 'Suggestion';
+	String get androidWebmCompatibilityIssue => 'Android devices have limited support for WEBM format. It is recommended to use an external player or download a player app that supports WEBM';
+	String get currentDeviceCodecNotSupported => 'Current device does not support the codec for this video format';
+	String get checkNetworkConnection => 'Please check your network connection and try again';
+	String get appMayLackMediaPermission => 'The app may lack necessary media playback permissions';
+	String get tryOtherVideoPlayer => 'Please try using other video players';
+	String get video => 'VIDEO';
+	String get imageLoadFailed => 'Image Load Failed';
+	String get unsupportedImageFormat => 'Unsupported Image Format';
+	String get tryOtherViewer => 'Please try using other viewers';
 }
 
 // Path: linkInputDialog
@@ -2896,6 +2926,26 @@ extension on Translations {
 			case 'translation.currentActualUrl': return ({required Object url}) => 'Current actual URL: ${url}';
 			case 'translation.urlEndingWithHashTip': return 'URL ending with # will be used directly without adding any suffix';
 			case 'translation.streamingTranslationWarning': return 'Note: This feature requires API service support for streaming transmission, some models may not support it';
+			case 'mediaPlayer.videoPlayerError': return 'Video Player Error';
+			case 'mediaPlayer.videoLoadFailed': return 'Video Load Failed';
+			case 'mediaPlayer.videoCodecNotSupported': return 'Video Codec Not Supported';
+			case 'mediaPlayer.networkConnectionIssue': return 'Network Connection Issue';
+			case 'mediaPlayer.insufficientPermission': return 'Insufficient Permission';
+			case 'mediaPlayer.unsupportedVideoFormat': return 'Unsupported Video Format';
+			case 'mediaPlayer.retry': return 'Retry';
+			case 'mediaPlayer.externalPlayer': return 'External Player';
+			case 'mediaPlayer.detailedErrorInfo': return 'Detailed Error Information';
+			case 'mediaPlayer.format': return 'Format';
+			case 'mediaPlayer.suggestion': return 'Suggestion';
+			case 'mediaPlayer.androidWebmCompatibilityIssue': return 'Android devices have limited support for WEBM format. It is recommended to use an external player or download a player app that supports WEBM';
+			case 'mediaPlayer.currentDeviceCodecNotSupported': return 'Current device does not support the codec for this video format';
+			case 'mediaPlayer.checkNetworkConnection': return 'Please check your network connection and try again';
+			case 'mediaPlayer.appMayLackMediaPermission': return 'The app may lack necessary media playback permissions';
+			case 'mediaPlayer.tryOtherVideoPlayer': return 'Please try using other video players';
+			case 'mediaPlayer.video': return 'VIDEO';
+			case 'mediaPlayer.imageLoadFailed': return 'Image Load Failed';
+			case 'mediaPlayer.unsupportedImageFormat': return 'Unsupported Image Format';
+			case 'mediaPlayer.tryOtherViewer': return 'Please try using other viewers';
 			case 'linkInputDialog.title': return 'Input Link';
 			case 'linkInputDialog.supportedLinksHint': return ({required Object webName}) => 'Support intelligently identify multiple ${webName} links and quickly jump to the corresponding page in the app (separate links from other text with spaces)';
 			case 'linkInputDialog.inputHint': return ({required Object webName}) => 'Please enter ${webName} link';

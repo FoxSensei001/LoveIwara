@@ -1259,6 +1259,32 @@ translation:
   urlEndingWithHashTip: "URL以#結尾時，將以輸入的URL作為實際請求地址"
   streamingTranslationWarning: "注意：此功能需要API服務支持流式傳輸，部分模型可能不支持"
 
+# 媒體播放器元件
+mediaPlayer:
+  # 影片播放器元件
+  videoPlayerError: "影片播放器錯誤"
+  videoLoadFailed: "影片載入失敗"
+  videoCodecNotSupported: "影片編解碼器不支援"
+  networkConnectionIssue: "網路連線問題"
+  insufficientPermission: "權限不足"
+  unsupportedVideoFormat: "不支援的影片格式"
+  retry: "重試"
+  externalPlayer: "外部播放器"
+  detailedErrorInfo: "詳細錯誤資訊"
+  format: "格式"
+  suggestion: "建議"
+  androidWebmCompatibilityIssue: "Android裝置對WEBM格式支援有限，建議使用外部播放器或下載支援WEBM的播放器應用"
+  currentDeviceCodecNotSupported: "目前裝置不支援此影片格式的編解碼器"
+  checkNetworkConnection: "請檢查網路連線後重試"
+  appMayLackMediaPermission: "應用可能缺少必要的媒體播放權限"
+  tryOtherVideoPlayer: "請嘗試使用其他影片播放器"
+  video: "影片"
+  
+  # 圖片元件
+  imageLoadFailed: "圖片載入失敗"
+  unsupportedImageFormat: "不支援的圖片格式"
+  tryOtherViewer: "請嘗試使用其他檢視器"
+
 linkInputDialog:
   title: "輸入連結"
   supportedLinksHint: "支持智能識別多個${webName}連結，並快速跳轉到應用內對應頁面(連結與其他文本之間用空格隔開)"

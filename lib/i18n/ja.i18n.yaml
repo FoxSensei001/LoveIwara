@@ -1259,6 +1259,32 @@ translation:
   urlEndingWithHashTip: "URLが#で終わる場合、入力されたURLを実際のリクエストアドレスとして使用します"
   streamingTranslationWarning: "注意：この機能はAPIサービスがストリーミング伝送をサポートする必要があり、一部のモデルではサポートされていない場合があります"
 
+# メディアプレイヤーウィジェット
+mediaPlayer:
+  # ビデオプレイヤーウィジェット
+  videoPlayerError: "ビデオプレイヤーエラー"
+  videoLoadFailed: "ビデオ読み込み失敗"
+  videoCodecNotSupported: "ビデオコーデックがサポートされていません"
+  networkConnectionIssue: "ネットワーク接続の問題"
+  insufficientPermission: "権限不足"
+  unsupportedVideoFormat: "サポートされていないビデオ形式"
+  retry: "再試行"
+  externalPlayer: "外部プレイヤー"
+  detailedErrorInfo: "詳細エラー情報"
+  format: "形式"
+  suggestion: "提案"
+  androidWebmCompatibilityIssue: "AndroidデバイスはWEBM形式のサポートが限定的です。外部プレイヤーの使用またはWEBMをサポートするプレイヤーアプリのダウンロードをお勧めします"
+  currentDeviceCodecNotSupported: "現在のデバイスはこのビデオ形式のコーデックをサポートしていません"
+  checkNetworkConnection: "ネットワーク接続を確認して再試行してください"
+  appMayLackMediaPermission: "アプリに必要なメディア再生権限が不足している可能性があります"
+  tryOtherVideoPlayer: "他のビデオプレイヤーをお試しください"
+  video: "ビデオ"
+  
+  # 画像ウィジェット
+  imageLoadFailed: "画像読み込み失敗"
+  unsupportedImageFormat: "サポートされていない画像形式"
+  tryOtherViewer: "他のビューアーをお試しください"
+
 linkInputDialog:
   title: "リンクを入力"
   supportedLinksHint: "複数の${webName}リンクをインテリジェントに識別し、アプリ内の対応するページにすばやくジャンプすることをサポートします（リンクと他のテキストはスペースで区切ります）"

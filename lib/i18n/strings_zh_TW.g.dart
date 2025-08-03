@@ -60,6 +60,7 @@ class TranslationsZhTw implements Translations {
 	@override late final _TranslationsDownloadZhTw download = _TranslationsDownloadZhTw._(_root);
 	@override late final _TranslationsFavoriteZhTw favorite = _TranslationsFavoriteZhTw._(_root);
 	@override late final _TranslationsTranslationZhTw translation = _TranslationsTranslationZhTw._(_root);
+	@override late final _TranslationsMediaPlayerZhTw mediaPlayer = _TranslationsMediaPlayerZhTw._(_root);
 	@override late final _TranslationsLinkInputDialogZhTw linkInputDialog = _TranslationsLinkInputDialogZhTw._(_root);
 	@override late final _TranslationsLogZhTw log = _TranslationsLogZhTw._(_root);
 }
@@ -1186,6 +1187,35 @@ class _TranslationsTranslationZhTw implements TranslationsTranslationEn {
 	@override String currentActualUrl({required Object url}) => '目前實際URL: ${url}';
 	@override String get urlEndingWithHashTip => 'URL以#結尾時，將以輸入的URL作為實際請求地址';
 	@override String get streamingTranslationWarning => '注意：此功能需要API服務支持流式傳輸，部分模型可能不支持';
+}
+
+// Path: mediaPlayer
+class _TranslationsMediaPlayerZhTw implements TranslationsMediaPlayerEn {
+	_TranslationsMediaPlayerZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get videoPlayerError => '影片播放器錯誤';
+	@override String get videoLoadFailed => '影片載入失敗';
+	@override String get videoCodecNotSupported => '影片編解碼器不支援';
+	@override String get networkConnectionIssue => '網路連線問題';
+	@override String get insufficientPermission => '權限不足';
+	@override String get unsupportedVideoFormat => '不支援的影片格式';
+	@override String get retry => '重試';
+	@override String get externalPlayer => '外部播放器';
+	@override String get detailedErrorInfo => '詳細錯誤資訊';
+	@override String get format => '格式';
+	@override String get suggestion => '建議';
+	@override String get androidWebmCompatibilityIssue => 'Android裝置對WEBM格式支援有限，建議使用外部播放器或下載支援WEBM的播放器應用';
+	@override String get currentDeviceCodecNotSupported => '目前裝置不支援此影片格式的編解碼器';
+	@override String get checkNetworkConnection => '請檢查網路連線後重試';
+	@override String get appMayLackMediaPermission => '應用可能缺少必要的媒體播放權限';
+	@override String get tryOtherVideoPlayer => '請嘗試使用其他影片播放器';
+	@override String get video => '影片';
+	@override String get imageLoadFailed => '圖片載入失敗';
+	@override String get unsupportedImageFormat => '不支援的圖片格式';
+	@override String get tryOtherViewer => '請嘗試使用其他檢視器';
 }
 
 // Path: linkInputDialog
@@ -2899,6 +2929,26 @@ extension on TranslationsZhTw {
 			case 'translation.currentActualUrl': return ({required Object url}) => '目前實際URL: ${url}';
 			case 'translation.urlEndingWithHashTip': return 'URL以#結尾時，將以輸入的URL作為實際請求地址';
 			case 'translation.streamingTranslationWarning': return '注意：此功能需要API服務支持流式傳輸，部分模型可能不支持';
+			case 'mediaPlayer.videoPlayerError': return '影片播放器錯誤';
+			case 'mediaPlayer.videoLoadFailed': return '影片載入失敗';
+			case 'mediaPlayer.videoCodecNotSupported': return '影片編解碼器不支援';
+			case 'mediaPlayer.networkConnectionIssue': return '網路連線問題';
+			case 'mediaPlayer.insufficientPermission': return '權限不足';
+			case 'mediaPlayer.unsupportedVideoFormat': return '不支援的影片格式';
+			case 'mediaPlayer.retry': return '重試';
+			case 'mediaPlayer.externalPlayer': return '外部播放器';
+			case 'mediaPlayer.detailedErrorInfo': return '詳細錯誤資訊';
+			case 'mediaPlayer.format': return '格式';
+			case 'mediaPlayer.suggestion': return '建議';
+			case 'mediaPlayer.androidWebmCompatibilityIssue': return 'Android裝置對WEBM格式支援有限，建議使用外部播放器或下載支援WEBM的播放器應用';
+			case 'mediaPlayer.currentDeviceCodecNotSupported': return '目前裝置不支援此影片格式的編解碼器';
+			case 'mediaPlayer.checkNetworkConnection': return '請檢查網路連線後重試';
+			case 'mediaPlayer.appMayLackMediaPermission': return '應用可能缺少必要的媒體播放權限';
+			case 'mediaPlayer.tryOtherVideoPlayer': return '請嘗試使用其他影片播放器';
+			case 'mediaPlayer.video': return '影片';
+			case 'mediaPlayer.imageLoadFailed': return '圖片載入失敗';
+			case 'mediaPlayer.unsupportedImageFormat': return '不支援的圖片格式';
+			case 'mediaPlayer.tryOtherViewer': return '請嘗試使用其他檢視器';
 			case 'linkInputDialog.title': return '輸入連結';
 			case 'linkInputDialog.supportedLinksHint': return ({required Object webName}) => '支持智能識別多個${webName}連結，並快速跳轉到應用內對應頁面(連結與其他文本之間用空格隔開)';
 			case 'linkInputDialog.inputHint': return ({required Object webName}) => '請輸入${webName}連結';
