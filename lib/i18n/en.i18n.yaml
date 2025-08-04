@@ -526,8 +526,8 @@ settings:
   leftDoubleTapRewind: Left Double Tap Rewind
   rightDoubleTapFastForward: Right Double Tap Fast Forward
   doubleTapPause: Double Tap Pause
-  leftVerticalSwipeVolume: Left Vertical Swipe Volume (Effective when entering a new page)
-  rightVerticalSwipeBrightness: Right Vertical Swipe Brightness (Effective when entering a new page)
+  rightVerticalSwipeVolume: Right Vertical Swipe Volume (Effective when entering a new page)
+  leftVerticalSwipeBrightness: Left Vertical Swipe Brightness (Effective when entering a new page)
   longPressFastForward: Long Press Fast Forward
   enableMouseHoverShowToolbar: Enable Mouse Hover Show Toolbar
   enableMouseHoverShowToolbarInfo: When enabled, the video toolbar will be shown when the mouse is hovering over the player. It will be automatically hidden after 3 seconds of inactivity.

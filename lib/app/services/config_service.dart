@@ -229,8 +229,8 @@ enum ConfigKey {
   ENABLE_LEFT_DOUBLE_TAP_REWIND, // 左侧双击后退
   ENABLE_RIGHT_DOUBLE_TAP_FAST_FORWARD, // 右侧双击快进
   ENABLE_DOUBLE_TAP_PAUSE, // 双击暂停
-  ENABLE_LEFT_VERTICAL_SWIPE_VOLUME, // 左侧上下滑动调整音量
-  ENABLE_RIGHT_VERTICAL_SWIPE_BRIGHTNESS, // 右侧上下滑动调整亮度
+  ENABLE_LEFT_VERTICAL_SWIPE_BRIGHTNESS, // 左侧上下滑动调整亮度
+  ENABLE_RIGHT_VERTICAL_SWIPE_VOLUME, // 右侧上下滑动调整音量
   ENABLE_LONG_PRESS_FAST_FORWARD, // 长按快进
   ENABLE_MOUSE_HOVER_SHOW_TOOLBAR, // 鼠标悬浮显示工具栏
   // 下载设置
@@ -314,8 +314,8 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.ENABLE_LEFT_DOUBLE_TAP_REWIND: return 'enable_left_double_tap_rewind';
       case ConfigKey.ENABLE_RIGHT_DOUBLE_TAP_FAST_FORWARD: return 'enable_right_double_tap_fast_forward';
       case ConfigKey.ENABLE_DOUBLE_TAP_PAUSE: return 'enable_double_tap_pause';
-      case ConfigKey.ENABLE_LEFT_VERTICAL_SWIPE_VOLUME: return 'enable_left_vertical_swipe_volume';
-      case ConfigKey.ENABLE_RIGHT_VERTICAL_SWIPE_BRIGHTNESS: return 'enable_right_vertical_swipe_brightness';
+      case ConfigKey.ENABLE_LEFT_VERTICAL_SWIPE_BRIGHTNESS: return 'enable_left_vertical_swipe_brightness';
+      case ConfigKey.ENABLE_RIGHT_VERTICAL_SWIPE_VOLUME: return 'enable_right_vertical_swipe_volume';
       case ConfigKey.ENABLE_LONG_PRESS_FAST_FORWARD: return 'enable_long_press_fast_forward';
       case ConfigKey.ENABLE_MOUSE_HOVER_SHOW_TOOLBAR: return 'enable_mouse_hover_show_toolbar';
       case ConfigKey.CUSTOM_DOWNLOAD_PATH: return 'custom_download_path';
@@ -461,9 +461,9 @@ extension ConfigKeyExtension on ConfigKey {
         return true;
       case ConfigKey.ENABLE_DOUBLE_TAP_PAUSE:
         return true;
-      case ConfigKey.ENABLE_LEFT_VERTICAL_SWIPE_VOLUME:
+      case ConfigKey.ENABLE_LEFT_VERTICAL_SWIPE_BRIGHTNESS:
         return true;
-      case ConfigKey.ENABLE_RIGHT_VERTICAL_SWIPE_BRIGHTNESS:
+      case ConfigKey.ENABLE_RIGHT_VERTICAL_SWIPE_VOLUME:
         return true;
       case ConfigKey.ENABLE_LONG_PRESS_FAST_FORWARD:
         return true;

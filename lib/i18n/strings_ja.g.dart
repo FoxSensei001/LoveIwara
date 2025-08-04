@@ -640,8 +640,8 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get leftDoubleTapRewind => '左側ダブルタップリワインド';
 	@override String get rightDoubleTapFastForward => '右側ダブルタップファストフォワード';
 	@override String get doubleTapPause => 'ダブルタップポーズ';
-	@override String get leftVerticalSwipeVolume => '左側垂直スワイプボリューム（新ページに入った時に有効）';
-	@override String get rightVerticalSwipeBrightness => '右側垂直スワイプブライトネス（新ページに入った時に有効）';
+	@override String get rightVerticalSwipeVolume => '右側垂直スワイプボリューム（新ページに入った時に有効）';
+	@override String get leftVerticalSwipeBrightness => '左側垂直スワイプブライトネス（新ページに入った時に有効）';
 	@override String get longPressFastForward => '長押しファストフォワード';
 	@override String get enableMouseHoverShowToolbar => 'マウスホバー時にツールバーを表示';
 	@override String get enableMouseHoverShowToolbarInfo => '有効にすると、マウスがプレーヤー上にあるときにツールバーが表示されます。3秒間の非アクティブ時に自動的に非表示になります。';
@@ -2250,8 +2250,8 @@ extension on TranslationsJa {
 			case 'settings.leftDoubleTapRewind': return '左側ダブルタップリワインド';
 			case 'settings.rightDoubleTapFastForward': return '右側ダブルタップファストフォワード';
 			case 'settings.doubleTapPause': return 'ダブルタップポーズ';
-			case 'settings.leftVerticalSwipeVolume': return '左側垂直スワイプボリューム（新ページに入った時に有効）';
-			case 'settings.rightVerticalSwipeBrightness': return '右側垂直スワイプブライトネス（新ページに入った時に有効）';
+			case 'settings.rightVerticalSwipeVolume': return '右側垂直スワイプボリューム（新ページに入った時に有効）';
+			case 'settings.leftVerticalSwipeBrightness': return '左側垂直スワイプブライトネス（新ページに入った時に有効）';
 			case 'settings.longPressFastForward': return '長押しファストフォワード';
 			case 'settings.enableMouseHoverShowToolbar': return 'マウスホバー時にツールバーを表示';
 			case 'settings.enableMouseHoverShowToolbarInfo': return '有効にすると、マウスがプレーヤー上にあるときにツールバーが表示されます。3秒間の非アクティブ時に自動的に非表示になります。';

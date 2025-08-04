@@ -640,8 +640,8 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get leftDoubleTapRewind => '左側雙擊後退';
 	@override String get rightDoubleTapFastForward => '右側雙擊快進';
 	@override String get doubleTapPause => '雙擊暫停';
-	@override String get leftVerticalSwipeVolume => '左側上下滑動調整音量（進入新頁面時生效）';
-	@override String get rightVerticalSwipeBrightness => '右側上下滑動調整亮度（進入新頁面時生效）';
+	@override String get rightVerticalSwipeVolume => '右側上下滑動調整音量（進入新頁面時生效）';
+	@override String get leftVerticalSwipeBrightness => '左側上下滑動調整亮度（進入新頁面時生效）';
 	@override String get longPressFastForward => '長按快進';
 	@override String get enableMouseHoverShowToolbar => '鼠標懸停時顯示工具欄';
 	@override String get enableMouseHoverShowToolbarInfo => '開啟後，當鼠標懸停在播放器上移動時會自動顯示工具欄，停止移動3秒後自動隱藏';
@@ -2253,8 +2253,8 @@ extension on TranslationsZhTw {
 			case 'settings.leftDoubleTapRewind': return '左側雙擊後退';
 			case 'settings.rightDoubleTapFastForward': return '右側雙擊快進';
 			case 'settings.doubleTapPause': return '雙擊暫停';
-			case 'settings.leftVerticalSwipeVolume': return '左側上下滑動調整音量（進入新頁面時生效）';
-			case 'settings.rightVerticalSwipeBrightness': return '右側上下滑動調整亮度（進入新頁面時生效）';
+			case 'settings.rightVerticalSwipeVolume': return '右側上下滑動調整音量（進入新頁面時生效）';
+			case 'settings.leftVerticalSwipeBrightness': return '左側上下滑動調整亮度（進入新頁面時生效）';
 			case 'settings.longPressFastForward': return '長按快進';
 			case 'settings.enableMouseHoverShowToolbar': return '鼠標懸停時顯示工具欄';
 			case 'settings.enableMouseHoverShowToolbarInfo': return '開啟後，當鼠標懸停在播放器上移動時會自動顯示工具欄，停止移動3秒後自動隱藏';

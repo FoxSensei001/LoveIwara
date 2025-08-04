@@ -660,28 +660,27 @@ class PlayerSettingsWidget extends StatelessWidget {
                       _configService[ConfigKey.ENABLE_DOUBLE_TAP_PAUSE] = value;
                     },
                   ),
-                  // 左侧上下滑动调整音量开关
+                  // 左侧上下滑动调整亮度开关（仅限移动设备）
+                  if (GetPlatform.isAndroid || GetPlatform.isIOS)
+                    _buildSwitchSetting(
+                      context: context,
+                      iconData: Icons.brightness_medium,
+                      label: t.settings.leftVerticalSwipeBrightness,
+                      showInfoCard: false,
+                      rxValue: _configService.settings[ConfigKey.ENABLE_LEFT_VERTICAL_SWIPE_BRIGHTNESS]!,
+                      onChanged: (value) {
+                        _configService[ConfigKey.ENABLE_LEFT_VERTICAL_SWIPE_BRIGHTNESS] = value;
+                      },
+                    ),
+                  // 右侧上下滑动调整音量开关
                   _buildSwitchSetting(
                     context: context,
                     iconData: Icons.volume_up,
-                    // label: '左侧上下滑动调整音量（进入新页面时生效）',
-                    label: t.settings.leftVerticalSwipeVolume,
+                    label: t.settings.rightVerticalSwipeVolume,
                     showInfoCard: false,
-                    rxValue: _configService.settings[ConfigKey.ENABLE_LEFT_VERTICAL_SWIPE_VOLUME]!,
+                    rxValue: _configService.settings[ConfigKey.ENABLE_RIGHT_VERTICAL_SWIPE_VOLUME]!,
                     onChanged: (value) {
-                      _configService[ConfigKey.ENABLE_LEFT_VERTICAL_SWIPE_VOLUME] = value;
-                    },
-                  ),
-                  // 右侧上下滑动调整亮度开关
-                  _buildSwitchSetting(
-                    context: context,
-                    iconData: Icons.brightness_medium,
-                    // label: '右侧上下滑动调整亮度（进入新页面时生效）',
-                    label: t.settings.rightVerticalSwipeBrightness,
-                    showInfoCard: false,
-                    rxValue: _configService.settings[ConfigKey.ENABLE_RIGHT_VERTICAL_SWIPE_BRIGHTNESS]!,
-                    onChanged: (value) {
-                      _configService[ConfigKey.ENABLE_RIGHT_VERTICAL_SWIPE_BRIGHTNESS] = value;
+                      _configService[ConfigKey.ENABLE_RIGHT_VERTICAL_SWIPE_VOLUME] = value;
                     },
                   ),
                   // 长按快进开关

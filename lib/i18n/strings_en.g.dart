@@ -643,8 +643,8 @@ class TranslationsSettingsEn {
 	String get leftDoubleTapRewind => 'Left Double Tap Rewind';
 	String get rightDoubleTapFastForward => 'Right Double Tap Fast Forward';
 	String get doubleTapPause => 'Double Tap Pause';
-	String get leftVerticalSwipeVolume => 'Left Vertical Swipe Volume (Effective when entering a new page)';
-	String get rightVerticalSwipeBrightness => 'Right Vertical Swipe Brightness (Effective when entering a new page)';
+	String get rightVerticalSwipeVolume => 'Right Vertical Swipe Volume (Effective when entering a new page)';
+	String get leftVerticalSwipeBrightness => 'Left Vertical Swipe Brightness (Effective when entering a new page)';
 	String get longPressFastForward => 'Long Press Fast Forward';
 	String get enableMouseHoverShowToolbar => 'Enable Mouse Hover Show Toolbar';
 	String get enableMouseHoverShowToolbarInfo => 'When enabled, the video toolbar will be shown when the mouse is hovering over the player. It will be automatically hidden after 3 seconds of inactivity.';
@@ -2253,8 +2253,8 @@ extension on Translations {
 			case 'settings.leftDoubleTapRewind': return 'Left Double Tap Rewind';
 			case 'settings.rightDoubleTapFastForward': return 'Right Double Tap Fast Forward';
 			case 'settings.doubleTapPause': return 'Double Tap Pause';
-			case 'settings.leftVerticalSwipeVolume': return 'Left Vertical Swipe Volume (Effective when entering a new page)';
-			case 'settings.rightVerticalSwipeBrightness': return 'Right Vertical Swipe Brightness (Effective when entering a new page)';
+			case 'settings.rightVerticalSwipeVolume': return 'Right Vertical Swipe Volume (Effective when entering a new page)';
+			case 'settings.leftVerticalSwipeBrightness': return 'Left Vertical Swipe Brightness (Effective when entering a new page)';
 			case 'settings.longPressFastForward': return 'Long Press Fast Forward';
 			case 'settings.enableMouseHoverShowToolbar': return 'Enable Mouse Hover Show Toolbar';
 			case 'settings.enableMouseHoverShowToolbarInfo': return 'When enabled, the video toolbar will be shown when the mouse is hovering over the player. It will be automatically hidden after 3 seconds of inactivity.';

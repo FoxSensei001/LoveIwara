@@ -527,8 +527,8 @@ settings:
   leftDoubleTapRewind: 左側雙擊後退
   rightDoubleTapFastForward: 右側雙擊快進
   doubleTapPause: 雙擊暫停
-  leftVerticalSwipeVolume: 左側上下滑動調整音量（進入新頁面時生效）
-  rightVerticalSwipeBrightness: 右側上下滑動調整亮度（進入新頁面時生效）
+  rightVerticalSwipeVolume: 右側上下滑動調整音量（進入新頁面時生效）
+  leftVerticalSwipeBrightness: 左側上下滑動調整亮度（進入新頁面時生效）
   longPressFastForward: 長按快進
   enableMouseHoverShowToolbar: 鼠標懸停時顯示工具欄
   enableMouseHoverShowToolbarInfo: 開啟後，當鼠標懸停在播放器上移動時會自動顯示工具欄，停止移動3秒後自動隱藏
