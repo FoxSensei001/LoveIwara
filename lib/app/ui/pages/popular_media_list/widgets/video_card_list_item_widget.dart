@@ -251,9 +251,9 @@ class _Thumbnail extends StatelessWidget {
     bool isR18 = video.rating == 'ecchi';
     
     if (isPrivate || isR18) {
-      // 如果有R18，整个标签组使用红色背景，否则使用黑色背景
-      Color backgroundColor = isR18 ? Colors.red : Colors.black54;
-      Color textColor = isR18 ? Theme.of(context).colorScheme.onSecondary : Colors.white;
+      // 如果有R18或private，整个标签组使用红色背景
+      Color backgroundColor = (isR18 || isPrivate) ? Colors.red : Colors.black54;
+      Color textColor = (isR18 || isPrivate) ? Theme.of(context).colorScheme.onSecondary : Colors.white;
       
       tags.add(
         Positioned(

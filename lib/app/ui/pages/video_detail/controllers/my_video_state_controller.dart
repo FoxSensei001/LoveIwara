@@ -302,19 +302,24 @@ class MyVideoStateController extends GetxController
         }
       });
 
-      // 是否沿用之前的音量
+      // 音量初始化逻辑
       bool keepLastVolumeKey = _configService[ConfigKey.KEEP_LAST_VOLUME_KEY];
-      if (CommonConstants.isSetVolume) {
-        if (keepLastVolumeKey) {
-          // 保持之前的音量
-          double lastVolume = _configService[ConfigKey.VOLUME_KEY];
-          setVolume(lastVolume, save: false);
+      if (keepLastVolumeKey) {
+        // 保持之前的音量
+        double lastVolume = _configService[ConfigKey.VOLUME_KEY];
+        setVolume(lastVolume, save: false);
+        LogUtils.d('使用记住的音量: $lastVolume', 'MyVideoStateController');
+      } else {
+        if (GetPlatform.isAndroid || GetPlatform.isIOS) {
+          // 更新配置为当前的系统音量
+          double currentVolume = await volumeController?.getVolume() ?? 0.4;
+          _configService.setSetting(ConfigKey.VOLUME_KEY, currentVolume, save: true);
+          LogUtils.d('使用系统音量: $currentVolume', 'MyVideoStateController');
         } else {
-          if (GetPlatform.isAndroid || GetPlatform.isIOS) {
-            // 更新配置为当前的系统音量
-            double currentVolume = await volumeController?.getVolume() ?? 0.0;
-            _configService[ConfigKey.VOLUME_KEY] = currentVolume;
-          }
+          // 桌面平台使用配置中的默认音量
+          double defaultVolume = 1;
+          setVolume(defaultVolume, save: false);
+          LogUtils.d('使用默认音量: $defaultVolume', 'MyVideoStateController');
         }
       }
 
@@ -407,7 +412,7 @@ class MyVideoStateController extends GetxController
 
   /// 通过视频标题和作者名匹配oreno3d视频信息
   Future<void> _tryMatchOreno3dVideo() async {
-    if (isOreno3dVideoMatched.value || videoInfo.value == null) return;
+    if (isOreno3dVideoMatched.value || videoInfo.value == null || _isDisposed) return;
 
     final videoTitle = videoInfo.value?.title;
     final authorName = videoInfo.value?.user?.name;
@@ -421,6 +426,9 @@ class MyVideoStateController extends GetxController
       LogUtils.d('尝试通过标题匹配oreno3d视频: $videoTitle, 作者: $authorName', 'MyVideoStateController');
       final oreno3dClient = Oreno3dClient();
       final searchResult = await oreno3dClient.searchVideos(keyword: videoTitle);
+
+      // 检查是否已被销毁
+      if (_isDisposed) return;
 
       // 查找匹配的视频（优先匹配作者名，其次匹配标题相似度）
       Oreno3dVideo? matchedVideo;
@@ -436,9 +444,13 @@ class MyVideoStateController extends GetxController
         }
       }
 
-      if (matchedVideo != null) {
+      if (matchedVideo != null && !_isDisposed) {
         // 获取详细信息
         final detail = await oreno3dClient.getVideoDetailParsed(matchedVideo.id);
+        
+        // 再次检查是否已被销毁
+        if (_isDisposed) return;
+        
         if (detail != null) {
           oreno3dVideoDetail.value = detail;
           isOreno3dVideoMatched.value = true;
@@ -446,10 +458,14 @@ class MyVideoStateController extends GetxController
         }
       }
     } catch (e) {
-      LogUtils.e('匹配oreno3d视频失败: $e', tag: 'MyVideoStateController', error: e);
+      if (!_isDisposed) {
+        LogUtils.e('匹配oreno3d视频失败: $e', tag: 'MyVideoStateController', error: e);
+      }
     } finally {
       // 无论成功还是失败，都要清除加载状态
-      isOreno3dMatching.value = false;
+      if (!_isDisposed) {
+        isOreno3dMatching.value = false;
+      }
     }
   }
   
@@ -672,48 +688,34 @@ class MyVideoStateController extends GetxController
 
       LogUtils.d('成功获取视频信息: ${videoInfo.value?.title}, 作者: ${videoInfo.value?.user?.name}', 'MyVideoStateController');
 
-      // 如果没有从extData获取到oreno3d信息，尝试通过标题和作者匹配
-      if (!isOreno3dVideoMatched.value) {
-        _tryMatchOreno3dVideo();
-      }
-
-      // TODO: 创建 oreno3dClient
-      // try {
-      //   final oreno3dClient = Oreno3dClient();
-      //   // 获取 oreno3d 视频信息
-      //   final oreno3dVideo = await oreno3dClient.searchVideos(keyword: videoInfo.value!.title!);
-      //   LogUtils.d('成功获取 oreno3d 视频信息 ${oreno3dVideo.videos.length}, 第一个视频: ${oreno3dVideo.videos.first.title},第一个视频的作者: ${oreno3dVideo.videos.first.author}', 'MyVideoStateController');
-      // } catch (e) {
-      //   LogUtils.e('获取 oreno3d 视频信息失败: $e', tag: 'MyVideoStateController', error: e);
-      // }
-
-
-
-      // 添加历史记录
-      try {
-        if (videoInfo.value != null) {
-          final historyRecord = HistoryRecord.fromVideo(videoInfo.value!);
-          LogUtils.d('添加历史记录: ${historyRecord.toJson()}', 'MyVideoStateController');
-          await _historyRepository.addRecordWithCheck(historyRecord);
-          if (_isDisposed) return;
-        }
-      } catch (e) {
-        if (!_isDisposed) {
-          LogUtils.e('添加历史记录失败', tag: 'MyVideoStateController', error: e);
-        }
-      }
-
+      // 获取作者ID用于后续操作
       String? authorId = videoInfo.value!.user?.id;
-      if (authorId != null) {
-        otherAuthorzVideosController = OtherAuthorzMediasController(
-            mediaId: videoId, userId: authorId, mediaType: MediaType.VIDEO);
-        otherAuthorzVideosController!.fetchRelatedMedias();
+
+      // 并行执行以下操作（不需要等待的）
+      final List<Future<void>> parallelTasks = [];
+
+      // 1. Oreno3D匹配（可以并行执行）
+      if (!isOreno3dVideoMatched.value) {
+        parallelTasks.add(_tryMatchOreno3dVideo());
       }
 
-      if (videoInfo.value!.private == false &&
-          videoInfo.value!.fileUrl != null) {
-        await fetchVideoSource();
+      // 2. 添加历史记录（可以并行执行）
+      if (videoInfo.value != null) {
+        parallelTasks.add(_addHistoryRecord());
       }
+
+      // 3. 获取作者其他视频（可以并行执行）
+      if (authorId != null) {
+        parallelTasks.add(_initializeAuthorVideosController(authorId));
+      }
+
+      // 4. 获取视频源（关键路径，需要等待）
+      if (videoInfo.value!.fileUrl != null) {
+        parallelTasks.add(fetchVideoSource());
+      }
+
+      // 等待所有任务完成
+      await Future.wait(parallelTasks.where((task) => task != null));
     } on DioException catch (e) {
       if (_isDisposed || e.type == DioExceptionType.cancel) {
         LogUtils.w('请求被取消或Controller已销毁', 'MyVideoStateController');
@@ -763,6 +765,35 @@ class MyVideoStateController extends GetxController
     }
   }
 
+  /// 添加历史记录（异步）
+  Future<void> _addHistoryRecord() async {
+    try {
+      if (videoInfo.value != null) {
+        final historyRecord = HistoryRecord.fromVideo(videoInfo.value!);
+        LogUtils.d('添加历史记录: ${historyRecord.toJson()}', 'MyVideoStateController');
+        await _historyRepository.addRecordWithCheck(historyRecord);
+        if (_isDisposed) return;
+      }
+    } catch (e) {
+      if (!_isDisposed) {
+        LogUtils.e('添加历史记录失败', tag: 'MyVideoStateController', error: e);
+      }
+    }
+  }
+
+  /// 初始化作者视频控制器（异步）
+  Future<void> _initializeAuthorVideosController(String authorId) async {
+    try {
+      otherAuthorzVideosController = OtherAuthorzMediasController(
+          mediaId: videoId!, userId: authorId, mediaType: MediaType.VIDEO);
+      otherAuthorzVideosController!.fetchRelatedMedias();
+    } catch (e) {
+      if (!_isDisposed) {
+        LogUtils.e('初始化作者视频控制器失败', tag: 'MyVideoStateController', error: e);
+      }
+    }
+  }
+
   /// 获取视频源信息
   Future<void> fetchVideoSource() async {
     if (_isDisposed) return;
@@ -803,23 +834,12 @@ class MyVideoStateController extends GetxController
             videoInfo.value!.videoSources,
             filterPreview: true),
       );
-    } on DioException catch (e) {
-      if (_isDisposed || e.type == DioExceptionType.cancel) {
-        LogUtils.w('请求被取消或Controller已销毁', 'MyVideoStateController');
-        return;
-      }
-      LogUtils.e('获取视频源失败 (Dio): $e', tag: 'MyVideoStateController', error: e);
-      if (!_isDisposed) {
-        if (e.response?.statusCode == 404) {
-          videoErrorMessage.value = 'resource_404';
-        } else {
-          videoErrorMessage.value = slang.t.videoDetail.getVideoInfoFailed;
-        }
-      }
     } catch (e) {
+      // parseExceptionMessage
+      String errorMessage = CommonUtils.parseExceptionMessage(e);
       if (!_isDisposed) {
         LogUtils.e('获取视频源失败 (Other): $e', tag: 'MyVideoStateController', error: e);
-        videoErrorMessage.value = slang.t.videoDetail.getVideoInfoFailed;
+        videoErrorMessage.value = errorMessage;
       }
     } finally {
       if (!_isDisposed) {

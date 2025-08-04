@@ -222,8 +222,6 @@ class _GestureAreaState extends State<GestureArea>
       type = LongPressType.volume;
       // 在音量调节结束时保存设置
       _configService.setSetting(ConfigKey.VOLUME_KEY, _configService[ConfigKey.VOLUME_KEY], save: true);
-      // 保存音量设置
-      CommonConstants.isSetVolume = true;
     }
 
     widget.setLongPressing?.call(type, false);

@@ -82,9 +82,6 @@ class CommonConstants {
   // 是否设置过亮度
   static bool isSetBrightness = false;
 
-  // 是否设置过音量
-  static bool isSetVolume = false;
-
   // 默认用户头像URL
   static const String defaultAvatarUrl =
       '$iwaraBaseUrl/images/default-avatar.jpg';

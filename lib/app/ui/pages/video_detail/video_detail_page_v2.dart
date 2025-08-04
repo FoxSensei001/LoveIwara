@@ -265,8 +265,8 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       );
     }
 
-    // 如果videoInfo不为空且videoInfo!.isPrivate为true，则显示私有视频提示
-    if (controller.videoInfo.value?.private == true) {
+    // 如果是私有视频但没有fileUrl（无访问权限），则不显示内容
+    if (controller.videoInfo.value?.private == true && controller.videoInfo.value?.fileUrl == null) {
       return const SizedBox.shrink();
     }
 
