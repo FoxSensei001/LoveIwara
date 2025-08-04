@@ -8,7 +8,7 @@ import 'package:i_iwara/app/ui/pages/comment/widgets/comment_section_widget.dart
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:oktoast/oktoast.dart';
-import 'package:i_iwara/app/ui/widgets/grid_speed_dial.dart';
+
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class CommentsTabWidget extends StatelessWidget {
@@ -23,10 +23,63 @@ class CommentsTabWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = slang.Translations.of(context);
     return Scaffold(
       body: Column(
         children: [
-          // 只保留评论列表，不显示顶部评论数量
+          // 顶部操作栏
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+            decoration: BoxDecoration(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              border: Border(
+                bottom: BorderSide(
+                  color: Theme.of(context).dividerColor,
+                  width: 0.5,
+                ),
+              ),
+            ),
+            child: Obx(() {
+              final commentCount = commentController.totalComments.value;
+              return Row(
+                children: [
+                  // 评论图标
+                  Icon(
+                    Icons.comment,
+                    size: 20,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                  const SizedBox(width: 8),
+                  // 评论数量
+                  Text(
+                    '$commentCount',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                  // 占位符，将右侧按钮推到最右边
+                  const Spacer(),
+                  // 刷新按钮
+                  IconButton(
+                    icon: const Icon(Icons.refresh),
+                    onPressed: () {
+                      commentController.refreshComments();
+                    },
+                    tooltip: t.common.refresh,
+                  ),
+                  // 写评论按钮
+                  IconButton(
+                    icon: const Icon(Icons.comment),
+                    onPressed: () => _showCommentDialog(context),
+                    tooltip: t.common.sendComment,
+                  ),
+                ],
+              );
+            }),
+          ),
+          // 评论列表
           Expanded(
             child: Obx(() => CommentSection(
               controller: commentController,
@@ -35,66 +88,6 @@ class CommentsTabWidget extends StatelessWidget {
           ),
         ],
       ),
-      // 使用GridSpeedDial替代固定头部，并添加评论数量徽章
-      floatingActionButton: Obx(() {
-        final commentCount = commentController.totalComments.value;
-        return Padding(
-          padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 20), // 增加20px额外间距让浮动按钮变高
-          child: Stack(
-            clipBehavior: Clip.none, // Allows badge to overflow
-            alignment: Alignment.center,
-            children: [
-              GridSpeedDial(
-                // 主按钮图标
-                icon: Icons.more_vert,
-                activeIcon: Icons.close,
-                backgroundColor: Theme.of(context).primaryColor,
-                foregroundColor: Colors.white,
-                elevation: 8,
-                animationDuration: const Duration(milliseconds: 300),
-                direction: SpeedDialDirection.up,
-                spacing: 8,
-                spaceBetweenChildren: 8,
-                
-                // 子按钮配置
-                childrens: [
-                  [
-                    // 第一列：刷新评论
-                    SpeedDialChild(
-                      child: const Icon(Icons.refresh, color: Colors.white),
-                      backgroundColor: Colors.blue,
-                      onTap: () {
-                        commentController.refreshComments();
-                      },
-                    ),
-                  ],
-                  [
-                    // 第二列：写评论
-                    SpeedDialChild(
-                      child: const Icon(Icons.send, color: Colors.white),
-                      backgroundColor: Colors.green,
-                      onTap: () => _showCommentDialog(context),
-                    ),
-                  ],
-                ],
-              ),
-              // 添加评论数量徽章
-              if (commentCount > 0)
-                Positioned(
-                  top: -8, // Adjust as needed to position the badge above the icon
-                  right: -8, // Adjust as needed to position the badge to the right of the icon
-                  child: Badge(
-                    label: Text('$commentCount'),
-                    backgroundColor: Colors.red,
-                    textColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), // Adjust padding for better appearance
-                    alignment: Alignment.center,
-                  ),
-                ),
-            ],
-          ),
-        );
-      }),
     );
   }
 

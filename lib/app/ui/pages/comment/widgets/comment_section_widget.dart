@@ -36,6 +36,7 @@ class CommentSection extends StatelessWidget {
   // 构建Shimmer骨架屏列表
   Widget _buildShimmerList() {
     return ListView.builder(
+      padding: EdgeInsets.zero,
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       itemCount: 5,
@@ -135,6 +136,7 @@ class CommentSection extends StatelessWidget {
         return false;
       },
       child: ListView.separated(
+        padding: EdgeInsets.zero,
         physics: const AlwaysScrollableScrollPhysics(),
         shrinkWrap: true,
         itemCount: controller.comments.length + 1,
