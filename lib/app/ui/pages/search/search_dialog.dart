@@ -589,7 +589,7 @@ class _SearchContentState extends State<_SearchContent> {
                         ),
                         onTap: () {
                           _controller.text = record.keyword;
-                          _focusNode.requestFocus(); // 重新聚焦 TextField
+                          _handleSubmit(record.keyword);
                         },
                       );
                     },
