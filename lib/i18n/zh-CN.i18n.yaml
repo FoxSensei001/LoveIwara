@@ -198,6 +198,7 @@ common:
   iwaraTags: Iwara 标签
   likeThisVideo: 喜欢这个视频的人
   operation: 操作
+  replies: 回复
 auth:
   tagLimit: 标签上限
   login: 登录

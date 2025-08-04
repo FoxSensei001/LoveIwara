@@ -22,17 +22,20 @@ import '../../../widgets/custom_markdown_body_widget.dart';
 import '../widgets/comment_input_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/widgets/translation_language_selector.dart';
+import 'package:i_iwara/app/ui/pages/comment/widgets/comment_replies_bottom_sheet.dart';
 
 class CommentItem extends StatefulWidget {
   final Comment comment;
   final String? authorUserId;
   final CommentController? controller;
+  final bool isReply;
 
   const CommentItem({
     super.key, 
     required this.comment, 
     this.authorUserId,
     this.controller,
+    this.isReply = false,
   });
 
   @override
@@ -40,16 +43,7 @@ class CommentItem extends StatefulWidget {
 }
 
 class _CommentItemState extends State<CommentItem> {
-  bool _isRepliesExpanded = false;
-  bool _isTranslationMenuVisible = false;
   final UserService _userService = Get.find();
-  final List<Comment> _replies = [];
-  bool _isLoadingReplies = false;
-  bool _hasMoreReplies = true;
-  int _currentPage = 0;
-  final int _pageSize = 20;
-  String? _errorMessage;
-
   final ConfigService _configService = Get.find();
   final CommentService _commentService = Get.find();
   
@@ -72,200 +66,16 @@ class _CommentItemState extends State<CommentItem> {
     super.dispose();
   }
 
-  Future<void> _fetchReplies({bool refresh = false}) async {
-    if (refresh) {
-      setState(() {
-        _currentPage = 0;
-        _replies.clear();
-        _hasMoreReplies = true;
-        _errorMessage = null;
-      });
-    }
-
-    if (!_hasMoreReplies || _isLoadingReplies) return;
-
-    setState(() {
-      _isLoadingReplies = true;
-    });
-
-    try {
-      String type;
-      String id;
-      if (widget.comment.videoId != null) {
-        type = CommentType.video.name;
-        id = widget.comment.videoId!;
-      } else if (widget.comment.profileId != null) {
-        type = CommentType.profile.name;
-        id = widget.comment.profileId!;
-      } else if (widget.comment.imageId != null) {
-        type = CommentType.image.name;
-        id = widget.comment.imageId!;
-      } else if (widget.comment.postId != null) {
-        type = CommentType.post.name;
-        id = widget.comment.postId!;
-      } else {
-        throw Exception('未知的评论类型');
-      }
-
-      final result = await _commentService.getComments(
-        type: type,
-        id: id,
-        parentId: widget.comment.id,
-        page: _currentPage,
-        limit: _pageSize,
-      );
-
-      if (result.isSuccess) {
-        final pageData = result.data!;
-        final fetchedReplies = pageData.results;
-
-        setState(() {
-          _replies.addAll(fetchedReplies);
-          _currentPage++;
-          _hasMoreReplies = fetchedReplies.length >= _pageSize;
-          _errorMessage = null;
-        });
-      } else {
-        setState(() {
-          _errorMessage = result.message;
-          _hasMoreReplies = false;
-        });
-      }
-    } catch (e) {
-      LogUtils.e('获取评论回复失败', error: e, tag: 'CommentItem');
-      setState(() {
-        _errorMessage = slang.t.errors.errorWhileFetchingReplies;
-        _hasMoreReplies = false;
-      });
-    } finally {
-      setState(() {
-        _isLoadingReplies = false;
-      });
-    }
-  }
-
   void _handleViewReplies() {
-    setState(() {
-      _isRepliesExpanded = !_isRepliesExpanded;
-    });
-
-    if (_isRepliesExpanded && _replies.isEmpty && !_isLoadingReplies) {
-      _fetchReplies(refresh: true);
-    }
-  }
-
-  Widget _buildRepliesList(BuildContext context) {
-    final t = slang.Translations.of(context);
-    if (_isLoadingReplies && _replies.isEmpty) {
-      return Column(
-        children: List.generate(
-          widget.comment.numReplies, 
-          (index) => _buildShimmerItem()
-        ),
-      );
-    } else if (_errorMessage != null && _replies.isEmpty) {
-      return Center(
-        child: Text(
-          _errorMessage!,
-          style: const TextStyle(color: Colors.red),
-        ),
-      );
-    } else if (!_isLoadingReplies && _replies.isEmpty) {
-      return Center(child: Text(t.common.tmpNoReplies));
-    }
-
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ListView.separated(
-          physics: const NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          itemCount: _replies.length + (_hasMoreReplies ? 1 : 0),
-          separatorBuilder: (context, index) => Divider(
-            height: 1,
-            indent: 48.0,
-            endIndent: 16.0,
-            color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.2),
-          ),
-          itemBuilder: (context, index) {
-            if (index < _replies.length) {
-              return CommentItem(
-                comment: _replies[index],
-                authorUserId: widget.authorUserId,
-                controller: widget.controller,
-              );
-            } else {
-              if (_isLoadingReplies) {
-                return _buildShimmerItem();
-              } else if (_hasMoreReplies) {
-                return TextButton(
-                  onPressed: () {
-                    if (!_isLoadingReplies) {
-                      _fetchReplies();
-                    }
-                  },
-                  child: Text(t.common.loadMore),
-                );
-              } else {
-                return Center(child: Text(t.common.noMoreDatas));
-              }
-            }
-          },
-        ),
-      ],
-    );
-  }
-
-  /// 构建 Shimmer 占位符
-  Widget _buildShimmerItem() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: Padding(
-        padding: EdgeInsets.only(
-          left: widget.comment.parent != null ? 32.0 : 16.0,
-          right: 0.0,
-          top: 8.0,
-          bottom: 8.0,
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 头像占位符
-            const CircleAvatar(
-              backgroundColor: Colors.white,
-              radius: 20,
-            ),
-            const SizedBox(width: 8),
-            // 文本占位符
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(height: 10.0, color: Colors.white),
-                  const SizedBox(height: 6.0),
-                  Container(height: 10.0, width: 150.0, color: Colors.white),
-                ],
-              ),
-            ),
-          ],
-        ),
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => CommentRepliesBottomSheet(
+        parentComment: widget.comment,
+        authorUserId: widget.authorUserId,
       ),
     );
-  }
-
-  void _toggleTranslationMenu() {
-    if (_isTranslationMenuVisible) {
-      _overlayEntry?.remove();
-      _overlayEntry = null;
-    } else {
-      _showTranslationMenuOverlay();
-    }
-    setState(() {
-      _isTranslationMenuVisible = !_isTranslationMenuVisible;
-    });
   }
 
   void _showTranslationMenuOverlay() {
@@ -305,6 +115,15 @@ class _CommentItemState extends State<CommentItem> {
     );
     
     overlay.insert(_overlayEntry!);
+  }
+
+  void _toggleTranslationMenu() {
+    if (_overlayEntry != null) {
+      _overlayEntry?.remove();
+      _overlayEntry = null;
+    } else {
+      _showTranslationMenuOverlay();
+    }
   }
 
   Widget _buildTranslationButton(BuildContext context) {
@@ -350,7 +169,6 @@ class _CommentItemState extends State<CommentItem> {
     await _translationController.translate(widget.comment.body);
   }
 
-  // 添加这个方法来构建标签
   Widget _buildCommentTag(String text, Color color, IconData icon) {
     return Builder(
       builder: (context) {
@@ -408,7 +226,6 @@ class _CommentItemState extends State<CommentItem> {
     );
   }
 
-  /// 构建时间显示区域
   Widget _buildTimeInfo(Comment comment, BuildContext context) {
     final t = slang.Translations.of(context);
     if (comment.createdAt == null) return const SizedBox.shrink();
@@ -428,7 +245,6 @@ class _CommentItemState extends State<CommentItem> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 创建时间
               Row(
                 children: [
                   Icon(
@@ -443,7 +259,6 @@ class _CommentItemState extends State<CommentItem> {
                   ),
                 ],
               ),
-              // 编辑时间
               if (hasEdit)
                 Padding(
                   padding: const EdgeInsets.only(top: 2),
@@ -466,7 +281,7 @@ class _CommentItemState extends State<CommentItem> {
           ),
         ),
         // 回复数量指示器
-        if (widget.comment.numReplies > 0)
+        if (!widget.isReply && widget.comment.numReplies > 0)
           Material(
             color: Colors.transparent,
             child: InkWell(
@@ -487,9 +302,7 @@ class _CommentItemState extends State<CommentItem> {
                     ),
                     const SizedBox(width: 4),
                     Icon(
-                      _isRepliesExpanded
-                          ? Icons.keyboard_arrow_up
-                          : Icons.keyboard_arrow_down,
+                      Icons.keyboard_arrow_up,
                       size: 20,
                       color: Theme.of(context).colorScheme.primary,
                     ),
@@ -535,23 +348,11 @@ class _CommentItemState extends State<CommentItem> {
             return;
           }
 
-          // 如果是主评论
           if (widget.comment.parent == null) {
             await widget.controller!.editComment(widget.comment.id, text);
           } else {
-            // 如果是回复评论
             final result = await _commentService.editComment(widget.comment.id, text);
             if (result.isSuccess) {
-              setState(() {
-                // 更新本地评论内容
-                final index = _replies.indexWhere((c) => c.id == widget.comment.id);
-                if (index != -1) {
-                  _replies[index] = widget.comment.copyWith(
-                    body: text,
-                    updatedAt: DateTime.now(),
-                  );
-                }
-              });
               showToastWidget(MDToastWidget(message: slang.t.common.commentUpdated, type: MDToastType.success));
               AppService.tryPop();
             } else {
@@ -579,31 +380,34 @@ class _CommentItemState extends State<CommentItem> {
             showToastWidget(MDToastWidget(message: slang.t.errors.commentCanNotBeEmpty, type: MDToastType.error), position: ToastPosition.bottom);
             return;
           }
-          final result = await widget.controller!.postComment(
+          await widget.controller!.postComment(
             text,
             parentId: widget.comment.id,
           );
-          
-          // 如果发布成功且回复列表已展开，将新回复添加到列表开头
-          if (result.isSuccess && result.data != null && _isRepliesExpanded) {
-            setState(() {
-              _replies.insert(0, result.data!);
-            });
-          }
         },
       ),
       barrierDismissible: true,
     );
   }
 
-  // 新增操作菜单构建方法
   Widget _buildActionMenu(BuildContext context) {
     final t = slang.Translations.of(context);
+    
+    // 检查是否有菜单项
+    final hasReplyOption = widget.comment.parent == null && !widget.isReply;
+    final isOwner = _userService.currentUser.value?.id == widget.comment.user?.id;
+    final hasMenuItems = hasReplyOption || isOwner;
+    
+    // 如果没有菜单项，返回空的 SizedBox
+    if (!hasMenuItems) {
+      return const SizedBox.shrink();
+    }
+    
     return PopupMenuButton<String>(
       icon: const Icon(Icons.more_vert, size: 16),
       padding: EdgeInsets.zero,
       itemBuilder: (context) => [
-        if (widget.comment.parent == null)
+        if (hasReplyOption)
           PopupMenuItem(
             value: 'reply',
             child: Row(
@@ -614,7 +418,7 @@ class _CommentItemState extends State<CommentItem> {
               ],
             ),
           ),
-        if (_userService.currentUser.value?.id == widget.comment.user?.id) ...[
+        if (isOwner) ...[
           PopupMenuItem(
             value: 'edit',
             child: Row(
@@ -661,15 +465,14 @@ class _CommentItemState extends State<CommentItem> {
     return RepaintBoundary(
       child: Padding(
         padding: EdgeInsets.only(
-          left: comment.parent != null ? 32.0 : 16.0,
-          right: 0.0,
-          top: 8.0,
-          bottom: 8.0,
+          left: widget.isReply ? 0.0 : 8.0,
+          right: 8.0,
+          top: 6.0,
+          bottom: 6.0,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 用户信息行
             MouseRegion(
               cursor: SystemMouseCursors.click,
               child: GestureDetector(
@@ -677,25 +480,20 @@ class _CommentItemState extends State<CommentItem> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // 头像
                     _buildUserAvatar(comment),
-                    const SizedBox(width: 8),
-                    // 用户名、标签等信息
+                    const SizedBox(width: 6),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // 用户名行
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              // 会员用户名
                               Flexible(
                                 child: buildUserName(context, comment.user!, fontSize: 14, bold: true),
                               ),
                             ],
                           ),
-                          // 标签行
                           SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
                             child: Row(
@@ -712,7 +510,6 @@ class _CommentItemState extends State<CommentItem> {
                               ],
                             ),
                           ),
-                          // @用户名
                           Text(
                             '@${comment.user?.username ?? ''}',
                             style: TextStyle(
@@ -729,36 +526,31 @@ class _CommentItemState extends State<CommentItem> {
                 ),
               ),
             ),
-            const SizedBox(height: 8),
-            // 评论内容
+            const SizedBox(height: 6),
             Padding(
-              padding: const EdgeInsets.only(left: 48.0),
+              padding: const EdgeInsets.only(left: 36.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 评论内容 - 添加点击回复功能
                   Material(
                     color: Colors.transparent,
                     borderRadius: BorderRadius.circular(8),
                     clipBehavior: Clip.antiAlias,
                     child: InkWell(
-                      onTap: widget.comment.parent == null ? _showReplyDialog : null,
+                      onTap: !widget.isReply && widget.comment.parent == null ? _showReplyDialog : null,
                       child: CustomMarkdownBody(
                         data: comment.body,
-                        showTranslationButton: false, // 不显示内部翻译按钮
-                        translationController: _translationController, // 使用外部控制器
+                        showTranslationButton: false,
+                        translationController: _translationController,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  // 回复、翻译和操作按钮行
+                  const SizedBox(height: 6),
                   Row(
                     children: [
-                      // 翻译按钮
                       _buildTranslationButton(context),
                       const Spacer(),
-                      // 回复按钮 - 只在非回复评论中显示
-                      if (comment.parent == null)
+                      if (!widget.isReply && comment.parent == null)
                         IconButton(
                           onPressed: _showReplyDialog,
                           icon: const Icon(Icons.reply, size: 20),
@@ -771,25 +563,21 @@ class _CommentItemState extends State<CommentItem> {
                       _buildActionMenu(context),
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  // 时间和查看回复按钮行
+                  const SizedBox(height: 2),
                   _buildTimeInfo(comment, context),
                 ],
               ),
             ),
-            // 回复列表
-            if (_isRepliesExpanded) _buildRepliesList(context),
           ],
         ),
       ),
     );
   }
 
-  // 构建用户头像
   Widget _buildUserAvatar(Comment comment) {
     return AvatarWidget(
       user: comment.user,
-      size: 40
+      size: 32
     );
   }
 }

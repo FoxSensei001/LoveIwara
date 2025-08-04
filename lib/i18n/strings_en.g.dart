@@ -259,6 +259,7 @@ class TranslationsCommonEn {
 	String get iwaraTags => 'Iwara Tags';
 	String get likeThisVideo => 'Like This Video';
 	String get operation => 'Operation';
+	String get replies => 'Replies';
 }
 
 // Path: auth
@@ -1939,6 +1940,7 @@ extension on Translations {
 			case 'common.iwaraTags': return 'Iwara Tags';
 			case 'common.likeThisVideo': return 'Like This Video';
 			case 'common.operation': return 'Operation';
+			case 'common.replies': return 'Replies';
 			case 'auth.login': return 'Login';
 			case 'auth.logout': return 'Logout';
 			case 'auth.email': return 'Email';

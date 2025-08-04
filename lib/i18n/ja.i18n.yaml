@@ -195,6 +195,7 @@ common:
   iwaraTags: Iwara タグ
   likeThisVideo: この動画が好きな人
   operation: 操作
+  replies: 返信
 auth:
   login: ログイン
   logout: ログアウト

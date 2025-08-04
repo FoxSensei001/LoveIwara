@@ -194,6 +194,7 @@ common:
   iwaraTags: Iwara Tags
   likeThisVideo: Like This Video
   operation: Operation
+  replies: Replies
 auth:
   login: Login
   logout: Logout

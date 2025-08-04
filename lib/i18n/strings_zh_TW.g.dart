@@ -256,6 +256,7 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get iwaraTags => 'Iwara 標籤';
 	@override String get likeThisVideo => '喜歡這個影片的人';
 	@override String get operation => '操作';
+	@override String get replies => '回覆';
 }
 
 // Path: auth
@@ -1939,6 +1940,7 @@ extension on TranslationsZhTw {
 			case 'common.iwaraTags': return 'Iwara 標籤';
 			case 'common.likeThisVideo': return '喜歡這個影片的人';
 			case 'common.operation': return '操作';
+			case 'common.replies': return '回覆';
 			case 'auth.login': return '登入';
 			case 'auth.logout': return '登出';
 			case 'auth.email': return '電子郵件';

@@ -256,6 +256,7 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get iwaraTags => 'Iwara タグ';
 	@override String get likeThisVideo => 'この動画が好きな人';
 	@override String get operation => '操作';
+	@override String get replies => '返信';
 }
 
 // Path: auth
@@ -1936,6 +1937,7 @@ extension on TranslationsJa {
 			case 'common.iwaraTags': return 'Iwara タグ';
 			case 'common.likeThisVideo': return 'この動画が好きな人';
 			case 'common.operation': return '操作';
+			case 'common.replies': return '返信';
 			case 'auth.login': return 'ログイン';
 			case 'auth.logout': return 'ログアウト';
 			case 'auth.email': return 'メールアドレス';

@@ -194,6 +194,7 @@ common:
   iwaraTags: Iwara 標籤
   likeThisVideo: 喜歡這個影片的人
   operation: 操作
+  replies: 回覆
 auth:
   login: 登入
   logout: 登出
