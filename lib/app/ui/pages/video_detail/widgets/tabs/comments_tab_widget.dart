@@ -39,7 +39,7 @@ class CommentsTabWidget extends StatelessWidget {
       floatingActionButton: Obx(() {
         final commentCount = commentController.totalComments.value;
         return Padding(
-          padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 20), // 增加20px额外间距让浮动按钮变高
           child: Stack(
             clipBehavior: Clip.none, // Allows badge to overflow
             alignment: Alignment.center,

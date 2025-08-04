@@ -561,8 +561,8 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
   Widget _buildPaginatedView(BuildContext context) {
     // 获取系统底部安全区域高度
     final bottomPadding = Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0;
-    // 计算分页栏所需的底部边距
-    final paginationBarHeight = 46 + bottomPadding;
+    // 计算分页栏所需的底部边距（PaginationBar内部已处理paddingBottom，这里只需要基础高度）
+    final paginationBarHeight = 46;
     
     // 获取屏幕宽度
     final screenWidth = MediaQuery.of(context).size.width;
@@ -673,6 +673,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
             isLoading: isLoading,
             onPageChanged: _loadPaginatedData,
             useBlurEffect: true,
+            paddingBottom: bottomPadding.toDouble(),
           ),
         ),
       ],

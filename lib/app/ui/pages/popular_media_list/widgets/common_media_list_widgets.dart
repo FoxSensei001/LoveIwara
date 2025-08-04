@@ -525,7 +525,7 @@ class _PaginationBarState extends State<PaginationBar>
     final barContent = Stack(
       children: [
         Container(
-          height: 46,
+          height: 46 + widget.paddingBottom, // 添加底部安全区域高度
           decoration: BoxDecoration(
             color: widget.useBlurEffect ? Colors.transparent : Theme.of(context).colorScheme.surface,
             boxShadow: widget.useBlurEffect ? [] : [
@@ -536,13 +536,23 @@ class _PaginationBarState extends State<PaginationBar>
               ),
             ],
           ),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final isNarrow = constraints.maxWidth < 600;
-              return isNarrow
-                  ? _buildCompactPaginationBar(context)
-                  : _buildFullPaginationBar(context);
-            },
+          child: Column(
+            children: [
+              // 主要内容区域
+              Expanded(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isNarrow = constraints.maxWidth < 600;
+                    return isNarrow
+                        ? _buildCompactPaginationBar(context)
+                        : _buildFullPaginationBar(context);
+                  },
+                ),
+              ),
+              // 底部安全区域占位
+              if (widget.paddingBottom > 0)
+                SizedBox(height: widget.paddingBottom),
+            ],
           ),
         ),
         // 动画进度指示器

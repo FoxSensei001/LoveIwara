@@ -610,7 +610,9 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                 final t = slang.Translations.of(context); // 在这里获取 t
                 return Padding(
                   padding: EdgeInsets.only(
-                    bottom: mediaListController.isPaginated.value ? 40 : 20,
+                    bottom: mediaListController.isPaginated.value 
+                        ? (46 + (Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0) + 20) // 分页栏高度 + 底部安全区域 + 额外间距
+                        : 20,
                     right: 0,
                   ),
                   child: GridSpeedDial(
