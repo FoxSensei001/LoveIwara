@@ -422,6 +422,8 @@ class BottomToolbar extends StatelessWidget {
         ),
         onSelected: (String selected) {
           if (selected != currentResolution) {
+            // 保存用户手动选择的清晰度到新配置
+            _configService.setSetting(ConfigKey.DEFAULT_QUALITY_KEY, selected);
             myVideoStateController.switchResolution(selected);
           }
         },

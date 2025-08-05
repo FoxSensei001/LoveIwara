@@ -260,9 +260,16 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
         // 左侧纯播放器区域（自适应宽度）
         Expanded(
           child: Obx(() {
-            if (controller.videoPlayerReady.value) {
+            // 如果是站外视频，直接显示站外视频内容
+            if (controller.videoInfo.value?.isExternalVideo == true) {
               return _buildPureVideoPlayer(screenSize.height, paddingTop);
-            } else {
+            }
+            // 如果视频播放器准备好了，显示播放器
+            else if (controller.videoPlayerReady.value) {
+              return _buildPureVideoPlayer(screenSize.height, paddingTop);
+            } 
+            // 否则显示骨架屏
+            else {
               return VideoPlayerSkeletonWidget(controller: controller);
             }
           }),
@@ -323,9 +330,24 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                 children: [
                   // 视频播放器
                   Obx(() {
-                    if (controller.videoPlayerReady.value) {
+                    // 如果是站外视频，直接显示站外视频内容
+                    if (controller.videoInfo.value?.isExternalVideo == true) {
+                      return SizedBox(
+                        width: screenSize.width,
+                        height: controller.getCurrentVideoHeight(
+                          screenSize.width,
+                          screenSize.height,
+                          paddingTop,
+                        ),
+                        child: _buildVideoPlayerContent(),
+                      );
+                    }
+                    // 如果视频播放器准备好了，显示播放器
+                    else if (controller.videoPlayerReady.value) {
                       return _buildVideoPlayerForNestedScroll(screenSize, paddingTop);
-                    } else {
+                    } 
+                    // 否则显示骨架屏
+                    else {
                       return SizedBox(
                         width: screenSize.width,
                         height: controller.getCurrentVideoHeight(

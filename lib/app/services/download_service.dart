@@ -392,22 +392,30 @@ class DownloadService extends GetxService {
         task.status = DownloadStatus.downloading;
         await _updateTaskStatus(task);
 
-        // 获取文件大小
+        // 获取文件大小 - 直接使用 Range 请求获取文件大小
         try {
-          // 先尝试发送 HEAD 请求
-          final headResponse = await dio.head(
+          final rangeResponse = await dio.get(
             task.url,
             cancelToken: cancelToken,
             options: Options(
+              responseType: ResponseType.stream,
+              headers: {'Range': 'bytes=0-0'}, // 只请求第一个字节
               sendTimeout: const Duration(seconds: 30),
               receiveTimeout: const Duration(seconds: 30),
             ),
           );
-          final contentLength = headResponse.headers.value('content-length');
-          if (contentLength != null) {
-            task.totalBytes = int.parse(contentLength);
-            LogUtils.d(
-                '从content-length获取文件大小: ${task.totalBytes}', 'DownloadService');
+
+          // 从 content-range 头获取总大小
+          final contentRange = rangeResponse.headers.value('content-range');
+          if (contentRange != null) {
+            // 格式: bytes 0-0/total_size
+            final match =
+            RegExp(r'bytes \d+-\d+/(\d+)').firstMatch(contentRange);
+            if (match != null) {
+              task.totalBytes = int.parse(match.group(1)!);
+              LogUtils.d('从Range请求获取文件大小: ${task.totalBytes}',
+                  'DownloadService');
+            }
           }
         } catch (e) {
           // 如果是取消操作，直接返回
@@ -417,44 +425,7 @@ class DownloadService extends GetxService {
             await _updateTaskStatus(task); // [更新持久化信息]
             return;
           }
-
-          LogUtils.w('HEAD请求获取文件大小失败: $e', 'DownloadService');
-
-          // HEAD 请求失败,尝试发送 GET range 请求
-          try {
-            final rangeResponse = await dio.get(
-              task.url,
-              cancelToken: cancelToken,
-              options: Options(
-                responseType: ResponseType.stream,
-                headers: {'Range': 'bytes=0-0'}, // 只请求第一个字节
-                sendTimeout: const Duration(seconds: 30),
-                receiveTimeout: const Duration(seconds: 30),
-              ),
-            );
-
-            // 从 content-range 头获取总大小
-            final contentRange = rangeResponse.headers.value('content-range');
-            if (contentRange != null) {
-              // 格式: bytes 0-0/total_size
-              final match =
-              RegExp(r'bytes \d+-\d+/(\d+)').firstMatch(contentRange);
-              if (match != null) {
-                task.totalBytes = int.parse(match.group(1)!);
-                LogUtils.d('从content-range获取文件大小: ${task.totalBytes}',
-                    'DownloadService');
-              }
-            }
-          } catch (e) {
-            // 如果是取消操作，直接返回
-            if (e is DioException && e.type == DioExceptionType.cancel) {
-              // 取消操作，更新状态
-              task.status = DownloadStatus.paused; // [更新内存状态]
-              await _updateTaskStatus(task); // [更新持久化信息]
-              return;
-            }
-            LogUtils.w('Range请求获取文件大小失败: $e', 'DownloadService');
-          }
+          LogUtils.w('Range请求获取文件大小失败: $e', 'DownloadService');
         }
 
         final response = await dio.get(

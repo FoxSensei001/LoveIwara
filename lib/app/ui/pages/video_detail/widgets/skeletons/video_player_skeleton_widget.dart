@@ -18,6 +18,10 @@ class VideoPlayerSkeletonWidget extends StatelessWidget {
         // return "正在获取播放地址...";
         return slang.t.videoDetail.skeleton.fetchingVideoSources;
       case VideoDetailPageLoadingState.idle:
+        // 如果是站外视频，不显示加载消息
+        if (controller.videoInfo.value?.isExternalVideo == true) {
+          return "";
+        }
         if (!controller.videoPlayerReady.value) {
           // return "正在加载视频...";
           return slang.t.videoDetail.skeleton.loadingVideo;

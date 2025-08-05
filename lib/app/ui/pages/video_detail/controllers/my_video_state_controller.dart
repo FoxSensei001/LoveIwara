@@ -369,8 +369,9 @@ class MyVideoStateController extends GetxController
     } catch (e) {
       LogUtils.e('初始化失败: $e', tag: 'MyVideoStateController', error: e);
       if (!_isDisposed) {
+        String errorMessage = CommonUtils.parseExceptionMessage(e);
         mainErrorWidget.value = CommonErrorWidget(
-          text: slang.t.videoDetail.getVideoInfoFailed,
+          text: errorMessage,
           children: [
             ElevatedButton(
               onPressed: () => AppService.tryPop(),
@@ -833,8 +834,7 @@ class MyVideoStateController extends GetxController
       data.map((item) => VideoSource.fromJson(item)).toList();
       currentVideoSourceList.value = sources;
 
-      var lastUserSelectedResolution =
-      _configService[ConfigKey.DEFAULT_QUALITY_KEY];
+      var lastUserSelectedResolution = _configService[ConfigKey.DEFAULT_QUALITY_KEY];
       videoInfo.value = videoInfo.value!.copyWith(videoSources: sources);
 
       if (_isDisposed) return;
@@ -905,7 +905,6 @@ class MyVideoStateController extends GetxController
     _clearBuffers();
 
     videoPlayerReady.value = false;
-    _configService[ConfigKey.DEFAULT_QUALITY_KEY] = resolutionTag;
     this.videoResolutions.value = videoResolutions;
     currentPosition = position;
     currentResolutionTag.value = resolutionTag;
