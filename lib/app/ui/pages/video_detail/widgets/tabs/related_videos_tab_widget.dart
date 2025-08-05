@@ -52,6 +52,7 @@ class RelatedVideosTabWidget extends StatelessWidget {
             ListView.separated(
               itemCount: otherVideosController.videos.length,
               shrinkWrap: true,
+              padding: EdgeInsets.zero,
               physics: const NeverScrollableScrollPhysics(),
               separatorBuilder: (_, __) => const SizedBox(height: UIConstants.listSpacing),
               itemBuilder: (_, index) => VideoTileListItem(video: otherVideosController.videos[index]),
@@ -83,6 +84,7 @@ class RelatedVideosTabWidget extends StatelessWidget {
             ListView.separated(
               itemCount: relatedVideoController.videos.length,
               shrinkWrap: true,
+              padding: EdgeInsets.zero,
               physics: const NeverScrollableScrollPhysics(),
               separatorBuilder: (_, __) => const SizedBox(height: UIConstants.listSpacing),
               itemBuilder: (_, index) => VideoTileListItem(video: relatedVideoController.videos[index]),

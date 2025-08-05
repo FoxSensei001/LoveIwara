@@ -1521,7 +1521,7 @@ class MyVideoStateController extends GetxController
   double getCurrentVideoHeight(
       double screenWidth, double screenHeight, double paddingTop) {
     // 根据视频状态确定高度
-    if (pageLoadingState.value != VideoDetailPageLoadingState.idle || !videoPlayerReady.value) {
+    if (pageLoadingState.value == VideoDetailPageLoadingState.loadingVideoInfo) {
       return minVideoHeight;
     }
 

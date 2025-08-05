@@ -797,6 +797,7 @@ class _TranslationsVideoDetailJa implements TranslationsVideoDetailEn {
 	@override String get resourceNotFound => 'リソースが見つかりませんでした';
 	@override String get authorNoOtherVideos => '作者は他のビデオを所有していません';
 	@override String get noRelatedVideos => '関連するビデオはありません';
+	@override late final _TranslationsVideoDetailSkeletonJa skeleton = _TranslationsVideoDetailSkeletonJa._(_root);
 }
 
 // Path: share
@@ -1548,6 +1549,18 @@ class _TranslationsOreno3dMessagesJa implements TranslationsOreno3dMessagesEn {
 	@override String get videoNotFoundOrDeleted => '動画が見つからないか削除されました';
 	@override String get unableToGetVideoPlayLink => '動画再生リンクを取得できません';
 	@override String get getVideoDetailFailed => '動画詳細の取得に失敗しました';
+}
+
+// Path: videoDetail.skeleton
+class _TranslationsVideoDetailSkeletonJa implements TranslationsVideoDetailSkeletonEn {
+	_TranslationsVideoDetailSkeletonJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get fetchingVideoInfo => 'ビデオ情報を取得中...';
+	@override String get fetchingVideoSources => 'ビデオソースを取得中...';
+	@override String get loadingVideo => 'ビデオを読み込み中...';
 }
 
 // Path: forum.errors
@@ -2518,6 +2531,9 @@ extension on TranslationsJa {
 			case 'videoDetail.resourceNotFound': return 'リソースが見つかりませんでした';
 			case 'videoDetail.authorNoOtherVideos': return '作者は他のビデオを所有していません';
 			case 'videoDetail.noRelatedVideos': return '関連するビデオはありません';
+			case 'videoDetail.skeleton.fetchingVideoInfo': return 'ビデオ情報を取得中...';
+			case 'videoDetail.skeleton.fetchingVideoSources': return 'ビデオソースを取得中...';
+			case 'videoDetail.skeleton.loadingVideo': return 'ビデオを読み込み中...';
 			case 'share.sharePlayList': return 'プレイリストを共有';
 			case 'share.wowDidYouSeeThis': return 'ああ、見たの？';
 			case 'share.nameIs': return '名前は';

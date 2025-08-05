@@ -821,6 +821,10 @@ videoDetail:
   videoLoadError: Video load error
   authorNoOtherVideos: Author has no other videos
   noRelatedVideos: No related videos
+  skeleton:
+    fetchingVideoInfo: Fetching video info...
+    fetchingVideoSources: Fetching video sources...
+    loadingVideo: Loading video...
 
 share:
   sharePlayList: Share Play List

@@ -797,6 +797,7 @@ class _TranslationsVideoDetailZhTw implements TranslationsVideoDetailEn {
 	@override String get resourceNotFound => '資源未找到';
 	@override String get authorNoOtherVideos => '作者暫無其他影片';
 	@override String get noRelatedVideos => '暫無相關影片';
+	@override late final _TranslationsVideoDetailSkeletonZhTw skeleton = _TranslationsVideoDetailSkeletonZhTw._(_root);
 }
 
 // Path: share
@@ -1551,6 +1552,18 @@ class _TranslationsOreno3dMessagesZhTw implements TranslationsOreno3dMessagesEn 
 	@override String get videoNotFoundOrDeleted => '視頻不存在或已被刪除';
 	@override String get unableToGetVideoPlayLink => '無法獲取視頻播放鏈接';
 	@override String get getVideoDetailFailed => '獲取視頻詳情失敗';
+}
+
+// Path: videoDetail.skeleton
+class _TranslationsVideoDetailSkeletonZhTw implements TranslationsVideoDetailSkeletonEn {
+	_TranslationsVideoDetailSkeletonZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get fetchingVideoInfo => '取得影片資訊中...';
+	@override String get fetchingVideoSources => '取得影片來源中...';
+	@override String get loadingVideo => '正在加載影片...';
 }
 
 // Path: forum.errors
@@ -2521,6 +2534,9 @@ extension on TranslationsZhTw {
 			case 'videoDetail.resourceNotFound': return '資源未找到';
 			case 'videoDetail.authorNoOtherVideos': return '作者暫無其他影片';
 			case 'videoDetail.noRelatedVideos': return '暫無相關影片';
+			case 'videoDetail.skeleton.fetchingVideoInfo': return '取得影片資訊中...';
+			case 'videoDetail.skeleton.fetchingVideoSources': return '取得影片來源中...';
+			case 'videoDetail.skeleton.loadingVideo': return '正在加載影片...';
 			case 'share.sharePlayList': return '分享播放列表';
 			case 'share.wowDidYouSeeThis': return '哇哦，你看过这个吗？';
 			case 'share.nameIs': return '名字叫做';

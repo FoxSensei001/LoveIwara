@@ -822,6 +822,10 @@ videoDetail:
   resourceNotFound: 資源未找到
   authorNoOtherVideos: 作者暫無其他影片
   noRelatedVideos: 暫無相關影片
+  skeleton:
+    fetchingVideoInfo: 取得影片資訊中...
+    fetchingVideoSources: 取得影片來源中...
+    loadingVideo: 正在加載影片...
 
 share:
   sharePlayList: 分享播放列表

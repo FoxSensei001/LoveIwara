@@ -800,6 +800,7 @@ class TranslationsVideoDetailEn {
 	String get videoLoadError => 'Video load error';
 	String get authorNoOtherVideos => 'Author has no other videos';
 	String get noRelatedVideos => 'No related videos';
+	late final TranslationsVideoDetailSkeletonEn skeleton = TranslationsVideoDetailSkeletonEn._(_root);
 }
 
 // Path: share
@@ -1551,6 +1552,18 @@ class TranslationsOreno3dMessagesEn {
 	String get videoNotFoundOrDeleted => 'Video not found or has been deleted';
 	String get unableToGetVideoPlayLink => 'Unable to get video playback link';
 	String get getVideoDetailFailed => 'Failed to get video details';
+}
+
+// Path: videoDetail.skeleton
+class TranslationsVideoDetailSkeletonEn {
+	TranslationsVideoDetailSkeletonEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get fetchingVideoInfo => 'Fetching video info...';
+	String get fetchingVideoSources => 'Fetching video sources...';
+	String get loadingVideo => 'Loading video...';
 }
 
 // Path: forum.errors
@@ -2521,6 +2534,9 @@ extension on Translations {
 			case 'videoDetail.videoLoadError': return 'Video load error';
 			case 'videoDetail.authorNoOtherVideos': return 'Author has no other videos';
 			case 'videoDetail.noRelatedVideos': return 'No related videos';
+			case 'videoDetail.skeleton.fetchingVideoInfo': return 'Fetching video info...';
+			case 'videoDetail.skeleton.fetchingVideoSources': return 'Fetching video sources...';
+			case 'videoDetail.skeleton.loadingVideo': return 'Loading video...';
 			case 'share.sharePlayList': return 'Share Play List';
 			case 'share.wowDidYouSeeThis': return 'Wow, did you see this?';
 			case 'share.nameIs': return 'Name is';

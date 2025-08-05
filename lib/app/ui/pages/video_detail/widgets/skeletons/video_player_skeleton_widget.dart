@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class VideoPlayerSkeletonWidget extends StatelessWidget {
   final MyVideoStateController controller;
@@ -11,12 +12,15 @@ class VideoPlayerSkeletonWidget extends StatelessWidget {
   String _getLoadingMessage(BuildContext context) {
     switch (controller.pageLoadingState.value) {
       case VideoDetailPageLoadingState.loadingVideoInfo:
-        return "正在获取视频信息...";
+        // return "正在获取视频信息...";
+        return slang.t.videoDetail.skeleton.fetchingVideoInfo;
       case VideoDetailPageLoadingState.loadingVideoSource:
-        return "正在获取播放地址...";
+        // return "正在获取播放地址...";
+        return slang.t.videoDetail.skeleton.fetchingVideoSources;
       case VideoDetailPageLoadingState.idle:
         if (!controller.videoPlayerReady.value) {
-          return "正在加载播放器...";
+          // return "正在加载视频...";
+          return slang.t.videoDetail.skeleton.loadingVideo;
         }
         return "";
       default:
@@ -34,7 +38,7 @@ class VideoPlayerSkeletonWidget extends StatelessWidget {
             child: Obx(() {
               if (controller.videoSourceErrorMessage.value != null) {
                 return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     const Icon(Icons.error_outline, color: Colors.red, size: 48),
                     const SizedBox(height: 16),
@@ -47,13 +51,13 @@ class VideoPlayerSkeletonWidget extends StatelessWidget {
                     ElevatedButton.icon(
                       onPressed: () => controller.fetchVideoSource(),
                       icon: const Icon(Icons.refresh),
-                      label: const Text("重试"),
+                      label: Text(slang.t.common.retry),
                     ),
                   ],
                 );
               } else {
                 return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     const CircularProgressIndicator(
                       color: Colors.white,

@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:i_iwara/app/models/sort.model.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/db/database_service.dart';
-import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:sqlite3/common.dart';
 import 'dart:convert';
 

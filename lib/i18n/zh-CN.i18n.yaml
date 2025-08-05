@@ -828,6 +828,10 @@ videoDetail:
   resourceNotFound: 资源未找到
   authorNoOtherVideos: 作者暂无其他视频
   noRelatedVideos: 暂无相关视频
+  skeleton:
+    fetchingVideoInfo: 正在获取视频信息...
+    fetchingVideoSources: 正在获取视频源...
+    loadingVideo: 正在加载视频...
 
 share:
   sharePlayList: 分享播放列表
