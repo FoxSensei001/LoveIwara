@@ -3,9 +3,11 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_routes.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/home/home_navigation_layout.dart';
-import 'package:i_iwara/app/ui/pages/video_detail/widgets/media_tile_list_loading_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/my_video_screen.dart';
-import 'package:i_iwara/app/ui/pages/video_detail/widgets/video_detail_info_skeleton_widget.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/skeletons/video_detail_info_skeleton_widget.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/skeletons/video_player_skeleton_widget.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/skeletons/video_detail_wide_skeleton_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/video_info_tab_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/comments_tab_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/related_videos_tab_widget.dart';
@@ -17,7 +19,6 @@ import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../common/enums/media_enums.dart';
 import '../comment/controllers/comment_controller.dart';
-import 'controllers/my_video_state_controller.dart';
 import 'controllers/related_media_controller.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -244,25 +245,8 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
   ) {
     const double tabsAreaWidth = 350.0; // 固定Tab区域宽度，适当缩窄以优化播放器显示区域
 
-    if (controller.isVideoInfoLoading.value) {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 左侧视频播放器骨架
-          Expanded(
-            child: Container(
-              height: screenSize.height,
-              color: Colors.black,
-              child: const Center(child: CircularProgressIndicator()),
-            ),
-          ),
-          // 右侧Tab内容骨架
-          SizedBox(
-            width: tabsAreaWidth,
-            child: const MediaTileListSkeletonWidget(),
-          ),
-        ],
-      );
+    if (controller.pageLoadingState.value == VideoDetailPageLoadingState.loadingVideoInfo) {
+      return VideoDetailWideSkeletonWidget(controller: controller);
     }
 
     // 如果是私有视频但没有fileUrl（无访问权限），则不显示内容
@@ -274,7 +258,15 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // 左侧纯播放器区域（自适应宽度）
-        Expanded(child: _buildPureVideoPlayer(screenSize.height, paddingTop)),
+        Expanded(
+          child: Obx(() {
+            if (controller.videoPlayerReady.value) {
+              return _buildPureVideoPlayer(screenSize.height, paddingTop);
+            } else {
+              return VideoPlayerSkeletonWidget(controller: controller);
+            }
+          }),
+        ),
 
         // 右侧Tab内容区域（固定宽度）
         SizedBox(
@@ -292,7 +284,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     double paddingTop,
     slang.Translations t,
   ) {
-    if (controller.isVideoInfoLoading.value) {
+    if (controller.pageLoadingState.value == VideoDetailPageLoadingState.loadingVideoInfo) {
       return const MediaDetailInfoSkeletonWidget();
     }
 
@@ -330,7 +322,21 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
               flexibleSpace: Stack(
                 children: [
                   // 视频播放器
-                  _buildVideoPlayerForNestedScroll(screenSize, paddingTop),
+                  Obx(() {
+                    if (controller.videoPlayerReady.value) {
+                      return _buildVideoPlayerForNestedScroll(screenSize, paddingTop);
+                    } else {
+                      return SizedBox(
+                        width: screenSize.width,
+                        height: controller.getCurrentVideoHeight(
+                          screenSize.width,
+                          screenSize.height,
+                          paddingTop,
+                        ),
+                        child: VideoPlayerSkeletonWidget(controller: controller),
+                      );
+                    }
+                  }),
                   // 顶部工具栏（根据滚动状态显示）
                   Obx(() => _buildTopToolbarOverlay(context, t)),
                 ],

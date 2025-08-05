@@ -42,7 +42,7 @@ class VideoInfoTabWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      if (controller.isVideoInfoLoading.value) {
+      if (controller.pageLoadingState.value == VideoDetailPageLoadingState.loadingVideoInfo || controller.pageLoadingState.value == VideoDetailPageLoadingState.loadingAll) {
         return const Center(child: CircularProgressIndicator());
       }
       if (controller.mainErrorWidget.value != null) {

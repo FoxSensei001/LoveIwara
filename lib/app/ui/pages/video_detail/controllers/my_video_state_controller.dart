@@ -36,6 +36,12 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import '../widgets/private_or_deleted_video_widget.dart';
 import 'package:floating/floating.dart';
 
+enum VideoDetailPageLoadingState {
+  idle,
+  loadingVideoInfo,
+  loadingVideoSource,
+  loadingAll,
+}
 class MyVideoStateController extends GetxController
     with GetSingleTickerProviderStateMixin, WidgetsBindingObserver {
   final String? videoId;
@@ -61,7 +67,7 @@ class MyVideoStateController extends GetxController
   // 播放器状态
   Duration currentPosition = Duration.zero;
   final Rx<Duration> totalDuration = Duration.zero.obs;
-  final RxBool videoPlaying = false.obs;
+  final RxBool videoPlaying = true.obs;
   final RxBool videoBuffering = true.obs;
   final RxBool sliderDragLoadFinished = true.obs; // 拖动进度条加载完成
   final RxDouble playerPlaybackSpeed = 1.0.obs; // 播放速度
@@ -75,12 +81,12 @@ class MyVideoStateController extends GetxController
   final RxBool isToolbarsLocked = false.obs;
 
   // 视频信息 | 详情页状态
-  final RxBool isVideoInfoLoading = false.obs;
-  final RxBool isVideoSourceLoading = false.obs;
+  final Rx<VideoDetailPageLoadingState> pageLoadingState = VideoDetailPageLoadingState.idle.obs;
   final Rxn<Widget> mainErrorWidget = Rxn<Widget>(); // 错误信息
   final Rxn<String> videoErrorMessage = Rxn<String>(); // 视频错误信息
+  final Rxn<String> videoSourceErrorMessage = Rxn<String>(); // 视频源错误信息
   final Rxn<video_model.Video> videoInfo = Rxn<video_model.Video>(); // 视频信息
-  final RxBool videoIsReady = false.obs; // 视频是否准备好
+  final RxBool videoPlayerReady = false.obs; // 播放器是否准备好
   final RxInt sourceVideoWidth = 1920.obs; // 视频宽度
   final RxInt sourceVideoHeight = 1080.obs; // 视频高度
   final RxDouble aspectRatio = (16 / 9).obs; // 视频宽高比
@@ -359,7 +365,7 @@ class MyVideoStateController extends GetxController
       _startDisplayTimer();
       
       // 在调试模式下启动性能监控
-      _startPerformanceMonitoring();
+      // _startPerformanceMonitoring();
     } catch (e) {
       LogUtils.e('初始化失败: $e', tag: 'MyVideoStateController', error: e);
       if (!_isDisposed) {
@@ -657,7 +663,7 @@ class MyVideoStateController extends GetxController
     if (_isDisposed) return;
 
     LogUtils.i('开始获取视频详情，videoId: $videoId', 'MyVideoStateController');
-    isVideoInfoLoading.value = true;
+    pageLoadingState.value = VideoDetailPageLoadingState.loadingVideoInfo;
     videoErrorMessage.value = null;
     mainErrorWidget.value = null;
 
@@ -760,7 +766,11 @@ class MyVideoStateController extends GetxController
       }
     } finally {
       if (!_isDisposed) {
-        isVideoInfoLoading.value = false;
+        if (videoInfo.value?.fileUrl == null) {
+          pageLoadingState.value = VideoDetailPageLoadingState.idle;
+        } else {
+          pageLoadingState.value = VideoDetailPageLoadingState.loadingVideoSource;
+        }
       }
     }
   }
@@ -802,8 +812,9 @@ class MyVideoStateController extends GetxController
       return;
     }
 
-    isVideoSourceLoading.value = true;
+    pageLoadingState.value = VideoDetailPageLoadingState.loadingVideoSource;
     videoErrorMessage.value = null;
+    videoSourceErrorMessage.value = null;
 
     try {
       var res = await _apiService.get(
@@ -835,15 +846,14 @@ class MyVideoStateController extends GetxController
             filterPreview: true),
       );
     } catch (e) {
-      // parseExceptionMessage
       String errorMessage = CommonUtils.parseExceptionMessage(e);
       if (!_isDisposed) {
         LogUtils.e('获取视频源失败 (Other): $e', tag: 'MyVideoStateController', error: e);
-        videoErrorMessage.value = errorMessage;
+        videoSourceErrorMessage.value = errorMessage;
       }
     } finally {
       if (!_isDisposed) {
-        isVideoSourceLoading.value = false;
+        pageLoadingState.value = VideoDetailPageLoadingState.idle;
       }
     }
   }
@@ -894,7 +904,7 @@ class MyVideoStateController extends GetxController
 
     _clearBuffers();
 
-    videoIsReady.value = false;
+    videoPlayerReady.value = false;
     _configService[ConfigKey.DEFAULT_QUALITY_KEY] = resolutionTag;
     this.videoResolutions.value = videoResolutions;
     currentPosition = position;
@@ -990,8 +1000,8 @@ class MyVideoStateController extends GetxController
     LogUtils.d(
         '[更新后的宽高比] $aspectRatio, 视频高度: $sourceVideoHeight, 视频宽度: $sourceVideoWidth', 'MyVideoStateController');
 
-    if (!videoIsReady.value && !_isDisposed) {
-      videoIsReady.value = true;
+    if (!videoPlayerReady.value && !_isDisposed) {
+      videoPlayerReady.value = true;
       int targetPositionMs = 0;
 
       try {
@@ -1350,7 +1360,7 @@ class MyVideoStateController extends GetxController
       // 在回调中检查控制器是否已销毁
       if (_isDisposed) return;
 
-      if (!videoIsReady.value) return;
+      if (!videoPlayerReady.value) return;
 
       // 只有在不是等待seek完成的状态下才更新位置
       if (!isWaitingForSeek.value) {
@@ -1380,7 +1390,7 @@ class MyVideoStateController extends GetxController
 
         // 检查视频是否播放完成的逻辑
         if (!_isSettingPlayMode &&
-            videoIsReady.value &&
+            videoPlayerReady.value &&
             totalDuration.value.inMilliseconds > 0 &&
             position.inMilliseconds > 0 &&
             (position.inMilliseconds >= totalDuration.value.inMilliseconds - 2000)) {
@@ -1457,7 +1467,7 @@ class MyVideoStateController extends GetxController
         return;
       }
       
-      if (videoIsReady.value && !isWaitingForSeek.value) {
+      if (videoPlayerReady.value && !isWaitingForSeek.value) {
         toShowCurrentPosition.value = currentPosition;
       }
       
@@ -1511,7 +1521,7 @@ class MyVideoStateController extends GetxController
   double getCurrentVideoHeight(
       double screenWidth, double screenHeight, double paddingTop) {
     // 根据视频状态确定高度
-    if (isVideoInfoLoading.value || !videoIsReady.value) {
+    if (pageLoadingState.value != VideoDetailPageLoadingState.idle || !videoPlayerReady.value) {
       return minVideoHeight;
     }
 

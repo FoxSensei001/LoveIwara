@@ -71,7 +71,7 @@ class CommentsTabWidget extends StatelessWidget {
                   ),
                   // 写评论按钮
                   IconButton(
-                    icon: const Icon(Icons.comment),
+                    icon: const Icon(Icons.reply),
                     onPressed: () => _showCommentDialog(context),
                     tooltip: t.common.sendComment,
                   ),
