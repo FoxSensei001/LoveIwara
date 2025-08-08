@@ -90,7 +90,8 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
   }
 
   Future<void> _handleTranslation() async {
-    await _translationController.translate(widget.description ?? '');
+    // 直接使用原始description进行翻译
+    await _translationController.translate(widget.description ?? '', originalText: widget.description);
   }
 
   @override
@@ -144,6 +145,7 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
                         children: [
                           CustomMarkdownBody(
                             data: widget.description ?? '',
+                            originalData: widget.description,
                             showTranslationButton: false,
                             translationController: _translationController,
                           ),

@@ -23,6 +23,7 @@ import 'package:i_iwara/app/utils/markdown_formatter.dart';
 
 class CustomMarkdownBody extends StatefulWidget {
   final String data;
+  final String? originalData; // 用于翻译的原始文本，如果为null则使用data
   final bool? initialShowUnprocessedText;
   final bool clickInternalLinkByUrlLaunch; // 当为true时，内部链接也使用urllaunch打开
   final bool showTranslationButton; // 是否显示翻译按钮
@@ -32,6 +33,7 @@ class CustomMarkdownBody extends StatefulWidget {
   const CustomMarkdownBody({
     super.key,
     required this.data,
+    this.originalData,
     this.initialShowUnprocessedText,
     this.clickInternalLinkByUrlLaunch = false,
     this.showTranslationButton = false,
@@ -92,7 +94,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
   @override
   void didUpdateWidget(CustomMarkdownBody oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.data != widget.data) {
+    if (oldWidget.data != widget.data || oldWidget.originalData != widget.originalData) {
       if (mounted) {
         setState(() {
           _displayData = widget.data;
@@ -179,8 +181,11 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     await _translationStreamSubscription?.cancel();
     _translationStreamSubscription = null;
 
+    // 获取用于翻译的原始文本
+    final textToTranslate = widget.originalData ?? widget.data;
+
     // 尝试使用流式翻译
-    final stream = _translationService.translateStream(widget.data);
+    final stream = _translationService.translateStream(textToTranslate);
     if (stream != null) {
       _translationStreamSubscription = stream.listen((translatedText) {
         if (mounted) {
@@ -218,7 +223,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     }
 
     // 如果流式翻译不可用或被禁用，使用普通翻译
-    final result = await _translationService.translate(widget.data);
+    final result = await _translationService.translate(textToTranslate);
     if (result.isSuccess && mounted) {
       setState(() {
         _rawTranslatedText = result.data;

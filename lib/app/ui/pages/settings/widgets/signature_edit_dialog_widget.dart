@@ -54,6 +54,7 @@ class _SignatureEditDialogState extends State<SignatureEditDialog> {
                 padding: const EdgeInsets.all(16.0),
                 child: CustomMarkdownBody(
                   data: _controller.text,
+                  originalData: _controller.text,
                   clickInternalLinkByUrlLaunch: true,
                 ),
               ),

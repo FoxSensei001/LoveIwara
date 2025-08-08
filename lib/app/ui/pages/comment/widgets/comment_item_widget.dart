@@ -166,7 +166,7 @@ class _CommentItemState extends State<CommentItem> {
   }
 
   Future<void> _handleTranslation() async {
-    await _translationController.translate(widget.comment.body);
+    await _translationController.translate(widget.comment.body, originalText: widget.comment.body);
   }
 
   Widget _buildCommentTag(String text, Color color, IconData icon) {
@@ -540,6 +540,7 @@ class _CommentItemState extends State<CommentItem> {
                       onTap: !widget.isReply && widget.comment.parent == null ? _showReplyDialog : null,
                       child: CustomMarkdownBody(
                         data: comment.body,
+                        originalData: comment.body,
                         showTranslationButton: false,
                         translationController: _translationController,
                       ),

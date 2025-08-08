@@ -271,6 +271,7 @@ class PostDetailContent extends StatelessWidget {
           const SizedBox(height: 8),
           CustomMarkdownBody(
             data: controller.postInfo.value?.body ?? '',
+            originalData: controller.postInfo.value?.body,
             showTranslationButton: true,
           ),
         ],

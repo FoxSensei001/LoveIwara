@@ -306,6 +306,7 @@ class PreviewPanel extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: CustomMarkdownBody(
               data: content,
+              originalData: content,
               clickInternalLinkByUrlLaunch: true,
             ),
           ),

@@ -99,7 +99,7 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
   }
 
   Future<void> _handleTranslation() async {
-    await _translationController.translate(widget.comment.body);
+    await _translationController.translate(widget.comment.body, originalText: widget.comment.body);
   }
 
   Widget _buildCommentTag(String text, IconData icon) {
@@ -332,6 +332,7 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
             // Markdown内容
             CustomMarkdownBody(
               data: widget.comment.body,
+              originalData: widget.comment.body,
               showTranslationButton: false,
               translationController: _translationController,
               padding: const EdgeInsets.symmetric(horizontal: 12),

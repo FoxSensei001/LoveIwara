@@ -490,6 +490,7 @@ class _MessageListWidgetState extends State<MessageListWidget> {
                         ),
                         child: CustomMarkdownBody(
                           data: message.body,
+                          originalData: message.body,
                           initialShowUnprocessedText: false,
                           clickInternalLinkByUrlLaunch: false,
                         ),

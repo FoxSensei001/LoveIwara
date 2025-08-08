@@ -116,6 +116,7 @@ class _NewConversationDialogState extends State<NewConversationDialog> {
                   children: [
                     CustomMarkdownBody(
                       data: _bodyController.text,
+                      originalData: _bodyController.text,
                       clickInternalLinkByUrlLaunch: true,
                     ),
                   ],

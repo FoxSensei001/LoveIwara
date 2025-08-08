@@ -36,7 +36,7 @@ class _TranslationDialogState extends State<TranslationDialog> {
         : _configService.currentTargetLanguage;
         
     try {
-      await _translationController.translate(widget.text, targetLanguage: targetLanguage);
+      await _translationController.translate(widget.text, targetLanguage: targetLanguage, originalText: widget.text);
     } catch (e) {
       if (mounted) {
         setState(() {

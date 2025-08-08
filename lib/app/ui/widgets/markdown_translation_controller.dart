@@ -30,7 +30,7 @@ class MarkdownTranslationController {
   bool get isStreamTranslating => isTranslating.value && !isTranslationComplete.value;
   
   // 触发翻译
-  Future<void> translate(String text, {String? targetLanguage}) async {
+  Future<void> translate(String text, {String? targetLanguage, String? originalText}) async {
     if (isTranslating.value) return;
     
     isTranslating.value = true;
@@ -42,8 +42,11 @@ class MarkdownTranslationController {
     await _translationStreamSubscription?.cancel();
     _translationStreamSubscription = null;
     
+    // 使用原始文本进行翻译，如果没有提供则使用传入的文本
+    final textToTranslate = originalText ?? text;
+    
     // 尝试使用流式翻译
-    final stream = _translationService.translateStream(text, targetLanguage: targetLanguage);
+    final stream = _translationService.translateStream(textToTranslate, targetLanguage: targetLanguage);
     if (stream != null) {
       _translationStreamSubscription = stream.listen(
         (newText) {
@@ -69,7 +72,7 @@ class MarkdownTranslationController {
     }
     
     // 如果流式翻译不可用或被禁用，使用普通翻译
-    final result = await _translationService.translate(text, targetLanguage: targetLanguage);
+    final result = await _translationService.translate(textToTranslate, targetLanguage: targetLanguage);
     if (result.isSuccess) {
       rawTranslatedText.value = result.data;
       translatedText.value = rawTranslatedText.value;
