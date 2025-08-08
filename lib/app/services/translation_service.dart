@@ -9,6 +9,7 @@ import 'package:i_iwara/utils/logger_utils.dart';
 import 'dart:convert';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'dart:async';
+import 'dart:math';
 
 class TranslationService extends GetxService {
   final ConfigService _configService = Get.find();
@@ -22,6 +23,10 @@ class TranslationService extends GetxService {
 
   // 流式翻译的最大超时时间（秒）
   static const int _streamTranslationTimeoutSeconds = 120;
+
+  // Google 翻译分段与并发参数
+  static const int _googleMaxChunkChars = 4500; // 单段最大字符数，留余量避免请求过大
+  static const int _googleMaxConcurrency = 3; // 适量并发数，平衡速度与稳定性
 
   // 配置相关方法 ---------------------------
 
@@ -70,26 +75,146 @@ class TranslationService extends GetxService {
         : _translateWithGoogle(text, targetLanguage);
   }
 
-  /// 使用Google翻译服务
+  /// 使用Google翻译服务（分段 + 适量并发）
   Future<ApiResult<String>> _translateWithGoogle(String text, String? targetLanguage) async {
     try {
-      final response = await dio.get(
-        "https://translate.googleapis.com/translate_a/t",
-        queryParameters: {
-          "client": "gtx",
-          "sl": "auto",
-          "tl": _getCurrentLanguage(targetLanguage),
-          "dt": "t",
-          "q": text,
-        },
-      );
+      if (text.trim().isEmpty) {
+        return ApiResult.success(message: '', data: '');
+      }
 
-      String res = response.data[0][0] as String;
-      return ApiResult.success(message: '', data: res);
+      final chunks = _splitTextForGoogle(text, maxChunkChars: _googleMaxChunkChars);
+
+      // 单段直接调用
+      if (chunks.length == 1) {
+        final translated = await _googleTranslateSingle(chunks.first, targetLanguage);
+        return ApiResult.success(message: '', data: translated);
+      }
+
+      // 分段并发翻译（按批次控制并发度，保证顺序拼接）
+      final buffer = StringBuffer();
+      for (int i = 0; i < chunks.length; i += _googleMaxConcurrency) {
+        final end = min(i + _googleMaxConcurrency, chunks.length);
+        final batch = chunks.sublist(i, end);
+        final futures = batch.map((seg) => _googleTranslateSingle(seg, targetLanguage)).toList();
+        final results = await Future.wait(futures);
+        for (final r in results) {
+          buffer.write(r);
+        }
+      }
+
+      return ApiResult.success(message: '', data: buffer.toString());
     } catch (e) {
       LogUtils.e('翻译失败', tag: 'TranslationService', error: e);
       return ApiResult.fail(t.errors.failedToOperate);
     }
+  }
+
+  // 将文本切分为适合 Google 翻译的片段，尽量在自然边界处断开
+  List<String> _splitTextForGoogle(String text, {int maxChunkChars = 4500}) {
+    if (text.length <= maxChunkChars) {
+      return [text];
+    }
+
+    const boundaries = {
+      '\n', '\r', '。', '！', '？', '；', '，', '、', '.', '!', '?', ';', ':', ' '
+    };
+
+    final chunks = <String>[];
+    int index = 0;
+
+    while (index < text.length) {
+      final remaining = text.length - index;
+      int take = remaining <= maxChunkChars ? remaining : maxChunkChars;
+
+      String slice = text.substring(index, index + take);
+      if (remaining > maxChunkChars) {
+        int cut = -1;
+        for (int i = slice.length - 1; i >= 0; i--) {
+          final ch = slice[i];
+          if (boundaries.contains(ch)) {
+            cut = i + 1; // 包含边界字符
+            break;
+          }
+        }
+        if (cut <= 0) {
+          // 找不到自然边界，硬切
+          cut = slice.length;
+        }
+        slice = slice.substring(0, cut);
+        take = slice.length;
+      }
+
+      chunks.add(slice);
+      index += take;
+    }
+
+    return chunks;
+  }
+
+  // 单段 Google 翻译，带重试与超时
+  Future<String> _googleTranslateSingle(String text, String? targetLanguage) async {
+    const int maxRetries = 2;
+    int attempt = 0;
+
+    while (true) {
+      try {
+        final response = await dio.get(
+          "https://translate.googleapis.com/translate_a/t",
+          queryParameters: {
+            "client": "gtx",
+            "sl": "auto",
+            "tl": _getCurrentLanguage(targetLanguage),
+            "dt": "t",
+            "q": text,
+          },
+          options: Options(receiveTimeout: const Duration(seconds: 20)),
+        );
+
+        final res = _parseGoogleResponse(response.data);
+        if (res.isEmpty) {
+          throw Exception('Empty google translation response');
+        }
+        return res;
+      } catch (e) {
+        attempt++;
+        if (attempt > maxRetries) {
+          rethrow;
+        }
+        // 线性退避
+        await Future.delayed(Duration(milliseconds: 200 * attempt));
+      }
+    }
+  }
+
+  // 兼容不同返回格式的解析
+  String _parseGoogleResponse(dynamic data) {
+    try {
+      if (data is List && data.isNotEmpty) {
+        final first = data[0];
+
+        // 典型结构：[[["译文","原文", ...], ["片段2", ...], ...], ...]
+        if (first is List) {
+          final buffer = StringBuffer();
+          for (final item in first) {
+            if (item is List && item.isNotEmpty && item[0] is String) {
+              buffer.write(item[0] as String);
+            }
+          }
+          final text = buffer.toString();
+          if (text.isNotEmpty) {
+            return text;
+          }
+        }
+
+        // 退化结构：data[0][0] 直接是字符串
+        if (data[0] is List && (data[0] as List).isNotEmpty && data[0][0] is String) {
+          return data[0][0] as String;
+        }
+      }
+    } catch (_) {
+      // ignore
+    }
+    return '';
   }
 
   /// 使用AI服务进行翻译

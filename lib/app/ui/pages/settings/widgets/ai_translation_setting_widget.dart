@@ -977,7 +977,7 @@ class _AITranslationSettingsWidgetState
 
             final clampedValue = isDouble
                 ? parsedValue.clamp(0.0, 2.0)
-                : parsedValue.clamp(1, 10000);
+                : parsedValue < 1 ? 1 : parsedValue;
 
             configService[configKey] = clampedValue;
 
