@@ -541,6 +541,7 @@ class GalleryDownloadTaskItem extends StatelessWidget {
   }
 
   String _normalizePath(String path) {
+    // 仅做路径分隔符规范化，避免因“生成唯一路径”而在已有文件名后追加 (1)
     if (Platform.isWindows) {
       return path.replaceAll('/', '\\');
     } else {
