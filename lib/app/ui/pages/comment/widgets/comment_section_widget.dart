@@ -10,8 +10,14 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 class CommentSection extends StatelessWidget {
   final CommentController controller;
   final String? authorUserId;
+  final double topPadding;
 
-  const CommentSection({super.key, required this.controller, this.authorUserId});
+  const CommentSection({
+    super.key, 
+    required this.controller, 
+    this.authorUserId,
+    this.topPadding = 0.0,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +42,7 @@ class CommentSection extends StatelessWidget {
   // 构建Shimmer骨架屏列表
   Widget _buildShimmerList() {
     return ListView.builder(
-      padding: EdgeInsets.zero,
+      padding: EdgeInsets.only(top: topPadding),
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       itemCount: 5,
@@ -120,46 +126,49 @@ class CommentSection extends StatelessWidget {
   // 构建错误状态视图
   Widget _buildErrorState(BuildContext context) {
     final t = slang.Translations.of(context);
-    return Center(
-      child: Container(
-        margin: const EdgeInsets.all(24.0),
-        padding: const EdgeInsets.all(24.0),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.errorContainer.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12.0),
-          border: Border.all(
-            color: Theme.of(context).colorScheme.error.withOpacity(0.2),
-            width: 1.0,
+    return Padding(
+      padding: EdgeInsets.only(top: topPadding),
+      child: Center(
+        child: Container(
+          margin: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(24.0),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.errorContainer.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12.0),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.error.withOpacity(0.2),
+              width: 1.0,
+            ),
           ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.error_outline_rounded,
-              color: Theme.of(context).colorScheme.error,
-              size: 48.0,
-            ),
-            const SizedBox(height: 16.0),
-            Text(
-              controller.errorMessage.value,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onErrorContainer,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.error_outline_rounded,
+                color: Theme.of(context).colorScheme.error,
+                size: 48.0,
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 20.0),
-            FilledButton.icon(
-              onPressed: controller.refreshComments,
-              icon: const Icon(Icons.refresh_rounded),
-              label: Text(t.common.retry),
-              style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+              const SizedBox(height: 16.0),
+              Text(
+                controller.errorMessage.value,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onErrorContainer,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
               ),
-            ),
-          ],
+              const SizedBox(height: 20.0),
+              FilledButton.icon(
+                onPressed: controller.refreshComments,
+                icon: const Icon(Icons.refresh_rounded),
+                label: Text(t.common.retry),
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -168,33 +177,36 @@ class CommentSection extends StatelessWidget {
   // 构建空状态视图
   Widget _buildEmptyState(BuildContext context) {
     final t = slang.Translations.of(context);
-    return Center(
-      child: Container(
-        margin: const EdgeInsets.all(24.0),
-        padding: const EdgeInsets.all(32.0),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
-          borderRadius: BorderRadius.circular(16.0),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.chat_bubble_outline_rounded,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              size: 64.0,
-            ),
-            const SizedBox(height: 16.0),
-            Text(
-              t.common.tmpNoComments,
-              style: TextStyle(
-                fontSize: 16,
+    return Padding(
+      padding: EdgeInsets.only(top: topPadding),
+      child: Center(
+        child: Container(
+          margin: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(32.0),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.chat_bubble_outline_rounded,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
-                fontWeight: FontWeight.w500,
+                size: 64.0,
               ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+              const SizedBox(height: 16.0),
+              Text(
+                t.common.tmpNoComments,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -213,7 +225,7 @@ class CommentSection extends StatelessWidget {
         return false;
       },
       child: ListView.separated(
-        padding: const EdgeInsets.symmetric(vertical: 4.0),
+        padding: EdgeInsets.only(top: topPadding + 4.0, bottom: 4.0),
         physics: const AlwaysScrollableScrollPhysics(),
         shrinkWrap: true,
         itemCount: controller.comments.length + 1,
