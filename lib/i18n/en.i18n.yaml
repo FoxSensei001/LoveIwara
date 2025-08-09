@@ -822,6 +822,9 @@ videoDetail:
   videoLoadError: Video load error
   authorNoOtherVideos: Author has no other videos
   noRelatedVideos: No related videos
+  player:
+    errorWhileLoadingVideoSource: Error while loading video source
+    errorWhileSettingUpListeners: Error while setting up listeners
   skeleton:
     fetchingVideoInfo: Fetching video info...
     fetchingVideoSources: Fetching video sources...

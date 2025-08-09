@@ -798,6 +798,7 @@ class _TranslationsVideoDetailZhTw implements TranslationsVideoDetailEn {
 	@override String get resourceNotFound => '資源未找到';
 	@override String get authorNoOtherVideos => '作者暫無其他影片';
 	@override String get noRelatedVideos => '暫無相關影片';
+	@override late final _TranslationsVideoDetailPlayerZhTw player = _TranslationsVideoDetailPlayerZhTw._(_root);
 	@override late final _TranslationsVideoDetailSkeletonZhTw skeleton = _TranslationsVideoDetailSkeletonZhTw._(_root);
 }
 
@@ -1553,6 +1554,17 @@ class _TranslationsOreno3dMessagesZhTw implements TranslationsOreno3dMessagesEn 
 	@override String get videoNotFoundOrDeleted => '視頻不存在或已被刪除';
 	@override String get unableToGetVideoPlayLink => '無法獲取視頻播放鏈接';
 	@override String get getVideoDetailFailed => '獲取視頻詳情失敗';
+}
+
+// Path: videoDetail.player
+class _TranslationsVideoDetailPlayerZhTw implements TranslationsVideoDetailPlayerEn {
+	_TranslationsVideoDetailPlayerZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get errorWhileLoadingVideoSource => '在加載影片來源時出現了錯誤';
+	@override String get errorWhileSettingUpListeners => '在設置監聽器時出現了錯誤';
 }
 
 // Path: videoDetail.skeleton
@@ -2536,6 +2548,8 @@ extension on TranslationsZhTw {
 			case 'videoDetail.resourceNotFound': return '資源未找到';
 			case 'videoDetail.authorNoOtherVideos': return '作者暫無其他影片';
 			case 'videoDetail.noRelatedVideos': return '暫無相關影片';
+			case 'videoDetail.player.errorWhileLoadingVideoSource': return '在加載影片來源時出現了錯誤';
+			case 'videoDetail.player.errorWhileSettingUpListeners': return '在設置監聽器時出現了錯誤';
 			case 'videoDetail.skeleton.fetchingVideoInfo': return '取得影片資訊中...';
 			case 'videoDetail.skeleton.fetchingVideoSources': return '取得影片來源中...';
 			case 'videoDetail.skeleton.loadingVideo': return '正在加載影片...';

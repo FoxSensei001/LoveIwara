@@ -939,16 +939,20 @@ class MyVideoStateController extends GetxController
 
     if (_isDisposed) return;
     try {
-      await player.open(Media(url));
+      await player.open(Media(url), play: false).timeout(const Duration(seconds: 20));
+    } catch (e) {
       if (_isDisposed) return;
+      LogUtils.e('Player open 出错: $e', tag: 'MyVideoStateController', error: e);
+      videoErrorMessage.value = '${slang.t.videoDetail.player.errorWhileLoadingVideoSource}: $e';
+      return;
+    }
+    if (_isDisposed) return;
+    try {
       _setupListenersAfterOpen();
     } catch (e) {
-      if (!_isDisposed) {
-        LogUtils.e('Player open 或设置监听器时出错: $e', tag: 'MyVideoStateController', error: e);
-        videoErrorMessage.value = slang.t.videoDetail.errorLoadingVideo;
-      } else {
-        LogUtils.w('Player open 或设置监听器时 Controller 已销毁: $e', 'MyVideoStateController');
-      }
+      if (_isDisposed) return;
+      LogUtils.e('设置监听器时出错: $e', tag: 'MyVideoStateController', error: e);
+      videoErrorMessage.value = '${slang.t.videoDetail.player.errorWhileSettingUpListeners}: $e';
     }
   }
 

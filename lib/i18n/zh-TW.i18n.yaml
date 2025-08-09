@@ -823,6 +823,9 @@ videoDetail:
   resourceNotFound: 資源未找到
   authorNoOtherVideos: 作者暫無其他影片
   noRelatedVideos: 暫無相關影片
+  player:
+    errorWhileLoadingVideoSource: 在加載影片來源時出現了錯誤
+    errorWhileSettingUpListeners: 在設置監聽器時出現了錯誤
   skeleton:
     fetchingVideoInfo: 取得影片資訊中...
     fetchingVideoSources: 取得影片來源中...

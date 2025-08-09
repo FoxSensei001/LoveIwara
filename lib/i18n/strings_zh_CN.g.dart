@@ -803,6 +803,7 @@ class _TranslationsVideoDetailZhCn implements TranslationsVideoDetailEn {
 	@override String get resourceNotFound => '资源未找到';
 	@override String get authorNoOtherVideos => '作者暂无其他视频';
 	@override String get noRelatedVideos => '暂无相关视频';
+	@override late final _TranslationsVideoDetailPlayerZhCn player = _TranslationsVideoDetailPlayerZhCn._(_root);
 	@override late final _TranslationsVideoDetailSkeletonZhCn skeleton = _TranslationsVideoDetailSkeletonZhCn._(_root);
 }
 
@@ -1555,6 +1556,17 @@ class _TranslationsOreno3dMessagesZhCn implements TranslationsOreno3dMessagesEn 
 	@override String get videoNotFoundOrDeleted => '视频不存在或已被删除';
 	@override String get unableToGetVideoPlayLink => '无法获取视频播放链接';
 	@override String get getVideoDetailFailed => '获取视频详情失败';
+}
+
+// Path: videoDetail.player
+class _TranslationsVideoDetailPlayerZhCn implements TranslationsVideoDetailPlayerEn {
+	_TranslationsVideoDetailPlayerZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get errorWhileLoadingVideoSource => '在加载视频源时出现了错误';
+	@override String get errorWhileSettingUpListeners => '在设置监听器时出现了错误';
 }
 
 // Path: videoDetail.skeleton
@@ -2543,6 +2555,8 @@ extension on TranslationsZhCn {
 			case 'videoDetail.resourceNotFound': return '资源未找到';
 			case 'videoDetail.authorNoOtherVideos': return '作者暂无其他视频';
 			case 'videoDetail.noRelatedVideos': return '暂无相关视频';
+			case 'videoDetail.player.errorWhileLoadingVideoSource': return '在加载视频源时出现了错误';
+			case 'videoDetail.player.errorWhileSettingUpListeners': return '在设置监听器时出现了错误';
 			case 'videoDetail.skeleton.fetchingVideoInfo': return '正在获取视频信息...';
 			case 'videoDetail.skeleton.fetchingVideoSources': return '正在获取视频源...';
 			case 'videoDetail.skeleton.loadingVideo': return '正在加载视频...';

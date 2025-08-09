@@ -798,6 +798,7 @@ class _TranslationsVideoDetailJa implements TranslationsVideoDetailEn {
 	@override String get resourceNotFound => 'リソースが見つかりませんでした';
 	@override String get authorNoOtherVideos => '作者は他のビデオを所有していません';
 	@override String get noRelatedVideos => '関連するビデオはありません';
+	@override late final _TranslationsVideoDetailPlayerJa player = _TranslationsVideoDetailPlayerJa._(_root);
 	@override late final _TranslationsVideoDetailSkeletonJa skeleton = _TranslationsVideoDetailSkeletonJa._(_root);
 }
 
@@ -1550,6 +1551,17 @@ class _TranslationsOreno3dMessagesJa implements TranslationsOreno3dMessagesEn {
 	@override String get videoNotFoundOrDeleted => '動画が見つからないか削除されました';
 	@override String get unableToGetVideoPlayLink => '動画再生リンクを取得できません';
 	@override String get getVideoDetailFailed => '動画詳細の取得に失敗しました';
+}
+
+// Path: videoDetail.player
+class _TranslationsVideoDetailPlayerJa implements TranslationsVideoDetailPlayerEn {
+	_TranslationsVideoDetailPlayerJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get errorWhileLoadingVideoSource => 'ビデオソースの読み込み中にエラーが発生しました';
+	@override String get errorWhileSettingUpListeners => '監視器の設定中にエラーが発生しました';
 }
 
 // Path: videoDetail.skeleton
@@ -2533,6 +2545,8 @@ extension on TranslationsJa {
 			case 'videoDetail.resourceNotFound': return 'リソースが見つかりませんでした';
 			case 'videoDetail.authorNoOtherVideos': return '作者は他のビデオを所有していません';
 			case 'videoDetail.noRelatedVideos': return '関連するビデオはありません';
+			case 'videoDetail.player.errorWhileLoadingVideoSource': return 'ビデオソースの読み込み中にエラーが発生しました';
+			case 'videoDetail.player.errorWhileSettingUpListeners': return '監視器の設定中にエラーが発生しました';
 			case 'videoDetail.skeleton.fetchingVideoInfo': return 'ビデオ情報を取得中...';
 			case 'videoDetail.skeleton.fetchingVideoSources': return 'ビデオソースを取得中...';
 			case 'videoDetail.skeleton.loadingVideo': return 'ビデオを読み込み中...';

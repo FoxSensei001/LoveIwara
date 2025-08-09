@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/app/models/oreno3d_video.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/search_service.dart';
@@ -88,12 +89,24 @@ class _Oreno3dVideoCardState extends State<Oreno3dVideoCard> {
     return CachedNetworkImage(
       imageUrl: widget.video.thumbnailUrl,
       fit: BoxFit.cover,
-      placeholder: (context, url) => Container(
-        color: Colors.grey[300],
-        child: const Center(child: CircularProgressIndicator()),
-      ),
+      placeholder: (context, url) => _buildShimmerPlaceholder(),
       errorWidget: (context, url, error) =>
           Container(color: Colors.grey[300], child: const Icon(Icons.error)),
+    );
+  }
+
+  Widget _buildShimmerPlaceholder() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
     );
   }
 

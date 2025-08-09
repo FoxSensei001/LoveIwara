@@ -1992,6 +1992,7 @@ class TranslationsVideoDetailEn {
 	/// en: 'No related videos'
 	String get noRelatedVideos => 'No related videos';
 
+	late final TranslationsVideoDetailPlayerEn player = TranslationsVideoDetailPlayerEn._(_root);
 	late final TranslationsVideoDetailSkeletonEn skeleton = TranslationsVideoDetailSkeletonEn._(_root);
 }
 
@@ -3890,6 +3891,21 @@ class TranslationsOreno3dMessagesEn {
 	String get getVideoDetailFailed => 'Failed to get video details';
 }
 
+// Path: videoDetail.player
+class TranslationsVideoDetailPlayerEn {
+	TranslationsVideoDetailPlayerEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Error while loading video source'
+	String get errorWhileLoadingVideoSource => 'Error while loading video source';
+
+	/// en: 'Error while setting up listeners'
+	String get errorWhileSettingUpListeners => 'Error while setting up listeners';
+}
+
 // Path: videoDetail.skeleton
 class TranslationsVideoDetailSkeletonEn {
 	TranslationsVideoDetailSkeletonEn._(this._root);
@@ -5095,6 +5111,8 @@ extension on Translations {
 			case 'videoDetail.videoLoadError': return 'Video load error';
 			case 'videoDetail.authorNoOtherVideos': return 'Author has no other videos';
 			case 'videoDetail.noRelatedVideos': return 'No related videos';
+			case 'videoDetail.player.errorWhileLoadingVideoSource': return 'Error while loading video source';
+			case 'videoDetail.player.errorWhileSettingUpListeners': return 'Error while setting up listeners';
 			case 'videoDetail.skeleton.fetchingVideoInfo': return 'Fetching video info...';
 			case 'videoDetail.skeleton.fetchingVideoSources': return 'Fetching video sources...';
 			case 'videoDetail.skeleton.loadingVideo': return 'Loading video...';

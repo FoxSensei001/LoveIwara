@@ -823,6 +823,9 @@ videoDetail:
   resourceNotFound: リソースが見つかりませんでした
   authorNoOtherVideos: 作者は他のビデオを所有していません
   noRelatedVideos: 関連するビデオはありません
+  player:
+    errorWhileLoadingVideoSource: ビデオソースの読み込み中にエラーが発生しました
+    errorWhileSettingUpListeners: 監視器の設定中にエラーが発生しました
   skeleton:
     fetchingVideoInfo: ビデオ情報を取得中...
     fetchingVideoSources: ビデオソースを取得中...
