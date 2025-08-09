@@ -141,9 +141,43 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
               Flexible(
                 child: ListView.builder(
                   shrinkWrap: true,
-                  itemCount: likedUsers.length,
+                  itemCount: likedUsers.length + 1, // +1 for "全部" option
                   itemBuilder: (context, index) {
-                    final user = likedUsers[index];
+                    // 第一项为"全部"选项
+                    if (index == 0) {
+                      final isSelected = selectedId.isEmpty;
+                      return ListTile(
+                        leading: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Icon(
+                            Icons.people,
+                            color: Theme.of(context).primaryColor,
+                            size: 24,
+                          ),
+                        ),
+                        title: Text(t.common.all),
+                        subtitle: Text(t.subscriptions.showAllSubscribedUsersContent),
+                        trailing: isSelected
+                            ? Icon(
+                                Icons.check_circle,
+                                color: Theme.of(context).primaryColor,
+                              )
+                            : null,
+                        selected: isSelected,
+                        onTap: () {
+                          _onUserSelected(''); // 传递空字符串表示选择全部
+                          Navigator.of(context, rootNavigator: true).pop();
+                        },
+                      );
+                    }
+
+                    // 其他用户选项
+                    final user = likedUsers[index - 1]; // -1 因为第一项是"全部"
                     final isSelected = selectedId == user.id;
 
                     return ListTile(
@@ -161,7 +195,12 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                           : null,
                       selected: isSelected,
                       onTap: () {
-                        _onUserSelected(user.id);
+                        // 如果点击已选中的用户，则取消选择（回到全部）
+                        if (selectedId == user.id) {
+                          _onUserSelected('');
+                        } else {
+                          _onUserSelected(user.id);
+                        }
                         Navigator.of(context, rootNavigator: true).pop();
                       },
                       onLongPress: () {
@@ -300,7 +339,15 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
   }
 
   void _onUserSelected(String id) {
-    if (selectedId != id) {
+    // 如果点击的是已选中的用户（且不是"全部"），则取消选择回到"全部"
+    if (selectedId == id && id.isNotEmpty) {
+      setState(() {
+        selectedId = '';
+        _isHeaderCollapsed = false;
+      });
+      mediaListController.currentScrollOffset.value = 0.0;
+      mediaListController.lastScrollDirection.value = ScrollDirection.idle;
+    } else if (selectedId != id) {
       setState(() {
         selectedId = id;
         // 切换用户时也展开顶部区域，确保新内容正确显示
@@ -607,7 +654,6 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
       floatingActionButton: _isHeaderCollapsed
           ? Obx(
               () {
-                final t = slang.Translations.of(context); // 在这里获取 t
                 return Padding(
                   padding: EdgeInsets.only(
                     bottom: mediaListController.isPaginated.value 

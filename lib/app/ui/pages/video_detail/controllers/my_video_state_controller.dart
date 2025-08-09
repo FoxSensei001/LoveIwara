@@ -129,6 +129,9 @@ class MyVideoStateController extends GetxController
   // 添加一个新的变量来跟踪是否正在等待seek完成
   final RxBool isWaitingForSeek = false.obs;
 
+  // 添加一个标志位来跟踪是否正在切换清晰度
+  final RxBool isSwitchingResolution = false.obs;
+
   // 添加一个标志位，表示是否正在通过手势调节音量
   bool _isAdjustingVolumeByGesture = false;
   // 添加音量监听器的取消函数
@@ -562,6 +565,9 @@ class MyVideoStateController extends GetxController
   void onClose() {
     LogUtils.i('MyVideoStateController onClose 被调用', 'MyVideoStateController');
     _isDisposed = true;
+    
+    // 重置状态标志
+    isSwitchingResolution.value = false;
 
     // 取消网络请求
     _cancelToken.cancel("Controller is being disposed");
@@ -880,6 +886,9 @@ class MyVideoStateController extends GetxController
       return;
     }
 
+    // 设置切换清晰度标志
+    isSwitchingResolution.value = true;
+
     await resetVideoInfo(
       title: videoInfo.value!.title ?? '',
       resolutionTag: resolutionTag,
@@ -1030,6 +1039,8 @@ class MyVideoStateController extends GetxController
       } finally {
         if (!_isDisposed) {
           firstLoaded = true;
+          // 重置切换清晰度标志
+          isSwitchingResolution.value = false;
         }
       }
     }

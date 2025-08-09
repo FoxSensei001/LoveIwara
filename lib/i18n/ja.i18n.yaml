@@ -763,6 +763,7 @@ subscriptions:
   pleaseLoginFirstToViewYourSubscriptions: サブスクリプションを表示するにはログインしてください。
   selectUser: ユーザーを選択してください
   noSubscribedUsers: 購読中のユーザーがいません
+  showAllSubscribedUsersContent: すべての購読中のユーザーのコンテンツを表示
 
 videoDetail:
   pipMode: ピプモード

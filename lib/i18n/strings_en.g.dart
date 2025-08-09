@@ -75,190 +75,559 @@ class TranslationsCommonEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Love Iwara'
 	String get appName => 'Love Iwara';
+
+	/// en: 'OK'
 	String get ok => 'OK';
+
+	/// en: 'Cancel'
 	String get cancel => 'Cancel';
+
+	/// en: 'Save'
 	String get save => 'Save';
+
+	/// en: 'Delete'
 	String get delete => 'Delete';
+
+	/// en: 'Visit'
 	String get visit => 'Visit';
+
+	/// en: 'Loading...'
 	String get loading => 'Loading...';
+
+	/// en: 'Scroll to Top'
 	String get scrollToTop => 'Scroll to Top';
+
+	/// en: 'Privacy content, not displayed'
 	String get privacyHint => 'Privacy content, not displayed';
+
+	/// en: 'Latest'
 	String get latest => 'Latest';
+
+	/// en: 'Likes'
 	String get likesCount => 'Likes';
+
+	/// en: 'Views'
 	String get viewsCount => 'Views';
+
+	/// en: 'Popular'
 	String get popular => 'Popular';
+
+	/// en: 'Trending'
 	String get trending => 'Trending';
+
+	/// en: 'Comment List'
 	String get commentList => 'Comment List';
+
+	/// en: 'Send Comment'
 	String get sendComment => 'Send Comment';
+
+	/// en: 'Send'
 	String get send => 'Send';
+
+	/// en: 'Retry'
 	String get retry => 'Retry';
+
+	/// en: 'Premium'
 	String get premium => 'Premium';
+
+	/// en: 'Follower'
 	String get follower => 'Follower';
+
+	/// en: 'Friend'
 	String get friend => 'Friend';
+
+	/// en: 'Video'
 	String get video => 'Video';
+
+	/// en: 'Following'
 	String get following => 'Following';
+
+	/// en: 'Expand'
 	String get expand => 'Expand';
+
+	/// en: 'Collapse'
 	String get collapse => 'Collapse';
+
+	/// en: 'Cancel Request'
 	String get cancelFriendRequest => 'Cancel Request';
+
+	/// en: 'Cancel Special Follow'
 	String get cancelSpecialFollow => 'Cancel Special Follow';
+
+	/// en: 'Add Friend'
 	String get addFriend => 'Add Friend';
+
+	/// en: 'Remove Friend'
 	String get removeFriend => 'Remove Friend';
+
+	/// en: 'Followed'
 	String get followed => 'Followed';
+
+	/// en: 'Follow'
 	String get follow => 'Follow';
+
+	/// en: 'Unfollow'
 	String get unfollow => 'Unfollow';
+
+	/// en: 'Special Follow'
 	String get specialFollow => 'Special Follow';
+
+	/// en: 'Special Followed'
 	String get specialFollowed => 'Special Followed';
+
+	/// en: 'Gallery'
 	String get gallery => 'Gallery';
+
+	/// en: 'Playlist'
 	String get playlist => 'Playlist';
+
+	/// en: 'Comment Posted Successfully'
 	String get commentPostedSuccessfully => 'Comment Posted Successfully';
+
+	/// en: 'Comment Posted Failed'
 	String get commentPostedFailed => 'Comment Posted Failed';
+
+	/// en: 'Success'
 	String get success => 'Success';
+
+	/// en: 'Comment Deleted Successfully'
 	String get commentDeletedSuccessfully => 'Comment Deleted Successfully';
+
+	/// en: 'Comment Updated Successfully'
 	String get commentUpdatedSuccessfully => 'Comment Updated Successfully';
+
+	/// en: '${count} Comments'
 	String totalComments({required Object count}) => '${count} Comments';
+
+	/// en: 'Write your comment here...'
 	String get writeYourCommentHere => 'Write your comment here...';
+
+	/// en: 'No replies yet'
 	String get tmpNoReplies => 'No replies yet';
+
+	/// en: 'Load More'
 	String get loadMore => 'Load More';
+
+	/// en: 'No more data'
 	String get noMoreDatas => 'No more data';
+
+	/// en: 'Select Translation Language'
 	String get selectTranslationLanguage => 'Select Translation Language';
+
+	/// en: 'Translate'
 	String get translate => 'Translate';
+
+	/// en: 'Translate failed, please try again later'
 	String get translateFailedPleaseTryAgainLater => 'Translate failed, please try again later';
+
+	/// en: 'Translation Result'
 	String get translationResult => 'Translation Result';
+
+	/// en: 'Just Now'
 	String get justNow => 'Just Now';
+
+	/// en: '${num} minutes ago'
 	String minutesAgo({required Object num}) => '${num} minutes ago';
+
+	/// en: '${num} hours ago'
 	String hoursAgo({required Object num}) => '${num} hours ago';
+
+	/// en: '${num} days ago'
 	String daysAgo({required Object num}) => '${num} days ago';
+
+	/// en: '${num} edited'
 	String editedAt({required Object num}) => '${num} edited';
+
+	/// en: 'Edit Comment'
 	String get editComment => 'Edit Comment';
+
+	/// en: 'Comment Updated'
 	String get commentUpdated => 'Comment Updated';
+
+	/// en: 'Reply Comment'
 	String get replyComment => 'Reply Comment';
+
+	/// en: 'Reply'
 	String get reply => 'Reply';
+
+	/// en: 'Edit'
 	String get edit => 'Edit';
+
+	/// en: 'Unknown User'
 	String get unknownUser => 'Unknown User';
+
+	/// en: 'Me'
 	String get me => 'Me';
+
+	/// en: 'Author'
 	String get author => 'Author';
+
+	/// en: 'Admin'
 	String get admin => 'Admin';
+
+	/// en: 'View Replies (${num})'
 	String viewReplies({required Object num}) => 'View Replies (${num})';
+
+	/// en: 'Hide Replies'
 	String get hideReplies => 'Hide Replies';
+
+	/// en: 'Confirm Delete'
 	String get confirmDelete => 'Confirm Delete';
+
+	/// en: 'Are you sure you want to delete this item?'
 	String get areYouSureYouWantToDeleteThisItem => 'Are you sure you want to delete this item?';
+
+	/// en: 'No comments yet'
 	String get tmpNoComments => 'No comments yet';
+
+	/// en: 'Refresh'
 	String get refresh => 'Refresh';
+
+	/// en: 'Back'
 	String get back => 'Back';
+
+	/// en: 'Tips'
 	String get tips => 'Tips';
+
+	/// en: 'Link is empty'
 	String get linkIsEmpty => 'Link is empty';
+
+	/// en: 'Link copied to clipboard'
 	String get linkCopiedToClipboard => 'Link copied to clipboard';
+
+	/// en: 'Image copied to clipboard'
 	String get imageCopiedToClipboard => 'Image copied to clipboard';
+
+	/// en: 'Copy image failed'
 	String get copyImageFailed => 'Copy image failed';
+
+	/// en: 'Mobile save image is under development'
 	String get mobileSaveImageIsUnderDevelopment => 'Mobile save image is under development';
+
+	/// en: 'Image saved to'
 	String get imageSavedTo => 'Image saved to';
+
+	/// en: 'Save image failed'
 	String get saveImageFailed => 'Save image failed';
+
+	/// en: 'Close'
 	String get close => 'Close';
+
+	/// en: 'More'
 	String get more => 'More';
+
+	/// en: 'More features to be developed'
 	String get moreFeaturesToBeDeveloped => 'More features to be developed';
+
+	/// en: 'All'
 	String get all => 'All';
+
+	/// en: 'Selected ${num} records'
 	String selectedRecords({required Object num}) => 'Selected ${num} records';
+
+	/// en: 'Cancel Select All'
 	String get cancelSelectAll => 'Cancel Select All';
+
+	/// en: 'Select All'
 	String get selectAll => 'Select All';
+
+	/// en: 'Exit Edit Mode'
 	String get exitEditMode => 'Exit Edit Mode';
+
+	/// en: 'Are you sure you want to delete selected ${num} items?'
 	String areYouSureYouWantToDeleteSelectedItems({required Object num}) => 'Are you sure you want to delete selected ${num} items?';
+
+	/// en: 'Search History Records...'
 	String get searchHistoryRecords => 'Search History Records...';
+
+	/// en: 'Settings'
 	String get settings => 'Settings';
+
+	/// en: 'Subscriptions'
 	String get subscriptions => 'Subscriptions';
+
+	/// en: '${num} videos'
 	String videoCount({required Object num}) => '${num} videos';
+
+	/// en: 'Share'
 	String get share => 'Share';
+
+	/// en: 'Are you sure you want to share this playlist?'
 	String get areYouSureYouWantToShareThisPlaylist => 'Are you sure you want to share this playlist?';
+
+	/// en: 'Edit Title'
 	String get editTitle => 'Edit Title';
+
+	/// en: 'Edit Mode'
 	String get editMode => 'Edit Mode';
+
+	/// en: 'Please enter new title'
 	String get pleaseEnterNewTitle => 'Please enter new title';
+
+	/// en: 'Create Play List'
 	String get createPlayList => 'Create Play List';
+
+	/// en: 'Create'
 	String get create => 'Create';
+
+	/// en: 'Check Network Settings'
 	String get checkNetworkSettings => 'Check Network Settings';
+
+	/// en: 'General'
 	String get general => 'General';
+
+	/// en: 'R18'
 	String get r18 => 'R18';
+
+	/// en: 'Sensitive'
 	String get sensitive => 'Sensitive';
+
+	/// en: 'Year'
 	String get year => 'Year';
+
+	/// en: 'Month'
 	String get month => 'Month';
+
+	/// en: 'Tag'
 	String get tag => 'Tag';
+
+	/// en: 'Private'
 	String get private => 'Private';
+
+	/// en: 'No Title'
 	String get noTitle => 'No Title';
+
+	/// en: 'Search'
 	String get search => 'Search';
+
+	/// en: 'No content'
 	String get noContent => 'No content';
+
+	/// en: 'Recording'
 	String get recording => 'Recording';
+
+	/// en: 'Paused'
 	String get paused => 'Paused';
+
+	/// en: 'Clear'
 	String get clear => 'Clear';
+
+	/// en: 'User'
 	String get user => 'User';
+
+	/// en: 'Post'
 	String get post => 'Post';
+
+	/// en: 'Seconds'
 	String get seconds => 'Seconds';
+
+	/// en: 'Coming Soon'
 	String get comingSoon => 'Coming Soon';
+
+	/// en: 'Confirm'
 	String get confirm => 'Confirm';
+
+	/// en: 'Hour'
 	String get hour => 'Hour';
+
+	/// en: 'Minute'
 	String get minute => 'Minute';
+
+	/// en: 'Click to Refresh'
 	String get clickToRefresh => 'Click to Refresh';
+
+	/// en: 'History'
 	String get history => 'History';
+
+	/// en: 'Favorites'
 	String get favorites => 'Favorites';
+
+	/// en: 'Friends'
 	String get friends => 'Friends';
+
+	/// en: 'Play List'
 	String get playList => 'Play List';
+
+	/// en: 'Check License'
 	String get checkLicense => 'Check License';
+
+	/// en: 'Logout'
 	String get logout => 'Logout';
+
+	/// en: 'Fans'
 	String get fensi => 'Fans';
+
+	/// en: 'Accept'
 	String get accept => 'Accept';
+
+	/// en: 'Reject'
 	String get reject => 'Reject';
+
+	/// en: 'Clear All History'
 	String get clearAllHistory => 'Clear All History';
+
+	/// en: 'Are you sure you want to clear all history?'
 	String get clearAllHistoryConfirm => 'Are you sure you want to clear all history?';
+
+	/// en: 'Following List'
 	String get followingList => 'Following List';
+
+	/// en: 'Followers List'
 	String get followersList => 'Followers List';
+
+	/// en: 'Follows'
 	String get follows => 'Follows';
+
+	/// en: 'Fans'
 	String get fans => 'Fans';
+
+	/// en: 'Follows and Fans'
 	String get followsAndFans => 'Follows and Fans';
+
+	/// en: 'Views'
 	String get numViews => 'Views';
+
+	/// en: 'Updated At'
 	String get updatedAt => 'Updated At';
+
+	/// en: 'Published At'
 	String get publishedAt => 'Published At';
+
+	/// en: 'External Video'
 	String get externalVideo => 'External Video';
+
+	/// en: 'Original Text'
 	String get originalText => 'Original Text';
+
+	/// en: 'Show Original Text'
 	String get showOriginalText => 'Show Original Text';
+
+	/// en: 'Show Processed Text'
 	String get showProcessedText => 'Show Processed Text';
+
+	/// en: 'Preview'
 	String get preview => 'Preview';
+
+	/// en: 'Rules'
 	String get rules => 'Rules';
+
+	/// en: 'Agree'
 	String get agree => 'Agree';
+
+	/// en: 'Disagree'
 	String get disagree => 'Disagree';
+
+	/// en: 'Agree to Rules'
 	String get agreeToRules => 'Agree to Rules';
+
+	/// en: 'Create Post'
 	String get createPost => 'Create Post';
+
+	/// en: 'Title'
 	String get title => 'Title';
+
+	/// en: 'Please enter title'
 	String get enterTitle => 'Please enter title';
+
+	/// en: 'Content'
 	String get content => 'Content';
+
+	/// en: 'Please enter content'
 	String get enterContent => 'Please enter content';
+
+	/// en: 'Please enter content...'
 	String get writeYourContentHere => 'Please enter content...';
+
+	/// en: 'Tag Blacklist'
 	String get tagBlacklist => 'Tag Blacklist';
+
+	/// en: 'No data'
 	String get noData => 'No data';
+
+	/// en: 'Tag Limit'
 	String get tagLimit => 'Tag Limit';
+
+	/// en: 'Enable Floating Buttons'
 	String get enableFloatingButtons => 'Enable Floating Buttons';
+
+	/// en: 'Disable Floating Buttons'
 	String get disableFloatingButtons => 'Disable Floating Buttons';
+
+	/// en: 'Enabled Floating Buttons'
 	String get enabledFloatingButtons => 'Enabled Floating Buttons';
+
+	/// en: 'Disabled Floating Buttons'
 	String get disabledFloatingButtons => 'Disabled Floating Buttons';
+
+	/// en: 'Pending Comment Count'
 	String get pendingCommentCount => 'Pending Comment Count';
+
+	/// en: 'Joined at ${str}'
 	String joined({required Object str}) => 'Joined at ${str}';
+
+	/// en: 'Download'
 	String get download => 'Download';
+
+	/// en: 'Select Quality'
 	String get selectQuality => 'Select Quality';
+
+	/// en: 'Select Date Range'
 	String get selectDateRange => 'Select Date Range';
+
+	/// en: 'Select date range, default is recent 30 days'
 	String get selectDateRangeHint => 'Select date range, default is recent 30 days';
+
+	/// en: 'Clear Date Range'
 	String get clearDateRange => 'Clear Date Range';
+
+	/// en: 'Followed successfully, click again to special follow'
 	String get followSuccessClickAgainToSpecialFollow => 'Followed successfully, click again to special follow';
+
+	/// en: 'Are you sure you want to exit?'
 	String get exitConfirmTip => 'Are you sure you want to exit?';
+
+	/// en: 'Error'
 	String get error => 'Error';
+
+	/// en: 'A task is already running, please wait.'
 	String get taskRunning => 'A task is already running, please wait.';
+
+	/// en: 'Operation cancelled.'
 	String get operationCancelled => 'Operation cancelled.';
+
+	/// en: 'You have unsaved changes'
 	String get unsavedChanges => 'You have unsaved changes';
+
+	/// en: 'Drag to reorder • Swipe left to remove'
 	String get specialFollowsManagementTip => 'Drag to reorder • Swipe left to remove';
+
+	/// en: 'Special Follows Management'
 	String get specialFollowsManagement => 'Special Follows Management';
+
 	late final TranslationsCommonPaginationEn pagination = TranslationsCommonPaginationEn._(_root);
+
+	/// en: 'Notice'
 	String get notice => 'Notice';
+
+	/// en: 'Detail'
 	String get detail => 'Detail';
+
+	/// en: ' - Desktop users can configure proxy in settings'
 	String get parseExceptionDestopHint => ' - Desktop users can configure proxy in settings';
+
+	/// en: 'Iwara Tags'
 	String get iwaraTags => 'Iwara Tags';
+
+	/// en: 'Like This Video'
 	String get likeThisVideo => 'Like This Video';
+
+	/// en: 'Operation'
 	String get operation => 'Operation';
+
+	/// en: 'Replies'
 	String get replies => 'Replies';
 }
 
@@ -269,28 +638,74 @@ class TranslationsAuthEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Login'
 	String get login => 'Login';
+
+	/// en: 'Logout'
 	String get logout => 'Logout';
+
+	/// en: 'Email'
 	String get email => 'Email';
+
+	/// en: 'Password'
 	String get password => 'Password';
+
+	/// en: 'Login / Register'
 	String get loginOrRegister => 'Login / Register';
+
+	/// en: 'Register'
 	String get register => 'Register';
+
+	/// en: 'Please enter email'
 	String get pleaseEnterEmail => 'Please enter email';
+
+	/// en: 'Please enter password'
 	String get pleaseEnterPassword => 'Please enter password';
+
+	/// en: 'Password must be at least 6 characters'
 	String get passwordMustBeAtLeast6Characters => 'Password must be at least 6 characters';
+
+	/// en: 'Please enter captcha'
 	String get pleaseEnterCaptcha => 'Please enter captcha';
+
+	/// en: 'Captcha'
 	String get captcha => 'Captcha';
+
+	/// en: 'Refresh Captcha'
 	String get refreshCaptcha => 'Refresh Captcha';
+
+	/// en: 'Captcha not loaded'
 	String get captchaNotLoaded => 'Captcha not loaded';
+
+	/// en: 'Login Success'
 	String get loginSuccess => 'Login Success';
+
+	/// en: 'Email verification sent'
 	String get emailVerificationSent => 'Email verification sent';
+
+	/// en: 'Not Logged In'
 	String get notLoggedIn => 'Not Logged In';
+
+	/// en: 'Click to Login'
 	String get clickToLogin => 'Click to Login';
+
+	/// en: 'Are you sure you want to logout?'
 	String get logoutConfirmation => 'Are you sure you want to logout?';
+
+	/// en: 'Logout Success'
 	String get logoutSuccess => 'Logout Success';
+
+	/// en: 'Logout Failed'
 	String get logoutFailed => 'Logout Failed';
+
+	/// en: 'Username or Email'
 	String get usernameOrEmail => 'Username or Email';
+
+	/// en: 'Please enter username or email'
 	String get pleaseEnterUsernameOrEmail => 'Please enter username or email';
+
+	/// en: 'Remember Username and Password'
 	String get rememberMe => 'Remember Username and Password';
 }
 
@@ -301,64 +716,181 @@ class TranslationsErrorsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Error'
 	String get error => 'Error';
+
+	/// en: 'This field is required'
 	String get required => 'This field is required';
+
+	/// en: 'Invalid email address'
 	String get invalidEmail => 'Invalid email address';
+
+	/// en: 'Network error, please try again'
 	String get networkError => 'Network error, please try again';
+
+	/// en: 'Error while fetching'
 	String get errorWhileFetching => 'Error while fetching';
+
+	/// en: 'Comment content cannot be empty'
 	String get commentCanNotBeEmpty => 'Comment content cannot be empty';
+
+	/// en: 'Error while fetching replies, please check network connection'
 	String get errorWhileFetchingReplies => 'Error while fetching replies, please check network connection';
+
+	/// en: 'Can not find comment controller'
 	String get canNotFindCommentController => 'Can not find comment controller';
+
+	/// en: 'Error while loading gallery'
 	String get errorWhileLoadingGallery => 'Error while loading gallery';
+
+	/// en: 'How could there be no data? It can't be possible :<'
 	String get howCouldThereBeNoDataItCantBePossible => 'How could there be no data? It can\'t be possible :<';
+
+	/// en: 'Unsupported image format: ${str}'
 	String unsupportedImageFormat({required Object str}) => 'Unsupported image format: ${str}';
+
+	/// en: 'Invalid gallery ID'
 	String get invalidGalleryId => 'Invalid gallery ID';
+
+	/// en: 'Translation failed, please try again later'
 	String get translationFailedPleaseTryAgainLater => 'Translation failed, please try again later';
+
+	/// en: 'An error occurred, please try again later.'
 	String get errorOccurred => 'An error occurred, please try again later.';
+
+	/// en: 'Error occurred while processing request'
 	String get errorOccurredWhileProcessingRequest => 'Error occurred while processing request';
+
+	/// en: 'Error while fetching datas, please try again later'
 	String get errorWhileFetchingDatas => 'Error while fetching datas, please try again later';
+
+	/// en: 'Service not initialized'
 	String get serviceNotInitialized => 'Service not initialized';
+
+	/// en: 'Unknown type'
 	String get unknownType => 'Unknown type';
+
+	/// en: 'Error while opening link: ${link}'
 	String errorWhileOpeningLink({required Object link}) => 'Error while opening link: ${link}';
+
+	/// en: 'Invalid URL'
 	String get invalidUrl => 'Invalid URL';
+
+	/// en: 'Failed to operate'
 	String get failedToOperate => 'Failed to operate';
+
+	/// en: 'Permission Denied'
 	String get permissionDenied => 'Permission Denied';
+
+	/// en: 'You do not have permission to access this resource'
 	String get youDoNotHavePermissionToAccessThisResource => 'You do not have permission to access this resource';
+
+	/// en: 'Login Failed'
 	String get loginFailed => 'Login Failed';
+
+	/// en: 'Unknown Error'
 	String get unknownError => 'Unknown Error';
+
+	/// en: 'Session Expired'
 	String get sessionExpired => 'Session Expired';
+
+	/// en: 'Failed to fetch captcha'
 	String get failedToFetchCaptcha => 'Failed to fetch captcha';
+
+	/// en: 'Email already exists'
 	String get emailAlreadyExists => 'Email already exists';
+
+	/// en: 'Invalid Captcha'
 	String get invalidCaptcha => 'Invalid Captcha';
+
+	/// en: 'Register Failed'
 	String get registerFailed => 'Register Failed';
+
+	/// en: 'Failed to fetch comments'
 	String get failedToFetchComments => 'Failed to fetch comments';
+
+	/// en: 'Failed to fetch image detail'
 	String get failedToFetchImageDetail => 'Failed to fetch image detail';
+
+	/// en: 'Failed to fetch image list'
 	String get failedToFetchImageList => 'Failed to fetch image list';
+
+	/// en: 'Failed to fetch data'
 	String get failedToFetchData => 'Failed to fetch data';
+
+	/// en: 'Invalid parameter'
 	String get invalidParameter => 'Invalid parameter';
+
+	/// en: 'Please login first'
 	String get pleaseLoginFirst => 'Please login first';
+
+	/// en: 'Error while loading post'
 	String get errorWhileLoadingPost => 'Error while loading post';
+
+	/// en: 'Error while loading post detail'
 	String get errorWhileLoadingPostDetail => 'Error while loading post detail';
+
+	/// en: 'Invalid post ID'
 	String get invalidPostId => 'Invalid post ID';
+
+	/// en: 'Currently in force update state, cannot go back'
 	String get forceUpdateNotPermittedToGoBack => 'Currently in force update state, cannot go back';
+
+	/// en: 'Please login again'
 	String get pleaseLoginAgain => 'Please login again';
+
+	/// en: 'Invalid login, Please check your email and password'
 	String get invalidLogin => 'Invalid login, Please check your email and password';
+
+	/// en: 'Too many requests, please try again later'
 	String get tooManyRequests => 'Too many requests, please try again later';
+
+	/// en: 'Exceeds max length: ${max}'
 	String exceedsMaxLength({required Object max}) => 'Exceeds max length: ${max}';
+
+	/// en: 'Content cannot be empty'
 	String get contentCanNotBeEmpty => 'Content cannot be empty';
+
+	/// en: 'Title cannot be empty'
 	String get titleCanNotBeEmpty => 'Title cannot be empty';
+
+	/// en: 'Too many requests, please try again later, remaining'
 	String get tooManyRequestsPleaseTryAgainLaterText => 'Too many requests, please try again later, remaining';
+
+	/// en: '${num} hours'
 	String remainingHours({required Object num}) => '${num} hours';
+
+	/// en: '${num} minutes'
 	String remainingMinutes({required Object num}) => '${num} minutes';
+
+	/// en: '${num} seconds'
 	String remainingSeconds({required Object num}) => '${num} seconds';
+
+	/// en: 'Tag limit exceeded, limit: ${limit}'
 	String tagLimitExceeded({required Object limit}) => 'Tag limit exceeded, limit: ${limit}';
+
+	/// en: 'Failed to refresh'
 	String get failedToRefresh => 'Failed to refresh';
+
+	/// en: 'No permission'
 	String get noPermission => 'No permission';
+
+	/// en: 'Resource not found'
 	String get resourceNotFound => 'Resource not found';
+
+	/// en: 'Failed to save login credentials'
 	String get failedToSaveCredentials => 'Failed to save login credentials';
+
+	/// en: 'Failed to load saved credentials'
 	String get failedToLoadSavedCredentials => 'Failed to load saved credentials';
+
+	/// en: 'Special follow limit exceeded, limit: ${cnt}, please adjust in the follow list page'
 	String specialFollowLimitReached({required Object cnt}) => 'Special follow limit exceeded, limit: ${cnt}, please adjust in the follow list page';
+
+	/// en: 'Content not found or has been deleted'
 	String get notFound => 'Content not found or has been deleted';
+
 	late final TranslationsErrorsNetworkEn network = TranslationsErrorsNetworkEn._(_root);
 }
 
@@ -369,13 +901,29 @@ class TranslationsFriendsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Click to restore friend'
 	String get clickToRestoreFriend => 'Click to restore friend';
+
+	/// en: 'Friends List'
 	String get friendsList => 'Friends List';
+
+	/// en: 'Friend Requests'
 	String get friendRequests => 'Friend Requests';
+
+	/// en: 'Friend Requests List'
 	String get friendRequestsList => 'Friend Requests List';
+
+	/// en: 'Removing friend...'
 	String get removingFriend => 'Removing friend...';
+
+	/// en: 'Failed to remove friend'
 	String get failedToRemoveFriend => 'Failed to remove friend';
+
+	/// en: 'Canceling friend request...'
 	String get cancelingRequest => 'Canceling friend request...';
+
+	/// en: 'Failed to cancel friend request'
 	String get failedToCancelRequest => 'Failed to cancel friend request';
 }
 
@@ -386,7 +934,11 @@ class TranslationsAuthorProfileEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'No more data'
 	String get noMoreDatas => 'No more data';
+
+	/// en: 'User Profile'
 	String get userProfile => 'User Profile';
 }
 
@@ -397,7 +949,11 @@ class TranslationsFavoritesEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Click to restore favorite'
 	String get clickToRestoreFavorite => 'Click to restore favorite';
+
+	/// en: 'My Favorites'
 	String get myFavorites => 'My Favorites';
 }
 
@@ -408,24 +964,62 @@ class TranslationsGalleryDetailEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Gallery Detail'
 	String get galleryDetail => 'Gallery Detail';
+
+	/// en: 'View Gallery Detail'
 	String get viewGalleryDetail => 'View Gallery Detail';
+
+	/// en: 'Copy Link'
 	String get copyLink => 'Copy Link';
+
+	/// en: 'Copy Image'
 	String get copyImage => 'Copy Image';
+
+	/// en: 'Save As'
 	String get saveAs => 'Save As';
+
+	/// en: 'Save to Album'
 	String get saveToAlbum => 'Save to Album';
+
+	/// en: 'Published At'
 	String get publishedAt => 'Published At';
+
+	/// en: 'Views Count'
 	String get viewsCount => 'Views Count';
+
+	/// en: 'Image Library Function Introduction'
 	String get imageLibraryFunctionIntroduction => 'Image Library Function Introduction';
+
+	/// en: 'Right Click to Save Single Image'
 	String get rightClickToSaveSingleImage => 'Right Click to Save Single Image';
+
+	/// en: 'Batch Save'
 	String get batchSave => 'Batch Save';
+
+	/// en: 'Keyboard Left and Right to Switch'
 	String get keyboardLeftAndRightToSwitch => 'Keyboard Left and Right to Switch';
+
+	/// en: 'Keyboard Up and Down to Zoom'
 	String get keyboardUpAndDownToZoom => 'Keyboard Up and Down to Zoom';
+
+	/// en: 'Mouse Wheel to Switch'
 	String get mouseWheelToSwitch => 'Mouse Wheel to Switch';
+
+	/// en: 'CTRL + Mouse Wheel to Zoom'
 	String get ctrlAndMouseWheelToZoom => 'CTRL + Mouse Wheel to Zoom';
+
+	/// en: 'More Features to Be Discovered...'
 	String get moreFeaturesToBeDiscovered => 'More Features to Be Discovered...';
+
+	/// en: 'Author's Other Galleries'
 	String get authorOtherGalleries => 'Author\'s Other Galleries';
+
+	/// en: 'Related Galleries'
 	String get relatedGalleries => 'Related Galleries';
+
+	/// en: 'Click Left and Right Edge to Switch Image'
 	String get clickLeftAndRightEdgeToSwitchImage => 'Click Left and Right Edge to Switch Image';
 }
 
@@ -436,21 +1030,53 @@ class TranslationsPlayListEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'My Play List'
 	String get myPlayList => 'My Play List';
+
+	/// en: 'Friendly Tips'
 	String get friendlyTips => 'Friendly Tips';
+
+	/// en: 'Dear User'
 	String get dearUser => 'Dear User';
+
+	/// en: 'iwara's play list system is not perfect yet'
 	String get iwaraPlayListSystemIsNotPerfectYet => 'iwara\'s play list system is not perfect yet';
+
+	/// en: 'Not support set cover'
 	String get notSupportSetCover => 'Not support set cover';
+
+	/// en: 'Not support delete list'
 	String get notSupportDeleteList => 'Not support delete list';
+
+	/// en: 'Not support set private'
 	String get notSupportSetPrivate => 'Not support set private';
+
+	/// en: 'Yes... create list will always exist and visible to everyone'
 	String get yesCreateListWillAlwaysExistAndVisibleToEveryone => 'Yes... create list will always exist and visible to everyone';
+
+	/// en: 'Small Suggestion'
 	String get smallSuggestion => 'Small Suggestion';
+
+	/// en: 'If you are more concerned about privacy, it is recommended to use the "like" function to collect content'
 	String get useLikeToCollectContent => 'If you are more concerned about privacy, it is recommended to use the "like" function to collect content';
+
+	/// en: 'If you have other suggestions or ideas, welcome to discuss on GitHub!'
 	String get welcomeToDiscussOnGitHub => 'If you have other suggestions or ideas, welcome to discuss on GitHub!';
+
+	/// en: 'I Understand'
 	String get iUnderstand => 'I Understand';
+
+	/// en: 'Search Playlists...'
 	String get searchPlaylists => 'Search Playlists...';
+
+	/// en: 'New Playlist Name'
 	String get newPlaylistName => 'New Playlist Name';
+
+	/// en: 'Create New Playlist'
 	String get createNewPlaylist => 'Create New Playlist';
+
+	/// en: 'Videos'
 	String get videos => 'Videos';
 }
 
@@ -461,27 +1087,71 @@ class TranslationsSearchEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Search Scope'
 	String get googleSearchScope => 'Search Scope';
+
+	/// en: 'Search Tags...'
 	String get searchTags => 'Search Tags...';
+
+	/// en: 'Content Rating'
 	String get contentRating => 'Content Rating';
+
+	/// en: 'Remove Tag'
 	String get removeTag => 'Remove Tag';
+
+	/// en: 'Please enter search content'
 	String get pleaseEnterSearchContent => 'Please enter search content';
+
+	/// en: 'Search History'
 	String get searchHistory => 'Search History';
+
+	/// en: 'Search Suggestion'
 	String get searchSuggestion => 'Search Suggestion';
+
+	/// en: 'Used Times'
 	String get usedTimes => 'Used Times';
+
+	/// en: 'Last Used'
 	String get lastUsed => 'Last Used';
+
+	/// en: 'No search history'
 	String get noSearchHistoryRecords => 'No search history';
+
+	/// en: 'Not support current search type ${searchType}, please wait for the update'
 	String notSupportCurrentSearchType({required Object searchType}) => 'Not support current search type ${searchType}, please wait for the update';
+
+	/// en: 'Search Result'
 	String get searchResult => 'Search Result';
+
+	/// en: 'Unsupported search type: ${searchType}'
 	String unsupportedSearchType({required Object searchType}) => 'Unsupported search type: ${searchType}';
+
+	/// en: 'Google Search'
 	String get googleSearch => 'Google Search';
+
+	/// en: '${webName} 's search function is not easy to use? Try Google Search!'
 	String googleSearchHint({required Object webName}) => '${webName} \'s search function is not easy to use? Try Google Search!';
+
+	/// en: 'Use the :site search operator of Google Search to search for content on the site. This is very useful when searching for videos, galleries, playlists, and users.'
 	String get googleSearchDescription => 'Use the :site search operator of Google Search to search for content on the site. This is very useful when searching for videos, galleries, playlists, and users.';
+
+	/// en: 'Enter keywords to search'
 	String get googleSearchKeywordsHint => 'Enter keywords to search';
+
+	/// en: 'Open Link Jump'
 	String get openLinkJump => 'Open Link Jump';
+
+	/// en: 'Google Search'
 	String get googleSearchButton => 'Google Search';
+
+	/// en: 'Please enter search keywords'
 	String get pleaseEnterSearchKeywords => 'Please enter search keywords';
+
+	/// en: 'Search query copied to clipboard'
 	String get googleSearchQueryCopied => 'Search query copied to clipboard';
+
+	/// en: 'Failed to open browser: ${error}'
 	String googleSearchBrowserOpenFailed({required Object error}) => 'Failed to open browser: ${error}';
 }
 
@@ -492,6 +1162,8 @@ class TranslationsMediaListEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Personal Introduction'
 	String get personalIntroduction => 'Personal Introduction';
 }
 
@@ -502,178 +1174,523 @@ class TranslationsSettingsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'List View Mode'
 	String get listViewMode => 'List View Mode';
+
+	/// en: 'Use Traditional Pagination Mode'
 	String get useTraditionalPaginationMode => 'Use Traditional Pagination Mode';
+
+	/// en: 'Enable traditional pagination mode, disable waterfall mode'
 	String get useTraditionalPaginationModeDesc => 'Enable traditional pagination mode, disable waterfall mode';
+
+	/// en: 'Show Video Progress Bottom Bar When Toolbar Hidden'
 	String get showVideoProgressBottomBarWhenToolbarHidden => 'Show Video Progress Bottom Bar When Toolbar Hidden';
+
+	/// en: 'This configuration determines whether the video progress bottom bar will be shown when the toolbar is hidden.'
 	String get showVideoProgressBottomBarWhenToolbarHiddenDesc => 'This configuration determines whether the video progress bottom bar will be shown when the toolbar is hidden.';
+
+	/// en: 'Basic Settings'
 	String get basicSettings => 'Basic Settings';
+
+	/// en: 'Personalized Settings'
 	String get personalizedSettings => 'Personalized Settings';
+
+	/// en: 'Other Settings'
 	String get otherSettings => 'Other Settings';
+
+	/// en: 'Search Config'
 	String get searchConfig => 'Search Config';
+
+	/// en: 'This configuration determines whether the previous configuration will be used when playing videos again.'
 	String get thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain => 'This configuration determines whether the previous configuration will be used when playing videos again.';
+
+	/// en: 'Play Control'
 	String get playControl => 'Play Control';
+
+	/// en: 'Fast Forward Time'
 	String get fastForwardTime => 'Fast Forward Time';
+
+	/// en: 'Fast forward time must be a positive integer.'
 	String get fastForwardTimeMustBeAPositiveInteger => 'Fast forward time must be a positive integer.';
+
+	/// en: 'Rewind Time'
 	String get rewindTime => 'Rewind Time';
+
+	/// en: 'Rewind time must be a positive integer.'
 	String get rewindTimeMustBeAPositiveInteger => 'Rewind time must be a positive integer.';
+
+	/// en: 'Long Press Playback Speed'
 	String get longPressPlaybackSpeed => 'Long Press Playback Speed';
+
+	/// en: 'Long press playback speed must be a positive number.'
 	String get longPressPlaybackSpeedMustBeAPositiveNumber => 'Long press playback speed must be a positive number.';
+
+	/// en: 'Repeat'
 	String get repeat => 'Repeat';
+
+	/// en: 'Render Vertical Video in Vertical Screen'
 	String get renderVerticalVideoInVerticalScreen => 'Render Vertical Video in Vertical Screen';
+
+	/// en: 'This configuration determines whether the video will be rendered in vertical screen when playing in full screen.'
 	String get thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen => 'This configuration determines whether the video will be rendered in vertical screen when playing in full screen.';
+
+	/// en: 'Remember Volume'
 	String get rememberVolume => 'Remember Volume';
+
+	/// en: 'This configuration determines whether the volume will be kept when playing videos again.'
 	String get thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain => 'This configuration determines whether the volume will be kept when playing videos again.';
+
+	/// en: 'Remember Brightness'
 	String get rememberBrightness => 'Remember Brightness';
+
+	/// en: 'This configuration determines whether the brightness will be kept when playing videos again.'
 	String get thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain => 'This configuration determines whether the brightness will be kept when playing videos again.';
+
+	/// en: 'Play Control Area'
 	String get playControlArea => 'Play Control Area';
+
+	/// en: 'Left and Right Control Area Width'
 	String get leftAndRightControlAreaWidth => 'Left and Right Control Area Width';
+
+	/// en: 'This configuration determines the width of the control areas on the left and right sides of the player.'
 	String get thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer => 'This configuration determines the width of the control areas on the left and right sides of the player.';
+
+	/// en: 'Proxy address cannot be empty.'
 	String get proxyAddressCannotBeEmpty => 'Proxy address cannot be empty.';
+
+	/// en: 'Invalid proxy address format. Please use the format of IP:port or domain name:port.'
 	String get invalidProxyAddressFormatPleaseUseTheFormatOfIpPortOrDomainNamePort => 'Invalid proxy address format. Please use the format of IP:port or domain name:port.';
+
+	/// en: 'Proxy normal work.'
 	String get proxyNormalWork => 'Proxy normal work.';
+
+	/// en: 'Test proxy failed, status code: ${code}'
 	String testProxyFailedWithStatusCode({required Object code}) => 'Test proxy failed, status code: ${code}';
+
+	/// en: 'Test proxy failed, exception: ${exception}'
 	String testProxyFailedWithException({required Object exception}) => 'Test proxy failed, exception: ${exception}';
+
+	/// en: 'Proxy Config'
 	String get proxyConfig => 'Proxy Config';
+
+	/// en: 'This is http proxy address'
 	String get thisIsHttpProxyAddress => 'This is http proxy address';
+
+	/// en: 'Check Proxy'
 	String get checkProxy => 'Check Proxy';
+
+	/// en: 'Proxy Address'
 	String get proxyAddress => 'Proxy Address';
+
+	/// en: 'Please enter the URL of the proxy server, for example 127.0.0.1:8080'
 	String get pleaseEnterTheUrlOfTheProxyServerForExample1270018080 => 'Please enter the URL of the proxy server, for example 127.0.0.1:8080';
+
+	/// en: 'Enable Proxy'
 	String get enableProxy => 'Enable Proxy';
+
+	/// en: 'Left'
 	String get left => 'Left';
+
+	/// en: 'Middle'
 	String get middle => 'Middle';
+
+	/// en: 'Right'
 	String get right => 'Right';
+
+	/// en: 'Player Settings'
 	String get playerSettings => 'Player Settings';
+
+	/// en: 'Network Settings'
 	String get networkSettings => 'Network Settings';
+
+	/// en: 'Customize Your Playback Experience'
 	String get customizeYourPlaybackExperience => 'Customize Your Playback Experience';
+
+	/// en: 'Choose Your Favorite App Appearance'
 	String get chooseYourFavoriteAppAppearance => 'Choose Your Favorite App Appearance';
+
+	/// en: 'Configure Your Proxy Server'
 	String get configureYourProxyServer => 'Configure Your Proxy Server';
+
+	/// en: 'Settings'
 	String get settings => 'Settings';
+
+	/// en: 'Theme Settings'
 	String get themeSettings => 'Theme Settings';
+
+	/// en: 'Follow System'
 	String get followSystem => 'Follow System';
+
+	/// en: 'Light Mode'
 	String get lightMode => 'Light Mode';
+
+	/// en: 'Dark Mode'
 	String get darkMode => 'Dark Mode';
+
+	/// en: 'Preset Theme'
 	String get presetTheme => 'Preset Theme';
+
+	/// en: 'Basic Theme'
 	String get basicTheme => 'Basic Theme';
+
+	/// en: 'Need to restart the app to apply the settings'
 	String get needRestartToApply => 'Need to restart the app to apply the settings';
+
+	/// en: 'The theme settings need to restart the app to apply the settings'
 	String get themeNeedRestartDescription => 'The theme settings need to restart the app to apply the settings';
+
+	/// en: 'About'
 	String get about => 'About';
+
+	/// en: 'Current Version'
 	String get currentVersion => 'Current Version';
+
+	/// en: 'Latest Version'
 	String get latestVersion => 'Latest Version';
+
+	/// en: 'Check for Updates'
 	String get checkForUpdates => 'Check for Updates';
+
+	/// en: 'Update'
 	String get update => 'Update';
+
+	/// en: 'New Version Available'
 	String get newVersionAvailable => 'New Version Available';
+
+	/// en: 'Project Home'
 	String get projectHome => 'Project Home';
+
+	/// en: 'Release'
 	String get release => 'Release';
+
+	/// en: 'Issue Report'
 	String get issueReport => 'Issue Report';
+
+	/// en: 'Open Source License'
 	String get openSourceLicense => 'Open Source License';
+
+	/// en: 'Check for updates failed, please try again later'
 	String get checkForUpdatesFailed => 'Check for updates failed, please try again later';
+
+	/// en: 'Auto Check Update'
 	String get autoCheckUpdate => 'Auto Check Update';
+
+	/// en: 'Update Content'
 	String get updateContent => 'Update Content';
+
+	/// en: 'Release Date'
 	String get releaseDate => 'Release Date';
+
+	/// en: 'Ignore This Version'
 	String get ignoreThisVersion => 'Ignore This Version';
+
+	/// en: 'Current version is too low, please update as soon as possible'
 	String get minVersionUpdateRequired => 'Current version is too low, please update as soon as possible';
+
+	/// en: 'This is a mandatory update. Please update to the latest version as soon as possible'
 	String get forceUpdateTip => 'This is a mandatory update. Please update to the latest version as soon as possible';
+
+	/// en: 'View Changelog'
 	String get viewChangelog => 'View Changelog';
+
+	/// en: 'Already the latest version'
 	String get alreadyLatestVersion => 'Already the latest version';
+
+	/// en: 'App Settings'
 	String get appSettings => 'App Settings';
+
+	/// en: 'Configure Your App Settings'
 	String get configureYourAppSettings => 'Configure Your App Settings';
+
+	/// en: 'History'
 	String get history => 'History';
+
+	/// en: 'Auto Record History'
 	String get autoRecordHistory => 'Auto Record History';
+
+	/// en: 'Auto record the videos and images you have watched'
 	String get autoRecordHistoryDesc => 'Auto record the videos and images you have watched';
+
+	/// en: 'Show Unprocessed Markdown Text'
 	String get showUnprocessedMarkdownText => 'Show Unprocessed Markdown Text';
+
+	/// en: 'Show the original text of the markdown'
 	String get showUnprocessedMarkdownTextDesc => 'Show the original text of the markdown';
+
+	/// en: 'Markdown'
 	String get markdown => 'Markdown';
+
+	/// en: 'Privacy Mode'
 	String get activeBackgroundPrivacyMode => 'Privacy Mode';
+
+	/// en: 'Prevent screenshots, hide screen when running in the background...'
 	String get activeBackgroundPrivacyModeDesc => 'Prevent screenshots, hide screen when running in the background...';
+
+	/// en: 'Privacy'
 	String get privacy => 'Privacy';
+
+	/// en: 'Forum'
 	String get forum => 'Forum';
+
+	/// en: 'Disable Forum Reply Quote'
 	String get disableForumReplyQuote => 'Disable Forum Reply Quote';
+
+	/// en: 'Disable carrying replied floor information when replying in forum'
 	String get disableForumReplyQuoteDesc => 'Disable carrying replied floor information when replying in forum';
+
+	/// en: 'Theater Mode'
 	String get theaterMode => 'Theater Mode';
+
+	/// en: 'After opening, the player background will be set to the blurred version of the video cover'
 	String get theaterModeDesc => 'After opening, the player background will be set to the blurred version of the video cover';
+
+	/// en: 'App Links'
 	String get appLinks => 'App Links';
+
+	/// en: 'Default Browse'
 	String get defaultBrowser => 'Default Browse';
+
+	/// en: 'Please open the default link configuration item in the system settings and add the iwara.tv website link'
 	String get defaultBrowserDesc => 'Please open the default link configuration item in the system settings and add the iwara.tv website link';
+
+	/// en: 'Theme Mode'
 	String get themeMode => 'Theme Mode';
+
+	/// en: 'This configuration determines the theme mode of the app'
 	String get themeModeDesc => 'This configuration determines the theme mode of the app';
+
+	/// en: 'Dynamic Color'
 	String get dynamicColor => 'Dynamic Color';
+
+	/// en: 'This configuration determines whether the app uses dynamic color'
 	String get dynamicColorDesc => 'This configuration determines whether the app uses dynamic color';
+
+	/// en: 'Use Dynamic Color'
 	String get useDynamicColor => 'Use Dynamic Color';
+
+	/// en: 'This configuration determines whether the app uses dynamic color'
 	String get useDynamicColorDesc => 'This configuration determines whether the app uses dynamic color';
+
+	/// en: 'Preset Colors'
 	String get presetColors => 'Preset Colors';
+
+	/// en: 'Custom Colors'
 	String get customColors => 'Custom Colors';
+
+	/// en: 'Pick Color'
 	String get pickColor => 'Pick Color';
+
+	/// en: 'Cancel'
 	String get cancel => 'Cancel';
+
+	/// en: 'Confirm'
 	String get confirm => 'Confirm';
+
+	/// en: 'No custom colors'
 	String get noCustomColors => 'No custom colors';
+
+	/// en: 'Record and Restore Playback Progress'
 	String get recordAndRestorePlaybackProgress => 'Record and Restore Playback Progress';
+
+	/// en: 'Signature'
 	String get signature => 'Signature';
+
+	/// en: 'Enable Signature'
 	String get enableSignature => 'Enable Signature';
+
+	/// en: 'This configuration determines whether the app will add signature when replying'
 	String get enableSignatureDesc => 'This configuration determines whether the app will add signature when replying';
+
+	/// en: 'Enter Signature'
 	String get enterSignature => 'Enter Signature';
+
+	/// en: 'Edit Signature'
 	String get editSignature => 'Edit Signature';
+
+	/// en: 'Signature Content'
 	String get signatureContent => 'Signature Content';
+
+	/// en: 'Export App Configuration'
 	String get exportConfig => 'Export App Configuration';
+
+	/// en: 'Export app configuration to a file (excluding download records)'
 	String get exportConfigDesc => 'Export app configuration to a file (excluding download records)';
+
+	/// en: 'Import App Configuration'
 	String get importConfig => 'Import App Configuration';
+
+	/// en: 'Import app configuration from a file'
 	String get importConfigDesc => 'Import app configuration from a file';
+
+	/// en: 'Configuration exported successfully!'
 	String get exportConfigSuccess => 'Configuration exported successfully!';
+
+	/// en: 'Failed to export configuration'
 	String get exportConfigFailed => 'Failed to export configuration';
+
+	/// en: 'Configuration imported successfully!'
 	String get importConfigSuccess => 'Configuration imported successfully!';
+
+	/// en: 'Failed to import configuration'
 	String get importConfigFailed => 'Failed to import configuration';
+
+	/// en: 'History Update Logs'
 	String get historyUpdateLogs => 'History Update Logs';
+
+	/// en: 'No update logs available'
 	String get noUpdateLogs => 'No update logs available';
+
+	/// en: 'Version: {version}'
 	String get versionLabel => 'Version: {version}';
+
+	/// en: 'Release Date: {date}'
 	String get releaseDateLabel => 'Release Date: {date}';
+
+	/// en: 'No update content available'
 	String get noChanges => 'No update content available';
+
+	/// en: 'Interaction'
 	String get interaction => 'Interaction';
+
+	/// en: 'Enable Vibration'
 	String get enableVibration => 'Enable Vibration';
+
+	/// en: 'Enable vibration feedback when interacting with the app'
 	String get enableVibrationDesc => 'Enable vibration feedback when interacting with the app';
+
+	/// en: 'Keep Video Toolbar Visible'
 	String get defaultKeepVideoToolbarVisible => 'Keep Video Toolbar Visible';
+
+	/// en: 'This setting determines whether the video toolbar remains visible when first entering the video page.'
 	String get defaultKeepVideoToolbarVisibleDesc => 'This setting determines whether the video toolbar remains visible when first entering the video page.';
+
+	/// en: 'Mobile devices enable theater mode, which may cause performance issues. You can choose to enable it.'
 	String get theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt => 'Mobile devices enable theater mode, which may cause performance issues. You can choose to enable it.';
+
+	/// en: 'Lock Button Position'
 	String get lockButtonPosition => 'Lock Button Position';
+
+	/// en: 'Both Sides'
 	String get lockButtonPositionBothSides => 'Both Sides';
+
+	/// en: 'Left Side'
 	String get lockButtonPositionLeftSide => 'Left Side';
+
+	/// en: 'Right Side'
 	String get lockButtonPositionRightSide => 'Right Side';
+
+	/// en: 'Jump Link'
 	String get jumpLink => 'Jump Link';
+
+	/// en: 'Language'
 	String get language => 'Language';
+
+	/// en: 'Language setting has been changed, please restart the app to take effect.'
 	String get languageChanged => 'Language setting has been changed, please restart the app to take effect.';
+
+	/// en: 'Gesture Control'
 	String get gestureControl => 'Gesture Control';
+
+	/// en: 'Left Double Tap Rewind'
 	String get leftDoubleTapRewind => 'Left Double Tap Rewind';
+
+	/// en: 'Right Double Tap Fast Forward'
 	String get rightDoubleTapFastForward => 'Right Double Tap Fast Forward';
+
+	/// en: 'Double Tap Pause'
 	String get doubleTapPause => 'Double Tap Pause';
+
+	/// en: 'Right Vertical Swipe Volume (Effective when entering a new page)'
 	String get rightVerticalSwipeVolume => 'Right Vertical Swipe Volume (Effective when entering a new page)';
+
+	/// en: 'Left Vertical Swipe Brightness (Effective when entering a new page)'
 	String get leftVerticalSwipeBrightness => 'Left Vertical Swipe Brightness (Effective when entering a new page)';
+
+	/// en: 'Long Press Fast Forward'
 	String get longPressFastForward => 'Long Press Fast Forward';
+
+	/// en: 'Enable Mouse Hover Show Toolbar'
 	String get enableMouseHoverShowToolbar => 'Enable Mouse Hover Show Toolbar';
+
+	/// en: 'When enabled, the video toolbar will be shown when the mouse is hovering over the player. It will be automatically hidden after 3 seconds of inactivity.'
 	String get enableMouseHoverShowToolbarInfo => 'When enabled, the video toolbar will be shown when the mouse is hovering over the player. It will be automatically hidden after 3 seconds of inactivity.';
+
+	/// en: 'Audio Video Configuration'
 	String get audioVideoConfig => 'Audio Video Configuration';
+
+	/// en: 'Expand Buffer'
 	String get expandBuffer => 'Expand Buffer';
+
+	/// en: 'When enabled, the buffer size increases, loading time becomes longer but playback is smoother'
 	String get expandBufferInfo => 'When enabled, the buffer size increases, loading time becomes longer but playback is smoother';
+
+	/// en: 'Video Sync Mode'
 	String get videoSyncMode => 'Video Sync Mode';
+
+	/// en: 'Audio-video synchronization strategy'
 	String get videoSyncModeSubtitle => 'Audio-video synchronization strategy';
+
+	/// en: 'Hardware Decoding Mode'
 	String get hardwareDecodingMode => 'Hardware Decoding Mode';
+
+	/// en: 'Hardware decoding settings'
 	String get hardwareDecodingModeSubtitle => 'Hardware decoding settings';
+
+	/// en: 'Enable Hardware Acceleration'
 	String get enableHardwareAcceleration => 'Enable Hardware Acceleration';
+
+	/// en: 'Enabling hardware acceleration can improve decoding performance, but some devices may not be compatible'
 	String get enableHardwareAccelerationInfo => 'Enabling hardware acceleration can improve decoding performance, but some devices may not be compatible';
+
+	/// en: 'Use OpenSLES Audio Output'
 	String get useOpenSLESAudioOutput => 'Use OpenSLES Audio Output';
+
+	/// en: 'Use low-latency audio output, may improve audio performance'
 	String get useOpenSLESAudioOutputInfo => 'Use low-latency audio output, may improve audio performance';
+
+	/// en: 'Audio Sync'
 	String get videoSyncAudio => 'Audio Sync';
+
+	/// en: 'Display Resample'
 	String get videoSyncDisplayResample => 'Display Resample';
+
+	/// en: 'Display Resample (Drop Frames)'
 	String get videoSyncDisplayResampleVdrop => 'Display Resample (Drop Frames)';
+
+	/// en: 'Display Resample (Desync)'
 	String get videoSyncDisplayResampleDesync => 'Display Resample (Desync)';
+
+	/// en: 'Display Tempo'
 	String get videoSyncDisplayTempo => 'Display Tempo';
+
+	/// en: 'Display Drop Video Frames'
 	String get videoSyncDisplayVdrop => 'Display Drop Video Frames';
+
+	/// en: 'Display Drop Audio Frames'
 	String get videoSyncDisplayAdrop => 'Display Drop Audio Frames';
+
+	/// en: 'Display Desync'
 	String get videoSyncDisplayDesync => 'Display Desync';
+
+	/// en: 'Desync'
 	String get videoSyncDesync => 'Desync';
+
+	/// en: 'Auto'
 	String get hardwareDecodingAuto => 'Auto';
+
+	/// en: 'Auto Copy'
 	String get hardwareDecodingAutoCopy => 'Auto Copy';
+
+	/// en: 'Auto Safe'
 	String get hardwareDecodingAutoSafe => 'Auto Safe';
+
+	/// en: 'Disabled'
 	String get hardwareDecodingNo => 'Disabled';
+
+	/// en: 'Force Enable'
 	String get hardwareDecodingYes => 'Force Enable';
+
 	late final TranslationsSettingsDownloadSettingsEn downloadSettings = TranslationsSettingsDownloadSettingsEn._(_root);
 }
 
@@ -684,11 +1701,22 @@ class TranslationsOreno3dEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Oreno3D'
 	String get name => 'Oreno3D';
+
+	/// en: 'Tags'
 	String get tags => 'Tags';
+
+	/// en: 'Characters'
 	String get characters => 'Characters';
+
+	/// en: 'Origin'
 	String get origin => 'Origin';
+
+	/// en: 'The **tags**, **characters**, and **origin** information displayed here are provided by the third-party site **Oreno3D** for reference only. Since this information source is only available in Japanese, it currently lacks internationalization adaptation. If you are interested in contributing to internationalization efforts, please visit the repository to help improve it!'
 	String get thirdPartyTagsExplanation => 'The **tags**, **characters**, and **origin** information displayed here are provided by the third-party site **Oreno3D** for reference only.\n\nSince this information source is only available in Japanese, it currently lacks internationalization adaptation.\n\nIf you are interested in contributing to internationalization efforts, please visit the repository to help improve it!';
+
 	late final TranslationsOreno3dSortTypesEn sortTypes = TranslationsOreno3dSortTypesEn._(_root);
 	late final TranslationsOreno3dErrorsEn errors = TranslationsOreno3dErrorsEn._(_root);
 	late final TranslationsOreno3dLoadingEn loading = TranslationsOreno3dLoadingEn._(_root);
@@ -702,25 +1730,65 @@ class TranslationsSignInEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Please login first'
 	String get pleaseLoginFirst => 'Please login first';
+
+	/// en: 'You have already signed in today!'
 	String get alreadySignedInToday => 'You have already signed in today!';
+
+	/// en: 'You did not stick to the sign in.'
 	String get youDidNotStickToTheSignIn => 'You did not stick to the sign in.';
+
+	/// en: 'Sign in successfully!'
 	String get signInSuccess => 'Sign in successfully!';
+
+	/// en: 'Sign in failed, please try again later'
 	String get signInFailed => 'Sign in failed, please try again later';
+
+	/// en: 'Consecutive Sign Ins'
 	String get consecutiveSignIns => 'Consecutive Sign Ins';
+
+	/// en: 'Failure Reason'
 	String get failureReason => 'Failure Reason';
+
+	/// en: 'Select Date Range'
 	String get selectDateRange => 'Select Date Range';
+
+	/// en: 'Start Date'
 	String get startDate => 'Start Date';
+
+	/// en: 'End Date'
 	String get endDate => 'End Date';
+
+	/// en: 'Invalid Date'
 	String get invalidDate => 'Invalid Date';
+
+	/// en: 'Invalid Date Range'
 	String get invalidDateRange => 'Invalid Date Range';
+
+	/// en: 'Date Format Error'
 	String get errorFormatText => 'Date Format Error';
+
+	/// en: 'Invalid Date Range'
 	String get errorInvalidText => 'Invalid Date Range';
+
+	/// en: 'Invalid Date Range'
 	String get errorInvalidRangeText => 'Invalid Date Range';
+
+	/// en: 'Date range cannot be more than one year'
 	String get dateRangeCantBeMoreThanOneYear => 'Date range cannot be more than one year';
+
+	/// en: 'Sign In'
 	String get signIn => 'Sign In';
+
+	/// en: 'Sign In Record'
 	String get signInRecord => 'Sign In Record';
+
+	/// en: 'Total Sign Ins'
 	String get totalSignIns => 'Total Sign Ins';
+
+	/// en: 'Please select sign in status'
 	String get pleaseSelectSignInStatus => 'Please select sign in status';
 }
 
@@ -731,9 +1799,18 @@ class TranslationsSubscriptionsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Please login first to view your subscriptions.'
 	String get pleaseLoginFirstToViewYourSubscriptions => 'Please login first to view your subscriptions.';
+
+	/// en: 'Select User'
 	String get selectUser => 'Select User';
+
+	/// en: 'No subscribed users'
 	String get noSubscribedUsers => 'No subscribed users';
+
+	/// en: 'Show all subscribed users content'
+	String get showAllSubscribedUsersContent => 'Show all subscribed users content';
 }
 
 // Path: videoDetail
@@ -743,63 +1820,178 @@ class TranslationsVideoDetailEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'PiP Mode'
 	String get pipMode => 'PiP Mode';
+
+	/// en: 'Resume from last position: ${position}'
 	String resumeFromLastPosition({required Object position}) => 'Resume from last position: ${position}';
+
+	/// en: 'Video ID is empty'
 	String get videoIdIsEmpty => 'Video ID is empty';
+
+	/// en: 'Video info is empty'
 	String get videoInfoIsEmpty => 'Video info is empty';
+
+	/// en: 'This is a private video'
 	String get thisIsAPrivateVideo => 'This is a private video';
+
+	/// en: 'Get video info failed, please try again later'
 	String get getVideoInfoFailed => 'Get video info failed, please try again later';
+
+	/// en: 'No video source found'
 	String get noVideoSourceFound => 'No video source found';
+
+	/// en: 'Tag "${tagId}" copied to clipboard'
 	String tagCopiedToClipboard({required Object tagId}) => 'Tag "${tagId}" copied to clipboard';
+
+	/// en: 'Error loading video'
 	String get errorLoadingVideo => 'Error loading video';
+
+	/// en: 'Play'
 	String get play => 'Play';
+
+	/// en: 'Pause'
 	String get pause => 'Pause';
+
+	/// en: 'Exit App Fullscreen'
 	String get exitAppFullscreen => 'Exit App Fullscreen';
+
+	/// en: 'Enter App Fullscreen'
 	String get enterAppFullscreen => 'Enter App Fullscreen';
+
+	/// en: 'Exit System Fullscreen'
 	String get exitSystemFullscreen => 'Exit System Fullscreen';
+
+	/// en: 'Enter System Fullscreen'
 	String get enterSystemFullscreen => 'Enter System Fullscreen';
+
+	/// en: 'Seek To'
 	String get seekTo => 'Seek To';
+
+	/// en: 'Switch Resolution'
 	String get switchResolution => 'Switch Resolution';
+
+	/// en: 'Switch Playback Speed'
 	String get switchPlaybackSpeed => 'Switch Playback Speed';
+
+	/// en: 'Rewind ${num} seconds'
 	String rewindSeconds({required Object num}) => 'Rewind ${num} seconds';
+
+	/// en: 'Fast Forward ${num} seconds'
 	String fastForwardSeconds({required Object num}) => 'Fast Forward ${num} seconds';
+
+	/// en: 'Playing at ${rate}x speed'
 	String playbackSpeedIng({required Object rate}) => 'Playing at ${rate}x speed';
+
+	/// en: 'Brightness'
 	String get brightness => 'Brightness';
+
+	/// en: 'Brightness is lowest'
 	String get brightnessLowest => 'Brightness is lowest';
+
+	/// en: 'Volume'
 	String get volume => 'Volume';
+
+	/// en: 'Volume is muted'
 	String get volumeMuted => 'Volume is muted';
+
+	/// en: 'Home'
 	String get home => 'Home';
+
+	/// en: 'Video Player'
 	String get videoPlayer => 'Video Player';
+
+	/// en: 'Video Player Info'
 	String get videoPlayerInfo => 'Video Player Info';
+
+	/// en: 'More Settings'
 	String get moreSettings => 'More Settings';
+
+	/// en: 'Video Player Feature Info'
 	String get videoPlayerFeatureInfo => 'Video Player Feature Info';
+
+	/// en: 'Auto Rewind'
 	String get autoRewind => 'Auto Rewind';
+
+	/// en: 'Rewind and Fast Forward'
 	String get rewindAndFastForward => 'Rewind and Fast Forward';
+
+	/// en: 'Volume and Brightness'
 	String get volumeAndBrightness => 'Volume and Brightness';
+
+	/// en: 'Center Area Double Tap Pause or Play'
 	String get centerAreaDoubleTapPauseOrPlay => 'Center Area Double Tap Pause or Play';
+
+	/// en: 'Show Vertical Video in Full Screen'
 	String get showVerticalVideoInFullScreen => 'Show Vertical Video in Full Screen';
+
+	/// en: 'Keep Last Volume and Brightness'
 	String get keepLastVolumeAndBrightness => 'Keep Last Volume and Brightness';
+
+	/// en: 'Set Proxy'
 	String get setProxy => 'Set Proxy';
+
+	/// en: 'More Features to Be Discovered...'
 	String get moreFeaturesToBeDiscovered => 'More Features to Be Discovered...';
+
+	/// en: 'Video Player Settings'
 	String get videoPlayerSettings => 'Video Player Settings';
+
+	/// en: '${num} comments'
 	String commentCount({required Object num}) => '${num} comments';
+
+	/// en: 'Write your comment here...'
 	String get writeYourCommentHere => 'Write your comment here...';
+
+	/// en: 'Author's Other Videos'
 	String get authorOtherVideos => 'Author\'s Other Videos';
+
+	/// en: 'Related Videos'
 	String get relatedVideos => 'Related Videos';
+
+	/// en: 'This is a private video'
 	String get privateVideo => 'This is a private video';
+
+	/// en: 'This is an external video'
 	String get externalVideo => 'This is an external video';
+
+	/// en: 'Open in Browser'
 	String get openInBrowser => 'Open in Browser';
+
+	/// en: 'This video seems to have been deleted :/'
 	String get resourceDeleted => 'This video seems to have been deleted :/';
+
+	/// en: 'No download URL'
 	String get noDownloadUrl => 'No download URL';
+
+	/// en: 'Start downloading'
 	String get startDownloading => 'Start downloading';
+
+	/// en: 'Download failed, please try again later'
 	String get downloadFailed => 'Download failed, please try again later';
+
+	/// en: 'Download success'
 	String get downloadSuccess => 'Download success';
+
+	/// en: 'Download'
 	String get download => 'Download';
+
+	/// en: 'Download Manager'
 	String get downloadManager => 'Download Manager';
+
+	/// en: 'Resource not found'
 	String get resourceNotFound => 'Resource not found';
+
+	/// en: 'Video load error'
 	String get videoLoadError => 'Video load error';
+
+	/// en: 'Author has no other videos'
 	String get authorNoOtherVideos => 'Author has no other videos';
+
+	/// en: 'No related videos'
 	String get noRelatedVideos => 'No related videos';
+
 	late final TranslationsVideoDetailSkeletonEn skeleton = TranslationsVideoDetailSkeletonEn._(_root);
 }
 
@@ -810,32 +2002,86 @@ class TranslationsShareEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Share Play List'
 	String get sharePlayList => 'Share Play List';
+
+	/// en: 'Wow, did you see this?'
 	String get wowDidYouSeeThis => 'Wow, did you see this?';
+
+	/// en: 'Name is'
 	String get nameIs => 'Name is';
+
+	/// en: 'Click link to view'
 	String get clickLinkToView => 'Click link to view';
+
+	/// en: 'I really like this'
 	String get iReallyLikeThis => 'I really like this';
+
+	/// en: 'Share failed, please try again later'
 	String get shareFailed => 'Share failed, please try again later';
+
+	/// en: 'Share'
 	String get share => 'Share';
+
+	/// en: 'Share as Image'
 	String get shareAsImage => 'Share as Image';
+
+	/// en: 'Share as Text'
 	String get shareAsText => 'Share as Text';
+
+	/// en: 'Share the video cover as an image'
 	String get shareAsImageDesc => 'Share the video cover as an image';
+
+	/// en: 'Share the video details as text'
 	String get shareAsTextDesc => 'Share the video details as text';
+
+	/// en: 'Share the video cover as an image failed, please try again later'
 	String get shareAsImageFailed => 'Share the video cover as an image failed, please try again later';
+
+	/// en: 'Share the video details as text failed, please try again later'
 	String get shareAsTextFailed => 'Share the video details as text failed, please try again later';
+
+	/// en: 'Share Video'
 	String get shareVideo => 'Share Video';
+
+	/// en: 'Author is'
 	String get authorIs => 'Author is';
+
+	/// en: 'Share Gallery'
 	String get shareGallery => 'Share Gallery';
+
+	/// en: 'Gallery title is'
 	String get galleryTitleIs => 'Gallery title is';
+
+	/// en: 'Gallery author is'
 	String get galleryAuthorIs => 'Gallery author is';
+
+	/// en: 'Share User'
 	String get shareUser => 'Share User';
+
+	/// en: 'User name is'
 	String get userNameIs => 'User name is';
+
+	/// en: 'User author is'
 	String get userAuthorIs => 'User author is';
+
+	/// en: 'Comments'
 	String get comments => 'Comments';
+
+	/// en: 'Share Thread'
 	String get shareThread => 'Share Thread';
+
+	/// en: 'Views'
 	String get views => 'Views';
+
+	/// en: 'Share Post'
 	String get sharePost => 'Share Post';
+
+	/// en: 'Post title is'
 	String get postTitleIs => 'Post title is';
+
+	/// en: 'Post author is'
 	String get postAuthorIs => 'Post author is';
 }
 
@@ -846,35 +2092,95 @@ class TranslationsMarkdownEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Markdown Syntax'
 	String get markdownSyntax => 'Markdown Syntax';
+
+	/// en: 'Iwara Special Markdown Syntax'
 	String get iwaraSpecialMarkdownSyntax => 'Iwara Special Markdown Syntax';
+
+	/// en: 'Internal Link'
 	String get internalLink => 'Internal Link';
+
+	/// en: 'Support auto convert link below:'
 	String get supportAutoConvertLinkBelow => 'Support auto convert link below:';
+
+	/// en: '🎬 Video Link\n🖼️ Image Link\n👤 User Link\n📌 Forum Link\n🎵 Playlist Link\n💬 Thread Link'
 	String get convertLinkExample => '🎬 Video Link\n🖼️ Image Link\n👤 User Link\n📌 Forum Link\n🎵 Playlist Link\n💬 Thread Link';
+
+	/// en: 'Mention User'
 	String get mentionUser => 'Mention User';
+
+	/// en: 'Input @ followed by username, will be automatically converted to user link'
 	String get mentionUserDescription => 'Input @ followed by username, will be automatically converted to user link';
+
+	/// en: 'Markdown Basic Syntax'
 	String get markdownBasicSyntax => 'Markdown Basic Syntax';
+
+	/// en: 'Paragraph and Line Break'
 	String get paragraphAndLineBreak => 'Paragraph and Line Break';
+
+	/// en: 'Paragraphs are separated by a line, and two spaces at the end of the line will be converted to a line break'
 	String get paragraphAndLineBreakDescription => 'Paragraphs are separated by a line, and two spaces at the end of the line will be converted to a line break';
+
+	/// en: 'This is the first paragraph\n\nThis is the second paragraph\nThis line ends with two spaces \nwill be converted to a line break'
 	String get paragraphAndLineBreakSyntax => 'This is the first paragraph\n\nThis is the second paragraph\nThis line ends with two spaces  \nwill be converted to a line break';
+
+	/// en: 'Text Style'
 	String get textStyle => 'Text Style';
+
+	/// en: 'Use special symbols to surround text to change style'
 	String get textStyleDescription => 'Use special symbols to surround text to change style';
+
+	/// en: '**Bold Text**\n*Italic Text*\n~~Strikethrough Text~~\n`Code Text`'
 	String get textStyleSyntax => '**Bold Text**\n*Italic Text*\n~~Strikethrough Text~~\n`Code Text`';
+
+	/// en: 'Quote'
 	String get quote => 'Quote';
+
+	/// en: 'Use > symbol to create quote, multiple > to create multi-level quote'
 	String get quoteDescription => 'Use > symbol to create quote, multiple > to create multi-level quote';
+
+	/// en: '> This is a first-level quote\n>> This is a second-level quote'
 	String get quoteSyntax => '> This is a first-level quote\n>> This is a second-level quote';
+
+	/// en: 'List'
 	String get list => 'List';
+
+	/// en: 'Create ordered list with number+dot, create unordered list with -'
 	String get listDescription => 'Create ordered list with number+dot, create unordered list with -';
+
+	/// en: '1. First item\n2. Second item\n\n- Unordered item\n - Subitem\n - Another subitem'
 	String get listSyntax => '1. First item\n2. Second item\n\n- Unordered item\n  - Subitem\n  - Another subitem';
+
+	/// en: 'Link and Image'
 	String get linkAndImage => 'Link and Image';
+
+	/// en: 'Link format: [text](URL)\nImage format: ![description](URL)'
 	String get linkAndImageDescription => 'Link format: [text](URL)\nImage format: ![description](URL)';
+
+	/// en: '[link text](${link})\n![image description](${imgUrl})'
 	String linkAndImageSyntax({required Object link, required Object imgUrl}) => '[link text](${link})\n![image description](${imgUrl})';
+
+	/// en: 'Title'
 	String get title => 'Title';
+
+	/// en: 'Use # symbol to create title, number to show level'
 	String get titleDescription => 'Use # symbol to create title, number to show level';
+
+	/// en: '# First-level title\n## Second-level title\n### Third-level title'
 	String get titleSyntax => '# First-level title\n## Second-level title\n### Third-level title';
+
+	/// en: 'Separator'
 	String get separator => 'Separator';
+
+	/// en: 'Create separator with three or more - symbols'
 	String get separatorDescription => 'Create separator with three or more - symbols';
+
+	/// en: '---'
 	String get separatorSyntax => '---';
+
+	/// en: 'Syntax'
 	String get syntax => 'Syntax';
 }
 
@@ -885,32 +2191,80 @@ class TranslationsForumEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Recent'
 	String get recent => 'Recent';
+
+	/// en: 'Category'
 	String get category => 'Category';
+
+	/// en: 'Last Reply'
 	String get lastReply => 'Last Reply';
+
 	late final TranslationsForumErrorsEn errors = TranslationsForumErrorsEn._(_root);
+
+	/// en: 'Create Post'
 	String get createPost => 'Create Post';
+
+	/// en: 'Title'
 	String get title => 'Title';
+
+	/// en: 'Enter Title'
 	String get enterTitle => 'Enter Title';
+
+	/// en: 'Content'
 	String get content => 'Content';
+
+	/// en: 'Enter Content'
 	String get enterContent => 'Enter Content';
+
+	/// en: 'Write your content here...'
 	String get writeYourContentHere => 'Write your content here...';
+
+	/// en: 'Posts'
 	String get posts => 'Posts';
+
+	/// en: 'Threads'
 	String get threads => 'Threads';
+
+	/// en: 'Forum'
 	String get forum => 'Forum';
+
+	/// en: 'Create Thread'
 	String get createThread => 'Create Thread';
+
+	/// en: 'Select Category'
 	String get selectCategory => 'Select Category';
+
+	/// en: 'Cooldown remaining ${minutes} minutes ${seconds} seconds'
 	String cooldownRemaining({required Object minutes, required Object seconds}) => 'Cooldown remaining ${minutes} minutes ${seconds} seconds';
+
 	late final TranslationsForumGroupsEn groups = TranslationsForumGroupsEn._(_root);
 	late final TranslationsForumLeafNamesEn leafNames = TranslationsForumLeafNamesEn._(_root);
 	late final TranslationsForumLeafDescriptionsEn leafDescriptions = TranslationsForumLeafDescriptionsEn._(_root);
+
+	/// en: 'Reply'
 	String get reply => 'Reply';
+
+	/// en: 'Pending Review'
 	String get pendingReview => 'Pending Review';
+
+	/// en: 'Edited At'
 	String get editedAt => 'Edited At';
+
+	/// en: 'Copied to clipboard'
 	String get copySuccess => 'Copied to clipboard';
+
+	/// en: 'Copied to clipboard: ${str}'
 	String copySuccessForMessage({required Object str}) => 'Copied to clipboard: ${str}';
+
+	/// en: 'Edit Reply'
 	String get editReply => 'Edit Reply';
+
+	/// en: 'Edit Title'
 	String get editTitle => 'Edit Title';
+
+	/// en: 'Submit'
 	String get submit => 'Submit';
 }
 
@@ -922,45 +2276,125 @@ class TranslationsNotificationsEn {
 
 	// Translations
 	late final TranslationsNotificationsErrorsEn errors = TranslationsNotificationsErrorsEn._(_root);
+
+	/// en: 'Notifications'
 	String get notifications => 'Notifications';
+
+	/// en: 'Profile'
 	String get profile => 'Profile';
+
+	/// en: 'Posted new comment'
 	String get postedNewComment => 'Posted new comment';
+
+	/// en: 'In your'
 	String get inYour => 'In your';
+
+	/// en: 'Video'
 	String get video => 'Video';
+
+	/// en: 'Replied your video comment'
 	String get repliedYourVideoComment => 'Replied your video comment';
+
+	/// en: 'Copy notification info to clipboard'
 	String get copyInfoToClipboard => 'Copy notification info to clipboard';
+
+	/// en: 'Copied to clipboard'
 	String get copySuccess => 'Copied to clipboard';
+
+	/// en: 'Copied to clipboard: ${str}'
 	String copySuccessForMessage({required Object str}) => 'Copied to clipboard: ${str}';
+
+	/// en: 'Mark all as read'
 	String get markAllAsRead => 'Mark all as read';
+
+	/// en: 'All notifications have been marked as read'
 	String get markAllAsReadSuccess => 'All notifications have been marked as read';
+
+	/// en: 'Mark all as read failed'
 	String get markAllAsReadFailed => 'Mark all as read failed';
+
+	/// en: 'Mark selected as read'
 	String get markSelectedAsRead => 'Mark selected as read';
+
+	/// en: 'Selected notifications have been marked as read'
 	String get markSelectedAsReadSuccess => 'Selected notifications have been marked as read';
+
+	/// en: 'Mark selected as read failed'
 	String get markSelectedAsReadFailed => 'Mark selected as read failed';
+
+	/// en: 'Mark as read'
 	String get markAsRead => 'Mark as read';
+
+	/// en: 'Notification has been marked as read'
 	String get markAsReadSuccess => 'Notification has been marked as read';
+
+	/// en: 'Notification marked as read failed'
 	String get markAsReadFailed => 'Notification marked as read failed';
+
+	/// en: 'Notification Type Help'
 	String get notificationTypeHelp => 'Notification Type Help';
+
+	/// en: 'Due to the lack of notification type details, the supported types may not cover the messages you currently receive'
 	String get dueToLackOfNotificationTypeDetails => 'Due to the lack of notification type details, the supported types may not cover the messages you currently receive';
+
+	/// en: 'If you are willing to help us improve the support for notification types'
 	String get helpUsImproveNotificationTypeSupport => 'If you are willing to help us improve the support for notification types';
+
+	/// en: '1. 📋 Copy the notification information\n2. 🐞 Submit an issue to the project repository\n\n⚠️ Note: Notification information may contain personal privacy, if you do not want to public, you can also send it to the project author by email.'
 	String get helpUsImproveNotificationTypeSupportLongText => '1. 📋 Copy the notification information\n2. 🐞 Submit an issue to the project repository\n\n⚠️ Note: Notification information may contain personal privacy, if you do not want to public, you can also send it to the project author by email.';
+
+	/// en: 'Go to Repository'
 	String get goToRepository => 'Go to Repository';
+
+	/// en: 'Copy'
 	String get copy => 'Copy';
+
+	/// en: 'Comment Approved'
 	String get commentApproved => 'Comment Approved';
+
+	/// en: 'Replied your profile comment'
 	String get repliedYourProfileComment => 'Replied your profile comment';
+
+	/// en: 'replied to your comment on'
 	String get kReplied => 'replied to your comment on';
+
+	/// en: 'commented on your'
 	String get kCommented => 'commented on your';
+
+	/// en: 'video'
 	String get kVideo => 'video';
+
+	/// en: 'gallery'
 	String get kGallery => 'gallery';
+
+	/// en: 'profile'
 	String get kProfile => 'profile';
+
+	/// en: 'thread'
 	String get kThread => 'thread';
+
+	/// en: 'post'
 	String get kPost => 'post';
+
+	/// en: 'comment section'
 	String get kCommentSection => 'comment section';
+
+	/// en: 'Comment approved'
 	String get kApprovedComment => 'Comment approved';
+
+	/// en: 'Video approved'
 	String get kApprovedVideo => 'Video approved';
+
+	/// en: 'Gallery approved'
 	String get kApprovedGallery => 'Gallery approved';
+
+	/// en: 'Thread approved'
 	String get kApprovedThread => 'Thread approved';
+
+	/// en: 'Post approved'
 	String get kApprovedPost => 'Post approved';
+
+	/// en: 'Unknown notification type'
 	String get kUnknownType => 'Unknown notification type';
 }
 
@@ -972,18 +2406,44 @@ class TranslationsConversationEn {
 
 	// Translations
 	late final TranslationsConversationErrorsEn errors = TranslationsConversationErrorsEn._(_root);
+
+	/// en: 'Conversation'
 	String get conversation => 'Conversation';
+
+	/// en: 'Start Conversation'
 	String get startConversation => 'Start Conversation';
+
+	/// en: 'No conversation'
 	String get noConversation => 'No conversation';
+
+	/// en: 'Select from left list and start conversation'
 	String get selectFromLeftListAndStartConversation => 'Select from left list and start conversation';
+
+	/// en: 'Title'
 	String get title => 'Title';
+
+	/// en: 'Body'
 	String get body => 'Body';
+
+	/// en: 'Select a user'
 	String get selectAUser => 'Select a user';
+
+	/// en: 'Search users...'
 	String get searchUsers => 'Search users...';
+
+	/// en: 'No conversions'
 	String get tmpNoConversions => 'No conversions';
+
+	/// en: 'Delete this message'
 	String get deleteThisMessage => 'Delete this message';
+
+	/// en: 'This operation cannot be undone'
 	String get deleteThisMessageSubtitle => 'This operation cannot be undone';
+
+	/// en: 'Write message here...'
 	String get writeMessageHere => 'Write message here...';
+
+	/// en: 'Send message'
 	String get sendMessage => 'Send message';
 }
 
@@ -995,10 +2455,20 @@ class TranslationsSplashEn {
 
 	// Translations
 	late final TranslationsSplashErrorsEn errors = TranslationsSplashErrorsEn._(_root);
+
+	/// en: 'Preparing...'
 	String get preparing => 'Preparing...';
+
+	/// en: 'Initializing...'
 	String get initializing => 'Initializing...';
+
+	/// en: 'Loading...'
 	String get loading => 'Loading...';
+
+	/// en: 'Ready'
 	String get ready => 'Ready';
+
+	/// en: 'Initializing message service...'
 	String get initializingMessageService => 'Initializing message service...';
 }
 
@@ -1010,56 +2480,158 @@ class TranslationsDownloadEn {
 
 	// Translations
 	late final TranslationsDownloadErrorsEn errors = TranslationsDownloadErrorsEn._(_root);
+
+	/// en: 'Download List'
 	String get downloadList => 'Download List';
+
+	/// en: 'Download'
 	String get download => 'Download';
+
+	/// en: 'Start Downloading'
 	String get startDownloading => 'Start Downloading';
+
+	/// en: 'Clear All Failed Tasks'
 	String get clearAllFailedTasks => 'Clear All Failed Tasks';
+
+	/// en: 'Are you sure you want to clear all failed download tasks? The files of these tasks will also be deleted.'
 	String get clearAllFailedTasksConfirmation => 'Are you sure you want to clear all failed download tasks? The files of these tasks will also be deleted.';
+
+	/// en: 'Cleared all failed tasks'
 	String get clearAllFailedTasksSuccess => 'Cleared all failed tasks';
+
+	/// en: 'Error occurred while clearing failed tasks'
 	String get clearAllFailedTasksError => 'Error occurred while clearing failed tasks';
+
+	/// en: 'Download Status'
 	String get downloadStatus => 'Download Status';
+
+	/// en: 'Image List'
 	String get imageList => 'Image List';
+
+	/// en: 'Retry Download'
 	String get retryDownload => 'Retry Download';
+
+	/// en: 'Not Downloaded'
 	String get notDownloaded => 'Not Downloaded';
+
+	/// en: 'Downloaded'
 	String get downloaded => 'Downloaded';
+
+	/// en: 'Waiting for Download'
 	String get waitingForDownload => 'Waiting for Download';
+
+	/// en: 'Downloading (${downloaded}/${total} images ${progress}%)'
 	String downloadingProgressForImageProgress({required Object downloaded, required Object total, required Object progress}) => 'Downloading (${downloaded}/${total} images ${progress}%)';
+
+	/// en: 'Downloading (${downloaded} images)'
 	String downloadingSingleImageProgress({required Object downloaded}) => 'Downloading (${downloaded} images)';
+
+	/// en: 'Paused (${downloaded}/${total} images ${progress}%)'
 	String pausedProgressForImageProgress({required Object downloaded, required Object total, required Object progress}) => 'Paused (${downloaded}/${total} images ${progress}%)';
+
+	/// en: 'Paused (${downloaded} images)'
 	String pausedSingleImageProgress({required Object downloaded}) => 'Paused (${downloaded} images)';
+
+	/// en: 'Downloaded (Total ${total} images)'
 	String downloadedProgressForImageProgress({required Object total}) => 'Downloaded (Total ${total} images)';
+
+	/// en: 'View Video Detail'
 	String get viewVideoDetail => 'View Video Detail';
+
+	/// en: 'View Gallery Detail'
 	String get viewGalleryDetail => 'View Gallery Detail';
+
+	/// en: 'More Options'
 	String get moreOptions => 'More Options';
+
+	/// en: 'Open File'
 	String get openFile => 'Open File';
+
+	/// en: 'Pause'
 	String get pause => 'Pause';
+
+	/// en: 'Resume'
 	String get resume => 'Resume';
+
+	/// en: 'Copy Download URL'
 	String get copyDownloadUrl => 'Copy Download URL';
+
+	/// en: 'Show in Folder'
 	String get showInFolder => 'Show in Folder';
+
+	/// en: 'Delete Task'
 	String get deleteTask => 'Delete Task';
+
+	/// en: 'Are you sure you want to delete this download task?\nThe task file will also be deleted.'
 	String get deleteTaskConfirmation => 'Are you sure you want to delete this download task?\nThe task file will also be deleted.';
+
+	/// en: 'Force Delete Task'
 	String get forceDeleteTask => 'Force Delete Task';
+
+	/// en: 'Are you sure you want to force delete this download task?\nThe task file will also be deleted, even if the file is being used.'
 	String get forceDeleteTaskConfirmation => 'Are you sure you want to force delete this download task?\nThe task file will also be deleted, even if the file is being used.';
+
+	/// en: 'Downloading ${downloaded}/${total} (${progress}%) • ${speed}MB/s'
 	String downloadingProgressForVideoTask({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'Downloading ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
+
+	/// en: 'Downloading ${downloaded} • ${speed}MB/s'
 	String downloadingOnlyDownloadedAndSpeed({required Object downloaded, required Object speed}) => 'Downloading ${downloaded} • ${speed}MB/s';
+
+	/// en: 'Paused ${downloaded}/${total} (${progress}%)'
 	String pausedForDownloadedAndTotal({required Object downloaded, required Object total, required Object progress}) => 'Paused ${downloaded}/${total} (${progress}%)';
+
+	/// en: 'Paused • Downloaded ${downloaded}'
 	String pausedAndDownloaded({required Object downloaded}) => 'Paused • Downloaded ${downloaded}';
+
+	/// en: 'Downloaded • ${size}'
 	String downloadedWithSize({required Object size}) => 'Downloaded • ${size}';
+
+	/// en: 'Download URL copied'
 	String get copyDownloadUrlSuccess => 'Download URL copied';
+
+	/// en: '${num} images'
 	String totalImageNums({required Object num}) => '${num} images';
+
+	/// en: 'Downloading ${downloaded}/${total} (${progress}%) • ${speed}MB/s'
 	String downloadingDownloadedTotalProgressSpeed({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'Downloading ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
+
+	/// en: 'Downloading'
 	String get downloading => 'Downloading';
+
+	/// en: 'Failed'
 	String get failed => 'Failed';
+
+	/// en: 'Completed'
 	String get completed => 'Completed';
+
+	/// en: 'Download Detail'
 	String get downloadDetail => 'Download Detail';
+
+	/// en: 'Copy'
 	String get copy => 'Copy';
+
+	/// en: 'Copied'
 	String get copySuccess => 'Copied';
+
+	/// en: 'Waiting'
 	String get waiting => 'Waiting';
+
+	/// en: 'Paused'
 	String get paused => 'Paused';
+
+	/// en: 'Downloading ${downloaded}'
 	String downloadingOnlyDownloaded({required Object downloaded}) => 'Downloading ${downloaded}';
+
+	/// en: 'Gallery Download Completed: ${galleryName}'
 	String galleryDownloadCompletedWithName({required Object galleryName}) => 'Gallery Download Completed: ${galleryName}';
+
+	/// en: 'Download Completed: ${fileName}'
 	String downloadCompletedWithName({required Object fileName}) => 'Download Completed: ${fileName}';
+
+	/// en: 'Still in development'
 	String get stillInDevelopment => 'Still in development';
+
+	/// en: 'Save to app directory'
 	String get saveToAppDirectory => 'Save to app directory';
 }
 
@@ -1071,37 +2643,101 @@ class TranslationsFavoriteEn {
 
 	// Translations
 	late final TranslationsFavoriteErrorsEn errors = TranslationsFavoriteErrorsEn._(_root);
+
+	/// en: 'Add'
 	String get add => 'Add';
+
+	/// en: 'Add success'
 	String get addSuccess => 'Add success';
+
+	/// en: 'Add failed'
 	String get addFailed => 'Add failed';
+
+	/// en: 'Remove'
 	String get remove => 'Remove';
+
+	/// en: 'Remove success'
 	String get removeSuccess => 'Remove success';
+
+	/// en: 'Remove failed'
 	String get removeFailed => 'Remove failed';
+
+	/// en: 'Are you sure you want to remove this item from favorites?'
 	String get removeConfirmation => 'Are you sure you want to remove this item from favorites?';
+
+	/// en: 'Item removed from favorites'
 	String get removeConfirmationSuccess => 'Item removed from favorites';
+
+	/// en: 'Failed to remove item from favorites'
 	String get removeConfirmationFailed => 'Failed to remove item from favorites';
+
+	/// en: 'Folder created successfully'
 	String get createFolderSuccess => 'Folder created successfully';
+
+	/// en: 'Failed to create folder'
 	String get createFolderFailed => 'Failed to create folder';
+
+	/// en: 'Create Folder'
 	String get createFolder => 'Create Folder';
+
+	/// en: 'Enter folder name'
 	String get enterFolderName => 'Enter folder name';
+
+	/// en: 'Enter folder name here...'
 	String get enterFolderNameHere => 'Enter folder name here...';
+
+	/// en: 'Create'
 	String get create => 'Create';
+
+	/// en: 'Items'
 	String get items => 'Items';
+
+	/// en: 'New Folder'
 	String get newFolderName => 'New Folder';
+
+	/// en: 'Search folders...'
 	String get searchFolders => 'Search folders...';
+
+	/// en: 'Search items...'
 	String get searchItems => 'Search items...';
+
+	/// en: 'Created At'
 	String get createdAt => 'Created At';
+
+	/// en: 'My Favorites'
 	String get myFavorites => 'My Favorites';
+
+	/// en: 'Delete Folder'
 	String get deleteFolderTitle => 'Delete Folder';
+
+	/// en: 'Are you sure you want to delete ${title} folder?'
 	String deleteFolderConfirmWithTitle({required Object title}) => 'Are you sure you want to delete ${title} folder?';
+
+	/// en: 'Remove Item'
 	String get removeItemTitle => 'Remove Item';
+
+	/// en: 'Are you sure you want to delete ${title} item?'
 	String removeItemConfirmWithTitle({required Object title}) => 'Are you sure you want to delete ${title} item?';
+
+	/// en: 'Item removed from favorites'
 	String get removeItemSuccess => 'Item removed from favorites';
+
+	/// en: 'Failed to remove item from favorites'
 	String get removeItemFailed => 'Failed to remove item from favorites';
+
+	/// en: 'Local Favorite'
 	String get localizeFavorite => 'Local Favorite';
+
+	/// en: 'Edit Folder'
 	String get editFolderTitle => 'Edit Folder';
+
+	/// en: 'Folder updated successfully'
 	String get editFolderSuccess => 'Folder updated successfully';
+
+	/// en: 'Failed to update folder'
 	String get editFolderFailed => 'Failed to update folder';
+
+	/// en: 'Search tags'
 	String get searchTags => 'Search tags';
 }
 
@@ -1112,82 +2748,236 @@ class TranslationsTranslationEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Test Connection'
 	String get testConnection => 'Test Connection';
+
+	/// en: 'Test connection success'
 	String get testConnectionSuccess => 'Test connection success';
+
+	/// en: 'Test connection failed'
 	String get testConnectionFailed => 'Test connection failed';
+
+	/// en: 'Test connection failed: ${message}'
 	String testConnectionFailedWithMessage({required Object message}) => 'Test connection failed: ${message}';
+
+	/// en: 'Translation'
 	String get translation => 'Translation';
+
+	/// en: 'Need Verification'
 	String get needVerification => 'Need Verification';
+
+	/// en: 'Please test the connection first before enabling AI translation'
 	String get needVerificationContent => 'Please test the connection first before enabling AI translation';
+
+	/// en: 'Confirm'
 	String get confirm => 'Confirm';
+
+	/// en: 'Disclaimer'
 	String get disclaimer => 'Disclaimer';
+
+	/// en: 'Risk Warning'
 	String get riskWarning => 'Risk Warning';
+
+	/// en: 'Due to the text being generated by users, it may contain content that violates the content policy of the AI service provider'
 	String get dureToRisk1 => 'Due to the text being generated by users, it may contain content that violates the content policy of the AI service provider';
+
+	/// en: 'Inappropriate content may lead to API key suspension or service termination'
 	String get dureToRisk2 => 'Inappropriate content may lead to API key suspension or service termination';
+
+	/// en: 'Operation Suggestion'
 	String get operationSuggestion => 'Operation Suggestion';
+
+	/// en: '1. Use before strictly reviewing the content to be translated'
 	String get operationSuggestion1 => '1. Use before strictly reviewing the content to be translated';
+
+	/// en: '2. Avoid translating content involving violence, adult content, etc.'
 	String get operationSuggestion2 => '2. Avoid translating content involving violence, adult content, etc.';
+
+	/// en: 'API Config'
 	String get apiConfig => 'API Config';
+
+	/// en: 'Modify configuration will automatically close AI translation, need to test again after opening'
 	String get modifyConfigWillAutoCloseAITranslation => 'Modify configuration will automatically close AI translation, need to test again after opening';
+
+	/// en: 'API Address'
 	String get apiAddress => 'API Address';
+
+	/// en: 'Model Name'
 	String get modelName => 'Model Name';
+
+	/// en: 'For example: gpt-4-turbo'
 	String get modelNameHintText => 'For example: gpt-4-turbo';
+
+	/// en: 'Max Tokens'
 	String get maxTokens => 'Max Tokens';
+
+	/// en: 'For example: 1024'
 	String get maxTokensHintText => 'For example: 1024';
+
+	/// en: 'Temperature'
 	String get temperature => 'Temperature';
+
+	/// en: '0.0-2.0'
 	String get temperatureHintText => '0.0-2.0';
+
+	/// en: 'Click test button to verify API connection validity'
 	String get clickTestButtonToVerifyAPIConnection => 'Click test button to verify API connection validity';
+
+	/// en: 'Request Preview'
 	String get requestPreview => 'Request Preview';
+
+	/// en: 'Enable AI'
 	String get enableAITranslation => 'Enable AI';
+
+	/// en: 'Enabled'
 	String get enabled => 'Enabled';
+
+	/// en: 'Disabled'
 	String get disabled => 'Disabled';
+
+	/// en: 'Testing...'
 	String get testing => 'Testing...';
+
+	/// en: 'Test Now'
 	String get testNow => 'Test Now';
+
+	/// en: 'Connection Status'
 	String get connectionStatus => 'Connection Status';
+
+	/// en: 'Success'
 	String get success => 'Success';
+
+	/// en: 'Failed'
 	String get failed => 'Failed';
+
+	/// en: 'Information'
 	String get information => 'Information';
+
+	/// en: 'View Raw Response'
 	String get viewRawResponse => 'View Raw Response';
+
+	/// en: 'Please check input parameters format'
 	String get pleaseCheckInputParametersFormat => 'Please check input parameters format';
+
+	/// en: 'Please fill in API address, model name and key'
 	String get pleaseFillInAPIAddressModelNameAndKey => 'Please fill in API address, model name and key';
+
+	/// en: 'Please fill in valid configuration parameters'
 	String get pleaseFillInValidConfigurationParameters => 'Please fill in valid configuration parameters';
+
+	/// en: 'Please complete connection test'
 	String get pleaseCompleteConnectionTest => 'Please complete connection test';
+
+	/// en: 'Not Configured'
 	String get notConfigured => 'Not Configured';
+
+	/// en: 'API Endpoint'
 	String get apiEndpoint => 'API Endpoint';
+
+	/// en: 'Configured Key'
 	String get configuredKey => 'Configured Key';
+
+	/// en: 'Not Configured Key'
 	String get notConfiguredKey => 'Not Configured Key';
+
+	/// en: 'Authentication Status'
 	String get authenticationStatus => 'Authentication Status';
+
+	/// en: 'This field cannot be empty'
 	String get thisFieldCannotBeEmpty => 'This field cannot be empty';
+
+	/// en: 'API Key'
 	String get apiKey => 'API Key';
+
+	/// en: 'API key cannot be empty'
 	String get apiKeyCannotBeEmpty => 'API key cannot be empty';
+
+	/// en: 'Please enter valid number'
 	String get pleaseEnterValidNumber => 'Please enter valid number';
+
+	/// en: 'Range'
 	String get range => 'Range';
+
+	/// en: 'Must be greater than'
 	String get mustBeGreaterThan => 'Must be greater than';
+
+	/// en: 'Invalid API response'
 	String get invalidAPIResponse => 'Invalid API response';
+
+	/// en: 'Connection failed: ${message}'
 	String connectionFailedForMessage({required Object message}) => 'Connection failed: ${message}';
+
+	/// en: 'AI translation is not enabled, please enable it in settings'
 	String get aiTranslationNotEnabledHint => 'AI translation is not enabled, please enable it in settings';
+
+	/// en: 'Go to Settings'
 	String get goToSettings => 'Go to Settings';
+
+	/// en: 'Disable AI Translation'
 	String get disableAITranslation => 'Disable AI Translation';
+
+	/// en: 'Current Value'
 	String get currentValue => 'Current Value';
+
+	/// en: 'Configure Translation Strategy'
 	String get configureTranslationStrategy => 'Configure Translation Strategy';
+
+	/// en: 'Advanced Settings'
 	String get advancedSettings => 'Advanced Settings';
+
+	/// en: 'Translation Prompt'
 	String get translationPrompt => 'Translation Prompt';
+
+	/// en: 'Please enter translation prompt, use [TL] as the placeholder for the target language'
 	String get promptHint => 'Please enter translation prompt, use [TL] as the placeholder for the target language';
+
+	/// en: 'The prompt must contain [TL] as the placeholder for the target language'
 	String get promptHelperText => 'The prompt must contain [TL] as the placeholder for the target language';
+
+	/// en: 'The prompt must contain [TL] placeholder'
 	String get promptMustContainTargetLang => 'The prompt must contain [TL] placeholder';
+
+	/// en: 'AI translation will be disabled'
 	String get aiTranslationWillBeDisabled => 'AI translation will be disabled';
+
+	/// en: 'Due to the change of basic configuration, AI translation will be disabled'
 	String get aiTranslationWillBeDisabledDueToConfigChange => 'Due to the change of basic configuration, AI translation will be disabled';
+
+	/// en: 'Due to the change of translation prompt, AI translation will be disabled'
 	String get aiTranslationWillBeDisabledDueToPromptChange => 'Due to the change of translation prompt, AI translation will be disabled';
+
+	/// en: 'Due to the change of parameter configuration, AI translation will be disabled'
 	String get aiTranslationWillBeDisabledDueToParamChange => 'Due to the change of parameter configuration, AI translation will be disabled';
+
+	/// en: 'Currently only supports OpenAI-compatible API format (application/json request body)'
 	String get onlyOpenAIAPISupported => 'Currently only supports OpenAI-compatible API format (application/json request body)';
+
+	/// en: 'Streaming Translation'
 	String get streamingTranslation => 'Streaming Translation';
+
+	/// en: 'Streaming Translation Supported'
 	String get streamingTranslationSupported => 'Streaming Translation Supported';
+
+	/// en: 'Streaming Translation Not Supported'
 	String get streamingTranslationNotSupported => 'Streaming Translation Not Supported';
+
+	/// en: 'Streaming translation can display results in real-time during the translation process, providing a better user experience'
 	String get streamingTranslationDescription => 'Streaming translation can display results in real-time during the translation process, providing a better user experience';
+
+	/// en: 'Using full URL (ending with #)'
 	String get usingFullUrlWithHash => 'Using full URL (ending with #)';
+
+	/// en: 'When ending with #, it will be used as the actual request address'
 	String get baseUrlInputHelperText => 'When ending with #, it will be used as the actual request address';
+
+	/// en: 'Current actual URL: ${url}'
 	String currentActualUrl({required Object url}) => 'Current actual URL: ${url}';
+
+	/// en: 'URL ending with # will be used directly without adding any suffix'
 	String get urlEndingWithHashTip => 'URL ending with # will be used directly without adding any suffix';
+
+	/// en: 'Note: This feature requires API service support for streaming transmission, some models may not support it'
 	String get streamingTranslationWarning => 'Note: This feature requires API service support for streaming transmission, some models may not support it';
 }
 
@@ -1198,25 +2988,65 @@ class TranslationsMediaPlayerEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Video Player Error'
 	String get videoPlayerError => 'Video Player Error';
+
+	/// en: 'Video Load Failed'
 	String get videoLoadFailed => 'Video Load Failed';
+
+	/// en: 'Video Codec Not Supported'
 	String get videoCodecNotSupported => 'Video Codec Not Supported';
+
+	/// en: 'Network Connection Issue'
 	String get networkConnectionIssue => 'Network Connection Issue';
+
+	/// en: 'Insufficient Permission'
 	String get insufficientPermission => 'Insufficient Permission';
+
+	/// en: 'Unsupported Video Format'
 	String get unsupportedVideoFormat => 'Unsupported Video Format';
+
+	/// en: 'Retry'
 	String get retry => 'Retry';
+
+	/// en: 'External Player'
 	String get externalPlayer => 'External Player';
+
+	/// en: 'Detailed Error Information'
 	String get detailedErrorInfo => 'Detailed Error Information';
+
+	/// en: 'Format'
 	String get format => 'Format';
+
+	/// en: 'Suggestion'
 	String get suggestion => 'Suggestion';
+
+	/// en: 'Android devices have limited support for WEBM format. It is recommended to use an external player or download a player app that supports WEBM'
 	String get androidWebmCompatibilityIssue => 'Android devices have limited support for WEBM format. It is recommended to use an external player or download a player app that supports WEBM';
+
+	/// en: 'Current device does not support the codec for this video format'
 	String get currentDeviceCodecNotSupported => 'Current device does not support the codec for this video format';
+
+	/// en: 'Please check your network connection and try again'
 	String get checkNetworkConnection => 'Please check your network connection and try again';
+
+	/// en: 'The app may lack necessary media playback permissions'
 	String get appMayLackMediaPermission => 'The app may lack necessary media playback permissions';
+
+	/// en: 'Please try using other video players'
 	String get tryOtherVideoPlayer => 'Please try using other video players';
+
+	/// en: 'VIDEO'
 	String get video => 'VIDEO';
+
+	/// en: 'Image Load Failed'
 	String get imageLoadFailed => 'Image Load Failed';
+
+	/// en: 'Unsupported Image Format'
 	String get unsupportedImageFormat => 'Unsupported Image Format';
+
+	/// en: 'Please try using other viewers'
 	String get tryOtherViewer => 'Please try using other viewers';
 }
 
@@ -1227,23 +3057,59 @@ class TranslationsLinkInputDialogEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Input Link'
 	String get title => 'Input Link';
+
+	/// en: 'Support intelligently identify multiple ${webName} links and quickly jump to the corresponding page in the app (separate links from other text with spaces)'
 	String supportedLinksHint({required Object webName}) => 'Support intelligently identify multiple ${webName} links and quickly jump to the corresponding page in the app (separate links from other text with spaces)';
+
+	/// en: 'Please enter ${webName} link'
 	String inputHint({required Object webName}) => 'Please enter ${webName} link';
+
+	/// en: 'Please enter link'
 	String get validatorEmptyLink => 'Please enter link';
+
+	/// en: 'No valid ${webName} link detected'
 	String validatorNoIwaraLink({required Object webName}) => 'No valid ${webName} link detected';
+
+	/// en: 'Multiple links detected, please select one:'
 	String get multipleLinksDetected => 'Multiple links detected, please select one:';
+
+	/// en: 'Not a valid ${webName} link'
 	String notIwaraLink({required Object webName}) => 'Not a valid ${webName} link';
+
+	/// en: 'Link parsing error: ${error}'
 	String linkParseError({required Object error}) => 'Link parsing error: ${error}';
+
+	/// en: 'Unsupported Link'
 	String get unsupportedLinkDialogTitle => 'Unsupported Link';
+
+	/// en: 'This link type cannot be opened directly in the app and needs to be accessed using an external browser. Do you want to open this link in a browser?'
 	String get unsupportedLinkDialogContent => 'This link type cannot be opened directly in the app and needs to be accessed using an external browser.\n\nDo you want to open this link in a browser?';
+
+	/// en: 'Open in Browser'
 	String get openInBrowser => 'Open in Browser';
+
+	/// en: 'Confirm Open Browser'
 	String get confirmOpenBrowserDialogTitle => 'Confirm Open Browser';
+
+	/// en: 'The following link is about to be opened in an external browser:'
 	String get confirmOpenBrowserDialogContent => 'The following link is about to be opened in an external browser:';
+
+	/// en: 'Are you sure you want to continue?'
 	String get confirmContinueBrowserOpen => 'Are you sure you want to continue?';
+
+	/// en: 'Failed to open link'
 	String get browserOpenFailed => 'Failed to open link';
+
+	/// en: 'Unsupported Link'
 	String get unsupportedLink => 'Unsupported Link';
+
+	/// en: 'Cancel'
 	String get cancel => 'Cancel';
+
+	/// en: 'Open in Browser'
 	String get confirm => 'Open in Browser';
 }
 
@@ -1254,59 +3120,167 @@ class TranslationsLogEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Log Management'
 	String get logManagement => 'Log Management';
+
+	/// en: 'Enable Log Persistence'
 	String get enableLogPersistence => 'Enable Log Persistence';
+
+	/// en: 'Save logs to the database for analysis'
 	String get enableLogPersistenceDesc => 'Save logs to the database for analysis';
+
+	/// en: 'Log Database Size Limit'
 	String get logDatabaseSizeLimit => 'Log Database Size Limit';
+
+	/// en: 'Current: ${size}'
 	String logDatabaseSizeLimitDesc({required Object size}) => 'Current: ${size}';
+
+	/// en: 'Export Current Logs'
 	String get exportCurrentLogs => 'Export Current Logs';
+
+	/// en: 'Export the current application logs to help developers diagnose problems'
 	String get exportCurrentLogsDesc => 'Export the current application logs to help developers diagnose problems';
+
+	/// en: 'Export History Logs'
 	String get exportHistoryLogs => 'Export History Logs';
+
+	/// en: 'Export logs within a specified date range'
 	String get exportHistoryLogsDesc => 'Export logs within a specified date range';
+
+	/// en: 'Export Merged Logs'
 	String get exportMergedLogs => 'Export Merged Logs';
+
+	/// en: 'Export merged logs within a specified date range'
 	String get exportMergedLogsDesc => 'Export merged logs within a specified date range';
+
+	/// en: 'Show Log Stats'
 	String get showLogStats => 'Show Log Stats';
+
+	/// en: 'Log export success'
 	String get logExportSuccess => 'Log export success';
+
+	/// en: 'Log export failed: ${error}'
 	String logExportFailed({required Object error}) => 'Log export failed: ${error}';
+
+	/// en: 'View statistics of various types of logs'
 	String get showLogStatsDesc => 'View statistics of various types of logs';
+
+	/// en: 'Failed to get log statistics: ${error}'
 	String logExtractFailed({required Object error}) => 'Failed to get log statistics: ${error}';
+
+	/// en: 'Clear All Logs'
 	String get clearAllLogs => 'Clear All Logs';
+
+	/// en: 'Clear all log data'
 	String get clearAllLogsDesc => 'Clear all log data';
+
+	/// en: 'Confirm Clear'
 	String get confirmClearAllLogs => 'Confirm Clear';
+
+	/// en: 'Are you sure you want to clear all log data? This operation cannot be undone.'
 	String get confirmClearAllLogsDesc => 'Are you sure you want to clear all log data? This operation cannot be undone.';
+
+	/// en: 'Log cleared successfully'
 	String get clearAllLogsSuccess => 'Log cleared successfully';
+
+	/// en: 'Failed to clear logs: ${error}'
 	String clearAllLogsFailed({required Object error}) => 'Failed to clear logs: ${error}';
+
+	/// en: 'Unable to get log size information'
 	String get unableToGetLogSizeInfo => 'Unable to get log size information';
+
+	/// en: 'Current Log Size:'
 	String get currentLogSize => 'Current Log Size:';
+
+	/// en: 'Log Count:'
 	String get logCount => 'Log Count:';
+
+	/// en: 'logs'
 	String get logCountUnit => 'logs';
+
+	/// en: 'Log Size Limit:'
 	String get logSizeLimit => 'Log Size Limit:';
+
+	/// en: 'Usage Rate:'
 	String get usageRate => 'Usage Rate:';
+
+	/// en: 'Exceed Limit'
 	String get exceedLimit => 'Exceed Limit';
+
+	/// en: 'Remaining'
 	String get remaining => 'Remaining';
+
+	/// en: 'Current log size exceeded, please clean old logs or increase log size limit'
 	String get currentLogSizeExceededPleaseCleanOldLogsOrIncreaseLogSizeLimit => 'Current log size exceeded, please clean old logs or increase log size limit';
+
+	/// en: 'Current log size almost exceeded, please clean old logs'
 	String get currentLogSizeAlmostExceededPleaseCleanOldLogs => 'Current log size almost exceeded, please clean old logs';
+
+	/// en: 'Cleaning old logs...'
 	String get cleaningOldLogs => 'Cleaning old logs...';
+
+	/// en: 'Log cleaning completed'
 	String get logCleaningCompleted => 'Log cleaning completed';
+
+	/// en: 'Log cleaning process may not be completed'
 	String get logCleaningProcessMayNotBeCompleted => 'Log cleaning process may not be completed';
+
+	/// en: 'Clean exceeded logs'
 	String get cleanExceededLogs => 'Clean exceeded logs';
+
+	/// en: 'No logs to export'
 	String get noLogsToExport => 'No logs to export';
+
+	/// en: 'Exporting logs...'
 	String get exportingLogs => 'Exporting logs...';
+
+	/// en: 'No history logs to export, please try using the app for a while first'
 	String get noHistoryLogsToExport => 'No history logs to export, please try using the app for a while first';
+
+	/// en: 'Select Log Date'
 	String get selectLogDate => 'Select Log Date';
+
+	/// en: 'Today'
 	String get today => 'Today';
+
+	/// en: 'Select Merge Range'
 	String get selectMergeRange => 'Select Merge Range';
+
+	/// en: 'Please select the log time range to merge'
 	String get selectMergeRangeHint => 'Please select the log time range to merge';
+
+	/// en: 'Recent ${days} days'
 	String selectMergeRangeDays({required Object days}) => 'Recent ${days} days';
+
+	/// en: 'Log Stats'
 	String get logStats => 'Log Stats';
+
+	/// en: 'Today Logs: ${count} logs'
 	String todayLogs({required Object count}) => 'Today Logs: ${count} logs';
+
+	/// en: 'Recent 7 Days Logs: ${count} logs'
 	String recent7DaysLogs({required Object count}) => 'Recent 7 Days Logs: ${count} logs';
+
+	/// en: 'Total Logs: ${count} logs'
 	String totalLogs({required Object count}) => 'Total Logs: ${count} logs';
+
+	/// en: 'Set Log Database Size Limit'
 	String get setLogDatabaseSizeLimit => 'Set Log Database Size Limit';
+
+	/// en: 'Current Log Size: ${size}'
 	String currentLogSizeWithSize({required Object size}) => 'Current Log Size: ${size}';
+
+	/// en: 'Warning'
 	String get warning => 'Warning';
+
+	/// en: 'New size limit: ${size}'
 	String newSizeLimit({required Object size}) => 'New size limit: ${size}';
+
+	/// en: 'Confirm to continue'
 	String get confirmToContinue => 'Confirm to continue';
+
+	/// en: 'Log size limit set to ${size}'
 	String logSizeLimitSetSuccess({required Object size}) => 'Log size limit set to ${size}';
 }
 
@@ -1317,14 +3291,32 @@ class TranslationsCommonPaginationEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Total ${num} items'
 	String totalItems({required Object num}) => 'Total ${num} items';
+
+	/// en: 'Jump to page'
 	String get jumpToPage => 'Jump to page';
+
+	/// en: 'Please enter page number (1-${max})'
 	String pleaseEnterPageNumber({required Object max}) => 'Please enter page number (1-${max})';
+
+	/// en: 'Page number'
 	String get pageNumber => 'Page number';
+
+	/// en: 'Jump'
 	String get jump => 'Jump';
+
+	/// en: 'Please enter a valid page number (1-${max})'
 	String invalidPageNumber({required Object max}) => 'Please enter a valid page number (1-${max})';
+
+	/// en: 'Please enter a valid page number'
 	String get invalidInput => 'Please enter a valid page number';
+
+	/// en: 'Waterfall'
 	String get waterfall => 'Waterfall';
+
+	/// en: 'Pagination'
 	String get pagination => 'Pagination';
 }
 
@@ -1335,26 +3327,68 @@ class TranslationsErrorsNetworkEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Network error - '
 	String get basicPrefix => 'Network error - ';
+
+	/// en: 'Failed to connect to server'
 	String get failedToConnectToServer => 'Failed to connect to server';
+
+	/// en: 'Server not available'
 	String get serverNotAvailable => 'Server not available';
+
+	/// en: 'Request timeout'
 	String get requestTimeout => 'Request timeout';
+
+	/// en: 'Unexpected error'
 	String get unexpectedError => 'Unexpected error';
+
+	/// en: 'Invalid response'
 	String get invalidResponse => 'Invalid response';
+
+	/// en: 'Invalid request'
 	String get invalidRequest => 'Invalid request';
+
+	/// en: 'Invalid URL'
 	String get invalidUrl => 'Invalid URL';
+
+	/// en: 'Invalid method'
 	String get invalidMethod => 'Invalid method';
+
+	/// en: 'Invalid header'
 	String get invalidHeader => 'Invalid header';
+
+	/// en: 'Invalid body'
 	String get invalidBody => 'Invalid body';
+
+	/// en: 'Invalid status code'
 	String get invalidStatusCode => 'Invalid status code';
+
+	/// en: 'Server error'
 	String get serverError => 'Server error';
+
+	/// en: 'Request canceled'
 	String get requestCanceled => 'Request canceled';
+
+	/// en: 'Invalid port'
 	String get invalidPort => 'Invalid port';
+
+	/// en: 'Proxy port error'
 	String get proxyPortError => 'Proxy port error';
+
+	/// en: 'Connection refused'
 	String get connectionRefused => 'Connection refused';
+
+	/// en: 'Network unreachable'
 	String get networkUnreachable => 'Network unreachable';
+
+	/// en: 'No route to host'
 	String get noRouteToHost => 'No route to host';
+
+	/// en: 'Connection failed'
 	String get connectionFailed => 'Connection failed';
+
+	/// en: 'SSL connection failed, please check your network settings'
 	String get sslConnectionFailed => 'SSL connection failed, please check your network settings';
 }
 
@@ -1365,130 +3399,380 @@ class TranslationsSettingsDownloadSettingsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Download Settings'
 	String get downloadSettings => 'Download Settings';
+
+	/// en: 'Storage Permission Status'
 	String get storagePermissionStatus => 'Storage Permission Status';
+
+	/// en: 'Access Public Directory Need Storage Permission'
 	String get accessPublicDirectoryNeedStoragePermission => 'Access Public Directory Need Storage Permission';
+
+	/// en: 'Checking Permission Status...'
 	String get checkingPermissionStatus => 'Checking Permission Status...';
+
+	/// en: 'Storage Permission Granted'
 	String get storagePermissionGranted => 'Storage Permission Granted';
+
+	/// en: 'Storage Permission Not Granted'
 	String get storagePermissionNotGranted => 'Storage Permission Not Granted';
+
+	/// en: 'Storage Permission Grant Success'
 	String get storagePermissionGrantSuccess => 'Storage Permission Grant Success';
+
+	/// en: 'Storage Permission Grant Failed But Some Features May Be Limited'
 	String get storagePermissionGrantFailedButSomeFeaturesMayBeLimited => 'Storage Permission Grant Failed But Some Features May Be Limited';
+
+	/// en: 'Grant Storage Permission'
 	String get grantStoragePermission => 'Grant Storage Permission';
+
+	/// en: 'Custom Download Path'
 	String get customDownloadPath => 'Custom Download Path';
+
+	/// en: 'When enabled, you can choose a custom save location for downloaded files'
 	String get customDownloadPathDescription => 'When enabled, you can choose a custom save location for downloaded files';
+
+	/// en: '💡 Tip: Selecting public directories (like Downloads folder) requires storage permission, recommend using recommended paths first'
 	String get customDownloadPathTip => '💡 Tip: Selecting public directories (like Downloads folder) requires storage permission, recommend using recommended paths first';
+
+	/// en: 'Android Note: Avoid selecting public directories (such as Downloads folder), recommend using app-specific directories to ensure access permissions.'
 	String get androidWarning => 'Android Note: Avoid selecting public directories (such as Downloads folder), recommend using app-specific directories to ensure access permissions.';
+
+	/// en: '⚠️ Notice: You selected a public directory, storage permission is required for normal file downloads'
 	String get publicDirectoryPermissionTip => '⚠️ Notice: You selected a public directory, storage permission is required for normal file downloads';
+
+	/// en: 'Storage permission required for public directories'
 	String get permissionRequiredForPublicDirectory => 'Storage permission required for public directories';
+
+	/// en: 'Current Download Path'
 	String get currentDownloadPath => 'Current Download Path';
+
+	/// en: 'Default App Directory'
 	String get defaultAppDirectory => 'Default App Directory';
+
+	/// en: 'Granted'
 	String get permissionGranted => 'Granted';
+
+	/// en: 'Permission Required'
 	String get permissionRequired => 'Permission Required';
+
+	/// en: 'Enable Custom Download Path'
 	String get enableCustomDownloadPath => 'Enable Custom Download Path';
+
+	/// en: 'Use app default path when disabled'
 	String get disableCustomDownloadPath => 'Use app default path when disabled';
+
+	/// en: 'Custom Download Path'
 	String get customDownloadPathLabel => 'Custom Download Path';
+
+	/// en: 'Select download folder'
 	String get selectDownloadFolder => 'Select download folder';
+
+	/// en: 'Recommended Path'
 	String get recommendedPath => 'Recommended Path';
+
+	/// en: 'Select Folder'
 	String get selectFolder => 'Select Folder';
+
+	/// en: 'Filename Template'
 	String get filenameTemplate => 'Filename Template';
+
+	/// en: 'Customize the naming rules for downloaded files, supports variable substitution'
 	String get filenameTemplateDescription => 'Customize the naming rules for downloaded files, supports variable substitution';
+
+	/// en: 'Video Filename Template'
 	String get videoFilenameTemplate => 'Video Filename Template';
+
+	/// en: 'Gallery Folder Template'
 	String get galleryFolderTemplate => 'Gallery Folder Template';
+
+	/// en: 'Image Filename Template'
 	String get imageFilenameTemplate => 'Image Filename Template';
+
+	/// en: 'Reset to Default'
 	String get resetToDefault => 'Reset to Default';
+
+	/// en: 'Supported Variables'
 	String get supportedVariables => 'Supported Variables';
+
+	/// en: 'The following variables can be used in filename templates:'
 	String get supportedVariablesDescription => 'The following variables can be used in filename templates:';
+
+	/// en: 'Copy Variable'
 	String get copyVariable => 'Copy Variable';
+
+	/// en: 'Variable copied'
 	String get variableCopied => 'Variable copied';
+
+	/// en: 'Warning: Selected public directory may not be accessible. Recommend selecting app-specific directory.'
 	String get warningPublicDirectory => 'Warning: Selected public directory may not be accessible. Recommend selecting app-specific directory.';
+
+	/// en: 'Download path updated'
 	String get downloadPathUpdated => 'Download path updated';
+
+	/// en: 'Failed to select path'
 	String get selectPathFailed => 'Failed to select path';
+
+	/// en: 'Set to recommended path'
 	String get recommendedPathSet => 'Set to recommended path';
+
+	/// en: 'Failed to set recommended path'
 	String get setRecommendedPathFailed => 'Failed to set recommended path';
+
+	/// en: 'Reset to default template'
 	String get templateResetToDefault => 'Reset to default template';
+
+	/// en: 'Functional Test'
 	String get functionalTest => 'Functional Test';
+
+	/// en: 'Testing...'
 	String get testInProgress => 'Testing...';
+
+	/// en: 'Run Test'
 	String get runTest => 'Run Test';
+
+	/// en: 'Test if download path and permission configuration work properly'
 	String get testDownloadPathAndPermissions => 'Test if download path and permission configuration work properly';
+
+	/// en: 'Test Results'
 	String get testResults => 'Test Results';
+
+	/// en: 'Test completed'
 	String get testCompleted => 'Test completed';
+
+	/// en: 'items passed'
 	String get testPassed => 'items passed';
+
+	/// en: 'Test failed'
 	String get testFailed => 'Test failed';
+
+	/// en: 'Storage Permission Check'
 	String get testStoragePermissionCheck => 'Storage Permission Check';
+
+	/// en: 'Storage permission granted'
 	String get testStoragePermissionGranted => 'Storage permission granted';
+
+	/// en: 'Storage permission missing, some features may be limited'
 	String get testStoragePermissionMissing => 'Storage permission missing, some features may be limited';
+
+	/// en: 'Permission check failed'
 	String get testPermissionCheckFailed => 'Permission check failed';
+
+	/// en: 'Download Path Validation'
 	String get testDownloadPathValidation => 'Download Path Validation';
+
+	/// en: 'Path validation failed'
 	String get testPathValidationFailed => 'Path validation failed';
+
+	/// en: 'Filename Template Validation'
 	String get testFilenameTemplateValidation => 'Filename Template Validation';
+
+	/// en: 'All templates are valid'
 	String get testAllTemplatesValid => 'All templates are valid';
+
+	/// en: 'Some templates contain invalid characters'
 	String get testSomeTemplatesInvalid => 'Some templates contain invalid characters';
+
+	/// en: 'Template validation failed'
 	String get testTemplateValidationFailed => 'Template validation failed';
+
+	/// en: 'Directory Operation Test'
 	String get testDirectoryOperationTest => 'Directory Operation Test';
+
+	/// en: 'Directory creation and file writing are normal'
 	String get testDirectoryOperationNormal => 'Directory creation and file writing are normal';
+
+	/// en: 'Directory operation failed'
 	String get testDirectoryOperationFailed => 'Directory operation failed';
+
+	/// en: 'Video Template'
 	String get testVideoTemplate => 'Video Template';
+
+	/// en: 'Gallery Template'
 	String get testGalleryTemplate => 'Gallery Template';
+
+	/// en: 'Image Template'
 	String get testImageTemplate => 'Image Template';
+
+	/// en: 'Valid'
 	String get testValid => 'Valid';
+
+	/// en: 'Invalid'
 	String get testInvalid => 'Invalid';
+
+	/// en: 'Success'
 	String get testSuccess => 'Success';
+
+	/// en: 'Correct'
 	String get testCorrect => 'Correct';
+
+	/// en: 'Error'
 	String get testError => 'Error';
+
+	/// en: 'Test Path'
 	String get testPath => 'Test Path';
+
+	/// en: 'Base Path'
 	String get testBasePath => 'Base Path';
+
+	/// en: 'Directory Creation'
 	String get testDirectoryCreation => 'Directory Creation';
+
+	/// en: 'File Writing'
 	String get testFileWriting => 'File Writing';
+
+	/// en: 'File Content'
 	String get testFileContent => 'File Content';
+
+	/// en: 'Checking path status...'
 	String get checkingPathStatus => 'Checking path status...';
+
+	/// en: 'Unable to get path status'
 	String get unableToGetPathStatus => 'Unable to get path status';
+
+	/// en: 'Note: Actual path differs from selected path'
 	String get actualPathDifferentFromSelected => 'Note: Actual path differs from selected path';
+
+	/// en: 'Grant Permission'
 	String get grantPermission => 'Grant Permission';
+
+	/// en: 'Fix Issue'
 	String get fixIssue => 'Fix Issue';
+
+	/// en: 'Issue fixed'
 	String get issueFixed => 'Issue fixed';
+
+	/// en: 'Fix failed, please handle manually'
 	String get fixFailed => 'Fix failed, please handle manually';
+
+	/// en: 'Lack storage permission'
 	String get lackStoragePermission => 'Lack storage permission';
+
+	/// en: 'Cannot access public directory, need "All files access permission"'
 	String get cannotAccessPublicDirectory => 'Cannot access public directory, need "All files access permission"';
+
+	/// en: 'Cannot create directory'
 	String get cannotCreateDirectory => 'Cannot create directory';
+
+	/// en: 'Directory not writable'
 	String get directoryNotWritable => 'Directory not writable';
+
+	/// en: 'Insufficient available space'
 	String get insufficientSpace => 'Insufficient available space';
+
+	/// en: 'Path is valid'
 	String get pathValid => 'Path is valid';
+
+	/// en: 'Validation failed'
 	String get validationFailed => 'Validation failed';
+
+	/// en: 'Using default app directory'
 	String get usingDefaultAppDirectory => 'Using default app directory';
+
+	/// en: 'App Private Directory'
 	String get appPrivateDirectory => 'App Private Directory';
+
+	/// en: 'Safe and reliable, no additional permissions required'
 	String get appPrivateDirectoryDesc => 'Safe and reliable, no additional permissions required';
+
+	/// en: 'Download Directory'
 	String get downloadDirectory => 'Download Directory';
+
+	/// en: 'System default download location, easy to manage'
 	String get downloadDirectoryDesc => 'System default download location, easy to manage';
+
+	/// en: 'Movies Directory'
 	String get moviesDirectory => 'Movies Directory';
+
+	/// en: 'System movies directory, recognizable by media apps'
 	String get moviesDirectoryDesc => 'System movies directory, recognizable by media apps';
+
+	/// en: 'Documents Directory'
 	String get documentsDirectory => 'Documents Directory';
+
+	/// en: 'iOS app documents directory'
 	String get documentsDirectoryDesc => 'iOS app documents directory';
+
+	/// en: 'Requires storage permission to access'
 	String get requiresStoragePermission => 'Requires storage permission to access';
+
+	/// en: 'Recommended Paths'
 	String get recommendedPaths => 'Recommended Paths';
+
+	/// en: 'Select a recommended download location'
 	String get selectRecommendedDownloadLocation => 'Select a recommended download location';
+
+	/// en: 'No recommended paths available'
 	String get noRecommendedPaths => 'No recommended paths available';
+
+	/// en: 'Recommended'
 	String get recommended => 'Recommended';
+
+	/// en: 'Requires Permission'
 	String get requiresPermission => 'Requires Permission';
+
+	/// en: 'Authorize and Select'
 	String get authorizeAndSelect => 'Authorize and Select';
+
+	/// en: 'Select'
 	String get select => 'Select';
+
+	/// en: 'Permission authorization failed, cannot select this path'
 	String get permissionAuthorizationFailed => 'Permission authorization failed, cannot select this path';
+
+	/// en: 'Path validation failed'
 	String get pathValidationFailed => 'Path validation failed';
+
+	/// en: 'Download path set to'
 	String get downloadPathSetTo => 'Download path set to';
+
+	/// en: 'Failed to set path'
 	String get setPathFailed => 'Failed to set path';
+
+	/// en: 'Title'
 	String get variableTitle => 'Title';
+
+	/// en: 'Author name'
 	String get variableAuthor => 'Author name';
+
+	/// en: 'Author username'
 	String get variableUsername => 'Author username';
+
+	/// en: 'Video quality'
 	String get variableQuality => 'Video quality';
+
+	/// en: 'Original filename'
 	String get variableFilename => 'Original filename';
+
+	/// en: 'Content ID'
 	String get variableId => 'Content ID';
+
+	/// en: 'Gallery image count'
 	String get variableCount => 'Gallery image count';
+
+	/// en: 'Current date (YYYY-MM-DD)'
 	String get variableDate => 'Current date (YYYY-MM-DD)';
+
+	/// en: 'Current time (HH-MM-SS)'
 	String get variableTime => 'Current time (HH-MM-SS)';
+
+	/// en: 'Current date time (YYYY-MM-DD_HH-MM-SS)'
 	String get variableDatetime => 'Current date time (YYYY-MM-DD_HH-MM-SS)';
+
+	/// en: 'Download Settings'
 	String get downloadSettingsTitle => 'Download Settings';
+
+	/// en: 'Configure download path and file naming rules'
 	String get downloadSettingsSubtitle => 'Configure download path and file naming rules';
+
+	/// en: 'For example: %title_%quality'
 	String get suchAsTitleQuality => 'For example: %title_%quality';
+
+	/// en: 'For example: %title_%id'
 	String get suchAsTitleId => 'For example: %title_%id';
+
+	/// en: 'For example: %title_%filename'
 	String get suchAsTitleFilename => 'For example: %title_%filename';
 }
 
@@ -1499,9 +3783,17 @@ class TranslationsOreno3dSortTypesEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Hot'
 	String get hot => 'Hot';
+
+	/// en: 'Favorites'
 	String get favorites => 'Favorites';
+
+	/// en: 'Latest'
 	String get latest => 'Latest';
+
+	/// en: 'Popular'
 	String get popularity => 'Popular';
 }
 
@@ -1512,22 +3804,56 @@ class TranslationsOreno3dErrorsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Request failed, status code'
 	String get requestFailed => 'Request failed, status code';
+
+	/// en: 'Connection timeout, please check network connection'
 	String get connectionTimeout => 'Connection timeout, please check network connection';
+
+	/// en: 'Send request timeout'
 	String get sendTimeout => 'Send request timeout';
+
+	/// en: 'Receive response timeout'
 	String get receiveTimeout => 'Receive response timeout';
+
+	/// en: 'Certificate verification failed'
 	String get badCertificate => 'Certificate verification failed';
+
+	/// en: 'Requested resource not found'
 	String get resourceNotFound => 'Requested resource not found';
+
+	/// en: 'Access denied, may require authentication or permission'
 	String get accessDenied => 'Access denied, may require authentication or permission';
+
+	/// en: 'Internal server error'
 	String get serverError => 'Internal server error';
+
+	/// en: 'Service temporarily unavailable'
 	String get serviceUnavailable => 'Service temporarily unavailable';
+
+	/// en: 'Request cancelled'
 	String get requestCancelled => 'Request cancelled';
+
+	/// en: 'Network connection error, please check network settings'
 	String get connectionError => 'Network connection error, please check network settings';
+
+	/// en: 'Network request failed'
 	String get networkRequestFailed => 'Network request failed';
+
+	/// en: 'Unknown error occurred while searching videos'
 	String get searchVideoError => 'Unknown error occurred while searching videos';
+
+	/// en: 'Unknown error occurred while getting popular videos'
 	String get getPopularVideoError => 'Unknown error occurred while getting popular videos';
+
+	/// en: 'Unknown error occurred while getting video details'
 	String get getVideoDetailError => 'Unknown error occurred while getting video details';
+
+	/// en: 'Unknown error occurred while getting and parsing video details'
 	String get parseVideoDetailError => 'Unknown error occurred while getting and parsing video details';
+
+	/// en: 'Unknown error occurred while downloading file'
 	String get downloadFileError => 'Unknown error occurred while downloading file';
 }
 
@@ -1538,7 +3864,11 @@ class TranslationsOreno3dLoadingEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Getting video information...'
 	String get gettingVideoInfo => 'Getting video information...';
+
+	/// en: 'Cancel'
 	String get cancel => 'Cancel';
 }
 
@@ -1549,8 +3879,14 @@ class TranslationsOreno3dMessagesEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Video not found or has been deleted'
 	String get videoNotFoundOrDeleted => 'Video not found or has been deleted';
+
+	/// en: 'Unable to get video playback link'
 	String get unableToGetVideoPlayLink => 'Unable to get video playback link';
+
+	/// en: 'Failed to get video details'
 	String get getVideoDetailFailed => 'Failed to get video details';
 }
 
@@ -1561,8 +3897,14 @@ class TranslationsVideoDetailSkeletonEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Fetching video info...'
 	String get fetchingVideoInfo => 'Fetching video info...';
+
+	/// en: 'Fetching video sources...'
 	String get fetchingVideoSources => 'Fetching video sources...';
+
+	/// en: 'Loading video...'
 	String get loadingVideo => 'Loading video...';
 }
 
@@ -1573,7 +3915,11 @@ class TranslationsForumErrorsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Please select a category'
 	String get pleaseSelectCategory => 'Please select a category';
+
+	/// en: 'This thread is locked, cannot reply'
 	String get threadLocked => 'This thread is locked, cannot reply';
 }
 
@@ -1584,11 +3930,23 @@ class TranslationsForumGroupsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Administration'
 	String get administration => 'Administration';
+
+	/// en: 'Global'
 	String get global => 'Global';
+
+	/// en: 'Chinese'
 	String get chinese => 'Chinese';
+
+	/// en: 'Japanese'
 	String get japanese => 'Japanese';
+
+	/// en: 'Korean'
 	String get korean => 'Korean';
+
+	/// en: 'Other'
 	String get other => 'Other';
 }
 
@@ -1599,23 +3957,59 @@ class TranslationsForumLeafNamesEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Announcements'
 	String get announcements => 'Announcements';
+
+	/// en: 'Feedback'
 	String get feedback => 'Feedback';
+
+	/// en: 'Support'
 	String get support => 'Support';
+
+	/// en: 'General'
 	String get general => 'General';
+
+	/// en: 'Guides'
 	String get guides => 'Guides';
+
+	/// en: 'Questions'
 	String get questions => 'Questions';
+
+	/// en: 'Requests'
 	String get requests => 'Requests';
+
+	/// en: 'Sharing'
 	String get sharing => 'Sharing';
+
+	/// en: 'General'
 	String get general_zh => 'General';
+
+	/// en: 'Questions'
 	String get questions_zh => 'Questions';
+
+	/// en: 'Requests'
 	String get requests_zh => 'Requests';
+
+	/// en: 'Support'
 	String get support_zh => 'Support';
+
+	/// en: 'General'
 	String get general_ja => 'General';
+
+	/// en: 'Questions'
 	String get questions_ja => 'Questions';
+
+	/// en: 'Requests'
 	String get requests_ja => 'Requests';
+
+	/// en: 'Support'
 	String get support_ja => 'Support';
+
+	/// en: 'Korean'
 	String get korean => 'Korean';
+
+	/// en: 'Other'
 	String get other => 'Other';
 }
 
@@ -1626,23 +4020,59 @@ class TranslationsForumLeafDescriptionsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Official important notifications and announcements'
 	String get announcements => 'Official important notifications and announcements';
+
+	/// en: 'Feedback on the website's features and services'
 	String get feedback => 'Feedback on the website\'s features and services';
+
+	/// en: 'Help to resolve website-related issues'
 	String get support => 'Help to resolve website-related issues';
+
+	/// en: 'Discuss any topic'
 	String get general => 'Discuss any topic';
+
+	/// en: 'Share your experiences and tutorials'
 	String get guides => 'Share your experiences and tutorials';
+
+	/// en: 'Raise your inquiries'
 	String get questions => 'Raise your inquiries';
+
+	/// en: 'Post your requests'
 	String get requests => 'Post your requests';
+
+	/// en: 'Share interesting content'
 	String get sharing => 'Share interesting content';
+
+	/// en: 'Discuss any topic'
 	String get general_zh => 'Discuss any topic';
+
+	/// en: 'Raise your inquiries'
 	String get questions_zh => 'Raise your inquiries';
+
+	/// en: 'Post your requests'
 	String get requests_zh => 'Post your requests';
+
+	/// en: 'Help to resolve website-related issues'
 	String get support_zh => 'Help to resolve website-related issues';
+
+	/// en: 'Discuss any topic'
 	String get general_ja => 'Discuss any topic';
+
+	/// en: 'Raise your inquiries'
 	String get questions_ja => 'Raise your inquiries';
+
+	/// en: 'Post your requests'
 	String get requests_ja => 'Post your requests';
+
+	/// en: 'Help to resolve website-related issues'
 	String get support_ja => 'Help to resolve website-related issues';
+
+	/// en: 'Discussions related to Korean'
 	String get korean => 'Discussions related to Korean';
+
+	/// en: 'Other unclassified content'
 	String get other => 'Other unclassified content';
 }
 
@@ -1653,9 +4083,17 @@ class TranslationsNotificationsErrorsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Unsupported notification type'
 	String get unsupportedNotificationType => 'Unsupported notification type';
+
+	/// en: 'Unknown user'
 	String get unknownUser => 'Unknown user';
+
+	/// en: 'Unsupported notification type: ${type}'
 	String unsupportedNotificationTypeWithType({required Object type}) => 'Unsupported notification type: ${type}';
+
+	/// en: 'Unknown notification type'
 	String get unknownNotificationType => 'Unknown notification type';
 }
 
@@ -1666,12 +4104,26 @@ class TranslationsConversationErrorsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Please select a user'
 	String get pleaseSelectAUser => 'Please select a user';
+
+	/// en: 'Please enter a title'
 	String get pleaseEnterATitle => 'Please enter a title';
+
+	/// en: 'Click to select a user'
 	String get clickToSelectAUser => 'Click to select a user';
+
+	/// en: 'Load failed, click to retry'
 	String get loadFailedClickToRetry => 'Load failed, click to retry';
+
+	/// en: 'Load failed'
 	String get loadFailed => 'Load failed';
+
+	/// en: 'Click to retry'
 	String get clickToRetry => 'Click to retry';
+
+	/// en: 'No more conversations'
 	String get noMoreConversations => 'No more conversations';
 }
 
@@ -1682,6 +4134,8 @@ class TranslationsSplashErrorsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Initialization failed, please restart the app'
 	String get initializationFailed => 'Initialization failed, please restart the app';
 }
 
@@ -1692,53 +4146,149 @@ class TranslationsDownloadErrorsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Image model not found'
 	String get imageModelNotFound => 'Image model not found';
+
+	/// en: 'Download failed'
 	String get downloadFailed => 'Download failed';
+
+	/// en: 'Video info not found'
 	String get videoInfoNotFound => 'Video info not found';
+
+	/// en: 'Download task already exists'
 	String get downloadTaskAlreadyExists => 'Download task already exists';
+
+	/// en: 'Video already downloaded'
 	String get videoAlreadyDownloaded => 'Video already downloaded';
+
+	/// en: 'Add download task failed: ${errorInfo}'
 	String downloadFailedForMessage({required Object errorInfo}) => 'Add download task failed: ${errorInfo}';
+
+	/// en: 'User paused download'
 	String get userPausedDownload => 'User paused download';
+
+	/// en: 'Unknown'
 	String get unknown => 'Unknown';
+
+	/// en: 'File system error: ${errorInfo}'
 	String fileSystemError({required Object errorInfo}) => 'File system error: ${errorInfo}';
+
+	/// en: 'Unknown error: ${errorInfo}'
 	String unknownError({required Object errorInfo}) => 'Unknown error: ${errorInfo}';
+
+	/// en: 'Connection timeout'
 	String get connectionTimeout => 'Connection timeout';
+
+	/// en: 'Send timeout'
 	String get sendTimeout => 'Send timeout';
+
+	/// en: 'Receive timeout'
 	String get receiveTimeout => 'Receive timeout';
+
+	/// en: 'Server error: ${errorInfo}'
 	String serverError({required Object errorInfo}) => 'Server error: ${errorInfo}';
+
+	/// en: 'Unknown network error'
 	String get unknownNetworkError => 'Unknown network error';
+
+	/// en: 'Download service is closing'
 	String get serviceIsClosing => 'Download service is closing';
+
+	/// en: 'Partial content download failed'
 	String get partialDownloadFailed => 'Partial content download failed';
+
+	/// en: 'No download task'
 	String get noDownloadTask => 'No download task';
+
+	/// en: 'Task not found or data error'
 	String get taskNotFoundOrDataError => 'Task not found or data error';
+
+	/// en: 'File not found'
 	String get fileNotFound => 'File not found';
+
+	/// en: 'Failed to open folder'
 	String get openFolderFailed => 'Failed to open folder';
+
+	/// en: 'Failed to copy download URL'
 	String get copyDownloadUrlFailed => 'Failed to copy download URL';
+
+	/// en: 'Failed to open folder: ${message}'
 	String openFolderFailedWithMessage({required Object message}) => 'Failed to open folder: ${message}';
+
+	/// en: 'Directory not found'
 	String get directoryNotFound => 'Directory not found';
+
+	/// en: 'Copy failed'
 	String get copyFailed => 'Copy failed';
+
+	/// en: 'Failed to open file'
 	String get openFileFailed => 'Failed to open file';
+
+	/// en: 'Failed to open file: ${message}'
 	String openFileFailedWithMessage({required Object message}) => 'Failed to open file: ${message}';
+
+	/// en: 'No download source'
 	String get noDownloadSource => 'No download source';
+
+	/// en: 'No download source, please wait for information loading to be completed and try again'
 	String get noDownloadSourceNowPleaseWaitInfoLoaded => 'No download source, please wait for information loading to be completed and try again';
+
+	/// en: 'No active download task'
 	String get noActiveDownloadTask => 'No active download task';
+
+	/// en: 'No failed download task'
 	String get noFailedDownloadTask => 'No failed download task';
+
+	/// en: 'No completed download task'
 	String get noCompletedDownloadTask => 'No completed download task';
+
+	/// en: 'Task already completed, do not add again'
 	String get taskAlreadyCompletedDoNotAdd => 'Task already completed, do not add again';
+
+	/// en: 'Link expired, trying to get new download link'
 	String get linkExpiredTryAgain => 'Link expired, trying to get new download link';
+
+	/// en: 'Link expired, trying to get new download link success'
 	String get linkExpiredTryAgainSuccess => 'Link expired, trying to get new download link success';
+
+	/// en: 'Link expired, trying to get new download link failed'
 	String get linkExpiredTryAgainFailed => 'Link expired, trying to get new download link failed';
+
+	/// en: 'Task deleted'
 	String get taskDeleted => 'Task deleted';
+
+	/// en: 'Unsupported image format: ${format}'
 	String unsupportedImageFormat({required Object format}) => 'Unsupported image format: ${format}';
+
+	/// en: 'Failed to delete file, possibly because the file is being used by another process'
 	String get deleteFileError => 'Failed to delete file, possibly because the file is being used by another process';
+
+	/// en: 'Failed to delete task'
 	String get deleteTaskError => 'Failed to delete task';
+
+	/// en: 'Failed to refresh video task'
 	String get canNotRefreshVideoTask => 'Failed to refresh video task';
+
+	/// en: 'Task already processing'
 	String get taskAlreadyProcessing => 'Task already processing';
+
+	/// en: 'Task not found'
 	String get taskNotFound => 'Task not found';
+
+	/// en: 'Failed to load tasks'
 	String get failedToLoadTasks => 'Failed to load tasks';
+
+	/// en: 'Partial download failed: ${message}'
 	String partialDownloadFailedWithMessage({required Object message}) => 'Partial download failed: ${message}';
+
+	/// en: 'Unsupported image format: ${extension}, you can try to download it to your device to view it'
 	String unsupportedImageFormatWithMessage({required Object extension}) => 'Unsupported image format: ${extension}, you can try to download it to your device to view it';
+
+	/// en: 'Image load failed'
 	String get imageLoadFailed => 'Image load failed';
+
+	/// en: 'Please try using other viewers to open'
 	String get pleaseTryOtherViewer => 'Please try using other viewers to open';
 }
 
@@ -1749,10 +4299,20 @@ class TranslationsFavoriteErrorsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Add failed'
 	String get addFailed => 'Add failed';
+
+	/// en: 'Add success'
 	String get addSuccess => 'Add success';
+
+	/// en: 'Delete folder failed'
 	String get deleteFolderFailed => 'Delete folder failed';
+
+	/// en: 'Delete folder success'
 	String get deleteFolderSuccess => 'Delete folder success';
+
+	/// en: 'Folder name cannot be empty'
 	String get folderNameCannotBeEmpty => 'Folder name cannot be empty';
 }
 
@@ -2477,6 +5037,7 @@ extension on Translations {
 			case 'subscriptions.pleaseLoginFirstToViewYourSubscriptions': return 'Please login first to view your subscriptions.';
 			case 'subscriptions.selectUser': return 'Select User';
 			case 'subscriptions.noSubscribedUsers': return 'No subscribed users';
+			case 'subscriptions.showAllSubscribedUsersContent': return 'Show all subscribed users content';
 			case 'videoDetail.pipMode': return 'PiP Mode';
 			case 'videoDetail.resumeFromLastPosition': return ({required Object position}) => 'Resume from last position: ${position}';
 			case 'videoDetail.videoIdIsEmpty': return 'Video ID is empty';

@@ -731,6 +731,7 @@ class _TranslationsSubscriptionsZhTw implements TranslationsSubscriptionsEn {
 	@override String get pleaseLoginFirstToViewYourSubscriptions => '請登入以查看您的訂閱內容。';
 	@override String get selectUser => '選擇用戶';
 	@override String get noSubscribedUsers => '尚無已訂閱用戶';
+	@override String get showAllSubscribedUsersContent => '顯示所有已訂閱用戶的內容';
 }
 
 // Path: videoDetail
@@ -2477,6 +2478,7 @@ extension on TranslationsZhTw {
 			case 'subscriptions.pleaseLoginFirstToViewYourSubscriptions': return '請登入以查看您的訂閱內容。';
 			case 'subscriptions.selectUser': return '選擇用戶';
 			case 'subscriptions.noSubscribedUsers': return '尚無已訂閱用戶';
+			case 'subscriptions.showAllSubscribedUsersContent': return '顯示所有已訂閱用戶的內容';
 			case 'videoDetail.pipMode': return '畫中畫模式';
 			case 'videoDetail.resumeFromLastPosition': return ({required Object position}) => '從上次播放位置繼續播放: ${position}';
 			case 'videoDetail.videoIdIsEmpty': return '影片ID為空';

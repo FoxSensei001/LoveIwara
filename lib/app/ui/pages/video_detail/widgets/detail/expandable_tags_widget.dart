@@ -12,6 +12,7 @@ class ExpandableTagsWidget extends StatefulWidget {
   final double horizontalPadding;
   final double spacing;
   final double runSpacing;
+  final Function(Tag)? onTagTap; // 新增标签点击回调
 
   const ExpandableTagsWidget({
     super.key,
@@ -20,6 +21,7 @@ class ExpandableTagsWidget extends StatefulWidget {
     this.horizontalPadding = 16.0,
     this.spacing = 8.0,
     this.runSpacing = 4.0,
+    this.onTagTap, // 新增参数
   });
 
   @override
@@ -96,6 +98,13 @@ class _ExpandableTagsWidgetState extends State<ExpandableTagsWidget>
   }
 
   void _handleTagTap(Tag tag) {
+    // 如果有标签点击回调，优先调用回调
+    if (widget.onTagTap != null) {
+      widget.onTagTap!(tag);
+      return;
+    }
+    
+    // 否则保持原来的复制行为
     final data = DataWriterItem();
     data.add(Formats.plainText(tag.id));
     SystemClipboard.instance?.write([data]);

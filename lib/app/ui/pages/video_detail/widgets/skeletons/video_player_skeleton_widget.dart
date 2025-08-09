@@ -34,50 +34,58 @@ class VideoPlayerSkeletonWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 获取安全区域顶部padding，与my_video_screen.dart保持一致
+    final double paddingTop = MediaQuery.paddingOf(context).top;
+    
     return Container(
       color: Colors.black,
       child: Stack(
         children: [
-          Center(
-            child: Obx(() {
-              if (controller.videoSourceErrorMessage.value != null) {
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.error_outline, color: Colors.red, size: 48),
-                    const SizedBox(height: 16),
-                    Text(
-                      controller.videoSourceErrorMessage.value!,
-                      style: const TextStyle(color: Colors.white, fontSize: 16),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton.icon(
-                      onPressed: () => controller.fetchVideoSource(),
-                      icon: const Icon(Icons.refresh),
-                      label: Text(slang.t.common.retry),
-                    ),
-                  ],
-                );
-              } else {
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const CircularProgressIndicator(
-                      color: Colors.white,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      _getLoadingMessage(context),
-                      style: const TextStyle(color: Colors.white, fontSize: 16),
-                    ),
-                  ],
-                );
-              }
-            }),
+          // 为中心内容添加顶部padding以适配安全区域
+          Positioned.fill(
+            top: paddingTop,
+            child: Center(
+              child: Obx(() {
+                if (controller.videoSourceErrorMessage.value != null) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.error_outline, color: Colors.red, size: 48),
+                      const SizedBox(height: 16),
+                      Text(
+                        controller.videoSourceErrorMessage.value!,
+                        style: const TextStyle(color: Colors.white, fontSize: 16),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton.icon(
+                        onPressed: () => controller.fetchVideoSource(),
+                        icon: const Icon(Icons.refresh),
+                        label: Text(slang.t.common.retry),
+                      ),
+                    ],
+                  );
+                } else {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const CircularProgressIndicator(
+                        color: Colors.white,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        _getLoadingMessage(context),
+                        style: const TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                    ],
+                  );
+                }
+              }),
+            ),
           ),
+          // 返回按钮保持在安全区域内
           Positioned(
-            top: MediaQuery.paddingOf(context).top,
+            top: paddingTop,
             left: 0,
             child: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),

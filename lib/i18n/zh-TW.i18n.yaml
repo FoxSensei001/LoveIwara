@@ -763,6 +763,7 @@ subscriptions:
   pleaseLoginFirstToViewYourSubscriptions: 請登入以查看您的訂閱內容。
   selectUser: 選擇用戶
   noSubscribedUsers: 尚無已訂閱用戶
+  showAllSubscribedUsersContent: 顯示所有已訂閱用戶的內容
 
 videoDetail:
   pipMode: 畫中畫模式

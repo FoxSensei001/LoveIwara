@@ -309,7 +309,13 @@ class VideoInfoTabWidget extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          ExpandableTagsWidget(tags: tags),
+          ExpandableTagsWidget(
+            tags: tags,
+            onTagTap: (tag) {
+              // 点击标签跳转到标签视频列表页面
+              NaviService.navigateToTagVideoListPage(tag);
+            },
+          ),
         ],
       );
     });

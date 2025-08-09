@@ -69,17 +69,9 @@ class CommentsTabWidget extends StatelessWidget {
                       return Row(
                         children: [
                           // 评论图标
-                          Container(
-                            padding: const EdgeInsets.all(3),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: Icon(
-                              Icons.comment_outlined,
-                              size: 16,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
+                          Icon(
+                            Icons.comment_outlined,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                           const SizedBox(width: 8),
                           // 评论数量
@@ -102,38 +94,40 @@ class CommentsTabWidget extends StatelessWidget {
                           // 占位符，将右侧按钮推到最右边
                           const Spacer(),
                           // 刷新按钮
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5),
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: IconButton(
-                              icon: const Icon(Icons.refresh_rounded, size: 16),
-                              onPressed: () {
+                          Material(
+                            borderRadius: BorderRadius.circular(8),
+                            color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(8),
+                              onTap: () {
                                 commentController.refreshComments();
                               },
-                              tooltip: t.common.refresh,
-                              padding: const EdgeInsets.all(4),
-                              constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8),
+                                child: Icon(
+                                  Icons.refresh_rounded,
+                                  size: 16,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                              ),
                             ),
                           ),
                           const SizedBox(width: 6),
                           // 写评论按钮
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: IconButton(
-                              icon: Icon(
-                                Icons.edit_outlined, 
-                                size: 16,
-                                color: Theme.of(context).colorScheme.primary,
+                          Material(
+                            borderRadius: BorderRadius.circular(8),
+                            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(8),
+                              onTap: () => _showCommentDialog(context),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8),
+                                child: Icon(
+                                  Icons.edit_outlined,
+                                  size: 16,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
                               ),
-                              onPressed: () => _showCommentDialog(context),
-                              tooltip: t.common.sendComment,
-                              padding: const EdgeInsets.all(4),
-                              constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
                             ),
                           ),
                         ],

@@ -24,6 +24,8 @@ import 'package:i_iwara/app/ui/pages/video_detail/video_detail_page_v2.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/my_video_screen.dart';
 import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
 import 'package:i_iwara/app/ui/pages/download/gallery_download_task_detail_page.dart';
+import 'package:i_iwara/app/ui/pages/tag_videos/tag_video_list_page.dart';
+import 'package:i_iwara/app/models/tag.model.dart';
 
 import '../routes/app_routes.dart';
 import '../ui/pages/author_profile/author_profile_page.dart';
@@ -418,6 +420,14 @@ class NaviService {
         folderId: folderId,
         folderTitle: folderTitle,
       ),
+    );
+  }
+
+  /// 跳转到标签视频列表页
+  static void navigateToTagVideoListPage(Tag tag) {
+    _navigateToPage(
+      routeName: Routes.TAG_VIDEOS(tag.id),
+      page: TagVideoListPage(tag: tag),
     );
   }
 }

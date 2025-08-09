@@ -73,6 +73,8 @@ abstract class Routes {
 
   static const AI_TRANSLATION_SETTINGS_PAGE = _Paths.AI_TRANSLATION_SETTINGS_PAGE;
   static const DOWNLOAD_SETTINGS_PAGE = _Paths.DOWNLOAD_SETTINGS_PAGE;
+
+  static String TAG_VIDEOS(String tagId) => _Paths.TAG_VIDEOS.replaceAll(':tagId', tagId);
 }
 
 abstract class _Paths {
@@ -104,4 +106,5 @@ abstract class _Paths {
   static const HISTORY_LIST = '/history_list';
   static const AI_TRANSLATION_SETTINGS_PAGE = '/ai_translation_settings';
   static const DOWNLOAD_SETTINGS_PAGE = '/download_settings';
+  static const TAG_VIDEOS = '/tag_videos/:tagId';
 }

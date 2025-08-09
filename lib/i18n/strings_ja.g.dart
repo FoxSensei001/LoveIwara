@@ -731,6 +731,7 @@ class _TranslationsSubscriptionsJa implements TranslationsSubscriptionsEn {
 	@override String get pleaseLoginFirstToViewYourSubscriptions => 'サブスクリプションを表示するにはログインしてください。';
 	@override String get selectUser => 'ユーザーを選択してください';
 	@override String get noSubscribedUsers => '購読中のユーザーがいません';
+	@override String get showAllSubscribedUsersContent => 'すべての購読中のユーザーのコンテンツを表示';
 }
 
 // Path: videoDetail
@@ -2474,6 +2475,7 @@ extension on TranslationsJa {
 			case 'subscriptions.pleaseLoginFirstToViewYourSubscriptions': return 'サブスクリプションを表示するにはログインしてください。';
 			case 'subscriptions.selectUser': return 'ユーザーを選択してください';
 			case 'subscriptions.noSubscribedUsers': return '購読中のユーザーがいません';
+			case 'subscriptions.showAllSubscribedUsersContent': return 'すべての購読中のユーザーのコンテンツを表示';
 			case 'videoDetail.pipMode': return 'ピプモード';
 			case 'videoDetail.resumeFromLastPosition': return ({required Object position}) => '${position} から続けて再生';
 			case 'videoDetail.videoIdIsEmpty': return 'ビデオIDが空です';
