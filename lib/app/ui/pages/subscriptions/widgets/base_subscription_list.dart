@@ -9,12 +9,14 @@ abstract class BaseSubscriptionList<T, R extends ExtendedLoadingMoreBase<T>> ext
   final String userId;
   final bool isPaginated;
   final double paddingTop;
+  final bool showBottomPadding;
 
   const BaseSubscriptionList({
     super.key,
     required this.userId,
     this.isPaginated = false,
     this.paddingTop = 0,
+    this.showBottomPadding = false,
   });
 
   @override
@@ -172,6 +174,7 @@ abstract class BaseSubscriptionListState<T, R extends ExtendedLoadingMoreBase<T>
       extendedListDelegate: extendedListDelegate,
       scrollController: _scrollController,
       paddingTop: widget.paddingTop,
+      showBottomPadding: widget.showBottomPadding,
       // 使用缓存机制构建列表项
       itemBuilder: getCachedListItem,
     );

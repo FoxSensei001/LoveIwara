@@ -4,7 +4,7 @@ import 'package:i_iwara/app/models/forum.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/forum/controllers/thread_detail_repository.dart';
-import 'package:i_iwara/app/ui/pages/forum/widgets/forum_reply_dialog.dart';
+import 'package:i_iwara/app/ui/pages/forum/widgets/forum_reply_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/share_thread_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
@@ -133,12 +133,17 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
                   ));
                   return;
                 }
-                Get.dialog(ForumReplyDialog(
-                  threadId: _thread.value!.id,
-                  onSubmit: () {
-                    listSourceRepository.refresh();
-                  },
-                ));
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => ForumReplyBottomSheet(
+                    threadId: _thread.value!.id,
+                    onSubmit: () {
+                      listSourceRepository.refresh();
+                    },
+                  ),
+                );
               },
             );
           }),

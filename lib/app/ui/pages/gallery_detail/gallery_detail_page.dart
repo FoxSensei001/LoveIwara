@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_routes.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
-import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_dialog.dart';
+import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/image_model_detail_content_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/skeletons/media_tile_list_skeleton_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/skeletons/video_detail_info_skeleton_widget.dart';
@@ -186,8 +186,11 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
                       // 添加评论按钮
                       TextButton.icon(
                         onPressed: () {
-                          Get.dialog(
-                            CommentInputDialog(
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (context) => CommentInputBottomSheet(
                               title: slang.t.common.sendComment,
                               submitText: slang.t.common.send,
                               onSubmit: (text) async {
@@ -214,7 +217,6 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
                                 await commentController.postComment(text);
                               },
                             ),
-                            barrierDismissible: true,
                           );
                         },
                         icon: const Icon(Icons.add_comment),

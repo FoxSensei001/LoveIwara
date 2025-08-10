@@ -170,6 +170,7 @@ class MediaListView<T> extends StatefulWidget {
   final ScrollController? scrollController;
   final double paddingTop;
   final bool enablePerformanceLogging;
+  final bool showBottomPadding;
 
   const MediaListView({
     super.key,
@@ -181,6 +182,7 @@ class MediaListView<T> extends StatefulWidget {
     this.scrollController,
     this.paddingTop = 0,
     this.enablePerformanceLogging = false,
+    this.showBottomPadding = true,
   });
 
   @override
@@ -674,6 +676,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
             onPageChanged: _loadPaginatedData,
             useBlurEffect: true,
             paddingBottom: bottomPadding.toDouble(),
+            showBottomPadding: widget.showBottomPadding,
           ),
         ),
       ],

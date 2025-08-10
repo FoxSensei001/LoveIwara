@@ -325,6 +325,7 @@ class PaginationBar extends StatefulWidget {
   final VoidCallback? onRefresh;
   final bool useBlurEffect;
   final double paddingBottom;
+  final bool showBottomPadding;
 
   const PaginationBar({
     super.key,
@@ -336,6 +337,7 @@ class PaginationBar extends StatefulWidget {
     this.onRefresh,
     this.useBlurEffect = false,
     this.paddingBottom = 0,
+    this.showBottomPadding = true,
   });
 
   @override
@@ -525,7 +527,6 @@ class _PaginationBarState extends State<PaginationBar>
     final barContent = Stack(
       children: [
         Container(
-          height: 46 + widget.paddingBottom, // 添加底部安全区域高度
           decoration: BoxDecoration(
             color: widget.useBlurEffect ? Colors.transparent : Theme.of(context).colorScheme.surface,
             boxShadow: widget.useBlurEffect ? [] : [
@@ -537,20 +538,19 @@ class _PaginationBarState extends State<PaginationBar>
             ],
           ),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               // 主要内容区域
-              Expanded(
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final isNarrow = constraints.maxWidth < 600;
-                    return isNarrow
-                        ? _buildCompactPaginationBar(context)
-                        : _buildFullPaginationBar(context);
-                  },
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final isNarrow = constraints.maxWidth < 600;
+                  return isNarrow
+                      ? _buildCompactPaginationBar(context)
+                      : _buildFullPaginationBar(context);
+                                  },
                 ),
-              ),
-              // 底部安全区域占位
-              if (widget.paddingBottom > 0)
+                // 底部安全区域占位
+              if (widget.showBottomPadding && widget.paddingBottom > 0)
                 SizedBox(height: widget.paddingBottom),
             ],
           ),
@@ -870,7 +870,7 @@ class _PaginationBarState extends State<PaginationBar>
   // 构建紧凑版的分页控制栏（适用于窄屏）
   Widget _buildCompactPaginationBar(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(right: 12, left: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -883,7 +883,7 @@ class _PaginationBarState extends State<PaginationBar>
               borderRadius: BorderRadius.circular(16),
               child: Container(
                 margin: EdgeInsets.zero,
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: Theme.of(context)
                       .colorScheme
@@ -947,8 +947,8 @@ class _PaginationBarState extends State<PaginationBar>
         child: Opacity(
           opacity: enabled ? 1.0 : 0.4,
           child: Container(
-            width: 32,
-            height: 32,
+            width: 28,
+            height: 28,
             decoration: BoxDecoration(
               color: enabled
                   ? Theme.of(context)
@@ -959,7 +959,7 @@ class _PaginationBarState extends State<PaginationBar>
                       .colorScheme
                       .surfaceContainerHighest
                       .withOpacity(0.1),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(14),
             ),
             child: Center(
               child: Icon(

@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_routes.dart';
 import 'package:i_iwara/app/services/user_service.dart';
-import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_dialog.dart';
+import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/post_detail/widgets/post_detail_content_widget.dart';
 import 'package:i_iwara/app/ui/pages/post_detail/widgets/share_post_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
@@ -94,8 +94,11 @@ class _PostDetailPageState extends State<PostDetailPage> {
                       const Spacer(),
                       TextButton.icon(
                         onPressed: () {
-                          Get.dialog(
-                            CommentInputDialog(
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (context) => CommentInputBottomSheet(
                               title: slang.t.common.sendComment,
                               submitText: slang.t.common.send,
                               onSubmit: (text) async {
@@ -118,7 +121,6 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                 await commentController.postComment(text);
                               },
                             ),
-                            barrierDismissible: true,
                           );
                         },
                         icon: Icon(

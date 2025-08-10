@@ -85,6 +85,7 @@ abstract class BaseSearchListState<T, R extends SearchRepository<T>, W extends B
       emptyIcon: emptyIcon,
       isPaginated: widget.isPaginated,
       scrollController: _scrollController,
+      showBottomPadding: true, // 搜索页面使用默认值 true
       itemBuilder: buildListItem,
     );
   }

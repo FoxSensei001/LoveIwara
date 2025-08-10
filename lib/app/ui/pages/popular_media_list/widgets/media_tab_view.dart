@@ -16,6 +16,7 @@ class MediaTabView<T> extends StatefulWidget {
   final String rebuildKey;
   final double paddingTop;
   final PopularMediaListController? mediaListController; // 添加控制器参数
+  final bool showBottomPadding;
 
   const MediaTabView({
     super.key,
@@ -25,6 +26,7 @@ class MediaTabView<T> extends StatefulWidget {
     this.rebuildKey = '',
     this.paddingTop = 0,
     this.mediaListController,
+    this.showBottomPadding = false,
   });
 
   @override
@@ -91,6 +93,7 @@ class MediaTabViewState<T> extends State<MediaTabView<T>>
       isPaginated: widget.isPaginated,
       scrollController: _scrollController,
       paddingTop: widget.paddingTop,
+      showBottomPadding: widget.showBottomPadding,
       itemBuilder: (context, item, index) {
         final cacheKey = '${item.hashCode}_$index';
         return _itemCache.putIfAbsent(cacheKey, () {

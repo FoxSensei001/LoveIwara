@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/routes/app_routes.dart';
 import 'package:i_iwara/app/ui/pages/comment/controllers/comment_controller.dart';
-import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_dialog.dart';
+import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_section_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
@@ -150,10 +150,13 @@ class CommentsTabWidget extends StatelessWidget {
       Get.toNamed(Routes.LOGIN);
       return;
     }
-    Get.dialog(
-      CommentInputDialog(
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => CommentInputBottomSheet(
         title: t.common.sendComment,
-        submitText: t.common.send, // 添加 submitText 参数
+        submitText: t.common.send,
         onSubmit: (text) async {
           if (text.trim().isNotEmpty) {
             await commentController.postComment(text);

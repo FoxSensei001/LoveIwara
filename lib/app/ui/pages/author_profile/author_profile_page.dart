@@ -14,7 +14,7 @@ import 'package:i_iwara/app/ui/pages/author_profile/widgets/profile_image_model_
 import 'package:i_iwara/app/ui/pages/author_profile/widgets/profile_post_tab_list_widget.dart';
 import 'package:i_iwara/app/ui/pages/author_profile/widgets/profile_video_tab_list_widget.dart';
 import 'package:i_iwara/app/ui/pages/author_profile/widgets/profile_playlist_tab_list_widget.dart';
-import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_dialog.dart';
+import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
@@ -139,8 +139,11 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                       // 添加评论按钮
                       TextButton.icon(
                         onPressed: () {
-                          Get.dialog(
-                            CommentInputDialog(
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (context) => CommentInputBottomSheet(
                               title: t.common.sendComment,
                               submitText: t.common.send,
                               onSubmit: (text) async {
@@ -167,7 +170,6 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                                     .postComment(text);
                               },
                             ),
-                            barrierDismissible: true,
                           );
                         },
                         icon: const Icon(Icons.add_comment),

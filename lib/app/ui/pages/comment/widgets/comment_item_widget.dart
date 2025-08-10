@@ -11,15 +11,13 @@ import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_translation_controller.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
-import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
-import 'package:shimmer/shimmer.dart';
 import 'dart:async';
 
 import '../../../../../common/constants.dart';
 import '../../../../models/comment.model.dart';
 import '../../../widgets/custom_markdown_body_widget.dart';
-import '../widgets/comment_input_dialog.dart';
+import '../widgets/comment_input_bottom_sheet.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/widgets/translation_language_selector.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_replies_bottom_sheet.dart';
@@ -337,8 +335,11 @@ class _CommentItemState extends State<CommentItem> {
       return;
     }
 
-    Get.dialog(
-      CommentInputDialog(
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => CommentInputBottomSheet(
         initialText: widget.comment.body,
         title: slang.t.common.editComment,
         submitText: slang.t.common.save,
@@ -354,14 +355,13 @@ class _CommentItemState extends State<CommentItem> {
             final result = await _commentService.editComment(widget.comment.id, text);
             if (result.isSuccess) {
               showToastWidget(MDToastWidget(message: slang.t.common.commentUpdated, type: MDToastType.success));
-              AppService.tryPop();
+              Navigator.of(context).pop();
             } else {
               showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
             }
           }
         },
       ),
-      barrierDismissible: true,
     );
   }
 
@@ -371,8 +371,11 @@ class _CommentItemState extends State<CommentItem> {
       return;
     }
 
-    Get.dialog(
-      CommentInputDialog(
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => CommentInputBottomSheet(
         title: slang.t.common.replyComment,
         submitText: slang.t.common.reply,
         onSubmit: (text) async {
@@ -386,7 +389,6 @@ class _CommentItemState extends State<CommentItem> {
           );
         },
       ),
-      barrierDismissible: true,
     );
   }
 

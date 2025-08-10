@@ -5,7 +5,7 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/forum/controllers/thread_detail_repository.dart';
-import 'package:i_iwara/app/ui/pages/forum/widgets/forum_reply_dialog.dart';
+import 'package:i_iwara/app/ui/pages/forum/widgets/forum_reply_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_edit_reply_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
@@ -312,13 +312,18 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
                         return;
                       }
                       final replyTemplate = 'Reply #${widget.comment.replyNum + 1}: @${widget.comment.user.username}\n---\n';
-                      Get.dialog(ForumReplyDialog(
-                        threadId: widget.comment.threadId,
-                        initialContent: replyTemplate,
-                        onSubmit: () {
-                          widget.listSourceRepository.refresh();
-                        },
-                      ));
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (context) => ForumReplyBottomSheet(
+                          threadId: widget.comment.threadId,
+                          initialContent: replyTemplate,
+                          onSubmit: () {
+                            widget.listSourceRepository.refresh();
+                          },
+                        ),
+                      );
                     },
                     icon: Icon(
                       Icons.reply,

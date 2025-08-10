@@ -12,6 +12,7 @@ class SubscriptionVideoList
     required super.userId,
     super.isPaginated = false,
     super.paddingTop = 0,
+    super.showBottomPadding = false,
   });
 
   @override

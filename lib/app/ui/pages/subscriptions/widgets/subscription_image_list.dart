@@ -11,6 +11,7 @@ class SubscriptionImageList extends BaseSubscriptionList<ImageModel, Subscriptio
     required super.userId,
     super.isPaginated = false,
     super.paddingTop = 0,
+    super.showBottomPadding = false,
   });
   
   @override
