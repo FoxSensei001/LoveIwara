@@ -4,6 +4,7 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/rules_agreement_dialog_widget.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_syntax_help_dialog.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 abstract class BaseInputDialog extends StatefulWidget {
   final String dialogTitle;
@@ -141,17 +142,17 @@ abstract class BaseInputDialogState<T extends BaseInputDialog> extends State<T> 
             IconButton(
               onPressed: _showMarkdownHelp,
               icon: const Icon(Icons.help_outline),
-              tooltip: 'Markdown语法帮助',
+              tooltip: slang.t.common.markdownSyntaxHelp,
             ),
             IconButton(
               onPressed: () => _showPreview(_buildPreviewContent()),
               icon: const Icon(Icons.preview),
-              tooltip: '预览内容',
+              tooltip: slang.t.common.previewContent,
             ),
             IconButton(
               onPressed: () => Navigator.pop(context),
               icon: const Icon(Icons.close),
-              tooltip: '关闭',
+              tooltip: slang.t.common.close,
             ),
           ],
         ),
@@ -180,9 +181,9 @@ abstract class BaseInputDialogState<T extends BaseInputDialog> extends State<T> 
           labelText: config.label,
           hintText: config.hint,
           border: const OutlineInputBorder(),
-          counterText: '${_currentLengths[index]}/${config.maxLength}',
+          counterText: slang.t.common.characterCount(current: _currentLengths[index], max: config.maxLength),
           errorText: _currentLengths[index] > config.maxLength
-              ? '超过最大长度限制 (${config.maxLength})'
+              ? slang.t.common.exceedsMaxLengthLimit(max: config.maxLength)
               : null,
         ),
       ),
@@ -207,12 +208,12 @@ abstract class BaseInputDialogState<T extends BaseInputDialog> extends State<T> 
             return TextButton.icon(
               onPressed: _showRulesDialog,
               icon: Icon(hasAgreed ? Icons.check_box : Icons.check_box_outline_blank),
-              label: const Text('同意社区规则'),
+              label: Text(slang.t.common.agreeToCommunityRules),
             );
           }),
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('取消'),
+          child: Text(slang.t.common.cancel),
         ),
         ElevatedButton(
           onPressed: _isSubmitDisabled ? null : _handleSubmit,
@@ -284,9 +285,10 @@ class PreviewPanel extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                '预览',
+              Text(
+                slang.t.common.preview,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,

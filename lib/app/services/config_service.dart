@@ -244,6 +244,7 @@ enum ConfigKey {
   HARDWARE_DECODING, // 硬解模式
   ENABLE_HARDWARE_ACCELERATION, // 启用硬件加速
   USE_OPENSLES, // 使用OpenSLES音频输出
+  DEFAULT_EMOJI_SIZE, // 默认表情包大小
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -327,6 +328,7 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.HARDWARE_DECODING: return 'hardware_decoding';
       case ConfigKey.ENABLE_HARDWARE_ACCELERATION: return 'enable_hardware_acceleration';
       case ConfigKey.USE_OPENSLES: return 'use_opensles';
+      case ConfigKey.DEFAULT_EMOJI_SIZE: return 'default_emoji_size';
     }
   }
 
@@ -488,6 +490,8 @@ extension ConfigKeyExtension on ConfigKey {
         return true;
       case ConfigKey.USE_OPENSLES:
         return true;
+      case ConfigKey.DEFAULT_EMOJI_SIZE:
+        return 'mid-i'; // 默认使用中等大小
     }
   }
 }

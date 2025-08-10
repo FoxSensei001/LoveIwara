@@ -151,6 +151,12 @@ common:
   agree: 同意
   disagree: 不同意
   agreeToRules: 同意規則
+  # Base Input Dialog
+  markdownSyntaxHelp: Markdown語法幫助
+  previewContent: 預覽內容
+  characterCount: '${current}/${max}'
+  exceedsMaxLengthLimit: '超過最大長度限制 (${max})'
+  agreeToCommunityRules: 同意社群規則
   createPost: 創建投稿
   title: 標題
   enterTitle: 請輸入標題

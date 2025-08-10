@@ -223,6 +223,11 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String get agree => '同意';
 	@override String get disagree => '不同意';
 	@override String get agreeToRules => '同意规则';
+	@override String get markdownSyntaxHelp => 'Markdown语法帮助';
+	@override String get previewContent => '预览内容';
+	@override String characterCount({required Object current, required Object max}) => '${current}/${max}';
+	@override String exceedsMaxLengthLimit({required Object max}) => '超过最大长度限制 (${max})';
+	@override String get agreeToCommunityRules => '同意社区规则';
 	@override String get createPost => '创建投稿';
 	@override String get title => '标题';
 	@override String get enterTitle => '请输入标题';
@@ -1939,6 +1944,11 @@ extension on TranslationsZhCn {
 			case 'common.agree': return '同意';
 			case 'common.disagree': return '不同意';
 			case 'common.agreeToRules': return '同意规则';
+			case 'common.markdownSyntaxHelp': return 'Markdown语法帮助';
+			case 'common.previewContent': return '预览内容';
+			case 'common.characterCount': return ({required Object current, required Object max}) => '${current}/${max}';
+			case 'common.exceedsMaxLengthLimit': return ({required Object max}) => '超过最大长度限制 (${max})';
+			case 'common.agreeToCommunityRules': return '同意社区规则';
 			case 'common.createPost': return '创建投稿';
 			case 'common.title': return '标题';
 			case 'common.enterTitle': return '请输入标题';

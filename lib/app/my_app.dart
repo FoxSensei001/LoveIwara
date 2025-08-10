@@ -14,6 +14,7 @@ import 'package:i_iwara/app/ui/pages/settings/proxy_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/theme_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/download_settings_page.dart';
+import 'package:i_iwara/app/ui/pages/settings/forum_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/ai_translation_setting_widget.dart';
 import 'package:i_iwara/app/ui/pages/sign_in/sing_in_page.dart';
 import 'package:i_iwara/app/ui/pages/splash/splash_page.dart';
@@ -205,6 +206,10 @@ class _MyAppState extends State<MyApp> {
               GetPage(
                   name: Routes.DOWNLOAD_SETTINGS_PAGE,
                   page: () => const DownloadSettingsPage(),
+                  transition: Transition.rightToLeft),
+              GetPage(
+                  name: Routes.FORUM_SETTINGS_PAGE,
+                  page: () => const ForumSettingsPage(),
                   transition: Transition.rightToLeft),
               GetPage(
                 name: Routes.LOGIN,

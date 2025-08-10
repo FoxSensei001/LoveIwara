@@ -153,6 +153,12 @@ common:
   agree: 同意
   disagree: 不同意
   agreeToRules: 同意规则
+  # Base Input Dialog
+  markdownSyntaxHelp: Markdown语法帮助
+  previewContent: 预览内容
+  characterCount: '${current}/${max}'
+  exceedsMaxLengthLimit: '超过最大长度限制 (${max})'
+  agreeToCommunityRules: 同意社区规则
   createPost: 创建投稿
   title: 标题
   enterTitle: 请输入标题

@@ -223,6 +223,11 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get agree => '同意';
 	@override String get disagree => '不同意';
 	@override String get agreeToRules => '同意規則';
+	@override String get markdownSyntaxHelp => 'Markdown語法幫助';
+	@override String get previewContent => '預覽內容';
+	@override String characterCount({required Object current, required Object max}) => '${current}/${max}';
+	@override String exceedsMaxLengthLimit({required Object max}) => '超過最大長度限制 (${max})';
+	@override String get agreeToCommunityRules => '同意社群規則';
 	@override String get createPost => '創建投稿';
 	@override String get title => '標題';
 	@override String get enterTitle => '請輸入標題';
@@ -1937,6 +1942,11 @@ extension on TranslationsZhTw {
 			case 'common.agree': return '同意';
 			case 'common.disagree': return '不同意';
 			case 'common.agreeToRules': return '同意規則';
+			case 'common.markdownSyntaxHelp': return 'Markdown語法幫助';
+			case 'common.previewContent': return '預覽內容';
+			case 'common.characterCount': return ({required Object current, required Object max}) => '${current}/${max}';
+			case 'common.exceedsMaxLengthLimit': return ({required Object max}) => '超過最大長度限制 (${max})';
+			case 'common.agreeToCommunityRules': return '同意社群規則';
 			case 'common.createPost': return '創建投稿';
 			case 'common.title': return '標題';
 			case 'common.enterTitle': return '請輸入標題';

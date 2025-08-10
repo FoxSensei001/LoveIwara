@@ -153,6 +153,12 @@ common:
   agree: 同意
   disagree: 不同意
   agreeToRules: 同意ルール
+  # Base Input Dialog
+  markdownSyntaxHelp: Markdown構文ヘルプ
+  previewContent: 内容をプレビュー
+  characterCount: '${current}/${max}'
+  exceedsMaxLengthLimit: '最大文字数制限を超過 (${max})'
+  agreeToCommunityRules: コミュニティルールに同意
   createPost: 投稿を作成
   title: タイトル
   enterTitle: タイトルを入力してください

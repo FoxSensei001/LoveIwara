@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'emoji_special_text.dart';
+import 'package:i_iwara/common/enums/emoji_size_enum.dart';
 
 class EnhancedEmojiTextField extends StatefulWidget {
   final TextEditingController controller;
@@ -57,7 +58,7 @@ class EnhancedEmojiTextFieldState extends State<EnhancedEmojiTextField> {
   }
 
   // 插入表情包
-  void insertEmoji(String imageUrl) {
+  void insertEmoji(String imageUrl, {EmojiSize? size}) {
     if (!widget.enabled) return;
     
     final currentText = _controller.text;
@@ -74,7 +75,16 @@ class EnhancedEmojiTextFieldState extends State<EnhancedEmojiTextField> {
     // 在光标位置插入图片Markdown语法
     final beforeCursor = currentText.substring(0, safeStart);
     final afterCursor = currentText.substring(safeEnd);
-    final emojiMarkdown = '![表情]($imageUrl)';
+    
+    // 根据规格生成不同的Markdown语法
+    String emojiMarkdown;
+    if (size != null && size != EmojiSize.medium) {
+      // 如果不是默认中等大小，则添加规格后缀
+      emojiMarkdown = '![emo:${size.altSuffix}]($imageUrl)';
+    } else {
+      // 默认中等大小，使用标准格式
+      emojiMarkdown = '![emo]($imageUrl)';
+    }
     
     final newText = beforeCursor + emojiMarkdown + afterCursor;
     final newCursorPosition = safeStart + emojiMarkdown.length;

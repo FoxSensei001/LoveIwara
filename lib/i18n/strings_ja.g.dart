@@ -224,6 +224,11 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get agree => '同意';
 	@override String get disagree => '不同意';
 	@override String get agreeToRules => '同意ルール';
+	@override String get markdownSyntaxHelp => 'Markdown構文ヘルプ';
+	@override String get previewContent => '内容をプレビュー';
+	@override String characterCount({required Object current, required Object max}) => '${current}/${max}';
+	@override String exceedsMaxLengthLimit({required Object max}) => '最大文字数制限を超過 (${max})';
+	@override String get agreeToCommunityRules => 'コミュニティルールに同意';
 	@override String get createPost => '投稿を作成';
 	@override String get title => 'タイトル';
 	@override String get enterTitle => 'タイトルを入力してください';
@@ -1935,6 +1940,11 @@ extension on TranslationsJa {
 			case 'common.agree': return '同意';
 			case 'common.disagree': return '不同意';
 			case 'common.agreeToRules': return '同意ルール';
+			case 'common.markdownSyntaxHelp': return 'Markdown構文ヘルプ';
+			case 'common.previewContent': return '内容をプレビュー';
+			case 'common.characterCount': return ({required Object current, required Object max}) => '${current}/${max}';
+			case 'common.exceedsMaxLengthLimit': return ({required Object max}) => '最大文字数制限を超過 (${max})';
+			case 'common.agreeToCommunityRules': return 'コミュニティルールに同意';
 			case 'common.createPost': return '投稿を作成';
 			case 'common.title': return 'タイトル';
 			case 'common.enterTitle': return 'タイトルを入力してください';

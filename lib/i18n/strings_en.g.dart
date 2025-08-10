@@ -523,6 +523,21 @@ class TranslationsCommonEn {
 	/// en: 'Agree to Rules'
 	String get agreeToRules => 'Agree to Rules';
 
+	/// en: 'Markdown Syntax Help'
+	String get markdownSyntaxHelp => 'Markdown Syntax Help';
+
+	/// en: 'Preview Content'
+	String get previewContent => 'Preview Content';
+
+	/// en: '${current}/${max}'
+	String characterCount({required Object current, required Object max}) => '${current}/${max}';
+
+	/// en: 'Exceeds max length limit (${max})'
+	String exceedsMaxLengthLimit({required Object max}) => 'Exceeds max length limit (${max})';
+
+	/// en: 'Agree to Community Rules'
+	String get agreeToCommunityRules => 'Agree to Community Rules';
+
 	/// en: 'Create Post'
 	String get createPost => 'Create Post';
 
@@ -4503,6 +4518,11 @@ extension on Translations {
 			case 'common.agree': return 'Agree';
 			case 'common.disagree': return 'Disagree';
 			case 'common.agreeToRules': return 'Agree to Rules';
+			case 'common.markdownSyntaxHelp': return 'Markdown Syntax Help';
+			case 'common.previewContent': return 'Preview Content';
+			case 'common.characterCount': return ({required Object current, required Object max}) => '${current}/${max}';
+			case 'common.exceedsMaxLengthLimit': return ({required Object max}) => 'Exceeds max length limit (${max})';
+			case 'common.agreeToCommunityRules': return 'Agree to Community Rules';
 			case 'common.createPost': return 'Create Post';
 			case 'common.title': return 'Title';
 			case 'common.enterTitle': return 'Please enter title';

@@ -20,6 +20,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
 import 'package:i_iwara/app/utils/markdown_formatter.dart';
+import 'package:i_iwara/common/enums/emoji_size_enum.dart';
 
 class CustomMarkdownBody extends StatefulWidget {
   final String data;
@@ -272,66 +273,34 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     }
   }
 
-  /// 判断是否为表情包图片
+  /// 判断是否为表情包图片，并获取表情包规格
   /// 
-  /// 表情包识别规则：
-  /// 1. 主要识别方式：alt文本为"表情"（这是我们应用插入表情包的标准格式）
-  /// 2. 兼容性识别：alt文本包含"emoji"、"表情"、"贴图"等关键词
-  /// 3. 扩展识别：URL包含表情包相关路径或参数
-  /// 4. 尺寸识别：通过图片尺寸判断（表情包通常较小）
-  bool _isEmojiImage(String url, Map<String, String> attributes) {
-    // 1. 主要识别方式：alt文本为"表情"（我们的标准格式）
+  /// 识别规则：
+  /// 1. alt文本为"emo"（标准格式，默认中等大小）
+  /// 2. alt文本为"emo:text-i"、"emo:mid-i"、"emo:large-i"（指定大小）
+  /// 3. alt文本包含"emoji"、"表情"、"贴图"、"sticker"、"emoticon"等关键词
+  /// 
+  /// 返回值：如果是表情包返回对应的EmojiSize，否则返回null
+  EmojiSize? _getEmojiSize(String url, Map<String, String> attributes) {
     final altText = attributes['alt'] ?? '';
-    if (altText == '表情') {
-      return true;
+    
+    // 检查是否为标准表情格式
+    if (altText == 'emo') {
+      return EmojiSize.medium; // 默认中等大小
     }
     
-    // 2. 兼容性识别：alt文本包含表情包相关关键词
-    final lowerAltText = altText.toLowerCase();
-    if (lowerAltText.contains('emoji') || 
-        lowerAltText.contains('表情') || 
-        lowerAltText.contains('贴图') ||
-        lowerAltText.contains('sticker') ||
-        lowerAltText.contains('emoticon')) {
-      return true;
-    }
-    
-    // 3. URL模式识别：表情包URL可能包含特定标识符
-    final lowerUrl = url.toLowerCase();
-    if (lowerUrl.contains('/emoji/') || 
-        lowerUrl.contains('emoji') ||
-        lowerUrl.contains('/sticker/') ||
-        lowerUrl.contains('sticker') ||
-        lowerUrl.contains('/emoticon/') ||
-        lowerUrl.contains('emoticon')) {
-      return true;
-    }
-    
-    // 4. 文件扩展名识别：表情包通常是较小的图片格式
-    if (lowerUrl.endsWith('.gif') || 
-        lowerUrl.endsWith('.png') || 
-        lowerUrl.endsWith('.webp')) {
-      // 进一步检查URL是否来自常见的表情包服务
-      if (lowerUrl.contains('cdn') || 
-          lowerUrl.contains('static') ||
-          lowerUrl.contains('assets') ||
-          lowerUrl.contains('images')) {
-        // 检查是否有尺寸参数，表情包通常有尺寸限制
-        if (lowerUrl.contains('size=') || 
-            lowerUrl.contains('width=') || 
-            lowerUrl.contains('height=')) {
-          return true;
-        }
+    // 检查是否为指定大小的表情格式
+    if (altText.startsWith('emo:')) {
+      final suffix = altText.substring(4); // 去掉"emo:"
+      final size = EmojiSize.fromAltSuffix(suffix);
+      if (size != null) {
+        return size;
       }
+      // 如果不是有效的规格，回退到默认中等大小
+      return EmojiSize.medium;
     }
     
-    // 5. 检查是否有表情包相关的属性
-    if (attributes.containsKey('class') && 
-        attributes['class']!.toLowerCase().contains('emoji')) {
-      return true;
-    }
-    
-    return false;
+    return null;
   }
 
   void _onTapLink(String url) async {
@@ -567,8 +536,9 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
               throw FormatException(t.errors.invalidUrl);
             }
             
-            // 判断是否为表情包
-            final isEmoji = _isEmojiImage(url, attributes);
+            // 判断是否为表情包并获取规格
+            final emojiSize = _getEmojiSize(url, attributes);
+            final isEmoji = emojiSize != null;
             
             return GestureDetector(
               onTap: () {
@@ -620,43 +590,43 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
                 cursor: SystemMouseCursors.click,
                 child: isEmoji 
                   ? Container(
-                      // 表情包使用更紧凑的布局
-                      margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+                      // 表情包使用动态布局
+                      margin: emojiSize!.margin,
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: BorderRadius.circular(emojiSize.borderRadius),
                         child: CachedNetworkImage(
                           imageUrl: url,
                           placeholder: (context, url) => Container(
-                            width: 32.0,
-                            height: 32.0,
+                            width: emojiSize.displaySize,
+                            height: emojiSize.displaySize,
                             decoration: BoxDecoration(
                               color: Colors.grey[200],
-                              borderRadius: BorderRadius.circular(4),
+                              borderRadius: BorderRadius.circular(emojiSize.borderRadius),
                             ),
-                            child: const Center(
+                            child: Center(
                               child: SizedBox(
-                                width: 16,
-                                height: 16,
+                                width: emojiSize.displaySize * 0.4,
+                                height: emojiSize.displaySize * 0.4,
                                 child: CircularProgressIndicator(strokeWidth: 2),
                               ),
                             ),
                           ),
                           errorWidget: (context, url, error) => Container(
-                            width: 32.0,
-                            height: 32.0,
+                            width: emojiSize.displaySize,
+                            height: emojiSize.displaySize,
                             decoration: BoxDecoration(
                               color: Colors.grey[200],
-                              borderRadius: BorderRadius.circular(4),
+                              borderRadius: BorderRadius.circular(emojiSize.borderRadius),
                             ),
                             child: Icon(
                               Icons.broken_image_outlined,
-                              size: 16,
+                              size: emojiSize.displaySize * 0.5,
                               color: Colors.grey[400],
                             ),
                           ),
                           fit: BoxFit.contain,
-                          width: 32.0,
-                          height: 32.0,
+                          width: emojiSize.displaySize,
+                          height: emojiSize.displaySize,
                         ),
                       ),
                     )

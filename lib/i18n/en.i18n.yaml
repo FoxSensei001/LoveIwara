@@ -149,6 +149,12 @@ common:
   agree: Agree
   disagree: Disagree
   agreeToRules: Agree to Rules
+  # Base Input Dialog
+  markdownSyntaxHelp: Markdown Syntax Help
+  previewContent: Preview Content
+  characterCount: '${current}/${max}'
+  exceedsMaxLengthLimit: 'Exceeds max length limit (${max})'
+  agreeToCommunityRules: Agree to Community Rules
   createPost: Create Post
   title: Title
   enterTitle: Please enter title
