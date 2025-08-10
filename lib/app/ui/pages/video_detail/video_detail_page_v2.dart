@@ -268,6 +268,10 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
             else if (controller.videoPlayerReady.value) {
               return _buildPureVideoPlayer(screenSize.height, paddingTop);
             } 
+            // 如果正在切换清晰度，继续显示播放器（避免闪烁）
+            else if (controller.isSwitchingResolution.value) {
+              return _buildPureVideoPlayer(screenSize.height, paddingTop);
+            }
             // 否则显示骨架屏
             else {
               return VideoPlayerSkeletonWidget(controller: controller);
