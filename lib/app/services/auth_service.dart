@@ -275,17 +275,39 @@ class AuthService extends GetxService {
         } catch (e) {
           if (e is NetworkException) {
             LogUtils.w('$_tag 后台刷新token网络错误，保持当前状态: ${e.message}');
-            // 网络错误时不清理token，稍后重试
-            Future.delayed(const Duration(minutes: 5), () {
-              if (hasToken && isAccessTokenExpired && !_isRefreshing) {
-                _refreshTokenInBackground();
-              }
-            });
+            // 网络错误时不清理token，使用指数退避重试
+            _scheduleRetryWithBackoff();
           } else {
             LogUtils.e('$_tag 后台刷新token发生错误', error: e);
             await _handleTokenExpiredSilently();
           }
         }
+      }
+    });
+  }
+
+  // 添加指数退避重试机制
+  int _retryCount = 0;
+  static const int _maxRetries = 5;
+  static const Duration _baseRetryDelay = Duration(minutes: 2);
+
+  void _scheduleRetryWithBackoff() {
+    if (_retryCount >= _maxRetries) {
+      LogUtils.w('$_tag 达到最大重试次数，停止重试');
+      return;
+    }
+
+    _retryCount++;
+    final delay = Duration(
+      milliseconds: _baseRetryDelay.inMilliseconds * (1 << (_retryCount - 1))
+    );
+    
+    LogUtils.d('$_tag 计划在 ${delay.inMinutes} 分钟后重试 token 刷新 (第 $_retryCount 次)');
+    
+    Timer(delay, () {
+      if (hasToken && isAccessTokenExpired && !_isRefreshing) {
+        _retryCount = 0; // 重置重试计数
+        _refreshTokenInBackground();
       }
     });
   }
@@ -423,14 +445,22 @@ class AuthService extends GetxService {
       // 立即刷新，但使用Future.microtask避免阻塞
       Future.microtask(() async {
         if (hasToken) {
-          await refreshAccessToken();
+          final success = await refreshAccessToken();
+          if (success) {
+            // 刷新成功后重新启动定时器
+            _startTokenRefreshTimer();
+          }
         }
       });
     } else {
       // 设置定时器在过期前刷新
       _tokenRefreshTimer = Timer(timeUntilRefresh, () async {
         if (hasToken) {
-          await refreshAccessToken();
+          final success = await refreshAccessToken();
+          if (success) {
+            // 刷新成功后重新启动定时器
+            _startTokenRefreshTimer();
+          }
         }
       });
     }

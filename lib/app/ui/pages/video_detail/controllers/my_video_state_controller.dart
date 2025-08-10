@@ -940,6 +940,7 @@ class MyVideoStateController extends GetxController
     if (_isDisposed) return;
     try {
       await player.open(Media(url), play: false).timeout(const Duration(seconds: 20));
+      player.play();
     } catch (e) {
       if (_isDisposed) return;
       LogUtils.e('Player open 出错: $e', tag: 'MyVideoStateController', error: e);

@@ -6,6 +6,10 @@ import 'package:i_iwara/app/ui/widgets/glow_notification_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:flutter/services.dart';
+import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:oktoast/oktoast.dart';
+import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 
 import 'search_dialog.dart';
 
@@ -18,6 +22,7 @@ class SearchController extends GetxController {
   final RxString selectedSort = 'trending'.obs; // 添加 sort 状态管理
   final RxString searchType = ''.obs; // 添加搜索类型状态管理（用于 oreno3d）
   final Rx<Map<String, dynamic>?> extData = Rx<Map<String, dynamic>?>(null); // 添加扩展数据管理
+  final RxString currentSingleTagNameBehindSearchInput = ''.obs; // 用于显示 oreno3d 标签名
 
   // 存储滚动回调
   final List<Function()> _scrollToTopCallbacks = [];
@@ -69,6 +74,11 @@ class SearchController extends GetxController {
   // 更新扩展数据
   void updateExtData(Map<String, dynamic>? data) {
     extData.value = data;
+  }
+
+  // 更新 oreno3d 标签名
+  void updateCurrentSingleTagNameBehindSearchInput(String name) {
+    currentSingleTagNameBehindSearchInput.value = name;
   }
 
   // 更新排序方式
@@ -144,8 +154,12 @@ class _SearchResultState extends State<SearchResult> {
     if (widget.extData != null) {
       searchController.updateExtData(widget.extData);
       final searchType = widget.extData!['searchType'] as String?;
+      final tagName = widget.extData!['name'] as String?;
       if (searchType != null) {
         searchController.updateSearchType(searchType);
+      }
+      if (tagName != null) {
+        searchController.updateCurrentSingleTagNameBehindSearchInput(tagName);
       }
     } else if (widget.initialSearchType != null) {
       searchController.updateSearchType(widget.initialSearchType!);
@@ -321,11 +335,57 @@ class _SearchResultState extends State<SearchResult> {
               child: Row(
                 children: [
                   // 根据条件决定是否显示搜索输入框
-                  Obx(() => _shouldHideSearchInput() 
-                    ? const Spacer() // 使用 Spacer 推动右侧按钮到右边
-                    : Expanded(
-                        child: Material(
-                          elevation: 0,
+                  Obx(() => _shouldHideSearchInput()
+                      ? Expanded(
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    final textToCopy = searchController.currentSingleTagNameBehindSearchInput.value;
+                                    Clipboard.setData(ClipboardData(text: textToCopy));
+                                    showToastWidget(
+                                      MDToastWidget(
+                                        message: slang.t.download.copySuccess,
+                                        type: MDToastType.success,
+                                      ),
+                                      position: ToastPosition.bottom,
+                                    );
+                                  },
+                                  child: Container(
+                                    height: 44,
+                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    alignment: Alignment.centerLeft,
+                                    child: SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      child: Text(
+                                        '#${searchController.currentSingleTagNameBehindSearchInput.value}',
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        maxLines: 1,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.translate, size: 20),
+                                onPressed: () {
+                                  Get.dialog(
+                                    TranslationDialog(
+                                      text: searchController.currentSingleTagNameBehindSearchInput.value,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        )
+                      : Expanded(
+                          child: Material(
+                            elevation: 0,
                           color: Theme.of(context)
                               .colorScheme
                               .surfaceContainerHighest

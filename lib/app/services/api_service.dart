@@ -117,6 +117,16 @@ class ApiService extends GetxService {
         return handler.next(options);
       },
       onError: (error, handler) async {
+        // 处理 Cloudflare 403 质询
+        if (error.response?.statusCode == 403) {
+          final cfMitigated = error.response?.headers['cf-mitigated']?.firstOrNull;
+          if (cfMitigated == 'challenge') {
+            LogUtils.w('ApiService: 检测到 Cloudflare 403 质询，跳过 token 刷新');
+            // Cloudflare 问题，直接返回原始错误，不进行 token 刷新
+            return handler.next(error);
+          }
+        }
+        
         if (error.response?.statusCode == 401) {
           LogUtils.e('ApiService: 认证错误 ${error.response?.statusCode}');
 

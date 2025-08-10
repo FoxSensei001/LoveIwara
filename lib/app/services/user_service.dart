@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:get/get.dart';
+import 'package:dio/dio.dart';
 import 'package:i_iwara/app/models/dto/profile_user_dto.dart';
 import 'package:i_iwara/app/models/dto/user_request_dto.dart';
 import 'package:i_iwara/app/models/page_data.model.dart';
@@ -35,7 +36,9 @@ class UserService extends GetxService {
   // 缓存相关
   User? _cachedUser;
   DateTime? _lastUserDataUpdate;
-  static const Duration _cacheValidDuration = Duration(hours: 1);
+  // 用户数据缓存有效期应该与 refresh_token 有效期保持一致（30天）
+  // 但考虑到数据新鲜度，设置为7天比较合理
+  static const Duration _cacheValidDuration = Duration(days: 7);
 
   bool get isLogin => currentUser.value != null;
   RxBool isLogining = RxBool(false);
@@ -147,6 +150,11 @@ class UserService extends GetxService {
     _lastUserDataUpdate = null;
     clearAllNotificationCounts();
     stopNotificationTimer();
+    
+    // 清理认证状态监听
+    _authStateSubscription?.cancel();
+    _authStateSubscription = null;
+    
     LogUtils.d('$_tag 用户数据已清理');
   }
 
@@ -618,6 +626,17 @@ class UserService extends GetxService {
       startNotificationTimer();
     } catch (e) {
       LogUtils.e('$_tag 静默抓取用户资料失败', error: e);
+      
+      // 检查是否为 Cloudflare 403 错误
+      if (e is DioException && e.response?.statusCode == 403) {
+        final cfMitigated = e.response?.headers['cf-mitigated']?.firstOrNull;
+        if (cfMitigated == 'challenge') {
+          LogUtils.w('$_tag 用户信息请求被 Cloudflare 拦截，跳过错误处理');
+          // Cloudflare 问题，不进行额外处理，保持现有状态
+          return;
+        }
+      }
+      
       // 这里不抛出异常，避免影响启动流程
       // 如果是认证错误，让API拦截器处理
       rethrow;

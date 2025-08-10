@@ -415,6 +415,7 @@ class VideoInfoTabWidget extends StatelessWidget {
                         onTap: () => _handleOreno3dSearch(
                           oreno3dDetail.origin!.id ?? oreno3dDetail.origin!.name,
                           'origin',
+                          oreno3dDetail.origin!.name,
                         ),
                         borderRadius: BorderRadius.circular(12),
                         child: MouseRegion(
@@ -468,6 +469,7 @@ class VideoInfoTabWidget extends StatelessWidget {
                             onTap: () => _handleOreno3dSearch(
                               tag.id ?? tag.name,
                               'tag',
+                              tag.name,
                             ),
                             borderRadius: BorderRadius.circular(12),
                             child: MouseRegion(
@@ -524,6 +526,7 @@ class VideoInfoTabWidget extends StatelessWidget {
                             onTap: () => _handleOreno3dSearch(
                               character.id ?? character.name,
                               'character',
+                              character.name,
                             ),
                             borderRadius: BorderRadius.circular(12),
                             child: MouseRegion(
@@ -1162,8 +1165,9 @@ class VideoInfoTabWidget extends StatelessWidget {
   }
 
   /// 处理 Oreno3D 搜索点击事件
-  void _handleOreno3dSearch(String id, String type) {
-    LogUtils.d('Oreno3D 搜索: id=$id, type=$type', 'VideoInfoTabWidget');
+  /// 处理 Oreno3D 搜索点击事件
+  void _handleOreno3dSearch(String id, String type, String name) {
+    LogUtils.d('Oreno3D 搜索: id=$id, type=$type, name=$name', 'VideoInfoTabWidget');
 
     // 跳转到搜索页面，自动选择 oreno3d 模式
     // 传递空的搜索关键词，通过 extData 传递 ID 和类型信息
@@ -1173,6 +1177,7 @@ class VideoInfoTabWidget extends StatelessWidget {
       extData: {
         'searchType': type,
         'id': id,
+        'name': name, // 传递标签名
       },
     );
   }
