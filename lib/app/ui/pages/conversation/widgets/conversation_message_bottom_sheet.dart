@@ -5,6 +5,8 @@ import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_syntax_help_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
+import 'package:i_iwara/app/ui/widgets/emoji_picker_widget.dart';
+import 'package:i_iwara/app/ui/widgets/enhanced_emoji_text_field.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:oktoast/oktoast.dart';
 
@@ -27,6 +29,7 @@ class _ConversationMessageBottomSheetState extends State<ConversationMessageBott
   late TextEditingController _bodyController;
   bool _isLoading = false;
   int _currentBodyLength = 0;
+  final GlobalKey<EnhancedEmojiTextFieldState> _emojiTextFieldKey = GlobalKey<EnhancedEmojiTextFieldState>();
 
   // 内容最大长度
   static const int maxBodyLength = 1000;
@@ -111,6 +114,68 @@ class _ConversationMessageBottomSheetState extends State<ConversationMessageBott
     );
   }
 
+  void _showEmojiPickerDialog() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.7,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        child: Column(
+          children: [
+            // 标题栏
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.emoji_emotions),
+                  const SizedBox(width: 8),
+                  Text(
+                    '选择表情包',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+            ),
+            // 表情包选择器
+            Expanded(
+              child: EmojiPickerWidget(
+                onEmojiSelected: (imageUrl) {
+                  _insertEmoji(imageUrl);
+                  Navigator.pop(context);
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _insertEmoji(String imageUrl) {
+    // 使用EnhancedEmojiTextField的内部方法插入表情
+    final state = _emojiTextFieldKey.currentState;
+    state?.insertEmoji(imageUrl);
+    
+    // 更新字符计数
+    setState(() {
+      _currentBodyLength = _bodyController.text.length;
+    });
+  }
+
   void _handleSubmit() async {
     if (_currentBodyLength > maxBodyLength || _currentBodyLength == 0) return;
 
@@ -171,7 +236,7 @@ class _ConversationMessageBottomSheetState extends State<ConversationMessageBott
           Container(
             padding: const EdgeInsets.all(16.0),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+              color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
               borderRadius: const BorderRadius.vertical(top: Radius.circular(16.0)),
             ),
             child: Row(
@@ -207,18 +272,28 @@ class _ConversationMessageBottomSheetState extends State<ConversationMessageBott
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // 输入框
-                TextField(
+                EnhancedEmojiTextField(
+                  key: _emojiTextFieldKey,
                   controller: _bodyController,
                   maxLines: 5,
-                  maxLength: maxBodyLength,
+                  maxLength: maxBodyLength, // 这个参数会被EnhancedEmojiTextField用于自定义字符计数
                   decoration: InputDecoration(
                     hintText: t.common.writeYourContentHere,
-                    border: const OutlineInputBorder(),
-                    counterText: '$_currentBodyLength/$maxBodyLength',
                     errorText: _currentBodyLength > maxBodyLength
                         ? t.errors.exceedsMaxLength(max: maxBodyLength.toString())
                         : null,
                   ),
+                  onChanged: (value) {
+                    setState(() {
+                      _currentBodyLength = value.length;
+                    });
+                  },
+                  enabled: !_isLoading,
+                  onEmojiInserted: (imageUrl) {
+                    setState(() {
+                      _currentBodyLength = _bodyController.text.length;
+                    });
+                  },
                 ),
                 const SizedBox(height: 16),
                 // 操作按钮行
@@ -245,6 +320,11 @@ class _ConversationMessageBottomSheetState extends State<ConversationMessageBott
                             : null,
                       ),
                       tooltip: t.common.translate,
+                    ),
+                    IconButton(
+                      onPressed: _showEmojiPickerDialog,
+                      icon: const Icon(Icons.emoji_emotions_outlined),
+                      tooltip: '表情包',
                     ),
                     IconButton(
                       onPressed: _showMarkdownHelp,

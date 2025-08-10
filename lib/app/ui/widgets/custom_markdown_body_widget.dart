@@ -272,6 +272,68 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     }
   }
 
+  /// 判断是否为表情包图片
+  /// 
+  /// 表情包识别规则：
+  /// 1. 主要识别方式：alt文本为"表情"（这是我们应用插入表情包的标准格式）
+  /// 2. 兼容性识别：alt文本包含"emoji"、"表情"、"贴图"等关键词
+  /// 3. 扩展识别：URL包含表情包相关路径或参数
+  /// 4. 尺寸识别：通过图片尺寸判断（表情包通常较小）
+  bool _isEmojiImage(String url, Map<String, String> attributes) {
+    // 1. 主要识别方式：alt文本为"表情"（我们的标准格式）
+    final altText = attributes['alt'] ?? '';
+    if (altText == '表情') {
+      return true;
+    }
+    
+    // 2. 兼容性识别：alt文本包含表情包相关关键词
+    final lowerAltText = altText.toLowerCase();
+    if (lowerAltText.contains('emoji') || 
+        lowerAltText.contains('表情') || 
+        lowerAltText.contains('贴图') ||
+        lowerAltText.contains('sticker') ||
+        lowerAltText.contains('emoticon')) {
+      return true;
+    }
+    
+    // 3. URL模式识别：表情包URL可能包含特定标识符
+    final lowerUrl = url.toLowerCase();
+    if (lowerUrl.contains('/emoji/') || 
+        lowerUrl.contains('emoji') ||
+        lowerUrl.contains('/sticker/') ||
+        lowerUrl.contains('sticker') ||
+        lowerUrl.contains('/emoticon/') ||
+        lowerUrl.contains('emoticon')) {
+      return true;
+    }
+    
+    // 4. 文件扩展名识别：表情包通常是较小的图片格式
+    if (lowerUrl.endsWith('.gif') || 
+        lowerUrl.endsWith('.png') || 
+        lowerUrl.endsWith('.webp')) {
+      // 进一步检查URL是否来自常见的表情包服务
+      if (lowerUrl.contains('cdn') || 
+          lowerUrl.contains('static') ||
+          lowerUrl.contains('assets') ||
+          lowerUrl.contains('images')) {
+        // 检查是否有尺寸参数，表情包通常有尺寸限制
+        if (lowerUrl.contains('size=') || 
+            lowerUrl.contains('width=') || 
+            lowerUrl.contains('height=')) {
+          return true;
+        }
+      }
+    }
+    
+    // 5. 检查是否有表情包相关的属性
+    if (attributes.containsKey('class') && 
+        attributes['class']!.toLowerCase().contains('emoji')) {
+      return true;
+    }
+    
+    return false;
+  }
+
   void _onTapLink(String url) async {
     try {
       final urlInfo = UrlUtils.parseUrl(url);
@@ -395,7 +457,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
         color: Theme.of(context)
             .colorScheme
             .surfaceContainerHighest
-            .withOpacity(0.3),
+            .withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(8),
       ),
       padding: const EdgeInsets.all(12),
@@ -504,87 +566,146 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
             if (parsedUri == null || !parsedUri.hasAbsolutePath) {
               throw FormatException(t.errors.invalidUrl);
             }
+            
+            // 判断是否为表情包
+            final isEmoji = _isEmojiImage(url, attributes);
+            
             return GestureDetector(
               onTap: () {
-                // 进入图片详情页
-                ImageItem item = ImageItem(
-                    url: url,
-                    data: ImageItemData(id: '', url: url, originalUrl: url));
-                final menuItems = [
-                  MenuItem(
-                    title: t.galleryDetail.copyLink,
-                    icon: Icons.copy,
-                    onTap: () => ImageUtils.copyLink(item),
-                  ),
-                  MenuItem(
-                    title: t.galleryDetail.copyImage,
-                    icon: Icons.copy,
-                    onTap: () => ImageUtils.copyImage(item),
-                  ),
-                  if (GetPlatform.isDesktop && !GetPlatform.isWeb)
+                if (isEmoji) {
+                  // 表情包点击时复制链接
+                  Clipboard.setData(ClipboardData(text: url));
+                  showToastWidget(
+                    MDToastWidget(
+                      message: '表情包链接已复制',
+                      type: MDToastType.success,
+                    ),
+                    position: ToastPosition.top,
+                  );
+                } else {
+                  // 普通图片进入图片详情页
+                  ImageItem item = ImageItem(
+                      url: url,
+                      data: ImageItemData(id: '', url: url, originalUrl: url));
+                  final menuItems = [
                     MenuItem(
-                      title: t.galleryDetail.saveAs,
-                      icon: Icons.download,
+                      title: t.galleryDetail.copyLink,
+                      icon: Icons.copy,
+                      onTap: () => ImageUtils.copyLink(item),
+                    ),
+                    MenuItem(
+                      title: t.galleryDetail.copyImage,
+                      icon: Icons.copy,
+                      onTap: () => ImageUtils.copyImage(item),
+                    ),
+                    if (GetPlatform.isDesktop && !GetPlatform.isWeb)
+                      MenuItem(
+                        title: t.galleryDetail.saveAs,
+                        icon: Icons.download,
+                        onTap: () => ImageUtils.downloadImageToAppDirectory(item),
+                      ),
+                    MenuItem(
+                      title: t.galleryDetail.saveToAlbum,
+                      icon: Icons.save,
                       onTap: () => ImageUtils.downloadImageToAppDirectory(item),
                     ),
-                  MenuItem(
-                    title: t.galleryDetail.saveToAlbum,
-                    icon: Icons.save,
-                    onTap: () => ImageUtils.downloadImageToAppDirectory(item),
-                  ),
-                ];
-                NaviService.navigateToPhotoViewWrapper(
-                    imageItems: [item],
-                    initialIndex: 0,
-                    menuItemsBuilder: (context, item) => menuItems);
+                  ];
+                  NaviService.navigateToPhotoViewWrapper(
+                      imageItems: [item],
+                      initialIndex: 0,
+                      menuItemsBuilder: (context, item) => menuItems);
+                }
               },
               child: MouseRegion(
                 cursor: SystemMouseCursors.click,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: CachedNetworkImage(
-                    imageUrl: url,
-                    placeholder: (context, url) => Shimmer.fromColors(
-                      baseColor: Colors.grey[300]!,
-                      highlightColor: Colors.grey[100]!,
-                      child: Container(
-                        width: double.infinity,
-                        height: 200.0,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                    errorWidget: (context, url, error) => Container(
-                      width: double.infinity,
-                      height: 200.0,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.broken_image_outlined,
-                            size: 48,
-                            color: Colors.grey[400],
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            t.errors.error,
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 14,
+                child: isEmoji 
+                  ? Container(
+                      // 表情包使用更紧凑的布局
+                      margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: CachedNetworkImage(
+                          imageUrl: url,
+                          placeholder: (context, url) => Container(
+                            width: 32.0,
+                            height: 32.0,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Center(
+                              child: SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              ),
                             ),
                           ),
-                        ],
+                          errorWidget: (context, url, error) => Container(
+                            width: 32.0,
+                            height: 32.0,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Icon(
+                              Icons.broken_image_outlined,
+                              size: 16,
+                              color: Colors.grey[400],
+                            ),
+                          ),
+                          fit: BoxFit.contain,
+                          width: 32.0,
+                          height: 32.0,
+                        ),
+                      ),
+                    )
+                  : ClipRRect(
+                      // 普通图片保持原有样式
+                      borderRadius: BorderRadius.circular(12),
+                      child: CachedNetworkImage(
+                        imageUrl: url,
+                        placeholder: (context, url) => Shimmer.fromColors(
+                          baseColor: Colors.grey[300]!,
+                          highlightColor: Colors.grey[100]!,
+                          child: Container(
+                            width: double.infinity,
+                            height: 200.0,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          width: double.infinity,
+                          height: 200.0,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.broken_image_outlined,
+                                size: 48,
+                                color: Colors.grey[400],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                t.errors.error,
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        fit: BoxFit.cover,
                       ),
                     ),
-                    fit: BoxFit.cover,
-                  ),
-                ),
               ),
             );
           } catch (e) {
@@ -663,7 +784,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
                               color: Theme.of(context)
                                   .colorScheme
                                   .surfaceContainerHighest
-                                  .withOpacity(0.3),
+                                  .withValues(alpha: 0.3),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             padding: const EdgeInsets.all(12),
@@ -726,50 +847,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
                   _buildTranslatedContent(context),
                 ],
               ],
-              const SizedBox(height: 8),
-              if (false) // 开关，这样写方便我之后调试
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton.icon(
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      ),
-                      icon: const Icon(Icons.copy, size: 14),
-                      label: Text(
-                        '复制原文',
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                      onPressed: () {
-                        Clipboard.setData(ClipboardData(text: widget.data));
-                        showToastWidget(
-                          MDToastWidget(
-                              message: '复制原文成功', type: MDToastType.success),
-                          position: ToastPosition.top,
-                        );
-                      },
-                    ),
-                    const SizedBox(width: 8),
-                    TextButton.icon(
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      ),
-                      icon: const Icon(Icons.copy, size: 14),
-                      label: Text(
-                        '复制处理后',
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                      onPressed: () {
-                        Clipboard.setData(ClipboardData(text: _displayData));
-                        showToastWidget(
-                          MDToastWidget(
-                              message: '复制处理后成功', type: MDToastType.success),
-                          position: ToastPosition.top,
-                        );
-                      },
-                    ),
-                  ],
-                ),
+
             ],
           ),
         );
