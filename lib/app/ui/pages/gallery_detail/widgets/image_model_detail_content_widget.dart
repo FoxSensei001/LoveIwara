@@ -244,7 +244,13 @@ class ImageModelDetailContent extends StatelessWidget {
   Widget _buildTags() {
     final tags = controller.imageModelInfo.value?.tags;
     if (tags != null && tags.isNotEmpty) {
-      return ExpandableTagsWidget(tags: tags);
+      return ExpandableTagsWidget(
+        tags: tags,
+        onTagTap: (tag) {
+          // 点击标签跳转到标签图库列表页
+          NaviService.navigateToTagGalleryListPage(tag);
+        },
+      );
     }
     return const SizedBox.shrink();
   }

@@ -19,6 +19,7 @@ import 'package:i_iwara/app/ui/pages/notifications/notification_list_page.dart';
 import 'package:i_iwara/app/ui/pages/play_list/play_list.dart';
 import 'package:i_iwara/app/ui/pages/play_list/play_list_detail.dart';
 import 'package:i_iwara/app/ui/pages/tag_blacklist/tag_blacklist_page.dart';
+import 'package:i_iwara/app/ui/pages/tag_videos/tag_gallery_list_page.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/video_detail_page_v2.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/my_video_screen.dart';
@@ -428,6 +429,14 @@ class NaviService {
     _navigateToPage(
       routeName: Routes.TAG_VIDEOS(tag.id),
       page: TagVideoListPage(tag: tag),
+    );
+  }
+
+  /// 跳转到标签图库列表页
+  static void navigateToTagGalleryListPage(Tag tag) {
+    _navigateToPage(
+      routeName: Routes.TAG_GALLERIES(tag.id),
+      page: TagGalleryListPage(tag: tag),
     );
   }
 }
