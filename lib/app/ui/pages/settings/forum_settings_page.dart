@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Translations;
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/signature_edit_dialog_widget.dart';
 import 'package:i_iwara/app/ui/pages/emoji_library/emoji_library_page.dart';
-import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/i18n/strings.g.dart';
 
 class ForumSettingsPage extends StatelessWidget {
   final bool isWideScreen;
@@ -12,13 +12,14 @@ class ForumSettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = Translations.of(context);
     final configService = Get.find<ConfigService>();
 
     return Scaffold(
       appBar: isWideScreen
           ? null
           : AppBar(
-              title: Text(slang.t.settings.forum,
+              title: Text(t.settings.forum,
                   style: const TextStyle(fontWeight: FontWeight.bold)),
               elevation: 2,
               backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -38,7 +39,7 @@ class ForumSettingsPage extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Text(
-                    slang.t.settings.forum,
+                    t.settings.forum,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -47,8 +48,8 @@ class ForumSettingsPage extends StatelessWidget {
                 const Divider(height: 1),
                 Obx(
                   () => SwitchListTile(
-                    title: Text(slang.t.settings.disableForumReplyQuote),
-                    subtitle: Text(slang.t.settings.disableForumReplyQuoteDesc),
+                    title: Text(t.settings.disableForumReplyQuote),
+                    subtitle: Text(t.settings.disableForumReplyQuoteDesc),
                     value: configService[ConfigKey.DISABLE_FORUM_REPLY_QUOTE_KEY],
                     onChanged: (value) {
                       configService[ConfigKey.DISABLE_FORUM_REPLY_QUOTE_KEY] = value;
@@ -76,7 +77,7 @@ class ForumSettingsPage extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Text(
-                    slang.t.settings.signature, // 需要在翻译文件中添加相应的翻译
+                    t.settings.signature, // 需要在翻译文件中添加相应的翻译
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -85,8 +86,8 @@ class ForumSettingsPage extends StatelessWidget {
                 const Divider(height: 1),
                 Obx(
                   () => SwitchListTile(
-                    title: Text(slang.t.settings.enableSignature),
-                    subtitle: Text(slang.t.settings.enableSignatureDesc),
+                    title: Text(t.settings.enableSignature),
+                    subtitle: Text(t.settings.enableSignatureDesc),
                     value: configService[ConfigKey.ENABLE_SIGNATURE_KEY],
                     onChanged: (value) {
                       configService[ConfigKey.ENABLE_SIGNATURE_KEY] = value;
@@ -96,7 +97,7 @@ class ForumSettingsPage extends StatelessWidget {
                 Obx(
                   () => configService[ConfigKey.ENABLE_SIGNATURE_KEY]
                       ? ListTile(
-                          title: Text(slang.t.settings.signatureContent),
+                          title: Text(t.settings.signatureContent),
                           subtitle: Text(
                             configService[ConfigKey.SIGNATURE_CONTENT_KEY],
                             maxLines: 2,
@@ -137,7 +138,7 @@ class ForumSettingsPage extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Text(
-                    '表情包管理',
+                    t.emoji.emojiManagement,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -146,8 +147,8 @@ class ForumSettingsPage extends StatelessWidget {
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.emoji_emotions),
-                  title: const Text('表情包库'),
-                  subtitle: const Text('管理表情包分组和图片'),
+                  title: Text(t.emoji.library),
+                  subtitle: Text(t.emoji.manageEmojiGroupsAndImages),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () {
                     Get.to(() => const EmojiLibraryPage());

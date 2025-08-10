@@ -63,6 +63,7 @@ class TranslationsJa implements Translations {
 	@override late final _TranslationsMediaPlayerJa mediaPlayer = _TranslationsMediaPlayerJa._(_root);
 	@override late final _TranslationsLinkInputDialogJa linkInputDialog = _TranslationsLinkInputDialogJa._(_root);
 	@override late final _TranslationsLogJa log = _TranslationsLogJa._(_root);
+	@override late final _TranslationsEmojiJa emoji = _TranslationsEmojiJa._(_root);
 }
 
 // Path: common
@@ -672,6 +673,7 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get videoSyncDisplayDesync => 'ディスプレイ非同期';
 	@override String get videoSyncDesync => '非同期';
 	@override late final _TranslationsSettingsForumSettingsJa forumSettings = _TranslationsSettingsForumSettingsJa._(_root);
+	@override late final _TranslationsSettingsChatSettingsJa chatSettings = _TranslationsSettingsChatSettingsJa._(_root);
 	@override String get hardwareDecodingAuto => '自動';
 	@override String get hardwareDecodingAutoCopy => '自動コピー';
 	@override String get hardwareDecodingAutoSafe => '自動セーフ';
@@ -1315,6 +1317,64 @@ class _TranslationsLogJa implements TranslationsLogEn {
 	@override String logSizeLimitSetSuccess({required Object size}) => 'ログサイズ上限を ${size} に設定しました';
 }
 
+// Path: emoji
+class _TranslationsEmojiJa implements TranslationsEmojiEn {
+	_TranslationsEmojiJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get name => '絵文字';
+	@override String get size => 'サイズ';
+	@override String get small => '小';
+	@override String get medium => '中';
+	@override String get large => '大';
+	@override String get copyEmojiLinkSuccess => '絵文字リンクをコピーしました';
+	@override String get preview => '絵文字プレビュー';
+	@override String get library => '絵文字ライブラリ';
+	@override String get noEmojis => '絵文字がありません';
+	@override String get clickToAddEmojis => '右上のボタンをクリックして絵文字を追加';
+	@override String get addEmojis => '絵文字を追加';
+	@override String get imagePreview => '画像プレビュー';
+	@override String get imageLoadFailed => '画像の読み込みに失敗しました';
+	@override String get loading => '読み込み中...';
+	@override String get delete => '削除';
+	@override String get close => '閉じる';
+	@override String get deleteImage => '画像を削除';
+	@override String get confirmDeleteImage => 'この画像を削除してもよろしいですか？';
+	@override String get cancel => 'キャンセル';
+	@override String get batchDelete => '一括削除';
+	@override String confirmBatchDelete({required Object count}) => '選択された${count}枚の画像を削除してもよろしいですか？この操作は元に戻せません。';
+	@override String get deleteSuccess => '削除しました';
+	@override String get addImage => '画像を追加';
+	@override String get addImageByUrl => 'URLで追加';
+	@override String get addImageUrl => '画像URLを追加';
+	@override String get imageUrl => '画像URL';
+	@override String get enterImageUrl => '画像URLを入力してください';
+	@override String get add => '追加';
+	@override String get batchImport => '一括インポート';
+	@override String get enterJsonUrlArray => 'JSON形式のURL配列を入力してください:';
+	@override String get formatExample => '形式例:\n["url1", "url2", "url3"]';
+	@override String get pasteJsonUrlArray => 'JSON形式のURL配列を貼り付けてください';
+	@override String get import => 'インポート';
+	@override String importSuccess({required Object count}) => '${count}枚の画像をインポートしました';
+	@override String get jsonFormatError => 'JSON形式エラー、入力を確認してください';
+	@override String get createGroup => '絵文字グループを作成';
+	@override String get groupName => 'グループ名';
+	@override String get enterGroupName => 'グループ名を入力してください';
+	@override String get create => '作成';
+	@override String get editGroupName => 'グループ名を編集';
+	@override String get save => '保存';
+	@override String get deleteGroup => 'グループを削除';
+	@override String get confirmDeleteGroup => 'この絵文字グループを削除してもよろしいですか？グループ内のすべての画像も削除されます。';
+	@override String imageCount({required Object count}) => '${count}枚の画像';
+	@override String get selectEmoji => '絵文字を選択';
+	@override String get noEmojisInGroup => 'このグループには絵文字がありません';
+	@override String get goToSettingsToAddEmojis => '設定で絵文字を追加してください';
+	@override String get emojiManagement => '絵文字管理';
+	@override String get manageEmojiGroupsAndImages => '絵文字グループと画像を管理';
+}
+
 // Path: common.pagination
 class _TranslationsCommonPaginationJa implements TranslationsCommonPaginationEn {
 	_TranslationsCommonPaginationJa._(this._root);
@@ -1372,6 +1432,17 @@ class _TranslationsSettingsForumSettingsJa implements TranslationsSettingsForumS
 	// Translations
 	@override String get name => 'フォーラム';
 	@override String get configureYourForumSettings => 'フォーラム設定を構成する';
+}
+
+// Path: settings.chatSettings
+class _TranslationsSettingsChatSettingsJa implements TranslationsSettingsChatSettingsEn {
+	_TranslationsSettingsChatSettingsJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get name => 'チャット';
+	@override String get configureYourChatSettings => 'チャット設定を構成する';
 }
 
 // Path: settings.downloadSettings
@@ -2327,6 +2398,8 @@ extension on TranslationsJa {
 			case 'settings.videoSyncDesync': return '非同期';
 			case 'settings.forumSettings.name': return 'フォーラム';
 			case 'settings.forumSettings.configureYourForumSettings': return 'フォーラム設定を構成する';
+			case 'settings.chatSettings.name': return 'チャット';
+			case 'settings.chatSettings.configureYourChatSettings': return 'チャット設定を構成する';
 			case 'settings.hardwareDecodingAuto': return '自動';
 			case 'settings.hardwareDecodingAutoCopy': return '自動コピー';
 			case 'settings.hardwareDecodingAutoSafe': return '自動セーフ';
@@ -3073,6 +3146,55 @@ extension on TranslationsJa {
 			case 'log.newSizeLimit': return ({required Object size}) => '新しいサイズ上限: ${size}';
 			case 'log.confirmToContinue': return '続行してもよろしいですか？';
 			case 'log.logSizeLimitSetSuccess': return ({required Object size}) => 'ログサイズ上限を ${size} に設定しました';
+			case 'emoji.name': return '絵文字';
+			case 'emoji.size': return 'サイズ';
+			case 'emoji.small': return '小';
+			case 'emoji.medium': return '中';
+			case 'emoji.large': return '大';
+			case 'emoji.copyEmojiLinkSuccess': return '絵文字リンクをコピーしました';
+			case 'emoji.preview': return '絵文字プレビュー';
+			case 'emoji.library': return '絵文字ライブラリ';
+			case 'emoji.noEmojis': return '絵文字がありません';
+			case 'emoji.clickToAddEmojis': return '右上のボタンをクリックして絵文字を追加';
+			case 'emoji.addEmojis': return '絵文字を追加';
+			case 'emoji.imagePreview': return '画像プレビュー';
+			case 'emoji.imageLoadFailed': return '画像の読み込みに失敗しました';
+			case 'emoji.loading': return '読み込み中...';
+			case 'emoji.delete': return '削除';
+			case 'emoji.close': return '閉じる';
+			case 'emoji.deleteImage': return '画像を削除';
+			case 'emoji.confirmDeleteImage': return 'この画像を削除してもよろしいですか？';
+			case 'emoji.cancel': return 'キャンセル';
+			case 'emoji.batchDelete': return '一括削除';
+			case 'emoji.confirmBatchDelete': return ({required Object count}) => '選択された${count}枚の画像を削除してもよろしいですか？この操作は元に戻せません。';
+			case 'emoji.deleteSuccess': return '削除しました';
+			case 'emoji.addImage': return '画像を追加';
+			case 'emoji.addImageByUrl': return 'URLで追加';
+			case 'emoji.addImageUrl': return '画像URLを追加';
+			case 'emoji.imageUrl': return '画像URL';
+			case 'emoji.enterImageUrl': return '画像URLを入力してください';
+			case 'emoji.add': return '追加';
+			case 'emoji.batchImport': return '一括インポート';
+			case 'emoji.enterJsonUrlArray': return 'JSON形式のURL配列を入力してください:';
+			case 'emoji.formatExample': return '形式例:\n["url1", "url2", "url3"]';
+			case 'emoji.pasteJsonUrlArray': return 'JSON形式のURL配列を貼り付けてください';
+			case 'emoji.import': return 'インポート';
+			case 'emoji.importSuccess': return ({required Object count}) => '${count}枚の画像をインポートしました';
+			case 'emoji.jsonFormatError': return 'JSON形式エラー、入力を確認してください';
+			case 'emoji.createGroup': return '絵文字グループを作成';
+			case 'emoji.groupName': return 'グループ名';
+			case 'emoji.enterGroupName': return 'グループ名を入力してください';
+			case 'emoji.create': return '作成';
+			case 'emoji.editGroupName': return 'グループ名を編集';
+			case 'emoji.save': return '保存';
+			case 'emoji.deleteGroup': return 'グループを削除';
+			case 'emoji.confirmDeleteGroup': return 'この絵文字グループを削除してもよろしいですか？グループ内のすべての画像も削除されます。';
+			case 'emoji.imageCount': return ({required Object count}) => '${count}枚の画像';
+			case 'emoji.selectEmoji': return '絵文字を選択';
+			case 'emoji.noEmojisInGroup': return 'このグループには絵文字がありません';
+			case 'emoji.goToSettingsToAddEmojis': return '設定で絵文字を追加してください';
+			case 'emoji.emojiManagement': return '絵文字管理';
+			case 'emoji.manageEmojiGroupsAndImages': return '絵文字グループと画像を管理';
 			default: return null;
 		}
 	}

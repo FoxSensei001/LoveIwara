@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/emoji_picker_widget.dart';
 import 'package:i_iwara/common/enums/emoji_size_enum.dart';
+import 'package:i_iwara/i18n/strings.g.dart';
+import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/emoji_library_service.dart';
+import 'package:get/get.dart' hide Translations;
 
 class EmojiPickerSheet extends StatefulWidget {
   final Function(String imageUrl, EmojiSize size) onEmojiSelected;
@@ -18,13 +22,40 @@ class EmojiPickerSheet extends StatefulWidget {
   State<EmojiPickerSheet> createState() => _EmojiPickerSheetState();
 }
 
-class _EmojiPickerSheetState extends State<EmojiPickerSheet> {
+class _EmojiPickerSheetState extends State<EmojiPickerSheet>
+    with SingleTickerProviderStateMixin {
   late EmojiSize _selectedSize;
+  late EmojiLibraryService _emojiService;
+  late TabController _tabController;
+  List<EmojiGroup> _groups = [];
 
   @override
   void initState() {
     super.initState();
     _selectedSize = widget.initialSize;
+    _emojiService = Get.find<EmojiLibraryService>();
+    _loadData();
+  }
+
+  void _loadData() async {
+    try {
+      _groups = _emojiService.getEmojiGroups();
+      if (_groups.isNotEmpty) {
+        _tabController = TabController(length: _groups.length, vsync: this);
+      } else {
+        _tabController = TabController(length: 1, vsync: this);
+      }
+      setState(() {});
+    } catch (e) {
+      _tabController = TabController(length: 1, vsync: this);
+      setState(() {});
+    }
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   void _handleEmojiSelected(String imageUrl) {
@@ -40,6 +71,7 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final t = Translations.of(context);
     final screenWidth = MediaQuery.of(context).size.width;
     final isNarrowScreen = screenWidth < 400; // 窄屏判断
 
@@ -65,13 +97,8 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.emoji_emotions),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    '选择表情包',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
+                const Expanded(
+                  child: SizedBox.shrink(), 
                 ),
                 // 表情包规格选择器
                 if (!isNarrowScreen) ...[
@@ -120,7 +147,16 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet> {
                     ),
                   ),
                 ],
-                const SizedBox(width: 8),
+                  // 设置按钮
+                IconButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    // 跳转到表情包库页面
+                    NaviService.navigateToEmojiLibraryPage();
+                  },
+                  icon: const Icon(Icons.settings),
+                  tooltip: t.settings.settings,
+                ),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(Icons.close),
@@ -129,37 +165,40 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet> {
             ),
           ),
           
-          // 窄屏时的规格选择器（单独一行）
+          // 窄屏时的规格选择器（单独一行，支持横向滚动）
           if (isNarrowScreen) ...[
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: EmojiSize.values.map((size) {
-                  return GestureDetector(
-                    onTap: () => _handleSizeChanged(size),
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: _selectedSize == size
-                            ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context).colorScheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Text(
-                        size.displayName,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: EmojiSize.values.map((size) {
+                    return GestureDetector(
+                      onTap: () => _handleSizeChanged(size),
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
                           color: _selectedSize == size
-                              ? Theme.of(context).colorScheme.onPrimary
-                              : Theme.of(context).colorScheme.onSurface,
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          size.displayName,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: _selectedSize == size
+                                ? Theme.of(context).colorScheme.onPrimary
+                                : Theme.of(context).colorScheme.onSurface,
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                }).toList(),
+                    );
+                  }).toList(),
+                ),
               ),
             ),
           ],
@@ -186,6 +225,7 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet> {
                       onEmojiSelected: _handleEmojiSelected,
                       showOnlyTabs: true, // 只显示标签页，不显示内容
                       isRailMode: true, // 新增参数，表示 rail 模式
+                      tabController: _tabController, // 传递共享的 TabController
                     ),
                   ),
                 ),
@@ -195,6 +235,7 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet> {
                     onEmojiSelected: _handleEmojiSelected,
                     showOnlyContent: true, // 只显示内容，不显示标签页
                     scrollController: scrollController,
+                    tabController: _tabController, // 传递共享的 TabController
                   ),
                 ),
               ],

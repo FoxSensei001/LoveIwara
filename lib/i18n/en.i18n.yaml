@@ -564,6 +564,10 @@ settings:
   forumSettings:
     name: Forum
     configureYourForumSettings: Configure Your Forum Settings
+  # Chat
+  chatSettings:
+    name: Chat
+    configureYourChatSettings: Configure Your Chat Settings
   # Hardware decoding options
   hardwareDecodingAuto: Auto
   hardwareDecodingAutoCopy: Auto Copy
@@ -1375,3 +1379,54 @@ log:
   newSizeLimit: 'New size limit: ${size}'
   confirmToContinue: 'Confirm to continue'
   logSizeLimitSetSuccess: 'Log size limit set to ${size}'
+
+emoji:
+  name: Emoji
+  size: Size
+  small: Small
+  medium: Medium
+  large: Large
+  copyEmojiLinkSuccess: 'Emoji link copied'
+  preview: Emoji Preview
+  library: Emoji Library
+  noEmojis: No emojis
+  clickToAddEmojis: Click the button in the top right to add emojis
+  addEmojis: Add Emojis
+  imagePreview: Image Preview
+  imageLoadFailed: Image load failed
+  loading: Loading...
+  delete: Delete
+  close: Close
+  deleteImage: Delete Image
+  confirmDeleteImage: Are you sure you want to delete this image?
+  cancel: Cancel
+  batchDelete: Batch Delete
+  confirmBatchDelete: 'Are you sure you want to delete the selected ${count} images? This operation cannot be undone.'
+  deleteSuccess: Successfully deleted
+  addImage: Add Image
+  addImageByUrl: Add by URL
+  addImageUrl: Add Image URL
+  imageUrl: Image URL
+  enterImageUrl: Please enter image URL
+  add: Add
+  batchImport: Batch Import
+  enterJsonUrlArray: "Please enter JSON format URL array:"
+  formatExample: 'Format example:\n["url1", "url2", "url3"]'
+  pasteJsonUrlArray: Please paste JSON format URL array
+  import: Import
+  importSuccess: 'Successfully imported ${count} images'
+  jsonFormatError: JSON format error, please check input
+  createGroup: Create Emoji Group
+  groupName: Group Name
+  enterGroupName: Please enter group name
+  create: Create
+  editGroupName: Edit Group Name
+  save: Save
+  deleteGroup: Delete Group
+  confirmDeleteGroup: Are you sure you want to delete this emoji group? All images in the group will also be deleted.
+  imageCount: '${count} images'
+  selectEmoji: Select Emoji
+  noEmojisInGroup: No emojis in this group
+  goToSettingsToAddEmojis: Go to settings to add emojis
+  emojiManagement: Emoji Management
+  manageEmojiGroupsAndImages: Manage emoji groups and images

@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 enum EmojiSize {
-  small('text-i', '小'),
-  medium('mid-i', '中'),
-  large('large-i', '大');
+  small('text-i'),
+  medium('mid-i'),
+  large('large-i');
 
-  const EmojiSize(this.altSuffix, this.displayName);
-  
+  const EmojiSize(this.altSuffix);
+
   final String altSuffix;
-  final String displayName;
-  
+
   /// 根据alt后缀获取枚举值
   static EmojiSize? fromAltSuffix(String altSuffix) {
     for (final size in EmojiSize.values) {
@@ -19,7 +19,19 @@ enum EmojiSize {
     }
     return null;
   }
-  
+
+  /// 获取国际化显示名称
+  String get displayName {
+    switch (this) {
+      case EmojiSize.small:
+        return slang.t.emoji.small;
+      case EmojiSize.medium:
+        return slang.t.emoji.medium;
+      case EmojiSize.large:
+        return slang.t.emoji.large;
+    }
+  }
+
   /// 获取对应的显示尺寸
   double get displaySize {
     switch (this) {
@@ -31,7 +43,7 @@ enum EmojiSize {
         return 56.0;
     }
   }
-  
+
   /// 获取对应的边距
   EdgeInsets get margin {
     switch (this) {
@@ -43,7 +55,7 @@ enum EmojiSize {
         return const EdgeInsets.symmetric(horizontal: 4, vertical: 3);
     }
   }
-  
+
   /// 获取对应的圆角
   double get borderRadius {
     switch (this) {

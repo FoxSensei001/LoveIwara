@@ -21,6 +21,7 @@ import 'package:flutter/services.dart';
 import 'dart:async';
 import 'package:i_iwara/app/utils/markdown_formatter.dart';
 import 'package:i_iwara/common/enums/emoji_size_enum.dart';
+import 'package:i_iwara/app/ui/widgets/emoji_preview_dialog.dart';
 
 class CustomMarkdownBody extends StatefulWidget {
   final String data;
@@ -543,14 +544,10 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
             return GestureDetector(
               onTap: () {
                 if (isEmoji) {
-                  // 表情包点击时复制链接
-                  Clipboard.setData(ClipboardData(text: url));
-                  showToastWidget(
-                    MDToastWidget(
-                      message: '表情包链接已复制',
-                      type: MDToastType.success,
-                    ),
-                    position: ToastPosition.top,
+                  // 表情包点击时显示预览弹窗
+                  EmojiPreviewDialog.show(
+                    context: context,
+                    emojiUrl: url,
                   );
                 } else {
                   // 普通图片进入图片详情页

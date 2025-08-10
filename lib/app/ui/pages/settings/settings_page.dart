@@ -103,8 +103,8 @@ class _SettingsPageState extends State<SettingsPage> {
         route: Routes.APP_SETTINGS_PAGE,
       ),
       SettingItem(
-        title: t.settings.forum,
-        subtitle: t.settings.forumSettings.configureYourForumSettings,
+        title: t.settings.chatSettings.name,
+        subtitle: t.settings.chatSettings.configureYourChatSettings,
         icon: Icons.forum,
         page: ForumSettingsPage(isWideScreen: isWideScreen),
         route: Routes.FORUM_SETTINGS_PAGE,

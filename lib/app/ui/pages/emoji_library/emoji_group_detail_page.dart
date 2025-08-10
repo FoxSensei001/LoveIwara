@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Translations;
 import 'package:i_iwara/app/services/emoji_library_service.dart';
+import 'package:i_iwara/i18n/strings.g.dart';
 import 'dart:convert';
 
 class EmojiGroupDetailSheet extends StatefulWidget {
@@ -207,6 +208,7 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
   }
 
   Widget _buildEmptyState() {
+    final t = Translations.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -217,17 +219,17 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
             color: Colors.grey,
           ),
           const SizedBox(height: 16),
-          const Text(
-            '暂无表情包',
-            style: TextStyle(
+          Text(
+            t.emoji.noEmojis,
+            style: const TextStyle(
               fontSize: 18,
               color: Colors.grey,
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            '点击右上角按钮添加表情包',
-            style: TextStyle(
+          Text(
+            t.emoji.clickToAddEmojis,
+            style: const TextStyle(
               color: Colors.grey,
             ),
           ),
@@ -235,7 +237,7 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
           ElevatedButton.icon(
             onPressed: () => _showAddImagesDialog(),
             icon: const Icon(Icons.add),
-            label: const Text('添加表情包'),
+            label: Text(t.emoji.addEmojis),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue,
               foregroundColor: Colors.white,
@@ -370,6 +372,7 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
   }
 
   void _showImagePreview(EmojiImage image) {
+    final t = Translations.of(context);
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -409,7 +412,7 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        '图片预览',
+                        t.emoji.imagePreview,
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -442,13 +445,13 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
                           color: Colors.grey.shade100,
-                          child: const Center(
+                          child: Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.broken_image, size: 64, color: Colors.grey),
-                                SizedBox(height: 16),
-                                Text('图片加载失败', style: TextStyle(color: Colors.grey)),
+                                const Icon(Icons.broken_image, size: 64, color: Colors.grey),
+                                const SizedBox(height: 16),
+                                Text(t.emoji.imageLoadFailed, style: const TextStyle(color: Colors.grey)),
                               ],
                             ),
                           ),
@@ -470,7 +473,7 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
-                                  '加载中... ${(loadingProgress.cumulativeBytesLoaded / 1024).toStringAsFixed(1)}KB',
+                                  '${t.emoji.loading} ${(loadingProgress.cumulativeBytesLoaded / 1024).toStringAsFixed(1)}KB',
                                   style: const TextStyle(color: Colors.grey),
                                 ),
                               ],
@@ -502,7 +505,7 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                           _showDeleteImageDialog(image);
                         },
                         icon: const Icon(Icons.delete, color: Colors.red),
-                        label: const Text('删除', style: TextStyle(color: Colors.red)),
+                        label: Text(t.emoji.delete, style: const TextStyle(color: Colors.red)),
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(color: Colors.red),
                           padding: const EdgeInsets.symmetric(vertical: 12),
@@ -514,7 +517,7 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                       child: ElevatedButton.icon(
                         onPressed: () => Navigator.pop(context),
                         icon: const Icon(Icons.close),
-                        label: const Text('关闭'),
+                        label: Text(t.emoji.close),
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
@@ -531,15 +534,16 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
   }
 
   void _showDeleteImageDialog(EmojiImage image) {
+    final t = Translations.of(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('删除图片'),
-        content: const Text('确定要删除这张图片吗？'),
+        title: Text(t.emoji.deleteImage),
+        content: Text(t.emoji.confirmDeleteImage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
+            child: Text(t.emoji.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -548,7 +552,7 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
               _loadImages();
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('删除'),
+            child: Text(t.emoji.delete),
           ),
         ],
       ),
@@ -556,15 +560,16 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
   }
 
   void _showBatchDeleteDialog() {
+    final t = Translations.of(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('批量删除'),
-        content: Text('确定要删除选中的${_selectedImages.length}张图片吗？此操作不可撤销。'),
+        title: Text(t.emoji.batchDelete),
+        content: Text(t.emoji.confirmBatchDelete(count: _selectedImages.length)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
+            child: Text(t.emoji.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -575,11 +580,11 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
               _toggleSelectionMode();
               _loadImages();
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('成功删除')),
+                SnackBar(content: Text(t.emoji.deleteSuccess)),
               );
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('删除'),
+            child: Text(t.emoji.delete),
           ),
         ],
       ),
@@ -587,16 +592,17 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
   }
 
   void _showAddImagesDialog() {
+    final t = Translations.of(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('添加图片'),
+        title: Text(t.emoji.addImage),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
               leading: const Icon(Icons.link),
-              title: const Text('通过URL添加'),
+              title: Text(t.emoji.addImageByUrl),
               onTap: () {
                 Navigator.pop(context);
                 _showUrlInputDialog();
@@ -609,22 +615,23 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
   }
 
   void _showUrlInputDialog() {
+    final t = Translations.of(context);
     final controller = TextEditingController();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('添加图片URL'),
+        title: Text(t.emoji.addImageUrl),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(
-            labelText: '图片URL',
-            hintText: '请输入图片URL',
+          decoration: InputDecoration(
+            labelText: t.emoji.imageUrl,
+            hintText: t.emoji.enterImageUrl,
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
+            child: Text(t.emoji.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -635,7 +642,7 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                 _loadImages();
               }
             },
-            child: const Text('添加'),
+            child: Text(t.emoji.add),
           ),
         ],
       ),
@@ -643,28 +650,29 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
   }
 
   void _showBatchImportDialog() {
+    final t = Translations.of(context);
     final controller = TextEditingController();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('批量导入'),
+        title: Text(t.emoji.batchImport),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('请输入JSON格式的URL数组:'),
+            Text(t.emoji.enterJsonUrlArray),
             const SizedBox(height: 8),
-            const Text(
-              '格式示例:\n["url1", "url2", "url3"]',
-              style: TextStyle(fontFamily: 'monospace', fontSize: 12),
+            Text(
+              t.emoji.formatExample,
+              style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: controller,
               maxLines: 5,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: '请粘贴JSON格式的URL数组',
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                hintText: t.emoji.pasteJsonUrlArray,
               ),
             ),
           ],
@@ -672,7 +680,7 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
+            child: Text(t.emoji.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -685,16 +693,16 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                   Navigator.pop(context);
                   _loadImages();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('成功导入${urlStrings.length}张图片')),
+                    SnackBar(content: Text(t.emoji.importSuccess(count: urlStrings.length))),
                   );
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('JSON格式错误，请检查输入')),
+                    SnackBar(content: Text(t.emoji.jsonFormatError)),
                   );
                 }
               }
             },
-            child: const Text('导入'),
+            child: Text(t.emoji.import),
           ),
         ],
       ),

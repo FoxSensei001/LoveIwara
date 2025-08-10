@@ -571,6 +571,10 @@ settings:
   forumSettings:
     name: 论坛
     configureYourForumSettings: 配置您的论坛设置
+  # 聊天页
+  chatSettings:
+    name: 聊天
+    configureYourChatSettings: 配置您的聊天设置
   # 硬件解码选项
   hardwareDecodingAuto: 自动
   hardwareDecodingAutoCopy: 自动复制
@@ -1382,3 +1386,54 @@ log:
   newSizeLimit: '新的大小限制: ${size}'
   confirmToContinue: '确定要继续吗？'
   logSizeLimitSetSuccess: '日志大小上限已设置为 ${size}'
+
+emoji:
+  name: 表情
+  size: 大小
+  small: 小
+  medium: 中
+  large: 大
+  copyEmojiLinkSuccess: '表情包链接已复制'
+  preview: 表情包预览
+  library: 表情包库
+  noEmojis: 暂无表情包
+  clickToAddEmojis: 点击右上角按钮添加表情包
+  addEmojis: 添加表情包
+  imagePreview: 图片预览
+  imageLoadFailed: 图片加载失败
+  loading: 加载中...
+  delete: 删除
+  close: 关闭
+  deleteImage: 删除图片
+  confirmDeleteImage: 确定要删除这张图片吗？
+  cancel: 取消
+  batchDelete: 批量删除
+  confirmBatchDelete: '确定要删除选中的${count}张图片吗？此操作不可撤销。'
+  deleteSuccess: 成功删除
+  addImage: 添加图片
+  addImageByUrl: 通过URL添加
+  addImageUrl: 添加图片URL
+  imageUrl: 图片URL
+  enterImageUrl: 请输入图片URL
+  add: 添加
+  batchImport: 批量导入
+  enterJsonUrlArray: "请输入JSON格式的URL数组:"
+  formatExample: '格式示例:\n["url1", "url2", "url3"]'
+  pasteJsonUrlArray: 请粘贴JSON格式的URL数组
+  import: 导入
+  importSuccess: '成功导入${count}张图片'
+  jsonFormatError: JSON格式错误，请检查输入
+  createGroup: 创建表情包分组
+  groupName: 分组名称
+  enterGroupName: 请输入分组名称
+  create: 创建
+  editGroupName: 编辑分组名称
+  save: 保存
+  deleteGroup: 删除分组
+  confirmDeleteGroup: 确定要删除这个表情包分组吗？分组内的所有图片也会被删除。
+  imageCount: '${count}张图片'
+  selectEmoji: 选择表情包
+  noEmojisInGroup: 该分组暂无表情包
+  goToSettingsToAddEmojis: 前往设置添加表情包
+  emojiManagement: 表情包管理
+  manageEmojiGroupsAndImages: 管理表情包分组和图片

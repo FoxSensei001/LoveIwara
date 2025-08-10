@@ -63,6 +63,7 @@ class TranslationsZhTw implements Translations {
 	@override late final _TranslationsMediaPlayerZhTw mediaPlayer = _TranslationsMediaPlayerZhTw._(_root);
 	@override late final _TranslationsLinkInputDialogZhTw linkInputDialog = _TranslationsLinkInputDialogZhTw._(_root);
 	@override late final _TranslationsLogZhTw log = _TranslationsLogZhTw._(_root);
+	@override late final _TranslationsEmojiZhTw emoji = _TranslationsEmojiZhTw._(_root);
 }
 
 // Path: common
@@ -672,6 +673,7 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get videoSyncDisplayDesync => '顯示去同步';
 	@override String get videoSyncDesync => '去同步';
 	@override late final _TranslationsSettingsForumSettingsZhTw forumSettings = _TranslationsSettingsForumSettingsZhTw._(_root);
+	@override late final _TranslationsSettingsChatSettingsZhTw chatSettings = _TranslationsSettingsChatSettingsZhTw._(_root);
 	@override String get hardwareDecodingAuto => '自動';
 	@override String get hardwareDecodingAutoCopy => '自動複製';
 	@override String get hardwareDecodingAutoSafe => '自動安全';
@@ -1318,6 +1320,64 @@ class _TranslationsLogZhTw implements TranslationsLogEn {
 	@override String logSizeLimitSetSuccess({required Object size}) => '日志大小上限已設置為 ${size}';
 }
 
+// Path: emoji
+class _TranslationsEmojiZhTw implements TranslationsEmojiEn {
+	_TranslationsEmojiZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get name => '表情';
+	@override String get size => '大小';
+	@override String get small => '小';
+	@override String get medium => '中';
+	@override String get large => '大';
+	@override String get copyEmojiLinkSuccess => '表情包連結已複製';
+	@override String get preview => '表情包預覽';
+	@override String get library => '表情包庫';
+	@override String get noEmojis => '暫無表情包';
+	@override String get clickToAddEmojis => '點擊右上角按鈕添加表情包';
+	@override String get addEmojis => '添加表情包';
+	@override String get imagePreview => '圖片預覽';
+	@override String get imageLoadFailed => '圖片載入失敗';
+	@override String get loading => '載入中...';
+	@override String get delete => '刪除';
+	@override String get close => '關閉';
+	@override String get deleteImage => '刪除圖片';
+	@override String get confirmDeleteImage => '確定要刪除這張圖片嗎？';
+	@override String get cancel => '取消';
+	@override String get batchDelete => '批量刪除';
+	@override String confirmBatchDelete({required Object count}) => '確定要刪除選中的${count}張圖片嗎？此操作不可撤銷。';
+	@override String get deleteSuccess => '成功刪除';
+	@override String get addImage => '添加圖片';
+	@override String get addImageByUrl => '通過URL添加';
+	@override String get addImageUrl => '添加圖片URL';
+	@override String get imageUrl => '圖片URL';
+	@override String get enterImageUrl => '請輸入圖片URL';
+	@override String get add => '添加';
+	@override String get batchImport => '批量導入';
+	@override String get enterJsonUrlArray => '請輸入JSON格式的URL數組:';
+	@override String get formatExample => '格式示例:\n["url1", "url2", "url3"]';
+	@override String get pasteJsonUrlArray => '請粘貼JSON格式的URL數組';
+	@override String get import => '導入';
+	@override String importSuccess({required Object count}) => '成功導入${count}張圖片';
+	@override String get jsonFormatError => 'JSON格式錯誤，請檢查輸入';
+	@override String get createGroup => '創建表情包分組';
+	@override String get groupName => '分組名稱';
+	@override String get enterGroupName => '請輸入分組名稱';
+	@override String get create => '創建';
+	@override String get editGroupName => '編輯分組名稱';
+	@override String get save => '保存';
+	@override String get deleteGroup => '刪除分組';
+	@override String get confirmDeleteGroup => '確定要刪除這個表情包分組嗎？分組內的所有圖片也會被刪除。';
+	@override String imageCount({required Object count}) => '${count}張圖片';
+	@override String get selectEmoji => '選擇表情包';
+	@override String get noEmojisInGroup => '該分組暫無表情包';
+	@override String get goToSettingsToAddEmojis => '前往設置添加表情包';
+	@override String get emojiManagement => '表情包管理';
+	@override String get manageEmojiGroupsAndImages => '管理表情包分組和圖片';
+}
+
 // Path: common.pagination
 class _TranslationsCommonPaginationZhTw implements TranslationsCommonPaginationEn {
 	_TranslationsCommonPaginationZhTw._(this._root);
@@ -1375,6 +1435,17 @@ class _TranslationsSettingsForumSettingsZhTw implements TranslationsSettingsForu
 	// Translations
 	@override String get name => '論壇';
 	@override String get configureYourForumSettings => '配置您的論壇設定';
+}
+
+// Path: settings.chatSettings
+class _TranslationsSettingsChatSettingsZhTw implements TranslationsSettingsChatSettingsEn {
+	_TranslationsSettingsChatSettingsZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get name => '聊天';
+	@override String get configureYourChatSettings => '配置您的聊天設定';
 }
 
 // Path: settings.downloadSettings
@@ -2330,6 +2401,8 @@ extension on TranslationsZhTw {
 			case 'settings.videoSyncDesync': return '去同步';
 			case 'settings.forumSettings.name': return '論壇';
 			case 'settings.forumSettings.configureYourForumSettings': return '配置您的論壇設定';
+			case 'settings.chatSettings.name': return '聊天';
+			case 'settings.chatSettings.configureYourChatSettings': return '配置您的聊天設定';
 			case 'settings.hardwareDecodingAuto': return '自動';
 			case 'settings.hardwareDecodingAutoCopy': return '自動複製';
 			case 'settings.hardwareDecodingAutoSafe': return '自動安全';
@@ -3079,6 +3152,55 @@ extension on TranslationsZhTw {
 			case 'log.newSizeLimit': return ({required Object size}) => '新的大小限制: ${size}';
 			case 'log.confirmToContinue': return '確定要繼續嗎？';
 			case 'log.logSizeLimitSetSuccess': return ({required Object size}) => '日志大小上限已設置為 ${size}';
+			case 'emoji.name': return '表情';
+			case 'emoji.size': return '大小';
+			case 'emoji.small': return '小';
+			case 'emoji.medium': return '中';
+			case 'emoji.large': return '大';
+			case 'emoji.copyEmojiLinkSuccess': return '表情包連結已複製';
+			case 'emoji.preview': return '表情包預覽';
+			case 'emoji.library': return '表情包庫';
+			case 'emoji.noEmojis': return '暫無表情包';
+			case 'emoji.clickToAddEmojis': return '點擊右上角按鈕添加表情包';
+			case 'emoji.addEmojis': return '添加表情包';
+			case 'emoji.imagePreview': return '圖片預覽';
+			case 'emoji.imageLoadFailed': return '圖片載入失敗';
+			case 'emoji.loading': return '載入中...';
+			case 'emoji.delete': return '刪除';
+			case 'emoji.close': return '關閉';
+			case 'emoji.deleteImage': return '刪除圖片';
+			case 'emoji.confirmDeleteImage': return '確定要刪除這張圖片嗎？';
+			case 'emoji.cancel': return '取消';
+			case 'emoji.batchDelete': return '批量刪除';
+			case 'emoji.confirmBatchDelete': return ({required Object count}) => '確定要刪除選中的${count}張圖片嗎？此操作不可撤銷。';
+			case 'emoji.deleteSuccess': return '成功刪除';
+			case 'emoji.addImage': return '添加圖片';
+			case 'emoji.addImageByUrl': return '通過URL添加';
+			case 'emoji.addImageUrl': return '添加圖片URL';
+			case 'emoji.imageUrl': return '圖片URL';
+			case 'emoji.enterImageUrl': return '請輸入圖片URL';
+			case 'emoji.add': return '添加';
+			case 'emoji.batchImport': return '批量導入';
+			case 'emoji.enterJsonUrlArray': return '請輸入JSON格式的URL數組:';
+			case 'emoji.formatExample': return '格式示例:\n["url1", "url2", "url3"]';
+			case 'emoji.pasteJsonUrlArray': return '請粘貼JSON格式的URL數組';
+			case 'emoji.import': return '導入';
+			case 'emoji.importSuccess': return ({required Object count}) => '成功導入${count}張圖片';
+			case 'emoji.jsonFormatError': return 'JSON格式錯誤，請檢查輸入';
+			case 'emoji.createGroup': return '創建表情包分組';
+			case 'emoji.groupName': return '分組名稱';
+			case 'emoji.enterGroupName': return '請輸入分組名稱';
+			case 'emoji.create': return '創建';
+			case 'emoji.editGroupName': return '編輯分組名稱';
+			case 'emoji.save': return '保存';
+			case 'emoji.deleteGroup': return '刪除分組';
+			case 'emoji.confirmDeleteGroup': return '確定要刪除這個表情包分組嗎？分組內的所有圖片也會被刪除。';
+			case 'emoji.imageCount': return ({required Object count}) => '${count}張圖片';
+			case 'emoji.selectEmoji': return '選擇表情包';
+			case 'emoji.noEmojisInGroup': return '該分組暫無表情包';
+			case 'emoji.goToSettingsToAddEmojis': return '前往設置添加表情包';
+			case 'emoji.emojiManagement': return '表情包管理';
+			case 'emoji.manageEmojiGroupsAndImages': return '管理表情包分組和圖片';
 			default: return null;
 		}
 	}

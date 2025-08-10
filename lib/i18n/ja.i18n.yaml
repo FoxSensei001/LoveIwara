@@ -565,6 +565,10 @@ settings:
   forumSettings:
     name: フォーラム
     configureYourForumSettings: フォーラム設定を構成する
+  # チャット設定
+  chatSettings:
+    name: チャット
+    configureYourChatSettings: チャット設定を構成する
   # ハードウェアデコードオプション
   hardwareDecodingAuto: 自動
   hardwareDecodingAutoCopy: 自動コピー
@@ -1379,3 +1383,54 @@ log:
   newSizeLimit: "新しいサイズ上限: ${size}"
   confirmToContinue: "続行してもよろしいですか？"
   logSizeLimitSetSuccess: "ログサイズ上限を ${size} に設定しました"
+
+emoji:
+  name: 絵文字
+  size: サイズ
+  small: 小
+  medium: 中
+  large: 大
+  copyEmojiLinkSuccess: '絵文字リンクをコピーしました'
+  preview: 絵文字プレビュー
+  library: 絵文字ライブラリ
+  noEmojis: 絵文字がありません
+  clickToAddEmojis: 右上のボタンをクリックして絵文字を追加
+  addEmojis: 絵文字を追加
+  imagePreview: 画像プレビュー
+  imageLoadFailed: 画像の読み込みに失敗しました
+  loading: 読み込み中...
+  delete: 削除
+  close: 閉じる
+  deleteImage: 画像を削除
+  confirmDeleteImage: この画像を削除してもよろしいですか？
+  cancel: キャンセル
+  batchDelete: 一括削除
+  confirmBatchDelete: '選択された${count}枚の画像を削除してもよろしいですか？この操作は元に戻せません。'
+  deleteSuccess: 削除しました
+  addImage: 画像を追加
+  addImageByUrl: URLで追加
+  addImageUrl: 画像URLを追加
+  imageUrl: 画像URL
+  enterImageUrl: 画像URLを入力してください
+  add: 追加
+  batchImport: 一括インポート
+  enterJsonUrlArray: "JSON形式のURL配列を入力してください:"
+  formatExample: '形式例:\n["url1", "url2", "url3"]'
+  pasteJsonUrlArray: JSON形式のURL配列を貼り付けてください
+  import: インポート
+  importSuccess: '${count}枚の画像をインポートしました'
+  jsonFormatError: JSON形式エラー、入力を確認してください
+  createGroup: 絵文字グループを作成
+  groupName: グループ名
+  enterGroupName: グループ名を入力してください
+  create: 作成
+  editGroupName: グループ名を編集
+  save: 保存
+  deleteGroup: グループを削除
+  confirmDeleteGroup: この絵文字グループを削除してもよろしいですか？グループ内のすべての画像も削除されます。
+  imageCount: '${count}枚の画像'
+  selectEmoji: 絵文字を選択
+  noEmojisInGroup: このグループには絵文字がありません
+  goToSettingsToAddEmojis: 設定で絵文字を追加してください
+  emojiManagement: 絵文字管理
+  manageEmojiGroupsAndImages: 絵文字グループと画像を管理

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Translations;
 import 'package:i_iwara/app/services/emoji_library_service.dart';
+import 'package:i_iwara/i18n/strings.g.dart';
 
 class EmojiPickerWidget extends StatefulWidget {
   final Function(String) onEmojiSelected;
@@ -8,6 +9,7 @@ class EmojiPickerWidget extends StatefulWidget {
   final bool showOnlyContent;
   final ScrollController? scrollController;
   final bool isRailMode;
+  final TabController? tabController; // 新增：外部传入的 TabController
 
   const EmojiPickerWidget({
     super.key,
@@ -16,6 +18,7 @@ class EmojiPickerWidget extends StatefulWidget {
     this.showOnlyContent = false,
     this.scrollController,
     this.isRailMode = false,
+    this.tabController, // 新增参数
   });
 
   @override
@@ -30,19 +33,31 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
   final Map<int, List<EmojiImage>> _groupImages = {};
   bool _isLoading = true;
   int _currentTabIndex = 0;
+  bool _isExternalController = false; // 标记是否使用外部控制器
 
   @override
   void initState() {
     super.initState();
     _emojiService = Get.find<EmojiLibraryService>();
-    _loadData();
+    
+    // 如果外部传入了 TabController，使用外部的
+    if (widget.tabController != null) {
+      _tabController = widget.tabController!;
+      _isExternalController = true;
+      _loadData();
+    } else {
+      // 否则创建自己的 TabController
+      _loadData();
+    }
   }
 
   void _loadData() async {
     try {
       _groups = _emojiService.getEmojiGroups();
       if (_groups.isNotEmpty) {
-        _tabController = TabController(length: _groups.length, vsync: this);
+        if (!_isExternalController) {
+          _tabController = TabController(length: _groups.length, vsync: this);
+        }
         _currentTabIndex = _tabController.index;
         _tabController.addListener(() {
           if (mounted) {
@@ -56,13 +71,18 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
           _groupImages[group.groupId] = _emojiService.getEmojiImages(group.groupId);
         }
       } else {
-        _tabController = TabController(length: 1, vsync: this);
+        if (!_isExternalController) {
+          _tabController = TabController(length: 1, vsync: this);
+        }
       }
       
       setState(() {
         _isLoading = false;
       });
     } catch (e) {
+      if (!_isExternalController) {
+        _tabController = TabController(length: 1, vsync: this);
+      }
       setState(() {
         _isLoading = false;
       });
@@ -71,12 +91,17 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
 
   @override
   void dispose() {
-    _tabController.dispose();
+    // 只有非外部控制器才需要释放
+    if (!_isExternalController) {
+      _tabController.dispose();
+    }
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = Translations.of(context);
+    
     if (_isLoading) {
       return const SizedBox(
         height: 300,
@@ -98,7 +123,7 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
               ),
               const SizedBox(height: 16),
               Text(
-                '暂无表情包',
+                t.emoji.noEmojis,
                 style: TextStyle(
                   color: Colors.grey[600],
                   fontSize: 16,
@@ -106,7 +131,7 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
               ),
               const SizedBox(height: 8),
               Text(
-                '前往设置添加表情包',
+                t.emoji.goToSettingsToAddEmojis,
                 style: TextStyle(
                   color: Colors.grey[500],
                   fontSize: 14,
@@ -272,26 +297,26 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
           final group = entry.value;
           final images = _groupImages[group.groupId] ?? [];
           if (images.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.emoji_emotions_outlined,
-                    size: 48,
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+                      return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.emoji_emotions_outlined,
+                  size: 48,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  t.emoji.noEmojisInGroup,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                    fontSize: 16,
                   ),
-                  const SizedBox(height: 16),
-                  Text(
-                    '该分组暂无表情包',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
-                      fontSize: 16,
-                    ),
-                  ),
-                ],
-              ),
-            );
+                ),
+              ],
+            ),
+          );
           }
           
           return GridView.builder(
@@ -405,12 +430,12 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
               final group = entry.value;
               final images = _groupImages[group.groupId] ?? [];
               if (images.isEmpty) {
-                return const Center(
-                  child: Text(
-                    '该分组暂无表情包',
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                );
+                              return Center(
+                child: Text(
+                  t.emoji.noEmojisInGroup,
+                  style: const TextStyle(color: Colors.grey),
+                ),
+              );
               }
               
               return GridView.builder(

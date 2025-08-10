@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Translations;
 import 'package:i_iwara/app/services/emoji_library_service.dart';
 import 'package:i_iwara/app/ui/pages/emoji_library/emoji_group_detail_page.dart';
+import 'package:i_iwara/i18n/strings.g.dart';
 
 class EmojiLibraryPage extends StatefulWidget {
   const EmojiLibraryPage({super.key});
@@ -38,9 +39,11 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
 
   @override
   Widget build(BuildContext context) {
+    final t = Translations.of(context);
+    
     return Scaffold(
       appBar: AppBar(
-        title: const Text('表情包库'),
+        title: Text(t.emoji.library),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
@@ -121,7 +124,7 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
               ),
         ),
         title: Text(group.name),
-        subtitle: Text('$imageCount张图片'),
+        subtitle: Text(t.emoji.imageCount(count: imageCount)),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -149,22 +152,23 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
   }
 
   void _showCreateGroupDialog() {
+    final t = Translations.of(context);
     final controller = TextEditingController();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('创建表情包分组'),
+        title: Text(t.emoji.createGroup),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(
-            labelText: '分组名称',
-            hintText: '请输入分组名称',
+          decoration: InputDecoration(
+            labelText: t.emoji.groupName,
+            hintText: t.emoji.enterGroupName,
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
+            child: Text(t.emoji.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -175,7 +179,7 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
                 _loadData();
               }
             },
-            child: const Text('创建'),
+            child: Text(t.emoji.create),
           ),
         ],
       ),
@@ -183,21 +187,22 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
   }
 
   void _showEditGroupDialog(EmojiGroup group) {
+    final t = Translations.of(context);
     final controller = TextEditingController(text: group.name);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('编辑分组名称'),
+        title: Text(t.emoji.editGroupName),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(
-            labelText: '分组名称',
+          decoration: InputDecoration(
+            labelText: t.emoji.groupName,
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
+            child: Text(t.emoji.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -208,7 +213,7 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
                 _loadData();
               }
             },
-            child: const Text('保存'),
+            child: Text(t.emoji.save),
           ),
         ],
       ),
@@ -216,15 +221,16 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
   }
 
   void _showDeleteGroupDialog(EmojiGroup group) {
+    final t = Translations.of(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('删除分组'),
-        content: const Text('确定要删除这个表情包分组吗？分组内的所有图片也会被删除。'),
+        title: Text(t.emoji.deleteGroup),
+        content: Text(t.emoji.confirmDeleteGroup),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
+            child: Text(t.emoji.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -233,7 +239,7 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
               _loadData();
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('删除'),
+            child: Text(t.emoji.delete),
           ),
         ],
       ),

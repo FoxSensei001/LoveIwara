@@ -27,6 +27,7 @@ import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
 import 'package:i_iwara/app/ui/pages/download/gallery_download_task_detail_page.dart';
 import 'package:i_iwara/app/ui/pages/tag_videos/tag_video_list_page.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
+import 'package:i_iwara/app/ui/pages/emoji_library/emoji_library_page.dart';
 
 import '../routes/app_routes.dart';
 import '../ui/pages/author_profile/author_profile_page.dart';
@@ -437,6 +438,14 @@ class NaviService {
     _navigateToPage(
       routeName: Routes.TAG_GALLERIES(tag.id),
       page: TagGalleryListPage(tag: tag),
+    );
+  }
+
+  /// 跳转到表情包库页面
+  static void navigateToEmojiLibraryPage() {
+    _navigateToPage(
+      routeName: Routes.EMOJI_LIBRARY,
+      page: const EmojiLibraryPage(),
     );
   }
 }

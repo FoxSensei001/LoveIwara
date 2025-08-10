@@ -271,7 +271,7 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
               IconButton(
                 onPressed: _showEmojiPickerDialog,
                 icon: const Icon(Icons.emoji_emotions_outlined),
-                tooltip: '表情包',
+                tooltip: t.emoji.selectEmoji,
               ),
             if (widget.showMarkdownHelp)
               IconButton(

@@ -66,6 +66,7 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final TranslationsMediaPlayerEn mediaPlayer = TranslationsMediaPlayerEn._(_root);
 	late final TranslationsLinkInputDialogEn linkInputDialog = TranslationsLinkInputDialogEn._(_root);
 	late final TranslationsLogEn log = TranslationsLogEn._(_root);
+	late final TranslationsEmojiEn emoji = TranslationsEmojiEn._(_root);
 }
 
 // Path: common
@@ -1692,6 +1693,7 @@ class TranslationsSettingsEn {
 	String get videoSyncDesync => 'Desync';
 
 	late final TranslationsSettingsForumSettingsEn forumSettings = TranslationsSettingsForumSettingsEn._(_root);
+	late final TranslationsSettingsChatSettingsEn chatSettings = TranslationsSettingsChatSettingsEn._(_root);
 
 	/// en: 'Auto'
 	String get hardwareDecodingAuto => 'Auto';
@@ -3302,6 +3304,162 @@ class TranslationsLogEn {
 	String logSizeLimitSetSuccess({required Object size}) => 'Log size limit set to ${size}';
 }
 
+// Path: emoji
+class TranslationsEmojiEn {
+	TranslationsEmojiEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Emoji'
+	String get name => 'Emoji';
+
+	/// en: 'Size'
+	String get size => 'Size';
+
+	/// en: 'Small'
+	String get small => 'Small';
+
+	/// en: 'Medium'
+	String get medium => 'Medium';
+
+	/// en: 'Large'
+	String get large => 'Large';
+
+	/// en: 'Emoji link copied'
+	String get copyEmojiLinkSuccess => 'Emoji link copied';
+
+	/// en: 'Emoji Preview'
+	String get preview => 'Emoji Preview';
+
+	/// en: 'Emoji Library'
+	String get library => 'Emoji Library';
+
+	/// en: 'No emojis'
+	String get noEmojis => 'No emojis';
+
+	/// en: 'Click the button in the top right to add emojis'
+	String get clickToAddEmojis => 'Click the button in the top right to add emojis';
+
+	/// en: 'Add Emojis'
+	String get addEmojis => 'Add Emojis';
+
+	/// en: 'Image Preview'
+	String get imagePreview => 'Image Preview';
+
+	/// en: 'Image load failed'
+	String get imageLoadFailed => 'Image load failed';
+
+	/// en: 'Loading...'
+	String get loading => 'Loading...';
+
+	/// en: 'Delete'
+	String get delete => 'Delete';
+
+	/// en: 'Close'
+	String get close => 'Close';
+
+	/// en: 'Delete Image'
+	String get deleteImage => 'Delete Image';
+
+	/// en: 'Are you sure you want to delete this image?'
+	String get confirmDeleteImage => 'Are you sure you want to delete this image?';
+
+	/// en: 'Cancel'
+	String get cancel => 'Cancel';
+
+	/// en: 'Batch Delete'
+	String get batchDelete => 'Batch Delete';
+
+	/// en: 'Are you sure you want to delete the selected ${count} images? This operation cannot be undone.'
+	String confirmBatchDelete({required Object count}) => 'Are you sure you want to delete the selected ${count} images? This operation cannot be undone.';
+
+	/// en: 'Successfully deleted'
+	String get deleteSuccess => 'Successfully deleted';
+
+	/// en: 'Add Image'
+	String get addImage => 'Add Image';
+
+	/// en: 'Add by URL'
+	String get addImageByUrl => 'Add by URL';
+
+	/// en: 'Add Image URL'
+	String get addImageUrl => 'Add Image URL';
+
+	/// en: 'Image URL'
+	String get imageUrl => 'Image URL';
+
+	/// en: 'Please enter image URL'
+	String get enterImageUrl => 'Please enter image URL';
+
+	/// en: 'Add'
+	String get add => 'Add';
+
+	/// en: 'Batch Import'
+	String get batchImport => 'Batch Import';
+
+	/// en: 'Please enter JSON format URL array:'
+	String get enterJsonUrlArray => 'Please enter JSON format URL array:';
+
+	/// en: 'Format example:\n["url1", "url2", "url3"]'
+	String get formatExample => 'Format example:\n["url1", "url2", "url3"]';
+
+	/// en: 'Please paste JSON format URL array'
+	String get pasteJsonUrlArray => 'Please paste JSON format URL array';
+
+	/// en: 'Import'
+	String get import => 'Import';
+
+	/// en: 'Successfully imported ${count} images'
+	String importSuccess({required Object count}) => 'Successfully imported ${count} images';
+
+	/// en: 'JSON format error, please check input'
+	String get jsonFormatError => 'JSON format error, please check input';
+
+	/// en: 'Create Emoji Group'
+	String get createGroup => 'Create Emoji Group';
+
+	/// en: 'Group Name'
+	String get groupName => 'Group Name';
+
+	/// en: 'Please enter group name'
+	String get enterGroupName => 'Please enter group name';
+
+	/// en: 'Create'
+	String get create => 'Create';
+
+	/// en: 'Edit Group Name'
+	String get editGroupName => 'Edit Group Name';
+
+	/// en: 'Save'
+	String get save => 'Save';
+
+	/// en: 'Delete Group'
+	String get deleteGroup => 'Delete Group';
+
+	/// en: 'Are you sure you want to delete this emoji group? All images in the group will also be deleted.'
+	String get confirmDeleteGroup => 'Are you sure you want to delete this emoji group? All images in the group will also be deleted.';
+
+	/// en: '${count} images'
+	String imageCount({required Object count}) => '${count} images';
+
+	/// en: 'Select Emoji'
+	String get selectEmoji => 'Select Emoji';
+
+	/// en: 'No emojis in this group'
+	String get noEmojisInGroup => 'No emojis in this group';
+
+	/// en: 'Go to settings to add emojis'
+	String get goToSettingsToAddEmojis => 'Go to settings to add emojis';
+
+	/// en: 'Emoji Management'
+	String get emojiManagement => 'Emoji Management';
+
+	/// en: 'Manage emoji groups and images'
+	String get manageEmojiGroupsAndImages => 'Manage emoji groups and images';
+}
+
 // Path: common.pagination
 class TranslationsCommonPaginationEn {
 	TranslationsCommonPaginationEn._(this._root);
@@ -3423,6 +3581,21 @@ class TranslationsSettingsForumSettingsEn {
 
 	/// en: 'Configure Your Forum Settings'
 	String get configureYourForumSettings => 'Configure Your Forum Settings';
+}
+
+// Path: settings.chatSettings
+class TranslationsSettingsChatSettingsEn {
+	TranslationsSettingsChatSettingsEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Chat'
+	String get name => 'Chat';
+
+	/// en: 'Configure Your Chat Settings'
+	String get configureYourChatSettings => 'Configure Your Chat Settings';
 }
 
 // Path: settings.downloadSettings
@@ -4908,6 +5081,8 @@ extension on Translations {
 			case 'settings.videoSyncDesync': return 'Desync';
 			case 'settings.forumSettings.name': return 'Forum';
 			case 'settings.forumSettings.configureYourForumSettings': return 'Configure Your Forum Settings';
+			case 'settings.chatSettings.name': return 'Chat';
+			case 'settings.chatSettings.configureYourChatSettings': return 'Configure Your Chat Settings';
 			case 'settings.hardwareDecodingAuto': return 'Auto';
 			case 'settings.hardwareDecodingAutoCopy': return 'Auto Copy';
 			case 'settings.hardwareDecodingAutoSafe': return 'Auto Safe';
@@ -5654,6 +5829,55 @@ extension on Translations {
 			case 'log.newSizeLimit': return ({required Object size}) => 'New size limit: ${size}';
 			case 'log.confirmToContinue': return 'Confirm to continue';
 			case 'log.logSizeLimitSetSuccess': return ({required Object size}) => 'Log size limit set to ${size}';
+			case 'emoji.name': return 'Emoji';
+			case 'emoji.size': return 'Size';
+			case 'emoji.small': return 'Small';
+			case 'emoji.medium': return 'Medium';
+			case 'emoji.large': return 'Large';
+			case 'emoji.copyEmojiLinkSuccess': return 'Emoji link copied';
+			case 'emoji.preview': return 'Emoji Preview';
+			case 'emoji.library': return 'Emoji Library';
+			case 'emoji.noEmojis': return 'No emojis';
+			case 'emoji.clickToAddEmojis': return 'Click the button in the top right to add emojis';
+			case 'emoji.addEmojis': return 'Add Emojis';
+			case 'emoji.imagePreview': return 'Image Preview';
+			case 'emoji.imageLoadFailed': return 'Image load failed';
+			case 'emoji.loading': return 'Loading...';
+			case 'emoji.delete': return 'Delete';
+			case 'emoji.close': return 'Close';
+			case 'emoji.deleteImage': return 'Delete Image';
+			case 'emoji.confirmDeleteImage': return 'Are you sure you want to delete this image?';
+			case 'emoji.cancel': return 'Cancel';
+			case 'emoji.batchDelete': return 'Batch Delete';
+			case 'emoji.confirmBatchDelete': return ({required Object count}) => 'Are you sure you want to delete the selected ${count} images? This operation cannot be undone.';
+			case 'emoji.deleteSuccess': return 'Successfully deleted';
+			case 'emoji.addImage': return 'Add Image';
+			case 'emoji.addImageByUrl': return 'Add by URL';
+			case 'emoji.addImageUrl': return 'Add Image URL';
+			case 'emoji.imageUrl': return 'Image URL';
+			case 'emoji.enterImageUrl': return 'Please enter image URL';
+			case 'emoji.add': return 'Add';
+			case 'emoji.batchImport': return 'Batch Import';
+			case 'emoji.enterJsonUrlArray': return 'Please enter JSON format URL array:';
+			case 'emoji.formatExample': return 'Format example:\n["url1", "url2", "url3"]';
+			case 'emoji.pasteJsonUrlArray': return 'Please paste JSON format URL array';
+			case 'emoji.import': return 'Import';
+			case 'emoji.importSuccess': return ({required Object count}) => 'Successfully imported ${count} images';
+			case 'emoji.jsonFormatError': return 'JSON format error, please check input';
+			case 'emoji.createGroup': return 'Create Emoji Group';
+			case 'emoji.groupName': return 'Group Name';
+			case 'emoji.enterGroupName': return 'Please enter group name';
+			case 'emoji.create': return 'Create';
+			case 'emoji.editGroupName': return 'Edit Group Name';
+			case 'emoji.save': return 'Save';
+			case 'emoji.deleteGroup': return 'Delete Group';
+			case 'emoji.confirmDeleteGroup': return 'Are you sure you want to delete this emoji group? All images in the group will also be deleted.';
+			case 'emoji.imageCount': return ({required Object count}) => '${count} images';
+			case 'emoji.selectEmoji': return 'Select Emoji';
+			case 'emoji.noEmojisInGroup': return 'No emojis in this group';
+			case 'emoji.goToSettingsToAddEmojis': return 'Go to settings to add emojis';
+			case 'emoji.emojiManagement': return 'Emoji Management';
+			case 'emoji.manageEmojiGroupsAndImages': return 'Manage emoji groups and images';
 			default: return null;
 		}
 	}

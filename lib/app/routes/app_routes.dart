@@ -75,6 +75,8 @@ abstract class Routes {
   static const DOWNLOAD_SETTINGS_PAGE = _Paths.DOWNLOAD_SETTINGS_PAGE;
   static const FORUM_SETTINGS_PAGE = _Paths.FORUM_SETTINGS_PAGE;
 
+  static const EMOJI_LIBRARY = _Paths.EMOJI_LIBRARY;
+
   static String TAG_VIDEOS(String tagId) => _Paths.TAG_VIDEOS.replaceAll(':tagId', tagId);
   static String TAG_GALLERIES(String tagId) => _Paths.TAG_GALLERIES.replaceAll(':tagId', tagId);
 }
@@ -111,4 +113,5 @@ abstract class _Paths {
   static const FORUM_SETTINGS_PAGE = '/forum_settings_page';
   static const TAG_VIDEOS = '/tag_videos/:tagId';
   static const TAG_GALLERIES = '/tag_galleries/:tagId';
+  static const EMOJI_LIBRARY = '/emoji_library';
 }
