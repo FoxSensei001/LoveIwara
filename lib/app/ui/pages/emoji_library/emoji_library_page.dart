@@ -13,8 +13,8 @@ class EmojiLibraryPage extends StatefulWidget {
 class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
   late EmojiLibraryService _emojiService;
   List<EmojiGroup> _groups = [];
-  Map<int, List<EmojiImage>> _groupImages = {};
-  Map<int, int> _groupImageCounts = {};
+  final Map<int, List<EmojiImage>> _groupImages = {};
+  final Map<int, int> _groupImageCounts = {};
 
   @override
   void initState() {
@@ -51,8 +51,20 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
       body: Column(
         children: [
           Expanded(
-            child: ListView.builder(
+            child: ReorderableListView.builder(
               itemCount: _groups.length,
+              onReorder: (oldIndex, newIndex) {
+                setState(() {
+                  if (oldIndex < newIndex) {
+                    newIndex -= 1;
+                  }
+                  final item = _groups.removeAt(oldIndex);
+                  _groups.insert(newIndex, item);
+                  
+                  // 更新数据库中的排序
+                  _emojiService.updateEmojiGroupsOrder(_groups);
+                });
+              },
               itemBuilder: (context, index) {
                 return _buildGroupCard(_groups[index], index);
               },
@@ -67,15 +79,46 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
     final imageCount = _groupImageCounts[group.groupId] ?? 0;
     
     return Card(
+      key: ValueKey(group.groupId),
       margin: const EdgeInsets.all(8),
       child: ListTile(
-        leading: CircleAvatar(
-          backgroundImage: group.coverUrl != null 
-            ? NetworkImage(group.coverUrl!) 
-            : null,
-          child: group.coverUrl == null 
-            ? Text(group.name.isNotEmpty ? group.name[0] : '?')
-            : null,
+        leading: Container(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: Colors.grey.shade200,
+          ),
+          child: group.coverUrl != null 
+            ? ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  group.coverUrl!,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Center(
+                      child: Text(
+                        group.name.isNotEmpty ? group.name[0] : '?',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              )
+            : Center(
+                child: Text(
+                  group.name.isNotEmpty ? group.name[0] : '?',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey,
+                  ),
+                ),
+              ),
         ),
         title: Text(group.name),
         subtitle: Text('$imageCount张图片'),
@@ -90,7 +133,6 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
               icon: const Icon(Icons.delete),
               onPressed: () => _showDeleteGroupDialog(group),
             ),
-            const Icon(Icons.arrow_forward_ios, size: 16),
           ],
         ),
         onTap: () {
@@ -101,10 +143,9 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
   }
 
   void _navigateToGroupDetail(EmojiGroup group) {
-    Get.to(() => EmojiGroupDetailPage(group: group))?.then((_) {
-      // 当从详情页返回时刷新数据
-      _loadData();
-    });
+    EmojiGroupDetailPage.show(context, group);
+    // 当从详情页返回时刷新数据
+    _loadData();
   }
 
   void _showCreateGroupDialog() {

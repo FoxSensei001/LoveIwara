@@ -125,6 +125,7 @@ class EnhancedEmojiTextFieldState extends State<EnhancedEmojiTextField> {
             maxLines: widget.maxLines,
             onChanged: widget.onChanged,
             enabled: widget.enabled,
+            strutStyle: StrutStyle.disabled,
             specialTextSpanBuilder: _specialTextSpanBuilder,
             buildCounter: (context, {required currentLength, required isFocused, maxLength}) => null, // 完全禁用字符计数
             decoration: InputDecoration(

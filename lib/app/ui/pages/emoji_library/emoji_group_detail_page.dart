@@ -3,16 +3,16 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/emoji_library_service.dart';
 import 'dart:convert';
 
-class EmojiGroupDetailPage extends StatefulWidget {
+class EmojiGroupDetailSheet extends StatefulWidget {
   final EmojiGroup group;
 
-  const EmojiGroupDetailPage({super.key, required this.group});
+  const EmojiGroupDetailSheet({super.key, required this.group});
 
   @override
-  State<EmojiGroupDetailPage> createState() => _EmojiGroupDetailPageState();
+  State<EmojiGroupDetailSheet> createState() => _EmojiGroupDetailSheetState();
 }
 
-class _EmojiGroupDetailPageState extends State<EmojiGroupDetailPage> {
+class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
   late EmojiLibraryService _emojiService;
   List<EmojiImage> _images = [];
   bool _isLoading = true;
@@ -73,45 +73,136 @@ class _EmojiGroupDetailPageState extends State<EmojiGroupDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.group.name),
-        actions: [
-          if (!_isSelectionMode) ...[
-            IconButton(
-              icon: const Icon(Icons.add),
-              onPressed: () => _showAddImagesDialog(),
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.9,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+      ),
+      child: Column(
+        children: [
+          // 顶部拖拽指示器
+          Container(
+            margin: const EdgeInsets.only(top: 8),
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade300,
+              borderRadius: BorderRadius.circular(2),
             ),
-            IconButton(
-              icon: const Icon(Icons.file_upload),
-              onPressed: () => _showBatchImportDialog(),
-            ),
-            IconButton(
-              icon: const Icon(Icons.select_all),
-              onPressed: () => _toggleSelectionMode(),
-            ),
-          ] else ...[
-            IconButton(
-              icon: const Icon(Icons.select_all),
-              onPressed: _selectedImages.length == _images.length ? _clearSelection : _selectAllImages,
-            ),
-            if (_selectedImages.isNotEmpty)
-              IconButton(
-                icon: const Icon(Icons.delete),
-                onPressed: () => _showBatchDeleteDialog(),
+          ),
+          // 标题栏
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
               ),
-            IconButton(
-              icon: const Icon(Icons.close),
-              onPressed: _toggleSelectionMode,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-          ],
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    widget.group.name,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                if (!_isSelectionMode) ...[
+                  IconButton(
+                    icon: const Icon(Icons.add),
+                    onPressed: () => _showAddImagesDialog(),
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.blue.shade50,
+                      shape: const CircleBorder(),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    icon: const Icon(Icons.file_upload),
+                    onPressed: () => _showBatchImportDialog(),
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.green.shade50,
+                      shape: const CircleBorder(),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    icon: const Icon(Icons.select_all),
+                    onPressed: () => _toggleSelectionMode(),
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.orange.shade50,
+                      shape: const CircleBorder(),
+                    ),
+                  ),
+                ] else ...[
+                  IconButton(
+                    icon: const Icon(Icons.select_all),
+                    onPressed: _selectedImages.length == _images.length ? _clearSelection : _selectAllImages,
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.blue.shade50,
+                      shape: const CircleBorder(),
+                    ),
+                  ),
+                  if (_selectedImages.isNotEmpty) ...[
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: () => _showBatchDeleteDialog(),
+                      style: IconButton.styleFrom(
+                        backgroundColor: Colors.red.shade50,
+                        shape: const CircleBorder(),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(width: 8),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: _toggleSelectionMode,
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.grey.shade100,
+                      shape: const CircleBorder(),
+                    ),
+                  ),
+                ],
+                const SizedBox(width: 8),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close),
+                  style: IconButton.styleFrom(
+                    backgroundColor: Colors.grey.shade100,
+                    shape: const CircleBorder(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // 内容区域
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _images.isEmpty
+                    ? _buildEmptyState()
+                    : _buildImageGrid(),
+          ),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _images.isEmpty
-              ? _buildEmptyState()
-              : _buildImageGrid(),
     );
   }
 
@@ -145,6 +236,14 @@ class _EmojiGroupDetailPageState extends State<EmojiGroupDetailPage> {
             onPressed: () => _showAddImagesDialog(),
             icon: const Icon(Icons.add),
             label: const Text('添加表情包'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
           ),
         ],
       ),
@@ -152,10 +251,22 @@ class _EmojiGroupDetailPageState extends State<EmojiGroupDetailPage> {
   }
 
   Widget _buildImageGrid() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    int crossAxisCount = 3; // 默认3列
+    
+    // 根据屏幕宽度动态调整列数
+    if (screenWidth > 1200) {
+      crossAxisCount = 8; // 超宽屏显示8列
+    } else if (screenWidth > 900) {
+      crossAxisCount = 6; // 宽屏显示6列
+    } else if (screenWidth > 600) {
+      crossAxisCount = 4; // 中等屏幕显示4列
+    }
+    
     return GridView.builder(
-      padding: const EdgeInsets.all(8),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
+      padding: const EdgeInsets.all(16),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
         crossAxisSpacing: 8,
         mainAxisSpacing: 8,
       ),
@@ -187,6 +298,13 @@ class _EmojiGroupDetailPageState extends State<EmojiGroupDetailPage> {
                     width: isSelected ? 3 : 1,
                   ),
                   borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 2,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
@@ -194,14 +312,20 @@ class _EmojiGroupDetailPageState extends State<EmojiGroupDetailPage> {
                     image.thumbnailUrl ?? image.url,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
-                      return const Center(
-                        child: Icon(Icons.broken_image, color: Colors.grey),
+                      return Container(
+                        color: Colors.grey.shade100,
+                        child: const Center(
+                          child: Icon(Icons.broken_image, color: Colors.grey),
+                        ),
                       );
                     },
                     loadingBuilder: (context, child, loadingProgress) {
                       if (loadingProgress == null) return child;
-                      return const Center(
-                        child: CircularProgressIndicator(),
+                      return Container(
+                        color: Colors.grey.shade100,
+                        child: const Center(
+                          child: CircularProgressIndicator(),
+                        ),
                       );
                     },
                   ),
@@ -215,12 +339,19 @@ class _EmojiGroupDetailPageState extends State<EmojiGroupDetailPage> {
                     width: 24,
                     height: 24,
                     decoration: BoxDecoration(
-                      color: isSelected ? Colors.blue : Colors.white.withValues(alpha: 0.8),
+                      color: isSelected ? Colors.blue : Colors.white.withValues(alpha: 0.9),
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: isSelected ? Colors.blue : Colors.grey,
                         width: 2,
                       ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.2),
+                          blurRadius: 2,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
                     ),
                     child: isSelected
                         ? const Icon(
@@ -444,7 +575,7 @@ class _EmojiGroupDetailPageState extends State<EmojiGroupDetailPage> {
               _toggleSelectionMode();
               _loadImages();
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('成功删除${_selectedImages.length}张图片')),
+                const SnackBar(content: Text('成功删除')),
               );
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
@@ -567,6 +698,18 @@ class _EmojiGroupDetailPageState extends State<EmojiGroupDetailPage> {
           ),
         ],
       ),
+    );
+  }
+}
+
+// 静态方法用于显示 sheet
+class EmojiGroupDetailPage {
+  static void show(BuildContext context, EmojiGroup group) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => EmojiGroupDetailSheet(group: group),
     );
   }
 }

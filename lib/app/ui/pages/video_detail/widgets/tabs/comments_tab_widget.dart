@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/user_service.dart';
@@ -28,8 +27,9 @@ class CommentsTabWidget extends StatefulWidget {
 }
 
 class _CommentsTabWidgetState extends State<CommentsTabWidget> {
-  // 浮动按钮当前位置（相对页面左上角）。首次构建时按右下角初始化
-  Offset? _fabOffset;
+  // 浮动按钮相对右/下的距离，保持容器高度变化时位置稳定
+  double? _distanceFromRight;
+  double? _distanceFromBottom;
   static const double _fabSize = 56.0;
   static const double _edgePadding = 16.0;
 
@@ -40,10 +40,19 @@ class _CommentsTabWidgetState extends State<CommentsTabWidget> {
         builder: (context, constraints) {
           final double maxW = constraints.maxWidth;
           final double maxH = constraints.maxHeight;
-          _fabOffset ??= Offset(
-            maxW - _fabSize - _edgePadding,
-            maxH - _fabSize - _edgePadding,
-          );
+          // 初始贴右下角
+          _distanceFromRight ??= _edgePadding;
+          _distanceFromBottom ??= _edgePadding;
+
+          // 将相对右/下的距离转换为左/上的像素定位
+          final double left =
+              (maxW - _fabSize - _distanceFromRight!)
+                  .clamp(_edgePadding, maxW - _fabSize - _edgePadding)
+                  .toDouble();
+          final double top =
+              (maxH - _fabSize - _distanceFromBottom!)
+                  .clamp(_edgePadding, maxH - _fabSize - _edgePadding)
+                  .toDouble();
 
           return Stack(
             children: [
@@ -57,8 +66,8 @@ class _CommentsTabWidgetState extends State<CommentsTabWidget> {
               ),
               // 可拖拽浮动按钮
               Positioned(
-                left: _fabOffset!.dx,
-                top: _fabOffset!.dy,
+                left: left,
+                top: top,
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onPanUpdate: (details) {
@@ -68,13 +77,27 @@ class _CommentsTabWidgetState extends State<CommentsTabWidget> {
                       final double maxX = maxW - _fabSize - _edgePadding;
                       final double maxY = maxH - _fabSize - _edgePadding;
 
-                      final double nextX = (_fabOffset!.dx + details.delta.dx)
+                      // 使用 state 中的相对右/下距离实时换算当前位置，避免使用构建时的旧值
+                      final double currentLeft =
+                          (maxW - _fabSize - _distanceFromRight!)
+                              .clamp(minX, maxX)
+                              .toDouble();
+                      final double currentTop =
+                          (maxH - _fabSize - _distanceFromBottom!)
+                              .clamp(minY, maxY)
+                              .toDouble();
+
+                      // 基于当前实时位置增量移动
+                      final double nextLeft = (currentLeft + details.delta.dx)
                           .clamp(minX, maxX)
                           .toDouble();
-                      final double nextY = (_fabOffset!.dy + details.delta.dy)
+                      final double nextTop = (currentTop + details.delta.dy)
                           .clamp(minY, maxY)
                           .toDouble();
-                      _fabOffset = Offset(nextX, nextY);
+
+                      // 转换回相对右/下的距离，确保容器尺寸变化时视觉位置不漂移
+                      _distanceFromRight = maxW - nextLeft - _fabSize;
+                      _distanceFromBottom = maxH - nextTop - _fabSize;
                     });
                   },
                   child: Obx(() {

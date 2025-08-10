@@ -17,6 +17,7 @@ class MigrationV9EmojiLibrary extends Migration {
         group_id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         cover_url TEXT,
+        sort_order INTEGER NOT NULL DEFAULT 0,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
       );
@@ -27,7 +28,6 @@ class MigrationV9EmojiLibrary extends Migration {
       CREATE TABLE EmojiImages (
         image_id INTEGER PRIMARY KEY AUTOINCREMENT,
         group_id INTEGER NOT NULL,
-        sort_order INTEGER NOT NULL DEFAULT 0,
         url TEXT NOT NULL,
         thumbnail_url TEXT,
         FOREIGN KEY (group_id) REFERENCES EmojiGroups(group_id) ON DELETE CASCADE
@@ -36,7 +36,7 @@ class MigrationV9EmojiLibrary extends Migration {
 
     // 插入默认的表情包分组
     db.execute('''
-      INSERT INTO EmojiGroups (name) VALUES ('neko');
+      INSERT INTO EmojiGroups (name, sort_order) VALUES ('neko', 0);
     ''');
 
     // 获取插入的分组ID
@@ -90,9 +90,9 @@ class MigrationV9EmojiLibrary extends Migration {
     // 批量插入默认表情包
     for (int i = 0; i < emojiUrls.length; i++) {
       db.execute('''
-        INSERT INTO EmojiImages (group_id, sort_order, url, thumbnail_url) 
-        VALUES (?, ?, ?, ?);
-      ''', [groupId, i, emojiUrls[i], emojiUrls[i]]);
+        INSERT INTO EmojiImages (group_id, url, thumbnail_url) 
+        VALUES (?, ?, ?);
+      ''', [groupId, emojiUrls[i], emojiUrls[i]]);
     }
 
     // 更新表情包分组的封面图为第一张图片

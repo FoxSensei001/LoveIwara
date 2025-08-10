@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:ui' as ui show PlaceholderAlignment;
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:i_iwara/common/enums/emoji_size_enum.dart';
@@ -37,6 +38,7 @@ class EmojiText extends SpecialText {
       imageWidth: emojiSize.displaySize,
       imageHeight: emojiSize.displaySize,
       margin: emojiSize.margin,
+      alignment: ui.PlaceholderAlignment.bottom,
       start: start,
       actualText: emojiText,
       fit: BoxFit.contain,

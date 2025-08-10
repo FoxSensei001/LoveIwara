@@ -6,6 +6,7 @@ class EmojiGroup {
   final int groupId;
   final String name;
   final String? coverUrl;
+  final int sortOrder;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -13,6 +14,7 @@ class EmojiGroup {
     required this.groupId,
     required this.name,
     this.coverUrl,
+    required this.sortOrder,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -22,6 +24,7 @@ class EmojiGroup {
       groupId: map['group_id'] as int,
       name: map['name'] as String,
       coverUrl: map['cover_url'] as String?,
+      sortOrder: map['sort_order'] as int,
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String),
     );
@@ -31,14 +34,12 @@ class EmojiGroup {
 class EmojiImage {
   final int imageId;
   final int groupId;
-  final int sortOrder;
   final String url;
   final String? thumbnailUrl;
 
   EmojiImage({
     required this.imageId,
     required this.groupId,
-    required this.sortOrder,
     required this.url,
     this.thumbnailUrl,
   });
@@ -47,7 +48,6 @@ class EmojiImage {
     return EmojiImage(
       imageId: map['image_id'] as int,
       groupId: map['group_id'] as int,
-      sortOrder: map['sort_order'] as int,
       url: map['url'] as String,
       thumbnailUrl: map['thumbnail_url'] as String?,
     );
@@ -68,7 +68,7 @@ class EmojiLibraryService extends GetxService {
     final db = _databaseService.database;
     final stmt = db.prepare('''
       SELECT * FROM EmojiGroups 
-      ORDER BY created_at DESC
+      ORDER BY sort_order ASC, created_at DESC
     ''');
     
     final result = stmt.select([]);
@@ -80,11 +80,22 @@ class EmojiLibraryService extends GetxService {
   // 创建新的表情包分组
   int createEmojiGroup(String name) {
     final db = _databaseService.database;
+    
+    // 获取当前最大排序值
+    final maxSortStmt = db.prepare('''
+      SELECT COALESCE(MAX(sort_order), -1) + 1 as next_sort 
+      FROM EmojiGroups
+    ''');
+    final maxSortResult = maxSortStmt.select([]);
+    maxSortStmt.dispose();
+    
+    final nextSort = maxSortResult.first['next_sort'] as int;
+    
     final stmt = db.prepare('''
-      INSERT INTO EmojiGroups (name) VALUES (?)
+      INSERT INTO EmojiGroups (name, sort_order) VALUES (?, ?)
     ''');
     
-    stmt.execute([name]);
+    stmt.execute([name, nextSort]);
     stmt.dispose();
     
     final lastInsertStmt = db.prepare('SELECT last_insert_rowid() as id');
@@ -122,7 +133,7 @@ class EmojiLibraryService extends GetxService {
     final stmt = db.prepare('''
       SELECT * FROM EmojiImages 
       WHERE group_id = ? 
-      ORDER BY sort_order ASC
+      ORDER BY image_id ASC
     ''');
     
     final result = stmt.select([groupId]);
@@ -161,23 +172,12 @@ class EmojiLibraryService extends GetxService {
       return; // URL已存在，跳过
     }
     
-    // 获取当前最大排序值
-    final maxSortStmt = db.prepare('''
-      SELECT COALESCE(MAX(sort_order), -1) + 1 as next_sort 
-      FROM EmojiImages 
-      WHERE group_id = ?
-    ''');
-    final maxSortResult = maxSortStmt.select([groupId]);
-    maxSortStmt.dispose();
-    
-    final nextSort = maxSortResult.first['next_sort'] as int;
-    
     // 插入新图片
     final insertStmt = db.prepare('''
-      INSERT INTO EmojiImages (group_id, sort_order, url, thumbnail_url) 
-      VALUES (?, ?, ?, ?)
+      INSERT INTO EmojiImages (group_id, url, thumbnail_url) 
+      VALUES (?, ?, ?)
     ''');
-    insertStmt.execute([groupId, nextSort, url, thumbnailUrl ?? url]);
+    insertStmt.execute([groupId, url, thumbnailUrl ?? url]);
     insertStmt.dispose();
     
     // 更新分组封面（如果是第一张图片）
@@ -224,17 +224,33 @@ class EmojiLibraryService extends GetxService {
     _updateGroupCoverIfNeeded(groupId);
   }
 
-  // 更新表情图片排序
-  void updateEmojiImageOrder(int imageId, int newSortOrder) {
+  // 更新表情包分组排序
+  void updateEmojiGroupOrder(int groupId, int newSortOrder) {
     final db = _databaseService.database;
     final stmt = db.prepare('''
-      UPDATE EmojiImages 
-      SET sort_order = ? 
-      WHERE image_id = ?
+      UPDATE EmojiGroups 
+      SET sort_order = ?, updated_at = CURRENT_TIMESTAMP 
+      WHERE group_id = ?
     ''');
     
-    stmt.execute([newSortOrder, imageId]);
+    stmt.execute([newSortOrder, groupId]);
     stmt.dispose();
+  }
+
+  // 批量更新表情包分组排序
+  void updateEmojiGroupsOrder(List<EmojiGroup> groups) {
+    final db = _databaseService.database;
+    
+    db.execute('BEGIN TRANSACTION');
+    try {
+      for (int i = 0; i < groups.length; i++) {
+        updateEmojiGroupOrder(groups[i].groupId, i);
+      }
+      db.execute('COMMIT');
+    } catch (e) {
+      db.execute('ROLLBACK');
+      rethrow;
+    }
   }
 
   // 私有方法：更新分组封面（如果需要）
@@ -245,7 +261,7 @@ class EmojiLibraryService extends GetxService {
     final firstImageStmt = db.prepare('''
       SELECT url FROM EmojiImages 
       WHERE group_id = ? 
-      ORDER BY sort_order ASC 
+      ORDER BY image_id ASC 
       LIMIT 1
     ''');
     final firstImageResult = firstImageStmt.select([groupId]);
