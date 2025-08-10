@@ -7,6 +7,7 @@ import '../../../../utils/proxy/proxy_util.dart';
 import '../../../routes/app_routes.dart';
 import 'app_settings_page.dart';
 import 'player_settings_page.dart';
+import 'forum_settings_page.dart';
 import 'proxy_settings_page.dart';
 import 'theme_settings_page.dart';
 import 'download_settings_page.dart';
@@ -102,6 +103,13 @@ class _SettingsPageState extends State<SettingsPage> {
         route: Routes.APP_SETTINGS_PAGE,
       ),
       SettingItem(
+        title: t.settings.forum,
+        subtitle: t.settings.forumSettings.configureYourForumSettings,
+        icon: Icons.forum,
+        page: ForumSettingsPage(isWideScreen: isWideScreen),
+        route: Routes.FORUM_SETTINGS_PAGE,
+      ),
+      SettingItem(
         title: t.settings.downloadSettings.downloadSettingsTitle,
         subtitle: t.settings.downloadSettings.downloadSettingsSubtitle,
         icon: Icons.download,
@@ -163,7 +171,8 @@ class _SettingsPageState extends State<SettingsPage> {
         title: slang.t.settings.personalizedSettings,
         items: settingItems.where((item) =>
             item.icon == Icons.play_circle_outline ||
-            item.icon == Icons.color_lens).toList(),
+            item.icon == Icons.color_lens ||
+            item.icon == Icons.forum).toList(),
       ),
       _SettingGroup(
         // title: '其他',
@@ -247,7 +256,24 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
             clipBehavior: Clip.antiAlias,
-            child: Obx(() => settingItems[selectedIndex.value].page),
+            child: Obx(() {
+              // 根据选中的索引找到对应的设置项
+              SettingItem? selectedItem;
+              int currentIndex = 0;
+              
+              for (final group in groupedItems) {
+                for (final item in group.items) {
+                  if (currentIndex == selectedIndex.value) {
+                    selectedItem = item;
+                    break;
+                  }
+                  currentIndex++;
+                }
+                if (selectedItem != null) break;
+              }
+              
+              return selectedItem?.page ?? settingItems[0].page;
+            }),
           ),
         ),
       ],
@@ -277,7 +303,8 @@ class _SettingsPageState extends State<SettingsPage> {
           title: slang.t.settings.personalizedSettings,
           items: settingItems.where((item) =>
               item.icon == Icons.play_circle_outline ||
-              item.icon == Icons.color_lens).toList(),
+              item.icon == Icons.color_lens ||
+              item.icon == Icons.forum).toList(),
         ),
         _buildSettingsGroup(
           context,

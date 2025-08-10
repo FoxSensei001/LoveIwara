@@ -671,6 +671,7 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get videoSyncDisplayAdrop => '显示丢音频帧';
 	@override String get videoSyncDisplayDesync => '显示去同步';
 	@override String get videoSyncDesync => '去同步';
+	@override late final _TranslationsSettingsForumSettingsZhCn forumSettings = _TranslationsSettingsForumSettingsZhCn._(_root);
 	@override String get hardwareDecodingAuto => '自动';
 	@override String get hardwareDecodingAutoCopy => '自动复制';
 	@override String get hardwareDecodingAutoSafe => '自动安全';
@@ -908,12 +909,12 @@ class _TranslationsForumZhCn implements TranslationsForumEn {
 	@override late final _TranslationsForumGroupsZhCn groups = _TranslationsForumGroupsZhCn._(_root);
 	@override late final _TranslationsForumLeafNamesZhCn leafNames = _TranslationsForumLeafNamesZhCn._(_root);
 	@override late final _TranslationsForumLeafDescriptionsZhCn leafDescriptions = _TranslationsForumLeafDescriptionsZhCn._(_root);
-	@override String get reply => '回覆';
+	@override String get reply => '回复';
 	@override String get pendingReview => '审核中';
 	@override String get editedAt => '编辑时间';
 	@override String get copySuccess => '已复制到剪贴板';
 	@override String copySuccessForMessage({required Object str}) => '已复制到剪贴板: ${str}';
-	@override String get editReply => '编辑回覆';
+	@override String get editReply => '编辑回复';
 	@override String get editTitle => '编辑标题';
 	@override String get submit => '提交';
 }
@@ -1360,6 +1361,17 @@ class _TranslationsErrorsNetworkZhCn implements TranslationsErrorsNetworkEn {
 	@override String get noRouteToHost => '无法找到主机';
 	@override String get connectionFailed => '连接失败';
 	@override String get sslConnectionFailed => 'SSL连接失败，请检查网络设置';
+}
+
+// Path: settings.forumSettings
+class _TranslationsSettingsForumSettingsZhCn implements TranslationsSettingsForumSettingsEn {
+	_TranslationsSettingsForumSettingsZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get name => '论坛';
+	@override String get configureYourForumSettings => '配置您的论坛设置';
 }
 
 // Path: settings.downloadSettings
@@ -2313,6 +2325,8 @@ extension on TranslationsZhCn {
 			case 'settings.videoSyncDisplayAdrop': return '显示丢音频帧';
 			case 'settings.videoSyncDisplayDesync': return '显示去同步';
 			case 'settings.videoSyncDesync': return '去同步';
+			case 'settings.forumSettings.name': return '论坛';
+			case 'settings.forumSettings.configureYourForumSettings': return '配置您的论坛设置';
 			case 'settings.hardwareDecodingAuto': return '自动';
 			case 'settings.hardwareDecodingAutoCopy': return '自动复制';
 			case 'settings.hardwareDecodingAutoSafe': return '自动安全';
@@ -2676,12 +2690,12 @@ extension on TranslationsZhCn {
 			case 'forum.leafDescriptions.support_ja': return '帮助解决网站相关问题';
 			case 'forum.leafDescriptions.korean': return '韩语相关讨论';
 			case 'forum.leafDescriptions.other': return '其他未分类的内容';
-			case 'forum.reply': return '回覆';
+			case 'forum.reply': return '回复';
 			case 'forum.pendingReview': return '审核中';
 			case 'forum.editedAt': return '编辑时间';
 			case 'forum.copySuccess': return '已复制到剪贴板';
 			case 'forum.copySuccessForMessage': return ({required Object str}) => '已复制到剪贴板: ${str}';
-			case 'forum.editReply': return '编辑回覆';
+			case 'forum.editReply': return '编辑回复';
 			case 'forum.editTitle': return '编辑标题';
 			case 'forum.submit': return '提交';
 			case 'notifications.errors.unsupportedNotificationType': return '暂不支持的通知类型';

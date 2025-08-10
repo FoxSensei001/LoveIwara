@@ -555,6 +555,10 @@ settings:
   videoSyncDisplayAdrop: 顯示丟音頻幀
   videoSyncDisplayDesync: 顯示去同步
   videoSyncDesync: 去同步
+  # 论坛页
+  forumSettings:
+    name: 論壇
+    configureYourForumSettings: 配置您的論壇設定
   # 硬體解碼選項
   hardwareDecodingAuto: 自動
   hardwareDecodingAutoCopy: 自動複製

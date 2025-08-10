@@ -666,6 +666,7 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get videoSyncDisplayAdrop => 'ディスプレイオーディオフレームドロップ';
 	@override String get videoSyncDisplayDesync => 'ディスプレイ非同期';
 	@override String get videoSyncDesync => '非同期';
+	@override late final _TranslationsSettingsForumSettingsJa forumSettings = _TranslationsSettingsForumSettingsJa._(_root);
 	@override String get hardwareDecodingAuto => '自動';
 	@override String get hardwareDecodingAutoCopy => '自動コピー';
 	@override String get hardwareDecodingAutoSafe => '自動セーフ';
@@ -1355,6 +1356,17 @@ class _TranslationsErrorsNetworkJa implements TranslationsErrorsNetworkEn {
 	@override String get noRouteToHost => 'ホストに到達できません';
 	@override String get connectionFailed => '接続に失敗しました';
 	@override String get sslConnectionFailed => 'SSL接続に失敗しました。ネットワーク設定を確認してください';
+}
+
+// Path: settings.forumSettings
+class _TranslationsSettingsForumSettingsJa implements TranslationsSettingsForumSettingsEn {
+	_TranslationsSettingsForumSettingsJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get name => 'フォーラム';
+	@override String get configureYourForumSettings => 'フォーラム設定を構成する';
 }
 
 // Path: settings.downloadSettings
@@ -2303,6 +2315,8 @@ extension on TranslationsJa {
 			case 'settings.videoSyncDisplayAdrop': return 'ディスプレイオーディオフレームドロップ';
 			case 'settings.videoSyncDisplayDesync': return 'ディスプレイ非同期';
 			case 'settings.videoSyncDesync': return '非同期';
+			case 'settings.forumSettings.name': return 'フォーラム';
+			case 'settings.forumSettings.configureYourForumSettings': return 'フォーラム設定を構成する';
 			case 'settings.hardwareDecodingAuto': return '自動';
 			case 'settings.hardwareDecodingAutoCopy': return '自動コピー';
 			case 'settings.hardwareDecodingAutoSafe': return '自動セーフ';

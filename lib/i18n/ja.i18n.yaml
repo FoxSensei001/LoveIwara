@@ -555,6 +555,10 @@ settings:
   videoSyncDisplayAdrop: ディスプレイオーディオフレームドロップ
   videoSyncDisplayDesync: ディスプレイ非同期
   videoSyncDesync: 非同期
+  # フォーラム設定
+  forumSettings:
+    name: フォーラム
+    configureYourForumSettings: フォーラム設定を構成する
   # ハードウェアデコードオプション
   hardwareDecodingAuto: 自動
   hardwareDecodingAutoCopy: 自動コピー

@@ -1676,6 +1676,8 @@ class TranslationsSettingsEn {
 	/// en: 'Desync'
 	String get videoSyncDesync => 'Desync';
 
+	late final TranslationsSettingsForumSettingsEn forumSettings = TranslationsSettingsForumSettingsEn._(_root);
+
 	/// en: 'Auto'
 	String get hardwareDecodingAuto => 'Auto';
 
@@ -3393,6 +3395,21 @@ class TranslationsErrorsNetworkEn {
 	String get sslConnectionFailed => 'SSL connection failed, please check your network settings';
 }
 
+// Path: settings.forumSettings
+class TranslationsSettingsForumSettingsEn {
+	TranslationsSettingsForumSettingsEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Forum'
+	String get name => 'Forum';
+
+	/// en: 'Configure Your Forum Settings'
+	String get configureYourForumSettings => 'Configure Your Forum Settings';
+}
+
 // Path: settings.downloadSettings
 class TranslationsSettingsDownloadSettingsEn {
 	TranslationsSettingsDownloadSettingsEn._(this._root);
@@ -4869,6 +4886,8 @@ extension on Translations {
 			case 'settings.videoSyncDisplayAdrop': return 'Display Drop Audio Frames';
 			case 'settings.videoSyncDisplayDesync': return 'Display Desync';
 			case 'settings.videoSyncDesync': return 'Desync';
+			case 'settings.forumSettings.name': return 'Forum';
+			case 'settings.forumSettings.configureYourForumSettings': return 'Configure Your Forum Settings';
 			case 'settings.hardwareDecodingAuto': return 'Auto';
 			case 'settings.hardwareDecodingAutoCopy': return 'Auto Copy';
 			case 'settings.hardwareDecodingAutoSafe': return 'Auto Safe';

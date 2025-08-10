@@ -666,6 +666,7 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get videoSyncDisplayAdrop => '顯示丟音頻幀';
 	@override String get videoSyncDisplayDesync => '顯示去同步';
 	@override String get videoSyncDesync => '去同步';
+	@override late final _TranslationsSettingsForumSettingsZhTw forumSettings = _TranslationsSettingsForumSettingsZhTw._(_root);
 	@override String get hardwareDecodingAuto => '自動';
 	@override String get hardwareDecodingAutoCopy => '自動複製';
 	@override String get hardwareDecodingAutoSafe => '自動安全';
@@ -1358,6 +1359,17 @@ class _TranslationsErrorsNetworkZhTw implements TranslationsErrorsNetworkEn {
 	@override String get noRouteToHost => '無法找到主機';
 	@override String get connectionFailed => '連接失敗';
 	@override String get sslConnectionFailed => 'SSL連接失敗，請檢查網絡設置';
+}
+
+// Path: settings.forumSettings
+class _TranslationsSettingsForumSettingsZhTw implements TranslationsSettingsForumSettingsEn {
+	_TranslationsSettingsForumSettingsZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get name => '論壇';
+	@override String get configureYourForumSettings => '配置您的論壇設定';
 }
 
 // Path: settings.downloadSettings
@@ -2306,6 +2318,8 @@ extension on TranslationsZhTw {
 			case 'settings.videoSyncDisplayAdrop': return '顯示丟音頻幀';
 			case 'settings.videoSyncDisplayDesync': return '顯示去同步';
 			case 'settings.videoSyncDesync': return '去同步';
+			case 'settings.forumSettings.name': return '論壇';
+			case 'settings.forumSettings.configureYourForumSettings': return '配置您的論壇設定';
 			case 'settings.hardwareDecodingAuto': return '自動';
 			case 'settings.hardwareDecodingAutoCopy': return '自動複製';
 			case 'settings.hardwareDecodingAutoSafe': return '自動安全';

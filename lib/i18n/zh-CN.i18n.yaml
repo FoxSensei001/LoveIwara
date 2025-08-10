@@ -561,6 +561,10 @@ settings:
   videoSyncDisplayAdrop: 显示丢音频帧
   videoSyncDisplayDesync: 显示去同步
   videoSyncDesync: 去同步
+  # 论坛页
+  forumSettings:
+    name: 论坛
+    configureYourForumSettings: 配置您的论坛设置
   # 硬件解码选项
   hardwareDecodingAuto: 自动
   hardwareDecodingAutoCopy: 自动复制
@@ -962,12 +966,12 @@ forum:
     'support_ja': 帮助解决网站相关问题
     korean: 韩语相关讨论
     other: 其他未分类的内容
-  reply: 回覆
+  reply: 回复
   pendingReview: 审核中
   editedAt: 编辑时间
   copySuccess: 已复制到剪贴板
   copySuccessForMessage: '已复制到剪贴板: ${str}'
-  editReply: 编辑回覆
+  editReply: 编辑回复
   editTitle: 编辑标题
   submit: 提交
 

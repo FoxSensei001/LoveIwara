@@ -554,6 +554,10 @@ settings:
   videoSyncDisplayAdrop: Display Drop Audio Frames
   videoSyncDisplayDesync: Display Desync
   videoSyncDesync: Desync
+  # Forum settings
+  forumSettings:
+    name: Forum
+    configureYourForumSettings: Configure Your Forum Settings
   # Hardware decoding options
   hardwareDecodingAuto: Auto
   hardwareDecodingAutoCopy: Auto Copy
