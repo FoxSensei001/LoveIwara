@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/signature_edit_dialog_widget.dart';
+import 'package:i_iwara/app/ui/pages/emoji_library/emoji_library_page.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class ForumSettingsPage extends StatelessWidget {
@@ -121,6 +122,42 @@ class ForumSettingsPage extends StatelessWidget {
                           ),
                         )
                       : const SizedBox.shrink(),
+                ),
+              ],
+            ),
+          ),
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(
+                    '表情包管理',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.emoji_emotions),
+                  title: const Text('表情包库'),
+                  subtitle: const Text('管理表情包分组和图片'),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () {
+                    Get.to(() => const EmojiLibraryPage());
+                  },
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(16),
+                      bottomRight: Radius.circular(16),
+                    ),
+                  ),
                 ),
               ],
             ),

@@ -5,7 +5,7 @@ import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/conversation_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
-import 'package:i_iwara/app/ui/pages/conversation/widgets/conversation_message_dialog.dart';
+import 'package:i_iwara/app/ui/pages/conversation/widgets/conversation_message_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
@@ -535,9 +535,11 @@ class _MessageListWidgetState extends State<MessageListWidget> {
             Expanded(
               child: TextButton(
                 onPressed: () {
-                  showDialog(
+                  showModalBottomSheet(
                     context: context,
-                    builder: (context) => ConversationMessageDialog(
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (context) => ConversationMessageBottomSheet(
                       conversationId: widget.conversation.id,
                       onSubmit: () {
                         _messageListRepository.refresh(true);

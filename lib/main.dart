@@ -47,6 +47,7 @@ import 'app/services/download_path_service.dart';
 import 'app/services/filename_template_service.dart';
 import 'app/services/permission_service.dart';
 import 'package:i_iwara/app/services/config_backup_service.dart';
+import 'package:i_iwara/app/services/emoji_library_service.dart';
 import 'package:i_iwara/utils/refresh_rate_helper.dart';
 
 void main() {
@@ -154,6 +155,7 @@ Future<void> _initializeBaseServices() async {
   // 初始化数据库服务
   final dbService = DatabaseService();
   await dbService.init();
+  Get.put(dbService);
 
   // 初始化日志服务 - 现在放在数据库服务之后
   var logService = await LogService().init();
@@ -266,6 +268,7 @@ Future<void> _initializeBusinessServices() async {
   Get.put(TranslationService());
   Get.put(FavoriteService());
   Get.put(PlaybackHistoryService());
+  Get.put(EmojiLibraryService());
 
   // 初始化媒体服务
   MediaKit.ensureInitialized();
