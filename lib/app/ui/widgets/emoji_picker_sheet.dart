@@ -43,14 +43,19 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet> {
     final screenWidth = MediaQuery.of(context).size.width;
     final isNarrowScreen = screenWidth < 400; // 窄屏判断
 
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.7,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      child: Column(
-        children: [
+    return DraggableScrollableSheet(
+      initialChildSize: 0.7,
+      minChildSize: 0.4,
+      maxChildSize: 0.95,
+      expand: false,
+      builder: (context, scrollController) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+          ),
+          child: Column(
+            children: [
           // 标题栏
           Container(
             padding: const EdgeInsets.all(16),
@@ -159,14 +164,46 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet> {
             ),
           ],
           
-          // 表情包选择器
+          // 表情包选择器主体区域
           Expanded(
-            child: EmojiPickerWidget(
-              onEmojiSelected: _handleEmojiSelected,
+            child: Row(
+              children: [
+                // 左侧分组导航 rail
+                Container(
+                  width: 80,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                    border: Border(
+                      right: BorderSide(
+                        color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                        width: 1,
+                      ),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 16), // 底部留出 padding
+                    child: EmojiPickerWidget(
+                      onEmojiSelected: _handleEmojiSelected,
+                      showOnlyTabs: true, // 只显示标签页，不显示内容
+                      isRailMode: true, // 新增参数，表示 rail 模式
+                    ),
+                  ),
+                ),
+                // 右侧表情包内容区域
+                Expanded(
+                  child: EmojiPickerWidget(
+                    onEmojiSelected: _handleEmojiSelected,
+                    showOnlyContent: true, // 只显示内容，不显示标签页
+                    scrollController: scrollController,
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

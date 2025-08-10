@@ -16,7 +16,6 @@ import 'package:i_iwara/app/ui/pages/tag_videos/widgets/tag_video_search_config_
 import 'package:i_iwara/app/ui/widgets/grid_speed_dial.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
-import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 标签媒体列表页面 - 精简版本
 class TagMediaListPage extends StatefulWidget {
@@ -47,6 +46,11 @@ class _TagMediaListPageState extends State<TagMediaListPage>
   List<Tag> tags = [];
   String year = '';
   String rating = '';
+
+  // 可拖拽浮动按钮状态
+  Offset? _fabOffset;
+  static const double _fabSize = 56.0;
+  static const double _edgePadding = 16.0;
 
   @override
   void initState() {
@@ -215,7 +219,6 @@ class _TagMediaListPageState extends State<TagMediaListPage>
 
   @override
   Widget build(BuildContext context) {
-    final t = slang.Translations.of(context);
     const double tabBarHeight = 40.0;
     const double headerHeight = 48.0; // 新增header高度
     final systemStatusBarHeight = MediaQuery.of(context).padding.top;
@@ -224,222 +227,271 @@ class _TagMediaListPageState extends State<TagMediaListPage>
     final double listPaddingTop = systemStatusBarHeight + topBarVisibleHeight;
 
     return Scaffold(
-      body: Stack(
-        children: [
-          // 主要内容区域
-          Positioned.fill(
-            child: Obx(() {
-              final isPaginated = _mediaListController.isPaginated.value;
-              final rebuildKey = _mediaListController.rebuildKey.value
-                  .toString();
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return Stack(
+            children: [
+              // 主要内容区域
+              Positioned.fill(
+                child: Obx(() {
+                  final isPaginated = _mediaListController.isPaginated.value;
+                  final rebuildKey = _mediaListController.rebuildKey.value
+                      .toString();
 
-              return TabBarView(
-                controller: _tabController,
-                children: sorts.map((sort) {
-                  if (widget.mediaType == MediaType.VIDEO) {
-                    return MediaTabView<Video>(
-                      key: ValueKey('${sort.id}_$isPaginated$rebuildKey'),
-                      repository: _repositories[sort.id]! as BaseMediaRepository<Video>,
-                      emptyIcon: Icons.video_library_outlined,
-                      isPaginated: isPaginated,
-                      rebuildKey: rebuildKey,
-                      paddingTop: listPaddingTop,
-                      mediaListController: _mediaListController,
-                      showBottomPadding: true,
-                    );
-                  } else {
-                    return MediaTabView<ImageModel>(
-                      key: ValueKey('${sort.id}_$isPaginated$rebuildKey'),
-                      repository: _repositories[sort.id]! as BaseMediaRepository<ImageModel>,
-                      emptyIcon: Icons.photo_library_outlined,
-                      isPaginated: isPaginated,
-                      rebuildKey: rebuildKey,
-                      paddingTop: listPaddingTop,
-                      mediaListController: _mediaListController,
-                      showBottomPadding: true,
-                    );
-                  }
-                }).toList(),
-              );
-            }),
-          ),
-          // 顶部Header + Tab栏
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: ClipRect(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-                child: Container(
-                  height: systemStatusBarHeight + topBarVisibleHeight,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.surface.withValues(alpha: 0.85),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SizedBox(height: systemStatusBarHeight),
-                      // Header区域（第一行）- 包含返回按钮和标题
-                      SizedBox(
-                        height: headerHeight,
-                        child: Row(
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.arrow_back),
-                              onPressed: () => Navigator.of(context).pop(),
-                            ),
-                            Expanded(
-                              child: Text(
-                                '# ${widget.tag.id}',
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w600,
+                  // 初始化 FAB 位置
+                  final bottomSafe = MediaQuery.of(context).padding.bottom;
+                  final double extraBottom = isPaginated
+                      ? (46 + bottomSafe + 20)
+                      : 20;
+                  _fabOffset ??= Offset(
+                    constraints.maxWidth - _fabSize - _edgePadding,
+                    constraints.maxHeight -
+                        _fabSize -
+                        _edgePadding -
+                        extraBottom,
+                  );
+
+                  return TabBarView(
+                    controller: _tabController,
+                    children: sorts.map((sort) {
+                      if (widget.mediaType == MediaType.VIDEO) {
+                        return MediaTabView<Video>(
+                          key: ValueKey('${sort.id}_$isPaginated$rebuildKey'),
+                          repository: _repositories[sort.id]!
+                              as BaseMediaRepository<Video>,
+                          emptyIcon: Icons.video_library_outlined,
+                          isPaginated: isPaginated,
+                          rebuildKey: rebuildKey,
+                          paddingTop: listPaddingTop,
+                          mediaListController: _mediaListController,
+                          showBottomPadding: true,
+                        );
+                      } else {
+                        return MediaTabView<ImageModel>(
+                          key: ValueKey('${sort.id}_$isPaginated$rebuildKey'),
+                          repository: _repositories[sort.id]!
+                              as BaseMediaRepository<ImageModel>,
+                          emptyIcon: Icons.photo_library_outlined,
+                          isPaginated: isPaginated,
+                          rebuildKey: rebuildKey,
+                          paddingTop: listPaddingTop,
+                          mediaListController: _mediaListController,
+                          showBottomPadding: true,
+                        );
+                      }
+                    }).toList(),
+                  );
+                }),
+              ),
+              // 顶部Header + Tab栏
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: ClipRect(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                    child: Container(
+                      height: systemStatusBarHeight + topBarVisibleHeight,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surface
+                          .withValues(alpha: 0.85),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(height: systemStatusBarHeight),
+                          // Header区域（第一行）- 包含返回按钮和标题
+                          SizedBox(
+                            height: headerHeight,
+                            child: Row(
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.arrow_back),
+                                  onPressed: () => Navigator.of(context).pop(),
                                 ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      // Tab栏区域（第二行）
-                      SizedBox(
-                        height: tabBarHeight,
-                        child: MouseRegion(
-                          child: Listener(
-                            onPointerSignal: (pointerSignal) {
-                              if (pointerSignal is PointerScrollEvent) {
-                                _handleScroll(pointerSignal.scrollDelta.dy);
-                              }
-                            },
-                            child: SingleChildScrollView(
-                              controller: _tabBarScrollController,
-                              scrollDirection: Axis.horizontal,
-                              physics: const ClampingScrollPhysics(),
-                              child: TabBar(
-                                isScrollable: true,
-                                overlayColor: WidgetStateProperty.all(
-                                  Colors.transparent,
-                                ),
-                                tabAlignment: TabAlignment.start,
-                                dividerColor: Colors.transparent,
-                                padding: EdgeInsets.zero,
-                                controller: _tabController,
-                                tabs: sorts.asMap().entries.map((entry) {
-                                  int index = entry.key;
-                                  Sort sort = entry.value;
-                                  return Container(
-                                    key: _tabKeys[index],
-                                    child: Tab(
-                                      child: Row(
-                                        children: [
-                                          sort.icon ?? const SizedBox(),
-                                          const SizedBox(width: 4),
-                                          Text(sort.label),
-                                        ],
-                                      ),
+                                Expanded(
+                                  child: Text(
+                                    '# ${widget.tag.id}',
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w600,
                                     ),
-                                  );
-                                }).toList(),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          // Tab栏区域（第二行）
+                          SizedBox(
+                            height: tabBarHeight,
+                            child: MouseRegion(
+                              child: Listener(
+                                onPointerSignal: (pointerSignal) {
+                                  if (pointerSignal is PointerScrollEvent) {
+                                    _handleScroll(pointerSignal.scrollDelta.dy);
+                                  }
+                                },
+                                child: SingleChildScrollView(
+                                  controller: _tabBarScrollController,
+                                  scrollDirection: Axis.horizontal,
+                                  physics: const ClampingScrollPhysics(),
+                                  child: TabBar(
+                                    isScrollable: true,
+                                    overlayColor: WidgetStateProperty.all(
+                                      Colors.transparent,
+                                    ),
+                                    tabAlignment: TabAlignment.start,
+                                    dividerColor: Colors.transparent,
+                                    padding: EdgeInsets.zero,
+                                    controller: _tabController,
+                                    tabs:
+                                        sorts.asMap().entries.map((entry) {
+                                      int index = entry.key;
+                                      Sort sort = entry.value;
+                                      return Container(
+                                        key: _tabKeys[index],
+                                        child: Tab(
+                                          child: Row(
+                                            children: [
+                                              sort.icon ?? const SizedBox(),
+                                              const SizedBox(width: 4),
+                                              Text(sort.label),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
-        ],
-      ),
-      // 浮动操作按钮
-      floatingActionButton: Obx(
-        () => Padding(
-          padding: EdgeInsets.only(
-            bottom: _mediaListController.isPaginated.value
-                ? (46 +
-                      (Get.context != null
-                          ? MediaQuery.of(Get.context!).padding.bottom
-                          : 0) +
-                      20)
-                : 20,
-            right: 0,
-          ),
-          child: GridSpeedDial(
-            icon: Icons.menu,
-            activeIcon: Icons.close,
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            foregroundColor: Theme.of(context).colorScheme.onPrimary,
-            spacing: 6,
-            spaceBetweenChildren: 4,
-            direction: SpeedDialDirection.up,
-            childPadding: const EdgeInsets.all(6),
-            childrens: [
-              [
-                // 第一列
-                SpeedDialChild(
-                  child: Icon(
-                    _mediaListController.isPaginated.value
-                        ? Icons.grid_view
-                        : Icons.view_stream,
+
+              // 可拖拽浮动按钮
+              Obx(() {
+                final isPaginatedNow = _mediaListController.isPaginated.value;
+                final bottomSafeNow = MediaQuery.of(context).padding.bottom;
+                final double extraBottomNow = isPaginatedNow
+                    ? (46 + bottomSafeNow + 20)
+                    : 20;
+
+                final double minX = _edgePadding;
+                final double minY = _edgePadding;
+                final double maxX =
+                    constraints.maxWidth - _fabSize - _edgePadding;
+                final double maxY = constraints.maxHeight -
+                    _fabSize -
+                    _edgePadding -
+                    extraBottomNow;
+                final double showLeft =
+                    (_fabOffset?.dx ?? maxX).clamp(minX, maxX).toDouble();
+                final double showTop =
+                    (_fabOffset?.dy ?? maxY).clamp(minY, maxY).toDouble();
+
+                return Positioned(
+                  left: showLeft,
+                  top: showTop,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onPanUpdate: (details) {
+                      setState(() {
+                        final nextX =
+                            (_fabOffset?.dx ?? showLeft) + details.delta.dx;
+                        final nextY =
+                            (_fabOffset?.dy ?? showTop) + details.delta.dy;
+                        _fabOffset = Offset(
+                          nextX.clamp(minX, maxX).toDouble(),
+                          nextY.clamp(minY, maxY).toDouble(),
+                        );
+                      });
+                    },
+                    child: GridSpeedDial(
+                      icon: Icons.menu,
+                      activeIcon: Icons.close,
+                      backgroundColor:
+                          Theme.of(context).colorScheme.primary,
+                      foregroundColor:
+                          Theme.of(context).colorScheme.onPrimary,
+                      spacing: 6,
+                      spaceBetweenChildren: 4,
+                      direction: SpeedDialDirection.up,
+                      childPadding: const EdgeInsets.all(6),
+                      childrens: [
+                        [
+                          SpeedDialChild(
+                            child: Icon(
+                              _mediaListController.isPaginated.value
+                                  ? Icons.grid_view
+                                  : Icons.view_stream,
+                            ),
+                            backgroundColor: Theme.of(context)
+                                .colorScheme
+                                .secondaryContainer,
+                            foregroundColor: Theme.of(context)
+                                .colorScheme
+                                .onSecondaryContainer,
+                            onTap: () {
+                              if (!_mediaListController.isPaginated.value) {
+                                var sortId = sorts[_tabController.index].id;
+                                var repository = _repositories[sortId]!;
+                                repository.refresh(true);
+                              }
+                              _mediaListController.setPaginatedMode(
+                                !_mediaListController.isPaginated.value,
+                              );
+                            },
+                          ),
+                          SpeedDialChild(
+                            child: const Icon(Icons.filter_list),
+                            backgroundColor: Theme.of(context)
+                                .colorScheme
+                                .primaryContainer,
+                            foregroundColor: Theme.of(context)
+                                .colorScheme
+                                .onPrimaryContainer,
+                            onTap: _openParamsModal,
+                          ),
+                        ],
+                        [
+                          SpeedDialChild(
+                            child: const Icon(Icons.vertical_align_top),
+                            backgroundColor: Theme.of(context)
+                                .colorScheme
+                                .primaryContainer,
+                            foregroundColor: Theme.of(context)
+                                .colorScheme
+                                .onPrimaryContainer,
+                            onTap: () => _mediaListController.scrollToTop(),
+                          ),
+                          SpeedDialChild(
+                            child: const Icon(Icons.refresh),
+                            backgroundColor: Theme.of(context)
+                                .colorScheme
+                                .primaryContainer,
+                            foregroundColor: Theme.of(context)
+                                .colorScheme
+                                .onPrimaryContainer,
+                            onTap: _tryRefreshCurrentSort,
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
-                  backgroundColor: Theme.of(
-                    context,
-                  ).colorScheme.secondaryContainer,
-                  foregroundColor: Theme.of(
-                    context,
-                  ).colorScheme.onSecondaryContainer,
-                  onTap: () {
-                    if (!_mediaListController.isPaginated.value) {
-                      var sortId = sorts[_tabController.index].id;
-                      var repository = _repositories[sortId]!;
-                      repository.refresh(true);
-                    }
-                    _mediaListController.setPaginatedMode(
-                      !_mediaListController.isPaginated.value,
-                    );
-                  },
-                ),
-                SpeedDialChild(
-                  child: const Icon(Icons.filter_list),
-                  backgroundColor: Theme.of(
-                    context,
-                  ).colorScheme.primaryContainer,
-                  foregroundColor: Theme.of(
-                    context,
-                  ).colorScheme.onPrimaryContainer,
-                  onTap: _openParamsModal,
-                ),
-              ],
-              [
-                // 第二列
-                SpeedDialChild(
-                  child: const Icon(Icons.vertical_align_top),
-                  backgroundColor: Theme.of(
-                    context,
-                  ).colorScheme.primaryContainer,
-                  foregroundColor: Theme.of(
-                    context,
-                  ).colorScheme.onPrimaryContainer,
-                  onTap: () => _mediaListController.scrollToTop(),
-                ),
-                SpeedDialChild(
-                  child: const Icon(Icons.refresh),
-                  backgroundColor: Theme.of(
-                    context,
-                  ).colorScheme.primaryContainer,
-                  foregroundColor: Theme.of(
-                    context,
-                  ).colorScheme.onPrimaryContainer,
-                  onTap: _tryRefreshCurrentSort,
-                ),
-              ],
+                );
+              }),
             ],
-          ),
-        ),
+          );
+        },
       ),
+      floatingActionButton: null,
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
