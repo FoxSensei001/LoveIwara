@@ -245,6 +245,7 @@ class _TagMediaListPageState extends State<TagMediaListPage>
                       rebuildKey: rebuildKey,
                       paddingTop: listPaddingTop,
                       mediaListController: _mediaListController,
+                      showBottomPadding: true,
                     );
                   } else {
                     return MediaTabView<ImageModel>(
@@ -255,6 +256,7 @@ class _TagMediaListPageState extends State<TagMediaListPage>
                       rebuildKey: rebuildKey,
                       paddingTop: listPaddingTop,
                       mediaListController: _mediaListController,
+                      showBottomPadding: true,
                     );
                   }
                 }).toList(),
