@@ -2,49 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:i_iwara/app/models/sort.model.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 
-/// 日志脱敏配置
-class LogMasking {
-  /// 用于替换敏感数据的占位符
-  static const String placeholder = '***';
-
-  /// 需要脱敏的正则表达式列表
-  static final List<RegExp> patterns = [
-    // 匹配密码字段
-    RegExp(r'"password"\s*:\s*".*?"', caseSensitive: false),
-    RegExp(r"'password'\s*:\s*'.*?'", caseSensitive: false),
-    RegExp(r'<password>.*?</password>', caseSensitive: false),
-
-    // 匹配电子邮件地址
-    RegExp(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'),
-
-    // 匹配API Key或Token格式
-    RegExp(r'"(token|key|secret)"\s*:\s*"[A-Za-z0-9\-_/+]+"', caseSensitive: false),
-    RegExp(r"'(token|key|secret)'\s*:\s*'[A-Za-z0-9\-_/+]+'", caseSensitive: false),
-    
-    // 匹配授权头部
-    RegExp(r'Authorization:\s*Bearer\s+[A-Za-z0-9\-_/+]+', caseSensitive: false),
-    RegExp(r'Authorization:\s*Basic\s+[A-Za-z0-9\-_/+]+', caseSensitive: false),
-
-    // 匹配手机号码(中国大陆)
-    RegExp(r'\b1[3-9]\d{9}\b'),
-
-    // 匹配身份证号(中国大陆)
-    RegExp(r'\b\d{17}[\dX]\b', caseSensitive: false),
-    
-    // 匹配IP地址
-    RegExp(r'\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b'),
-    
-    // 匹配JWT令牌 (eyJ开头的Base64编码字符串，包含两个点分隔的三段)
-    RegExp(r'eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+'),
-    
-    // 匹配Access Token文本后的JWT令牌
-    RegExp(r'Access Token:?\s*[A-Za-z0-9\-_/+]+\.[A-Za-z0-9\-_/+]+\.[A-Za-z0-9\-_/+]+', caseSensitive: false),
-    
-    // 匹配Auth token文本后的JWT令牌
-    RegExp(r'Auth [Tt]oken:?\s*[A-Za-z0-9\-_/+]+\.[A-Za-z0-9\-_/+]+\.[A-Za-z0-9\-_/+]+'),
-  ];
-}
-
 class CommonConstants {
   CommonConstants._internal();
 

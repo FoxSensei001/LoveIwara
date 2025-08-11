@@ -30,30 +30,6 @@ class LogUtils {
   // 初始化状态
   static bool get isInitialized => _initialized;
   
-  /// 对输入字符串进行脱敏处理
-  ///
-  /// @param input 原始字符串
-  /// @return 脱敏后的字符串
-  static String maskSensitiveData(String? input) {
-    if (input == null || input.isEmpty) {
-      return '';
-    }
-    String maskedInput = input;
-    try {
-      for (final pattern in LogMasking.patterns) {
-        maskedInput = maskedInput.replaceAllMapped(pattern, (match) {
-          return LogMasking.placeholder;
-        });
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print("日志脱敏失败: $e");
-      }
-      return input; // 脱敏失败时返回原始内容
-    }
-    return maskedInput;
-  }
-  
   // 初始化日志系统
   static Future<void> init({bool isProduction = false, bool enablePersistence = true}) async {
     _isProduction = isProduction;
@@ -72,7 +48,7 @@ class LogUtils {
     );
     
     // 设置日志级别
-    Logger.level = isProduction ? Level.info : Level.debug;
+    // Logger.level = isProduction ? Level.info : Level.debug;
     
     try {
       _initialized = true;
@@ -142,81 +118,67 @@ class LogUtils {
 
   // 记录调试日志
   static void d(String message, [String tag = _TAG]) {
-    // 对记录内容进行额外的脱敏检查
-    final maskedMessage = _enhancedMasking(message);
-    
     if (!_isProduction) {
-      _logger.d("[${_getTimeString()}][$tag] $maskedMessage");
+      _logger.d("[${_getTimeString()}][$tag] $message");
     }
     
     // 添加到内存日志
-    final String logLine = "[${_getTimeString()}][DEBUG][$tag] $maskedMessage";
+    final String logLine = "[${_getTimeString()}][DEBUG][$tag] $message";
     _addToMemoryLog(logLine);
     
     // 数据库写入
-    unawaited(_writeToDatabase(LogLevel.debug, maskedMessage, tag));
+    unawaited(_writeToDatabase(LogLevel.debug, message, tag));
   }
 
   // 记录信息日志
   static void i(String message, [String tag = _TAG]) {
-    // 对记录内容进行额外的脱敏检查
-    final maskedMessage = _enhancedMasking(message);
-    
-    _logger.i("[${_getTimeString()}][$tag] $maskedMessage");
+    _logger.i("[${_getTimeString()}][$tag] $message");
     
     // 添加到内存日志
-    final String logLine = "[${_getTimeString()}][INFO][$tag] $maskedMessage";
+    final String logLine = "[${_getTimeString()}][INFO][$tag] $message";
     _addToMemoryLog(logLine);
     
     // 数据库写入
-    unawaited(_writeToDatabase(LogLevel.info, maskedMessage, tag));
+    unawaited(_writeToDatabase(LogLevel.info, message, tag));
   }
 
   // 记录警告日志
   static void w(String message, [String tag = _TAG]) {
-    // 对记录内容进行额外的脱敏检查
-    final maskedMessage = _enhancedMasking(message);
-    
-    _logger.w("[${_getTimeString()}][$tag] $maskedMessage");
+    _logger.w("[${_getTimeString()}][$tag] $message");
     
     // 添加到内存日志
-    final String logLine = "[${_getTimeString()}][WARN][$tag] $maskedMessage";
+    final String logLine = "[${_getTimeString()}][WARN][$tag] $message";
     _addToMemoryLog(logLine);
     
     // 数据库写入
-    unawaited(_writeToDatabase(LogLevel.warn, maskedMessage, tag));
+    unawaited(_writeToDatabase(LogLevel.warn, message, tag));
   }
 
   // 记录错误日志
   static void e(String message,
       {String tag = _TAG, Object? error, StackTrace? stackTrace, StackTrace? stack}) {
     
-    // 对记录内容进行额外的脱敏检查
-    final maskedMessage = _enhancedMasking(message);
-    
     // 处理错误和堆栈信息
     String? details;
     if (error != null || stackTrace != null || stack != null) {
       final buffer = StringBuffer();
       if (error != null) {
-        final maskedError = maskSensitiveData(error.toString());
-        buffer.writeln("错误详情: $maskedError");
+        buffer.writeln("错误详情: $error");
       }
       
       final trace = stackTrace ?? stack;
       if (trace != null) {
-        final maskedTrace = maskSensitiveData(trace.toString());
-        buffer.writeln("堆栈跟踪: $maskedTrace");
+        buffer.writeln("堆栈跟踪: $trace");
       }
       
       details = buffer.toString();
     }
     
-    _logger.e("[${_getTimeString()}][$tag] $maskedMessage",
+    _logger.e("[${_getTimeString()}][$tag] $message",
         stackTrace: null, error: details);
     
     // 添加到内存日志
-    final String logLine = "[${_getTimeString()}][ERROR][$tag] $maskedMessage";
+    final String logLine = "[${_getTimeString()}][ERROR][$tag] $message";
     _addToMemoryLog(logLine);
     
     if (details != null) {
@@ -230,7 +192,7 @@ class LogUtils {
         Get.find<LogService>().addLogSync(
           level: LogLevel.error, 
           tag: tag, 
-          message: maskedMessage, 
+          message: message, 
           details: details
         );
       } catch (e) {
@@ -240,60 +202,8 @@ class LogUtils {
       }
     } else {
       // 如果LogService未注册，记录错误信息以便后续处理
-      _writeToDatabase(LogLevel.error, maskedMessage, tag, details: details);
+      _writeToDatabase(LogLevel.error, message, tag, details: details);
     }
-  }
-  
-  // 增强的脱敏方法，确保敏感信息被过滤
-  static String _enhancedMasking(String? input) {
-    if (input == null || input.isEmpty) {
-      return '';
-    }
-    
-    // 先调用标准脱敏
-    String maskedInput = maskSensitiveData(input);
-    
-    try {
-      // 简单替换常见的敏感信息格式，避免复杂正则
-      
-      // 替换JWT格式的令牌
-      if (maskedInput.contains('eyJ')) {
-        maskedInput = maskedInput.replaceAllMapped(
-          RegExp(r'eyJ[A-Za-z0-9_\-]+\.[A-Za-z0-9_\-]+\.[A-Za-z0-9_\-]+'), 
-          (match) => '***JWT_TOKEN***'
-        );
-      }
-      
-      // 替换Access Token提及
-      if (maskedInput.toLowerCase().contains('access token')) {
-        maskedInput = maskedInput.replaceAllMapped(
-          RegExp(r'Access Token:?\s+.*', caseSensitive: false),
-          (match) => 'Access Token: ***'
-        );
-      }
-      
-      // 替换Auth Token提及
-      if (maskedInput.toLowerCase().contains('auth token')) {
-        maskedInput = maskedInput.replaceAllMapped(
-          RegExp(r'Auth Token:?\s+.*', caseSensitive: false),
-          (match) => 'Auth Token: ***'
-        );
-      }
-      
-      // 替换Bearer授权头
-      if (maskedInput.contains('Bearer ')) {
-        maskedInput = maskedInput.replaceAllMapped(
-          RegExp(r'Bearer\s+[A-Za-z0-9\-_./+=]+'),
-          (match) => 'Bearer ***'
-        );
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print("增强脱敏处理失败: $e");
-      }
-    }
-    
-    return maskedInput;
   }
   
   // 关闭日志
@@ -515,26 +425,26 @@ class LogUtils {
         i("Android版本: ${androidInfo.version.release} (SDK ${androidInfo.version.sdkInt})", "设备信息");
       } else if (GetPlatform.isIOS) {
         IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-        i("iOS设备: ${maskSensitiveData(iosInfo.name)} (${iosInfo.model})", "设备信息");
+        i("iOS设备: ${iosInfo.name} (${iosInfo.model})", "设备信息");
         i("iOS版本: ${iosInfo.systemVersion}", "设备信息");
       } else if (GetPlatform.isWindows) {
         WindowsDeviceInfo windowsInfo = await deviceInfo.windowsInfo;
-        i("Windows设备: ${maskSensitiveData(windowsInfo.computerName)}", "设备信息");
+        i("Windows设备: ${windowsInfo.computerName}", "设备信息");
         i("Windows版本: ${windowsInfo.displayVersion} (${windowsInfo.buildNumber})", "设备信息");
       } else if (GetPlatform.isMacOS) {
         MacOsDeviceInfo macOsInfo = await deviceInfo.macOsInfo;
-        i("macOS设备: ${maskSensitiveData(macOsInfo.computerName)}", "设备信息");
-        i("macOS版本: ${macOsInfo.osRelease} (${maskSensitiveData(macOsInfo.hostName)})", "设备信息");
+        i("macOS设备: ${macOsInfo.computerName}", "设备信息");
+        i("macOS版本: ${macOsInfo.osRelease} (${macOsInfo.hostName})", "设备信息");
       } else if (GetPlatform.isLinux) {
         LinuxDeviceInfo linuxInfo = await deviceInfo.linuxInfo;
-        i("Linux设备: ${maskSensitiveData(linuxInfo.name)}", "设备信息");
+        i("Linux设备: ${linuxInfo.name}", "设备信息");
         i("Linux版本: ${linuxInfo.version}", "设备信息");
       }
       
       // 记录内存信息
       i("内存总量: ${(Platform.resolvedExecutable.isEmpty ? 'Unknown' : '${(ProcessInfo.currentRss / 1024 / 1024).toStringAsFixed(2)} MB')}", "设备信息");
     } catch (e) {
-      _logger.e("记录设备信息失败: ${maskSensitiveData(e.toString())}");
+      _logger.e("记录设备信息失败: ${e.toString()}");
     }
   }
 }

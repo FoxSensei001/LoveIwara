@@ -394,7 +394,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     try {
                       await Get.find<ConfigBackupService>().exportConfig();
                     } catch (e) {
-                      showToastWidget(MDToastWidget(message: '${slang.t.settings.exportConfigFailed}: ${LogUtils.maskSensitiveData(e.toString())}', type: MDToastType.error));
+                      showToastWidget(MDToastWidget(message: '${slang.t.settings.exportConfigFailed}: ${e.toString()}', type: MDToastType.error));
                     }
                   },
                 ),
@@ -406,7 +406,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     try {
                       await Get.find<ConfigBackupService>().importConfig();
                     } catch (e) {
-                      showToastWidget(MDToastWidget(message: '${slang.t.settings.importConfigFailed}: ${LogUtils.maskSensitiveData(e.toString())}', type: MDToastType.error));
+                      showToastWidget(MDToastWidget(message: '${slang.t.settings.importConfigFailed}: ${e.toString()}', type: MDToastType.error));
                     }
                   },
                 ),
@@ -473,7 +473,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     } catch (e) {
                       showToastWidget(
                         MDToastWidget(
-                          message: slang.t.log.logExportFailed(error: LogUtils.maskSensitiveData(e.toString())),
+                          message: slang.t.log.logExportFailed(error: e.toString()),
                           type: MDToastType.error,
                         ),
                       );
@@ -490,7 +490,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     } catch (e) {
                       showToastWidget(
                         MDToastWidget(
-                          message: slang.t.log.logExportFailed(error: LogUtils.maskSensitiveData(e.toString())),
+                          message: slang.t.log.logExportFailed(error: e.toString()),
                           type: MDToastType.error,
                         ),
                       );
@@ -507,7 +507,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     } catch (e) {
                       showToastWidget(
                         MDToastWidget(
-                          message: slang.t.log.logExportFailed(error: LogUtils.maskSensitiveData(e.toString())),
+                          message: slang.t.log.logExportFailed(error: e.toString()),
                           type: MDToastType.error,
                         ),
                       );
@@ -524,7 +524,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     } catch (e) {
                       showToastWidget(
                         MDToastWidget(
-                          message: slang.t.log.logExtractFailed(error: LogUtils.maskSensitiveData(e.toString())),
+                          message: slang.t.log.logExtractFailed(error: e.toString()),
                           type: MDToastType.error,
                         ),
                       );
@@ -574,7 +574,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       } catch (e) {
                         showToastWidget(
                           MDToastWidget(
-                            message: slang.t.log.clearAllLogsFailed(error: LogUtils.maskSensitiveData(e.toString())),
+                            message: slang.t.log.clearAllLogsFailed(error: e.toString()),
                             type: MDToastType.error,
                           ),
                         );
@@ -808,7 +808,7 @@ Widget _buildLogSizeDetailWidget(BuildContext context, ConfigService configServi
                           await Get.find<LogService>().vacuum();
                         } catch (e) {
                           if (kDebugMode) {
-                            print("强制清理日志失败: ${LogUtils.maskSensitiveData(e.toString())}");
+                            print("强制清理日志失败: ${e.toString()}");
                           }
                         }
                         
@@ -1016,7 +1016,7 @@ Future<void> _exportLogs(BuildContext context) async {
     if (context.mounted) {
       showToastWidget(
         MDToastWidget(
-          message: slang.t.log.logExportFailed(error: LogUtils.maskSensitiveData(e.toString())),
+          message: slang.t.log.logExportFailed(error: e.toString()),
           type: MDToastType.error,
         ),
       );
@@ -1155,7 +1155,7 @@ Future<void> _exportHistoryLogs(BuildContext context) async {
     if (context.mounted) {
       showToastWidget(
         MDToastWidget(
-          message: slang.t.log.logExportFailed(error: LogUtils.maskSensitiveData(e.toString())),
+          message: slang.t.log.logExportFailed(error: e.toString()),
           type: MDToastType.error,
         ),
       );
@@ -1331,7 +1331,7 @@ Future<void> _exportMergedLogs(BuildContext context) async {
         if (context.mounted) {
           showToastWidget(
             MDToastWidget(
-              message: slang.t.log.logExportFailed(error: LogUtils.maskSensitiveData(e.toString())),
+              message: slang.t.log.logExportFailed(error: e.toString()),
               type: MDToastType.error,
             ),
           );
@@ -1347,7 +1347,7 @@ Future<void> _exportMergedLogs(BuildContext context) async {
     if (context.mounted) {
       showToastWidget(
         MDToastWidget(
-          message: slang.t.log.logExportFailed(error: LogUtils.maskSensitiveData(e.toString())),
+          message: slang.t.log.logExportFailed(error: e.toString()),
           type: MDToastType.error,
         ),
       );
@@ -1382,7 +1382,7 @@ Future<void> _showLogStats(BuildContext context) {
           if (snapshot.hasError) {
             return AlertDialog(
               title: Text(slang.t.log.logStats),
-              content: Text(slang.t.log.logExtractFailed(error: LogUtils.maskSensitiveData(snapshot.error.toString()))),
+              content: Text(slang.t.log.logExtractFailed(error: snapshot.error.toString())),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
@@ -1533,7 +1533,7 @@ Future<void> _showLogSizeLimitDialog(BuildContext context, ConfigService configS
                     await Get.find<LogService>().vacuum();
                   } catch (e) {
                     if (kDebugMode) {
-                      print("强制清理日志失败: ${LogUtils.maskSensitiveData(e.toString())}");
+                      print("强制清理日志失败: ${e.toString()}");
                     }
                   }
                   
