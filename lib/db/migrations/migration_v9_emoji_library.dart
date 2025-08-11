@@ -36,14 +36,76 @@ class MigrationV9EmojiLibrary extends Migration {
 
     // 插入默认的表情包分组
     db.execute('''
-      INSERT INTO EmojiGroups (name, sort_order) VALUES ('neko', 0);
+      INSERT INTO EmojiGroups (name, sort_order) VALUES ('senkosan', 1);
     ''');
 
-    // 获取插入的分组ID
+    // 获取插入的senkosan分组ID
+    final stmtSenko = db.prepare('SELECT last_insert_rowid() as group_id;');
+    final resultSenko = stmtSenko.select([]);
+    final senkoGroupId = resultSenko.first['group_id'] as int;
+    stmtSenko.dispose();
+
+    // 插入neko分组
+    db.execute('''
+      INSERT INTO EmojiGroups (name, sort_order) VALUES ('neko', 2);
+    ''');
+
+    // 获取插入的neko分组ID
     final stmt = db.prepare('SELECT last_insert_rowid() as group_id;');
     final result = stmt.select([]);
     final groupId = result.first['group_id'] as int;
     stmt.dispose();
+
+    // senkosan表情包URL列表
+    final senkoEmojiUrls = [
+      "https://emoji.discadia.com/emojis/b0e07112-12f4-4ded-820c-f7ee92284e6e.PNG",
+      "https://emoji.discadia.com/emojis/6a6f4dcc-bf8b-4490-8e3a-5262e9e80591.PNG",
+      "https://emoji.discadia.com/emojis/6c1ffa2b-abc5-478d-a364-bccaf52c5998.PNG",
+      "https://emoji.discadia.com/emojis/e47b3dd6-5c12-4281-8184-a2c0ab83fd0f.GIF",
+      "https://emoji.discadia.com/emojis/bce78aa7-ef96-47a2-a218-d993af0b5e20.PNG",
+      "https://emoji.discadia.com/emojis/24ae9097-6083-451c-81e4-5dbf8ab0f43e.GIF",
+      "https://emoji.discadia.com/emojis/53d58547-7b25-4bba-badd-d2b6f4d89356.GIF",
+      "https://emoji.discadia.com/emojis/36aa7fc4-d684-4623-9ef7-2a035d87b93e.PNG",
+      "https://emoji.discadia.com/emojis/8bb54b74-d0f2-490a-9024-90baa470b839.PNG",
+      "https://emoji.discadia.com/emojis/06be67cb-b821-4683-a5d4-d8f5e4d30068.PNG",
+      "https://emoji.discadia.com/emojis/c8ada0c8-090a-4e5f-a9de-ffaa21413d38.GIF",
+      "https://emoji.discadia.com/emojis/300c220b-c5ca-4714-bd44-5f22af4e2382.png",
+      "https://emoji.discadia.com/emojis/9bfa9c86-3bc2-4015-90aa-3514b5710859.GIF",
+      "https://emoji.discadia.com/emojis/1cb1b617-f7cc-400c-8e9a-843faf8d7aaf.PNG",
+      "https://emoji.discadia.com/emojis/c45d895c-d59f-4019-af75-dc6089911544.GIF",
+      "https://emoji.discadia.com/emojis/ec3ca2d5-4b6c-4031-bda2-74bc93247b2d.GIF",
+      "https://emoji.discadia.com/emojis/eeaba756-e3a3-436b-bec3-efcf8f2b389a.PNG",
+      "https://emoji.discadia.com/emojis/bd8096f3-51b0-4eca-aa50-b95a12a4f13e.GIF",
+      "https://emoji.discadia.com/emojis/1336f07e-74a3-4b0f-97a7-85ff4865e583.GIF",
+      "https://emoji.discadia.com/emojis/83878ab9-de0a-4bcb-96ca-c97ae799d4f0.GIF",
+      "https://emoji.discadia.com/emojis/82d42610-8090-4140-ba93-aee7233a670c.PNG",
+      "https://emoji.discadia.com/emojis/ace19724-ed3a-48c0-9639-7dacb4a8e248.GIF",
+      "https://emoji.discadia.com/emojis/aca3a914-80b3-4207-bce4-13a9acf5de12.GIF",
+      "https://emoji.discadia.com/emojis/16ab841b-4291-438e-b3ba-cbbd9ae7c9ef.GIF",
+      "https://emoji.discadia.com/emojis/bd3264bd-95aa-4e4c-a97e-006be98dd3c5.PNG",
+      "https://emoji.discadia.com/emojis/058cb4cc-be8c-4b6f-974c-5decf11d7b62.PNG",
+      "https://emoji.discadia.com/emojis/2034556f-7de9-46e5-9d7f-02f39ffa81e6.PNG",
+      "https://emoji.discadia.com/emojis/59566abb-0d12-48ee-b96a-99ec2834f93e.PNG",
+      "https://emoji.discadia.com/emojis/e6f271cd-9323-44b5-a42a-0067783aad78.PNG",
+      "https://emoji.discadia.com/emojis/bd3264bd-95aa-4e4c-a97e-006be98dd3c5.PNG"
+    ];
+
+    // 批量插入senkosan表情包
+    for (int i = 0; i < senkoEmojiUrls.length; i++) {
+      db.execute('''
+        INSERT INTO EmojiImages (group_id, url, thumbnail_url) 
+        VALUES (?, ?, ?);
+      ''', [senkoGroupId, senkoEmojiUrls[i], senkoEmojiUrls[i]]);
+    }
+
+    // 更新senkosan表情包分组的封面图为第一张图片
+    if (senkoEmojiUrls.isNotEmpty) {
+      db.execute('''
+        UPDATE EmojiGroups 
+        SET cover_url = ? 
+        WHERE group_id = ?;
+      ''', [senkoEmojiUrls.first, senkoGroupId]);
+    }
 
     // 默认表情包URL列表
     final emojiUrls = [

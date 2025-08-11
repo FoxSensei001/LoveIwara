@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Translations;
 import 'package:i_iwara/app/services/emoji_library_service.dart';
-import 'package:i_iwara/app/services/upload_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'dart:convert';
 import 'package:shimmer/shimmer.dart';
 
-enum _ImportMenuAction { addByUrl, batchImport, uploadLocal }
+enum _ImportMenuAction { addByUrl, batchImport }
 
 class EmojiGroupDetailSheet extends StatefulWidget {
   final EmojiGroup group;
@@ -20,7 +19,6 @@ class EmojiGroupDetailSheet extends StatefulWidget {
 
 class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
   late EmojiLibraryService _emojiService;
-  late UploadService _uploadService;
   List<EmojiImage> _images = [];
   bool _isLoading = true;
   bool _isSelectionMode = false;
@@ -30,7 +28,6 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
   void initState() {
     super.initState();
     _emojiService = Get.find<EmojiLibraryService>();
-    _uploadService = Get.find<UploadService>();
     _loadImages();
   }
 
@@ -143,9 +140,6 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                         case _ImportMenuAction.batchImport:
                           _showBatchImportDialog();
                           break;
-                        case _ImportMenuAction.uploadLocal:
-                          _showLocalUploadDialog();
-                          break;
                       }
                     },
                     itemBuilder: (context) {
@@ -170,16 +164,6 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                                Text(t.emoji.batchImport),
                              ],
                            ),
-                        ),
-                        PopupMenuItem(
-                          value: _ImportMenuAction.uploadLocal,
-                          child: Row(
-                            children: [
-                              const Icon(Icons.upload_file, size: 18),
-                              const SizedBox(width: 8),
-                              Text(t.emoji.uploadLocalImages),
-                            ],
-                          ),
                         ),
                       ];
                     },
@@ -312,6 +296,7 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
         crossAxisCount: crossAxisCount,
         crossAxisSpacing: 8,
         mainAxisSpacing: 8,
+        childAspectRatio: 1.0, // 确保正方形比例
       ),
       itemCount: _images.length,
       itemBuilder: (context, index) {
@@ -332,26 +317,29 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
               _showImagePreview(image);
             }
           },
-          child: Stack(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: isSelected ? Colors.blue : Colors.grey.shade300,
-                    width: isSelected ? 3 : 1,
-                  ),
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 2,
-                      offset: const Offset(0, 1),
-                    ),
-                  ],
+          child: Container(
+            // 使用 Container 包装整个 Stack，确保一致的尺寸和对齐
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: isSelected ? Colors.blue : Colors.grey.shade300,
+                width: isSelected ? 3 : 1,
+              ),
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 2,
+                  offset: const Offset(0, 1),
                 ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Stack(
+                fit: StackFit.expand, // 确保 Stack 填满整个容器
+                children: [
+                  // 图片
+                  Image.network(
                     image.thumbnailUrl ?? image.url,
                     fit: BoxFit.cover,
                     headers: const {'referer': CommonConstants.iwaraBaseUrl},
@@ -372,40 +360,41 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                       );
                     },
                   ),
-                ),
-              ),
-              if (_isSelectionMode)
-                Positioned(
-                  top: 4,
-                  right: 4,
-                  child: Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: isSelected ? Colors.blue : Colors.white.withValues(alpha: 0.9),
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: isSelected ? Colors.blue : Colors.grey,
-                        width: 2,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.2),
-                          blurRadius: 2,
-                          offset: const Offset(0, 1),
+                  // 选择指示器
+                  if (_isSelectionMode)
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: isSelected ? Colors.blue : Colors.white.withValues(alpha: 0.9),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: isSelected ? Colors.blue : Colors.grey,
+                            width: 2,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.2),
+                              blurRadius: 2,
+                              offset: const Offset(0, 1),
+                            ),
+                          ],
                         ),
-                      ],
+                        child: isSelected
+                            ? const Icon(
+                                Icons.check,
+                                size: 16,
+                                color: Colors.white,
+                              )
+                            : null,
+                      ),
                     ),
-                    child: isSelected
-                        ? const Icon(
-                            Icons.check,
-                            size: 16,
-                            color: Colors.white,
-                          )
-                        : null,
-                  ),
-                ),
-            ],
+                ],
+              ),
+            ),
           ),
         );
       },
@@ -642,14 +631,6 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                 _showBatchImportDialog();
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.upload_file),
-              title: Text(t.emoji.uploadLocalImages),
-              onTap: () {
-                Navigator.pop(context);
-                _showLocalUploadDialog();
-              },
-            ),
           ],
         ),
       ),
@@ -751,111 +732,7 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
     );
   }
 
-  void _showLocalUploadDialog() async {
-    try {
-      // 选择图片文件
-      final files = await _uploadService.pickImageFiles();
-      if (files.isEmpty) {
-        return; // 用户取消选择
-      }
 
-      // 显示上传进度对话框
-      if (!mounted) return;
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-         useRootNavigator: true,
-        builder: (context) => _buildUploadProgressDialog(files.length),
-      );
-
-      // 批量上传图片
-      final uploadedImages = await _uploadService.uploadImageFiles(files);
-
-      // 关闭进度对话框
-      if (mounted) {
-        Navigator.of(context, rootNavigator: true).pop();
-      }
-
-      if (uploadedImages.isNotEmpty) {
-        // 将上传的图片添加到表情包组
-        final urls = uploadedImages.map((img) => img.originalUrl).toList();
-        _emojiService.addEmojiImagesBatch(widget.group.groupId, urls);
-
-        // 刷新图片列表
-        _loadImages();
-
-        // 显示成功消息
-        if (mounted) {
-          final successCount = uploadedImages.length;
-          final failedCount = files.length - successCount;
-          String message = t.emoji.uploadSuccess(count: successCount);
-          if (failedCount > 0) {
-            message += '，${t.emoji.uploadFailed(count: failedCount)}';
-          }
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(message),
-              backgroundColor: successCount > 0 ? Colors.green : Colors.red,
-            ),
-          );
-        }
-      } else {
-        // 所有上传都失败
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(t.emoji.uploadFailedMessage),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      // 关闭可能存在的进度对话框
-      if (mounted) {
-        final rootNavigator = Navigator.of(context, rootNavigator: true);
-        if (rootNavigator.canPop()) {
-          rootNavigator.pop();
-        }
-      }
-
-      // 显示错误消息
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(t.emoji.uploadErrorMessage(error: e.toString())),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
-  Widget _buildUploadProgressDialog(int totalFiles) {
-    return AlertDialog(
-      title: Row(
-        children: [
-          const Icon(Icons.cloud_upload, color: Colors.blue),
-          const SizedBox(width: 8),
-          Text(t.emoji.uploadingImages),
-        ],
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const CircularProgressIndicator(),
-          const SizedBox(height: 16),
-          Text(t.emoji.uploadingImagesProgress(count: totalFiles)),
-          const SizedBox(height: 8),
-          Text(
-            t.emoji.doNotCloseDialog,
-            style: const TextStyle(fontSize: 12, color: Colors.grey),
-          ),
-        ],
-      ),
-    );
-  }
 
   // 加载骨架屏
   Widget _buildGridShimmer() {
@@ -875,6 +752,7 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
         crossAxisCount: crossAxisCount,
         crossAxisSpacing: 8,
         mainAxisSpacing: 8,
+        childAspectRatio: 1.0, // 确保与主网格相同的比例
       ),
       itemCount: crossAxisCount * 3,
       itemBuilder: (context, index) {
