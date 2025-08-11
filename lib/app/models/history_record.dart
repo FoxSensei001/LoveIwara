@@ -112,6 +112,16 @@ class HistoryRecord {
   }
 
   factory HistoryRecord.fromJson(Map<String, dynamic> json) {
+    DateTime? parseFlexible(dynamic v) {
+      if (v == null) return null;
+      final s = v.toString();
+      // 先尝试严格 ISO 8601 解析
+      final iso = DateTime.tryParse(s);
+      if (iso != null) return iso;
+      // 兼容 SQLite datetime('now') 产生的 "YYYY-MM-DD HH:MM:SS"
+      final replaced = s.replaceFirst(' ', 'T');
+      return DateTime.tryParse(replaced);
+    }
     return HistoryRecord(
       id: json['id'],
       itemId: json['item_id'],
@@ -121,12 +131,8 @@ class HistoryRecord {
       author: json['author'],
       authorId: json['author_id'],
       data: json['data'],
-      createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'])
-          : null,
-      updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'])
-          : null,
+      createdAt: parseFlexible(json['created_at']),
+      updatedAt: parseFlexible(json['updated_at']),
     );
   }
 

@@ -229,6 +229,113 @@ class _HistoryListPageState extends State<HistoryListPage>
     controller.setDateRange(null);
   }
 
+  void _showFilterSheet() {
+    final controller = _getControllerForIndex(_tabController.index);
+    showModalBottomSheet(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (context) {
+        final media = MediaQuery.of(context);
+        final double bottomInset = media.viewInsets.bottom;
+        final double bottomPadding = media.padding.bottom;
+
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.4,
+          minChildSize: 0.25,
+          maxChildSize: 0.75,
+          builder: (context, scrollController) {
+            return SafeArea(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  bottom: bottomInset + bottomPadding + 16,
+                  top: 8,
+                ),
+                child: SingleChildScrollView(
+                  controller: scrollController,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            slang.t.common.selectDateRange,
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                          const Spacer(),
+                          IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () => Navigator.of(context).pop(),
+                          )
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      // 排序开关：创建时间/更新时间（倒序）
+                      Obx(() => SwitchListTile(
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(
+                              controller.orderByUpdated.value
+                                  ? slang.t.common.updatedAt
+                                  : slang.t.common.publishedAt,
+                            ),
+                            subtitle: const Text('(DESC)'),
+                            value: controller.orderByUpdated.value,
+                            onChanged: (v) => controller.setOrderByUpdated(v),
+                            secondary: const Icon(Icons.swap_vert),
+                          )),
+                      const SizedBox(height: 8),
+                      // 时间区间：按钮一行 + 结果单独下一行
+                      Obx(() {
+                        final dateRange = controller.selectedDateRange.value;
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(Icons.date_range),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(slang.t.common.selectDateRange),
+                                ),
+                                if (dateRange != null)
+                                  IconButton(
+                                    tooltip: slang.t.common.clearDateRange,
+                                    icon: const Icon(Icons.clear),
+                                    onPressed: _clearDateRange,
+                                  ),
+                                FilledButton(
+                                  onPressed: _selectDateRange,
+                                  child: Text(slang.t.common.selectDateRange),
+                                ),
+                              ],
+                            ),
+                            if (dateRange != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8, left: 32),
+                                child: Text(
+                                  '${CommonUtils.formatDate(dateRange.start)} - ${CommonUtils.formatDate(dateRange.end)}',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ),
+                          ],
+                        );
+                      }),
+                      const SizedBox(height: 8),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -248,33 +355,11 @@ class _HistoryListPageState extends State<HistoryListPage>
                       )
                     : const SizedBox.shrink(),
               )),
-          Obx(() {
-            final controller = _getControllerForIndex(_tabController.index);
-            final dateRange = controller.selectedDateRange.value;
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  onPressed: _selectDateRange,
-                  icon: Icon(
-                    Icons.date_range,
-                    color: dateRange != null 
-                        ? Theme.of(context).colorScheme.primary
-                        : null,
-                  ),
-                  tooltip: dateRange != null
-                      ? '${CommonUtils.formatDate(dateRange.start)} - ${CommonUtils.formatDate(dateRange.end)}'
-                      : slang.t.common.selectDateRange,
-                ),
-                if (dateRange != null)
-                  IconButton(
-                    onPressed: _clearDateRange,
-                    icon: const Icon(Icons.clear),
-                    tooltip: slang.t.common.clearDateRange,
-                  ),
-              ],
-            );
-          }),
+          IconButton(
+            onPressed: _showFilterSheet,
+            icon: const Icon(Icons.filter_list),
+            tooltip: slang.t.common.selectDateRange,
+          ),
           IconButton(
             onPressed: () => _showClearHistoryDialog(),
             icon: const Icon(Icons.delete_sweep),
@@ -527,13 +612,17 @@ class _HistoryListPageState extends State<HistoryListPage>
                 color: Theme.of(context).textTheme.bodySmall?.color,
               ),
               const SizedBox(width: 4),
-              Text(
-                CommonUtils.formatFriendlyTimestamp(record.createdAt!),
-                style: TextStyle(
-                  fontSize: 10,
-                  color: Theme.of(context).textTheme.bodySmall?.color,
-                ),
-              ),
+              Obx(() {
+                final useUpdated = controller.orderByUpdated.value;
+                final dt = useUpdated ? record.updatedAt : record.createdAt;
+                return Text(
+                  CommonUtils.formatFriendlyTimestamp(dt),
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: Theme.of(context).textTheme.bodySmall?.color,
+                  ),
+                );
+              }),
             ],
           ),
           const SizedBox(height: 4),

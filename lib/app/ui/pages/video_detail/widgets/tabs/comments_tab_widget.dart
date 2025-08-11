@@ -27,32 +27,15 @@ class CommentsTabWidget extends StatefulWidget {
 }
 
 class _CommentsTabWidgetState extends State<CommentsTabWidget> {
-  // 浮动按钮相对右/下的距离，保持容器高度变化时位置稳定
-  double? _distanceFromRight;
-  double? _distanceFromBottom;
-  static const double _fabSize = 56.0;
+  // 浮动按钮状态
   static const double _edgePadding = 16.0;
+  static const double _bottomPadding = 32.0; // 增加底部间距
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final double maxW = constraints.maxWidth;
-          final double maxH = constraints.maxHeight;
-          // 初始贴右下角
-          _distanceFromRight ??= _edgePadding;
-          _distanceFromBottom ??= _edgePadding;
-
-          // 将相对右/下的距离转换为左/上的像素定位
-          final double left =
-              (maxW - _fabSize - _distanceFromRight!)
-                  .clamp(_edgePadding, maxW - _fabSize - _edgePadding)
-                  .toDouble();
-          final double top =
-              (maxH - _fabSize - _distanceFromBottom!)
-                  .clamp(_edgePadding, maxH - _fabSize - _edgePadding)
-                  .toDouble();
 
           return Stack(
             children: [
@@ -64,93 +47,60 @@ class _CommentsTabWidgetState extends State<CommentsTabWidget> {
                       topPadding: 0.0,
                     )),
               ),
-              // 可拖拽浮动按钮
+              // 浮动按钮
               Positioned(
-                left: left,
-                top: top,
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onPanUpdate: (details) {
-                    setState(() {
-                      final double minX = _edgePadding;
-                      final double minY = _edgePadding;
-                      final double maxX = maxW - _fabSize - _edgePadding;
-                      final double maxY = maxH - _fabSize - _edgePadding;
-
-                      // 使用 state 中的相对右/下距离实时换算当前位置，避免使用构建时的旧值
-                      final double currentLeft =
-                          (maxW - _fabSize - _distanceFromRight!)
-                              .clamp(minX, maxX)
-                              .toDouble();
-                      final double currentTop =
-                          (maxH - _fabSize - _distanceFromBottom!)
-                              .clamp(minY, maxY)
-                              .toDouble();
-
-                      // 基于当前实时位置增量移动
-                      final double nextLeft = (currentLeft + details.delta.dx)
-                          .clamp(minX, maxX)
-                          .toDouble();
-                      final double nextTop = (currentTop + details.delta.dy)
-                          .clamp(minY, maxY)
-                          .toDouble();
-
-                      // 转换回相对右/下的距离，确保容器尺寸变化时视觉位置不漂移
-                      _distanceFromRight = maxW - nextLeft - _fabSize;
-                      _distanceFromBottom = maxH - nextTop - _fabSize;
-                    });
-                  },
-                  child: Obx(() {
-                    final commentCount =
-                        widget.commentController.totalComments.value;
-                    return GridSpeedDial(
-                      activeIcon: Icons.close,
-                      backgroundColor:
-                          Theme.of(context).colorScheme.primary,
-                      foregroundColor:
-                          Theme.of(context).colorScheme.onPrimary,
-                      spacing: 6,
-                      spaceBetweenChildren: 4,
-                      direction: SpeedDialDirection.up,
-                      childPadding: const EdgeInsets.all(6),
-                      childrens: [
-                        [
-                          // 第一列
-                          SpeedDialChild(
-                            child: const Icon(Icons.refresh_rounded),
-                            backgroundColor: Theme.of(context)
-                                .colorScheme
-                                .secondaryContainer,
-                            foregroundColor: Theme.of(context)
-                                .colorScheme
-                                .onSecondaryContainer,
-                            onTap: () {
-                              widget.commentController.refreshComments();
-                            },
-                          ),
-                          SpeedDialChild(
-                            child: const Icon(Icons.edit_outlined),
-                            backgroundColor: Theme.of(context)
-                                .colorScheme
-                                .primaryContainer,
-                            foregroundColor: Theme.of(context)
-                                .colorScheme
-                                .onPrimaryContainer,
-                            onTap: () => _showCommentDialog(context),
-                          ),
-                        ],
+                right: _edgePadding,
+                bottom: _bottomPadding,
+                child: Obx(() {
+                  final commentCount =
+                      widget.commentController.totalComments.value;
+                  return GridSpeedDial(
+                    activeIcon: Icons.close,
+                    backgroundColor:
+                        Theme.of(context).colorScheme.primary,
+                    foregroundColor:
+                        Theme.of(context).colorScheme.onPrimary,
+                    spacing: 4,
+                    spaceBetweenChildren: 3,
+                    direction: SpeedDialDirection.up,
+                    childPadding: const EdgeInsets.all(4),
+                    childrens: [
+                      [
+                        // 第一列
+                        SpeedDialChild(
+                          child: const Icon(Icons.refresh_rounded),
+                          backgroundColor: Theme.of(context)
+                              .colorScheme
+                              .secondaryContainer,
+                          foregroundColor: Theme.of(context)
+                              .colorScheme
+                              .onSecondaryContainer,
+                          onTap: () {
+                            widget.commentController.refreshComments();
+                          },
+                        ),
+                        SpeedDialChild(
+                          child: const Icon(Icons.edit_outlined),
+                          backgroundColor: Theme.of(context)
+                              .colorScheme
+                              .primaryContainer,
+                          foregroundColor: Theme.of(context)
+                              .colorScheme
+                              .onPrimaryContainer,
+                          onTap: () => _showCommentDialog(context),
+                        ),
                       ],
-                      child: commentCount > 0
-                          ? Text(
-                              commentCount > 99
-                                  ? '99+'
-                                  : commentCount.toString(),
-                              textAlign: TextAlign.center,
-                            )
-                          : const Icon(Icons.comment_outlined),
-                    );
-                  }),
-                ),
+                    ],
+                    child: commentCount > 0
+                        ? Text(
+                            commentCount > 99
+                                ? '99+'
+                                : commentCount.toString(),
+                            textAlign: TextAlign.center,
+                          )
+                        : const Icon(Icons.comment_outlined),
+                  );
+                }),
               ),
             ],
           );

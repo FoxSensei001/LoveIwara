@@ -15,6 +15,8 @@ class HistoryListController extends GetxController {
   final RxBool showBackToTop = false.obs;
   final RxString searchKeyword = ''.obs;
   final Rxn<DateTimeRange> selectedDateRange = Rxn<DateTimeRange>();
+  // true: 按更新时间倒序；false: 按创建时间倒序
+  final RxBool orderByUpdated = false.obs;
   final String itemType;
 
   HistoryListController({
@@ -91,6 +93,12 @@ class HistoryListController extends GetxController {
   void setDateRange(DateTimeRange? range) {
     selectedDateRange.value = range;
     repository.dateRange = range;
+    repository.refresh();
+  }
+
+  void setOrderByUpdated(bool value) {
+    orderByUpdated.value = value;
+    repository.orderByUpdated = value;
     repository.refresh();
   }
 

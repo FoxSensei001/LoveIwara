@@ -10,6 +10,10 @@ import 'package:i_iwara/app/ui/widgets/markdown_syntax_help_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:i_iwara/app/ui/widgets/enhanced_emoji_text_field.dart';
+import 'package:i_iwara/app/ui/widgets/emoji_picker_sheet.dart';
+import 'package:i_iwara/common/enums/emoji_size_enum.dart';
+import 'package:i_iwara/app/services/config_service.dart';
 
 class NewConversationDialog extends StatefulWidget {
   const NewConversationDialog({
@@ -27,11 +31,14 @@ class NewConversationDialog extends StatefulWidget {
 
 class _NewConversationDialogState extends State<NewConversationDialog> {
   final ConversationService _conversationService = Get.find<ConversationService>();
+  final ConfigService _configService = Get.find<ConfigService>();
   late TextEditingController _bodyController;
   late TextEditingController _titleController;
   bool _isLoading = false;
   int _currentBodyLength = 0;
   User? _selectedUser;
+  late EmojiSize _selectedEmojiSize;
+  final GlobalKey<EnhancedEmojiTextFieldState> _emojiTextFieldKey = GlobalKey<EnhancedEmojiTextFieldState>();
 
   // 内容最大长度
   static const int maxBodyLength = 1000;
@@ -51,10 +58,35 @@ class _NewConversationDialogState extends State<NewConversationDialog> {
       }
     });
 
+    // 初始化表情尺寸
+    final savedSizeSuffix = _configService[ConfigKey.DEFAULT_EMOJI_SIZE];
+    _selectedEmojiSize = EmojiSize.fromAltSuffix(savedSizeSuffix) ?? EmojiSize.medium;
+
     // 如果有初始用户ID，搜索用户信息
     if (widget.initUserId != null) {
       _searchUser(widget.initUserId!);
     }
+  }
+
+  void _showEmojiPicker() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => EmojiPickerSheet(
+        initialSize: _selectedEmojiSize,
+        onEmojiSelected: (imageUrl, size) {
+          _emojiTextFieldKey.currentState?.insertEmoji(imageUrl, size: size);
+          Navigator.pop(context);
+        },
+        onSizeChanged: (size) {
+          setState(() {
+            _selectedEmojiSize = size;
+          });
+          _configService[ConfigKey.DEFAULT_EMOJI_SIZE] = size.altSuffix;
+        },
+      ),
+    );
   }
 
   Future<void> _searchUser(String userId) async {
@@ -270,6 +302,11 @@ class _NewConversationDialogState extends State<NewConversationDialog> {
                         icon: const Icon(Icons.preview),
                         tooltip: t.common.preview,
                       ),
+                  IconButton(
+                    onPressed: _showEmojiPicker,
+                    icon: const Icon(Icons.emoji_emotions_outlined),
+                    tooltip: t.emoji.selectEmoji,
+                  ),
                       IconButton(
                         onPressed: () => Navigator.pop(context),
                         icon: const Icon(Icons.close),
@@ -343,19 +380,24 @@ class _NewConversationDialogState extends State<NewConversationDialog> {
               ),
               const SizedBox(height: 16),
               // 内容输入框
-              TextField(
+              EnhancedEmojiTextField(
+                key: _emojiTextFieldKey,
                 controller: _bodyController,
                 maxLines: 5,
                 maxLength: maxBodyLength,
                 decoration: InputDecoration(
-                  labelText: t.common.content,
                   hintText: t.common.writeYourContentHere,
-                  border: const OutlineInputBorder(),
-                  counterText: '$_currentBodyLength/$maxBodyLength',
                   errorText: _currentBodyLength > maxBodyLength
                       ? t.errors.exceedsMaxLength(max: maxBodyLength.toString())
                       : null,
                 ),
+                onChanged: (value) {
+                  if (mounted) {
+                    setState(() {
+                      _currentBodyLength = value.length;
+                    });
+                  }
+                },
               ),
               const SizedBox(height: 16),
               Row(

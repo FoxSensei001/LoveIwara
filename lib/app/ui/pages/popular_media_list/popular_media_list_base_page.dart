@@ -101,9 +101,7 @@ class PopularMediaListPageBaseState<
   // 头部滚动监听器
   VoidCallback? _scrollListenerDisposer;
 
-  // 可拖拽浮动按钮状态
-  Offset? _fabOffset;
-  static const double _fabSize = 56.0;
+  // 浮动按钮状态
   static const double _edgePadding = 16.0;
 
   void tryRefreshCurrentSort() {
@@ -363,18 +361,7 @@ class PopularMediaListPageBaseState<
                   final rebuildKey = _mediaListController.rebuildKey.value
                       .toString();
 
-                  // 初始化 FAB 位置
-                  final bottomSafe = MediaQuery.of(context).padding.bottom;
-                  final double extraBottom = isPaginated
-                      ? (46 + bottomSafe + 20)
-                      : 20;
-                  _fabOffset ??= Offset(
-                    constraints.maxWidth - _fabSize - _edgePadding,
-                    constraints.maxHeight -
-                        _fabSize -
-                        _edgePadding -
-                        extraBottom,
-                  );
+
 
                   return TabBarView(
                     controller: _tabController,
@@ -548,7 +535,7 @@ class PopularMediaListPageBaseState<
                 ),
               ),
 
-              // 3. 可拖拽浮动按钮（仅在折叠时显示）
+              // 3. 浮动按钮（仅在折叠时显示）
               if (_isHeaderCollapsed)
                 Obx(() {
                   final isPaginatedNow =
@@ -558,169 +545,140 @@ class PopularMediaListPageBaseState<
                       ? (46 + bottomSafeNow + 20)
                       : 20;
 
-                  final double minX = _edgePadding;
-                  final double minY = _edgePadding;
-                  final double maxX = constraints.maxWidth -
-                      _fabSize -
-                      _edgePadding;
-                  final double maxY = constraints.maxHeight -
-                      _fabSize -
-                      _edgePadding -
-                      extraBottomNow;
-                  final double showLeft =
-                      (_fabOffset?.dx ?? maxX).clamp(minX, maxX).toDouble();
-                  final double showTop =
-                      (_fabOffset?.dy ?? maxY).clamp(minY, maxY).toDouble();
-
                   return Positioned(
-                    left: showLeft,
-                    top: showTop,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onPanUpdate: (details) {
-                        setState(() {
-                          final nextX =
-                              (_fabOffset?.dx ?? showLeft) + details.delta.dx;
-                          final nextY =
-                              (_fabOffset?.dy ?? showTop) + details.delta.dy;
-                          _fabOffset = Offset(
-                            nextX.clamp(minX, maxX).toDouble(),
-                            nextY.clamp(minY, maxY).toDouble(),
-                          );
-                        });
-                      },
-                      child: GridSpeedDial(
-                        icon: Icons.menu,
-                        activeIcon: Icons.close,
-                        backgroundColor:
-                            Theme.of(context).colorScheme.primary,
-                        foregroundColor:
-                            Theme.of(context).colorScheme.onPrimary,
-                        spacing: 6,
-                        spaceBetweenChildren: 4,
-                        direction: SpeedDialDirection.up,
-                        childPadding: const EdgeInsets.all(6),
-                        childrens: [
-                          [
-                            SpeedDialChild(
-                              child: Obx(
-                                () => Icon(
-                                  _mediaListController.isPaginated.value
-                                      ? Icons.grid_view
-                                      : Icons.menu,
-                                ),
+                    right: _edgePadding,
+                    bottom: _edgePadding + extraBottomNow,
+                    child: GridSpeedDial(
+                      icon: Icons.menu,
+                      activeIcon: Icons.close,
+                      backgroundColor:
+                          Theme.of(context).colorScheme.primary,
+                      foregroundColor:
+                          Theme.of(context).colorScheme.onPrimary,
+                      spacing: 6,
+                      spaceBetweenChildren: 4,
+                      direction: SpeedDialDirection.up,
+                      childPadding: const EdgeInsets.all(6),
+                      childrens: [
+                        [
+                          SpeedDialChild(
+                            child: Obx(
+                              () => Icon(
+                                _mediaListController.isPaginated.value
+                                    ? Icons.grid_view
+                                    : Icons.menu,
                               ),
-                              backgroundColor: Theme.of(context)
-                                  .colorScheme
-                                  .secondaryContainer,
-                              foregroundColor: Theme.of(context)
-                                  .colorScheme
-                                  .onSecondaryContainer,
-                              onTap: () {
-                                if (!_mediaListController
-                                    .isPaginated.value) {
-                                  var sortId = sorts[_tabController.index].id;
-                                  var repository = _repositories[sortId]!;
-                                  repository.refresh(true);
-                                }
-                                _mediaListController.setPaginatedMode(
-                                  !_mediaListController.isPaginated.value,
-                                );
-                              },
                             ),
-                            SpeedDialChild(
-                              child: const Icon(Icons.search),
-                              backgroundColor: Theme.of(context)
-                                  .colorScheme
-                                  .primaryContainer,
-                              foregroundColor: Theme.of(context)
-                                  .colorScheme
-                                  .onPrimaryContainer,
-                              onTap: _openSearchDialog,
-                            ),
-                            SpeedDialChild(
-                              child: const Icon(Icons.refresh),
-                              backgroundColor: Theme.of(context)
-                                  .colorScheme
-                                  .primaryContainer,
-                              foregroundColor: Theme.of(context)
-                                  .colorScheme
-                                  .onPrimaryContainer,
-                              onTap: tryRefreshCurrentSort,
-                            ),
-                          ],
-                          [
-                            SpeedDialChild(
-                              child: const Icon(Icons.vertical_align_top),
-                              backgroundColor: Theme.of(context)
-                                  .colorScheme
-                                  .primaryContainer,
-                              foregroundColor: Theme.of(context)
-                                  .colorScheme
-                                  .onPrimaryContainer,
-                              onTap: () =>
-                                  _mediaListController.scrollToTop(),
-                            ),
-                            SpeedDialChild(
-                              child: const Icon(Icons.filter_list),
-                              backgroundColor: Theme.of(context)
-                                  .colorScheme
-                                  .secondaryContainer,
-                              foregroundColor: Theme.of(context)
-                                  .colorScheme
-                                  .onSecondaryContainer,
-                              onTap: _openParamsModal,
-                            ),
-                            SpeedDialChild(
-                              child: Obx(() {
-                                if (userService.isLogin &&
-                                    userService.currentUser.value != null) {
-                                  return Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      AvatarWidget(
-                                        user: userService.currentUser.value,
-                                        size: 28,
-                                      ),
-                                      Positioned(
-                                        right: 0,
-                                        top: 0,
-                                        child: Obx(() {
-                                          final count = userService
-                                                  .notificationCount.value +
-                                              userService.messagesCount.value;
-                                          if (count > 0) {
-                                            return Container(
-                                              width: 8,
-                                              height: 8,
-                                              decoration: BoxDecoration(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .error,
-                                                shape: BoxShape.circle,
-                                              ),
-                                            );
-                                          }
-                                          return const SizedBox.shrink();
-                                        }),
-                                      ),
-                                    ],
-                                  );
-                                } else {
-                                  return const Icon(Icons.account_circle);
-                                }
-                              }),
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.surface,
-                              foregroundColor:
-                                  Theme.of(context).colorScheme.onSurface,
-                              onTap: () {
-                                AppService.switchGlobalDrawer();
-                              },
-                            ),
-                          ],
+                            backgroundColor: Theme.of(context)
+                                .colorScheme
+                                .secondaryContainer,
+                            foregroundColor: Theme.of(context)
+                                .colorScheme
+                                .onSecondaryContainer,
+                            onTap: () {
+                              if (!_mediaListController
+                                  .isPaginated.value) {
+                                var sortId = sorts[_tabController.index].id;
+                                var repository = _repositories[sortId]!;
+                                repository.refresh(true);
+                              }
+                              _mediaListController.setPaginatedMode(
+                                !_mediaListController.isPaginated.value,
+                              );
+                            },
+                          ),
+                          SpeedDialChild(
+                            child: const Icon(Icons.search),
+                            backgroundColor: Theme.of(context)
+                                .colorScheme
+                                .primaryContainer,
+                            foregroundColor: Theme.of(context)
+                                .colorScheme
+                                .onPrimaryContainer,
+                            onTap: _openSearchDialog,
+                          ),
+                          SpeedDialChild(
+                            child: const Icon(Icons.refresh),
+                            backgroundColor: Theme.of(context)
+                                .colorScheme
+                                .primaryContainer,
+                            foregroundColor: Theme.of(context)
+                                .colorScheme
+                                .onPrimaryContainer,
+                            onTap: tryRefreshCurrentSort,
+                          ),
                         ],
-                      ),
+                        [
+                          SpeedDialChild(
+                            child: const Icon(Icons.vertical_align_top),
+                            backgroundColor: Theme.of(context)
+                                .colorScheme
+                                .primaryContainer,
+                            foregroundColor: Theme.of(context)
+                                .colorScheme
+                                .onPrimaryContainer,
+                            onTap: () =>
+                                _mediaListController.scrollToTop(),
+                          ),
+                          SpeedDialChild(
+                            child: const Icon(Icons.filter_list),
+                            backgroundColor: Theme.of(context)
+                                .colorScheme
+                                .secondaryContainer,
+                            foregroundColor: Theme.of(context)
+                                .colorScheme
+                                .onSecondaryContainer,
+                            onTap: _openParamsModal,
+                          ),
+                          SpeedDialChild(
+                            child: Obx(() {
+                              if (userService.isLogin &&
+                                  userService.currentUser.value != null) {
+                                return Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    AvatarWidget(
+                                      user: userService.currentUser.value,
+                                      size: 28,
+                                    ),
+                                    Positioned(
+                                      right: 0,
+                                      top: 0,
+                                      child: Obx(() {
+                                        final count = userService
+                                                .notificationCount.value +
+                                            userService.messagesCount.value;
+                                        if (count > 0) {
+                                          return Container(
+                                            width: 8,
+                                            height: 8,
+                                            decoration: BoxDecoration(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .error,
+                                              shape: BoxShape.circle,
+                                            ),
+                                          );
+                                        }
+                                        return const SizedBox.shrink();
+                                      }),
+                                    ),
+                                  ],
+                                );
+                              } else {
+                                return const Icon(Icons.account_circle);
+                              }
+                            }),
+                            backgroundColor:
+                                Theme.of(context).colorScheme.surface,
+                            foregroundColor:
+                                Theme.of(context).colorScheme.onSurface,
+                            onTap: () {
+                              AppService.switchGlobalDrawer();
+                            },
+                          ),
+                        ],
+                      ],
                     ),
                   );
                 }),

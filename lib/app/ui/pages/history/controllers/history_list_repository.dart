@@ -8,6 +8,8 @@ class HistoryListRepository extends LoadingMoreBase<HistoryRecord> {
   final String? itemType;
   String keyword = '';
   DateTimeRange? dateRange;
+  // true: 按更新时间倒序；false: 按创建时间倒序
+  bool orderByUpdated = false;
   
   int _pageIndex = 0;
   static const int _pageSize = 20;
@@ -36,7 +38,7 @@ class HistoryListRepository extends LoadingMoreBase<HistoryRecord> {
   Future<bool> loadData([bool isLoadMoreAction = false]) async {
     bool isSuccess = false;
     try {
-      final List<HistoryRecord> records;
+      List<HistoryRecord> records;
       
       if (keyword.isEmpty) {
         records = await _historyRepository.getRecordsByTypeAndTimeRange(
@@ -52,7 +54,16 @@ class HistoryListRepository extends LoadingMoreBase<HistoryRecord> {
           ) : null,
           limit: _pageSize,
           offset: _pageIndex * _pageSize,
+          orderByUpdated: orderByUpdated,
         );
+        // 兜底：极端情况下如果未取到数据且无任何筛选条件，退回到基础查询
+        if (records.isEmpty && (dateRange == null) && (itemType == null)) {
+          records = await _historyRepository.getRecordsByType(
+            'all',
+            limit: _pageSize,
+            offset: _pageIndex * _pageSize,
+          );
+        }
       } else {
         records = await _historyRepository.searchByTitleAndTimeRange(
           keyword,
@@ -68,6 +79,7 @@ class HistoryListRepository extends LoadingMoreBase<HistoryRecord> {
           ) : null,
           limit: _pageSize,
           offset: _pageIndex * _pageSize,
+          orderByUpdated: orderByUpdated,
         );
       }
 

@@ -5,6 +5,7 @@ import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/emoji_library_service.dart';
 import 'package:get/get.dart' hide Translations;
+import 'package:shimmer/shimmer.dart';
 
 class EmojiPickerSheet extends StatefulWidget {
   final Function(String imageUrl, EmojiSize size) onEmojiSelected;
@@ -28,6 +29,7 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet>
   late EmojiLibraryService _emojiService;
   late TabController _tabController;
   List<EmojiGroup> _groups = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -45,10 +47,14 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet>
       } else {
         _tabController = TabController(length: 1, vsync: this);
       }
-      setState(() {});
+      setState(() {
+        _isLoading = false;
+      });
     } catch (e) {
       _tabController = TabController(length: 1, vsync: this);
-      setState(() {});
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -72,8 +78,6 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet>
   @override
   Widget build(BuildContext context) {
     final t = Translations.of(context);
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isNarrowScreen = screenWidth < 400; // 窄屏判断
 
     return DraggableScrollableSheet(
       initialChildSize: 0.7,
@@ -81,6 +85,123 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet>
       maxChildSize: 0.95,
       expand: false,
       builder: (context, scrollController) {
+        if (_isLoading) {
+          // Shimmer 骨架屏
+          return Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  ),
+                  child: Row(
+                    children: [
+                      Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(
+                          width: 100,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                        ),
+                      ),
+                      const Spacer(),
+                      ...List.generate(2, (i) => Padding(
+                            padding: const EdgeInsets.only(left: 8),
+                            child: Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Container(
+                                width: 36,
+                                height: 36,
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            ),
+                          )),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 80,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                          border: Border(
+                            right: BorderSide(
+                              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                              width: 1,
+                            ),
+                          ),
+                        ),
+                        child: ListView.builder(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          itemCount: 8,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                              padding: const EdgeInsets.all(8),
+                              child: Shimmer.fromColors(
+                                baseColor: Colors.grey[300]!,
+                                highlightColor: Colors.grey[100]!,
+                                child: Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      Expanded(
+                        child: GridView.builder(
+                          controller: scrollController,
+                          padding: const EdgeInsets.all(8),
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 4,
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 8,
+                          ),
+                          itemCount: 16,
+                          itemBuilder: (context, index) {
+                            return Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
         return Container(
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
@@ -88,7 +209,7 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet>
           ),
           child: Column(
             children: [
-          // 标题栏
+          // 标题栏（左上角下拉框选择尺寸，右侧为操作按钮）
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -97,61 +218,28 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet>
             ),
             child: Row(
               children: [
-                const Expanded(
-                  child: SizedBox.shrink(), 
-                ),
-                // 表情包规格选择器
-                if (!isNarrowScreen) ...[
-                  // 宽屏：水平布局
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: EmojiSize.values.map((size) {
-                      return GestureDetector(
-                        onTap: () => _handleSizeChanged(size),
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: _selectedSize == size
-                                ? Theme.of(context).colorScheme.primary
-                                : Theme.of(context).colorScheme.surfaceContainerHighest,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            size.displayName,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: _selectedSize == size
-                                  ? Theme.of(context).colorScheme.onPrimary
-                                  : Theme.of(context).colorScheme.onSurface,
-                            ),
-                          ),
+                // 左上角尺寸选择下拉框
+                DropdownButton<EmojiSize>(
+                  value: _selectedSize,
+                  onChanged: (size) {
+                    if (size != null) _handleSizeChanged(size);
+                  },
+                  items: EmojiSize.values
+                      .map(
+                        (size) => DropdownMenuItem<EmojiSize>(
+                          value: size,
+                          child: Text(size.displayName),
                         ),
-                      );
-                    }).toList(),
-                  ),
-                ] else ...[
-                  // 窄屏：显示当前选中的规格
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      _selectedSize.displayName,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ),
-                    ),
-                  ),
-                ],
-                  // 设置按钮
+                      )
+                      .toList(),
+                  underline: const SizedBox.shrink(),
+                  isDense: true,
+                ),
+                const Spacer(),
+                // 设置按钮
                 IconButton(
                   onPressed: () {
                     Navigator.pop(context);
-                    // 跳转到表情包库页面
                     NaviService.navigateToEmojiLibraryPage();
                   },
                   icon: const Icon(Icons.settings),
@@ -165,43 +253,7 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet>
             ),
           ),
           
-          // 窄屏时的规格选择器（单独一行，支持横向滚动）
-          if (isNarrowScreen) ...[
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: EmojiSize.values.map((size) {
-                    return GestureDetector(
-                      onTap: () => _handleSizeChanged(size),
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: _selectedSize == size
-                              ? Theme.of(context).colorScheme.primary
-                              : Theme.of(context).colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Text(
-                          size.displayName,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: _selectedSize == size
-                                ? Theme.of(context).colorScheme.onPrimary
-                                : Theme.of(context).colorScheme.onSurface,
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ),
-          ],
+          // 移除窄屏下方的尺寸选择行（统一使用左上角下拉框）
           
           // 表情包选择器主体区域
           Expanded(

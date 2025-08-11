@@ -1179,8 +1179,8 @@ class TranslationsMediaListEn {
 
 	// Translations
 
-	/// en: 'Personal Introduction'
-	String get personalIntroduction => 'Personal Introduction';
+	/// en: 'Introduction'
+	String get personalIntroduction => 'Introduction';
 }
 
 // Path: settings
@@ -4911,7 +4911,7 @@ extension on Translations {
 			case 'search.pleaseEnterSearchKeywords': return 'Please enter search keywords';
 			case 'search.googleSearchQueryCopied': return 'Search query copied to clipboard';
 			case 'search.googleSearchBrowserOpenFailed': return ({required Object error}) => 'Failed to open browser: ${error}';
-			case 'mediaList.personalIntroduction': return 'Personal Introduction';
+			case 'mediaList.personalIntroduction': return 'Introduction';
 			case 'settings.listViewMode': return 'List View Mode';
 			case 'settings.useTraditionalPaginationMode': return 'Use Traditional Pagination Mode';
 			case 'settings.useTraditionalPaginationModeDesc': return 'Enable traditional pagination mode, disable waterfall mode';

@@ -92,7 +92,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                         ),
                       ),
                       const Spacer(),
-                      TextButton.icon(
+                      IconButton(
                         onPressed: () {
                           showModalBottomSheet(
                             context: context,
@@ -126,12 +126,6 @@ class _PostDetailPageState extends State<PostDetailPage> {
                         icon: Icon(
                           Icons.add_comment,
                           size: isSmallScreen ? 18 : 20,
-                        ),
-                        label: Text(
-                          slang.t.common.sendComment,
-                          style: TextStyle(
-                            fontSize: isSmallScreen ? 13 : 14,
-                          ),
                         ),
                       ),
                       IconButton(

@@ -388,7 +388,7 @@ search:
   googleSearchQueryCopied: "Search query copied to clipboard"
   googleSearchBrowserOpenFailed: "Failed to open browser: ${error}"
 mediaList:
-  personalIntroduction: Personal Introduction
+  personalIntroduction: Introduction
 
 settings:
   listViewMode: List View Mode

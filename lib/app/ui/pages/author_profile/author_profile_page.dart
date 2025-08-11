@@ -137,7 +137,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                       ),
                       const Spacer(),
                       // 添加评论按钮
-                      TextButton.icon(
+                      IconButton(
                         onPressed: () {
                           showModalBottomSheet(
                             context: context,
@@ -173,7 +173,6 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                           );
                         },
                         icon: const Icon(Icons.add_comment),
-                        label: Text(t.common.sendComment),
                       ),
                       // 关闭按钮
                       IconButton(

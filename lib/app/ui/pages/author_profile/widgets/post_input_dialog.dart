@@ -9,6 +9,9 @@ import 'package:i_iwara/app/ui/widgets/markdown_preview_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
+import 'package:i_iwara/app/ui/widgets/enhanced_emoji_text_field.dart';
+import 'package:i_iwara/app/ui/widgets/emoji_picker_sheet.dart';
+import 'package:i_iwara/common/enums/emoji_size_enum.dart';
 
 class PostInputDialog extends StatefulWidget {
   final Function(String title, String body) onSubmit;
@@ -29,6 +32,8 @@ class _PostInputDialogState extends State<PostInputDialog> {
   int _currentTitleLength = 0;
   int _currentBodyLength = 0;
   final ConfigService _configService = Get.find<ConfigService>();
+  late EmojiSize _selectedEmojiSize;
+  final GlobalKey<EnhancedEmojiTextFieldState> _emojiTextFieldKey = GlobalKey<EnhancedEmojiTextFieldState>();
 
   // 标题最大长度
   static const int maxTitleLength = 100;
@@ -61,6 +66,10 @@ class _PostInputDialogState extends State<PostInputDialog> {
         _currentBodyLength = _bodyController.text.length;
       });
     });
+
+    // 初始化表情尺寸
+    final savedSizeSuffix = _configService[ConfigKey.DEFAULT_EMOJI_SIZE];
+    _selectedEmojiSize = EmojiSize.fromAltSuffix(savedSizeSuffix) ?? EmojiSize.medium;
   }
 
   @override
@@ -151,6 +160,27 @@ class _PostInputDialogState extends State<PostInputDialog> {
     });
   }
 
+  void _showEmojiPicker() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => EmojiPickerSheet(
+        initialSize: _selectedEmojiSize,
+        onEmojiSelected: (imageUrl, size) {
+          _emojiTextFieldKey.currentState?.insertEmoji(imageUrl, size: size);
+          Navigator.pop(context);
+        },
+        onSizeChanged: (size) {
+          setState(() {
+            _selectedEmojiSize = size;
+          });
+          _configService[ConfigKey.DEFAULT_EMOJI_SIZE] = size.altSuffix;
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = slang.t;
@@ -196,19 +226,22 @@ class _PostInputDialogState extends State<PostInputDialog> {
               ),
             ),
             const SizedBox(height: 16),
-            TextField(
+            EnhancedEmojiTextField(
+              key: _emojiTextFieldKey,
               controller: _bodyController,
               maxLines: 5,
               maxLength: maxBodyLength,
               decoration: InputDecoration(
-                labelText: t.common.content,
                 hintText: t.common.writeYourContentHere,
-                border: const OutlineInputBorder(),
-                counterText: '$_currentBodyLength/$maxBodyLength',
                 errorText: _currentBodyLength > maxBodyLength 
                     ? t.errors.exceedsMaxLength(max: maxBodyLength.toString())
                     : null,
               ),
+              onChanged: (value) {
+                setState(() {
+                  _currentBodyLength = value.length;
+                });
+              },
             ),
             const SizedBox(height: 16),
             Wrap(
@@ -233,6 +266,11 @@ class _PostInputDialogState extends State<PostInputDialog> {
                         : null,
                   ),
                   tooltip: t.common.translate,
+                ),
+                IconButton(
+                  onPressed: _showEmojiPicker,
+                  icon: const Icon(Icons.emoji_emotions_outlined),
+                  tooltip: t.emoji.selectEmoji,
                 ),
                 IconButton(
                   onPressed: _showMarkdownHelp,

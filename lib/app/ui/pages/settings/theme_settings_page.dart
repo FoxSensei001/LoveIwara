@@ -27,7 +27,12 @@ class ThemeSettingsPage extends StatelessWidget {
               iconTheme: IconThemeData(color: Get.isDarkMode ? Colors.white : null),
             ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.fromLTRB(
+          16,
+          16,
+          16,
+          16 + MediaQuery.of(context).padding.bottom,
+        ),
         children: [
           _buildThemeModeSection(context, themeService),
           const SizedBox(height: 16),

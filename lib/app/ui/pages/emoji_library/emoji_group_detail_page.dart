@@ -3,6 +3,7 @@ import 'package:get/get.dart' hide Translations;
 import 'package:i_iwara/app/services/emoji_library_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'dart:convert';
+import 'package:shimmer/shimmer.dart';
 
 class EmojiGroupDetailSheet extends StatefulWidget {
   final EmojiGroup group;
@@ -197,7 +198,7 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
           // 内容区域
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? _buildGridShimmer()
                 : _images.isEmpty
                     ? _buildEmptyState()
                     : _buildImageGrid(),
@@ -313,20 +314,19 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                   child: Image.network(
                     image.thumbnailUrl ?? image.url,
                     fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(color: Colors.white),
+                      );
+                    },
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
                         color: Colors.grey.shade100,
                         child: const Center(
                           child: Icon(Icons.broken_image, color: Colors.grey),
-                        ),
-                      );
-                    },
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Container(
-                        color: Colors.grey.shade100,
-                        child: const Center(
-                          child: CircularProgressIndicator(),
                         ),
                       );
                     },
@@ -442,6 +442,14 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                     child: Image.network(
                       image.url,
                       fit: BoxFit.contain,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Shimmer.fromColors(
+                          baseColor: Colors.grey[300]!,
+                          highlightColor: Colors.grey[100]!,
+                          child: Container(color: Colors.white),
+                        );
+                      },
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
                           color: Colors.grey.shade100,
@@ -452,30 +460,6 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                                 const Icon(Icons.broken_image, size: 64, color: Colors.grey),
                                 const SizedBox(height: 16),
                                 Text(t.emoji.imageLoadFailed, style: const TextStyle(color: Colors.grey)),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Container(
-                          color: Colors.grey.shade100,
-                          child: Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                CircularProgressIndicator(
-                                  value: loadingProgress.expectedTotalBytes != null
-                                      ? loadingProgress.cumulativeBytesLoaded /
-                                          loadingProgress.expectedTotalBytes!
-                                      : null,
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  '${t.emoji.loading} ${(loadingProgress.cumulativeBytesLoaded / 1024).toStringAsFixed(1)}KB',
-                                  style: const TextStyle(color: Colors.grey),
-                                ),
                               ],
                             ),
                           ),
@@ -706,6 +690,41 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
           ),
         ],
       ),
+    );
+  }
+
+  // 加载骨架屏
+  Widget _buildGridShimmer() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    int crossAxisCount = 3;
+    if (screenWidth > 1200) {
+      crossAxisCount = 8;
+    } else if (screenWidth > 900) {
+      crossAxisCount = 6;
+    } else if (screenWidth > 600) {
+      crossAxisCount = 4;
+    }
+
+    return GridView.builder(
+      padding: const EdgeInsets.all(16),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+        crossAxisSpacing: 8,
+        mainAxisSpacing: 8,
+      ),
+      itemCount: crossAxisCount * 3,
+      itemBuilder: (context, index) {
+        return Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        );
+      },
     );
   }
 }

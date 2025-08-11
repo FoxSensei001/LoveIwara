@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Translations;
 import 'package:i_iwara/app/services/emoji_library_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
+import 'package:shimmer/shimmer.dart';
 
 class EmojiPickerWidget extends StatefulWidget {
   final Function(String) onEmojiSelected;
@@ -103,9 +104,98 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
     final t = Translations.of(context);
     
     if (_isLoading) {
-      return const SizedBox(
-        height: 300,
-        child: Center(child: CircularProgressIndicator()),
+      // 使用 Shimmer 骨架屏
+      if (widget.showOnlyTabs) {
+        if (widget.isRailMode) {
+          // Rail 模式：垂直头像骨架
+          return ListView.builder(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            itemCount: 8,
+            itemBuilder: (context, index) {
+              return Container(
+                margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        } else {
+          // 水平 TabBar：图标 + 文本骨架
+          return SizedBox(
+            height: 56,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              itemCount: 6,
+              separatorBuilder: (_, __) => const SizedBox(width: 12),
+              itemBuilder: (context, index) {
+                return Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 20,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Container(
+                        width: 64,
+                        height: 14,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          );
+        }
+      }
+
+      // 内容网格骨架
+      return GridView.builder(
+        padding: const EdgeInsets.all(8),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 4,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+        ),
+        itemCount: 16,
+        itemBuilder: (context, index) {
+          return Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          );
+        },
       );
     }
 
@@ -179,6 +269,21 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                           width: 40,
                           height: 40,
                           fit: BoxFit.cover,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                            );
+                          },
                           errorBuilder: (context, error, stackTrace) {
                             return Container(
                               width: 40,
@@ -241,6 +346,21 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                           width: 20,
                           height: 20,
                           fit: BoxFit.cover,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Container(
+                                width: 20,
+                                height: 20,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            );
+                          },
                           errorBuilder: (context, error, stackTrace) {
                             return Container(
                               width: 20,
@@ -342,11 +462,21 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                     ),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: ClipRRect(
+                    child: ClipRRect(
                     borderRadius: BorderRadius.circular(7),
-                    child: Image.network(
+                      child: Image.network(
                       image.thumbnailUrl ?? image.url,
                       fit: BoxFit.cover,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Shimmer.fromColors(
+                            baseColor: Colors.grey[300]!,
+                            highlightColor: Colors.grey[100]!,
+                            child: Container(
+                              color: Colors.white,
+                            ),
+                          );
+                        },
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
                           color: Theme.of(context).colorScheme.surfaceContainerHighest,
@@ -357,16 +487,7 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                             ),
                           ),
                         );
-                      },
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Container(
-                          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                          child: const Center(
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                        );
-                      },
+                        },
                     ),
                   ),
                 ),
@@ -461,11 +582,21 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                         ),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: ClipRRect(
+                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(7),
-                        child: Image.network(
+                         child: Image.network(
                           image.thumbnailUrl ?? image.url,
                           fit: BoxFit.cover,
+                           loadingBuilder: (context, child, loadingProgress) {
+                             if (loadingProgress == null) return child;
+                             return Shimmer.fromColors(
+                               baseColor: Colors.grey[300]!,
+                               highlightColor: Colors.grey[100]!,
+                               child: Container(
+                                 color: Colors.white,
+                               ),
+                             );
+                           },
                           errorBuilder: (context, error, stackTrace) {
                             return const Center(
                               child: Icon(
@@ -473,13 +604,7 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                                 color: Colors.grey,
                               ),
                             );
-                          },
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return const Center(
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            );
-                          },
+                           },
                         ),
                       ),
                     ),

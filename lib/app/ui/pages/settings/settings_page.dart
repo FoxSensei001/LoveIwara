@@ -314,6 +314,12 @@ class _SettingsPageState extends State<SettingsPage> {
               item.icon == Icons.info_outline).toList(),
           isLastGroup: true,
         ),
+        // 添加底部安全区域padding
+        SliverToBoxAdapter(
+          child: SizedBox(
+            height: MediaQuery.of(context).padding.bottom + 16,
+          ),
+        ),
       ],
     );
   }
@@ -328,7 +334,7 @@ class _SettingsPageState extends State<SettingsPage> {
       padding: EdgeInsets.only(
         left: 16,
         right: 16,
-        bottom: isLastGroup ? 8 : 16,
+        bottom: isLastGroup ? 0 : 16,
       ),
       sliver: SliverToBoxAdapter(
         child: Column(

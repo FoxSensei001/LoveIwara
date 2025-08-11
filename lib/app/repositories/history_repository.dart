@@ -13,11 +13,22 @@ class HistoryRepository {
   // 添加单条记录
   Future<void> addRecord(HistoryRecord record) async {
     if (!CommonConstants.enableHistory) return;
+    // 基于唯一键 (item_id, item_type) 的原子 upsert：
+    // - 新记录：插入并由表默认值写入 created_at/updated_at
+    // - 冲突：仅更新可变字段（title/thumbnail/author/author_id/data），保留 created_at，
+    //         由触发器自动刷新 updated_at
     _db.prepare(
       '''
-      INSERT OR REPLACE INTO history_records 
-      (item_id, item_type, title, thumbnail_url, author, author_id, data)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO history_records 
+        (item_id, item_type, title, thumbnail_url, author, author_id, data)
+      VALUES 
+        (?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(item_id, item_type) DO UPDATE SET
+        title = excluded.title,
+        thumbnail_url = excluded.thumbnail_url,
+        author = excluded.author,
+        author_id = excluded.author_id,
+        data = excluded.data
       '''
     ).execute([
       record.itemId,
@@ -143,32 +154,10 @@ class HistoryRepository {
     return results.map((row) => HistoryRecord.fromJson(row)).toList();
   }
 
-  // 添加新方法
+  // 添加新方法（对外接口保持不变）：统一走 upsert 逻辑
   Future<void> addRecordWithCheck(HistoryRecord record) async {
     if (!CommonConstants.enableHistory) return;
-    
-    try {
-      final existing = _db.prepare(
-        'SELECT updated_at FROM history_records WHERE item_id = ? AND item_type = ?'
-      ).select([record.itemId, record.itemType]);
-      
-      if (existing.isEmpty) {
-        // 使用原有的添加方法
-        await addRecord(record);
-      } else {
-        // 仅更新时间
-        _db.prepare(
-          'UPDATE history_records SET updated_at = ? WHERE item_id = ? AND item_type = ?'
-        ).execute([
-          DateTime.now().toIso8601String(),
-          record.itemId,
-          record.itemType
-        ]);
-      }
-    } catch (e) {
-      // 出错时回退到原有方法
-      await addRecord(record);
-    }
+    await addRecord(record);
   }
 
   // 按时间范围和类型获取记录
@@ -178,6 +167,7 @@ class HistoryRepository {
     DateTime? endDate,
     int limit = 20,
     int offset = 0,
+    bool orderByUpdated = false,
   }) async {
     final List<Object?> params = [];
     final List<String> conditions = [];
@@ -202,7 +192,7 @@ class HistoryRepository {
     final String sql = '''
       SELECT * FROM history_records 
       ${conditions.isNotEmpty ? 'WHERE ${conditions.join(' AND ')}' : ''}
-      ORDER BY created_at DESC
+      ORDER BY ${orderByUpdated ? 'updated_at' : 'created_at'} DESC
       LIMIT ? OFFSET ?
     ''';
     
@@ -221,6 +211,7 @@ class HistoryRepository {
     DateTime? endDate,
     int limit = 20,
     int offset = 0,
+    bool orderByUpdated = false,
   }) async {
     final List<Object?> params = ['%$keyword%'];
     String sql = '''
@@ -244,7 +235,7 @@ class HistoryRepository {
     }
     
     sql += '''
-      ORDER BY created_at DESC
+      ORDER BY ${orderByUpdated ? 'updated_at' : 'created_at'} DESC
       LIMIT ? OFFSET ?
     ''';
     params.addAll([limit, offset]);

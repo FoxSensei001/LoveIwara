@@ -26,7 +26,12 @@ class ForumSettingsPage extends StatelessWidget {
               iconTheme: IconThemeData(color: Get.isDarkMode ? Colors.white : null),
             ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.fromLTRB(
+          16,
+          16,
+          16,
+          16 + MediaQuery.of(context).padding.bottom,
+        ),
         children: [
           Card(
             elevation: 2,
@@ -151,7 +156,7 @@ class ForumSettingsPage extends StatelessWidget {
                   subtitle: Text(t.emoji.manageEmojiGroupsAndImages),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () {
-                    Get.to(() => const EmojiLibraryPage());
+                    Get.to(() => const EmojiLibraryPage(), transition: Transition.rightToLeft);
                   },
                   shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.only(
