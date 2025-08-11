@@ -153,11 +153,23 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                       return [
                         PopupMenuItem(
                           value: _ImportMenuAction.addByUrl,
-                          child: Text(t.emoji.addImageByUrl),
+                           child: Row(
+                             children: [
+                               const Icon(Icons.link, size: 18),
+                               const SizedBox(width: 8),
+                               Text(t.emoji.addImageByUrl),
+                             ],
+                           ),
                         ),
                         PopupMenuItem(
                           value: _ImportMenuAction.batchImport,
-                          child: Text(t.emoji.batchImport),
+                           child: Row(
+                             children: [
+                               const Icon(Icons.file_upload, size: 18),
+                               const SizedBox(width: 8),
+                               Text(t.emoji.batchImport),
+                             ],
+                           ),
                         ),
                         PopupMenuItem(
                           value: _ImportMenuAction.uploadLocal,
@@ -752,6 +764,7 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
       showDialog(
         context: context,
         barrierDismissible: false,
+         useRootNavigator: true,
         builder: (context) => _buildUploadProgressDialog(files.length),
       );
 
@@ -760,7 +773,7 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
 
       // 关闭进度对话框
       if (mounted) {
-        Navigator.pop(context);
+        Navigator.of(context, rootNavigator: true).pop();
       }
 
       if (uploadedImages.isNotEmpty) {
@@ -800,8 +813,11 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
       }
     } catch (e) {
       // 关闭可能存在的进度对话框
-      if (mounted && Navigator.canPop(context)) {
-        Navigator.pop(context);
+      if (mounted) {
+        final rootNavigator = Navigator.of(context, rootNavigator: true);
+        if (rootNavigator.canPop()) {
+          rootNavigator.pop();
+        }
       }
 
       // 显示错误消息

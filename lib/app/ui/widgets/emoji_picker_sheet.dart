@@ -260,27 +260,35 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet>
             child: Row(
               children: [
                 // 左侧分组导航 rail
-                Container(
-                  width: 80,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                    border: Border(
-                      right: BorderSide(
-                        color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-                        width: 1,
+                if (_groups.isNotEmpty)
+                  Container(
+                    width: 80,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surfaceContainerHighest
+                          .withValues(alpha: 0.3),
+                      border: Border(
+                        right: BorderSide(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .outline
+                              .withValues(alpha: 0.2),
+                          width: 1,
+                        ),
+                      ),
+                    ),
+                    child: Padding(
+                      padding:
+                          const EdgeInsets.only(bottom: 16), // 底部留出 padding
+                      child: EmojiPickerWidget(
+                        onEmojiSelected: _handleEmojiSelected,
+                        showOnlyTabs: true, // 只显示标签页，不显示内容
+                        isRailMode: true, // 新增参数，表示 rail 模式
+                        tabController: _tabController, // 传递共享的 TabController
                       ),
                     ),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 16), // 底部留出 padding
-                    child: EmojiPickerWidget(
-                      onEmojiSelected: _handleEmojiSelected,
-                      showOnlyTabs: true, // 只显示标签页，不显示内容
-                      isRailMode: true, // 新增参数，表示 rail 模式
-                      tabController: _tabController, // 传递共享的 TabController
-                    ),
-                  ),
-                ),
                 // 右侧表情包内容区域
                 Expanded(
                   child: EmojiPickerWidget(

@@ -22,6 +22,7 @@ import 'dart:async';
 import 'package:i_iwara/app/utils/markdown_formatter.dart';
 import 'package:i_iwara/common/enums/emoji_size_enum.dart';
 import 'package:i_iwara/app/ui/widgets/emoji_preview_dialog.dart';
+import 'package:i_iwara/common/constants.dart';
 
 class CustomMarkdownBody extends StatefulWidget {
   final String data;
@@ -593,6 +594,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
                         borderRadius: BorderRadius.circular(emojiSize.borderRadius),
                         child: CachedNetworkImage(
                           imageUrl: url,
+                           httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
                           placeholder: (context, url) => Container(
                             width: emojiSize.displaySize,
                             height: emojiSize.displaySize,
@@ -632,6 +634,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
                       borderRadius: BorderRadius.circular(12),
                       child: CachedNetworkImage(
                         imageUrl: url,
+                        httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
                         placeholder: (context, url) => Shimmer.fromColors(
                           baseColor: Colors.grey[300]!,
                           highlightColor: Colors.grey[100]!,

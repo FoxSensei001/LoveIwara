@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Translations;
 import 'package:i_iwara/app/services/config_service.dart';
-import 'package:i_iwara/app/ui/pages/settings/widgets/signature_edit_dialog_widget.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/signature_edit_sheet_widget.dart';
 import 'package:i_iwara/app/ui/pages/emoji_library/emoji_library_page.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 
@@ -110,9 +110,10 @@ class ForumSettingsPage extends StatelessWidget {
                           ),
                           trailing: const Icon(Icons.edit),
                           onTap: () async {
-                            final result = await showDialog<String>(
+                            final result = await showModalBottomSheet<String>(
                               context: context,
-                              builder: (context) => SignatureEditDialog(
+                              isScrollControlled: true,
+                              builder: (context) => SignatureEditSheet(
                                 initialContent: configService[ConfigKey.SIGNATURE_CONTENT_KEY],
                               ),
                             );

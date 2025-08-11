@@ -201,6 +201,12 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
     }
 
     if (_groups.isEmpty) {
+      // 如果只显示标签页，并且没有分组，则返回一个空容器
+      if (widget.showOnlyTabs) {
+        return const SizedBox.shrink();
+      }
+      
+      // 否则，显示“暂无表情”的提示
       return SizedBox(
         height: 300,
         child: Center(

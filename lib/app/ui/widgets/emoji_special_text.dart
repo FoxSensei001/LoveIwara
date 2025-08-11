@@ -4,6 +4,7 @@ import 'package:extended_text_field/extended_text_field.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:i_iwara/common/enums/emoji_size_enum.dart';
 import 'package:i_iwara/common/constants.dart';
+import 'package:shimmer/shimmer.dart';
 
 /// 表情包特殊文本类
 class EmojiText extends SpecialText {
@@ -48,29 +49,30 @@ class EmojiText extends SpecialText {
       fit: BoxFit.contain,
       loadingBuilder: (context, child, loadingProgress) {
         if (loadingProgress == null) return child;
-        return Container(
-          width: emojiSize.displaySize,
-          height: emojiSize.displaySize,
-          decoration: BoxDecoration(
-            color: Colors.grey[200],
-            borderRadius: BorderRadius.circular(emojiSize.borderRadius),
-          ),
-          child: Center(
-            child: SizedBox(
-              width: emojiSize.displaySize * 0.4,
-              height: emojiSize.displaySize * 0.4,
-              child: CircularProgressIndicator(strokeWidth: 2),
+        return Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          child: Container(
+            width: emojiSize.displaySize,
+            height: emojiSize.displaySize,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(emojiSize.borderRadius),
             ),
           ),
         );
       },
       frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-        if (wasSynchronouslyLoaded) return child;
+        final wrappedChild = ClipRRect(
+          borderRadius: BorderRadius.circular(emojiSize.borderRadius),
+          child: child,
+        );
+        if (wasSynchronouslyLoaded) return wrappedChild;
         return AnimatedOpacity(
           opacity: frame == null ? 0 : 1,
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOut,
-          child: child,
+          child: wrappedChild,
         );
       },
     );
