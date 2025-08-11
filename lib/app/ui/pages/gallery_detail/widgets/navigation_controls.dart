@@ -71,8 +71,9 @@ class _NavigationControlsState extends State<NavigationControls>
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // 左侧导航区域
-        Positioned(
+        // 左侧导航区域（仅在可向前时渲染）
+        if (widget.canGoPrevious)
+          Positioned(
           left: 0,
           top: 0,
           bottom: 0,
@@ -151,9 +152,10 @@ class _NavigationControlsState extends State<NavigationControls>
             ),
           ),
         ),
-        
-        // 右侧导航区域
-        Positioned(
+
+        // 右侧导航区域（仅在可向后时渲染）
+        if (widget.canGoNext)
+          Positioned(
           right: 0,
           top: 0,
           bottom: 0,

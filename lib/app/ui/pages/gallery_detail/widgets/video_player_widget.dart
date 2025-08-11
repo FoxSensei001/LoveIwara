@@ -32,6 +32,10 @@ class VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   int _retryCount = 0;
   static const int _maxRetries = 2;
   bool _isWebmCodecError = false;
+  // 进度相关
+  Duration? _bufferDuration;
+  Duration? _totalDuration;
+  double? _bufferPercent; // 0.0 - 1.0
 
   @override
   void initState() {
@@ -155,7 +159,39 @@ class VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
     _player.stream.duration.listen((duration) {
       LogUtils.d('视频时长: $duration', 'VideoPlayerWidget');
+      if (mounted) {
+        setState(() {
+          _totalDuration = duration;
+        });
+        _updateBufferPercent();
+      }
     });
+
+    _player.stream.buffer.listen((bufferDuration) {
+      LogUtils.d('视频缓冲时长: $bufferDuration', 'VideoPlayerWidget');
+      if (mounted) {
+        setState(() {
+          _bufferDuration = bufferDuration;
+        });
+        _updateBufferPercent();
+      }
+    });
+  }
+
+  void _updateBufferPercent() {
+    if (!mounted) return;
+    final totalMs = _totalDuration?.inMilliseconds ?? 0;
+    final bufferMs = _bufferDuration?.inMilliseconds ?? -1;
+    if (totalMs > 0 && bufferMs >= 0) {
+      final percent = bufferMs / totalMs;
+      setState(() {
+        _bufferPercent = percent.clamp(0.0, 1.0);
+      });
+    } else {
+      setState(() {
+        _bufferPercent = null;
+      });
+    }
   }
 
   @override
@@ -274,8 +310,30 @@ class VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   Widget _buildLoadingWidget() {
     return Container(
       color: Colors.black,
-      child: const Center(
-        child: CircularProgressIndicator(color: Colors.white),
+      child: Center(
+        child: SizedBox(
+          width: 72,
+          height: 72,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              CircularProgressIndicator(
+                value: _bufferPercent,
+                color: Colors.white,
+                strokeWidth: 3.0,
+              ),
+              if (_bufferPercent != null)
+                Text(
+                  '${((_bufferPercent ?? 0) * 100).clamp(0, 100).toInt()}%',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }
