@@ -1386,6 +1386,7 @@ emoji:
   small: Small
   medium: Medium
   large: Large
+  extraLarge: Extra Large
   copyEmojiLinkSuccess: 'Emoji link copied'
   preview: Emoji Preview
   library: Emoji Library
@@ -1430,3 +1431,11 @@ emoji:
   goToSettingsToAddEmojis: Go to settings to add emojis
   emojiManagement: Emoji Management
   manageEmojiGroupsAndImages: Manage emoji groups and images
+  uploadLocalImages: Upload Local Images
+  uploadingImages: Uploading Images
+  uploadingImagesProgress: 'Uploading ${count} images, please wait...'
+  doNotCloseDialog: Please do not close this dialog
+  uploadSuccess: 'Successfully uploaded ${count} images'
+  uploadFailed: 'Failed ${count}'
+  uploadFailedMessage: Image upload failed, please check network connection or file format
+  uploadErrorMessage: 'Error occurred during upload: ${error}'

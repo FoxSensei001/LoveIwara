@@ -1329,6 +1329,7 @@ class _TranslationsEmojiJa implements TranslationsEmojiEn {
 	@override String get small => '小';
 	@override String get medium => '中';
 	@override String get large => '大';
+	@override String get extraLarge => '超大';
 	@override String get copyEmojiLinkSuccess => '絵文字リンクをコピーしました';
 	@override String get preview => '絵文字プレビュー';
 	@override String get library => '絵文字ライブラリ';
@@ -1373,6 +1374,14 @@ class _TranslationsEmojiJa implements TranslationsEmojiEn {
 	@override String get goToSettingsToAddEmojis => '設定で絵文字を追加してください';
 	@override String get emojiManagement => '絵文字管理';
 	@override String get manageEmojiGroupsAndImages => '絵文字グループと画像を管理';
+	@override String get uploadLocalImages => 'ローカル画像をアップロード';
+	@override String get uploadingImages => '画像をアップロード中';
+	@override String uploadingImagesProgress({required Object count}) => '${count} 枚の画像をアップロード中、お待ちください...';
+	@override String get doNotCloseDialog => 'このダイアログを閉じないでください';
+	@override String uploadSuccess({required Object count}) => '${count} 枚の画像をアップロードしました';
+	@override String uploadFailed({required Object count}) => '${count} 枚失敗';
+	@override String get uploadFailedMessage => '画像のアップロードに失敗しました。ネットワーク接続またはファイル形式を確認してください';
+	@override String uploadErrorMessage({required Object error}) => 'アップロード中にエラーが発生しました: ${error}';
 }
 
 // Path: common.pagination
@@ -3151,6 +3160,7 @@ extension on TranslationsJa {
 			case 'emoji.small': return '小';
 			case 'emoji.medium': return '中';
 			case 'emoji.large': return '大';
+			case 'emoji.extraLarge': return '超大';
 			case 'emoji.copyEmojiLinkSuccess': return '絵文字リンクをコピーしました';
 			case 'emoji.preview': return '絵文字プレビュー';
 			case 'emoji.library': return '絵文字ライブラリ';
@@ -3195,6 +3205,14 @@ extension on TranslationsJa {
 			case 'emoji.goToSettingsToAddEmojis': return '設定で絵文字を追加してください';
 			case 'emoji.emojiManagement': return '絵文字管理';
 			case 'emoji.manageEmojiGroupsAndImages': return '絵文字グループと画像を管理';
+			case 'emoji.uploadLocalImages': return 'ローカル画像をアップロード';
+			case 'emoji.uploadingImages': return '画像をアップロード中';
+			case 'emoji.uploadingImagesProgress': return ({required Object count}) => '${count} 枚の画像をアップロード中、お待ちください...';
+			case 'emoji.doNotCloseDialog': return 'このダイアログを閉じないでください';
+			case 'emoji.uploadSuccess': return ({required Object count}) => '${count} 枚の画像をアップロードしました';
+			case 'emoji.uploadFailed': return ({required Object count}) => '${count} 枚失敗';
+			case 'emoji.uploadFailedMessage': return '画像のアップロードに失敗しました。ネットワーク接続またはファイル形式を確認してください';
+			case 'emoji.uploadErrorMessage': return ({required Object error}) => 'アップロード中にエラーが発生しました: ${error}';
 			default: return null;
 		}
 	}

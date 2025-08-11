@@ -3,6 +3,7 @@ import 'dart:ui' as ui show PlaceholderAlignment;
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:i_iwara/common/enums/emoji_size_enum.dart';
+import 'package:i_iwara/common/constants.dart';
 
 /// 表情包特殊文本类
 class EmojiText extends SpecialText {
@@ -34,7 +35,10 @@ class EmojiText extends SpecialText {
     }
     
     return ImageSpan(
-      CachedNetworkImageProvider(imageUrl),
+      CachedNetworkImageProvider(
+        imageUrl,
+        headers: const {'referer': CommonConstants.iwaraBaseUrl},
+      ),
       imageWidth: emojiSize.displaySize,
       imageHeight: emojiSize.displaySize,
       margin: emojiSize.margin,

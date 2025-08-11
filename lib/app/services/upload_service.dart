@@ -5,6 +5,7 @@ import 'package:file_selector/file_selector.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:get/get.dart' hide FormData;
 import 'package:i_iwara/app/services/api_service.dart';
+import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:path/path.dart' as path;
 
@@ -62,6 +63,11 @@ class UploadedImage {
       return 'https://i.iwara.tv/image/original/$id/$name';
     }
     return 'https://i.iwara.tv/image/large/$id/$name';
+  }
+
+  // 原图
+  String get originalUrl {
+    return CommonConstants.avatarUrl(id, id);
   }
 }
 
@@ -124,7 +130,7 @@ class UploadService extends GetxService {
       // 检查文件大小（限制为15MB）
       final fileSize = await file.length();
       if (fileSize > 15 * 1024 * 1024) {
-        LogUtils.e('文件过大: ${fileSize} bytes', tag: _tag);
+        LogUtils.e('文件过大: $fileSize bytes', tag: _tag);
         return null;
       }
 

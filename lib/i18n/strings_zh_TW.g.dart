@@ -1332,6 +1332,7 @@ class _TranslationsEmojiZhTw implements TranslationsEmojiEn {
 	@override String get small => '小';
 	@override String get medium => '中';
 	@override String get large => '大';
+	@override String get extraLarge => '超大';
 	@override String get copyEmojiLinkSuccess => '表情包連結已複製';
 	@override String get preview => '表情包預覽';
 	@override String get library => '表情包庫';
@@ -1376,6 +1377,14 @@ class _TranslationsEmojiZhTw implements TranslationsEmojiEn {
 	@override String get goToSettingsToAddEmojis => '前往設置添加表情包';
 	@override String get emojiManagement => '表情包管理';
 	@override String get manageEmojiGroupsAndImages => '管理表情包分組和圖片';
+	@override String get uploadLocalImages => '上傳本地圖片';
+	@override String get uploadingImages => '正在上傳圖片';
+	@override String uploadingImagesProgress({required Object count}) => '正在上傳 ${count} 張圖片，請稍候...';
+	@override String get doNotCloseDialog => '請不要關閉此對話框';
+	@override String uploadSuccess({required Object count}) => '成功上傳 ${count} 張圖片';
+	@override String uploadFailed({required Object count}) => '失敗 ${count} 張';
+	@override String get uploadFailedMessage => '圖片上傳失敗，請檢查網路連接或檔案格式';
+	@override String uploadErrorMessage({required Object error}) => '上傳過程中發生錯誤: ${error}';
 }
 
 // Path: common.pagination
@@ -3157,6 +3166,7 @@ extension on TranslationsZhTw {
 			case 'emoji.small': return '小';
 			case 'emoji.medium': return '中';
 			case 'emoji.large': return '大';
+			case 'emoji.extraLarge': return '超大';
 			case 'emoji.copyEmojiLinkSuccess': return '表情包連結已複製';
 			case 'emoji.preview': return '表情包預覽';
 			case 'emoji.library': return '表情包庫';
@@ -3201,6 +3211,14 @@ extension on TranslationsZhTw {
 			case 'emoji.goToSettingsToAddEmojis': return '前往設置添加表情包';
 			case 'emoji.emojiManagement': return '表情包管理';
 			case 'emoji.manageEmojiGroupsAndImages': return '管理表情包分組和圖片';
+			case 'emoji.uploadLocalImages': return '上傳本地圖片';
+			case 'emoji.uploadingImages': return '正在上傳圖片';
+			case 'emoji.uploadingImagesProgress': return ({required Object count}) => '正在上傳 ${count} 張圖片，請稍候...';
+			case 'emoji.doNotCloseDialog': return '請不要關閉此對話框';
+			case 'emoji.uploadSuccess': return ({required Object count}) => '成功上傳 ${count} 張圖片';
+			case 'emoji.uploadFailed': return ({required Object count}) => '失敗 ${count} 張';
+			case 'emoji.uploadFailedMessage': return '圖片上傳失敗，請檢查網路連接或檔案格式';
+			case 'emoji.uploadErrorMessage': return ({required Object error}) => '上傳過程中發生錯誤: ${error}';
 			default: return null;
 		}
 	}

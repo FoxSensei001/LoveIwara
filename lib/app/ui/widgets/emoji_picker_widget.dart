@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Translations;
 import 'package:i_iwara/app/services/emoji_library_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
+import 'package:i_iwara/common/constants.dart';
 import 'package:shimmer/shimmer.dart';
 
 class EmojiPickerWidget extends StatefulWidget {
@@ -269,6 +270,7 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                           width: 40,
                           height: 40,
                           fit: BoxFit.cover,
+                          headers: const {'referer': CommonConstants.iwaraBaseUrl},
                           loadingBuilder: (context, child, loadingProgress) {
                             if (loadingProgress == null) return child;
                             return Shimmer.fromColors(
@@ -346,6 +348,7 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                           width: 20,
                           height: 20,
                           fit: BoxFit.cover,
+                          headers: const {'referer': CommonConstants.iwaraBaseUrl},
                           loadingBuilder: (context, child, loadingProgress) {
                             if (loadingProgress == null) return child;
                             return Shimmer.fromColors(
@@ -467,6 +470,7 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                       child: Image.network(
                       image.thumbnailUrl ?? image.url,
                       fit: BoxFit.cover,
+                      headers: const {'referer': CommonConstants.iwaraBaseUrl},
                         loadingBuilder: (context, child, loadingProgress) {
                           if (loadingProgress == null) return child;
                           return Shimmer.fromColors(
@@ -521,6 +525,7 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                             width: 20,
                             height: 20,
                             fit: BoxFit.cover,
+                            headers: const {'referer': CommonConstants.iwaraBaseUrl},
                             errorBuilder: (context, error, stackTrace) {
                               return Text(
                                 group.name.isNotEmpty ? group.name[0] : '?',
@@ -587,6 +592,7 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                          child: Image.network(
                           image.thumbnailUrl ?? image.url,
                           fit: BoxFit.cover,
+                          headers: const {'referer': CommonConstants.iwaraBaseUrl},
                            loadingBuilder: (context, child, loadingProgress) {
                              if (loadingProgress == null) return child;
                              return Shimmer.fromColors(

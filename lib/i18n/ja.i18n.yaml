@@ -1390,6 +1390,7 @@ emoji:
   small: 小
   medium: 中
   large: 大
+  extraLarge: 超大
   copyEmojiLinkSuccess: '絵文字リンクをコピーしました'
   preview: 絵文字プレビュー
   library: 絵文字ライブラリ
@@ -1434,3 +1435,11 @@ emoji:
   goToSettingsToAddEmojis: 設定で絵文字を追加してください
   emojiManagement: 絵文字管理
   manageEmojiGroupsAndImages: 絵文字グループと画像を管理
+  uploadLocalImages: ローカル画像をアップロード
+  uploadingImages: 画像をアップロード中
+  uploadingImagesProgress: '${count} 枚の画像をアップロード中、お待ちください...'
+  doNotCloseDialog: このダイアログを閉じないでください
+  uploadSuccess: '${count} 枚の画像をアップロードしました'
+  uploadFailed: '${count} 枚失敗'
+  uploadFailedMessage: 画像のアップロードに失敗しました。ネットワーク接続またはファイル形式を確認してください
+  uploadErrorMessage: 'アップロード中にエラーが発生しました: ${error}'

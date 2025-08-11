@@ -1393,6 +1393,7 @@ emoji:
   small: 小
   medium: 中
   large: 大
+  extraLarge: 超大
   copyEmojiLinkSuccess: '表情包链接已复制'
   preview: 表情包预览
   library: 表情包库
@@ -1437,3 +1438,11 @@ emoji:
   goToSettingsToAddEmojis: 前往设置添加表情包
   emojiManagement: 表情包管理
   manageEmojiGroupsAndImages: 管理表情包分组和图片
+  uploadLocalImages: 上传本地图片
+  uploadingImages: 正在上传图片
+  uploadingImagesProgress: '正在上传 ${count} 张图片，请稍候...'
+  doNotCloseDialog: 请不要关闭此对话框
+  uploadSuccess: '成功上传 ${count} 张图片'
+  uploadFailed: '失败 ${count} 张'
+  uploadFailedMessage: 图片上传失败，请检查网络连接或文件格式
+  uploadErrorMessage: '上传过程中发生错误: ${error}'

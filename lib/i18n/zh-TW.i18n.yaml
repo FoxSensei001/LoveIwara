@@ -1391,6 +1391,7 @@ emoji:
   small: 小
   medium: 中
   large: 大
+  extraLarge: 超大
   copyEmojiLinkSuccess: '表情包連結已複製'
   preview: 表情包預覽
   library: 表情包庫
@@ -1435,3 +1436,11 @@ emoji:
   goToSettingsToAddEmojis: 前往設置添加表情包
   emojiManagement: 表情包管理
   manageEmojiGroupsAndImages: 管理表情包分組和圖片
+  uploadLocalImages: 上傳本地圖片
+  uploadingImages: 正在上傳圖片
+  uploadingImagesProgress: '正在上傳 ${count} 張圖片，請稍候...'
+  doNotCloseDialog: 請不要關閉此對話框
+  uploadSuccess: '成功上傳 ${count} 張圖片'
+  uploadFailed: '失敗 ${count} 張'
+  uploadFailedMessage: 圖片上傳失敗，請檢查網路連接或檔案格式
+  uploadErrorMessage: '上傳過程中發生錯誤: ${error}'

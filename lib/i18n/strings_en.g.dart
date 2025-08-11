@@ -3327,6 +3327,9 @@ class TranslationsEmojiEn {
 	/// en: 'Large'
 	String get large => 'Large';
 
+	/// en: 'Extra Large'
+	String get extraLarge => 'Extra Large';
+
 	/// en: 'Emoji link copied'
 	String get copyEmojiLinkSuccess => 'Emoji link copied';
 
@@ -3458,6 +3461,30 @@ class TranslationsEmojiEn {
 
 	/// en: 'Manage emoji groups and images'
 	String get manageEmojiGroupsAndImages => 'Manage emoji groups and images';
+
+	/// en: 'Upload Local Images'
+	String get uploadLocalImages => 'Upload Local Images';
+
+	/// en: 'Uploading Images'
+	String get uploadingImages => 'Uploading Images';
+
+	/// en: 'Uploading ${count} images, please wait...'
+	String uploadingImagesProgress({required Object count}) => 'Uploading ${count} images, please wait...';
+
+	/// en: 'Please do not close this dialog'
+	String get doNotCloseDialog => 'Please do not close this dialog';
+
+	/// en: 'Successfully uploaded ${count} images'
+	String uploadSuccess({required Object count}) => 'Successfully uploaded ${count} images';
+
+	/// en: 'Failed ${count}'
+	String uploadFailed({required Object count}) => 'Failed ${count}';
+
+	/// en: 'Image upload failed, please check network connection or file format'
+	String get uploadFailedMessage => 'Image upload failed, please check network connection or file format';
+
+	/// en: 'Error occurred during upload: ${error}'
+	String uploadErrorMessage({required Object error}) => 'Error occurred during upload: ${error}';
 }
 
 // Path: common.pagination
@@ -5834,6 +5861,7 @@ extension on Translations {
 			case 'emoji.small': return 'Small';
 			case 'emoji.medium': return 'Medium';
 			case 'emoji.large': return 'Large';
+			case 'emoji.extraLarge': return 'Extra Large';
 			case 'emoji.copyEmojiLinkSuccess': return 'Emoji link copied';
 			case 'emoji.preview': return 'Emoji Preview';
 			case 'emoji.library': return 'Emoji Library';
@@ -5878,6 +5906,14 @@ extension on Translations {
 			case 'emoji.goToSettingsToAddEmojis': return 'Go to settings to add emojis';
 			case 'emoji.emojiManagement': return 'Emoji Management';
 			case 'emoji.manageEmojiGroupsAndImages': return 'Manage emoji groups and images';
+			case 'emoji.uploadLocalImages': return 'Upload Local Images';
+			case 'emoji.uploadingImages': return 'Uploading Images';
+			case 'emoji.uploadingImagesProgress': return ({required Object count}) => 'Uploading ${count} images, please wait...';
+			case 'emoji.doNotCloseDialog': return 'Please do not close this dialog';
+			case 'emoji.uploadSuccess': return ({required Object count}) => 'Successfully uploaded ${count} images';
+			case 'emoji.uploadFailed': return ({required Object count}) => 'Failed ${count}';
+			case 'emoji.uploadFailedMessage': return 'Image upload failed, please check network connection or file format';
+			case 'emoji.uploadErrorMessage': return ({required Object error}) => 'Error occurred during upload: ${error}';
 			default: return null;
 		}
 	}

@@ -3,6 +3,7 @@ import 'package:get/get.dart' hide Translations;
 import 'package:i_iwara/app/services/emoji_library_service.dart';
 import 'package:i_iwara/app/ui/pages/emoji_library/emoji_group_detail_page.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
+import 'package:i_iwara/common/constants.dart';
 
 class EmojiLibraryPage extends StatefulWidget {
   const EmojiLibraryPage({super.key});
@@ -98,6 +99,7 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
                 child: Image.network(
                   group.coverUrl!,
                   fit: BoxFit.cover,
+                  headers: const {'referer': CommonConstants.iwaraBaseUrl},
                   errorBuilder: (context, error, stackTrace) {
                     return Center(
                       child: Text(
