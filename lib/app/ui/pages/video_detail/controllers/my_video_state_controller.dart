@@ -41,6 +41,10 @@ enum VideoDetailPageLoadingState {
   loadingVideoInfo, // 加载视频信息
   loadingVideoSource, // 获取视频播放源
   idle, // 空闲状态
+  applyingSolution, // 应用解决方案
+  addingListeners, // 添加监听器
+  successFecthVideoDurationInfo, // 成功获取视频时长信息
+  successFecthVideoHeightInfo, // 成功获取视频高度信息
 }
 
 class MyVideoStateController extends GetxController
@@ -176,10 +180,6 @@ class MyVideoStateController extends GetxController
   // 添加倍速播放防抖定时器
   Timer? _speedChangeDebouncer;
   Timer? _bufferUpdateThrottleTimer;
-
-  // 无缝切换分辨率时的状态管理
-  bool _isSeamlessSwitching = false;
-  Duration? _pendingSeekPosition;
 
   // 滚动相关状态管理
   final RxDouble scrollRatio = 0.0.obs; // 滚动比例
@@ -956,6 +956,28 @@ class MyVideoStateController extends GetxController
     // 检查缓存
     final cacheKey = videoInfo.value!.fileUrl!;
     final cachedSources = _cacheManager.getVideoSources(cacheKey);
+    // 尝试还原历史记录
+    Duration targetDuration = Duration.zero;
+    try {
+      if (!firstLoaded &&
+          _configService[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS]) {
+        final history = await _playbackHistoryService
+            .getPlaybackHistory(videoId!)
+            .timeout(const Duration(seconds: 2));
+        if (_isDisposed) return;
+
+        if (history != null) {
+          final playedDuration = history['played_duration'] as int;
+          final totalDurationMs = history['total_duration'] as int;
+          targetDuration = Duration(
+            milliseconds: (playedDuration - 4000).clamp(0, totalDurationMs),
+          );
+        }
+      }
+    } catch (e) {
+      LogUtils.e('还原历史记录失败: $e', tag: 'MyVideoStateController', error: e);
+    }
+
     if (cachedSources != null) {
       currentVideoSourceList.value = cachedSources;
 
@@ -972,6 +994,7 @@ class MyVideoStateController extends GetxController
           videoInfo.value!.videoSources,
           filterPreview: true,
         ),
+        position: targetDuration,
       );
       return;
     }
@@ -1013,6 +1036,7 @@ class MyVideoStateController extends GetxController
           videoInfo.value!.videoSources,
           filterPreview: true,
         ),
+        position: targetDuration,
       );
     } catch (e) {
       String errorMessage = CommonUtils.parseExceptionMessage(e);
@@ -1073,18 +1097,11 @@ class MyVideoStateController extends GetxController
   }
 
   /// 无缝切换分辨率（不显示骨架屏）
-  Future<void> _switchResolutionSeamlessly(String resolutionTag, String url) async {
+  Future<void> _switchResolutionSeamlessly(
+    String resolutionTag,
+    String url,
+  ) async {
     if (_isDisposed) return;
-
-    LogUtils.i('[无缝切换分辨率] $resolutionTag', 'MyVideoStateController');
-
-    // 保存当前播放状态和位置
-    final currentPos = currentPosition;
-    final wasPlaying = videoPlaying.value;
-
-    // 设置无缝切换状态
-    _isSeamlessSwitching = true;
-    _pendingSeekPosition = currentPos;
 
     // 设置缓冲状态，显示 loading 动画
     videoBuffering.value = true;
@@ -1102,32 +1119,24 @@ class MyVideoStateController extends GetxController
 
     try {
       // 打开新的视频源
-      await player.open(Media(url), play: false).timeout(const Duration(seconds: 10));
+      await player
+          .open(Media(url, start: currentPosition), play: true)
+          .timeout(const Duration(seconds: 10));
 
       if (_isDisposed) return;
 
-      // 恢复播放状态（但不立即 seek，等待元数据加载完成）
-      if (wasPlaying) {
-        player.play();
-      }
-
       // 重新设置监听器（包括 buffering 监听器）
       _setupListenersAfterOpen();
-
-      LogUtils.d('[无缝切换分辨率完成] $resolutionTag', 'MyVideoStateController');
-
     } catch (e) {
       if (_isDisposed) return;
       LogUtils.e('无缝切换分辨率失败: $e', tag: 'MyVideoStateController', error: e);
 
       // 切换失败时清理状态
-      _isSeamlessSwitching = false;
-      _pendingSeekPosition = null;
       videoBuffering.value = false;
 
       // 如果无缝切换失败，回退到重置模式
-      videoErrorMessage.value = '${slang.t.videoDetail.player.errorWhileLoadingVideoSource}: $e';
-
+      videoErrorMessage.value =
+          '${slang.t.videoDetail.player.errorWhileLoadingVideoSource}: $e';
     }
   }
 
@@ -1139,6 +1148,7 @@ class MyVideoStateController extends GetxController
     Duration position = Duration.zero,
   }) async {
     if (_isDisposed) return;
+    pageLoadingState.value = VideoDetailPageLoadingState.applyingSolution;
     // 重置状态
     await _cancelSubscriptions();
     _clearBuffers();
@@ -1178,12 +1188,15 @@ class MyVideoStateController extends GetxController
 
     if (_isDisposed) return;
     try {
-      await player.open(Media(url), play: false).timeout(const Duration(seconds: 10));
-      player.play();
+      player
+          .open(Media(url, start: currentPosition), play: true)
+          .timeout(const Duration(seconds: 10));
+      pageLoadingState.value = VideoDetailPageLoadingState.addingListeners;
     } catch (e) {
       if (_isDisposed) return;
       LogUtils.e('Player open 出错: $e', tag: 'MyVideoStateController', error: e);
-      videoErrorMessage.value = '${slang.t.videoDetail.player.errorWhileLoadingVideoSource}: $e';
+      videoErrorMessage.value =
+          '${slang.t.videoDetail.player.errorWhileLoadingVideoSource}: $e';
       return;
     }
     if (_isDisposed) return;
@@ -1213,6 +1226,8 @@ class MyVideoStateController extends GetxController
     durationSubscription = player.stream.duration.listen((duration) async {
       if (_isDisposed) return;
       totalDuration.value = duration;
+      pageLoadingState.value =
+          VideoDetailPageLoadingState.successFecthVideoDurationInfo;
     });
 
     // 宽度
@@ -1229,6 +1244,8 @@ class MyVideoStateController extends GetxController
       if (height != null) {
         sourceVideoHeight.value = height;
         // [tip]: 发现每次都是先监听到 width，再监听到height，所以这里先更新宽高比
+        pageLoadingState.value =
+            VideoDetailPageLoadingState.successFecthVideoHeightInfo;
         _updateAspectRatio();
       }
     });
@@ -1257,68 +1274,13 @@ class MyVideoStateController extends GetxController
     if (_isDisposed) return;
 
     aspectRatio.value = sourceVideoWidth.value / sourceVideoHeight.value;
+    videoPlayerReady.value = true;
+    firstLoaded = true;
     LogUtils.d(
-        '[更新后的宽高比] $aspectRatio, 视频高度: $sourceVideoHeight, 视频宽度: $sourceVideoWidth', 'MyVideoStateController');
+      '[更新后的宽高比] $aspectRatio, 视频高度: $sourceVideoHeight, 视频宽度: $sourceVideoWidth',
+      'MyVideoStateController',
+    );
 
-    // 处理无缝切换时的 seek 操作
-    if (_isSeamlessSwitching && _pendingSeekPosition != null && !_isDisposed) {
-      try {
-        LogUtils.d('[无缝切换] 恢复播放位置到: $_pendingSeekPosition', 'MyVideoStateController');
-        await player.seek(_pendingSeekPosition!);
-        if (_isDisposed) return;
-
-        // 清理无缝切换状态
-        _isSeamlessSwitching = false;
-        _pendingSeekPosition = null;
-
-        LogUtils.d('[无缝切换] 播放位置恢复完成', 'MyVideoStateController');
-      } catch (e) {
-        if (!_isDisposed) {
-          LogUtils.e('无缝切换恢复播放位置失败: $e', tag: 'MyVideoStateController', error: e);
-          // 清理状态
-          _isSeamlessSwitching = false;
-          _pendingSeekPosition = null;
-        }
-      }
-      return; // 无缝切换时不执行下面的初始化逻辑
-    }
-
-    if (!videoPlayerReady.value && !_isDisposed) {
-      videoPlayerReady.value = true;
-      int targetPositionMs = 0;
-
-      try {
-        if (!firstLoaded && _configService[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS]) {
-          final history = await _playbackHistoryService.getPlaybackHistory(videoId!)
-              .timeout(const Duration(seconds: 2));
-          if (_isDisposed) return;
-
-          if (history != null) {
-            final playedDuration = history['played_duration'] as int;
-            final totalDurationMs = history['total_duration'] as int;
-            targetPositionMs = (playedDuration - 4000).clamp(0, totalDurationMs);
-            showResumeFromPositionTip(Duration(milliseconds: targetPositionMs));
-          }
-        } else if (firstLoaded) {
-          targetPositionMs = currentPosition.inMilliseconds;
-        }
-
-        if (!_isDisposed) {
-          LogUtils.d('准备 Seek 到: ${Duration(milliseconds: targetPositionMs)}', 'MyVideoStateController');
-          await player.seek(Duration(milliseconds: targetPositionMs));
-          if (_isDisposed) return;
-        }
-      } catch (e) {
-        if (!_isDisposed) {
-          LogUtils.e('获取或恢复播放记录/Seek时失败: $e', tag: 'MyVideoStateController', error: e);
-        }
-      } finally {
-        if (!_isDisposed) {
-          firstLoaded = true;
-
-        }
-      }
-    }
   }
 
   /// 进入全屏模式
@@ -1603,18 +1565,6 @@ class MyVideoStateController extends GetxController
 
   void handleSeek(Duration newPosition) {
     _handleSeek(newPosition);
-  }
-
-  // 在类中添加这个方法:
-  void showResumeFromPositionTip(Duration position) {
-    resumePosition.value = position;
-    showResumePositionTip.value = true;
-
-    // 3秒后自动隐藏
-    _resumeTipTimer?.cancel();
-    _resumeTipTimer = Timer(const Duration(seconds: 3), () {
-      showResumePositionTip.value = false;
-    });
   }
 
   // 添加关闭提示的方法:

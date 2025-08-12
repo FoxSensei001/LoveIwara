@@ -4154,6 +4154,18 @@ class TranslationsVideoDetailSkeletonEn {
 
 	/// en: 'Loading video...'
 	String get loadingVideo => 'Loading video...';
+
+	/// en: 'Applying solution...'
+	String get applyingSolution => 'Applying solution...';
+
+	/// en: 'Adding listeners...'
+	String get addingListeners => 'Adding listeners...';
+
+	/// en: 'Successfully fetched video duration, starting to load video...'
+	String get successFecthVideoDurationInfo => 'Successfully fetched video duration, starting to load video...';
+
+	/// en: 'Loading completed'
+	String get successFecthVideoHeightInfo => 'Loading completed';
 }
 
 // Path: forum.errors
@@ -5357,6 +5369,10 @@ extension on Translations {
 			case 'videoDetail.skeleton.fetchingVideoInfo': return 'Fetching video info...';
 			case 'videoDetail.skeleton.fetchingVideoSources': return 'Fetching video sources...';
 			case 'videoDetail.skeleton.loadingVideo': return 'Loading video...';
+			case 'videoDetail.skeleton.applyingSolution': return 'Applying solution...';
+			case 'videoDetail.skeleton.addingListeners': return 'Adding listeners...';
+			case 'videoDetail.skeleton.successFecthVideoDurationInfo': return 'Successfully fetched video duration, starting to load video...';
+			case 'videoDetail.skeleton.successFecthVideoHeightInfo': return 'Loading completed';
 			case 'share.sharePlayList': return 'Share Play List';
 			case 'share.wowDidYouSeeThis': return 'Wow, did you see this?';
 			case 'share.nameIs': return 'Name is';

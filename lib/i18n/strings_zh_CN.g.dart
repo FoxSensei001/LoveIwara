@@ -1676,6 +1676,10 @@ class _TranslationsVideoDetailSkeletonZhCn implements TranslationsVideoDetailSke
 	@override String get fetchingVideoInfo => '正在获取视频信息...';
 	@override String get fetchingVideoSources => '正在获取视频源...';
 	@override String get loadingVideo => '正在加载视频...';
+	@override String get applyingSolution => '正在应用此分辨率...';
+	@override String get addingListeners => '正在添加监听器...';
+	@override String get successFecthVideoDurationInfo => '成功获取视频资源，开始加载视频...';
+	@override String get successFecthVideoHeightInfo => '加载完成';
 }
 
 // Path: forum.errors
@@ -2666,6 +2670,10 @@ extension on TranslationsZhCn {
 			case 'videoDetail.skeleton.fetchingVideoInfo': return '正在获取视频信息...';
 			case 'videoDetail.skeleton.fetchingVideoSources': return '正在获取视频源...';
 			case 'videoDetail.skeleton.loadingVideo': return '正在加载视频...';
+			case 'videoDetail.skeleton.applyingSolution': return '正在应用此分辨率...';
+			case 'videoDetail.skeleton.addingListeners': return '正在添加监听器...';
+			case 'videoDetail.skeleton.successFecthVideoDurationInfo': return '成功获取视频资源，开始加载视频...';
+			case 'videoDetail.skeleton.successFecthVideoHeightInfo': return '加载完成';
 			case 'share.sharePlayList': return '分享播放列表';
 			case 'share.wowDidYouSeeThis': return '哇哦，你看过这个吗？';
 			case 'share.nameIs': return '名字叫做';

@@ -1671,6 +1671,10 @@ class _TranslationsVideoDetailSkeletonJa implements TranslationsVideoDetailSkele
 	@override String get fetchingVideoInfo => 'ビデオ情報を取得中...';
 	@override String get fetchingVideoSources => 'ビデオソースを取得中...';
 	@override String get loadingVideo => 'ビデオを読み込み中...';
+	@override String get applyingSolution => '解像度を適用中...';
+	@override String get addingListeners => '監視器を追加中...';
+	@override String get successFecthVideoDurationInfo => 'ビデオの総時間を取得しました、ビデオを読み込み中...';
+	@override String get successFecthVideoHeightInfo => '読み込み完了';
 }
 
 // Path: forum.errors
@@ -2656,6 +2660,10 @@ extension on TranslationsJa {
 			case 'videoDetail.skeleton.fetchingVideoInfo': return 'ビデオ情報を取得中...';
 			case 'videoDetail.skeleton.fetchingVideoSources': return 'ビデオソースを取得中...';
 			case 'videoDetail.skeleton.loadingVideo': return 'ビデオを読み込み中...';
+			case 'videoDetail.skeleton.applyingSolution': return '解像度を適用中...';
+			case 'videoDetail.skeleton.addingListeners': return '監視器を追加中...';
+			case 'videoDetail.skeleton.successFecthVideoDurationInfo': return 'ビデオの総時間を取得しました、ビデオを読み込み中...';
+			case 'videoDetail.skeleton.successFecthVideoHeightInfo': return '読み込み完了';
 			case 'share.sharePlayList': return 'プレイリストを共有';
 			case 'share.wowDidYouSeeThis': return 'ああ、見たの？';
 			case 'share.nameIs': return '名前は';
