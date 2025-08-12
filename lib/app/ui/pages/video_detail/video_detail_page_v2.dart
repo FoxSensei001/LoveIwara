@@ -58,34 +58,27 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     });
 
     if (videoId.isEmpty) {
-      LogUtils.e('视频ID为空', tag: 'video_detail_page_v2');
       return;
     }
-
-    LogUtils.i('初始化视频详情页 videoId: $videoId', 'video_detail_page_v2');
 
     // 初始化控制器
     try {
       controller = Get.put(MyVideoStateController(videoId, extData: widget.extData), tag: uniqueTag);
-      LogUtils.d('MyVideoStateController 初始化成功', 'video_detail_page_v2');
 
       commentController = Get.put(
         CommentController(id: videoId, type: CommentType.video),
         tag: uniqueTag,
       );
-      LogUtils.d('CommentController 初始化成功', 'video_detail_page_v2');
 
       relatedVideoController = Get.put(
         RelatedMediasController(mediaId: videoId, mediaType: MediaType.VIDEO),
         tag: uniqueTag,
       );
-      LogUtils.d('RelatedMediasController 初始化成功', 'video_detail_page_v2');
 
       // 注册路由变化回调
       HomeNavigationLayout.homeNavigatorObserver.addRouteChangeCallback(
         _onRouteChange,
       );
-      LogUtils.d('注册路由变化回调成功', 'video_detail_page_v2');
     } catch (e) {
       LogUtils.e('初始化控制器失败', tag: 'video_detail_page_v2', error: e);
     }
@@ -96,16 +89,16 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
   /// - `route`: 当前路由
   /// - `previousRoute`: 上一个路由
   void _onRouteChange(Route? route, Route? previousRoute) {
-    LogUtils.d(
-      "当前路由: ${route?.settings.name}, 上一个路由: ${previousRoute?.settings.name}, 操作类型: ${route?.isActive == true ? "进入" : "离开"}",
-      '详情页路由监听',
-    );
+    // LogUtils.d(
+    //   "当前路由: ${route?.settings.name}, 上一个路由: ${previousRoute?.settings.name}, 操作类型: ${route?.isActive == true ? "进入" : "离开"}",
+    //   '详情页路由监听',
+    // );
 
     // 如果操作类型是离开，上一个路由contains Routes.VIDEO_DETAIL，则setDefaultBrightness
     if (route?.isActive == false &&
         previousRoute?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) ==
             true) {
-      LogUtils.d('离开视频详情页，重置屏幕亮度', 'video_detail_page_v2');
+      // LogUtils.d('离开视频详情页，重置屏幕亮度', 'video_detail_page_v2');
       controller.setDefaultBrightness();
     }
 
@@ -115,7 +108,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
             true) {
       // 如果当前路由为null，则不pause
       if (route?.settings.name != null) {
-        LogUtils.d('进入非视频详情页，暂停播放', 'video_detail_page_v2');
+        // LogUtils.d('进入非视频详情页，暂停播放', 'video_detail_page_v2');
         controller.player.pause();
       }
     }
@@ -125,7 +118,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
         (previousRoute?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) ??
                 true) ==
             false) {
-      LogUtils.d('进入视频详情页，重置屏幕亮度', 'video_detail_page_v2');
+      // LogUtils.d('进入视频详情页，重置屏幕亮度', 'video_detail_page_v2');
       ScreenBrightness().resetApplicationScreenBrightness();
     }
 
@@ -133,15 +126,13 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     if (route?.isActive == false &&
         route?.settings.name?.contains(Routes.VIDEO_DETAIL_PREFIX) == true &&
         controller.isDesktopAppFullScreen.value) {
-      LogUtils.d('离开视频详情页，恢复系统UI', 'video_detail_page_v2');
+      // LogUtils.d('离开视频详情页，恢复系统UI', 'video_detail_page_v2');
       appService.showSystemUI();
     }
   }
 
   @override
   void dispose() {
-    LogUtils.i('销毁视频详情页', 'video_detail_page_v2');
-
     // 销毁Tab控制器
     tabController.dispose();
 
@@ -150,13 +141,11 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       HomeNavigationLayout.homeNavigatorObserver.removeRouteChangeCallback(
         _onRouteChange,
       );
-      LogUtils.d('移除路由变化回调成功', 'video_detail_page_v2');
 
       // 尝试删除controller
       Get.delete<MyVideoStateController>(tag: uniqueTag);
       Get.delete<CommentController>(tag: uniqueTag);
       Get.delete<RelatedMediasController>(tag: uniqueTag);
-      LogUtils.d('删除控制器成功', 'video_detail_page_v2');
     } catch (e) {
       LogUtils.e('销毁视频详情页失败', error: e, tag: 'video_detail_page_v2');
     }
@@ -245,7 +234,8 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
   ) {
     const double tabsAreaWidth = 350.0; // 固定Tab区域宽度，适当缩窄以优化播放器显示区域
 
-    if (controller.pageLoadingState.value == VideoDetailPageLoadingState.loadingVideoInfo) {
+    if (controller.pageLoadingState.value == VideoDetailPageLoadingState.loadingVideoInfo ||
+        controller.pageLoadingState.value == VideoDetailPageLoadingState.init) {
       return VideoDetailWideSkeletonWidget(controller: controller);
     }
 
@@ -260,14 +250,10 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
         // 左侧纯播放器区域（自适应宽度）
         Expanded(
           child: Obx(() {
-            // 如果是站外视频，直接显示站外视频内容
-            if (controller.videoInfo.value?.isExternalVideo == true) {
+            // 站外、站内视频都显示播放器
+            if (controller.videoInfo.value?.isExternalVideo == true || controller.videoPlayerReady.value) {
               return _buildPureVideoPlayer(screenSize.height, paddingTop);
             }
-            // 如果视频播放器准备好了，显示播放器
-            else if (controller.videoPlayerReady.value) {
-              return _buildPureVideoPlayer(screenSize.height, paddingTop);
-            } 
 
             // 否则显示骨架屏
             else {
@@ -292,7 +278,8 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     double paddingTop,
     slang.Translations t,
   ) {
-    if (controller.pageLoadingState.value == VideoDetailPageLoadingState.loadingVideoInfo) {
+    if (controller.pageLoadingState.value == VideoDetailPageLoadingState.loadingVideoInfo ||
+        controller.pageLoadingState.value == VideoDetailPageLoadingState.init) {
       return const MediaDetailInfoSkeletonWidget();
     }
 
@@ -331,8 +318,8 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                 children: [
                   // 视频播放器
                   Obx(() {
-                    // 如果是站外视频，直接显示站外视频内容
-                    if (controller.videoInfo.value?.isExternalVideo == true) {
+                    // 站外、站内视频都显示播放器
+                    if (controller.videoInfo.value?.isExternalVideo == true || controller.videoPlayerReady.value) {
                       return SizedBox(
                         width: screenSize.width,
                         height: controller.getCurrentVideoHeight(
@@ -343,10 +330,6 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                         child: _buildVideoPlayerContent(),
                       );
                     }
-                    // 如果视频播放器准备好了，显示播放器
-                    else if (controller.videoPlayerReady.value) {
-                      return _buildVideoPlayerForNestedScroll(screenSize, paddingTop);
-                    } 
 
                     // 否则显示骨架屏
                     else {

@@ -96,8 +96,12 @@ class CommonUtils {
     List<VideoResolution>? videoResolutions,
     String? resolutionTag,
   ) {
-    if (videoResolutions == null || resolutionTag == null) {
+    if (videoResolutions == null || videoResolutions.isEmpty) {
       return null;
+    }
+
+    if (resolutionTag == null || resolutionTag.isEmpty) {
+      return videoResolutions.first.url;
     }
 
     // 如果videoResolutions非空，先挑出第一个作为兜底
