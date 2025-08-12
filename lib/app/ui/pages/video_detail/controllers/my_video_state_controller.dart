@@ -45,6 +45,7 @@ enum VideoDetailPageLoadingState {
   addingListeners, // 添加监听器
   successFecthVideoDurationInfo, // 成功获取视频时长信息
   successFecthVideoHeightInfo, // 成功获取视频高度信息
+  playerError, // 播放器错误
 }
 
 class MyVideoStateController extends GetxController
@@ -118,6 +119,7 @@ class MyVideoStateController extends GetxController
   StreamSubscription<int?>? heightSubscription;
   StreamSubscription<bool>? playingSubscription;
   StreamSubscription<Duration>? bufferSubscription;
+  StreamSubscription<String>? errorSubscription; // 添加错误监听订阅
 
   Timer? _autoHideTimer;
   final _autoHideDelay = const Duration(seconds: 3); // 3秒后自动隐藏
@@ -655,6 +657,7 @@ class MyVideoStateController extends GetxController
       _cancelSubscriptions();
       _volumeListenerDisposer?.cancel();
       _pipStatusSubscription?.cancel();
+      errorSubscription?.cancel(); // 取消错误监听订阅
       LogUtils.d('所有订阅已取消', 'MyVideoStateController');
 
       // 释放播放器资源
@@ -728,6 +731,7 @@ class MyVideoStateController extends GetxController
       heightSubscription?.cancel() ?? Future.value(),
       playingSubscription?.cancel() ?? Future.value(),
       bufferSubscription?.cancel() ?? Future.value(),
+      errorSubscription?.cancel() ?? Future.value(), // 取消错误监听订阅
     ]);
   }
 
@@ -771,9 +775,7 @@ class MyVideoStateController extends GetxController
 
       // 并行执行其他任务，但不等待
       if (parallelTasks.isNotEmpty) {
-        Future.wait(
-          parallelTasks,
-        ).timeout(const Duration(seconds: 5)).catchError((e) {
+        Future.wait(parallelTasks).catchError((e) {
           if (!_isDisposed) {
             LogUtils.w('并行任务执行失败: $e', 'MyVideoStateController');
           }
@@ -787,9 +789,10 @@ class MyVideoStateController extends GetxController
         if (_isDisposed) return;
 
         // 1. 获取视频信息(私人视频会以异常的形式捕获)
-        var res = await _apiService
-            .get('/video/$videoId', cancelToken: _cancelToken)
-            .timeout(const Duration(seconds: 10));
+        var res = await _apiService.get(
+          '/video/$videoId',
+          cancelToken: _cancelToken,
+        );
 
         if (_isDisposed) return;
 
@@ -844,7 +847,7 @@ class MyVideoStateController extends GetxController
 
         // 等待所有任务完成，但设置超时
         if (parallelTasks.isNotEmpty) {
-          await Future.wait(parallelTasks).timeout(const Duration(seconds: 5));
+          await Future.wait(parallelTasks);
         }
       } on DioException catch (e) {
         if (_isDisposed || e.type == DioExceptionType.cancel) {
@@ -961,14 +964,15 @@ class MyVideoStateController extends GetxController
     try {
       if (!firstLoaded &&
           _configService[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS]) {
-        final history = await _playbackHistoryService
-            .getPlaybackHistory(videoId!)
-            .timeout(const Duration(seconds: 2));
+        final history = await _playbackHistoryService.getPlaybackHistory(
+          videoId!,
+        );
         if (_isDisposed) return;
 
         if (history != null) {
           final playedDuration = history['played_duration'] as int;
           final totalDurationMs = history['total_duration'] as int;
+          // 目标时播放位置 = 当前播放位置 - 4秒
           targetDuration = Duration(
             milliseconds: (playedDuration - 4000).clamp(0, totalDurationMs),
           );
@@ -1000,17 +1004,15 @@ class MyVideoStateController extends GetxController
     }
 
     try {
-      var res = await _apiService
-          .get(
+      var res = await _apiService.get(
+        videoInfo.value!.fileUrl!,
+        headers: {
+          'X-Version': XVersionCalculatorUtil.calculateXVersion(
             videoInfo.value!.fileUrl!,
-            headers: {
-              'X-Version': XVersionCalculatorUtil.calculateXVersion(
-                videoInfo.value!.fileUrl!,
-              ),
-            },
-            cancelToken: _cancelToken,
-          )
-          .timeout(const Duration(seconds: 15));
+          ),
+        },
+        cancelToken: _cancelToken,
+      );
 
       if (_isDisposed) return;
 
@@ -1119,9 +1121,7 @@ class MyVideoStateController extends GetxController
 
     try {
       // 打开新的视频源
-      await player
-          .open(Media(url, start: currentPosition), play: true)
-          .timeout(const Duration(seconds: 10));
+      await player.open(Media(url, start: currentPosition), play: true);
 
       if (_isDisposed) return;
 
@@ -1159,6 +1159,8 @@ class MyVideoStateController extends GetxController
     sliderDragLoadFinished.value = true;
     videoBuffering.value = true;
     videoPlaying.value = true;
+    videoErrorMessage.value = null; // 清空之前的错误信息
+    mainErrorWidget.value = null;
 
     // 设置播放模式
     if (_configService[ConfigKey.REPEAT_KEY]) {
@@ -1188,9 +1190,7 @@ class MyVideoStateController extends GetxController
 
     if (_isDisposed) return;
     try {
-      player
-          .open(Media(url, start: currentPosition), play: true)
-          .timeout(const Duration(seconds: 10));
+      player.open(Media(url, start: currentPosition), play: true);
       pageLoadingState.value = VideoDetailPageLoadingState.addingListeners;
     } catch (e) {
       if (_isDisposed) return;
@@ -1267,6 +1267,17 @@ class MyVideoStateController extends GetxController
       if (_isDisposed) return;
       _addBufferRange(bufferDuration);
     });
+
+    // 异常
+    errorSubscription = player.stream.error.listen((error) {
+      if (_isDisposed) return;
+      LogUtils.e('播放器错误: $error', tag: 'MyVideoStateController');
+      String errorMessage = CommonUtils.parseExceptionMessage(error);
+      videoPlayerReady.value = false;
+      // 将播放器内部错误显示给用户
+      videoSourceErrorMessage.value = errorMessage;
+      videoBuffering.value = false;
+    });
   }
 
   /// 更新视频宽高比
@@ -1280,7 +1291,6 @@ class MyVideoStateController extends GetxController
       '[更新后的宽高比] $aspectRatio, 视频高度: $sourceVideoHeight, 视频宽度: $sourceVideoWidth',
       'MyVideoStateController',
     );
-
   }
 
   /// 进入全屏模式
