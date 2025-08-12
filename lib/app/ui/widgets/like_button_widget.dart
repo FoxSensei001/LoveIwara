@@ -5,6 +5,7 @@ import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/vibrate_utils.dart';
+import 'package:i_iwara/utils/common_utils.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -70,9 +71,11 @@ class _LikeButtonWidgetState extends State<LikeButtonWidget> {
         widget.onLikeChanged?.call(_isLiked);
       }
     } catch (e) {
+      // 使用 CommonUtils.parseExceptionMessage 来获取详细的错误信息
+      final errorMessage = CommonUtils.parseExceptionMessage(e);
       showToastWidget(
         MDToastWidget(
-          message: t.errors.errorOccurred, 
+          message: errorMessage, 
           type: MDToastType.error,
         ),
         position: ToastPosition.top,

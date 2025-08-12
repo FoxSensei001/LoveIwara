@@ -3,7 +3,9 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/light_play_list.model.dart';
 import 'package:i_iwara/app/services/play_list_service.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
+import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:oktoast/oktoast.dart';
 
 class AddVideoToPlayListDialog extends StatefulWidget {
   final String videoId;
@@ -96,6 +98,15 @@ class _AddVideoToPlayListDialogState extends State<AddVideoToPlayListDialog> {
             );
             _filterPlaylists(_searchController.text);
           }
+        } else {
+          // 显示错误提示
+          showToastWidget(
+            MDToastWidget(
+              message: result.message,
+              type: MDToastType.error,
+            ),
+            position: ToastPosition.bottom,
+          );
         }
       });
     }
@@ -113,6 +124,23 @@ class _AddVideoToPlayListDialogState extends State<AddVideoToPlayListDialog> {
     if (result.isSuccess) {
       _newPlaylistController.clear();
       await _fetchPlaylists();
+      // 显示成功提示
+      showToastWidget(
+        MDToastWidget(
+          message: slang.t.common.success,
+          type: MDToastType.success,
+        ),
+        position: ToastPosition.bottom,
+      );
+    } else {
+      // 显示错误提示
+      showToastWidget(
+        MDToastWidget(
+          message: result.message,
+          type: MDToastType.error,
+        ),
+        position: ToastPosition.bottom,
+      );
     }
 
     if (mounted) {
@@ -194,9 +222,23 @@ class _AddVideoToPlayListDialogState extends State<AddVideoToPlayListDialog> {
             if (_error != null)
               Padding(
                 padding: const EdgeInsets.all(16),
-                child: Text(
-                  _error!,
-                  style: const TextStyle(color: Colors.red),
+                child: Column(
+                  children: [
+                    Text(
+                      _error!,
+                      style: const TextStyle(color: Colors.red),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    ElevatedButton.icon(
+                      onPressed: _fetchPlaylists,
+                      icon: const Icon(Icons.refresh, size: 16),
+                      label: Text(t.common.retry),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      ),
+                    ),
+                  ],
                 ),
               )
             else if (_isLoading && _playlists.isEmpty)
@@ -204,7 +246,24 @@ class _AddVideoToPlayListDialogState extends State<AddVideoToPlayListDialog> {
                 child: Center(child: CircularProgressIndicator()),
               )
             else if (_filteredPlaylists.isEmpty)
-              const Expanded(child: MyEmptyWidget())
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const MyEmptyWidget(),
+                    const SizedBox(height: 16),
+                    if (_playlists.isEmpty)
+                      Text(
+                        'No playlists available',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 14,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                  ],
+                ),
+              )
             else
               Expanded(
                 child: ListView.builder(

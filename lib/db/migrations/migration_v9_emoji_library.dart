@@ -73,7 +73,6 @@ class MigrationV9EmojiLibrary extends Migration {
       "https://emoji.discadia.com/emojis/9bfa9c86-3bc2-4015-90aa-3514b5710859.GIF",
       "https://emoji.discadia.com/emojis/1cb1b617-f7cc-400c-8e9a-843faf8d7aaf.PNG",
       "https://emoji.discadia.com/emojis/c45d895c-d59f-4019-af75-dc6089911544.GIF",
-      "https://emoji.discadia.com/emojis/ec3ca2d5-4b6c-4031-bda2-74bc93247b2d.GIF",
       "https://emoji.discadia.com/emojis/eeaba756-e3a3-436b-bec3-efcf8f2b389a.PNG",
       "https://emoji.discadia.com/emojis/bd8096f3-51b0-4eca-aa50-b95a12a4f13e.GIF",
       "https://emoji.discadia.com/emojis/1336f07e-74a3-4b0f-97a7-85ff4865e583.GIF",

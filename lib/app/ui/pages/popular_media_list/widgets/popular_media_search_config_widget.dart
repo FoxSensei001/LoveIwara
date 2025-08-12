@@ -47,21 +47,25 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
     _userPreferenceService = Get.find<UserPreferenceService>();
     tags = List.from(widget.searchTags);
     rating = widget.searchRating;
-    
+
     // 解析年份和月份
     final dateParts = widget.searchYear.split('-');
     year = dateParts.isNotEmpty ? dateParts[0] : '';
     month = dateParts.length > 1 ? dateParts[1] : '';
-    
+
     _selectedRating = MediaRating.values.firstWhere(
-        (MediaRating rating) => rating.value == widget.searchRating);
+      (MediaRating rating) => rating.value == widget.searchRating,
+    );
     LogUtils.d(
-        'tags: $tags, year: $year, month: $month, rating: $rating', 'PopularVideoSearchConfig');
+      'tags: $tags, year: $year, month: $month, rating: $rating',
+      'PopularVideoSearchConfig',
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
     final t = slang.Translations.of(context);
 
     if (screenWidth > 600) {
@@ -71,44 +75,49 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
           borderRadius: BorderRadius.circular(16), // 设置圆角
         ),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(
+          constraints: BoxConstraints(
             maxWidth: 1200,
             minWidth: 400,
+            maxHeight: screenHeight * 0.8, // 限制最大高度为屏幕高度的80%
           ),
           child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Stack(
-                children: [
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(t.settings.searchConfig, style: const TextStyle(fontSize: 20)),
-                      const SizedBox(height: 16),
-                      _buildPageContent(context),
-                    ],
-                  ),
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    child: IconButton(
-                      icon: const Icon(Icons.check),
-                      onPressed: () {
-                        // 组合年份和月份为最终的日期字符串
-                        String finalDate = '';
-                        if (year.isNotEmpty) {
-                          finalDate = year;
-                          if (month.isNotEmpty) {
-                            finalDate = '$year-$month';
-                          }
-                        }
-                        widget.onConfirm(tags, finalDate, _selectedRating.value);
-                        Navigator.of(context).pop();
-                      },
+            padding: const EdgeInsets.all(16.0),
+            child: Stack(
+              children: [
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      t.settings.searchConfig,
+                      style: const TextStyle(fontSize: 20),
                     ),
+                    const SizedBox(height: 16),
+                    Expanded(child: _buildPageContent(context)),
+                  ],
+                ),
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: IconButton(
+                    icon: const Icon(Icons.check),
+                    onPressed: () {
+                      // 组合年份和月份为最终的日期字符串
+                      String finalDate = '';
+                      if (year.isNotEmpty) {
+                        finalDate = year;
+                        if (month.isNotEmpty) {
+                          finalDate = '$year-$month';
+                        }
+                      }
+                      widget.onConfirm(tags, finalDate, _selectedRating.value);
+                      Navigator.of(context).pop();
+                    },
                   ),
-                ],
-              )),
+                ),
+              ],
+            ),
+          ),
         ),
       );
     } else {
@@ -163,7 +172,10 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('${t.search.contentRating}: ', style: const TextStyle(fontSize: 16)).paddingBottom(8),
+        Text(
+          '${t.search.contentRating}: ',
+          style: const TextStyle(fontSize: 16),
+        ).paddingBottom(8),
         SegmentedButton<MediaRating>(
           segments: MediaRating.values.map((MediaRating rating) {
             return ButtonSegment<MediaRating>(
@@ -192,21 +204,29 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('${t.common.year}: ', style: const TextStyle(fontSize: 16)).paddingBottom(8),
-        ScrollConfiguration(
-          behavior: ScrollConfiguration.of(context).copyWith(
-            dragDevices: {
-              PointerDeviceKind.touch, // 触摸设备
-              PointerDeviceKind.mouse, // 鼠标设备
-            },
-            scrollbars: true,
-          ),
+        Text(
+          '${t.common.year}: ',
+          style: const TextStyle(fontSize: 16),
+        ).paddingBottom(8),
+        MouseRegion(
+          cursor: SystemMouseCursors.click,
           child: Listener(
             onPointerSignal: (pointerSignal) {
               if (pointerSignal is PointerScrollEvent) {
-                _scrollController.jumpTo(
-                  _scrollController.position.pixels +
-                      pointerSignal.scrollDelta.dy,
+                // 将垂直滚动转换为水平滚动
+                final scrollDelta = pointerSignal.scrollDelta.dy;
+                final newPosition =
+                    _scrollController.position.pixels - scrollDelta;
+
+                // 确保滚动位置在有效范围内
+                final maxScrollExtent =
+                    _scrollController.position.maxScrollExtent;
+                final clampedPosition = newPosition.clamp(0.0, maxScrollExtent);
+
+                _scrollController.animateTo(
+                  clampedPosition,
+                  duration: const Duration(milliseconds: 150),
+                  curve: Curves.easeOut,
                 );
               }
             },
@@ -263,25 +283,33 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
   // 构建月份选择部分
   Widget _buildMonthSelectionSection(BuildContext context) {
     final t = slang.Translations.of(context);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('${t.common.month}: ', style: const TextStyle(fontSize: 16)).paddingBottom(8),
-        ScrollConfiguration(
-          behavior: ScrollConfiguration.of(context).copyWith(
-            dragDevices: {
-              PointerDeviceKind.touch, // 触摸设备
-              PointerDeviceKind.mouse, // 鼠标设备
-            },
-            scrollbars: true,
-          ),
+        Text(
+          '${t.common.month}: ',
+          style: const TextStyle(fontSize: 16),
+        ).paddingBottom(8),
+        MouseRegion(
+          cursor: SystemMouseCursors.click,
           child: Listener(
             onPointerSignal: (pointerSignal) {
               if (pointerSignal is PointerScrollEvent) {
-                _monthScrollController.jumpTo(
-                  _monthScrollController.position.pixels +
-                      pointerSignal.scrollDelta.dy,
+                // 将垂直滚动转换为水平滚动
+                final scrollDelta = pointerSignal.scrollDelta.dy;
+                final newPosition =
+                    _monthScrollController.position.pixels - scrollDelta;
+
+                // 确保滚动位置在有效范围内
+                final maxScrollExtent =
+                    _monthScrollController.position.maxScrollExtent;
+                final clampedPosition = newPosition.clamp(0.0, maxScrollExtent);
+
+                _monthScrollController.animateTo(
+                  clampedPosition,
+                  duration: const Duration(milliseconds: 150),
+                  curve: Curves.easeOut,
                 );
               }
             },
@@ -298,13 +326,15 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
                       child: ChoiceChip(
                         label: Text(t.common.all),
                         selected: month.isEmpty,
-                        onSelected: year.isEmpty ? null : (bool selected) {
-                          if (selected) {
-                            setState(() {
-                              month = '';
-                            });
-                          }
-                        },
+                        onSelected: year.isEmpty
+                            ? null
+                            : (bool selected) {
+                                if (selected) {
+                                  setState(() {
+                                    month = '';
+                                  });
+                                }
+                              },
                       ),
                     );
                   } else {
@@ -314,13 +344,15 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
                       child: ChoiceChip(
                         label: Text(monthValue),
                         selected: month == monthValue,
-                        onSelected: year.isEmpty ? null : (bool selected) {
-                          if (selected) {
-                            setState(() {
-                              month = monthValue;
-                            });
-                          }
-                        },
+                        onSelected: year.isEmpty
+                            ? null
+                            : (bool selected) {
+                                if (selected) {
+                                  setState(() {
+                                    month = monthValue;
+                                  });
+                                }
+                              },
                       ),
                     );
                   }
@@ -357,12 +389,14 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
                         return RemoveSearchTagDialog(
                           onRemoveIds: (List<String> removedTags) {
                             for (var id in removedTags) {
-                              _userPreferenceService
-                                  .removeVideoSearchTagById(id);
+                              _userPreferenceService.removeVideoSearchTagById(
+                                id,
+                              );
                             }
                             setState(() {
                               tags.removeWhere(
-                                  (tag) => removedTags.contains(tag.id));
+                                (tag) => removedTags.contains(tag.id),
+                              );
                             });
                           },
                           videoSearchTagHistory:
@@ -387,7 +421,7 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
                   },
                 ),
               ],
-            )
+            ),
           ],
         ).paddingBottom(8),
         Obx(() {
@@ -417,7 +451,7 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
               );
             }).toList(),
           );
-        })
+        }),
       ],
     );
   }

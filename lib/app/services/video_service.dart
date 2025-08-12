@@ -186,26 +186,14 @@ class VideoService extends GetxService {
 
   /// 点赞视频
   Future<ApiResult<void>> likeVideo(String mediaId) async {
-    try {
-      await _apiService.post(ApiConstants.likeVideo(mediaId));
-      return ApiResult.success();
-    } catch (e) {
-      LogUtils.e('点赞视频失败', tag: 'VideoService', error: e);
-      final errorMessage = CommonUtils.parseExceptionMessage(e);
-      return ApiResult.fail(errorMessage, exception: e);
-    }
+    await _apiService.post(ApiConstants.likeVideo(mediaId));
+    return ApiResult.success();
   }
 
   /// 取消点赞视频
   Future<ApiResult<void>> unlikeVideo(String mediaId) async {
-    try {
-      await _apiService.delete(ApiConstants.likeVideo(mediaId));
-      return ApiResult.success();
-    } catch (e) {
-      LogUtils.e('取消点赞视频失败', tag: 'VideoService', error: e);
-      final errorMessage = CommonUtils.parseExceptionMessage(e);
-      return ApiResult.fail(errorMessage, exception: e);
-    }
+    await _apiService.delete(ApiConstants.likeVideo(mediaId));
+    return ApiResult.success();
   }
 
   /// 获取视频详情

@@ -27,7 +27,8 @@ class TagVideoSearchConfigWidget extends StatefulWidget {
       _TagVideoSearchConfigWidgetState();
 }
 
-class _TagVideoSearchConfigWidgetState extends State<TagVideoSearchConfigWidget> {
+class _TagVideoSearchConfigWidgetState
+    extends State<TagVideoSearchConfigWidget> {
   late String year;
   late String month;
   late MediaRating _selectedRating;
@@ -37,15 +38,16 @@ class _TagVideoSearchConfigWidgetState extends State<TagVideoSearchConfigWidget>
   @override
   void initState() {
     super.initState();
-    
+
     // 解析年份和月份
     final dateParts = widget.searchYear.split('-');
     year = dateParts.isNotEmpty ? dateParts[0] : '';
     month = dateParts.length > 1 ? dateParts[1] : '';
-    
+
     _selectedRating = MediaRating.values.firstWhere(
-        (MediaRating rating) => rating.value == widget.searchRating,
-        orElse: () => MediaRating.ALL);
+      (MediaRating rating) => rating.value == widget.searchRating,
+      orElse: () => MediaRating.ALL,
+    );
   }
 
   @override
@@ -58,18 +60,18 @@ class _TagVideoSearchConfigWidgetState extends State<TagVideoSearchConfigWidget>
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
     final t = slang.Translations.of(context);
 
     if (screenWidth > 600) {
       // 屏幕宽度大于600，使用Dialog形式展示
       return Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(
+          constraints: BoxConstraints(
             maxWidth: 800,
             minWidth: 400,
+            maxHeight: screenHeight * 0.8, // 限制最大高度为屏幕高度的80%
           ),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -79,9 +81,12 @@ class _TagVideoSearchConfigWidgetState extends State<TagVideoSearchConfigWidget>
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(t.settings.searchConfig, style: const TextStyle(fontSize: 20)),
+                    Text(
+                      t.settings.searchConfig,
+                      style: const TextStyle(fontSize: 20),
+                    ),
                     const SizedBox(height: 16),
-                    _buildPageContent(context),
+                    Expanded(child: _buildPageContent(context)),
                   ],
                 ),
                 Positioned(
@@ -132,22 +137,26 @@ class _TagVideoSearchConfigWidgetState extends State<TagVideoSearchConfigWidget>
 
   Widget _buildPageContent(BuildContext context) {
     final t = slang.Translations.of(context);
-    
+
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // 显示当前固定的标签
           if (widget.fixedTags.isNotEmpty) ...[
-            Text('${t.common.tag}: ', style: const TextStyle(fontSize: 16))
-                .paddingBottom(8),
+            Text(
+              '${t.common.tag}: ',
+              style: const TextStyle(fontSize: 16),
+            ).paddingBottom(8),
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: widget.fixedTags.map((tag) {
                 return Chip(
                   label: Text(tag.id),
-                  backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.primaryContainer,
                 );
               }).toList(),
             ).paddingBottom(16),
@@ -165,8 +174,10 @@ class _TagVideoSearchConfigWidgetState extends State<TagVideoSearchConfigWidget>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('${t.search.contentRating}: ', style: const TextStyle(fontSize: 16))
-            .paddingBottom(8),
+        Text(
+          '${t.search.contentRating}: ',
+          style: const TextStyle(fontSize: 16),
+        ).paddingBottom(8),
         SegmentedButton<MediaRating>(
           segments: MediaRating.values.map((MediaRating rating) {
             return ButtonSegment<MediaRating>(
@@ -193,22 +204,29 @@ class _TagVideoSearchConfigWidgetState extends State<TagVideoSearchConfigWidget>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('${t.common.year}: ', style: const TextStyle(fontSize: 16))
-            .paddingBottom(8),
-        ScrollConfiguration(
-          behavior: ScrollConfiguration.of(context).copyWith(
-            dragDevices: {
-              PointerDeviceKind.touch,
-              PointerDeviceKind.mouse,
-            },
-            scrollbars: true,
-          ),
+        Text(
+          '${t.common.year}: ',
+          style: const TextStyle(fontSize: 16),
+        ).paddingBottom(8),
+        MouseRegion(
+          cursor: SystemMouseCursors.click,
           child: Listener(
             onPointerSignal: (pointerSignal) {
               if (pointerSignal is PointerScrollEvent) {
-                _scrollController.jumpTo(
-                  _scrollController.position.pixels +
-                      pointerSignal.scrollDelta.dy,
+                // 将垂直滚动转换为水平滚动
+                final scrollDelta = pointerSignal.scrollDelta.dy;
+                final newPosition =
+                    _scrollController.position.pixels - scrollDelta;
+
+                // 确保滚动位置在有效范围内
+                final maxScrollExtent =
+                    _scrollController.position.maxScrollExtent;
+                final clampedPosition = newPosition.clamp(0.0, maxScrollExtent);
+
+                _scrollController.animateTo(
+                  clampedPosition,
+                  duration: const Duration(milliseconds: 150),
+                  curve: Curves.easeOut,
                 );
               }
             },
@@ -264,26 +282,33 @@ class _TagVideoSearchConfigWidgetState extends State<TagVideoSearchConfigWidget>
 
   Widget _buildMonthSelectionSection(BuildContext context) {
     final t = slang.Translations.of(context);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('${t.common.month}: ', style: const TextStyle(fontSize: 16))
-            .paddingBottom(8),
-        ScrollConfiguration(
-          behavior: ScrollConfiguration.of(context).copyWith(
-            dragDevices: {
-              PointerDeviceKind.touch,
-              PointerDeviceKind.mouse,
-            },
-            scrollbars: true,
-          ),
+        Text(
+          '${t.common.month}: ',
+          style: const TextStyle(fontSize: 16),
+        ).paddingBottom(8),
+        MouseRegion(
+          cursor: SystemMouseCursors.click,
           child: Listener(
             onPointerSignal: (pointerSignal) {
               if (pointerSignal is PointerScrollEvent) {
-                _monthScrollController.jumpTo(
-                  _monthScrollController.position.pixels +
-                      pointerSignal.scrollDelta.dy,
+                // 将垂直滚动转换为水平滚动
+                final scrollDelta = pointerSignal.scrollDelta.dy;
+                final newPosition =
+                    _monthScrollController.position.pixels - scrollDelta;
+
+                // 确保滚动位置在有效范围内
+                final maxScrollExtent =
+                    _monthScrollController.position.maxScrollExtent;
+                final clampedPosition = newPosition.clamp(0.0, maxScrollExtent);
+
+                _monthScrollController.animateTo(
+                  clampedPosition,
+                  duration: const Duration(milliseconds: 150),
+                  curve: Curves.easeOut,
                 );
               }
             },
@@ -300,13 +325,15 @@ class _TagVideoSearchConfigWidgetState extends State<TagVideoSearchConfigWidget>
                       child: ChoiceChip(
                         label: Text(t.common.all),
                         selected: month.isEmpty,
-                        onSelected: year.isEmpty ? null : (bool selected) {
-                          if (selected) {
-                            setState(() {
-                              month = '';
-                            });
-                          }
-                        },
+                        onSelected: year.isEmpty
+                            ? null
+                            : (bool selected) {
+                                if (selected) {
+                                  setState(() {
+                                    month = '';
+                                  });
+                                }
+                              },
                       ),
                     );
                   } else {
@@ -316,13 +343,15 @@ class _TagVideoSearchConfigWidgetState extends State<TagVideoSearchConfigWidget>
                       child: ChoiceChip(
                         label: Text(monthValue),
                         selected: month == monthValue,
-                        onSelected: year.isEmpty ? null : (bool selected) {
-                          if (selected) {
-                            setState(() {
-                              month = monthValue;
-                            });
-                          }
-                        },
+                        onSelected: year.isEmpty
+                            ? null
+                            : (bool selected) {
+                                if (selected) {
+                                  setState(() {
+                                    month = monthValue;
+                                  });
+                                }
+                              },
                       ),
                     );
                   }

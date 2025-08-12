@@ -38,6 +38,7 @@ class SearchDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
     double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
 
     if (screenWidth > 600) {
       return Dialog(
@@ -45,9 +46,10 @@ class SearchDialog extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
         ),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(
+          constraints: BoxConstraints(
             maxWidth: 800,
             minWidth: 400,
+            maxHeight: screenHeight * 0.8, // 限制最大高度为屏幕高度的80%
           ),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -70,10 +72,12 @@ class SearchDialog extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 // 搜索内容
-                _SearchContent(
-                    initialSearch: initialSearch,
-                    initialSegment: initialSegment,
-                    onSearch: onSearch),
+                Expanded(
+                  child: _SearchContent(
+                      initialSearch: initialSearch,
+                      initialSegment: initialSegment,
+                      onSearch: onSearch),
+                ),
               ],
             ),
           ),
@@ -257,358 +261,347 @@ class _SearchContentState extends State<_SearchContent> {
     bool isWide = width > 600;
     
     // 构建搜索内容
-    Widget searchContent = LayoutBuilder(
-      builder: (context, constraints) {
-        return SingleChildScrollView(
-          controller: _scrollController,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: constraints.maxHeight,
-            ),
-            child: Column(
-              children: [
-                // 搜索输入框区域
-                Container(
-                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-                  child: Material(
-                    elevation: 1,
-                    color: Theme.of(context).colorScheme.surfaceContainer,
-                    borderRadius: BorderRadius.circular(12),
-                    clipBehavior: Clip.hardEdge,
-                    child: Obx(() => TextField(
-                          controller: _controller,
-                          focusNode: _focusNode,
-                          autofocus: true,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: _searchPlaceholder.value.isEmpty
-                                ? t.search.pleaseEnterSearchContent
-                                : '${t.search.searchSuggestion}: ${_searchPlaceholder.value}',
-                            hintStyle: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                            border: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                            suffixIcon: IconButton(
-                              icon: const Icon(Icons.close),
-                              onPressed: () {
-                                _controller.clear();
-                                _searchErrorText.value = '';
-                                _searchPlaceholder.value = '';
-                                _focusNode.requestFocus();
-                              },
-                            ),
-                            filled: true,
-                            fillColor: Colors.transparent,
-                            errorText: _searchErrorText.value.isEmpty
-                                ? null
-                                : _searchErrorText.value,
-                          ),
-                          onChanged: (value) {
-                            _searchErrorText.value = '';
-                          },
-                          onSubmitted: _handleSubmit,
-                        )),
-                  ),
-                ),
-                
-                // 分段选择器和搜索按钮区域
-                Container(
-                  padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      // 分段选择下拉框
-                      Container(
-                        margin: const EdgeInsets.only(right: 8),
-                        height: 44,
-                        child: Obx(
-                          () => PopupMenuButton<String>(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            initialValue: _selectedSegment.value,
-                            onSelected: (String newValue) {
-                              _selectedSegment.value = newValue;
-                            },
-                            itemBuilder: (BuildContext context) {
-                              return [
-                                PopupMenuItem<String>(
-                                  value: 'video',
-                                  child: Row(
-                                    children: [
-                                      const Icon(Icons.video_library, size: 20),
-                                      const SizedBox(width: 8),
-                                      Text(t.common.video),
-                                    ],
-                                  ),
-                                ),
-                                PopupMenuItem<String>(
-                                  value: 'image',
-                                  child: Row(
-                                    children: [
-                                      const Icon(Icons.image, size: 20),
-                                      const SizedBox(width: 8),
-                                      Text(t.common.gallery),
-                                    ],
-                                  ),
-                                ),
-                                PopupMenuItem<String>(
-                                  value: 'post',
-                                  child: Row(
-                                    children: [
-                                      const Icon(Icons.article, size: 20),
-                                      const SizedBox(width: 8),
-                                      Text(t.common.post),
-                                    ],
-                                  ),
-                                ),
-                                PopupMenuItem<String>(
-                                  value: 'user',
-                                  child: Row(
-                                    children: [
-                                      const Icon(Icons.person, size: 20),
-                                      const SizedBox(width: 8),
-                                      Text(t.common.user),
-                                    ],
-                                  ),
-                                ),
-                                PopupMenuItem<String>(
-                                  value: 'forum',
-                                  child: Row(
-                                    children: [
-                                      const Icon(Icons.forum, size: 20),
-                                      const SizedBox(width: 8),
-                                      Text(t.forum.forum),
-                                    ],
-                                  ),
-                                ),
-                                PopupMenuItem<String>(
-                                  value: 'oreno3d',
-                                  child: Row(
-                                    children: [
-                                      const Icon(Icons.view_in_ar, size: 20),
-                                      const SizedBox(width: 8),
-                                      Text('Oreno3D'),
-                                    ],
-                                  ),
-                                ),
-                              ];
-                            },
-                            child: Material(
-                              borderRadius: BorderRadius.circular(12),
-                              color: Theme.of(context).colorScheme.surfaceContainer,
-                              elevation: 1,
-                              clipBehavior: Clip.hardEdge,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 10,
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    _getSegmentIcon(_selectedSegment.value),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      _getSegmentLabel(_selectedSegment.value, t),
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Icon(
-                                      Icons.arrow_drop_down,
-                                      size: 20,
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
+    Widget searchContent = SingleChildScrollView(
+      controller: _scrollController,
+      child: Column(
+        children: [
+          // 搜索输入框区域
+          Container(
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+            child: Material(
+              elevation: 1,
+              color: Theme.of(context).colorScheme.surfaceContainer,
+              borderRadius: BorderRadius.circular(12),
+              clipBehavior: Clip.hardEdge,
+              child: Obx(() => TextField(
+                    controller: _controller,
+                    focusNode: _focusNode,
+                    autofocus: true,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: _searchPlaceholder.value.isEmpty
+                          ? t.search.pleaseEnterSearchContent
+                          : '${t.search.searchSuggestion}: ${_searchPlaceholder.value}',
+                      hintStyle: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
-                      // 搜索按钮
-                      Container(
-                        height: 44,
-                        child: Material(
-                          borderRadius: BorderRadius.circular(12),
-                          color: Theme.of(context).colorScheme.primary,
-                          elevation: 1,
-                          clipBehavior: Clip.hardEdge,
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(12),
-                            onTap: () => _handleSubmit(_controller.text),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 10,
-                              ),
-                              child: const Icon(
-                                Icons.search,
-                                color: Colors.white,
-                                size: 24,
-                              ),
-                            ),
-                          ),
-                        ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
                       ),
-                    ],
-                  ),
-                ),
-                
-                // 谷歌搜索辅助功能
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(6, 0, 6, 0),
-                  child: GoogleSearchPanelWidget(
-                    scrollController: _scrollController,
-                  ),
-                ),
-                
-                // 历史记录标题
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Wrap(
-                    spacing: 12,
-                    runSpacing: 12,
-                    alignment: WrapAlignment.center,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            t.search.searchHistory,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Obx(() => Material(
-                                color: Colors.grey[100],
-                                borderRadius: BorderRadius.circular(20),
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(20),
-                                  onTap: () {
-                                    userPreferenceService.setSearchRecordEnabled(
-                                        !userPreferenceService.searchRecordEnabled.value);
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 6),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(
-                                          userPreferenceService.searchRecordEnabled.value
-                                              ? Icons.history
-                                              : Icons.history_toggle_off,
-                                          size: 18,
-                                          color: userPreferenceService
-                                                  .searchRecordEnabled.value
-                                              ? Theme.of(context).primaryColor
-                                              : Colors.grey,
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          userPreferenceService.searchRecordEnabled.value
-                                              ? t.common.recording
-                                              : t.common.paused,
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: userPreferenceService
-                                                    .searchRecordEnabled.value
-                                                ? Theme.of(context).primaryColor
-                                                : Colors.grey,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              )),
-                          if (userPreferenceService.videoSearchHistory.isNotEmpty) ...[
-                            const SizedBox(width: 8),
-                            TextButton.icon(
-                              onPressed: _clearHistory,
-                              icon: const Icon(Icons.delete_outline, size: 18),
-                              label: Text(t.common.clear),
-                              style: TextButton.styleFrom(
-                                foregroundColor: Theme.of(context).colorScheme.error,
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                
-                // 历史记录列表
-                Obx(() {
-                  if (userPreferenceService.videoSearchHistory.isEmpty) {
-                    return Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(32.0),
-                        child: Text(t.search.noSearchHistoryRecords),
-                      ),
-                    );
-                  }
-                  
-                  return ListView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: userPreferenceService.videoSearchHistory.length,
-                    itemBuilder: (context, index) {
-                      final record = userPreferenceService.videoSearchHistory[index];
-                      return ListTile(
-                        leading: const Icon(Icons.history),
-                        title: Text(record.keyword),
-                        subtitle: Text(
-                          '${t.search.usedTimes}: ${record.usedTimes} · ${t.search.lastUsed}: ${record.lastUsedAt.toString().split('.')[0]}',
-                          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                        ),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.close, size: 18),
-                          onPressed: () => _removeHistoryItem(index),
-                        ),
-                        onTap: () {
-                          _controller.text = record.keyword;
-                          _handleSubmit(record.keyword);
+                      border: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () {
+                          _controller.clear();
+                          _searchErrorText.value = '';
+                          _searchPlaceholder.value = '';
+                          _focusNode.requestFocus();
                         },
-                      );
+                      ),
+                      filled: true,
+                      fillColor: Colors.transparent,
+                      errorText: _searchErrorText.value.isEmpty
+                          ? null
+                          : _searchErrorText.value,
+                    ),
+                    onChanged: (value) {
+                      _searchErrorText.value = '';
                     },
-                  );
-                }),
-                
-                // 底部空白区域，确保滚动内容可见
-                const SizedBox(height: 24),
+                    onSubmitted: _handleSubmit,
+                  )),
+            ),
+          ),
+          
+          // 分段选择器和搜索按钮区域
+          Container(
+            padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                // 分段选择下拉框
+                Container(
+                  margin: const EdgeInsets.only(right: 8),
+                  height: 44,
+                  child: Obx(
+                    () => PopupMenuButton<String>(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      initialValue: _selectedSegment.value,
+                      onSelected: (String newValue) {
+                        _selectedSegment.value = newValue;
+                      },
+                      itemBuilder: (BuildContext context) {
+                        return [
+                          PopupMenuItem<String>(
+                            value: 'video',
+                            child: Row(
+                              children: [
+                                const Icon(Icons.video_library, size: 20),
+                                const SizedBox(width: 8),
+                                Text(t.common.video),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem<String>(
+                            value: 'image',
+                            child: Row(
+                              children: [
+                                const Icon(Icons.image, size: 20),
+                                const SizedBox(width: 8),
+                                Text(t.common.gallery),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem<String>(
+                            value: 'post',
+                            child: Row(
+                              children: [
+                                const Icon(Icons.article, size: 20),
+                                const SizedBox(width: 8),
+                                Text(t.common.post),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem<String>(
+                            value: 'user',
+                            child: Row(
+                              children: [
+                                const Icon(Icons.person, size: 20),
+                                const SizedBox(width: 8),
+                                Text(t.common.user),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem<String>(
+                            value: 'forum',
+                            child: Row(
+                              children: [
+                                const Icon(Icons.forum, size: 20),
+                                const SizedBox(width: 8),
+                                Text(t.forum.forum),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem<String>(
+                            value: 'oreno3d',
+                            child: Row(
+                              children: [
+                                const Icon(Icons.view_in_ar, size: 20),
+                                const SizedBox(width: 8),
+                                Text('Oreno3D'),
+                              ],
+                            ),
+                          ),
+                        ];
+                      },
+                      child: Material(
+                        borderRadius: BorderRadius.circular(12),
+                        color: Theme.of(context).colorScheme.surfaceContainer,
+                        elevation: 1,
+                        clipBehavior: Clip.hardEdge,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _getSegmentIcon(_selectedSegment.value),
+                              const SizedBox(width: 4),
+                              Text(
+                                _getSegmentLabel(_selectedSegment.value, t),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Icon(
+                                Icons.arrow_drop_down,
+                                size: 20,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                // 搜索按钮
+                Container(
+                  height: 44,
+                  child: Material(
+                    borderRadius: BorderRadius.circular(12),
+                    color: Theme.of(context).colorScheme.primary,
+                    elevation: 1,
+                    clipBehavior: Clip.hardEdge,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () => _handleSubmit(_controller.text),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        child: const Icon(
+                          Icons.search,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
-        );
-      }
+          
+          // 谷歌搜索辅助功能
+          Padding(
+            padding: const EdgeInsets.fromLTRB(6, 0, 6, 0),
+            child: GoogleSearchPanelWidget(
+              scrollController: _scrollController,
+            ),
+          ),
+          
+          // 历史记录标题
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      t.search.searchHistory,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Obx(() => Material(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(20),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(20),
+                            onTap: () {
+                              userPreferenceService.setSearchRecordEnabled(
+                                  !userPreferenceService.searchRecordEnabled.value);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 6),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    userPreferenceService.searchRecordEnabled.value
+                                        ? Icons.history
+                                        : Icons.history_toggle_off,
+                                    size: 18,
+                                    color: userPreferenceService
+                                            .searchRecordEnabled.value
+                                        ? Theme.of(context).primaryColor
+                                        : Colors.grey,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    userPreferenceService.searchRecordEnabled.value
+                                        ? t.common.recording
+                                        : t.common.paused,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: userPreferenceService
+                                              .searchRecordEnabled.value
+                                          ? Theme.of(context).primaryColor
+                                          : Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        )),
+                    if (userPreferenceService.videoSearchHistory.isNotEmpty) ...[
+                      const SizedBox(width: 8),
+                      TextButton.icon(
+                        onPressed: _clearHistory,
+                        icon: const Icon(Icons.delete_outline, size: 18),
+                        label: Text(t.common.clear),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ],
+            ),
+          ),
+          
+          // 历史记录列表
+          Obx(() {
+            if (userPreferenceService.videoSearchHistory.isEmpty) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(32.0),
+                  child: Text(t.search.noSearchHistoryRecords),
+                ),
+              );
+            }
+            
+            return ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: userPreferenceService.videoSearchHistory.length,
+              itemBuilder: (context, index) {
+                final record = userPreferenceService.videoSearchHistory[index];
+                return ListTile(
+                  leading: const Icon(Icons.history),
+                  title: Text(record.keyword),
+                  subtitle: Text(
+                    '${t.search.usedTimes}: ${record.usedTimes} · ${t.search.lastUsed}: ${record.lastUsedAt.toString().split('.')[0]}',
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  ),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.close, size: 18),
+                    onPressed: () => _removeHistoryItem(index),
+                  ),
+                  onTap: () {
+                    _controller.text = record.keyword;
+                    _handleSubmit(record.keyword);
+                  },
+                );
+              },
+            );
+          }),
+          
+          // 底部空白区域，确保滚动内容可见
+          const SizedBox(height: 24),
+        ],
+      ),
     );
 
     if (isWide) {
-      return Expanded(
-        child: searchContent,
-      );
+      return searchContent;
     }
 
     return Material(
