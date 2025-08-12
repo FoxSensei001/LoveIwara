@@ -138,8 +138,7 @@ class MyVideoStateController extends GetxController
   // 添加一个新的变量来跟踪是否正在等待seek完成
   final RxBool isWaitingForSeek = false.obs;
 
-  // 添加一个标志位来跟踪是否正在切换清晰度
-  final RxBool isSwitchingResolution = false.obs;
+
 
   // 添加一个标志位，表示是否正在通过手势调节音量
   bool _isAdjustingVolumeByGesture = false;
@@ -183,6 +182,10 @@ class MyVideoStateController extends GetxController
   // 添加倍速播放防抖定时器
   Timer? _speedChangeDebouncer;
   Timer? _bufferUpdateThrottleTimer;
+
+  // 无缝切换分辨率时的状态管理
+  bool _isSeamlessSwitching = false;
+  Duration? _pendingSeekPosition;
 
   // 滚动相关状态管理
   final RxDouble scrollRatio = 0.0.obs; // 滚动比例
@@ -592,7 +595,6 @@ class MyVideoStateController extends GetxController
     }
     
     // 重置状态标志
-    isSwitchingResolution.value = false;
 
     // 取消网络请求
     _cancelToken.cancel("Controller is being disposed");
@@ -955,15 +957,77 @@ class MyVideoStateController extends GetxController
       return;
     }
 
-    // 设置切换清晰度标志
-    isSwitchingResolution.value = true;
+    // 如果播放器已经准备好，使用无缝切换模式
+    if (videoPlayerReady.value) {
+      await _switchResolutionSeamlessly(resolutionTag, url);
+    } else {
+      // 如果播放器还未准备好，使用原有的重置模式
+      await resetVideoInfo(
+        title: videoInfo.value!.title ?? '',
+        resolutionTag: resolutionTag,
+        videoResolutions: videoResolutions.toList(),
+        position: currentPosition,
+      );
+    }
+  }
 
-    await resetVideoInfo(
-      title: videoInfo.value!.title ?? '',
-      resolutionTag: resolutionTag,
-      videoResolutions: videoResolutions.toList(),
-      position: currentPosition,
-    );
+  /// 无缝切换分辨率（不显示骨架屏）
+  Future<void> _switchResolutionSeamlessly(String resolutionTag, String url) async {
+    if (_isDisposed) return;
+
+    LogUtils.i('[无缝切换分辨率] $resolutionTag', 'MyVideoStateController');
+
+    // 保存当前播放状态和位置
+    final currentPos = currentPosition;
+    final wasPlaying = videoPlaying.value;
+
+    // 设置无缝切换状态
+    _isSeamlessSwitching = true;
+    _pendingSeekPosition = currentPos;
+
+    // 设置缓冲状态，显示 loading 动画
+    videoBuffering.value = true;
+
+    // 取消现有订阅但不重置 videoPlayerReady
+    await _cancelSubscriptions();
+    if (_isDisposed) return;
+
+    // 清理缓冲区
+    _clearBuffers();
+
+    // 更新分辨率信息
+    currentResolutionTag.value = resolutionTag;
+    sliderDragLoadFinished.value = true;
+
+    try {
+      // 打开新的视频源
+      await player.open(Media(url), play: false).timeout(const Duration(seconds: 10));
+
+      if (_isDisposed) return;
+
+      // 恢复播放状态（但不立即 seek，等待元数据加载完成）
+      if (wasPlaying) {
+        player.play();
+      }
+
+      // 重新设置监听器（包括 buffering 监听器）
+      _setupListenersAfterOpen();
+
+      LogUtils.d('[无缝切换分辨率完成] $resolutionTag', 'MyVideoStateController');
+
+    } catch (e) {
+      if (_isDisposed) return;
+      LogUtils.e('无缝切换分辨率失败: $e', tag: 'MyVideoStateController', error: e);
+
+      // 切换失败时清理状态
+      _isSeamlessSwitching = false;
+      _pendingSeekPosition = null;
+      videoBuffering.value = false;
+
+      // 如果无缝切换失败，回退到重置模式
+      videoErrorMessage.value = '${slang.t.videoDetail.player.errorWhileLoadingVideoSource}: $e';
+
+    }
   }
 
   /// 重置视频信息并加载新视频
@@ -973,14 +1037,10 @@ class MyVideoStateController extends GetxController
     required List<VideoResolution> videoResolutions,
     Duration position = Duration.zero,
   }) async {
-    if (_isDisposed) return;
     LogUtils.i('[重置视频] $title $resolutionTag $videoResolutions $position', 'MyVideoStateController');
 
     if (_isDisposed) return;
     await _cancelSubscriptions();
-    if (_isDisposed) return;
-
-    _clearBuffers();
 
     videoPlayerReady.value = false;
     this.videoResolutions.value = videoResolutions;
@@ -1082,6 +1142,29 @@ class MyVideoStateController extends GetxController
     LogUtils.d(
         '[更新后的宽高比] $aspectRatio, 视频高度: $sourceVideoHeight, 视频宽度: $sourceVideoWidth', 'MyVideoStateController');
 
+    // 处理无缝切换时的 seek 操作
+    if (_isSeamlessSwitching && _pendingSeekPosition != null && !_isDisposed) {
+      try {
+        LogUtils.d('[无缝切换] 恢复播放位置到: $_pendingSeekPosition', 'MyVideoStateController');
+        await player.seek(_pendingSeekPosition!);
+        if (_isDisposed) return;
+
+        // 清理无缝切换状态
+        _isSeamlessSwitching = false;
+        _pendingSeekPosition = null;
+
+        LogUtils.d('[无缝切换] 播放位置恢复完成', 'MyVideoStateController');
+      } catch (e) {
+        if (!_isDisposed) {
+          LogUtils.e('无缝切换恢复播放位置失败: $e', tag: 'MyVideoStateController', error: e);
+          // 清理状态
+          _isSeamlessSwitching = false;
+          _pendingSeekPosition = null;
+        }
+      }
+      return; // 无缝切换时不执行下面的初始化逻辑
+    }
+
     if (!videoPlayerReady.value && !_isDisposed) {
       videoPlayerReady.value = true;
       int targetPositionMs = 0;
@@ -1114,8 +1197,7 @@ class MyVideoStateController extends GetxController
       } finally {
         if (!_isDisposed) {
           firstLoaded = true;
-          // 重置切换清晰度标志
-          isSwitchingResolution.value = false;
+
         }
       }
     }

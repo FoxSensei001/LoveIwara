@@ -89,7 +89,7 @@ class VideoPlayerSkeletonWidget extends StatelessWidget {
             left: 0,
             child: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () => AppService.tryPop(),
+              onPressed: () => Navigator.of(context).pop(),
             ),
           ),
         ],
