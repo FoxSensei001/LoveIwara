@@ -1271,12 +1271,18 @@ class MyVideoStateController extends GetxController
     // 异常
     errorSubscription = player.stream.error.listen((error) {
       if (_isDisposed) return;
-      LogUtils.e('播放器错误: $error', tag: 'MyVideoStateController');
       String errorMessage = CommonUtils.parseExceptionMessage(error);
-      videoPlayerReady.value = false;
-      // 将播放器内部错误显示给用户
-      videoSourceErrorMessage.value = errorMessage;
-      videoBuffering.value = false;
+      LogUtils.e('播放器错误: $error', tag: 'MyVideoStateController');
+      // 仅在[未加载过视频 ]时抛出异常
+      final timeoutStrs = ['timeout', 'connection', 'network', 'time out'];
+      bool isTimeout = timeoutStrs.any((str) => errorMessage.toLowerCase().contains(str));
+      if (!firstLoaded || isTimeout) {
+        videoPlayerReady.value = false;
+        // 将播放器内部错误显示给用户
+        videoSourceErrorMessage.value = errorMessage;
+        videoBuffering.value = false;
+        return;
+      }
     });
   }
 
