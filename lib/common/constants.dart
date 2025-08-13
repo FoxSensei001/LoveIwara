@@ -47,17 +47,7 @@ class CommonConstants {
   static const String defaultProfileHeaderUrl =
       '$iwaraBaseUrl/images/default-background.jpg';
       
-  /// ============================== 日志配置 Start ==============================
-  // 日志数据库大小上限(字节)
-  static int maxLogDatabaseSize = 1024 * 1024 * 1024; // 1GB
-  
-  // 日志保留天数
-  static const int logRetentionDays = 30;
-  
-  // 是否持久化日志
-  static bool enableLogPersistence = false;
-  
-  /// ============================== 日志配置 End ==============================
+
 
   static List<Sort> mediaSorts = [
     Sort(id: SortId.trending, label: t.common.trending, icon: const Icon(Icons.trending_up)),

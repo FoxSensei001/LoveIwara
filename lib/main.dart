@@ -25,8 +25,7 @@ import 'package:i_iwara/utils/proxy/proxy_util.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:i_iwara/app/services/config_service.dart';
-import 'package:i_iwara/app/services/log_service.dart';
-import 'package:i_iwara/common/constants.dart';
+
 import 'dart:ui' show Canvas, PaintingStyle, Picture, PictureRecorder, Rect;
 
 import 'app/my_app.dart';
@@ -81,16 +80,6 @@ void main() {
         stackTrace: details.stack
       );
       
-      // 确保日志已写入
-      try {
-        if (Get.isRegistered<LogService>()) {
-          // 同步等待日志刷新完成
-          Get.find<LogService>().flushBufferToDatabase();
-        }
-      } catch (_) {
-        // Man, wut can i do
-      }
-      
       FlutterError.presentError(details);
     };
 
@@ -127,16 +116,6 @@ void main() {
     // 在这里处理未捕获的异常
     LogUtils.e('未捕获的异常: $error', tag: '全局异常处理', stackTrace: stackTrace);
     
-    // 确保日志已写入
-    try {
-      if (Get.isRegistered<LogService>()) {
-        // 同步等待日志刷新完成
-        Get.find<LogService>().flushBufferToDatabase();
-      }
-    } catch (_) {
-      // Man, wut can i do
-    }
-    
     // TODO: 可以在这里添加额外处理，例如显示错误页面或重启应用
   });
 }
@@ -158,9 +137,8 @@ Future<void> _initializeBaseServices() async {
   await dbService.init();
   Get.put(dbService);
 
-  // 初始化日志服务 - 现在放在数据库服务之后
-  var logService = await LogService().init();
-  Get.put(logService);
+  // 清理旧的日志数据库文件
+  await dbService.cleanupLogDatabase();
 
   // 初始化消息服务
   Get.put(MessageService());
@@ -195,8 +173,7 @@ Future<void> _initializeBusinessServices() async {
     }
   }
   
-  LogUtils.setPersistenceEnabled(CommonConstants.enableLogPersistence);
-  LogUtils.i('日志配置已更新：持久化=${CommonConstants.enableLogPersistence}，大小限制=${CommonConstants.maxLogDatabaseSize / (1024 * 1024)}MB', '启动初始化');
+  LogUtils.i('日志系统已简化，仅支持控制台输出', '启动初始化');
 
   // 注册 ConfigBackupService 作为 GetxService
   Get.put(ConfigBackupService());
@@ -451,7 +428,7 @@ Future<void> _closeServices() async {
     await LogUtils.close();
   } catch (e) {
     // 记录关闭服务时可能出现的错误
-    print('关闭服务失败: $e');
+    LogUtils.e('关闭服务失败', error: e);
   }
 }
 
