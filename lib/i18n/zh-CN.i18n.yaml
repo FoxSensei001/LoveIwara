@@ -598,6 +598,7 @@ settings:
     publicDirectoryPermissionTip: ⚠️ 注意：您选择的是公共目录，需要存储权限才能正常下载文件
     permissionRequiredForPublicDirectory: 选择公共目录需要存储权限
     currentDownloadPath: 当前下载路径
+    actualDownloadPath: 实际下载路径
     defaultAppDirectory: 应用默认目录
     permissionGranted: 已授权
     permissionRequired: 需要权限
@@ -687,6 +688,15 @@ settings:
     requiresStoragePermission: 需要存储权限才能访问
     # 推荐路径组件相关
     recommendedPaths: 推荐路径
+    # 额外的推荐路径名称和描述
+    externalAppPrivateDirectory: 外部应用专用目录
+    externalAppPrivateDirectoryDesc: 外部存储的应用专用目录，用户可访问，空间较大
+    internalAppPrivateDirectory: 内部应用专用目录
+    internalAppPrivateDirectoryDesc: 应用内部存储，无需权限，空间较小
+    appDocumentsDirectory: 应用文档目录
+    appDocumentsDirectoryDesc: 应用专用文档目录，安全可靠
+    downloadsFolder: 下载文件夹
+    downloadsFolderDesc: 系统默认下载目录
     selectRecommendedDownloadLocation: 选择一个推荐的下载位置
     noRecommendedPaths: 暂无推荐路径
     recommended: 推荐

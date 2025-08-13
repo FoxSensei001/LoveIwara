@@ -22,6 +22,15 @@ class RecommendedPathsWidget extends StatefulWidget {
 
 class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
   final ConfigService _configService = Get.find<ConfigService>();
+  late DownloadPathService _downloadPathService;
+  late PermissionService _permissionService;
+
+  @override
+  void initState() {
+    super.initState();
+    _downloadPathService = Get.find<DownloadPathService>();
+    _permissionService = Get.find<PermissionService>();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,30 +56,23 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
             ),
             const SizedBox(height: 16),
             
-            FutureBuilder<List<RecommendedPath>>(
-              future: Get.find<DownloadPathService>().getRecommendedPaths(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-
-                final paths = snapshot.data ?? [];
-                if (paths.isEmpty) {
-                  return Text(t.settings.downloadSettings.noRecommendedPaths);
-                }
-
-                return Column(
-                  children: paths.map((recommendedPath) =>
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: _buildPathTile(recommendedPath),
-                    )
-                  ).toList(),
-                );
-              },
-            ),
+            Obx(() {
+              if (_downloadPathService.isRecommendedPathsLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              final paths = _downloadPathService.recommendedPaths;
+              if (paths.isEmpty) {
+                return Text(t.settings.downloadSettings.noRecommendedPaths);
+              }
+              return Column(
+                children: paths
+                    .map((recommendedPath) => Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: _buildPathTile(recommendedPath),
+                        ))
+                    .toList(),
+              );
+            }),
           ],
         ),
       ),
@@ -177,8 +179,8 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
                 fontSize: 11,
                 color: Theme.of(context).textTheme.bodySmall?.color,
               ),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
+              softWrap: true,
+              overflow: TextOverflow.visible,
             ),
           ),
           const SizedBox(height: 12),
@@ -215,11 +217,11 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
 
   Future<void> _requestPermissionAndSelect(RecommendedPath recommendedPath) async {
     final t = slang.Translations.of(context);
-    final permissionService = Get.find<PermissionService>();
-    final granted = await permissionService.requestStoragePermission();
+    final granted = await _permissionService.requestStoragePermission();
 
     if (granted) {
       await _selectPath(recommendedPath);
+      await _downloadPathService.refreshPermissionAndRelated();
     } else {
       showToastWidget(
         MDToastWidget(
@@ -234,8 +236,7 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
     final t = slang.Translations.of(context);
     try {
       // 验证路径
-      final downloadPathService = Get.find<DownloadPathService>();
-      final validationResult = await downloadPathService.validatePath(recommendedPath.path);
+      final validationResult = await _downloadPathService.validatePath(recommendedPath.path);
       
       if (!validationResult.isValid) {
         showToastWidget(
@@ -250,6 +251,7 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
       // 设置路径
       await _configService.setSetting(ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH, true);
       await _configService.setSetting(ConfigKey.CUSTOM_DOWNLOAD_PATH, recommendedPath.path);
+      await _downloadPathService.refreshPathStatus();
       
       showToastWidget(
         MDToastWidget(

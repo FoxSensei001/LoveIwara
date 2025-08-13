@@ -194,8 +194,40 @@ class CommonUtils {
     }
   }
 
-  /// 获取应用目录
+  /// 获取应用目录（外部存储优先，回退到内部存储）
   static Future<Directory> getAppDirectory({String pathSuffix = ''}) async {
+    Directory directory;
+
+    try {
+      // 优先使用外部存储目录（Android: /storage/emulated/0/Android/data/包名/files）
+      final externalDir = await getExternalStorageDirectory();
+      if (externalDir != null) {
+        directory = externalDir;
+      } else {
+        // 回退到内部存储目录
+        directory = await getApplicationDocumentsDirectory();
+      }
+    } catch (e) {
+      // 如果外部存储获取失败，使用内部存储
+      LogUtils.w('获取外部存储失败，使用内部存储', 'CommonUtils');
+      directory = await getApplicationDocumentsDirectory();
+    }
+
+    // join 上 applicationName
+    final path = p.join(
+      directory.path,
+      CommonConstants.applicationName,
+      pathSuffix,
+    );
+    final dir = Directory(path);
+    if (!await dir.exists()) {
+      await dir.create(recursive: true);
+    }
+    return dir;
+  }
+
+  /// 获取内部应用专用目录
+  static Future<Directory> getInternalAppDirectory({String pathSuffix = ''}) async {
     final directory = await getApplicationDocumentsDirectory();
     // join 上 applicationName
     final path = p.join(
@@ -208,6 +240,29 @@ class CommonUtils {
       await dir.create(recursive: true);
     }
     return dir;
+  }
+
+  /// 获取外部应用专用目录
+  static Future<Directory?> getExternalAppDirectory({String pathSuffix = ''}) async {
+    try {
+      final externalDir = await getExternalStorageDirectory();
+      if (externalDir == null) return null;
+
+      // join 上 applicationName
+      final path = p.join(
+        externalDir.path,
+        CommonConstants.applicationName,
+        pathSuffix,
+      );
+      final dir = Directory(path);
+      if (!await dir.exists()) {
+        await dir.create(recursive: true);
+      }
+      return dir;
+    } catch (e) {
+      LogUtils.e('获取外部应用专用目录失败', tag: 'CommonUtils', error: e);
+      return null;
+    }
   }
 
   /// 获取文件扩展名

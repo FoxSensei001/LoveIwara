@@ -220,9 +220,6 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
       // 测试1: 权限检查
       results.add(await _testPermissions());
 
-      // 测试2: 路径验证
-      results.add(await _testPathValidation());
-
       // 测试3: 文件命名模板
       results.add(await _testFilenameTemplates());
 
@@ -262,26 +259,6 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
         name: t.settings.downloadSettings.testStoragePermissionCheck,
         passed: false,
         message: '${t.settings.downloadSettings.testPermissionCheckFailed}: $e',
-      );
-    }
-  }
-
-  Future<TestResult> _testPathValidation() async {
-    final t = slang.Translations.of(context);
-    try {
-      final downloadPathService = Get.find<DownloadPathService>();
-      final pathInfo = await downloadPathService.getPathStatusInfoAsync();
-
-      return TestResult(
-        name: t.settings.downloadSettings.testDownloadPathValidation,
-        passed: pathInfo.isValid,
-        message: '${pathInfo.validationResult.message}\n${t.settings.downloadSettings.currentDownloadPath}: ${pathInfo.currentPath}',
-      );
-    } catch (e) {
-      return TestResult(
-        name: t.settings.downloadSettings.testDownloadPathValidation,
-        passed: false,
-        message: '${t.settings.downloadSettings.testPathValidationFailed}: $e',
       );
     }
   }

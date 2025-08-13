@@ -1537,6 +1537,7 @@ class _TranslationsSettingsDownloadSettingsZhTw implements TranslationsSettingsD
 	@override String get publicDirectoryPermissionTip => '⚠️ 注意：您選擇的是公共目錄，需要儲存權限才能正常下載檔案';
 	@override String get permissionRequiredForPublicDirectory => '選擇公共目錄需要儲存權限';
 	@override String get currentDownloadPath => '目前下載路徑';
+	@override String get actualDownloadPath => '實際下載路徑';
 	@override String get defaultAppDirectory => '預設應用程式目錄';
 	@override String get permissionGranted => '已授權';
 	@override String get permissionRequired => '需要權限';
@@ -1621,6 +1622,14 @@ class _TranslationsSettingsDownloadSettingsZhTw implements TranslationsSettingsD
 	@override String get documentsDirectoryDesc => 'iOS應用程式文件目錄';
 	@override String get requiresStoragePermission => '需要存儲權限才能存取';
 	@override String get recommendedPaths => '推薦路徑';
+	@override String get externalAppPrivateDirectory => '外部應用程式專用目錄';
+	@override String get externalAppPrivateDirectoryDesc => '外部儲存應用程式專用目錄，使用者可存取，空間較大';
+	@override String get internalAppPrivateDirectory => '內部應用程式專用目錄';
+	@override String get internalAppPrivateDirectoryDesc => '應用程式內部儲存，無需權限，空間較小';
+	@override String get appDocumentsDirectory => '應用程式文件目錄';
+	@override String get appDocumentsDirectoryDesc => '應用程式專用文件目錄，安全可靠';
+	@override String get downloadsFolder => '下載資料夾';
+	@override String get downloadsFolderDesc => '系統預設下載目錄';
 	@override String get selectRecommendedDownloadLocation => '選擇一個推薦的下載位置';
 	@override String get noRecommendedPaths => '暫無推薦路徑';
 	@override String get recommended => '推薦';
@@ -2494,6 +2503,7 @@ extension on TranslationsZhTw {
 			case 'settings.downloadSettings.publicDirectoryPermissionTip': return '⚠️ 注意：您選擇的是公共目錄，需要儲存權限才能正常下載檔案';
 			case 'settings.downloadSettings.permissionRequiredForPublicDirectory': return '選擇公共目錄需要儲存權限';
 			case 'settings.downloadSettings.currentDownloadPath': return '目前下載路徑';
+			case 'settings.downloadSettings.actualDownloadPath': return '實際下載路徑';
 			case 'settings.downloadSettings.defaultAppDirectory': return '預設應用程式目錄';
 			case 'settings.downloadSettings.permissionGranted': return '已授權';
 			case 'settings.downloadSettings.permissionRequired': return '需要權限';
@@ -2578,6 +2588,14 @@ extension on TranslationsZhTw {
 			case 'settings.downloadSettings.documentsDirectoryDesc': return 'iOS應用程式文件目錄';
 			case 'settings.downloadSettings.requiresStoragePermission': return '需要存儲權限才能存取';
 			case 'settings.downloadSettings.recommendedPaths': return '推薦路徑';
+			case 'settings.downloadSettings.externalAppPrivateDirectory': return '外部應用程式專用目錄';
+			case 'settings.downloadSettings.externalAppPrivateDirectoryDesc': return '外部儲存應用程式專用目錄，使用者可存取，空間較大';
+			case 'settings.downloadSettings.internalAppPrivateDirectory': return '內部應用程式專用目錄';
+			case 'settings.downloadSettings.internalAppPrivateDirectoryDesc': return '應用程式內部儲存，無需權限，空間較小';
+			case 'settings.downloadSettings.appDocumentsDirectory': return '應用程式文件目錄';
+			case 'settings.downloadSettings.appDocumentsDirectoryDesc': return '應用程式專用文件目錄，安全可靠';
+			case 'settings.downloadSettings.downloadsFolder': return '下載資料夾';
+			case 'settings.downloadSettings.downloadsFolderDesc': return '系統預設下載目錄';
 			case 'settings.downloadSettings.selectRecommendedDownloadLocation': return '選擇一個推薦的下載位置';
 			case 'settings.downloadSettings.noRecommendedPaths': return '暫無推薦路徑';
 			case 'settings.downloadSettings.recommended': return '推薦';

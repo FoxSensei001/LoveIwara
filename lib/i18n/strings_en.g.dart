@@ -3852,6 +3852,9 @@ class TranslationsSettingsDownloadSettingsEn {
 	/// en: 'Current Download Path'
 	String get currentDownloadPath => 'Current Download Path';
 
+	/// en: 'Actual Download Path'
+	String get actualDownloadPath => 'Actual Download Path';
+
 	/// en: 'Default App Directory'
 	String get defaultAppDirectory => 'Default App Directory';
 
@@ -4103,6 +4106,30 @@ class TranslationsSettingsDownloadSettingsEn {
 
 	/// en: 'Recommended Paths'
 	String get recommendedPaths => 'Recommended Paths';
+
+	/// en: 'External App Private Directory'
+	String get externalAppPrivateDirectory => 'External App Private Directory';
+
+	/// en: 'External storage app private directory, user accessible, larger space'
+	String get externalAppPrivateDirectoryDesc => 'External storage app private directory, user accessible, larger space';
+
+	/// en: 'Internal App Private Directory'
+	String get internalAppPrivateDirectory => 'Internal App Private Directory';
+
+	/// en: 'App internal storage, no permissions required, smaller space'
+	String get internalAppPrivateDirectoryDesc => 'App internal storage, no permissions required, smaller space';
+
+	/// en: 'App Documents Directory'
+	String get appDocumentsDirectory => 'App Documents Directory';
+
+	/// en: 'App-specific documents directory, safe and reliable'
+	String get appDocumentsDirectoryDesc => 'App-specific documents directory, safe and reliable';
+
+	/// en: 'Downloads Folder'
+	String get downloadsFolder => 'Downloads Folder';
+
+	/// en: 'System default download directory'
+	String get downloadsFolderDesc => 'System default download directory';
 
 	/// en: 'Select a recommended download location'
 	String get selectRecommendedDownloadLocation => 'Select a recommended download location';
@@ -5314,6 +5341,7 @@ extension on Translations {
 			case 'settings.downloadSettings.publicDirectoryPermissionTip': return '⚠️ Notice: You selected a public directory, storage permission is required for normal file downloads';
 			case 'settings.downloadSettings.permissionRequiredForPublicDirectory': return 'Storage permission required for public directories';
 			case 'settings.downloadSettings.currentDownloadPath': return 'Current Download Path';
+			case 'settings.downloadSettings.actualDownloadPath': return 'Actual Download Path';
 			case 'settings.downloadSettings.defaultAppDirectory': return 'Default App Directory';
 			case 'settings.downloadSettings.permissionGranted': return 'Granted';
 			case 'settings.downloadSettings.permissionRequired': return 'Permission Required';
@@ -5398,6 +5426,14 @@ extension on Translations {
 			case 'settings.downloadSettings.documentsDirectoryDesc': return 'iOS app documents directory';
 			case 'settings.downloadSettings.requiresStoragePermission': return 'Requires storage permission to access';
 			case 'settings.downloadSettings.recommendedPaths': return 'Recommended Paths';
+			case 'settings.downloadSettings.externalAppPrivateDirectory': return 'External App Private Directory';
+			case 'settings.downloadSettings.externalAppPrivateDirectoryDesc': return 'External storage app private directory, user accessible, larger space';
+			case 'settings.downloadSettings.internalAppPrivateDirectory': return 'Internal App Private Directory';
+			case 'settings.downloadSettings.internalAppPrivateDirectoryDesc': return 'App internal storage, no permissions required, smaller space';
+			case 'settings.downloadSettings.appDocumentsDirectory': return 'App Documents Directory';
+			case 'settings.downloadSettings.appDocumentsDirectoryDesc': return 'App-specific documents directory, safe and reliable';
+			case 'settings.downloadSettings.downloadsFolder': return 'Downloads Folder';
+			case 'settings.downloadSettings.downloadsFolderDesc': return 'System default download directory';
 			case 'settings.downloadSettings.selectRecommendedDownloadLocation': return 'Select a recommended download location';
 			case 'settings.downloadSettings.noRecommendedPaths': return 'No recommended paths available';
 			case 'settings.downloadSettings.recommended': return 'Recommended';

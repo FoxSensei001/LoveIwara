@@ -591,6 +591,7 @@ settings:
     publicDirectoryPermissionTip: "⚠️ Notice: You selected a public directory, storage permission is required for normal file downloads"
     permissionRequiredForPublicDirectory: Storage permission required for public directories
     currentDownloadPath: Current Download Path
+    actualDownloadPath: Actual Download Path
     defaultAppDirectory: Default App Directory
     permissionGranted: Granted
     permissionRequired: Permission Required
@@ -680,6 +681,15 @@ settings:
     requiresStoragePermission: Requires storage permission to access
     # Recommended paths widget related
     recommendedPaths: Recommended Paths
+    # Additional recommended path names and descriptions
+    externalAppPrivateDirectory: External App Private Directory
+    externalAppPrivateDirectoryDesc: External storage app private directory, user accessible, larger space
+    internalAppPrivateDirectory: Internal App Private Directory
+    internalAppPrivateDirectoryDesc: App internal storage, no permissions required, smaller space
+    appDocumentsDirectory: App Documents Directory
+    appDocumentsDirectoryDesc: App-specific documents directory, safe and reliable
+    downloadsFolder: Downloads Folder
+    downloadsFolderDesc: System default download directory
     selectRecommendedDownloadLocation: Select a recommended download location
     noRecommendedPaths: No recommended paths available
     recommended: Recommended

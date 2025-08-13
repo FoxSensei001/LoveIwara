@@ -592,6 +592,7 @@ settings:
     publicDirectoryPermissionTip: ⚠️ 注意：パブリックディレクトリを選択しました。正常にファイルをダウンロードするにはストレージ権限が必要です
     permissionRequiredForPublicDirectory: パブリックディレクトリにはストレージ権限が必要です
     currentDownloadPath: 現在のダウンロードパス
+    actualDownloadPath: 実際のダウンロードパス
     defaultAppDirectory: デフォルトアプリディレクトリ
     permissionGranted: 付与済み
     permissionRequired: 権限が必要
@@ -681,6 +682,15 @@ settings:
     requiresStoragePermission: アクセスにはストレージ権限が必要
     # 推奨パスウィジェット関連
     recommendedPaths: 推奨パス
+    # 追加の推奨パス名と説明
+    externalAppPrivateDirectory: 外部アプリ専用ディレクトリ
+    externalAppPrivateDirectoryDesc: 外部ストレージのアプリ専用ディレクトリ、ユーザーがアクセス可能、容量が大きい
+    internalAppPrivateDirectory: 内部アプリ専用ディレクトリ
+    internalAppPrivateDirectoryDesc: アプリ内部ストレージ、権限不要、容量が小さい
+    appDocumentsDirectory: アプリドキュメントディレクトリ
+    appDocumentsDirectoryDesc: アプリ専用ドキュメントディレクトリ、安全で信頼性が高い
+    downloadsFolder: ダウンロードフォルダ
+    downloadsFolderDesc: システムデフォルトのダウンロードディレクトリ
     selectRecommendedDownloadLocation: 推奨されるダウンロード場所を選択
     noRecommendedPaths: 推奨パスがありません
     recommended: 推奨

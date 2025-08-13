@@ -592,6 +592,7 @@ settings:
     publicDirectoryPermissionTip: ⚠️ 注意：您選擇的是公共目錄，需要儲存權限才能正常下載檔案
     permissionRequiredForPublicDirectory: 選擇公共目錄需要儲存權限
     currentDownloadPath: 目前下載路徑
+    actualDownloadPath: 實際下載路徑
     defaultAppDirectory: 預設應用程式目錄
     permissionGranted: 已授權
     permissionRequired: 需要權限
@@ -681,6 +682,15 @@ settings:
     requiresStoragePermission: 需要存儲權限才能存取
     # 推薦路徑組件相關
     recommendedPaths: 推薦路徑
+    # 額外的推薦路徑名稱和描述
+    externalAppPrivateDirectory: 外部應用程式專用目錄
+    externalAppPrivateDirectoryDesc: 外部儲存應用程式專用目錄，使用者可存取，空間較大
+    internalAppPrivateDirectory: 內部應用程式專用目錄
+    internalAppPrivateDirectoryDesc: 應用程式內部儲存，無需權限，空間較小
+    appDocumentsDirectory: 應用程式文件目錄
+    appDocumentsDirectoryDesc: 應用程式專用文件目錄，安全可靠
+    downloadsFolder: 下載資料夾
+    downloadsFolderDesc: 系統預設下載目錄
     selectRecommendedDownloadLocation: 選擇一個推薦的下載位置
     noRecommendedPaths: 暫無推薦路徑
     recommended: 推薦

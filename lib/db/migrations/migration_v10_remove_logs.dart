@@ -13,7 +13,7 @@ class MigrationV10RemoveLogs extends Migration {
   void up(CommonDatabase db) {
     // 删除日志相关的配置项
     db.execute('''
-      DELETE FROM config_storage 
+      DELETE FROM app_config 
       WHERE key IN ('ENABLE_LOG_PERSISTENCE', 'MAX_LOG_DATABASE_SIZE')
     ''');
     
@@ -25,7 +25,7 @@ class MigrationV10RemoveLogs extends Migration {
   void down(CommonDatabase db) {
     // 回滚操作：重新添加日志相关配置项的默认值
     db.execute('''
-      INSERT OR IGNORE INTO config_storage (key, value) VALUES 
+      INSERT OR IGNORE INTO app_config (key, value) VALUES 
       ('ENABLE_LOG_PERSISTENCE', 'false'),
       ('MAX_LOG_DATABASE_SIZE', '1073741824')
     ''');

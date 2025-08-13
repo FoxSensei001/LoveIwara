@@ -1539,6 +1539,7 @@ class _TranslationsSettingsDownloadSettingsZhCn implements TranslationsSettingsD
 	@override String get publicDirectoryPermissionTip => '⚠️ 注意：您选择的是公共目录，需要存储权限才能正常下载文件';
 	@override String get permissionRequiredForPublicDirectory => '选择公共目录需要存储权限';
 	@override String get currentDownloadPath => '当前下载路径';
+	@override String get actualDownloadPath => '实际下载路径';
 	@override String get defaultAppDirectory => '应用默认目录';
 	@override String get permissionGranted => '已授权';
 	@override String get permissionRequired => '需要权限';
@@ -1623,6 +1624,14 @@ class _TranslationsSettingsDownloadSettingsZhCn implements TranslationsSettingsD
 	@override String get documentsDirectoryDesc => 'iOS应用文档目录';
 	@override String get requiresStoragePermission => '需要存储权限才能访问';
 	@override String get recommendedPaths => '推荐路径';
+	@override String get externalAppPrivateDirectory => '外部应用专用目录';
+	@override String get externalAppPrivateDirectoryDesc => '外部存储的应用专用目录，用户可访问，空间较大';
+	@override String get internalAppPrivateDirectory => '内部应用专用目录';
+	@override String get internalAppPrivateDirectoryDesc => '应用内部存储，无需权限，空间较小';
+	@override String get appDocumentsDirectory => '应用文档目录';
+	@override String get appDocumentsDirectoryDesc => '应用专用文档目录，安全可靠';
+	@override String get downloadsFolder => '下载文件夹';
+	@override String get downloadsFolderDesc => '系统默认下载目录';
 	@override String get selectRecommendedDownloadLocation => '选择一个推荐的下载位置';
 	@override String get noRecommendedPaths => '暂无推荐路径';
 	@override String get recommended => '推荐';
@@ -2501,6 +2510,7 @@ extension on TranslationsZhCn {
 			case 'settings.downloadSettings.publicDirectoryPermissionTip': return '⚠️ 注意：您选择的是公共目录，需要存储权限才能正常下载文件';
 			case 'settings.downloadSettings.permissionRequiredForPublicDirectory': return '选择公共目录需要存储权限';
 			case 'settings.downloadSettings.currentDownloadPath': return '当前下载路径';
+			case 'settings.downloadSettings.actualDownloadPath': return '实际下载路径';
 			case 'settings.downloadSettings.defaultAppDirectory': return '应用默认目录';
 			case 'settings.downloadSettings.permissionGranted': return '已授权';
 			case 'settings.downloadSettings.permissionRequired': return '需要权限';
@@ -2585,6 +2595,14 @@ extension on TranslationsZhCn {
 			case 'settings.downloadSettings.documentsDirectoryDesc': return 'iOS应用文档目录';
 			case 'settings.downloadSettings.requiresStoragePermission': return '需要存储权限才能访问';
 			case 'settings.downloadSettings.recommendedPaths': return '推荐路径';
+			case 'settings.downloadSettings.externalAppPrivateDirectory': return '外部应用专用目录';
+			case 'settings.downloadSettings.externalAppPrivateDirectoryDesc': return '外部存储的应用专用目录，用户可访问，空间较大';
+			case 'settings.downloadSettings.internalAppPrivateDirectory': return '内部应用专用目录';
+			case 'settings.downloadSettings.internalAppPrivateDirectoryDesc': return '应用内部存储，无需权限，空间较小';
+			case 'settings.downloadSettings.appDocumentsDirectory': return '应用文档目录';
+			case 'settings.downloadSettings.appDocumentsDirectoryDesc': return '应用专用文档目录，安全可靠';
+			case 'settings.downloadSettings.downloadsFolder': return '下载文件夹';
+			case 'settings.downloadSettings.downloadsFolderDesc': return '系统默认下载目录';
 			case 'settings.downloadSettings.selectRecommendedDownloadLocation': return '选择一个推荐的下载位置';
 			case 'settings.downloadSettings.noRecommendedPaths': return '暂无推荐路径';
 			case 'settings.downloadSettings.recommended': return '推荐';

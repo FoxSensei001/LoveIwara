@@ -1534,6 +1534,7 @@ class _TranslationsSettingsDownloadSettingsJa implements TranslationsSettingsDow
 	@override String get publicDirectoryPermissionTip => '⚠️ 注意：パブリックディレクトリを選択しました。正常にファイルをダウンロードするにはストレージ権限が必要です';
 	@override String get permissionRequiredForPublicDirectory => 'パブリックディレクトリにはストレージ権限が必要です';
 	@override String get currentDownloadPath => '現在のダウンロードパス';
+	@override String get actualDownloadPath => '実際のダウンロードパス';
 	@override String get defaultAppDirectory => 'デフォルトアプリディレクトリ';
 	@override String get permissionGranted => '付与済み';
 	@override String get permissionRequired => '権限が必要';
@@ -1618,6 +1619,14 @@ class _TranslationsSettingsDownloadSettingsJa implements TranslationsSettingsDow
 	@override String get documentsDirectoryDesc => 'iOSアプリドキュメントディレクトリ';
 	@override String get requiresStoragePermission => 'アクセスにはストレージ権限が必要';
 	@override String get recommendedPaths => '推奨パス';
+	@override String get externalAppPrivateDirectory => '外部アプリ専用ディレクトリ';
+	@override String get externalAppPrivateDirectoryDesc => '外部ストレージのアプリ専用ディレクトリ、ユーザーがアクセス可能、容量が大きい';
+	@override String get internalAppPrivateDirectory => '内部アプリ専用ディレクトリ';
+	@override String get internalAppPrivateDirectoryDesc => 'アプリ内部ストレージ、権限不要、容量が小さい';
+	@override String get appDocumentsDirectory => 'アプリドキュメントディレクトリ';
+	@override String get appDocumentsDirectoryDesc => 'アプリ専用ドキュメントディレクトリ、安全で信頼性が高い';
+	@override String get downloadsFolder => 'ダウンロードフォルダ';
+	@override String get downloadsFolderDesc => 'システムデフォルトのダウンロードディレクトリ';
 	@override String get selectRecommendedDownloadLocation => '推奨されるダウンロード場所を選択';
 	@override String get noRecommendedPaths => '推奨パスがありません';
 	@override String get recommended => '推奨';
@@ -2491,6 +2500,7 @@ extension on TranslationsJa {
 			case 'settings.downloadSettings.publicDirectoryPermissionTip': return '⚠️ 注意：パブリックディレクトリを選択しました。正常にファイルをダウンロードするにはストレージ権限が必要です';
 			case 'settings.downloadSettings.permissionRequiredForPublicDirectory': return 'パブリックディレクトリにはストレージ権限が必要です';
 			case 'settings.downloadSettings.currentDownloadPath': return '現在のダウンロードパス';
+			case 'settings.downloadSettings.actualDownloadPath': return '実際のダウンロードパス';
 			case 'settings.downloadSettings.defaultAppDirectory': return 'デフォルトアプリディレクトリ';
 			case 'settings.downloadSettings.permissionGranted': return '付与済み';
 			case 'settings.downloadSettings.permissionRequired': return '権限が必要';
@@ -2575,6 +2585,14 @@ extension on TranslationsJa {
 			case 'settings.downloadSettings.documentsDirectoryDesc': return 'iOSアプリドキュメントディレクトリ';
 			case 'settings.downloadSettings.requiresStoragePermission': return 'アクセスにはストレージ権限が必要';
 			case 'settings.downloadSettings.recommendedPaths': return '推奨パス';
+			case 'settings.downloadSettings.externalAppPrivateDirectory': return '外部アプリ専用ディレクトリ';
+			case 'settings.downloadSettings.externalAppPrivateDirectoryDesc': return '外部ストレージのアプリ専用ディレクトリ、ユーザーがアクセス可能、容量が大きい';
+			case 'settings.downloadSettings.internalAppPrivateDirectory': return '内部アプリ専用ディレクトリ';
+			case 'settings.downloadSettings.internalAppPrivateDirectoryDesc': return 'アプリ内部ストレージ、権限不要、容量が小さい';
+			case 'settings.downloadSettings.appDocumentsDirectory': return 'アプリドキュメントディレクトリ';
+			case 'settings.downloadSettings.appDocumentsDirectoryDesc': return 'アプリ専用ドキュメントディレクトリ、安全で信頼性が高い';
+			case 'settings.downloadSettings.downloadsFolder': return 'ダウンロードフォルダ';
+			case 'settings.downloadSettings.downloadsFolderDesc': return 'システムデフォルトのダウンロードディレクトリ';
 			case 'settings.downloadSettings.selectRecommendedDownloadLocation': return '推奨されるダウンロード場所を選択';
 			case 'settings.downloadSettings.noRecommendedPaths': return '推奨パスがありません';
 			case 'settings.downloadSettings.recommended': return '推奨';
