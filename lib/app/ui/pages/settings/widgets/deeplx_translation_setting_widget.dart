@@ -403,6 +403,7 @@ class _DeepLXTranslationSettingsWidgetState
         const SizedBox(height: 8),
         Obx(() => DropdownButtonFormField<String>(
           value: _selectedEndpointType.value,
+          isExpanded: true,
           decoration: InputDecoration(
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -426,7 +427,11 @@ class _DeepLXTranslationSettingsWidgetState
             }
             return DropdownMenuItem<String>(
               value: type,
-              child: Text(description),
+              child: Text(
+                description,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
             );
           }).toList(),
           onChanged: (value) {

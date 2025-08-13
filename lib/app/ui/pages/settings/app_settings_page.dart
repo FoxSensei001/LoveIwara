@@ -28,8 +28,8 @@ class AppSettingsPage extends StatefulWidget {
 }
 
 class _AppSettingsPageState extends State<AppSettingsPage> {
-  final Map<String, String> _languageOptions = {
-    'system': 'Follow system',
+  Map<String, String> get _languageOptions => {
+    'system': slang.t.settings.followSystem,
     'en': 'English',
     'ja': '日本語',
     'zh-CN': '简体中文',
@@ -37,10 +37,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   };
 
   final Map<String, String> _languageChangedMessages = {
-    'en': 'You need to restart the app for the language change to take effect.',
-    'ja': '言語の変更を反映するにはアプリを再起動してください。',
-    'zh-CN': '需重启应用以生效',
-    'zh-TW': '需重新啟動應用程式以生效',
+    'en': 'Language changed successfully.',
+    'ja': '言語が正常に変更されました。',
+    'zh-CN': '语言切换成功',
+    'zh-TW': '語言切換成功',
   };
 
   void _showLanguageDialog(BuildContext context, ConfigService configService) {
@@ -59,15 +59,45 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     title: Text(entry.value),
                     value: entry.key,
                     groupValue: configService[ConfigKey.APPLICATION_LOCALE],
-                    onChanged: (String? value) {
+                    onChanged: (String? value) async {
                       if (value != null) {
+                        // 更新配置
                         configService.updateApplicationLocale(value);
+                        
+                        // 立即切换语言
+                        if (value == 'system') {
+                          slang.LocaleSettings.useDeviceLocale();
+                        } else {
+                          // 根据语言代码找到对应的 AppLocale
+                          slang.AppLocale? targetLocale;
+                          for (final locale in slang.AppLocale.values) {
+                            if (locale.languageTag.toLowerCase() == value.toLowerCase()) {
+                              targetLocale = locale;
+                              break;
+                            }
+                          }
+                          if (targetLocale != null) {
+                            slang.LocaleSettings.setLocale(targetLocale);
+                          }
+                        }
+                        
+                        // 强制刷新整个应用界面
+                        Get.forceAppUpdate();
+                        
                         Navigator.of(context).pop();
 
                         String message;
                         String localeKey = value;
                         if (localeKey == 'system') {
-                          localeKey = CommonUtils.getDeviceLocale();
+                          // 获取设备语言，但确保是我们支持的语言
+                          String deviceLocale = CommonUtils.getDeviceLocale();
+                          // 检查设备语言是否在我们的支持列表中
+                          if (_languageChangedMessages.containsKey(deviceLocale)) {
+                            localeKey = deviceLocale;
+                          } else {
+                            // 如果不支持，使用英语作为默认
+                            localeKey = 'en';
+                          }
                         }
 
                         message =
@@ -77,7 +107,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                         showToastWidget(
                           MDToastWidget(
                             message: message,
-                            type: MDToastType.info,
+                            type: MDToastType.success,
                           ),
                         );
                       }
