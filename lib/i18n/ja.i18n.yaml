@@ -1285,6 +1285,68 @@ translation:
   usingFullUrlWithHash: "完全なURL（#で終わる）を使用"
   urlEndingWithHashTip: "URLが#で終わる場合、入力されたURLを実際のリクエストアドレスとして使用します"
   streamingTranslationWarning: "注意：この機能はAPIサービスがストリーミング伝送をサポートする必要があり、一部のモデルではサポートされていない場合があります"
+  # Translation Service Selection
+  translationService: 翻訳サービス
+  translationServiceDescription: お好みの翻訳サービスを選択してください
+  googleTranslation: Google 翻訳
+  googleTranslationDescription: 複数の言語をサポートする無料のオンライン翻訳サービス
+  aiTranslation: AI 翻訳
+  aiTranslationDescription: 大規模言語モデルに基づくインテリジェント翻訳サービス
+  deeplxTranslation: DeepLX 翻訳
+  deeplxTranslationDescription: DeepL翻訳のオープンソース実装、高品質な翻訳を提供
+  # Google Translation
+  googleTranslationFeatures: 機能
+  freeToUse: 無料で使用
+  freeToUseDescription: 設定不要、すぐに使用可能
+  fastResponse: 高速応答
+  fastResponseDescription: 翻訳速度が速く、遅延が低い
+  stableAndReliable: 安定で信頼性が高い
+  stableAndReliableDescription: Google公式APIに基づく
+  enabledDefaultService: 有効 - デフォルト翻訳サービス
+  notEnabled: 無効
+  # DeepLX Translation
+  deeplxTranslationService: DeepLX 翻訳サービス
+  deeplxDescription: DeepLXはDeepL翻訳のオープンソース実装で、Free、Pro、Officialの3つのエンドポイントモードをサポートしています
+  serverAddress: サーバーアドレス
+  serverAddressHint: https://api.deeplx.org
+  serverAddressHelperText: DeepLXサーバーのベースアドレス
+  endpointType: エンドポイントタイプ
+  freeEndpoint: Free - 無料エンドポイント、レート制限がある場合があります
+  proEndpoint: Pro - dl_sessionが必要、より安定
+  officialEndpoint: Official - 公式API形式
+  finalRequestUrl: 最終リクエストURL
+  apiKeyOptional: API Key (オプション)
+  apiKeyOptionalHint: 保護されたDeepLXサービスへのアクセス用
+  apiKeyOptionalHelperText: 一部のDeepLXサービスは認証にAPI Keyが必要です
+  dlSession: DL Session
+  dlSessionHint: Proモードに必要なdl_sessionパラメーター
+  dlSessionHelperText: Proエンドポイントに必要なセッションパラメーター、DeepL Proアカウントから取得
+  proModeRequiresDlSession: Proモードにはdl_sessionの入力が必要です
+  clickTestButtonToVerifyDeepLXAPI: テストボタンをクリックしてDeepLX API接続を検証
+  enableDeepLXTranslation: DeepLX翻訳を有効にする
+  deepLXTranslationWillBeDisabled: 設定変更によりDeepLX翻訳が無効になります
+  translatedResult: 翻訳結果
+  # Translation Service Messages
+  testSuccess: テスト成功
+  pleaseFillInDeepLXServerAddress: DeepLXサーバーアドレスを入力してください
+  invalidAPIResponseFormat: 無効なAPI応答形式
+  translationServiceReturnedError: 翻訳サービスがエラーまたは空の結果を返しました
+  connectionFailed: 接続失敗
+  # Translation Service Log Messages
+  translationFailed: 翻訳失敗
+  aiTranslationFailed: AI翻訳失敗
+  deeplxTranslationFailed: DeepLX翻訳失敗
+  aiTranslationTestFailed: AI翻訳テスト失敗
+  deeplxTranslationTestFailed: DeepLX翻訳テスト失敗
+  streamingTranslationTimeout: ストリーミング翻訳タイムアウト、リソース強制クリーンアップ
+  translationRequestTimeout: 翻訳リクエストタイムアウト
+  streamingTranslationDataTimeout: ストリーミング翻訳データ受信タイムアウト
+  dataReceptionTimeout: データ受信タイムアウト
+  streamDataParseError: ストリームデータ解析エラー
+  streamingTranslationFailed: ストリーミング翻訳失敗
+  fallbackTranslationFailed: 通常翻訳へのフォールバックも失敗
+  translationSettings: 翻訳設定
+  enableGoogleTranslation: Google翻訳を有効にする
 
 # メディアプレイヤーウィジェット
 mediaPlayer:

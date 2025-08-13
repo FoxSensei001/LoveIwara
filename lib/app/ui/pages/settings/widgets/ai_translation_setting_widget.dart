@@ -13,6 +13,7 @@ import 'package:i_iwara/app/models/api_result.model.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:waterfall_flow/waterfall_flow.dart';
 
 class AITranslationSettingsPage extends StatelessWidget {
   final bool isWideScreen;
@@ -156,23 +157,33 @@ class _AITranslationSettingsWidgetState
       key: _formKey,
       child: SliverPadding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        sliver: SliverList(
-          delegate: SliverChildListDelegate([
-            Obx(() => _buildStatusCard(context)),
-            const SizedBox(height: 16),
-            _buildDisclaimerCard(context),
-            const SizedBox(height: 16),
-            _buildAPIConfigSection(context),
-            const SizedBox(height: 16),
-            _buildAdvancedConfigSection(context), // 添加高级设置区域
-            const SizedBox(height: 16),
-            _buildPreviewSection(context),
-            const SizedBox(height: 16),
-            _buildTestConnectionSection(context),
-            const SizedBox(height: 16),
-            _buildEnableSection(context),
-            SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
-          ]),
+        sliver: SliverLayoutBuilder(
+          builder: (context, constraints) {
+            final double width = constraints.crossAxisExtent;
+            final bool isWide = width >= 1000;
+            final int crossCount = isWide ? 2 : 1;
+
+            final List<Widget> cards = [
+              Obx(() => _buildStatusCard(context)),
+              _buildDisclaimerCard(context),
+              _buildAPIConfigSection(context),
+              _buildAdvancedConfigSection(context),
+              _buildPreviewSection(context),
+              _buildTestConnectionSection(context),
+              _buildEnableSection(context),
+              SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
+            ];
+
+            return SliverWaterfallFlow(
+              gridDelegate:
+                  SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossCount,
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 16,
+              ),
+              delegate: SliverChildListDelegate(cards),
+            );
+          },
         ),
       ),
     );
@@ -225,14 +236,14 @@ class _AITranslationSettingsWidgetState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'AI 翻译',
+                      slang.t.translation.aiTranslation,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      isEnabled ? '已启用' : '未启用',
+                      isEnabled ? slang.t.translation.enabled : slang.t.translation.disabled,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: isEnabled ? Colors.purple : Colors.grey,
                         fontWeight: FontWeight.w500,
@@ -370,59 +381,85 @@ class _AITranslationSettingsWidgetState
           const Divider(height: 1),
           Padding(
             padding: const EdgeInsets.all(16),
-            child: Column(
-              spacing: 16,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildInputSection(
-                  context: context,
-                  label: slang.t.translation.apiAddress,
-                  controller: _baseUrlController,
-                  hintText: 'https://api.example.com/v1',
-                  configKey: ConfigKey.AI_TRANSLATION_BASE_URL, // 使用枚举值而不是name
-                  icon: Icons.link,
-                  // helperText: "以#结尾时将以输入的URL作为实际请求地址"
-                  helperText: slang.t.translation.baseUrlInputHelperText,
-                ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final bool isWide = constraints.maxWidth >= 900;
+                const double gap = 16;
+                final double itemWidth = isWide
+                    ? (constraints.maxWidth - gap) / 2
+                    : constraints.maxWidth;
 
-                Obx(() {
-                  // 提示当前的实际URL
-                  final baseUrl =
-                      configService[ConfigKey.AI_TRANSLATION_BASE_URL];
-                  final actualUrl = translationService.getFinalUrl(baseUrl);
-                  return Text(
-                    // "当前实际URL: $actualUrl",
-                    slang.t.translation.currentActualUrl(url: actualUrl),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      fontSize: 12,
-                      height: 1.2,
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Wrap(
+                      spacing: gap,
+                      runSpacing: 16,
+                      children: [
+                        SizedBox(
+                          width: itemWidth,
+                          child: _buildInputSection(
+                            context: context,
+                            label: slang.t.translation.apiAddress,
+                            controller: _baseUrlController,
+                            hintText: 'https://api.example.com/v1',
+                            configKey: ConfigKey.AI_TRANSLATION_BASE_URL,
+                            icon: Icons.link,
+                            helperText: slang.t.translation.baseUrlInputHelperText,
+                          ),
+                        ),
+                        SizedBox(
+                          width: constraints.maxWidth,
+                          child: Obx(() {
+                            final baseUrl =
+                                configService[ConfigKey.AI_TRANSLATION_BASE_URL];
+                            final actualUrl = translationService.getFinalUrl(baseUrl);
+                            return Text(
+                              slang.t.translation.currentActualUrl(url: actualUrl),
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                fontSize: 12,
+                                height: 1.2,
+                              ),
+                            ).paddingLeft(12);
+                          }),
+                        ),
+                        SizedBox(
+                          width: itemWidth,
+                          child: _buildInputSection(
+                            context: context,
+                            label: slang.t.translation.modelName,
+                            controller: _modelController,
+                            hintText: slang.t.translation.modelNameHintText,
+                            configKey: ConfigKey.AI_TRANSLATION_MODEL,
+                            icon: Icons.model_training,
+                          ),
+                        ),
+                        SizedBox(
+                          width: itemWidth,
+                          child: _buildApiKeyInputSection(context),
+                        ),
+                        SizedBox(
+                          width: itemWidth,
+                          child: _buildNumberInputSection(
+                            context: context,
+                            label: slang.t.translation.maxTokens,
+                            configKey: ConfigKey.AI_TRANSLATION_MAX_TOKENS,
+                            icon: Icons.numbers,
+                            hintText: slang.t.translation.maxTokensHintText,
+                            controller: _maxTokensController,
+                            defaultValue: configService[ConfigKey.AI_TRANSLATION_MAX_TOKENS],
+                          ),
+                        ),
+                        SizedBox(
+                          width: itemWidth,
+                          child: _buildTemperatureSlider(context),
+                        ),
+                      ],
                     ),
-                  ).paddingLeft(12);
-                }),
-
-                _buildInputSection(
-                  context: context,
-                  label: slang.t.translation.modelName,
-                  controller: _modelController,
-                  hintText: slang.t.translation.modelNameHintText,
-                  configKey: ConfigKey.AI_TRANSLATION_MODEL, // 使用枚举值而不是name
-                  icon: Icons.model_training,
-                ),
-                _buildApiKeyInputSection(context),
-                _buildNumberInputSection(
-                  context: context,
-                  label: slang.t.translation.maxTokens,
-                  configKey:
-                      ConfigKey.AI_TRANSLATION_MAX_TOKENS, // 使用枚举值而不是name
-                  icon: Icons.numbers,
-                  hintText: slang.t.translation.maxTokensHintText,
-                  controller: _maxTokensController,
-                  defaultValue:
-                      configService[ConfigKey.AI_TRANSLATION_MAX_TOKENS],
-                ),
-                _buildTemperatureSlider(context),
-              ],
+                  ],
+                );
+              },
             ),
           ),
         ],

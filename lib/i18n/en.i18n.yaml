@@ -1281,6 +1281,68 @@ translation:
   currentActualUrl: "Current actual URL: ${url}"
   urlEndingWithHashTip: "URL ending with # will be used directly without adding any suffix"
   streamingTranslationWarning: "Note: This feature requires API service support for streaming transmission, some models may not support it"
+  # Translation Service Selection
+  translationService: Translation Service
+  translationServiceDescription: Select your preferred translation service
+  googleTranslation: Google Translation
+  googleTranslationDescription: Free online translation service supporting multiple languages
+  aiTranslation: AI Translation
+  aiTranslationDescription: Intelligent translation service based on large language models
+  deeplxTranslation: DeepLX Translation
+  deeplxTranslationDescription: Open source implementation of DeepL translation, providing high-quality translation
+  # Google Translation
+  googleTranslationFeatures: Features
+  freeToUse: Free to use
+  freeToUseDescription: No configuration required, ready to use
+  fastResponse: Fast response
+  fastResponseDescription: Fast translation speed with low latency
+  stableAndReliable: Stable and reliable
+  stableAndReliableDescription: Based on Google official API
+  enabledDefaultService: Enabled - Default translation service
+  notEnabled: Not enabled
+  # DeepLX Translation
+  deeplxTranslationService: DeepLX Translation Service
+  deeplxDescription: DeepLX is an open source implementation of DeepL translation, supporting Free, Pro and Official endpoint modes
+  serverAddress: Server Address
+  serverAddressHint: https://api.deeplx.org
+  serverAddressHelperText: Base address of DeepLX server
+  endpointType: Endpoint Type
+  freeEndpoint: Free - Free endpoint, may have rate limits
+  proEndpoint: Pro - Requires dl_session, more stable
+  officialEndpoint: Official - Official API format
+  finalRequestUrl: Final Request URL
+  apiKeyOptional: API Key (Optional)
+  apiKeyOptionalHint: For accessing protected DeepLX services
+  apiKeyOptionalHelperText: Some DeepLX services require API Key for authentication
+  dlSession: DL Session
+  dlSessionHint: dl_session parameter required for Pro mode
+  dlSessionHelperText: Session parameter required for Pro endpoint, obtained from DeepL Pro account
+  proModeRequiresDlSession: Pro mode requires dl_session
+  clickTestButtonToVerifyDeepLXAPI: Click test button to verify DeepLX API connection
+  enableDeepLXTranslation: Enable DeepLX Translation
+  deepLXTranslationWillBeDisabled: DeepLX translation will be disabled due to configuration changes
+  translatedResult: Translated Result
+  # Translation Service Messages
+  testSuccess: Test successful
+  pleaseFillInDeepLXServerAddress: Please fill in DeepLX server address
+  invalidAPIResponseFormat: Invalid API response format
+  translationServiceReturnedError: Translation service returned error or empty result
+  connectionFailed: Connection failed
+  # Translation Service Log Messages
+  translationFailed: Translation failed
+  aiTranslationFailed: AI translation failed
+  deeplxTranslationFailed: DeepLX translation failed
+  aiTranslationTestFailed: AI translation test failed
+  deeplxTranslationTestFailed: DeepLX translation test failed
+  streamingTranslationTimeout: Streaming translation timeout, forcing resource cleanup
+  translationRequestTimeout: Translation request timeout
+  streamingTranslationDataTimeout: Streaming translation data reception timeout
+  dataReceptionTimeout: Data reception timeout
+  streamDataParseError: Error parsing stream data
+  streamingTranslationFailed: Streaming translation failed
+  fallbackTranslationFailed: Fallback to normal translation also failed
+  translationSettings: Translation Settings
+  enableGoogleTranslation: Enable Google Translation
 
 # Media Player Widgets
 mediaPlayer:

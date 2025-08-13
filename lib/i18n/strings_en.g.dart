@@ -2999,6 +2999,177 @@ class TranslationsTranslationEn {
 
 	/// en: 'Note: This feature requires API service support for streaming transmission, some models may not support it'
 	String get streamingTranslationWarning => 'Note: This feature requires API service support for streaming transmission, some models may not support it';
+
+	/// en: 'Translation Service'
+	String get translationService => 'Translation Service';
+
+	/// en: 'Select your preferred translation service'
+	String get translationServiceDescription => 'Select your preferred translation service';
+
+	/// en: 'Google Translation'
+	String get googleTranslation => 'Google Translation';
+
+	/// en: 'Free online translation service supporting multiple languages'
+	String get googleTranslationDescription => 'Free online translation service supporting multiple languages';
+
+	/// en: 'AI Translation'
+	String get aiTranslation => 'AI Translation';
+
+	/// en: 'Intelligent translation service based on large language models'
+	String get aiTranslationDescription => 'Intelligent translation service based on large language models';
+
+	/// en: 'DeepLX Translation'
+	String get deeplxTranslation => 'DeepLX Translation';
+
+	/// en: 'Open source implementation of DeepL translation, providing high-quality translation'
+	String get deeplxTranslationDescription => 'Open source implementation of DeepL translation, providing high-quality translation';
+
+	/// en: 'Features'
+	String get googleTranslationFeatures => 'Features';
+
+	/// en: 'Free to use'
+	String get freeToUse => 'Free to use';
+
+	/// en: 'No configuration required, ready to use'
+	String get freeToUseDescription => 'No configuration required, ready to use';
+
+	/// en: 'Fast response'
+	String get fastResponse => 'Fast response';
+
+	/// en: 'Fast translation speed with low latency'
+	String get fastResponseDescription => 'Fast translation speed with low latency';
+
+	/// en: 'Stable and reliable'
+	String get stableAndReliable => 'Stable and reliable';
+
+	/// en: 'Based on Google official API'
+	String get stableAndReliableDescription => 'Based on Google official API';
+
+	/// en: 'Enabled - Default translation service'
+	String get enabledDefaultService => 'Enabled - Default translation service';
+
+	/// en: 'Not enabled'
+	String get notEnabled => 'Not enabled';
+
+	/// en: 'DeepLX Translation Service'
+	String get deeplxTranslationService => 'DeepLX Translation Service';
+
+	/// en: 'DeepLX is an open source implementation of DeepL translation, supporting Free, Pro and Official endpoint modes'
+	String get deeplxDescription => 'DeepLX is an open source implementation of DeepL translation, supporting Free, Pro and Official endpoint modes';
+
+	/// en: 'Server Address'
+	String get serverAddress => 'Server Address';
+
+	/// en: 'https://api.deeplx.org'
+	String get serverAddressHint => 'https://api.deeplx.org';
+
+	/// en: 'Base address of DeepLX server'
+	String get serverAddressHelperText => 'Base address of DeepLX server';
+
+	/// en: 'Endpoint Type'
+	String get endpointType => 'Endpoint Type';
+
+	/// en: 'Free - Free endpoint, may have rate limits'
+	String get freeEndpoint => 'Free - Free endpoint, may have rate limits';
+
+	/// en: 'Pro - Requires dl_session, more stable'
+	String get proEndpoint => 'Pro - Requires dl_session, more stable';
+
+	/// en: 'Official - Official API format'
+	String get officialEndpoint => 'Official - Official API format';
+
+	/// en: 'Final Request URL'
+	String get finalRequestUrl => 'Final Request URL';
+
+	/// en: 'API Key (Optional)'
+	String get apiKeyOptional => 'API Key (Optional)';
+
+	/// en: 'For accessing protected DeepLX services'
+	String get apiKeyOptionalHint => 'For accessing protected DeepLX services';
+
+	/// en: 'Some DeepLX services require API Key for authentication'
+	String get apiKeyOptionalHelperText => 'Some DeepLX services require API Key for authentication';
+
+	/// en: 'DL Session'
+	String get dlSession => 'DL Session';
+
+	/// en: 'dl_session parameter required for Pro mode'
+	String get dlSessionHint => 'dl_session parameter required for Pro mode';
+
+	/// en: 'Session parameter required for Pro endpoint, obtained from DeepL Pro account'
+	String get dlSessionHelperText => 'Session parameter required for Pro endpoint, obtained from DeepL Pro account';
+
+	/// en: 'Pro mode requires dl_session'
+	String get proModeRequiresDlSession => 'Pro mode requires dl_session';
+
+	/// en: 'Click test button to verify DeepLX API connection'
+	String get clickTestButtonToVerifyDeepLXAPI => 'Click test button to verify DeepLX API connection';
+
+	/// en: 'Enable DeepLX Translation'
+	String get enableDeepLXTranslation => 'Enable DeepLX Translation';
+
+	/// en: 'DeepLX translation will be disabled due to configuration changes'
+	String get deepLXTranslationWillBeDisabled => 'DeepLX translation will be disabled due to configuration changes';
+
+	/// en: 'Translated Result'
+	String get translatedResult => 'Translated Result';
+
+	/// en: 'Test successful'
+	String get testSuccess => 'Test successful';
+
+	/// en: 'Please fill in DeepLX server address'
+	String get pleaseFillInDeepLXServerAddress => 'Please fill in DeepLX server address';
+
+	/// en: 'Invalid API response format'
+	String get invalidAPIResponseFormat => 'Invalid API response format';
+
+	/// en: 'Translation service returned error or empty result'
+	String get translationServiceReturnedError => 'Translation service returned error or empty result';
+
+	/// en: 'Connection failed'
+	String get connectionFailed => 'Connection failed';
+
+	/// en: 'Translation failed'
+	String get translationFailed => 'Translation failed';
+
+	/// en: 'AI translation failed'
+	String get aiTranslationFailed => 'AI translation failed';
+
+	/// en: 'DeepLX translation failed'
+	String get deeplxTranslationFailed => 'DeepLX translation failed';
+
+	/// en: 'AI translation test failed'
+	String get aiTranslationTestFailed => 'AI translation test failed';
+
+	/// en: 'DeepLX translation test failed'
+	String get deeplxTranslationTestFailed => 'DeepLX translation test failed';
+
+	/// en: 'Streaming translation timeout, forcing resource cleanup'
+	String get streamingTranslationTimeout => 'Streaming translation timeout, forcing resource cleanup';
+
+	/// en: 'Translation request timeout'
+	String get translationRequestTimeout => 'Translation request timeout';
+
+	/// en: 'Streaming translation data reception timeout'
+	String get streamingTranslationDataTimeout => 'Streaming translation data reception timeout';
+
+	/// en: 'Data reception timeout'
+	String get dataReceptionTimeout => 'Data reception timeout';
+
+	/// en: 'Error parsing stream data'
+	String get streamDataParseError => 'Error parsing stream data';
+
+	/// en: 'Streaming translation failed'
+	String get streamingTranslationFailed => 'Streaming translation failed';
+
+	/// en: 'Fallback to normal translation also failed'
+	String get fallbackTranslationFailed => 'Fallback to normal translation also failed';
+
+	/// en: 'Translation Settings'
+	String get translationSettings => 'Translation Settings';
+
+	/// en: 'Enable Google Translation'
+	String get enableGoogleTranslation => 'Enable Google Translation';
 }
 
 // Path: mediaPlayer
@@ -5780,6 +5951,63 @@ extension on Translations {
 			case 'translation.currentActualUrl': return ({required Object url}) => 'Current actual URL: ${url}';
 			case 'translation.urlEndingWithHashTip': return 'URL ending with # will be used directly without adding any suffix';
 			case 'translation.streamingTranslationWarning': return 'Note: This feature requires API service support for streaming transmission, some models may not support it';
+			case 'translation.translationService': return 'Translation Service';
+			case 'translation.translationServiceDescription': return 'Select your preferred translation service';
+			case 'translation.googleTranslation': return 'Google Translation';
+			case 'translation.googleTranslationDescription': return 'Free online translation service supporting multiple languages';
+			case 'translation.aiTranslation': return 'AI Translation';
+			case 'translation.aiTranslationDescription': return 'Intelligent translation service based on large language models';
+			case 'translation.deeplxTranslation': return 'DeepLX Translation';
+			case 'translation.deeplxTranslationDescription': return 'Open source implementation of DeepL translation, providing high-quality translation';
+			case 'translation.googleTranslationFeatures': return 'Features';
+			case 'translation.freeToUse': return 'Free to use';
+			case 'translation.freeToUseDescription': return 'No configuration required, ready to use';
+			case 'translation.fastResponse': return 'Fast response';
+			case 'translation.fastResponseDescription': return 'Fast translation speed with low latency';
+			case 'translation.stableAndReliable': return 'Stable and reliable';
+			case 'translation.stableAndReliableDescription': return 'Based on Google official API';
+			case 'translation.enabledDefaultService': return 'Enabled - Default translation service';
+			case 'translation.notEnabled': return 'Not enabled';
+			case 'translation.deeplxTranslationService': return 'DeepLX Translation Service';
+			case 'translation.deeplxDescription': return 'DeepLX is an open source implementation of DeepL translation, supporting Free, Pro and Official endpoint modes';
+			case 'translation.serverAddress': return 'Server Address';
+			case 'translation.serverAddressHint': return 'https://api.deeplx.org';
+			case 'translation.serverAddressHelperText': return 'Base address of DeepLX server';
+			case 'translation.endpointType': return 'Endpoint Type';
+			case 'translation.freeEndpoint': return 'Free - Free endpoint, may have rate limits';
+			case 'translation.proEndpoint': return 'Pro - Requires dl_session, more stable';
+			case 'translation.officialEndpoint': return 'Official - Official API format';
+			case 'translation.finalRequestUrl': return 'Final Request URL';
+			case 'translation.apiKeyOptional': return 'API Key (Optional)';
+			case 'translation.apiKeyOptionalHint': return 'For accessing protected DeepLX services';
+			case 'translation.apiKeyOptionalHelperText': return 'Some DeepLX services require API Key for authentication';
+			case 'translation.dlSession': return 'DL Session';
+			case 'translation.dlSessionHint': return 'dl_session parameter required for Pro mode';
+			case 'translation.dlSessionHelperText': return 'Session parameter required for Pro endpoint, obtained from DeepL Pro account';
+			case 'translation.proModeRequiresDlSession': return 'Pro mode requires dl_session';
+			case 'translation.clickTestButtonToVerifyDeepLXAPI': return 'Click test button to verify DeepLX API connection';
+			case 'translation.enableDeepLXTranslation': return 'Enable DeepLX Translation';
+			case 'translation.deepLXTranslationWillBeDisabled': return 'DeepLX translation will be disabled due to configuration changes';
+			case 'translation.translatedResult': return 'Translated Result';
+			case 'translation.testSuccess': return 'Test successful';
+			case 'translation.pleaseFillInDeepLXServerAddress': return 'Please fill in DeepLX server address';
+			case 'translation.invalidAPIResponseFormat': return 'Invalid API response format';
+			case 'translation.translationServiceReturnedError': return 'Translation service returned error or empty result';
+			case 'translation.connectionFailed': return 'Connection failed';
+			case 'translation.translationFailed': return 'Translation failed';
+			case 'translation.aiTranslationFailed': return 'AI translation failed';
+			case 'translation.deeplxTranslationFailed': return 'DeepLX translation failed';
+			case 'translation.aiTranslationTestFailed': return 'AI translation test failed';
+			case 'translation.deeplxTranslationTestFailed': return 'DeepLX translation test failed';
+			case 'translation.streamingTranslationTimeout': return 'Streaming translation timeout, forcing resource cleanup';
+			case 'translation.translationRequestTimeout': return 'Translation request timeout';
+			case 'translation.streamingTranslationDataTimeout': return 'Streaming translation data reception timeout';
+			case 'translation.dataReceptionTimeout': return 'Data reception timeout';
+			case 'translation.streamDataParseError': return 'Error parsing stream data';
+			case 'translation.streamingTranslationFailed': return 'Streaming translation failed';
+			case 'translation.fallbackTranslationFailed': return 'Fallback to normal translation also failed';
+			case 'translation.translationSettings': return 'Translation Settings';
+			case 'translation.enableGoogleTranslation': return 'Enable Google Translation';
 			case 'mediaPlayer.videoPlayerError': return 'Video Player Error';
 			case 'mediaPlayer.videoLoadFailed': return 'Video Load Failed';
 			case 'mediaPlayer.videoCodecNotSupported': return 'Video Codec Not Supported';

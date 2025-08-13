@@ -1288,6 +1288,68 @@ translation:
   currentActualUrl: "当前实际URL: ${url}"
   urlEndingWithHashTip: "URL以#结尾时，将以输入的URL作为实际请求地址"
   streamingTranslationWarning: "注意：此功能需要API服务支持流式传输，部分模型可能不支持"
+  # Translation Service Selection
+  translationService: 翻译服务
+  translationServiceDescription: 选择您偏好的翻译服务
+  googleTranslation: Google 翻译
+  googleTranslationDescription: 免费的在线翻译服务，支持多种语言
+  aiTranslation: AI 翻译
+  aiTranslationDescription: 基于大语言模型的智能翻译服务
+  deeplxTranslation: DeepLX 翻译
+  deeplxTranslationDescription: DeepL 翻译的开源实现，提供高质量翻译
+  # Google Translation
+  googleTranslationFeatures: 特性
+  freeToUse: 免费使用
+  freeToUseDescription: 无需配置，开箱即用
+  fastResponse: 快速响应
+  fastResponseDescription: 翻译速度快，延迟低
+  stableAndReliable: 稳定可靠
+  stableAndReliableDescription: 基于Google官方API
+  enabledDefaultService: 已启用 - 默认翻译服务
+  notEnabled: 未启用
+  # DeepLX Translation
+  deeplxTranslationService: DeepLX 翻译服务
+  deeplxDescription: DeepLX 是 DeepL 翻译的开源实现，支持 Free、Pro 和 Official 三种端点模式
+  serverAddress: 服务器地址
+  serverAddressHint: https://api.deeplx.org
+  serverAddressHelperText: DeepLX 服务器的基础地址
+  endpointType: 端点类型
+  freeEndpoint: Free - 免费端点，可能有频率限制
+  proEndpoint: Pro - 需要 dl_session，更稳定
+  officialEndpoint: Official - 官方 API 格式
+  finalRequestUrl: 最终请求URL
+  apiKeyOptional: API Key (可选)
+  apiKeyOptionalHint: 用于访问受保护的 DeepLX 服务
+  apiKeyOptionalHelperText: 某些 DeepLX 服务需要 API Key 进行身份验证
+  dlSession: DL Session
+  dlSessionHint: Pro 模式需要的 dl_session 参数
+  dlSessionHelperText: Pro 端点必需的会话参数，从 DeepL Pro 账户获取
+  proModeRequiresDlSession: Pro 模式需要填写 dl_session
+  clickTestButtonToVerifyDeepLXAPI: 点击测试按钮验证 DeepLX API 连接
+  enableDeepLXTranslation: 启用 DeepLX 翻译
+  deepLXTranslationWillBeDisabled: DeepLX翻译将因配置更改而被禁用
+  translatedResult: 翻译结果
+  # Translation Service Messages
+  testSuccess: 测试成功
+  pleaseFillInDeepLXServerAddress: 请填写DeepLX服务器地址
+  invalidAPIResponseFormat: 无效的API响应格式
+  translationServiceReturnedError: 翻译服务返回错误或空结果
+  connectionFailed: 连接失败
+  # Translation Service Log Messages
+  translationFailed: 翻译失败
+  aiTranslationFailed: AI翻译失败
+  deeplxTranslationFailed: DeepLX翻译失败
+  aiTranslationTestFailed: AI翻译测试失败
+  deeplxTranslationTestFailed: DeepLX翻译测试失败
+  streamingTranslationTimeout: 流式翻译超时，强制关闭资源
+  translationRequestTimeout: 翻译请求超时
+  streamingTranslationDataTimeout: 流式翻译接收数据超时
+  dataReceptionTimeout: 接收数据超时
+  streamDataParseError: 解析流数据时出错
+  streamingTranslationFailed: 流式翻译失败
+  fallbackTranslationFailed: 降级到普通翻译也失败
+  translationSettings: 翻译设置
+  enableGoogleTranslation: 启用 Google 翻译
 
 # 媒体播放器组件
 mediaPlayer:

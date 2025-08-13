@@ -7,6 +7,7 @@ import 'package:i_iwara/app/services/translation_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'dart:convert';
+import 'package:waterfall_flow/waterfall_flow.dart';
 
 class DeepLXTranslationSettingsWidget extends StatefulWidget {
   const DeepLXTranslationSettingsWidget({super.key});
@@ -136,19 +137,31 @@ class _DeepLXTranslationSettingsWidgetState
       key: _formKey,
       child: SliverPadding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        sliver: SliverList(
-          delegate: SliverChildListDelegate([
-            Obx(() => _buildStatusCard(context)),
-            const SizedBox(height: 16),
-            _buildDisclaimerCard(context),
-            const SizedBox(height: 16),
-            _buildAPIConfigSection(context),
-            const SizedBox(height: 16),
-            _buildTestConnectionSection(context),
-            const SizedBox(height: 16),
-            _buildEnableSection(context),
-            SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
-          ]),
+        sliver: SliverLayoutBuilder(
+          builder: (context, constraints) {
+            final double width = constraints.crossAxisExtent;
+            final bool isWide = width >= 1000;
+            final int crossCount = isWide ? 2 : 1;
+
+            final List<Widget> cards = [
+              Obx(() => _buildStatusCard(context)),
+              _buildDisclaimerCard(context),
+              _buildAPIConfigSection(context),
+              _buildTestConnectionSection(context),
+              _buildEnableSection(context),
+              SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
+            ];
+
+            return SliverWaterfallFlow(
+              gridDelegate:
+                  SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossCount,
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 16,
+              ),
+              delegate: SliverChildListDelegate(cards),
+            );
+          },
         ),
       ),
     );
@@ -193,14 +206,14 @@ class _DeepLXTranslationSettingsWidgetState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'DeepLX 翻译',
+                      slang.t.translation.deeplxTranslation,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      isEnabled ? '已启用' : '未启用',
+                      isEnabled ? slang.t.translation.enabled : slang.t.translation.disabled,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: isEnabled ? Colors.blue : Colors.grey,
                         fontWeight: FontWeight.w500,
@@ -251,7 +264,7 @@ class _DeepLXTranslationSettingsWidgetState
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'DeepLX 翻译服务',
+                    slang.t.translation.deeplxTranslationService,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.bold,
@@ -261,7 +274,7 @@ class _DeepLXTranslationSettingsWidgetState
               ),
               const SizedBox(height: 8),
               Text(
-                'DeepLX 是 DeepL 翻译的开源实现，支持 Free、Pro 和 Official 三种端点模式。',
+                slang.t.translation.deeplxDescription,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 12,
@@ -300,7 +313,7 @@ class _DeepLXTranslationSettingsWidgetState
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'API 配置',
+                      slang.t.translation.apiConfig,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.bold,
@@ -310,7 +323,7 @@ class _DeepLXTranslationSettingsWidgetState
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '修改配置将自动关闭 DeepLX 翻译，需要重新测试连接',
+                  slang.t.translation.deepLXTranslationWillBeDisabled,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.error,
                     fontSize: 12,
@@ -323,25 +336,43 @@ class _DeepLXTranslationSettingsWidgetState
           const Divider(height: 1),
           Padding(
             padding: const EdgeInsets.all(16),
-            child: Column(
-              spacing: 16,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildInputSection(
-                  context: context,
-                  label: '服务器地址',
-                  controller: _baseUrlController,
-                  hintText: 'https://api.deeplx.org',
-                  configKey: ConfigKey.DEEPLX_BASE_URL,
-                  icon: Icons.link,
-                  helperText: "DeepLX 服务器的基础地址",
-                ),
-                _buildEndpointTypeSelector(context),
-                _buildApiKeyInputSection(context),
-                Obx(() => _selectedEndpointType.value == 'Pro' 
-                    ? _buildDlSessionInputSection(context)
-                    : const SizedBox.shrink()),
-              ],
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final bool isWide = constraints.maxWidth >= 900;
+                const double gap = 16;
+                final double itemWidth = isWide
+                    ? (constraints.maxWidth - gap) / 2
+                    : constraints.maxWidth;
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Wrap(
+                      spacing: gap,
+                      runSpacing: 16,
+                      children: [
+                        SizedBox(
+                          width: itemWidth,
+                          child: _buildInputSection(
+                            context: context,
+                            label: slang.t.translation.serverAddress,
+                            controller: _baseUrlController,
+                            hintText: slang.t.translation.serverAddressHint,
+                            configKey: ConfigKey.DEEPLX_BASE_URL,
+                            icon: Icons.link,
+                            helperText: slang.t.translation.serverAddressHelperText,
+                          ),
+                        ),
+                        SizedBox(width: itemWidth, child: _buildEndpointTypeSelector(context)),
+                        SizedBox(width: itemWidth, child: _buildApiKeyInputSection(context)),
+                        Obx(() => _selectedEndpointType.value == 'Pro'
+                            ? SizedBox(width: itemWidth, child: _buildDlSessionInputSection(context))
+                            : const SizedBox.shrink()),
+                      ],
+                    ),
+                  ],
+                );
+              },
             ),
           ),
         ],
@@ -362,7 +393,7 @@ class _DeepLXTranslationSettingsWidgetState
             ),
             const SizedBox(width: 8),
             Text(
-              '端点类型',
+              slang.t.translation.endpointType,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.w500,
               ),
@@ -382,13 +413,13 @@ class _DeepLXTranslationSettingsWidgetState
             String description;
             switch (type) {
               case 'Free':
-                description = 'Free - 免费端点，可能有频率限制';
+                description = slang.t.translation.freeEndpoint;
                 break;
               case 'Pro':
-                description = 'Pro - 需要 dl_session，更稳定';
+                description = slang.t.translation.proEndpoint;
                 break;
               case 'Official':
-                description = 'Official - 官方 API 格式';
+                description = slang.t.translation.officialEndpoint;
                 break;
               default:
                 description = type;
@@ -402,7 +433,7 @@ class _DeepLXTranslationSettingsWidgetState
             if (value != null) {
               _selectedEndpointType.value = value;
               configService[ConfigKey.DEEPLX_ENDPOINT_TYPE] = value;
-              _disableDeepLXTranslation(message: 'DeepLX翻译将因配置更改而被禁用');
+              _disableDeepLXTranslation(message: slang.t.translation.deepLXTranslationWillBeDisabled);
               _isConnectionValid.value = false;
               _hasTested.value = false;
               _testResult.value = null;
@@ -452,7 +483,7 @@ class _DeepLXTranslationSettingsWidgetState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '最终请求URL:',
+            '${slang.t.translation.finalRequestUrl}:',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               fontWeight: FontWeight.w500,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -514,14 +545,14 @@ class _DeepLXTranslationSettingsWidgetState
           ),
           validator: (value) {
             if (configKey == ConfigKey.DEEPLX_BASE_URL && (value == null || value.trim().isEmpty)) {
-              return '请输入服务器地址';
+              return slang.t.translation.serverAddress.isEmpty ? slang.t.translation.thisFieldCannotBeEmpty : slang.t.translation.serverAddress;
             }
             return null;
           },
           onChanged: (value) {
             configService[configKey] = value;
             if (configKey == ConfigKey.DEEPLX_BASE_URL) {
-              _disableDeepLXTranslation(message: 'DeepLX翻译将因配置更改而被禁用');
+              _disableDeepLXTranslation(message: slang.t.translation.deepLXTranslationWillBeDisabled);
               _isConnectionValid.value = false;
               _hasTested.value = false;
               _testResult.value = null;
@@ -546,7 +577,7 @@ class _DeepLXTranslationSettingsWidgetState
             ),
             const SizedBox(width: 8),
             Text(
-              'API Key (可选)',
+              slang.t.translation.apiKeyOptional,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.w500,
               ),
@@ -558,7 +589,7 @@ class _DeepLXTranslationSettingsWidgetState
           controller: _apiKeyController,
           obscureText: obscureText.value,
           decoration: InputDecoration(
-            hintText: '用于访问受保护的 DeepLX 服务',
+            hintText: slang.t.translation.apiKeyOptionalHint,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -570,16 +601,16 @@ class _DeepLXTranslationSettingsWidgetState
               ),
               onPressed: () => obscureText.value = !obscureText.value,
             ),
-            helperText: '某些 DeepLX 服务需要 API Key 进行身份验证',
+            helperText: slang.t.translation.apiKeyOptionalHelperText,
             helperMaxLines: 2,
           ),
-          onChanged: (value) {
-            configService[ConfigKey.DEEPLX_API_KEY] = value;
-            _disableDeepLXTranslation(message: 'DeepLX翻译将因配置更改而被禁用');
-            _isConnectionValid.value = false;
-            _hasTested.value = false;
-            _testResult.value = null;
-          },
+                      onChanged: (value) {
+              configService[ConfigKey.DEEPLX_API_KEY] = value;
+              _disableDeepLXTranslation(message: slang.t.translation.deepLXTranslationWillBeDisabled);
+              _isConnectionValid.value = false;
+              _hasTested.value = false;
+              _testResult.value = null;
+            },
         )),
       ],
     );
@@ -599,7 +630,7 @@ class _DeepLXTranslationSettingsWidgetState
             ),
             const SizedBox(width: 8),
             Text(
-              'DL Session',
+              slang.t.translation.dlSession,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.w500,
               ),
@@ -611,7 +642,7 @@ class _DeepLXTranslationSettingsWidgetState
           controller: _dlSessionController,
           obscureText: obscureText.value,
           decoration: InputDecoration(
-            hintText: 'Pro 模式需要的 dl_session 参数',
+            hintText: slang.t.translation.dlSessionHint,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -623,22 +654,22 @@ class _DeepLXTranslationSettingsWidgetState
               ),
               onPressed: () => obscureText.value = !obscureText.value,
             ),
-            helperText: 'Pro 端点必需的会话参数，从 DeepL Pro 账户获取',
+            helperText: slang.t.translation.dlSessionHelperText,
             helperMaxLines: 2,
           ),
           validator: (value) {
             if (_selectedEndpointType.value == 'Pro' && (value == null || value.trim().isEmpty)) {
-              return 'Pro 模式需要填写 dl_session';
+              return slang.t.translation.proModeRequiresDlSession;
             }
             return null;
           },
-          onChanged: (value) {
-            configService[ConfigKey.DEEPLX_DL_SESSION] = value;
-            _disableDeepLXTranslation(message: 'DeepLX翻译将因配置更改而被禁用');
-            _isConnectionValid.value = false;
-            _hasTested.value = false;
-            _testResult.value = null;
-          },
+                      onChanged: (value) {
+              configService[ConfigKey.DEEPLX_DL_SESSION] = value;
+              _disableDeepLXTranslation(message: slang.t.translation.deepLXTranslationWillBeDisabled);
+              _isConnectionValid.value = false;
+              _hasTested.value = false;
+              _testResult.value = null;
+            },
         )),
       ],
     );
@@ -688,7 +719,7 @@ class _DeepLXTranslationSettingsWidgetState
                         )
                       : const Icon(Icons.play_arrow, size: 16),
                   label: Text(
-                    _isTesting.value ? '测试中...' : slang.t.translation.testConnection,
+                    _isTesting.value ? slang.t.translation.testing : slang.t.translation.testConnection,
                     style: const TextStyle(fontSize: 12),
                   ),
                   style: ElevatedButton.styleFrom(
@@ -705,7 +736,7 @@ class _DeepLXTranslationSettingsWidgetState
               return _buildInfoCard(
                 context: context,
                 child: Text(
-                  '点击测试按钮验证 DeepLX API 连接',
+                  slang.t.translation.clickTestButtonToVerifyDeepLXAPI,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               );
@@ -730,14 +761,14 @@ class _DeepLXTranslationSettingsWidgetState
           spacing: 16,
           children: [
             _buildStatusRow(
-              '连接状态',
-              isValid ? '成功' : '失败',
+              slang.t.translation.connectionStatus,
+              isValid ? slang.t.translation.success : slang.t.translation.failed,
               isValid,
               successColor: colorScheme.onPrimaryContainer,
               errorColor: colorScheme.onErrorContainer,
             ),
             _buildStatusRow(
-              '信息',
+              slang.t.translation.information,
               _testResult.value!.custMessage,
               _testResult.value!.custMessage.isNotEmpty,
               successColor: colorScheme.onPrimaryContainer,
@@ -745,7 +776,7 @@ class _DeepLXTranslationSettingsWidgetState
             ),
             if (_testResult.value!.translatedText != null) ...[
               _buildStatusRow(
-                '翻译结果',
+                slang.t.translation.translatedResult,
                 _testResult.value!.translatedText!,
                 true,
                 successColor: colorScheme.onPrimaryContainer,
@@ -755,7 +786,7 @@ class _DeepLXTranslationSettingsWidgetState
             if (_testResult.value!.rawResponse != null) ...[
               ExpansionTile(
                 title: Text(
-                  '查看原始响应',
+                  slang.t.translation.viewRawResponse,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 children: [
@@ -830,7 +861,7 @@ class _DeepLXTranslationSettingsWidgetState
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color ?? Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+        color: color ?? Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
       ),
       child: child,
     );
@@ -854,11 +885,11 @@ class _DeepLXTranslationSettingsWidgetState
       child: Obx(
         () => SwitchListTile(
           title: Text(
-            '启用 DeepLX 翻译',
+            slang.t.translation.enableDeepLXTranslation,
             style: Theme.of(context).textTheme.titleMedium,
           ),
           subtitle: Text(
-            _isDeepLXEnabled.value ? '已启用' : '已禁用',
+            _isDeepLXEnabled.value ? slang.t.translation.enabled : slang.t.translation.disabled,
             style: Theme.of(context).textTheme.bodySmall,
           ),
           value: _isDeepLXEnabled.value,

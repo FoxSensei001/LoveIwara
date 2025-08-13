@@ -190,7 +190,7 @@ class TranslationLanguageSelector extends StatelessWidget {
                             NaviService.navigateToTranslationSettingsPage();
                           },
                           icon: const Icon(Icons.settings),
-                          tooltip: '翻译设置',
+                          tooltip: slang.t.translation.translationSettings,
                           iconSize: 20,
                         ),
                     ],

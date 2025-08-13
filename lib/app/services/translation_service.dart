@@ -111,7 +111,7 @@ class TranslationService extends GetxService {
 
       return ApiResult.success(message: '', data: buffer.toString());
     } catch (e) {
-      LogUtils.e('翻译失败', tag: 'TranslationService', error: e);
+      LogUtils.e(slang.t.translation.translationFailed, tag: 'TranslationService', error: e);
       return ApiResult.fail(t.errors.failedToOperate);
     }
   }
@@ -243,7 +243,7 @@ class TranslationService extends GetxService {
 
       return _parseAIResponse(response.data);
     } catch (e) {
-      LogUtils.e('AI翻译失败', tag: 'TranslationService', error: e);
+      LogUtils.e(slang.t.translation.aiTranslationFailed, tag: 'TranslationService', error: e);
       return ApiResult.fail(t.errors.translationFailedPleaseTryAgainLater);
     }
   }
@@ -365,7 +365,7 @@ class TranslationService extends GetxService {
 
       return _parseDeepLXResponse(response.data);
     } catch (e) {
-      LogUtils.e('DeepLX翻译失败', tag: 'TranslationService', error: e);
+      LogUtils.e(slang.t.translation.deeplxTranslationFailed, tag: 'TranslationService', error: e);
       return ApiResult.fail(t.errors.translationFailedPleaseTryAgainLater);
     }
   }
@@ -458,11 +458,11 @@ class TranslationService extends GetxService {
               rawResponse: jsonEncode(data),
               translatedText: content,
               connectionValid: true,
-              custMessage: '测试成功'
+              custMessage: slang.t.translation.testSuccess
           )
       );
     } catch (e) {
-      LogUtils.e('AI翻译测试失败', tag: 'TranslationService', error: e);
+      LogUtils.e(slang.t.translation.aiTranslationTestFailed, tag: 'TranslationService', error: e);
       return ApiResult.success(
           data: AITestResult(
               custMessage: slang.t.translation.connectionFailedForMessage(message: e.toString()),
@@ -482,7 +482,7 @@ class TranslationService extends GetxService {
       if (baseUrl.isEmpty) {
         return ApiResult.success(
             data: AITestResult(
-                custMessage: '请填写DeepLX服务器地址',
+                custMessage: slang.t.translation.pleaseFillInDeepLXServerAddress,
                 connectionValid: false
             )
         );
@@ -555,7 +555,7 @@ class TranslationService extends GetxService {
       if (data is! Map<String, dynamic>) {
         return ApiResult.success(
             data: AITestResult(
-                custMessage: '无效的API响应格式',
+                custMessage: slang.t.translation.invalidAPIResponseFormat,
                 connectionValid: false
             )
         );
@@ -568,7 +568,7 @@ class TranslationService extends GetxService {
       if (code != 200 || translatedText == null || translatedText.isEmpty) {
         return ApiResult.success(
             data: AITestResult(
-                custMessage: '翻译服务返回错误或空结果',
+                custMessage: slang.t.translation.translationServiceReturnedError,
                 connectionValid: false,
                 rawResponse: jsonEncode(data)
             )
@@ -580,14 +580,14 @@ class TranslationService extends GetxService {
               rawResponse: jsonEncode(data),
               translatedText: translatedText,
               connectionValid: true,
-              custMessage: '测试成功'
+              custMessage: slang.t.translation.testSuccess
           )
       );
     } catch (e) {
-      LogUtils.e('DeepLX翻译测试失败', tag: 'TranslationService', error: e);
+      LogUtils.e(slang.t.translation.deeplxTranslationTestFailed, tag: 'TranslationService', error: e);
       return ApiResult.success(
           data: AITestResult(
-              custMessage: '连接失败: ${e.toString()}',
+              custMessage: '${slang.t.translation.connectionFailed}: ${e.toString()}',
               connectionValid: false
           )
       );
@@ -643,7 +643,7 @@ class TranslationService extends GetxService {
 
     // 创建新的计时器
     _translationTimeouts[translationId] = Timer(Duration(seconds: _streamTranslationTimeoutSeconds), () {
-      LogUtils.w('流式翻译超时，强制关闭资源', 'TranslationService');
+      LogUtils.w(slang.t.translation.streamingTranslationTimeout, 'TranslationService');
       _cleanupTranslationResources(translationId, isTimeout: true);
     });
   }
@@ -659,7 +659,7 @@ class TranslationService extends GetxService {
     if (streamController != null && !streamController.isClosed) {
       if (isTimeout) {
         // 如果是因为超时关闭的，添加错误信息
-        streamController.addError('翻译请求超时');
+        streamController.addError(slang.t.translation.translationRequestTimeout);
       }
       streamController.close();
     }
@@ -701,9 +701,9 @@ class TranslationService extends GetxService {
         inactivityTimer?.cancel();
         inactivityTimer = Timer(const Duration(seconds: 30), () {
           if (isActive) {
-            LogUtils.w('流式翻译接收数据超时', 'TranslationService');
+            LogUtils.w(slang.t.translation.streamingTranslationDataTimeout, 'TranslationService');
             isActive = false;
-            streamController.addError('接收数据超时');
+            streamController.addError(slang.t.translation.dataReceptionTimeout);
             _cleanupTranslationResources(translationId);
           }
         });
@@ -743,7 +743,7 @@ class TranslationService extends GetxService {
               streamController.add(fullTranslation);
             }
           } catch (e) {
-            LogUtils.e('解析流数据时出错', error: e);
+            LogUtils.e(slang.t.translation.streamDataParseError, error: e);
           }
         }
       }
@@ -757,7 +757,7 @@ class TranslationService extends GetxService {
       }
 
     } catch (e) {
-      LogUtils.e('流式翻译失败', error: e);
+      LogUtils.e(slang.t.translation.streamingTranslationFailed, error: e);
 
       // 降级：使用普通翻译方式
       if (!streamController.isClosed) {
@@ -770,7 +770,7 @@ class TranslationService extends GetxService {
             streamController.addError(result.message);
           }
         } catch (fallbackError) {
-          LogUtils.e('降级到普通翻译也失败', error: fallbackError);
+          LogUtils.e(slang.t.translation.fallbackTranslationFailed, error: fallbackError);
           streamController.addError(fallbackError);
         } finally {
           // 关闭流

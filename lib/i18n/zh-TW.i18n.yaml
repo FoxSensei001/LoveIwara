@@ -1285,6 +1285,68 @@ translation:
   currentActualUrl: "目前實際URL: ${url}"
   urlEndingWithHashTip: "URL以#結尾時，將以輸入的URL作為實際請求地址"
   streamingTranslationWarning: "注意：此功能需要API服務支持流式傳輸，部分模型可能不支持"
+  # Translation Service Selection
+  translationService: 翻譯服務
+  translationServiceDescription: 選擇您偏好的翻譯服務
+  googleTranslation: Google 翻譯
+  googleTranslationDescription: 免費的線上翻譯服務，支援多種語言
+  aiTranslation: AI 翻譯
+  aiTranslationDescription: 基於大語言模型的智慧翻譯服務
+  deeplxTranslation: DeepLX 翻譯
+  deeplxTranslationDescription: DeepL 翻譯的開源實現，提供高品質翻譯
+  # Google Translation
+  googleTranslationFeatures: 特性
+  freeToUse: 免費使用
+  freeToUseDescription: 無需配置，開箱即用
+  fastResponse: 快速響應
+  fastResponseDescription: 翻譯速度快，延遲低
+  stableAndReliable: 穩定可靠
+  stableAndReliableDescription: 基於Google官方API
+  enabledDefaultService: 已啟用 - 預設翻譯服務
+  notEnabled: 未啟用
+  # DeepLX Translation
+  deeplxTranslationService: DeepLX 翻譯服務
+  deeplxDescription: DeepLX 是 DeepL 翻譯的開源實現，支援 Free、Pro 和 Official 三種端點模式
+  serverAddress: 伺服器地址
+  serverAddressHint: https://api.deeplx.org
+  serverAddressHelperText: DeepLX 伺服器的基礎地址
+  endpointType: 端點類型
+  freeEndpoint: Free - 免費端點，可能有頻率限制
+  proEndpoint: Pro - 需要 dl_session，更穩定
+  officialEndpoint: Official - 官方 API 格式
+  finalRequestUrl: 最終請求URL
+  apiKeyOptional: API Key (可選)
+  apiKeyOptionalHint: 用於訪問受保護的 DeepLX 服務
+  apiKeyOptionalHelperText: 某些 DeepLX 服務需要 API Key 進行身份驗證
+  dlSession: DL Session
+  dlSessionHint: Pro 模式需要的 dl_session 參數
+  dlSessionHelperText: Pro 端點必需的會話參數，從 DeepL Pro 帳戶獲取
+  proModeRequiresDlSession: Pro 模式需要填寫 dl_session
+  clickTestButtonToVerifyDeepLXAPI: 點擊測試按鈕驗證 DeepLX API 連接
+  enableDeepLXTranslation: 啟用 DeepLX 翻譯
+  deepLXTranslationWillBeDisabled: DeepLX翻譯將因配置更改而被禁用
+  translatedResult: 翻譯結果
+  # Translation Service Messages
+  testSuccess: 測試成功
+  pleaseFillInDeepLXServerAddress: 請填寫DeepLX伺服器地址
+  invalidAPIResponseFormat: 無效的API響應格式
+  translationServiceReturnedError: 翻譯服務返回錯誤或空結果
+  connectionFailed: 連接失敗
+  # Translation Service Log Messages
+  translationFailed: 翻譯失敗
+  aiTranslationFailed: AI翻譯失敗
+  deeplxTranslationFailed: DeepLX翻譯失敗
+  aiTranslationTestFailed: AI翻譯測試失敗
+  deeplxTranslationTestFailed: DeepLX翻譯測試失敗
+  streamingTranslationTimeout: 流式翻譯超時，強制關閉資源
+  translationRequestTimeout: 翻譯請求超時
+  streamingTranslationDataTimeout: 流式翻譯接收數據超時
+  dataReceptionTimeout: 接收數據超時
+  streamDataParseError: 解析流數據時出錯
+  streamingTranslationFailed: 流式翻譯失敗
+  fallbackTranslationFailed: 降級到普通翻譯也失敗
+  translationSettings: 翻譯設定
+  enableGoogleTranslation: 啟用 Google 翻譯
 
 # 媒體播放器元件
 mediaPlayer:

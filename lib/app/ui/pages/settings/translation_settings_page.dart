@@ -26,20 +26,20 @@ class _TranslationSettingsPageState extends State<TranslationSettingsPage> {
   final List<Map<String, dynamic>> _translationServices = [
     {
       'key': 'google',
-      'name': 'Google 翻译',
-      'description': '免费的在线翻译服务，支持多种语言',
+      'name': slang.t.translation.googleTranslation,
+      'description': slang.t.translation.googleTranslationDescription,
       'icon': 'google',
     },
     {
       'key': 'ai',
-      'name': 'AI 翻译',
-      'description': '基于大语言模型的智能翻译服务',
+      'name': slang.t.translation.aiTranslation,
+      'description': slang.t.translation.aiTranslationDescription,
       'icon': 'ai',
     },
     {
       'key': 'deeplx',
-      'name': 'DeepLX 翻译',
-      'description': 'DeepL 翻译的开源实现，提供高质量翻译',
+      'name': slang.t.translation.deeplxTranslation,
+      'description': slang.t.translation.deeplxTranslationDescription,
       'icon': 'deeplx',
     },
   ];
@@ -49,63 +49,70 @@ class _TranslationSettingsPageState extends State<TranslationSettingsPage> {
     final t = slang.Translations.of(context);
 
     return Scaffold(
-      body: Obx(() {
-        if (_selectedService.value == 'ai') {
-          // AI翻译页面
-          return CustomScrollView(
-            slivers: [
-              BlurredSliverAppBar(
-                title: t.translation.translation,
-                isWideScreen: widget.isWideScreen,
-              ),
-              SliverPadding(
-                padding: const EdgeInsets.all(16),
-                sliver: SliverToBoxAdapter(
-                  child: _buildServiceSelector(context),
-                ),
-              ),
-              const AITranslationSettingsWidget(),
-            ],
-          );
-        } else if (_selectedService.value == 'deeplx') {
-          // DeepLX翻译页面
-          return CustomScrollView(
-            slivers: [
-              BlurredSliverAppBar(
-                title: t.translation.translation,
-                isWideScreen: widget.isWideScreen,
-              ),
-              SliverPadding(
-                padding: const EdgeInsets.all(16),
-                sliver: SliverToBoxAdapter(
-                  child: _buildServiceSelector(context),
-                ),
-              ),
-              const DeepLXTranslationSettingsWidget(),
-            ],
-          );
-        } else {
-          // Google翻译页面
-          return CustomScrollView(
-            slivers: [
-              BlurredSliverAppBar(
-                title: t.translation.translation,
-                isWideScreen: widget.isWideScreen,
-              ),
-              SliverPadding(
-                padding: const EdgeInsets.all(16),
-                sliver: SliverList(
-                  delegate: SliverChildListDelegate([
-                    _buildServiceSelector(context),
-                    const SizedBox(height: 16),
-                    _buildGoogleTranslationContent(context),
-                  ]),
-                ),
-              ),
-            ],
-          );
-        }
-      }),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final bool isWide = constraints.maxWidth >= 1000;
+          final EdgeInsets pagePadding = EdgeInsets.all(isWide ? 24 : 16);
+
+          return Obx(() {
+            if (_selectedService.value == 'ai') {
+              // AI翻译页面
+              return CustomScrollView(
+                slivers: [
+                  BlurredSliverAppBar(
+                    title: t.translation.translation,
+                    isWideScreen: widget.isWideScreen,
+                  ),
+                  SliverPadding(
+                    padding: pagePadding,
+                    sliver: SliverToBoxAdapter(
+                      child: _buildServiceSelector(context),
+                    ),
+                  ),
+                  const AITranslationSettingsWidget(),
+                ],
+              );
+            } else if (_selectedService.value == 'deeplx') {
+              // DeepLX翻译页面
+              return CustomScrollView(
+                slivers: [
+                  BlurredSliverAppBar(
+                    title: t.translation.translation,
+                    isWideScreen: widget.isWideScreen,
+                  ),
+                  SliverPadding(
+                    padding: pagePadding,
+                    sliver: SliverToBoxAdapter(
+                      child: _buildServiceSelector(context),
+                    ),
+                  ),
+                  const DeepLXTranslationSettingsWidget(),
+                ],
+              );
+            } else {
+              // Google翻译页面
+              return CustomScrollView(
+                slivers: [
+                  BlurredSliverAppBar(
+                    title: t.translation.translation,
+                    isWideScreen: widget.isWideScreen,
+                  ),
+                  SliverPadding(
+                    padding: pagePadding,
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                        _buildServiceSelector(context),
+                        const SizedBox(height: 16),
+                        _buildGoogleTranslationContent(context),
+                      ]),
+                    ),
+                  ),
+                ],
+              );
+            }
+          });
+        },
+      ),
     );
   }
 
@@ -130,7 +137,7 @@ class _TranslationSettingsPageState extends State<TranslationSettingsPage> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  '翻译服务',
+                  slang.t.translation.translationService,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: Theme.of(context).colorScheme.primary,
                     fontWeight: FontWeight.bold,
@@ -241,7 +248,7 @@ class _TranslationSettingsPageState extends State<TranslationSettingsPage> {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    'Google 翻译',
+                    slang.t.translation.googleTranslation,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -273,7 +280,7 @@ class _TranslationSettingsPageState extends State<TranslationSettingsPage> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      isGoogleEnabled ? '已启用 - 默认翻译服务' : '未启用',
+                      isGoogleEnabled ? slang.t.translation.enabledDefaultService : slang.t.translation.notEnabled,
                       style: TextStyle(
                         color: isGoogleEnabled ? Colors.green.shade700 : Colors.grey.shade600,
                         fontWeight: FontWeight.w500,
@@ -283,16 +290,43 @@ class _TranslationSettingsPageState extends State<TranslationSettingsPage> {
                 ),
               ),
               const SizedBox(height: 16),
+              if (!isGoogleEnabled)
+                Column(
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          // 禁用其他翻译服务，启用Google翻译
+                          configService[ConfigKey.USE_AI_TRANSLATION] = false;
+                          configService[ConfigKey.USE_DEEPLX_TRANSLATION] = false;
+                        },
+                        icon: SvgPicture.asset(
+                          'assets/svg/google.svg',
+                          width: 16,
+                          height: 16,
+                        ),
+                        label: Text(slang.t.translation.enableGoogleTranslation),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
               Text(
-                '特性',
+                slang.t.translation.googleTranslationFeatures,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 8),
-              _buildFeatureItem(context, '免费使用', '无需配置，开箱即用'),
-              _buildFeatureItem(context, '快速响应', '翻译速度快，延迟低'),
-              _buildFeatureItem(context, '稳定可靠', '基于Google官方API'),
+              _buildFeatureItem(context, slang.t.translation.freeToUse, slang.t.translation.freeToUseDescription),
+              _buildFeatureItem(context, slang.t.translation.fastResponse, slang.t.translation.fastResponseDescription),
+              _buildFeatureItem(context, slang.t.translation.stableAndReliable, slang.t.translation.stableAndReliableDescription),
             ],
           ),
         ),
