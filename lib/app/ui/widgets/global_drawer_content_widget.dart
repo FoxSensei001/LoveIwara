@@ -171,7 +171,7 @@ class GlobalDrawerColumns extends StatelessWidget {
                           ),
                           onPressed: () {
                             AppService.switchGlobalDrawer();
-                            Get.toNamed(Routes.SETTINGS_PAGE);
+                            NaviService.navigateToSettingsPage();
                           },
                         ),
                         Text(t.common.settings, style: const TextStyle(fontSize: 12)),

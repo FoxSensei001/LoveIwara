@@ -18,6 +18,7 @@ import 'package:i_iwara/app/ui/pages/history/history_list_page.dart';
 import 'package:i_iwara/app/ui/pages/notifications/notification_list_page.dart';
 import 'package:i_iwara/app/ui/pages/play_list/play_list.dart';
 import 'package:i_iwara/app/ui/pages/play_list/play_list_detail.dart';
+import 'package:i_iwara/app/ui/pages/settings/settings_page.dart';
 import 'package:i_iwara/app/ui/pages/tag_blacklist/tag_blacklist_page.dart';
 import 'package:i_iwara/app/ui/pages/tag_videos/tag_gallery_list_page.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
@@ -446,6 +447,14 @@ class NaviService {
     _navigateToPage(
       routeName: Routes.EMOJI_LIBRARY,
       page: const EmojiLibraryPage(),
+    );
+  }
+
+  // 跳转到设置页
+  static void navigateToSettingsPage() {
+    _navigateToPage(
+      routeName: Routes.SETTINGS_PAGE,
+      page: const SettingsPage(),
     );
   }
 }

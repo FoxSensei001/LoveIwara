@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Translations;
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/signature_edit_sheet_widget.dart';
 import 'package:i_iwara/app/ui/pages/emoji_library/emoji_library_page.dart';
@@ -157,7 +158,7 @@ class ForumSettingsPage extends StatelessWidget {
                   subtitle: Text(t.emoji.manageEmojiGroupsAndImages),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () {
-                    Get.to(() => const EmojiLibraryPage(), transition: Transition.rightToLeft);
+                    NaviService.navigateToEmojiLibraryPage();
                   },
                   shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.only(

@@ -11,7 +11,6 @@ import 'package:i_iwara/app/ui/pages/settings/about_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/app_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/player_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/proxy_settings_page.dart';
-import 'package:i_iwara/app/ui/pages/settings/settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/theme_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/download_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/forum_settings_page.dart';
@@ -174,10 +173,6 @@ class _MyAppState extends State<MyApp> {
                 name: Routes.HOME,
                 page: () => const HomeNavigationLayout(),
               ),
-              GetPage(
-                  name: Routes.SETTINGS_PAGE,
-                  page: () => const SettingsPage(),
-                  transition: Transition.rightToLeft),
               GetPage(
                   name: Routes.PLAYER_SETTINGS_PAGE,
                   page: () => const PlayerSettingsPage(),
