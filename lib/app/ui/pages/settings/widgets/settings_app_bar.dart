@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class SettingsAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -13,10 +14,20 @@ class SettingsAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 根据当前主题动态设置状态栏样式
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final systemOverlayStyle = SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark,
+    );
+
     return AppBar(
       title: Text(title),
       elevation: 2,
       automaticallyImplyLeading: !isWideScreen, // 在宽屏模式下不显示返回按钮
+      systemOverlayStyle: systemOverlayStyle,
     );
   }
 
@@ -43,6 +54,15 @@ class BlurredSliverAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 根据当前主题动态设置状态栏样式
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final systemOverlayStyle = SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark,
+    );
+
     return SliverAppBar(
       title: Text(
         title,
@@ -58,6 +78,7 @@ class BlurredSliverAppBar extends StatelessWidget {
       scrolledUnderElevation: 0,
       backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
+      systemOverlayStyle: systemOverlayStyle,
       flexibleSpace: ClipRRect(
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),

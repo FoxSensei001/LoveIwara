@@ -5,10 +5,8 @@ import 'package:shimmer/shimmer.dart';
 
 import '../../../../models/comment.model.dart';
 import '../../../../services/comment_service.dart';
-import '../../../widgets/MDToastWidget.dart';
 import 'comment_item_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:oktoast/oktoast.dart';
 
 class CommentRepliesBottomSheet extends StatefulWidget {
   final Comment parentComment;
@@ -57,6 +55,7 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
   }
 
   Future<void> _loadReplies({bool refresh = false}) async {
+    if (!mounted) return;
     if (refresh) {
       setState(() {
         _currentPage = 0;
@@ -99,6 +98,8 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
         limit: _pageSize,
       );
 
+      if (!mounted) return;
+
       if (result.isSuccess) {
         final pageData = result.data!;
         final fetchedReplies = pageData.results;
@@ -115,12 +116,14 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
           _hasMore = false;
         });
       }
-    } catch (e) {
+      } catch (e) {
+      if (!mounted) return;
       setState(() {
         _errorMessage = slang.t.errors.errorWhileFetchingReplies;
         _hasMore = false;
       });
     } finally {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });

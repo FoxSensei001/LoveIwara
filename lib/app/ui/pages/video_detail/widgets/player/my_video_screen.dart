@@ -153,6 +153,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     _infoMessageFadeController.dispose();
     _autoHideTimer?.cancel();
     _volumeInfoTimer?.cancel(); // 取消音量提示计时器
+    _blurUpdateTimer?.cancel(); // 清理模糊背景更新定时器
     super.dispose();
   }
 
@@ -1277,12 +1278,29 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       return;
     }
 
+    // 添加防抖机制，避免频繁的图像处理
+    if (_blurUpdateTimer?.isActive ?? false) {
+      _blurUpdateTimer!.cancel();
+    }
+
+    _blurUpdateTimer = Timer(const Duration(milliseconds: 300), () {
+      _performBlurUpdate(thumbnailUrl, size);
+    });
+  }
+
+  Timer? _blurUpdateTimer;
+
+  void _performBlurUpdate(String thumbnailUrl, Size size) async {
+
     try {
-      // 1. 首先加载原始图片
+      // 1. 首先加载原始图片，使用较小的分辨率减少内存占用
       final NetworkImage networkImage = NetworkImage(thumbnailUrl);
-      final ImageStream stream = networkImage.resolve(ImageConfiguration());
+      final ImageConfiguration config = ImageConfiguration(
+        size: Size(size.width * 0.5, size.height * 0.5), // 使用一半分辨率
+      );
+      final ImageStream stream = networkImage.resolve(config);
       final Completer<ui.Image> completer = Completer<ui.Image>();
-      
+
       stream.addListener(ImageStreamListener((ImageInfo info, bool _) {
         completer.complete(info.image);
       }));

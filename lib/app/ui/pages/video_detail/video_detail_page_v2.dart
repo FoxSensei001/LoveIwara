@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_routes.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -308,6 +309,12 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
               primary: false,
               automaticallyImplyLeading: false,
               pinned: true,
+              systemOverlayStyle: const SystemUiOverlayStyle(
+                statusBarColor: Colors.transparent,
+                statusBarIconBrightness: Brightness.light,
+                systemNavigationBarColor: Colors.transparent,
+                systemNavigationBarIconBrightness: Brightness.light,
+              ),
               // 动态 pinned
               expandedHeight: controller.getCurrentVideoHeight(
                 screenSize.width,
@@ -577,28 +584,6 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
           relatedVideoController: relatedVideoController,
         ),
       ],
-    );
-  }
-
-  // 为 ExtendedNestedScrollView 构建视频播放器
-  Widget _buildVideoPlayerForNestedScroll(Size screenSize, double paddingTop) {
-    return Container(
-      width: screenSize.width,
-      height: controller.getCurrentVideoHeight(
-        screenSize.width,
-        screenSize.height,
-        paddingTop,
-      ),
-      color: Colors.black,
-      child: Stack(
-        children: [
-          // 安全区域占位
-          Container(height: paddingTop, color: Colors.black),
-
-          // 播放器内容
-          Positioned.fill(top: 0, child: _buildVideoPlayerContent()),
-        ],
-      ),
     );
   }
 

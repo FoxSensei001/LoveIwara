@@ -435,9 +435,9 @@ Future<void> _closeServices() async {
 // 在应用启动时配置图片缓存
 void configureImageCache() {
   // 适当调整图片缓存大小，平衡内存使用和性能
-  PaintingBinding.instance.imageCache.maximumSize = 200; // 增加到200张图片
-  PaintingBinding.instance.imageCache.maximumSizeBytes = 100 * 1024 * 1024; // 限制内存占用为100MB
-  
+  PaintingBinding.instance.imageCache.maximumSize = 100; // 减少到100张图片
+  PaintingBinding.instance.imageCache.maximumSizeBytes = 50 * 1024 * 1024; // 限制内存占用为50MB
+
   // 预热渲染管道
   WidgetsBinding.instance.addPostFrameCallback((_) {
     _prewarmRendering();

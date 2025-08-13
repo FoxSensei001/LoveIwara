@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/history_record.dart';
 import 'package:i_iwara/app/repositories/history_repository.dart';
@@ -277,6 +278,8 @@ class MyVideoStateController extends GetxController
           hwdec: _configService[ConfigKey.ENABLE_HARDWARE_ACCELERATION]
               ? _configService[ConfigKey.HARDWARE_DECODING]
               : null,
+          // 添加Android平台特定配置来减少ImageReader缓冲区压力
+          // androidAttachSurfaceAfterVideoParameters: false,
         ),
       );
 
@@ -593,7 +596,7 @@ class MyVideoStateController extends GetxController
     if (expandBuffer) {
       return 32 * 1024 * 1024; // 32MB
     } else {
-      return 16 * 1024 * 1024; // 16MB
+      return 4 * 1024 * 1024; // 4MB
     }
   }
 
@@ -671,6 +674,19 @@ class MyVideoStateController extends GetxController
       // 移除生命周期观察者
       WidgetsBinding.instance.removeObserver(this);
       LogUtils.d('生命周期观察者已移除', 'MyVideoStateController');
+
+      // 获取当前的主题是否为亮色
+      final isLightMode = Theme.of(Get.context!).brightness == Brightness.light;
+      if (isLightMode) {
+        // 设置状态栏颜色为黑色字体
+        SystemChrome.setSystemUIOverlayStyle(
+          const SystemUiOverlayStyle(
+            statusBarColor: Colors.black,
+            statusBarBrightness: Brightness.light,
+            statusBarIconBrightness: Brightness.dark,
+          ),
+        );
+      }
 
       // 销毁动画控制器
       animationController.dispose();
