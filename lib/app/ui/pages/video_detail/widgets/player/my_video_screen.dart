@@ -16,6 +16,7 @@ import 'package:media_kit_video/media_kit_video.dart';
 import 'bottom_toolbar_widget.dart';
 import 'gesture_area_widget.dart';
 import 'top_toolbar_widget.dart';
+import 'widgets/playback_speed_animation_widget.dart';
 import '../../controllers/my_video_state_controller.dart';
 import '../../../../../../i18n/strings.g.dart' as slang;
 
@@ -828,12 +829,9 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   // 快进的消息提示
   Widget _buildInfoMessage() {
     return Positioned(
-      top: 20,
-      left: 0,
-      right: 0,
-      child: Center(
-        child: _buildInfoContent(),
-      ),
+      bottom: 20,
+      left: 20,
+      child: _buildInfoContent(),
     );
   }
 
@@ -845,7 +843,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       } else if (controller.isSlidingBrightnessZone.value) {
         return _buildFadeTransition(child: _buildBrightnessInfoMessage());
       } else if (controller.isLongPressing.value) {
-        return _buildFadeTransition(child: _buildPlaybackSpeedInfoMessage());
+        return _buildFadeTransitionNoBg(child: _buildPlaybackSpeedInfoMessage());
       }
       return const SizedBox.shrink();
     });
@@ -865,20 +863,20 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     );
   }
 
+  Widget _buildFadeTransitionNoBg({required Widget child}) {
+    return FadeTransition(
+      opacity: _infoMessageOpacity,
+      child: child,
+    );
+  }
+
   Widget _buildPlaybackSpeedInfoMessage() {
     return Obx(() {
       double rate =
           _configService[ConfigKey.LONG_PRESS_PLAYBACK_SPEED_KEY] as double;
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.speed, color: Colors.white),
-          const SizedBox(width: 4),
-          Text(
-            slang.t.videoDetail.playbackSpeedIng(rate: rate),
-            style: const TextStyle(color: Colors.white, fontSize: 16),
-          ),
-        ],
+      return PlaybackSpeedAnimationWidget(
+        playbackSpeed: rate,
+        isVisible: widget.myVideoStateController.isLongPressing.value,
       );
     });
   }
