@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'ai_translation_toggle_button.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 
 /// 通用语言选择组件
 class TranslationLanguageSelector extends StatelessWidget {
@@ -64,9 +64,7 @@ class TranslationLanguageSelector extends StatelessWidget {
     } else {
       return Card(
         elevation: 1,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: InkWell(
           onTap: () => _showDialogSelector(context),
           borderRadius: BorderRadius.circular(20),
@@ -102,9 +100,7 @@ class TranslationLanguageSelector extends StatelessWidget {
       initialValue: selectedLanguage,
       child: Card(
         elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           child: Row(
@@ -122,10 +118,7 @@ class TranslationLanguageSelector extends StatelessWidget {
       ),
       itemBuilder: (context) {
         return CommonConstants.translationSorts.map((sort) {
-          return PopupMenuItem<dynamic>(
-            value: sort,
-            child: Text(sort.label),
-          );
+          return PopupMenuItem<dynamic>(value: sort, child: Text(sort.label));
         }).toList();
       },
       onSelected: (sort) => onLanguageSelected(sort),
@@ -139,9 +132,7 @@ class TranslationLanguageSelector extends StatelessWidget {
       onTap: () => _showDialogSelector(context),
       child: Card(
         elevation: 1,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           child: Row(
@@ -177,7 +168,10 @@ class TranslationLanguageSelector extends StatelessWidget {
               children: [
                 // 标题行，可选显示 AI 翻译开关
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   child: Row(
                     children: [
                       Expanded(
@@ -189,7 +183,16 @@ class TranslationLanguageSelector extends StatelessWidget {
                           ),
                         ),
                       ),
-                      if (showAIToggle) const AITranslationToggleButton(compact: true),
+                      if (showAIToggle)
+                        IconButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            NaviService.navigateToTranslationSettingsPage();
+                          },
+                          icon: const Icon(Icons.settings),
+                          tooltip: '翻译设置',
+                          iconSize: 20,
+                        ),
                     ],
                   ),
                 ),
@@ -206,7 +209,9 @@ class TranslationLanguageSelector extends StatelessWidget {
                           dense: true,
                           selected: sort.id == selectedLanguage.id,
                           title: Text(sort.label),
-                          trailing: sort.id == selectedLanguage.id ? const Icon(Icons.check, size: 18) : null,
+                          trailing: sort.id == selectedLanguage.id
+                              ? const Icon(Icons.check, size: 18)
+                              : null,
                           onTap: () {
                             Navigator.of(context).pop();
                             onLanguageSelected(sort);
@@ -223,4 +228,4 @@ class TranslationLanguageSelector extends StatelessWidget {
       },
     );
   }
-} 
+}

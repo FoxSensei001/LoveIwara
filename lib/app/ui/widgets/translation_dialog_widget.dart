@@ -7,9 +7,9 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/vibrate_utils.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter/services.dart';
-import 'package:i_iwara/app/ui/widgets/ai_translation_toggle_button.dart';
 import 'package:i_iwara/app/ui/widgets/translation_language_selector.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_translation_controller.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 
 class TranslationDialog extends StatefulWidget {
   final String text;
@@ -241,7 +241,14 @@ class _TranslationDialogState extends State<TranslationDialog> {
                 children: [
                   _buildLanguageSelector(),
                   const Spacer(),
-                  const AITranslationToggleButton(compact: true),
+                  IconButton(
+                    onPressed: () {
+                      NaviService.navigateToTranslationSettingsPage();
+                    },
+                    icon: const Icon(Icons.settings),
+                    tooltip: '翻译设置',
+                    iconSize: 20,
+                  ),
                 ],
               ),
             ),

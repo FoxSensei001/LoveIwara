@@ -129,6 +129,27 @@ class ConfigService extends GetxService {
         await screenshotChannel.invokeMethod('allowScreenshot');
       }
     }
+
+    // 处理翻译方式互斥逻辑
+    if (value == true) {
+      if (key == ConfigKey.USE_AI_TRANSLATION) {
+        // 启用AI翻译时，禁用DeepLX翻译
+        if (settings[ConfigKey.USE_DEEPLX_TRANSLATION]!.value == true) {
+          settings[ConfigKey.USE_DEEPLX_TRANSLATION]!.value = false;
+          if (save) {
+            await _saveSetting(ConfigKey.USE_DEEPLX_TRANSLATION, false);
+          }
+        }
+      } else if (key == ConfigKey.USE_DEEPLX_TRANSLATION) {
+        // 启用DeepLX翻译时，禁用AI翻译
+        if (settings[ConfigKey.USE_AI_TRANSLATION]!.value == true) {
+          settings[ConfigKey.USE_AI_TRANSLATION]!.value = false;
+          if (save) {
+            await _saveSetting(ConfigKey.USE_AI_TRANSLATION, false);
+          }
+        }
+      }
+    }
   }
 
   dynamic operator [](ConfigKey key) => settings[key]!.value;
@@ -209,6 +230,12 @@ enum ConfigKey {
   REMEMBER_ME_KEY,
   AI_TRANSLATION_PROMPT,
   AI_TRANSLATION_SUPPORTS_STREAMING,
+  // DeepLX 翻译相关配置
+  USE_DEEPLX_TRANSLATION,
+  DEEPLX_BASE_URL,
+  DEEPLX_API_KEY,
+  DEEPLX_ENDPOINT_TYPE, // Free, Pro, Official
+  DEEPLX_DL_SESSION, // Pro 模式需要的 dl_session
   ENABLE_SIGNATURE_KEY,  // 是否启用小尾巴
   SIGNATURE_CONTENT_KEY, // 小尾巴内容
   ENABLE_VIBRATION, // 是否开启震动
@@ -295,6 +322,11 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.REMEMBER_ME_KEY: return 'remember_me';
       case ConfigKey.AI_TRANSLATION_PROMPT: return 'ai_translation_prompt';
       case ConfigKey.AI_TRANSLATION_SUPPORTS_STREAMING: return 'ai_translation_supports_streaming';
+      case ConfigKey.USE_DEEPLX_TRANSLATION: return 'use_deeplx_translation';
+      case ConfigKey.DEEPLX_BASE_URL: return 'deeplx_base_url';
+      case ConfigKey.DEEPLX_API_KEY: return 'deeplx_api_key';
+      case ConfigKey.DEEPLX_ENDPOINT_TYPE: return 'deeplx_endpoint_type';
+      case ConfigKey.DEEPLX_DL_SESSION: return 'deeplx_dl_session';
       case ConfigKey.USER_TARGET_LANGUAGE_KEY: return 'user_target_language';
       case ConfigKey.ENABLE_SIGNATURE_KEY: return 'enable_signature';
       case ConfigKey.SIGNATURE_CONTENT_KEY: return 'signature_content';
@@ -426,6 +458,16 @@ extension ConfigKeyExtension on ConfigKey {
         return "You are a translation expert. Translate from the input language to ${CommonConstants.defaultLanguagePlaceholder}. Provide the translation result directly without any explanation and keep the original format. Do not translate if the target language is the same as the source language. Additionally, if the content contains illegal or NSFW elements, sensitive words or sentences within it should be replaced.";
       case ConfigKey.AI_TRANSLATION_SUPPORTS_STREAMING:
         return true;
+      case ConfigKey.USE_DEEPLX_TRANSLATION:
+        return false;
+      case ConfigKey.DEEPLX_BASE_URL:
+        return '';
+      case ConfigKey.DEEPLX_API_KEY:
+        return '';
+      case ConfigKey.DEEPLX_ENDPOINT_TYPE:
+        return 'Free'; // Free, Pro, Official
+      case ConfigKey.DEEPLX_DL_SESSION:
+        return '';
       case ConfigKey.ENABLE_SIGNATURE_KEY:
         return false;
       case ConfigKey.SIGNATURE_CONTENT_KEY:

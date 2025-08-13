@@ -100,6 +100,8 @@ flutter:
     - assets/images/
     - assets/svg/app_enter_fullscreen.svg
     - assets/svg/app_exit_fullscreen.svg
+    - assets/svg/google.svg
+    - assets/svg/deepl.svg
     - assets/icon/launcher_icon_v2.png
 
 license: MIT

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import 'package:i_iwara/app/ui/pages/settings/widgets/ai_translation_setting_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
+import 'translation_settings_page.dart';
 
 import '../../../../utils/proxy/proxy_util.dart';
 import 'app_settings_page.dart';
@@ -65,7 +65,7 @@ class _SettingsPageState extends State<SettingsPage> implements PopEntry {
 
   // 深层页面导航
   final GlobalKey<NavigatorState> _nestedNavigatorKey =
-      GlobalKey<NavigatorState>();
+  GlobalKey<NavigatorState>();
   final List<Widget> _pageStack = []; // 页面栈
 
   // 响应式布局判断
@@ -166,6 +166,10 @@ class _SettingsPageState extends State<SettingsPage> implements PopEntry {
 
   @override
   void onPopInvokedWithResult(bool didPop, result) {
+    print('send didPop: $didPop, result: $result');
+    // 如果已经处理了pop，就不再处理
+    if (didPop) return;
+
     // 先检查是否有深层页面需要返回
     if (enableTwoViews && _nestedNavigatorKey.currentState?.canPop() == true) {
       _nestedNavigatorKey.currentState?.pop();
@@ -186,13 +190,21 @@ class _SettingsPageState extends State<SettingsPage> implements PopEntry {
         currentPage = -1; // 返回到主设置页面
         offset = 0; // 重置偏移量
       });
+      return;
     }
+
+    // 如果都没有处理，则退出设置页面
+    Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
     // 控制是否可以直接退出页面
-    if (currentPage != -1) {
+    bool hasNestedPages = enableTwoViews && _nestedNavigatorKey.currentState?.canPop() == true;
+    bool hasPageStack = _pageStack.isNotEmpty;
+    bool hasSubPage = currentPage != -1;
+
+    if (hasNestedPages || hasPageStack || hasSubPage) {
       canPop.value = false; // 有子页面时不能直接退出
     } else {
       canPop.value = true; // 在主页面时可以退出
@@ -414,7 +426,7 @@ class _SettingsPageState extends State<SettingsPage> implements PopEntry {
                         Material(
                           color: isSelected
                               ? Theme.of(context).colorScheme.secondaryContainer
-                                    .withValues(alpha: 0.3)
+                              .withValues(alpha: 0.3)
                               : Colors.transparent,
                           child: InkWell(
                             onTap: () =>
@@ -432,8 +444,8 @@ class _SettingsPageState extends State<SettingsPage> implements PopEntry {
                                     color: isSelected
                                         ? Theme.of(context).colorScheme.primary
                                         : Theme.of(
-                                            context,
-                                          ).colorScheme.onSurfaceVariant,
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
@@ -443,15 +455,15 @@ class _SettingsPageState extends State<SettingsPage> implements PopEntry {
                                           .textTheme
                                           .bodyMedium
                                           ?.copyWith(
-                                            fontWeight: isSelected
-                                                ? FontWeight.w500
-                                                : FontWeight.normal,
-                                            color: isSelected
-                                                ? Theme.of(
-                                                    context,
-                                                  ).colorScheme.primary
-                                                : null,
-                                          ),
+                                        fontWeight: isSelected
+                                            ? FontWeight.w500
+                                            : FontWeight.normal,
+                                        color: isSelected
+                                            ? Theme.of(
+                                          context,
+                                        ).colorScheme.primary
+                                            : null,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -503,14 +515,14 @@ class _SettingsPageState extends State<SettingsPage> implements PopEntry {
             transitionDuration: const Duration(milliseconds: 200),
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
-                  return SlideTransition(
-                    position: Tween<Offset>(
-                      begin: const Offset(1, 0),
-                      end: Offset.zero,
-                    ).animate(animation),
-                    child: child,
-                  );
-                },
+              return SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(1, 0),
+                  end: Offset.zero,
+                ).animate(animation),
+                child: child,
+              );
+            },
           );
         },
       );
@@ -532,7 +544,7 @@ class _SettingsPageState extends State<SettingsPage> implements PopEntry {
       case 0: // 网络设置
         return ProxySettingsPage(isWideScreen: enableTwoViews);
       case 1: // 翻译设置
-        return AITranslationSettingsPage(isWideScreen: enableTwoViews);
+        return TranslationSettingsPage(isWideScreen: enableTwoViews);
       case 2: // 应用设置
         return AppSettingsPage(isWideScreen: enableTwoViews);
       case 3: // 聊天设置

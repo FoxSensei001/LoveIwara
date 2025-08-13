@@ -154,16 +154,101 @@ class _AITranslationSettingsWidgetState
     // 将 Form 提升到最外层
     return Form(
       key: _formKey,
-      child: SliverList(
-        delegate: SliverChildListDelegate([
-          _buildDisclaimerCard(context),
-          _buildAPIConfigSection(context),
-          _buildAdvancedConfigSection(context), // 添加高级设置区域
-          _buildPreviewSection(context),
-          _buildTestConnectionSection(context),
-          _buildEnableSection(context),
-          SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
-        ]),
+      child: SliverPadding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        sliver: SliverList(
+          delegate: SliverChildListDelegate([
+            Obx(() => _buildStatusCard(context)),
+            const SizedBox(height: 16),
+            _buildDisclaimerCard(context),
+            const SizedBox(height: 16),
+            _buildAPIConfigSection(context),
+            const SizedBox(height: 16),
+            _buildAdvancedConfigSection(context), // 添加高级设置区域
+            const SizedBox(height: 16),
+            _buildPreviewSection(context),
+            const SizedBox(height: 16),
+            _buildTestConnectionSection(context),
+            const SizedBox(height: 16),
+            _buildEnableSection(context),
+            SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
+          ]),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusCard(BuildContext context) {
+    final isEnabled = _isAIEnabled.value;
+
+    return Card(
+      elevation: 2,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: isEnabled ? [
+              Colors.purple.withOpacity(0.1),
+              Colors.purple.withOpacity(0.05),
+            ] : [
+              Colors.grey.withOpacity(0.1),
+              Colors.grey.withOpacity(0.05),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              ShaderMask(
+                shaderCallback: (bounds) => LinearGradient(
+                  colors: isEnabled ? [
+                    const Color(0xFF6B8DE3),
+                    const Color(0xFF8B5CF6),
+                  ] : [
+                    Colors.grey,
+                    Colors.grey,
+                  ],
+                ).createShader(bounds),
+                child: const Icon(
+                  Icons.auto_awesome,
+                  size: 24,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'AI 翻译',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      isEnabled ? '已启用' : '未启用',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: isEnabled ? Colors.purple : Colors.grey,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                isEnabled ? Icons.check_circle : Icons.radio_button_unchecked,
+                color: isEnabled ? Colors.purple : Colors.grey,
+                size: 24,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

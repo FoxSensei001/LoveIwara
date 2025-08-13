@@ -10,6 +10,7 @@ import 'dart:convert';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'dart:async';
 import 'dart:math';
+import 'package:i_iwara/app/services/deeplx_language_mapper.dart';
 
 class TranslationService extends GetxService {
   final ConfigService _configService = Get.find();
@@ -67,12 +68,18 @@ class TranslationService extends GetxService {
 
   // 翻译核心方法 ---------------------------
 
-  /// 翻译文本，会根据配置选择谷歌翻译或AI翻译
+  /// 翻译文本，会根据配置选择谷歌翻译、AI翻译或DeepLX翻译
   Future<ApiResult<String>> translate(String text, {String? targetLanguage}) async {
     final useAI = _getConfig<bool>(ConfigKey.USE_AI_TRANSLATION) ?? false;
-    return useAI
-        ? _translateWithAI(text, targetLanguage: targetLanguage)
-        : _translateWithGoogle(text, targetLanguage);
+    final useDeepLX = _getConfig<bool>(ConfigKey.USE_DEEPLX_TRANSLATION) ?? false;
+
+    if (useDeepLX) {
+      return _translateWithDeepLX(text, targetLanguage: targetLanguage);
+    } else if (useAI) {
+      return _translateWithAI(text, targetLanguage: targetLanguage);
+    } else {
+      return _translateWithGoogle(text, targetLanguage);
+    }
   }
 
   /// 使用Google翻译服务（分段 + 适量并发）
@@ -285,6 +292,105 @@ class TranslationService extends GetxService {
     return ApiResult.success(message: '', data: content);
   }
 
+  /// 使用DeepLX服务进行翻译
+  Future<ApiResult<String>> _translateWithDeepLX(String text, {String? targetLanguage}) async {
+    try {
+      if (text.trim().isEmpty) {
+        return ApiResult.success(message: '', data: '');
+      }
+
+      final baseUrl = _getConfig<String>(ConfigKey.DEEPLX_BASE_URL) ?? '';
+      final endpointType = _getConfig<String>(ConfigKey.DEEPLX_ENDPOINT_TYPE) ?? 'Free';
+      final apiKey = _getConfig<String>(ConfigKey.DEEPLX_API_KEY) ?? '';
+      final dlSession = _getConfig<String>(ConfigKey.DEEPLX_DL_SESSION) ?? '';
+
+      if (baseUrl.isEmpty) {
+        return ApiResult.fail(t.errors.translationFailedPleaseTryAgainLater);
+      }
+
+      // 构建请求URL
+      String endpoint;
+      switch (endpointType) {
+        case 'Pro':
+          endpoint = '/v1/translate';
+          break;
+        case 'Official':
+          endpoint = '/v2/translate';
+          break;
+        default: // Free
+          endpoint = '/translate';
+          break;
+      }
+
+      final url = baseUrl.endsWith('/') ? '$baseUrl${endpoint.substring(1)}' : '$baseUrl$endpoint';
+
+      // 转换语言代码
+      final currentLanguage = _getCurrentLanguage(targetLanguage);
+      final targetLangCode = DeepLXLanguageMapper.appToDeepLX(currentLanguage);
+
+      // 构建请求数据
+      final requestData = <String, dynamic>{
+        'text': text,
+        'target_lang': targetLangCode,
+      };
+
+      // 添加可选参数
+      if (endpointType == 'Pro' && dlSession.isNotEmpty) {
+        requestData['dl_session'] = dlSession;
+      }
+
+      // 构建请求头
+      final headers = <String, String>{
+        'Content-Type': 'application/json',
+      };
+
+      if (endpointType == 'Official' && apiKey.isNotEmpty) {
+        headers['Authorization'] = 'DeepL-Auth-Key $apiKey';
+      } else if ((endpointType == 'Free' || endpointType == 'Pro') && apiKey.isNotEmpty) {
+        headers['Authorization'] = 'Bearer $apiKey';
+      }
+
+      final response = await dio.post(
+        url,
+        data: requestData,
+        options: Options(
+          headers: headers,
+          receiveTimeout: const Duration(seconds: 30),
+        ),
+      );
+
+      if (response.statusCode != 200) {
+        return ApiResult.fail(t.errors.translationFailedPleaseTryAgainLater);
+      }
+
+      return _parseDeepLXResponse(response.data);
+    } catch (e) {
+      LogUtils.e('DeepLX翻译失败', tag: 'TranslationService', error: e);
+      return ApiResult.fail(t.errors.translationFailedPleaseTryAgainLater);
+    }
+  }
+
+  /// 解析DeepLX响应数据
+  ApiResult<String> _parseDeepLXResponse(dynamic data) {
+    if (data is! Map<String, dynamic>) {
+      return ApiResult.fail(t.errors.translationFailedPleaseTryAgainLater);
+    }
+
+    // 检查响应状态
+    final code = data['code'] as int?;
+    if (code != null && code != 200) {
+      return ApiResult.fail(t.errors.translationFailedPleaseTryAgainLater);
+    }
+
+    // 获取翻译结果
+    final translatedText = data['data'] as String?;
+    if (translatedText == null || translatedText.isEmpty) {
+      return ApiResult.fail(t.errors.translationFailedPleaseTryAgainLater);
+    }
+
+    return ApiResult.success(message: '', data: translatedText);
+  }
+
   // 测试方法 ---------------------------
 
   /// 测试AI翻译连接
@@ -366,6 +472,128 @@ class TranslationService extends GetxService {
     }
   }
 
+  /// 测试DeepLX翻译连接
+  Future<ApiResult<AITestResult>> testDeepLXTranslation(
+      String baseUrl, String endpointType, String apiKey, String dlSession,
+      {String? targetLanguage}) async {
+    try {
+      const testText = "Hello";
+
+      if (baseUrl.isEmpty) {
+        return ApiResult.success(
+            data: AITestResult(
+                custMessage: '请填写DeepLX服务器地址',
+                connectionValid: false
+            )
+        );
+      }
+
+      // 构建请求URL
+      String endpoint;
+      switch (endpointType) {
+        case 'Pro':
+          endpoint = '/v1/translate';
+          break;
+        case 'Official':
+          endpoint = '/v2/translate';
+          break;
+        default: // Free
+          endpoint = '/translate';
+          break;
+      }
+
+      final url = baseUrl.endsWith('/') ? '$baseUrl${endpoint.substring(1)}' : '$baseUrl$endpoint';
+
+      // 转换语言代码
+      final currentLanguage = _getCurrentLanguage(targetLanguage);
+      final targetLangCode = DeepLXLanguageMapper.appToDeepLX(currentLanguage);
+
+      // 构建请求数据
+      final requestData = <String, dynamic>{
+        'text': testText,
+        'target_lang': targetLangCode,
+      };
+
+      // 添加可选参数
+      if (endpointType == 'Pro' && dlSession.isNotEmpty) {
+        requestData['dl_session'] = dlSession;
+      }
+
+      // 构建请求头
+      final headers = <String, String>{
+        'Content-Type': 'application/json',
+      };
+
+      if (endpointType == 'Official' && apiKey.isNotEmpty) {
+        headers['Authorization'] = 'DeepL-Auth-Key $apiKey';
+      } else if ((endpointType == 'Free' || endpointType == 'Pro') && apiKey.isNotEmpty) {
+        headers['Authorization'] = 'Bearer $apiKey';
+      }
+
+      final testDio = Dio();
+      final response = await testDio.post(
+          url,
+          data: requestData,
+          options: Options(
+              headers: headers,
+              validateStatus: (status) => status! < 500,
+              receiveTimeout: const Duration(seconds: 30),
+          )
+      );
+
+      if (response.statusCode != 200) {
+        return ApiResult.success(
+            code: response.statusCode ?? 500,
+            data: AITestResult(
+                custMessage: 'HTTP ${response.statusCode}',
+                connectionValid: false
+            )
+        );
+      }
+
+      final data = response.data;
+      if (data is! Map<String, dynamic>) {
+        return ApiResult.success(
+            data: AITestResult(
+                custMessage: '无效的API响应格式',
+                connectionValid: false
+            )
+        );
+      }
+
+      // 检查DeepLX响应格式
+      final code = data['code'] as int?;
+      final translatedText = data['data'] as String?;
+
+      if (code != 200 || translatedText == null || translatedText.isEmpty) {
+        return ApiResult.success(
+            data: AITestResult(
+                custMessage: '翻译服务返回错误或空结果',
+                connectionValid: false,
+                rawResponse: jsonEncode(data)
+            )
+        );
+      }
+
+      return ApiResult.success(
+          data: AITestResult(
+              rawResponse: jsonEncode(data),
+              translatedText: translatedText,
+              connectionValid: true,
+              custMessage: '测试成功'
+          )
+      );
+    } catch (e) {
+      LogUtils.e('DeepLX翻译测试失败', tag: 'TranslationService', error: e);
+      return ApiResult.success(
+          data: AITestResult(
+              custMessage: '连接失败: ${e.toString()}',
+              connectionValid: false
+          )
+      );
+    }
+  }
+
   /// 重置HTTP代理
   void resetProxy() {
     dio.httpClientAdapter = IOHttpClientAdapter();
@@ -376,9 +604,10 @@ class TranslationService extends GetxService {
   /// 使用流式传输进行翻译，返回一个流
   Stream<String>? translateStream(String text, {String? targetLanguage}) {
     final useAI = _getConfig<bool>(ConfigKey.USE_AI_TRANSLATION) ?? false;
+    final useDeepLX = _getConfig<bool>(ConfigKey.USE_DEEPLX_TRANSLATION) ?? false;
 
-    // 如果不使用AI，返回null
-    if (!useAI) {
+    // 如果使用DeepLX或不使用AI，返回null（DeepLX不支持流式翻译）
+    if (useDeepLX || !useAI) {
       return null;
     }
 
