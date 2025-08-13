@@ -5,9 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/models/post.model.dart';
-import 'package:i_iwara/app/routes/app_routes.dart';
+
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/post_service.dart';
+import 'package:i_iwara/app/services/login_service.dart';
 import 'package:i_iwara/app/services/user_preference_service.dart';
 import 'package:i_iwara/app/ui/pages/author_profile/widgets/author_profile_skeleton_widget.dart';
 import 'package:i_iwara/app/ui/pages/author_profile/widgets/profile_image_model_tab_list_widget.dart';
@@ -163,7 +164,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                                           message: t.errors.pleaseLoginFirst,
                                           type: MDToastType.error),
                                       position: ToastPosition.bottom);
-                                  Get.toNamed(Routes.LOGIN);
+                                  LoginService.showLogin();
                                   return;
                                 }
                                 await profileController.commentController

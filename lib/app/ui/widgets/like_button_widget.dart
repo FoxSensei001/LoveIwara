@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:i_iwara/app/routes/app_routes.dart';
+
 import 'package:i_iwara/app/services/user_service.dart';
+import 'package:i_iwara/app/services/login_service.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/vibrate_utils.dart';
@@ -48,7 +49,7 @@ class _LikeButtonWidgetState extends State<LikeButtonWidget> {
     if (_isLoading) return;
     if (!_userService.isLogin) {
       showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error));
-      Get.toNamed(Routes.LOGIN);
+      LoginService.showLogin();
       return;
     }
 

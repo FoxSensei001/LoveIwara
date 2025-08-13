@@ -6,7 +6,7 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/version_service.dart';
 import 'package:i_iwara/app/ui/pages/home/home_navigation_layout.dart';
-import 'package:i_iwara/app/ui/pages/login/login_page.dart';
+import 'package:i_iwara/app/ui/pages/login/login_page_wrapper.dart';
 import 'package:i_iwara/app/ui/pages/settings/about_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/app_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/player_settings_page.dart';

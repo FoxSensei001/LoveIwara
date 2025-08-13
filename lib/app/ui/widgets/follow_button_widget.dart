@@ -8,6 +8,7 @@ import 'package:i_iwara/app/routes/app_routes.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/user_preference_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
+import 'package:i_iwara/app/services/login_service.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/vibrate_utils.dart';
@@ -129,7 +130,7 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
                   final UserService userService = Get.find();
                   if (!userService.isLogin) {
                     showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error));
-                    Get.toNamed(Routes.LOGIN);
+                    LoginService.showLogin();
                     return;
                   }
                   isProcessing.value = true;

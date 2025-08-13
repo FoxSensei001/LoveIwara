@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/user.model.dart';
-import 'package:i_iwara/app/routes/app_routes.dart';
+
 import 'package:i_iwara/app/services/user_service.dart';
+import 'package:i_iwara/app/services/login_service.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:oktoast/oktoast.dart';
@@ -125,7 +126,7 @@ class _FriendButtonWidgetState extends State<FriendButtonWidget> {
           type: MDToastType.error,
         ),
       );
-      Get.toNamed(Routes.LOGIN);
+      LoginService.showLogin();
       return;
     }
 

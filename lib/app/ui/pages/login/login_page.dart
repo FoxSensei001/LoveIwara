@@ -1,4 +1,4 @@
-// pages/login_page.dart
+// pages/login/login_dialog.dart
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -11,21 +11,52 @@ import 'package:oktoast/oktoast.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../models/captcha.model.dart';
-import '../../../routes/app_routes.dart';
+
 import '../../../services/auth_service.dart';
 import '../../../services/user_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import '../../../services/storage_service.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class LoginDialog extends StatefulWidget {
+  const LoginDialog({super.key});
+
+  /// 显示登录对话框
+  static Future<bool?> show(BuildContext context) {
+
+    // 使用 DraggableScrollableSheet 实现可拖拽到顶部的效果
+    return showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.95,
+        minChildSize: 0.5,
+        maxChildSize: 1.0,
+        builder: (context, scrollController) => Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: const LoginDialog(),
+        ),
+      ),
+    );
+  }
+
+  /// 便捷的静态调用方法，替换 Get.toNamed(Routes.LOGIN)
+  static Future<bool?> showLoginDialog() {
+    final context = Get.context;
+    if (context != null) {
+      return show(context);
+    }
+    return Future.value(false);
+  }
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  State<LoginDialog> createState() => _LoginDialogState();
 }
 
-class _LoginPageState extends State<LoginPage>
-    with SingleTickerProviderStateMixin {
+class _LoginDialogState extends State<LoginDialog> {
   final AuthService _authService = Get.find<AuthService>();
   final UserService _userService = Get.find<UserService>();
   final StorageService _storage = StorageService();
@@ -48,7 +79,8 @@ class _LoginPageState extends State<LoginPage>
   bool _isRegistering = false;
   bool _isCaptchaLoading = false;
 
-  late TabController _tabController;
+  // 当前是否为登录模式
+  bool _isLoginMode = true;
 
   final Rxn<Captcha?> _captcha = Rxn<Captcha>();
 
@@ -65,12 +97,6 @@ class _LoginPageState extends State<LoginPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-    _tabController.addListener(() {
-      if (_tabController.index == 1 && _captcha.value == null) {
-        _fetchCaptcha();
-      }
-    });
 
     // 初始化时加载保存的登录信息
     _loadSavedCredentials();
@@ -145,7 +171,6 @@ class _LoginPageState extends State<LoginPage>
 
   @override
   void dispose() {
-    _tabController.dispose();
     _loginEmailController.dispose();
     _loginPasswordController.dispose();
     _captchaController.dispose();
@@ -156,49 +181,78 @@ class _LoginPageState extends State<LoginPage>
 
   @override
   Widget build(BuildContext context) {
+    // 统一返回内容部分
     final t = slang.Translations.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(t.auth.loginOrRegister),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(kToolbarHeight),
-          child: Container(
-            width: 400,
-            margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
-            child: Stack(
-              alignment: Alignment.centerRight,
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // 拖拽指示器
+          Container(
+            margin: const EdgeInsets.only(top: 8),
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.3),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          // 标题栏
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: Theme.of(context).dividerColor,
+                  width: 1,
+                ),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                TabBar(
-                  controller: _tabController,
-                  indicator: BoxDecoration(
-                    borderRadius: BorderRadius.circular(25),
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  overlayColor: WidgetStateProperty.all(Colors.transparent),
-                  indicatorSize: TabBarIndicatorSize.tab,
-                  dividerColor: Colors.transparent,
-                  labelColor: Theme.of(context).colorScheme.onPrimary,
-                  unselectedLabelColor: Theme.of(
-                    context,
-                  ).colorScheme.onSurfaceVariant,
-                  labelStyle: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                  padding: EdgeInsets.zero,
-                  tabs: [
-                    Tab(text: t.auth.login),
-                    Tab(text: t.auth.register),
+                SegmentedButton<bool>(
+                  segments: [
+                    ButtonSegment<bool>(
+                      value: true,
+                      icon: const Icon(Icons.login),
+                    ),
+                    ButtonSegment<bool>(
+                      value: false,
+                      icon: const Icon(Icons.person_add),
+                    ),
                   ],
+                  selected: {_isLoginMode},
+                  onSelectionChanged: (Set<bool> newSelection) {
+                    final newMode = newSelection.first;
+                    if (newMode != _isLoginMode && mounted) {
+                      setState(() {
+                        _isLoginMode = newMode;
+                      });
+                      if (!newMode && _captcha.value == null) {
+                        _fetchCaptcha();
+                      }
+                    }
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.of(context).pop(false),
                 ),
               ],
             ),
           ),
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [_buildLoginForm(context), _buildRegisterForm(context)],
+          // 内容区域
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.6,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              child: _isLoginMode
+                  ? _buildLoginForm(context)
+                  : _buildRegisterForm(context),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -581,10 +635,9 @@ class _LoginPageState extends State<LoginPage>
         await _storage.clearCredentials();
       }
 
-      if (Get.previousRoute == Routes.LOGIN) {
-        Get.offAllNamed(Routes.HOME);
-      } else {
-        Get.back();
+      // 关闭 Dialog 并返回成功状态
+      if (mounted) {
+        Navigator.of(context).pop(true);
       }
     } else {
       showToastWidget(
@@ -634,8 +687,12 @@ class _LoginPageState extends State<LoginPage>
             type: MDToastType.success,
           ),
         );
-        // 切换回登录标签
-        _tabController.index = 0;
+        // 切换回登录视图
+        if (mounted) {
+          setState(() {
+            _isLoginMode = true;
+          });
+        }
       } else {
         showToastWidget(
           MDToastWidget(message: result.message, type: MDToastType.error),

@@ -4,8 +4,9 @@ import 'package:i_iwara/app/ui/pages/sign_in/widgets/sign_in_heatmap_widget.dart
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:oktoast/oktoast.dart';
 
-import '../../../routes/app_routes.dart';
+
 import '../../../services/user_service.dart';
+import '../../../services/login_service.dart';
 import 'controllers/sign_in_controller.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -107,7 +108,7 @@ class _SignInPageState extends State<SignInPage> {
                       ),
                       const SizedBox(height: 24),
                       ElevatedButton.icon(
-                        onPressed: () => Get.toNamed(Routes.LOGIN),
+                        onPressed: () => LoginService.showLogin(),
                         icon: const Icon(Icons.login),
                         label: Text(t.auth.login),
                         style: ElevatedButton.styleFrom(

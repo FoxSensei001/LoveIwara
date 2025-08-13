@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_routes.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
+import 'package:i_iwara/app/services/login_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/image_model_detail_content_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/skeletons/media_tile_list_skeleton_widget.dart';
@@ -211,7 +212,7 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
                                               slang.t.errors.pleaseLoginFirst,
                                           type: MDToastType.error),
                                       position: ToastPosition.bottom);
-                                  Get.toNamed(Routes.LOGIN);
+                                  LoginService.showLogin();
                                   return;
                                 }
                                 await commentController.postComment(text);

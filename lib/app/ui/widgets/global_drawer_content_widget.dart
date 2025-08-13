@@ -9,9 +9,10 @@ import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 
 import '../../../common/constants.dart';
-import '../../routes/app_routes.dart';
+
 import '../../services/auth_service.dart';
 import '../../services/user_service.dart';
+import '../../services/login_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class GlobalDrawerColumns extends StatelessWidget {
@@ -225,7 +226,7 @@ class GlobalDrawerColumns extends StatelessWidget {
         onTap: () {
           if (!userService.isLogin) {
             AppService.switchGlobalDrawer();
-            Get.toNamed(Routes.LOGIN);
+            LoginService.showLogin();
           } else {
             AppService.switchGlobalDrawer();
             NaviService.navigateToAuthorProfilePage(

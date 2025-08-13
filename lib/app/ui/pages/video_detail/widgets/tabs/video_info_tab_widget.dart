@@ -11,8 +11,9 @@ import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/app/services/video_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
+import 'package:i_iwara/app/services/login_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
-import 'package:i_iwara/app/routes/app_routes.dart';
+
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/app/ui/widgets/add_to_favorite_dialog.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
@@ -858,7 +859,7 @@ class VideoInfoTabWidget extends StatelessWidget {
                 ),
                 position: ToastPosition.bottom,
               );
-              Get.toNamed(Routes.LOGIN);
+              LoginService.showLogin();
             } else {
               Get.dialog(
                 AddVideoToPlayListDialog(
@@ -989,7 +990,7 @@ class VideoInfoTabWidget extends StatelessWidget {
           type: MDToastType.error,
         ),
       );
-      Get.toNamed(Routes.LOGIN);
+      LoginService.showLogin();
       return;
     }
 

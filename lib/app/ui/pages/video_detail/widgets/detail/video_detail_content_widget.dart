@@ -1,9 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:i_iwara/app/routes/app_routes.dart';
+
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
+import 'package:i_iwara/app/services/login_service.dart';
 import 'package:i_iwara/app/services/video_service.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/share_video_bottom_sheet.dart';
@@ -357,7 +358,7 @@ class VideoDetailContent extends StatelessWidget {
                                     final UserService userService = Get.find();
                                     if (!userService.isLogin) {
                                       showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error), position: ToastPosition.bottom);
-                                      Get.toNamed(Routes.LOGIN);
+                                      LoginService.showLogin();
                                       return;
                                     }
                                     showModalBottomSheet(
@@ -651,7 +652,7 @@ class VideoDetailContent extends StatelessWidget {
     if (!userService.isLogin) {
       LogUtils.w('用户未登录，无法下载', 'VideoDetailContent');
       showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error));
-      Get.toNamed(Routes.LOGIN);
+      LoginService.showLogin();
       return;
     }
 

@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart'; // 用于 ScrollDirection
 import 'package:get/get.dart';
-import 'package:i_iwara/app/routes/app_routes.dart';
+
 import 'package:i_iwara/app/services/user_preference_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
+import 'package:i_iwara/app/services/login_service.dart';
 import 'package:i_iwara/app/ui/pages/subscriptions/widgets/compact_subscription_dropdown.dart';
 import 'package:i_iwara/app/ui/pages/subscriptions/widgets/subscription_image_list.dart';
 import 'package:i_iwara/app/ui/pages/subscriptions/widgets/subscription_post_list.dart';
@@ -836,7 +837,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                       ),
                       const SizedBox(height: 30),
                       ElevatedButton(
-                        onPressed: () => Get.toNamed(Routes.LOGIN),
+                        onPressed: () => LoginService.showLogin(),
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 40,
