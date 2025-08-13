@@ -8,6 +8,7 @@ import 'package:i_iwara/app/services/filename_template_service.dart';
 import 'package:i_iwara/app/services/permission_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/recommended_paths_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/download_test_widget.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart' show showToastWidget, ToastPosition;
@@ -67,22 +68,16 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
     final t = slang.Translations.of(context);
 
     return Scaffold(
-      appBar: widget.isWideScreen
-          ? null
-          : AppBar(
-              title: Text(
-                t.settings.downloadSettings.downloadSettings,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              elevation: 2,
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 8,
-          children: [
+      body: CustomScrollView(
+        slivers: [
+          BlurredSliverAppBar(
+            title: t.settings.downloadSettings.downloadSettings,
+            isWideScreen: widget.isWideScreen,
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
             // 文件命名模板设置
             _buildFilenameTemplateSection(context),
 
@@ -101,8 +96,10 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
             // 功能测试
             const DownloadTestWidget(),
             const SafeArea(child: SizedBox.shrink()),
-          ],
-        ),
+              ]),
+            ),
+          ),
+        ],
       ),
     );
   }

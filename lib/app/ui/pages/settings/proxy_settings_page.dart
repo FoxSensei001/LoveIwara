@@ -12,17 +12,21 @@ class ProxySettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
     return Scaffold(
-      appBar: SettingsAppBar(
-        title: t.settings.networkSettings,
-        isWideScreen: isWideScreen,
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ProxySettingsWidget(),
-          ],
-        ),
+      body: CustomScrollView(
+        slivers: [
+          BlurredSliverAppBar(
+            title: t.settings.networkSettings,
+            isWideScreen: isWideScreen,
+          ),
+          SliverFillRemaining(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [ProxySettingsWidget()],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

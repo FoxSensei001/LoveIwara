@@ -82,9 +82,7 @@ class _AboutPageState extends State<AboutPage> {
                       icon: const Icon(Icons.translate),
                       onPressed: () {
                         Get.dialog(
-                          TranslationDialog(
-                            text: changes.join('\n\n'),
-                          ),
+                          TranslationDialog(text: changes.join('\n\n')),
                           barrierDismissible: true,
                         );
                       },
@@ -106,13 +104,15 @@ class _AboutPageState extends State<AboutPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        ...changes.map((change) => Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: Text(
-                            change,
-                            style: theme.textTheme.bodyMedium,
+                        ...changes.map(
+                          (change) => Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: Text(
+                              change,
+                              style: theme.textTheme.bodyMedium,
+                            ),
                           ),
-                        )),
+                        ),
                       ],
                     ),
                   ),
@@ -128,7 +128,7 @@ class _AboutPageState extends State<AboutPage> {
   Widget _buildAppInfoSection() {
     final t = slang.Translations.of(context);
     final theme = Theme.of(context);
-    
+
     return Card(
       elevation: 2,
       child: Padding(
@@ -141,7 +141,7 @@ class _AboutPageState extends State<AboutPage> {
                 CommonConstants.launcherIconPath,
                 width: 80,
                 height: 80,
-              )
+              ),
             ),
             const SizedBox(height: 16),
             Text(
@@ -149,12 +149,14 @@ class _AboutPageState extends State<AboutPage> {
               style: theme.textTheme.titleLarge,
             ),
             const SizedBox(height: 8),
-            Obx(() => Text(
-              '${t.settings.currentVersion} ${_versionService.currentVersion.value}',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.textTheme.bodySmall?.color,
+            Obx(
+              () => Text(
+                '${t.settings.currentVersion} ${_versionService.currentVersion.value}',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.textTheme.bodySmall?.color,
+                ),
               ),
-            )),
+            ),
           ],
         ),
       ),
@@ -198,11 +200,13 @@ class _AboutPageState extends State<AboutPage> {
 
           if (_versionService.hasUpdate.value) {
             final updateInfo = _versionService.updateInfo.value;
-            String currentLocale = _configService[ConfigKey.APPLICATION_LOCALE] ?? 'en';
+            String currentLocale =
+                _configService[ConfigKey.APPLICATION_LOCALE] ?? 'en';
             if (currentLocale == 'system') {
               currentLocale = CommonUtils.getDeviceLocale();
             }
-            final changes = updateInfo?.getLocalizedChanges(currentLocale) ?? [];
+            final changes =
+                updateInfo?.getLocalizedChanges(currentLocale) ?? [];
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,9 +224,9 @@ class _AboutPageState extends State<AboutPage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  subtitle: updateInfo != null ? Text(
-                    '${t.settings.releaseDate} ${updateInfo.date}',
-                  ) : null,
+                  subtitle: updateInfo != null
+                      ? Text('${t.settings.releaseDate} ${updateInfo.date}')
+                      : null,
                 ),
                 if (changes.isNotEmpty) ...[
                   const Divider(),
@@ -300,7 +304,7 @@ class _AboutPageState extends State<AboutPage> {
 
   Widget _buildLinksSection() {
     final t = slang.Translations.of(context);
-    
+
     return Card(
       clipBehavior: Clip.hardEdge,
       elevation: 2,
@@ -311,9 +315,8 @@ class _AboutPageState extends State<AboutPage> {
             title: Text(t.settings.projectHome),
             subtitle: const Text('GitHub'),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () => launchUrl(
-              Uri.parse(_configService[ConfigKey.REMOTE_REPO_URL]),
-            ),
+            onTap: () =>
+                launchUrl(Uri.parse(_configService[ConfigKey.REMOTE_REPO_URL])),
           ),
           const Divider(height: 1),
           ListTile(
@@ -351,21 +354,30 @@ class _AboutPageState extends State<AboutPage> {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    
+
     return Scaffold(
-      appBar: SettingsAppBar(
-        title: t.settings.about,
-        isWideScreen: widget.isWideScreen,
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _buildAppInfoSection(),
-          _buildUpdateSection(),
-          _buildHistoryUpdatesSection(),
-          _buildLinksSection(),
-          SizedBox(height: Get.context != null ? 
-            MediaQuery.of(Get.context!).padding.bottom : 0),
+      body: CustomScrollView(
+        slivers: [
+          BlurredSliverAppBar(
+            title: t.settings.about,
+            isWideScreen: widget.isWideScreen,
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                _buildAppInfoSection(),
+                _buildUpdateSection(),
+                _buildHistoryUpdatesSection(),
+                _buildLinksSection(),
+                SizedBox(
+                  height: Get.context != null
+                      ? MediaQuery.of(Get.context!).padding.bottom
+                      : 0,
+                ),
+              ]),
+            ),
+          ),
         ],
       ),
     );

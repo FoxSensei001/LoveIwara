@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/ai_translation_setting_widget.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 
 import '../../../../utils/proxy/proxy_util.dart';
-import '../../../routes/app_routes.dart';
 import 'app_settings_page.dart';
 import 'player_settings_page.dart';
 import 'forum_settings_page.dart';
@@ -15,489 +16,548 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'about_page.dart';
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({super.key});
+  const SettingsPage({this.initialPage = -1, super.key});
+
+  final int initialPage;
+
+  // 静态引用，用于子页面导航
+  static _SettingsPageState? _currentInstance;
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
+
+  // 静态方法：在宽屏模式下导航到深层页面
+  static void navigateToNestedPage(Widget page) {
+    final instance = _currentInstance;
+    if (instance != null && instance.enableTwoViews) {
+      // 宽屏模式：使用内部导航
+      instance._nestedNavigatorKey.currentState?.push(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => page,
+          transitionDuration: const Duration(milliseconds: 200),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1, 0),
+                end: Offset.zero,
+              ).animate(animation),
+              child: child,
+            );
+          },
+        ),
+      );
+    } else {
+      // 窄屏模式或没有实例：使用全局导航
+      if (instance != null) {
+        instance._addToPageStack(page);
+      }
+    }
+  }
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class _SettingsPageState extends State<SettingsPage> implements PopEntry {
   Worker? _selectedIndexWorker;
-  bool? _wasWideScreen;
+  int currentPage = -1; // 当前选中的设置页面索引
+  ModalRoute? _route;
+  late ValueNotifier<bool> canPop;
+  double offset = 0; // 用于手势拖拽
+  HorizontalDragGestureRecognizer? gestureRecognizer;
+
+  // 深层页面导航
+  final GlobalKey<NavigatorState> _nestedNavigatorKey =
+      GlobalKey<NavigatorState>();
+  final List<Widget> _pageStack = []; // 页面栈
+
+  // 响应式布局判断
+  bool get enableTwoViews => MediaQuery.of(context).size.width > 720;
+
+  @override
+  void initState() {
+    super.initState();
+    currentPage = widget.initialPage;
+    canPop = ValueNotifier(true);
+
+    // 设置静态引用
+    SettingsPage._currentInstance = this;
+
+    // 初始化手势识别器
+    gestureRecognizer = HorizontalDragGestureRecognizer(debugOwner: this)
+      ..onUpdate = ((details) {
+        if (currentPage != -1 && !enableTwoViews) {
+          setState(() {
+            offset = (offset + details.delta.dx).clamp(
+              0.0,
+              MediaQuery.of(context).size.width,
+            );
+          });
+        }
+      })
+      ..onEnd = (details) async {
+        if (currentPage != -1 && !enableTwoViews) {
+          final screenWidth = MediaQuery.of(context).size.width;
+          final velocity = details.velocity.pixelsPerSecond.dx;
+
+          // 判断是否应该返回
+          bool shouldPop = false;
+          if (velocity > 300) {
+            // 快速向右滑动
+            shouldPop = true;
+          } else if (offset > screenWidth * 0.4) {
+            // 滑动距离超过40%
+            shouldPop = true;
+          }
+
+          if (shouldPop) {
+            setState(() {
+              currentPage = -1;
+              offset = 0;
+            });
+          } else {
+            // 回弹到原位置
+            setState(() {
+              offset = 0;
+            });
+          }
+        }
+      };
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    
-    // 只有当前页面是设置页面时才处理屏幕切换
-    final currentRoute = ModalRoute.of(context)?.settings.name;
-    if (currentRoute != '/settings_page') {
-      return;
+    final ModalRoute<dynamic>? nextRoute = ModalRoute.of(context);
+    if (nextRoute != _route) {
+      _route?.unregisterPopEntry(this);
+      _route = nextRoute;
+      _route?.registerPopEntry(this);
     }
-    
-    final screenWidth = MediaQuery.of(context).size.width;
-    const double wideScreenThreshold = 800;
-    final bool isWideScreen = screenWidth >= wideScreenThreshold;
-    
-    // 处理从窄屏到宽屏的切换
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_wasWideScreen != null && _wasWideScreen == false && isWideScreen) {
-        // 从窄屏切换到宽屏，如果有其他页面在栈上，则回到设置页
-        if (Navigator.of(context).canPop()) {
-          Navigator.of(context).popUntil((route) => 
-            route.settings.name == '/settings_page'
-          );
-        }
-      }
-      _wasWideScreen = isWideScreen;
-    });
   }
 
   @override
   void dispose() {
     _selectedIndexWorker?.dispose();
+    _route?.unregisterPopEntry(this);
+    gestureRecognizer?.dispose();
+    canPop.dispose();
+
+    // 清理静态引用
+    if (SettingsPage._currentInstance == this) {
+      SettingsPage._currentInstance = null;
+    }
+
     super.dispose();
+  }
+
+  // 添加页面到栈中
+  void _addToPageStack(Widget page) {
+    setState(() {
+      _pageStack.add(page);
+    });
+  }
+
+  // PopEntry接口实现
+  @override
+  ValueListenable<bool> get canPopNotifier => canPop;
+
+  @override
+  void onPopInvoked(bool didPop) {
+    onPopInvokedWithResult(didPop, null);
+  }
+
+  @override
+  void onPopInvokedWithResult(bool didPop, result) {
+    // 先检查是否有深层页面需要返回
+    if (enableTwoViews && _nestedNavigatorKey.currentState?.canPop() == true) {
+      _nestedNavigatorKey.currentState?.pop();
+      return;
+    }
+
+    // 检查是否有页面栈需要返回
+    if (_pageStack.isNotEmpty) {
+      setState(() {
+        _pageStack.removeLast();
+      });
+      return;
+    }
+
+    // 最后返回到主设置页面
+    if (currentPage != -1) {
+      setState(() {
+        currentPage = -1; // 返回到主设置页面
+        offset = 0; // 重置偏移量
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final t = slang.Translations.of(context);
+    // 控制是否可以直接退出页面
+    if (currentPage != -1) {
+      canPop.value = false; // 有子页面时不能直接退出
+    } else {
+      canPop.value = true; // 在主页面时可以退出
+    }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(t.settings.settings,
-            style: const TextStyle(fontWeight: FontWeight.bold)),
-        elevation: 2,
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        iconTheme: IconThemeData(color: Get.isDarkMode ? Colors.white : null),
-      ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          // 定义宽屏的阈值
-          const double wideScreenThreshold = 800;
-          // 是否是宽屏
-          final bool isWideScreen = constraints.maxWidth >= wideScreenThreshold;
-
-          // 定义设置项列表
-          final List<SettingItem> settingItems = [
-      if (ProxyUtil.isSupportedPlatform())
-        SettingItem(
-          title: t.settings.networkSettings,
-          subtitle: t.settings.configureYourProxyServer,
-          icon: Icons.wifi,
-          page: ProxySettingsPage(isWideScreen: isWideScreen),
-          route: Routes.PROXY_SETTINGS_PAGE,
-        ),
-      SettingItem(
-        title: t.translation.translation,
-        subtitle: t.translation.configureTranslationStrategy,
-        icon: Icons.translate,
-        page: AITranslationSettingsPage(isWideScreen: isWideScreen),
-        route: Routes.AI_TRANSLATION_SETTINGS_PAGE,
-      ),
-      SettingItem(
-        title: t.settings.appSettings,
-        subtitle: t.settings.configureYourAppSettings,
-        icon: Icons.settings,
-        page: AppSettingsPage(isWideScreen: isWideScreen),
-        route: Routes.APP_SETTINGS_PAGE,
-      ),
-      SettingItem(
-        title: t.settings.chatSettings.name,
-        subtitle: t.settings.chatSettings.configureYourChatSettings,
-        icon: Icons.forum,
-        page: ForumSettingsPage(isWideScreen: isWideScreen),
-        route: Routes.FORUM_SETTINGS_PAGE,
-      ),
-      SettingItem(
-        title: t.settings.downloadSettings.downloadSettingsTitle,
-        subtitle: t.settings.downloadSettings.downloadSettingsSubtitle,
-        icon: Icons.download,
-        page: DownloadSettingsPage(isWideScreen: isWideScreen),
-        route: Routes.DOWNLOAD_SETTINGS_PAGE,
-      ),
-      SettingItem(
-        title: t.settings.playerSettings,
-        subtitle: t.settings.customizeYourPlaybackExperience,
-        icon: Icons.play_circle_outline,
-        page: PlayerSettingsPage(isWideScreen: isWideScreen),
-        route: Routes.PLAYER_SETTINGS_PAGE,
-      ),
-      SettingItem(
-        title: t.settings.themeSettings,
-        subtitle: t.settings.chooseYourFavoriteAppAppearance,
-        icon: Icons.color_lens,
-        page: ThemeSettingsPage(isWideScreen: isWideScreen),
-        route: Routes.THEME_SETTINGS_PAGE,
-      ),
-      SettingItem(
-        title: t.settings.about,
-        subtitle: t.settings.checkForUpdates,
-        icon: Icons.info_outline,
-        page: AboutPage(isWideScreen: isWideScreen),
-        route: Routes.ABOUT_PAGE,
-      ),
-          ];
-
-          return isWideScreen
-              ? _buildWideScreenLayout(context, settingItems)
-              : _buildNarrowScreenLayout(context, settingItems);
-        },
-      ),
-    );
+    return Material(child: _buildBody());
   }
 
-  Widget _buildWideScreenLayout(BuildContext context, List<SettingItem> settingItems) {
-    final selectedIndex = (Get.find<ConfigService>()[ConfigKey.SETTINGS_SELECTED_INDEX_KEY] as int? ?? 0).obs;
-    
-    _selectedIndexWorker?.dispose();
-    _selectedIndexWorker = ever(selectedIndex, (int index) {
-      Get.find<ConfigService>().setSetting(ConfigKey.SETTINGS_SELECTED_INDEX_KEY, index);
-    });
-  
-    // 定义分组设置项
-    final groupedItems = [
-      _SettingGroup(
-        // title: '基础设置',
-        title: slang.t.settings.basicSettings,
-        items: settingItems.where((item) =>
-            item.icon == Icons.wifi ||
-            item.icon == Icons.translate ||
-            item.icon == Icons.settings ||
-            item.icon == Icons.download).toList(),
-      ),
-      _SettingGroup(
-        // title: '个性化',
-        title: slang.t.settings.personalizedSettings,
-        items: settingItems.where((item) =>
-            item.icon == Icons.play_circle_outline ||
-            item.icon == Icons.color_lens ||
-            item.icon == Icons.forum).toList(),
-      ),
-      _SettingGroup(
-        // title: '其他',
-        title: slang.t.settings.otherSettings,
-        items: settingItems.where((item) => 
-            item.icon == Icons.info_outline).toList(),
-      ),
-    ];
-  
-    return Row(
-      children: [
-        // 左侧菜单
-        SizedBox(
-          width: 300,
-          child: Card(
-            margin: const EdgeInsets.all(16),
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-              side: BorderSide(
-                color: Theme.of(context).dividerColor.withOpacity(0.1),
+  Widget _buildBody() {
+    if (enableTwoViews) {
+      // 桌面端：双栏布局
+      return Row(
+        children: [
+          SizedBox(
+            width: 280,
+            height: double.infinity,
+            child: _buildLeft(), // 左侧导航
+          ),
+          Container(
+            height: double.infinity,
+            decoration: BoxDecoration(
+              border: Border(
+                left: BorderSide(
+                  color: Theme.of(context).dividerColor,
+                  width: 0.6,
+                ),
               ),
             ),
-            clipBehavior: Clip.antiAlias,
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              itemCount: groupedItems.length,
-              itemBuilder: (context, groupIndex) {
-                final group = groupedItems[groupIndex];
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-                      child: Text(
-                        group.title,
-                      ),
-                    ),
-                    ...List.generate(group.items.length, (itemIndex) {
-                      final item = group.items[itemIndex];
-                      final globalIndex = groupedItems
-                          .take(groupIndex)
-                          .fold<int>(0, (sum, group) => sum + group.items.length) + itemIndex;
-                      
-                      return Obx(() => Column(
-                        children: [
-                          _buildSettingsListTile(
-                            context,
-                            item,
-                            isSelected: selectedIndex.value == globalIndex,
-                            onTap: () => selectedIndex.value = globalIndex,
-                          ),
-                          if (itemIndex != group.items.length - 1)
-                            Padding(
-                              padding: const EdgeInsets.only(left: 56),
-                              child: Divider(
-                                height: 1,
-                                color: Theme.of(context).dividerColor.withOpacity(0.1),
-                              ),
+          ),
+          Expanded(
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              transitionBuilder: (child, animation) {
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    return AnimatedBuilder(
+                      animation: animation,
+                      builder: (context, _) {
+                        var width = constraints.maxWidth;
+                        var value = animation.isForwardOrCompleted
+                            ? 1 - animation.value
+                            : 1;
+                        var left = width * value;
+                        return Stack(
+                          children: [
+                            Positioned(
+                              top: 0,
+                              bottom: 0,
+                              left: left,
+                              width: width,
+                              child: child,
                             ),
-                        ],
-                      ));
-                    }),
-                    if (groupIndex != groupedItems.length - 1)
-                      const SizedBox(height: 16),
-                  ],
+                          ],
+                        );
+                      },
+                    );
+                  },
                 );
               },
+              child: _buildRight(), // 右侧内容
             ),
           ),
+        ],
+      );
+    } else {
+      // 移动端：单页布局
+      return Listener(
+        onPointerDown: handlePointerDown,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return Stack(
+              children: [
+                // 底层：导航列表
+                AnimatedPositioned(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  left: currentPage == -1 ? 0 : -constraints.maxWidth * 0.3,
+                  width: constraints.maxWidth,
+                  top: 0,
+                  bottom: 0,
+                  child: _buildLeft(),
+                ),
+                // 顶层：设置子页面
+                AnimatedPositioned(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  left: currentPage == -1 ? constraints.maxWidth : offset,
+                  width: constraints.maxWidth,
+                  top: 0,
+                  bottom: 0,
+                  child: Material(elevation: 8, child: _buildRight()),
+                ),
+              ],
+            );
+          },
         ),
-        // 右侧内容区域
-        Expanded(
-          child: Card(
-            margin: const EdgeInsets.fromLTRB(0, 16, 16, 16),
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-              side: BorderSide(
-                color: Theme.of(context).dividerColor.withOpacity(0.1),
-              ),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: Obx(() {
-              // 根据选中的索引找到对应的设置项
-              SettingItem? selectedItem;
-              int currentIndex = 0;
-              
-              for (final group in groupedItems) {
-                for (final item in group.items) {
-                  if (currentIndex == selectedIndex.value) {
-                    selectedItem = item;
-                    break;
-                  }
-                  currentIndex++;
-                }
-                if (selectedItem != null) break;
-              }
-              
-              return selectedItem?.page ?? settingItems[0].page;
-            }),
-          ),
-        ),
-      ],
-    );
+      );
+    }
   }
-  
-  Widget _buildNarrowScreenLayout(
-      BuildContext context, List<SettingItem> settingItems) {
-    return CustomScrollView(
-      slivers: [
-        const SliverToBoxAdapter(
-          child: SizedBox(height: 8),
-        ),
-        _buildSettingsGroup(
-          context,
-          // title: '基础设置',
-          title: slang.t.settings.basicSettings,
-          items: settingItems.where((item) =>
-              item.icon == Icons.wifi ||
-              item.icon == Icons.translate ||
-              item.icon == Icons.settings ||
-              item.icon == Icons.download).toList(),
-        ),
-        _buildSettingsGroup(
-          context,
-          // title: '个性化',
-          title: slang.t.settings.personalizedSettings,
-          items: settingItems.where((item) =>
-              item.icon == Icons.play_circle_outline ||
-              item.icon == Icons.color_lens ||
-              item.icon == Icons.forum).toList(),
-        ),
-        _buildSettingsGroup(
-          context,
-          // title: '其他',
-          title: slang.t.settings.otherSettings,
-          items: settingItems.where((item) => 
-              item.icon == Icons.info_outline).toList(),
-          isLastGroup: true,
-        ),
-        // 添加底部安全区域padding
-        SliverToBoxAdapter(
-          child: SizedBox(
-            height: MediaQuery.of(context).padding.bottom + 16,
+
+  Widget _buildLeft() {
+    final t = slang.Translations.of(context);
+
+    return Material(
+      child: CustomScrollView(
+        slivers: [
+          BlurredSliverAppBar(
+            title: t.settings.settings,
+            isWideScreen: false, // 显示返回按钮
+            expandedHeight: 56,
           ),
-        ),
-      ],
+          _buildCategoriesSliver(),
+        ],
+      ),
     );
   }
 
-  Widget _buildSettingsGroup(
-    BuildContext context, {
-    required String title,
-    required List<SettingItem> items,
-    bool isLastGroup = false,
-  }) {
+  Widget _buildCategoriesSliver() {
+    final t = slang.Translations.of(context);
+
+    // 定义分组设置项
+    final settingGroups = [
+      _SettingGroup(
+        title: t.settings.basicSettings,
+        items: [
+          if (ProxyUtil.isSupportedPlatform())
+            _SettingItem(
+              title: t.settings.networkSettings,
+              icon: Icons.wifi,
+              index: 0,
+            ),
+          _SettingItem(
+            title: t.translation.translation,
+            icon: Icons.translate,
+            index: ProxyUtil.isSupportedPlatform() ? 1 : 0,
+          ),
+          _SettingItem(
+            title: t.settings.appSettings,
+            icon: Icons.settings,
+            index: ProxyUtil.isSupportedPlatform() ? 2 : 1,
+          ),
+          _SettingItem(
+            title: t.settings.downloadSettings.downloadSettingsTitle,
+            icon: Icons.download,
+            index: ProxyUtil.isSupportedPlatform() ? 4 : 3,
+          ),
+        ],
+      ),
+      _SettingGroup(
+        title: t.settings.personalizedSettings,
+        items: [
+          _SettingItem(
+            title: t.settings.chatSettings.name,
+            icon: Icons.forum,
+            index: ProxyUtil.isSupportedPlatform() ? 3 : 2,
+          ),
+          _SettingItem(
+            title: t.settings.playerSettings,
+            icon: Icons.play_circle_outline,
+            index: ProxyUtil.isSupportedPlatform() ? 5 : 4,
+          ),
+          _SettingItem(
+            title: t.settings.themeSettings,
+            icon: Icons.color_lens,
+            index: ProxyUtil.isSupportedPlatform() ? 6 : 5,
+          ),
+        ],
+      ),
+      _SettingGroup(
+        title: t.settings.otherSettings,
+        items: [
+          _SettingItem(
+            title: t.settings.about,
+            icon: Icons.info_outline,
+            index: ProxyUtil.isSupportedPlatform() ? 7 : 6,
+          ),
+        ],
+      ),
+    ];
+
     return SliverPadding(
       padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        bottom: isLastGroup ? 0 : 16,
+        top: 8,
+        bottom: 8 + MediaQuery.of(context).padding.bottom,
       ),
-      sliver: SliverToBoxAdapter(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 4, bottom: 8),
-              child: Text(
-                title,
-                // style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                //       fontWeight: FontWeight.bold,
-                //       color: Theme.of(context).primaryColor,
-                //     ),
-              ),
-            ),
-            Card(
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate((context, groupIndex) {
+          final group = settingGroups[groupIndex];
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: Card(
               elevation: 0,
               clipBehavior: Clip.antiAlias,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
                 side: BorderSide(
-                  color: Theme.of(context).dividerColor.withOpacity(0.1),
+                  color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
                 ),
               ),
               child: Column(
-                children: List.generate(items.length, (index) {
-                  final item = items[index];
-                  return Column(
-                    children: [
-                      _buildSettingsCard(context, item),
-                      if (index != items.length - 1)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 56),
-                          child: Divider(
-                            height: 1,
-                            color: Theme.of(context).dividerColor.withOpacity(0.1),
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                    child: Text(
+                      group.title,
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                  ...List.generate(group.items.length, (itemIndex) {
+                    final item = group.items[itemIndex];
+                    final isSelected = currentPage == item.index;
+
+                    return Column(
+                      children: [
+                        Material(
+                          color: isSelected
+                              ? Theme.of(context).colorScheme.secondaryContainer
+                                    .withValues(alpha: 0.3)
+                              : Colors.transparent,
+                          child: InkWell(
+                            onTap: () =>
+                                setState(() => currentPage = item.index),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    item.icon,
+                                    size: 20,
+                                    color: isSelected
+                                        ? Theme.of(context).colorScheme.primary
+                                        : Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      item.title,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(
+                                            fontWeight: isSelected
+                                                ? FontWeight.w500
+                                                : FontWeight.normal,
+                                            color: isSelected
+                                                ? Theme.of(
+                                                    context,
+                                                  ).colorScheme.primary
+                                                : null,
+                                          ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
-                    ],
-                  );
-                }),
+                        if (itemIndex != group.items.length - 1)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 48),
+                            child: Divider(
+                              height: 1,
+                              color: Theme.of(
+                                context,
+                              ).dividerColor.withValues(alpha: 0.1),
+                            ),
+                          ),
+                      ],
+                    );
+                  }),
+                ],
               ),
             ),
-          ],
-        ),
+          );
+        }, childCount: settingGroups.length),
       ),
     );
   }
 
-  Widget _buildSettingsListTile(
-    BuildContext context,
-    SettingItem item, {
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return Material(
-      color: isSelected ? Theme.of(context).primaryColor.withOpacity(0.1) : Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? Theme.of(context).primaryColor
-                      : Theme.of(context).primaryColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  item.icon,
-                  size: 20,
-                  color: isSelected 
-                      ? Colors.white 
-                      : (Get.isDarkMode ? Colors.white : Theme.of(context).primaryColor),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.title,
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                          ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      item.subtitle,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.7),
-                          ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+  Widget _buildRight() {
+    if (currentPage == -1) {
+      return const SizedBox(); // 空页面
+    }
+
+    // 如果有深层页面栈，显示最顶层的页面
+    if (_pageStack.isNotEmpty) {
+      return _pageStack.last;
+    }
+
+    // 如果是宽屏模式，使用Navigator来管理深层页面
+    if (enableTwoViews) {
+      return Navigator(
+        key: _nestedNavigatorKey,
+        onGenerateRoute: (settings) {
+          return PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) {
+              return _getSettingsPage();
+            },
+            transitionDuration: const Duration(milliseconds: 200),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  return SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(1, 0),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  );
+                },
+          );
+        },
+      );
+    } else {
+      // 窄屏模式直接返回设置页面
+      return _getSettingsPage();
+    }
   }
 
-  Widget _buildSettingsCard(BuildContext context, SettingItem item) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => Get.toNamed(item.route),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  item.icon,
-                  size: 20,
-                  color: Get.isDarkMode ? Colors.white : Theme.of(context).primaryColor,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.title,
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w500,
-                          ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      item.subtitle,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.color
-                                ?.withOpacity(0.7),
-                          ),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(
-                Icons.chevron_right,
-                size: 20,
-                color: Theme.of(context).iconTheme.color?.withOpacity(0.3),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+  Widget _getSettingsPage() {
+    // 根据索引返回对应的设置页面
+    int adjustedIndex = currentPage;
+    if (!ProxyUtil.isSupportedPlatform()) {
+      // 如果不支持代理，需要调整索引
+      adjustedIndex += 1;
+    }
+
+    switch (adjustedIndex) {
+      case 0: // 网络设置
+        return ProxySettingsPage(isWideScreen: enableTwoViews);
+      case 1: // 翻译设置
+        return AITranslationSettingsPage(isWideScreen: enableTwoViews);
+      case 2: // 应用设置
+        return AppSettingsPage(isWideScreen: enableTwoViews);
+      case 3: // 聊天设置
+        return ForumSettingsPage(isWideScreen: enableTwoViews);
+      case 4: // 下载设置
+        return DownloadSettingsPage(isWideScreen: enableTwoViews);
+      case 5: // 播放器设置
+        return PlayerSettingsPage(isWideScreen: enableTwoViews);
+      case 6: // 主题设置
+        return ThemeSettingsPage(isWideScreen: enableTwoViews);
+      case 7: // 关于
+        return AboutPage(isWideScreen: enableTwoViews);
+      default:
+        return const SizedBox();
+    }
+  }
+
+  // 手势处理方法
+  void handlePointerDown(PointerDownEvent event) {
+    if (!enableTwoViews && currentPage != -1) {
+      // 只在窄屏且有子页面时才处理手势
+      if (event.position.dx < 20) {
+        gestureRecognizer?.addPointer(event);
+      }
+    }
   }
 }
 
@@ -518,13 +578,19 @@ class SettingItem {
   });
 }
 
-// 新增分组数据模型
+// 分组设置项数据模型
 class _SettingGroup {
   final String title;
-  final List<SettingItem> items;
+  final List<_SettingItem> items;
 
-  _SettingGroup({
-    required this.title,
-    required this.items,
-  });
+  _SettingGroup({required this.title, required this.items});
+}
+
+// 简化的设置项模型（用于左侧导航）
+class _SettingItem {
+  final String title;
+  final IconData icon;
+  final int index;
+
+  _SettingItem({required this.title, required this.icon, required this.index});
 }

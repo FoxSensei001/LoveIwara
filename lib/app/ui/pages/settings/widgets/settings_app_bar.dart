@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class SettingsAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -21,4 +22,58 @@ class SettingsAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
-} 
+}
+
+// 带模糊效果的SliverAppBar
+class BlurredSliverAppBar extends StatelessWidget {
+  final String title;
+  final bool isWideScreen;
+  final double expandedHeight;
+  final bool pinned;
+  final bool floating;
+
+  const BlurredSliverAppBar({
+    super.key,
+    required this.title,
+    this.isWideScreen = false,
+    this.expandedHeight = kToolbarHeight,
+    this.pinned = true,
+    this.floating = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverAppBar(
+      title: Text(
+        title,
+        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      automaticallyImplyLeading: !isWideScreen,
+      pinned: pinned,
+      floating: floating,
+      expandedHeight: expandedHeight,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      flexibleSpace: ClipRRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.8),
+              border: Border(
+                bottom: BorderSide(
+                  color: Theme.of(context).dividerColor.withValues(alpha: 0.2),
+                  width: 0.5,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

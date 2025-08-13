@@ -6,7 +6,9 @@ import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/common/constants.dart';
 
 class EmojiLibraryPage extends StatefulWidget {
-  const EmojiLibraryPage({super.key});
+  final bool isWideScreen;
+
+  const EmojiLibraryPage({super.key, this.isWideScreen = false});
 
   @override
   State<EmojiLibraryPage> createState() => _EmojiLibraryPageState();
@@ -45,6 +47,7 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(t.emoji.library),
+        automaticallyImplyLeading: !widget.isWideScreen, // 在宽屏模式下不显示返回按钮
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
