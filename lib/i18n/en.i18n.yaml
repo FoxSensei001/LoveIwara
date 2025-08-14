@@ -1036,6 +1036,8 @@ notifications:
   kApprovedGallery: Gallery approved
   kApprovedThread: Thread approved
   kApprovedPost: Post approved
+  kApprovedForumPost: Forum post approved
+  kRejectedContent: Content review rejected
   kUnknownType: Unknown notification type
 
 conversation:

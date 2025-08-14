@@ -2414,6 +2414,12 @@ class TranslationsNotificationsEn {
 	/// en: 'Post approved'
 	String get kApprovedPost => 'Post approved';
 
+	/// en: 'Forum post approved'
+	String get kApprovedForumPost => 'Forum post approved';
+
+	/// en: 'Content review rejected'
+	String get kRejectedContent => 'Content review rejected';
+
 	/// en: 'Unknown notification type'
 	String get kUnknownType => 'Unknown notification type';
 }
@@ -5747,6 +5753,8 @@ extension on Translations {
 			case 'notifications.kApprovedGallery': return 'Gallery approved';
 			case 'notifications.kApprovedThread': return 'Thread approved';
 			case 'notifications.kApprovedPost': return 'Post approved';
+			case 'notifications.kApprovedForumPost': return 'Forum post approved';
+			case 'notifications.kRejectedContent': return 'Content review rejected';
 			case 'notifications.kUnknownType': return 'Unknown notification type';
 			case 'conversation.errors.pleaseSelectAUser': return 'Please select a user';
 			case 'conversation.errors.pleaseEnterATitle': return 'Please enter a title';

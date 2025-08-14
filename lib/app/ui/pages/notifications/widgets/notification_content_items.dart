@@ -557,7 +557,136 @@ class NotificationContentItems {
       );
     }
 
+    // 论坛发言审核通过
+    if (notification['forumPost'] != null) {
+      final forumPostId = notification['forumPost']['id'];
+      final forumPostBody = notification['forumPost']['body'] ?? '';
+      final threadId = notification['forumPost']['threadId'];
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 顶部提醒
+          Row(
+            children: [
+              Icon(
+                Icons.check_circle_outline,
+                size: 16,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                t.notifications.kApprovedForumPost,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          // 论坛发言内容
+          if (forumPostBody.isNotEmpty)
+            Container(
+              margin: const EdgeInsets.only(top: 8),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.3),
+                ),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.format_quote,
+                    size: 16,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      forumPostBody,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontSize: 13,
+                        height: 1.2,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ).asButton(() => NaviService.navigateToForumThreadDetailPage(threadId, forumPostId)),
+        ],
+      );
+    }
+
     return Text(t.notifications.kUnknownType);
+  }
+
+  /// 构建审核被拒绝通知内容
+  static Widget buildReviewRejectedNotification(
+    BuildContext context,
+    Map<String, dynamic> notification,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 顶部提醒
+        Row(
+          children: [
+            Icon(
+              Icons.cancel_outlined,
+              size: 16,
+              color: Theme.of(context).colorScheme.error,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              t.notifications.kRejectedContent,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.error,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+        // 说明文本
+        Container(
+          margin: const EdgeInsets.only(top: 8),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.errorContainer.withOpacity(0.3),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.error.withOpacity(0.3),
+            ),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.info_outline,
+                size: 16,
+                color: Theme.of(context).colorScheme.error,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  t.notifications.errors.unsupportedNotificationType,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onErrorContainer,
+                    fontSize: 13,
+                    height: 1.2,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   /// 构建可点击的文本

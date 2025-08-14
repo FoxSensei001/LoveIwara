@@ -1044,6 +1044,8 @@ notifications:
   kApprovedGallery: 图库审核通过
   kApprovedThread: 帖子审核通过
   kApprovedPost: 投稿审核通过
+  kApprovedForumPost: 论坛发言审核通过
+  kRejectedContent: 内容审核被拒绝
   kUnknownType: 未知通知类型
 
 conversation:

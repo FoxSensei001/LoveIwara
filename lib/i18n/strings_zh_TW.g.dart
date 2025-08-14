@@ -971,6 +971,8 @@ class _TranslationsNotificationsZhTw implements TranslationsNotificationsEn {
 	@override String get kApprovedGallery => '圖庫已通過';
 	@override String get kApprovedThread => '主題已審核';
 	@override String get kApprovedPost => '投稿已審核';
+	@override String get kApprovedForumPost => '論壇發言審核通過';
+	@override String get kRejectedContent => '內容審核被拒絕';
 	@override String get kUnknownType => '未知通知類型';
 }
 
@@ -2912,6 +2914,8 @@ extension on TranslationsZhTw {
 			case 'notifications.kApprovedGallery': return '圖庫已通過';
 			case 'notifications.kApprovedThread': return '主題已審核';
 			case 'notifications.kApprovedPost': return '投稿已審核';
+			case 'notifications.kApprovedForumPost': return '論壇發言審核通過';
+			case 'notifications.kRejectedContent': return '內容審核被拒絕';
 			case 'notifications.kUnknownType': return '未知通知類型';
 			case 'conversation.errors.pleaseSelectAUser': return '請選擇一個用戶';
 			case 'conversation.errors.pleaseEnterATitle': return '請輸入標題';

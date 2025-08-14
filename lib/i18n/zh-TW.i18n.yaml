@@ -1041,6 +1041,8 @@ notifications:
   kApprovedGallery: 圖庫已通過
   kApprovedThread: 主題已審核
   kApprovedPost: 投稿已審核
+  kApprovedForumPost: 論壇發言審核通過
+  kRejectedContent: 內容審核被拒絕
   kUnknownType: 未知通知類型
 
 conversation:

@@ -968,6 +968,8 @@ class _TranslationsNotificationsJa implements TranslationsNotificationsEn {
 	@override String get kApprovedGallery => 'ギャラリーが承認されました';
 	@override String get kApprovedThread => 'スレッドが承認されました';
 	@override String get kApprovedPost => '投稿が承認されました';
+	@override String get kApprovedForumPost => 'フォーラム投稿が承認されました';
+	@override String get kRejectedContent => 'コンテンツ審査が拒否されました';
 	@override String get kUnknownType => '不明な通知タイプ';
 }
 
@@ -2906,6 +2908,8 @@ extension on TranslationsJa {
 			case 'notifications.kApprovedGallery': return 'ギャラリーが承認されました';
 			case 'notifications.kApprovedThread': return 'スレッドが承認されました';
 			case 'notifications.kApprovedPost': return '投稿が承認されました';
+			case 'notifications.kApprovedForumPost': return 'フォーラム投稿が承認されました';
+			case 'notifications.kRejectedContent': return 'コンテンツ審査が拒否されました';
 			case 'notifications.kUnknownType': return '不明な通知タイプ';
 			case 'conversation.errors.pleaseSelectAUser': return 'ユーザーを選択してください';
 			case 'conversation.errors.pleaseEnterATitle': return 'タイトルを入力してください';

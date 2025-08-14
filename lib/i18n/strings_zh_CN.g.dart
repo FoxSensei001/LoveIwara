@@ -973,6 +973,8 @@ class _TranslationsNotificationsZhCn implements TranslationsNotificationsEn {
 	@override String get kApprovedGallery => '图库审核通过';
 	@override String get kApprovedThread => '帖子审核通过';
 	@override String get kApprovedPost => '投稿审核通过';
+	@override String get kApprovedForumPost => '论坛发言审核通过';
+	@override String get kRejectedContent => '内容审核被拒绝';
 	@override String get kUnknownType => '未知通知类型';
 }
 
@@ -2916,6 +2918,8 @@ extension on TranslationsZhCn {
 			case 'notifications.kApprovedGallery': return '图库审核通过';
 			case 'notifications.kApprovedThread': return '帖子审核通过';
 			case 'notifications.kApprovedPost': return '投稿审核通过';
+			case 'notifications.kApprovedForumPost': return '论坛发言审核通过';
+			case 'notifications.kRejectedContent': return '内容审核被拒绝';
 			case 'notifications.kUnknownType': return '未知通知类型';
 			case 'conversation.errors.pleaseSelectAUser': return '请选择一个用户';
 			case 'conversation.errors.pleaseEnterATitle': return '请输入标题';

@@ -109,6 +109,16 @@ class NotificationListItemWidget extends StatelessWidget {
             NaviService.navigateToPostDetailPage(postId, null);
             return;
           }
+          // 论坛发言审核通过
+          if (notification['forumPost'] != null) {
+            final threadId = notification['forumPost']['threadId'];
+            final forumPostId = notification['forumPost']['id'];
+            NaviService.navigateToForumThreadDetailPage(threadId, forumPostId);
+            return;
+          }
+          break;
+        case 'reviewRejected':
+          // 审核被拒绝通知，不进行跳转，仅显示信息
           break;
       }
     } catch (e) {
@@ -122,6 +132,7 @@ class NotificationListItemWidget extends StatelessWidget {
       'newReply',    // 回复通知
       'newComment',  // 评论通知
       'reviewApproved', // 审核通过通知
+      'reviewRejected', // 审核被拒绝通知
     };
     return knownTypes.contains(type);
   }
@@ -283,6 +294,8 @@ class NotificationListItemWidget extends StatelessWidget {
           break;
         case 'reviewApproved':
           return NotificationContentItems.buildReviewApprovedNotification(context, notification);
+        case 'reviewRejected':
+          return NotificationContentItems.buildReviewRejectedNotification(context, notification);
       }
     } catch (e) {
       // 如果解析失败，返回不支持的通知类型

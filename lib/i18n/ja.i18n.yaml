@@ -1039,6 +1039,8 @@ notifications:
   kApprovedGallery: ギャラリーが承認されました
   kApprovedThread: スレッドが承認されました
   kApprovedPost: 投稿が承認されました
+  kApprovedForumPost: フォーラム投稿が承認されました
+  kRejectedContent: コンテンツ審査が拒否されました
   kUnknownType: 不明な通知タイプ
 
 conversation:
