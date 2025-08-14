@@ -136,8 +136,9 @@ class TopToolbar extends StatelessWidget {
                             if (status == PiPStatus.disabled ||
                                 status == PiPStatus.automatic) {
                               // 关闭全屏和桌面全屏模式
-                              if (currentScreenIsFullScreen)
+                              if (currentScreenIsFullScreen) {
                                 AppService.tryPop();
+                              }
                               if (myVideoStateController
                                   .isDesktopAppFullScreen
                                   .value) {

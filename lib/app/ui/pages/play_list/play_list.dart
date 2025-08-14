@@ -225,7 +225,7 @@ class _PlayListPageState extends State<PlayListPage> {
     );
   }
 
-  _showHelpDialog() {
+  void _showHelpDialog() {
     Get.dialog(
       AlertDialog(
         title: Text('💡 ${slang.t.playList.friendlyTips}',

@@ -1193,21 +1193,26 @@ class _AITranslationSettingsWidgetState
             errorMaxLines: 2,
           ),
           validator: (value) {
-            if (value == null || value.isEmpty)
+            if (value == null || value.isEmpty) {
               return slang.t.translation.thisFieldCannotBeEmpty;
+            }
             if (isDouble) {
               final numValue = double.tryParse(value);
-              if (numValue == null)
+              if (numValue == null) {
                 return slang.t.translation.pleaseEnterValidNumber;
+              }
               // if (numValue < 0 || numValue > 2) return '范围0.0-2.0';
-              if (numValue < 0 || numValue > 2)
+              if (numValue < 0 || numValue > 2) {
                 return '${slang.t.translation.range}${slang.t.translation.temperatureHintText}';
+              }
             } else {
               final intValue = int.tryParse(value);
-              if (intValue == null)
+              if (intValue == null) {
                 return slang.t.translation.pleaseEnterValidNumber;
-              if (intValue <= 0)
+              }
+              if (intValue <= 0) {
                 return '${slang.t.translation.mustBeGreaterThan}0';
+              }
             }
             return null;
           },

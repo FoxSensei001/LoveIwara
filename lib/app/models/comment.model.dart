@@ -54,7 +54,7 @@ class Comment {
     );
   }
 
-  toJson() {
+  Map<String, dynamic> toJson() {
     return {
       'id': id,
       'body': body,

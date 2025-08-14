@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
-import 'package:i_iwara/app/ui/pages/comment/widgets/rules_agreement_dialog_widget.dart';
 import 'package:i_iwara/common/widgets/input/input_components.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 

@@ -132,7 +132,7 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
 
   Widget _buildShimmerItem() {
     return Shimmer.fromColors(
-      baseColor: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+      baseColor: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
       highlightColor: Theme.of(context).colorScheme.surface,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -148,7 +148,7 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
               width: 32.0,
               height: 32.0,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceVariant,
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 shape: BoxShape.circle,
               ),
             ),
@@ -161,7 +161,7 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
                     height: 12.0,
                     width: 100.0,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceVariant,
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(4.0),
                     ),
                   ),
@@ -169,7 +169,7 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
                   Container(
                     height: 10.0,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceVariant,
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(4.0),
                     ),
                   ),
@@ -218,7 +218,7 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5),
+              color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
               borderRadius: BorderRadius.circular(20.0),
             ),
             child: Row(
@@ -301,7 +301,7 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
         margin: const EdgeInsets.all(24.0),
         padding: const EdgeInsets.all(32.0),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+          color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
           borderRadius: BorderRadius.circular(16.0),
         ),
         child: Column(

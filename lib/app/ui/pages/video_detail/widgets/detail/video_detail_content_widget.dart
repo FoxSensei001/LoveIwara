@@ -31,13 +31,8 @@ import 'add_video_to_playlist_dialog.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/download_path_service.dart';
-import 'package:path/path.dart' as p;
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
-import 'package:flutter_file_dialog/flutter_file_dialog.dart';
-import 'package:file_selector/file_selector.dart' as fs;
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
 
 // 添加最小高度常量
 const double MIN_VIDEO_HEIGHT = 240.0;

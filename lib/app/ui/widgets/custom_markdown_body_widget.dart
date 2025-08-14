@@ -589,7 +589,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
                 child: isEmoji 
                   ? Container(
                       // 表情包使用动态布局
-                      margin: emojiSize!.margin,
+                      margin: emojiSize.margin,
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(emojiSize.borderRadius),
                         child: CachedNetworkImage(

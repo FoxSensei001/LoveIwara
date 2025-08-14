@@ -268,17 +268,40 @@ class AuthService extends GetxService {
           final success = await refreshAccessToken();
           if (success) {
             _startTokenRefreshTimer();
+            _retryCount = 0; // 成功后重置重试计数器
+            LogUtils.d('$_tag 后台刷新token成功，重试计数已重置');
           } else {
-            LogUtils.w('$_tag 后台刷新token失败');
+            // 如果 refreshAccessToken 返回 false，它内部已经判断是
+            // 致命的认证错误（如401），此时应该登出。
+            LogUtils.w('$_tag 后台刷新token失败，可能refresh_token已失效');
             await _handleTokenExpiredSilently();
           }
         } catch (e) {
+          // 捕获所有类型的异常，更精确地判断是否为网络问题
+          bool isNetworkError = false;
           if (e is NetworkException) {
-            LogUtils.w('$_tag 后台刷新token网络错误，保持当前状态: ${e.message}');
-            // 网络错误时不清理token，使用指数退避重试
+            isNetworkError = true;
+            LogUtils.w('$_tag 后台刷新token网络错误: ${e.message}');
+          } else if (e is dio.DioException) {
+            // 将更多 DioException 类型视为可重试的网络错误
+            final type = e.type;
+            if (type == dio.DioExceptionType.connectionTimeout ||
+                type == dio.DioExceptionType.sendTimeout ||
+                type == dio.DioExceptionType.receiveTimeout ||
+                type == dio.DioExceptionType.connectionError ||
+                type == dio.DioExceptionType.unknown // HandshakeException 属于此类
+                ) {
+              isNetworkError = true;
+              LogUtils.w('$_tag 后台刷新token发生Dio网络错误: ${e.type}');
+            }
+          }
+
+          if (isNetworkError) {
+            // 对于所有网络相关的错误，都只进行重试，而不是登出用户
             _scheduleRetryWithBackoff();
           } else {
-            LogUtils.e('$_tag 后台刷新token发生错误', error: e);
+            // 对于其他未知或非网络错误，才认为是致命的，执行登出
+            LogUtils.e('$_tag 后台刷新token发生未知致命错误: $e');
             await _handleTokenExpiredSilently();
           }
         }

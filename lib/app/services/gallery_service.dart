@@ -4,7 +4,6 @@ import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/services/api_service.dart';
 import 'package:i_iwara/common/constants.dart';
-import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 
 import '../../utils/logger_utils.dart';

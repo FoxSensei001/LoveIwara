@@ -437,7 +437,7 @@ class _SearchContentState extends State<_SearchContent> {
                   ),
                 ),
                 // 搜索按钮
-                Container(
+                SizedBox(
                   height: 44,
                   child: Material(
                     borderRadius: BorderRadius.circular(12),

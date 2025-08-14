@@ -90,7 +90,7 @@ class ShareService {
   }
 
   /// TODO: 分享播放列表
-  static sharePlayList(String userId) {
+  static void sharePlayList(String userId) {
     showToastWidget(MDToastWidget(message: t.common.comingSoon, type: MDToastType.error), position: ToastPosition.bottom);
   }
 

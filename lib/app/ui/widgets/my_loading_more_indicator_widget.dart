@@ -79,9 +79,9 @@ Widget myLoadingMoreIndicator(
         child: Center(child: widget),
       );
       widget = isSliver
-          ? SliverFillRemaining(child: widget, hasScrollBody: false)
+          ? SliverFillRemaining(hasScrollBody: false, child: widget)
           : CustomScrollView(
-              slivers: <Widget>[SliverFillRemaining(child: widget, hasScrollBody: false)],
+              slivers: <Widget>[SliverFillRemaining(hasScrollBody: false, child: widget)],
             );
       break;
     case IndicatorStatus.error:
@@ -117,9 +117,9 @@ Widget myLoadingMoreIndicator(
         child: Center(child: widget),
       );
       widget = isSliver
-          ? SliverFillRemaining(child: widget, hasScrollBody: false)
+          ? SliverFillRemaining(hasScrollBody: false, child: widget)
           : CustomScrollView(
-              slivers: <Widget>[SliverFillRemaining(child: widget, hasScrollBody: false)],
+              slivers: <Widget>[SliverFillRemaining(hasScrollBody: false, child: widget)],
             );
       break;
     case IndicatorStatus.noMoreLoad:
@@ -142,9 +142,9 @@ Widget myLoadingMoreIndicator(
         child: Center(child: widget),
       );
       widget = isSliver
-          ? SliverFillRemaining(child: widget, hasScrollBody: false)
+          ? SliverFillRemaining(hasScrollBody: false, child: widget)
           : CustomScrollView(
-              slivers: <Widget>[SliverFillRemaining(child: widget, hasScrollBody: false)],
+              slivers: <Widget>[SliverFillRemaining(hasScrollBody: false, child: widget)],
             );
       break;
   }

@@ -53,9 +53,9 @@ abstract class Routes {
 
   static String POST_DETAIL(String id) => '/post/$id';
 
-  static FORUM_THREAD_LIST(String categoryId) => '/forum/$categoryId';
+  static String FORUM_THREAD_LIST(String categoryId) => '/forum/$categoryId';
 
-  static FORUM_THREAD_DETAIL(String categoryId, String threadId) => '/forum/$categoryId/$threadId';
+  static String FORUM_THREAD_DETAIL(String categoryId, String threadId) => '/forum/$categoryId/$threadId';
 
   static const APP_SETTINGS_PAGE = '/app_settings_page';
 
@@ -67,9 +67,9 @@ abstract class Routes {
 
   static const AUTHOR_PROFILE_PREFIX = '/author_profile';
 
-  static MESSAGE_DETAIL(String conversationId) => '/message_detail/$conversationId';
+  static String MESSAGE_DETAIL(String conversationId) => '/message_detail/$conversationId';
 
-  static LOCAL_FAVORITE_DETAIL(String folderId) => '/local_favorite_detail/$folderId';
+  static String LOCAL_FAVORITE_DETAIL(String folderId) => '/local_favorite_detail/$folderId';
 
   static const AI_TRANSLATION_SETTINGS_PAGE = _Paths.AI_TRANSLATION_SETTINGS_PAGE;
   static const TRANSLATION_SETTINGS_PAGE = _Paths.TRANSLATION_SETTINGS_PAGE;

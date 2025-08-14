@@ -179,7 +179,7 @@ class AnimatedFloatingButton extends StatefulWidget {
   final bool mini;
 
   const AnimatedFloatingButton({
-    Key? key,
+    super.key,
     this.visible = true,
     this.callback,
     this.label,
@@ -196,7 +196,7 @@ class AnimatedFloatingButton extends StatefulWidget {
     this.shape = const CircleBorder(),
     this.curve = Curves.fastOutSlowIn,
     this.onLongPress,
-  }) : super(key: key);
+  });
 
   @override
   State createState() => _AnimatedFloatingButtonState();
@@ -611,7 +611,7 @@ class _GridSpeedDialState extends State<GridSpeedDial>
     }
   }
 
-  toggleOverlay() {
+  void toggleOverlay() {
     if (_open) {
       _controller.reverse().whenComplete(() {
         overlayEntry?.remove();
@@ -660,9 +660,9 @@ class _GridSpeedDialState extends State<GridSpeedDial>
 
       _controller.forward();
       if (widget.renderOverlay) {
-        Overlay.of(context, rootOverlay: true)!.insert(backgroundOverlay!);
+        Overlay.of(context, rootOverlay: true).insert(backgroundOverlay!);
       }
-      Overlay.of(context, rootOverlay: true)!.insert(overlayEntry!);
+      Overlay.of(context, rootOverlay: true).insert(overlayEntry!);
     }
 
     if (!mounted) return;
@@ -815,7 +815,6 @@ class _GridSpeedDialState extends State<GridSpeedDial>
 
 class _ChildrensOverlay extends StatelessWidget {
   const _ChildrensOverlay({
-    super.key,
     required this.widget,
     required this.layerLink,
     required this.dialKey,

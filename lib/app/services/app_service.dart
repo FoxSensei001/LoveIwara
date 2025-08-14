@@ -101,7 +101,7 @@ class AppService extends GetxService {
     _showTitleBar.value = !_showTitleBar.value;
   }
 
-  updateIndex(int value) {
+  void updateIndex(int value) {
     _currentIndex.value = value;
   }
 
@@ -238,7 +238,7 @@ class NaviService {
   }
 
   /// 跳转到播放列表详情页
-  static navigateToPlayListDetail(String id, {bool isMine = false}) {
+  static void navigateToPlayListDetail(String id, {bool isMine = false}) {
     _navigateToPage(
       routeName: Routes.PLAYLIST_DETAIL(id),
       page: PlayListDetailPage(playlistId: id, isMine: isMine),

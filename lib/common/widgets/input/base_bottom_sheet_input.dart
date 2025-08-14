@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/common/widgets/input/base_input_widget.dart';
 import 'package:i_iwara/app/ui/widgets/enhanced_emoji_text_field.dart';
-import 'package:i_iwara/i18n/strings.g.dart';
 
 /// 基础底部弹窗输入组件
 class BaseBottomSheetInput extends StatefulWidget {

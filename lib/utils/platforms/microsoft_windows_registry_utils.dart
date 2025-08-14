@@ -19,8 +19,8 @@ class RegistryUtil {
     final lpKeyPath = keyPath.toNativeUtf16();
     try {
       final result = RegOpenKeyEx(
-          hive, lpKeyPath, 0, REG_SAM_FLAGS.KEY_READ, phKey);
-      if (result != WIN32_ERROR.ERROR_SUCCESS) {
+          hive, lpKeyPath, 0, KEY_READ, phKey);
+      if (result != ERROR_SUCCESS) {
         throw Exception("无法打开注册表键: $keyPath");
       }
       return phKey.value;
@@ -45,14 +45,14 @@ class RegistryUtil {
       final status = RegQueryValueEx(
           hKey, lpValueName, nullptr, lpType, lpData, lpcbData);
 
-      if (status != WIN32_ERROR.ERROR_SUCCESS) {
+      if (status != ERROR_SUCCESS) {
         return null;
       }
 
       switch (lpType.value) {
-        case REG_VALUE_TYPE.REG_DWORD:
+        case REG_DWORD:
           return lpData.cast<DWORD>().value;
-        case REG_VALUE_TYPE.REG_SZ:
+        case REG_SZ:
           return lpData.cast<Utf16>().toDartString();
         default:
           return null;

@@ -1,4 +1,3 @@
-import 'package:file_selector/file_selector.dart' as fs show FileSaveLocation, getSaveLocation, XTypeGroup;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
@@ -15,7 +14,6 @@ import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/share_gallery_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:oktoast/oktoast.dart';
-import 'package:path/path.dart' as path;
 
 import '../../../../../common/enums/media_enums.dart';
 import '../../../../services/app_service.dart';

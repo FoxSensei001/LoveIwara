@@ -61,7 +61,7 @@ class Oreno3dHtmlParser {
     
     // 提取标题
     final titleElement = article.querySelector('h2.box-h2');
-    final title = titleElement?.text?.trim() ?? '';
+    final title = titleElement?.text.trim() ?? '';
     
     // 提取缩略图URL
     final imgElement = article.querySelector('img.main-thumbnail');
@@ -69,7 +69,7 @@ class Oreno3dHtmlParser {
     
     // 提取作者
     final authorElement = article.querySelector('.box-text1 .box-text-in');
-    final author = authorElement?.text?.trim() ?? '';
+    final author = authorElement?.text.trim() ?? '';
     
     // 提取观看数和点赞数
     final labelElements = article.querySelectorAll('.f-label-in');
@@ -81,8 +81,8 @@ class Oreno3dHtmlParser {
       final textElement = label.querySelector('.figure-text-in');
       
       if (iconElement != null && textElement != null) {
-        final iconText = iconElement.text?.trim();
-        final countText = textElement.text?.trim() ?? '';
+        final iconText = iconElement.text.trim();
+        final countText = textElement.text.trim() ?? '';
         
         if (iconText == 'remove_red_eye') {
           viewCount = _parseCountString(countText);
@@ -139,7 +139,7 @@ class Oreno3dHtmlParser {
     if (tagsElement == null) return [];
     
     final tags = <String>[];
-    final textContent = tagsElement.text?.trim() ?? '';
+    final textContent = tagsElement.text.trim() ?? '';
     
     // 检查是否为"なし"（无标签）
     if (textContent == 'なし') {
@@ -167,7 +167,7 @@ class Oreno3dHtmlParser {
     int maxPage = 1;
     
     for (final link in pageLinks) {
-      final pageText = link.text?.trim() ?? '';
+      final pageText = link.text.trim() ?? '';
       final pageNum = int.tryParse(pageText);
       if (pageNum != null && pageNum > maxPage) {
         maxPage = pageNum;
@@ -214,7 +214,7 @@ class Oreno3dHtmlParser {
     try {
       // 提取标题
       final titleElement = articleElement.querySelector('h1.video-h1');
-      final title = titleElement?.text?.trim() ?? '';
+      final title = titleElement?.text.trim() ?? '';
       
       // 提取缩略图URL
       final imgElement = articleElement.querySelector('.video-figure img.video-img');
@@ -232,11 +232,11 @@ class Oreno3dHtmlParser {
       final dateElements = articleElement.querySelectorAll('.video-views .f-label-in');
       for (final dateElement in dateElements) {
         final iconElement = dateElement.querySelector('i.material-icons');
-        if (iconElement?.text?.trim() == 'calendar_month') {
+        if (iconElement?.text.trim() == 'calendar_month') {
           final dateTexts = dateElement.querySelectorAll('.video-text');
           if (dateTexts.length >= 2) {
-            final dateStr = dateTexts[0].text?.trim() ?? '';
-            final timeStr = dateTexts[1].text?.trim() ?? '';
+            final dateStr = dateTexts[0].text.trim() ?? '';
+            final timeStr = dateTexts[1].text.trim() ?? '';
             publishedAt = _parseDateTime(dateStr, timeStr);
           }
           break;
@@ -252,8 +252,8 @@ class Oreno3dHtmlParser {
         final textElement = viewElement.querySelector('.video-text');
         
         if (iconElement != null && textElement != null) {
-          final iconText = iconElement.text?.trim();
-          final countText = textElement.text?.trim() ?? '';
+          final iconText = iconElement.text.trim();
+          final countText = textElement.text.trim() ?? '';
           
           if (iconText == 'remove_red_eye') {
             viewCount = _parseCountString(countText);
@@ -268,13 +268,13 @@ class Oreno3dHtmlParser {
       final authorSection = articleElement.querySelector('.video-section-tag');
       if (authorSection != null) {
         final authorH2 = authorSection.querySelector('h2.video-h2-information');
-        if (authorH2?.text?.trim() == '作成者：') {
+        if (authorH2?.text.trim() == '作成者：') {
           final authorLink = authorSection.querySelector('a.tag-btn');
           if (authorLink != null) {
             final authorUrl = authorLink.attributes['href'] ?? '';
             // 确保获取正确的文本内容，排除图标
             final authorNameElement = authorLink.querySelector('div.video-center');
-            final authorName = authorNameElement?.text?.trim() ?? '';
+            final authorName = authorNameElement?.text.trim() ?? '';
             final authorId = _extractAuthorIdFromUrl(authorUrl);
             
             if (authorName.isNotEmpty) {
@@ -293,13 +293,13 @@ class Oreno3dHtmlParser {
       final sections = articleElement.querySelectorAll('.video-section-tag');
       for (final section in sections) {
         final h2Element = section.querySelector('h2.video-h2-information');
-        if (h2Element?.text?.trim() == '原作：') {
+        if (h2Element?.text.trim() == '原作：') {
           final originLink = section.querySelector('a.tag-btn');
           if (originLink != null) {
             final originUrl = originLink.attributes['href'] ?? '';
             // 确保获取正确的文本内容，排除图标
             final originNameElement = originLink.querySelector('div.video-center');
-            final originName = originNameElement?.text?.trim() ?? '';
+            final originName = originNameElement?.text.trim() ?? '';
             final originId = _extractOriginIdFromUrl(originUrl);
             
             if (originName.isNotEmpty) {
@@ -318,13 +318,13 @@ class Oreno3dHtmlParser {
       final characters = <Oreno3dLinkItem>[];
       for (final section in sections) {
         final h2Element = section.querySelector('h2.video-h2-information');
-        if (h2Element?.text?.trim() == 'キャラ：') {
+        if (h2Element?.text.trim() == 'キャラ：') {
           final characterLinks = section.querySelectorAll('a.tag-btn');
           for (final characterLink in characterLinks) {
             final characterUrl = characterLink.attributes['href'] ?? '';
             // 确保获取正确的文本内容，排除图标
             final characterNameElement = characterLink.querySelector('div.video-center');
-            final characterName = characterNameElement?.text?.trim() ?? '';
+            final characterName = characterNameElement?.text.trim() ?? '';
             final characterId = _extractCharacterIdFromUrl(characterUrl);
             
             if (characterName.isNotEmpty) {
@@ -343,11 +343,11 @@ class Oreno3dHtmlParser {
       final tags = <Oreno3dLinkItem>[];
       for (final section in sections) {
         final h2Element = section.querySelector('h2.video-h2-information');
-        if (h2Element?.text?.trim() == 'タグ：') {
+        if (h2Element?.text.trim() == 'タグ：') {
           final tagLinks = section.querySelectorAll('.video-tag .tag-btn');
           for (final tagLink in tagLinks) {
             final tagUrl = tagLink.attributes['href'] ?? '';
-            final tagName = tagLink.querySelector('.tag-text')?.text?.trim() ?? '';
+            final tagName = tagLink.querySelector('.tag-text')?.text.trim() ?? '';
             final tagId = _extractTagIdFromUrl(tagUrl);
             
             if (tagName.isNotEmpty) {
@@ -364,7 +364,7 @@ class Oreno3dHtmlParser {
       
       // 提取作者评论
       final commentElement = articleElement.querySelector('.video-information-comment');
-      final authorComment = commentElement?.text?.trim();
+      final authorComment = commentElement?.text.trim();
       
       return Oreno3dVideoDetail(
         id: videoId,

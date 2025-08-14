@@ -1,4 +1,3 @@
-import 'package:i_iwara/app/models/video.model.dart';
 
 enum DownloadTaskExtDataType {
   video,

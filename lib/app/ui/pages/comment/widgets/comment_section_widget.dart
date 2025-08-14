@@ -53,7 +53,7 @@ class CommentSection extends StatelessWidget {
   // 构建单个Shimmer骨架屏项
   Widget _buildShimmerItem() {
     return Shimmer.fromColors(
-      baseColor: Theme.of(Get.context!).colorScheme.surfaceVariant.withOpacity(0.3),
+      baseColor: Theme.of(Get.context!).colorScheme.surfaceContainerHighest.withOpacity(0.3),
       highlightColor: Theme.of(Get.context!).colorScheme.surface,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -70,7 +70,7 @@ class CommentSection extends StatelessWidget {
               width: 40.0,
               height: 40.0,
               decoration: BoxDecoration(
-                color: Theme.of(Get.context!).colorScheme.surfaceVariant,
+                color: Theme.of(Get.context!).colorScheme.surfaceContainerHighest,
                 shape: BoxShape.circle,
               ),
             ),
@@ -84,7 +84,7 @@ class CommentSection extends StatelessWidget {
                     height: 14.0,
                     width: 120.0,
                     decoration: BoxDecoration(
-                      color: Theme.of(Get.context!).colorScheme.surfaceVariant,
+                      color: Theme.of(Get.context!).colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(4.0),
                     ),
                   ),
@@ -92,7 +92,7 @@ class CommentSection extends StatelessWidget {
                   Container(
                     height: 12.0,
                     decoration: BoxDecoration(
-                      color: Theme.of(Get.context!).colorScheme.surfaceVariant,
+                      color: Theme.of(Get.context!).colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(4.0),
                     ),
                   ),
@@ -101,7 +101,7 @@ class CommentSection extends StatelessWidget {
                     height: 12.0,
                     width: 200.0,
                     decoration: BoxDecoration(
-                      color: Theme.of(Get.context!).colorScheme.surfaceVariant,
+                      color: Theme.of(Get.context!).colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(4.0),
                     ),
                   ),
@@ -110,7 +110,7 @@ class CommentSection extends StatelessWidget {
                     height: 10.0,
                     width: 80.0,
                     decoration: BoxDecoration(
-                      color: Theme.of(Get.context!).colorScheme.surfaceVariant.withOpacity(0.5),
+                      color: Theme.of(Get.context!).colorScheme.surfaceContainerHighest.withOpacity(0.5),
                       borderRadius: BorderRadius.circular(4.0),
                     ),
                   ),
@@ -184,7 +184,7 @@ class CommentSection extends StatelessWidget {
           margin: const EdgeInsets.all(24.0),
           padding: const EdgeInsets.all(32.0),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+            color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
             borderRadius: BorderRadius.circular(16.0),
           ),
           child: Column(
@@ -297,7 +297,7 @@ class CommentSection extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5),
+              color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
               borderRadius: BorderRadius.circular(20.0),
             ),
             child: Row(

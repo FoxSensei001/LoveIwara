@@ -45,7 +45,7 @@ class StorageService {
           LogUtils.d('安全存储可用', _tag);
         } catch (e) {
           _useSecureStorage = false;
-          LogUtils.w('安全存储不可用，将使用普通存储作为回退方案', _tag);
+          LogUtils.e('安全存储不可用，将使用普通存储作为回退方案', tag: _tag, error: e);
         }
       }
       

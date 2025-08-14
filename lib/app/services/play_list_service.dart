@@ -5,7 +5,6 @@ import 'package:i_iwara/app/models/page_data.model.dart';
 import 'package:i_iwara/app/models/play_list.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/services/api_service.dart';
-import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 

@@ -626,21 +626,23 @@ class UserService extends GetxService {
       // 获取到用户资料后启动通知计数定时器
       startNotificationTimer();
     } catch (e) {
-      LogUtils.e('$_tag 静默抓取用户资料失败', error: e);
-      
-      // 检查是否为 Cloudflare 403 错误
+      // 核心改动：我们在这里捕获所有异常，并且不再向上抛出(rethrow)。
+      // 这是一个后台静默任务，它的失败不应该影响用户的主体验。
+      // 用户已经看到了缓存的数据，这就足够了。
+      // 我们只需要记录错误即可。
+      LogUtils.w('$_tag 静默抓取用户资料失败，已静默处理，不影响用户登录状态: $e');
+
+      // 检查是否为 Cloudflare 403 错误，这部分逻辑保留
       if (e is DioException && e.response?.statusCode == 403) {
         final cfMitigated = e.response?.headers['cf-mitigated']?.firstOrNull;
         if (cfMitigated == 'challenge') {
           LogUtils.w('$_tag 用户信息请求被 Cloudflare 拦截，跳过错误处理');
-          // Cloudflare 问题，不进行额外处理，保持现有状态
           return;
         }
       }
-      
-      // 这里不抛出异常，避免影响启动流程
-      // 如果是认证错误，让API拦截器处理
-      rethrow;
+      // 对于其他错误 (包括 HandshakeException, 401, 500 等), 
+      // 我们都选择不打扰用户。API拦截器已经处理了401的重试逻辑，
+      // 如果重试后仍然失败，我们也在此处"消化"掉这个错误，等待下一次机会（比如App重启）。
     }
   }
 }

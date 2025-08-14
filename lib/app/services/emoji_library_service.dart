@@ -1,6 +1,5 @@
 import 'package:i_iwara/db/database_service.dart';
 import 'package:get/get.dart';
-import 'package:sqlite3/common.dart';
 
 class EmojiGroup {
   final int groupId;

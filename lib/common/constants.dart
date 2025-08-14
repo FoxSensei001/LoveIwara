@@ -121,7 +121,7 @@ class CommonConstants {
   /// ============================== 功能开关End ==============================
 
   // 获取用户背景URL
-  static userProfileHeaderUrl(String? headerId) {
+  static String userProfileHeaderUrl(String? headerId) {
     if (headerId == null) {
       return defaultProfileHeaderUrl;
     }
