@@ -97,7 +97,14 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
 
   // 构建AppBar
   PreferredSizeWidget _buildAppBar(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return AppBar(
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark,
+          systemNavigationBarColor: Colors.transparent,
+          systemNavigationBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark,
+        ),
         backgroundColor: Colors.transparent,
         titleSpacing: 0,
         leading: IconButton(

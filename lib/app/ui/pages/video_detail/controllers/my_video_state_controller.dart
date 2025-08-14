@@ -676,17 +676,17 @@ class MyVideoStateController extends GetxController
       LogUtils.d('生命周期观察者已移除', 'MyVideoStateController');
 
       // 获取当前的主题是否为亮色
-      final isLightMode = Theme.of(Get.context!).brightness == Brightness.light;
-      if (isLightMode) {
-        // 设置状态栏颜色为黑色字体
-        SystemChrome.setSystemUIOverlayStyle(
-          const SystemUiOverlayStyle(
-            statusBarColor: Colors.black,
-            statusBarBrightness: Brightness.light,
-            statusBarIconBrightness: Brightness.dark,
-          ),
-        );
-      }
+      final isDarkMode = Theme.of(Get.context!).brightness == Brightness.dark;
+
+      // 设置状态栏颜色为黑色字体
+      SystemChrome.setSystemUIOverlayStyle(
+        SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark,
+          systemNavigationBarColor: Colors.transparent,
+          systemNavigationBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark,
+        ),
+      );
 
       // 销毁动画控制器
       animationController.dispose();
