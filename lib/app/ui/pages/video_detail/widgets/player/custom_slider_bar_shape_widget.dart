@@ -31,11 +31,22 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
   // GlobalKey 用于获取滑动条的 RenderBox
   final GlobalKey _sliderKey = GlobalKey();
 
-  // Paint对象，将在build方法中根据主题色动态更新
-  final Paint _activePaint = Paint()..style = PaintingStyle.fill;
-  final Paint _inactivePaint = Paint()..style = PaintingStyle.fill;
-  final Paint _bufferedPaint = Paint()..style = PaintingStyle.fill;
-  final Paint _hoverPaint = Paint()..style = PaintingStyle.fill;
+  // 缓存常用的Paint对象
+  final Paint _activePaint = Paint()
+    ..color = Colors.white
+    ..style = PaintingStyle.fill;
+
+  final Paint _inactivePaint = Paint()
+    ..color = Colors.white.withOpacity(0.3)
+    ..style = PaintingStyle.fill;
+
+  final Paint _bufferedPaint = Paint()
+    ..color = Colors.white.withOpacity(0.5)
+    ..style = PaintingStyle.fill;
+
+  final Paint _hoverPaint = Paint()
+    ..color = Colors.white.withOpacity(0.5)
+    ..style = PaintingStyle.fill;
 
   // 用于判断当前是否为移动端
   bool get isMobile =>
@@ -62,10 +73,10 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
   void initState() {
     super.initState();
     // 初始化节流数值
-    _throttledCurrentValue =
-        widget.controller.currentPosition.inSeconds.toDouble();
-    _maxValueStored =
-        widget.controller.totalDuration.value.inSeconds.toDouble();
+    _throttledCurrentValue = widget.controller.currentPosition.inSeconds
+        .toDouble();
+    _maxValueStored = widget.controller.totalDuration.value.inSeconds
+        .toDouble();
     String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
     // 加上当前的时间戳
     videoProgressThrottleKey += timestamp;
@@ -78,10 +89,10 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
           videoProgressThrottleKey,
           const Duration(milliseconds: 100),
           () {
-            double newVal =
-                widget.controller.currentPosition.inSeconds.toDouble();
-            double newMax =
-                widget.controller.totalDuration.value.inSeconds.toDouble();
+            double newVal = widget.controller.currentPosition.inSeconds
+                .toDouble();
+            double newMax = widget.controller.totalDuration.value.inSeconds
+                .toDouble();
             // 当数值变化超过 0.1 秒时更新
             if ((newVal - _throttledCurrentValue).abs() >= 0.1 ||
                 (_maxValueStored - newMax).abs() >= 0.1) {
@@ -114,10 +125,6 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
 
     // 动态更新Paint对象的颜色
     _activePaint.color = primaryColor;
-    _inactivePaint.color = primaryColor.withValues(alpha: 0.3);
-    _bufferedPaint.color = primaryColor.withValues(alpha: 0.5);
-    _hoverPaint.color = primaryColor.withValues(alpha: 0.5);
-
     return RepaintBoundary(
       child: Stack(
         alignment: Alignment.centerLeft,
@@ -131,9 +138,7 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
                 pressedElevation: 4.0,
               ),
               // 设置滑块的覆盖效果
-              overlayShape: const RoundSliderOverlayShape(
-                overlayRadius: 16.0,
-              ),
+              overlayShape: const RoundSliderOverlayShape(overlayRadius: 16.0),
               // 使用自定义的轨道形状，并传入缓冲区段列表
               trackShape: CustomSliderTrackShape(
                 hoverValue: _hoverValue,
@@ -146,26 +151,27 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
                 hoverPaint: _hoverPaint,
               ),
               activeTrackColor: primaryColor,
-              inactiveTrackColor: primaryColor.withValues(alpha: 0.3),
+              inactiveTrackColor: Colors.white.withOpacity(0.3),
               thumbColor: primaryColor,
-              overlayColor: primaryColor.withValues(alpha: 0.3),
+              overlayColor: Colors.white.withOpacity(0.3),
               valueIndicatorColor: primaryColor,
-              valueIndicatorTextStyle: const TextStyle(
-                color: Colors.black,
-              ),
+              valueIndicatorTextStyle: const TextStyle(color: Colors.black),
               valueIndicatorShape: const PaddleSliderValueIndicatorShape(),
               showValueIndicator: ShowValueIndicator.always,
             ),
             child: Slider(
               key: _sliderKey,
               value: _currentValue.clamp(
-                  0.0, _maxValueStored > 0 ? _maxValueStored : 1.0),
+                0.0,
+                _maxValueStored > 0 ? _maxValueStored : 1.0,
+              ),
               min: 0.0,
               max: _maxValueStored > 0 ? _maxValueStored : 1.0,
               focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
               autofocus: false,
               label: CommonUtils.formatDuration(
-                  Duration(seconds: _currentValue.toInt())),
+                Duration(seconds: _currentValue.toInt()),
+              ),
               onChangeStart: (value) {
                 setState(() {
                   _draggingValue = value;
@@ -173,8 +179,9 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
                 });
                 widget.controller.setInteracting(true);
                 widget.controller.showSeekPreview(true);
-                widget.controller
-                    .updateSeekPreview(Duration(seconds: value.toInt()));
+                widget.controller.updateSeekPreview(
+                  Duration(seconds: value.toInt()),
+                );
               },
               onChanged: (value) {
                 EasyThrottle.throttle(
@@ -184,8 +191,9 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
                     setState(() {
                       _draggingValue = value;
                     });
-                    widget.controller
-                        .updateSeekPreview(Duration(seconds: value.toInt()));
+                    widget.controller.updateSeekPreview(
+                      Duration(seconds: value.toInt()),
+                    );
                   },
                 );
               },
@@ -245,15 +253,12 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.7),
+          color: Colors.black.withOpacity(0.7),
           borderRadius: BorderRadius.circular(4),
         ),
         child: Text(
           CommonUtils.formatDuration(Duration(seconds: _hoverValue!.toInt())),
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 12,
-          ),
+          style: const TextStyle(color: Colors.white, fontSize: 12),
         ),
       ),
     );
