@@ -31,22 +31,11 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
   // GlobalKey 用于获取滑动条的 RenderBox
   final GlobalKey _sliderKey = GlobalKey();
 
-  // 缓存常用的Paint对象
-  final Paint _activePaint = Paint()
-    ..color = Colors.white
-    ..style = PaintingStyle.fill;
-
-  final Paint _inactivePaint = Paint()
-    ..color = Colors.white.withOpacity(0.3)
-    ..style = PaintingStyle.fill;
-
-  final Paint _bufferedPaint = Paint()
-    ..color = Colors.white.withOpacity(0.5)
-    ..style = PaintingStyle.fill;
-
-  final Paint _hoverPaint = Paint()
-    ..color = Colors.white.withOpacity(0.5)
-    ..style = PaintingStyle.fill;
+  // Paint对象，将在build方法中根据主题色动态更新
+  final Paint _activePaint = Paint()..style = PaintingStyle.fill;
+  final Paint _inactivePaint = Paint()..style = PaintingStyle.fill;
+  final Paint _bufferedPaint = Paint()..style = PaintingStyle.fill;
+  final Paint _hoverPaint = Paint()..style = PaintingStyle.fill;
 
   // 用于判断当前是否为移动端
   bool get isMobile =>
@@ -120,6 +109,15 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
 
   @override
   Widget build(BuildContext context) {
+    // 获取主题色
+    final primaryColor = Theme.of(context).colorScheme.primary;
+
+    // 动态更新Paint对象的颜色
+    _activePaint.color = primaryColor;
+    _inactivePaint.color = primaryColor.withValues(alpha: 0.3);
+    _bufferedPaint.color = primaryColor.withValues(alpha: 0.5);
+    _hoverPaint.color = primaryColor.withValues(alpha: 0.5);
+
     return RepaintBoundary(
       child: Stack(
         alignment: Alignment.centerLeft,
@@ -147,11 +145,11 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
                 bufferedPaint: _bufferedPaint,
                 hoverPaint: _hoverPaint,
               ),
-              activeTrackColor: Colors.white,
-              inactiveTrackColor: Colors.white.withOpacity(0.3),
-              thumbColor: Colors.white,
-              overlayColor: Colors.white.withOpacity(0.3),
-              valueIndicatorColor: Colors.white,
+              activeTrackColor: primaryColor,
+              inactiveTrackColor: primaryColor.withValues(alpha: 0.3),
+              thumbColor: primaryColor,
+              overlayColor: primaryColor.withValues(alpha: 0.3),
+              valueIndicatorColor: primaryColor,
               valueIndicatorTextStyle: const TextStyle(
                 color: Colors.black,
               ),
@@ -247,7 +245,7 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.7),
+          color: Colors.black.withValues(alpha: 0.7),
           borderRadius: BorderRadius.circular(4),
         ),
         child: Text(

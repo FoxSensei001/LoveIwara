@@ -417,6 +417,8 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                                   playPauseIconSize, bufferingSize),
                               // InfoMessage 提示区域
                               _buildInfoMessage(),
+                              // 播放速度信息提示（左下角）
+                              _buildPlaybackSpeedInfoMessage(),
                               _buildSeekPreview(),
                               // 添加底部进度条
                               _buildBottomProgressBar(),
@@ -827,12 +829,15 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     }
   }
 
-  // 快进的消息提示
+  // 音量和亮度信息提示（屏幕中心偏上）
   Widget _buildInfoMessage() {
     return Positioned(
-      bottom: 20,
-      left: 20,
-      child: _buildInfoContent(),
+      top: MediaQuery.of(context).padding.top + 100,
+      left: 0,
+      right: 0,
+      child: Center(
+        child: _buildInfoContent(),
+      ),
     );
   }
 
@@ -843,11 +848,30 @@ class _MyVideoScreenState extends State<MyVideoScreen>
         return _buildFadeTransition(child: _buildVolumeInfoMessage());
       } else if (controller.isSlidingBrightnessZone.value) {
         return _buildFadeTransition(child: _buildBrightnessInfoMessage());
-      } else if (controller.isLongPressing.value) {
-        return _buildFadeTransitionNoBg(child: _buildPlaybackSpeedInfoMessage());
       }
       return const SizedBox.shrink();
     });
+  }
+
+  // 播放速度信息提示（屏幕左下角）
+  Widget _buildPlaybackSpeedInfoMessage() {
+    return Positioned(
+      bottom: 20,
+      left: 20,
+      child: Obx(() {
+        if (!widget.myVideoStateController.isLongPressing.value) {
+          return const SizedBox.shrink();
+        }
+        double rate =
+            _configService[ConfigKey.LONG_PRESS_PLAYBACK_SPEED_KEY] as double;
+        return _buildFadeTransitionNoBg(
+          child: PlaybackSpeedAnimationWidget(
+            playbackSpeed: rate,
+            isVisible: widget.myVideoStateController.isLongPressing.value,
+          ),
+        );
+      }),
+    );
   }
 
   Widget _buildFadeTransition({required Widget child}) {
@@ -871,16 +895,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     );
   }
 
-  Widget _buildPlaybackSpeedInfoMessage() {
-    return Obx(() {
-      double rate =
-          _configService[ConfigKey.LONG_PRESS_PLAYBACK_SPEED_KEY] as double;
-      return PlaybackSpeedAnimationWidget(
-        playbackSpeed: rate,
-        isVisible: widget.myVideoStateController.isLongPressing.value,
-      );
-    });
-  }
+
 
   Widget _buildBrightnessInfoMessage() {
     return Obx(() {

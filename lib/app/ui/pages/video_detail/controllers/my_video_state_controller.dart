@@ -1554,10 +1554,23 @@ class MyVideoStateController extends GetxController
     buffers.value = updatedBuffers;
   }
 
-  void _handleSeek(Duration newPosition) async {
+  void _clearBuffers() {
+    buffers.clear();
+  }
+
+  /// 显示/隐藏进度预
+  void showSeekPreview(bool show) {
+    isSeekPreviewVisible.value = show;
+  }
+
+  /// 更新预览位置
+  void updateSeekPreview(Duration position) {
+    previewPosition.value = position;
+  }
+
+  void handleSeek(Duration newPosition) async {
     // 标记正在等待seek完成
     isWaitingForSeek.value = true;
-    videoBuffering.value = true;
 
     // 如果是回退进度，则清空缓冲区
     if (newPosition < currentPosition) {
@@ -1573,30 +1586,14 @@ class MyVideoStateController extends GetxController
 
     // 先更新UI位置
     currentPosition = newPosition;
+    player.play();
+    videoPlaying.value = true;
 
     // 执行实际的seek操作
     await player.seek(newPosition);
 
     // seek完成后标记状态
     isWaitingForSeek.value = false;
-  }
-
-  void _clearBuffers() {
-    buffers.clear();
-  }
-
-  /// 显示/隐藏进度预
-  void showSeekPreview(bool show) {
-    isSeekPreviewVisible.value = show;
-  }
-
-  /// 更新预览位置
-  void updateSeekPreview(Duration position) {
-    previewPosition.value = position;
-  }
-
-  void handleSeek(Duration newPosition) {
-    _handleSeek(newPosition);
   }
 
   // 添加关闭提示的方法:
