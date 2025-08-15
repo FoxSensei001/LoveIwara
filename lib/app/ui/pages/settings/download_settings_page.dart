@@ -105,64 +105,54 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
     final t = slang.Translations.of(context);
 
     return Scaffold(
-      appBar: widget.isWideScreen
-          ? null
-          : SettingsAppBar(
-              title: t.settings.downloadSettings.downloadSettings,
-              isWideScreen: widget.isWideScreen,
+      body: CustomScrollView(
+        slivers: [
+          BlurredSliverAppBar(
+            title: t.settings.downloadSettings.downloadSettings,
+            isWideScreen: widget.isWideScreen,
+          ),
+          SliverPadding(
+            padding: EdgeInsets.fromLTRB(
+              16,
+              16,
+              16,
+              16 + MediaQuery.of(context).padding.bottom,
             ),
-      body: SingleChildScrollView(
-        key: const PageStorageKey('download_settings_scroll'),
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 宽屏模式下显示标题
-            if (widget.isWideScreen) ...[
-              Text(
-                t.settings.downloadSettings.downloadSettings,
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                // 文件命名模板设置
+                _buildFilenameTemplateSection(context),
+                const SizedBox(height: 16),
+
+                // 推荐路径选择
+                RecommendedPathsWidget(
+                  key: const ValueKey('recommended_paths'),
+                  onPathSelected: () {
+                    // 同步自定义路径控制器
+                    _syncCustomPathFromConfig();
+                    setState(() {});
+                  },
                 ),
-              ),
-              const SizedBox(height: 24),
-            ],
+                const SizedBox(height: 16),
 
-            // 文件命名模板设置
-            _buildFilenameTemplateSection(context),
-            const SizedBox(height: 16),
+                // 权限状态显示
+                _buildPermissionSection(context),
+                const SizedBox(height: 16),
 
-            // 推荐路径选择
-            RecommendedPathsWidget(
-              key: const ValueKey('recommended_paths'),
-              onPathSelected: () {
-                // 同步自定义路径控制器
-                _syncCustomPathFromConfig();
-                setState(() {});
-              },
+                // 路径状态显示
+                _buildPathStatusWidget(context),
+                const SizedBox(height: 16),
+
+                // 自定义下载路径设置
+                _buildCustomPathSection(context),
+                const SizedBox(height: 16),
+
+                // 功能测试
+                const DownloadTestWidget(key: ValueKey('download_test')),
+              ]),
             ),
-            const SizedBox(height: 16),
-
-            // 权限状态显示
-            _buildPermissionSection(context),
-            const SizedBox(height: 16),
-
-            // 路径状态显示
-            _buildPathStatusWidget(context),
-            const SizedBox(height: 16),
-
-            // 自定义下载路径设置
-            _buildCustomPathSection(context),
-            const SizedBox(height: 16),
-
-            // 功能测试
-            const DownloadTestWidget(key: ValueKey('download_test')),
-
-            // 底部安全区域
-            const SizedBox(height: 32),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

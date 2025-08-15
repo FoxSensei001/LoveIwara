@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'translation_settings_page.dart';
 
@@ -29,43 +29,57 @@ class SettingsPage extends StatefulWidget {
   // 静态方法：在宽屏模式下导航到深层页面
   static void navigateToNestedPage(Widget page) {
     final instance = _currentInstance;
-    if (instance != null && instance.enableTwoViews) {
-      // 宽屏模式：使用内部导航
-      instance._nestedNavigatorKey.currentState?.push(
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => page,
-          transitionDuration: const Duration(milliseconds: 200),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(1, 0),
-                end: Offset.zero,
-              ).animate(animation),
-              child: child,
-            );
-          },
-        ),
-      );
-    } else {
-      // 窄屏模式或没有实例：使用全局导航
-      if (instance != null) {
+    if (instance != null) {
+      if (instance.enableTwoViews) {
+        // 宽屏模式：使用内部导航
+        instance._nestedNavigatorKey.currentState?.push(
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) => page,
+            transitionDuration: const Duration(milliseconds: 200),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(1, 0),
+                  end: Offset.zero,
+                ).animate(animation),
+                child: child,
+              );
+            },
+          ),
+        );
+      } else {
+        // 窄屏模式：使用页面栈
         instance._addToPageStack(page);
       }
     }
   }
+
+  // 新增静态方法，用于外部检查是否可以内部pop
+  static bool canPopInternally() {
+    final instance = _currentInstance;
+    if (instance == null) {
+      return false;
+    }
+    return (instance.enableTwoViews && (instance._nestedNavigatorKey.currentState?.canPop() ?? false)) ||
+           (!instance.enableTwoViews && instance._pageStack.isNotEmpty) ||
+           instance.currentPage != -1;
+  }
+
+  // 新增静态方法，用于外部触发内部pop
+  static void popInternally() {
+    _currentInstance?._handlePop();
+  }
 }
 
-class _SettingsPageState extends State<SettingsPage> implements PopEntry {
+class _SettingsPageState extends State<SettingsPage> {
   Worker? _selectedIndexWorker;
   int currentPage = -1; // 当前选中的设置页面索引
-  ModalRoute? _route;
-  late ValueNotifier<bool> canPop;
   double offset = 0; // 用于手势拖拽
   HorizontalDragGestureRecognizer? gestureRecognizer;
 
   // 深层页面导航
   final GlobalKey<NavigatorState> _nestedNavigatorKey =
-  GlobalKey<NavigatorState>();
+      GlobalKey<NavigatorState>();
   final List<Widget> _pageStack = []; // 页面栈
 
   // 响应式布局判断
@@ -75,10 +89,16 @@ class _SettingsPageState extends State<SettingsPage> implements PopEntry {
   void initState() {
     super.initState();
     currentPage = widget.initialPage;
-    canPop = ValueNotifier(true);
 
     // 设置静态引用
     SettingsPage._currentInstance = this;
+
+    // 如果初始页面不是主设置列表，确保页面栈是干净的
+    if (widget.initialPage != -1) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _clearAllNestedPages();
+      });
+    }
 
     // 初始化手势识别器
     gestureRecognizer = HorizontalDragGestureRecognizer(debugOwner: this)
@@ -108,10 +128,7 @@ class _SettingsPageState extends State<SettingsPage> implements PopEntry {
           }
 
           if (shouldPop) {
-            setState(() {
-              currentPage = -1;
-              offset = 0;
-            });
+            _handlePop();
           } else {
             // 回弹到原位置
             setState(() {
@@ -123,22 +140,9 @@ class _SettingsPageState extends State<SettingsPage> implements PopEntry {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final ModalRoute<dynamic>? nextRoute = ModalRoute.of(context);
-    if (nextRoute != _route) {
-      _route?.unregisterPopEntry(this);
-      _route = nextRoute;
-      _route?.registerPopEntry(this);
-    }
-  }
-
-  @override
   void dispose() {
     _selectedIndexWorker?.dispose();
-    _route?.unregisterPopEntry(this);
     gestureRecognizer?.dispose();
-    canPop.dispose();
 
     // 清理静态引用
     if (SettingsPage._currentInstance == this) {
@@ -155,62 +159,68 @@ class _SettingsPageState extends State<SettingsPage> implements PopEntry {
     });
   }
 
-  // PopEntry接口实现
-  @override
-  ValueListenable<bool> get canPopNotifier => canPop;
-
-  @override
-  void onPopInvoked(bool didPop) {
-    onPopInvokedWithResult(didPop, null);
+  // 清理所有子页面和导航状态
+  void _clearAllNestedPages() {
+    setState(() {
+      // 清空页面栈
+      _pageStack.clear();
+      // 重置偏移量
+      offset = 0;
+    });
+    
+    // 如果是宽屏模式，清除嵌套导航器的所有路由
+    if (enableTwoViews) {
+      _nestedNavigatorKey.currentState?.popUntil((route) => route.isFirst);
+    }
   }
 
-  @override
-  void onPopInvokedWithResult(bool didPop, result) {
-    print('send didPop: $didPop, result: $result');
-    // 如果已经处理了pop，就不再处理
-    if (didPop) return;
-
-    // 先检查是否有深层页面需要返回
-    if (enableTwoViews && _nestedNavigatorKey.currentState?.canPop() == true) {
-      _nestedNavigatorKey.currentState?.pop();
+  void _handlePop() {
+    // 宽屏模式下，先检查嵌套的Navigator是否可以pop
+    if (enableTwoViews && (_nestedNavigatorKey.currentState?.canPop() ?? false)) {
+      _nestedNavigatorKey.currentState!.pop();
       return;
     }
-
-    // 检查是否有页面栈需要返回
-    if (_pageStack.isNotEmpty) {
+    // 窄屏模式下，检查页面栈
+    if (!enableTwoViews && _pageStack.isNotEmpty) {
       setState(() {
         _pageStack.removeLast();
       });
       return;
     }
-
-    // 最后返回到主设置页面
+    // 如果没有嵌套路由或者页面栈，则返回主设置列表
     if (currentPage != -1) {
       setState(() {
-        currentPage = -1; // 返回到主设置页面
-        offset = 0; // 重置偏移量
+        currentPage = -1;
       });
+      _clearAllNestedPages();
       return;
     }
-
-    // 如果都没有处理，则退出设置页面
-    Navigator.of(context).pop();
+    // 如果已经在主设置列表，则pop整个SettingsPage
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    } else {
+      AppService.tryPop();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // 控制是否可以直接退出页面
-    bool hasNestedPages = enableTwoViews && _nestedNavigatorKey.currentState?.canPop() == true;
-    bool hasPageStack = _pageStack.isNotEmpty;
-    bool hasSubPage = currentPage != -1;
+    final bool canPop = !(
+      (enableTwoViews && (_nestedNavigatorKey.currentState?.canPop() ?? false)) ||
+      (!enableTwoViews && _pageStack.isNotEmpty) ||
+      currentPage != -1
+    );
 
-    if (hasNestedPages || hasPageStack || hasSubPage) {
-      canPop.value = false; // 有子页面时不能直接退出
-    } else {
-      canPop.value = true; // 在主页面时可以退出
-    }
-
-    return Material(child: _buildBody());
+    return PopScope(
+      canPop: canPop,
+      onPopInvoked: (didPop) {
+        if (didPop) {
+          return;
+        }
+        _handlePop();
+      },
+      child: Material(child: _buildBody()),
+    );
   }
 
   Widget _buildBody() {
@@ -281,22 +291,37 @@ class _SettingsPageState extends State<SettingsPage> implements PopEntry {
                 AnimatedPositioned(
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeInOut,
-                  left: currentPage == -1 ? 0 : -constraints.maxWidth * 0.3,
+                  left: currentPage == -1 && _pageStack.isEmpty ? 0 : -constraints.maxWidth * 0.3,
                   width: constraints.maxWidth,
                   top: 0,
                   bottom: 0,
                   child: _buildLeft(),
                 ),
                 // 顶层：设置子页面
-                AnimatedPositioned(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                  left: currentPage == -1 ? constraints.maxWidth : offset,
-                  width: constraints.maxWidth,
-                  top: 0,
-                  bottom: 0,
-                  child: Material(elevation: 8, child: _buildRight()),
-                ),
+                if (currentPage != -1 && _pageStack.isEmpty)
+                  AnimatedPositioned(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                    left: offset,
+                    width: constraints.maxWidth,
+                    top: 0,
+                    bottom: 0,
+                    child: Material(elevation: 8, child: _buildRight()),
+                  ),
+                // 页面栈中的页面
+                ..._pageStack.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final page = entry.value;
+                  return AnimatedPositioned(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                    left: index == _pageStack.length - 1 ? offset : 0,
+                    width: constraints.maxWidth,
+                    top: 0,
+                    bottom: 0,
+                    child: Material(elevation: 8 + index.toDouble(), child: page),
+                  );
+                }),
               ],
             );
           },
@@ -429,8 +454,13 @@ class _SettingsPageState extends State<SettingsPage> implements PopEntry {
                               .withValues(alpha: 0.3)
                               : Colors.transparent,
                           child: InkWell(
-                            onTap: () =>
-                                setState(() => currentPage = item.index),
+                            onTap: () {
+                              // 切换设置页时，清除所有子页面
+                              setState(() {
+                                currentPage = item.index;
+                              });
+                              _clearAllNestedPages();
+                            },
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
@@ -494,15 +524,10 @@ class _SettingsPageState extends State<SettingsPage> implements PopEntry {
   }
 
   Widget _buildRight() {
-    if (currentPage == -1) {
+    if (currentPage == -1 && _pageStack.isEmpty) {
       return const SizedBox(); // 空页面
     }
-
-    // 如果有深层页面栈，显示最顶层的页面
-    if (_pageStack.isNotEmpty) {
-      return _pageStack.last;
-    }
-
+    
     // 如果是宽屏模式，使用Navigator来管理深层页面
     if (enableTwoViews) {
       return Navigator(
@@ -527,7 +552,10 @@ class _SettingsPageState extends State<SettingsPage> implements PopEntry {
         },
       );
     } else {
-      // 窄屏模式直接返回设置页面
+      // 窄屏模式
+      if (_pageStack.isNotEmpty) {
+        return _pageStack.last;
+      }
       return _getSettingsPage();
     }
   }
@@ -537,7 +565,9 @@ class _SettingsPageState extends State<SettingsPage> implements PopEntry {
     int adjustedIndex = currentPage;
     if (!ProxyUtil.isSupportedPlatform()) {
       // 如果不支持代理，需要调整索引
-      adjustedIndex += 1;
+      if (adjustedIndex >= 0) {
+        adjustedIndex += 1;
+      }
     }
 
     switch (adjustedIndex) {
@@ -564,7 +594,7 @@ class _SettingsPageState extends State<SettingsPage> implements PopEntry {
 
   // 手势处理方法
   void handlePointerDown(PointerDownEvent event) {
-    if (!enableTwoViews && currentPage != -1) {
+    if (!enableTwoViews && (currentPage != -1 || _pageStack.isNotEmpty)) {
       // 只在窄屏且有子页面时才处理手势
       if (event.position.dx < 20) {
         gestureRecognizer?.addPointer(event);

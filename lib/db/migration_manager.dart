@@ -6,6 +6,7 @@ import 'package:i_iwara/db/migrations/migration_v5.dart';
 import 'package:i_iwara/db/migrations/migration_v8_disable_theater.dart';
 import 'package:i_iwara/db/migrations/migration_v9_emoji_library.dart';
 import 'package:i_iwara/db/migrations/migration_v10_remove_logs.dart';
+import 'package:i_iwara/db/migrations/migration_v11_emoji_removal.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:sqlite3/common.dart';
 
@@ -30,6 +31,7 @@ class MigrationManager {
     MigrationV8DisableTheater(),
     MigrationV9EmojiLibrary(),
     MigrationV10RemoveLogs(),
+    MigrationV11EmojiRemoval(),
     // [TODO_PLACEHOLDER] 将来新增的迁移在这里添加
   ];
 

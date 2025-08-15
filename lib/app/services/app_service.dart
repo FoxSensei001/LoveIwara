@@ -30,6 +30,7 @@ import 'package:i_iwara/app/ui/pages/download/gallery_download_task_detail_page.
 import 'package:i_iwara/app/ui/pages/tag_videos/tag_video_list_page.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/ui/pages/emoji_library/emoji_library_page.dart';
+import 'package:i_iwara/utils/logger_utils.dart';
 
 import '../routes/app_routes.dart';
 import '../ui/pages/author_profile/author_profile_page.dart';
@@ -106,37 +107,23 @@ class AppService extends GetxService {
   }
 
   static void tryPop({bool closeAll = false}) {
-    // LogUtils.d('tryPop', 'AppService');
-    if (AppService.globalDrawerKey.currentState!.isDrawerOpen) {
-      AppService.globalDrawerKey.currentState!.openEndDrawer();
-      // LogUtils.d('关闭Drawer', 'AppService');
+    LogUtils.d('tryPop', 'AppService');
+    if (globalDrawerKey.currentState?.isDrawerOpen ?? false) {
+      globalDrawerKey.currentState!.openEndDrawer();
+    } else if (Get.isDialogOpen ?? false) {
+      Get.close(closeAll: closeAll);
+    } else if (Get.isBottomSheetOpen ?? false) {
+      Get.close(closeAll: closeAll);
+    } else if (SettingsPage.canPopInternally()) {
+      // 优先处理SettingsPage的内部返回
+      SettingsPage.popInternally();
     } else {
-      // 先判断是否有打开的对话框或底部表单
-      if (Get.isDialogOpen ?? false) {
-        Get.close(closeAll: closeAll);
-        // LogUtils.d('关闭Get.isDialogOpen', 'AppService');
-      } else if (Get.isBottomSheetOpen ?? false) {
-        Get.close(closeAll: closeAll);
-        // LogUtils.d('关闭Get.isBottomSheetOpen', 'AppService');
+      GetDelegate? homeDele = Get.nestedKey(Routes.HOME);
+      if (homeDele?.navigatorKey.currentState?.canPop() ?? false) {
+        homeDele?.navigatorKey.currentState?.pop();
       } else {
-        GetDelegate? homeDele = Get.nestedKey(Routes.HOME);
-        GetDelegate? rootDele = Get.nestedKey(null);
-
-        if (homeDele?.canBack ?? false) {
-          homeDele?.back();
-          // LogUtils.d('关闭homeDele?.canBack', 'AppService');
-        } else if (homeDele?.navigatorKey.currentState?.canPop() ?? false) {
-          homeDele?.navigatorKey.currentState?.pop();
-          // LogUtils.d(
-              // '关闭homeDele?.navigatorKey.currentState?.canPop()', 'AppService');
-        } else if (rootDele?.canBack ?? false) {
-          rootDele?.back();
-          //  LogUtils.d('关闭rootDele?.canBack', 'AppService');
-        } else {
-          // 退出应用
-          SystemNavigator.pop();
-          // LogUtils.d('关闭Get.back()', 'AppService');
-        }
+        // 退出应用
+        SystemNavigator.pop();
       }
     }
   }
@@ -467,4 +454,3 @@ class NaviService {
     );
   }
 }
-

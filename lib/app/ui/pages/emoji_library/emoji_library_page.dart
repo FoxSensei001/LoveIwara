@@ -3,7 +3,6 @@ import 'package:get/get.dart' hide Translations;
 import 'package:i_iwara/app/services/emoji_library_service.dart';
 import 'package:i_iwara/app/ui/pages/emoji_library/emoji_group_detail_page.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
-import 'package:i_iwara/common/constants.dart';
 
 class EmojiLibraryPage extends StatefulWidget {
   final bool isWideScreen;
@@ -19,6 +18,7 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
   List<EmojiGroup> _groups = [];
   final Map<int, List<EmojiImage>> _groupImages = {};
   final Map<int, int> _groupImageCounts = {};
+  bool _isDragMode = false;
 
   @override
   void initState() {
@@ -32,10 +32,14 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
       _groups = _emojiService.getEmojiGroups();
       _groupImageCounts.clear();
       _groupImages.clear();
-      
+
       for (final group in _groups) {
-        _groupImageCounts[group.groupId] = _emojiService.getEmojiImageCount(group.groupId);
-        _groupImages[group.groupId] = _emojiService.getEmojiImages(group.groupId);
+        _groupImageCounts[group.groupId] = _emojiService.getEmojiImageCount(
+          group.groupId,
+        );
+        _groupImages[group.groupId] = _emojiService.getEmojiImages(
+          group.groupId,
+        );
       }
     });
   }
@@ -43,12 +47,20 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
   @override
   Widget build(BuildContext context) {
     final t = Translations.of(context);
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(t.emoji.library),
-        automaticallyImplyLeading: !widget.isWideScreen, // 在宽屏模式下不显示返回按钮
+        automaticallyImplyLeading: !widget.isWideScreen,
         actions: [
+          IconButton(
+            icon: Icon(_isDragMode ? Icons.check : Icons.drag_handle),
+            onPressed: () {
+              setState(() {
+                _isDragMode = !_isDragMode;
+              });
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () => _showCreateGroupDialog(),
@@ -60,6 +72,7 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
           Expanded(
             child: ReorderableListView.builder(
               itemCount: _groups.length,
+              buildDefaultDragHandles: false,
               onReorder: (oldIndex, newIndex) {
                 setState(() {
                   if (oldIndex < newIndex) {
@@ -67,8 +80,7 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
                   }
                   final item = _groups.removeAt(oldIndex);
                   _groups.insert(newIndex, item);
-                  
-                  // 更新数据库中的排序
+
                   _emojiService.updateEmojiGroupsOrder(_groups);
                 });
               },
@@ -84,27 +96,54 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
 
   Widget _buildGroupCard(EmojiGroup group, int index) {
     final imageCount = _groupImageCounts[group.groupId] ?? 0;
-    
+
     return Card(
       key: ValueKey(group.groupId),
       margin: const EdgeInsets.all(8),
       child: ListTile(
-        leading: Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            color: Colors.grey.shade200,
-          ),
-          child: group.coverUrl != null 
-            ? ClipRRect(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        leading: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (_isDragMode)
+              ReorderableDragStartListener(
+                index: index,
+                child: const MouseRegion(
+                  cursor: SystemMouseCursors.grab,
+                  child: Icon(Icons.drag_handle),
+                ),
+              ),
+            if (_isDragMode) const SizedBox(width: 8),
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  group.coverUrl!,
-                  fit: BoxFit.cover,
-                  headers: const {'referer': CommonConstants.iwaraBaseUrl},
-                  errorBuilder: (context, error, stackTrace) {
-                    return Center(
+                color: Colors.grey.shade200,
+              ),
+              child: group.coverUrl != null
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        group.coverUrl!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Center(
+                            child: Text(
+                              group.name.isNotEmpty ? group.name[0] : '?',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    )
+                  : Center(
                       child: Text(
                         group.name.isNotEmpty ? group.name[0] : '?',
                         style: const TextStyle(
@@ -113,36 +152,27 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
                           color: Colors.grey,
                         ),
                       ),
-                    );
-                  },
-                ),
-              )
-            : Center(
-                child: Text(
-                  group.name.isNotEmpty ? group.name[0] : '?',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey,
-                  ),
-                ),
-              ),
-        ),
-        title: Text(group.name),
-        subtitle: Text(t.emoji.imageCount(count: imageCount)),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () => _showEditGroupDialog(group),
-            ),
-            IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: () => _showDeleteGroupDialog(group),
+                    ),
             ),
           ],
         ),
+        title: Text(group.name),
+        subtitle: Text(t.emoji.imageCount(count: imageCount)),
+        trailing: _isDragMode
+            ? null
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.edit),
+                    onPressed: () => _showEditGroupDialog(group),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () => _showDeleteGroupDialog(group),
+                  ),
+                ],
+              ),
         onTap: () {
           _navigateToGroupDetail(group);
         },
@@ -152,7 +182,6 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
 
   void _navigateToGroupDetail(EmojiGroup group) {
     EmojiGroupDetailPage.show(context, group);
-    // 当从详情页返回时刷新数据
     _loadData();
   }
 
@@ -200,9 +229,7 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
         title: Text(t.emoji.editGroupName),
         content: TextField(
           controller: controller,
-          decoration: InputDecoration(
-            labelText: t.emoji.groupName,
-          ),
+          decoration: InputDecoration(labelText: t.emoji.groupName),
         ),
         actions: [
           TextButton(
