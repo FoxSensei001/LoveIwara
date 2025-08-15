@@ -1,8 +1,10 @@
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
+import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
 
@@ -37,8 +39,15 @@ class CommentController<T extends CommentType> extends GetxController {
   var hasMore = true.obs;
   var pendingCount = 0.obs;
 
+  // 排序方式：true为倒序，false为正序
+  var sortOrder = true.obs;
+
+  // 已加载的顶级评论数量（用于楼号计算）
+  var loadedTopLevelComments = 0;
+
   // API 服务实例
   final CommentService _commentService = Get.find<CommentService>();
+  final ConfigService _configService = Get.find<ConfigService>();
 
   CommentController({
     required this.id,
@@ -49,6 +58,8 @@ class CommentController<T extends CommentType> extends GetxController {
   void onInit() {
     super.onInit();
     LogUtils.d('初始化', 'CommentController<${type.toString()}>');
+    // 从配置中获取排序方式
+    sortOrder.value = _configService.settings[ConfigKey.COMMENT_SORT_ORDER]!.value;
     fetchComments(refresh: true);
   }
 
@@ -62,6 +73,7 @@ class CommentController<T extends CommentType> extends GetxController {
       comments.clear();
       errorMessage.value = '';
       hasMore.value = true;
+      loadedTopLevelComments = 0; // 重置顶级评论计数
     }
 
     if (!hasMore.value || isLoading.value) return;
@@ -69,10 +81,42 @@ class CommentController<T extends CommentType> extends GetxController {
     isLoading.value = true;
 
     try {
+      int apiPage = currentPage;
+
+      // 如果是倒序，需要先获取总数来计算实际的API页码
+      if (sortOrder.value && currentPage == 0) {
+        // 第一次加载时，先获取第一页来获取总数
+        final firstPageResult = await _commentService.getComments(
+          type: type.name,
+          id: id,
+          page: 0,
+          limit: pageSize,
+        );
+
+        if (firstPageResult.isSuccess) {
+          totalComments.value = firstPageResult.data!.count;
+          pendingCount.value = firstPageResult.data!.extras?['pendingCount'] ?? 0;
+        }
+      }
+
+      // 计算倒序时的API页码
+      if (sortOrder.value) {
+        final totalPages = (totalComments.value + pageSize - 1) ~/ pageSize;
+        apiPage = totalPages - currentPage - 1;
+
+        // 如果计算出的页码小于0，说明没有更多数据
+        if (apiPage < 0) {
+          hasMore.value = false;
+          isLoading.value = false;
+          doneFirstTime.value = true;
+          return;
+        }
+      }
+
       final result = await _commentService.getComments(
         type: type.name,
         id: id,
-        page: currentPage,
+        page: apiPage,
         limit: pageSize,
       );
 
@@ -80,14 +124,54 @@ class CommentController<T extends CommentType> extends GetxController {
         final pageData = result.data!;
         totalComments.value = pageData.count;
         pendingCount.value = pageData.extras?['pendingCount'] ?? 0;
-        final fetchedComments = pageData.results;
+        var fetchedComments = pageData.results;
 
         if (fetchedComments.isEmpty) {
           hasMore.value = false;
         } else {
-          comments.addAll(fetchedComments);
+          // 如果是倒序，需要反转当前页的评论顺序
+          if (sortOrder.value) {
+            fetchedComments = fetchedComments.reversed.toList();
+          }
+
+          // 为评论计算楼号
+          final commentsWithFloorNumber = <Comment>[];
+          int topLevelCommentIndex = 0; // 当前页面中顶级评论的索引
+
+          for (int i = 0; i < fetchedComments.length; i++) {
+            final comment = fetchedComments[i];
+            // 只为顶级评论计算楼号
+            if (comment.parent == null) {
+              int floorNumber;
+              if (sortOrder.value) {
+                // 倒序：从总数开始递减
+                // 使用已加载的顶级评论数量来计算
+                floorNumber = totalComments.value - loadedTopLevelComments - topLevelCommentIndex;
+              } else {
+                // 正序：从1开始递增
+                // 使用已加载的顶级评论数量来计算
+                floorNumber = loadedTopLevelComments + topLevelCommentIndex + 1;
+              }
+              commentsWithFloorNumber.add(comment.copyWith(floorNumber: floorNumber));
+              topLevelCommentIndex++; // 顶级评论索引递增
+            } else {
+              commentsWithFloorNumber.add(comment);
+            }
+          }
+
+          // 更新已加载的顶级评论数量
+          loadedTopLevelComments += topLevelCommentIndex;
+
+          comments.addAll(commentsWithFloorNumber);
           currentPage += 1;
-          hasMore.value = fetchedComments.length >= pageSize;
+
+          // 检查是否还有更多数据
+          if (sortOrder.value) {
+            final totalPages = (totalComments.value + pageSize - 1) ~/ pageSize;
+            hasMore.value = currentPage < totalPages;
+          } else {
+            hasMore.value = fetchedComments.length >= pageSize;
+          }
         }
 
         errorMessage.value = '';
@@ -97,7 +181,7 @@ class CommentController<T extends CommentType> extends GetxController {
     } catch (e) {
       LogUtils.e('获取评论时出错',
           tag: 'CommentController<${type.toString()}>', error: e);
-      errorMessage.value = '获取评论时出错，请检查网络连接。';
+      errorMessage.value = CommonUtils.parseExceptionMessage(e);
     } finally {
       isLoading.value = false;
       doneFirstTime.value = true;
@@ -115,6 +199,14 @@ class CommentController<T extends CommentType> extends GetxController {
       await fetchComments();
     }
   }
+
+  // 切换排序方式
+  Future<void> toggleSortOrder() async {
+    sortOrder.value = !sortOrder.value;
+    await refreshComments();
+  }
+
+
 
   // 发表评论
   Future<ApiResult<Comment>> postComment(String body, {String? parentId}) async {

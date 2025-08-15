@@ -13,6 +13,7 @@ class Comment {
   final String? imageId;
   final String? postId;
   final bool approved;
+  final int? floorNumber; // 楼号
 
   Comment({
     required this.id,
@@ -27,6 +28,7 @@ class Comment {
     this.imageId,
     this.postId,
     this.approved = false,
+    this.floorNumber,
   });
 
   factory Comment.fromJson(Map<String, dynamic> json) {
@@ -84,6 +86,7 @@ class Comment {
     String? imageId,
     String? postId,
     bool? approved,
+    int? floorNumber,
   }) {
     return Comment(
       id: id ?? this.id,
@@ -98,6 +101,7 @@ class Comment {
       imageId: imageId ?? this.imageId,
       postId: postId ?? this.postId,
       approved: approved ?? this.approved,
+      floorNumber: floorNumber ?? this.floorNumber,
     );
   }
 }

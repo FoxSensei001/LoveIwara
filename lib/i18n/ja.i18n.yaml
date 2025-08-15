@@ -37,6 +37,8 @@ common:
   specialFollowed: 特別フォロー済み
   specialFollowsManagementTip: ドラッグして並べ替え • 左スワイプで削除
   specialFollowsManagement: 特別フォロー管理
+  createTimeDesc: 作成時間降順
+  createTimeAsc: 作成時間昇順
   gallery: ギャラリー
   playlist: プレイリスト
   commentPostedSuccessfully: コメントが正常に投稿されました

@@ -54,6 +54,7 @@ class _CommentsTabWidgetState extends State<CommentsTabWidget> {
                 child: Obx(() {
                   final commentCount =
                       widget.commentController.totalComments.value;
+                  final sortOrder = widget.commentController.sortOrder.value;
                   return GridSpeedDial(
                     activeIcon: Icons.close,
                     backgroundColor:
@@ -88,6 +89,22 @@ class _CommentsTabWidgetState extends State<CommentsTabWidget> {
                               .colorScheme
                               .onPrimaryContainer,
                           onTap: () => _showCommentDialog(context),
+                        ),
+                              SpeedDialChild(
+                          child: Icon(
+                            sortOrder
+                                ? Icons.arrow_downward_rounded // 倒序图标
+                                : Icons.arrow_upward_rounded,  // 正序图标
+                          ),
+                          backgroundColor: Theme.of(context)
+                              .colorScheme
+                              .tertiaryContainer,
+                          foregroundColor: Theme.of(context)
+                              .colorScheme
+                              .onTertiaryContainer,
+                          onTap: () {
+                            widget.commentController.toggleSortOrder();
+                          },
                         ),
                       ],
                     ],

@@ -183,6 +183,8 @@ common:
   unsavedChanges: "You have unsaved changes"
   specialFollowsManagementTip: Drag to reorder • Swipe left to remove
   specialFollowsManagement: Special Follows Management
+  createTimeDesc: Create Time Desc
+  createTimeAsc: Create Time Asc
   # Pagination related
   pagination:
     totalItems: 'Total ${num} items'

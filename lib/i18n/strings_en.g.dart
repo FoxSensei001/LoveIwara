@@ -623,6 +623,12 @@ class TranslationsCommonEn {
 	/// en: 'Special Follows Management'
 	String get specialFollowsManagement => 'Special Follows Management';
 
+	/// en: 'Create Time Desc'
+	String get createTimeDesc => 'Create Time Desc';
+
+	/// en: 'Create Time Asc'
+	String get createTimeAsc => 'Create Time Asc';
+
 	late final TranslationsCommonPaginationEn pagination = TranslationsCommonPaginationEn._(_root);
 
 	/// en: 'Notice'
@@ -4967,6 +4973,8 @@ extension on Translations {
 			case 'common.unsavedChanges': return 'You have unsaved changes';
 			case 'common.specialFollowsManagementTip': return 'Drag to reorder • Swipe left to remove';
 			case 'common.specialFollowsManagement': return 'Special Follows Management';
+			case 'common.createTimeDesc': return 'Create Time Desc';
+			case 'common.createTimeAsc': return 'Create Time Asc';
 			case 'common.pagination.totalItems': return ({required Object num}) => 'Total ${num} items';
 			case 'common.pagination.jumpToPage': return 'Jump to page';
 			case 'common.pagination.pleaseEnterPageNumber': return ({required Object max}) => 'Please enter page number (1-${max})';

@@ -187,6 +187,8 @@ common:
   unsavedChanges: "您有未保存的更改"
   specialFollowsManagementTip: 拖动可重新排序 • 向左滑动可移除
   specialFollowsManagement: 特别关注管理
+  createTimeDesc: 创建时间倒序
+  createTimeAsc: 创建时间正序
   # 分页相关
   pagination:
     totalItems: '共 ${num} 项'

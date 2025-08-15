@@ -255,6 +255,7 @@ class _CommentItemState extends State<CommentItem> {
                     CommonUtils.formatFriendlyTimestamp(comment.createdAt),
                     style: timeTextStyle,
                   ),
+                  const Spacer(),
                 ],
               ),
               if (hasEdit)
@@ -490,10 +491,21 @@ class _CommentItemState extends State<CommentItem> {
                         children: [
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Flexible(
                                 child: buildUserName(context, comment.user!, fontSize: 14, bold: true),
                               ),
+                              // 显示楼号（只有顶级评论显示）
+                              if (widget.comment.parent == null && comment.floorNumber != null)
+                                Text(
+                                  '#${comment.floorNumber}',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                ),
                             ],
                           ),
                           SingleChildScrollView(

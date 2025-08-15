@@ -257,6 +257,8 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String get unsavedChanges => '您有未保存的更改';
 	@override String get specialFollowsManagementTip => '拖动可重新排序 • 向左滑动可移除';
 	@override String get specialFollowsManagement => '特别关注管理';
+	@override String get createTimeDesc => '创建时间倒序';
+	@override String get createTimeAsc => '创建时间正序';
 	@override late final _TranslationsCommonPaginationZhCn pagination = _TranslationsCommonPaginationZhCn._(_root);
 	@override String get notice => '通知';
 	@override String get detail => '详情';
@@ -2129,6 +2131,8 @@ extension on TranslationsZhCn {
 			case 'common.unsavedChanges': return '您有未保存的更改';
 			case 'common.specialFollowsManagementTip': return '拖动可重新排序 • 向左滑动可移除';
 			case 'common.specialFollowsManagement': return '特别关注管理';
+			case 'common.createTimeDesc': return '创建时间倒序';
+			case 'common.createTimeAsc': return '创建时间正序';
 			case 'common.pagination.totalItems': return ({required Object num}) => '共 ${num} 项';
 			case 'common.pagination.jumpToPage': return '跳转到指定页面';
 			case 'common.pagination.pleaseEnterPageNumber': return ({required Object max}) => '请输入页码 (1-${max})';

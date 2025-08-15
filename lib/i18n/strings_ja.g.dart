@@ -109,6 +109,8 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get specialFollowed => '特別フォロー済み';
 	@override String get specialFollowsManagementTip => 'ドラッグして並べ替え • 左スワイプで削除';
 	@override String get specialFollowsManagement => '特別フォロー管理';
+	@override String get createTimeDesc => '作成時間降順';
+	@override String get createTimeAsc => '作成時間昇順';
 	@override String get gallery => 'ギャラリー';
 	@override String get playlist => 'プレイリスト';
 	@override String get commentPostedSuccessfully => 'コメントが正常に投稿されました';
@@ -1976,6 +1978,8 @@ extension on TranslationsJa {
 			case 'common.specialFollowed': return '特別フォロー済み';
 			case 'common.specialFollowsManagementTip': return 'ドラッグして並べ替え • 左スワイプで削除';
 			case 'common.specialFollowsManagement': return '特別フォロー管理';
+			case 'common.createTimeDesc': return '作成時間降順';
+			case 'common.createTimeAsc': return '作成時間昇順';
 			case 'common.gallery': return 'ギャラリー';
 			case 'common.playlist': return 'プレイリスト';
 			case 'common.commentPostedSuccessfully': return 'コメントが正常に投稿されました';

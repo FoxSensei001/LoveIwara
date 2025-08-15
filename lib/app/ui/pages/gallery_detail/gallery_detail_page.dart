@@ -191,6 +191,20 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
                         ),
                       ),
                       const Spacer(),
+                      // 排序切换按钮
+                      Obx(() => IconButton(
+                        onPressed: () {
+                          commentController.toggleSortOrder();
+                        },
+                        icon: Icon(
+                          commentController.sortOrder.value
+                              ? Icons.arrow_downward_rounded // 倒序图标
+                              : Icons.arrow_upward_rounded,  // 正序图标
+                        ),
+                        tooltip: commentController.sortOrder.value
+                            ? slang.t.common.createTimeDesc
+                            : slang.t.common.createTimeAsc,
+                      )),
                       // 添加评论按钮
                       IconButton(
                         onPressed: () {

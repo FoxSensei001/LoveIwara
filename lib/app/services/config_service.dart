@@ -268,6 +268,7 @@ enum ConfigKey {
   ENABLE_HARDWARE_ACCELERATION, // 启用硬件加速
   USE_OPENSLES, // 使用OpenSLES音频输出
   DEFAULT_EMOJI_SIZE, // 默认表情包大小
+  COMMENT_SORT_ORDER, // 评论排序方式，true为倒序，false为正序
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -355,6 +356,7 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.ENABLE_HARDWARE_ACCELERATION: return 'enable_hardware_acceleration';
       case ConfigKey.USE_OPENSLES: return 'use_opensles';
       case ConfigKey.DEFAULT_EMOJI_SIZE: return 'default_emoji_size';
+      case ConfigKey.COMMENT_SORT_ORDER: return 'comment_sort_order';
     }
   }
 
@@ -524,6 +526,8 @@ extension ConfigKeyExtension on ConfigKey {
         return true;
       case ConfigKey.DEFAULT_EMOJI_SIZE:
         return 'mid-i'; // 默认使用中等大小
+      case ConfigKey.COMMENT_SORT_ORDER:
+        return true; // 默认倒序
     }
   }
 }
