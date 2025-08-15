@@ -7,6 +7,7 @@ import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:loading_more_list/loading_more_list.dart';
 
 import '../../../../../common/constants.dart';
 import '../../../../models/comment.model.dart';
@@ -266,4 +267,52 @@ class CommentController<T extends CommentType> extends GetxController {
       showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
     }
   }
+
+  // 创建 LoadingMoreList 数据源
+  CommentListSource createListSource() {
+    return CommentListSource(this);
+  }
+}
+
+/// LoadingMoreList 数据源类，用于管理评论列表的分页加载
+class CommentListSource extends LoadingMoreBase<Comment> {
+  final CommentController controller;
+
+  CommentListSource(this.controller) {
+    // 监听控制器状态变化
+    controller.comments.listen((_) => setState());
+    controller.isLoading.listen((_) => setState());
+    controller.hasMore.listen((_) => setState());
+    controller.errorMessage.listen((_) => setState());
+  }
+
+  @override
+  bool get hasMore => controller.hasMore.value;
+
+  @override
+  Future<bool> refresh([bool notifyStateChanged = false]) async {
+    super.refresh(notifyStateChanged);
+    await controller.refreshComments();
+    return controller.errorMessage.value.isEmpty;
+  }
+
+  @override
+  Future<bool> loadData([bool isloadMoreAction = false]) async {
+    try {
+      if (isloadMoreAction) {
+        await controller.loadMoreComments();
+      } else {
+        await controller.fetchComments(refresh: true);
+      }
+      return controller.errorMessage.value.isEmpty;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  @override
+  int get length => controller.comments.length;
+
+  @override
+  Comment operator [](int index) => controller.comments[index];
 }
