@@ -1533,6 +1533,9 @@ displaySettings:
   layoutSettings: 布局设置
   layoutSettingsDesc: 自定义列数和断点配置
   gridLayout: 网格布局
+  navigationOrderSettings: 导航排序设置
+  customNavigationOrder: 自定义导航顺序
+  customNavigationOrderDesc: 调整底部导航栏和侧边栏中页面的显示顺序
 
 # 布局设置
 layoutSettings:
@@ -1583,3 +1586,25 @@ layoutSettings:
   delete: 删除
   cancel: 取消
   save: 保存
+
+# 导航排序设置
+navigationOrderSettings:
+  title: 导航排序设置
+  customNavigationOrder: 自定义导航顺序
+  customNavigationOrderDesc: 拖拽调整底部导航栏和侧边栏中各个页面的显示顺序
+  restartRequired: 需重启应用生效
+  navigationItemSorting: 导航项排序
+  done: 完成
+  edit: 编辑
+  reset: 重置
+  previewEffect: 预览效果
+  bottomNavigationPreview: "底部导航栏预览："
+  sidebarPreview: "侧边栏预览："
+  confirmResetNavigationOrder: 确认重置导航顺序
+  confirmResetNavigationOrderDesc: 确定要将导航顺序重置为默认设置吗？
+  cancel: 取消
+  # 导航项描述
+  videoDescription: 浏览热门视频内容
+  galleryDescription: 浏览图片和画廊
+  subscriptionDescription: 查看关注用户的最新内容
+  forumDescription: 参与社区讨论

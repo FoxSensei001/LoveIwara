@@ -4,6 +4,7 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/pages/settings/layout_settings_page.dart';
+import 'package:i_iwara/app/ui/pages/settings/navigation_order_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/settings_page.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/common/constants.dart';
@@ -34,8 +35,9 @@ class DisplaySettingsPage extends StatelessWidget {
             ),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildPaginationModeCard(context, configService),
+                _buildNavigationOrderCard(context),
                 _buildLayoutSettingsCard(context),
+                _buildPaginationModeCard(context, configService),
               ]),
             ),
           ),
@@ -118,6 +120,52 @@ class DisplaySettingsPage extends StatelessWidget {
               } else {
                 // 窄屏模式：使用全局导航
                 NaviService.navigateToLayoutSettingsPage();
+              }
+            },
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(16),
+                bottomRight: Radius.circular(16),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavigationOrderCard(BuildContext context) {
+    return Card(
+      elevation: 2,
+      clipBehavior: Clip.hardEdge,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              slang.t.displaySettings.navigationOrderSettings,
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            ),
+          ),
+          const Divider(height: 1),
+          ListTile(
+            leading: const Icon(Icons.drag_handle),
+            title: Text(slang.t.displaySettings.customNavigationOrder),
+            subtitle: Text(slang.t.displaySettings.customNavigationOrderDesc),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            onTap: () {
+              if (useSettingsNavi) {
+                // 宽屏模式：使用设置页面的内部导航
+                SettingsPage.navigateToNestedPage(
+                  NavigationOrderSettingsPage(isWideScreen: isWideScreen),
+                );
+              } else {
+                // 窄屏模式：使用全局导航
+                NaviService.navigateToNavigationOrderSettingsPage();
               }
             },
             shape: const RoundedRectangleBorder(

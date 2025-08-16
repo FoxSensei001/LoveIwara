@@ -66,6 +66,7 @@ class TranslationsZhCn implements Translations {
 	@override late final _TranslationsEmojiZhCn emoji = _TranslationsEmojiZhCn._(_root);
 	@override late final _TranslationsDisplaySettingsZhCn displaySettings = _TranslationsDisplaySettingsZhCn._(_root);
 	@override late final _TranslationsLayoutSettingsZhCn layoutSettings = _TranslationsLayoutSettingsZhCn._(_root);
+	@override late final _TranslationsNavigationOrderSettingsZhCn navigationOrderSettings = _TranslationsNavigationOrderSettingsZhCn._(_root);
 }
 
 // Path: common
@@ -1463,6 +1464,9 @@ class _TranslationsDisplaySettingsZhCn implements TranslationsDisplaySettingsEn 
 	@override String get layoutSettings => '布局设置';
 	@override String get layoutSettingsDesc => '自定义列数和断点配置';
 	@override String get gridLayout => '网格布局';
+	@override String get navigationOrderSettings => '导航排序设置';
+	@override String get customNavigationOrder => '自定义导航顺序';
+	@override String get customNavigationOrderDesc => '调整底部导航栏和侧边栏中页面的显示顺序';
 }
 
 // Path: layoutSettings
@@ -1519,6 +1523,33 @@ class _TranslationsLayoutSettingsZhCn implements TranslationsLayoutSettingsEn {
 	@override String get delete => '删除';
 	@override String get cancel => '取消';
 	@override String get save => '保存';
+}
+
+// Path: navigationOrderSettings
+class _TranslationsNavigationOrderSettingsZhCn implements TranslationsNavigationOrderSettingsEn {
+	_TranslationsNavigationOrderSettingsZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '导航排序设置';
+	@override String get customNavigationOrder => '自定义导航顺序';
+	@override String get customNavigationOrderDesc => '拖拽调整底部导航栏和侧边栏中各个页面的显示顺序';
+	@override String get restartRequired => '需重启应用生效';
+	@override String get navigationItemSorting => '导航项排序';
+	@override String get done => '完成';
+	@override String get edit => '编辑';
+	@override String get reset => '重置';
+	@override String get previewEffect => '预览效果';
+	@override String get bottomNavigationPreview => '底部导航栏预览：';
+	@override String get sidebarPreview => '侧边栏预览：';
+	@override String get confirmResetNavigationOrder => '确认重置导航顺序';
+	@override String get confirmResetNavigationOrderDesc => '确定要将导航顺序重置为默认设置吗？';
+	@override String get cancel => '取消';
+	@override String get videoDescription => '浏览热门视频内容';
+	@override String get galleryDescription => '浏览图片和画廊';
+	@override String get subscriptionDescription => '查看关注用户的最新内容';
+	@override String get forumDescription => '参与社区讨论';
 }
 
 // Path: common.pagination
@@ -3446,6 +3477,9 @@ extension on TranslationsZhCn {
 			case 'displaySettings.layoutSettings': return '布局设置';
 			case 'displaySettings.layoutSettingsDesc': return '自定义列数和断点配置';
 			case 'displaySettings.gridLayout': return '网格布局';
+			case 'displaySettings.navigationOrderSettings': return '导航排序设置';
+			case 'displaySettings.customNavigationOrder': return '自定义导航顺序';
+			case 'displaySettings.customNavigationOrderDesc': return '调整底部导航栏和侧边栏中页面的显示顺序';
 			case 'layoutSettings.title': return '布局设置';
 			case 'layoutSettings.descriptionTitle': return '布局配置说明';
 			case 'layoutSettings.descriptionContent': return '这里的配置将决定视频、图库列表页面中显示的列数。您可以选择自动模式让系统根据屏幕宽度自动调整，或选择手动模式固定列数。';
@@ -3493,6 +3527,24 @@ extension on TranslationsZhCn {
 			case 'layoutSettings.delete': return '删除';
 			case 'layoutSettings.cancel': return '取消';
 			case 'layoutSettings.save': return '保存';
+			case 'navigationOrderSettings.title': return '导航排序设置';
+			case 'navigationOrderSettings.customNavigationOrder': return '自定义导航顺序';
+			case 'navigationOrderSettings.customNavigationOrderDesc': return '拖拽调整底部导航栏和侧边栏中各个页面的显示顺序';
+			case 'navigationOrderSettings.restartRequired': return '需重启应用生效';
+			case 'navigationOrderSettings.navigationItemSorting': return '导航项排序';
+			case 'navigationOrderSettings.done': return '完成';
+			case 'navigationOrderSettings.edit': return '编辑';
+			case 'navigationOrderSettings.reset': return '重置';
+			case 'navigationOrderSettings.previewEffect': return '预览效果';
+			case 'navigationOrderSettings.bottomNavigationPreview': return '底部导航栏预览：';
+			case 'navigationOrderSettings.sidebarPreview': return '侧边栏预览：';
+			case 'navigationOrderSettings.confirmResetNavigationOrder': return '确认重置导航顺序';
+			case 'navigationOrderSettings.confirmResetNavigationOrderDesc': return '确定要将导航顺序重置为默认设置吗？';
+			case 'navigationOrderSettings.cancel': return '取消';
+			case 'navigationOrderSettings.videoDescription': return '浏览热门视频内容';
+			case 'navigationOrderSettings.galleryDescription': return '浏览图片和画廊';
+			case 'navigationOrderSettings.subscriptionDescription': return '查看关注用户的最新内容';
+			case 'navigationOrderSettings.forumDescription': return '参与社区讨论';
 			default: return null;
 		}
 	}

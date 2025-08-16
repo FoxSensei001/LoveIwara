@@ -66,6 +66,7 @@ class TranslationsJa implements Translations {
 	@override late final _TranslationsEmojiJa emoji = _TranslationsEmojiJa._(_root);
 	@override late final _TranslationsDisplaySettingsJa displaySettings = _TranslationsDisplaySettingsJa._(_root);
 	@override late final _TranslationsLayoutSettingsJa layoutSettings = _TranslationsLayoutSettingsJa._(_root);
+	@override late final _TranslationsNavigationOrderSettingsJa navigationOrderSettings = _TranslationsNavigationOrderSettingsJa._(_root);
 }
 
 // Path: common
@@ -1458,6 +1459,9 @@ class _TranslationsDisplaySettingsJa implements TranslationsDisplaySettingsEn {
 	@override String get layoutSettings => 'レイアウト設定';
 	@override String get layoutSettingsDesc => 'カラム数とブレークポイント設定をカスタマイズ';
 	@override String get gridLayout => 'グリッドレイアウト';
+	@override String get navigationOrderSettings => 'ナビゲーション順序設定';
+	@override String get customNavigationOrder => 'カスタムナビゲーション順序';
+	@override String get customNavigationOrderDesc => 'ボトムナビゲーションバーとサイドバーのページ表示順序を調整';
 }
 
 // Path: layoutSettings
@@ -1514,6 +1518,33 @@ class _TranslationsLayoutSettingsJa implements TranslationsLayoutSettingsEn {
 	@override String get delete => '削除';
 	@override String get cancel => 'キャンセル';
 	@override String get save => '保存';
+}
+
+// Path: navigationOrderSettings
+class _TranslationsNavigationOrderSettingsJa implements TranslationsNavigationOrderSettingsEn {
+	_TranslationsNavigationOrderSettingsJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'ナビゲーション順序設定';
+	@override String get customNavigationOrder => 'カスタムナビゲーション順序';
+	@override String get customNavigationOrderDesc => 'ドラッグしてボトムナビゲーションバーとサイドバーの各ページの表示順序を調整';
+	@override String get restartRequired => 'アプリの再起動が必要です';
+	@override String get navigationItemSorting => 'ナビゲーション項目の並べ替え';
+	@override String get done => '完了';
+	@override String get edit => '編集';
+	@override String get reset => 'リセット';
+	@override String get previewEffect => 'プレビュー効果';
+	@override String get bottomNavigationPreview => 'ボトムナビゲーションバーのプレビュー：';
+	@override String get sidebarPreview => 'サイドバーのプレビュー：';
+	@override String get confirmResetNavigationOrder => 'ナビゲーション順序のリセットを確認';
+	@override String get confirmResetNavigationOrderDesc => 'ナビゲーション順序をデフォルト設定にリセットしてもよろしいですか？';
+	@override String get cancel => 'キャンセル';
+	@override String get videoDescription => '人気の動画コンテンツを閲覧';
+	@override String get galleryDescription => '画像とギャラリーを閲覧';
+	@override String get subscriptionDescription => 'フォローしているユーザーの最新コンテンツを表示';
+	@override String get forumDescription => 'コミュニティディスカッションに参加';
 }
 
 // Path: common.pagination
@@ -3436,6 +3467,9 @@ extension on TranslationsJa {
 			case 'displaySettings.layoutSettings': return 'レイアウト設定';
 			case 'displaySettings.layoutSettingsDesc': return 'カラム数とブレークポイント設定をカスタマイズ';
 			case 'displaySettings.gridLayout': return 'グリッドレイアウト';
+			case 'displaySettings.navigationOrderSettings': return 'ナビゲーション順序設定';
+			case 'displaySettings.customNavigationOrder': return 'カスタムナビゲーション順序';
+			case 'displaySettings.customNavigationOrderDesc': return 'ボトムナビゲーションバーとサイドバーのページ表示順序を調整';
 			case 'layoutSettings.title': return 'レイアウト設定';
 			case 'layoutSettings.descriptionTitle': return 'レイアウト設定の説明';
 			case 'layoutSettings.descriptionContent': return 'ここでの設定は、動画とギャラリーリストページで表示されるカラム数を決定します。自動モードを選択して画面幅に基づいて自動調整するか、手動モードを選択してカラム数を固定できます。';
@@ -3483,6 +3517,24 @@ extension on TranslationsJa {
 			case 'layoutSettings.delete': return '削除';
 			case 'layoutSettings.cancel': return 'キャンセル';
 			case 'layoutSettings.save': return '保存';
+			case 'navigationOrderSettings.title': return 'ナビゲーション順序設定';
+			case 'navigationOrderSettings.customNavigationOrder': return 'カスタムナビゲーション順序';
+			case 'navigationOrderSettings.customNavigationOrderDesc': return 'ドラッグしてボトムナビゲーションバーとサイドバーの各ページの表示順序を調整';
+			case 'navigationOrderSettings.restartRequired': return 'アプリの再起動が必要です';
+			case 'navigationOrderSettings.navigationItemSorting': return 'ナビゲーション項目の並べ替え';
+			case 'navigationOrderSettings.done': return '完了';
+			case 'navigationOrderSettings.edit': return '編集';
+			case 'navigationOrderSettings.reset': return 'リセット';
+			case 'navigationOrderSettings.previewEffect': return 'プレビュー効果';
+			case 'navigationOrderSettings.bottomNavigationPreview': return 'ボトムナビゲーションバーのプレビュー：';
+			case 'navigationOrderSettings.sidebarPreview': return 'サイドバーのプレビュー：';
+			case 'navigationOrderSettings.confirmResetNavigationOrder': return 'ナビゲーション順序のリセットを確認';
+			case 'navigationOrderSettings.confirmResetNavigationOrderDesc': return 'ナビゲーション順序をデフォルト設定にリセットしてもよろしいですか？';
+			case 'navigationOrderSettings.cancel': return 'キャンセル';
+			case 'navigationOrderSettings.videoDescription': return '人気の動画コンテンツを閲覧';
+			case 'navigationOrderSettings.galleryDescription': return '画像とギャラリーを閲覧';
+			case 'navigationOrderSettings.subscriptionDescription': return 'フォローしているユーザーの最新コンテンツを表示';
+			case 'navigationOrderSettings.forumDescription': return 'コミュニティディスカッションに参加';
 			default: return null;
 		}
 	}

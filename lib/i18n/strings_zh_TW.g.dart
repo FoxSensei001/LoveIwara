@@ -66,6 +66,7 @@ class TranslationsZhTw implements Translations {
 	@override late final _TranslationsEmojiZhTw emoji = _TranslationsEmojiZhTw._(_root);
 	@override late final _TranslationsDisplaySettingsZhTw displaySettings = _TranslationsDisplaySettingsZhTw._(_root);
 	@override late final _TranslationsLayoutSettingsZhTw layoutSettings = _TranslationsLayoutSettingsZhTw._(_root);
+	@override late final _TranslationsNavigationOrderSettingsZhTw navigationOrderSettings = _TranslationsNavigationOrderSettingsZhTw._(_root);
 }
 
 // Path: common
@@ -1461,6 +1462,9 @@ class _TranslationsDisplaySettingsZhTw implements TranslationsDisplaySettingsEn 
 	@override String get layoutSettings => '版面配置設定';
 	@override String get layoutSettingsDesc => '自訂欄數和斷點配置';
 	@override String get gridLayout => '網格版面配置';
+	@override String get navigationOrderSettings => '導航排序設定';
+	@override String get customNavigationOrder => '自訂導航順序';
+	@override String get customNavigationOrderDesc => '調整底部導航欄和側邊欄中頁面的顯示順序';
 }
 
 // Path: layoutSettings
@@ -1517,6 +1521,33 @@ class _TranslationsLayoutSettingsZhTw implements TranslationsLayoutSettingsEn {
 	@override String get delete => '刪除';
 	@override String get cancel => '取消';
 	@override String get save => '儲存';
+}
+
+// Path: navigationOrderSettings
+class _TranslationsNavigationOrderSettingsZhTw implements TranslationsNavigationOrderSettingsEn {
+	_TranslationsNavigationOrderSettingsZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '導航排序設定';
+	@override String get customNavigationOrder => '自訂導航順序';
+	@override String get customNavigationOrderDesc => '拖拽調整底部導航欄和側邊欄中各個頁面的顯示順序';
+	@override String get restartRequired => '需重啟應用生效';
+	@override String get navigationItemSorting => '導航項目排序';
+	@override String get done => '完成';
+	@override String get edit => '編輯';
+	@override String get reset => '重設';
+	@override String get previewEffect => '預覽效果';
+	@override String get bottomNavigationPreview => '底部導航欄預覽：';
+	@override String get sidebarPreview => '側邊欄預覽：';
+	@override String get confirmResetNavigationOrder => '確認重設導航順序';
+	@override String get confirmResetNavigationOrderDesc => '確定要將導航順序重設為預設設定嗎？';
+	@override String get cancel => '取消';
+	@override String get videoDescription => '瀏覽熱門影片內容';
+	@override String get galleryDescription => '瀏覽圖片和畫廊';
+	@override String get subscriptionDescription => '查看追蹤用戶的最新內容';
+	@override String get forumDescription => '參與社群討論';
 }
 
 // Path: common.pagination
@@ -3442,6 +3473,9 @@ extension on TranslationsZhTw {
 			case 'displaySettings.layoutSettings': return '版面配置設定';
 			case 'displaySettings.layoutSettingsDesc': return '自訂欄數和斷點配置';
 			case 'displaySettings.gridLayout': return '網格版面配置';
+			case 'displaySettings.navigationOrderSettings': return '導航排序設定';
+			case 'displaySettings.customNavigationOrder': return '自訂導航順序';
+			case 'displaySettings.customNavigationOrderDesc': return '調整底部導航欄和側邊欄中頁面的顯示順序';
 			case 'layoutSettings.title': return '版面配置設定';
 			case 'layoutSettings.descriptionTitle': return '版面配置說明';
 			case 'layoutSettings.descriptionContent': return '這裡的配置將決定影片、圖庫列表頁面中顯示的欄數。您可以選擇自動模式讓系統根據螢幕寬度自動調整，或選擇手動模式固定欄數。';
@@ -3489,6 +3523,24 @@ extension on TranslationsZhTw {
 			case 'layoutSettings.delete': return '刪除';
 			case 'layoutSettings.cancel': return '取消';
 			case 'layoutSettings.save': return '儲存';
+			case 'navigationOrderSettings.title': return '導航排序設定';
+			case 'navigationOrderSettings.customNavigationOrder': return '自訂導航順序';
+			case 'navigationOrderSettings.customNavigationOrderDesc': return '拖拽調整底部導航欄和側邊欄中各個頁面的顯示順序';
+			case 'navigationOrderSettings.restartRequired': return '需重啟應用生效';
+			case 'navigationOrderSettings.navigationItemSorting': return '導航項目排序';
+			case 'navigationOrderSettings.done': return '完成';
+			case 'navigationOrderSettings.edit': return '編輯';
+			case 'navigationOrderSettings.reset': return '重設';
+			case 'navigationOrderSettings.previewEffect': return '預覽效果';
+			case 'navigationOrderSettings.bottomNavigationPreview': return '底部導航欄預覽：';
+			case 'navigationOrderSettings.sidebarPreview': return '側邊欄預覽：';
+			case 'navigationOrderSettings.confirmResetNavigationOrder': return '確認重設導航順序';
+			case 'navigationOrderSettings.confirmResetNavigationOrderDesc': return '確定要將導航順序重設為預設設定嗎？';
+			case 'navigationOrderSettings.cancel': return '取消';
+			case 'navigationOrderSettings.videoDescription': return '瀏覽熱門影片內容';
+			case 'navigationOrderSettings.galleryDescription': return '瀏覽圖片和畫廊';
+			case 'navigationOrderSettings.subscriptionDescription': return '查看追蹤用戶的最新內容';
+			case 'navigationOrderSettings.forumDescription': return '參與社群討論';
 			default: return null;
 		}
 	}

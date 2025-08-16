@@ -1530,6 +1530,9 @@ displaySettings:
   layoutSettings: レイアウト設定
   layoutSettingsDesc: カラム数とブレークポイント設定をカスタマイズ
   gridLayout: グリッドレイアウト
+  navigationOrderSettings: ナビゲーション順序設定
+  customNavigationOrder: カスタムナビゲーション順序
+  customNavigationOrderDesc: ボトムナビゲーションバーとサイドバーのページ表示順序を調整
 
 # レイアウト設定
 layoutSettings:
@@ -1580,3 +1583,25 @@ layoutSettings:
   delete: 削除
   cancel: キャンセル
   save: 保存
+
+# ナビゲーション順序設定
+navigationOrderSettings:
+  title: ナビゲーション順序設定
+  customNavigationOrder: カスタムナビゲーション順序
+  customNavigationOrderDesc: ドラッグしてボトムナビゲーションバーとサイドバーの各ページの表示順序を調整
+  restartRequired: アプリの再起動が必要です
+  navigationItemSorting: ナビゲーション項目の並べ替え
+  done: 完了
+  edit: 編集
+  reset: リセット
+  previewEffect: プレビュー効果
+  bottomNavigationPreview: "ボトムナビゲーションバーのプレビュー："
+  sidebarPreview: "サイドバーのプレビュー："
+  confirmResetNavigationOrder: ナビゲーション順序のリセットを確認
+  confirmResetNavigationOrderDesc: ナビゲーション順序をデフォルト設定にリセットしてもよろしいですか？
+  cancel: キャンセル
+  # ナビゲーション項目の説明
+  videoDescription: 人気の動画コンテンツを閲覧
+  galleryDescription: 画像とギャラリーを閲覧
+  subscriptionDescription: フォローしているユーザーの最新コンテンツを表示
+  forumDescription: コミュニティディスカッションに参加

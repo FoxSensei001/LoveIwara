@@ -1,7 +1,6 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/forum/forum_page.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -11,6 +10,7 @@ import 'package:i_iwara/utils/easy_throttle.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/app_service.dart';
 import '../../../services/user_service.dart';
+import '../../../services/config_service.dart';
 import '../popular_media_list/popular_gallery_list_page.dart';
 import '../popular_media_list/popular_video_list_page.dart';
 import '../subscriptions/subscriptions_page.dart';
@@ -32,6 +32,7 @@ class _HomeNavigationLayoutState extends State<HomeNavigationLayout>
     with WidgetsBindingObserver {
   final AppService appService = Get.find<AppService>();
   final UserService userService = Get.find<UserService>();
+  final ConfigService configService = Get.find<ConfigService>();
 
   /// 使用 LazyIndexedStack 进行懒加载，使用 GlobalKey 引用它以便内存释放
   final GlobalKey<LazyIndexedStackState> _lazyStackKey =
@@ -149,24 +150,7 @@ class _HomeNavigationLayoutState extends State<HomeNavigationLayout>
                             ),
                           ),
                           onDestinationSelected: handleNavigationTap,
-                          destinations: [
-                            NavigationRailDestination(
-                              icon: const Icon(Icons.video_library),
-                              label: Text(t.common.video),
-                            ),
-                            NavigationRailDestination(
-                              icon: const Icon(Icons.photo),
-                              label: Text(t.common.gallery),
-                            ),
-                            NavigationRailDestination(
-                              icon: const Icon(Icons.subscriptions),
-                              label: Text(t.common.subscriptions),
-                            ),
-                            NavigationRailDestination(
-                              icon: const Icon(Icons.forum),
-                              label: Text(t.forum.forum),
-                            ),
-                          ],
+                          destinations: _buildNavigationRailDestinations(),
                         ),
                       ),
                     ),
@@ -192,17 +176,7 @@ class _HomeNavigationLayoutState extends State<HomeNavigationLayout>
                               return Obx(() => LazyIndexedStack(
                                     key: _lazyStackKey,
                                     index: appService.currentIndex,
-                                    itemBuilders: [
-                                      (context) => PopularVideoListPage(
-                                          key: PopularVideoListPage.globalKey),
-                                      (context) => PopularGalleryListPage(
-                                          key:
-                                              PopularGalleryListPage.globalKey),
-                                      (context) => SubscriptionsPage(
-                                          key: SubscriptionsPage.globalKey),
-                                      (context) =>
-                                          ForumPage(key: ForumPage.globalKey),
-                                    ],
+                                    itemBuilders: _buildPageBuilders(),
                                   ));
                             },
                             settings: settings,
@@ -229,24 +203,7 @@ class _HomeNavigationLayoutState extends State<HomeNavigationLayout>
                         unselectedItemColor:
                             Theme.of(context).colorScheme.onSurfaceVariant,
                         onTap: handleNavigationTap,
-                        items: [
-                          BottomNavigationBarItem(
-                            icon: const Icon(Icons.video_library),
-                            label: t.common.video,
-                          ),
-                          BottomNavigationBarItem(
-                            icon: const Icon(Icons.photo),
-                            label: t.common.gallery,
-                          ),
-                          BottomNavigationBarItem(
-                            icon: const Icon(Icons.subscriptions),
-                            label: t.common.subscriptions,
-                          ),
-                          BottomNavigationBarItem(
-                            icon: const Icon(Icons.forum),
-                            label: t.forum.forum,
-                          ),
-                        ],
+                        items: _buildBottomNavigationBarItems(),
                       );
                     }),
                   ),
@@ -257,6 +214,58 @@ class _HomeNavigationLayoutState extends State<HomeNavigationLayout>
         ),
       ),
     );
+  }
+
+  // 构建侧边栏导航目标
+  List<NavigationRailDestination> _buildNavigationRailDestinations() {
+    // 监听导航配置变化
+    final orderRaw = configService[ConfigKey.NAVIGATION_ORDER];
+    final order = (orderRaw as List<dynamic>).cast<String>();
+    
+    return order.map((key) {
+      final item = AppService.navigationItems[key]!;
+      return NavigationRailDestination(
+        icon: Icon(item.icon),
+        label: Text(item.title),
+      );
+    }).toList();
+  }
+
+  // 构建底部导航栏项目
+  List<BottomNavigationBarItem> _buildBottomNavigationBarItems() {
+    // 监听导航配置变化
+    final orderRaw = configService[ConfigKey.NAVIGATION_ORDER];
+    final order = (orderRaw as List<dynamic>).cast<String>();
+    
+    return order.map((key) {
+      final item = AppService.navigationItems[key]!;
+      return BottomNavigationBarItem(
+        icon: Icon(item.icon),
+        label: item.title,
+      );
+    }).toList();
+  }
+
+  // 构建页面构建器列表
+  List<Widget Function(BuildContext)> _buildPageBuilders() {
+    // 监听导航配置变化
+    final orderRaw = configService[ConfigKey.NAVIGATION_ORDER];
+    final order = (orderRaw as List<dynamic>).cast<String>();
+    
+    return order.map((key) {
+      switch (key) {
+        case 'video':
+          return (context) => PopularVideoListPage(key: PopularVideoListPage.globalKey);
+        case 'gallery':
+          return (context) => PopularGalleryListPage(key: PopularGalleryListPage.globalKey);
+        case 'subscription':
+          return (context) => SubscriptionsPage(key: SubscriptionsPage.globalKey);
+        case 'forum':
+          return (context) => ForumPage(key: ForumPage.globalKey);
+        default:
+          return (context) => PopularVideoListPage(key: PopularVideoListPage.globalKey);
+      }
+    }).toList();
   }
 }
 

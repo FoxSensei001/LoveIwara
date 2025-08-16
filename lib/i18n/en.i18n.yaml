@@ -1358,12 +1358,37 @@ translation:
   translationSettings: Translation Settings
   enableGoogleTranslation: Enable Google Translation
 
+# Navigation Order Settings
+navigationOrderSettings:
+  title: Navigation Order Settings
+  customNavigationOrder: Custom Navigation Order
+  customNavigationOrderDesc: Drag to adjust the display order of pages in the bottom navigation bar and sidebar
+  restartRequired: Restart app required
+  navigationItemSorting: Navigation Item Sorting
+  done: Done
+  edit: Edit
+  reset: Reset
+  previewEffect: Preview Effect
+  bottomNavigationPreview: "Bottom Navigation Preview:"
+  sidebarPreview: "Sidebar Preview:"
+  confirmResetNavigationOrder: Confirm Reset Navigation Order
+  confirmResetNavigationOrderDesc: Are you sure you want to reset the navigation order to default settings?
+  cancel: Cancel
+  # Navigation item descriptions
+  videoDescription: Browse popular video content
+  galleryDescription: Browse images and galleries
+  subscriptionDescription: View latest content from followed users
+  forumDescription: Participate in community discussions
+
 # Display Settings
 displaySettings:
   title: Display Settings
   layoutSettings: Layout Settings
   layoutSettingsDesc: Customize column count and breakpoint configuration
   gridLayout: Grid Layout
+  navigationOrderSettings: Navigation Order Settings
+  customNavigationOrder: Custom Navigation Order
+  customNavigationOrderDesc: Adjust the display order of pages in the bottom navigation bar and sidebar
 
 # Layout Settings
 layoutSettings:

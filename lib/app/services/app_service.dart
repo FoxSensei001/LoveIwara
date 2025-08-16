@@ -19,6 +19,7 @@ import 'package:i_iwara/app/ui/pages/notifications/notification_list_page.dart';
 import 'package:i_iwara/app/ui/pages/play_list/play_list.dart';
 import 'package:i_iwara/app/ui/pages/play_list/play_list_detail.dart';
 import 'package:i_iwara/app/ui/pages/settings/layout_settings_page.dart';
+import 'package:i_iwara/app/ui/pages/settings/navigation_order_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/translation_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/tag_blacklist/tag_blacklist_page.dart';
@@ -32,6 +33,8 @@ import 'package:i_iwara/app/ui/pages/tag_videos/tag_video_list_page.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/ui/pages/emoji_library/emoji_library_page.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 import '../routes/app_routes.dart';
 import '../ui/pages/author_profile/author_profile_page.dart';
@@ -54,6 +57,34 @@ class AppService extends GetxService {
   final RxBool _showRailNavi = true.obs; // 是否显示侧边栏 [ Home路由下使用 ]
   final RxBool _showBottomNavi = true.obs; // 是否显示底部导航栏 [ Home路由下使用 ]
   final RxInt _currentIndex = 0.obs; // 当前底部/侧边导航栏索引
+
+  // 导航项配置
+  static Map<String, NavigationItem> navigationItems = {
+    'video': NavigationItem(
+      key: 'video',
+      title: slang.t.common.video,
+      icon: Icons.video_library,
+      pageIndex: 0,
+    ),
+    'gallery': NavigationItem(
+      key: 'gallery',
+      title: slang.t.common.gallery,
+      icon: Icons.photo,
+      pageIndex: 1,
+    ),
+    'subscription': NavigationItem(
+      key: 'subscription',
+      title: slang.t.common.subscriptions,
+      icon: Icons.subscriptions,
+      pageIndex: 2,
+    ),
+    'forum': NavigationItem(
+      key: 'forum',
+      title: slang.t.settings.forum,
+      icon: Icons.forum,
+      pageIndex: 3,
+    ),
+  };
 
   static final GlobalKey<ScaffoldState> globalDrawerKey =
       GlobalKey<ScaffoldState>();
@@ -129,7 +160,7 @@ class AppService extends GetxService {
     }
   }
 
-  void hideSystemUI({hideTitleBar = true, hideRailNavi = true}) {
+  void hideSystemUI({bool hideTitleBar = true, bool hideRailNavi = true}) {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     showTitleBar = !hideTitleBar;
     showRailNavi = !hideRailNavi;
@@ -140,6 +171,20 @@ class AppService extends GetxService {
     showTitleBar = true;
     showRailNavi = true;
   }
+}
+
+class NavigationItem {
+  final String key;
+  final String title;
+  final IconData icon;
+  final int pageIndex;
+
+  const NavigationItem({
+    required this.key,
+    required this.title,
+    required this.icon,
+    required this.pageIndex,
+  });
 }
 
 class NaviService {
@@ -460,6 +505,14 @@ class NaviService {
     _navigateToPage(
       routeName: Routes.LAYOUT_SETTINGS_PAGE,
       page: const LayoutSettingsPage(),
+    );
+  }
+
+  // 跳转到导航排序设置页
+  static void navigateToNavigationOrderSettingsPage() {
+    _navigateToPage(
+      routeName: Routes.NAVIGATION_ORDER_SETTINGS_PAGE,
+      page: const NavigationOrderSettingsPage(),
     );
   }
 }

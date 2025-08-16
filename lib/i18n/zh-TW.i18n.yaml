@@ -1531,6 +1531,9 @@ displaySettings:
   layoutSettings: 版面配置設定
   layoutSettingsDesc: 自訂欄數和斷點配置
   gridLayout: 網格版面配置
+  navigationOrderSettings: 導航排序設定
+  customNavigationOrder: 自訂導航順序
+  customNavigationOrderDesc: 調整底部導航欄和側邊欄中頁面的顯示順序
 
 # 版面配置設定
 layoutSettings:
@@ -1581,3 +1584,25 @@ layoutSettings:
   delete: 刪除
   cancel: 取消
   save: 儲存
+
+# 導航排序設定
+navigationOrderSettings:
+  title: 導航排序設定
+  customNavigationOrder: 自訂導航順序
+  customNavigationOrderDesc: 拖拽調整底部導航欄和側邊欄中各個頁面的顯示順序
+  restartRequired: 需重啟應用生效
+  navigationItemSorting: 導航項目排序
+  done: 完成
+  edit: 編輯
+  reset: 重設
+  previewEffect: 預覽效果
+  bottomNavigationPreview: "底部導航欄預覽："
+  sidebarPreview: "側邊欄預覽："
+  confirmResetNavigationOrder: 確認重設導航順序
+  confirmResetNavigationOrderDesc: 確定要將導航順序重設為預設設定嗎？
+  cancel: 取消
+  # 導航項目描述
+  videoDescription: 瀏覽熱門影片內容
+  galleryDescription: 瀏覽圖片和畫廊
+  subscriptionDescription: 查看追蹤用戶的最新內容
+  forumDescription: 參與社群討論

@@ -47,7 +47,7 @@ class ConfigService extends GetxService {
     // 如果 _currentTranslationSort 的 extData 和 savedLanguage 不一致，则更新 savedLanguage
     if (_currentTranslationSort.value.extData != savedLanguage) {
       savedLanguage = _currentTranslationSort.value.extData;
-      await _saveSetting(ConfigKey.DEFAULT_LANGUAGE_KEY, savedLanguage);
+      await saveSetting(ConfigKey.DEFAULT_LANGUAGE_KEY, savedLanguage);
     }
 
     // 初始化目标翻译语言（处理方式与源语言相同）
@@ -62,7 +62,7 @@ class ConfigService extends GetxService {
     // 同步目标语言设置到数据库（如果不一致）
     if (_currentTargetLanguageSort.value.extData != savedTargetLanguage) {
       savedTargetLanguage = _currentTargetLanguageSort.value.extData;
-      await _saveSetting(ConfigKey.USER_TARGET_LANGUAGE_KEY, savedTargetLanguage);
+      await saveSetting(ConfigKey.USER_TARGET_LANGUAGE_KEY, savedTargetLanguage);
     }
 
     // 初始化其他配置
@@ -121,13 +121,13 @@ class ConfigService extends GetxService {
         }
         settings[key]!.value = parsedValue;
       } else {
-        await _saveSetting(key, key.defaultValue);
+        await saveSetting(key, key.defaultValue);
         settings[key]!.value = key.defaultValue;
       }
     }
   }
 
-  Future<void> _saveSetting(ConfigKey key, dynamic value) async {
+  Future<void> saveSetting(ConfigKey key, dynamic value) async {
     String valueStr;
     if (value is List || value is Map) {
       valueStr = jsonEncode(value);
@@ -144,7 +144,7 @@ class ConfigService extends GetxService {
   Future<void> setSetting(ConfigKey key, dynamic value, {bool save = true}) async {
     settings[key]!.value = value;
     if (save) {
-      await _saveSetting(key, value);
+      await saveSetting(key, value);
     }
     if (GetPlatform.isAndroid && key == ConfigKey.ACTIVE_BACKGROUND_PRIVACY_MODE) {
       if (value == true) {
@@ -161,7 +161,7 @@ class ConfigService extends GetxService {
         if (settings[ConfigKey.USE_DEEPLX_TRANSLATION]!.value == true) {
           settings[ConfigKey.USE_DEEPLX_TRANSLATION]!.value = false;
           if (save) {
-            await _saveSetting(ConfigKey.USE_DEEPLX_TRANSLATION, false);
+            await saveSetting(ConfigKey.USE_DEEPLX_TRANSLATION, false);
           }
         }
       } else if (key == ConfigKey.USE_DEEPLX_TRANSLATION) {
@@ -169,7 +169,7 @@ class ConfigService extends GetxService {
         if (settings[ConfigKey.USE_AI_TRANSLATION]!.value == true) {
           settings[ConfigKey.USE_AI_TRANSLATION]!.value = false;
           if (save) {
-            await _saveSetting(ConfigKey.USE_AI_TRANSLATION, false);
+            await saveSetting(ConfigKey.USE_AI_TRANSLATION, false);
           }
         }
       }
@@ -203,7 +203,7 @@ class ConfigService extends GetxService {
 
   // 将指定键的设置保存到持久化存储
   Future<void> saveSettingToStorage(ConfigKey key, dynamic value) async {
-    await _saveSetting(key, value);
+    await saveSetting(key, value);
   }
 }
 
@@ -299,6 +299,8 @@ enum ConfigKey {
   LAYOUT_MODE, // 布局模式：auto(自动), manual(手动)
   MANUAL_COLUMNS_COUNT, // 手动设置的列数
   LAYOUT_BREAKPOINTS, // 布局断点配置
+  // 导航相关配置
+  NAVIGATION_ORDER, // 导航项排序
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -390,6 +392,7 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.LAYOUT_MODE: return 'layout_mode';
       case ConfigKey.MANUAL_COLUMNS_COUNT: return 'manual_columns_count';
       case ConfigKey.LAYOUT_BREAKPOINTS: return 'layout_breakpoints';
+      case ConfigKey.NAVIGATION_ORDER: return 'navigation_order';
     }
   }
 
@@ -573,6 +576,8 @@ extension ConfigKeyExtension on ConfigKey {
           '1500': 5,
           '9999': 6,
         }; // 默认断点配置
+      case ConfigKey.NAVIGATION_ORDER:
+        return <String>['video', 'gallery', 'subscription', 'forum']; // 默认导航顺序
     }
   }
 }

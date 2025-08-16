@@ -21,19 +21,33 @@ class AppSettingsPage extends StatefulWidget {
 }
 
 class _AppSettingsPageState extends State<AppSettingsPage> {
+  // 根据系统语言显示"跟随系统"的常量 map
+  static const Map<String, String> _followSystemTexts = {
+    'en': 'Follow System',
+    'ja': 'システムに従う',
+    'zh-CN': '跟随系统',
+    'zh-TW': '跟隨系統',
+  };
+
   Map<String, String> get _languageOptions => {
-    'system': slang.t.settings.followSystem,
+    'system': _getFollowSystemText(),
     'en': 'English',
     'ja': '日本語',
     'zh-CN': '简体中文',
     'zh-TW': '繁体中文',
   };
 
+  // 根据当前设备语言获取"跟随系统"的文本
+  String _getFollowSystemText() {
+    final deviceLocale = CommonUtils.getDeviceLocale();
+    return _followSystemTexts[deviceLocale] ?? _followSystemTexts['en']!;
+  }
+
   final Map<String, String> _languageChangedMessages = {
-    'en': 'Language changed successfully.',
-    'ja': '言語が正常に変更されました。',
-    'zh-CN': '语言切换成功',
-    'zh-TW': '語言切換成功',
+    'en': 'Language changed successfully, some features require restarting the app to take effect.',
+    'ja': '言語が正常に変更されました。一部の機能はアプリを再起動して有効にする必要があります。',
+    'zh-CN': '语言切换成功，部分功能需重启应用生效',
+    'zh-TW': '語言切換成功，部分功能需重啟應用生效',
   };
 
   void _showLanguageDialog(BuildContext context, ConfigService configService) {

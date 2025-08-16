@@ -14,12 +14,15 @@ updates:
       zh-CN:
         - "评论列表支持按发布时间倒序排列"
         - "新增布局设置功能，支持设置视频、图库卡片列数布局配置"
+        - "新增导航排序设置功能，支持自定义底部导航栏和侧边栏的页面显示顺序"
       en:
         - "Comment list supports sorting by publish time in descending order"
         - "Added layout settings function, supports setting video and gallery card column layout configuration"
+        - "Added navigation order settings function, supports customizing the display order of pages in the bottom navigation bar and sidebar"
       ja:
         - "コメントリストで公開日時で並べ替える機能を追加"
         - "レイアウト設定機能を追加し、ビデオとギャラリーのカード列数レイアウト設定をサポート"
+        - "ナビゲーション順序設定機能を追加し、ボトムナビゲーションバーとサイドバーのページ表示順をカスタマイズできるようにしました"
   - version: "0.3.16"
     date: "2025-08-03"
     minVersion: "0.3.0"

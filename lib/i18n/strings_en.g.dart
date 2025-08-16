@@ -63,6 +63,7 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final TranslationsDownloadEn download = TranslationsDownloadEn._(_root);
 	late final TranslationsFavoriteEn favorite = TranslationsFavoriteEn._(_root);
 	late final TranslationsTranslationEn translation = TranslationsTranslationEn._(_root);
+	late final TranslationsNavigationOrderSettingsEn navigationOrderSettings = TranslationsNavigationOrderSettingsEn._(_root);
 	late final TranslationsDisplaySettingsEn displaySettings = TranslationsDisplaySettingsEn._(_root);
 	late final TranslationsLayoutSettingsEn layoutSettings = TranslationsLayoutSettingsEn._(_root);
 	late final TranslationsMediaPlayerEn mediaPlayer = TranslationsMediaPlayerEn._(_root);
@@ -3186,6 +3187,69 @@ class TranslationsTranslationEn {
 	String get enableGoogleTranslation => 'Enable Google Translation';
 }
 
+// Path: navigationOrderSettings
+class TranslationsNavigationOrderSettingsEn {
+	TranslationsNavigationOrderSettingsEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Navigation Order Settings'
+	String get title => 'Navigation Order Settings';
+
+	/// en: 'Custom Navigation Order'
+	String get customNavigationOrder => 'Custom Navigation Order';
+
+	/// en: 'Drag to adjust the display order of pages in the bottom navigation bar and sidebar'
+	String get customNavigationOrderDesc => 'Drag to adjust the display order of pages in the bottom navigation bar and sidebar';
+
+	/// en: 'Restart app required'
+	String get restartRequired => 'Restart app required';
+
+	/// en: 'Navigation Item Sorting'
+	String get navigationItemSorting => 'Navigation Item Sorting';
+
+	/// en: 'Done'
+	String get done => 'Done';
+
+	/// en: 'Edit'
+	String get edit => 'Edit';
+
+	/// en: 'Reset'
+	String get reset => 'Reset';
+
+	/// en: 'Preview Effect'
+	String get previewEffect => 'Preview Effect';
+
+	/// en: 'Bottom Navigation Preview:'
+	String get bottomNavigationPreview => 'Bottom Navigation Preview:';
+
+	/// en: 'Sidebar Preview:'
+	String get sidebarPreview => 'Sidebar Preview:';
+
+	/// en: 'Confirm Reset Navigation Order'
+	String get confirmResetNavigationOrder => 'Confirm Reset Navigation Order';
+
+	/// en: 'Are you sure you want to reset the navigation order to default settings?'
+	String get confirmResetNavigationOrderDesc => 'Are you sure you want to reset the navigation order to default settings?';
+
+	/// en: 'Cancel'
+	String get cancel => 'Cancel';
+
+	/// en: 'Browse popular video content'
+	String get videoDescription => 'Browse popular video content';
+
+	/// en: 'Browse images and galleries'
+	String get galleryDescription => 'Browse images and galleries';
+
+	/// en: 'View latest content from followed users'
+	String get subscriptionDescription => 'View latest content from followed users';
+
+	/// en: 'Participate in community discussions'
+	String get forumDescription => 'Participate in community discussions';
+}
+
 // Path: displaySettings
 class TranslationsDisplaySettingsEn {
 	TranslationsDisplaySettingsEn._(this._root);
@@ -3205,6 +3269,15 @@ class TranslationsDisplaySettingsEn {
 
 	/// en: 'Grid Layout'
 	String get gridLayout => 'Grid Layout';
+
+	/// en: 'Navigation Order Settings'
+	String get navigationOrderSettings => 'Navigation Order Settings';
+
+	/// en: 'Custom Navigation Order'
+	String get customNavigationOrder => 'Custom Navigation Order';
+
+	/// en: 'Adjust the display order of pages in the bottom navigation bar and sidebar'
+	String get customNavigationOrderDesc => 'Adjust the display order of pages in the bottom navigation bar and sidebar';
 }
 
 // Path: layoutSettings
@@ -6233,10 +6306,31 @@ extension on Translations {
 			case 'translation.fallbackTranslationFailed': return 'Fallback to normal translation also failed';
 			case 'translation.translationSettings': return 'Translation Settings';
 			case 'translation.enableGoogleTranslation': return 'Enable Google Translation';
+			case 'navigationOrderSettings.title': return 'Navigation Order Settings';
+			case 'navigationOrderSettings.customNavigationOrder': return 'Custom Navigation Order';
+			case 'navigationOrderSettings.customNavigationOrderDesc': return 'Drag to adjust the display order of pages in the bottom navigation bar and sidebar';
+			case 'navigationOrderSettings.restartRequired': return 'Restart app required';
+			case 'navigationOrderSettings.navigationItemSorting': return 'Navigation Item Sorting';
+			case 'navigationOrderSettings.done': return 'Done';
+			case 'navigationOrderSettings.edit': return 'Edit';
+			case 'navigationOrderSettings.reset': return 'Reset';
+			case 'navigationOrderSettings.previewEffect': return 'Preview Effect';
+			case 'navigationOrderSettings.bottomNavigationPreview': return 'Bottom Navigation Preview:';
+			case 'navigationOrderSettings.sidebarPreview': return 'Sidebar Preview:';
+			case 'navigationOrderSettings.confirmResetNavigationOrder': return 'Confirm Reset Navigation Order';
+			case 'navigationOrderSettings.confirmResetNavigationOrderDesc': return 'Are you sure you want to reset the navigation order to default settings?';
+			case 'navigationOrderSettings.cancel': return 'Cancel';
+			case 'navigationOrderSettings.videoDescription': return 'Browse popular video content';
+			case 'navigationOrderSettings.galleryDescription': return 'Browse images and galleries';
+			case 'navigationOrderSettings.subscriptionDescription': return 'View latest content from followed users';
+			case 'navigationOrderSettings.forumDescription': return 'Participate in community discussions';
 			case 'displaySettings.title': return 'Display Settings';
 			case 'displaySettings.layoutSettings': return 'Layout Settings';
 			case 'displaySettings.layoutSettingsDesc': return 'Customize column count and breakpoint configuration';
 			case 'displaySettings.gridLayout': return 'Grid Layout';
+			case 'displaySettings.navigationOrderSettings': return 'Navigation Order Settings';
+			case 'displaySettings.customNavigationOrder': return 'Custom Navigation Order';
+			case 'displaySettings.customNavigationOrderDesc': return 'Adjust the display order of pages in the bottom navigation bar and sidebar';
 			case 'layoutSettings.title': return 'Layout Settings';
 			case 'layoutSettings.descriptionTitle': return 'Layout Configuration Description';
 			case 'layoutSettings.descriptionContent': return 'The configuration here will determine the number of columns displayed in video and gallery list pages. You can choose auto mode to let the system automatically adjust based on screen width, or choose manual mode to fix the column count.';
