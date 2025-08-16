@@ -774,11 +774,10 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
 // 静态方法用于显示 sheet
 class EmojiGroupDetailPage {
   static void show(BuildContext context, EmojiGroup group) {
-    showModalBottomSheet(
-      context: context,
+    Get.bottomSheet(
+      EmojiGroupDetailSheet(group: group),
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => EmojiGroupDetailSheet(group: group),
     );
   }
 }

@@ -1535,6 +1535,8 @@ displaySettings:
 # 版面配置設定
 layoutSettings:
   title: 版面配置設定
+  descriptionTitle: 版面配置說明
+  descriptionContent: 這裡的配置將決定影片、圖庫列表頁面中顯示的欄數。您可以選擇自動模式讓系統根據螢幕寬度自動調整，或選擇手動模式固定欄數。
   layoutMode: 版面配置模式
   reset: 重設
   autoMode: 自動模式

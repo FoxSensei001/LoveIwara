@@ -1534,6 +1534,8 @@ displaySettings:
 # レイアウト設定
 layoutSettings:
   title: レイアウト設定
+  descriptionTitle: レイアウト設定の説明
+  descriptionContent: ここでの設定は、動画とギャラリーリストページで表示されるカラム数を決定します。自動モードを選択して画面幅に基づいて自動調整するか、手動モードを選択してカラム数を固定できます。
   layoutMode: レイアウトモード
   reset: リセット
   autoMode: 自動モード

@@ -1468,6 +1468,8 @@ class _TranslationsLayoutSettingsJa implements TranslationsLayoutSettingsEn {
 
 	// Translations
 	@override String get title => 'レイアウト設定';
+	@override String get descriptionTitle => 'レイアウト設定の説明';
+	@override String get descriptionContent => 'ここでの設定は、動画とギャラリーリストページで表示されるカラム数を決定します。自動モードを選択して画面幅に基づいて自動調整するか、手動モードを選択してカラム数を固定できます。';
 	@override String get layoutMode => 'レイアウトモード';
 	@override String get reset => 'リセット';
 	@override String get autoMode => '自動モード';
@@ -3435,6 +3437,8 @@ extension on TranslationsJa {
 			case 'displaySettings.layoutSettingsDesc': return 'カラム数とブレークポイント設定をカスタマイズ';
 			case 'displaySettings.gridLayout': return 'グリッドレイアウト';
 			case 'layoutSettings.title': return 'レイアウト設定';
+			case 'layoutSettings.descriptionTitle': return 'レイアウト設定の説明';
+			case 'layoutSettings.descriptionContent': return 'ここでの設定は、動画とギャラリーリストページで表示されるカラム数を決定します。自動モードを選択して画面幅に基づいて自動調整するか、手動モードを選択してカラム数を固定できます。';
 			case 'layoutSettings.layoutMode': return 'レイアウトモード';
 			case 'layoutSettings.reset': return 'リセット';
 			case 'layoutSettings.autoMode': return '自動モード';

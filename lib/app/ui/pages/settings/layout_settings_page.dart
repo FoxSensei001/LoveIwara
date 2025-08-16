@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Translations;
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -57,6 +58,7 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
             ),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
+                _buildDescriptionCard(),
                 _buildLayoutModeCard(),
                 _buildManualSettingsCard(),
                 _buildBreakpointsCard(),
@@ -65,6 +67,58 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDescriptionCard() {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Center(
+                child: Icon(
+                  Icons.info_outline,
+                  size: 20,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    slang.t.layoutSettings.descriptionTitle,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    slang.t.layoutSettings.descriptionContent,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -583,9 +637,8 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
     final columnsController = TextEditingController();
     final formKey = GlobalKey<FormState>();
     
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
+    Get.dialog(
+      AlertDialog(
         title: Text(slang.t.layoutSettings.addBreakpoint),
         content: Form(
           key: formKey,
@@ -647,7 +700,7 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => AppService.tryPop(),
             child: Text(slang.t.layoutSettings.cancel),
           ),
           TextButton(
@@ -661,7 +714,7 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
                 
                 // 自动排序并保存
                 _updateBreakpointsWithSorting(breakpoints);
-                Navigator.pop(context);
+                AppService.tryPop();
               }
             },
             child: Text(slang.t.layoutSettings.add),
@@ -676,9 +729,8 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
     final columnsController = TextEditingController(text: columns.toString());
     final formKey = GlobalKey<FormState>();
     
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
+    Get.dialog(
+      AlertDialog(
         title: Text(slang.t.layoutSettings.editBreakpoint),
         content: Form(
           key: formKey,
@@ -738,7 +790,7 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => AppService.tryPop(),
             child: Text(slang.t.layoutSettings.cancel),
           ),
           TextButton(
@@ -753,7 +805,7 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
                 
                 // 自动排序并保存
                 _updateBreakpointsWithSorting(breakpoints);
-                Navigator.pop(context);
+                AppService.tryPop();
               }
             },
             child: Text(slang.t.layoutSettings.save),
@@ -785,20 +837,19 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
 
   /// 显示重置确认对话框
   void _showResetConfirmDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
+    Get.dialog(
+      AlertDialog(
         title: Text(slang.t.layoutSettings.confirmResetLayoutSettings),
         content: Text(slang.t.layoutSettings.confirmResetLayoutSettingsDesc),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => AppService.tryPop(),
             child: Text(slang.t.layoutSettings.cancel),
           ),
           TextButton(
             onPressed: () {
               _resetToDefaults();
-              Navigator.pop(context);
+              AppService.tryPop();
             },
             style: TextButton.styleFrom(foregroundColor: Colors.orange),
             child: Text(slang.t.layoutSettings.resetToDefaults),
@@ -829,14 +880,13 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
   }
 
   void _showDeleteBreakpointDialog(String width) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
+    Get.dialog(
+      AlertDialog(
         title: Text(slang.t.layoutSettings.confirmDeleteBreakpoint),
         content: Text(slang.t.layoutSettings.confirmDeleteBreakpointDesc(width: width)),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => AppService.tryPop(),
             child: Text(slang.t.layoutSettings.cancel),
           ),
           TextButton(
@@ -844,7 +894,7 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
               final breakpoints = _getSafeBreakpoints();
               breakpoints.remove(width);
               _updateBreakpointsWithSorting(breakpoints);
-              Navigator.pop(context);
+              AppService.tryPop();
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: Text(slang.t.layoutSettings.delete),

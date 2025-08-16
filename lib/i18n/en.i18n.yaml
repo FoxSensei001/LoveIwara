@@ -1368,6 +1368,8 @@ displaySettings:
 # Layout Settings
 layoutSettings:
   title: Layout Settings
+  descriptionTitle: Layout Configuration Description
+  descriptionContent: The configuration here will determine the number of columns displayed in video and gallery list pages. You can choose auto mode to let the system automatically adjust based on screen width, or choose manual mode to fix the column count.
   layoutMode: Layout Mode
   reset: Reset
   autoMode: Auto Mode

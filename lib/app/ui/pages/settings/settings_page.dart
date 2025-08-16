@@ -398,7 +398,7 @@ class _SettingsPageState extends State<SettingsPage> {
             index: ProxyUtil.isSupportedPlatform() ? 6 : 5,
           ),
           _SettingItem(
-            title: '显示设置',
+            title: t.displaySettings.layoutSettings,
             icon: Icons.display_settings,
             index: ProxyUtil.isSupportedPlatform() ? 7 : 6,
           ),

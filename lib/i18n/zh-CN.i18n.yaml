@@ -1537,6 +1537,8 @@ displaySettings:
 # 布局设置
 layoutSettings:
   title: 布局设置
+  descriptionTitle: 布局配置说明
+  descriptionContent: 这里的配置将决定视频、图库列表页面中显示的列数。您可以选择自动模式让系统根据屏幕宽度自动调整，或选择手动模式固定列数。
   layoutMode: 布局模式
   reset: 重置
   autoMode: 自动模式

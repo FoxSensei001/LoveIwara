@@ -1471,6 +1471,8 @@ class _TranslationsLayoutSettingsZhTw implements TranslationsLayoutSettingsEn {
 
 	// Translations
 	@override String get title => '版面配置設定';
+	@override String get descriptionTitle => '版面配置說明';
+	@override String get descriptionContent => '這裡的配置將決定影片、圖庫列表頁面中顯示的欄數。您可以選擇自動模式讓系統根據螢幕寬度自動調整，或選擇手動模式固定欄數。';
 	@override String get layoutMode => '版面配置模式';
 	@override String get reset => '重設';
 	@override String get autoMode => '自動模式';
@@ -3441,6 +3443,8 @@ extension on TranslationsZhTw {
 			case 'displaySettings.layoutSettingsDesc': return '自訂欄數和斷點配置';
 			case 'displaySettings.gridLayout': return '網格版面配置';
 			case 'layoutSettings.title': return '版面配置設定';
+			case 'layoutSettings.descriptionTitle': return '版面配置說明';
+			case 'layoutSettings.descriptionContent': return '這裡的配置將決定影片、圖庫列表頁面中顯示的欄數。您可以選擇自動模式讓系統根據螢幕寬度自動調整，或選擇手動模式固定欄數。';
 			case 'layoutSettings.layoutMode': return '版面配置模式';
 			case 'layoutSettings.reset': return '重設';
 			case 'layoutSettings.autoMode': return '自動模式';

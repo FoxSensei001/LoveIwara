@@ -1473,6 +1473,8 @@ class _TranslationsLayoutSettingsZhCn implements TranslationsLayoutSettingsEn {
 
 	// Translations
 	@override String get title => '布局设置';
+	@override String get descriptionTitle => '布局配置说明';
+	@override String get descriptionContent => '这里的配置将决定视频、图库列表页面中显示的列数。您可以选择自动模式让系统根据屏幕宽度自动调整，或选择手动模式固定列数。';
 	@override String get layoutMode => '布局模式';
 	@override String get reset => '重置';
 	@override String get autoMode => '自动模式';
@@ -3445,6 +3447,8 @@ extension on TranslationsZhCn {
 			case 'displaySettings.layoutSettingsDesc': return '自定义列数和断点配置';
 			case 'displaySettings.gridLayout': return '网格布局';
 			case 'layoutSettings.title': return '布局设置';
+			case 'layoutSettings.descriptionTitle': return '布局配置说明';
+			case 'layoutSettings.descriptionContent': return '这里的配置将决定视频、图库列表页面中显示的列数。您可以选择自动模式让系统根据屏幕宽度自动调整，或选择手动模式固定列数。';
 			case 'layoutSettings.layoutMode': return '布局模式';
 			case 'layoutSettings.reset': return '重置';
 			case 'layoutSettings.autoMode': return '自动模式';

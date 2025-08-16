@@ -3218,6 +3218,12 @@ class TranslationsLayoutSettingsEn {
 	/// en: 'Layout Settings'
 	String get title => 'Layout Settings';
 
+	/// en: 'Layout Configuration Description'
+	String get descriptionTitle => 'Layout Configuration Description';
+
+	/// en: 'The configuration here will determine the number of columns displayed in video and gallery list pages. You can choose auto mode to let the system automatically adjust based on screen width, or choose manual mode to fix the column count.'
+	String get descriptionContent => 'The configuration here will determine the number of columns displayed in video and gallery list pages. You can choose auto mode to let the system automatically adjust based on screen width, or choose manual mode to fix the column count.';
+
 	/// en: 'Layout Mode'
 	String get layoutMode => 'Layout Mode';
 
@@ -6232,6 +6238,8 @@ extension on Translations {
 			case 'displaySettings.layoutSettingsDesc': return 'Customize column count and breakpoint configuration';
 			case 'displaySettings.gridLayout': return 'Grid Layout';
 			case 'layoutSettings.title': return 'Layout Settings';
+			case 'layoutSettings.descriptionTitle': return 'Layout Configuration Description';
+			case 'layoutSettings.descriptionContent': return 'The configuration here will determine the number of columns displayed in video and gallery list pages. You can choose auto mode to let the system automatically adjust based on screen width, or choose manual mode to fix the column count.';
 			case 'layoutSettings.layoutMode': return 'Layout Mode';
 			case 'layoutSettings.reset': return 'Reset';
 			case 'layoutSettings.autoMode': return 'Auto Mode';
