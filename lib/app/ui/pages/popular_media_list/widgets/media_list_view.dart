@@ -211,6 +211,8 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
   
   // 添加 MediaListController 引用
   MediaListController? _mediaListController;
+  // 添加 rebuildKey 监听器引用，用于清理
+  VoidCallback? _rebuildKeyListener;
   
   int get totalItems {
     if (widget.sourceList is ExtendedLoadingMoreBase<T>) {
@@ -231,6 +233,15 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
       // 如果控制器和滚动控制器可用，注册滚动到顶部回调
       if (_mediaListController != null && widget.scrollController != null) {
         _mediaListController!.registerScrollToTopCallback(_scrollToTop);
+      }
+      
+      // 监听 rebuildKey 的变化，当它变化时触发数据刷新
+      if (_mediaListController != null) {
+        _rebuildKeyListener = ever(_mediaListController!.rebuildKey, (int key) {
+          if (mounted) {
+            refresh();
+          }
+        });
       }
     } catch (e) {
       // 未找到 MediaListController，继续执行
@@ -429,6 +440,8 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
     if (_mediaListController != null && widget.scrollController != null) {
       _mediaListController!.unregisterScrollToTopCallback(_scrollToTop);
     }
+    // 清理 rebuildKey 监听器
+    _rebuildKeyListener?.call();
     _pageController.dispose();
     super.dispose();
   }

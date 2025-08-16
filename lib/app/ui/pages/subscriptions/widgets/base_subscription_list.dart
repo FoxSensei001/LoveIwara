@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
+import 'package:i_iwara/app/ui/pages/subscriptions/controllers/media_list_controller.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/easy_throttle.dart';
 import 'package:loading_more_list/loading_more_list.dart';
@@ -32,6 +34,10 @@ abstract class BaseSubscriptionListState<T, R extends ExtendedLoadingMoreBase<T>
 
   // 缓存机制
   final Map<String, Widget> _itemCache = {};
+  
+  // 添加 MediaListController 引用和监听器
+  MediaListController? _mediaListController;
+  VoidCallback? _rebuildKeyListener;
 
   @override
   void initState() {
@@ -40,6 +46,21 @@ abstract class BaseSubscriptionListState<T, R extends ExtendedLoadingMoreBase<T>
 
     // 添加滚动监听
     _scrollController.addListener(_throttledScrollListener);
+    
+    // 尝试获取 MediaListController 实例并监听 rebuildKey
+    try {
+      _mediaListController = Get.find<MediaListController>();
+      if (_mediaListController != null) {
+        _rebuildKeyListener = ever(_mediaListController!.rebuildKey, (int key) {
+          if (mounted) {
+            refresh();
+          }
+        });
+      }
+    } catch (e) {
+      // 未找到 MediaListController，继续执行
+      _mediaListController = null;
+    }
   }
 
   // 滚动监听器 - 使用节流降低处理频率
@@ -110,6 +131,8 @@ abstract class BaseSubscriptionListState<T, R extends ExtendedLoadingMoreBase<T>
     _itemCache.clear();
     // 取消该滚动器相关的节流任务
     EasyThrottle.cancel('scroll_${widget.userId}');
+    // 清理 rebuildKey 监听器
+    _rebuildKeyListener?.call();
     super.dispose();
   }
 
