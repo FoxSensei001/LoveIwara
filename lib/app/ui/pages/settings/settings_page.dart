@@ -578,7 +578,7 @@ class _SettingsPageState extends State<SettingsPage> {
       case 2: // 应用设置
         return AppSettingsPage(isWideScreen: enableTwoViews);
       case 3: // 聊天设置
-        return ForumSettingsPage(isWideScreen: enableTwoViews);
+        return ForumSettingsPage(useSettingsNavi: true);
       case 4: // 下载设置
         return DownloadSettingsPage(isWideScreen: enableTwoViews);
       case 5: // 播放器设置

@@ -104,16 +104,7 @@ class _HomeNavigationLayoutState extends State<HomeNavigationLayout>
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
     return _NaviPopScope(
-      action: () {
-        // TODO 还需要完整的验证Pop逻辑
-        if (AppService.homeNavigatorKey.currentState!.canPop()) {
-          AppService.homeNavigatorKey.currentState!.pop();
-        } else {
-          SystemNavigator.pop();
-        }
-
-        // AppService.tryPop();
-      },
+      action: AppService.tryPop,
       popGesture: GetPlatform.isIOS,
       child: Scaffold(
         body: LayoutBuilder(
@@ -353,7 +344,7 @@ class _NaviPopScope extends StatelessWidget {
         : PopScope(
             canPop: GetPlatform.isAndroid ? false : true,
             onPopInvokedWithResult: (value, result) {
-              LogUtils.i(
+              LogUtils.d(
                   '[顶层Popscope结果, value: $value, result: $result]', 'PopScope');
               ExitConfirmUtil.handleExit(context, action);
             },

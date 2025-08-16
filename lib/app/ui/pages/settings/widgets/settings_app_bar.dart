@@ -4,12 +4,11 @@ import 'package:flutter/services.dart';
 
 class SettingsAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
-  final bool isWideScreen;
+  final bool isWideScreen = true;
 
   const SettingsAppBar({
     super.key,
     required this.title,
-    this.isWideScreen = false,
   });
 
   @override

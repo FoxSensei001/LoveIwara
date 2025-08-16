@@ -9,9 +9,13 @@ import 'package:i_iwara/app/ui/pages/settings/settings_page.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 
 class ForumSettingsPage extends StatelessWidget {
-  final bool isWideScreen;
+  final bool isWideScreen = false;
+  final bool useSettingsNavi;
 
-  const ForumSettingsPage({super.key, this.isWideScreen = false});
+  const ForumSettingsPage({
+    super.key,
+    this.useSettingsNavi = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +26,7 @@ class ForumSettingsPage extends StatelessWidget {
       body: CustomScrollView(
         slivers: [
           BlurredSliverAppBar(
-            title: t.settings.forum,
+            title: t.settings.chatSettings.name,
             isWideScreen: isWideScreen,
           ),
           SliverPadding(
@@ -167,10 +171,10 @@ class ForumSettingsPage extends StatelessWidget {
                         subtitle: Text(t.emoji.manageEmojiGroupsAndImages),
                         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                         onTap: () {
-                          if (isWideScreen) {
+                          if (useSettingsNavi) {
                             // 宽屏模式：使用设置页面的内部导航
                             SettingsPage.navigateToNestedPage(
-                              EmojiLibraryPage(isWideScreen: true),
+                              EmojiLibraryPage(),
                             );
                           } else {
                             // 窄屏模式：使用全局导航

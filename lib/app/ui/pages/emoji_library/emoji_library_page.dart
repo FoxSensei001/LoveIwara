@@ -5,9 +5,8 @@ import 'package:i_iwara/app/ui/pages/emoji_library/emoji_group_detail_page.dart'
 import 'package:i_iwara/i18n/strings.g.dart';
 
 class EmojiLibraryPage extends StatefulWidget {
-  final bool isWideScreen;
 
-  const EmojiLibraryPage({super.key, this.isWideScreen = false});
+  const EmojiLibraryPage({super.key});
 
   @override
   State<EmojiLibraryPage> createState() => _EmojiLibraryPageState();
@@ -51,7 +50,7 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(t.emoji.library),
-        automaticallyImplyLeading: !widget.isWideScreen,
+        automaticallyImplyLeading: true,
         actions: [
           IconButton(
             icon: Icon(_isDragMode ? Icons.check : Icons.drag_handle),
