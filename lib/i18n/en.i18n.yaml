@@ -1358,6 +1358,61 @@ translation:
   translationSettings: Translation Settings
   enableGoogleTranslation: Enable Google Translation
 
+# Display Settings
+displaySettings:
+  title: Display Settings
+  layoutSettings: Layout Settings
+  layoutSettingsDesc: Customize column count and breakpoint configuration
+  gridLayout: Grid Layout
+
+# Layout Settings
+layoutSettings:
+  title: Layout Settings
+  layoutMode: Layout Mode
+  reset: Reset
+  autoMode: Auto Mode
+  autoModeDesc: Automatically adjust based on screen width
+  manualMode: Manual Mode
+  manualModeDesc: Use fixed column count
+  manualSettings: Manual Settings
+  fixedColumns: Fixed Columns
+  columns: columns
+  breakpointConfig: Breakpoint Configuration
+  add: Add
+  defaultColumns: Default Columns
+  defaultColumnsDesc: Default display for large screens
+  previewEffect: Preview Effect
+  screenWidth: Screen Width
+  addBreakpoint: Add Breakpoint
+  editBreakpoint: Edit Breakpoint
+  deleteBreakpoint: Delete Breakpoint
+  screenWidthLabel: Screen Width
+  screenWidthHint: 600
+  columnsLabel: Columns
+  columnsHint: 3
+  enterWidth: Please enter width
+  enterValidWidth: Please enter valid width
+  widthCannotExceed9999: Width cannot exceed 9999
+  breakpointAlreadyExists: Breakpoint already exists
+  enterColumns: Please enter columns
+  enterValidColumns: Please enter valid columns
+  columnsCannotExceed12: Columns cannot exceed 12
+  breakpointConflict: Breakpoint already exists
+  confirmResetLayoutSettings: Reset Layout Settings
+  confirmResetLayoutSettingsDesc: Are you sure you want to reset all layout settings to default values?\n\nWill restore to:\n• Auto mode\n• Default breakpoint configuration
+  resetToDefaults: Reset to Defaults
+  confirmDeleteBreakpoint: Delete Breakpoint
+  confirmDeleteBreakpointDesc: Are you sure you want to delete the ${width}px breakpoint?
+  noCustomBreakpoints: No custom breakpoints, using default columns
+  breakpointRange: Breakpoint Range
+  breakpointRangeDesc: '${range}px'
+  breakpointRangeDescFirst: '≤${width}px'
+  breakpointRangeDescMiddle: '${start}-${end}px'
+  edit: Edit
+  delete: Delete
+  cancel: Cancel
+  save: Save
+
 # Media Player Widgets
 mediaPlayer:
   # Video Player Widget

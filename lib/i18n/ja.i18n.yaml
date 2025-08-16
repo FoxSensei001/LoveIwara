@@ -1523,3 +1523,58 @@ emoji:
   uploadFailed: '${count} 枚失敗'
   uploadFailedMessage: 画像のアップロードに失敗しました。ネットワーク接続またはファイル形式を確認してください
   uploadErrorMessage: 'アップロード中にエラーが発生しました: ${error}'
+
+# 表示設定
+displaySettings:
+  title: 表示設定
+  layoutSettings: レイアウト設定
+  layoutSettingsDesc: カラム数とブレークポイント設定をカスタマイズ
+  gridLayout: グリッドレイアウト
+
+# レイアウト設定
+layoutSettings:
+  title: レイアウト設定
+  layoutMode: レイアウトモード
+  reset: リセット
+  autoMode: 自動モード
+  autoModeDesc: 画面幅に基づいて自動調整
+  manualMode: 手動モード
+  manualModeDesc: 固定カラム数を使用
+  manualSettings: 手動設定
+  fixedColumns: 固定カラム数
+  columns: カラム
+  breakpointConfig: ブレークポイント設定
+  add: 追加
+  defaultColumns: デフォルトカラム数
+  defaultColumnsDesc: 大画面のデフォルト表示
+  previewEffect: プレビュー効果
+  screenWidth: 画面幅
+  addBreakpoint: ブレークポイントを追加
+  editBreakpoint: ブレークポイントを編集
+  deleteBreakpoint: ブレークポイントを削除
+  screenWidthLabel: 画面幅
+  screenWidthHint: 600
+  columnsLabel: カラム数
+  columnsHint: 3
+  enterWidth: 幅を入力してください
+  enterValidWidth: 有効な幅を入力してください
+  widthCannotExceed9999: 幅は9999を超えることはできません
+  breakpointAlreadyExists: ブレークポイントが既に存在します
+  enterColumns: カラム数を入力してください
+  enterValidColumns: 有効なカラム数を入力してください
+  columnsCannotExceed12: カラム数は12を超えることはできません
+  breakpointConflict: ブレークポイントが既に存在します
+  confirmResetLayoutSettings: レイアウト設定をリセット
+  confirmResetLayoutSettingsDesc: すべてのレイアウト設定をデフォルト値にリセットしてもよろしいですか？\n\n以下に復元されます：\n• 自動モード\n• デフォルトブレークポイント設定
+  resetToDefaults: デフォルトにリセット
+  confirmDeleteBreakpoint: ブレークポイントを削除
+  confirmDeleteBreakpointDesc: ${width}px のブレークポイントを削除してもよろしいですか？
+  noCustomBreakpoints: カスタムブレークポイントがありません、デフォルトカラム数を使用
+  breakpointRange: ブレークポイント範囲
+  breakpointRangeDesc: '${range}px'
+  breakpointRangeDescFirst: '≤${width}px'
+  breakpointRangeDescMiddle: '${start}-${end}px'
+  edit: 編集
+  delete: 削除
+  cancel: キャンセル
+  save: 保存

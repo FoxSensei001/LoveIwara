@@ -1526,3 +1526,58 @@ emoji:
   uploadFailed: '失败 ${count} 张'
   uploadFailedMessage: 图片上传失败，请检查网络连接或文件格式
   uploadErrorMessage: '上传过程中发生错误: ${error}'
+
+# 显示设置
+displaySettings:
+  title: 显示设置
+  layoutSettings: 布局设置
+  layoutSettingsDesc: 自定义列数和断点配置
+  gridLayout: 网格布局
+
+# 布局设置
+layoutSettings:
+  title: 布局设置
+  layoutMode: 布局模式
+  reset: 重置
+  autoMode: 自动模式
+  autoModeDesc: 根据屏幕宽度自动调整
+  manualMode: 手动模式
+  manualModeDesc: 使用固定列数
+  manualSettings: 手动设置
+  fixedColumns: 固定列数
+  columns: 列
+  breakpointConfig: 断点配置
+  add: 添加
+  defaultColumns: 默认列数
+  defaultColumnsDesc: 大屏幕默认显示
+  previewEffect: 预览效果
+  screenWidth: 屏幕宽度
+  addBreakpoint: 添加断点
+  editBreakpoint: 编辑断点
+  deleteBreakpoint: 删除断点
+  screenWidthLabel: 屏幕宽度
+  screenWidthHint: 600
+  columnsLabel: 列数
+  columnsHint: 3
+  enterWidth: 请输入宽度
+  enterValidWidth: 请输入有效宽度
+  widthCannotExceed9999: 宽度不能超过9999
+  breakpointAlreadyExists: 断点已存在
+  enterColumns: 请输入列数
+  enterValidColumns: 请输入有效列数
+  columnsCannotExceed12: 列数不能超过12
+  breakpointConflict: 断点已存在
+  confirmResetLayoutSettings: 重置布局设置
+  confirmResetLayoutSettingsDesc: 确定要重置所有布局设置到默认值吗？\n\n将恢复为：\n• 自动模式\n• 默认断点配置
+  resetToDefaults: 重置为默认值
+  confirmDeleteBreakpoint: 删除断点
+  confirmDeleteBreakpointDesc: 确定要删除 ${width}px 断点吗？
+  noCustomBreakpoints: 暂无自定义断点，使用默认列数
+  breakpointRange: 断点区间
+  breakpointRangeDesc: '${range}px'
+  breakpointRangeDescFirst: '≤${width}px'
+  breakpointRangeDescMiddle: '${start}-${end}px'
+  edit: 编辑
+  delete: 删除
+  cancel: 取消
+  save: 保存

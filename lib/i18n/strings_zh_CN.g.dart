@@ -64,6 +64,8 @@ class TranslationsZhCn implements Translations {
 	@override late final _TranslationsLinkInputDialogZhCn linkInputDialog = _TranslationsLinkInputDialogZhCn._(_root);
 	@override late final _TranslationsLogZhCn log = _TranslationsLogZhCn._(_root);
 	@override late final _TranslationsEmojiZhCn emoji = _TranslationsEmojiZhCn._(_root);
+	@override late final _TranslationsDisplaySettingsZhCn displaySettings = _TranslationsDisplaySettingsZhCn._(_root);
+	@override late final _TranslationsLayoutSettingsZhCn layoutSettings = _TranslationsLayoutSettingsZhCn._(_root);
 }
 
 // Path: common
@@ -1448,6 +1450,73 @@ class _TranslationsEmojiZhCn implements TranslationsEmojiEn {
 	@override String uploadFailed({required Object count}) => '失败 ${count} 张';
 	@override String get uploadFailedMessage => '图片上传失败，请检查网络连接或文件格式';
 	@override String uploadErrorMessage({required Object error}) => '上传过程中发生错误: ${error}';
+}
+
+// Path: displaySettings
+class _TranslationsDisplaySettingsZhCn implements TranslationsDisplaySettingsEn {
+	_TranslationsDisplaySettingsZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '显示设置';
+	@override String get layoutSettings => '布局设置';
+	@override String get layoutSettingsDesc => '自定义列数和断点配置';
+	@override String get gridLayout => '网格布局';
+}
+
+// Path: layoutSettings
+class _TranslationsLayoutSettingsZhCn implements TranslationsLayoutSettingsEn {
+	_TranslationsLayoutSettingsZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '布局设置';
+	@override String get layoutMode => '布局模式';
+	@override String get reset => '重置';
+	@override String get autoMode => '自动模式';
+	@override String get autoModeDesc => '根据屏幕宽度自动调整';
+	@override String get manualMode => '手动模式';
+	@override String get manualModeDesc => '使用固定列数';
+	@override String get manualSettings => '手动设置';
+	@override String get fixedColumns => '固定列数';
+	@override String get columns => '列';
+	@override String get breakpointConfig => '断点配置';
+	@override String get add => '添加';
+	@override String get defaultColumns => '默认列数';
+	@override String get defaultColumnsDesc => '大屏幕默认显示';
+	@override String get previewEffect => '预览效果';
+	@override String get screenWidth => '屏幕宽度';
+	@override String get addBreakpoint => '添加断点';
+	@override String get editBreakpoint => '编辑断点';
+	@override String get deleteBreakpoint => '删除断点';
+	@override String get screenWidthLabel => '屏幕宽度';
+	@override String get screenWidthHint => '600';
+	@override String get columnsLabel => '列数';
+	@override String get columnsHint => '3';
+	@override String get enterWidth => '请输入宽度';
+	@override String get enterValidWidth => '请输入有效宽度';
+	@override String get widthCannotExceed9999 => '宽度不能超过9999';
+	@override String get breakpointAlreadyExists => '断点已存在';
+	@override String get enterColumns => '请输入列数';
+	@override String get enterValidColumns => '请输入有效列数';
+	@override String get columnsCannotExceed12 => '列数不能超过12';
+	@override String get breakpointConflict => '断点已存在';
+	@override String get confirmResetLayoutSettings => '重置布局设置';
+	@override String get confirmResetLayoutSettingsDesc => '确定要重置所有布局设置到默认值吗？\n\n将恢复为：\n• 自动模式\n• 默认断点配置';
+	@override String get resetToDefaults => '重置为默认值';
+	@override String get confirmDeleteBreakpoint => '删除断点';
+	@override String confirmDeleteBreakpointDesc({required Object width}) => '确定要删除 ${width}px 断点吗？';
+	@override String get noCustomBreakpoints => '暂无自定义断点，使用默认列数';
+	@override String get breakpointRange => '断点区间';
+	@override String breakpointRangeDesc({required Object range}) => '${range}px';
+	@override String breakpointRangeDescFirst({required Object width}) => '≤${width}px';
+	@override String breakpointRangeDescMiddle({required Object start, required Object end}) => '${start}-${end}px';
+	@override String get edit => '编辑';
+	@override String get delete => '删除';
+	@override String get cancel => '取消';
+	@override String get save => '保存';
 }
 
 // Path: common.pagination
@@ -3371,6 +3440,55 @@ extension on TranslationsZhCn {
 			case 'emoji.uploadFailed': return ({required Object count}) => '失败 ${count} 张';
 			case 'emoji.uploadFailedMessage': return '图片上传失败，请检查网络连接或文件格式';
 			case 'emoji.uploadErrorMessage': return ({required Object error}) => '上传过程中发生错误: ${error}';
+			case 'displaySettings.title': return '显示设置';
+			case 'displaySettings.layoutSettings': return '布局设置';
+			case 'displaySettings.layoutSettingsDesc': return '自定义列数和断点配置';
+			case 'displaySettings.gridLayout': return '网格布局';
+			case 'layoutSettings.title': return '布局设置';
+			case 'layoutSettings.layoutMode': return '布局模式';
+			case 'layoutSettings.reset': return '重置';
+			case 'layoutSettings.autoMode': return '自动模式';
+			case 'layoutSettings.autoModeDesc': return '根据屏幕宽度自动调整';
+			case 'layoutSettings.manualMode': return '手动模式';
+			case 'layoutSettings.manualModeDesc': return '使用固定列数';
+			case 'layoutSettings.manualSettings': return '手动设置';
+			case 'layoutSettings.fixedColumns': return '固定列数';
+			case 'layoutSettings.columns': return '列';
+			case 'layoutSettings.breakpointConfig': return '断点配置';
+			case 'layoutSettings.add': return '添加';
+			case 'layoutSettings.defaultColumns': return '默认列数';
+			case 'layoutSettings.defaultColumnsDesc': return '大屏幕默认显示';
+			case 'layoutSettings.previewEffect': return '预览效果';
+			case 'layoutSettings.screenWidth': return '屏幕宽度';
+			case 'layoutSettings.addBreakpoint': return '添加断点';
+			case 'layoutSettings.editBreakpoint': return '编辑断点';
+			case 'layoutSettings.deleteBreakpoint': return '删除断点';
+			case 'layoutSettings.screenWidthLabel': return '屏幕宽度';
+			case 'layoutSettings.screenWidthHint': return '600';
+			case 'layoutSettings.columnsLabel': return '列数';
+			case 'layoutSettings.columnsHint': return '3';
+			case 'layoutSettings.enterWidth': return '请输入宽度';
+			case 'layoutSettings.enterValidWidth': return '请输入有效宽度';
+			case 'layoutSettings.widthCannotExceed9999': return '宽度不能超过9999';
+			case 'layoutSettings.breakpointAlreadyExists': return '断点已存在';
+			case 'layoutSettings.enterColumns': return '请输入列数';
+			case 'layoutSettings.enterValidColumns': return '请输入有效列数';
+			case 'layoutSettings.columnsCannotExceed12': return '列数不能超过12';
+			case 'layoutSettings.breakpointConflict': return '断点已存在';
+			case 'layoutSettings.confirmResetLayoutSettings': return '重置布局设置';
+			case 'layoutSettings.confirmResetLayoutSettingsDesc': return '确定要重置所有布局设置到默认值吗？\n\n将恢复为：\n• 自动模式\n• 默认断点配置';
+			case 'layoutSettings.resetToDefaults': return '重置为默认值';
+			case 'layoutSettings.confirmDeleteBreakpoint': return '删除断点';
+			case 'layoutSettings.confirmDeleteBreakpointDesc': return ({required Object width}) => '确定要删除 ${width}px 断点吗？';
+			case 'layoutSettings.noCustomBreakpoints': return '暂无自定义断点，使用默认列数';
+			case 'layoutSettings.breakpointRange': return '断点区间';
+			case 'layoutSettings.breakpointRangeDesc': return ({required Object range}) => '${range}px';
+			case 'layoutSettings.breakpointRangeDescFirst': return ({required Object width}) => '≤${width}px';
+			case 'layoutSettings.breakpointRangeDescMiddle': return ({required Object start, required Object end}) => '${start}-${end}px';
+			case 'layoutSettings.edit': return '编辑';
+			case 'layoutSettings.delete': return '删除';
+			case 'layoutSettings.cancel': return '取消';
+			case 'layoutSettings.save': return '保存';
 			default: return null;
 		}
 	}

@@ -1524,3 +1524,58 @@ emoji:
   uploadFailed: '失敗 ${count} 張'
   uploadFailedMessage: 圖片上傳失敗，請檢查網路連接或檔案格式
   uploadErrorMessage: '上傳過程中發生錯誤: ${error}'
+
+# 顯示設定
+displaySettings:
+  title: 顯示設定
+  layoutSettings: 版面配置設定
+  layoutSettingsDesc: 自訂欄數和斷點配置
+  gridLayout: 網格版面配置
+
+# 版面配置設定
+layoutSettings:
+  title: 版面配置設定
+  layoutMode: 版面配置模式
+  reset: 重設
+  autoMode: 自動模式
+  autoModeDesc: 根據螢幕寬度自動調整
+  manualMode: 手動模式
+  manualModeDesc: 使用固定欄數
+  manualSettings: 手動設定
+  fixedColumns: 固定欄數
+  columns: 欄
+  breakpointConfig: 斷點配置
+  add: 新增
+  defaultColumns: 預設欄數
+  defaultColumnsDesc: 大螢幕預設顯示
+  previewEffect: 預覽效果
+  screenWidth: 螢幕寬度
+  addBreakpoint: 新增斷點
+  editBreakpoint: 編輯斷點
+  deleteBreakpoint: 刪除斷點
+  screenWidthLabel: 螢幕寬度
+  screenWidthHint: 600
+  columnsLabel: 欄數
+  columnsHint: 3
+  enterWidth: 請輸入寬度
+  enterValidWidth: 請輸入有效寬度
+  widthCannotExceed9999: 寬度不能超過9999
+  breakpointAlreadyExists: 斷點已存在
+  enterColumns: 請輸入欄數
+  enterValidColumns: 請輸入有效欄數
+  columnsCannotExceed12: 欄數不能超過12
+  breakpointConflict: 斷點已存在
+  confirmResetLayoutSettings: 重設版面配置設定
+  confirmResetLayoutSettingsDesc: 確定要重設所有版面配置設定到預設值嗎？\n\n將恢復為：\n• 自動模式\n• 預設斷點配置
+  resetToDefaults: 重設為預設值
+  confirmDeleteBreakpoint: 刪除斷點
+  confirmDeleteBreakpointDesc: 確定要刪除 ${width}px 斷點嗎？
+  noCustomBreakpoints: 暫無自訂斷點，使用預設欄數
+  breakpointRange: 斷點區間
+  breakpointRangeDesc: '${range}px'
+  breakpointRangeDescFirst: '≤${width}px'
+  breakpointRangeDescMiddle: '${start}-${end}px'
+  edit: 編輯
+  delete: 刪除
+  cancel: 取消
+  save: 儲存

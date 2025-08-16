@@ -95,6 +95,27 @@ class ConfigService extends GetxService {
           parsedValue = double.tryParse(storedValue) ?? defaultVal;
         } else if (defaultVal is List) {
           parsedValue = jsonDecode(storedValue);
+        } else if (defaultVal is Map) {
+          // 处理 Map 类型的反序列化
+          try {
+            final decoded = jsonDecode(storedValue);
+            if (decoded is Map) {
+              // 根据默认值的类型进行类型转换
+              if (defaultVal is Map<String, int>) {
+                parsedValue = Map<String, int>.from(decoded.map((key, value) => 
+                  MapEntry(key.toString(), value is int ? value : int.tryParse(value.toString()) ?? 0)));
+              } else if (defaultVal is Map<String, String>) {
+                parsedValue = Map<String, String>.from(decoded.map((key, value) => 
+                  MapEntry(key.toString(), value.toString())));
+              } else {
+                parsedValue = Map<String, dynamic>.from(decoded);
+              }
+            } else {
+              parsedValue = defaultVal;
+            }
+          } catch (e) {
+            parsedValue = defaultVal;
+          }
         } else {
           parsedValue = storedValue;
         }
@@ -107,7 +128,12 @@ class ConfigService extends GetxService {
   }
 
   Future<void> _saveSetting(ConfigKey key, dynamic value) async {
-    String valueStr = value is List ? jsonEncode(value) : value.toString();
+    String valueStr;
+    if (value is List || value is Map) {
+      valueStr = jsonEncode(value);
+    } else {
+      valueStr = value.toString();
+    }
     _db.execute('''
       INSERT OR REPLACE INTO app_config (key, value)
       VALUES (?, ?)
@@ -269,6 +295,10 @@ enum ConfigKey {
   USE_OPENSLES, // 使用OpenSLES音频输出
   DEFAULT_EMOJI_SIZE, // 默认表情包大小
   COMMENT_SORT_ORDER, // 评论排序方式，true为倒序，false为正序
+  // 布局相关配置
+  LAYOUT_MODE, // 布局模式：auto(自动), manual(手动)
+  MANUAL_COLUMNS_COUNT, // 手动设置的列数
+  LAYOUT_BREAKPOINTS, // 布局断点配置
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -357,6 +387,9 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.USE_OPENSLES: return 'use_opensles';
       case ConfigKey.DEFAULT_EMOJI_SIZE: return 'default_emoji_size';
       case ConfigKey.COMMENT_SORT_ORDER: return 'comment_sort_order';
+      case ConfigKey.LAYOUT_MODE: return 'layout_mode';
+      case ConfigKey.MANUAL_COLUMNS_COUNT: return 'manual_columns_count';
+      case ConfigKey.LAYOUT_BREAKPOINTS: return 'layout_breakpoints';
     }
   }
 
@@ -528,6 +561,18 @@ extension ConfigKeyExtension on ConfigKey {
         return 'mid-i'; // 默认使用中等大小
       case ConfigKey.COMMENT_SORT_ORDER:
         return true; // 默认倒序
+      case ConfigKey.LAYOUT_MODE:
+        return 'auto'; // 默认自动模式
+      case ConfigKey.MANUAL_COLUMNS_COUNT:
+        return 3; // 默认3列
+      case ConfigKey.LAYOUT_BREAKPOINTS:
+        return <String, int>{
+          '600': 2,
+          '900': 3,
+          '1200': 4,
+          '1500': 5,
+          '9999': 6,
+        }; // 默认断点配置
     }
   }
 }

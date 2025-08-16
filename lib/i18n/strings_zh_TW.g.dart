@@ -64,6 +64,8 @@ class TranslationsZhTw implements Translations {
 	@override late final _TranslationsLinkInputDialogZhTw linkInputDialog = _TranslationsLinkInputDialogZhTw._(_root);
 	@override late final _TranslationsLogZhTw log = _TranslationsLogZhTw._(_root);
 	@override late final _TranslationsEmojiZhTw emoji = _TranslationsEmojiZhTw._(_root);
+	@override late final _TranslationsDisplaySettingsZhTw displaySettings = _TranslationsDisplaySettingsZhTw._(_root);
+	@override late final _TranslationsLayoutSettingsZhTw layoutSettings = _TranslationsLayoutSettingsZhTw._(_root);
 }
 
 // Path: common
@@ -1446,6 +1448,73 @@ class _TranslationsEmojiZhTw implements TranslationsEmojiEn {
 	@override String uploadFailed({required Object count}) => '失敗 ${count} 張';
 	@override String get uploadFailedMessage => '圖片上傳失敗，請檢查網路連接或檔案格式';
 	@override String uploadErrorMessage({required Object error}) => '上傳過程中發生錯誤: ${error}';
+}
+
+// Path: displaySettings
+class _TranslationsDisplaySettingsZhTw implements TranslationsDisplaySettingsEn {
+	_TranslationsDisplaySettingsZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '顯示設定';
+	@override String get layoutSettings => '版面配置設定';
+	@override String get layoutSettingsDesc => '自訂欄數和斷點配置';
+	@override String get gridLayout => '網格版面配置';
+}
+
+// Path: layoutSettings
+class _TranslationsLayoutSettingsZhTw implements TranslationsLayoutSettingsEn {
+	_TranslationsLayoutSettingsZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '版面配置設定';
+	@override String get layoutMode => '版面配置模式';
+	@override String get reset => '重設';
+	@override String get autoMode => '自動模式';
+	@override String get autoModeDesc => '根據螢幕寬度自動調整';
+	@override String get manualMode => '手動模式';
+	@override String get manualModeDesc => '使用固定欄數';
+	@override String get manualSettings => '手動設定';
+	@override String get fixedColumns => '固定欄數';
+	@override String get columns => '欄';
+	@override String get breakpointConfig => '斷點配置';
+	@override String get add => '新增';
+	@override String get defaultColumns => '預設欄數';
+	@override String get defaultColumnsDesc => '大螢幕預設顯示';
+	@override String get previewEffect => '預覽效果';
+	@override String get screenWidth => '螢幕寬度';
+	@override String get addBreakpoint => '新增斷點';
+	@override String get editBreakpoint => '編輯斷點';
+	@override String get deleteBreakpoint => '刪除斷點';
+	@override String get screenWidthLabel => '螢幕寬度';
+	@override String get screenWidthHint => '600';
+	@override String get columnsLabel => '欄數';
+	@override String get columnsHint => '3';
+	@override String get enterWidth => '請輸入寬度';
+	@override String get enterValidWidth => '請輸入有效寬度';
+	@override String get widthCannotExceed9999 => '寬度不能超過9999';
+	@override String get breakpointAlreadyExists => '斷點已存在';
+	@override String get enterColumns => '請輸入欄數';
+	@override String get enterValidColumns => '請輸入有效欄數';
+	@override String get columnsCannotExceed12 => '欄數不能超過12';
+	@override String get breakpointConflict => '斷點已存在';
+	@override String get confirmResetLayoutSettings => '重設版面配置設定';
+	@override String get confirmResetLayoutSettingsDesc => '確定要重設所有版面配置設定到預設值嗎？\n\n將恢復為：\n• 自動模式\n• 預設斷點配置';
+	@override String get resetToDefaults => '重設為預設值';
+	@override String get confirmDeleteBreakpoint => '刪除斷點';
+	@override String confirmDeleteBreakpointDesc({required Object width}) => '確定要刪除 ${width}px 斷點嗎？';
+	@override String get noCustomBreakpoints => '暫無自訂斷點，使用預設欄數';
+	@override String get breakpointRange => '斷點區間';
+	@override String breakpointRangeDesc({required Object range}) => '${range}px';
+	@override String breakpointRangeDescFirst({required Object width}) => '≤${width}px';
+	@override String breakpointRangeDescMiddle({required Object start, required Object end}) => '${start}-${end}px';
+	@override String get edit => '編輯';
+	@override String get delete => '刪除';
+	@override String get cancel => '取消';
+	@override String get save => '儲存';
 }
 
 // Path: common.pagination
@@ -3367,6 +3436,55 @@ extension on TranslationsZhTw {
 			case 'emoji.uploadFailed': return ({required Object count}) => '失敗 ${count} 張';
 			case 'emoji.uploadFailedMessage': return '圖片上傳失敗，請檢查網路連接或檔案格式';
 			case 'emoji.uploadErrorMessage': return ({required Object error}) => '上傳過程中發生錯誤: ${error}';
+			case 'displaySettings.title': return '顯示設定';
+			case 'displaySettings.layoutSettings': return '版面配置設定';
+			case 'displaySettings.layoutSettingsDesc': return '自訂欄數和斷點配置';
+			case 'displaySettings.gridLayout': return '網格版面配置';
+			case 'layoutSettings.title': return '版面配置設定';
+			case 'layoutSettings.layoutMode': return '版面配置模式';
+			case 'layoutSettings.reset': return '重設';
+			case 'layoutSettings.autoMode': return '自動模式';
+			case 'layoutSettings.autoModeDesc': return '根據螢幕寬度自動調整';
+			case 'layoutSettings.manualMode': return '手動模式';
+			case 'layoutSettings.manualModeDesc': return '使用固定欄數';
+			case 'layoutSettings.manualSettings': return '手動設定';
+			case 'layoutSettings.fixedColumns': return '固定欄數';
+			case 'layoutSettings.columns': return '欄';
+			case 'layoutSettings.breakpointConfig': return '斷點配置';
+			case 'layoutSettings.add': return '新增';
+			case 'layoutSettings.defaultColumns': return '預設欄數';
+			case 'layoutSettings.defaultColumnsDesc': return '大螢幕預設顯示';
+			case 'layoutSettings.previewEffect': return '預覽效果';
+			case 'layoutSettings.screenWidth': return '螢幕寬度';
+			case 'layoutSettings.addBreakpoint': return '新增斷點';
+			case 'layoutSettings.editBreakpoint': return '編輯斷點';
+			case 'layoutSettings.deleteBreakpoint': return '刪除斷點';
+			case 'layoutSettings.screenWidthLabel': return '螢幕寬度';
+			case 'layoutSettings.screenWidthHint': return '600';
+			case 'layoutSettings.columnsLabel': return '欄數';
+			case 'layoutSettings.columnsHint': return '3';
+			case 'layoutSettings.enterWidth': return '請輸入寬度';
+			case 'layoutSettings.enterValidWidth': return '請輸入有效寬度';
+			case 'layoutSettings.widthCannotExceed9999': return '寬度不能超過9999';
+			case 'layoutSettings.breakpointAlreadyExists': return '斷點已存在';
+			case 'layoutSettings.enterColumns': return '請輸入欄數';
+			case 'layoutSettings.enterValidColumns': return '請輸入有效欄數';
+			case 'layoutSettings.columnsCannotExceed12': return '欄數不能超過12';
+			case 'layoutSettings.breakpointConflict': return '斷點已存在';
+			case 'layoutSettings.confirmResetLayoutSettings': return '重設版面配置設定';
+			case 'layoutSettings.confirmResetLayoutSettingsDesc': return '確定要重設所有版面配置設定到預設值嗎？\n\n將恢復為：\n• 自動模式\n• 預設斷點配置';
+			case 'layoutSettings.resetToDefaults': return '重設為預設值';
+			case 'layoutSettings.confirmDeleteBreakpoint': return '刪除斷點';
+			case 'layoutSettings.confirmDeleteBreakpointDesc': return ({required Object width}) => '確定要刪除 ${width}px 斷點嗎？';
+			case 'layoutSettings.noCustomBreakpoints': return '暫無自訂斷點，使用預設欄數';
+			case 'layoutSettings.breakpointRange': return '斷點區間';
+			case 'layoutSettings.breakpointRangeDesc': return ({required Object range}) => '${range}px';
+			case 'layoutSettings.breakpointRangeDescFirst': return ({required Object width}) => '≤${width}px';
+			case 'layoutSettings.breakpointRangeDescMiddle': return ({required Object start, required Object end}) => '${start}-${end}px';
+			case 'layoutSettings.edit': return '編輯';
+			case 'layoutSettings.delete': return '刪除';
+			case 'layoutSettings.cancel': return '取消';
+			case 'layoutSettings.save': return '儲存';
 			default: return null;
 		}
 	}

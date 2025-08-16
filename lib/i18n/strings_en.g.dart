@@ -63,6 +63,8 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final TranslationsDownloadEn download = TranslationsDownloadEn._(_root);
 	late final TranslationsFavoriteEn favorite = TranslationsFavoriteEn._(_root);
 	late final TranslationsTranslationEn translation = TranslationsTranslationEn._(_root);
+	late final TranslationsDisplaySettingsEn displaySettings = TranslationsDisplaySettingsEn._(_root);
+	late final TranslationsLayoutSettingsEn layoutSettings = TranslationsLayoutSettingsEn._(_root);
 	late final TranslationsMediaPlayerEn mediaPlayer = TranslationsMediaPlayerEn._(_root);
 	late final TranslationsLinkInputDialogEn linkInputDialog = TranslationsLinkInputDialogEn._(_root);
 	late final TranslationsLogEn log = TranslationsLogEn._(_root);
@@ -3184,6 +3186,171 @@ class TranslationsTranslationEn {
 	String get enableGoogleTranslation => 'Enable Google Translation';
 }
 
+// Path: displaySettings
+class TranslationsDisplaySettingsEn {
+	TranslationsDisplaySettingsEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Display Settings'
+	String get title => 'Display Settings';
+
+	/// en: 'Layout Settings'
+	String get layoutSettings => 'Layout Settings';
+
+	/// en: 'Customize column count and breakpoint configuration'
+	String get layoutSettingsDesc => 'Customize column count and breakpoint configuration';
+
+	/// en: 'Grid Layout'
+	String get gridLayout => 'Grid Layout';
+}
+
+// Path: layoutSettings
+class TranslationsLayoutSettingsEn {
+	TranslationsLayoutSettingsEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Layout Settings'
+	String get title => 'Layout Settings';
+
+	/// en: 'Layout Mode'
+	String get layoutMode => 'Layout Mode';
+
+	/// en: 'Reset'
+	String get reset => 'Reset';
+
+	/// en: 'Auto Mode'
+	String get autoMode => 'Auto Mode';
+
+	/// en: 'Automatically adjust based on screen width'
+	String get autoModeDesc => 'Automatically adjust based on screen width';
+
+	/// en: 'Manual Mode'
+	String get manualMode => 'Manual Mode';
+
+	/// en: 'Use fixed column count'
+	String get manualModeDesc => 'Use fixed column count';
+
+	/// en: 'Manual Settings'
+	String get manualSettings => 'Manual Settings';
+
+	/// en: 'Fixed Columns'
+	String get fixedColumns => 'Fixed Columns';
+
+	/// en: 'columns'
+	String get columns => 'columns';
+
+	/// en: 'Breakpoint Configuration'
+	String get breakpointConfig => 'Breakpoint Configuration';
+
+	/// en: 'Add'
+	String get add => 'Add';
+
+	/// en: 'Default Columns'
+	String get defaultColumns => 'Default Columns';
+
+	/// en: 'Default display for large screens'
+	String get defaultColumnsDesc => 'Default display for large screens';
+
+	/// en: 'Preview Effect'
+	String get previewEffect => 'Preview Effect';
+
+	/// en: 'Screen Width'
+	String get screenWidth => 'Screen Width';
+
+	/// en: 'Add Breakpoint'
+	String get addBreakpoint => 'Add Breakpoint';
+
+	/// en: 'Edit Breakpoint'
+	String get editBreakpoint => 'Edit Breakpoint';
+
+	/// en: 'Delete Breakpoint'
+	String get deleteBreakpoint => 'Delete Breakpoint';
+
+	/// en: 'Screen Width'
+	String get screenWidthLabel => 'Screen Width';
+
+	/// en: '600'
+	String get screenWidthHint => '600';
+
+	/// en: 'Columns'
+	String get columnsLabel => 'Columns';
+
+	/// en: '3'
+	String get columnsHint => '3';
+
+	/// en: 'Please enter width'
+	String get enterWidth => 'Please enter width';
+
+	/// en: 'Please enter valid width'
+	String get enterValidWidth => 'Please enter valid width';
+
+	/// en: 'Width cannot exceed 9999'
+	String get widthCannotExceed9999 => 'Width cannot exceed 9999';
+
+	/// en: 'Breakpoint already exists'
+	String get breakpointAlreadyExists => 'Breakpoint already exists';
+
+	/// en: 'Please enter columns'
+	String get enterColumns => 'Please enter columns';
+
+	/// en: 'Please enter valid columns'
+	String get enterValidColumns => 'Please enter valid columns';
+
+	/// en: 'Columns cannot exceed 12'
+	String get columnsCannotExceed12 => 'Columns cannot exceed 12';
+
+	/// en: 'Breakpoint already exists'
+	String get breakpointConflict => 'Breakpoint already exists';
+
+	/// en: 'Reset Layout Settings'
+	String get confirmResetLayoutSettings => 'Reset Layout Settings';
+
+	/// en: 'Are you sure you want to reset all layout settings to default values?\n\nWill restore to:\n• Auto mode\n• Default breakpoint configuration'
+	String get confirmResetLayoutSettingsDesc => 'Are you sure you want to reset all layout settings to default values?\n\nWill restore to:\n• Auto mode\n• Default breakpoint configuration';
+
+	/// en: 'Reset to Defaults'
+	String get resetToDefaults => 'Reset to Defaults';
+
+	/// en: 'Delete Breakpoint'
+	String get confirmDeleteBreakpoint => 'Delete Breakpoint';
+
+	/// en: 'Are you sure you want to delete the ${width}px breakpoint?'
+	String confirmDeleteBreakpointDesc({required Object width}) => 'Are you sure you want to delete the ${width}px breakpoint?';
+
+	/// en: 'No custom breakpoints, using default columns'
+	String get noCustomBreakpoints => 'No custom breakpoints, using default columns';
+
+	/// en: 'Breakpoint Range'
+	String get breakpointRange => 'Breakpoint Range';
+
+	/// en: '${range}px'
+	String breakpointRangeDesc({required Object range}) => '${range}px';
+
+	/// en: '≤${width}px'
+	String breakpointRangeDescFirst({required Object width}) => '≤${width}px';
+
+	/// en: '${start}-${end}px'
+	String breakpointRangeDescMiddle({required Object start, required Object end}) => '${start}-${end}px';
+
+	/// en: 'Edit'
+	String get edit => 'Edit';
+
+	/// en: 'Delete'
+	String get delete => 'Delete';
+
+	/// en: 'Cancel'
+	String get cancel => 'Cancel';
+
+	/// en: 'Save'
+	String get save => 'Save';
+}
+
 // Path: mediaPlayer
 class TranslationsMediaPlayerEn {
 	TranslationsMediaPlayerEn._(this._root);
@@ -6060,6 +6227,55 @@ extension on Translations {
 			case 'translation.fallbackTranslationFailed': return 'Fallback to normal translation also failed';
 			case 'translation.translationSettings': return 'Translation Settings';
 			case 'translation.enableGoogleTranslation': return 'Enable Google Translation';
+			case 'displaySettings.title': return 'Display Settings';
+			case 'displaySettings.layoutSettings': return 'Layout Settings';
+			case 'displaySettings.layoutSettingsDesc': return 'Customize column count and breakpoint configuration';
+			case 'displaySettings.gridLayout': return 'Grid Layout';
+			case 'layoutSettings.title': return 'Layout Settings';
+			case 'layoutSettings.layoutMode': return 'Layout Mode';
+			case 'layoutSettings.reset': return 'Reset';
+			case 'layoutSettings.autoMode': return 'Auto Mode';
+			case 'layoutSettings.autoModeDesc': return 'Automatically adjust based on screen width';
+			case 'layoutSettings.manualMode': return 'Manual Mode';
+			case 'layoutSettings.manualModeDesc': return 'Use fixed column count';
+			case 'layoutSettings.manualSettings': return 'Manual Settings';
+			case 'layoutSettings.fixedColumns': return 'Fixed Columns';
+			case 'layoutSettings.columns': return 'columns';
+			case 'layoutSettings.breakpointConfig': return 'Breakpoint Configuration';
+			case 'layoutSettings.add': return 'Add';
+			case 'layoutSettings.defaultColumns': return 'Default Columns';
+			case 'layoutSettings.defaultColumnsDesc': return 'Default display for large screens';
+			case 'layoutSettings.previewEffect': return 'Preview Effect';
+			case 'layoutSettings.screenWidth': return 'Screen Width';
+			case 'layoutSettings.addBreakpoint': return 'Add Breakpoint';
+			case 'layoutSettings.editBreakpoint': return 'Edit Breakpoint';
+			case 'layoutSettings.deleteBreakpoint': return 'Delete Breakpoint';
+			case 'layoutSettings.screenWidthLabel': return 'Screen Width';
+			case 'layoutSettings.screenWidthHint': return '600';
+			case 'layoutSettings.columnsLabel': return 'Columns';
+			case 'layoutSettings.columnsHint': return '3';
+			case 'layoutSettings.enterWidth': return 'Please enter width';
+			case 'layoutSettings.enterValidWidth': return 'Please enter valid width';
+			case 'layoutSettings.widthCannotExceed9999': return 'Width cannot exceed 9999';
+			case 'layoutSettings.breakpointAlreadyExists': return 'Breakpoint already exists';
+			case 'layoutSettings.enterColumns': return 'Please enter columns';
+			case 'layoutSettings.enterValidColumns': return 'Please enter valid columns';
+			case 'layoutSettings.columnsCannotExceed12': return 'Columns cannot exceed 12';
+			case 'layoutSettings.breakpointConflict': return 'Breakpoint already exists';
+			case 'layoutSettings.confirmResetLayoutSettings': return 'Reset Layout Settings';
+			case 'layoutSettings.confirmResetLayoutSettingsDesc': return 'Are you sure you want to reset all layout settings to default values?\n\nWill restore to:\n• Auto mode\n• Default breakpoint configuration';
+			case 'layoutSettings.resetToDefaults': return 'Reset to Defaults';
+			case 'layoutSettings.confirmDeleteBreakpoint': return 'Delete Breakpoint';
+			case 'layoutSettings.confirmDeleteBreakpointDesc': return ({required Object width}) => 'Are you sure you want to delete the ${width}px breakpoint?';
+			case 'layoutSettings.noCustomBreakpoints': return 'No custom breakpoints, using default columns';
+			case 'layoutSettings.breakpointRange': return 'Breakpoint Range';
+			case 'layoutSettings.breakpointRangeDesc': return ({required Object range}) => '${range}px';
+			case 'layoutSettings.breakpointRangeDescFirst': return ({required Object width}) => '≤${width}px';
+			case 'layoutSettings.breakpointRangeDescMiddle': return ({required Object start, required Object end}) => '${start}-${end}px';
+			case 'layoutSettings.edit': return 'Edit';
+			case 'layoutSettings.delete': return 'Delete';
+			case 'layoutSettings.cancel': return 'Cancel';
+			case 'layoutSettings.save': return 'Save';
 			case 'mediaPlayer.videoPlayerError': return 'Video Player Error';
 			case 'mediaPlayer.videoLoadFailed': return 'Video Load Failed';
 			case 'mediaPlayer.videoCodecNotSupported': return 'Video Codec Not Supported';

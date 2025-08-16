@@ -78,6 +78,8 @@ abstract class Routes {
 
   static const EMOJI_LIBRARY = _Paths.EMOJI_LIBRARY;
 
+  static const LAYOUT_SETTINGS_PAGE = _Paths.LAYOUT_SETTINGS_PAGE;
+
   static String TAG_VIDEOS(String tagId) => _Paths.TAG_VIDEOS.replaceAll(':tagId', tagId);
   static String TAG_GALLERIES(String tagId) => _Paths.TAG_GALLERIES.replaceAll(':tagId', tagId);
 }
@@ -116,4 +118,5 @@ abstract class _Paths {
   static const TAG_VIDEOS = '/tag_videos/:tagId';
   static const TAG_GALLERIES = '/tag_galleries/:tagId';
   static const EMOJI_LIBRARY = '/emoji_library';
+  static const LAYOUT_SETTINGS_PAGE = '/layout_settings_page';
 }

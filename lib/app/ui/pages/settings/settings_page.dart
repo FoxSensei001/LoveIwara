@@ -12,6 +12,7 @@ import 'forum_settings_page.dart';
 import 'proxy_settings_page.dart';
 import 'theme_settings_page.dart';
 import 'download_settings_page.dart';
+import 'display_settings_page.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'about_page.dart';
 
@@ -396,6 +397,11 @@ class _SettingsPageState extends State<SettingsPage> {
             icon: Icons.color_lens,
             index: ProxyUtil.isSupportedPlatform() ? 6 : 5,
           ),
+          _SettingItem(
+            title: '显示设置',
+            icon: Icons.display_settings,
+            index: ProxyUtil.isSupportedPlatform() ? 7 : 6,
+          ),
         ],
       ),
       _SettingGroup(
@@ -404,7 +410,7 @@ class _SettingsPageState extends State<SettingsPage> {
           _SettingItem(
             title: t.settings.about,
             icon: Icons.info_outline,
-            index: ProxyUtil.isSupportedPlatform() ? 7 : 6,
+            index: ProxyUtil.isSupportedPlatform() ? 8 : 7,
           ),
         ],
       ),
@@ -585,7 +591,9 @@ class _SettingsPageState extends State<SettingsPage> {
         return PlayerSettingsPage(isWideScreen: enableTwoViews);
       case 6: // 主题设置
         return ThemeSettingsPage(isWideScreen: enableTwoViews);
-      case 7: // 关于
+      case 7: // 显示设置
+        return DisplaySettingsPage(useSettingsNavi: true);
+      case 8: // 关于
         return AboutPage(isWideScreen: enableTwoViews);
       default:
         return const SizedBox();

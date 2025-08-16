@@ -18,6 +18,7 @@ import 'package:i_iwara/app/ui/pages/history/history_list_page.dart';
 import 'package:i_iwara/app/ui/pages/notifications/notification_list_page.dart';
 import 'package:i_iwara/app/ui/pages/play_list/play_list.dart';
 import 'package:i_iwara/app/ui/pages/play_list/play_list_detail.dart';
+import 'package:i_iwara/app/ui/pages/settings/layout_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/translation_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/tag_blacklist/tag_blacklist_page.dart';
@@ -451,6 +452,14 @@ class NaviService {
     _navigateToPage(
       routeName: Routes.TRANSLATION_SETTINGS_PAGE,
       page: const TranslationSettingsPage(),
+    );
+  }
+
+  // 跳转到布局设置页
+  static void navigateToLayoutSettingsPage() {
+    _navigateToPage(
+      routeName: Routes.LAYOUT_SETTINGS_PAGE,
+      page: const LayoutSettingsPage(),
     );
   }
 }

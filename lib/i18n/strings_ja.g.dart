@@ -64,6 +64,8 @@ class TranslationsJa implements Translations {
 	@override late final _TranslationsLinkInputDialogJa linkInputDialog = _TranslationsLinkInputDialogJa._(_root);
 	@override late final _TranslationsLogJa log = _TranslationsLogJa._(_root);
 	@override late final _TranslationsEmojiJa emoji = _TranslationsEmojiJa._(_root);
+	@override late final _TranslationsDisplaySettingsJa displaySettings = _TranslationsDisplaySettingsJa._(_root);
+	@override late final _TranslationsLayoutSettingsJa layoutSettings = _TranslationsLayoutSettingsJa._(_root);
 }
 
 // Path: common
@@ -1443,6 +1445,73 @@ class _TranslationsEmojiJa implements TranslationsEmojiEn {
 	@override String uploadFailed({required Object count}) => '${count} 枚失敗';
 	@override String get uploadFailedMessage => '画像のアップロードに失敗しました。ネットワーク接続またはファイル形式を確認してください';
 	@override String uploadErrorMessage({required Object error}) => 'アップロード中にエラーが発生しました: ${error}';
+}
+
+// Path: displaySettings
+class _TranslationsDisplaySettingsJa implements TranslationsDisplaySettingsEn {
+	_TranslationsDisplaySettingsJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '表示設定';
+	@override String get layoutSettings => 'レイアウト設定';
+	@override String get layoutSettingsDesc => 'カラム数とブレークポイント設定をカスタマイズ';
+	@override String get gridLayout => 'グリッドレイアウト';
+}
+
+// Path: layoutSettings
+class _TranslationsLayoutSettingsJa implements TranslationsLayoutSettingsEn {
+	_TranslationsLayoutSettingsJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'レイアウト設定';
+	@override String get layoutMode => 'レイアウトモード';
+	@override String get reset => 'リセット';
+	@override String get autoMode => '自動モード';
+	@override String get autoModeDesc => '画面幅に基づいて自動調整';
+	@override String get manualMode => '手動モード';
+	@override String get manualModeDesc => '固定カラム数を使用';
+	@override String get manualSettings => '手動設定';
+	@override String get fixedColumns => '固定カラム数';
+	@override String get columns => 'カラム';
+	@override String get breakpointConfig => 'ブレークポイント設定';
+	@override String get add => '追加';
+	@override String get defaultColumns => 'デフォルトカラム数';
+	@override String get defaultColumnsDesc => '大画面のデフォルト表示';
+	@override String get previewEffect => 'プレビュー効果';
+	@override String get screenWidth => '画面幅';
+	@override String get addBreakpoint => 'ブレークポイントを追加';
+	@override String get editBreakpoint => 'ブレークポイントを編集';
+	@override String get deleteBreakpoint => 'ブレークポイントを削除';
+	@override String get screenWidthLabel => '画面幅';
+	@override String get screenWidthHint => '600';
+	@override String get columnsLabel => 'カラム数';
+	@override String get columnsHint => '3';
+	@override String get enterWidth => '幅を入力してください';
+	@override String get enterValidWidth => '有効な幅を入力してください';
+	@override String get widthCannotExceed9999 => '幅は9999を超えることはできません';
+	@override String get breakpointAlreadyExists => 'ブレークポイントが既に存在します';
+	@override String get enterColumns => 'カラム数を入力してください';
+	@override String get enterValidColumns => '有効なカラム数を入力してください';
+	@override String get columnsCannotExceed12 => 'カラム数は12を超えることはできません';
+	@override String get breakpointConflict => 'ブレークポイントが既に存在します';
+	@override String get confirmResetLayoutSettings => 'レイアウト設定をリセット';
+	@override String get confirmResetLayoutSettingsDesc => 'すべてのレイアウト設定をデフォルト値にリセットしてもよろしいですか？\n\n以下に復元されます：\n• 自動モード\n• デフォルトブレークポイント設定';
+	@override String get resetToDefaults => 'デフォルトにリセット';
+	@override String get confirmDeleteBreakpoint => 'ブレークポイントを削除';
+	@override String confirmDeleteBreakpointDesc({required Object width}) => '${width}px のブレークポイントを削除してもよろしいですか？';
+	@override String get noCustomBreakpoints => 'カスタムブレークポイントがありません、デフォルトカラム数を使用';
+	@override String get breakpointRange => 'ブレークポイント範囲';
+	@override String breakpointRangeDesc({required Object range}) => '${range}px';
+	@override String breakpointRangeDescFirst({required Object width}) => '≤${width}px';
+	@override String breakpointRangeDescMiddle({required Object start, required Object end}) => '${start}-${end}px';
+	@override String get edit => '編集';
+	@override String get delete => '削除';
+	@override String get cancel => 'キャンセル';
+	@override String get save => '保存';
 }
 
 // Path: common.pagination
@@ -3361,6 +3430,55 @@ extension on TranslationsJa {
 			case 'emoji.uploadFailed': return ({required Object count}) => '${count} 枚失敗';
 			case 'emoji.uploadFailedMessage': return '画像のアップロードに失敗しました。ネットワーク接続またはファイル形式を確認してください';
 			case 'emoji.uploadErrorMessage': return ({required Object error}) => 'アップロード中にエラーが発生しました: ${error}';
+			case 'displaySettings.title': return '表示設定';
+			case 'displaySettings.layoutSettings': return 'レイアウト設定';
+			case 'displaySettings.layoutSettingsDesc': return 'カラム数とブレークポイント設定をカスタマイズ';
+			case 'displaySettings.gridLayout': return 'グリッドレイアウト';
+			case 'layoutSettings.title': return 'レイアウト設定';
+			case 'layoutSettings.layoutMode': return 'レイアウトモード';
+			case 'layoutSettings.reset': return 'リセット';
+			case 'layoutSettings.autoMode': return '自動モード';
+			case 'layoutSettings.autoModeDesc': return '画面幅に基づいて自動調整';
+			case 'layoutSettings.manualMode': return '手動モード';
+			case 'layoutSettings.manualModeDesc': return '固定カラム数を使用';
+			case 'layoutSettings.manualSettings': return '手動設定';
+			case 'layoutSettings.fixedColumns': return '固定カラム数';
+			case 'layoutSettings.columns': return 'カラム';
+			case 'layoutSettings.breakpointConfig': return 'ブレークポイント設定';
+			case 'layoutSettings.add': return '追加';
+			case 'layoutSettings.defaultColumns': return 'デフォルトカラム数';
+			case 'layoutSettings.defaultColumnsDesc': return '大画面のデフォルト表示';
+			case 'layoutSettings.previewEffect': return 'プレビュー効果';
+			case 'layoutSettings.screenWidth': return '画面幅';
+			case 'layoutSettings.addBreakpoint': return 'ブレークポイントを追加';
+			case 'layoutSettings.editBreakpoint': return 'ブレークポイントを編集';
+			case 'layoutSettings.deleteBreakpoint': return 'ブレークポイントを削除';
+			case 'layoutSettings.screenWidthLabel': return '画面幅';
+			case 'layoutSettings.screenWidthHint': return '600';
+			case 'layoutSettings.columnsLabel': return 'カラム数';
+			case 'layoutSettings.columnsHint': return '3';
+			case 'layoutSettings.enterWidth': return '幅を入力してください';
+			case 'layoutSettings.enterValidWidth': return '有効な幅を入力してください';
+			case 'layoutSettings.widthCannotExceed9999': return '幅は9999を超えることはできません';
+			case 'layoutSettings.breakpointAlreadyExists': return 'ブレークポイントが既に存在します';
+			case 'layoutSettings.enterColumns': return 'カラム数を入力してください';
+			case 'layoutSettings.enterValidColumns': return '有効なカラム数を入力してください';
+			case 'layoutSettings.columnsCannotExceed12': return 'カラム数は12を超えることはできません';
+			case 'layoutSettings.breakpointConflict': return 'ブレークポイントが既に存在します';
+			case 'layoutSettings.confirmResetLayoutSettings': return 'レイアウト設定をリセット';
+			case 'layoutSettings.confirmResetLayoutSettingsDesc': return 'すべてのレイアウト設定をデフォルト値にリセットしてもよろしいですか？\n\n以下に復元されます：\n• 自動モード\n• デフォルトブレークポイント設定';
+			case 'layoutSettings.resetToDefaults': return 'デフォルトにリセット';
+			case 'layoutSettings.confirmDeleteBreakpoint': return 'ブレークポイントを削除';
+			case 'layoutSettings.confirmDeleteBreakpointDesc': return ({required Object width}) => '${width}px のブレークポイントを削除してもよろしいですか？';
+			case 'layoutSettings.noCustomBreakpoints': return 'カスタムブレークポイントがありません、デフォルトカラム数を使用';
+			case 'layoutSettings.breakpointRange': return 'ブレークポイント範囲';
+			case 'layoutSettings.breakpointRangeDesc': return ({required Object range}) => '${range}px';
+			case 'layoutSettings.breakpointRangeDescFirst': return ({required Object width}) => '≤${width}px';
+			case 'layoutSettings.breakpointRangeDescMiddle': return ({required Object start, required Object end}) => '${start}-${end}px';
+			case 'layoutSettings.edit': return '編集';
+			case 'layoutSettings.delete': return '削除';
+			case 'layoutSettings.cancel': return 'キャンセル';
+			case 'layoutSettings.save': return '保存';
 			default: return null;
 		}
 	}
