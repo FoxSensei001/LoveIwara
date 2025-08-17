@@ -92,7 +92,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
       SearchDialog(
         userInputKeywords: '',
         initialSegment: segment,
-        onSearch: (searchInfo, segment) {
+        onSearch: (searchInfo, segment, filters) {
           NaviService.toSearchPage(searchInfo: searchInfo, segment: segment);
         },
       ),
@@ -534,7 +534,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                                         SearchDialog(
                                           userInputKeywords: '',
                                           initialSegment: segment,
-                                          onSearch: (searchInfo, segment) {
+                                          onSearch: (searchInfo, segment, filters) {
                                             NaviService.toSearchPage(
                                               searchInfo: searchInfo,
                                               segment: segment,

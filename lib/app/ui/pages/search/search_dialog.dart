@@ -9,11 +9,14 @@ import 'dart:math';
 import 'package:i_iwara/app/models/search_record.model.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/search_common_widgets.dart';
+import 'package:i_iwara/app/ui/pages/search/widgets/filter_button_widget.dart';
+import 'package:i_iwara/app/ui/pages/search/widgets/filter_config.dart';
+import 'package:i_iwara/common/enums/filter_enums.dart';
 
 class SearchDialog extends StatelessWidget {
   final String userInputKeywords;
   final SearchSegment initialSegment;
-  final Function(String, SearchSegment) onSearch;
+  final Function(String, SearchSegment, List<Filter>) onSearch;
 
   const SearchDialog({
     super.key,
@@ -106,7 +109,7 @@ class SearchDialog extends StatelessWidget {
 class _SearchContent extends StatefulWidget {
   final String userInputKeywords;
   final SearchSegment initialSegment;
-  final Function(String, SearchSegment) onSearch;
+  final Function(String, SearchSegment, List<Filter>) onSearch;
 
   const _SearchContent({
     required this.userInputKeywords,
@@ -127,6 +130,9 @@ class _SearchContentState extends State<_SearchContent> {
   final RxString _searchPlaceholder = ''.obs;
   final RxString _searchErrorText = ''.obs;
   final Rx<SearchSegment> _selectedSegment = SearchSegment.video.obs;
+  
+  // 筛选项状态
+  final RxList<Filter> _filters = <Filter>[].obs;
 
   // 滚动控制器，用于在展开谷歌搜索面板时自动滚动
   final ScrollController _scrollController = ScrollController();
@@ -207,7 +213,7 @@ class _SearchContentState extends State<_SearchContent> {
 
     LogUtils.d('搜索内容: $value, 类型: ${_selectedSegment.value}');
     _dismiss();
-    widget.onSearch(value, _selectedSegment.value);
+    widget.onSearch(value, _selectedSegment.value, _filters.toList());
   }
 
   void _dismiss() {
@@ -241,6 +247,8 @@ class _SearchContentState extends State<_SearchContent> {
             selectedSegment: _selectedSegment,
             onSegmentChanged: (segment) => _selectedSegment.value = segment,
             onSearch: () => _handleSubmit(_controller.text),
+            filters: _filters,
+            onFiltersChanged: (filters) => _filters.assignAll(filters),
           ),
           _GoogleSearchSection(scrollController: _scrollController),
           _SearchHistorySection(
@@ -323,11 +331,15 @@ class _SearchControlsSection extends StatelessWidget {
   final Rx<SearchSegment> selectedSegment;
   final Function(SearchSegment) onSegmentChanged;
   final VoidCallback onSearch;
+  final RxList<Filter> filters;
+  final Function(List<Filter>) onFiltersChanged;
 
   const _SearchControlsSection({
     required this.selectedSegment,
     required this.onSegmentChanged,
     required this.onSearch,
+    required this.filters,
+    required this.onFiltersChanged,
   });
 
   @override
@@ -341,6 +353,14 @@ class _SearchControlsSection extends StatelessWidget {
             selectedSegment: selectedSegment.value,
             onSegmentChanged: onSegmentChanged,
             showLabel: true,
+            backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+            elevation: 1,
+          )),
+          const SizedBox(width: 8),
+          Obx(() => FilterButtonWidget(
+            currentSegment: selectedSegment.value,
+            filters: filters.toList(),
+            onFiltersChanged: onFiltersChanged,
             backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
             elevation: 1,
           )),

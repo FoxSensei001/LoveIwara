@@ -201,7 +201,7 @@ class _ForumPageState extends State<ForumPage> {
               Get.dialog(SearchDialog(
                 userInputKeywords: '',
                 initialSegment: SearchSegment.forum,
-                onSearch: (searchInfo, segment) {
+                onSearch: (searchInfo, segment, filters) {
                   NaviService.toSearchPage(
                     searchInfo: searchInfo,
                     segment: segment,

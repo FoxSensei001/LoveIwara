@@ -12,6 +12,9 @@ import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/search_common_widgets.dart';
+import 'package:i_iwara/app/ui/pages/search/widgets/filter_button_widget.dart';
+import 'package:i_iwara/app/ui/pages/search/widgets/filter_config.dart';
+import 'package:i_iwara/common/enums/filter_enums.dart';
 
 import 'search_dialog.dart';
 
@@ -25,6 +28,9 @@ class SearchController extends GetxController {
   final RxString searchType = ''.obs; // 添加搜索类型状态管理（用于 oreno3d）
   final Rx<Map<String, dynamic>?> extData = Rx<Map<String, dynamic>?>(null); // 添加扩展数据管理
   final RxString currentSingleTagNameBehindSearchInput = ''.obs; // 用于显示 oreno3d 标签名
+  
+  // 筛选项状态管理
+  final RxList<Filter> filters = <Filter>[].obs;
 
   // 存储滚动回调
   final List<Function()> _scrollToTopCallbacks = [];
@@ -62,6 +68,9 @@ class SearchController extends GetxController {
       selectedSort.value = 'hot'; // oreno3d默认使用hot排序
     }
 
+    // 切换分段时重置筛选项
+    filters.clear();
+
     // 切换分段时滚动到顶部
     scrollToTop();
   }
@@ -85,6 +94,13 @@ class SearchController extends GetxController {
   void updateSort(String sort) {
     selectedSort.value = sort;
     // 切换排序时刷新搜索结果
+    refreshSearch();
+  }
+
+  // 更新筛选项
+  void updateFilters(List<Filter> newFilters) {
+    filters.assignAll(newFilters);
+    // 更新筛选项时刷新搜索结果
     refreshSearch();
   }
 
@@ -254,16 +270,38 @@ class _SearchResultState extends State<SearchResult> {
 
   Widget _buildCurrentSearchList() {
     return Obx(() {
-      final query = searchController.currentSearch.value;
+      String query = searchController.currentSearch.value;
       final segment = searchController.selectedSegment.value;
       final isPaginated = searchController.isPaginated.value;
       final rebuildKey = searchController.rebuildKey.value;
       final sort = searchController.selectedSort.value;
       final searchType = searchController.searchType.value;
       final extData = searchController.extData.value;
+      final filters = searchController.filters;
+
+      // 应用筛选项到查询
+      if (filters.isNotEmpty) {
+        final contentType = FilterConfig.getContentType(segment);
+        if (contentType != null) {
+          final filterStrings = filters
+              .map((filter) {
+                final field = contentType.fields.firstWhere(
+                  (f) => f.name == filter.field,
+                  orElse: () => contentType.fields.first,
+                );
+                return FilterConfig.generateFilterString(filter, field);
+              })
+              .where((s) => s.isNotEmpty)
+              .join(' ');
+          
+          if (filterStrings.isNotEmpty) {
+            query = '$query $filterStrings';
+          }
+        }
+      }
 
       LogUtils.d(
-        '构建搜索列表: 关键词=$query, 类型=$segment, 使用分页=$isPaginated, 重建键=$rebuildKey, 排序=$sort, 搜索类型=$searchType, 扩展数据=$extData',
+        '构建搜索列表: 关键词=$query, 类型=$segment, 使用分页=$isPaginated, 重建键=$rebuildKey, 排序=$sort, 搜索类型=$searchType, 扩展数据=$extData, 筛选项数量=${filters.length}',
         'SearchResult',
       );
 
@@ -343,10 +381,11 @@ class _SearchResultState extends State<SearchResult> {
   }
 
   // 处理搜索结果
-  void _handleSearchResult(String searchInfo, SearchSegment segment) {
+  void _handleSearchResult(String searchInfo, SearchSegment segment, List<Filter> filters) {
     // 更新搜索参数
     searchController.updateSearch(searchInfo);
     searchController.updateSegment(segment);
+    searchController.updateFilters(filters);
 
     // 更新UI
     _searchController.text = searchInfo;
@@ -421,6 +460,11 @@ class _SearchResultState extends State<SearchResult> {
               : _buildSearchInputField()),
           _buildSegmentSelector(),
           _buildSortSelector(),
+          Obx(() => FilterButtonWidget(
+            currentSegment: searchController.selectedSegment.value,
+            filters: searchController.filters.toList(),
+            onFiltersChanged: searchController.updateFilters,
+          )),
         ],
       ),
     );

@@ -134,7 +134,7 @@ class CommonHeader extends StatelessWidget {
                   SearchDialog(
                     userInputKeywords: '',
                     initialSegment: searchSegment,
-                    onSearch: (searchInfo, segment) {
+                    onSearch: (searchInfo, segment, filters) {
                       NaviService.toSearchPage(
                           searchInfo: searchInfo, segment: segment);
                     },
