@@ -49,11 +49,12 @@ class SearchSegmentSelector extends StatelessWidget {
     return [
       _buildMenuItem(SearchSegment.video, Icons.video_library, t.common.video),
       _buildMenuItem(SearchSegment.image, Icons.image, t.common.gallery),
-      _buildMenuItem(SearchSegment.post, Icons.article, t.common.post),
       _buildMenuItem(SearchSegment.user, Icons.person, t.common.user),
-      _buildMenuItem(SearchSegment.forum, Icons.forum, t.forum.forum),
-      _buildMenuItem(SearchSegment.oreno3d, Icons.view_in_ar, 'Oreno3D'),
       _buildMenuItem(SearchSegment.playlist, Icons.playlist_play, t.common.playlist),
+      _buildMenuItem(SearchSegment.post, Icons.article, t.common.post),
+      _buildMenuItem(SearchSegment.forum, Icons.forum, t.forum.forum),
+      _buildMenuItem(SearchSegment.forum_posts, Icons.comment, t.forum.posts),
+      _buildMenuItem(SearchSegment.oreno3d, Icons.view_in_ar, 'Oreno3D'),
     ];
   }
 
@@ -119,6 +120,8 @@ class SearchSegmentSelector extends StatelessWidget {
         return const Icon(Icons.person, size: 20);
       case SearchSegment.forum:
         return const Icon(Icons.forum, size: 20);
+      case SearchSegment.forum_posts:
+        return const Icon(Icons.comment, size: 20);
       case SearchSegment.oreno3d:
         return const Icon(Icons.view_in_ar, size: 20);
       case SearchSegment.playlist:
@@ -138,6 +141,8 @@ class SearchSegmentSelector extends StatelessWidget {
         return t.common.user;
       case SearchSegment.forum:
         return t.forum.forum;
+      case SearchSegment.forum_posts:
+        return t.forum.posts;
       case SearchSegment.oreno3d:
         return 'Oreno3D';
       case SearchSegment.playlist:

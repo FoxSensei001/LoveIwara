@@ -1,8 +1,7 @@
 enum MediaRating {
   ALL('', '全部的'),
   GENERAL('general', '大众的'),
-  ECCHI('ecchi', 'R18'),
-  ;
+  ECCHI('ecchi', 'R18');
 
   final String value;
   final String label;
@@ -10,10 +9,7 @@ enum MediaRating {
   const MediaRating(this.value, this.label);
 }
 
-enum MediaType {
-  VIDEO,
-  IMAGE;
-}
+enum MediaType { VIDEO, IMAGE }
 
 enum SearchSegment {
   video,
@@ -21,9 +17,9 @@ enum SearchSegment {
   post,
   user,
   forum,
+  forum_posts,
   oreno3d,
-  playlist,
-  ;
+  playlist;
 
   String get apiType {
     switch (this) {
@@ -37,15 +33,19 @@ enum SearchSegment {
         return 'users';
       case SearchSegment.forum:
         return 'forum_threads';
-      case SearchSegment.oreno3d:
-        return 'oreno3d';
+      case SearchSegment.forum_posts:
+        return 'forum_posts';
       case SearchSegment.playlist:
         return 'playlists';
+      case SearchSegment.oreno3d:
+        return 'oreno3d';
     }
   }
 
   static SearchSegment fromValue(String value) {
-    return SearchSegment.values.firstWhere((element) => element.name == value,
-        orElse: () => SearchSegment.video);
+    return SearchSegment.values.firstWhere(
+      (element) => element.name == value,
+      orElse: () => SearchSegment.video,
+    );
   }
 }

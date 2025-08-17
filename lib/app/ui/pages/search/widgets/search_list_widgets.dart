@@ -14,6 +14,7 @@ import 'package:i_iwara/app/ui/pages/search/repositories/search_repositories.dar
 import 'package:i_iwara/app/ui/widgets/user_card.dart';
 import 'package:i_iwara/app/ui/widgets/oreno3d_video_card.dart';
 import 'package:i_iwara/app/ui/pages/play_list/widgets/playlist_item_widget.dart';
+import 'package:i_iwara/app/ui/pages/search/widgets/forum_posts_search_card.dart';
 
 import 'base_search_list.dart';
 
@@ -200,6 +201,41 @@ class ForumSearchListState extends BaseSearchListState<ForumThreadModel, ForumSe
       child: ThreadListItemWidget(
         thread: forum,
         categoryId: forum.section,
+      ),
+    );
+  }
+}
+
+/// 论坛帖子回复搜索列表
+class ForumPostsSearchList extends BaseSearchList<ThreadCommentModel, ForumPostsSearchRepository> {
+  const ForumPostsSearchList({
+    super.key,
+    required super.query,
+    super.isPaginated = false,
+  });
+
+  @override
+  State<ForumPostsSearchList> createState() => ForumPostsSearchListState();
+}
+
+class ForumPostsSearchListState extends BaseSearchListState<ThreadCommentModel, ForumPostsSearchRepository, ForumPostsSearchList> {
+  @override
+  ForumPostsSearchRepository createRepository() {
+    return ForumPostsSearchRepository(query: widget.query);
+  }
+
+  @override
+  IconData get emptyIcon => Icons.comment_outlined;
+
+  @override
+  Widget buildListItem(BuildContext context, ThreadCommentModel comment, int index) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: 2,
+        vertical: 2,
+      ),
+      child: ForumPostsSearchCard(
+        comment: comment,
       ),
     );
   }

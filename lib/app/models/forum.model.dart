@@ -129,7 +129,13 @@ class ForumThreadModel {
       numPosts: json['numPosts'],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
-      user: User.fromJson(json['user']),
+      user: json['user'] != null ? User.fromJson(json['user']) : User(
+        id: 'deleted_user',
+        name: '已删除用户',
+        username: 'deleted_user',
+        status: 'inactive',
+        role: 'user',
+      ),
     );
   }
 

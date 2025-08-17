@@ -228,6 +228,18 @@ class _SearchResultState extends State<SearchResult> {
           query: query,
           isPaginated: isPaginated,
         );
+      case SearchSegment.forum_posts:
+        return ForumPostsSearchList(
+          key: ValueKey('forum_posts_$rebuildKey'),
+          query: query,
+          isPaginated: isPaginated,
+        );
+      case SearchSegment.playlist:
+        return PlaylistSearchList(
+          key: ValueKey('playlist_$rebuildKey'),
+          query: query,
+          isPaginated: isPaginated,
+        );
       case SearchSegment.oreno3d:
         return Oreno3dSearchList(
           key: ValueKey('oreno3d_$rebuildKey'),
@@ -236,12 +248,6 @@ class _SearchResultState extends State<SearchResult> {
           sortType: sort,
           searchType: searchType.isNotEmpty ? searchType : null,
           extData: extData,
-        );
-      case SearchSegment.playlist:
-        return PlaylistSearchList(
-          key: ValueKey('playlist_$rebuildKey'),
-          query: query,
-          isPaginated: isPaginated,
         );
     }
   }

@@ -155,6 +155,19 @@ class SearchService extends GetxController {
     fromJson: ForumThreadModel.fromJson,
   );
 
+  /// 获取论坛帖子回复
+  Future<ApiResult<PageData<ThreadCommentModel>>> fetchForumPostsByQuery({
+    int page = 0,
+    int limit = 20,
+    String query = '',
+  }) => fetchDataByType<ThreadCommentModel>(
+    page: page,
+    limit: limit,
+    query: query,
+    type: SearchSegment.forum_posts.apiType,
+    fromJson: ThreadCommentModel.fromJson,
+  );
+
   /// 获取Oreno3d视频
   Future<ApiResult<PageData<Oreno3dVideo>>> fetchOreno3dByQuery({
     int page = 0,

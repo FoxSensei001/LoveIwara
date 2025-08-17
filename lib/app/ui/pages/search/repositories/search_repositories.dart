@@ -86,6 +86,21 @@ class ForumSearchRepository extends SearchRepository<ForumThreadModel> {
   }
 }
 
+/// 论坛帖子回复搜索仓库
+class ForumPostsSearchRepository extends SearchRepository<ThreadCommentModel> {
+  ForumPostsSearchRepository({required super.query})
+      : super(segment: SearchSegment.forum_posts.apiType);
+
+  @override
+  Future<ApiResult> fetchSearchResults(int page, int limit, String keyword) {
+    return searchService.fetchForumPostsByQuery(
+      page: page,
+      limit: limit,
+      query: keyword,
+    );
+  }
+}
+
 /// Oreno3d搜索仓库
 class Oreno3dSearchRepository extends SearchRepository<Oreno3dVideo> {
   final String? sortType;
