@@ -23,22 +23,12 @@ class ExitConfirmUtil {
 
   /// 处理退出操作
   static void handleExit(BuildContext context, VoidCallback action) {
-    if (isHomeRoute()) {
-      final currentRoute = HomeNavigationLayout.homeNavigatorObserver.routes.last;
+    // 判断当前有没有 Get 的 overlay
+    final haveOverlay = Get.isDialogOpen ?? Get.isBottomSheetOpen ?? false;
+    if (isHomeRoute() && !haveOverlay) {
+      // final currentRoute = HomeNavigationLayout.homeNavigatorObserver.routes.last;
       
-      // 如果不在视频页面，先返回视频页面
-      if (currentRoute.settings.name != Routes.POPULAR_VIDEOS && 
-          AppService.homeNavigatorKey.currentState != null) {
-        AppService.homeNavigatorKey.currentState!
-            .pushNamedAndRemoveUntil(Routes.POPULAR_VIDEOS, (route) => false);
-        _showExitTip(context);
-        AppService appService = Get.find();
-        appService.currentIndex = 0;
-        _lastExitTime = DateTime.now();
-        return;
-      }
-
-      if (checkCanExit(context)) {
+      if (checkCanExitAndShowMessage(context)) {
         action();
       }
     } else {
@@ -46,7 +36,7 @@ class ExitConfirmUtil {
     }
   }
 
-  static bool checkCanExit(BuildContext context) {
+  static bool checkCanExitAndShowMessage(BuildContext context) {
     if (_lastExitTime == null) {
       _lastExitTime = DateTime.now();
       _showExitTip(context);

@@ -139,13 +139,16 @@ class AppService extends GetxService {
   }
 
   static void tryPop({bool closeAll = false}) {
-    LogUtils.d('tryPop', 'AppService');
     if (globalDrawerKey.currentState?.isDrawerOpen ?? false) {
       globalDrawerKey.currentState!.openEndDrawer();
-    } else if (Get.isDialogOpen ?? false) {
-      Get.close(closeAll: closeAll);
-    } else if (Get.isBottomSheetOpen ?? false) {
-      Get.close(closeAll: closeAll);
+    } else if (Get.isDialogOpen ?? Get.isBottomSheetOpen ?? false) {
+      if (closeAll) {
+        // 如果需要关闭所有，使用原来的逻辑
+        Get.close(closeAll: true);
+      } else {
+        // 只关闭当前显示的 dialog 或 bottom sheet
+        Get.closeOverlay();
+      }
     } else if (SettingsPage.canPopInternally()) {
       // 优先处理SettingsPage的内部返回
       SettingsPage.popInternally();
