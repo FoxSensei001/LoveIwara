@@ -5,16 +5,13 @@ import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/oreno3d_video.model.dart';
-import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
+import 'package:i_iwara/common/enums/media_enums.dart';
 import 'search_repository.dart';
 
 /// 视频搜索仓库
 class VideoSearchRepository extends SearchRepository<Video> {
-  final String? sortType;
-  
   VideoSearchRepository({
     required super.query,
-    this.sortType,
   }) : super(segment: SearchSegment.video.apiType);
 
   @override
@@ -23,18 +20,14 @@ class VideoSearchRepository extends SearchRepository<Video> {
       page: page,
       limit: limit,
       query: keyword,
-      sort: sortType,
     );
   }
 }
 
 /// 图片搜索仓库
 class ImageSearchRepository extends SearchRepository<ImageModel> {
-  final String? sortType;
-  
   ImageSearchRepository({
     required super.query,
-    this.sortType,
   }) : super(segment: SearchSegment.image.apiType);
 
   @override
@@ -43,7 +36,6 @@ class ImageSearchRepository extends SearchRepository<ImageModel> {
       page: page,
       limit: limit,
       query: keyword,
-      sort: sortType,
     );
   }
 }

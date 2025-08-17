@@ -6,6 +6,7 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_post_dialog.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/thread_list_item_widget.dart';
+import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';

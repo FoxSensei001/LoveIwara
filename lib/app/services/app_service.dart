@@ -40,6 +40,7 @@ import '../routes/app_routes.dart';
 import '../ui/pages/author_profile/author_profile_page.dart';
 import '../ui/pages/gallery_detail/gallery_detail_page.dart';
 import '../ui/pages/search/search_result.dart';
+import 'package:i_iwara/common/enums/media_enums.dart';
 import '../ui/pages/post_detail/post_detail_page.dart';
 
 /// 定义转场动画类型
@@ -258,7 +259,7 @@ class NaviService {
   /// 跳转到搜索结果页
   static void toSearchPage({
     required String searchInfo,
-    required String segment,
+    required SearchSegment segment,
     String? searchType,
     Map<String, dynamic>? extData,
   }) {

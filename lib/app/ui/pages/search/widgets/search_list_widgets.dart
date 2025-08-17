@@ -17,13 +17,10 @@ import 'base_search_list.dart';
 
 /// 视频搜索列表
 class VideoSearchList extends BaseSearchList<Video, VideoSearchRepository> {
-  final String? sortType;
-  
   const VideoSearchList({
     super.key,
     required super.query,
     super.isPaginated = false,
-    this.sortType,
   });
   
   @override
@@ -35,7 +32,6 @@ class VideoSearchListState extends BaseSearchListState<Video, VideoSearchReposit
   VideoSearchRepository createRepository() {
     return VideoSearchRepository(
       query: widget.query,
-      sortType: widget.sortType,
     );
   }
   
@@ -62,13 +58,10 @@ class VideoSearchListState extends BaseSearchListState<Video, VideoSearchReposit
 
 /// 图片搜索列表
 class ImageSearchList extends BaseSearchList<ImageModel, ImageSearchRepository> {
-  final String? sortType;
-  
   const ImageSearchList({
     super.key,
     required super.query,
     super.isPaginated = false,
-    this.sortType,
   });
   
   @override
@@ -80,7 +73,6 @@ class ImageSearchListState extends BaseSearchListState<ImageModel, ImageSearchRe
   ImageSearchRepository createRepository() {
     return ImageSearchRepository(
       query: widget.query,
-      sortType: widget.sortType,
     );
   }
   

@@ -17,6 +17,7 @@ import '../../widgets/top_padding_height_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glow_notification_widget.dart';
 import 'package:i_iwara/app/ui/pages/home_page.dart';
+import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 
 import 'dart:ui';

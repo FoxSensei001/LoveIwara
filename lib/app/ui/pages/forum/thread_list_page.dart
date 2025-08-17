@@ -8,6 +8,7 @@ import 'package:i_iwara/app/ui/pages/forum/controllers/thread_list_repository.da
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_post_dialog.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/thread_list_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
+import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';

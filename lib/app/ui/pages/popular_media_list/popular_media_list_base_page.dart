@@ -12,6 +12,7 @@ import 'package:i_iwara/app/ui/pages/home_page.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/popular_media_list_controller.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_tab_view.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/popular_media_search_config_widget.dart';
+import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/common_header.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';

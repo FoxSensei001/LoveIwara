@@ -8,7 +8,7 @@ import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/oreno3d_video.model.dart';
-import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
+import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 
@@ -94,14 +94,12 @@ class SearchService extends GetxController {
     int page = 0,
     int limit = 20,
     String query = '',
-    String? sort,
   }) => fetchDataByType<Video>(
     page: page,
     limit: limit,
     query: query,
     type: SearchSegment.video.apiType,
     fromJson: Video.fromJson,
-    sort: sort,
   );
 
   /// 获取图库
@@ -109,14 +107,12 @@ class SearchService extends GetxController {
     int page = 0,
     int limit = 20,
     String query = '',
-    String? sort,
   }) => fetchDataByType<ImageModel>(
     page: page,
     limit: limit,
     query: query,
     type: SearchSegment.image.apiType,
     fromJson: ImageModel.fromJson,
-    sort: sort,
   );
 
   /// 获取用户

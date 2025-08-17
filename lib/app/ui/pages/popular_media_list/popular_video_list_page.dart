@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/video.model.dart';
-import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
+import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/popular_media_list_base_page.dart';
 import 'controllers/popular_video_controller.dart';
 import 'controllers/popular_video_repository.dart';

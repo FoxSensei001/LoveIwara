@@ -1174,7 +1174,7 @@ class VideoInfoTabWidget extends StatelessWidget {
     // 传递空的搜索关键词，通过 extData 传递 ID 和类型信息
     NaviService.toSearchPage(
       searchInfo: '',
-      segment: 'oreno3d',
+      segment: SearchSegment.oreno3d,
       extData: {
         'searchType': type,
         'id': id,

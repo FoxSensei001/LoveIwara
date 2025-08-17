@@ -7,34 +7,18 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/widgets/google_search_panel_widget.dart';
 import 'dart:math';
 import 'package:i_iwara/app/models/search_record.model.dart';
-import 'widgets/search_filter_widget.dart';
-import 'utils/search_syntax_parser.dart';
-
-enum SearchSegment {
-  video,
-  image,
-  post,
-  user,
-  forum,
-  oreno3d,
-  ;
-
-  static SearchSegment fromValue(String value) {
-    return SearchSegment.values.firstWhere((element) => element.name == value,
-        orElse: () => SearchSegment.video);
-  }
-}
+import 'package:i_iwara/common/enums/media_enums.dart';
 
 class SearchDialog extends StatelessWidget {
   final String initialSearch;
   final SearchSegment initialSegment;
-  final Function(String, String) onSearch;
+  final Function(String, SearchSegment) onSearch;
 
   const SearchDialog(
       {super.key,
-      required this.initialSearch,
-      required this.initialSegment,
-      required this.onSearch});
+        required this.initialSearch,
+        required this.initialSegment,
+        required this.onSearch});
 
   @override
   Widget build(BuildContext context) {
@@ -109,12 +93,12 @@ class SearchDialog extends StatelessWidget {
 class _SearchContent extends StatefulWidget {
   final String initialSearch;
   final SearchSegment initialSegment;
-  final Function(String, String) onSearch;
+  final Function(String, SearchSegment) onSearch;
 
   const _SearchContent(
       {required this.initialSearch,
-      required this.initialSegment,
-      required this.onSearch});
+        required this.initialSegment,
+        required this.onSearch});
 
   @override
   State<_SearchContent> createState() => _SearchContentState();
@@ -124,16 +108,12 @@ class _SearchContentState extends State<_SearchContent> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   late UserPreferenceService userPreferenceService;
-  
+
   // 搜索状态
   final RxString _searchPlaceholder = ''.obs;
   final RxString _searchErrorText = ''.obs;
-  final RxString _selectedSegment = 'video'.obs;
-  
-  // 搜索过滤器和查询
-  late SearchQuery _searchQuery;
-  late SearchFilterData _filterData;
-  
+  final Rx<SearchSegment> _selectedSegment = SearchSegment.video.obs;
+
   // 滚动控制器，用于在展开谷歌搜索面板时自动滚动
   final ScrollController _scrollController = ScrollController();
 
@@ -141,56 +121,48 @@ class _SearchContentState extends State<_SearchContent> {
   void initState() {
     super.initState();
     userPreferenceService = Get.find<UserPreferenceService>();
-    
-    // 解析初始搜索查询
-    _searchQuery = SearchSyntaxParser.parseSearchQuery(widget.initialSearch);
-    _filterData = _searchQuery.filterData;
-    
+
     // 设置初始搜索内容和 segment
-    _controller.text = _searchQuery.userKeyword;
-    _selectedSegment.value = widget.initialSegment.name;
+    _controller.text = widget.initialSearch;
+    _selectedSegment.value = widget.initialSegment;
 
     // 更新搜索建议
     updateSearchPlaceholder(userPreferenceService.videoSearchHistory);
   }
 
   // 获取分段图标
-  Widget _getSegmentIcon(String segment) {
+  Widget _getSegmentIcon(SearchSegment segment) {
     switch (segment) {
-      case 'video':
+      case SearchSegment.video:
         return const Icon(Icons.video_library, size: 20);
-      case 'image':
+      case SearchSegment.image:
         return const Icon(Icons.image, size: 20);
-      case 'post':
+      case SearchSegment.post:
         return const Icon(Icons.article, size: 20);
-      case 'user':
+      case SearchSegment.user:
         return const Icon(Icons.person, size: 20);
-      case 'forum':
+      case SearchSegment.forum:
         return const Icon(Icons.forum, size: 20);
-      case 'oreno3d':
+      case SearchSegment.oreno3d:
         return const Icon(Icons.view_in_ar, size: 20);
-      default:
-        return const Icon(Icons.search, size: 20);
     }
   }
 
   // 获取分段标签
-  String _getSegmentLabel(String segment, slang.Translations t) {
+  String _getSegmentLabel(SearchSegment segment, slang.Translations t) {
     switch (segment) {
-      case 'video':
+      case SearchSegment.video:
         return t.common.video;
-      case 'image':
+      case SearchSegment.image:
         return t.common.gallery;
-      case 'post':
+      case SearchSegment.post:
         return t.common.post;
-      case 'user':
+      case SearchSegment.user:
         return t.common.user;
-      case 'forum':
+      case SearchSegment.forum:
         return t.forum.forum;
-      case 'oreno3d':
+      case SearchSegment.oreno3d:
         return 'Oreno3D';
-      default:
-        return segment;
     }
   }
 
@@ -251,79 +223,13 @@ class _SearchContentState extends State<_SearchContent> {
       return;
     }
 
-    // 更新用户关键词
-    _searchQuery = SearchQuery(
-      userKeyword: value,
-      filterData: _filterData,
-    );
-
-    // 生成完整搜索查询
-    String fullQuery = _searchQuery.fullQuery;
-
     if (userPreferenceService.searchRecordEnabled.value) {
       userPreferenceService.addVideoSearchHistory(value);
     }
 
-    LogUtils.d('搜索内容: $fullQuery, 类型: ${_selectedSegment.value}');
+    LogUtils.d('搜索内容: $value, 类型: ${_selectedSegment.value}');
     _dismiss();
-    widget.onSearch(fullQuery, _selectedSegment.value);
-  }
-
-  void _onFilterChanged(SearchFilterData newFilter) {
-    _filterData = newFilter;
-    _searchQuery = SearchQuery(
-      userKeyword: _controller.text,
-      filterData: _filterData,
-    );
-  }
-
-  void _showFilterDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: 600,
-            minWidth: 400,
-            maxHeight: 600,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      '搜索过滤器',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: SearchFilterWidget(
-                      initialFilter: _filterData,
-                      onFilterChanged: _onFilterChanged,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+    widget.onSearch(value, _selectedSegment.value);
   }
 
   void _dismiss() {
@@ -335,7 +241,7 @@ class _SearchContentState extends State<_SearchContent> {
     final t = slang.Translations.of(context);
     double width = MediaQuery.of(context).size.width;
     bool isWide = width > 600;
-    
+
     // 构建搜索内容
     Widget searchContent = SingleChildScrollView(
       controller: _scrollController,
@@ -350,50 +256,50 @@ class _SearchContentState extends State<_SearchContent> {
               borderRadius: BorderRadius.circular(12),
               clipBehavior: Clip.hardEdge,
               child: Obx(() => TextField(
-                    controller: _controller,
-                    focusNode: _focusNode,
-                    autofocus: true,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: _searchPlaceholder.value.isEmpty
-                          ? t.search.pleaseEnterSearchContent
-                          : '${t.search.searchSuggestion}: ${_searchPlaceholder.value}',
-                      hintStyle: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      border: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () {
-                          _controller.clear();
-                          _searchErrorText.value = '';
-                          _searchPlaceholder.value = '';
-                          _focusNode.requestFocus();
-                        },
-                      ),
-                      filled: true,
-                      fillColor: Colors.transparent,
-                      errorText: _searchErrorText.value.isEmpty
-                          ? null
-                          : _searchErrorText.value,
-                    ),
-                    onChanged: (value) {
+                controller: _controller,
+                focusNode: _focusNode,
+                autofocus: true,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                decoration: InputDecoration(
+                  hintText: _searchPlaceholder.value.isEmpty
+                      ? t.search.pleaseEnterSearchContent
+                      : '${t.search.searchSuggestion}: ${_searchPlaceholder.value}',
+                  hintStyle: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  border: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      _controller.clear();
                       _searchErrorText.value = '';
+                      _searchPlaceholder.value = '';
+                      _focusNode.requestFocus();
                     },
-                    onSubmitted: _handleSubmit,
-                  )),
+                  ),
+                  filled: true,
+                  fillColor: Colors.transparent,
+                  errorText: _searchErrorText.value.isEmpty
+                      ? null
+                      : _searchErrorText.value,
+                ),
+                onChanged: (value) {
+                  _searchErrorText.value = '';
+                },
+                onSubmitted: _handleSubmit,
+              )),
             ),
           ),
-          
+
           // 分段选择器和搜索按钮区域
           Container(
             padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
@@ -405,18 +311,18 @@ class _SearchContentState extends State<_SearchContent> {
                   margin: const EdgeInsets.only(right: 8),
                   height: 44,
                   child: Obx(
-                    () => PopupMenuButton<String>(
+                        () => PopupMenuButton<String>(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      initialValue: _selectedSegment.value,
+                      initialValue: _selectedSegment.value.name,
                       onSelected: (String newValue) {
-                        _selectedSegment.value = newValue;
+                        _selectedSegment.value = SearchSegment.fromValue(newValue);
                       },
                       itemBuilder: (BuildContext context) {
                         return [
                           PopupMenuItem<String>(
-                            value: 'video',
+                            value: SearchSegment.video.name,
                             child: Row(
                               children: [
                                 const Icon(Icons.video_library, size: 20),
@@ -426,7 +332,7 @@ class _SearchContentState extends State<_SearchContent> {
                             ),
                           ),
                           PopupMenuItem<String>(
-                            value: 'image',
+                            value: SearchSegment.image.name,
                             child: Row(
                               children: [
                                 const Icon(Icons.image, size: 20),
@@ -436,7 +342,7 @@ class _SearchContentState extends State<_SearchContent> {
                             ),
                           ),
                           PopupMenuItem<String>(
-                            value: 'post',
+                            value: SearchSegment.post.name,
                             child: Row(
                               children: [
                                 const Icon(Icons.article, size: 20),
@@ -446,7 +352,7 @@ class _SearchContentState extends State<_SearchContent> {
                             ),
                           ),
                           PopupMenuItem<String>(
-                            value: 'user',
+                            value: SearchSegment.user.name,
                             child: Row(
                               children: [
                                 const Icon(Icons.person, size: 20),
@@ -456,7 +362,7 @@ class _SearchContentState extends State<_SearchContent> {
                             ),
                           ),
                           PopupMenuItem<String>(
-                            value: 'forum',
+                            value: SearchSegment.forum.name,
                             child: Row(
                               children: [
                                 const Icon(Icons.forum, size: 20),
@@ -466,7 +372,7 @@ class _SearchContentState extends State<_SearchContent> {
                             ),
                           ),
                           PopupMenuItem<String>(
-                            value: 'oreno3d',
+                            value: SearchSegment.oreno3d.name,
                             child: Row(
                               children: [
                                 const Icon(Icons.view_in_ar, size: 20),
@@ -512,49 +418,6 @@ class _SearchContentState extends State<_SearchContent> {
                     ),
                   ),
                 ),
-                // 过滤器按钮（仅对video和image显示）
-                Obx(() {
-                  final segment = _selectedSegment.value;
-                  if (segment != 'video' && segment != 'image') {
-                    return const SizedBox.shrink();
-                  }
-                  return Container(
-                    margin: const EdgeInsets.only(right: 8),
-                    height: 44,
-                    child: Material(
-                      borderRadius: BorderRadius.circular(12),
-                      color: Theme.of(context).colorScheme.surfaceContainer,
-                      elevation: 1,
-                      clipBehavior: Clip.hardEdge,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(12),
-                        onTap: () {
-                          _showFilterDialog();
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.filter_list, size: 20),
-                              const SizedBox(width: 4),
-                              Text(
-                                '过滤器',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }),
                 // 搜索按钮
                 SizedBox(
                   height: 44,
@@ -583,7 +446,7 @@ class _SearchContentState extends State<_SearchContent> {
               ],
             ),
           ),
-          
+
           // 谷歌搜索辅助功能
           Padding(
             padding: const EdgeInsets.fromLTRB(6, 0, 6, 0),
@@ -591,7 +454,7 @@ class _SearchContentState extends State<_SearchContent> {
               scrollController: _scrollController,
             ),
           ),
-          
+
           // 历史记录标题
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -617,48 +480,48 @@ class _SearchContentState extends State<_SearchContent> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Obx(() => Material(
-                          color: Colors.grey[100],
-                          borderRadius: BorderRadius.circular(20),
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(20),
-                            onTap: () {
-                              userPreferenceService.setSearchRecordEnabled(
-                                  !userPreferenceService.searchRecordEnabled.value);
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 6),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    userPreferenceService.searchRecordEnabled.value
-                                        ? Icons.history
-                                        : Icons.history_toggle_off,
-                                    size: 18,
-                                    color: userPreferenceService
-                                            .searchRecordEnabled.value
-                                        ? Theme.of(context).primaryColor
-                                        : Colors.grey,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    userPreferenceService.searchRecordEnabled.value
-                                        ? t.common.recording
-                                        : t.common.paused,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: userPreferenceService
-                                              .searchRecordEnabled.value
-                                          ? Theme.of(context).primaryColor
-                                          : Colors.grey,
-                                    ),
-                                  ),
-                                ],
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(20),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(20),
+                        onTap: () {
+                          userPreferenceService.setSearchRecordEnabled(
+                              !userPreferenceService.searchRecordEnabled.value);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                userPreferenceService.searchRecordEnabled.value
+                                    ? Icons.history
+                                    : Icons.history_toggle_off,
+                                size: 18,
+                                color: userPreferenceService
+                                    .searchRecordEnabled.value
+                                    ? Theme.of(context).primaryColor
+                                    : Colors.grey,
                               ),
-                            ),
+                              const SizedBox(width: 4),
+                              Text(
+                                userPreferenceService.searchRecordEnabled.value
+                                    ? t.common.recording
+                                    : t.common.paused,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: userPreferenceService
+                                      .searchRecordEnabled.value
+                                      ? Theme.of(context).primaryColor
+                                      : Colors.grey,
+                                ),
+                              ),
+                            ],
                           ),
-                        )),
+                        ),
+                      ),
+                    )),
                     if (userPreferenceService.videoSearchHistory.isNotEmpty) ...[
                       const SizedBox(width: 8),
                       TextButton.icon(
@@ -675,7 +538,7 @@ class _SearchContentState extends State<_SearchContent> {
               ],
             ),
           ),
-          
+
           // 历史记录列表
           Obx(() {
             if (userPreferenceService.videoSearchHistory.isEmpty) {
@@ -686,7 +549,7 @@ class _SearchContentState extends State<_SearchContent> {
                 ),
               );
             }
-            
+
             return ListView.builder(
               physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
@@ -712,7 +575,7 @@ class _SearchContentState extends State<_SearchContent> {
               },
             );
           }),
-          
+
           // 底部空白区域，确保滚动内容可见
           const SizedBox(height: 24),
         ],
