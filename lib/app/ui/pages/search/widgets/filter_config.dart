@@ -50,9 +50,9 @@ class FilterConfig {
       name: '用户',
       fields: [
         FilterField(name: 'username', type: FilterFieldType.STRING, displayName: '用户名', iconData: Icons.person, iconColor: Colors.teal),
-        FilterField(name: 'body', type: FilterFieldType.STRING, isLocalizable: true, displayName: '简介', iconData: Icons.description, iconColor: Colors.indigo),
         FilterField(name: 'name', type: FilterFieldType.STRING, isLocalizable: true, displayName: '昵称', iconData: Icons.badge, iconColor: Colors.cyan),
         FilterField(name: 'date', type: FilterFieldType.DATE, displayName: '注册日期', iconData: Icons.calendar_today, iconColor: Colors.brown),
+        FilterField(name: 'body', type: FilterFieldType.STRING, isLocalizable: true, displayName: '简介', iconData: Icons.description, iconColor: Colors.indigo),
       ],
     ),
     SearchSegment.video: FilterContentType(
@@ -61,7 +61,14 @@ class FilterConfig {
       fields: [
         FilterField(name: 'title', type: FilterFieldType.STRING, isLocalizable: true, displayName: '标题', iconData: Icons.title, iconColor: Colors.blue),
         FilterField(name: 'body', type: FilterFieldType.STRING, isLocalizable: true, displayName: '描述', iconData: Icons.description, iconColor: Colors.indigo),
+        FilterField(name: 'tags', type: FilterFieldType.STRING_ARRAY, displayName: '标签', iconData: Icons.label, iconColor: Colors.red),
         FilterField(name: 'author', type: FilterFieldType.STRING, displayName: '作者', iconData: Icons.person_outline, iconColor: Colors.deepPurple),
+        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: '发布日期', iconData: Icons.calendar_today, iconColor: Colors.brown),
+        FilterField(name: 'private', type: FilterFieldType.BOOLEAN, displayName: '私密', iconData: Icons.lock, iconColor: Colors.grey),
+        FilterField(name: 'duration', type: FilterFieldType.NUMBER, displayName: '时长(秒)', iconData: Icons.timer, iconColor: Colors.orange),
+        FilterField(name: 'likes', type: FilterFieldType.NUMBER, displayName: '点赞数', iconData: Icons.favorite, iconColor: Colors.red),
+        FilterField(name: 'views', type: FilterFieldType.NUMBER, displayName: '观看数', iconData: Icons.visibility, iconColor: Colors.blue),
+        FilterField(name: 'comments', type: FilterFieldType.NUMBER, displayName: '评论数', iconData: Icons.comment, iconColor: Colors.green),
         FilterField(
           name: 'rating', 
           type: FilterFieldType.SELECT, 
@@ -74,13 +81,6 @@ class FilterConfig {
             FilterFieldOption(value: 'general', label: '大众的'),
           ],
         ),
-        FilterField(name: 'private', type: FilterFieldType.BOOLEAN, displayName: '私密', iconData: Icons.lock, iconColor: Colors.grey),
-        FilterField(name: 'duration', type: FilterFieldType.NUMBER, displayName: '时长(秒)', iconData: Icons.timer, iconColor: Colors.orange),
-        FilterField(name: 'likes', type: FilterFieldType.NUMBER, displayName: '点赞数', iconData: Icons.favorite, iconColor: Colors.red),
-        FilterField(name: 'views', type: FilterFieldType.NUMBER, displayName: '观看数', iconData: Icons.visibility, iconColor: Colors.blue),
-        FilterField(name: 'comments', type: FilterFieldType.NUMBER, displayName: '评论数', iconData: Icons.comment, iconColor: Colors.green),
-        FilterField(name: 'tags', type: FilterFieldType.STRING_ARRAY, displayName: '标签', iconData: Icons.label, iconColor: Colors.red),
-        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: '发布日期', iconData: Icons.calendar_today, iconColor: Colors.brown),
       ],
     ),
     SearchSegment.image: FilterContentType(
@@ -88,8 +88,14 @@ class FilterConfig {
       name: '图片',
       fields: [
         FilterField(name: 'title', type: FilterFieldType.STRING, isLocalizable: true, displayName: '标题', iconData: Icons.title, iconColor: Colors.blue),
-        FilterField(name: 'body', type: FilterFieldType.STRING, isLocalizable: true, displayName: '描述', iconData: Icons.description, iconColor: Colors.indigo),
         FilterField(name: 'author', type: FilterFieldType.STRING, displayName: '作者', iconData: Icons.person_outline, iconColor: Colors.deepPurple),
+        FilterField(name: 'tags', type: FilterFieldType.STRING_ARRAY, displayName: '标签', iconData: Icons.label, iconColor: Colors.red),
+        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: '发布日期', iconData: Icons.calendar_today, iconColor: Colors.brown),
+        FilterField(name: 'views', type: FilterFieldType.NUMBER, displayName: '观看数', iconData: Icons.visibility, iconColor: Colors.blue),
+        FilterField(name: 'comments', type: FilterFieldType.NUMBER, displayName: '评论数', iconData: Icons.comment, iconColor: Colors.green),
+        FilterField(name: 'images', type: FilterFieldType.NUMBER, displayName: '图片数量', iconData: Icons.image, iconColor: Colors.pink),
+        FilterField(name: 'likes', type: FilterFieldType.NUMBER, displayName: '点赞数', iconData: Icons.favorite, iconColor: Colors.red),
+        FilterField(name: 'body', type: FilterFieldType.STRING, isLocalizable: true, displayName: '描述', iconData: Icons.description, iconColor: Colors.indigo),
         FilterField(
           name: 'rating', 
           type: FilterFieldType.SELECT, 
@@ -102,12 +108,6 @@ class FilterConfig {
             FilterFieldOption(value: 'general', label: '大众的'),
           ],
         ),
-        FilterField(name: 'likes', type: FilterFieldType.NUMBER, displayName: '点赞数', iconData: Icons.favorite, iconColor: Colors.red),
-        FilterField(name: 'views', type: FilterFieldType.NUMBER, displayName: '观看数', iconData: Icons.visibility, iconColor: Colors.blue),
-        FilterField(name: 'comments', type: FilterFieldType.NUMBER, displayName: '评论数', iconData: Icons.comment, iconColor: Colors.green),
-        FilterField(name: 'images', type: FilterFieldType.NUMBER, displayName: '图片数量', iconData: Icons.image, iconColor: Colors.pink),
-        FilterField(name: 'tags', type: FilterFieldType.STRING_ARRAY, displayName: '标签', iconData: Icons.label, iconColor: Colors.red),
-        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: '发布日期', iconData: Icons.calendar_today, iconColor: Colors.brown),
       ],
     ),
     SearchSegment.post: FilterContentType(
@@ -160,17 +160,27 @@ class FilterConfig {
     // 避免渲染不完整的过滤器
     if (filter.value == null || 
         filter.value == '' || 
-        (filter.value is List && (filter.value as List).isEmpty) ||
-        (filter.operator == FilterOperator.RANGE && 
-         (filter.value is! Map || 
-          (filter.value['from'] == null || filter.value['from'] == '') &&
-          (filter.value['to'] == null || filter.value['to'] == '')))) {
+        (filter.value is List && (filter.value as List).isEmpty)) {
       return '';
+    }
+    
+    // 特殊处理范围类型
+    if (filter.operator == FilterOperator.RANGE) {
+      if (filter.value is! Map) {
+        return '';
+      }
+      
+      final from = filter.value['from'];
+      final to = filter.value['to'];
+      // 范围类型必须两个值都填写
+      if (from == null || from == '' || to == null || to == '') {
+        return '';
+      }
     }
 
     switch (filter.operator) {
       case FilterOperator.CONTAINS:
-        return '{${fieldName}: ${filter.value}}';
+        return '{$fieldName: ${filter.value}}';
       
       case FilterOperator.RANGE:
         dynamic from;
@@ -203,13 +213,13 @@ class FilterConfig {
           return '';
         }
         
-        return '{${fieldName}: [${from ?? ''}..${to ?? ''}]}';
+        return '{$fieldName: [${from ?? ''}..${to ?? ''}]}';
       
       case FilterOperator.IN:
-        return '{${fieldName}: [${(filter.value as List).join(',')}]}';
+        return '{$fieldName: [${(filter.value as List).join(',')}]}';
       
       case FilterOperator.NOT_IN:
-        return '{${fieldName}: ![${(filter.value as List).join(',')}]}';
+        return '{$fieldName: ![${(filter.value as List).join(',')}]}';
       
       default:
         dynamic value = filter.value;
@@ -221,7 +231,7 @@ class FilterConfig {
           }
         }
         if (value == null || value == '') return '';
-        return '{${fieldName}${filter.operator.value}${value}}';
+        return '{$fieldName${filter.operator.value}$value}';
     }
   }
 

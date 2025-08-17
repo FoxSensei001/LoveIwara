@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_config.dart';
+import 'package:i_iwara/app/ui/widgets/tag_selector_widget.dart';
 
 class FilterRowWidget extends StatefulWidget {
   final Filter filter;
   final List<FilterField> availableFields;
   final Function(String, Filter) onUpdate;
   final Function(String) onRemove;
+  final String? Function(Filter)? onValidate;
 
   const FilterRowWidget({
     super.key,
@@ -14,6 +16,7 @@ class FilterRowWidget extends StatefulWidget {
     required this.availableFields,
     required this.onUpdate,
     required this.onRemove,
+    this.onValidate,
   });
 
   @override
@@ -24,6 +27,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
   late TextEditingController _dateController;
   late TextEditingController _dateFromController;
   late TextEditingController _dateToController;
+  final GlobalKey<FormFieldState> _formFieldKey = GlobalKey<FormFieldState>();
 
   @override
   void initState() {
@@ -82,6 +86,14 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
     _dateFromController.dispose();
     _dateToController.dispose();
     super.dispose();
+  }
+
+  // 验证当前筛选项
+  String? _validateCurrentFilter() {
+    if (widget.onValidate != null) {
+      return widget.onValidate!(widget.filter);
+    }
+    return null;
   }
 
   @override
@@ -345,56 +357,22 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
                       'from',
                       fromValue,
                     )
-                  : TextFormField(
-                      initialValue: fromValue,
-                      decoration: InputDecoration(
-                        labelText: '从',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                      ),
-                      keyboardType: TextInputType.number,
-                      onChanged: (value) {
-                        final currentValue = filter.value is Map
-                            ? Map<String, dynamic>.from(filter.value)
-                            : {'from': '', 'to': ''};
-                        currentValue['from'] = value;
-                        widget.onUpdate(
-                          filter.id,
-                          filter.copyWith(value: currentValue),
-                        );
-                      },
+                  : _buildNumberRangeField(
+                      context,
+                      filter,
+                      field,
+                      'from',
+                      fromValue,
                     ),
               const SizedBox(height: 12),
               field.type == FilterFieldType.DATE
                   ? _buildDateRangeField(context, filter, field, 'to', toValue)
-                  : TextFormField(
-                      initialValue: toValue,
-                      decoration: InputDecoration(
-                        labelText: '到',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                      ),
-                      keyboardType: TextInputType.number,
-                      onChanged: (value) {
-                        final currentValue = filter.value is Map
-                            ? Map<String, dynamic>.from(filter.value)
-                            : {'from': '', 'to': ''};
-                        currentValue['to'] = value;
-                        widget.onUpdate(
-                          filter.id,
-                          filter.copyWith(value: currentValue),
-                        );
-                      },
+                  : _buildNumberRangeField(
+                      context,
+                      filter,
+                      field,
+                      'to',
+                      toValue,
                     ),
             ],
           ),
@@ -411,29 +389,12 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
                         'from',
                         fromValue,
                       )
-                    : TextFormField(
-                        initialValue: fromValue,
-                        decoration: InputDecoration(
-                          labelText: '从',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                        ),
-                        keyboardType: TextInputType.number,
-                        onChanged: (value) {
-                          final currentValue = filter.value is Map
-                              ? Map<String, dynamic>.from(filter.value)
-                              : {'from': '', 'to': ''};
-                          currentValue['from'] = value;
-                          widget.onUpdate(
-                            filter.id,
-                            filter.copyWith(value: currentValue),
-                          );
-                        },
+                    : _buildNumberRangeField(
+                        context,
+                        filter,
+                        field,
+                        'from',
+                        fromValue,
                       ),
               ),
               const SizedBox(width: 12),
@@ -448,35 +409,73 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
                         'to',
                         toValue,
                       )
-                    : TextFormField(
-                        initialValue: toValue,
-                        decoration: InputDecoration(
-                          labelText: '到',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                        ),
-                        keyboardType: TextInputType.number,
-                        onChanged: (value) {
-                          final currentValue = filter.value is Map
-                              ? Map<String, dynamic>.from(filter.value)
-                              : {'from': '', 'to': ''};
-                          currentValue['to'] = value;
-                          widget.onUpdate(
-                            filter.id,
-                            filter.copyWith(value: currentValue),
-                          );
-                        },
+                    : _buildNumberRangeField(
+                        context,
+                        filter,
+                        field,
+                        'to',
+                        toValue,
                       ),
               ),
             ],
           ),
         ],
+        // 显示验证错误信息
+        if (_validateCurrentFilter() != null) ...[
+          const SizedBox(height: 8),
+          Text(
+            _validateCurrentFilter()!,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.error,
+              fontSize: 12,
+            ),
+          ),
+        ],
       ],
+    );
+  }
+
+  Widget _buildNumberRangeField(
+    BuildContext context,
+    Filter filter,
+    FilterField field,
+    String fieldKey,
+    String currentValue,
+  ) {
+    return TextFormField(
+      initialValue: currentValue,
+      decoration: InputDecoration(
+        labelText: fieldKey == 'from' ? '从' : '到',
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 8,
+        ),
+      ),
+      keyboardType: TextInputType.number,
+      validator: (value) {
+        if (value == null || value.trim().isEmpty) return null;
+        try {
+          double.parse(value.trim());
+        } catch (e) {
+          return '请输入有效的数值';
+        }
+        return null;
+      },
+      onChanged: (value) {
+        final currentValue = filter.value is Map
+            ? Map<String, dynamic>.from(filter.value)
+            : {'from': '', 'to': ''};
+        currentValue[fieldKey] = value;
+        widget.onUpdate(
+          filter.id,
+          filter.copyWith(value: currentValue),
+        );
+        // 触发验证
+        _formFieldKey.currentState?.validate();
+      },
     );
   }
 
@@ -513,6 +512,8 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
               : {'from': '', 'to': ''};
           currentValue[fieldKey] = dateString;
           widget.onUpdate(filter.id, filter.copyWith(value: currentValue));
+          // 触发验证
+          _formFieldKey.currentState?.validate();
         }
       },
       child: AbsorbPointer(
@@ -531,6 +532,15 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
             hintText: '点击选择日期',
           ),
           readOnly: true,
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) return null;
+            try {
+              DateTime.parse(value.trim());
+            } catch (e) {
+              return '请输入有效的日期格式';
+            }
+            return null;
+          },
         ),
       ),
     );
@@ -620,6 +630,15 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
                 hintText: '点击选择日期',
               ),
               readOnly: true,
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) return null;
+                try {
+                  DateTime.parse(value.trim());
+                } catch (e) {
+                  return '请输入有效的日期格式';
+                }
+                return null;
+              },
             ),
           ),
         ),
@@ -648,6 +667,15 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
             ),
           ),
           keyboardType: TextInputType.number,
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) return null;
+            try {
+              double.parse(value.trim());
+            } catch (e) {
+              return '请输入有效的数值';
+            }
+            return null;
+          },
           onChanged: (value) {
             widget.onUpdate(filter.id, filter.copyWith(value: value));
           },
@@ -660,38 +688,14 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
     final tags = filter.value is List
         ? (filter.value as List).cast<String>()
         : <String>[];
-    final tagsText = tags.join(', ');
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '标签',
-          style: Theme.of(
-            context,
-          ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w500),
-        ),
-        const SizedBox(height: 8),
-        TextFormField(
-          initialValue: tagsText,
-          decoration: InputDecoration(
-            hintText: '标签1, 标签2, ...',
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 8,
-            ),
-          ),
-          onChanged: (value) {
-            final newTags = value
-                .split(',')
-                .map((s) => s.trim())
-                .where((s) => s.isNotEmpty)
-                .toList();
-            widget.onUpdate(filter.id, filter.copyWith(value: newTags));
-          },
-        ),
-      ],
+    return TagSelectorWidget(
+      selectedTags: tags,
+      onTagsChanged: (newTags) {
+        widget.onUpdate(filter.id, filter.copyWith(value: newTags));
+      },
+      labelText: '标签',
+      hintText: '点击选择标签',
     );
   }
 

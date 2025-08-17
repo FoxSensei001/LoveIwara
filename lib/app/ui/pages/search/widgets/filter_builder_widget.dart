@@ -35,6 +35,7 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
   late List<Filter> _filters;
   late List<Filter> _originalFilters; // 保存原始筛选项
   bool _copied = false;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -220,169 +221,236 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
     });
   }
 
+  // 验证表单
+  bool _validateForm() {
+    if (_formKey.currentState == null) return false;
+    return _formKey.currentState!.validate();
+  }
+
+  // 验证范围类型的值
+  String? _validateRangeValue(Filter filter) {
+    if (filter.operator != FilterOperator.RANGE) return null;
+    
+    if (filter.value is! Map) return '范围值格式错误';
+    
+    final rangeValue = filter.value as Map;
+    final from = rangeValue['from']?.toString().trim();
+    final to = rangeValue['to']?.toString().trim();
+    
+    // 对于范围类型，要求必须填写两个值
+    if (from == null || from.isEmpty) {
+      return '请填写起始值';
+    }
+    
+    if (to == null || to.isEmpty) {
+      return '请填写结束值';
+    }
+    
+    // 验证逻辑关系
+    final field = FilterConfig.getContentType(_currentSegment)?.fields
+        .firstWhere((f) => f.name == filter.field);
+    
+    if (field?.type == FilterFieldType.NUMBER) {
+      try {
+        final fromNum = double.parse(from);
+        final toNum = double.parse(to);
+        if (fromNum >= toNum) {
+          return '起始值必须小于结束值';
+        }
+      } catch (e) {
+        return '请输入有效的数值';
+      }
+    } else if (field?.type == FilterFieldType.DATE) {
+      try {
+        final fromDate = DateTime.parse(from);
+        final toDate = DateTime.parse(to);
+        if (fromDate.isAfter(toDate)) {
+          return '起始日期必须早于结束日期';
+        }
+      } catch (e) {
+        return '请输入有效的日期格式 (YYYY-MM-DD)';
+      }
+    }
+    
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final contentType = FilterConfig.getContentType(_currentSegment);
 
-    return Column(
-      children: [
-        // 固定在顶部的筛选项数量显示和操作按钮
-        Container(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // 筛选项数量显示
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.primary.withValues(alpha: 0.3),
-                    width: 1,
+    return Form(
+      key: _formKey,
+      child: Column(
+        children: [
+          // 固定在顶部的筛选项数量显示和操作按钮
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // 筛选项数量显示
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.filter_list,
+                        size: 16,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        '${_filters.length}',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.primary,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                child: Row(
+
+                // 操作按钮 - 居右显示
+                Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.filter_list,
-                      size: 16,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      '${_filters.length}',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
+                    Container(
+                      decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.primary,
-                        fontSize: 16,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: IconButton(
+                        onPressed: _addFilter,
+                        icon: const Icon(Icons.add, color: Colors.white),
+                        tooltip: '添加',
+                      ),
+                    ),
+                    if (_filters.isNotEmpty) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.error,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: IconButton(
+                          onPressed: _clearAllFilters,
+                          icon: const Icon(Icons.clear_all, color: Colors.white),
+                          tooltip: '清空',
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // 可滚动的内容区域
+          Expanded(
+            child: SingleChildScrollView(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 筛选项列表
+                    if (_filters.isNotEmpty) ...[
+                      ...(_filters
+                          .map(
+                            (filter) => FilterRowWidget(
+                              filter: filter,
+                              availableFields: contentType?.fields ?? [],
+                              onUpdate: _updateFilter,
+                              onRemove: _removeFilter,
+                              onValidate: _validateRangeValue,
+                            ),
+                          )
+                          .toList()),
+                      const SizedBox(height: 16),
+                    ],
+
+                    // 生成的查询
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.outline.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '生成的查询',
+                                style: Theme.of(context).textTheme.titleSmall
+                                    ?.copyWith(fontWeight: FontWeight.w600),
+                              ),
+                              IconButton(
+                                onPressed: _validateForm() ? _copyToClipboard : null,
+                                icon: Icon(_copied ? Icons.check : Icons.copy),
+                                tooltip: '复制到剪贴板',
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainer,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: SelectableText(
+                              _generateQuery(),
+                              style: TextStyle(
+                                fontFamily: 'monospace',
+                                fontSize: 12,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
-              ),
-
-              // 操作按钮 - 居右显示
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: _addFilter,
-                    icon: const Icon(Icons.add),
-                    label: const Text('添加'),
-                  ),
-                  if (_filters.isNotEmpty) ...[
-                    const SizedBox(width: 8),
-                    TextButton.icon(
-                      onPressed: _clearAllFilters,
-                      icon: const Icon(Icons.clear_all),
-                      label: const Text('清空'),
-                      style: TextButton.styleFrom(
-                        foregroundColor: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ],
-          ),
-        ),
-
-        // 可滚动的内容区域
-        Expanded(
-          child: SingleChildScrollView(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 筛选项列表
-                  if (_filters.isNotEmpty) ...[
-                    ...(_filters
-                        .map(
-                          (filter) => FilterRowWidget(
-                            filter: filter,
-                            availableFields: contentType?.fields ?? [],
-                            onUpdate: _updateFilter,
-                            onRemove: _removeFilter,
-                          ),
-                        )
-                        .toList()),
-                    const SizedBox(height: 16),
-                  ],
-
-                  // 生成的查询
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.outline.withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              '生成的查询',
-                              style: Theme.of(context).textTheme.titleSmall
-                                  ?.copyWith(fontWeight: FontWeight.w600),
-                            ),
-                            IconButton(
-                              onPressed: _copyToClipboard,
-                              icon: Icon(_copied ? Icons.check : Icons.copy),
-                              tooltip: '复制到剪贴板',
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.surfaceContainer,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: SelectableText(
-                            _generateQuery(),
-                            style: TextStyle(
-                              fontFamily: 'monospace',
-                              fontSize: 12,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
