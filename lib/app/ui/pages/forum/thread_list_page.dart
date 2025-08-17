@@ -105,7 +105,7 @@ class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProvid
             icon: const Icon(Icons.search),
             onPressed: () {
               Get.dialog(SearchDialog(
-                initialSearch: '',
+                userInputKeywords: '',
                 initialSegment: SearchSegment.forum,
                 onSearch: (searchInfo, segment) {
                   NaviService.toSearchPage(

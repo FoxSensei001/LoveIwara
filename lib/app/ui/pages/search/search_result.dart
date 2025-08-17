@@ -11,6 +11,7 @@ import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
+import 'package:i_iwara/app/ui/pages/search/widgets/search_common_widgets.dart';
 
 import 'search_dialog.dart';
 
@@ -192,23 +193,7 @@ class _SearchResultState extends State<SearchResult> {
     });
   }
 
-  // 获取分段图标
-  Widget _getSegmentIcon(SearchSegment segment) {
-    switch (segment) {
-      case SearchSegment.video:
-        return const Icon(Icons.video_library, size: 20);
-      case SearchSegment.image:
-        return const Icon(Icons.image, size: 20);
-      case SearchSegment.post:
-        return const Icon(Icons.article, size: 20);
-      case SearchSegment.user:
-        return const Icon(Icons.person, size: 20);
-      case SearchSegment.forum:
-        return const Icon(Icons.forum, size: 20);
-      case SearchSegment.oreno3d:
-        return const Icon(Icons.view_in_ar, size: 20);
-    }
-  }
+
 
   // 构建搜索列表组件
   Widget _buildSearchListWidget(SearchSegment segment, String query, bool isPaginated, int rebuildKey, String sort, String searchType, Map<String, dynamic>? extData) {
@@ -252,6 +237,12 @@ class _SearchResultState extends State<SearchResult> {
           searchType: searchType.isNotEmpty ? searchType : null,
           extData: extData,
         );
+      case SearchSegment.playlist:
+        return PlaylistSearchList(
+          key: ValueKey('playlist_$rebuildKey'),
+          query: query,
+          isPaginated: isPaginated,
+        );
     }
   }
 
@@ -291,36 +282,10 @@ class _SearchResultState extends State<SearchResult> {
 
   // 构建标签显示组件
   Widget _buildTagDisplayWidget() {
-    return Expanded(
-      child: Row(
-        children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: _copyTagToClipboard,
-              child: Container(
-                height: 44,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                alignment: Alignment.centerLeft,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Text(
-                    '#${searchController.currentSingleTagNameBehindSearchInput.value}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    maxLines: 1,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.translate, size: 20),
-            onPressed: _showTranslationDialog,
-          ),
-        ],
-      ),
+    return TagDisplayWidget(
+      tagName: searchController.currentSingleTagNameBehindSearchInput.value,
+      onCopy: _copyTagToClipboard,
+      onTranslate: _showTranslationDialog,
     );
   }
 
@@ -349,50 +314,14 @@ class _SearchResultState extends State<SearchResult> {
   // 构建搜索输入框
   Widget _buildSearchInputField() {
     return Expanded(
-      child: Material(
-        elevation: 0,
-        color: Theme.of(context)
-            .colorScheme
-            .surfaceContainerHighest
-            .withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(12),
-        clipBehavior: Clip.antiAlias,
-        child: TextField(
-          controller: _searchController,
-          readOnly: true,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-          decoration: _buildSearchInputDecoration(),
-          onTap: _showSearchDialog,
-        ),
+      child: SearchInputField(
+        controller: _searchController,
+        hintText: searchController.currentSearch.value.isEmpty
+            ? slang.t.search.pleaseEnterSearchContent
+            : searchController.currentSearch.value,
+        readOnly: true,
+        onTap: _showSearchDialog,
       ),
-    );
-  }
-
-  // 构建搜索输入框装饰
-  InputDecoration _buildSearchInputDecoration() {
-    return InputDecoration(
-      hintText: searchController.currentSearch.value.isEmpty
-          ? slang.t.search.pleaseEnterSearchContent
-          : searchController.currentSearch.value,
-      hintStyle: TextStyle(
-        color: Theme.of(context).colorScheme.onSurfaceVariant,
-      ),
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 12,
-      ),
-      border: InputBorder.none,
-      focusedBorder: InputBorder.none,
-      prefixIcon: Icon(
-        Icons.search,
-        color: Theme.of(context).colorScheme.onSurfaceVariant,
-      ),
-      filled: true,
-      fillColor: Colors.transparent,
     );
   }
 
@@ -400,7 +329,7 @@ class _SearchResultState extends State<SearchResult> {
   void _showSearchDialog() {
     Get.dialog(
       SearchDialog(
-        initialSearch: searchController.currentSearch.value,
+        userInputKeywords: searchController.currentSearch.value,
         initialSegment: searchController.selectedSegment.value,
         onSearch: _handleSearchResult,
       ),
@@ -423,110 +352,10 @@ class _SearchResultState extends State<SearchResult> {
 
   // 构建分段选择器
   Widget _buildSegmentSelector() {
-    return Container(
-      margin: const EdgeInsets.only(left: 4),
-      height: 44,
-      child: Obx(
-        () => PopupMenuButton<String>(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          initialValue: searchController.selectedSegment.value.name,
-          onSelected: (String newValue) {
-            searchController.updateSegment(SearchSegment.fromValue(newValue));
-          },
-          itemBuilder: _buildSegmentMenuItems,
-          child: _buildSegmentSelectorButton(),
-        ),
-      ),
-    );
-  }
-
-  // 构建分段菜单项
-  List<PopupMenuItem<String>> _buildSegmentMenuItems(BuildContext context) {
-    final t = slang.Translations.of(context);
-    return [
-      PopupMenuItem<String>(
-        value: 'video',
-        child: Row(
-          children: [
-            const Icon(Icons.video_library, size: 20),
-            const SizedBox(width: 8),
-            Text(t.common.video),
-          ],
-        ),
-      ),
-      PopupMenuItem<String>(
-        value: 'image',
-        child: Row(
-          children: [
-            const Icon(Icons.image, size: 20),
-            const SizedBox(width: 8),
-            Text(t.common.gallery),
-          ],
-        ),
-      ),
-      PopupMenuItem<String>(
-        value: 'post',
-        child: Row(
-          children: [
-            const Icon(Icons.article, size: 20),
-            const SizedBox(width: 8),
-            Text(t.common.post),
-          ],
-        ),
-      ),
-      PopupMenuItem<String>(
-        value: 'user',
-        child: Row(
-          children: [
-            const Icon(Icons.person, size: 20),
-            const SizedBox(width: 8),
-            Text(t.common.user),
-          ],
-        ),
-      ),
-      PopupMenuItem<String>(
-        value: 'forum',
-        child: Row(
-          children: [
-            const Icon(Icons.forum, size: 20),
-            const SizedBox(width: 8),
-            Text(t.forum.forum),
-          ],
-        ),
-      ),
-      PopupMenuItem<String>(
-        value: 'oreno3d',
-        child: Row(
-          children: [
-            const Icon(Icons.view_in_ar, size: 20),
-            const SizedBox(width: 8),
-            Text('Oreno3D'),
-          ],
-        ),
-      ),
-    ];
-  }
-
-  // 构建分段选择器按钮
-  Widget _buildSegmentSelectorButton() {
-    return Material(
-      borderRadius: BorderRadius.circular(12),
-      color: Theme.of(context)
-          .colorScheme
-          .surfaceContainerHighest
-          .withValues(alpha: 0.5),
-      clipBehavior: Clip.antiAlias,
-      child: Container(
-        width: 44,
-        height: 44,
-        alignment: Alignment.center,
-        child: _getSegmentIcon(
-          searchController.selectedSegment.value,
-        ),
-      ),
-    );
+    return Obx(() => SearchSegmentSelector(
+      selectedSegment: searchController.selectedSegment.value,
+      onSegmentChanged: searchController.updateSegment,
+    ));
   }
 
   // 构建排序选择器
@@ -536,93 +365,11 @@ class _SearchResultState extends State<SearchResult> {
       if (segment != SearchSegment.oreno3d) {
         return const SizedBox.shrink();
       }
-      return Container(
-        margin: const EdgeInsets.only(left: 4),
-        height: 44,
-        alignment: Alignment.center,
-        child: PopupMenuButton<String>(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          initialValue: searchController.selectedSort.value,
-          onSelected: (String newValue) {
-            searchController.updateSort(newValue);
-          },
-          itemBuilder: _buildSortMenuItems,
-          child: _buildSortSelectorButton(),
-        ),
+      return SortSelector(
+        selectedSort: searchController.selectedSort.value,
+        onSortChanged: searchController.updateSort,
       );
     });
-  }
-
-  // 构建排序菜单项
-  List<PopupMenuItem<String>> _buildSortMenuItems(BuildContext context) {
-    final t = slang.Translations.of(context);
-    // Oreno3d专用排序选项
-    return [
-      PopupMenuItem<String>(
-        value: 'hot',
-        child: Row(
-          children: [
-            const Icon(Icons.trending_up, size: 20),
-            const SizedBox(width: 8),
-            Text(t.oreno3d.sortTypes.hot),
-          ],
-        ),
-      ),
-      PopupMenuItem<String>(
-        value: 'favorites',
-        child: Row(
-          children: [
-            const Icon(Icons.favorite, size: 20),
-            const SizedBox(width: 8),
-            Text(t.oreno3d.sortTypes.favorites),
-          ],
-        ),
-      ),
-      PopupMenuItem<String>(
-        value: 'latest',
-        child: Row(
-          children: [
-            const Icon(Icons.schedule, size: 20),
-            const SizedBox(width: 8),
-            Text(t.oreno3d.sortTypes.latest),
-          ],
-        ),
-      ),
-      PopupMenuItem<String>(
-        value: 'popularity',
-        child: Row(
-          children: [
-            const Icon(Icons.star, size: 20),
-            const SizedBox(width: 8),
-            Text(t.oreno3d.sortTypes.popularity),
-          ],
-        ),
-      ),
-    ];
-  }
-
-  // 构建排序选择器按钮
-  Widget _buildSortSelectorButton() {
-    return Material(
-      borderRadius: BorderRadius.circular(12),
-      color: Theme.of(context)
-          .colorScheme
-          .surfaceContainerHighest
-          .withValues(alpha: 0.5),
-      clipBehavior: Clip.antiAlias,
-      child: Container(
-        width: 44,
-        height: 44,
-        alignment: Alignment.center,
-        child: Icon(
-          Icons.sort,
-          size: 20,
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
-        ),
-      ),
-    );
   }
 
   // 构建应用栏操作按钮

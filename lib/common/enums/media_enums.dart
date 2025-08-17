@@ -22,6 +22,7 @@ enum SearchSegment {
   user,
   forum,
   oreno3d,
+  playlist,
   ;
 
   String get apiType {
@@ -31,13 +32,15 @@ enum SearchSegment {
       case SearchSegment.image:
         return 'images';
       case SearchSegment.post:
-        return 'post';
+        return 'posts';
       case SearchSegment.user:
-        return 'user';
+        return 'users';
       case SearchSegment.forum:
-        return 'forum';
+        return 'forum_threads';
       case SearchSegment.oreno3d:
         return 'oreno3d';
+      case SearchSegment.playlist:
+        return 'playlists';
     }
   }
 

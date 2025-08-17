@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/app/models/play_list.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -29,15 +30,11 @@ class PlaylistItemWidget extends StatelessWidget {
                 imageUrl: playlist.thumbnailUrl,
                 fit: BoxFit.cover,
                 width: double.infinity,
-                placeholder: (context, url) => Container(
-                  color: Colors.grey[300],
-                  child: const Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                ),
-                errorWidget: (context, url, error) => const Center(
-                  child: Icon(Icons.error),
-                ),
+                placeholder: (context, url) => _buildShimmerPlaceholder(),
+                errorWidget: (context, url, error) => _buildErrorPlaceholder(),
+                fadeInDuration: const Duration(milliseconds: 50),
+                placeholderFadeInDuration: const Duration(milliseconds: 0),
+                fadeOutDuration: const Duration(milliseconds: 0),
               ),
             ),
             Padding(
@@ -63,6 +60,32 @@ class PlaylistItemWidget extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShimmerPlaceholder() {
+    return Shimmer.fromColors(
+      baseColor: const Color(0xFFE0E0E0),
+      highlightColor: const Color(0xFFF5F5F5),
+      child: Container(
+        decoration: const BoxDecoration(
+          color: Color(0xFFE0E0E0),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorPlaceholder() {
+    return const SizedBox.expand(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Color(0xFFE0E0E0),
+        ),
+        child: Center(
+          child: Icon(Icons.image_not_supported,
+              size: 32, color: Color(0xFF9E9E9E)),
         ),
       ),
     );

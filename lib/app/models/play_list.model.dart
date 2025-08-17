@@ -1,24 +1,31 @@
+import 'package:i_iwara/app/models/play_list_thumbnail.model.dart';
+import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/common/constants.dart';
 
 class PlaylistModel {
   String id;
   String title;
+  PlaylistThumbnail? thumbnail;
   int numVideos;
-  String thumbnailUrl; // 封面图，截至2024-11-29，目前iwara并没有真正的为playlist设置封面图，如果后续iwara添加了，可以在这里添加
+  User? user;
 
   PlaylistModel({
     required this.id,
     required this.title,
+    this.thumbnail,
     required this.numVideos,
-    required this.thumbnailUrl,
+    this.user,
   });
 
   factory PlaylistModel.fromJson(Map<String, dynamic> json) {
     return PlaylistModel(
       id: json['id'],
       title: json['title'],
+      thumbnail: json['thumbnail'] != null 
+          ? PlaylistThumbnail.fromJson(json['thumbnail']) 
+          : null,
       numVideos: json['numVideos'],
-      thumbnailUrl: json['thumbnailUrl'] ?? CommonConstants.defaultPlaylistThumbnailUrl,
+      user: json['user'] != null ? User.fromJson(json['user']) : null,
     );
   }
 
@@ -26,8 +33,17 @@ class PlaylistModel {
     return {
       'id': id,
       'title': title,
+      'thumbnail': thumbnail?.toJson(),
       'numVideos': numVideos,
-      'thumbnailUrl': thumbnailUrl,
+      'user': user?.toJson(),
     };
+  }
+
+  // 获取缩略图URL
+  String get thumbnailUrl {
+    if (thumbnail != null) {
+      return thumbnail!.thumbnailUrl;
+    }
+    return CommonConstants.defaultPlaylistThumbnailUrl;
   }
 }

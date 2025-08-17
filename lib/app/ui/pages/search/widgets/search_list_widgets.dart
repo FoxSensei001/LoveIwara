@@ -5,6 +5,7 @@ import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/oreno3d_video.model.dart';
+import 'package:i_iwara/app/models/play_list.model.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/thread_list_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/image_model_card_list_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/post_card_list_item_widget.dart';
@@ -12,6 +13,7 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_
 import 'package:i_iwara/app/ui/pages/search/repositories/search_repositories.dart';
 import 'package:i_iwara/app/ui/widgets/user_card.dart';
 import 'package:i_iwara/app/ui/widgets/oreno3d_video_card.dart';
+import 'package:i_iwara/app/ui/pages/play_list/widgets/playlist_item_widget.dart';
 
 import 'base_search_list.dart';
 
@@ -249,6 +251,49 @@ class Oreno3dSearchListState extends BaseSearchListState<Oreno3dVideo, Oreno3dSe
       child: Oreno3dVideoCard(
         video: video,
         width: itemWidth,
+      ),
+    );
+  }
+}
+
+/// 播放列表搜索列表
+class PlaylistSearchList extends BaseSearchList<PlaylistModel, PlaylistSearchRepository> {
+  const PlaylistSearchList({
+    super.key,
+    required super.query,
+    super.isPaginated = false,
+  });
+
+  @override
+  State<PlaylistSearchList> createState() => PlaylistSearchListState();
+}
+
+class PlaylistSearchListState extends BaseSearchListState<PlaylistModel, PlaylistSearchRepository, PlaylistSearchList> {
+  @override
+  PlaylistSearchRepository createRepository() {
+    return PlaylistSearchRepository(
+      query: widget.query,
+    );
+  }
+
+  @override
+  IconData get emptyIcon => Icons.playlist_play_outlined;
+
+  @override
+  Widget buildListItem(BuildContext context, PlaylistModel playlist, int index) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final itemWidth = screenWidth <= 600 ? (screenWidth - 8) / 2 : (screenWidth - 24) / 3;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
+        vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
+      ),
+      child: SizedBox(
+        width: itemWidth,
+        child: PlaylistItemWidget(
+          playlist: playlist,
+        ),
       ),
     );
   }

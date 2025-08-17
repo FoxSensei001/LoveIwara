@@ -199,7 +199,7 @@ class _ForumPageState extends State<ForumPage> {
             icon: const Icon(Icons.search),
             onPressed: () {
               Get.dialog(SearchDialog(
-                initialSearch: '',
+                userInputKeywords: '',
                 initialSegment: SearchSegment.forum,
                 onSearch: (searchInfo, segment) {
                   NaviService.toSearchPage(

@@ -5,6 +5,7 @@ import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/oreno3d_video.model.dart';
+import 'package:i_iwara/app/models/play_list.model.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'search_repository.dart';
 
@@ -107,6 +108,22 @@ class Oreno3dSearchRepository extends SearchRepository<Oreno3dVideo> {
       sort: sortType,
       searchType: searchType,
       extData: extData,
+    );
+  }
+}
+
+/// 播放列表搜索仓库
+class PlaylistSearchRepository extends SearchRepository<PlaylistModel> {
+  PlaylistSearchRepository({
+    required super.query,
+  }) : super(segment: SearchSegment.playlist.apiType);
+
+  @override
+  Future<ApiResult> fetchSearchResults(int page, int limit, String keyword) {
+    return searchService.fetchPlaylistByQuery(
+      page: page,
+      limit: limit,
+      query: keyword,
     );
   }
 }

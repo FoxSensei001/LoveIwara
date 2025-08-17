@@ -8,6 +8,7 @@ import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/oreno3d_video.model.dart';
+import 'package:i_iwara/app/models/play_list.model.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/common_utils.dart';
@@ -250,6 +251,19 @@ class SearchService extends GetxController {
       return ApiResult.fail('搜索Oreno3d视频失败: $e');
     }
   }
+
+  /// 获取播放列表
+  Future<ApiResult<PageData<PlaylistModel>>> fetchPlaylistByQuery({
+    int page = 0,
+    int limit = 20,
+    String query = '',
+  }) => fetchDataByType<PlaylistModel>(
+    page: page,
+    limit: limit,
+    query: query,
+    type: SearchSegment.playlist.apiType,
+    fromJson: PlaylistModel.fromJson,
+  );
 
   /// 获取Oreno3d视频详情
   Future<Oreno3dVideoDetail?> getOreno3dVideoDetail(

@@ -121,7 +121,7 @@ class PopularMediaListPageBaseState<
   void _openSearchDialog() {
     Get.dialog(
       SearchDialog(
-        initialSearch: '',
+        userInputKeywords: '',
         initialSegment: widget.searchSegment,
         onSearch: (searchInfo, segment) {
           NaviService.toSearchPage(searchInfo: searchInfo, segment: segment);
