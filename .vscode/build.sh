@@ -16,18 +16,15 @@ case $platform in
     "linux")
         flutter build linux --release
         ;;
-    "web")
-        flutter build web --release
-        ;;
+
     "all")
         flutter build windows --release
         flutter build macos --release
         flutter build linux --release
-        flutter build web --release
         flutter build apk --release
         ;;
     *)
-        echo "Usage: ./build.sh [windows|macos|linux|web|all]"
+        echo "Usage: ./build.sh [windows|macos|linux|all]"
         exit 1
         ;;
 esac

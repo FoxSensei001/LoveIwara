@@ -115,7 +115,7 @@ class GalleryImageScrollerWidget extends StatelessWidget {
               icon: Icons.copy,
               onTap: () => ImageUtils.copyImage(item),
           ),
-          if (GetPlatform.isDesktop && !GetPlatform.isWeb)
+          if (GetPlatform.isDesktop)
               MenuItem(
                   title: t.galleryDetail.saveAs,
                   icon: Icons.download,

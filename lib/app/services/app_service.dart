@@ -94,7 +94,7 @@ class AppService extends GetxService {
       Get.nestedKey(Routes.HOME)!.navigatorKey;
 
   AppService() {
-    if (GetPlatform.isDesktop && !GetPlatform.isWeb) {
+    if (GetPlatform.isDesktop) {
       _showTitleBar.value = true;
     }
   }
@@ -102,7 +102,7 @@ class AppService extends GetxService {
   bool get showTitleBar => _showTitleBar.value;
 
   set showTitleBar(bool value) => {
-        if (GetPlatform.isDesktop && !GetPlatform.isWeb)
+        if (GetPlatform.isDesktop)
           _showTitleBar.value = value
       };
 

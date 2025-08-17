@@ -73,7 +73,7 @@ class _GalleryDownloadTaskDetailPageState extends State<GalleryDownloadTaskDetai
     final t = slang.Translations.of(context);
     
     return [
-      if (GetPlatform.isDesktop && !GetPlatform.isWeb)
+      if (GetPlatform.isDesktop)
         MenuItem(
           title: t.galleryDetail.saveAs,
           icon: Icons.download,

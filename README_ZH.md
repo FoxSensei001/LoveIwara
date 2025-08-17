@@ -55,7 +55,7 @@ Love Iwara（又名 i_iwara 或 2i）是一个使用 Flutter 构建的 Iwara 第
     - 🍎 MacOS（由于没有属于自己的 Mac 设备，暂无法测试）
     - 🐧 Linux（由于没有 Linux 设备，暂无法测试）
     - 📱 iOS（由于没有属于自己的 iOS 设备，暂无法测试）
-    - 🌐 Web（仅用于开发）
+
 
 - **🔍 搜索**
     - 搜索视频/图库/帖子/用户/论坛
@@ -211,7 +211,7 @@ flutter run
 flutter run -d windows  # Windows
 flutter run -d macos   # macOS
 flutter run -d linux   # Linux
-flutter run -d chrome --web-browser-flag "--disable-web-security" # Web & 禁用安全检查，防止跨域问题
+
 flutter run -d android # Android
 flutter run -d ios     # iOS
 
@@ -232,8 +232,7 @@ flutter build macos --release
 # Linux
 flutter build linux --release
 
-# Web
-flutter build web --release
+
 ```
 
 #### 常用开发命令

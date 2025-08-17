@@ -9,9 +9,9 @@ class TopPaddingHeightWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 如果是DeskTop设备，且不是网页，则监听
+    // 如果是DeskTop设备，则监听
     var paddingTop = MediaQuery.paddingOf(context).top;
-    if (GetPlatform.isDesktop && !GetPlatform.isWeb) {
+    if (GetPlatform.isDesktop) {
       return Obx(() {
         if (appService.showTitleBar) {
           return const SizedBox(height: AppService.titleBarHeight);

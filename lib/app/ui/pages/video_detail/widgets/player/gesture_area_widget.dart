@@ -77,7 +77,7 @@ class _GestureAreaState extends State<GestureArea>
     super.initState();
     _initializeInfoMessageController();
 
-    if (!GetPlatform.isLinux && !GetPlatform.isWeb) {
+    if (!GetPlatform.isLinux) {
       _screenBrightness = ScreenBrightness();
     }
     
@@ -190,9 +190,9 @@ class _GestureAreaState extends State<GestureArea>
       return false;
     }
 
-    // 检查左侧亮度调节配置，PC设备和Web不处理亮度调节
+    // 检查左侧亮度调节配置，PC设备不处理亮度调节
     if (widget.region == GestureRegion.left) {
-      if (GetPlatform.isDesktop || GetPlatform.isWeb) {
+      if (GetPlatform.isDesktop) {
         return false;
       }
       return _configService[ConfigKey.ENABLE_LEFT_VERTICAL_SWIPE_BRIGHTNESS] == true;
@@ -246,7 +246,6 @@ class _GestureAreaState extends State<GestureArea>
     final double max = widget.screenSize.height * scalingFactor;
 
     if (widget.region == GestureRegion.left &&
-        !GetPlatform.isWeb &&
         !GetPlatform.isLinux &&
         !GetPlatform.isWindows &&
         !GetPlatform.isMacOS) {

@@ -25,7 +25,7 @@ extension WidgetExtension on Widget {
   /// Text('Hello').titleBarPaddingTop()
   /// ```
   Widget titleBarPaddingTop() {
-    if (GetPlatform.isDesktop && !GetPlatform.isWeb) {
+    if (GetPlatform.isDesktop) {
       return Padding(
         padding: const EdgeInsets.only(top: 24),
         child: this,

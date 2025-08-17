@@ -566,7 +566,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
                       icon: Icons.copy,
                       onTap: () => ImageUtils.copyImage(item),
                     ),
-                    if (GetPlatform.isDesktop && !GetPlatform.isWeb)
+                    if (GetPlatform.isDesktop)
                       MenuItem(
                         title: t.galleryDetail.saveAs,
                         icon: Icons.download,

@@ -55,7 +55,7 @@ Thank you for your understanding and support! If you're also a Flutter beginner,
     - 🍎 MacOS (Due to lack of Mac device, testing unavailable;)
     - 🐧 Linux (Due to lack of Linux device, testing unavailable)
     - 📱 iOS (Due to lack of iOS device, testing unavailable)
-    - 🌐 Web (Development only)
+
 
 - **🔍 Search**
     - Search videos/galleries/posts/users/forums
@@ -213,7 +213,7 @@ flutter run
 flutter run -d windows  # Windows
 flutter run -d macos   # macOS
 flutter run -d linux   # Linux
-flutter run -d chrome --web-browser-flag "--disable-web-security" # Web & disable security checks to prevent CORS issues
+
 flutter run -d android # Android
 flutter run -d ios     # iOS
 
@@ -234,8 +234,7 @@ flutter build macos --release
 # Linux
 flutter build linux --release
 
-# Web
-flutter build web --release
+
 ```
 
 #### Common Development Commands

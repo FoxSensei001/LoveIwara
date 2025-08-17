@@ -14,7 +14,7 @@ class WindowTitleBarLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (GetPlatform.isMobile && !GetPlatform.isWeb) return child;
+    if (GetPlatform.isMobile) return child;
     AppService controller = Get.find();
 
     // 使用 Builder 确保正确的上下文传递

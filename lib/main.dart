@@ -92,7 +92,7 @@ void main() {
     // 运行应用
     runApp(TranslationProvider(child: const MyApp()));
 
-    if (GetPlatform.isDesktop && !GetPlatform.isWeb) {
+    if (GetPlatform.isDesktop) {
       await _initializeDesktop();
     }
 

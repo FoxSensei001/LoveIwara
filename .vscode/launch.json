@@ -1,16 +1,7 @@
 {
     "version": "0.2.0",
     "configurations": [
-        {
-            "name": "i_iwara_sensei (Chrome)",
-            "request": "launch",
-            "type": "dart",
-            "args": [
-                "-d",
-                "chrome",
-                "--web-browser-flag=--disable-web-security"
-            ]
-        },
+
         {
             "name": "i_iwara_sensei (Windows)",
             "request": "launch",
@@ -41,17 +32,7 @@
                 "--release"
             ]
         },
-        {
-            "name": "i_iwara_sensei (Web)",
-            "request": "launch",
-            "type": "dart",
-            "args": [
-                "-d",
-                "web-server",
-                "--web-port=8000",
-                "--web-hostname=0.0.0.0"
-            ]
-        },
+
         {
             "name": "i_iwara_sensei (Windows - Profile)",
             "request": "launch",

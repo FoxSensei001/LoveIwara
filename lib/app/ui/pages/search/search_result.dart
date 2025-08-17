@@ -10,6 +10,8 @@ import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
+import 'utils/search_syntax_parser.dart';
+import 'widgets/search_filter_widget.dart';
 
 import 'search_dialog.dart';
 
@@ -19,10 +21,12 @@ class SearchController extends GetxController {
   final RxString selectedSegment = 'video'.obs;
   final RxBool isPaginated = CommonConstants.isPaginated.obs;
   final RxInt rebuildKey = 0.obs;
-  final RxString selectedSort = 'trending'.obs; // 添加 sort 状态管理
   final RxString searchType = ''.obs; // 添加搜索类型状态管理（用于 oreno3d）
   final Rx<Map<String, dynamic>?> extData = Rx<Map<String, dynamic>?>(null); // 添加扩展数据管理
   final RxString currentSingleTagNameBehindSearchInput = ''.obs; // 用于显示 oreno3d 标签名
+  
+  // 搜索查询解析
+  final Rx<SearchQuery> searchQuery = SearchQuery(userKeyword: '', filterData: SearchFilterData()).obs;
 
   // 存储滚动回调
   final List<Function()> _scrollToTopCallbacks = [];
@@ -55,13 +59,6 @@ class SearchController extends GetxController {
   void updateSegment(String segment) {
     selectedSegment.value = segment;
 
-    // 根据分段设置合适的默认排序
-    if (segment == 'oreno3d') {
-      selectedSort.value = 'hot'; // oreno3d默认使用hot排序
-    } else if (segment == 'video' || segment == 'image') {
-      selectedSort.value = 'trending'; // 视频和图片使用trending排序
-    }
-
     // 切换分段时滚动到顶部
     scrollToTop();
   }
@@ -81,9 +78,8 @@ class SearchController extends GetxController {
     currentSingleTagNameBehindSearchInput.value = name;
   }
 
-  // 更新排序方式
+  // 更新排序方式（已废弃，新搜索API不支持排序）
   void updateSort(String sort) {
-    selectedSort.value = sort;
     // 切换排序时刷新搜索结果
     refreshSearch();
   }
@@ -208,12 +204,11 @@ class _SearchResultState extends State<SearchResult> {
       final segment = searchController.selectedSegment.value;
       final isPaginated = searchController.isPaginated.value;
       final rebuildKey = searchController.rebuildKey.value;
-      final sort = searchController.selectedSort.value;
       final searchType = searchController.searchType.value;
       final extData = searchController.extData.value;
 
       LogUtils.d(
-        '构建搜索列表: 关键词=$query, 类型=$segment, 使用分页=$isPaginated, 重建键=$rebuildKey, 排序=$sort, 搜索类型=$searchType, 扩展数据=$extData',
+        '构建搜索列表: 关键词=$query, 类型=$segment, 使用分页=$isPaginated, 重建键=$rebuildKey, 搜索类型=$searchType, 扩展数据=$extData',
         'SearchResult',
       );
 
@@ -224,7 +219,6 @@ class _SearchResultState extends State<SearchResult> {
             key: ValueKey('video_$rebuildKey'),
             query: query,
             isPaginated: isPaginated,
-            sortType: sort,
           );
           break;
         case 'image':
@@ -232,7 +226,6 @@ class _SearchResultState extends State<SearchResult> {
             key: ValueKey('image_$rebuildKey'),
             query: query,
             isPaginated: isPaginated,
-            sortType: sort,
           );
           break;
         case 'user':
@@ -261,7 +254,7 @@ class _SearchResultState extends State<SearchResult> {
             key: ValueKey('oreno3d_$rebuildKey'),
             query: query,
             isPaginated: isPaginated,
-            sortType: sort,
+            sortType: 'hot', // oreno3d仍然使用排序
             searchType: searchType.isNotEmpty ? searchType : null,
             extData: extData,
           );
@@ -547,10 +540,10 @@ class _SearchResultState extends State<SearchResult> {
                       ),
                     ),
                   ),
-                  // 排序下拉框（仅视频、图库和oreno3d显示）
+                  // 排序下拉框（仅oreno3d显示，因为新搜索API不支持排序）
                   Obx(() {
                     final segment = searchController.selectedSegment.value;
-                    if (segment != 'video' && segment != 'image' && segment != 'oreno3d') {
+                    if (segment != 'oreno3d') {
                       return const SizedBox.shrink();
                     }
                     return Container(
@@ -561,73 +554,55 @@ class _SearchResultState extends State<SearchResult> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        initialValue: searchController.selectedSort.value,
+                        initialValue: 'hot',
                         onSelected: (String newValue) {
+                          // 对于oreno3d，我们仍然需要排序功能
                           searchController.updateSort(newValue);
                         },
                         itemBuilder: (BuildContext context) {
-                          final segment = searchController.selectedSegment.value;
-                          if (segment == 'oreno3d') {
-                            // Oreno3d专用排序选项
-                            return [
-                              PopupMenuItem<String>(
-                                value: 'hot',
-                                child: Row(
-                                  children: [
-                                    const Icon(Icons.trending_up, size: 20),
-                                    const SizedBox(width: 8),
-                                    Text(t.oreno3d.sortTypes.hot),
-                                  ],
-                                ),
+                          // Oreno3d专用排序选项
+                          return [
+                            PopupMenuItem<String>(
+                              value: 'hot',
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.trending_up, size: 20),
+                                  const SizedBox(width: 8),
+                                  Text(t.oreno3d.sortTypes.hot),
+                                ],
                               ),
-                              PopupMenuItem<String>(
-                                value: 'favorites',
-                                child: Row(
-                                  children: [
-                                    const Icon(Icons.favorite, size: 20),
-                                    const SizedBox(width: 8),
-                                    Text(t.oreno3d.sortTypes.favorites),
-                                  ],
-                                ),
+                            ),
+                            PopupMenuItem<String>(
+                              value: 'favorites',
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.favorite, size: 20),
+                                  const SizedBox(width: 8),
+                                  Text(t.oreno3d.sortTypes.favorites),
+                                ],
                               ),
-                              PopupMenuItem<String>(
-                                value: 'latest',
-                                child: Row(
-                                  children: [
-                                    const Icon(Icons.schedule, size: 20),
-                                    const SizedBox(width: 8),
-                                    Text(t.oreno3d.sortTypes.latest),
-                                  ],
-                                ),
+                            ),
+                            PopupMenuItem<String>(
+                              value: 'latest',
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.schedule, size: 20),
+                                  const SizedBox(width: 8),
+                                  Text(t.oreno3d.sortTypes.latest),
+                                ],
                               ),
-                              PopupMenuItem<String>(
-                                value: 'popularity',
-                                child: Row(
-                                  children: [
-                                    const Icon(Icons.star, size: 20),
-                                    const SizedBox(width: 8),
-                                    Text(t.oreno3d.sortTypes.popularity),
-                                  ],
-                                ),
+                            ),
+                            PopupMenuItem<String>(
+                              value: 'popularity',
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.star, size: 20),
+                                  const SizedBox(width: 8),
+                                  Text(t.oreno3d.sortTypes.popularity),
+                                ],
                               ),
-                            ];
-                          } else {
-                            // 标准排序选项
-                            return CommonConstants.mediaSorts.map((sort) {
-                              return PopupMenuItem<String>(
-                                value: sort.id.name,
-                                child: Row(
-                                  children: [
-                                    if (sort.icon != null) ...[
-                                      sort.icon!,
-                                      const SizedBox(width: 8),
-                                    ],
-                                    Text(sort.label),
-                                  ],
-                                ),
-                              );
-                            }).toList();
-                          }
+                            ),
+                          ];
                         },
                         child: Material(
                           borderRadius: BorderRadius.circular(12),

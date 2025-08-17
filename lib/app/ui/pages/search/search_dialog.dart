@@ -7,6 +7,8 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/widgets/google_search_panel_widget.dart';
 import 'dart:math';
 import 'package:i_iwara/app/models/search_record.model.dart';
+import 'widgets/search_filter_widget.dart';
+import 'utils/search_syntax_parser.dart';
 
 enum SearchSegment {
   video,
@@ -128,6 +130,10 @@ class _SearchContentState extends State<_SearchContent> {
   final RxString _searchErrorText = ''.obs;
   final RxString _selectedSegment = 'video'.obs;
   
+  // 搜索过滤器和查询
+  late SearchQuery _searchQuery;
+  late SearchFilterData _filterData;
+  
   // 滚动控制器，用于在展开谷歌搜索面板时自动滚动
   final ScrollController _scrollController = ScrollController();
 
@@ -136,8 +142,12 @@ class _SearchContentState extends State<_SearchContent> {
     super.initState();
     userPreferenceService = Get.find<UserPreferenceService>();
     
+    // 解析初始搜索查询
+    _searchQuery = SearchSyntaxParser.parseSearchQuery(widget.initialSearch);
+    _filterData = _searchQuery.filterData;
+    
     // 设置初始搜索内容和 segment
-    _controller.text = widget.initialSearch;
+    _controller.text = _searchQuery.userKeyword;
     _selectedSegment.value = widget.initialSegment.name;
 
     // 更新搜索建议
@@ -241,13 +251,79 @@ class _SearchContentState extends State<_SearchContent> {
       return;
     }
 
+    // 更新用户关键词
+    _searchQuery = SearchQuery(
+      userKeyword: value,
+      filterData: _filterData,
+    );
+
+    // 生成完整搜索查询
+    String fullQuery = _searchQuery.fullQuery;
+
     if (userPreferenceService.searchRecordEnabled.value) {
       userPreferenceService.addVideoSearchHistory(value);
     }
 
-    LogUtils.d('搜索内容: $value, 类型: ${_selectedSegment.value}');
+    LogUtils.d('搜索内容: $fullQuery, 类型: ${_selectedSegment.value}');
     _dismiss();
-    widget.onSearch(value, _selectedSegment.value);
+    widget.onSearch(fullQuery, _selectedSegment.value);
+  }
+
+  void _onFilterChanged(SearchFilterData newFilter) {
+    _filterData = newFilter;
+    _searchQuery = SearchQuery(
+      userKeyword: _controller.text,
+      filterData: _filterData,
+    );
+  }
+
+  void _showFilterDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: 600,
+            minWidth: 400,
+            maxHeight: 600,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      '搜索过滤器',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: SearchFilterWidget(
+                      initialFilter: _filterData,
+                      onFilterChanged: _onFilterChanged,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   void _dismiss() {
@@ -436,6 +512,49 @@ class _SearchContentState extends State<_SearchContent> {
                     ),
                   ),
                 ),
+                // 过滤器按钮（仅对video和image显示）
+                Obx(() {
+                  final segment = _selectedSegment.value;
+                  if (segment != 'video' && segment != 'image') {
+                    return const SizedBox.shrink();
+                  }
+                  return Container(
+                    margin: const EdgeInsets.only(right: 8),
+                    height: 44,
+                    child: Material(
+                      borderRadius: BorderRadius.circular(12),
+                      color: Theme.of(context).colorScheme.surfaceContainer,
+                      elevation: 1,
+                      clipBehavior: Clip.hardEdge,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () {
+                          _showFilterDialog();
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.filter_list, size: 20),
+                              const SizedBox(width: 4),
+                              Text(
+                                '过滤器',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }),
                 // 搜索按钮
                 SizedBox(
                   height: 44,
