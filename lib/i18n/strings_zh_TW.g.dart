@@ -67,6 +67,8 @@ class TranslationsZhTw implements Translations {
 	@override late final _TranslationsDisplaySettingsZhTw displaySettings = _TranslationsDisplaySettingsZhTw._(_root);
 	@override late final _TranslationsLayoutSettingsZhTw layoutSettings = _TranslationsLayoutSettingsZhTw._(_root);
 	@override late final _TranslationsNavigationOrderSettingsZhTw navigationOrderSettings = _TranslationsNavigationOrderSettingsZhTw._(_root);
+	@override late final _TranslationsSearchFilterZhTw searchFilter = _TranslationsSearchFilterZhTw._(_root);
+	@override late final _TranslationsTagSelectorZhTw tagSelector = _TranslationsTagSelectorZhTw._(_root);
 }
 
 // Path: common
@@ -1548,6 +1550,107 @@ class _TranslationsNavigationOrderSettingsZhTw implements TranslationsNavigation
 	@override String get galleryDescription => '瀏覽圖片和畫廊';
 	@override String get subscriptionDescription => '查看追蹤用戶的最新內容';
 	@override String get forumDescription => '參與社群討論';
+}
+
+// Path: searchFilter
+class _TranslationsSearchFilterZhTw implements TranslationsSearchFilterEn {
+	_TranslationsSearchFilterZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get selectField => '選擇欄位';
+	@override String get add => '新增';
+	@override String get clear => '清空';
+	@override String get clearAll => '清空全部';
+	@override String get generatedQuery => '產生的查詢';
+	@override String get copyToClipboard => '複製到剪貼簿';
+	@override String get copied => '已複製';
+	@override String filterCount({required Object count}) => '${count} 個過濾器';
+	@override String get filterSettings => '篩選項設定';
+	@override String get field => '欄位';
+	@override String get operator => '運算子';
+	@override String get language => '語言';
+	@override String get value => '值';
+	@override String get dateRange => '日期範圍';
+	@override String get numberRange => '數值範圍';
+	@override String get from => '從';
+	@override String get to => '到';
+	@override String get date => '日期';
+	@override String get number => '數值';
+	@override String get boolean => '布林值';
+	@override String get tags => '標籤';
+	@override String get select => '選擇';
+	@override String get clickToSelectDate => '點擊選擇日期';
+	@override String get pleaseEnterValidNumber => '請輸入有效的數值';
+	@override String get pleaseEnterValidDate => '請輸入有效的日期格式 (YYYY-MM-DD)';
+	@override String get startValueMustBeLessThanEndValue => '起始值必須小於結束值';
+	@override String get startDateMustBeBeforeEndDate => '起始日期必須早於結束日期';
+	@override String get pleaseFillStartValue => '請填寫起始值';
+	@override String get pleaseFillEndValue => '請填寫結束值';
+	@override String get rangeValueFormatError => '範圍值格式錯誤';
+	@override String get contains => '包含';
+	@override String get equals => '等於';
+	@override String get notEquals => '不等於';
+	@override String get greaterThan => '>';
+	@override String get greaterEqual => '>=';
+	@override String get lessThan => '<';
+	@override String get lessEqual => '<=';
+	@override String get range => '範圍';
+	@override String get kIn => '包含任意一項';
+	@override String get notIn => '不包含任意一項';
+	@override String get username => '使用者名稱';
+	@override String get nickname => '暱稱';
+	@override String get registrationDate => '註冊日期';
+	@override String get description => '描述';
+	@override String get title => '標題';
+	@override String get body => '內容';
+	@override String get author => '作者';
+	@override String get publishDate => '發布日期';
+	@override String get private => '私密';
+	@override String get duration => '時長(秒)';
+	@override String get likes => '讚數';
+	@override String get views => '觀看數';
+	@override String get comments => '評論數';
+	@override String get rating => '評級';
+	@override String get imageCount => '圖片數量';
+	@override String get videoCount => '影片數量';
+	@override String get createDate => '建立日期';
+	@override String get content => '內容';
+	@override String get all => '全部的';
+	@override String get adult => '成人的';
+	@override String get general => '大眾的';
+	@override String get yes => '是';
+	@override String get no => '否';
+	@override String get users => '使用者';
+	@override String get videos => '影片';
+	@override String get images => '圖片';
+	@override String get posts => '貼文';
+	@override String get forumThreads => '論壇主題';
+	@override String get forumPosts => '論壇貼文';
+	@override String get playlists => '播放清單';
+}
+
+// Path: tagSelector
+class _TranslationsTagSelectorZhTw implements TranslationsTagSelectorEn {
+	_TranslationsTagSelectorZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get selectTags => '選擇標籤';
+	@override String get clickToSelectTags => '點擊選擇標籤';
+	@override String get addTag => '新增標籤';
+	@override String get removeTag => '移除標籤';
+	@override String get deleteTag => '刪除標籤';
+	@override String get usageInstructions => '需先新增標籤，然後再從已有的標籤中點擊選中';
+	@override String get usageInstructionsTooltip => '使用說明';
+	@override String get addTagTooltip => '新增標籤';
+	@override String get removeTagTooltip => '刪除標籤';
+	@override String get cancelSelection => '取消選擇';
+	@override String get selectAll => '全選';
+	@override String get cancelSelectAll => '取消全選';
+	@override String get delete => '刪除';
 }
 
 // Path: common.pagination
@@ -3541,6 +3644,89 @@ extension on TranslationsZhTw {
 			case 'navigationOrderSettings.galleryDescription': return '瀏覽圖片和畫廊';
 			case 'navigationOrderSettings.subscriptionDescription': return '查看追蹤用戶的最新內容';
 			case 'navigationOrderSettings.forumDescription': return '參與社群討論';
+			case 'searchFilter.selectField': return '選擇欄位';
+			case 'searchFilter.add': return '新增';
+			case 'searchFilter.clear': return '清空';
+			case 'searchFilter.clearAll': return '清空全部';
+			case 'searchFilter.generatedQuery': return '產生的查詢';
+			case 'searchFilter.copyToClipboard': return '複製到剪貼簿';
+			case 'searchFilter.copied': return '已複製';
+			case 'searchFilter.filterCount': return ({required Object count}) => '${count} 個過濾器';
+			case 'searchFilter.filterSettings': return '篩選項設定';
+			case 'searchFilter.field': return '欄位';
+			case 'searchFilter.operator': return '運算子';
+			case 'searchFilter.language': return '語言';
+			case 'searchFilter.value': return '值';
+			case 'searchFilter.dateRange': return '日期範圍';
+			case 'searchFilter.numberRange': return '數值範圍';
+			case 'searchFilter.from': return '從';
+			case 'searchFilter.to': return '到';
+			case 'searchFilter.date': return '日期';
+			case 'searchFilter.number': return '數值';
+			case 'searchFilter.boolean': return '布林值';
+			case 'searchFilter.tags': return '標籤';
+			case 'searchFilter.select': return '選擇';
+			case 'searchFilter.clickToSelectDate': return '點擊選擇日期';
+			case 'searchFilter.pleaseEnterValidNumber': return '請輸入有效的數值';
+			case 'searchFilter.pleaseEnterValidDate': return '請輸入有效的日期格式 (YYYY-MM-DD)';
+			case 'searchFilter.startValueMustBeLessThanEndValue': return '起始值必須小於結束值';
+			case 'searchFilter.startDateMustBeBeforeEndDate': return '起始日期必須早於結束日期';
+			case 'searchFilter.pleaseFillStartValue': return '請填寫起始值';
+			case 'searchFilter.pleaseFillEndValue': return '請填寫結束值';
+			case 'searchFilter.rangeValueFormatError': return '範圍值格式錯誤';
+			case 'searchFilter.contains': return '包含';
+			case 'searchFilter.equals': return '等於';
+			case 'searchFilter.notEquals': return '不等於';
+			case 'searchFilter.greaterThan': return '>';
+			case 'searchFilter.greaterEqual': return '>=';
+			case 'searchFilter.lessThan': return '<';
+			case 'searchFilter.lessEqual': return '<=';
+			case 'searchFilter.range': return '範圍';
+			case 'searchFilter.kIn': return '包含任意一項';
+			case 'searchFilter.notIn': return '不包含任意一項';
+			case 'searchFilter.username': return '使用者名稱';
+			case 'searchFilter.nickname': return '暱稱';
+			case 'searchFilter.registrationDate': return '註冊日期';
+			case 'searchFilter.description': return '描述';
+			case 'searchFilter.title': return '標題';
+			case 'searchFilter.body': return '內容';
+			case 'searchFilter.author': return '作者';
+			case 'searchFilter.publishDate': return '發布日期';
+			case 'searchFilter.private': return '私密';
+			case 'searchFilter.duration': return '時長(秒)';
+			case 'searchFilter.likes': return '讚數';
+			case 'searchFilter.views': return '觀看數';
+			case 'searchFilter.comments': return '評論數';
+			case 'searchFilter.rating': return '評級';
+			case 'searchFilter.imageCount': return '圖片數量';
+			case 'searchFilter.videoCount': return '影片數量';
+			case 'searchFilter.createDate': return '建立日期';
+			case 'searchFilter.content': return '內容';
+			case 'searchFilter.all': return '全部的';
+			case 'searchFilter.adult': return '成人的';
+			case 'searchFilter.general': return '大眾的';
+			case 'searchFilter.yes': return '是';
+			case 'searchFilter.no': return '否';
+			case 'searchFilter.users': return '使用者';
+			case 'searchFilter.videos': return '影片';
+			case 'searchFilter.images': return '圖片';
+			case 'searchFilter.posts': return '貼文';
+			case 'searchFilter.forumThreads': return '論壇主題';
+			case 'searchFilter.forumPosts': return '論壇貼文';
+			case 'searchFilter.playlists': return '播放清單';
+			case 'tagSelector.selectTags': return '選擇標籤';
+			case 'tagSelector.clickToSelectTags': return '點擊選擇標籤';
+			case 'tagSelector.addTag': return '新增標籤';
+			case 'tagSelector.removeTag': return '移除標籤';
+			case 'tagSelector.deleteTag': return '刪除標籤';
+			case 'tagSelector.usageInstructions': return '需先新增標籤，然後再從已有的標籤中點擊選中';
+			case 'tagSelector.usageInstructionsTooltip': return '使用說明';
+			case 'tagSelector.addTagTooltip': return '新增標籤';
+			case 'tagSelector.removeTagTooltip': return '刪除標籤';
+			case 'tagSelector.cancelSelection': return '取消選擇';
+			case 'tagSelector.selectAll': return '全選';
+			case 'tagSelector.cancelSelectAll': return '取消全選';
+			case 'tagSelector.delete': return '刪除';
 			default: return null;
 		}
 	}

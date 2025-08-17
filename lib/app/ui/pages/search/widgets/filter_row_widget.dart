@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_config.dart';
 import 'package:i_iwara/app/ui/widgets/tag_selector_widget.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class FilterRowWidget extends StatefulWidget {
   final Filter filter;
@@ -190,10 +191,11 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
     FilterField selectedField,
     List<FilterField> availableFields,
   ) {
+    final t = slang.Translations.of(context);
     return DropdownButtonFormField<String>(
       value: widget.filter.field,
       decoration: InputDecoration(
-        labelText: '字段',
+        labelText: t.searchFilter.field,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
@@ -242,10 +244,11 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
   }
 
   Widget _buildLocaleSelector(BuildContext context) {
+    final t = slang.Translations.of(context);
     return DropdownButtonFormField<String>(
       value: widget.filter.locale ?? 'en',
       decoration: InputDecoration(
-        labelText: '语言',
+        labelText: t.searchFilter.language,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
@@ -270,10 +273,11 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
     FilterOperator selectedOperator,
     List<FilterOperator> availableOperators,
   ) {
+    final t = slang.Translations.of(context);
     return DropdownButtonFormField<FilterOperator>(
       value: selectedOperator,
       decoration: InputDecoration(
-        labelText: '操作符',
+        labelText: t.searchFilter.operator,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
@@ -330,6 +334,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
     Filter filter,
     FilterField field,
   ) {
+    final t = slang.Translations.of(context);
     final fromValue = filter.value is Map ? filter.value['from'] ?? '' : '';
     final toValue = filter.value is Map ? filter.value['to'] ?? '' : '';
     final screenWidth = MediaQuery.of(context).size.width;
@@ -339,7 +344,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          field.type == FilterFieldType.DATE ? '日期范围' : '数值范围',
+          field.type == FilterFieldType.DATE ? t.searchFilter.dateRange : t.searchFilter.numberRange,
           style: Theme.of(
             context,
           ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w500),
@@ -398,7 +403,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
                       ),
               ),
               const SizedBox(width: 12),
-              const Text('到'),
+              Text(t.searchFilter.to),
               const SizedBox(width: 12),
               Expanded(
                 child: field.type == FilterFieldType.DATE
@@ -442,10 +447,11 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
     String fieldKey,
     String currentValue,
   ) {
+    final t = slang.Translations.of(context);
     return TextFormField(
       initialValue: currentValue,
       decoration: InputDecoration(
-        labelText: fieldKey == 'from' ? '从' : '到',
+        labelText: fieldKey == 'from' ? t.searchFilter.from : t.searchFilter.to,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
         ),
@@ -460,7 +466,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
         try {
           double.parse(value.trim());
         } catch (e) {
-          return '请输入有效的数值';
+          return t.searchFilter.pleaseEnterValidNumber;
         }
         return null;
       },
@@ -486,6 +492,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
     String fieldKey,
     String currentValue,
   ) {
+    final t = slang.Translations.of(context);
     return GestureDetector(
       onTap: () async {
         DateTime? initialDate;
@@ -522,14 +529,14 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
               ? _dateFromController
               : _dateToController,
           decoration: InputDecoration(
-            labelText: fieldKey == 'from' ? '从' : '到',
+            labelText: fieldKey == 'from' ? t.searchFilter.from : t.searchFilter.to,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 12,
               vertical: 8,
             ),
             suffixIcon: const Icon(Icons.calendar_today),
-            hintText: '点击选择日期',
+            hintText: t.searchFilter.clickToSelectDate,
           ),
           readOnly: true,
           validator: (value) {
@@ -537,7 +544,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
             try {
               DateTime.parse(value.trim());
             } catch (e) {
-              return '请输入有效的日期格式';
+              return t.searchFilter.pleaseEnterValidDate;
             }
             return null;
           },
@@ -547,11 +554,12 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
   }
 
   Widget _buildBooleanInput(BuildContext context, Filter filter) {
+    final t = slang.Translations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '值',
+          t.searchFilter.value,
           style: Theme.of(
             context,
           ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w500),
@@ -566,9 +574,9 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
               vertical: 8,
             ),
           ),
-          items: const [
-            DropdownMenuItem(value: 'true', child: Text('是')),
-            DropdownMenuItem(value: 'false', child: Text('否')),
+          items: [
+            DropdownMenuItem(value: 'true', child: Text(t.searchFilter.yes)),
+            DropdownMenuItem(value: 'false', child: Text(t.searchFilter.no)),
           ],
           onChanged: (String? value) {
             if (value != null) {
@@ -581,11 +589,12 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
   }
 
   Widget _buildDateInput(BuildContext context, Filter filter) {
+    final t = slang.Translations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '日期',
+          t.searchFilter.date,
           style: Theme.of(
             context,
           ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w500),
@@ -626,17 +635,17 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
                   horizontal: 12,
                   vertical: 8,
                 ),
-                suffixIcon: const Icon(Icons.calendar_today),
-                hintText: '点击选择日期',
-              ),
+                            suffixIcon: const Icon(Icons.calendar_today),
+            hintText: t.searchFilter.clickToSelectDate,
+          ),
               readOnly: true,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) return null;
                 try {
                   DateTime.parse(value.trim());
-                } catch (e) {
-                  return '请输入有效的日期格式';
-                }
+                            } catch (e) {
+              return t.searchFilter.pleaseEnterValidDate;
+            }
                 return null;
               },
             ),
@@ -647,11 +656,12 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
   }
 
   Widget _buildNumberInput(BuildContext context, Filter filter) {
+    final t = slang.Translations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '数值',
+          t.searchFilter.number,
           style: Theme.of(
             context,
           ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w500),
@@ -671,9 +681,9 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
             if (value == null || value.trim().isEmpty) return null;
             try {
               double.parse(value.trim());
-            } catch (e) {
-              return '请输入有效的数值';
-            }
+                    } catch (e) {
+          return t.searchFilter.pleaseEnterValidNumber;
+        }
             return null;
           },
           onChanged: (value) {
@@ -689,22 +699,24 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
         ? (filter.value as List).cast<String>()
         : <String>[];
 
+    final t = slang.Translations.of(context);
     return TagSelectorWidget(
       selectedTags: tags,
       onTagsChanged: (newTags) {
         widget.onUpdate(filter.id, filter.copyWith(value: newTags));
       },
-      labelText: '标签',
-      hintText: '点击选择标签',
+      labelText: t.searchFilter.tags,
+      hintText: t.searchFilter.select,
     );
   }
 
   Widget _buildStringInput(BuildContext context, Filter filter) {
+    final t = slang.Translations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '值',
+          t.searchFilter.value,
           style: Theme.of(
             context,
           ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w500),
@@ -732,11 +744,12 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
     Filter filter,
     FilterField field,
   ) {
+    final t = slang.Translations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '值',
+          t.searchFilter.value,
           style: Theme.of(
             context,
           ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w500),

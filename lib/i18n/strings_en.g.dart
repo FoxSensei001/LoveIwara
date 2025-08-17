@@ -70,6 +70,8 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final TranslationsLinkInputDialogEn linkInputDialog = TranslationsLinkInputDialogEn._(_root);
 	late final TranslationsLogEn log = TranslationsLogEn._(_root);
 	late final TranslationsEmojiEn emoji = TranslationsEmojiEn._(_root);
+	late final TranslationsSearchFilterEn searchFilter = TranslationsSearchFilterEn._(_root);
+	late final TranslationsTagSelectorEn tagSelector = TranslationsTagSelectorEn._(_root);
 }
 
 // Path: common
@@ -3916,6 +3918,273 @@ class TranslationsEmojiEn {
 	String uploadErrorMessage({required Object error}) => 'Error occurred during upload: ${error}';
 }
 
+// Path: searchFilter
+class TranslationsSearchFilterEn {
+	TranslationsSearchFilterEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Select Field'
+	String get selectField => 'Select Field';
+
+	/// en: 'Add'
+	String get add => 'Add';
+
+	/// en: 'Clear'
+	String get clear => 'Clear';
+
+	/// en: 'Clear All'
+	String get clearAll => 'Clear All';
+
+	/// en: 'Generated Query'
+	String get generatedQuery => 'Generated Query';
+
+	/// en: 'Copy to Clipboard'
+	String get copyToClipboard => 'Copy to Clipboard';
+
+	/// en: 'Copied'
+	String get copied => 'Copied';
+
+	/// en: '${count} filters'
+	String filterCount({required Object count}) => '${count} filters';
+
+	/// en: 'Filter Settings'
+	String get filterSettings => 'Filter Settings';
+
+	/// en: 'Field'
+	String get field => 'Field';
+
+	/// en: 'Operator'
+	String get operator => 'Operator';
+
+	/// en: 'Language'
+	String get language => 'Language';
+
+	/// en: 'Value'
+	String get value => 'Value';
+
+	/// en: 'Date Range'
+	String get dateRange => 'Date Range';
+
+	/// en: 'Number Range'
+	String get numberRange => 'Number Range';
+
+	/// en: 'From'
+	String get from => 'From';
+
+	/// en: 'To'
+	String get to => 'To';
+
+	/// en: 'Date'
+	String get date => 'Date';
+
+	/// en: 'Number'
+	String get number => 'Number';
+
+	/// en: 'Boolean'
+	String get boolean => 'Boolean';
+
+	/// en: 'Tags'
+	String get tags => 'Tags';
+
+	/// en: 'Select'
+	String get select => 'Select';
+
+	/// en: 'Click to select date'
+	String get clickToSelectDate => 'Click to select date';
+
+	/// en: 'Please enter valid number'
+	String get pleaseEnterValidNumber => 'Please enter valid number';
+
+	/// en: 'Please enter valid date format (YYYY-MM-DD)'
+	String get pleaseEnterValidDate => 'Please enter valid date format (YYYY-MM-DD)';
+
+	/// en: 'Start value must be less than end value'
+	String get startValueMustBeLessThanEndValue => 'Start value must be less than end value';
+
+	/// en: 'Start date must be before end date'
+	String get startDateMustBeBeforeEndDate => 'Start date must be before end date';
+
+	/// en: 'Please fill start value'
+	String get pleaseFillStartValue => 'Please fill start value';
+
+	/// en: 'Please fill end value'
+	String get pleaseFillEndValue => 'Please fill end value';
+
+	/// en: 'Range value format error'
+	String get rangeValueFormatError => 'Range value format error';
+
+	/// en: 'Contains'
+	String get contains => 'Contains';
+
+	/// en: 'Equals'
+	String get equals => 'Equals';
+
+	/// en: 'Not Equals'
+	String get notEquals => 'Not Equals';
+
+	/// en: '>'
+	String get greaterThan => '>';
+
+	/// en: '>='
+	String get greaterEqual => '>=';
+
+	/// en: '<'
+	String get lessThan => '<';
+
+	/// en: '<='
+	String get lessEqual => '<=';
+
+	/// en: 'Range'
+	String get range => 'Range';
+
+	/// en: 'Contains Any'
+	String get kIn => 'Contains Any';
+
+	/// en: 'Not Contains Any'
+	String get notIn => 'Not Contains Any';
+
+	/// en: 'Username'
+	String get username => 'Username';
+
+	/// en: 'Nickname'
+	String get nickname => 'Nickname';
+
+	/// en: 'Registration Date'
+	String get registrationDate => 'Registration Date';
+
+	/// en: 'Description'
+	String get description => 'Description';
+
+	/// en: 'Title'
+	String get title => 'Title';
+
+	/// en: 'Body'
+	String get body => 'Body';
+
+	/// en: 'Author'
+	String get author => 'Author';
+
+	/// en: 'Publish Date'
+	String get publishDate => 'Publish Date';
+
+	/// en: 'Private'
+	String get private => 'Private';
+
+	/// en: 'Duration (seconds)'
+	String get duration => 'Duration (seconds)';
+
+	/// en: 'Likes'
+	String get likes => 'Likes';
+
+	/// en: 'Views'
+	String get views => 'Views';
+
+	/// en: 'Comments'
+	String get comments => 'Comments';
+
+	/// en: 'Rating'
+	String get rating => 'Rating';
+
+	/// en: 'Image Count'
+	String get imageCount => 'Image Count';
+
+	/// en: 'Video Count'
+	String get videoCount => 'Video Count';
+
+	/// en: 'Create Date'
+	String get createDate => 'Create Date';
+
+	/// en: 'Content'
+	String get content => 'Content';
+
+	/// en: 'All'
+	String get all => 'All';
+
+	/// en: 'Adult'
+	String get adult => 'Adult';
+
+	/// en: 'General'
+	String get general => 'General';
+
+	/// en: 'Yes'
+	String get yes => 'Yes';
+
+	/// en: 'No'
+	String get no => 'No';
+
+	/// en: 'Users'
+	String get users => 'Users';
+
+	/// en: 'Videos'
+	String get videos => 'Videos';
+
+	/// en: 'Images'
+	String get images => 'Images';
+
+	/// en: 'Posts'
+	String get posts => 'Posts';
+
+	/// en: 'Forum Threads'
+	String get forumThreads => 'Forum Threads';
+
+	/// en: 'Forum Posts'
+	String get forumPosts => 'Forum Posts';
+
+	/// en: 'Playlists'
+	String get playlists => 'Playlists';
+}
+
+// Path: tagSelector
+class TranslationsTagSelectorEn {
+	TranslationsTagSelectorEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Select Tags'
+	String get selectTags => 'Select Tags';
+
+	/// en: 'Click to select tags'
+	String get clickToSelectTags => 'Click to select tags';
+
+	/// en: 'Add Tag'
+	String get addTag => 'Add Tag';
+
+	/// en: 'Remove Tag'
+	String get removeTag => 'Remove Tag';
+
+	/// en: 'Delete Tag'
+	String get deleteTag => 'Delete Tag';
+
+	/// en: 'First add tags, then click to select from existing tags'
+	String get usageInstructions => 'First add tags, then click to select from existing tags';
+
+	/// en: 'Usage Instructions'
+	String get usageInstructionsTooltip => 'Usage Instructions';
+
+	/// en: 'Add Tag'
+	String get addTagTooltip => 'Add Tag';
+
+	/// en: 'Remove Tag'
+	String get removeTagTooltip => 'Remove Tag';
+
+	/// en: 'Cancel Selection'
+	String get cancelSelection => 'Cancel Selection';
+
+	/// en: 'Select All'
+	String get selectAll => 'Select All';
+
+	/// en: 'Cancel Select All'
+	String get cancelSelectAll => 'Cancel Select All';
+
+	/// en: 'Delete'
+	String get delete => 'Delete';
+}
+
 // Path: common.pagination
 class TranslationsCommonPaginationEn {
 	TranslationsCommonPaginationEn._(this._root);
@@ -6528,6 +6797,89 @@ extension on Translations {
 			case 'emoji.uploadFailed': return ({required Object count}) => 'Failed ${count}';
 			case 'emoji.uploadFailedMessage': return 'Image upload failed, please check network connection or file format';
 			case 'emoji.uploadErrorMessage': return ({required Object error}) => 'Error occurred during upload: ${error}';
+			case 'searchFilter.selectField': return 'Select Field';
+			case 'searchFilter.add': return 'Add';
+			case 'searchFilter.clear': return 'Clear';
+			case 'searchFilter.clearAll': return 'Clear All';
+			case 'searchFilter.generatedQuery': return 'Generated Query';
+			case 'searchFilter.copyToClipboard': return 'Copy to Clipboard';
+			case 'searchFilter.copied': return 'Copied';
+			case 'searchFilter.filterCount': return ({required Object count}) => '${count} filters';
+			case 'searchFilter.filterSettings': return 'Filter Settings';
+			case 'searchFilter.field': return 'Field';
+			case 'searchFilter.operator': return 'Operator';
+			case 'searchFilter.language': return 'Language';
+			case 'searchFilter.value': return 'Value';
+			case 'searchFilter.dateRange': return 'Date Range';
+			case 'searchFilter.numberRange': return 'Number Range';
+			case 'searchFilter.from': return 'From';
+			case 'searchFilter.to': return 'To';
+			case 'searchFilter.date': return 'Date';
+			case 'searchFilter.number': return 'Number';
+			case 'searchFilter.boolean': return 'Boolean';
+			case 'searchFilter.tags': return 'Tags';
+			case 'searchFilter.select': return 'Select';
+			case 'searchFilter.clickToSelectDate': return 'Click to select date';
+			case 'searchFilter.pleaseEnterValidNumber': return 'Please enter valid number';
+			case 'searchFilter.pleaseEnterValidDate': return 'Please enter valid date format (YYYY-MM-DD)';
+			case 'searchFilter.startValueMustBeLessThanEndValue': return 'Start value must be less than end value';
+			case 'searchFilter.startDateMustBeBeforeEndDate': return 'Start date must be before end date';
+			case 'searchFilter.pleaseFillStartValue': return 'Please fill start value';
+			case 'searchFilter.pleaseFillEndValue': return 'Please fill end value';
+			case 'searchFilter.rangeValueFormatError': return 'Range value format error';
+			case 'searchFilter.contains': return 'Contains';
+			case 'searchFilter.equals': return 'Equals';
+			case 'searchFilter.notEquals': return 'Not Equals';
+			case 'searchFilter.greaterThan': return '>';
+			case 'searchFilter.greaterEqual': return '>=';
+			case 'searchFilter.lessThan': return '<';
+			case 'searchFilter.lessEqual': return '<=';
+			case 'searchFilter.range': return 'Range';
+			case 'searchFilter.kIn': return 'Contains Any';
+			case 'searchFilter.notIn': return 'Not Contains Any';
+			case 'searchFilter.username': return 'Username';
+			case 'searchFilter.nickname': return 'Nickname';
+			case 'searchFilter.registrationDate': return 'Registration Date';
+			case 'searchFilter.description': return 'Description';
+			case 'searchFilter.title': return 'Title';
+			case 'searchFilter.body': return 'Body';
+			case 'searchFilter.author': return 'Author';
+			case 'searchFilter.publishDate': return 'Publish Date';
+			case 'searchFilter.private': return 'Private';
+			case 'searchFilter.duration': return 'Duration (seconds)';
+			case 'searchFilter.likes': return 'Likes';
+			case 'searchFilter.views': return 'Views';
+			case 'searchFilter.comments': return 'Comments';
+			case 'searchFilter.rating': return 'Rating';
+			case 'searchFilter.imageCount': return 'Image Count';
+			case 'searchFilter.videoCount': return 'Video Count';
+			case 'searchFilter.createDate': return 'Create Date';
+			case 'searchFilter.content': return 'Content';
+			case 'searchFilter.all': return 'All';
+			case 'searchFilter.adult': return 'Adult';
+			case 'searchFilter.general': return 'General';
+			case 'searchFilter.yes': return 'Yes';
+			case 'searchFilter.no': return 'No';
+			case 'searchFilter.users': return 'Users';
+			case 'searchFilter.videos': return 'Videos';
+			case 'searchFilter.images': return 'Images';
+			case 'searchFilter.posts': return 'Posts';
+			case 'searchFilter.forumThreads': return 'Forum Threads';
+			case 'searchFilter.forumPosts': return 'Forum Posts';
+			case 'searchFilter.playlists': return 'Playlists';
+			case 'tagSelector.selectTags': return 'Select Tags';
+			case 'tagSelector.clickToSelectTags': return 'Click to select tags';
+			case 'tagSelector.addTag': return 'Add Tag';
+			case 'tagSelector.removeTag': return 'Remove Tag';
+			case 'tagSelector.deleteTag': return 'Delete Tag';
+			case 'tagSelector.usageInstructions': return 'First add tags, then click to select from existing tags';
+			case 'tagSelector.usageInstructionsTooltip': return 'Usage Instructions';
+			case 'tagSelector.addTagTooltip': return 'Add Tag';
+			case 'tagSelector.removeTagTooltip': return 'Remove Tag';
+			case 'tagSelector.cancelSelection': return 'Cancel Selection';
+			case 'tagSelector.selectAll': return 'Select All';
+			case 'tagSelector.cancelSelectAll': return 'Cancel Select All';
+			case 'tagSelector.delete': return 'Delete';
 			default: return null;
 		}
 	}

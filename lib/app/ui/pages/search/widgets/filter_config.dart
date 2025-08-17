@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class FilterConfig {
   static const Map<FilterFieldType, List<FilterOperator>> _operators = {
@@ -47,105 +48,105 @@ class FilterConfig {
   static final Map<SearchSegment, FilterContentType> _contentTypes = {
     SearchSegment.user: FilterContentType(
       id: 'users',
-      name: '用户',
+      name: slang.t.searchFilter.users,
       fields: [
-        FilterField(name: 'username', type: FilterFieldType.STRING, displayName: '用户名', iconData: Icons.person, iconColor: Colors.teal),
-        FilterField(name: 'name', type: FilterFieldType.STRING, isLocalizable: true, displayName: '昵称', iconData: Icons.badge, iconColor: Colors.cyan),
-        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: '注册日期', iconData: Icons.calendar_today, iconColor: Colors.brown),
-        FilterField(name: 'body', type: FilterFieldType.STRING, isLocalizable: true, displayName: '简介', iconData: Icons.description, iconColor: Colors.indigo),
+        FilterField(name: 'username', type: FilterFieldType.STRING, displayName: slang.t.searchFilter.username, iconData: Icons.person, iconColor: Colors.teal),
+        FilterField(name: 'name', type: FilterFieldType.STRING, isLocalizable: true, displayName: slang.t.searchFilter.nickname, iconData: Icons.badge, iconColor: Colors.cyan),
+        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: slang.t.searchFilter.registrationDate, iconData: Icons.calendar_today, iconColor: Colors.brown),
+        FilterField(name: 'body', type: FilterFieldType.STRING, isLocalizable: true, displayName: slang.t.searchFilter.description, iconData: Icons.description, iconColor: Colors.indigo),
       ],
     ),
     SearchSegment.video: FilterContentType(
       id: 'videos',
-      name: '视频',
+      name: slang.t.searchFilter.videos,
       fields: [
-        FilterField(name: 'title', type: FilterFieldType.STRING, isLocalizable: true, displayName: '标题', iconData: Icons.title, iconColor: Colors.blue),
-        FilterField(name: 'body', type: FilterFieldType.STRING, isLocalizable: true, displayName: '描述', iconData: Icons.description, iconColor: Colors.indigo),
-        FilterField(name: 'tags', type: FilterFieldType.STRING_ARRAY, displayName: '标签', iconData: Icons.label, iconColor: Colors.red),
-        FilterField(name: 'author', type: FilterFieldType.STRING, displayName: '作者', iconData: Icons.person_outline, iconColor: Colors.deepPurple),
-        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: '发布日期', iconData: Icons.calendar_today, iconColor: Colors.brown),
-        FilterField(name: 'private', type: FilterFieldType.BOOLEAN, displayName: '私密', iconData: Icons.lock, iconColor: Colors.grey),
-        FilterField(name: 'duration', type: FilterFieldType.NUMBER, displayName: '时长(秒)', iconData: Icons.timer, iconColor: Colors.orange),
-        FilterField(name: 'likes', type: FilterFieldType.NUMBER, displayName: '点赞数', iconData: Icons.favorite, iconColor: Colors.red),
-        FilterField(name: 'views', type: FilterFieldType.NUMBER, displayName: '观看数', iconData: Icons.visibility, iconColor: Colors.blue),
-        FilterField(name: 'comments', type: FilterFieldType.NUMBER, displayName: '评论数', iconData: Icons.comment, iconColor: Colors.green),
+        FilterField(name: 'title', type: FilterFieldType.STRING, isLocalizable: true, displayName: slang.t.searchFilter.title, iconData: Icons.title, iconColor: Colors.blue),
+        FilterField(name: 'body', type: FilterFieldType.STRING, isLocalizable: true, displayName: slang.t.searchFilter.description, iconData: Icons.description, iconColor: Colors.indigo),
+        FilterField(name: 'tags', type: FilterFieldType.STRING_ARRAY, displayName: slang.t.searchFilter.tags, iconData: Icons.label, iconColor: Colors.red),
+        FilterField(name: 'author', type: FilterFieldType.STRING, displayName: slang.t.searchFilter.author, iconData: Icons.person_outline, iconColor: Colors.deepPurple),
+        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: slang.t.searchFilter.publishDate, iconData: Icons.calendar_today, iconColor: Colors.brown),
+        FilterField(name: 'private', type: FilterFieldType.BOOLEAN, displayName: slang.t.searchFilter.private, iconData: Icons.lock, iconColor: Colors.grey),
+        FilterField(name: 'duration', type: FilterFieldType.NUMBER, displayName: slang.t.searchFilter.duration, iconData: Icons.timer, iconColor: Colors.orange),
+        FilterField(name: 'likes', type: FilterFieldType.NUMBER, displayName: slang.t.searchFilter.likes, iconData: Icons.favorite, iconColor: Colors.red),
+        FilterField(name: 'views', type: FilterFieldType.NUMBER, displayName: slang.t.searchFilter.views, iconData: Icons.visibility, iconColor: Colors.blue),
+        FilterField(name: 'comments', type: FilterFieldType.NUMBER, displayName: slang.t.searchFilter.comments, iconData: Icons.comment, iconColor: Colors.green),
         FilterField(
           name: 'rating', 
           type: FilterFieldType.SELECT, 
-          displayName: '评级', 
+          displayName: slang.t.searchFilter.rating, 
           iconData: Icons.star, 
           iconColor: Colors.amber,
           options: [
-            FilterFieldOption(value: '', label: '全部的'),
-            FilterFieldOption(value: 'ecchi', label: '成人的'),
-            FilterFieldOption(value: 'general', label: '大众的'),
+            FilterFieldOption(value: '', label: slang.t.searchFilter.all),
+            FilterFieldOption(value: 'ecchi', label: slang.t.searchFilter.adult),
+            FilterFieldOption(value: 'general', label: slang.t.searchFilter.general),
           ],
         ),
       ],
     ),
     SearchSegment.image: FilterContentType(
       id: 'images',
-      name: '图片',
+      name: slang.t.searchFilter.images,
       fields: [
-        FilterField(name: 'title', type: FilterFieldType.STRING, isLocalizable: true, displayName: '标题', iconData: Icons.title, iconColor: Colors.blue),
-        FilterField(name: 'author', type: FilterFieldType.STRING, displayName: '作者', iconData: Icons.person_outline, iconColor: Colors.deepPurple),
-        FilterField(name: 'tags', type: FilterFieldType.STRING_ARRAY, displayName: '标签', iconData: Icons.label, iconColor: Colors.red),
-        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: '发布日期', iconData: Icons.calendar_today, iconColor: Colors.brown),
-        FilterField(name: 'views', type: FilterFieldType.NUMBER, displayName: '观看数', iconData: Icons.visibility, iconColor: Colors.blue),
-        FilterField(name: 'comments', type: FilterFieldType.NUMBER, displayName: '评论数', iconData: Icons.comment, iconColor: Colors.green),
-        FilterField(name: 'images', type: FilterFieldType.NUMBER, displayName: '图片数量', iconData: Icons.image, iconColor: Colors.pink),
-        FilterField(name: 'likes', type: FilterFieldType.NUMBER, displayName: '点赞数', iconData: Icons.favorite, iconColor: Colors.red),
-        FilterField(name: 'body', type: FilterFieldType.STRING, isLocalizable: true, displayName: '描述', iconData: Icons.description, iconColor: Colors.indigo),
+        FilterField(name: 'title', type: FilterFieldType.STRING, isLocalizable: true, displayName: slang.t.searchFilter.title, iconData: Icons.title, iconColor: Colors.blue),
+        FilterField(name: 'author', type: FilterFieldType.STRING, displayName: slang.t.searchFilter.author, iconData: Icons.person_outline, iconColor: Colors.deepPurple),
+        FilterField(name: 'tags', type: FilterFieldType.STRING_ARRAY, displayName: slang.t.searchFilter.tags, iconData: Icons.label, iconColor: Colors.red),
+        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: slang.t.searchFilter.publishDate, iconData: Icons.calendar_today, iconColor: Colors.brown),
+        FilterField(name: 'views', type: FilterFieldType.NUMBER, displayName: slang.t.searchFilter.views, iconData: Icons.visibility, iconColor: Colors.blue),
+        FilterField(name: 'comments', type: FilterFieldType.NUMBER, displayName: slang.t.searchFilter.comments, iconData: Icons.comment, iconColor: Colors.green),
+        FilterField(name: 'images', type: FilterFieldType.NUMBER, displayName: slang.t.searchFilter.imageCount, iconData: Icons.image, iconColor: Colors.pink),
+        FilterField(name: 'likes', type: FilterFieldType.NUMBER, displayName: slang.t.searchFilter.likes, iconData: Icons.favorite, iconColor: Colors.red),
+        FilterField(name: 'body', type: FilterFieldType.STRING, isLocalizable: true, displayName: slang.t.searchFilter.description, iconData: Icons.description, iconColor: Colors.indigo),
         FilterField(
           name: 'rating', 
           type: FilterFieldType.SELECT, 
-          displayName: '评级', 
+          displayName: slang.t.searchFilter.rating, 
           iconData: Icons.star, 
           iconColor: Colors.amber,
           options: [
-            FilterFieldOption(value: '', label: '全部的'),
-            FilterFieldOption(value: 'ecchi', label: '成人的'),
-            FilterFieldOption(value: 'general', label: '大众的'),
+            FilterFieldOption(value: '', label: slang.t.searchFilter.all),
+            FilterFieldOption(value: 'ecchi', label: slang.t.searchFilter.adult),
+            FilterFieldOption(value: 'general', label: slang.t.searchFilter.general),
           ],
         ),
       ],
     ),
     SearchSegment.post: FilterContentType(
       id: 'posts',
-      name: '帖子',
+      name: slang.t.searchFilter.posts,
       fields: [
-        FilterField(name: 'title', type: FilterFieldType.STRING, isLocalizable: true, displayName: '标题', iconData: Icons.title, iconColor: Colors.blue),
-        FilterField(name: 'body', type: FilterFieldType.STRING, isLocalizable: true, displayName: '内容', iconData: Icons.description, iconColor: Colors.indigo),
-        FilterField(name: 'author', type: FilterFieldType.STRING, displayName: '作者', iconData: Icons.person_outline, iconColor: Colors.deepPurple),
-        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: '发布日期', iconData: Icons.calendar_today, iconColor: Colors.brown),
+        FilterField(name: 'title', type: FilterFieldType.STRING, isLocalizable: true, displayName: slang.t.searchFilter.title, iconData: Icons.title, iconColor: Colors.blue),
+        FilterField(name: 'body', type: FilterFieldType.STRING, isLocalizable: true, displayName: slang.t.searchFilter.content, iconData: Icons.description, iconColor: Colors.indigo),
+        FilterField(name: 'author', type: FilterFieldType.STRING, displayName: slang.t.searchFilter.author, iconData: Icons.person_outline, iconColor: Colors.deepPurple),
+        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: slang.t.searchFilter.publishDate, iconData: Icons.calendar_today, iconColor: Colors.brown),
       ],
     ),
     SearchSegment.forum: FilterContentType(
       id: 'forum_threads',
-      name: '论坛主题',
+      name: slang.t.searchFilter.forumThreads,
       fields: [
-        FilterField(name: 'title', type: FilterFieldType.STRING, isLocalizable: true, displayName: '标题', iconData: Icons.title, iconColor: Colors.blue),
-        FilterField(name: 'author', type: FilterFieldType.STRING, displayName: '作者', iconData: Icons.person_outline, iconColor: Colors.deepPurple),
-        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: '发布日期', iconData: Icons.calendar_today, iconColor: Colors.brown),
+        FilterField(name: 'title', type: FilterFieldType.STRING, isLocalizable: true, displayName: slang.t.searchFilter.title, iconData: Icons.title, iconColor: Colors.blue),
+        FilterField(name: 'author', type: FilterFieldType.STRING, displayName: slang.t.searchFilter.author, iconData: Icons.person_outline, iconColor: Colors.deepPurple),
+        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: slang.t.searchFilter.publishDate, iconData: Icons.calendar_today, iconColor: Colors.brown),
       ],
     ),
     SearchSegment.forum_posts: FilterContentType(
       id: 'forum_posts',
-      name: '论坛帖子',
+      name: slang.t.searchFilter.forumPosts,
       fields: [
-        FilterField(name: 'body', type: FilterFieldType.STRING, isLocalizable: true, displayName: '内容', iconData: Icons.description, iconColor: Colors.indigo),
-        FilterField(name: 'author', type: FilterFieldType.STRING, displayName: '作者', iconData: Icons.person_outline, iconColor: Colors.deepPurple),
-        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: '发布日期', iconData: Icons.calendar_today, iconColor: Colors.brown),
+        FilterField(name: 'body', type: FilterFieldType.STRING, isLocalizable: true, displayName: slang.t.searchFilter.content, iconData: Icons.description, iconColor: Colors.indigo),
+        FilterField(name: 'author', type: FilterFieldType.STRING, displayName: slang.t.searchFilter.author, iconData: Icons.person_outline, iconColor: Colors.deepPurple),
+        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: slang.t.searchFilter.publishDate, iconData: Icons.calendar_today, iconColor: Colors.brown),
       ],
     ),
     SearchSegment.playlist: FilterContentType(
       id: 'playlists',
-      name: '播放列表',
+      name: slang.t.searchFilter.playlists,
       fields: [
-        FilterField(name: 'title', type: FilterFieldType.STRING, isLocalizable: true, displayName: '标题', iconData: Icons.title, iconColor: Colors.blue),
-        FilterField(name: 'author', type: FilterFieldType.STRING, displayName: '作者', iconData: Icons.person_outline, iconColor: Colors.deepPurple),
-        FilterField(name: 'videos', type: FilterFieldType.NUMBER, displayName: '视频数量', iconData: Icons.video_library, iconColor: Colors.purple),
-        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: '创建日期', iconData: Icons.calendar_today, iconColor: Colors.brown),
+        FilterField(name: 'title', type: FilterFieldType.STRING, isLocalizable: true, displayName: slang.t.searchFilter.title, iconData: Icons.title, iconColor: Colors.blue),
+        FilterField(name: 'author', type: FilterFieldType.STRING, displayName: slang.t.searchFilter.author, iconData: Icons.person_outline, iconColor: Colors.deepPurple),
+        FilterField(name: 'videos', type: FilterFieldType.NUMBER, displayName: slang.t.searchFilter.videoCount, iconData: Icons.video_library, iconColor: Colors.purple),
+        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: slang.t.searchFilter.createDate, iconData: Icons.calendar_today, iconColor: Colors.brown),
       ],
     ),
   };
@@ -238,25 +239,25 @@ class FilterConfig {
   static String getOperatorLabel(FilterOperator operator) {
     switch (operator) {
       case FilterOperator.CONTAINS:
-        return '包含';
+        return slang.t.searchFilter.contains;
       case FilterOperator.EQUALS:
-        return '等于';
+        return slang.t.searchFilter.equals;
       case FilterOperator.NOT_EQUALS:
-        return '不等于';
+        return slang.t.searchFilter.notEquals;
       case FilterOperator.GREATER_THAN:
-        return '>';
+        return slang.t.searchFilter.greaterThan;
       case FilterOperator.GREATER_EQUAL:
-        return '>=';
+        return slang.t.searchFilter.greaterEqual;
       case FilterOperator.LESS_THAN:
-        return '<';
+        return slang.t.searchFilter.lessThan;
       case FilterOperator.LESS_EQUAL:
-        return '<=';
+        return slang.t.searchFilter.lessEqual;
       case FilterOperator.RANGE:
-        return '范围';
+        return slang.t.searchFilter.range;
       case FilterOperator.IN:
-        return '包含任意一项';
+        return slang.t.searchFilter.kIn;
       case FilterOperator.NOT_IN:
-        return '不包含任意一项';
+        return slang.t.searchFilter.notIn;
     }
   }
 }

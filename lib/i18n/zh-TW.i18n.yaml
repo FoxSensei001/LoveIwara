@@ -1606,3 +1606,107 @@ navigationOrderSettings:
   galleryDescription: 瀏覽圖片和畫廊
   subscriptionDescription: 查看追蹤用戶的最新內容
   forumDescription: 參與社群討論
+
+# 搜尋過濾器配置
+searchFilter:
+  # 過濾器構建器組件
+  selectField: "選擇欄位"
+  add: "新增"
+  clear: "清空"
+  clearAll: "清空全部"
+  generatedQuery: "產生的查詢"
+  copyToClipboard: "複製到剪貼簿"
+  copied: "已複製"
+  filterCount: "${count} 個過濾器"
+  
+  # 過濾器按鈕組件
+  filterSettings: "篩選項設定"
+  
+  # 過濾器行組件
+  field: "欄位"
+  operator: "運算子"
+  language: "語言"
+  value: "值"
+  dateRange: "日期範圍"
+  numberRange: "數值範圍"
+  from: "從"
+  to: "到"
+  date: "日期"
+  number: "數值"
+  boolean: "布林值"
+  tags: "標籤"
+  select: "選擇"
+  clickToSelectDate: "點擊選擇日期"
+  pleaseEnterValidNumber: "請輸入有效的數值"
+  pleaseEnterValidDate: "請輸入有效的日期格式 (YYYY-MM-DD)"
+  startValueMustBeLessThanEndValue: "起始值必須小於結束值"
+  startDateMustBeBeforeEndDate: "起始日期必須早於結束日期"
+  pleaseFillStartValue: "請填寫起始值"
+  pleaseFillEndValue: "請填寫結束值"
+  rangeValueFormatError: "範圍值格式錯誤"
+  
+  # 過濾器運算子
+  contains: "包含"
+  equals: "等於"
+  notEquals: "不等於"
+  greaterThan: ">"
+  greaterEqual: ">="
+  lessThan: "<"
+  lessEqual: "<="
+  range: "範圍"
+  in: "包含任意一項"
+  notIn: "不包含任意一項"
+  
+  # 過濾器欄位類型
+  username: "使用者名稱"
+  nickname: "暱稱"
+  registrationDate: "註冊日期"
+  description: "描述"
+  title: "標題"
+  body: "內容"
+  author: "作者"
+  publishDate: "發布日期"
+  private: "私密"
+  duration: "時長(秒)"
+  likes: "讚數"
+  views: "觀看數"
+  comments: "評論數"
+  rating: "評級"
+  imageCount: "圖片數量"
+  videoCount: "影片數量"
+  createDate: "建立日期"
+  content: "內容"
+  
+  # 評級選項
+  all: "全部的"
+  adult: "成人的"
+  general: "大眾的"
+  
+  # 布林值
+  yes: "是"
+  no: "否"
+  
+  # 內容類型
+  users: "使用者"
+  videos: "影片"
+  images: "圖片"
+  posts: "貼文"
+  forumThreads: "論壇主題"
+  forumPosts: "論壇貼文"
+  playlists: "播放清單"
+
+# 標籤選擇器組件
+tagSelector:
+  selectTags: "選擇標籤"
+  clickToSelectTags: "點擊選擇標籤"
+  addTag: "新增標籤"
+  removeTag: "移除標籤"
+  deleteTag: "刪除標籤"
+  usageInstructions: "需先新增標籤，然後再從已有的標籤中點擊選中"
+  usageInstructionsTooltip: "使用說明"
+  addTagTooltip: "新增標籤"
+  removeTagTooltip: "刪除標籤"
+  cancelSelection: "取消選擇"
+  selectAll: "全選"
+  cancelSelectAll: "取消全選"
+  delete: "刪除"

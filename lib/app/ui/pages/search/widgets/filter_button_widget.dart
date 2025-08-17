@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_builder_widget.dart';
@@ -70,7 +69,7 @@ class FilterButtonWidget extends StatelessWidget {
     
     ResponsiveDialog.show(
       context: context,
-      title: '筛选项设置',
+      title: t.searchFilter.filterSettings,
       maxWidth: 800,
       headerActions: [
         ElevatedButton(

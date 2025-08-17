@@ -1608,3 +1608,107 @@ navigationOrderSettings:
   galleryDescription: 浏览图片和画廊
   subscriptionDescription: 查看关注用户的最新内容
   forumDescription: 参与社区讨论
+
+# 搜索过滤器配置
+searchFilter:
+  # 过滤器构建器组件
+  selectField: "选择字段"
+  add: "添加"
+  clear: "清空"
+  clearAll: "清空全部"
+  generatedQuery: "生成的查询"
+  copyToClipboard: "复制到剪贴板"
+  copied: "已复制"
+  filterCount: "${count} 个过滤器"
+  
+  # 过滤器按钮组件
+  filterSettings: "筛选项设置"
+  
+  # 过滤器行组件
+  field: "字段"
+  operator: "操作符"
+  language: "语言"
+  value: "值"
+  dateRange: "日期范围"
+  numberRange: "数值范围"
+  from: "从"
+  to: "到"
+  date: "日期"
+  number: "数值"
+  boolean: "布尔值"
+  tags: "标签"
+  select: "选择"
+  clickToSelectDate: "点击选择日期"
+  pleaseEnterValidNumber: "请输入有效的数值"
+  pleaseEnterValidDate: "请输入有效的日期格式 (YYYY-MM-DD)"
+  startValueMustBeLessThanEndValue: "起始值必须小于结束值"
+  startDateMustBeBeforeEndDate: "起始日期必须早于结束日期"
+  pleaseFillStartValue: "请填写起始值"
+  pleaseFillEndValue: "请填写结束值"
+  rangeValueFormatError: "范围值格式错误"
+  
+  # 过滤器操作符
+  contains: "包含"
+  equals: "等于"
+  notEquals: "不等于"
+  greaterThan: ">"
+  greaterEqual: ">="
+  lessThan: "<"
+  lessEqual: "<="
+  range: "范围"
+  in: "包含任意一项"
+  notIn: "不包含任意一项"
+  
+  # 过滤器字段类型
+  username: "用户名"
+  nickname: "昵称"
+  registrationDate: "注册日期"
+  description: "描述"
+  title: "标题"
+  body: "内容"
+  author: "作者"
+  publishDate: "发布日期"
+  private: "私密"
+  duration: "时长(秒)"
+  likes: "点赞数"
+  views: "观看数"
+  comments: "评论数"
+  rating: "评级"
+  imageCount: "图片数量"
+  videoCount: "视频数量"
+  createDate: "创建日期"
+  content: "内容"
+  
+  # 评级选项
+  all: "全部的"
+  adult: "成人的"
+  general: "大众的"
+  
+  # 布尔值
+  yes: "是"
+  no: "否"
+  
+  # 内容类型
+  users: "用户"
+  videos: "视频"
+  images: "图片"
+  posts: "帖子"
+  forumThreads: "论坛主题"
+  forumPosts: "论坛帖子"
+  playlists: "播放列表"
+
+# 标签选择器组件
+tagSelector:
+  selectTags: "选择标签"
+  clickToSelectTags: "点击选择标签"
+  addTag: "添加标签"
+  removeTag: "移除标签"
+  deleteTag: "删除标签"
+  usageInstructions: "需先添加标签，然后再从已有的标签中点击选中"
+  usageInstructionsTooltip: "使用说明"
+  addTagTooltip: "添加标签"
+  removeTagTooltip: "删除标签"
+  cancelSelection: "取消选择"
+  selectAll: "全选"
+  cancelSelectAll: "取消全选"
+  delete: "删除"

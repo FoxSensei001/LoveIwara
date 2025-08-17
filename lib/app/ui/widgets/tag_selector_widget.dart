@@ -68,9 +68,10 @@ class _TagSelectorWidgetState extends State<TagSelectorWidget> {
   }
 
   Widget _buildSelectedTagsDisplay() {
+    final t = slang.Translations.of(context);
     if (widget.selectedTags.isEmpty) {
       return Text(
-        widget.hintText ?? '点击选择标签',
+        widget.hintText ?? t.tagSelector.clickToSelectTags,
         style: TextStyle(
           color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
         ),
@@ -139,6 +140,7 @@ class _TagSelectionDialogState extends State<TagSelectionDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final t = slang.Translations.of(context);
     final screenHeight = MediaQuery.of(context).size.height;
     
     return Container(
@@ -163,7 +165,7 @@ class _TagSelectionDialogState extends State<TagSelectionDialog> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '选择标签',
+                  t.tagSelector.selectTags,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 Row(
@@ -178,7 +180,7 @@ class _TagSelectionDialogState extends State<TagSelectionDialog> {
                         foregroundColor: Theme.of(context).colorScheme.onPrimary,
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       ),
-                      child: const Text('确认'),
+                      child: Text(t.common.confirm),
                     ),
                     const SizedBox(width: 8),
                     IconButton(
@@ -200,27 +202,27 @@ class _TagSelectionDialogState extends State<TagSelectionDialog> {
                 IconButton(
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('需先添加标签，然后再从已有的标签中点击选中'),
+                      SnackBar(
+                        content: Text(t.tagSelector.usageInstructions),
                         duration: Duration(seconds: 2),
                         behavior: SnackBarBehavior.floating,
                       ),
                     );
                   },
                   icon: const Icon(Icons.help_outline, color: Colors.blue),
-                  tooltip: '使用说明',
+                  tooltip: t.tagSelector.usageInstructionsTooltip,
                 ),
                 const SizedBox(width: 8),
                 IconButton(
                   onPressed: _showRemoveTagDialog,
                   icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
-                  tooltip: '删除标签',
+                  tooltip: t.tagSelector.removeTagTooltip,
                 ),
                 const SizedBox(width: 8),
                 IconButton(
                   onPressed: _showAddTagDialog,
                   icon: const Icon(Icons.add_circle_outline, color: Colors.green),
-                  tooltip: '添加标签',
+                  tooltip: t.tagSelector.addTagTooltip,
                 ),
               ],
             ),
@@ -505,6 +507,7 @@ class _RemoveTagDialogState extends State<RemoveTagDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final t = slang.Translations.of(context);
     return Container(
       height: MediaQuery.of(context).size.height * 0.6,
       decoration: const BoxDecoration(
@@ -526,7 +529,7 @@ class _RemoveTagDialogState extends State<RemoveTagDialog> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '删除标签',
+                  t.tagSelector.deleteTag,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 Row(
@@ -541,7 +544,7 @@ class _RemoveTagDialogState extends State<RemoveTagDialog> {
                         foregroundColor: Theme.of(context).colorScheme.onError,
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       ),
-                      child: const Text('删除'),
+                      child: Text(t.tagSelector.delete),
                     ),
                     const SizedBox(width: 8),
                     IconButton(
@@ -564,7 +567,7 @@ class _RemoveTagDialogState extends State<RemoveTagDialog> {
                         selectedIds.clear();
                       });
                     },
-                    child: const Text('取消选择'),
+                    child: Text(t.tagSelector.cancelSelection),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -583,8 +586,8 @@ class _RemoveTagDialogState extends State<RemoveTagDialog> {
                     },
                     child: Text(
                       selectedIds.length == widget.videoSearchTagHistory.length
-                          ? '取消全选'
-                          : '全选',
+                          ? t.tagSelector.cancelSelectAll
+                          : t.tagSelector.selectAll,
                     ),
                   ),
                 ),

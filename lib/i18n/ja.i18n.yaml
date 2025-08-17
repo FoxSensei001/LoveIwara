@@ -1605,3 +1605,107 @@ navigationOrderSettings:
   galleryDescription: 画像とギャラリーを閲覧
   subscriptionDescription: フォローしているユーザーの最新コンテンツを表示
   forumDescription: コミュニティディスカッションに参加
+
+# 検索フィルター設定
+searchFilter:
+  # フィルタービルダーウィジェット
+  selectField: "フィールドを選択"
+  add: "追加"
+  clear: "クリア"
+  clearAll: "すべてクリア"
+  generatedQuery: "生成されたクエリ"
+  copyToClipboard: "クリップボードにコピー"
+  copied: "コピーしました"
+  filterCount: "${count} 個のフィルター"
+  
+  # フィルターボタンウィジェット
+  filterSettings: "フィルター設定"
+  
+  # フィルター行ウィジェット
+  field: "フィールド"
+  operator: "演算子"
+  language: "言語"
+  value: "値"
+  dateRange: "日付範囲"
+  numberRange: "数値範囲"
+  from: "から"
+  to: "まで"
+  date: "日付"
+  number: "数値"
+  boolean: "ブール値"
+  tags: "タグ"
+  select: "選択"
+  clickToSelectDate: "日付を選択するにはクリック"
+  pleaseEnterValidNumber: "有効な数値を入力してください"
+  pleaseEnterValidDate: "有効な日付形式を入力してください (YYYY-MM-DD)"
+  startValueMustBeLessThanEndValue: "開始値は終了値より小さくする必要があります"
+  startDateMustBeBeforeEndDate: "開始日は終了日より前である必要があります"
+  pleaseFillStartValue: "開始値を入力してください"
+  pleaseFillEndValue: "終了値を入力してください"
+  rangeValueFormatError: "範囲値の形式エラー"
+  
+  # フィルター演算子
+  contains: "含む"
+  equals: "等しい"
+  notEquals: "等しくない"
+  greaterThan: ">"
+  greaterEqual: ">="
+  lessThan: "<"
+  lessEqual: "<="
+  range: "範囲"
+  in: "いずれかを含む"
+  notIn: "いずれも含まない"
+  
+  # フィルターフィールドタイプ
+  username: "ユーザー名"
+  nickname: "ニックネーム"
+  registrationDate: "登録日"
+  description: "説明"
+  title: "タイトル"
+  body: "本文"
+  author: "作者"
+  publishDate: "公開日"
+  private: "プライベート"
+  duration: "時間（秒）"
+  likes: "いいね数"
+  views: "視聴回数"
+  comments: "コメント数"
+  rating: "評価"
+  imageCount: "画像数"
+  videoCount: "動画数"
+  createDate: "作成日"
+  content: "コンテンツ"
+  
+  # 評価オプション
+  all: "すべて"
+  adult: "成人向け"
+  general: "一般"
+  
+  # ブール値
+  yes: "はい"
+  no: "いいえ"
+  
+  # コンテンツタイプ
+  users: "ユーザー"
+  videos: "動画"
+  images: "画像"
+  posts: "投稿"
+  forumThreads: "フォーラムスレッド"
+  forumPosts: "フォーラム投稿"
+  playlists: "プレイリスト"
+
+# タグセレクターウィジェット
+tagSelector:
+  selectTags: "タグを選択"
+  clickToSelectTags: "タグを選択するにはクリック"
+  addTag: "タグを追加"
+  removeTag: "タグを削除"
+  deleteTag: "タグを削除"
+  usageInstructions: "まずタグを追加してから、既存のタグからクリックして選択してください"
+  usageInstructionsTooltip: "使用方法"
+  addTagTooltip: "タグを追加"
+  removeTagTooltip: "タグを削除"
+  cancelSelection: "選択をキャンセル"
+  selectAll: "すべて選択"
+  cancelSelectAll: "すべての選択をキャンセル"
+  delete: "削除"

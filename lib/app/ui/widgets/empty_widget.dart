@@ -10,7 +10,7 @@ class MyEmptyWidget extends StatelessWidget {
 
   const MyEmptyWidget({
     super.key,
-    this.message = '暂无数据',
+    this.message = 'Empty',
     this.icon = Icons.inbox_outlined, // 默认使用inbox图标
     this.iconSize = 60,
     this.iconColor = Colors.grey,

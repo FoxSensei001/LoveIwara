@@ -67,6 +67,8 @@ class TranslationsZhCn implements Translations {
 	@override late final _TranslationsDisplaySettingsZhCn displaySettings = _TranslationsDisplaySettingsZhCn._(_root);
 	@override late final _TranslationsLayoutSettingsZhCn layoutSettings = _TranslationsLayoutSettingsZhCn._(_root);
 	@override late final _TranslationsNavigationOrderSettingsZhCn navigationOrderSettings = _TranslationsNavigationOrderSettingsZhCn._(_root);
+	@override late final _TranslationsSearchFilterZhCn searchFilter = _TranslationsSearchFilterZhCn._(_root);
+	@override late final _TranslationsTagSelectorZhCn tagSelector = _TranslationsTagSelectorZhCn._(_root);
 }
 
 // Path: common
@@ -1550,6 +1552,107 @@ class _TranslationsNavigationOrderSettingsZhCn implements TranslationsNavigation
 	@override String get galleryDescription => '浏览图片和画廊';
 	@override String get subscriptionDescription => '查看关注用户的最新内容';
 	@override String get forumDescription => '参与社区讨论';
+}
+
+// Path: searchFilter
+class _TranslationsSearchFilterZhCn implements TranslationsSearchFilterEn {
+	_TranslationsSearchFilterZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get selectField => '选择字段';
+	@override String get add => '添加';
+	@override String get clear => '清空';
+	@override String get clearAll => '清空全部';
+	@override String get generatedQuery => '生成的查询';
+	@override String get copyToClipboard => '复制到剪贴板';
+	@override String get copied => '已复制';
+	@override String filterCount({required Object count}) => '${count} 个过滤器';
+	@override String get filterSettings => '筛选项设置';
+	@override String get field => '字段';
+	@override String get operator => '操作符';
+	@override String get language => '语言';
+	@override String get value => '值';
+	@override String get dateRange => '日期范围';
+	@override String get numberRange => '数值范围';
+	@override String get from => '从';
+	@override String get to => '到';
+	@override String get date => '日期';
+	@override String get number => '数值';
+	@override String get boolean => '布尔值';
+	@override String get tags => '标签';
+	@override String get select => '选择';
+	@override String get clickToSelectDate => '点击选择日期';
+	@override String get pleaseEnterValidNumber => '请输入有效的数值';
+	@override String get pleaseEnterValidDate => '请输入有效的日期格式 (YYYY-MM-DD)';
+	@override String get startValueMustBeLessThanEndValue => '起始值必须小于结束值';
+	@override String get startDateMustBeBeforeEndDate => '起始日期必须早于结束日期';
+	@override String get pleaseFillStartValue => '请填写起始值';
+	@override String get pleaseFillEndValue => '请填写结束值';
+	@override String get rangeValueFormatError => '范围值格式错误';
+	@override String get contains => '包含';
+	@override String get equals => '等于';
+	@override String get notEquals => '不等于';
+	@override String get greaterThan => '>';
+	@override String get greaterEqual => '>=';
+	@override String get lessThan => '<';
+	@override String get lessEqual => '<=';
+	@override String get range => '范围';
+	@override String get kIn => '包含任意一项';
+	@override String get notIn => '不包含任意一项';
+	@override String get username => '用户名';
+	@override String get nickname => '昵称';
+	@override String get registrationDate => '注册日期';
+	@override String get description => '描述';
+	@override String get title => '标题';
+	@override String get body => '内容';
+	@override String get author => '作者';
+	@override String get publishDate => '发布日期';
+	@override String get private => '私密';
+	@override String get duration => '时长(秒)';
+	@override String get likes => '点赞数';
+	@override String get views => '观看数';
+	@override String get comments => '评论数';
+	@override String get rating => '评级';
+	@override String get imageCount => '图片数量';
+	@override String get videoCount => '视频数量';
+	@override String get createDate => '创建日期';
+	@override String get content => '内容';
+	@override String get all => '全部的';
+	@override String get adult => '成人的';
+	@override String get general => '大众的';
+	@override String get yes => '是';
+	@override String get no => '否';
+	@override String get users => '用户';
+	@override String get videos => '视频';
+	@override String get images => '图片';
+	@override String get posts => '帖子';
+	@override String get forumThreads => '论坛主题';
+	@override String get forumPosts => '论坛帖子';
+	@override String get playlists => '播放列表';
+}
+
+// Path: tagSelector
+class _TranslationsTagSelectorZhCn implements TranslationsTagSelectorEn {
+	_TranslationsTagSelectorZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get selectTags => '选择标签';
+	@override String get clickToSelectTags => '点击选择标签';
+	@override String get addTag => '添加标签';
+	@override String get removeTag => '移除标签';
+	@override String get deleteTag => '删除标签';
+	@override String get usageInstructions => '需先添加标签，然后再从已有的标签中点击选中';
+	@override String get usageInstructionsTooltip => '使用说明';
+	@override String get addTagTooltip => '添加标签';
+	@override String get removeTagTooltip => '删除标签';
+	@override String get cancelSelection => '取消选择';
+	@override String get selectAll => '全选';
+	@override String get cancelSelectAll => '取消全选';
+	@override String get delete => '删除';
 }
 
 // Path: common.pagination
@@ -3545,6 +3648,89 @@ extension on TranslationsZhCn {
 			case 'navigationOrderSettings.galleryDescription': return '浏览图片和画廊';
 			case 'navigationOrderSettings.subscriptionDescription': return '查看关注用户的最新内容';
 			case 'navigationOrderSettings.forumDescription': return '参与社区讨论';
+			case 'searchFilter.selectField': return '选择字段';
+			case 'searchFilter.add': return '添加';
+			case 'searchFilter.clear': return '清空';
+			case 'searchFilter.clearAll': return '清空全部';
+			case 'searchFilter.generatedQuery': return '生成的查询';
+			case 'searchFilter.copyToClipboard': return '复制到剪贴板';
+			case 'searchFilter.copied': return '已复制';
+			case 'searchFilter.filterCount': return ({required Object count}) => '${count} 个过滤器';
+			case 'searchFilter.filterSettings': return '筛选项设置';
+			case 'searchFilter.field': return '字段';
+			case 'searchFilter.operator': return '操作符';
+			case 'searchFilter.language': return '语言';
+			case 'searchFilter.value': return '值';
+			case 'searchFilter.dateRange': return '日期范围';
+			case 'searchFilter.numberRange': return '数值范围';
+			case 'searchFilter.from': return '从';
+			case 'searchFilter.to': return '到';
+			case 'searchFilter.date': return '日期';
+			case 'searchFilter.number': return '数值';
+			case 'searchFilter.boolean': return '布尔值';
+			case 'searchFilter.tags': return '标签';
+			case 'searchFilter.select': return '选择';
+			case 'searchFilter.clickToSelectDate': return '点击选择日期';
+			case 'searchFilter.pleaseEnterValidNumber': return '请输入有效的数值';
+			case 'searchFilter.pleaseEnterValidDate': return '请输入有效的日期格式 (YYYY-MM-DD)';
+			case 'searchFilter.startValueMustBeLessThanEndValue': return '起始值必须小于结束值';
+			case 'searchFilter.startDateMustBeBeforeEndDate': return '起始日期必须早于结束日期';
+			case 'searchFilter.pleaseFillStartValue': return '请填写起始值';
+			case 'searchFilter.pleaseFillEndValue': return '请填写结束值';
+			case 'searchFilter.rangeValueFormatError': return '范围值格式错误';
+			case 'searchFilter.contains': return '包含';
+			case 'searchFilter.equals': return '等于';
+			case 'searchFilter.notEquals': return '不等于';
+			case 'searchFilter.greaterThan': return '>';
+			case 'searchFilter.greaterEqual': return '>=';
+			case 'searchFilter.lessThan': return '<';
+			case 'searchFilter.lessEqual': return '<=';
+			case 'searchFilter.range': return '范围';
+			case 'searchFilter.kIn': return '包含任意一项';
+			case 'searchFilter.notIn': return '不包含任意一项';
+			case 'searchFilter.username': return '用户名';
+			case 'searchFilter.nickname': return '昵称';
+			case 'searchFilter.registrationDate': return '注册日期';
+			case 'searchFilter.description': return '描述';
+			case 'searchFilter.title': return '标题';
+			case 'searchFilter.body': return '内容';
+			case 'searchFilter.author': return '作者';
+			case 'searchFilter.publishDate': return '发布日期';
+			case 'searchFilter.private': return '私密';
+			case 'searchFilter.duration': return '时长(秒)';
+			case 'searchFilter.likes': return '点赞数';
+			case 'searchFilter.views': return '观看数';
+			case 'searchFilter.comments': return '评论数';
+			case 'searchFilter.rating': return '评级';
+			case 'searchFilter.imageCount': return '图片数量';
+			case 'searchFilter.videoCount': return '视频数量';
+			case 'searchFilter.createDate': return '创建日期';
+			case 'searchFilter.content': return '内容';
+			case 'searchFilter.all': return '全部的';
+			case 'searchFilter.adult': return '成人的';
+			case 'searchFilter.general': return '大众的';
+			case 'searchFilter.yes': return '是';
+			case 'searchFilter.no': return '否';
+			case 'searchFilter.users': return '用户';
+			case 'searchFilter.videos': return '视频';
+			case 'searchFilter.images': return '图片';
+			case 'searchFilter.posts': return '帖子';
+			case 'searchFilter.forumThreads': return '论坛主题';
+			case 'searchFilter.forumPosts': return '论坛帖子';
+			case 'searchFilter.playlists': return '播放列表';
+			case 'tagSelector.selectTags': return '选择标签';
+			case 'tagSelector.clickToSelectTags': return '点击选择标签';
+			case 'tagSelector.addTag': return '添加标签';
+			case 'tagSelector.removeTag': return '移除标签';
+			case 'tagSelector.deleteTag': return '删除标签';
+			case 'tagSelector.usageInstructions': return '需先添加标签，然后再从已有的标签中点击选中';
+			case 'tagSelector.usageInstructionsTooltip': return '使用说明';
+			case 'tagSelector.addTagTooltip': return '添加标签';
+			case 'tagSelector.removeTagTooltip': return '删除标签';
+			case 'tagSelector.cancelSelection': return '取消选择';
+			case 'tagSelector.selectAll': return '全选';
+			case 'tagSelector.cancelSelectAll': return '取消全选';
+			case 'tagSelector.delete': return '删除';
 			default: return null;
 		}
 	}

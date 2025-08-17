@@ -70,9 +70,10 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
     BuildContext context,
     List<FilterField> availableFields,
   ) {
+    final t = slang.Translations.of(context);
     ResponsiveDialog.show(
       context: context,
-      title: '选择字段',
+      title: t.searchFilter.selectField,
       content: ListView.builder(
         itemCount: availableFields.length,
         itemBuilder: (context, index) {
@@ -204,9 +205,10 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
       _copied = true;
     });
 
+    final t = slang.Translations.of(context);
     showToastWidget(
       MDToastWidget(
-        message: slang.t.download.copySuccess,
+        message: t.searchFilter.copied,
         type: MDToastType.success,
       ),
       position: ToastPosition.bottom,
@@ -231,7 +233,7 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
   String? _validateRangeValue(Filter filter) {
     if (filter.operator != FilterOperator.RANGE) return null;
     
-    if (filter.value is! Map) return '范围值格式错误';
+    if (filter.value is! Map) return slang.t.searchFilter.rangeValueFormatError;
     
     final rangeValue = filter.value as Map;
     final from = rangeValue['from']?.toString().trim();
@@ -239,11 +241,11 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
     
     // 对于范围类型，要求必须填写两个值
     if (from == null || from.isEmpty) {
-      return '请填写起始值';
+      return slang.t.searchFilter.pleaseFillStartValue;
     }
     
     if (to == null || to.isEmpty) {
-      return '请填写结束值';
+      return slang.t.searchFilter.pleaseFillEndValue;
     }
     
     // 验证逻辑关系
@@ -255,20 +257,20 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
         final fromNum = double.parse(from);
         final toNum = double.parse(to);
         if (fromNum >= toNum) {
-          return '起始值必须小于结束值';
+          return slang.t.searchFilter.startValueMustBeLessThanEndValue;
         }
       } catch (e) {
-        return '请输入有效的数值';
+        return slang.t.searchFilter.pleaseEnterValidNumber;
       }
     } else if (field?.type == FilterFieldType.DATE) {
       try {
         final fromDate = DateTime.parse(from);
         final toDate = DateTime.parse(to);
         if (fromDate.isAfter(toDate)) {
-          return '起始日期必须早于结束日期';
+          return slang.t.searchFilter.startDateMustBeBeforeEndDate;
         }
       } catch (e) {
-        return '请输入有效的日期格式 (YYYY-MM-DD)';
+        return slang.t.searchFilter.pleaseEnterValidDate;
       }
     }
     
@@ -315,7 +317,7 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        '${_filters.length}',
+                        slang.t.searchFilter.filterCount(count: _filters.length),
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: Theme.of(context).colorScheme.primary,
@@ -338,7 +340,7 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
                       child: IconButton(
                         onPressed: _addFilter,
                         icon: const Icon(Icons.add, color: Colors.white),
-                        tooltip: '添加',
+                        tooltip: slang.t.searchFilter.add,
                       ),
                     ),
                     if (_filters.isNotEmpty) ...[
@@ -351,7 +353,7 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
                         child: IconButton(
                           onPressed: _clearAllFilters,
                           icon: const Icon(Icons.clear_all, color: Colors.white),
-                          tooltip: '清空',
+                          tooltip: slang.t.searchFilter.clearAll,
                         ),
                       ),
                     ],
@@ -408,14 +410,14 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                '生成的查询',
+                                slang.t.searchFilter.generatedQuery,
                                 style: Theme.of(context).textTheme.titleSmall
                                     ?.copyWith(fontWeight: FontWeight.w600),
                               ),
                               IconButton(
                                 onPressed: _validateForm() ? _copyToClipboard : null,
                                 icon: Icon(_copied ? Icons.check : Icons.copy),
-                                tooltip: '复制到剪贴板',
+                                tooltip: slang.t.searchFilter.copyToClipboard,
                               ),
                             ],
                           ),

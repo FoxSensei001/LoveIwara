@@ -67,6 +67,8 @@ class TranslationsJa implements Translations {
 	@override late final _TranslationsDisplaySettingsJa displaySettings = _TranslationsDisplaySettingsJa._(_root);
 	@override late final _TranslationsLayoutSettingsJa layoutSettings = _TranslationsLayoutSettingsJa._(_root);
 	@override late final _TranslationsNavigationOrderSettingsJa navigationOrderSettings = _TranslationsNavigationOrderSettingsJa._(_root);
+	@override late final _TranslationsSearchFilterJa searchFilter = _TranslationsSearchFilterJa._(_root);
+	@override late final _TranslationsTagSelectorJa tagSelector = _TranslationsTagSelectorJa._(_root);
 }
 
 // Path: common
@@ -1545,6 +1547,107 @@ class _TranslationsNavigationOrderSettingsJa implements TranslationsNavigationOr
 	@override String get galleryDescription => '画像とギャラリーを閲覧';
 	@override String get subscriptionDescription => 'フォローしているユーザーの最新コンテンツを表示';
 	@override String get forumDescription => 'コミュニティディスカッションに参加';
+}
+
+// Path: searchFilter
+class _TranslationsSearchFilterJa implements TranslationsSearchFilterEn {
+	_TranslationsSearchFilterJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get selectField => 'フィールドを選択';
+	@override String get add => '追加';
+	@override String get clear => 'クリア';
+	@override String get clearAll => 'すべてクリア';
+	@override String get generatedQuery => '生成されたクエリ';
+	@override String get copyToClipboard => 'クリップボードにコピー';
+	@override String get copied => 'コピーしました';
+	@override String filterCount({required Object count}) => '${count} 個のフィルター';
+	@override String get filterSettings => 'フィルター設定';
+	@override String get field => 'フィールド';
+	@override String get operator => '演算子';
+	@override String get language => '言語';
+	@override String get value => '値';
+	@override String get dateRange => '日付範囲';
+	@override String get numberRange => '数値範囲';
+	@override String get from => 'から';
+	@override String get to => 'まで';
+	@override String get date => '日付';
+	@override String get number => '数値';
+	@override String get boolean => 'ブール値';
+	@override String get tags => 'タグ';
+	@override String get select => '選択';
+	@override String get clickToSelectDate => '日付を選択するにはクリック';
+	@override String get pleaseEnterValidNumber => '有効な数値を入力してください';
+	@override String get pleaseEnterValidDate => '有効な日付形式を入力してください (YYYY-MM-DD)';
+	@override String get startValueMustBeLessThanEndValue => '開始値は終了値より小さくする必要があります';
+	@override String get startDateMustBeBeforeEndDate => '開始日は終了日より前である必要があります';
+	@override String get pleaseFillStartValue => '開始値を入力してください';
+	@override String get pleaseFillEndValue => '終了値を入力してください';
+	@override String get rangeValueFormatError => '範囲値の形式エラー';
+	@override String get contains => '含む';
+	@override String get equals => '等しい';
+	@override String get notEquals => '等しくない';
+	@override String get greaterThan => '>';
+	@override String get greaterEqual => '>=';
+	@override String get lessThan => '<';
+	@override String get lessEqual => '<=';
+	@override String get range => '範囲';
+	@override String get kIn => 'いずれかを含む';
+	@override String get notIn => 'いずれも含まない';
+	@override String get username => 'ユーザー名';
+	@override String get nickname => 'ニックネーム';
+	@override String get registrationDate => '登録日';
+	@override String get description => '説明';
+	@override String get title => 'タイトル';
+	@override String get body => '本文';
+	@override String get author => '作者';
+	@override String get publishDate => '公開日';
+	@override String get private => 'プライベート';
+	@override String get duration => '時間（秒）';
+	@override String get likes => 'いいね数';
+	@override String get views => '視聴回数';
+	@override String get comments => 'コメント数';
+	@override String get rating => '評価';
+	@override String get imageCount => '画像数';
+	@override String get videoCount => '動画数';
+	@override String get createDate => '作成日';
+	@override String get content => 'コンテンツ';
+	@override String get all => 'すべて';
+	@override String get adult => '成人向け';
+	@override String get general => '一般';
+	@override String get yes => 'はい';
+	@override String get no => 'いいえ';
+	@override String get users => 'ユーザー';
+	@override String get videos => '動画';
+	@override String get images => '画像';
+	@override String get posts => '投稿';
+	@override String get forumThreads => 'フォーラムスレッド';
+	@override String get forumPosts => 'フォーラム投稿';
+	@override String get playlists => 'プレイリスト';
+}
+
+// Path: tagSelector
+class _TranslationsTagSelectorJa implements TranslationsTagSelectorEn {
+	_TranslationsTagSelectorJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get selectTags => 'タグを選択';
+	@override String get clickToSelectTags => 'タグを選択するにはクリック';
+	@override String get addTag => 'タグを追加';
+	@override String get removeTag => 'タグを削除';
+	@override String get deleteTag => 'タグを削除';
+	@override String get usageInstructions => 'まずタグを追加してから、既存のタグからクリックして選択してください';
+	@override String get usageInstructionsTooltip => '使用方法';
+	@override String get addTagTooltip => 'タグを追加';
+	@override String get removeTagTooltip => 'タグを削除';
+	@override String get cancelSelection => '選択をキャンセル';
+	@override String get selectAll => 'すべて選択';
+	@override String get cancelSelectAll => 'すべての選択をキャンセル';
+	@override String get delete => '削除';
 }
 
 // Path: common.pagination
@@ -3535,6 +3638,89 @@ extension on TranslationsJa {
 			case 'navigationOrderSettings.galleryDescription': return '画像とギャラリーを閲覧';
 			case 'navigationOrderSettings.subscriptionDescription': return 'フォローしているユーザーの最新コンテンツを表示';
 			case 'navigationOrderSettings.forumDescription': return 'コミュニティディスカッションに参加';
+			case 'searchFilter.selectField': return 'フィールドを選択';
+			case 'searchFilter.add': return '追加';
+			case 'searchFilter.clear': return 'クリア';
+			case 'searchFilter.clearAll': return 'すべてクリア';
+			case 'searchFilter.generatedQuery': return '生成されたクエリ';
+			case 'searchFilter.copyToClipboard': return 'クリップボードにコピー';
+			case 'searchFilter.copied': return 'コピーしました';
+			case 'searchFilter.filterCount': return ({required Object count}) => '${count} 個のフィルター';
+			case 'searchFilter.filterSettings': return 'フィルター設定';
+			case 'searchFilter.field': return 'フィールド';
+			case 'searchFilter.operator': return '演算子';
+			case 'searchFilter.language': return '言語';
+			case 'searchFilter.value': return '値';
+			case 'searchFilter.dateRange': return '日付範囲';
+			case 'searchFilter.numberRange': return '数値範囲';
+			case 'searchFilter.from': return 'から';
+			case 'searchFilter.to': return 'まで';
+			case 'searchFilter.date': return '日付';
+			case 'searchFilter.number': return '数値';
+			case 'searchFilter.boolean': return 'ブール値';
+			case 'searchFilter.tags': return 'タグ';
+			case 'searchFilter.select': return '選択';
+			case 'searchFilter.clickToSelectDate': return '日付を選択するにはクリック';
+			case 'searchFilter.pleaseEnterValidNumber': return '有効な数値を入力してください';
+			case 'searchFilter.pleaseEnterValidDate': return '有効な日付形式を入力してください (YYYY-MM-DD)';
+			case 'searchFilter.startValueMustBeLessThanEndValue': return '開始値は終了値より小さくする必要があります';
+			case 'searchFilter.startDateMustBeBeforeEndDate': return '開始日は終了日より前である必要があります';
+			case 'searchFilter.pleaseFillStartValue': return '開始値を入力してください';
+			case 'searchFilter.pleaseFillEndValue': return '終了値を入力してください';
+			case 'searchFilter.rangeValueFormatError': return '範囲値の形式エラー';
+			case 'searchFilter.contains': return '含む';
+			case 'searchFilter.equals': return '等しい';
+			case 'searchFilter.notEquals': return '等しくない';
+			case 'searchFilter.greaterThan': return '>';
+			case 'searchFilter.greaterEqual': return '>=';
+			case 'searchFilter.lessThan': return '<';
+			case 'searchFilter.lessEqual': return '<=';
+			case 'searchFilter.range': return '範囲';
+			case 'searchFilter.kIn': return 'いずれかを含む';
+			case 'searchFilter.notIn': return 'いずれも含まない';
+			case 'searchFilter.username': return 'ユーザー名';
+			case 'searchFilter.nickname': return 'ニックネーム';
+			case 'searchFilter.registrationDate': return '登録日';
+			case 'searchFilter.description': return '説明';
+			case 'searchFilter.title': return 'タイトル';
+			case 'searchFilter.body': return '本文';
+			case 'searchFilter.author': return '作者';
+			case 'searchFilter.publishDate': return '公開日';
+			case 'searchFilter.private': return 'プライベート';
+			case 'searchFilter.duration': return '時間（秒）';
+			case 'searchFilter.likes': return 'いいね数';
+			case 'searchFilter.views': return '視聴回数';
+			case 'searchFilter.comments': return 'コメント数';
+			case 'searchFilter.rating': return '評価';
+			case 'searchFilter.imageCount': return '画像数';
+			case 'searchFilter.videoCount': return '動画数';
+			case 'searchFilter.createDate': return '作成日';
+			case 'searchFilter.content': return 'コンテンツ';
+			case 'searchFilter.all': return 'すべて';
+			case 'searchFilter.adult': return '成人向け';
+			case 'searchFilter.general': return '一般';
+			case 'searchFilter.yes': return 'はい';
+			case 'searchFilter.no': return 'いいえ';
+			case 'searchFilter.users': return 'ユーザー';
+			case 'searchFilter.videos': return '動画';
+			case 'searchFilter.images': return '画像';
+			case 'searchFilter.posts': return '投稿';
+			case 'searchFilter.forumThreads': return 'フォーラムスレッド';
+			case 'searchFilter.forumPosts': return 'フォーラム投稿';
+			case 'searchFilter.playlists': return 'プレイリスト';
+			case 'tagSelector.selectTags': return 'タグを選択';
+			case 'tagSelector.clickToSelectTags': return 'タグを選択するにはクリック';
+			case 'tagSelector.addTag': return 'タグを追加';
+			case 'tagSelector.removeTag': return 'タグを削除';
+			case 'tagSelector.deleteTag': return 'タグを削除';
+			case 'tagSelector.usageInstructions': return 'まずタグを追加してから、既存のタグからクリックして選択してください';
+			case 'tagSelector.usageInstructionsTooltip': return '使用方法';
+			case 'tagSelector.addTagTooltip': return 'タグを追加';
+			case 'tagSelector.removeTagTooltip': return 'タグを削除';
+			case 'tagSelector.cancelSelection': return '選択をキャンセル';
+			case 'tagSelector.selectAll': return 'すべて選択';
+			case 'tagSelector.cancelSelectAll': return 'すべての選択をキャンセル';
+			case 'tagSelector.delete': return '削除';
 			default: return null;
 		}
 	}

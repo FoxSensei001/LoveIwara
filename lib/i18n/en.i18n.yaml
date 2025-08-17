@@ -1601,3 +1601,107 @@ emoji:
   uploadFailed: 'Failed ${count}'
   uploadFailedMessage: Image upload failed, please check network connection or file format
   uploadErrorMessage: 'Error occurred during upload: ${error}'
+
+# Search Filter Configuration
+searchFilter:
+  # Filter Builder Widget
+  selectField: "Select Field"
+  add: "Add"
+  clear: "Clear"
+  clearAll: "Clear All"
+  generatedQuery: "Generated Query"
+  copyToClipboard: "Copy to Clipboard"
+  copied: "Copied"
+  filterCount: "${count} filters"
+  
+  # Filter Button Widget
+  filterSettings: "Filter Settings"
+  
+  # Filter Row Widget
+  field: "Field"
+  operator: "Operator"
+  language: "Language"
+  value: "Value"
+  dateRange: "Date Range"
+  numberRange: "Number Range"
+  from: "From"
+  to: "To"
+  date: "Date"
+  number: "Number"
+  boolean: "Boolean"
+  tags: "Tags"
+  select: "Select"
+  clickToSelectDate: "Click to select date"
+  pleaseEnterValidNumber: "Please enter valid number"
+  pleaseEnterValidDate: "Please enter valid date format (YYYY-MM-DD)"
+  startValueMustBeLessThanEndValue: "Start value must be less than end value"
+  startDateMustBeBeforeEndDate: "Start date must be before end date"
+  pleaseFillStartValue: "Please fill start value"
+  pleaseFillEndValue: "Please fill end value"
+  rangeValueFormatError: "Range value format error"
+  
+  # Filter Operators
+  contains: "Contains"
+  equals: "Equals"
+  notEquals: "Not Equals"
+  greaterThan: ">"
+  greaterEqual: ">="
+  lessThan: "<"
+  lessEqual: "<="
+  range: "Range"
+  in: "Contains Any"
+  notIn: "Not Contains Any"
+  
+  # Filter Field Types
+  username: "Username"
+  nickname: "Nickname"
+  registrationDate: "Registration Date"
+  description: "Description"
+  title: "Title"
+  body: "Body"
+  author: "Author"
+  publishDate: "Publish Date"
+  private: "Private"
+  duration: "Duration (seconds)"
+  likes: "Likes"
+  views: "Views"
+  comments: "Comments"
+  rating: "Rating"
+  imageCount: "Image Count"
+  videoCount: "Video Count"
+  createDate: "Create Date"
+  content: "Content"
+  
+  # Rating Options
+  all: "All"
+  adult: "Adult"
+  general: "General"
+  
+  # Boolean Values
+  yes: "Yes"
+  no: "No"
+  
+  # Content Types
+  users: "Users"
+  videos: "Videos"
+  images: "Images"
+  posts: "Posts"
+  forumThreads: "Forum Threads"
+  forumPosts: "Forum Posts"
+  playlists: "Playlists"
+
+# Tag Selector Widget
+tagSelector:
+  selectTags: "Select Tags"
+  clickToSelectTags: "Click to select tags"
+  addTag: "Add Tag"
+  removeTag: "Remove Tag"
+  deleteTag: "Delete Tag"
+  usageInstructions: "First add tags, then click to select from existing tags"
+  usageInstructionsTooltip: "Usage Instructions"
+  addTagTooltip: "Add Tag"
+  removeTagTooltip: "Remove Tag"
+  cancelSelection: "Cancel Selection"
+  selectAll: "Select All"
+  cancelSelectAll: "Cancel Select All"
+  delete: "Delete"
