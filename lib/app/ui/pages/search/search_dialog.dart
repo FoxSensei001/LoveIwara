@@ -11,6 +11,7 @@ import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/search_common_widgets.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_button_widget.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
+import 'package:i_iwara/app/ui/widgets/responsive_dialog_widget.dart';
 
 class SearchDialog extends StatelessWidget {
   final String userInputKeywords;
@@ -29,81 +30,16 @@ class SearchDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
-
-    if (screenWidth > 600) {
-      return _buildWideScreenDialog(context, t, screenHeight);
-    } else {
-      return _buildNarrowScreenDialog(context, t);
-    }
-  }
-
-  Widget _buildWideScreenDialog(BuildContext context, slang.Translations t, double screenHeight) {
-    return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: 800,
-          minWidth: 400,
-          maxHeight: screenHeight * 0.8,
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildDialogHeader(context, t),
-              const SizedBox(height: 16),
-              Expanded(
-                child: _SearchContent(
-                  userInputKeywords: userInputKeywords,
-                  initialSegment: initialSegment,
-                  onSearch: onSearch,
-                  initialFilters: initialFilters,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNarrowScreenDialog(BuildContext context, slang.Translations t) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(t.common.search),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ],
-      ),
-      body: _SearchContent(
+    
+    return ResponsiveDialogWidget(
+      title: t.common.search,
+      maxWidth: 800,
+      content: _SearchContent(
         userInputKeywords: userInputKeywords,
         initialSegment: initialSegment,
         onSearch: onSearch,
+        initialFilters: initialFilters,
       ),
-    );
-  }
-
-  Widget _buildDialogHeader(BuildContext context, slang.Translations t) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          t.common.search,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ],
     );
   }
 }

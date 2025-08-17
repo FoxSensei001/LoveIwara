@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_config.dart';
 
-class FilterRowWidget extends StatelessWidget {
+class FilterRowWidget extends StatefulWidget {
   final Filter filter;
   final List<FilterField> availableFields;
   final Function(String, Filter) onUpdate;
@@ -17,75 +17,172 @@ class FilterRowWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final selectedField = availableFields.firstWhere(
-      (f) => f.name == filter.field,
-      orElse: () => availableFields.first,
+  State<FilterRowWidget> createState() => _FilterRowWidgetState();
+}
+
+class _FilterRowWidgetState extends State<FilterRowWidget> {
+  late TextEditingController _dateController;
+  late TextEditingController _dateFromController;
+  late TextEditingController _dateToController;
+
+  @override
+  void initState() {
+    super.initState();
+    _dateController = TextEditingController(
+      text: widget.filter.value?.toString() ?? '',
     );
-    
-    final availableOperators = FilterConfig.getOperatorsForType(selectedField.type);
+    _dateFromController = TextEditingController();
+    _dateToController = TextEditingController();
+    _updateDateControllers();
+  }
+
+  void _updateDateControllers() {
+    if (widget.filter.value is Map) {
+      final map = widget.filter.value as Map;
+      _dateFromController.text = map['from']?.toString() ?? '';
+      _dateToController.text = map['to']?.toString() ?? '';
+    } else {
+      _dateController.text = widget.filter.value?.toString() ?? '';
+    }
+  }
+
+  @override
+  void didUpdateWidget(FilterRowWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // 检查 filter 是否有变化
+    bool shouldUpdate = false;
+
+    if (oldWidget.filter.value != widget.filter.value) {
+      shouldUpdate = true;
+    } else if (widget.filter.value is Map && oldWidget.filter.value is Map) {
+      // 对于 Map 类型（如日期范围），检查内容是否有变化
+      final oldMap = oldWidget.filter.value as Map;
+      final newMap = widget.filter.value as Map;
+      if (oldMap.length != newMap.length) {
+        shouldUpdate = true;
+      } else {
+        for (final key in newMap.keys) {
+          if (oldMap[key] != newMap[key]) {
+            shouldUpdate = true;
+            break;
+          }
+        }
+      }
+    }
+
+    if (shouldUpdate) {
+      _updateDateControllers();
+    }
+  }
+
+  @override
+  void dispose() {
+    _dateController.dispose();
+    _dateFromController.dispose();
+    _dateToController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final selectedField = widget.availableFields.firstWhere(
+      (f) => f.name == widget.filter.field,
+      orElse: () => widget.availableFields.first,
+    );
+
+    final availableOperators = FilterConfig.getOperatorsForType(
+      selectedField.type,
+    );
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 600;
 
     return Container(
-      padding: const EdgeInsets.all(12),
-      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        color: Theme.of(
+          context,
+        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
         ),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // 头部：字段选择和删除按钮
           Row(
             children: [
-              // 字段选择
               Expanded(
-                flex: 2,
-                child: _buildFieldSelector(context, selectedField, availableFields),
-              ),
-              const SizedBox(width: 8),
-              
-              // 语言选择（如果字段支持本地化）
-              if (selectedField.isLocalizable) ...[
-                Expanded(
-                  flex: 1,
-                  child: _buildLocaleSelector(context),
+                child: _buildFieldSelector(
+                  context,
+                  selectedField,
+                  widget.availableFields,
                 ),
-                const SizedBox(width: 8),
-              ],
-              
-              // 操作符选择
-              Expanded(
-                flex: 2,
-                child: _buildOperatorSelector(context, filter.operator, availableOperators),
               ),
-              const SizedBox(width: 8),
-              
-              // 值输入
-              Expanded(
-                flex: 3,
-                child: _buildValueInput(context, filter, selectedField),
-              ),
-              const SizedBox(width: 8),
-              
-              // 删除按钮
+              const SizedBox(width: 12),
               _buildDeleteButton(context),
             ],
           ),
+          const SizedBox(height: 12),
+
+          // 操作符和语言选择（如果支持本地化）
+          if (isSmallScreen) ...[
+            // 小屏幕：垂直布局
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildOperatorSelector(
+                  context,
+                  widget.filter.operator,
+                  availableOperators,
+                ),
+                if (selectedField.isLocalizable) ...[
+                  const SizedBox(height: 12),
+                  _buildLocaleSelector(context),
+                ],
+              ],
+            ),
+          ] else ...[
+            // 大屏幕：水平布局
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: [
+                SizedBox(
+                  width: 200,
+                  child: _buildOperatorSelector(
+                    context,
+                    widget.filter.operator,
+                    availableOperators,
+                  ),
+                ),
+                if (selectedField.isLocalizable)
+                  SizedBox(width: 120, child: _buildLocaleSelector(context)),
+              ],
+            ),
+          ],
+          const SizedBox(height: 12),
+
+          // 值输入区域
+          _buildValueInput(context, widget.filter, selectedField),
         ],
       ),
     );
   }
 
-  Widget _buildFieldSelector(BuildContext context, FilterField selectedField, List<FilterField> availableFields) {
+  Widget _buildFieldSelector(
+    BuildContext context,
+    FilterField selectedField,
+    List<FilterField> availableFields,
+  ) {
     return DropdownButtonFormField<String>(
-      value: filter.field,
+      value: widget.filter.field,
       decoration: InputDecoration(
         labelText: '字段',
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
       items: availableFields.map((field) {
@@ -96,26 +193,37 @@ class FilterRowWidget extends StatelessWidget {
       }).toList(),
       onChanged: (String? newFieldName) {
         if (newFieldName != null) {
-          final newField = availableFields.firstWhere((f) => f.name == newFieldName);
+          final newField = availableFields.firstWhere(
+            (f) => f.name == newFieldName,
+          );
           final newOperators = FilterConfig.getOperatorsForType(newField.type);
-          final newOperator = newOperators.isNotEmpty ? newOperators.first : FilterOperator.EQUALS;
-          
+          final newOperator = newOperators.isNotEmpty
+              ? newOperators.first
+              : FilterOperator.EQUALS;
+
           dynamic defaultValue = '';
           if (newField.type == FilterFieldType.BOOLEAN) {
             defaultValue = 'true';
           } else if (newField.type == FilterFieldType.STRING_ARRAY) {
             defaultValue = <String>[];
+          } else if (newField.type == FilterFieldType.SELECT) {
+            defaultValue = newField.options?.isNotEmpty == true
+                ? newField.options!.first.value
+                : '';
           } else if (newOperator == FilterOperator.RANGE) {
             defaultValue = {'from': '', 'to': ''};
           }
 
-          onUpdate(filter.id, Filter(
-            id: filter.id,
-            field: newFieldName,
-            operator: newOperator,
-            value: defaultValue,
-            locale: newField.isLocalizable ? 'en' : null,
-          ));
+          widget.onUpdate(
+            widget.filter.id,
+            Filter(
+              id: widget.filter.id,
+              field: newFieldName,
+              operator: newOperator,
+              value: defaultValue,
+              locale: newField.isLocalizable ? 'en' : null,
+            ),
+          );
         }
       },
     );
@@ -123,12 +231,10 @@ class FilterRowWidget extends StatelessWidget {
 
   Widget _buildLocaleSelector(BuildContext context) {
     return DropdownButtonFormField<String>(
-      value: filter.locale ?? 'en',
+      value: widget.filter.locale ?? 'en',
       decoration: InputDecoration(
         labelText: '语言',
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
       items: const [
@@ -138,20 +244,25 @@ class FilterRowWidget extends StatelessWidget {
       ],
       onChanged: (String? newLocale) {
         if (newLocale != null) {
-          onUpdate(filter.id, filter.copyWith(locale: newLocale));
+          widget.onUpdate(
+            widget.filter.id,
+            widget.filter.copyWith(locale: newLocale),
+          );
         }
       },
     );
   }
 
-  Widget _buildOperatorSelector(BuildContext context, FilterOperator selectedOperator, List<FilterOperator> availableOperators) {
+  Widget _buildOperatorSelector(
+    BuildContext context,
+    FilterOperator selectedOperator,
+    List<FilterOperator> availableOperators,
+  ) {
     return DropdownButtonFormField<FilterOperator>(
       value: selectedOperator,
       decoration: InputDecoration(
         labelText: '操作符',
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
       items: availableOperators.map((operator) {
@@ -162,19 +273,26 @@ class FilterRowWidget extends StatelessWidget {
       }).toList(),
       onChanged: (FilterOperator? newOperator) {
         if (newOperator != null) {
-          dynamic value = filter.value;
+          dynamic value = widget.filter.value;
           if (newOperator == FilterOperator.RANGE && value is! Map) {
             value = {'from': '', 'to': ''};
           } else if (newOperator != FilterOperator.RANGE && value is Map) {
             value = '';
           }
-          onUpdate(filter.id, filter.copyWith(operator: newOperator, value: value));
+          widget.onUpdate(
+            widget.filter.id,
+            widget.filter.copyWith(operator: newOperator, value: value),
+          );
         }
       },
     );
   }
 
-  Widget _buildValueInput(BuildContext context, Filter filter, FilterField field) {
+  Widget _buildValueInput(
+    BuildContext context,
+    Filter filter,
+    FilterField field,
+  ) {
     if (filter.operator == FilterOperator.RANGE) {
       return _buildRangeInput(context, filter, field);
     }
@@ -188,165 +306,468 @@ class FilterRowWidget extends StatelessWidget {
         return _buildNumberInput(context, filter);
       case FilterFieldType.STRING_ARRAY:
         return _buildStringArrayInput(context, filter);
+      case FilterFieldType.SELECT:
+        return _buildSelectInput(context, filter, field);
       default:
         return _buildStringInput(context, filter);
     }
   }
 
-  Widget _buildRangeInput(BuildContext context, Filter filter, FilterField field) {
+  Widget _buildRangeInput(
+    BuildContext context,
+    Filter filter,
+    FilterField field,
+  ) {
     final fromValue = filter.value is Map ? filter.value['from'] ?? '' : '';
     final toValue = filter.value is Map ? filter.value['to'] ?? '' : '';
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 600;
 
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: TextFormField(
-            initialValue: fromValue,
-            decoration: InputDecoration(
-              labelText: '从',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            ),
-            keyboardType: field.type == FilterFieldType.DATE ? null : TextInputType.number,
-            onChanged: (value) {
-              final currentValue = filter.value is Map ? Map<String, dynamic>.from(filter.value) : {'from': '', 'to': ''};
-              currentValue['from'] = value;
-              onUpdate(filter.id, filter.copyWith(value: currentValue));
-            },
-          ),
+        Text(
+          field.type == FilterFieldType.DATE ? '日期范围' : '数值范围',
+          style: Theme.of(
+            context,
+          ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w500),
         ),
-        const SizedBox(width: 8),
-        const Text('到'),
-        const SizedBox(width: 8),
-        Expanded(
-          child: TextFormField(
-            initialValue: toValue,
-            decoration: InputDecoration(
-              labelText: '到',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            ),
-            keyboardType: field.type == FilterFieldType.DATE ? null : TextInputType.number,
-            onChanged: (value) {
-              final currentValue = filter.value is Map ? Map<String, dynamic>.from(filter.value) : {'from': '', 'to': ''};
-              currentValue['to'] = value;
-              onUpdate(filter.id, filter.copyWith(value: currentValue));
-            },
+        const SizedBox(height: 8),
+        if (isSmallScreen) ...[
+          // 小屏幕：垂直布局
+          Column(
+            children: [
+              field.type == FilterFieldType.DATE
+                  ? _buildDateRangeField(
+                      context,
+                      filter,
+                      field,
+                      'from',
+                      fromValue,
+                    )
+                  : TextFormField(
+                      initialValue: fromValue,
+                      decoration: InputDecoration(
+                        labelText: '从',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                      ),
+                      keyboardType: TextInputType.number,
+                      onChanged: (value) {
+                        final currentValue = filter.value is Map
+                            ? Map<String, dynamic>.from(filter.value)
+                            : {'from': '', 'to': ''};
+                        currentValue['from'] = value;
+                        widget.onUpdate(
+                          filter.id,
+                          filter.copyWith(value: currentValue),
+                        );
+                      },
+                    ),
+              const SizedBox(height: 12),
+              field.type == FilterFieldType.DATE
+                  ? _buildDateRangeField(context, filter, field, 'to', toValue)
+                  : TextFormField(
+                      initialValue: toValue,
+                      decoration: InputDecoration(
+                        labelText: '到',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                      ),
+                      keyboardType: TextInputType.number,
+                      onChanged: (value) {
+                        final currentValue = filter.value is Map
+                            ? Map<String, dynamic>.from(filter.value)
+                            : {'from': '', 'to': ''};
+                        currentValue['to'] = value;
+                        widget.onUpdate(
+                          filter.id,
+                          filter.copyWith(value: currentValue),
+                        );
+                      },
+                    ),
+            ],
           ),
-        ),
+        ] else ...[
+          // 大屏幕：水平布局
+          Row(
+            children: [
+              Expanded(
+                child: field.type == FilterFieldType.DATE
+                    ? _buildDateRangeField(
+                        context,
+                        filter,
+                        field,
+                        'from',
+                        fromValue,
+                      )
+                    : TextFormField(
+                        initialValue: fromValue,
+                        decoration: InputDecoration(
+                          labelText: '从',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                        ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (value) {
+                          final currentValue = filter.value is Map
+                              ? Map<String, dynamic>.from(filter.value)
+                              : {'from': '', 'to': ''};
+                          currentValue['from'] = value;
+                          widget.onUpdate(
+                            filter.id,
+                            filter.copyWith(value: currentValue),
+                          );
+                        },
+                      ),
+              ),
+              const SizedBox(width: 12),
+              const Text('到'),
+              const SizedBox(width: 12),
+              Expanded(
+                child: field.type == FilterFieldType.DATE
+                    ? _buildDateRangeField(
+                        context,
+                        filter,
+                        field,
+                        'to',
+                        toValue,
+                      )
+                    : TextFormField(
+                        initialValue: toValue,
+                        decoration: InputDecoration(
+                          labelText: '到',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                        ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (value) {
+                          final currentValue = filter.value is Map
+                              ? Map<String, dynamic>.from(filter.value)
+                              : {'from': '', 'to': ''};
+                          currentValue['to'] = value;
+                          widget.onUpdate(
+                            filter.id,
+                            filter.copyWith(value: currentValue),
+                          );
+                        },
+                      ),
+              ),
+            ],
+          ),
+        ],
       ],
+    );
+  }
+
+  Widget _buildDateRangeField(
+    BuildContext context,
+    Filter filter,
+    FilterField field,
+    String fieldKey,
+    String currentValue,
+  ) {
+    return GestureDetector(
+      onTap: () async {
+        DateTime? initialDate;
+        try {
+          if (currentValue.isNotEmpty) {
+            initialDate = DateTime.parse(currentValue);
+          }
+        } catch (e) {
+          // 如果解析失败，使用当前日期
+          initialDate = DateTime.now();
+        }
+
+        final date = await showDatePicker(
+          context: context,
+          initialDate: initialDate ?? DateTime.now(),
+          firstDate: DateTime(2000),
+          lastDate: DateTime.now(),
+          locale: Localizations.localeOf(context),
+        );
+        if (date != null) {
+          final dateString = date.toIso8601String().split('T')[0];
+          final currentValue = filter.value is Map
+              ? Map<String, dynamic>.from(filter.value)
+              : {'from': '', 'to': ''};
+          currentValue[fieldKey] = dateString;
+          widget.onUpdate(filter.id, filter.copyWith(value: currentValue));
+        }
+      },
+      child: AbsorbPointer(
+        child: TextFormField(
+          controller: fieldKey == 'from'
+              ? _dateFromController
+              : _dateToController,
+          decoration: InputDecoration(
+            labelText: fieldKey == 'from' ? '从' : '到',
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
+            ),
+            suffixIcon: const Icon(Icons.calendar_today),
+            hintText: '点击选择日期',
+          ),
+          readOnly: true,
+        ),
+      ),
     );
   }
 
   Widget _buildBooleanInput(BuildContext context, Filter filter) {
-    return DropdownButtonFormField<String>(
-      value: filter.value?.toString() ?? 'true',
-      decoration: InputDecoration(
-        labelText: '值',
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '值',
+          style: Theme.of(
+            context,
+          ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w500),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      ),
-      items: const [
-        DropdownMenuItem(value: 'true', child: Text('是')),
-        DropdownMenuItem(value: 'false', child: Text('否')),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          value: filter.value?.toString() ?? 'true',
+          decoration: InputDecoration(
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
+            ),
+          ),
+          items: const [
+            DropdownMenuItem(value: 'true', child: Text('是')),
+            DropdownMenuItem(value: 'false', child: Text('否')),
+          ],
+          onChanged: (String? value) {
+            if (value != null) {
+              widget.onUpdate(filter.id, filter.copyWith(value: value));
+            }
+          },
+        ),
       ],
-      onChanged: (String? value) {
-        if (value != null) {
-          onUpdate(filter.id, filter.copyWith(value: value));
-        }
-      },
     );
   }
 
   Widget _buildDateInput(BuildContext context, Filter filter) {
-    return TextFormField(
-      initialValue: filter.value?.toString() ?? '',
-      decoration: InputDecoration(
-        labelText: '日期',
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '日期',
+          style: Theme.of(
+            context,
+          ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w500),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        suffixIcon: const Icon(Icons.calendar_today),
-      ),
-      readOnly: true,
-      onTap: () async {
-        final date = await showDatePicker(
-          context: context,
-          initialDate: filter.value != null ? DateTime.parse(filter.value) : DateTime.now(),
-          firstDate: DateTime(2000),
-          lastDate: DateTime.now(),
-        );
-        if (date != null) {
-          onUpdate(filter.id, filter.copyWith(value: date.toIso8601String().split('T')[0]));
-        }
-      },
+        const SizedBox(height: 8),
+        GestureDetector(
+          onTap: () async {
+            DateTime? initialDate;
+            try {
+              if (filter.value != null && filter.value.toString().isNotEmpty) {
+                initialDate = DateTime.parse(filter.value.toString());
+              }
+            } catch (e) {
+              // 如果解析失败，使用当前日期
+              initialDate = DateTime.now();
+            }
+
+            final date = await showDatePicker(
+              context: context,
+              initialDate: initialDate ?? DateTime.now(),
+              firstDate: DateTime(2000),
+              lastDate: DateTime.now(),
+              locale: Localizations.localeOf(context),
+            );
+            if (date != null) {
+              final dateString = date.toIso8601String().split('T')[0];
+              widget.onUpdate(filter.id, filter.copyWith(value: dateString));
+            }
+          },
+          child: AbsorbPointer(
+            child: TextFormField(
+              controller: _dateController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                suffixIcon: const Icon(Icons.calendar_today),
+                hintText: '点击选择日期',
+              ),
+              readOnly: true,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildNumberInput(BuildContext context, Filter filter) {
-    return TextFormField(
-      initialValue: filter.value?.toString() ?? '',
-      decoration: InputDecoration(
-        labelText: '数值',
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '数值',
+          style: Theme.of(
+            context,
+          ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w500),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      ),
-      keyboardType: TextInputType.number,
-      onChanged: (value) {
-        onUpdate(filter.id, filter.copyWith(value: value));
-      },
+        const SizedBox(height: 8),
+        TextFormField(
+          initialValue: filter.value?.toString() ?? '',
+          decoration: InputDecoration(
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
+            ),
+          ),
+          keyboardType: TextInputType.number,
+          onChanged: (value) {
+            widget.onUpdate(filter.id, filter.copyWith(value: value));
+          },
+        ),
+      ],
     );
   }
 
   Widget _buildStringArrayInput(BuildContext context, Filter filter) {
-    final tags = filter.value is List ? (filter.value as List).cast<String>() : <String>[];
+    final tags = filter.value is List
+        ? (filter.value as List).cast<String>()
+        : <String>[];
     final tagsText = tags.join(', ');
-    
-    return TextFormField(
-      initialValue: tagsText,
-      decoration: InputDecoration(
-        labelText: '标签',
-        hintText: '标签1, 标签2, ...',
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '标签',
+          style: Theme.of(
+            context,
+          ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w500),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      ),
-      onChanged: (value) {
-        final newTags = value.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
-        onUpdate(filter.id, filter.copyWith(value: newTags));
-      },
+        const SizedBox(height: 8),
+        TextFormField(
+          initialValue: tagsText,
+          decoration: InputDecoration(
+            hintText: '标签1, 标签2, ...',
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
+            ),
+          ),
+          onChanged: (value) {
+            final newTags = value
+                .split(',')
+                .map((s) => s.trim())
+                .where((s) => s.isNotEmpty)
+                .toList();
+            widget.onUpdate(filter.id, filter.copyWith(value: newTags));
+          },
+        ),
+      ],
     );
   }
 
   Widget _buildStringInput(BuildContext context, Filter filter) {
-    return TextFormField(
-      initialValue: filter.value?.toString() ?? '',
-      decoration: InputDecoration(
-        labelText: '值',
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '值',
+          style: Theme.of(
+            context,
+          ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w500),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      ),
-      onChanged: (value) {
-        onUpdate(filter.id, filter.copyWith(value: value));
-      },
+        const SizedBox(height: 8),
+        TextFormField(
+          initialValue: filter.value?.toString() ?? '',
+          decoration: InputDecoration(
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
+            ),
+          ),
+          onChanged: (value) {
+            widget.onUpdate(filter.id, filter.copyWith(value: value));
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSelectInput(
+    BuildContext context,
+    Filter filter,
+    FilterField field,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '值',
+          style: Theme.of(
+            context,
+          ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w500),
+        ),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          value: filter.value?.toString() ?? '',
+          decoration: InputDecoration(
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
+            ),
+          ),
+          items:
+              field.options?.map((option) {
+                return DropdownMenuItem<String>(
+                  value: option.value,
+                  child: Text(option.label),
+                );
+              }).toList() ??
+              [],
+          onChanged: (String? value) {
+            if (value != null) {
+              widget.onUpdate(filter.id, filter.copyWith(value: value));
+            }
+          },
+        ),
+      ],
     );
   }
 
   Widget _buildDeleteButton(BuildContext context) {
     return IconButton(
-      onPressed: () => onRemove(filter.id),
+      onPressed: () => widget.onRemove(widget.filter.id),
       icon: const Icon(Icons.delete_outline),
       style: IconButton.styleFrom(
         backgroundColor: Theme.of(context).colorScheme.errorContainer,

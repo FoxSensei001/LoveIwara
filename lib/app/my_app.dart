@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_routes.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -164,6 +165,19 @@ class _MyAppState extends State<MyApp> {
                 : currentThemeMode == 1 
                     ? ThemeMode.light 
                     : ThemeMode.dark,
+            // 添加本地化支持
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('en', ''), // English
+              Locale('ja', ''), // Japanese
+              Locale('zh', 'CN'), // Chinese (Simplified)
+              Locale('zh', 'TW'), // Chinese (Traditional)
+            ],
+            locale: LocaleSettings.currentLocale.flutterLocale,
             getPages: [
               GetPage(
                 name: Routes.SPLASH,

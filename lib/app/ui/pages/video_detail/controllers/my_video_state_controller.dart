@@ -804,7 +804,7 @@ class MyVideoStateController extends GetxController
       try {
         if (_isDisposed) return;
 
-        // 1. 获取视频信息(私人视频会以异常的形式捕获)
+        // 1. 获取视频信息(私密视频会以异常的形式捕获)
         var res = await _apiService.get(
           '/video/$videoId',
           cancelToken: _cancelToken,

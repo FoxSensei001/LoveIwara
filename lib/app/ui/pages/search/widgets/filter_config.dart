@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 
@@ -33,6 +34,10 @@ class FilterConfig {
       FilterOperator.IN,
       FilterOperator.NOT_IN,
     ],
+    FilterFieldType.SELECT: [
+      FilterOperator.EQUALS,
+      FilterOperator.NOT_EQUALS,
+    ],
   };
 
   static List<FilterOperator> getOperatorsForType(FilterFieldType type) {
@@ -44,81 +49,103 @@ class FilterConfig {
       id: 'users',
       name: '用户',
       fields: [
-        FilterField(name: 'username', type: FilterFieldType.STRING, displayName: '用户名'),
-        FilterField(name: 'body', type: FilterFieldType.STRING, isLocalizable: true, displayName: '简介'),
-        FilterField(name: 'name', type: FilterFieldType.STRING, isLocalizable: true, displayName: '昵称'),
-        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: '注册日期'),
+        FilterField(name: 'username', type: FilterFieldType.STRING, displayName: '用户名', iconData: Icons.person, iconColor: Colors.teal),
+        FilterField(name: 'body', type: FilterFieldType.STRING, isLocalizable: true, displayName: '简介', iconData: Icons.description, iconColor: Colors.indigo),
+        FilterField(name: 'name', type: FilterFieldType.STRING, isLocalizable: true, displayName: '昵称', iconData: Icons.badge, iconColor: Colors.cyan),
+        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: '注册日期', iconData: Icons.calendar_today, iconColor: Colors.brown),
       ],
     ),
     SearchSegment.video: FilterContentType(
       id: 'videos',
       name: '视频',
       fields: [
-        FilterField(name: 'title', type: FilterFieldType.STRING, isLocalizable: true, displayName: '标题'),
-        FilterField(name: 'body', type: FilterFieldType.STRING, isLocalizable: true, displayName: '描述'),
-        FilterField(name: 'author', type: FilterFieldType.STRING, displayName: '作者'),
-        FilterField(name: 'rating', type: FilterFieldType.NUMBER, displayName: '评分'),
-        FilterField(name: 'private', type: FilterFieldType.BOOLEAN, displayName: '私密'),
-        FilterField(name: 'duration', type: FilterFieldType.NUMBER, displayName: '时长'),
-        FilterField(name: 'likes', type: FilterFieldType.NUMBER, displayName: '点赞数'),
-        FilterField(name: 'views', type: FilterFieldType.NUMBER, displayName: '观看数'),
-        FilterField(name: 'comments', type: FilterFieldType.NUMBER, displayName: '评论数'),
-        FilterField(name: 'tags', type: FilterFieldType.STRING_ARRAY, displayName: '标签'),
-        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: '发布日期'),
+        FilterField(name: 'title', type: FilterFieldType.STRING, isLocalizable: true, displayName: '标题', iconData: Icons.title, iconColor: Colors.blue),
+        FilterField(name: 'body', type: FilterFieldType.STRING, isLocalizable: true, displayName: '描述', iconData: Icons.description, iconColor: Colors.indigo),
+        FilterField(name: 'author', type: FilterFieldType.STRING, displayName: '作者', iconData: Icons.person_outline, iconColor: Colors.deepPurple),
+        FilterField(
+          name: 'rating', 
+          type: FilterFieldType.SELECT, 
+          displayName: '评级', 
+          iconData: Icons.star, 
+          iconColor: Colors.amber,
+          options: [
+            FilterFieldOption(value: '', label: '全部的'),
+            FilterFieldOption(value: 'ecchi', label: '成人的'),
+            FilterFieldOption(value: 'general', label: '大众的'),
+          ],
+        ),
+        FilterField(name: 'private', type: FilterFieldType.BOOLEAN, displayName: '私密', iconData: Icons.lock, iconColor: Colors.grey),
+        FilterField(name: 'duration', type: FilterFieldType.NUMBER, displayName: '时长(秒)', iconData: Icons.timer, iconColor: Colors.orange),
+        FilterField(name: 'likes', type: FilterFieldType.NUMBER, displayName: '点赞数', iconData: Icons.favorite, iconColor: Colors.red),
+        FilterField(name: 'views', type: FilterFieldType.NUMBER, displayName: '观看数', iconData: Icons.visibility, iconColor: Colors.blue),
+        FilterField(name: 'comments', type: FilterFieldType.NUMBER, displayName: '评论数', iconData: Icons.comment, iconColor: Colors.green),
+        FilterField(name: 'tags', type: FilterFieldType.STRING_ARRAY, displayName: '标签', iconData: Icons.label, iconColor: Colors.red),
+        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: '发布日期', iconData: Icons.calendar_today, iconColor: Colors.brown),
       ],
     ),
     SearchSegment.image: FilterContentType(
       id: 'images',
       name: '图片',
       fields: [
-        FilterField(name: 'title', type: FilterFieldType.STRING, isLocalizable: true, displayName: '标题'),
-        FilterField(name: 'body', type: FilterFieldType.STRING, isLocalizable: true, displayName: '描述'),
-        FilterField(name: 'author', type: FilterFieldType.STRING, displayName: '作者'),
-        FilterField(name: 'rating', type: FilterFieldType.NUMBER, displayName: '评分'),
-        FilterField(name: 'likes', type: FilterFieldType.NUMBER, displayName: '点赞数'),
-        FilterField(name: 'views', type: FilterFieldType.NUMBER, displayName: '观看数'),
-        FilterField(name: 'comments', type: FilterFieldType.NUMBER, displayName: '评论数'),
-        FilterField(name: 'images', type: FilterFieldType.NUMBER, displayName: '图片数量'),
-        FilterField(name: 'tags', type: FilterFieldType.STRING_ARRAY, displayName: '标签'),
-        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: '发布日期'),
+        FilterField(name: 'title', type: FilterFieldType.STRING, isLocalizable: true, displayName: '标题', iconData: Icons.title, iconColor: Colors.blue),
+        FilterField(name: 'body', type: FilterFieldType.STRING, isLocalizable: true, displayName: '描述', iconData: Icons.description, iconColor: Colors.indigo),
+        FilterField(name: 'author', type: FilterFieldType.STRING, displayName: '作者', iconData: Icons.person_outline, iconColor: Colors.deepPurple),
+        FilterField(
+          name: 'rating', 
+          type: FilterFieldType.SELECT, 
+          displayName: '评级', 
+          iconData: Icons.star, 
+          iconColor: Colors.amber,
+          options: [
+            FilterFieldOption(value: '', label: '全部的'),
+            FilterFieldOption(value: 'ecchi', label: '成人的'),
+            FilterFieldOption(value: 'general', label: '大众的'),
+          ],
+        ),
+        FilterField(name: 'likes', type: FilterFieldType.NUMBER, displayName: '点赞数', iconData: Icons.favorite, iconColor: Colors.red),
+        FilterField(name: 'views', type: FilterFieldType.NUMBER, displayName: '观看数', iconData: Icons.visibility, iconColor: Colors.blue),
+        FilterField(name: 'comments', type: FilterFieldType.NUMBER, displayName: '评论数', iconData: Icons.comment, iconColor: Colors.green),
+        FilterField(name: 'images', type: FilterFieldType.NUMBER, displayName: '图片数量', iconData: Icons.image, iconColor: Colors.pink),
+        FilterField(name: 'tags', type: FilterFieldType.STRING_ARRAY, displayName: '标签', iconData: Icons.label, iconColor: Colors.red),
+        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: '发布日期', iconData: Icons.calendar_today, iconColor: Colors.brown),
       ],
     ),
     SearchSegment.post: FilterContentType(
       id: 'posts',
       name: '帖子',
       fields: [
-        FilterField(name: 'title', type: FilterFieldType.STRING, isLocalizable: true, displayName: '标题'),
-        FilterField(name: 'body', type: FilterFieldType.STRING, isLocalizable: true, displayName: '内容'),
-        FilterField(name: 'author', type: FilterFieldType.STRING, displayName: '作者'),
-        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: '发布日期'),
+        FilterField(name: 'title', type: FilterFieldType.STRING, isLocalizable: true, displayName: '标题', iconData: Icons.title, iconColor: Colors.blue),
+        FilterField(name: 'body', type: FilterFieldType.STRING, isLocalizable: true, displayName: '内容', iconData: Icons.description, iconColor: Colors.indigo),
+        FilterField(name: 'author', type: FilterFieldType.STRING, displayName: '作者', iconData: Icons.person_outline, iconColor: Colors.deepPurple),
+        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: '发布日期', iconData: Icons.calendar_today, iconColor: Colors.brown),
       ],
     ),
     SearchSegment.forum: FilterContentType(
       id: 'forum_threads',
       name: '论坛主题',
       fields: [
-        FilterField(name: 'title', type: FilterFieldType.STRING, isLocalizable: true, displayName: '标题'),
-        FilterField(name: 'author', type: FilterFieldType.STRING, displayName: '作者'),
-        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: '发布日期'),
+        FilterField(name: 'title', type: FilterFieldType.STRING, isLocalizable: true, displayName: '标题', iconData: Icons.title, iconColor: Colors.blue),
+        FilterField(name: 'author', type: FilterFieldType.STRING, displayName: '作者', iconData: Icons.person_outline, iconColor: Colors.deepPurple),
+        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: '发布日期', iconData: Icons.calendar_today, iconColor: Colors.brown),
       ],
     ),
     SearchSegment.forum_posts: FilterContentType(
       id: 'forum_posts',
       name: '论坛帖子',
       fields: [
-        FilterField(name: 'body', type: FilterFieldType.STRING, isLocalizable: true, displayName: '内容'),
-        FilterField(name: 'author', type: FilterFieldType.STRING, displayName: '作者'),
-        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: '发布日期'),
+        FilterField(name: 'body', type: FilterFieldType.STRING, isLocalizable: true, displayName: '内容', iconData: Icons.description, iconColor: Colors.indigo),
+        FilterField(name: 'author', type: FilterFieldType.STRING, displayName: '作者', iconData: Icons.person_outline, iconColor: Colors.deepPurple),
+        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: '发布日期', iconData: Icons.calendar_today, iconColor: Colors.brown),
       ],
     ),
     SearchSegment.playlist: FilterContentType(
       id: 'playlists',
       name: '播放列表',
       fields: [
-        FilterField(name: 'title', type: FilterFieldType.STRING, isLocalizable: true, displayName: '标题'),
-        FilterField(name: 'author', type: FilterFieldType.STRING, displayName: '作者'),
-        FilterField(name: 'videos', type: FilterFieldType.NUMBER, displayName: '视频数量'),
-        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: '创建日期'),
+        FilterField(name: 'title', type: FilterFieldType.STRING, isLocalizable: true, displayName: '标题', iconData: Icons.title, iconColor: Colors.blue),
+        FilterField(name: 'author', type: FilterFieldType.STRING, displayName: '作者', iconData: Icons.person_outline, iconColor: Colors.deepPurple),
+        FilterField(name: 'videos', type: FilterFieldType.NUMBER, displayName: '视频数量', iconData: Icons.video_library, iconColor: Colors.purple),
+        FilterField(name: 'date', type: FilterFieldType.DATE, displayName: '创建日期', iconData: Icons.calendar_today, iconColor: Colors.brown),
       ],
     ),
   };
@@ -146,13 +173,36 @@ class FilterConfig {
         return '{${fieldName}: ${filter.value}}';
       
       case FilterOperator.RANGE:
-        final from = field.type == FilterFieldType.DATE && filter.value['from'] != null 
-            ? (DateTime.parse(filter.value['from']).millisecondsSinceEpoch / 1000).floor()
-            : filter.value['from'];
-        final to = field.type == FilterFieldType.DATE && filter.value['to'] != null 
-            ? (DateTime.parse(filter.value['to']).millisecondsSinceEpoch / 1000).floor()
-            : filter.value['to'];
-        if (from == null && to == null) return '';
+        dynamic from;
+        dynamic to;
+        
+        if (field.type == FilterFieldType.DATE) {
+          // 处理日期范围
+          try {
+            if (filter.value['from'] != null && filter.value['from'].toString().isNotEmpty) {
+              from = (DateTime.parse(filter.value['from'].toString()).millisecondsSinceEpoch / 1000).floor();
+            }
+          } catch (e) {
+            from = null;
+          }
+          
+          try {
+            if (filter.value['to'] != null && filter.value['to'].toString().isNotEmpty) {
+              to = (DateTime.parse(filter.value['to'].toString()).millisecondsSinceEpoch / 1000).floor();
+            }
+          } catch (e) {
+            to = null;
+          }
+        } else {
+          // 处理数值范围
+          from = filter.value['from'];
+          to = filter.value['to'];
+        }
+        
+        if (from == null && to == null) {
+          return '';
+        }
+        
         return '{${fieldName}: [${from ?? ''}..${to ?? ''}]}';
       
       case FilterOperator.IN:
@@ -164,7 +214,11 @@ class FilterConfig {
       default:
         dynamic value = filter.value;
         if (field.type == FilterFieldType.DATE) {
-          value = (DateTime.parse(value).millisecondsSinceEpoch / 1000).floor();
+          try {
+            value = (DateTime.parse(value.toString()).millisecondsSinceEpoch / 1000).floor();
+          } catch (e) {
+            return '';
+          }
         }
         if (value == null || value == '') return '';
         return '{${fieldName}${filter.operator.value}${value}}';

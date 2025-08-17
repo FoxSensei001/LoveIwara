@@ -5,6 +5,7 @@ import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_builder_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/ui/widgets/responsive_dialog_widget.dart';
 
 class FilterButtonWidget extends StatelessWidget {
   final SearchSegment currentSegment;
@@ -67,79 +68,28 @@ class FilterButtonWidget extends StatelessWidget {
     final t = slang.Translations.of(context);
     List<Filter> tempFilters = filters.map((f) => f.copyWith()).toList();
     
-    Get.dialog(
-      Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+    ResponsiveDialog.show(
+      context: context,
+      title: '筛选项设置',
+      maxWidth: 800,
+      headerActions: [
+        ElevatedButton(
+          onPressed: () {
+            // 保存筛选项并执行搜索
+            onFiltersChanged(tempFilters.map((f) => f.copyWith()).toList());
+            AppService.tryPop();
+          },
+          child: Text(t.common.confirm),
         ),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: 800,
-            minWidth: 400,
-            maxHeight: MediaQuery.of(context).size.height * 0.8, // 使用屏幕高度的80%作为最大高度
-            minHeight: 400, // 设置最小高度
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // 对话框标题和操作按钮
-              Padding(
-                padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        '筛选项设置',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        TextButton(
-                          onPressed: () {
-                            // 直接关闭对话框，不检查未保存更改
-                            AppService.tryPop();
-                          },
-                          child: Text(t.common.cancel),
-                        ),
-                        const SizedBox(width: 8),
-                        ElevatedButton(
-                          onPressed: () {
-                            // 保存筛选项并执行搜索
-                            onFiltersChanged(tempFilters.map((f) => f.copyWith()).toList());
-                            AppService.tryPop();
-                          },
-                          child: Text(t.common.confirm),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              
-              // 筛选项生成器 - 使用 Flexible 而不是 Expanded 来更好地自适应
-              Flexible(
-                child: SingleChildScrollView(
-                  child: FilterBuilderWidget(
-                    initialSegment: currentSegment,
-                    initialFilters: filters,
-                    onFiltersChanged: (newFilters) {
-                      // 缓存筛选项，不直接触发搜索
-                      tempFilters = newFilters;
-                    },
-                    destroyOnClose: true,
-                  ),
-                ),
-              ),
-              
-              // 底部间距
-              const SizedBox(height: 16),
-            ],
-          ),
-        ),
+      ],
+      content: FilterBuilderWidget(
+        initialSegment: currentSegment,
+        initialFilters: filters,
+        onFiltersChanged: (newFilters) {
+          // 缓存筛选项，不直接触发搜索
+          tempFilters = newFilters;
+        },
+        destroyOnClose: true,
       ),
     );
   }

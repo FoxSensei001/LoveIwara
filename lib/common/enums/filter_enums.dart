@@ -1,10 +1,6 @@
-enum FilterFieldType {
-  STRING,
-  NUMBER,
-  BOOLEAN,
-  DATE,
-  STRING_ARRAY,
-}
+import 'package:flutter/material.dart';
+
+enum FilterFieldType { STRING, NUMBER, BOOLEAN, DATE, STRING_ARRAY, SELECT }
 
 enum FilterOperator {
   CONTAINS(':'),
@@ -22,17 +18,30 @@ enum FilterOperator {
   const FilterOperator(this.value);
 }
 
+class FilterFieldOption {
+  final String value;
+  final String label;
+
+  const FilterFieldOption({required this.value, required this.label});
+}
+
 class FilterField {
   final String name;
   final FilterFieldType type;
   final bool isLocalizable;
   final String displayName;
+  final IconData? iconData;
+  final Color? iconColor;
+  final List<FilterFieldOption>? options;
 
   const FilterField({
     required this.name,
     required this.type,
     this.isLocalizable = false,
     required this.displayName,
+    this.iconData,
+    this.iconColor,
+    this.options,
   });
 }
 
