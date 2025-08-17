@@ -66,6 +66,12 @@ class Filter {
       value: value ?? this.value,
     );
   }
+
+  // to string
+  @override
+  String toString() {
+    return 'Filter(id: $id, field: $field, locale: $locale, operator: $operator, value: $value)';
+  }
 }
 
 class FilterContentType {

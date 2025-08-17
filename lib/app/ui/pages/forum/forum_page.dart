@@ -205,6 +205,7 @@ class _ForumPageState extends State<ForumPage> {
                   NaviService.toSearchPage(
                     searchInfo: searchInfo,
                     segment: segment,
+                    filters: filters,
                   );
                 },
               ));

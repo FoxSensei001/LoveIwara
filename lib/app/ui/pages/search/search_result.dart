@@ -139,6 +139,7 @@ class SearchResult extends StatefulWidget {
   final SearchSegment initialSegment;
   final String? initialSearchType; // 新增搜索类型参数
   final Map<String, dynamic>? extData; // 新增扩展数据参数
+  final List<Filter>? initialFilters; // 新增初始筛选项参数
 
   const SearchResult({
     super.key,
@@ -146,6 +147,7 @@ class SearchResult extends StatefulWidget {
     required this.initialSegment,
     this.initialSearchType,
     this.extData,
+    this.initialFilters,
   });
 
   @override
@@ -178,6 +180,11 @@ class _SearchResultState extends State<SearchResult> {
     searchController = Get.put(SearchController(), tag: 'search_controller');
     searchController.updateSearch(widget.initialSearch);
     searchController.updateSegment(widget.initialSegment);
+    
+    // 设置初始筛选项
+    if (widget.initialFilters != null) {
+      searchController.updateFilters(widget.initialFilters!);
+    }
   }
 
   // 设置搜索控制器参数
@@ -375,6 +382,7 @@ class _SearchResultState extends State<SearchResult> {
       SearchDialog(
         userInputKeywords: searchController.currentSearch.value,
         initialSegment: searchController.selectedSegment.value,
+        initialFilters: searchController.filters.toList(),
         onSearch: _handleSearchResult,
       ),
     );

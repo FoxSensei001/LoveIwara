@@ -212,28 +212,7 @@ class _TagBlacklistPageState extends State<TagBlacklistPage> {
   
         return Column(
           children: [
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              child: controller.hasUnsavedChanges
-                  ? Container(
-                      key: const ValueKey('unsavedBanner'),
-                      width: double.infinity,
-                      color: Colors.red[100],
-                      padding: const EdgeInsets.all(8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.warning, color: Colors.red),
-                          const SizedBox(width: 8),
-                          Text(
-                            t.common.unsavedChanges,
-                            style: const TextStyle(color: Colors.red),
-                          ),
-                        ],
-                      ),
-                    )
-                  : const SizedBox.shrink(key: ValueKey('empty')),
-            ),
+            // 移除未保存提醒横幅
             Expanded(child: content),
           ],
         );

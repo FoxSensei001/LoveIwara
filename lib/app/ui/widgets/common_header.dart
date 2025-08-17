@@ -136,7 +136,7 @@ class CommonHeader extends StatelessWidget {
                     initialSegment: searchSegment,
                     onSearch: (searchInfo, segment, filters) {
                       NaviService.toSearchPage(
-                          searchInfo: searchInfo, segment: segment);
+                          searchInfo: searchInfo, segment: segment, filters: filters);
                     },
                   ),
                 );

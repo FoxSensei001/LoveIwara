@@ -15,6 +15,7 @@ class FilterBuilderWidget extends StatefulWidget {
   final List<Filter>? initialFilters;
   final Function(List<Filter>) onFiltersChanged;
   final String? searchTerm;
+  final bool destroyOnClose;
 
   const FilterBuilderWidget({
     super.key,
@@ -22,6 +23,7 @@ class FilterBuilderWidget extends StatefulWidget {
     this.initialFilters,
     required this.onFiltersChanged,
     this.searchTerm,
+    this.destroyOnClose = true,
   });
 
   @override
@@ -31,15 +33,16 @@ class FilterBuilderWidget extends StatefulWidget {
 class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
   late SearchSegment _currentSegment;
   late List<Filter> _filters;
-  late String _searchTerm;
+  late List<Filter> _originalFilters; // 保存原始筛选项
   bool _copied = false;
 
   @override
   void initState() {
     super.initState();
     _currentSegment = widget.initialSegment;
-    _filters = widget.initialFilters?.toList() ?? [];
-    _searchTerm = widget.searchTerm ?? '';
+    _originalFilters =
+        widget.initialFilters?.map((f) => f.copyWith()).toList() ?? [];
+    _filters = _originalFilters.map((f) => f.copyWith()).toList(); // 深拷贝初始筛选项
   }
 
   @override
@@ -47,7 +50,9 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.initialSegment != widget.initialSegment) {
       _currentSegment = widget.initialSegment;
-      _filters = [];
+      _originalFilters =
+          widget.initialFilters?.map((f) => f.copyWith()).toList() ?? [];
+      _filters = _originalFilters.map((f) => f.copyWith()).toList();
       widget.onFiltersChanged(_filters);
     }
   }
@@ -60,7 +65,10 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
     _showFieldSelectionDialog(context, contentType.fields);
   }
 
-  void _showFieldSelectionDialog(BuildContext context, List<FilterField> availableFields) {
+  void _showFieldSelectionDialog(
+    BuildContext context,
+    List<FilterField> availableFields,
+  ) {
     Get.dialog(
       AlertDialog(
         title: const Text('选择字段'),
@@ -110,7 +118,9 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
 
   void _createFilterWithField(FilterField field) {
     final operators = FilterConfig.getOperatorsForType(field.type);
-    final operator = operators.isNotEmpty ? operators.first : FilterOperator.EQUALS;
+    final operator = operators.isNotEmpty
+        ? operators.first
+        : FilterOperator.EQUALS;
 
     dynamic defaultValue = '';
     if (field.type == FilterFieldType.BOOLEAN) {
@@ -132,6 +142,7 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
     setState(() {
       _filters.add(newFilter);
     });
+    // 通知父组件筛选项已更新（临时状态）
     widget.onFiltersChanged(_filters);
   }
 
@@ -142,6 +153,7 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
         _filters[index] = newFilter;
       }
     });
+    // 通知父组件筛选项已更新（临时状态）
     widget.onFiltersChanged(_filters);
   }
 
@@ -149,6 +161,7 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
     setState(() {
       _filters.removeWhere((f) => f.id == id);
     });
+    // 通知父组件筛选项已更新（临时状态）
     widget.onFiltersChanged(_filters);
   }
 
@@ -156,8 +169,12 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
     setState(() {
       _filters.clear();
     });
+    // 通知父组件筛选项已更新（临时状态）
     widget.onFiltersChanged(_filters);
   }
+
+  // 获取当前的筛选项列表
+  List<Filter> get currentFilters => _filters;
 
   String _generateQuery() {
     final contentType = FilterConfig.getContentType(_currentSegment);
@@ -180,11 +197,11 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
   void _copyToClipboard() {
     final query = _generateQuery();
     Clipboard.setData(ClipboardData(text: query));
-    
+
     setState(() {
       _copied = true;
     });
-    
+
     showToastWidget(
       MDToastWidget(
         message: slang.t.download.copySuccess,
@@ -192,7 +209,7 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
       ),
       position: ToastPosition.bottom,
     );
-    
+
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
         setState(() {
@@ -205,72 +222,59 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
   @override
   Widget build(BuildContext context) {
     final contentType = FilterConfig.getContentType(_currentSegment);
-    final t = slang.Translations.of(context);
 
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-        ),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 标题和操作按钮
+          // 操作按钮
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Text(
-                '筛选项生成器',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Row(
-                children: [
-                  if (_filters.isNotEmpty)
-                    TextButton.icon(
-                      onPressed: _clearAllFilters,
-                      icon: const Icon(Icons.clear_all),
-                      label: const Text('清空'),
-                      style: TextButton.styleFrom(
-                        foregroundColor: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
-                  const SizedBox(width: 8),
-                  ElevatedButton.icon(
-                    onPressed: _addFilter,
-                    icon: const Icon(Icons.add),
-                    label: const Text('添加筛选项'),
+              if (_filters.isNotEmpty) ...[
+                TextButton.icon(
+                  onPressed: _clearAllFilters,
+                  icon: const Icon(Icons.clear_all),
+                  label: const Text('清空'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Theme.of(context).colorScheme.error,
                   ),
-                ],
+                ),
+                const SizedBox(width: 8),
+              ],
+              ElevatedButton.icon(
+                onPressed: _addFilter,
+                icon: const Icon(Icons.add),
+                label: const Text('添加筛选项'),
               ),
             ],
           ),
-          
-                      const SizedBox(height: 16),
-          
+
+          const SizedBox(height: 16),
+
           // 筛选项列表
           if (_filters.isNotEmpty) ...[
             Text(
               '筛选项 (${_filters.length})',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
-            ...(_filters.map((filter) => FilterRowWidget(
-              filter: filter,
-              availableFields: contentType?.fields ?? [],
-              onUpdate: _updateFilter,
-              onRemove: _removeFilter,
-            )).toList()),
+            ...(_filters
+                .map(
+                  (filter) => FilterRowWidget(
+                    filter: filter,
+                    availableFields: contentType?.fields ?? [],
+                    onUpdate: _updateFilter,
+                    onRemove: _removeFilter,
+                  ),
+                )
+                .toList()),
             const SizedBox(height: 16),
           ],
-          
+
           // 生成的查询
           Container(
             width: double.infinity,
@@ -279,7 +283,9 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.3),
               ),
             ),
             child: Column(

@@ -41,6 +41,7 @@ import '../ui/pages/author_profile/author_profile_page.dart';
 import '../ui/pages/gallery_detail/gallery_detail_page.dart';
 import '../ui/pages/search/search_result.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
+import 'package:i_iwara/common/enums/filter_enums.dart';
 import '../ui/pages/post_detail/post_detail_page.dart';
 
 /// 定义转场动画类型
@@ -262,6 +263,7 @@ class NaviService {
     required SearchSegment segment,
     String? searchType,
     Map<String, dynamic>? extData,
+    List<Filter>? filters,
   }) {
     _navigateToPage(
       routeName: Routes.SEARCH_RESULT,
@@ -270,6 +272,7 @@ class NaviService {
         initialSegment: segment,
         initialSearchType: searchType,
         extData: extData,
+        initialFilters: filters,
       ),
     );
   }

@@ -93,7 +93,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
         userInputKeywords: '',
         initialSegment: segment,
         onSearch: (searchInfo, segment, filters) {
-          NaviService.toSearchPage(searchInfo: searchInfo, segment: segment);
+          NaviService.toSearchPage(searchInfo: searchInfo, segment: segment, filters: filters);
         },
       ),
     );
@@ -538,6 +538,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                                             NaviService.toSearchPage(
                                               searchInfo: searchInfo,
                                               segment: segment,
+                                              filters: filters,
                                             );
                                           },
                                         ),

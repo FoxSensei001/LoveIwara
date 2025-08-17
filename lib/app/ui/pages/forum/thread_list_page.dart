@@ -111,6 +111,7 @@ class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProvid
                   NaviService.toSearchPage(
                     searchInfo: searchInfo,
                     segment: segment,
+                    filters: filters,
                   );
                 },
               ));

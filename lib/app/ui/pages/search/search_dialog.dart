@@ -10,19 +10,20 @@ import 'package:i_iwara/app/models/search_record.model.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/search_common_widgets.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_button_widget.dart';
-import 'package:i_iwara/app/ui/pages/search/widgets/filter_config.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
 
 class SearchDialog extends StatelessWidget {
   final String userInputKeywords;
   final SearchSegment initialSegment;
   final Function(String, SearchSegment, List<Filter>) onSearch;
+  final List<Filter>? initialFilters;
 
   const SearchDialog({
     super.key,
     required this.userInputKeywords,
     required this.initialSegment,
     required this.onSearch,
+    this.initialFilters,
   });
 
   @override
@@ -61,6 +62,7 @@ class SearchDialog extends StatelessWidget {
                   userInputKeywords: userInputKeywords,
                   initialSegment: initialSegment,
                   onSearch: onSearch,
+                  initialFilters: initialFilters,
                 ),
               ),
             ],
@@ -110,11 +112,13 @@ class _SearchContent extends StatefulWidget {
   final String userInputKeywords;
   final SearchSegment initialSegment;
   final Function(String, SearchSegment, List<Filter>) onSearch;
+  final List<Filter>? initialFilters;
 
   const _SearchContent({
     required this.userInputKeywords,
     required this.initialSegment,
     required this.onSearch,
+    this.initialFilters,
   });
 
   @override
@@ -145,6 +149,11 @@ class _SearchContentState extends State<_SearchContent> {
     // 设置初始搜索内容和 segment
     _controller.text = widget.userInputKeywords;
     _selectedSegment.value = widget.initialSegment;
+
+    // 设置初始筛选项
+    if (widget.initialFilters != null) {
+      _filters.assignAll(widget.initialFilters!);
+    }
 
     // 更新搜索建议
     updateSearchPlaceholder(userPreferenceService.videoSearchHistory);
@@ -211,7 +220,7 @@ class _SearchContentState extends State<_SearchContent> {
       userPreferenceService.addVideoSearchHistory(value);
     }
 
-    LogUtils.d('搜索内容: $value, 类型: ${_selectedSegment.value}');
+    LogUtils.d('搜索内容: $value, 类型: ${_selectedSegment.value}, filters: ${_filters.toList()}');
     _dismiss();
     widget.onSearch(value, _selectedSegment.value, _filters.toList());
   }
@@ -375,10 +384,6 @@ class _SearchControlsSection extends StatelessWidget {
     );
   }
 }
-
-
-
-
 
 class _GoogleSearchSection extends StatelessWidget {
   final ScrollController scrollController;

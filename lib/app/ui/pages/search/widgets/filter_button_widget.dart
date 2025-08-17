@@ -48,39 +48,14 @@ class FilterButtonWidget extends StatelessWidget {
             width: 44,
             height: 44,
             alignment: Alignment.center,
-            child: Stack(
-              children: [
-                Icon(
-                  Icons.filter_list,
-                  size: 20,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-                if (filters.isNotEmpty)
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      constraints: const BoxConstraints(
-                        minWidth: 16,
-                        minHeight: 16,
-                      ),
-                      child: Text(
-                        filters.length.toString(),
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-              ],
+            child: Badge.count(
+              count: filters.length,
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              child: Icon(
+                Icons.filter_list,
+                size: 20,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ),
         ),
@@ -90,6 +65,7 @@ class FilterButtonWidget extends StatelessWidget {
 
   void _showFilterDialog(BuildContext context) {
     final t = slang.Translations.of(context);
+    List<Filter> tempFilters = filters.map((f) => f.copyWith()).toList();
     
     Get.dialog(
       Dialog(
@@ -97,57 +73,71 @@ class FilterButtonWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
         ),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(
+          constraints: BoxConstraints(
             maxWidth: 800,
             minWidth: 400,
-            maxHeight: 600,
+            maxHeight: MediaQuery.of(context).size.height * 0.8, // 使用屏幕高度的80%作为最大高度
+            minHeight: 400, // 设置最小高度
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // 对话框标题和操作按钮
-                Row(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 对话框标题和操作按钮
+              Padding(
+                padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0),
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      '筛选项设置',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
+                    Expanded(
+                      child: Text(
+                        '筛选项设置',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                     Row(
                       children: [
                         TextButton(
-                          onPressed: () => AppService.tryPop(),
+                          onPressed: () {
+                            // 直接关闭对话框，不检查未保存更改
+                            AppService.tryPop();
+                          },
                           child: Text(t.common.cancel),
                         ),
                         const SizedBox(width: 8),
                         ElevatedButton(
-                          onPressed: () => AppService.tryPop(),
+                          onPressed: () {
+                            // 保存筛选项并执行搜索
+                            onFiltersChanged(tempFilters.map((f) => f.copyWith()).toList());
+                            AppService.tryPop();
+                          },
                           child: Text(t.common.confirm),
                         ),
                       ],
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
-                
-                // 筛选项生成器
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: FilterBuilderWidget(
-                      initialSegment: currentSegment,
-                      initialFilters: filters,
-                      onFiltersChanged: onFiltersChanged,
-                    ),
+              ),
+              
+              // 筛选项生成器 - 使用 Flexible 而不是 Expanded 来更好地自适应
+              Flexible(
+                child: SingleChildScrollView(
+                  child: FilterBuilderWidget(
+                    initialSegment: currentSegment,
+                    initialFilters: filters,
+                    onFiltersChanged: (newFilters) {
+                      // 缓存筛选项，不直接触发搜索
+                      tempFilters = newFilters;
+                    },
+                    destroyOnClose: true,
                   ),
                 ),
-                
-                
-              ],
-            ),
+              ),
+              
+              // 底部间距
+              const SizedBox(height: 16),
+            ],
           ),
         ),
       ),

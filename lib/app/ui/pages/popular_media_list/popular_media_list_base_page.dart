@@ -124,7 +124,7 @@ class PopularMediaListPageBaseState<
         userInputKeywords: '',
         initialSegment: widget.searchSegment,
         onSearch: (searchInfo, segment, filters) {
-          NaviService.toSearchPage(searchInfo: searchInfo, segment: segment);
+          NaviService.toSearchPage(searchInfo: searchInfo, segment: segment, filters: filters);
         },
       ),
     );
