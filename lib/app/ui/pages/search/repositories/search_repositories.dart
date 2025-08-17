@@ -5,6 +5,7 @@ import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/oreno3d_video.model.dart';
+import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'search_repository.dart';
 
 /// 视频搜索仓库
@@ -14,7 +15,7 @@ class VideoSearchRepository extends SearchRepository<Video> {
   VideoSearchRepository({
     required super.query,
     this.sortType,
-  }) : super(segment: 'video');
+  }) : super(segment: SearchSegment.video.apiType);
 
   @override
   Future<ApiResult> fetchSearchResults(int page, int limit, String keyword) {
@@ -34,7 +35,7 @@ class ImageSearchRepository extends SearchRepository<ImageModel> {
   ImageSearchRepository({
     required super.query,
     this.sortType,
-  }) : super(segment: 'image');
+  }) : super(segment: SearchSegment.image.apiType);
 
   @override
   Future<ApiResult> fetchSearchResults(int page, int limit, String keyword) {
@@ -50,7 +51,7 @@ class ImageSearchRepository extends SearchRepository<ImageModel> {
 /// 用户搜索仓库
 class UserSearchRepository extends SearchRepository<User> {
   UserSearchRepository({required super.query})
-      : super(segment: 'user');
+      : super(segment: SearchSegment.user.apiType);
 
   @override
   Future<ApiResult> fetchSearchResults(int page, int limit, String keyword) {
@@ -65,7 +66,7 @@ class UserSearchRepository extends SearchRepository<User> {
 /// 帖子搜索仓库
 class PostSearchRepository extends SearchRepository<PostModel> {
   PostSearchRepository({required super.query})
-      : super(segment: 'post');
+      : super(segment: SearchSegment.post.apiType);
 
   @override
   Future<ApiResult> fetchSearchResults(int page, int limit, String keyword) {
@@ -80,7 +81,7 @@ class PostSearchRepository extends SearchRepository<PostModel> {
 /// 论坛搜索仓库
 class ForumSearchRepository extends SearchRepository<ForumThreadModel> {
   ForumSearchRepository({required super.query})
-      : super(segment: 'forum');
+      : super(segment: SearchSegment.forum.apiType);
 
   @override
   Future<ApiResult> fetchSearchResults(int page, int limit, String keyword) {
@@ -103,7 +104,7 @@ class Oreno3dSearchRepository extends SearchRepository<Oreno3dVideo> {
     this.sortType,
     this.searchType,
     this.extData,
-  }) : super(segment: 'oreno3d');
+  }) : super(segment: SearchSegment.oreno3d.apiType);
 
   @override
   Future<ApiResult> fetchSearchResults(int page, int limit, String keyword) {

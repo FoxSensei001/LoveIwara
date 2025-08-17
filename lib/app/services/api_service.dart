@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 
 import '../../common/constants.dart';
 import '../../utils/logger_utils.dart';
+import '../../utils/curl_converter_utils.dart';
 import '../ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'auth_service.dart';
 import 'message_service.dart';
@@ -117,6 +118,12 @@ class ApiService extends GetxService {
         return handler.next(options);
       },
       onError: (error, handler) async {
+        // 将 DioException 转换为 curl 命令并打印（仅在调试模式下）
+        // CurlConverterUtils.convertDioExceptionToCurl(
+        //   error,
+        //   logLevel: LogLevel.debug,
+        // );
+
         // 处理 Cloudflare 403 质询
         if (error.response?.statusCode == 403) {
           final cfMitigated = error.response?.headers['cf-mitigated']?.firstOrNull;

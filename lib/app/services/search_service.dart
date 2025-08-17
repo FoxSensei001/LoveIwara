@@ -99,7 +99,7 @@ class SearchService extends GetxController {
     page: page,
     limit: limit,
     query: query,
-    type: SearchSegment.video.name,
+    type: SearchSegment.video.apiType,
     fromJson: Video.fromJson,
     sort: sort,
   );
@@ -114,7 +114,7 @@ class SearchService extends GetxController {
     page: page,
     limit: limit,
     query: query,
-    type: SearchSegment.image.name,
+    type: SearchSegment.image.apiType,
     fromJson: ImageModel.fromJson,
     sort: sort,
   );
@@ -128,7 +128,7 @@ class SearchService extends GetxController {
     page: page,
     limit: limit,
     query: query,
-    type: SearchSegment.user.name,
+    type: SearchSegment.user.apiType,
     fromJson: User.fromJson,
   );
 
@@ -141,7 +141,7 @@ class SearchService extends GetxController {
     page: page,
     limit: limit,
     query: query,
-    type: SearchSegment.post.name,
+    type: SearchSegment.post.apiType,
     fromJson: PostModel.fromJson,
   );
 
@@ -154,7 +154,7 @@ class SearchService extends GetxController {
     page: page,
     limit: limit,
     query: query,
-    type: SearchSegment.forum.name,
+    type: SearchSegment.forum.apiType,
     fromJson: ForumThreadModel.fromJson,
   );
 
