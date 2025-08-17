@@ -235,6 +235,7 @@ class _NavigationOrderSettingsPageState
           const Divider(height: 1),
           Container(
             constraints: const BoxConstraints(minHeight: 200),
+            padding: const EdgeInsets.only(bottom: 8),
             child: ReorderableListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),

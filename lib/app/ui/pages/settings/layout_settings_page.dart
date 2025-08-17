@@ -185,6 +185,8 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
         return const SizedBox.shrink();
       }
       
+      final isNarrowScreen = MediaQuery.of(context).size.width < 600;
+      
       return Card(
         elevation: 2,
         shape: RoundedRectangleBorder(
@@ -203,70 +205,173 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
               ),
             ),
             const Divider(height: 1),
-            ListTile(
-              leading: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.tertiaryContainer.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Center(
-                  child: Icon(
-                    Icons.grid_view,
-                    size: 20,
-                    color: Theme.of(context).colorScheme.tertiary,
-                  ),
-                ),
-              ),
-              title: Text(slang.t.layoutSettings.fixedColumns),
-              subtitle: Text('${_configService[ConfigKey.MANUAL_COLUMNS_COUNT]} ${slang.t.layoutSettings.columns}'),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
+            if (isNarrowScreen)
+              // 窄屏下的紧凑布局
+              Column(
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.remove),
-                    onPressed: () {
-                      final current = _configService[ConfigKey.MANUAL_COLUMNS_COUNT] as int;
-                      if (current > 1) {
-                        _configService[ConfigKey.MANUAL_COLUMNS_COUNT] = current - 1;
-                        _columnsController.text = (current - 1).toString();
-                      }
-                    },
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.tertiaryContainer.withValues(alpha: 0.3),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Center(
+                            child: Icon(
+                              Icons.grid_view,
+                              size: 16,
+                              color: Theme.of(context).colorScheme.tertiary,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                slang.t.layoutSettings.fixedColumns,
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              Text(
+                                '${_configService[ConfigKey.MANUAL_COLUMNS_COUNT]} ${slang.t.layoutSettings.columns}',
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  SizedBox(
-                    width: 60,
-                    child: TextField(
-                      controller: _columnsController,
-                      textAlign: TextAlign.center,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                      ),
-                      onSubmitted: (value) {
-                        final newValue = int.tryParse(value);
-                        if (newValue != null && newValue > 0 && newValue <= 12) {
-                          _configService[ConfigKey.MANUAL_COLUMNS_COUNT] = newValue;
-                        } else {
-                          _columnsController.text = _configService[ConfigKey.MANUAL_COLUMNS_COUNT].toString();
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.remove, size: 20),
+                          onPressed: () {
+                            final current = _configService[ConfigKey.MANUAL_COLUMNS_COUNT] as int;
+                            if (current > 1) {
+                              _configService[ConfigKey.MANUAL_COLUMNS_COUNT] = current - 1;
+                              _columnsController.text = (current - 1).toString();
+                            }
+                          },
+                        ),
+                        SizedBox(
+                          width: 80,
+                          child: TextField(
+                            controller: _columnsController,
+                            textAlign: TextAlign.center,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                            ),
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                            onSubmitted: (value) {
+                              final newValue = int.tryParse(value);
+                              if (newValue != null && newValue > 0 && newValue <= 12) {
+                                _configService[ConfigKey.MANUAL_COLUMNS_COUNT] = newValue;
+                              } else {
+                                _columnsController.text = _configService[ConfigKey.MANUAL_COLUMNS_COUNT].toString();
+                              }
+                            },
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.add, size: 20),
+                          onPressed: () {
+                            final current = _configService[ConfigKey.MANUAL_COLUMNS_COUNT] as int;
+                            if (current < 12) {
+                              _configService[ConfigKey.MANUAL_COLUMNS_COUNT] = current + 1;
+                              _columnsController.text = (current + 1).toString();
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              )
+            else
+              // 宽屏下的原有布局
+              ListTile(
+                leading: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.tertiaryContainer.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Center(
+                    child: Icon(
+                      Icons.grid_view,
+                      size: 20,
+                      color: Theme.of(context).colorScheme.tertiary,
+                    ),
+                  ),
+                ),
+                title: Text(slang.t.layoutSettings.fixedColumns),
+                subtitle: Text('${_configService[ConfigKey.MANUAL_COLUMNS_COUNT]} ${slang.t.layoutSettings.columns}'),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.remove),
+                      onPressed: () {
+                        final current = _configService[ConfigKey.MANUAL_COLUMNS_COUNT] as int;
+                        if (current > 1) {
+                          _configService[ConfigKey.MANUAL_COLUMNS_COUNT] = current - 1;
+                          _columnsController.text = (current - 1).toString();
                         }
                       },
                     ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.add),
-                    onPressed: () {
-                      final current = _configService[ConfigKey.MANUAL_COLUMNS_COUNT] as int;
-                      if (current < 12) {
-                        _configService[ConfigKey.MANUAL_COLUMNS_COUNT] = current + 1;
-                        _columnsController.text = (current + 1).toString();
-                      }
-                    },
-                  ),
-                ],
+                    SizedBox(
+                      width: 60,
+                      child: TextField(
+                        controller: _columnsController,
+                        textAlign: TextAlign.center,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                        ),
+                        onSubmitted: (value) {
+                          final newValue = int.tryParse(value);
+                          if (newValue != null && newValue > 0 && newValue <= 12) {
+                            _configService[ConfigKey.MANUAL_COLUMNS_COUNT] = newValue;
+                          } else {
+                            _columnsController.text = _configService[ConfigKey.MANUAL_COLUMNS_COUNT].toString();
+                          }
+                        },
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.add),
+                      onPressed: () {
+                        final current = _configService[ConfigKey.MANUAL_COLUMNS_COUNT] as int;
+                        if (current < 12) {
+                          _configService[ConfigKey.MANUAL_COLUMNS_COUNT] = current + 1;
+                          _columnsController.text = (current + 1).toString();
+                        }
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
           ],
         ),
       );
@@ -282,6 +387,8 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
         return const SizedBox.shrink();
       }
       
+      final isNarrowScreen = MediaQuery.of(context).size.width < 600;
+      
       return Card(
         elevation: 2,
         shape: RoundedRectangleBorder(
@@ -292,27 +399,52 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      slang.t.layoutSettings.breakpointConfig,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
+              child: isNarrowScreen
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        slang.t.layoutSettings.breakpointConfig,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          icon: const Icon(Icons.add, size: 18),
+                          label: Text(slang.t.layoutSettings.add),
+                          onPressed: () => _showAddBreakpointDialog(),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+                            foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          slang.t.layoutSettings.breakpointConfig,
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.add, size: 18),
+                        label: Text(slang.t.layoutSettings.add),
+                        onPressed: () => _showAddBreakpointDialog(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+                          foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                        ),
+                      ),
+                    ],
                   ),
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.add, size: 18),
-                    label: Text(slang.t.layoutSettings.add),
-                    onPressed: () => _showAddBreakpointDialog(),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-                      foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
-                    ),
-                  ),
-                ],
-              ),
             ),
             const Divider(height: 1),
             _buildDefaultColumnsSetting(),
@@ -325,65 +457,163 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
   }
 
   Widget _buildDefaultColumnsSetting() {
-    return ListTile(
-      leading: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.secondaryContainer.withValues(alpha: 0.3),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Center(
-          child: Icon(
-            Icons.settings,
-            size: 20,
-            color: Theme.of(context).colorScheme.secondary,
-          ),
-        ),
-      ),
-      title: Text(slang.t.layoutSettings.defaultColumns),
-      subtitle: Text(slang.t.layoutSettings.defaultColumnsDesc),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
+    final isNarrowScreen = MediaQuery.of(context).size.width < 600;
+    
+    if (isNarrowScreen) {
+      // 窄屏下的紧凑布局
+      return Column(
         children: [
-          IconButton(
-            icon: const Icon(Icons.remove),
-            onPressed: () {
-              final breakpoints = _getSafeBreakpoints();
-              final defaultColumns = breakpoints['9999'] ?? 6;
-              if (defaultColumns > 1) {
-                breakpoints['9999'] = defaultColumns - 1;
-                _updateBreakpointsWithSorting(breakpoints);
-              }
-            },
-          ),
-          Container(
-            width: 60,
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              border: Border.all(color: Theme.of(context).dividerColor),
-              borderRadius: BorderRadius.circular(4),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Row(
+              children: [
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.secondaryContainer.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Center(
+                    child: Icon(
+                      Icons.settings,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        slang.t.layoutSettings.defaultColumns,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        slang.t.layoutSettings.defaultColumnsDesc,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            child: Text(
-              '${_getSafeBreakpoints()['9999'] ?? 6}',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
           ),
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              final breakpoints = _getSafeBreakpoints();
-              final defaultColumns = breakpoints['9999'] ?? 6;
-              if (defaultColumns < 12) {
-                breakpoints['9999'] = defaultColumns + 1;
-                _updateBreakpointsWithSorting(breakpoints);
-              }
-            },
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.remove, size: 20),
+                  onPressed: () {
+                    final breakpoints = _getSafeBreakpoints();
+                    final defaultColumns = breakpoints['9999'] ?? 6;
+                    if (defaultColumns > 1) {
+                      breakpoints['9999'] = defaultColumns - 1;
+                      _updateBreakpointsWithSorting(breakpoints);
+                    }
+                  },
+                ),
+                Container(
+                  width: 80,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Theme.of(context).dividerColor),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    '${_getSafeBreakpoints()['9999'] ?? 6}',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.add, size: 20),
+                  onPressed: () {
+                    final breakpoints = _getSafeBreakpoints();
+                    final defaultColumns = breakpoints['9999'] ?? 6;
+                    if (defaultColumns < 12) {
+                      breakpoints['9999'] = defaultColumns + 1;
+                      _updateBreakpointsWithSorting(breakpoints);
+                    }
+                  },
+                ),
+              ],
+            ),
           ),
         ],
-      ),
-    );
+      );
+    } else {
+      // 宽屏下的原有布局
+      return ListTile(
+        leading: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.secondaryContainer.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Center(
+            child: Icon(
+              Icons.settings,
+              size: 20,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+          ),
+        ),
+        title: Text(slang.t.layoutSettings.defaultColumns),
+        subtitle: Text(slang.t.layoutSettings.defaultColumnsDesc),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.remove),
+              onPressed: () {
+                final breakpoints = _getSafeBreakpoints();
+                final defaultColumns = breakpoints['9999'] ?? 6;
+                if (defaultColumns > 1) {
+                  breakpoints['9999'] = defaultColumns - 1;
+                  _updateBreakpointsWithSorting(breakpoints);
+                }
+              },
+            ),
+            Container(
+              width: 60,
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                border: Border.all(color: Theme.of(context).dividerColor),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                '${_getSafeBreakpoints()['9999'] ?? 6}',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: () {
+                final breakpoints = _getSafeBreakpoints();
+                final defaultColumns = breakpoints['9999'] ?? 6;
+                if (defaultColumns < 12) {
+                  breakpoints['9999'] = defaultColumns + 1;
+                  _updateBreakpointsWithSorting(breakpoints);
+                }
+              },
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   /// 安全获取断点配置，确保类型正确
@@ -442,6 +672,8 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
       ];
     }
 
+    final isNarrowScreen = MediaQuery.of(context).size.width < 600;
+
     return userBreakpoints.asMap().entries.map((entry) {
       final index = entry.key;
       final breakpointEntry = entry.value;
@@ -460,42 +692,121 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
         );
       }
 
-      return ListTile(
-        leading: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Center(
-            child: Text(
-              '$columns',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.primary,
+      if (isNarrowScreen) {
+        // 窄屏下的紧凑布局
+        return Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Row(
+                children: [
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Center(
+                      child: Text(
+                        '$columns',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          rangeDescription,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Text(
+                          '$columns ${slang.t.layoutSettings.columns}',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.edit_outlined, size: 16),
+                    label: Text(slang.t.layoutSettings.edit),
+                    onPressed: () => _showEditBreakpointDialog(width, columns),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.delete_outline, size: 16),
+                    label: Text(slang.t.layoutSettings.delete),
+                    onPressed: () => _showDeleteBreakpointDialog(width),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      foregroundColor: Colors.red,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      } else {
+        // 宽屏下的原有布局
+        return ListTile(
+          leading: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Center(
+              child: Text(
+                '$columns',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
               ),
             ),
           ),
-        ),
-        title: Text(rangeDescription),
-        subtitle: Text('$columns ${slang.t.layoutSettings.columns}'),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.edit_outlined),
-              onPressed: () => _showEditBreakpointDialog(width, columns),
-              tooltip: slang.t.layoutSettings.edit,
-            ),
-            IconButton(
-              icon: const Icon(Icons.delete_outline),
-              onPressed: () => _showDeleteBreakpointDialog(width),
-              tooltip: slang.t.layoutSettings.delete,
-            ),
-          ],
-        ),
-      );
+          title: Text(rangeDescription),
+          subtitle: Text('$columns ${slang.t.layoutSettings.columns}'),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.edit_outlined),
+                onPressed: () => _showEditBreakpointDialog(width, columns),
+                tooltip: slang.t.layoutSettings.edit,
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete_outline),
+                onPressed: () => _showDeleteBreakpointDialog(width),
+                tooltip: slang.t.layoutSettings.delete,
+              ),
+            ],
+          ),
+        );
+      }
     }).toList();
   }
 
