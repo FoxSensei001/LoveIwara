@@ -23,6 +23,11 @@ on:
         required: true
         type: boolean
         default: true
+      build_linux:
+        description: 'Build Linux'
+        required: true
+        type: boolean
+        default: true
 
 jobs:
   build-android:
@@ -190,3 +195,43 @@ jobs:
         with:
           name: ios-release
           path: build/ios/iphoneos/app-release.ipa
+
+  build-linux:
+    if: ${{ inputs.build_linux }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.32.7'
+          channel: 'stable'
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Enable Linux
+        run: flutter config --enable-linux-desktop
+
+      - name: Build Linux
+        run: flutter build linux --release
+
+      - name: Create TAR archive
+        run: |
+          APP_VERSION=$(grep "version:" pubspec.yaml | cut -d':' -f2 | tr -d ' ' | cut -d'+' -f1)
+          mkdir -p result
+          tar -czf result/i_iwara-linux-$APP_VERSION.tar.gz -C build/linux/x64/release bundle
+
+      - name: Upload Linux build
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-release
+          path: result/
