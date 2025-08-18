@@ -292,9 +292,9 @@ Future<void> _initializeDesktop() async {
     TitleBarStyle.hidden,
     windowButtonVisibility: GetPlatform.isMacOS,
   );
-  if (GetPlatform.isLinux) {
-    await windowManager.setBackgroundColor(Colors.transparent);
-  }
+  // if (GetPlatform.isLinux) {
+  //   await windowManager.setBackgroundColor(Colors.transparent);
+  // }
 
   // 在隐藏标题栏之后再恢复窗口位置，此时需要减去系统标题栏高度进行补偿
   if (storedX != null && storedY != null && storedX != -1.0 && storedY != -1.0) {
