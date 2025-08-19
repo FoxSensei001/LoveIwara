@@ -123,8 +123,8 @@ class PopularMediaListPageBaseState<
       SearchDialog(
         userInputKeywords: '',
         initialSegment: widget.searchSegment,
-        onSearch: (searchInfo, segment, filters) {
-          NaviService.toSearchPage(searchInfo: searchInfo, segment: segment, filters: filters);
+        onSearch: (searchInfo, segment, filters, sort) {
+          NaviService.toSearchPage(searchInfo: searchInfo, segment: segment, filters: filters, sort: sort);
         },
       ),
     );

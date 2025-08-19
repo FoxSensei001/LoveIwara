@@ -1694,6 +1694,13 @@ searchFilter:
   forumPosts: "フォーラム投稿"
   playlists: "プレイリスト"
 
+  # 共通検索のソート種別
+  sortTypes:
+    relevance: "関連性"
+    latest: "最新"
+    views: "視聴回数"
+    likes: "いいね数"
+
 # タグセレクターウィジェット
 tagSelector:
   selectTags: "タグを選択"

@@ -201,11 +201,12 @@ class _ForumPageState extends State<ForumPage> {
               Get.dialog(SearchDialog(
                 userInputKeywords: '',
                 initialSegment: SearchSegment.forum,
-                onSearch: (searchInfo, segment, filters) {
+                onSearch: (searchInfo, segment, filters, sort) {
                   NaviService.toSearchPage(
                     searchInfo: searchInfo,
                     segment: segment,
                     filters: filters,
+                    sort: sort,
                   );
                 },
               ));

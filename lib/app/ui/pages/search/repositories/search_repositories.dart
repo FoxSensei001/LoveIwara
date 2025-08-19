@@ -11,8 +11,10 @@ import 'search_repository.dart';
 
 /// 视频搜索仓库
 class VideoSearchRepository extends SearchRepository<Video> {
+  final String? sortKey;
   VideoSearchRepository({
     required super.query,
+    this.sortKey,
   }) : super(segment: SearchSegment.video.apiType);
 
   @override
@@ -21,14 +23,17 @@ class VideoSearchRepository extends SearchRepository<Video> {
       page: page,
       limit: limit,
       query: keyword,
+      sort: sortKey,
     );
   }
 }
 
 /// 图片搜索仓库
 class ImageSearchRepository extends SearchRepository<ImageModel> {
+  final String? sortKey;
   ImageSearchRepository({
     required super.query,
+    this.sortKey,
   }) : super(segment: SearchSegment.image.apiType);
 
   @override
@@ -37,13 +42,15 @@ class ImageSearchRepository extends SearchRepository<ImageModel> {
       page: page,
       limit: limit,
       query: keyword,
+      sort: sortKey,
     );
   }
 }
 
 /// 用户搜索仓库
 class UserSearchRepository extends SearchRepository<User> {
-  UserSearchRepository({required super.query})
+  final String? sortKey;
+  UserSearchRepository({required super.query, this.sortKey})
       : super(segment: SearchSegment.user.apiType);
 
   @override
@@ -52,13 +59,15 @@ class UserSearchRepository extends SearchRepository<User> {
       page: page,
       limit: limit,
       query: keyword,
+      sort: sortKey,
     );
   }
 }
 
 /// 帖子搜索仓库
 class PostSearchRepository extends SearchRepository<PostModel> {
-  PostSearchRepository({required super.query})
+  final String? sortKey;
+  PostSearchRepository({required super.query, this.sortKey})
       : super(segment: SearchSegment.post.apiType);
 
   @override
@@ -67,13 +76,15 @@ class PostSearchRepository extends SearchRepository<PostModel> {
       page: page,
       limit: limit,
       query: keyword,
+      sort: sortKey,
     );
   }
 }
 
 /// 论坛搜索仓库
 class ForumSearchRepository extends SearchRepository<ForumThreadModel> {
-  ForumSearchRepository({required super.query})
+  final String? sortKey;
+  ForumSearchRepository({required super.query, this.sortKey})
       : super(segment: SearchSegment.forum.apiType);
 
   @override
@@ -82,13 +93,15 @@ class ForumSearchRepository extends SearchRepository<ForumThreadModel> {
       page: page,
       limit: limit,
       query: keyword,
+      sort: sortKey,
     );
   }
 }
 
 /// 论坛帖子回复搜索仓库
 class ForumPostsSearchRepository extends SearchRepository<ThreadCommentModel> {
-  ForumPostsSearchRepository({required super.query})
+  final String? sortKey;
+  ForumPostsSearchRepository({required super.query, this.sortKey})
       : super(segment: SearchSegment.forum_posts.apiType);
 
   @override
@@ -97,6 +110,7 @@ class ForumPostsSearchRepository extends SearchRepository<ThreadCommentModel> {
       page: page,
       limit: limit,
       query: keyword,
+      sort: sortKey,
     );
   }
 }
@@ -129,8 +143,10 @@ class Oreno3dSearchRepository extends SearchRepository<Oreno3dVideo> {
 
 /// 播放列表搜索仓库
 class PlaylistSearchRepository extends SearchRepository<PlaylistModel> {
+  final String? sortKey;
   PlaylistSearchRepository({
     required super.query,
+    this.sortKey,
   }) : super(segment: SearchSegment.playlist.apiType);
 
   @override
@@ -139,6 +155,7 @@ class PlaylistSearchRepository extends SearchRepository<PlaylistModel> {
       page: page,
       limit: limit,
       query: keyword,
+      sort: sortKey,
     );
   }
 }

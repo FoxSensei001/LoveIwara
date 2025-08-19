@@ -4,6 +4,43 @@ import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class FilterConfig {
+  // 通用排序项（非 Oreno3D）
+  static List<FilterFieldOption> _buildCommonSortVideoImage() {
+    return [
+      FilterFieldOption(value: 'date', label: slang.t.searchFilter.sortTypes.latest),
+      FilterFieldOption(value: 'relevance', label: slang.t.searchFilter.sortTypes.relevance),
+      FilterFieldOption(value: 'views', label: slang.t.searchFilter.sortTypes.views),
+      FilterFieldOption(value: 'likes', label: slang.t.searchFilter.sortTypes.likes),
+    ];
+  }
+
+  static List<FilterFieldOption> _buildCommonSortOthers() {
+    return [
+      FilterFieldOption(value: 'date', label: slang.t.searchFilter.sortTypes.latest),
+      FilterFieldOption(value: 'relevance', label: slang.t.searchFilter.sortTypes.relevance),
+    ];
+  }
+
+  static List<FilterFieldOption> getSortOptionsForSegment(SearchSegment segment) {
+    switch (segment) {
+      case SearchSegment.video:
+      case SearchSegment.image:
+        return _buildCommonSortVideoImage();
+      case SearchSegment.post:
+      case SearchSegment.user:
+      case SearchSegment.playlist:
+      case SearchSegment.forum:
+      case SearchSegment.forum_posts:
+        return _buildCommonSortOthers();
+      case SearchSegment.oreno3d:
+        return const [];
+    }
+  }
+
+  static String getDefaultSortForSegment(SearchSegment segment) {
+    if (segment == SearchSegment.oreno3d) return 'hot';
+    return 'date';
+  }
   static const Map<FilterFieldType, List<FilterOperator>> _operators = {
     FilterFieldType.STRING: [
       FilterOperator.CONTAINS,

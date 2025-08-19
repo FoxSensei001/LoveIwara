@@ -107,11 +107,12 @@ class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProvid
               Get.dialog(SearchDialog(
                 userInputKeywords: '',
                 initialSegment: SearchSegment.forum,
-                onSearch: (searchInfo, segment, filters) {
+                onSearch: (searchInfo, segment, filters, sort) {
                   NaviService.toSearchPage(
                     searchInfo: searchInfo,
                     segment: segment,
                     filters: filters,
+                    sort: sort,
                   );
                 },
               ));

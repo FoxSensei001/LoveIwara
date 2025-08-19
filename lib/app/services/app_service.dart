@@ -32,8 +32,8 @@ import 'package:i_iwara/app/ui/pages/download/gallery_download_task_detail_page.
 import 'package:i_iwara/app/ui/pages/tag_videos/tag_video_list_page.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/ui/pages/emoji_library/emoji_library_page.dart';
-import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:i_iwara/app/services/config_service.dart';
+// import 'package:i_iwara/utils/logger_utils.dart';
+// import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 import '../routes/app_routes.dart';
@@ -264,6 +264,7 @@ class NaviService {
     String? searchType,
     Map<String, dynamic>? extData,
     List<Filter>? filters,
+    String? sort,
   }) {
     _navigateToPage(
       routeName: Routes.SEARCH_RESULT,
@@ -273,6 +274,7 @@ class NaviService {
         initialSearchType: searchType,
         extData: extData,
         initialFilters: filters,
+        initialSort: sort,
       ),
     );
   }

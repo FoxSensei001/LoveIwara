@@ -1695,6 +1695,13 @@ searchFilter:
   forumPosts: "論壇貼文"
   playlists: "播放清單"
 
+  # 通用搜尋的排序類型
+  sortTypes:
+    relevance: "相關性"
+    latest: "最新"
+    views: "觀看次數"
+    likes: "按讚數"
+
 # 標籤選擇器組件
 tagSelector:
   selectTags: "選擇標籤"

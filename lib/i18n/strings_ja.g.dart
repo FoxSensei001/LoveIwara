@@ -1626,6 +1626,7 @@ class _TranslationsSearchFilterJa implements TranslationsSearchFilterEn {
 	@override String get forumThreads => 'フォーラムスレッド';
 	@override String get forumPosts => 'フォーラム投稿';
 	@override String get playlists => 'プレイリスト';
+	@override late final _TranslationsSearchFilterSortTypesJa sortTypes = _TranslationsSearchFilterSortTypesJa._(_root);
 }
 
 // Path: tagSelector
@@ -2140,6 +2141,19 @@ class _TranslationsFavoriteErrorsJa implements TranslationsFavoriteErrorsEn {
 	@override String get deleteFolderFailed => 'フォルダーの削除に失敗しました';
 	@override String get deleteFolderSuccess => 'フォルダーの削除に成功しました';
 	@override String get folderNameCannotBeEmpty => 'フォルダー名を入力してください';
+}
+
+// Path: searchFilter.sortTypes
+class _TranslationsSearchFilterSortTypesJa implements TranslationsSearchFilterSortTypesEn {
+	_TranslationsSearchFilterSortTypesJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get relevance => '関連性';
+	@override String get latest => '最新';
+	@override String get views => '視聴回数';
+	@override String get likes => 'いいね数';
 }
 
 /// Flat map(s) containing all translations.
@@ -3708,6 +3722,10 @@ extension on TranslationsJa {
 			case 'searchFilter.forumThreads': return 'フォーラムスレッド';
 			case 'searchFilter.forumPosts': return 'フォーラム投稿';
 			case 'searchFilter.playlists': return 'プレイリスト';
+			case 'searchFilter.sortTypes.relevance': return '関連性';
+			case 'searchFilter.sortTypes.latest': return '最新';
+			case 'searchFilter.sortTypes.views': return '視聴回数';
+			case 'searchFilter.sortTypes.likes': return 'いいね数';
 			case 'tagSelector.selectTags': return 'タグを選択';
 			case 'tagSelector.clickToSelectTags': return 'タグを選択するにはクリック';
 			case 'tagSelector.addTag': return 'タグを追加';

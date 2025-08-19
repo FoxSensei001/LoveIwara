@@ -1631,6 +1631,7 @@ class _TranslationsSearchFilterZhCn implements TranslationsSearchFilterEn {
 	@override String get forumThreads => '论坛主题';
 	@override String get forumPosts => '论坛帖子';
 	@override String get playlists => '播放列表';
+	@override late final _TranslationsSearchFilterSortTypesZhCn sortTypes = _TranslationsSearchFilterSortTypesZhCn._(_root);
 }
 
 // Path: tagSelector
@@ -2145,6 +2146,19 @@ class _TranslationsFavoriteErrorsZhCn implements TranslationsFavoriteErrorsEn {
 	@override String get deleteFolderFailed => '删除文件夹失败';
 	@override String get deleteFolderSuccess => '删除文件夹成功';
 	@override String get folderNameCannotBeEmpty => '文件夹名称不能为空';
+}
+
+// Path: searchFilter.sortTypes
+class _TranslationsSearchFilterSortTypesZhCn implements TranslationsSearchFilterSortTypesEn {
+	_TranslationsSearchFilterSortTypesZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get relevance => '相关性';
+	@override String get latest => '最新';
+	@override String get views => '观看次数';
+	@override String get likes => '点赞数';
 }
 
 /// Flat map(s) containing all translations.
@@ -3718,6 +3732,10 @@ extension on TranslationsZhCn {
 			case 'searchFilter.forumThreads': return '论坛主题';
 			case 'searchFilter.forumPosts': return '论坛帖子';
 			case 'searchFilter.playlists': return '播放列表';
+			case 'searchFilter.sortTypes.relevance': return '相关性';
+			case 'searchFilter.sortTypes.latest': return '最新';
+			case 'searchFilter.sortTypes.views': return '观看次数';
+			case 'searchFilter.sortTypes.likes': return '点赞数';
 			case 'tagSelector.selectTags': return '选择标签';
 			case 'tagSelector.clickToSelectTags': return '点击选择标签';
 			case 'tagSelector.addTag': return '添加标签';

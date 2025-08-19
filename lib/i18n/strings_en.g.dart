@@ -4135,6 +4135,8 @@ class TranslationsSearchFilterEn {
 
 	/// en: 'Playlists'
 	String get playlists => 'Playlists';
+
+	late final TranslationsSearchFilterSortTypesEn sortTypes = TranslationsSearchFilterSortTypesEn._(_root);
 }
 
 // Path: tagSelector
@@ -5299,6 +5301,27 @@ class TranslationsFavoriteErrorsEn {
 
 	/// en: 'Folder name cannot be empty'
 	String get folderNameCannotBeEmpty => 'Folder name cannot be empty';
+}
+
+// Path: searchFilter.sortTypes
+class TranslationsSearchFilterSortTypesEn {
+	TranslationsSearchFilterSortTypesEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Relevance'
+	String get relevance => 'Relevance';
+
+	/// en: 'Latest'
+	String get latest => 'Latest';
+
+	/// en: 'Views'
+	String get views => 'Views';
+
+	/// en: 'Likes'
+	String get likes => 'Likes';
 }
 
 /// Flat map(s) containing all translations.
@@ -6867,6 +6890,10 @@ extension on Translations {
 			case 'searchFilter.forumThreads': return 'Forum Threads';
 			case 'searchFilter.forumPosts': return 'Forum Posts';
 			case 'searchFilter.playlists': return 'Playlists';
+			case 'searchFilter.sortTypes.relevance': return 'Relevance';
+			case 'searchFilter.sortTypes.latest': return 'Latest';
+			case 'searchFilter.sortTypes.views': return 'Views';
+			case 'searchFilter.sortTypes.likes': return 'Likes';
 			case 'tagSelector.selectTags': return 'Select Tags';
 			case 'tagSelector.clickToSelectTags': return 'Click to select tags';
 			case 'tagSelector.addTag': return 'Add Tag';

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
+import 'package:i_iwara/common/enums/filter_enums.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 搜索分段选择器组件
@@ -290,7 +291,111 @@ class SortSelector extends StatelessWidget {
         height: 44,
         alignment: Alignment.center,
         child: Icon(
-          Icons.sort,
+          _iconForOreno3dSort(selectedSort),
+          size: 20,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
+      ),
+    );
+  }
+
+  IconData _iconForOreno3dSort(String value) {
+    switch (value) {
+      case 'hot':
+        return Icons.trending_up;
+      case 'favorites':
+        return Icons.favorite;
+      case 'latest':
+        return Icons.schedule;
+      case 'popularity':
+        return Icons.star;
+      default:
+        return Icons.sort;
+    }
+  }
+}
+
+/// 通用排序选择器组件（用于 Iwara 搜索：视频/图片/用户/帖子/播放列表/论坛/论坛帖子）
+class CommonSortSelector extends StatelessWidget {
+  final String selectedSort;
+  final List<FilterFieldOption> options;
+  final Function(String) onSortChanged;
+  final double height;
+  final EdgeInsets? margin;
+  final Color? backgroundColor;
+  final double? elevation;
+
+  const CommonSortSelector({
+    super.key,
+    required this.selectedSort,
+    required this.options,
+    required this.onSortChanged,
+    this.height = 44,
+    this.margin,
+    this.backgroundColor,
+    this.elevation,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: margin ?? const EdgeInsets.only(left: 4),
+      height: height,
+      alignment: Alignment.center,
+      child: PopupMenuButton<String>(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        initialValue: selectedSort,
+        onSelected: onSortChanged,
+        itemBuilder: (BuildContext context) => _buildSortMenuItems(),
+        child: _buildSortButton(context),
+      ),
+    );
+  }
+
+  IconData _iconForValue(String value) {
+    switch (value) {
+      case 'relevance':
+        return Icons.recommend;
+      case 'date':
+        return Icons.schedule;
+      case 'views':
+        return Icons.visibility;
+      case 'likes':
+        return Icons.favorite;
+      default:
+        return Icons.sort;
+    }
+  }
+
+  List<PopupMenuItem<String>> _buildSortMenuItems() {
+    return options
+        .map((opt) => PopupMenuItem<String>(
+              value: opt.value,
+              child: Row(
+                children: [
+                  Icon(_iconForValue(opt.value), size: 20),
+                  const SizedBox(width: 8),
+                  Text(opt.label),
+                ],
+              ),
+            ))
+        .toList();
+  }
+
+  Widget _buildSortButton(BuildContext context) {
+    return Material(
+      borderRadius: BorderRadius.circular(12),
+      color: backgroundColor ?? Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+      elevation: elevation ?? 0,
+      clipBehavior: Clip.antiAlias,
+      child: Container(
+        width: 44,
+        height: 44,
+        alignment: Alignment.center,
+        child: Icon(
+          _iconForValue(selectedSort),
           size: 20,
           color: Theme.of(context).colorScheme.onSurfaceVariant,
         ),

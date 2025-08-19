@@ -12,12 +12,14 @@ import 'package:i_iwara/app/ui/pages/search/widgets/search_common_widgets.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_button_widget.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
 import 'package:i_iwara/app/ui/widgets/responsive_dialog_widget.dart';
+import 'package:i_iwara/app/ui/pages/search/widgets/filter_config.dart';
 
 class SearchDialog extends StatelessWidget {
   final String userInputKeywords;
   final SearchSegment initialSegment;
-  final Function(String, SearchSegment, List<Filter>) onSearch;
+  final Function(String, SearchSegment, List<Filter>, String) onSearch;
   final List<Filter>? initialFilters;
+  final String? initialSort;
 
   const SearchDialog({
     super.key,
@@ -25,6 +27,7 @@ class SearchDialog extends StatelessWidget {
     required this.initialSegment,
     required this.onSearch,
     this.initialFilters,
+    this.initialSort,
   });
 
   @override
@@ -39,6 +42,7 @@ class SearchDialog extends StatelessWidget {
         initialSegment: initialSegment,
         onSearch: onSearch,
         initialFilters: initialFilters,
+        initialSort: initialSort,
       ),
     );
   }
@@ -47,14 +51,16 @@ class SearchDialog extends StatelessWidget {
 class _SearchContent extends StatefulWidget {
   final String userInputKeywords;
   final SearchSegment initialSegment;
-  final Function(String, SearchSegment, List<Filter>) onSearch;
+  final Function(String, SearchSegment, List<Filter>, String) onSearch;
   final List<Filter>? initialFilters;
+  final String? initialSort;
 
   const _SearchContent({
     required this.userInputKeywords,
     required this.initialSegment,
     required this.onSearch,
     this.initialFilters,
+    this.initialSort,
   });
 
   @override
@@ -70,6 +76,7 @@ class _SearchContentState extends State<_SearchContent> {
   final RxString _searchPlaceholder = ''.obs;
   final RxString _searchErrorText = ''.obs;
   final Rx<SearchSegment> _selectedSegment = SearchSegment.video.obs;
+  final RxString _selectedSort = ''.obs;
   
   // 筛选项状态
   final RxList<Filter> _filters = <Filter>[].obs;
@@ -85,6 +92,7 @@ class _SearchContentState extends State<_SearchContent> {
     // 设置初始搜索内容和 segment
     _controller.text = widget.userInputKeywords;
     _selectedSegment.value = widget.initialSegment;
+    _selectedSort.value = widget.initialSort ?? FilterConfig.getDefaultSortForSegment(widget.initialSegment);
 
     // 设置初始筛选项
     if (widget.initialFilters != null) {
@@ -156,9 +164,9 @@ class _SearchContentState extends State<_SearchContent> {
       userPreferenceService.addVideoSearchHistory(value);
     }
 
-    LogUtils.d('搜索内容: $value, 类型: ${_selectedSegment.value}, filters: ${_filters.toList()}');
+    LogUtils.d('搜索内容: $value, 类型: ${_selectedSegment.value}, sort: ${_selectedSort.value}, filters: ${_filters.toList()}');
     _dismiss();
-    widget.onSearch(value, _selectedSegment.value, _filters.toList());
+    widget.onSearch(value, _selectedSegment.value, _filters.toList(), _selectedSort.value);
   }
 
   void _dismiss() {
@@ -190,10 +198,14 @@ class _SearchContentState extends State<_SearchContent> {
           ),
           _SearchControlsSection(
             selectedSegment: _selectedSegment,
-            onSegmentChanged: (segment) => _selectedSegment.value = segment,
+            onSegmentChanged: (segment) {
+              _selectedSegment.value = segment;
+              _selectedSort.value = FilterConfig.getDefaultSortForSegment(segment);
+            },
             onSearch: () => _handleSubmit(_controller.text),
             filters: _filters,
             onFiltersChanged: (filters) => _filters.assignAll(filters),
+            selectedSort: _selectedSort,
           ),
           _GoogleSearchSection(scrollController: _scrollController),
           _SearchHistorySection(
@@ -278,6 +290,7 @@ class _SearchControlsSection extends StatelessWidget {
   final VoidCallback onSearch;
   final RxList<Filter> filters;
   final Function(List<Filter>) onFiltersChanged;
+  final RxString selectedSort;
 
   const _SearchControlsSection({
     required this.selectedSegment,
@@ -285,10 +298,12 @@ class _SearchControlsSection extends StatelessWidget {
     required this.onSearch,
     required this.filters,
     required this.onFiltersChanged,
+    required this.selectedSort,
   });
 
   @override
   Widget build(BuildContext context) {
+    // 排序选项由下方 Obx 动态读取，这里无需预取
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
       child: Row(
@@ -301,7 +316,30 @@ class _SearchControlsSection extends StatelessWidget {
             backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
             elevation: 1,
           )),
-          const SizedBox(width: 8),
+          const SizedBox(width: 4),
+          // Oreno3D 使用专用排序器；其他分段使用通用排序器
+          Obx(() {
+            final seg = selectedSegment.value;
+            if (seg == SearchSegment.oreno3d) {
+              return SortSelector(
+                selectedSort: selectedSort.value,
+                onSortChanged: (v) => selectedSort.value = v,
+                backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+                elevation: 1,
+              );
+            } else {
+              final options = FilterConfig.getSortOptionsForSegment(seg);
+              if (options.isEmpty) return const SizedBox.shrink();
+              return CommonSortSelector(
+                selectedSort: selectedSort.value,
+                options: options,
+                onSortChanged: (v) => selectedSort.value = v,
+                backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+                elevation: 1,
+              );
+            }
+          }),
+          const SizedBox(width: 4),
           Obx(() => FilterButtonWidget(
             currentSegment: selectedSegment.value,
             filters: filters.toList(),
@@ -309,7 +347,7 @@ class _SearchControlsSection extends StatelessWidget {
             backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
             elevation: 1,
           )),
-          const SizedBox(width: 8),
+          const SizedBox(width: 4),
           SearchButton(
             onSearch: onSearch,
             backgroundColor: Theme.of(context).colorScheme.primary,

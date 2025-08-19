@@ -1689,6 +1689,13 @@ searchFilter:
   forumThreads: "Forum Threads"
   forumPosts: "Forum Posts"
   playlists: "Playlists"
+  
+  # Sort Types for common search
+  sortTypes:
+    relevance: "Relevance"
+    latest: "Latest"
+    views: "Views"
+    likes: "Likes"
 
 # Tag Selector Widget
 tagSelector:

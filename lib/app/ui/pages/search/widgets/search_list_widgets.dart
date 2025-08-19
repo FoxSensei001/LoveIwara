@@ -20,10 +20,12 @@ import 'base_search_list.dart';
 
 /// 视频搜索列表
 class VideoSearchList extends BaseSearchList<Video, VideoSearchRepository> {
+  final String? sort;
   const VideoSearchList({
     super.key,
     required super.query,
     super.isPaginated = false,
+    this.sort,
   });
   
   @override
@@ -35,6 +37,7 @@ class VideoSearchListState extends BaseSearchListState<Video, VideoSearchReposit
   VideoSearchRepository createRepository() {
     return VideoSearchRepository(
       query: widget.query,
+      sortKey: widget.sort,
     );
   }
   
@@ -61,10 +64,12 @@ class VideoSearchListState extends BaseSearchListState<Video, VideoSearchReposit
 
 /// 图片搜索列表
 class ImageSearchList extends BaseSearchList<ImageModel, ImageSearchRepository> {
+  final String? sort;
   const ImageSearchList({
     super.key,
     required super.query,
     super.isPaginated = false,
+    this.sort,
   });
   
   @override
@@ -76,6 +81,7 @@ class ImageSearchListState extends BaseSearchListState<ImageModel, ImageSearchRe
   ImageSearchRepository createRepository() {
     return ImageSearchRepository(
       query: widget.query,
+      sortKey: widget.sort,
     );
   }
   
@@ -102,10 +108,12 @@ class ImageSearchListState extends BaseSearchListState<ImageModel, ImageSearchRe
 
 /// 用户搜索列表
 class UserSearchList extends BaseSearchList<User, UserSearchRepository> {
+  final String? sort;
   const UserSearchList({
     super.key,
     required super.query,
     super.isPaginated = false,
+    this.sort,
   });
   
   @override
@@ -115,7 +123,7 @@ class UserSearchList extends BaseSearchList<User, UserSearchRepository> {
 class UserSearchListState extends BaseSearchListState<User, UserSearchRepository, UserSearchList> {
   @override
   UserSearchRepository createRepository() {
-    return UserSearchRepository(query: widget.query);
+    return UserSearchRepository(query: widget.query, sortKey: widget.sort);
   }
   
   @override
@@ -137,10 +145,12 @@ class UserSearchListState extends BaseSearchListState<User, UserSearchRepository
 
 /// 帖子搜索列表
 class PostSearchList extends BaseSearchList<PostModel, PostSearchRepository> {
+  final String? sort;
   const PostSearchList({
     super.key,
     required super.query,
     super.isPaginated = false,
+    this.sort,
   });
   
   @override
@@ -150,7 +160,7 @@ class PostSearchList extends BaseSearchList<PostModel, PostSearchRepository> {
 class PostSearchListState extends BaseSearchListState<PostModel, PostSearchRepository, PostSearchList> {
   @override
   PostSearchRepository createRepository() {
-    return PostSearchRepository(query: widget.query);
+    return PostSearchRepository(query: widget.query, sortKey: widget.sort);
   }
   
   @override
@@ -172,10 +182,12 @@ class PostSearchListState extends BaseSearchListState<PostModel, PostSearchRepos
 
 /// 论坛搜索列表
 class ForumSearchList extends BaseSearchList<ForumThreadModel, ForumSearchRepository> {
+  final String? sort;
   const ForumSearchList({
     super.key,
     required super.query,
     super.isPaginated = false,
+    this.sort,
   });
 
   @override
@@ -185,7 +197,7 @@ class ForumSearchList extends BaseSearchList<ForumThreadModel, ForumSearchReposi
 class ForumSearchListState extends BaseSearchListState<ForumThreadModel, ForumSearchRepository, ForumSearchList> {
   @override
   ForumSearchRepository createRepository() {
-    return ForumSearchRepository(query: widget.query);
+    return ForumSearchRepository(query: widget.query, sortKey: widget.sort);
   }
 
   @override
@@ -208,10 +220,12 @@ class ForumSearchListState extends BaseSearchListState<ForumThreadModel, ForumSe
 
 /// 论坛帖子回复搜索列表
 class ForumPostsSearchList extends BaseSearchList<ThreadCommentModel, ForumPostsSearchRepository> {
+  final String? sort;
   const ForumPostsSearchList({
     super.key,
     required super.query,
     super.isPaginated = false,
+    this.sort,
   });
 
   @override
@@ -221,7 +235,7 @@ class ForumPostsSearchList extends BaseSearchList<ThreadCommentModel, ForumPosts
 class ForumPostsSearchListState extends BaseSearchListState<ThreadCommentModel, ForumPostsSearchRepository, ForumPostsSearchList> {
   @override
   ForumPostsSearchRepository createRepository() {
-    return ForumPostsSearchRepository(query: widget.query);
+    return ForumPostsSearchRepository(query: widget.query, sortKey: widget.sort);
   }
 
   @override
@@ -294,10 +308,12 @@ class Oreno3dSearchListState extends BaseSearchListState<Oreno3dVideo, Oreno3dSe
 
 /// 播放列表搜索列表
 class PlaylistSearchList extends BaseSearchList<PlaylistModel, PlaylistSearchRepository> {
+  final String? sort;
   const PlaylistSearchList({
     super.key,
     required super.query,
     super.isPaginated = false,
+    this.sort,
   });
 
   @override
@@ -309,6 +325,7 @@ class PlaylistSearchListState extends BaseSearchListState<PlaylistModel, Playlis
   PlaylistSearchRepository createRepository() {
     return PlaylistSearchRepository(
       query: widget.query,
+      sortKey: widget.sort,
     );
   }
 

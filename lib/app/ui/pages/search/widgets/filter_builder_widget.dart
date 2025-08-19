@@ -332,19 +332,7 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: IconButton(
-                        onPressed: _addFilter,
-                        icon: const Icon(Icons.add, color: Colors.white),
-                        tooltip: slang.t.searchFilter.add,
-                      ),
-                    ),
                     if (_filters.isNotEmpty) ...[
-                      const SizedBox(width: 8),
                       Container(
                         decoration: BoxDecoration(
                           color: Theme.of(context).colorScheme.error,
@@ -356,7 +344,19 @@ class _FilterBuilderWidgetState extends State<FilterBuilderWidget> {
                           tooltip: slang.t.searchFilter.clearAll,
                         ),
                       ),
+                      const SizedBox(width: 8),
                     ],
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: IconButton(
+                        onPressed: _addFilter,
+                        icon: const Icon(Icons.add, color: Colors.white),
+                        tooltip: slang.t.searchFilter.add,
+                      ),
+                    ),
                   ],
                 ),
               ],

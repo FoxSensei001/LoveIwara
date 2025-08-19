@@ -64,9 +64,7 @@ class SearchController extends GetxController {
     selectedSegment.value = segment;
 
     // 根据分段设置合适的默认排序
-    if (segment == SearchSegment.oreno3d) {
-      selectedSort.value = 'hot'; // oreno3d默认使用hot排序
-    }
+    selectedSort.value = FilterConfig.getDefaultSortForSegment(segment);
 
     // 切换分段时重置筛选项
     filters.clear();
@@ -140,6 +138,7 @@ class SearchResult extends StatefulWidget {
   final String? initialSearchType; // 新增搜索类型参数
   final Map<String, dynamic>? extData; // 新增扩展数据参数
   final List<Filter>? initialFilters; // 新增初始筛选项参数
+  final String? initialSort; // 新增初始排序参数
 
   const SearchResult({
     super.key,
@@ -148,6 +147,7 @@ class SearchResult extends StatefulWidget {
     this.initialSearchType,
     this.extData,
     this.initialFilters,
+    this.initialSort,
   });
 
   @override
@@ -180,6 +180,12 @@ class _SearchResultState extends State<SearchResult> {
     searchController = Get.put(SearchController(), tag: 'search_controller');
     searchController.updateSearch(widget.initialSearch);
     searchController.updateSegment(widget.initialSegment);
+    // 初始化排序（根据分段默认或外部传入）
+    if (widget.initialSort != null && widget.initialSort!.isNotEmpty) {
+      searchController.updateSort(widget.initialSort!);
+    } else {
+      searchController.updateSort(FilterConfig.getDefaultSortForSegment(widget.initialSegment));
+    }
     
     // 设置初始筛选项
     if (widget.initialFilters != null) {
@@ -226,42 +232,49 @@ class _SearchResultState extends State<SearchResult> {
           key: ValueKey('video_$rebuildKey'),
           query: query,
           isPaginated: isPaginated,
+          sort: sort,
         );
       case SearchSegment.image:
         return ImageSearchList(
           key: ValueKey('image_$rebuildKey'),
           query: query,
           isPaginated: isPaginated,
+          sort: sort,
         );
       case SearchSegment.user:
         return UserSearchList(
           key: ValueKey('user_$rebuildKey'),
           query: query,
           isPaginated: isPaginated,
+          sort: sort,
         );
       case SearchSegment.post:
         return PostSearchList(
           key: ValueKey('post_$rebuildKey'),
           query: query,
           isPaginated: isPaginated,
+          sort: sort,
         );
       case SearchSegment.forum:
         return ForumSearchList(
           key: ValueKey('forum_$rebuildKey'),
           query: query,
           isPaginated: isPaginated,
+          sort: sort,
         );
       case SearchSegment.forum_posts:
         return ForumPostsSearchList(
           key: ValueKey('forum_posts_$rebuildKey'),
           query: query,
           isPaginated: isPaginated,
+          sort: sort,
         );
       case SearchSegment.playlist:
         return PlaylistSearchList(
           key: ValueKey('playlist_$rebuildKey'),
           query: query,
           isPaginated: isPaginated,
+          sort: sort,
         );
       case SearchSegment.oreno3d:
         return Oreno3dSearchList(
@@ -382,6 +395,7 @@ class _SearchResultState extends State<SearchResult> {
       SearchDialog(
         userInputKeywords: searchController.currentSearch.value,
         initialSegment: searchController.selectedSegment.value,
+        initialSort: searchController.selectedSort.value,
         initialFilters: searchController.filters.toList(),
         onSearch: _handleSearchResult,
       ),
@@ -389,11 +403,12 @@ class _SearchResultState extends State<SearchResult> {
   }
 
   // 处理搜索结果
-  void _handleSearchResult(String searchInfo, SearchSegment segment, List<Filter> filters) {
+  void _handleSearchResult(String searchInfo, SearchSegment segment, List<Filter> filters, String sort) {
     // 更新搜索参数
     searchController.updateSearch(searchInfo);
     searchController.updateSegment(segment);
     searchController.updateFilters(filters);
+    searchController.updateSort(sort);
 
     // 更新UI
     _searchController.text = searchInfo;
@@ -415,11 +430,17 @@ class _SearchResultState extends State<SearchResult> {
   Widget _buildSortSelector() {
     return Obx(() {
       final segment = searchController.selectedSegment.value;
-      if (segment != SearchSegment.oreno3d) {
-        return const SizedBox.shrink();
+      if (segment == SearchSegment.oreno3d) {
+        return SortSelector(
+          selectedSort: searchController.selectedSort.value,
+          onSortChanged: searchController.updateSort,
+        );
       }
-      return SortSelector(
+      final options = FilterConfig.getSortOptionsForSegment(segment);
+      if (options.isEmpty) return const SizedBox.shrink();
+      return CommonSortSelector(
         selectedSort: searchController.selectedSort.value,
+        options: options,
         onSortChanged: searchController.updateSort,
       );
     });

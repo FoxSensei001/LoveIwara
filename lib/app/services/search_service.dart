@@ -95,12 +95,14 @@ class SearchService extends GetxController {
     int page = 0,
     int limit = 20,
     String query = '',
+    String? sort,
   }) => fetchDataByType<Video>(
     page: page,
     limit: limit,
     query: query,
     type: SearchSegment.video.apiType,
     fromJson: Video.fromJson,
+    sort: sort,
   );
 
   /// 获取图库
@@ -108,12 +110,14 @@ class SearchService extends GetxController {
     int page = 0,
     int limit = 20,
     String query = '',
+    String? sort,
   }) => fetchDataByType<ImageModel>(
     page: page,
     limit: limit,
     query: query,
     type: SearchSegment.image.apiType,
     fromJson: ImageModel.fromJson,
+    sort: sort,
   );
 
   /// 获取用户
@@ -121,12 +125,14 @@ class SearchService extends GetxController {
     int page = 0,
     int limit = 20,
     String query = '',
+    String? sort,
   }) => fetchDataByType<User>(
     page: page,
     limit: limit,
     query: query,
     type: SearchSegment.user.apiType,
     fromJson: User.fromJson,
+    sort: sort,
   );
 
   /// 获取帖子
@@ -134,12 +140,14 @@ class SearchService extends GetxController {
     int page = 0,
     int limit = 20,
     String query = '',
+    String? sort,
   }) => fetchDataByType<PostModel>(
     page: page,
     limit: limit,
     query: query,
     type: SearchSegment.post.apiType,
     fromJson: PostModel.fromJson,
+    sort: sort,
   );
 
   /// 获取论坛
@@ -147,12 +155,14 @@ class SearchService extends GetxController {
     int page = 0,
     int limit = 20,
     String query = '',
+    String? sort,
   }) => fetchDataByType<ForumThreadModel>(
     page: page,
     limit: limit,
     query: query,
     type: SearchSegment.forum.apiType,
     fromJson: ForumThreadModel.fromJson,
+    sort: sort,
   );
 
   /// 获取论坛帖子回复
@@ -160,12 +170,14 @@ class SearchService extends GetxController {
     int page = 0,
     int limit = 20,
     String query = '',
+    String? sort,
   }) => fetchDataByType<ThreadCommentModel>(
     page: page,
     limit: limit,
     query: query,
     type: SearchSegment.forum_posts.apiType,
     fromJson: ThreadCommentModel.fromJson,
+    sort: sort,
   );
 
   /// 获取Oreno3d视频
@@ -270,12 +282,14 @@ class SearchService extends GetxController {
     int page = 0,
     int limit = 20,
     String query = '',
+    String? sort,
   }) => fetchDataByType<PlaylistModel>(
     page: page,
     limit: limit,
     query: query,
     type: SearchSegment.playlist.apiType,
     fromJson: PlaylistModel.fromJson,
+    sort: sort,
   );
 
   /// 获取Oreno3d视频详情
