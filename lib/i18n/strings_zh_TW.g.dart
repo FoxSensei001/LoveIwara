@@ -647,6 +647,10 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get lockButtonPositionBothSides => '兩側顯示';
 	@override String get lockButtonPositionLeftSide => '僅左側顯示';
 	@override String get lockButtonPositionRightSide => '僅右側顯示';
+	@override String get fullscreenOrientation => '豎屏進入全屏後的螢幕方向';
+	@override String get fullscreenOrientationDesc => '此設定決定豎屏進入全屏時螢幕的預設方向（僅移動端有效）';
+	@override String get fullscreenOrientationLeftLandscape => '左側橫螢幕';
+	@override String get fullscreenOrientationRightLandscape => '右側橫螢幕';
 	@override String get jumpLink => '跳轉連結';
 	@override String get language => '語言';
 	@override String get languageChanged => '語言設定已更改，請重新啟動應用以生效。';
@@ -2671,6 +2675,10 @@ extension on TranslationsZhTw {
 			case 'settings.lockButtonPositionBothSides': return '兩側顯示';
 			case 'settings.lockButtonPositionLeftSide': return '僅左側顯示';
 			case 'settings.lockButtonPositionRightSide': return '僅右側顯示';
+			case 'settings.fullscreenOrientation': return '豎屏進入全屏後的螢幕方向';
+			case 'settings.fullscreenOrientationDesc': return '此設定決定豎屏進入全屏時螢幕的預設方向（僅移動端有效）';
+			case 'settings.fullscreenOrientationLeftLandscape': return '左側橫螢幕';
+			case 'settings.fullscreenOrientationRightLandscape': return '右側橫螢幕';
 			case 'settings.jumpLink': return '跳轉連結';
 			case 'settings.language': return '語言';
 			case 'settings.languageChanged': return '語言設定已更改，請重新啟動應用以生效。';

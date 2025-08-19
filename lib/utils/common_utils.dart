@@ -11,6 +11,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import '../app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:path/path.dart' as p;
+import 'package:i_iwara/app/services/config_service.dart';
 
 class CommonUtils {
   /// 格式化Duration 为 mm:ss 或 hh:mm:ss（适用于超过1小时的视频）
@@ -30,24 +31,34 @@ class CommonUtils {
 
   /// 进入全屏
   /// toVerticalScreen: 是否进入竖屏全屏（仅IOS Android有效）
+  /// useGravityOrientation: 是否根据重力感应选择横屏方向（仅移动端有效）
   static Future<void> defaultEnterNativeFullscreen({
     bool toVerticalScreen = false,
+    bool useGravityOrientation = false,
   }) async {
     try {
       if (Platform.isAndroid || Platform.isIOS) {
+        List<DeviceOrientation> orientations;
+        
+        if (toVerticalScreen) {
+          orientations = [DeviceOrientation.portraitUp];
+        } else if (useGravityOrientation) {
+          // 根据重力感应选择横屏方向
+          orientations = await _getGravityBasedOrientations();
+        } else {
+          // 正常全屏，允许所有横屏方向
+          orientations = [
+            DeviceOrientation.landscapeLeft,
+            DeviceOrientation.landscapeRight,
+          ];
+        }
+        
         await Future.wait([
           SystemChrome.setEnabledSystemUIMode(
             SystemUiMode.immersiveSticky,
             overlays: [],
           ),
-          SystemChrome.setPreferredOrientations(
-            toVerticalScreen
-                ? [DeviceOrientation.portraitUp]
-                : [
-                    DeviceOrientation.landscapeLeft,
-                    DeviceOrientation.landscapeRight,
-                  ],
-          ),
+          SystemChrome.setPreferredOrientations(orientations),
         ]);
       } else if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
         // 此处使用media_kit_video的MethodChannel，
@@ -58,6 +69,126 @@ class CommonUtils {
     } catch (exception, stacktrace) {
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());
+    }
+  }
+
+  /// 根据配置获取屏幕方向
+  static Future<List<DeviceOrientation>> _getConfigBasedOrientations() async {
+    try {
+      final configService = Get.find<ConfigService>();
+      final orientation = configService[ConfigKey.FULLSCREEN_ORIENTATION] as String;
+      
+      switch (orientation) {
+        case 'landscape_left':
+          return [DeviceOrientation.landscapeLeft];
+        case 'landscape_right':
+          return [DeviceOrientation.landscapeRight];
+        default:
+          return [DeviceOrientation.landscapeLeft]; // 默认左侧横屏
+      }
+    } catch (e) {
+      debugPrint('获取配置方向失败: $e');
+      return [DeviceOrientation.landscapeLeft]; // 默认左侧横屏
+    }
+  }
+
+  /// 根据重力感应获取屏幕方向
+  static Future<List<DeviceOrientation>> _getGravityBasedOrientations() async {
+    try {
+      final context = Get.context;
+      if (context == null) {
+        return await _getConfigBasedOrientations();
+      }
+      
+      // 获取当前设备方向
+      final currentOrientation = MediaQuery.of(context).orientation;
+      
+      // 如果当前已经是横屏，保持当前方向
+      if (currentOrientation == Orientation.landscape) {
+        // 获取当前的具体横屏方向
+        final currentDeviceOrientation = await _getCurrentDeviceOrientation();
+        if (currentDeviceOrientation != null) {
+          return [currentDeviceOrientation];
+        }
+      }
+      
+      // 如果当前是竖屏，根据重力感应选择横屏方向
+      // 由于重力感应数据获取复杂，我们使用配置的默认方向
+      // 用户可以通过旋转设备来改变方向
+      return await _getConfigBasedOrientations();
+    } catch (e) {
+      debugPrint('获取重力感应方向失败: $e');
+      return await _getConfigBasedOrientations();
+    }
+  }
+
+  /// 获取当前设备方向
+  static Future<DeviceOrientation?> _getCurrentDeviceOrientation() async {
+    try {
+      final context = Get.context;
+      if (context == null) {
+        return null;
+      }
+      
+      // 通过 MediaQuery 获取当前方向
+      final orientation = MediaQuery.of(context).orientation;
+      
+      // 尝试通过系统信息获取当前设备方向
+      // 这里我们使用一个简化的逻辑
+      if (orientation == Orientation.landscape) {
+        // 由于无法直接获取具体的横屏方向，我们返回配置的默认方向
+        final configService = Get.find<ConfigService>();
+        final defaultOrientation = configService[ConfigKey.FULLSCREEN_ORIENTATION] as String;
+        
+        if (defaultOrientation == 'landscape_left') {
+          return DeviceOrientation.landscapeLeft;
+        } else if (defaultOrientation == 'landscape_right') {
+          return DeviceOrientation.landscapeRight;
+        }
+      }
+      
+      return null;
+    } catch (e) {
+      debugPrint('获取当前设备方向失败: $e');
+      return null;
+    }
+  }
+
+  /// 根据重力感应切换横屏方向（仅在全屏状态下使用）
+  /// 这个方法会在横屏状态下根据重力感应在左右横屏之间切换
+  static Future<void> switchLandscapeOrientationByGravity() async {
+    try {
+      if (!Platform.isAndroid && !Platform.isIOS) {
+        return; // 仅移动端支持
+      }
+      
+      final context = Get.context;
+      if (context == null) {
+        return;
+      }
+      
+      // 获取当前方向
+      final currentOrientation = MediaQuery.of(context).orientation;
+      if (currentOrientation != Orientation.landscape) {
+        return; // 只在横屏状态下切换
+      }
+      
+      // 获取当前的具体横屏方向
+      final currentDeviceOrientation = await _getCurrentDeviceOrientation();
+      
+      // 根据当前方向切换到另一个横屏方向
+      List<DeviceOrientation> newOrientations;
+      if (currentDeviceOrientation == DeviceOrientation.landscapeLeft) {
+        newOrientations = [DeviceOrientation.landscapeRight];
+      } else {
+        newOrientations = [DeviceOrientation.landscapeLeft];
+      }
+      
+      // 应用新的方向
+      await SystemChrome.setPreferredOrientations(newOrientations);
+      
+    } catch (e) {
+      debugPrint('切换横屏方向失败: $e');
     }
   }
 

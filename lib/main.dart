@@ -51,6 +51,7 @@ import 'package:i_iwara/app/services/emoji_library_service.dart';
 import 'package:i_iwara/utils/refresh_rate_helper.dart';
 
 void main() {
+  print('Flutter main start');
   // 确保Flutter初始化
   runZonedGuarded(() async {
 

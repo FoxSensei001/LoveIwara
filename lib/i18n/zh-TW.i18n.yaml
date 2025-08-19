@@ -529,6 +529,10 @@ settings:
   lockButtonPositionBothSides: 兩側顯示
   lockButtonPositionLeftSide: 僅左側顯示
   lockButtonPositionRightSide: 僅右側顯示
+  fullscreenOrientation: 豎屏進入全屏後的螢幕方向
+  fullscreenOrientationDesc: 此設定決定豎屏進入全屏時螢幕的預設方向（僅移動端有效）
+  fullscreenOrientationLeftLandscape: 左側橫螢幕
+  fullscreenOrientationRightLandscape: 右側橫螢幕
   jumpLink: 跳轉連結
   language: 語言
   languageChanged: 語言設定已更改，請重新啟動應用以生效。

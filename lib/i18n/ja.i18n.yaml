@@ -529,6 +529,10 @@ settings:
   lockButtonPositionBothSides: 両側に表示
   lockButtonPositionLeftSide: 左側のみ表示
   lockButtonPositionRightSide: 右側のみ表示
+  fullscreenOrientation: フルスクリーン時のデフォルト画面方向
+  fullscreenOrientationDesc: この設定は、フルスクリーン時のデフォルト画面方向を決定します（モバイルのみ）
+  fullscreenOrientationLeftLandscape: 左横画面
+  fullscreenOrientationRightLandscape: 右横画面
   jumpLink: リンクをジャンプ
   language: 言語
   languageChanged: 言語設定が変更されました。アプリを再起動して有効にしてください。

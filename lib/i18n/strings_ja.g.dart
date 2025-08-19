@@ -647,6 +647,10 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get lockButtonPositionBothSides => '両側に表示';
 	@override String get lockButtonPositionLeftSide => '左側のみ表示';
 	@override String get lockButtonPositionRightSide => '右側のみ表示';
+	@override String get fullscreenOrientation => 'フルスクリーン時のデフォルト画面方向';
+	@override String get fullscreenOrientationDesc => 'この設定は、フルスクリーン時のデフォルト画面方向を決定します（モバイルのみ）';
+	@override String get fullscreenOrientationLeftLandscape => '左横画面';
+	@override String get fullscreenOrientationRightLandscape => '右横画面';
 	@override String get jumpLink => 'リンクをジャンプ';
 	@override String get language => '言語';
 	@override String get languageChanged => '言語設定が変更されました。アプリを再起動して有効にしてください。';
@@ -2668,6 +2672,10 @@ extension on TranslationsJa {
 			case 'settings.lockButtonPositionBothSides': return '両側に表示';
 			case 'settings.lockButtonPositionLeftSide': return '左側のみ表示';
 			case 'settings.lockButtonPositionRightSide': return '右側のみ表示';
+			case 'settings.fullscreenOrientation': return 'フルスクリーン時のデフォルト画面方向';
+			case 'settings.fullscreenOrientationDesc': return 'この設定は、フルスクリーン時のデフォルト画面方向を決定します（モバイルのみ）';
+			case 'settings.fullscreenOrientationLeftLandscape': return '左横画面';
+			case 'settings.fullscreenOrientationRightLandscape': return '右横画面';
 			case 'settings.jumpLink': return 'リンクをジャンプ';
 			case 'settings.language': return '言語';
 			case 'settings.languageChanged': return '言語設定が変更されました。アプリを再起動して有効にしてください。';

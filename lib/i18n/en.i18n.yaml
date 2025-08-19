@@ -528,6 +528,10 @@ settings:
   lockButtonPositionBothSides: Both Sides
   lockButtonPositionLeftSide: Left Side
   lockButtonPositionRightSide: Right Side
+  fullscreenOrientation: Vertical Screen Orientation After Entering Fullscreen
+  fullscreenOrientationDesc: This setting determines the default screen orientation when entering fullscreen (mobile only)
+  fullscreenOrientationLeftLandscape: Left Landscape
+  fullscreenOrientationRightLandscape: Right Landscape
   jumpLink: Jump Link
   language: Language
   languageChanged: Language setting has been changed, please restart the app to take effect.

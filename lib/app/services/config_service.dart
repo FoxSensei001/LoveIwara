@@ -301,6 +301,8 @@ enum ConfigKey {
   LAYOUT_BREAKPOINTS, // 布局断点配置
   // 导航相关配置
   NAVIGATION_ORDER, // 导航项排序
+  // 全屏方向配置
+  FULLSCREEN_ORIENTATION, // 进入全屏后的屏幕方向
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -393,6 +395,7 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.MANUAL_COLUMNS_COUNT: return 'manual_columns_count';
       case ConfigKey.LAYOUT_BREAKPOINTS: return 'layout_breakpoints';
       case ConfigKey.NAVIGATION_ORDER: return 'navigation_order';
+      case ConfigKey.FULLSCREEN_ORIENTATION: return 'fullscreen_orientation';
     }
   }
 
@@ -578,6 +581,8 @@ extension ConfigKeyExtension on ConfigKey {
         }; // 默认断点配置
       case ConfigKey.NAVIGATION_ORDER:
         return <String>['video', 'gallery', 'subscription', 'forum']; // 默认导航顺序
+      case ConfigKey.FULLSCREEN_ORIENTATION:
+        return 'landscape_left'; // 默认左侧横屏
     }
   }
 }

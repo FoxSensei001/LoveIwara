@@ -381,19 +381,6 @@ class PlayerSettingsWidget extends StatelessWidget {
                       _configService[ConfigKey.REPEAT_KEY] = value;
                     },
                   ),
-                  // 以竖屏模式渲染竖屏视频
-                  if (GetPlatform.isAndroid || GetPlatform.isIOS)
-                    _buildSwitchSetting(
-                      context: context,
-                      iconData: Icons.smartphone,
-                      label: t.settings.renderVerticalVideoInVerticalScreen,
-                      showInfoCard: true,
-                      infoMessage: t.settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen,
-                      rxValue: _configService.settings[ConfigKey.RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN]!,
-                      onChanged: (value) {
-                        _configService[ConfigKey.RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN] = value;
-                      },
-                    ),
                   // 记住音量
                   _buildSwitchSetting(
                     context: context,
@@ -547,6 +534,99 @@ class PlayerSettingsWidget extends StatelessWidget {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 16),
+                   // 以竖屏模式渲染竖屏视频
+                  if (GetPlatform.isAndroid || GetPlatform.isIOS)
+                    _buildSwitchSetting(
+                      context: context,
+                      iconData: Icons.smartphone,
+                      label: t.settings.renderVerticalVideoInVerticalScreen,
+                      showInfoCard: true,
+                      infoMessage: t.settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen,
+                      rxValue: _configService.settings[ConfigKey.RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN]!,
+                      onChanged: (value) {
+                        _configService[ConfigKey.RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN] = value;
+                      },
+                    ),
+                  // 全屏方向设置（仅移动端）
+                  if (GetPlatform.isAndroid || GetPlatform.isIOS)
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Theme.of(Get.context!).cardColor,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.screen_rotation,
+                                color: Get.isDarkMode ? Colors.white : null,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  t.settings.fullscreenOrientation,
+                                  style: Theme.of(Get.context!)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            t.settings.fullscreenOrientationDesc,
+                            style: Theme.of(Get.context!)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                  color: Colors.grey[600],
+                                ),
+                          ),
+                          const SizedBox(height: 12),
+                          Obx(() {
+                            final currentOrientation = _configService[ConfigKey.FULLSCREEN_ORIENTATION] as String;
+                            return Column(
+                              children: [
+                                RadioListTile<String>(
+                                  title: Text(t.settings.fullscreenOrientationLeftLandscape),
+                                  value: 'landscape_left',
+                                  groupValue: currentOrientation,
+                                  onChanged: (value) {
+                                    if (value != null) {
+                                      _configService[ConfigKey.FULLSCREEN_ORIENTATION] = value;
+                                    }
+                                  },
+                                ),
+                                RadioListTile<String>(
+                                  title: Text(t.settings.fullscreenOrientationRightLandscape),
+                                  value: 'landscape_right',
+                                  groupValue: currentOrientation,
+                                  onChanged: (value) {
+                                    if (value != null) {
+                                      _configService[ConfigKey.FULLSCREEN_ORIENTATION] = value;
+                                    }
+                                  },
+                                ),
+                              ],
+                            );
+                          }),
+                        ],
+                      ),
+                    ),
                 ],
               ),
             ),

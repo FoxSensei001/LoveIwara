@@ -87,6 +87,9 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _focusNode.requestFocus();
       });
+      
+      // 在全屏状态下监听重力感应变化
+      _startGravityOrientationListener();
     }
 
     _initializeAnimationControllers();
@@ -137,6 +140,48 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     );
   }
 
+  // 重力感应监听相关变量
+  Timer? _orientationCheckTimer;
+  Orientation? _lastOrientation;
+
+  /// 开始监听重力感应变化
+  void _startGravityOrientationListener() {
+    // 仅在移动端启用
+    if (!GetPlatform.isAndroid && !GetPlatform.isIOS) {
+      return;
+    }
+
+    // 使用定时器定期检查方向变化
+    _orientationCheckTimer = Timer.periodic(const Duration(milliseconds: 1000), (timer) {
+      if (!mounted || !widget.isFullScreen) {
+        timer.cancel();
+        return;
+      }
+      _checkOrientationChange();
+    });
+  }
+
+  /// 检查方向变化
+  void _checkOrientationChange() {
+    if (!mounted || !widget.isFullScreen) {
+      return;
+    }
+
+    // 获取当前方向
+    final currentOrientation = MediaQuery.of(context).orientation;
+    
+    // 检查方向是否发生变化
+    if (_lastOrientation != currentOrientation) {
+      _lastOrientation = currentOrientation;
+      
+      // 只在横屏状态下处理
+      if (currentOrientation == Orientation.landscape) {
+        LogUtils.d('进入横屏模式 jui', 'MyVideoScreen');
+        // 可以在这里添加横屏状态下的处理逻辑
+      }
+    }
+  }
+
   @override
   void dispose() {
     if (widget.isFullScreen) {
@@ -154,6 +199,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     _autoHideTimer?.cancel();
     _volumeInfoTimer?.cancel(); // 取消音量提示计时器
     _blurUpdateTimer?.cancel(); // 清理模糊背景更新定时器
+    _orientationCheckTimer?.cancel(); // 取消重力感应监听
     super.dispose();
   }
 

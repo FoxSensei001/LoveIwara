@@ -750,9 +750,13 @@ class _HistoryListPageState extends State<HistoryListPage>
             onClosing: () {},
             builder: (context) => SafeArea(
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 16.0,
+                padding: EdgeInsets.only(
+                  left: 16.0,
+                  right: 16.0,
+                  top: 16.0,
+                  bottom: 16.0 + (Get.context != null
+                      ? MediaQuery.of(Get.context!).padding.bottom
+                      : 0),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,

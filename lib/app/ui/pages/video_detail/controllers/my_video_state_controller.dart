@@ -1324,11 +1324,21 @@ class MyVideoStateController extends GetxController
     bool renderVerticalVideoInVerticalScreen =
         _configService[ConfigKey.RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN];
     NaviService.navigateToFullScreenVideoPlayerScreenPage(this);
+    
+    // 获取当前屏幕方向
+    final currentOrientation = MediaQuery.of(Get.context!).orientation;
+    
     if (renderVerticalVideoInVerticalScreen && aspectRatio.value < 1) {
+      // 窄屏视频保持竖屏
       await CommonUtils.defaultEnterNativeFullscreen(toVerticalScreen: true);
+    } else if (currentOrientation == Orientation.landscape) {
+      // 如果当前已经是横屏，正常触发全屏，不改变方向
+      await CommonUtils.defaultEnterNativeFullscreen();
     } else {
-      await defaultEnterNativeFullscreen();
+      // 当前是竖屏，根据配置选择横屏方向
+      await CommonUtils.defaultEnterNativeFullscreen(useGravityOrientation: true);
     }
+    
     // 同步播放状态
     if (wasPlaying) {
       await player.play();

@@ -535,6 +535,10 @@ settings:
   lockButtonPositionBothSides: 两侧显示
   lockButtonPositionLeftSide: 仅左侧显示
   lockButtonPositionRightSide: 仅右侧显示
+  fullscreenOrientation: 竖屏进入全屏后的屏幕方向
+  fullscreenOrientationDesc: 此设置决定竖屏进入全屏时屏幕的默认方向（仅移动端有效）
+  fullscreenOrientationLeftLandscape: 左侧横屏
+  fullscreenOrientationRightLandscape: 右侧横屏
   jumpLink: 跳转链接
   language: 语言
   languageChanged: 语言设置已更改，请重启应用以生效。

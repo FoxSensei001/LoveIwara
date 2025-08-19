@@ -1607,6 +1607,18 @@ class TranslationsSettingsEn {
 	/// en: 'Right Side'
 	String get lockButtonPositionRightSide => 'Right Side';
 
+	/// en: 'Vertical Screen Orientation After Entering Fullscreen'
+	String get fullscreenOrientation => 'Vertical Screen Orientation After Entering Fullscreen';
+
+	/// en: 'This setting determines the default screen orientation when entering fullscreen (mobile only)'
+	String get fullscreenOrientationDesc => 'This setting determines the default screen orientation when entering fullscreen (mobile only)';
+
+	/// en: 'Left Landscape'
+	String get fullscreenOrientationLeftLandscape => 'Left Landscape';
+
+	/// en: 'Right Landscape'
+	String get fullscreenOrientationRightLandscape => 'Right Landscape';
+
 	/// en: 'Jump Link'
 	String get jumpLink => 'Jump Link';
 
@@ -5836,6 +5848,10 @@ extension on Translations {
 			case 'settings.lockButtonPositionBothSides': return 'Both Sides';
 			case 'settings.lockButtonPositionLeftSide': return 'Left Side';
 			case 'settings.lockButtonPositionRightSide': return 'Right Side';
+			case 'settings.fullscreenOrientation': return 'Vertical Screen Orientation After Entering Fullscreen';
+			case 'settings.fullscreenOrientationDesc': return 'This setting determines the default screen orientation when entering fullscreen (mobile only)';
+			case 'settings.fullscreenOrientationLeftLandscape': return 'Left Landscape';
+			case 'settings.fullscreenOrientationRightLandscape': return 'Right Landscape';
 			case 'settings.jumpLink': return 'Jump Link';
 			case 'settings.language': return 'Language';
 			case 'settings.languageChanged': return 'Language setting has been changed, please restart the app to take effect.';
