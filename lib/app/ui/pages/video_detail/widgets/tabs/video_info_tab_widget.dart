@@ -34,6 +34,7 @@ import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
+import 'package:i_iwara/utils/vibrate_utils.dart';
 
 class VideoInfoTabWidget extends StatelessWidget {
   final MyVideoStateController controller;
@@ -161,29 +162,25 @@ class VideoInfoTabWidget extends StatelessWidget {
   Widget _buildVideoDetailsSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: UIConstants.sectionSpacing,
       children: [
         // 视频统计信息卡片
         _buildVideoStatsCard(context),
-        const SizedBox(height: UIConstants.interElementSpacing),
 
         // 视频描述
         _buildVideoDescriptionSection(context),
-        const SizedBox(height: UIConstants.interElementSpacing),
 
         // 视频标签
         _buildVideoTagsSection(context),
-        const SizedBox(height: UIConstants.interElementSpacing),
 
         // Oreno3D信息区域
         _buildOreno3dSection(context),
-        const SizedBox(height: UIConstants.interElementSpacing),
-
-        // 点赞头像区域
-        _buildLikeAvatarsSection(context),
-        const SizedBox(height: UIConstants.sectionSpacing),
 
         // 操作按钮区域
         _buildActionButtonsSection(context),
+             // 点赞头像区域
+        _buildLikeAvatarsSection(context),
+        const SafeArea(child: SizedBox.shrink()),
       ],
     );
   }
@@ -825,10 +822,17 @@ class VideoInfoTabWidget extends StatelessWidget {
     final videoInfo = controller.videoInfo.value;
     if (videoInfo == null) return const SizedBox.shrink();
 
-    return Wrap(
-      spacing: 8.0, // Horizontal space between buttons
-      runSpacing: 8.0, // Vertical space between rows
-      children: [
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Wrap(
+        spacing: 8.0, // Horizontal space between buttons
+        runSpacing: 8.0, // Vertical space between rows
+        children: [
         LikeButtonWidget(
           mediaId: videoInfo.id,
           liked: videoInfo.liked ?? false,
@@ -846,94 +850,77 @@ class VideoInfoTabWidget extends StatelessWidget {
             );
           },
         ),
-        _buildActionButton(
+        _buildActionButtonWidget(
+          context: context,
           icon: Icons.playlist_add,
           label: t.common.playList,
-          onTap: () {
-            final UserService userService = Get.find();
-            if (!userService.isLogin) {
-              showToastWidget(
-                MDToastWidget(
-                  message: t.errors.pleaseLoginFirst,
-                  type: MDToastType.error,
-                ),
-                position: ToastPosition.bottom,
-              );
-              LoginService.showLogin();
-            } else {
-              Get.dialog(
-                AddVideoToPlayListDialog(
-                  videoId: controller.videoInfo.value?.id ?? '',
-                ),
-              );
-            }
-          },
+          onTap: () => _handlePlaylistAction(context),
         ),
-        _buildActionButton(
+        _buildActionButtonWidget(
+          context: context,
           icon: Icons.bookmark_border,
           label: t.favorite.localizeFavorite,
-          onTap: () => _addToFavorite(context, videoInfo),
+          onTap: () => _handleFavoriteAction(context, videoInfo),
         ),
-        _buildActionButton(
+        _buildActionButtonWidget(
+          context: context,
           icon: Icons.download,
           label: t.common.download,
-          onTap: () => _showDownloadDialog(context), // Call the new method
+          onTap: () => _handleDownloadAction(context),
         ),
-        _buildActionButton(
+        _buildActionButtonWidget(
+          context: context,
           icon: Icons.share,
           label: t.common.share,
-          onTap: () {
-            showModalBottomSheet(
-              backgroundColor: Colors.transparent,
-              isScrollControlled: true,
-              builder: (context) => ShareVideoBottomSheet(
-                videoId: controller.videoInfo.value?.id ?? '',
-                videoTitle: controller.videoInfo.value?.title ?? '',
-                authorName: controller.videoInfo.value?.user?.name ?? '',
-                previewUrl: controller.videoInfo.value?.previewUrl ?? '',
-              ),
-              context: context,
-            );
-          },
+          onTap: () => _handleShareAction(context),
         ),
-      ],
-    );
-  }
-
-  /// Reusable widget for creating action buttons to reduce code duplication.
-  Widget _buildActionButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return Material(
-      color: Get.theme.colorScheme.surfaceContainerHighest,
-      borderRadius: BorderRadius.circular(20),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 20, color: Get.theme.iconTheme.color),
-              const SizedBox(width: 6),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Get.theme.textTheme.bodyMedium?.color,
-                ),
-              ),
-            ],
-          ),
-        ),
+        ],
       ),
     );
   }
 
-  void _addToFavorite(BuildContext context, dynamic videoInfo) {
+  /// 重新设计的操作按钮组件，参考 LikeButtonWidget 的设计
+  Widget _buildActionButtonWidget({
+    required BuildContext context,
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    Color? accentColor,
+  }) {
+    return ActionButtonWidget(
+      icon: icon,
+      label: label,
+      onTap: onTap,
+      accentColor: accentColor,
+    );
+  }
+
+  /// 处理播放列表操作
+  void _handlePlaylistAction(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final UserService userService = Get.find();
+    
+    if (!userService.isLogin) {
+      showToastWidget(
+        MDToastWidget(
+          message: t.errors.pleaseLoginFirst,
+          type: MDToastType.error,
+        ),
+        position: ToastPosition.bottom,
+      );
+      LoginService.showLogin();
+      return;
+    }
+    
+    Get.dialog(
+      AddVideoToPlayListDialog(
+        videoId: controller.videoInfo.value?.id ?? '',
+      ),
+    );
+  }
+
+  /// 处理收藏操作
+  void _handleFavoriteAction(BuildContext context, dynamic videoInfo) {
     Get.dialog(
       AddToFavoriteDialog(
         itemId: videoInfo.id,
@@ -942,6 +929,28 @@ class VideoInfoTabWidget extends StatelessWidget {
       ),
     );
   }
+
+  /// 处理下载操作
+  void _handleDownloadAction(BuildContext context) {
+    _showDownloadDialog(context);
+  }
+
+  /// 处理分享操作
+  void _handleShareAction(BuildContext context) {
+    showModalBottomSheet(
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => ShareVideoBottomSheet(
+        videoId: controller.videoInfo.value?.id ?? '',
+        videoTitle: controller.videoInfo.value?.title ?? '',
+        authorName: controller.videoInfo.value?.user?.name ?? '',
+        previewUrl: controller.videoInfo.value?.previewUrl ?? '',
+      ),
+      context: context,
+    );
+  }
+
+
 
   // 获取视频的下载地址
   Future<String?> _getSavePath(
@@ -1180,6 +1189,108 @@ class VideoInfoTabWidget extends StatelessWidget {
         'id': id,
         'name': name, // 传递标签名
       },
+    );
+  }
+}
+
+/// 操作按钮组件，参考 LikeButtonWidget 的设计
+class ActionButtonWidget extends StatefulWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final bool isLoading;
+  final Color? accentColor;
+
+  const ActionButtonWidget({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.isLoading = false,
+    this.accentColor,
+  });
+
+  @override
+  State<ActionButtonWidget> createState() => _ActionButtonWidgetState();
+}
+
+class _ActionButtonWidgetState extends State<ActionButtonWidget> {
+  bool _isLoading = false;
+
+  Future<void> _handleTap() async {
+    if (_isLoading || widget.isLoading) return;
+
+    // 添加震动反馈
+    VibrateUtils.vibrate();
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await Future.delayed(const Duration(milliseconds: 100)); // 模拟异步操作
+      widget.onTap();
+    } catch (e) {
+      // 错误处理
+      LogUtils.e('操作按钮执行失败: $e', tag: 'ActionButtonWidget');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isLoading = _isLoading || widget.isLoading;
+    final hasAccentColor = widget.accentColor != null;
+
+    return TextButton.icon(
+      onPressed: isLoading ? null : _handleTap,
+      icon: isLoading 
+          ? Shimmer.fromColors(
+              baseColor: hasAccentColor 
+                  ? widget.accentColor!.withValues(alpha: 0.3)
+                  : Colors.grey.shade300,
+              highlightColor: hasAccentColor 
+                  ? widget.accentColor!.withValues(alpha: 0.1)
+                  : Colors.grey.shade100,
+              child: Icon(widget.icon, size: 20),
+            )
+          : Icon(
+              widget.icon, 
+              size: 20,
+              color: hasAccentColor ? widget.accentColor : null,
+            ),
+      label: Text(
+        widget.label,
+        style: TextStyle(
+          fontSize: 14,
+          color: hasAccentColor ? widget.accentColor : null,
+        ),
+      ),
+      style: TextButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        backgroundColor: hasAccentColor 
+            ? widget.accentColor!.withValues(alpha: 0.1)
+            : Theme.of(context).colorScheme.surfaceContainerHighest,
+        foregroundColor: hasAccentColor 
+            ? widget.accentColor 
+            : Theme.of(context).colorScheme.onSurface,
+        elevation: 0,
+        shadowColor: Colors.transparent,
+        side: BorderSide(
+          color: hasAccentColor 
+              ? widget.accentColor!.withValues(alpha: 0.3)
+              : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+          width: 1,
+        ),
+      ),
     );
   }
 }

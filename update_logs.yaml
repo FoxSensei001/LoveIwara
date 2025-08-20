@@ -1,5 +1,5 @@
 # 最新版本
-currentVersion: "0.3.16"
+currentVersion: "0.3.17"
 # 更新日志
 # 格式介绍
 # 1. version: 版本号
@@ -12,17 +12,26 @@ updates:
     minVersion: "0.3.0"
     changes:
       zh-CN:
+        - "适配新版搜索功能"
         - "评论列表支持按发布时间倒序排列"
         - "新增布局设置功能，支持设置视频、图库卡片列数布局配置"
         - "新增导航排序设置功能，支持自定义底部导航栏和侧边栏的页面显示顺序"
+        - "修复 neko 表情包无法渲染的问题"
+        - "优化设置页的返回交互反馈"
       en:
+        - "Adapt to new search function"
         - "Comment list supports sorting by publish time in descending order"
         - "Added layout settings function, supports setting video and gallery card column layout configuration"
         - "Added navigation order settings function, supports customizing the display order of pages in the bottom navigation bar and sidebar"
+        - "Fixed the issue where neko emoji pack could not be rendered"
+        - "Optimized the return interaction feedback of the settings page"
       ja:
+        - "新しい検索機能に適応"
         - "コメントリストで公開日時で並べ替える機能を追加"
         - "レイアウト設定機能を追加し、ビデオとギャラリーのカード列数レイアウト設定をサポート"
         - "ナビゲーション順序設定機能を追加し、ボトムナビゲーションバーとサイドバーのページ表示順をカスタマイズできるようにしました"
+        - "neko 絵文字パックが正常にレンダリングされない問題を修正"
+        - "設定ページの戻るインタラクションフィードバックを最適化"
   - version: "0.3.16"
     date: "2025-08-03"
     minVersion: "0.3.0"
