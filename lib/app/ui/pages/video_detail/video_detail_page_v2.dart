@@ -7,7 +7,6 @@ import 'package:i_iwara/app/ui/pages/home/home_navigation_layout.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/my_video_screen.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/skeletons/video_detail_info_skeleton_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
-import 'package:i_iwara/app/ui/pages/video_detail/widgets/skeletons/video_player_skeleton_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/skeletons/video_detail_wide_skeleton_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/video_info_tab_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/comments_tab_widget.dart';
@@ -256,9 +255,12 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
               return _buildPureVideoPlayer(screenSize.height, paddingTop);
             }
 
-            // 否则显示骨架屏
+            // 否则显示播放器（包含加载状态）
             else {
-              return VideoPlayerSkeletonWidget(controller: controller);
+              return MyVideoScreen(
+                myVideoStateController: controller,
+                isFullScreen: false,
+              );
             }
           }),
         ),
@@ -347,7 +349,10 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                           screenSize.height,
                           paddingTop,
                         ),
-                        child: VideoPlayerSkeletonWidget(controller: controller),
+                        child: MyVideoScreen(
+                          myVideoStateController: controller,
+                          isFullScreen: false,
+                        ),
                       );
                     }
                   }),

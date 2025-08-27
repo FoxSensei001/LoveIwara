@@ -17,6 +17,8 @@ import 'bottom_toolbar_widget.dart';
 import 'gesture_area_widget.dart';
 import 'top_toolbar_widget.dart';
 import 'widgets/playback_speed_animation_widget.dart';
+import 'widgets/loading_state_widget.dart';
+import 'widgets/error_state_widget.dart';
 import '../../controllers/my_video_state_controller.dart';
 import '../../../../../../i18n/strings.g.dart' as slang;
 
@@ -750,18 +752,46 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       double playPauseIconSize, double bufferingSize) {
     return Obx(
       () => Positioned.fill(
-        child: widget.myVideoStateController.videoBuffering.value
-            ? Center(
-                child: _buildBufferingAnimation(
-                    widget.myVideoStateController, bufferingSize),
-              )
-            : Center(
-                child: _buildPlayPauseIcon(
-                    widget.myVideoStateController, playPauseIconSize),
-              ),
+        child: _buildLoadingOrControlContent(playPauseIconSize, bufferingSize),
       ),
     );
   }
+
+  // 构建加载或控制内容
+  Widget _buildLoadingOrControlContent(double playPauseIconSize, double bufferingSize) {
+    final controller = widget.myVideoStateController;
+    
+    // 如果播放器未准备好，显示加载状态
+    if (!controller.videoPlayerReady.value) {
+      return Center(
+        child: LoadingStateWidget(
+          controller: controller,
+          size: playPauseIconSize,
+        ),
+      );
+    }
+    
+    // 如果视频源有错误，显示错误状态
+    if (controller.videoSourceErrorMessage.value != null) {
+      return Center(
+        child: ErrorStateWidget(
+          controller: controller,
+          size: playPauseIconSize,
+        ),
+      );
+    }
+    
+    // 正常状态：显示缓冲动画或播放/暂停按钮
+    return controller.videoBuffering.value
+        ? Center(
+            child: _buildBufferingAnimation(controller, bufferingSize),
+          )
+        : Center(
+            child: _buildPlayPauseIcon(controller, playPauseIconSize),
+          );
+  }
+
+
 
   Widget _buildPlayPauseIcon(
       MyVideoStateController myVideoStateController, double size) {
