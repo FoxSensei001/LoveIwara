@@ -97,6 +97,9 @@ class CommentController<T extends CommentType> extends GetxController {
         if (firstPageResult.isSuccess) {
           totalComments.value = firstPageResult.data!.count;
           pendingCount.value = firstPageResult.data!.extras?['pendingCount'] ?? 0;
+        } else {
+          // 如果获取总数失败，直接抛出异常，让外层catch处理
+          throw Exception(firstPageResult.message);
         }
       }
 
