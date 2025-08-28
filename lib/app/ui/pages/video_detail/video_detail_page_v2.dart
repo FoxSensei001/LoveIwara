@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -468,59 +470,197 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     final screenHeight = screenSize.height;
     final screenWidth = screenSize.width;
 
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+    // 获取视频缩略图URL用于模糊背景
+    final thumbnailUrl = controller.videoInfo.value?.thumbnailUrl;
+
+    return SizedBox(
+      width: screenSize.width,
+      height: screenSize.height,
+      child: Stack(
         children: [
-          const Icon(Icons.link, size: 48, color: Colors.white),
-          const SizedBox(height: 12),
-          Text(
-            '${t.videoDetail.externalVideo}: ${controller.videoInfo.value?.externalVideoDomain}',
-            style: const TextStyle(fontSize: 18, color: Colors.white),
-            textAlign: TextAlign.center,
+          // 模糊背景
+          Positioned.fill(
+            child: _buildExternalVideoBackground(thumbnailUrl, screenSize),
           ),
-          const SizedBox(height: 12),
-          // 使用 Obx 包裹，根据滚动比例隐藏按钮
-          Obx(() {
-            final isWide = _shouldUseWideScreenLayout(
-              screenHeight,
-              screenWidth,
-              controller.aspectRatio.value,
-            );
-            // 当 header 收缩时（scrollRatio > 0.8），隐藏按钮
-            final isCollapsed = !isWide && controller.scrollRatio.value > 0.8;
-            return AnimatedOpacity(
-              opacity: isCollapsed ? 0.0 : 1.0,
-              duration: const Duration(milliseconds: 200),
-              child: IgnorePointer(
-                ignoring: isCollapsed,
-                child: Row(
-                  spacing: 16,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: () => AppService.tryPop(),
-                      icon: const Icon(Icons.arrow_back),
-                      label: Text(t.common.back),
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        if (controller.videoInfo.value?.embedUrl != null) {
-                          launchUrl(
-                              Uri.parse(controller.videoInfo.value!.embedUrl!));
-                        }
-                      },
-                      icon: const Icon(Icons.open_in_new),
-                      label: Text(t.videoDetail.openInBrowser),
-                    ),
-                  ],
-                ),
+          // 前景内容
+          Positioned.fill(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.link, size: 48, color: Colors.white),
+                  const SizedBox(height: 12),
+                  Text(
+                    '${t.videoDetail.externalVideo}: ${controller.videoInfo.value?.externalVideoDomain}',
+                    style: const TextStyle(fontSize: 18, color: Colors.white),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 12),
+                  // 使用 Obx 包裹，根据滚动比例隐藏按钮
+                  Obx(() {
+                    final isWide = _shouldUseWideScreenLayout(
+                      screenHeight,
+                      screenWidth,
+                      controller.aspectRatio.value,
+                    );
+                    // 当 header 收缩时（scrollRatio > 0.8），隐藏按钮
+                    final isCollapsed = !isWide && controller.scrollRatio.value > 0.8;
+                    return AnimatedOpacity(
+                      opacity: isCollapsed ? 0.0 : 1.0,
+                      duration: const Duration(milliseconds: 200),
+                      child: IgnorePointer(
+                        ignoring: isCollapsed,
+                        child: Row(
+                          spacing: 16,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ElevatedButton.icon(
+                              onPressed: () => AppService.tryPop(),
+                              icon: const Icon(Icons.arrow_back),
+                              label: Text(t.common.back),
+                            ),
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                if (controller.videoInfo.value?.embedUrl != null) {
+                                  launchUrl(
+                                      Uri.parse(controller.videoInfo.value!.embedUrl!));
+                                }
+                              },
+                              icon: const Icon(Icons.open_in_new),
+                              label: Text(t.videoDetail.openInBrowser),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+                ],
               ),
-            );
-          }),
+            ),
+          ),
         ],
       ),
     );
+  }
+
+  // 构建站外视频的模糊背景
+  Widget _buildExternalVideoBackground(String? thumbnailUrl, Size screenSize) {
+    if (thumbnailUrl == null || thumbnailUrl.isEmpty) {
+      // 如果没有缩略图，返回纯黑背景
+      return Container(
+        width: screenSize.width,
+        height: screenSize.height,
+        color: Colors.black,
+      );
+    }
+
+    // 创建模糊背景
+    return FutureBuilder<Widget>(
+      future: _createBlurredBackground(thumbnailUrl, screenSize),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+          return snapshot.data!;
+        }
+        // 加载过程中显示纯黑背景
+        return Container(
+          width: screenSize.width,
+          height: screenSize.height,
+          color: Colors.black,
+        );
+      },
+    );
+  }
+
+  // 创建模糊背景的异步方法
+  Future<Widget> _createBlurredBackground(String thumbnailUrl, Size size) async {
+    try {
+      // 1. 加载原始图片，使用较小的分辨率减少内存占用
+      final NetworkImage networkImage = NetworkImage(thumbnailUrl);
+      final ImageConfiguration config = ImageConfiguration(
+        size: Size(size.width * 0.5, size.height * 0.5), // 使用一半分辨率
+      );
+      final ImageStream stream = networkImage.resolve(config);
+      final Completer<ui.Image> completer = Completer<ui.Image>();
+
+      stream.addListener(ImageStreamListener((ImageInfo info, bool _) {
+        completer.complete(info.image);
+      }));
+
+      final ui.Image originalImage = await completer.future;
+
+      // 2. 计算适当的绘制尺寸以保持宽高比
+      final double imageAspectRatio = originalImage.width / originalImage.height;
+      final double screenAspectRatio = size.width / size.height;
+
+      double targetWidth = size.width;
+      double targetHeight = size.height;
+      double offsetX = 0;
+      double offsetY = 0;
+
+      if (imageAspectRatio > screenAspectRatio) {
+        // 图片比屏幕更宽，以高度为基准
+        targetWidth = size.height * imageAspectRatio;
+        offsetX = -(targetWidth - size.width) / 2;
+      } else {
+        // 图片比屏幕更高，以宽度为基准
+        targetHeight = size.width / imageAspectRatio;
+        offsetY = -(targetHeight - size.height) / 2;
+      }
+
+      // 3. 创建一个自定义画布，使用目标尺寸
+      final recorder = ui.PictureRecorder();
+      final canvas = Canvas(recorder);
+
+      // 4. 绘制图片并应用模糊效果
+      final paint = Paint()
+        ..imageFilter = ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20);
+
+      // 使用计算后的偏移量和尺寸绘制图片
+      canvas.drawImageRect(
+        originalImage,
+        Rect.fromLTWH(0, 0, originalImage.width.toDouble(), originalImage.height.toDouble()),
+        Rect.fromLTWH(offsetX, offsetY, targetWidth, targetHeight),
+        paint,
+      );
+
+      // 5. 将模糊后的图片转换为图像
+      final blurredImage = await recorder.endRecording().toImage(
+        size.width.toInt(),
+        size.height.toInt()
+      );
+
+      // 6. 转换为字节数据
+      final byteData = await blurredImage.toByteData(format: ui.ImageByteFormat.png);
+      final buffer = byteData!.buffer.asUint8List();
+
+      // 7. 创建最终的模糊背景Widget
+      return Stack(
+        children: [
+          Positioned.fill(
+            child: Container(color: Colors.black),
+          ),
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.2,
+              child: Image.memory(
+                buffer,
+                fit: BoxFit.cover,
+                width: size.width,
+                height: size.height,
+              ),
+            ),
+          ),
+        ],
+      );
+
+    } catch (e) {
+      // 如果出现错误，返回纯黑背景
+      return Container(
+        width: size.width,
+        height: size.height,
+        color: Colors.black,
+      );
+    }
   }
 
   // 构建Tab区域

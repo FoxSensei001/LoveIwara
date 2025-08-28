@@ -784,9 +784,17 @@ class MyVideoStateController extends GetxController
         parallelTasks.add(_tryMatchOreno3dVideo());
       }
 
-      // 继续获取视频源
-      if (videoInfo.value!.fileUrl != null) {
+      // 继续获取视频源 - 仅对站内视频
+      if (videoInfo.value!.fileUrl != null && !videoInfo.value!.isExternalVideo) {
         fetchVideoSource();
+      } else if (videoInfo.value!.isExternalVideo) {
+        // 对于站外视频，直接设置为idle状态
+        pageLoadingState.value = VideoDetailPageLoadingState.idle;
+        // 设置站外视频的默认宽高比（16:9）
+        aspectRatio.value = 16 / 9;
+        // 站外视频不需要播放器准备，直接设置为true
+        videoPlayerReady.value = true;
+        LogUtils.d('站外视频（缓存命中），直接设置为idle状态', 'MyVideoStateController');
       }
 
       // 并行执行其他任务，但不等待
@@ -855,10 +863,18 @@ class MyVideoStateController extends GetxController
           parallelTasks.add(_tryMatchOreno3dVideo());
         }
 
-        // 4. 获取视频源（关键路径，需要等待）
-        if (videoInfo.value!.fileUrl != null) {
+        // 4. 获取视频源（关键路径，需要等待）- 仅对站内视频
+        if (videoInfo.value!.fileUrl != null && !videoInfo.value!.isExternalVideo) {
           // 立即开始获取视频源，不等待其他任务
           fetchVideoSource();
+        } else if (videoInfo.value!.isExternalVideo) {
+          // 对于站外视频，直接设置为idle状态
+          pageLoadingState.value = VideoDetailPageLoadingState.idle;
+          // 设置站外视频的默认宽高比（16:9）
+          aspectRatio.value = 16 / 9;
+          // 站外视频不需要播放器准备，直接设置为true
+          videoPlayerReady.value = true;
+          LogUtils.d('站外视频，跳过视频源获取，直接设置为idle状态', 'MyVideoStateController');
         }
 
         // 等待所有任务完成，但设置超时
