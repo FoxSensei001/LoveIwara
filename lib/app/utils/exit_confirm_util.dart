@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_routes.dart';
 import 'package:i_iwara/app/ui/pages/home/home_navigation_layout.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:i_iwara/app/services/app_service.dart';
 
 class ExitConfirmUtil {
   static DateTime? _lastExitTime;

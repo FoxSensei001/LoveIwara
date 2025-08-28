@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_underscores
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Translations;
 import 'package:i_iwara/app/services/emoji_library_service.dart';
@@ -142,7 +144,7 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               itemCount: 6,
-              separatorBuilder: (_, __) => const SizedBox(width: 12),
+              separatorBuilder: (_, ___) => const SizedBox(width: 12),
               itemBuilder: (context, index) {
                 return Shimmer.fromColors(
                   baseColor: Colors.grey[300]!,

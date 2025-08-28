@@ -17,7 +17,7 @@ import 'package:i_iwara/app/ui/pages/author_profile/widgets/profile_video_tab_li
 import 'package:i_iwara/app/ui/pages/author_profile/widgets/profile_playlist_tab_list_widget.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/top_padding_height_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
@@ -45,7 +45,7 @@ class AuthorProfilePage extends StatefulWidget {
   AuthorProfilePage({super.key, required this.username});
 
   @override
-  _AuthorProfilePageState createState() => _AuthorProfilePageState();
+  State<AuthorProfilePage> createState() => _AuthorProfilePageState();
 }
 
 class _AuthorProfilePageState extends State<AuthorProfilePage>
@@ -470,7 +470,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.6),
+                      color: Colors.black.withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Row(

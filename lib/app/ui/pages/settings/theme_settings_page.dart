@@ -272,7 +272,7 @@ class ThemeSettingsPage extends StatelessWidget {
                                             ? Theme.of(
                                                 context,
                                               ).colorScheme.primary
-                                            : Colors.grey.withOpacity(0.2),
+                                            : Colors.grey.withValues(alpha: 0.2),
                                         width: isSelected ? 2 : 1,
                                       ),
                                     ),
@@ -385,7 +385,7 @@ class ThemeSettingsPage extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
-              final hex = pickerColor.value
+              final hex = pickerColor.toARGB32()
                   .toRadixString(16)
                   .substring(2)
                   .toUpperCase();

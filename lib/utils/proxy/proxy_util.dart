@@ -1,4 +1,3 @@
-import 'package:get/get_utils/get_utils.dart';
 import 'package:i_iwara/utils/proxy/system_proxy_settings.dart';
 
 import 'proxy_util_stub.dart'

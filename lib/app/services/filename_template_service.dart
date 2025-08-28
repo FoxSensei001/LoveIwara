@@ -34,7 +34,7 @@ class FilenameTemplateService extends GetxService {
       filename = filename.replaceAll('%author', _sanitize(video.user?.name ?? 'unknown'));
       filename = filename.replaceAll('%username', _sanitize(video.user?.username ?? 'unknown'));
       filename = filename.replaceAll('%quality', _sanitize(quality));
-      filename = filename.replaceAll('%id', _sanitize(video.id ?? 'unknown'));
+      filename = filename.replaceAll('%id', _sanitize(video.id));
       
       // 处理原始文件名
       if (originalFilename != null) {
@@ -74,10 +74,10 @@ class FilenameTemplateService extends GetxService {
       String foldername = template;
       
       // 替换基本信息
-      foldername = foldername.replaceAll('%title', _sanitize(gallery.title ?? 'gallery'));
+      foldername = foldername.replaceAll('%title', _sanitize(gallery.title));
       foldername = foldername.replaceAll('%author', _sanitize(gallery.user?.name ?? 'unknown'));
       foldername = foldername.replaceAll('%username', _sanitize(gallery.user?.username ?? 'unknown'));
-      foldername = foldername.replaceAll('%id', _sanitize(gallery.id ?? 'unknown'));
+      foldername = foldername.replaceAll('%id', _sanitize(gallery.id));
       
       // 图库特有的变量
       foldername = foldername.replaceAll('%count', gallery.files.length.toString());
@@ -87,14 +87,14 @@ class FilenameTemplateService extends GetxService {
       
       // 确保文件夹名不为空
       if (foldername.trim().isEmpty) {
-        foldername = '${gallery.title ?? 'gallery'}_${gallery.id}';
+        foldername = '${gallery.title}_${gallery.id}';
       }
       
       LogUtils.d('生成图库文件夹名: $foldername', 'FilenameTemplateService');
       return foldername;
     } catch (e) {
       LogUtils.e('生成图库文件夹名失败', tag: 'FilenameTemplateService', error: e);
-      return '${gallery.title ?? 'gallery'}_${gallery.id}';
+      return '${gallery.title}_${gallery.id}';
     }
   }
 

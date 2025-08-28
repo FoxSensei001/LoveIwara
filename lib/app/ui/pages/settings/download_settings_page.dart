@@ -13,7 +13,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart' show showToastWidget, ToastPosition;
 
-import '../../widgets/MDToastWidget.dart' show MDToastWidget, MDToastType;
+import '../../widgets/md_toast_widget.dart' show MDToastWidget, MDToastType;
 
 class DownloadSettingsPage extends StatefulWidget {
   final bool isWideScreen;

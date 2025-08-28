@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/notifications/widgets/notification_content_items.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:oktoast/oktoast.dart';
@@ -33,11 +33,11 @@ class NotificationListItemWidget extends StatelessWidget {
             baseColor: Theme.of(context)
                 .colorScheme
                 .surfaceContainerHighest
-                .withOpacity(0.3),
+                .withAlpha(77),
             highlightColor: Theme.of(context)
                 .colorScheme
                 .surfaceContainerHighest
-                .withOpacity(0.6),
+                .withAlpha(153),
             child: _buildCard(context, type, createdAt, read),
           )
         : _buildCard(context, type, createdAt, read));
@@ -124,17 +124,6 @@ class NotificationListItemWidget extends StatelessWidget {
     } catch (e) {
       // 如果解析失败，不进行任何跳转
     }
-  }
-
-  /// 是否是已知类型
-  bool _isKnownType(String type) {
-    const knownTypes = {
-      'newReply',    // 回复通知
-      'newComment',  // 评论通知
-      'reviewApproved', // 审核通过通知
-      'reviewRejected', // 审核被拒绝通知
-    };
-    return knownTypes.contains(type);
   }
 
   /// 复制通知数据
@@ -313,7 +302,7 @@ class NotificationListItemWidget extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5),
+          color: Theme.of(context).colorScheme.outlineVariant.withAlpha(128),
           width: 1,
         ),
       ),
@@ -347,7 +336,7 @@ class NotificationListItemWidget extends StatelessWidget {
               color: Theme.of(context)
                   .colorScheme
                   .onSurfaceVariant
-                  .withOpacity(0.8),
+                  .withAlpha(204),
               height: 1.4,
             ),
           ),

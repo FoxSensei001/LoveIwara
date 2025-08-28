@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 enum MediaRating {
   ALL('', '全部的'),
   GENERAL('general', '大众的'),

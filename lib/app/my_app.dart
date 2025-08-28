@@ -60,7 +60,7 @@ class _MyAppState extends State<MyApp> {
         final bool useDynamicColor = themeService.useDynamicColor;
         ColorScheme? colorScheme;
 
-        if (useDynamicColor && (darkColorScheme != null)) {
+        if (useDynamicColor) {
           // 使用动态颜色
           colorScheme = currentThemeMode == 1 
               ? lightColorScheme 

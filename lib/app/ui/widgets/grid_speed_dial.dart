@@ -305,7 +305,7 @@ class BackgroundOverlay extends AnimatedWidget {
     final Animation<double> animation = listenable as Animation<double>;
     return ColorFiltered(
       colorFilter: ColorFilter.mode(
-        color.withOpacity(opacity * animation.value),
+        color.withValues(alpha: opacity * animation.value),
         BlendMode.srcOut,
       ),
       child: Stack(

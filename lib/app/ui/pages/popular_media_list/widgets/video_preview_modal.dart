@@ -169,7 +169,7 @@ class VideoPreviewDetailModal extends StatelessWidget {
                             const SizedBox(height: 8),
                             Container(
                               decoration: BoxDecoration(
-                                color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                                color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               padding: const EdgeInsets.all(12),
@@ -206,13 +206,13 @@ class VideoPreviewDetailModal extends StatelessWidget {
                                       Icon(
                                         Icons.access_time,
                                         size: 14,
-                                        color: colorScheme.onSurfaceVariant.withOpacity(0.8),
+                                        color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                                       ),
                                       const SizedBox(width: 4),
                                       Text(
                                         CommonUtils.formatFriendlyTimestamp(video.createdAt),
                                         style: textTheme.bodySmall?.copyWith(
-                                          color: colorScheme.onSurfaceVariant.withOpacity(0.8),
+                                          color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                                         ),
                                       ),
                                     ],

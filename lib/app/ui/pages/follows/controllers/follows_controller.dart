@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/follows/repositories/followers_list_repository.dart';
 import 'package:i_iwara/app/ui/pages/follows/repositories/following_list_repository.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -8,7 +7,6 @@ import 'package:i_iwara/app/services/app_service.dart';
 class FollowsController extends GetxController {
   final String userId;
   final bool initIsFollowing;
-  final UserService _userService = Get.find();
 
   FollowsController({
     required this.userId,

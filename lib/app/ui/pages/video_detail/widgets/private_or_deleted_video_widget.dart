@@ -4,7 +4,7 @@ import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/services/api_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -162,8 +162,8 @@ class _PrivateOrDeletedVideoWidgetState extends State<PrivateOrDeletedVideoWidge
   Widget _buildFriendButton() {
     if (_isLoading) {
       return Shimmer.fromColors(
-        baseColor: Get.theme.colorScheme.primary.withOpacity(0.3),
-        highlightColor: Get.theme.colorScheme.primary.withOpacity(0.6),
+        baseColor: Get.theme.colorScheme.primary.withValues(alpha: 0.3),
+        highlightColor: Get.theme.colorScheme.primary.withValues(alpha: 0.6),
         child: FilledButton.icon(
           onPressed: null,
           icon: const Icon(Icons.person_add),

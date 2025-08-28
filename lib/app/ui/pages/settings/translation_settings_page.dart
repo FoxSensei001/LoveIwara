@@ -261,13 +261,13 @@ class _TranslationSettingsPageState extends State<TranslationSettingsPage> {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: isGoogleEnabled
-                      ? Colors.green.withOpacity(0.1)
-                      : Colors.grey.withOpacity(0.1),
+                      ? Colors.green.withValues(alpha: 0.1)
+                      : Colors.grey.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
                     color: isGoogleEnabled
-                        ? Colors.green.withOpacity(0.3)
-                        : Colors.grey.withOpacity(0.3),
+                        ? Colors.green.withValues(alpha: 0.3)
+                        : Colors.grey.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),

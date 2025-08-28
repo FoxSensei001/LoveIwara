@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/sign_in/widgets/sign_in_heatmap_widget.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:oktoast/oktoast.dart';
 
 
@@ -14,7 +14,7 @@ class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
 
   @override
-  _SignInPageState createState() => _SignInPageState();
+  State<SignInPage> createState() => _SignInPageState();
 }
 
 class _SignInPageState extends State<SignInPage> {
@@ -308,7 +308,7 @@ class SignInDialog extends StatefulWidget {
   const SignInDialog({super.key, required this.controller});
 
   @override
-  _SignInDialogState createState() => _SignInDialogState();
+  State<SignInDialog> createState() => _SignInDialogState();
 }
 
 class _SignInDialogState extends State<SignInDialog> {

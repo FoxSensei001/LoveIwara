@@ -9,7 +9,7 @@ import 'package:i_iwara/app/services/video_service.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/share_video_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/video_description_widget.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/add_to_favorite_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
@@ -35,7 +35,7 @@ import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
 
 // 添加最小高度常量
-const double MIN_VIDEO_HEIGHT = 240.0;
+const double minVideoHeight = 240.0;
 
 class VideoDetailContent extends StatelessWidget {
   final MyVideoStateController controller;
@@ -84,7 +84,7 @@ class VideoDetailContent extends StatelessWidget {
                           // 添加半透明遮罩
                           Positioned.fill(
                             child: Container(
-                              color: Colors.black.withOpacity(0.7),
+                              color: Colors.black.withValues(alpha: 0.7),
                             ),
                           ),
                           // 错误提示内容
@@ -146,7 +146,7 @@ class VideoDetailContent extends StatelessWidget {
                           // 添加半透明遮罩
                           Positioned.fill(
                             child: Container(
-                              color: Colors.black.withOpacity(0.7),
+                              color: Colors.black.withValues(alpha: 0.7),
                             ),
                           ),
                           // 原有的提示内容
@@ -203,7 +203,7 @@ class VideoDetailContent extends StatelessWidget {
                                           : MediaQuery.sizeOf(context).width /
                                               controller.aspectRatio.value))) +
                               paddingTop)
-                              .clamp(MIN_VIDEO_HEIGHT, double.infinity)
+                              .clamp(minVideoHeight, double.infinity)
                           : MediaQuery.sizeOf(context).height,
                       child: MyVideoScreen(
                           isFullScreen: false,

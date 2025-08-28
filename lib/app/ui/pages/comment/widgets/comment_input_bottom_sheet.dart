@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/common/widgets/input/input_components.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -25,7 +23,6 @@ class CommentInputBottomSheet extends StatefulWidget {
 }
 
 class _CommentInputBottomSheetState extends State<CommentInputBottomSheet> {
-  final ConfigService _configService = Get.find<ConfigService>();
   bool _isLoading = false;
 
 

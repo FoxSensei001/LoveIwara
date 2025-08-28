@@ -55,8 +55,7 @@ class MDToastWidget extends StatelessWidget {
                 ? Colors.orange.shade50
                 : Colors.transparent;
       case MDToastType.info:
-      default:
-        return style == MDToastStyle.filled
+      return style == MDToastStyle.filled
             ? Colors.grey.shade800
             : style == MDToastStyle.light
                 ? Colors.grey.shade50
@@ -73,8 +72,7 @@ class MDToastWidget extends StatelessWidget {
       case MDToastType.warning:
         return Colors.orange.shade800;
       case MDToastType.info:
-      default:
-        return Colors.grey.shade800;
+      return Colors.grey.shade800;
     }
   }
 
@@ -95,8 +93,7 @@ class MDToastWidget extends StatelessWidget {
       case MDToastType.warning:
         return Icons.warning_amber_rounded;
       case MDToastType.info:
-      default:
-        return Icons.info_outline;
+      return Icons.info_outline;
     }
   }
 
@@ -114,7 +111,7 @@ class MDToastWidget extends StatelessWidget {
         boxShadow: [
           if (elevation != null && elevation! > 0)
             BoxShadow(
-              color: Colors.black.withOpacity(0.2),
+              color: Colors.black.withAlpha(51),
               offset: Offset(0, elevation! / 2),
               blurRadius: elevation!,
             ),

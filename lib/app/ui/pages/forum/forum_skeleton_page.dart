@@ -161,7 +161,7 @@ class ForumSkeletonPage extends StatelessWidget {
       children: [
         TableRow(
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.5),
+            color: Colors.white.withValues(alpha: 0.5),
           ),
           children: List.generate(4, (index) => Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),

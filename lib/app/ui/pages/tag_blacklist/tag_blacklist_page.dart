@@ -33,7 +33,7 @@ class _TagBlacklistPageState extends State<TagBlacklistPage> {
     return Obx(() {
       if (controller.isSaving.value) {
         return Shimmer.fromColors(
-          baseColor: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+          baseColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
           highlightColor: Theme.of(context).colorScheme.primary,
           child: TextButton.icon(
             onPressed: null,

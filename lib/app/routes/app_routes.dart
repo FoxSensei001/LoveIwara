@@ -1,4 +1,4 @@
-// 定义所有路由路径
+// ignore_for_file: constant_identifier_names, non_constant_identifier_names
 abstract class Routes {
   Routes._();
 
@@ -14,7 +14,7 @@ abstract class Routes {
   static const LOGIN = _Paths.LOGIN;
   static const SETTINGS_PAGE = _Paths.SETTINGS_PAGE;
   static const PLAYER_SETTINGS_PAGE = _Paths.PLAYER_SETTINGS_PAGE;
-  static const PROXY_SETTINGS_PAGE = '/proxy_settings_page';
+  static const PROXY_SETTINGS_PAGE = _Paths.PROXY_SETTINGS_PAGE;
   static const THEME_SETTINGS_PAGE = _Paths.THEME_SETTINGS_PAGE;
   static const NOT_FOUND = _Paths.NOT_FOUND;
   static const SIGN_IN = _Paths.SIGN_IN;

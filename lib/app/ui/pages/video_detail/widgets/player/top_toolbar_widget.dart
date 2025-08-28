@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import '../../../../../../utils/proxy/proxy_util.dart';
 import '../../../../../routes/app_routes.dart';
-import '../../../../../services/config_service.dart';
 import '../../../settings/widgets/player_settings_widget.dart';
 import '../../../settings/widgets/proxy_setting_widget.dart';
 import '../../controllers/my_video_state_controller.dart';
@@ -46,13 +45,13 @@ class TopToolbar extends StatelessWidget {
             padding: EdgeInsets.only(top: statusBarHeight),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.black.withOpacity(0.7), Colors.transparent],
+                colors: [Colors.black.withAlpha(179), Colors.transparent],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
+                  color: Colors.black.withAlpha(77),
                   offset: const Offset(0, 2),
                   blurRadius: 4,
                 ),
@@ -323,19 +322,8 @@ class TopToolbar extends StatelessWidget {
 // 设置内容组件
 class SettingsContent extends StatelessWidget {
   final MyVideoStateController myVideoStateController;
-  final ConfigService _configService = Get.find();
 
-  SettingsContent({super.key, required this.myVideoStateController});
-
-  /// 三段式滑块的回调方法
-  void _onThreeSectionSliderChangeFinished(
-    double leftRatio,
-    double middleRatio,
-    double rightRatio,
-  ) {
-    _configService[ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO] =
-        leftRatio;
-  }
+  const SettingsContent({super.key, required this.myVideoStateController});
 
   @override
   Widget build(BuildContext context) {

@@ -14,7 +14,7 @@ class RemoveSearchTagDialog extends StatefulWidget {
   });
 
   @override
-  _RemoveSearchTagDialogState createState() => _RemoveSearchTagDialogState();
+  State<RemoveSearchTagDialog> createState() => _RemoveSearchTagDialogState();
 }
 
 class _RemoveSearchTagDialogState extends State<RemoveSearchTagDialog> {

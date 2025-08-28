@@ -6,7 +6,7 @@ import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/forum/controllers/thread_detail_repository.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_reply_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/share_thread_bottom_sheet.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';

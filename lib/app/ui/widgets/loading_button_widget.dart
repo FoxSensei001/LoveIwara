@@ -67,8 +67,8 @@ class _LoadingButtonState extends State<LoadingButton> {
         backgroundColor: widget.backgroundColor,
         foregroundColor: widget.foregroundColor,
         padding: widget.padding,
-        disabledBackgroundColor: widget.backgroundColor.withOpacity(0.7),
-        disabledForegroundColor: widget.foregroundColor.withOpacity(0.7),
+        disabledBackgroundColor: widget.backgroundColor.withValues(alpha: 0.7),
+        disabledForegroundColor: widget.foregroundColor.withValues(alpha: 0.7),
       ),
     );
   }

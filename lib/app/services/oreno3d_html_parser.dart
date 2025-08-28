@@ -1,6 +1,7 @@
 import 'package:html/parser.dart' as html_parser;
 import 'package:html/dom.dart';
 import '../models/oreno3d_video.model.dart';
+import 'package:flutter/foundation.dart'; // Added for debugPrint
 
 class Oreno3dHtmlParser {
   /// 解析搜索结果页面HTML，提取视频列表
@@ -40,7 +41,7 @@ class Oreno3dHtmlParser {
         }
       } catch (e) {
         // 跳过解析失败的项目
-        print('解析视频项目失败: $e');
+        debugPrint('解析视频项目失败: $e');
         continue;
       }
     }
@@ -82,8 +83,8 @@ class Oreno3dHtmlParser {
       
       if (iconElement != null && textElement != null) {
         final iconText = iconElement.text.trim();
-        final countText = textElement.text.trim() ?? '';
-        
+        final countText = textElement.text.trim();
+
         if (iconText == 'remove_red_eye') {
           viewCount = _parseCountString(countText);
         } else if (iconText == 'favorite') {
@@ -137,10 +138,9 @@ class Oreno3dHtmlParser {
   /// 提取标签列表
   static List<String> _extractTags(Element? tagsElement) {
     if (tagsElement == null) return [];
-    
-    final tags = <String>[];
-    final textContent = tagsElement.text.trim() ?? '';
-    
+
+    final textContent = tagsElement.text.trim();
+
     // 检查是否为"なし"（无标签）
     if (textContent == 'なし') {
       return [];
@@ -167,7 +167,7 @@ class Oreno3dHtmlParser {
     int maxPage = 1;
     
     for (final link in pageLinks) {
-      final pageText = link.text.trim() ?? '';
+      final pageText = link.text.trim();
       final pageNum = int.tryParse(pageText);
       if (pageNum != null && pageNum > maxPage) {
         maxPage = pageNum;
@@ -235,8 +235,8 @@ class Oreno3dHtmlParser {
         if (iconElement?.text.trim() == 'calendar_month') {
           final dateTexts = dateElement.querySelectorAll('.video-text');
           if (dateTexts.length >= 2) {
-            final dateStr = dateTexts[0].text.trim() ?? '';
-            final timeStr = dateTexts[1].text.trim() ?? '';
+            final dateStr = dateTexts[0].text.trim();
+            final timeStr = dateTexts[1].text.trim();
             publishedAt = _parseDateTime(dateStr, timeStr);
           }
           break;
@@ -253,8 +253,8 @@ class Oreno3dHtmlParser {
         
         if (iconElement != null && textElement != null) {
           final iconText = iconElement.text.trim();
-          final countText = textElement.text.trim() ?? '';
-          
+          final countText = textElement.text.trim();
+
           if (iconText == 'remove_red_eye') {
             viewCount = _parseCountString(countText);
           } else if (iconText == 'favorite') {
@@ -382,7 +382,7 @@ class Oreno3dHtmlParser {
         authorComment: authorComment,
       );
     } catch (e) {
-      print('解析视频详情失败: $e');
+      debugPrint('解析视频详情失败: $e');
       return null;
     }
   }
@@ -404,7 +404,7 @@ class Oreno3dHtmlParser {
         return DateTime(year, month, day, hour, minute);
       }
     } catch (e) {
-      print('解析日期时间失败: $e');
+      debugPrint('解析日期时间失败: $e');
     }
     return null;
   }

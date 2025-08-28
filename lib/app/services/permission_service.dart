@@ -211,8 +211,6 @@ class PermissionService extends GetxService {
         return '永久拒绝';
       case PermissionStatus.provisional:
         return '临时授权';
-      default:
-        return '未知状态';
     }
   }
 

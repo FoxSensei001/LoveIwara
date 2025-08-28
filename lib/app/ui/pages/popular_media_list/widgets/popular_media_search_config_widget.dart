@@ -27,7 +27,7 @@ class PopularMediaSearchConfig extends StatefulWidget {
   });
 
   @override
-  _PopularMediaSearchConfigState createState() =>
+  State<PopularMediaSearchConfig> createState() =>
       _PopularMediaSearchConfigState();
 }
 

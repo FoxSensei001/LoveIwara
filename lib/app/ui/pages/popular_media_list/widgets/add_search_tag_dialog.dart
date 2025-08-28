@@ -11,7 +11,7 @@ class AddSearchTagDialog extends StatefulWidget {
   const AddSearchTagDialog({super.key});
 
   @override
-  _AddSearchTagDialogState createState() => _AddSearchTagDialogState();
+  State<AddSearchTagDialog> createState() => _AddSearchTagDialogState();
 }
 
 class _AddSearchTagDialogState extends State<AddSearchTagDialog> {

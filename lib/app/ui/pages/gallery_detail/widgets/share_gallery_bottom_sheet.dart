@@ -4,7 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:i_iwara/app/services/share_service.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
@@ -53,9 +53,11 @@ class _ShareGalleryBottomSheetState extends State<ShareGalleryBottomSheet> {
         final file = await File('${tempDir.path}/share_gallery_${DateTime.now().millisecondsSinceEpoch}.png').create();
         await file.writeAsBytes(byteData.buffer.asUint8List());
         
-        await Share.shareXFiles(
-          [XFile(file.path)],
-          text: '${widget.galleryTitle}\n@${widget.authorName}\n${CommonConstants.iwaraBaseUrl}/image/${widget.galleryId}',
+        await SharePlus.instance.share(
+          ShareParams(
+            files: [XFile(file.path)],
+            text: '${CommonConstants.iwaraBaseUrl}/image/${widget.galleryId}',
+          ),
         );
       }
     } catch (e) {
@@ -174,7 +176,7 @@ class _ShareGalleryBottomSheetState extends State<ShareGalleryBottomSheet> {
                           borderRadius: BorderRadius.circular(8),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
+                              color: Colors.black.withValues(alpha: 0.1),
                               blurRadius: 4,
                               offset: const Offset(0, 2),
                             ),

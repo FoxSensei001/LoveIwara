@@ -9,7 +9,7 @@ class HistoryUpdateLogsPage extends StatefulWidget {
   const HistoryUpdateLogsPage({super.key});
 
   @override
-  _HistoryUpdateLogsPageState createState() => _HistoryUpdateLogsPageState();
+  State<HistoryUpdateLogsPage> createState() => _HistoryUpdateLogsPageState();
 }
 
 class _HistoryUpdateLogsPageState extends State<HistoryUpdateLogsPage> {

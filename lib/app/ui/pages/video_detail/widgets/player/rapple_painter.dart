@@ -19,7 +19,7 @@ class RipplePainter extends CustomPainter {
     final double currentOpacity = (1.0 - _easeIn(animationValue)) * 0.3;
 
     final Paint paint = Paint()
-      ..color = color.withOpacity(currentOpacity)
+      ..color = color.withValues(alpha: currentOpacity)
       ..style = PaintingStyle.fill;
 
     canvas.drawCircle(origin, currentRadius, paint);

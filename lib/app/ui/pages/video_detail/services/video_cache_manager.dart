@@ -143,7 +143,7 @@ class VideoCacheManager {
   
   /// 获取特定类型缓存的统计信息
   Map<String, int> _getCacheTypeStats<T>(Map<String, _CacheItem<T>> cache) {
-    final now = DateTime.now();
+
     int expiredCount = 0;
     int validCount = 0;
     

@@ -9,10 +9,8 @@ import 'package:get/get.dart';
 
 import '../../common/constants.dart';
 import '../../utils/logger_utils.dart';
-import '../../utils/curl_converter_utils.dart';
 import '../ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'auth_service.dart';
-import 'message_service.dart';
 
 // 自定义Queue类
 class _TokenQueue {
@@ -63,7 +61,6 @@ class ApiService extends GetxService {
   static ApiService? _instance;
   late d_dio.Dio _dio;
   final AuthService _authService = Get.find<AuthService>();
-  final MessageService _messageService = Get.find<MessageService>();
   final String _tag = 'ApiService';
 
   // 重试相关配置
@@ -283,15 +280,6 @@ class ApiService extends GetxService {
     _dio.httpClientAdapter = IOHttpClientAdapter();
   }
 
-  // token比较方法
-  bool _isSameToken(String? token1, String? token2) {
-    if (token1 == null || token2 == null) return false;
 
-    // 移除Bearer前缀进行比较
-    final t1 = token1.replaceFirst('Bearer ', '').trim();
-    final t2 = token2.replaceFirst('Bearer ', '').trim();
-
-    return t1 == t2;
-  }
 
 }

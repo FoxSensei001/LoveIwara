@@ -44,9 +44,9 @@ class BaseCardListItem extends StatelessWidget {
           onTap: onTap,
           onSecondaryTap: onSecondaryTap,
           onLongPress: onLongPress,
-          hoverColor: Theme.of(context).hoverColor.withOpacity(0.1),
-          splashColor: Theme.of(context).splashColor.withOpacity(0.2),
-          highlightColor: Theme.of(context).highlightColor.withOpacity(0.1),
+          hoverColor: Theme.of(context).hoverColor.withValues(alpha: 0.1),
+          splashColor: Theme.of(context).splashColor.withValues(alpha: 0.2),
+          highlightColor: Theme.of(context).highlightColor.withValues(alpha: 0.1),
           child: _CardContent(
             thumbnail: thumbnail,
             title: title,

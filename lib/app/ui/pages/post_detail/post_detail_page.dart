@@ -6,7 +6,7 @@ import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/post_detail/widgets/post_detail_content_widget.dart';
 import 'package:i_iwara/app/ui/pages/post_detail/widgets/share_post_bottom_sheet.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;

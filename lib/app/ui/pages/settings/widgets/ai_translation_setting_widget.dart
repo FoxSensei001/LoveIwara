@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/translation_service.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/widget_extensions.dart';
@@ -200,11 +200,11 @@ class _AITranslationSettingsWidgetState
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: isEnabled ? [
-              Colors.purple.withOpacity(0.1),
-              Colors.purple.withOpacity(0.05),
+              Colors.purple.withValues(alpha: 0.1),
+              Colors.purple.withValues(alpha: 0.05),
             ] : [
-              Colors.grey.withOpacity(0.1),
-              Colors.grey.withOpacity(0.05),
+              Colors.grey.withValues(alpha: 0.1),
+              Colors.grey.withValues(alpha: 0.05),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -1018,7 +1018,7 @@ class _AITranslationSettingsWidgetState
                     warningText,
                     style: TextStyle(
                       fontSize: 12,
-                      color: colorScheme.error.withOpacity(0.8),
+                      color: colorScheme.error.withValues(alpha: 0.8),
                       fontStyle: FontStyle.italic,
                     ),
                   ),

@@ -106,7 +106,7 @@ class _ConversationPageState extends State<ConversationPage> {
                                       color: Theme.of(context)
                                           .colorScheme
                                           .onSurfaceVariant
-                                          .withOpacity(0.7),
+                                          .withValues(alpha: 0.7),
                                     ),
                               ),
                             ],

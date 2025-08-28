@@ -190,8 +190,8 @@ class _WindowButtonsState extends State<WindowButtons> with WindowListener {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final defaultIconColor = isDark ? Colors.white.withOpacity(0.8) : Colors.black.withOpacity(0.8);
-    final defaultHoverColor = isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.04);
+    final defaultIconColor = isDark ? Colors.white.withValues(alpha: 0.8) : Colors.black.withValues(alpha: 0.8);
+    final defaultHoverColor = isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.04);
 
     return SizedBox(
       width: 138,
@@ -306,9 +306,9 @@ class _WindowButtonState extends State<WindowButton> {
     }
 
     if (isPressed) {
-      return isDark 
-          ? Colors.white.withOpacity(0.08)
-          : Colors.black.withOpacity(0.04);
+      return isDark
+          ? Colors.white.withValues(alpha: 0.08)
+          : Colors.black.withValues(alpha: 0.04);
     }
     if (isHovering) {
       return widget.hoverColor;

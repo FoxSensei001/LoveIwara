@@ -198,7 +198,7 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
                 controller.toggleMultiSelect();
                 break;
               case 'deleteCurPlaylist':
-                _showDeleteCurPlaylistConfirmDialog();
+                // 删除播放列表功能已被移除
                 break;
               case 'share':
                 _showShareDialog();
@@ -322,29 +322,29 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
     );
   }
 
-  /// 我靠，iwara压根就没有删除播放列表的功能
-  @deprecated
-  void _showDeleteCurPlaylistConfirmDialog() {
-    Get.dialog(
-      AlertDialog(
-        title: const Text('确认删除'),
-        content: const Text('确定要删除此播放列表吗？'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () {
-              controller.deleteCurPlaylist();
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('删除'),
-          ),
-        ],
-      ),
-    );
-  }
+  // /// 我靠，iwara压根就没有删除播放列表的功能
+  // @Deprecated('此功能已被移除，iwara不支持删除播放列表')
+  // void _showDeleteCurPlaylistConfirmDialog() {
+  //   Get.dialog(
+  //     AlertDialog(
+  //       title: const Text('确认删除'),
+  //       content: const Text('确定要删除此播放列表吗？'),
+  //       actions: [
+  //         TextButton(
+  //           onPressed: () => Navigator.pop(context),
+  //           child: const Text('取消'),
+  //         ),
+  //         TextButton(
+  //           onPressed: () {
+  //             controller.deleteCurPlaylist();
+  //           },
+  //           style: TextButton.styleFrom(foregroundColor: Colors.red),
+  //           child: const Text('删除'),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildMultiSelectBar() {
     return Obx(

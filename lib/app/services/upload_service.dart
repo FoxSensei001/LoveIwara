@@ -218,19 +218,5 @@ class UploadService extends GetxService {
     return uploadedImages;
   }
 
-  /// 根据文件扩展名获取Content-Type
-  String _getContentType(String filePath) {
-    final extension = path.extension(filePath).toLowerCase();
-    switch (extension) {
-      case '.jpg':
-      case '.jpeg':
-        return 'image/jpeg';
-      case '.png':
-        return 'image/png';
-      case '.gif':
-        return 'image/gif';
-      default:
-        return 'image/jpeg';
-    }
-  }
+
 }

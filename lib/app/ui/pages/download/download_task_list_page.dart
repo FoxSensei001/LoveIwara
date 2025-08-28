@@ -10,7 +10,7 @@ import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/default_download_task_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/video_download_task_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/gallery_download_task_item_widget.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:oktoast/oktoast.dart';
@@ -337,6 +337,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage>
  void showDownloadDetailDialog(BuildContext context, DownloadTask task) async {
     final t = slang.Translations.of(context);
     final theme = Theme.of(context);
+    final size = MediaQuery.of(context).size;
 
     // 获取相关任务信息
     final DownloadService downloadService = DownloadService.to;
@@ -363,8 +364,8 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage>
       Dialog(
         child: Container(
           constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.8,
-            maxWidth: MediaQuery.of(context).size.width * 0.9,
+            maxHeight: size.height * 0.8,
+            maxWidth: size.width * 0.9,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -373,7 +374,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage>
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
                   t.download.downloadDetail,
-                  style: Theme.of(context).textTheme.titleLarge,
+                  style: theme.textTheme.titleLarge,
                 ),
               ),
               Expanded(

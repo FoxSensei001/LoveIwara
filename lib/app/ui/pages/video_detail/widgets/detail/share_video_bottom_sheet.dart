@@ -4,7 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:i_iwara/app/services/share_service.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
@@ -53,9 +53,11 @@ class _ShareVideoBottomSheetState extends State<ShareVideoBottomSheet> {
         final file = await File('${tempDir.path}/share_video_${DateTime.now().millisecondsSinceEpoch}.png').create();
         await file.writeAsBytes(byteData.buffer.asUint8List());
         
-        await Share.shareXFiles(
-          [XFile(file.path)],
-          text: '${widget.videoTitle}\n@${widget.authorName}\n${CommonConstants.iwaraBaseUrl}/video/${widget.videoId}',
+        await SharePlus.instance.share(
+          ShareParams(
+            files: [XFile(file.path)],
+            text: '${CommonConstants.iwaraBaseUrl}/video/${widget.videoId}',
+          ),
         );
       }
     } catch (e) {
@@ -174,7 +176,7 @@ class _ShareVideoBottomSheetState extends State<ShareVideoBottomSheet> {
                           borderRadius: BorderRadius.circular(8),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
+                              color: Colors.black.withValues(alpha: 0.1),
                               blurRadius: 4,
                               offset: const Offset(0, 2),
                             ),

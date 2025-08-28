@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/models/sort.model.dart';

@@ -52,10 +52,10 @@ class GestureArea extends StatefulWidget {
   });
 
   @override
-  _GestureAreaState createState() => _GestureAreaState();
+  GestureAreaState createState() => GestureAreaState();
 }
 
-class _GestureAreaState extends State<GestureArea>
+class GestureAreaState extends State<GestureArea>
     with SingleTickerProviderStateMixin {
   final ConfigService _configService = Get.find();
   ScreenBrightness? _screenBrightness;
@@ -66,8 +66,6 @@ class _GestureAreaState extends State<GestureArea>
   // 拖动的距离
   late AnimationController _infoMessageFadeController;
   late Animation<double> _infoMessageOpacity;
-
-  static const int MAX_SEEK_SECONDS = 90; // 最大滑动秒数为90秒
 
   // 缓存计算结果
   bool? _isVerticalDragProcessable;

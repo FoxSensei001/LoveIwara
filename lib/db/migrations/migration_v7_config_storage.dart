@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use_from_same_package
+
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:sqlite3/common.dart';
 import 'package:i_iwara/utils/logger_utils.dart';

@@ -6,7 +6,7 @@ import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/comment_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/controllers/comment_controller.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_remove_dialog.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_translation_controller.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
@@ -37,7 +37,7 @@ class CommentItem extends StatefulWidget {
   });
 
   @override
-  _CommentItemState createState() => _CommentItemState();
+  State<CommentItem> createState() => _CommentItemState();
 }
 
 class _CommentItemState extends State<CommentItem> {
@@ -193,10 +193,10 @@ class _CommentItemState extends State<CommentItem> {
           margin: const EdgeInsets.only(right: 4),
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(
-            color: tagColor.withOpacity(0.08),
+            color: tagColor.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: tagColor.withOpacity(0.12),
+              color: tagColor.withValues(alpha: 0.12),
               width: 0.5,
             ),
           ),
@@ -206,13 +206,13 @@ class _CommentItemState extends State<CommentItem> {
               Icon(
                 icon,
                 size: 10,
-                color: tagColor.withOpacity(0.8),
+                color: tagColor.withValues(alpha: 0.8),
               ),
               const SizedBox(width: 4),
               Text(
                 text,
                 style: TextStyle(
-                  color: tagColor.withOpacity(0.8),
+                  color: tagColor.withValues(alpha: 0.8),
                   fontSize: 10,
                   fontWeight: FontWeight.w500,
                 ),
@@ -234,7 +234,7 @@ class _CommentItemState extends State<CommentItem> {
 
     final timeTextStyle = TextStyle(
       fontSize: 12,
-      color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.75),
+      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.75),
     );
 
     return Row(
@@ -248,7 +248,7 @@ class _CommentItemState extends State<CommentItem> {
                   Icon(
                     Icons.access_time,
                     size: 14,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.75),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.75),
                   ),
                   const SizedBox(width: 4),
                   Text(
@@ -266,7 +266,7 @@ class _CommentItemState extends State<CommentItem> {
                       Icon(
                         Icons.edit_calendar,
                         size: 14,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.75),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.75),
                       ),
                       const SizedBox(width: 4),
                       Text(
@@ -354,8 +354,10 @@ class _CommentItemState extends State<CommentItem> {
             await widget.controller!.editComment(widget.comment.id, text);
           } else {
             final result = await _commentService.editComment(widget.comment.id, text);
+            if (!mounted) return;
             if (result.isSuccess) {
               showToastWidget(MDToastWidget(message: slang.t.common.commentUpdated, type: MDToastType.success));
+              // ignore: use_build_context_synchronously
               Navigator.of(context).pop();
             } else {
               showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);

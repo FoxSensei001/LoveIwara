@@ -20,7 +20,7 @@ class ThreeSectionSlider extends StatefulWidget {
   });
 
   @override
-  _ThreeSectionSliderState createState() => _ThreeSectionSliderState();
+  State<ThreeSectionSlider> createState() => _ThreeSectionSliderState();
 }
 
 class _ThreeSectionSliderState extends State<ThreeSectionSlider> {

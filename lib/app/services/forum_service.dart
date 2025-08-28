@@ -102,7 +102,7 @@ class ForumService extends GetxService {
 
   /// 编辑帖子回复
   /// /forum/post/:postId
-  /// 这个也是一样的，不过不能偷懒了，必须参数里接一下 转换成Map<String, dynamic>了
+  /// 这个也是一样的，不过不能偷懒了，必须参数里接一下 转换成`Map<String, dynamic>`了
   Future<ApiResult<void>> editPost(String postId, Map<String, dynamic> jsonBody) async {
     try {
       await _apiService.put(ApiConstants.forumPosts(postId), data: jsonBody);

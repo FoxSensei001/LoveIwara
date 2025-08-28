@@ -156,7 +156,7 @@ class _MyFavoritesState extends State<MyFavorites>
         color: Theme.of(context)
             .colorScheme
             .surfaceContainerHighest
-            .withOpacity(0.3),
+            .withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(25),
       ),
       child: TabBar(

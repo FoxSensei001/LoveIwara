@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:i_iwara/app/ui/pages/settings/widgets/setting_item_widget.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:oktoast/oktoast.dart';
 
 import '../../../../../utils/logger_utils.dart';
@@ -35,7 +35,7 @@ class ProxySettingsWidget extends StatefulWidget {
   ProxySettingsWidget({super.key});
 
   @override
-  _ProxySettingsWidgetState createState() => _ProxySettingsWidgetState();
+  State<ProxySettingsWidget> createState() => _ProxySettingsWidgetState();
 }
 
 class _ProxySettingsWidgetState extends State<ProxySettingsWidget> {
@@ -174,8 +174,7 @@ class _ProxySettingsWidgetState extends State<ProxySettingsWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // 获取屏幕宽度
-    final double screenWidth = MediaQuery.of(context).size.width;
+
     // 定义内容的最大宽度
     final t = slang.Translations.of(context);
 
@@ -290,7 +289,7 @@ class _ProxySettingsWidgetState extends State<ProxySettingsWidget> {
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withAlpha(13),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),

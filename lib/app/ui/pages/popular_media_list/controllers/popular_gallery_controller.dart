@@ -4,7 +4,7 @@ import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/page_data.model.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/base_media_repository.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/error_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/proxy/proxy_util.dart';
@@ -35,12 +35,6 @@ class PopularGalleryController extends BaseMediaController<ImageModel> {
   final RxBool hasMore = true.obs; // 是否还有更多数据
   final RxBool isInit = true.obs; // 是否是初始化状态
   final Rxn<Widget> errorWidget = Rxn<Widget>(); // 错误小部件
-  @override
-  List<String> searchTagIds = []; // 搜索标签
-  @override
-  String searchDate = ''; // 搜索日期 如2024、2023、
-  @override
-  String searchRating = ''; // 内容评级
 
   final int pageSize = 20; // 每页数据量
   int page = 0; // 当前页码

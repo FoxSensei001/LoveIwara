@@ -5,7 +5,7 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/notifications/controllers/notification_list_repository.dart';
 import 'package:i_iwara/app/ui/pages/notifications/widgets/notification_list_item_widget.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
 import 'package:i_iwara/utils/widget_extensions.dart';
 import 'package:loading_more_list/loading_more_list.dart';
@@ -117,8 +117,8 @@ class _NotificationListPageState extends State<NotificationListPage> {
               Obx(() {
                 if (_isMarkingAllAsRead.value) {
                   return Shimmer.fromColors(
-                    baseColor: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.3),
-                    highlightColor: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.6),
+                    baseColor: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+                    highlightColor: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
                     child: const IconButton(
                       icon: Icon(Icons.mark_email_read),
                       onPressed: null,
@@ -152,7 +152,7 @@ class _NotificationListPageState extends State<NotificationListPage> {
                       ? Theme.of(context)
                           .colorScheme
                           .primaryContainer
-                          .withOpacity(0.5)
+                          .withValues(alpha: 0.5)
                       : null,
                   foregroundColor: !_enableFloatingButton.value
                       ? Theme.of(context).colorScheme.primary
@@ -163,8 +163,8 @@ class _NotificationListPageState extends State<NotificationListPage> {
               Obx(() {
                 if (_isRefreshing.value) {
                   return Shimmer.fromColors(
-                    baseColor: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.3),
-                    highlightColor: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.6),
+                    baseColor: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+                    highlightColor: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
                     child: const IconButton(
                       icon: Icon(Icons.refresh),
                       onPressed: null,
@@ -254,7 +254,7 @@ class _NotificationListPageState extends State<NotificationListPage> {
                     );
                   },
                   backgroundColor: !_enableFloatingButton.value
-                      ? Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5)
+                      ? Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.5)
                       : null,
                   foregroundColor: !_enableFloatingButton.value
                       ? Theme.of(context).colorScheme.primary

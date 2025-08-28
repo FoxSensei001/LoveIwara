@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:oktoast/oktoast.dart';
 
 class MessageService extends GetxService {

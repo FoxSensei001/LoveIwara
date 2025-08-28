@@ -5,7 +5,7 @@ import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/services/video_service.dart';
 import 'package:i_iwara/app/ui/pages/favorites/repositories/favorite_image_repository.dart';
 import 'package:i_iwara/app/ui/pages/favorites/repositories/favorite_video_repository.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:oktoast/oktoast.dart';
 
 class FavoritesController extends GetxController {

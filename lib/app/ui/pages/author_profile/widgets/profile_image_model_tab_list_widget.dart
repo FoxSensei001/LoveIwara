@@ -23,7 +23,7 @@ class ProfileImageModelTabListWidget extends StatefulWidget {
   });
 
   @override
-  _ProfileImageModelTabListWidgetState createState() => _ProfileImageModelTabListWidgetState();
+  State<ProfileImageModelTabListWidget> createState() => _ProfileImageModelTabListWidgetState();
 }
 
 class _ProfileImageModelTabListWidgetState extends State<ProfileImageModelTabListWidget>

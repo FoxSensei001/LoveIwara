@@ -274,10 +274,10 @@ class NotificationContentItems {
               margin: const EdgeInsets.only(top: 8),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.3),
+                  color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
                 ),
               ),
               child: Row(
@@ -286,7 +286,7 @@ class NotificationContentItems {
                   Icon(
                     Icons.format_quote,
                     size: 16,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -338,10 +338,10 @@ class NotificationContentItems {
             margin: const EdgeInsets.only(top: 8),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+              color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.3),
+                color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
               ),
             ),
             child: Row(
@@ -401,10 +401,10 @@ class NotificationContentItems {
             margin: const EdgeInsets.only(top: 8),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+              color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.3),
+                color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
               ),
             ),
             child: Row(
@@ -463,10 +463,10 @@ class NotificationContentItems {
             margin: const EdgeInsets.only(top: 8),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+              color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.3),
+                color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
               ),
             ),
             child: Row(
@@ -525,10 +525,10 @@ class NotificationContentItems {
             margin: const EdgeInsets.only(top: 8),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+              color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.3),
+                color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
               ),
             ),
             child: Row(
@@ -589,10 +589,10 @@ class NotificationContentItems {
               margin: const EdgeInsets.only(top: 8),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.3),
+                  color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
                 ),
               ),
               child: Row(
@@ -601,7 +601,7 @@ class NotificationContentItems {
                   Icon(
                     Icons.format_quote,
                     size: 16,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -657,10 +657,10 @@ class NotificationContentItems {
           margin: const EdgeInsets.only(top: 8),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.errorContainer.withOpacity(0.3),
+            color: Theme.of(context).colorScheme.errorContainer.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: Theme.of(context).colorScheme.error.withOpacity(0.3),
+              color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
             ),
           ),
           child: Row(
@@ -738,10 +738,10 @@ class NotificationContentItems {
       margin: const EdgeInsets.only(top: 8),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.3),
+          color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -753,7 +753,7 @@ class NotificationContentItems {
               Icon(
                 Icons.format_quote,
                 size: 16,
-                color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
+                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
               ),
               const SizedBox(width: 8),
               Expanded(

@@ -79,16 +79,10 @@ class CommentEntryAreaButtonWidget extends StatelessWidget {
                     children: [
                       Obx(() {
                         String avatarUrl;
-                        bool isPremium;
-                        bool isAdmin;
                         if (commentController.comments.isNotEmpty) {
                           avatarUrl = commentController.comments.first.user?.avatar?.avatarUrl ?? CommonConstants.defaultAvatarUrl;
-                          isPremium = commentController.comments.first.user?.premium ?? false;
-                          isAdmin = commentController.comments.first.user?.isAdmin ?? false;
                         } else {
                           avatarUrl = userService.userAvatar;
-                          isPremium = userService.currentUser.value?.premium ?? false;
-                          isAdmin = userService.currentUser.value?.isAdmin ?? false;
                         }
                         return AvatarWidget(
                           avatarUrl: avatarUrl,

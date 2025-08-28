@@ -14,7 +14,7 @@ class CustomVideoProgressbar extends StatefulWidget {
   const CustomVideoProgressbar({super.key, required this.controller});
 
   @override
-  _CustomVideoProgressbarState createState() => _CustomVideoProgressbarState();
+  State<CustomVideoProgressbar> createState() => _CustomVideoProgressbarState();
 }
 
 class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
@@ -37,15 +37,15 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
     ..style = PaintingStyle.fill;
 
   final Paint _inactivePaint = Paint()
-    ..color = Colors.white.withOpacity(0.3)
+    ..color = Colors.white.withValues(alpha: 0.3)
     ..style = PaintingStyle.fill;
 
   final Paint _bufferedPaint = Paint()
-    ..color = Colors.white.withOpacity(0.5)
+    ..color = Colors.white.withValues(alpha: 0.5)
     ..style = PaintingStyle.fill;
 
   final Paint _hoverPaint = Paint()
-    ..color = Colors.white.withOpacity(0.5)
+    ..color = Colors.white.withValues(alpha: 0.5)
     ..style = PaintingStyle.fill;
 
   // 用于判断当前是否为移动端
@@ -151,9 +151,9 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
                 hoverPaint: _hoverPaint,
               ),
               activeTrackColor: primaryColor,
-              inactiveTrackColor: Colors.white.withOpacity(0.3),
+              inactiveTrackColor: Colors.white.withValues(alpha: 0.3),
               thumbColor: primaryColor,
-              overlayColor: Colors.white.withOpacity(0.3),
+              overlayColor: Colors.white.withValues(alpha: 0.3),
               valueIndicatorColor: primaryColor,
               valueIndicatorTextStyle: const TextStyle(color: Colors.black),
               valueIndicatorShape: const PaddleSliderValueIndicatorShape(),
@@ -253,7 +253,7 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.7),
+          color: Colors.black.withValues(alpha: 0.7),
           borderRadius: BorderRadius.circular(4),
         ),
         child: Text(

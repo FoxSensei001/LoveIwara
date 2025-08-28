@@ -22,7 +22,7 @@ class ProfileVideoTabListWidget extends StatefulWidget {
   });
 
   @override
-  _ProfileVideoTabListWidgetState createState() => _ProfileVideoTabListWidgetState();
+  State<ProfileVideoTabListWidget> createState() => _ProfileVideoTabListWidgetState();
 }
 
 class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>

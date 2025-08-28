@@ -531,7 +531,7 @@ class _PaginationBarState extends State<PaginationBar>
             color: widget.useBlurEffect ? Colors.transparent : Theme.of(context).colorScheme.surface,
             boxShadow: widget.useBlurEffect ? [] : [
               BoxShadow(
-                color: Colors.black.withOpacity(0.08),
+                color: Colors.black.withValues(alpha: 0.08),
                 blurRadius: 8,
                 offset: const Offset(0, -2),
               ),
@@ -586,7 +586,7 @@ class _PaginationBarState extends State<PaginationBar>
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
           child: Container(
-            color: Theme.of(context).colorScheme.surface.withOpacity(0.85),
+            color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.85),
             child: barContent,
           ),
         ),
@@ -612,15 +612,15 @@ class _PaginationBarState extends State<PaginationBar>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  primaryColor.withOpacity(0.7),
-                  secondaryColor.withOpacity(0.7),
-                  primaryColor.withOpacity(0.7),
+                  primaryColor.withValues(alpha: 0.7),
+                  secondaryColor.withValues(alpha: 0.7),
+                  primaryColor.withValues(alpha: 0.7),
                 ],
                 stops: const [0.0, 0.5, 1.0],
               ),
               boxShadow: [
                 BoxShadow(
-                  color: primaryColor.withOpacity(0.5),
+                  color: primaryColor.withValues(alpha: 0.5),
                   blurRadius: 4,
                   spreadRadius: 0,
                 ),
@@ -662,15 +662,15 @@ class _PaginationBarState extends State<PaginationBar>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  primaryColor.withOpacity(0.7),
-                  secondaryColor.withOpacity(0.7),
-                  primaryColor.withOpacity(0.7),
+                  primaryColor.withValues(alpha: 0.7),
+                  secondaryColor.withValues(alpha: 0.7),
+                  primaryColor.withValues(alpha: 0.7),
                 ],
                 stops: const [0.0, 0.5, 1.0],
               ),
               boxShadow: [
                 BoxShadow(
-                  color: primaryColor.withOpacity(0.5),
+                  color: primaryColor.withValues(alpha: 0.5),
                   blurRadius: 4,
                   spreadRadius: 0,
                 ),
@@ -764,7 +764,7 @@ class _PaginationBarState extends State<PaginationBar>
                       color: Theme.of(context)
                           .colorScheme
                           .surfaceContainerHighest
-                          .withOpacity(0.3),
+                          .withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(18),
                     ),
                     child: Center(
@@ -808,7 +808,7 @@ class _PaginationBarState extends State<PaginationBar>
                   color: Theme.of(context)
                       .colorScheme
                       .surfaceContainerHighest
-                      .withOpacity(0.3),
+                      .withValues(alpha: 0.3),
                   borderRadius:
                       const BorderRadius.horizontal(left: Radius.circular(18)),
                 ),
@@ -828,7 +828,7 @@ class _PaginationBarState extends State<PaginationBar>
                       color: Theme.of(context)
                           .colorScheme
                           .onSurfaceVariant
-                          .withOpacity(0.7),
+                          .withValues(alpha: 0.7),
                     ),
                   ),
                   onSubmitted: (_) => _jumpToPage(),
@@ -843,7 +843,7 @@ class _PaginationBarState extends State<PaginationBar>
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
                     color: widget.isLoading
-                        ? Theme.of(context).colorScheme.primary.withOpacity(0.5)
+                        ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.5)
                         : Theme.of(context).colorScheme.primary,
                     borderRadius: const BorderRadius.horizontal(
                         right: Radius.circular(18)),
@@ -888,7 +888,7 @@ class _PaginationBarState extends State<PaginationBar>
                   color: Theme.of(context)
                       .colorScheme
                       .surfaceContainerHighest
-                      .withOpacity(0.3),
+                      .withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
@@ -954,11 +954,11 @@ class _PaginationBarState extends State<PaginationBar>
                   ? Theme.of(context)
                       .colorScheme
                       .surfaceContainerHighest
-                      .withOpacity(0.3)
+                      .withValues(alpha: 0.3)
                   : Theme.of(context)
                       .colorScheme
                       .surfaceContainerHighest
-                      .withOpacity(0.1),
+                      .withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Center(

@@ -22,7 +22,7 @@ class TagVideoSearchConfigWidget extends StatefulWidget {
   });
 
   @override
-  _TagVideoSearchConfigWidgetState createState() =>
+  State<TagVideoSearchConfigWidget> createState() =>
       _TagVideoSearchConfigWidgetState();
 }
 

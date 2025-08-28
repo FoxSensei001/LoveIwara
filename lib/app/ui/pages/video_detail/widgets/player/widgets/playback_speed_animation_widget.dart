@@ -223,7 +223,7 @@ class _ArrowFlow extends StatelessWidget {
           widgets.add(Icon(
             Icons.chevron_right_rounded,
             size: size,
-            color: color.withOpacity(opacity.clamp(0.0, 1.0)),
+            color: color.withValues(alpha: opacity.clamp(0.0, 1.0)),
           ));
           if (i < count - 1) widgets.add(const SizedBox(width: 2));
         }

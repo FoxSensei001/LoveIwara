@@ -20,7 +20,7 @@ class AnimatedPreview extends StatefulWidget {
   });
 
   @override
-  _AnimatedPreviewState createState() => _AnimatedPreviewState();
+  State<AnimatedPreview> createState() => _AnimatedPreviewState();
 }
 
 class _AnimatedPreviewState extends State<AnimatedPreview> {

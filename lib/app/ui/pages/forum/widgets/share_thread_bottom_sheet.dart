@@ -146,7 +146,7 @@ class _ShareThreadBottomSheetState extends State<ShareThreadBottomSheet> {
                           borderRadius: BorderRadius.circular(8),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
+                              color: Colors.black.withValues(alpha: 0.1),
                               blurRadius: 4,
                               offset: const Offset(0, 2),
                             ),
@@ -229,13 +229,15 @@ class _ShareThreadBottomSheetState extends State<ShareThreadBottomSheet> {
                               await file.writeAsBytes(bytes);
 
                               // 分享
-                              await Share.shareXFiles(
-                                [XFile(file.path)],
-                                text: '${t.share.wowDidYouSeeThis}\n'
-                                    '${t.share.nameIs}: ${widget.thread.title}\n'
-                                    '${t.share.authorIs}: ${widget.thread.user.name}\n'
-                                    '${t.share.clickLinkToView}: $url\n\n'
-                                    '${t.share.iReallyLikeThis}',
+                              await SharePlus.instance.share(
+                                ShareParams(
+                                  text: '${t.share.wowDidYouSeeThis}\n'
+                                      '${t.share.nameIs}: ${widget.thread.title}\n'
+                                      '${t.share.authorIs}: ${widget.thread.user.name}\n'
+                                      '${t.share.clickLinkToView}: $url\n\n'
+                                      '${t.share.iReallyLikeThis}',
+                                  subject: widget.thread.title,
+                                ),
                               );
                             } finally {
                               setState(() {
@@ -278,31 +280,5 @@ class _ShareThreadBottomSheetState extends State<ShareThreadBottomSheet> {
     );
   }
 
-  Widget _buildStatItem(String value, String label) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        const SizedBox(height: 2),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Colors.grey,
-          ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ],
-    );
-  }
+
 } 

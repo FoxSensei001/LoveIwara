@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/deep_link_service.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -57,7 +57,7 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
     
     // 使用正则表达式提取所有包含iwara的链接
     final regex = RegExp(
-      r'https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)',
+      r'https?://(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)',
       caseSensitive: false,
     );
     
@@ -112,7 +112,7 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
                       slang.t.linkInputDialog.supportedLinksHint(webName: CommonConstants.webName),
                       style: TextStyle(
                         fontSize: 12,
-                        color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.8),
+                        color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.8),
                       ),
                     ),
                   ],

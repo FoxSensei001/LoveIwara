@@ -4,13 +4,13 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/dto/user_dto.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/repositories/commons_repository.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/models/search_record.model.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 class UserPreferenceService extends GetxService {
-  final String _TAG = 'UserPreferenceService';
+  final String _tag = 'UserPreferenceService';
 
   // 视频搜索历史
   final RxList<SearchRecord> videoSearchHistory = <SearchRecord>[].obs;
@@ -33,7 +33,7 @@ class UserPreferenceService extends GetxService {
 
   Future<UserPreferenceService> init() async {
     await _loadUserPreferences();
-    LogUtils.i('用户偏好服务初始化完成', _TAG);
+    LogUtils.i('用户偏好服务初始化完成', _tag);
     return this;
   }
 
@@ -68,7 +68,7 @@ class UserPreferenceService extends GetxService {
         searchRecordEnabled.value = data == 'true';
       }
     } catch (e) {
-      LogUtils.e('加载搜索记录开关状态失败', tag: _TAG, error: e);
+      LogUtils.e('加载搜索记录开关状态失败', tag: _tag, error: e);
     }
   }
 
@@ -81,7 +81,7 @@ class UserPreferenceService extends GetxService {
         enabled.toString(),
       );
     } catch (e) {
-      LogUtils.e('保存搜索记录开关状态失败', tag: _TAG, error: e);
+      LogUtils.e('保存搜索记录开关状态失败', tag: _tag, error: e);
     }
   }
 
@@ -96,7 +96,7 @@ class UserPreferenceService extends GetxService {
             list.map((e) => UserDTO.fromJson(e as Map<String, dynamic>)));
       }
     } catch (e) {
-      LogUtils.e('加载喜欢的用户失败', tag: _TAG, error: e);
+      LogUtils.e('加载喜欢的用户失败', tag: _tag, error: e);
       await CommonsRepository.instance.deleteData(_likedUsers);
     }
   }
@@ -112,7 +112,7 @@ class UserPreferenceService extends GetxService {
             list.map((e) => SearchRecord.fromJson(e as Map<String, dynamic>)));
       }
     } catch (e) {
-      LogUtils.e('加载视频搜索历史失败', tag: _TAG, error: e);
+      LogUtils.e('加载视频搜索历史失败', tag: _tag, error: e);
       await CommonsRepository.instance.deleteData(_videoSearchHistoryKey);
     }
   }
@@ -129,7 +129,7 @@ class UserPreferenceService extends GetxService {
         videoSearchTagHistory.addAll(tags);
       }
     } catch (e) {
-      LogUtils.e('加载视频搜索标签失败', tag: _TAG, error: e);
+      LogUtils.e('加载视频搜索标签失败', tag: _tag, error: e);
       await CommonsRepository.instance.deleteData(_videoSearchTagHistoryKey);
     }
   }
@@ -163,7 +163,7 @@ class UserPreferenceService extends GetxService {
         jsonEncode(videoSearchHistory.map((e) => e.toJson()).toList()),
       );
     } catch (e) {
-      LogUtils.e('保存视频搜索历史失败', tag: _TAG, error: e);
+      LogUtils.e('保存视频搜索历史失败', tag: _tag, error: e);
     }
   }
 
@@ -176,7 +176,7 @@ class UserPreferenceService extends GetxService {
         jsonEncode(videoSearchHistory.map((e) => e.toJson()).toList()),
       );
     } catch (e) {
-      LogUtils.e('删除视频搜索历史失败', tag: _TAG, error: e);
+      LogUtils.e('删除视频搜索历史失败', tag: _tag, error: e);
     }
   }
 
@@ -186,7 +186,7 @@ class UserPreferenceService extends GetxService {
     try {
       await CommonsRepository.instance.deleteData(_videoSearchHistoryKey);
     } catch (e) {
-      LogUtils.e('清空视频搜索历史失败', tag: _TAG, error: e);
+      LogUtils.e('清空视频搜索历史失败', tag: _tag, error: e);
     }
   }
 
@@ -205,7 +205,7 @@ class UserPreferenceService extends GetxService {
         jsonEncode(tagList),
       );
     } catch (e) {
-      LogUtils.e('保存视频搜索标签失败', tag: _TAG, error: e);
+      LogUtils.e('保存视频搜索标签失败', tag: _tag, error: e);
     }
   }
 
@@ -232,7 +232,7 @@ class UserPreferenceService extends GetxService {
         jsonEncode(tagList),
       );
     } catch (e) {
-      LogUtils.e('保存视频搜索标签失败', tag: _TAG, error: e);
+      LogUtils.e('保存视频搜索标签失败', tag: _tag, error: e);
     }
   }
 
@@ -242,7 +242,7 @@ class UserPreferenceService extends GetxService {
     try {
       await CommonsRepository.instance.deleteData(_videoSearchTagHistoryKey);
     } catch (e) {
-      LogUtils.e('清空视频搜索标签失败', tag: _TAG, error: e);
+      LogUtils.e('清空视频搜索标签失败', tag: _tag, error: e);
     }
   }
 
@@ -259,7 +259,7 @@ class UserPreferenceService extends GetxService {
         likedUsers.assignAll(persistedUsers);
       }
     } catch (e) {
-      LogUtils.e('同步特别关注列表失败', tag: _TAG, error: e);
+      LogUtils.e('同步特别关注列表失败', tag: _tag, error: e);
       // 可以添加重试逻辑
     }
   }
@@ -298,7 +298,7 @@ class UserPreferenceService extends GetxService {
     } catch (e) {
       // 发生错误时回滚内存状态
       likedUsers.removeWhere((element) => element.id == user.id);
-      LogUtils.e('添加特别关注失败', tag: _TAG, error: e);
+      LogUtils.e('添加特别关注失败', tag: _tag, error: e);
       return false;
     }
   }
@@ -311,7 +311,7 @@ class UserPreferenceService extends GetxService {
       try {
         await saveLikedUsers();
       } catch (e) {
-        LogUtils.e('更新喜欢的用户失败', tag: _TAG, error: e);
+        LogUtils.e('更新喜欢的用户失败', tag: _tag, error: e);
       }
     }
   }
@@ -327,7 +327,7 @@ class UserPreferenceService extends GetxService {
       try {
         await saveLikedUsers();
       } catch (e) {
-        LogUtils.e('删除喜欢的用户失败', tag: _TAG, error: e);
+        LogUtils.e('删除喜欢的用户失败', tag: _tag, error: e);
       }
     }
   }
@@ -338,7 +338,7 @@ class UserPreferenceService extends GetxService {
     try {
       await CommonsRepository.instance.deleteData(_likedUsers);
     } catch (e) {
-      LogUtils.e('清空喜欢的用户失败', tag: _TAG, error: e);
+      LogUtils.e('清空喜欢的用户失败', tag: _tag, error: e);
     }
   }
 
@@ -350,7 +350,7 @@ class UserPreferenceService extends GetxService {
         jsonEncode(likedUsers.toList()),
       );
     } catch (e) {
-      LogUtils.e('保存特别关注列表失败', tag: _TAG, error: e);
+      LogUtils.e('保存特别关注列表失败', tag: _tag, error: e);
     }
   }
 

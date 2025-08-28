@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/friends/repositories/friend_list_repository.dart';
 import 'package:i_iwara/app/ui/pages/friends/repositories/friend_request_repository.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:oktoast/oktoast.dart';
 
 class FriendsController extends GetxController {

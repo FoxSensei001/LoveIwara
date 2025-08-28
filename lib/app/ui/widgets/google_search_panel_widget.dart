@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/widgets/link_input_dialog_widget.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:oktoast/oktoast.dart';
@@ -188,7 +188,7 @@ class _GoogleSearchPanelWidgetState extends State<GoogleSearchPanelWidget> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: colorScheme.outline.withOpacity(0.2),
+          color: colorScheme.outline.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -272,7 +272,7 @@ class _GoogleSearchPanelWidgetState extends State<GoogleSearchPanelWidget> {
                         decoration: InputDecoration(
                           hintText: t.search.googleSearchKeywordsHint,
                           filled: true,
-                          fillColor: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                          fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(28),
                             borderSide: BorderSide.none,
@@ -320,7 +320,7 @@ class _GoogleSearchPanelWidgetState extends State<GoogleSearchPanelWidget> {
                               }
                             },
                             selectedColor: colorScheme.secondaryContainer,
-                            backgroundColor: colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                            backgroundColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                             checkmarkColor: colorScheme.onSecondaryContainer,
                             showCheckmark: false,
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),

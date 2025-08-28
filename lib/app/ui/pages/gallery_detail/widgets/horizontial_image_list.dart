@@ -685,7 +685,6 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
   late VideoController _videoController;
   bool _isInitialized = false;
   bool _hasError = false;
-  String? _errorMessage;
   bool _isHovered = false;
   bool _shouldAutoPlay = false;
 
@@ -705,7 +704,7 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
         if (mounted) {
           setState(() {
             _hasError = true;
-            _errorMessage = error;
+
           });
           widget.onError?.call(error);
         }
@@ -732,7 +731,7 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
       if (mounted) {
         setState(() {
           _hasError = true;
-          _errorMessage = e.toString();
+
         });
         widget.onError?.call(e);
       }
@@ -850,8 +849,6 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
   }
 
   Widget _buildErrorWidget() {
-    final fileExtension = CommonUtils.getFileExtension(widget.videoUrl);
-
     return Center(
       child: Container(
         padding: const EdgeInsets.all(16),

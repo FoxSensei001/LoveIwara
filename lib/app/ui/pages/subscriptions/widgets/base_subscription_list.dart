@@ -55,7 +55,7 @@ abstract class BaseSubscriptionListState<T, R extends ExtendedLoadingMoreBase<T>
           if (mounted) {
             refresh();
           }
-        });
+        }).call;
       }
     } catch (e) {
       // 未找到 MediaListController，继续执行

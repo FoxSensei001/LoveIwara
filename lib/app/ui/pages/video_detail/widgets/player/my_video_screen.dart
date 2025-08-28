@@ -64,7 +64,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
 
   double? _horizontalDragStartX;
   Duration? _horizontalDragStartPosition;
-  static const int MAX_SEEK_SECONDS = 90;
+  static const int maxSeekSeconds = 90;
 
   // 添加缓存的模糊背景
   String? _lastThumbnailUrl;
@@ -533,7 +533,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                     details.localPosition.dx - _horizontalDragStartX!;
                 double ratio = dragDistance / screenSize.width;
 
-                int offsetSeconds = (ratio * MAX_SEEK_SECONDS).round();
+                int offsetSeconds = (ratio * maxSeekSeconds).round();
 
                 Duration targetPosition = Duration(
                     seconds: (_horizontalDragStartPosition!.inSeconds +
@@ -592,7 +592,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                     details.localPosition.dx - _horizontalDragStartX!;
                 double ratio = dragDistance / screenSize.width;
 
-                int offsetSeconds = (ratio * MAX_SEEK_SECONDS).round();
+                int offsetSeconds = (ratio * maxSeekSeconds).round();
 
                 Duration targetPosition = Duration(
                     seconds: (_horizontalDragStartPosition!.inSeconds +
@@ -659,7 +659,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                   details.localPosition.dx - _horizontalDragStartX!;
               double ratio = dragDistance / screenSize.width;
 
-              int offsetSeconds = (ratio * MAX_SEEK_SECONDS).round();
+              int offsetSeconds = (ratio * maxSeekSeconds).round();
 
               Duration targetPosition = Duration(
                   seconds:
@@ -738,7 +738,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       builder: (context, child) {
         return CustomPaint(
           painter: RipplePainter(
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
             animationValue: controller.value,
             origin: origin,
             maxRadius: maxRadius,
@@ -802,7 +802,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
             width: size,
             height: size,
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withValues(alpha: 0.5),
               shape: BoxShape.circle,
             ),
             child: Material(
@@ -832,7 +832,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                     shadows: [
                       Shadow(
                         blurRadius: 8.0,
-                        color: Colors.black.withOpacity(0.5),
+                        color: Colors.black.withValues(alpha: 0.5),
                         offset: const Offset(0, 2),
                       ),
                     ],
@@ -852,7 +852,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
             width: size,
             height: size,
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withValues(alpha: 0.5),
               shape: BoxShape.circle,
             ),
             child: Padding(
@@ -1082,7 +1082,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
             width: 200, // 设置固定宽度
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.8),
+              color: Colors.black.withValues(alpha: 0.8),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Column(
@@ -1147,7 +1147,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
                       colors: [
-                        Colors.black.withOpacity(0.7),
+                        Colors.black.withValues(alpha: 0.7),
                         Colors.transparent,
                       ],
                     ),
@@ -1177,7 +1177,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                             Container(
                               width: totalWidth,
                               height: 3,
-                              color: Colors.white.withOpacity(0.2),
+                              color: Colors.white.withValues(alpha: 0.2),
                             ),
                             // 缓冲层
                             ...buffers.map((buffer) {
@@ -1197,7 +1197,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                                 child: Container(
                                   width: endX - startX,
                                   height: 3,
-                                  color: Colors.white.withOpacity(0.4),
+                                  color: Colors.white.withValues(alpha: 0.4),
                                 ),
                               );
                             }),
@@ -1261,7 +1261,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.6),
+                        color: Colors.black.withValues(alpha: 0.6),
                         shape: BoxShape.rectangle,
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -1314,7 +1314,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.6),
+                        color: Colors.black.withValues(alpha: 0.6),
                         shape: BoxShape.rectangle,
                         borderRadius: BorderRadius.circular(8),
                       ),

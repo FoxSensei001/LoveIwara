@@ -80,8 +80,8 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Theme.of(context).colorScheme.primary.withOpacity(0.1),
-              Theme.of(context).colorScheme.primary.withOpacity(0.05),
+              Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+              Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
             ],
           ),
         ),
@@ -128,14 +128,14 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: LinearProgressIndicator(
-                        backgroundColor: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.2),
+                        backgroundColor: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.2),
                         minHeight: 6,
                       ),
                     ),
                     const SizedBox(height: 16),
                     // 状态文本带 Shimmer 效果
                     Shimmer.fromColors(
-                      baseColor: Theme.of(context).colorScheme.primary.withOpacity(0.8),
+                      baseColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
                       highlightColor: Theme.of(context).colorScheme.primaryContainer,
                       child: Text(
                         _status,

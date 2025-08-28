@@ -127,7 +127,7 @@ class _SharePostBottomSheetState extends State<SharePostBottomSheet> {
                           borderRadius: BorderRadius.circular(8),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
+                              color: Colors.black.withAlpha(26),
                               blurRadius: 4,
                               offset: const Offset(0, 2),
                             ),
@@ -203,13 +203,11 @@ class _SharePostBottomSheetState extends State<SharePostBottomSheet> {
                               await file.writeAsBytes(bytes);
 
                               // 分享
-                              await Share.shareXFiles(
-                                [XFile(file.path)],
-                                text: '${t.share.wowDidYouSeeThis}\n'
-                                    '${t.share.nameIs}: ${widget.post.title}\n'
-                                    '${t.share.authorIs}: ${widget.post.user.name}\n'
-                                    '${t.share.clickLinkToView}: $url\n\n'
-                                    '${t.share.iReallyLikeThis}',
+                              await SharePlus.instance.share(
+                                ShareParams(
+                                  files: [XFile(file.path)],
+                                  text: url,
+                                ),
                               );
                             } finally {
                               setState(() {
@@ -251,27 +249,5 @@ class _SharePostBottomSheetState extends State<SharePostBottomSheet> {
     );
   }
 
-  Widget _buildStatItem(String value, String label) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 13,
-            color: Colors.grey,
-          ),
-        ),
-      ],
-    );
-  }
+
 } 

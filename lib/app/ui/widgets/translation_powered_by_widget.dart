@@ -15,7 +15,7 @@ Widget translationPoweredByWidget(BuildContext context, {double? fontSize}) {
 
   if (useDeepLX) {
     provider = 'Powered by DeepLX';
-    backgroundColor = Colors.blue.withOpacity(0.05);
+    backgroundColor = Colors.blue.withValues(alpha: 0.05);
     icon = SvgPicture.asset(
       'assets/svg/deepl.svg',
       width: 14,
@@ -23,7 +23,7 @@ Widget translationPoweredByWidget(BuildContext context, {double? fontSize}) {
     );
   } else if (useAI) {
     provider = 'Powered by AI';
-    backgroundColor = Colors.black.withOpacity(0.05);
+    backgroundColor = Colors.black.withValues(alpha: 0.05);
     icon = ShaderMask(
       shaderCallback: (bounds) => const LinearGradient(
         colors: [Color(0xFF6B8DE3), Color(0xFF8B5CF6)],
@@ -32,7 +32,7 @@ Widget translationPoweredByWidget(BuildContext context, {double? fontSize}) {
     );
   } else {
     provider = 'Powered by Google';
-    backgroundColor = Colors.grey.withOpacity(0.05);
+    backgroundColor = Colors.grey.withValues(alpha: 0.05);
     icon = SvgPicture.asset(
       'assets/svg/google.svg',
       width: 14,
@@ -56,7 +56,7 @@ Widget translationPoweredByWidget(BuildContext context, {double? fontSize}) {
           provider,
           style: TextStyle(
             fontSize: fontSize ?? 12,
-            color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.8),
+            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
             fontWeight: FontWeight.w500,
           ),
         ),

@@ -176,10 +176,10 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
                               colors: [
                                 Theme.of(
                                   context,
-                                ).colorScheme.surface.withOpacity(0.0),
+                                ).colorScheme.surface.withValues(alpha: 0.0),
                                 Theme.of(
                                   context,
-                                ).colorScheme.surface.withOpacity(0.9),
+                                ).colorScheme.surface.withValues(alpha: 0.9),
                               ],
                             ),
                           ),

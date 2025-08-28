@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:super_clipboard/super_clipboard.dart';
 
@@ -25,43 +25,14 @@ class ExpandableTagsWidget extends StatefulWidget {
   });
 
   @override
-  _ExpandableTagsWidgetState createState() => _ExpandableTagsWidgetState();
+  ExpandableTagsWidgetState createState() => ExpandableTagsWidgetState();
 }
 
-class _ExpandableTagsWidgetState extends State<ExpandableTagsWidget>
+class ExpandableTagsWidgetState extends State<ExpandableTagsWidget>
     with SingleTickerProviderStateMixin {
   late bool _expanded;
   late AnimationController _animationController;
   late Animation<double> _animation;
-
-  // 添加预定义的现代化颜色列表
-  static const List<Color> _tagColors = [
-    Color(0xFF5D4037), // 深棕色
-    Color(0xFF455A64), // 蓝灰色
-    Color(0xFF2E7D32), // 深绿色
-    Color(0xFF1565C0), // 深蓝色
-    Color(0xFF6A1B9A), // 深紫色
-    Color(0xFFC62828), // 深红色
-    Color(0xFF4527A0), // 靛蓝色
-    Color(0xFF00695C), // 深青色
-    Color(0xFF558B2F), // 橄榄绿
-    Color(0xFFEF6C00), // 深橙色
-  ];
-
-  // 根据标签ID获取颜色
-  Color _getTagColor(String tagId) {
-    if (tagId.isEmpty) return _tagColors[0];
-    
-    // 计算字符串的简单哈希值
-    int hash = 0;
-    for (var i = 0; i < tagId.length; i++) {
-      hash = tagId.codeUnitAt(i) + ((hash << 5) - hash);
-    }
-    
-    // 确保hash为正数并获取颜色索引
-    hash = hash.abs();
-    return _tagColors[hash % _tagColors.length];
-  }
 
   @override
   void initState() {
@@ -121,13 +92,13 @@ class _ExpandableTagsWidgetState extends State<ExpandableTagsWidget>
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
             color: tag.sensitive
-                ? Colors.red.withOpacity(0.08)
-                : Colors.grey.withOpacity(0.08),
+                ? Colors.red.withAlpha(20)
+                : Colors.grey.withAlpha(20),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: tag.sensitive
-                  ? Colors.red.withOpacity(0.2)
-                  : Colors.grey.withOpacity(0.2),
+                  ? Colors.red.withAlpha(51)
+                  : Colors.grey.withAlpha(51),
               width: 1,
             ),
           ),

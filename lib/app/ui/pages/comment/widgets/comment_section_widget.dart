@@ -73,7 +73,7 @@ class _CommentSectionState extends State<CommentSection> {
   // 构建单个Shimmer骨架屏项
   Widget _buildShimmerItem() {
     return Shimmer.fromColors(
-      baseColor: Theme.of(Get.context!).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+      baseColor: Theme.of(Get.context!).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
       highlightColor: Theme.of(Get.context!).colorScheme.surface,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -130,7 +130,7 @@ class _CommentSectionState extends State<CommentSection> {
                     height: 10.0,
                     width: 80.0,
                     decoration: BoxDecoration(
-                      color: Theme.of(Get.context!).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                      color: Theme.of(Get.context!).colorScheme.surfaceContainerHighest.withValues(alpha:0.5),
                       borderRadius: BorderRadius.circular(4.0),
                     ),
                   ),
@@ -153,10 +153,10 @@ class _CommentSectionState extends State<CommentSection> {
           margin: const EdgeInsets.all(24.0),
           padding: const EdgeInsets.all(24.0),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.errorContainer.withOpacity(0.1),
+            color: Theme.of(context).colorScheme.errorContainer.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12.0),
             border: Border.all(
-              color: Theme.of(context).colorScheme.error.withOpacity(0.2),
+              color: Theme.of(context).colorScheme.error.withValues(alpha: 0.2),
               width: 1.0,
             ),
           ),
@@ -204,7 +204,7 @@ class _CommentSectionState extends State<CommentSection> {
           margin: const EdgeInsets.all(24.0),
           padding: const EdgeInsets.all(32.0),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+            color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha:0.3),
             borderRadius: BorderRadius.circular(16.0),
           ),
           child: Column(
@@ -257,7 +257,7 @@ class _CommentSectionState extends State<CommentSection> {
                   child: Divider(
                     height: 1,
                     thickness: 0.5,
-                    color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                    color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
                   ),
                 ),
             ],
@@ -332,7 +332,7 @@ class _CommentSectionState extends State<CommentSection> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(20.0),
               ),
               child: Row(

@@ -7,7 +7,7 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/forum/controllers/thread_detail_repository.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_reply_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_edit_reply_dialog.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
@@ -118,24 +118,24 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
       margin: const EdgeInsets.only(right: 4),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: tagColor.withOpacity(0.08),
+        color: tagColor.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: tagColor.withOpacity(0.12),
+          color: tagColor.withValues(alpha: 0.12),
           width: 0.5,
         ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 10, color: tagColor.withOpacity(0.8)),
+          Icon(icon, size: 10, color: tagColor.withValues(alpha: 0.8)),
           const SizedBox(width: 4),
           Text(
             text,
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w500,
-              color: tagColor.withOpacity(0.8),
+              color: tagColor.withValues(alpha: 0.8),
             ),
           ),
         ],

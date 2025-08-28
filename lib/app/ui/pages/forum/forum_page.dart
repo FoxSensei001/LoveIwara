@@ -8,7 +8,7 @@ import 'package:i_iwara/app/ui/pages/forum/widgets/forum_post_dialog.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/thread_list_item_widget.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
@@ -119,7 +119,7 @@ class _ForumPageState extends State<ForumPage> {
       appBar: AppBar(
         elevation: 0,
         toolbarHeight: appBarHeight,
-        backgroundColor: Theme.of(context).colorScheme.surface.withOpacity(0.7), // 设置半透明背景
+        backgroundColor: Theme.of(context).colorScheme.surface.withValues(alpha: 0.7), // 设置半透明背景
         flexibleSpace: ClipRect(
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10), // 毛玻璃效果参数
@@ -485,7 +485,7 @@ class _ForumPageState extends State<ForumPage> {
                     color: Theme.of(context)
                         .colorScheme
                         .surfaceContainerHighest
-                        .withOpacity(0.5),
+                        .withValues(alpha: 0.5),
                   ),
                   children: [
                     _buildTableHeader(context, slang.t.forum.category),

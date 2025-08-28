@@ -17,7 +17,7 @@ class LikeAvatarsWidget extends StatefulWidget {
       {super.key, required this.mediaId, required this.mediaType});
 
   @override
-  _LikeAvatarsWidgetState createState() => _LikeAvatarsWidgetState();
+  State<LikeAvatarsWidget> createState() => _LikeAvatarsWidgetState();
 }
 
 class _LikeAvatarsWidgetState extends State<LikeAvatarsWidget> {

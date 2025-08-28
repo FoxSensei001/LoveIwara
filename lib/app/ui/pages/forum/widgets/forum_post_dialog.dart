@@ -8,7 +8,7 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/forum_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/rules_agreement_dialog_widget.dart';
-import 'package:i_iwara/app/ui/widgets/MDToastWidget.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_syntax_help_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_preview_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
@@ -395,7 +395,7 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.1),
+                    color: Colors.orange.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Row(
@@ -478,7 +478,7 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
                                       ...category.children.where((sub) => !sub.locked).map((sub) => 
                                         ListTile(
                                           selected: _selectedCategoryId == sub.id,
-                                          selectedTileColor: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.1),
+                                          selectedTileColor: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.1),
                                           contentPadding: const EdgeInsets.fromLTRB(32, 4, 16, 4),
                                           title: Text(
                                             sub.label,

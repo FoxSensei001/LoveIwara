@@ -123,16 +123,17 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
         _hasMore = false;
       });
     } finally {
-      if (!mounted) return;
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
   Widget _buildShimmerItem() {
     return Shimmer.fromColors(
-      baseColor: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+      baseColor: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
       highlightColor: Theme.of(context).colorScheme.surface,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -218,7 +219,7 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+              color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(20.0),
             ),
             child: Row(
@@ -254,10 +255,10 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
         margin: const EdgeInsets.all(24.0),
         padding: const EdgeInsets.all(24.0),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.errorContainer.withOpacity(0.1),
+          color: Theme.of(context).colorScheme.errorContainer.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12.0),
           border: Border.all(
-            color: Theme.of(context).colorScheme.error.withOpacity(0.2),
+            color: Theme.of(context).colorScheme.error.withValues(alpha: 0.2),
             width: 1.0,
           ),
         ),
@@ -301,7 +302,7 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
         margin: const EdgeInsets.all(24.0),
         padding: const EdgeInsets.all(32.0),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+          color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(16.0),
         ),
         child: Column(
@@ -344,7 +345,7 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
           Container(
             padding: const EdgeInsets.all(16.0),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+              color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
               borderRadius: const BorderRadius.vertical(top: Radius.circular(16.0)),
             ),
             child: Row(
@@ -409,7 +410,7 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
         child: Divider(
           height: 1,
           thickness: 0.5,
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
         ),
       ),
       itemBuilder: (context, index) {

@@ -20,11 +20,6 @@ abstract class BaseMediaRepository<T> extends ExtendedLoadingMoreBase<T> {
 
   int _pageIndex = 0;
   bool _hasMore = true;
-  @override
-  bool forceRefresh = false;
-
-  @override
-  int requestTotalCount = 0;
 
   @override
   bool get hasMore => _hasMore || forceRefresh;

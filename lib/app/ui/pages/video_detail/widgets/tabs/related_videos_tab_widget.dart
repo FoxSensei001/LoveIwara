@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_underscores
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
@@ -54,7 +56,7 @@ class RelatedVideosTabWidget extends StatelessWidget {
               shrinkWrap: true,
               padding: EdgeInsets.zero,
               physics: const NeverScrollableScrollPhysics(),
-              separatorBuilder: (_, __) => const SizedBox(height: UIConstants.listSpacing),
+              separatorBuilder: (_, ___) => const SizedBox(height: UIConstants.listSpacing),
               itemBuilder: (_, index) => VideoTileListItem(video: otherVideosController.videos[index]),
             ),
         ],
@@ -86,7 +88,7 @@ class RelatedVideosTabWidget extends StatelessWidget {
               shrinkWrap: true,
               padding: EdgeInsets.zero,
               physics: const NeverScrollableScrollPhysics(),
-              separatorBuilder: (_, __) => const SizedBox(height: UIConstants.listSpacing),
+              separatorBuilder: (_, ___) => const SizedBox(height: UIConstants.listSpacing),
               itemBuilder: (_, index) => VideoTileListItem(video: relatedVideoController.videos[index]),
             )
         ],

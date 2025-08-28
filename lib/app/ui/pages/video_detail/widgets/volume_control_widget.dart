@@ -117,9 +117,9 @@ class _VolumeControlState extends State<VolumeControl>
                       overlayRadius: 12.0,
                     ),
                     activeTrackColor: Colors.white,
-                    inactiveTrackColor: Colors.white.withOpacity(0.3),
+                    inactiveTrackColor: Colors.white.withValues(alpha: 0.3),
                     thumbColor: Colors.white,
-                    overlayColor: Colors.white.withOpacity(0.1),
+                    overlayColor: Colors.white.withValues(alpha: 0.1),
                     valueIndicatorColor: Colors.white,
                     valueIndicatorTextStyle: const TextStyle(
                       color: Colors.black,

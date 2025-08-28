@@ -6,6 +6,7 @@ import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
+import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class ForumPostsSearchCard extends StatefulWidget {
@@ -37,24 +38,24 @@ class _ForumPostsSearchCardState extends State<ForumPostsSearchCard> {
       margin: const EdgeInsets.only(right: 4),
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
       decoration: BoxDecoration(
-        color: tagColor.withOpacity(0.08),
+        color: tagColor.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: tagColor.withOpacity(0.12),
+          color: tagColor.withValues(alpha: 0.12),
           width: 0.5,
         ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 8, color: tagColor.withOpacity(0.8)),
+          Icon(icon, size: 8, color: tagColor.withValues(alpha: 0.8)),
           const SizedBox(width: 2),
           Text(
             text,
             style: TextStyle(
               fontSize: 9,
               fontWeight: FontWeight.w500,
-              color: tagColor.withOpacity(0.8),
+              color: tagColor.withValues(alpha: 0.8),
             ),
           ),
         ],
@@ -74,7 +75,7 @@ class _ForumPostsSearchCardState extends State<ForumPostsSearchCard> {
         threadModel = ForumThreadModel.fromJson(thread);
       } catch (e) {
         // 如果解析失败，threadModel保持为null
-        print('Failed to parse thread data: $e');
+        LogUtils.e('Failed to parse thread data', error: e, tag: 'ForumPostsSearchCard');
       }
     }
 
@@ -87,7 +88,7 @@ class _ForumPostsSearchCardState extends State<ForumPostsSearchCard> {
           if (threadModel != null)
             Container(
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(8),
                   topRight: Radius.circular(8),
@@ -97,7 +98,7 @@ class _ForumPostsSearchCardState extends State<ForumPostsSearchCard> {
                 color: Colors.transparent,
                 child: InkWell(
                   onTap: () {
-                    NaviService.navigateToForumThreadDetailPage(threadModel!.section, threadModel!.id);
+                    NaviService.navigateToForumThreadDetailPage(threadModel!.section, threadModel.id);
                   },
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(8),
@@ -115,7 +116,7 @@ class _ForumPostsSearchCardState extends State<ForumPostsSearchCard> {
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
-                            threadModel!.title,
+                            threadModel.title,
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
@@ -140,7 +141,7 @@ class _ForumPostsSearchCardState extends State<ForumPostsSearchCard> {
           InkWell(
             onTap: () {
               if (threadModel != null) {
-                NaviService.navigateToForumThreadDetailPage(threadModel!.section, threadModel!.id);
+                NaviService.navigateToForumThreadDetailPage(threadModel.section, threadModel.id);
               }
             },
             child: Container(
