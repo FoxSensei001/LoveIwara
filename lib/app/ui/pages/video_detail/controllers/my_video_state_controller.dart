@@ -121,6 +121,7 @@ class MyVideoStateController extends GetxController
   StreamSubscription<bool>? playingSubscription;
   StreamSubscription<Duration>? bufferSubscription;
   StreamSubscription<String>? errorSubscription; // 添加错误监听订阅
+  int retryTimes = 0;
 
   Timer? _autoHideTimer;
   final _autoHideDelay = const Duration(seconds: 3); // 3秒后自动隐藏
@@ -682,9 +683,13 @@ class MyVideoStateController extends GetxController
       SystemChrome.setSystemUIOverlayStyle(
         SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
-          statusBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark,
+          statusBarIconBrightness: isDarkMode
+              ? Brightness.light
+              : Brightness.dark,
           systemNavigationBarColor: Colors.transparent,
-          systemNavigationBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark,
+          systemNavigationBarIconBrightness: isDarkMode
+              ? Brightness.light
+              : Brightness.dark,
         ),
       );
 
@@ -785,7 +790,8 @@ class MyVideoStateController extends GetxController
       }
 
       // 继续获取视频源 - 仅对站内视频
-      if (videoInfo.value!.fileUrl != null && !videoInfo.value!.isExternalVideo) {
+      if (videoInfo.value!.fileUrl != null &&
+          !videoInfo.value!.isExternalVideo) {
         fetchVideoSource();
       } else if (videoInfo.value!.isExternalVideo) {
         // 对于站外视频，直接设置为idle状态
@@ -864,7 +870,8 @@ class MyVideoStateController extends GetxController
         }
 
         // 4. 获取视频源（关键路径，需要等待）- 仅对站内视频
-        if (videoInfo.value!.fileUrl != null && !videoInfo.value!.isExternalVideo) {
+        if (videoInfo.value!.fileUrl != null &&
+            !videoInfo.value!.isExternalVideo) {
           // 立即开始获取视频源，不等待其他任务
           fetchVideoSource();
         } else if (videoInfo.value!.isExternalVideo) {
@@ -1307,12 +1314,37 @@ class MyVideoStateController extends GetxController
       LogUtils.e('播放器错误: $error', tag: 'MyVideoStateController');
       // 仅在[未加载过视频 ]时抛出异常
       final timeoutStrs = ['timeout', 'connection', 'network', 'time out'];
-      bool isTimeout = timeoutStrs.any((str) => errorMessage.toLowerCase().contains(str));
-      if (!firstLoaded || isTimeout) {
+      bool isTimeout = timeoutStrs.any(
+        (str) => errorMessage.toLowerCase().contains(str),
+      );
+      // 如果超时则直接显示错误
+      if (isTimeout) {
         videoPlayerReady.value = false;
-        // 将播放器内部错误显示给用户
         videoSourceErrorMessage.value = errorMessage;
         videoBuffering.value = false;
+        return;
+      }
+
+      // 如果未加载过视频，则重试
+      if (!firstLoaded) {
+        
+        if (retryTimes == 0) {
+          retryTimes++;
+          var lastUserSelectedResolution =
+              _configService[ConfigKey.DEFAULT_QUALITY_KEY];
+          resetVideoInfo(
+            title: videoInfo.value!.title ?? '',
+            resolutionTag:
+                currentResolutionTag.value ?? lastUserSelectedResolution,
+            videoResolutions: videoResolutions.toList(),
+          );
+        } else {
+          videoPlayerReady.value = false;
+          videoSourceErrorMessage.value = errorMessage;
+          videoBuffering.value = false;
+          return;
+        }
+
         return;
       }
     });
@@ -1340,10 +1372,10 @@ class MyVideoStateController extends GetxController
     bool renderVerticalVideoInVerticalScreen =
         _configService[ConfigKey.RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN];
     NaviService.navigateToFullScreenVideoPlayerScreenPage(this);
-    
+
     // 获取当前屏幕方向
     final currentOrientation = MediaQuery.of(Get.context!).orientation;
-    
+
     if (renderVerticalVideoInVerticalScreen && aspectRatio.value < 1) {
       // 窄屏视频保持竖屏
       await CommonUtils.defaultEnterNativeFullscreen(toVerticalScreen: true);
@@ -1352,9 +1384,11 @@ class MyVideoStateController extends GetxController
       await CommonUtils.defaultEnterNativeFullscreen();
     } else {
       // 当前是竖屏，根据配置选择横屏方向
-      await CommonUtils.defaultEnterNativeFullscreen(useGravityOrientation: true);
+      await CommonUtils.defaultEnterNativeFullscreen(
+        useGravityOrientation: true,
+      );
     }
-    
+
     // 同步播放状态
     if (wasPlaying) {
       await player.play();
