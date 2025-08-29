@@ -20,7 +20,7 @@ abstract class Routes {
   static const SIGN_IN = _Paths.SIGN_IN;
 
   static const ROOT = _Paths.ROOT;
-  static const SPLASH = '/splash';
+  static const FIRST_TIME_SETUP = _Paths.FIRST_TIME_SETUP;
 
   static const SEARCH_RESULT = _Paths.SEARCH_RESULT;
 
@@ -101,6 +101,7 @@ abstract class _Paths {
   static const SEARCH_RESULT = '/search_result';
   static const PLAYLIST_DETAIL = '/playlist_detail/:id';
   static const PLAY_LIST = '/play_list';
+  static const FIRST_TIME_SETUP = '/first_time_setup';
 
   static const GALLERY = '/gallery';
   static const GALLERY_DETAIL = '/gallery_detail/:galleryId';

@@ -305,6 +305,8 @@ enum ConfigKey {
   NAVIGATION_ORDER, // 导航项排序
   // 全屏方向配置
   FULLSCREEN_ORIENTATION, // 进入全屏后的屏幕方向
+  // 首次设置相关
+  FIRST_TIME_SETUP_COMPLETED, // 首次设置是否已完成
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -398,6 +400,7 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.LAYOUT_BREAKPOINTS: return 'layout_breakpoints';
       case ConfigKey.NAVIGATION_ORDER: return 'navigation_order';
       case ConfigKey.FULLSCREEN_ORIENTATION: return 'fullscreen_orientation';
+      case ConfigKey.FIRST_TIME_SETUP_COMPLETED: return 'first_time_setup_completed';
     }
   }
 
@@ -408,13 +411,13 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.DEFAULT_BRIGHTNESS_KEY:
         return 0.5;
       case ConfigKey.LONG_PRESS_PLAYBACK_SPEED_KEY:
-        return 2.0;
+        return 1.75;
       case ConfigKey.FAST_FORWARD_SECONDS_KEY:
         return 10;
       case ConfigKey.REWIND_SECONDS_KEY:
         return 10;
       case ConfigKey.DEFAULT_QUALITY_KEY:
-        return '360';
+        return '540';
       case ConfigKey.REPEAT_KEY:
         return false;
       case ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO:
@@ -585,6 +588,8 @@ extension ConfigKeyExtension on ConfigKey {
         return <String>['video', 'gallery', 'subscription', 'forum']; // 默认导航顺序
       case ConfigKey.FULLSCREEN_ORIENTATION:
         return 'landscape_left'; // 默认左侧横屏
+      case ConfigKey.FIRST_TIME_SETUP_COMPLETED:
+        return false;
     }
   }
 }

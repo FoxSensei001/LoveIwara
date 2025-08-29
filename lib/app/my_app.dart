@@ -17,7 +17,7 @@ import 'package:i_iwara/app/ui/pages/settings/download_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/forum_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/ai_translation_setting_widget.dart';
 import 'package:i_iwara/app/ui/pages/sign_in/sing_in_page.dart';
-import 'package:i_iwara/app/ui/pages/splash/splash_page.dart';
+import 'package:i_iwara/app/ui/pages/first_time_setup/first_time_setup_page.dart';
 import 'package:i_iwara/app/ui/widgets/global_drawer_content_widget.dart';
 import 'package:i_iwara/app/ui/widgets/privacy_over_lay_widget.dart';
 import 'package:i_iwara/app/ui/widgets/window_layout_widget.dart';
@@ -25,6 +25,7 @@ import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:i_iwara/utils/logger_utils.dart';
 
 import '../utils/proxy/proxy_util.dart';
 import 'models/dto/escape_intent.dart';
@@ -51,6 +52,11 @@ class _MyAppState extends State<MyApp> {
     Get.find<VersionService>().doAutoCheckUpdate();
     Get.find<MessageService>().markReady();
     Get.find<DeepLinkService>().markReady();
+
+    // 检查首次设置状态
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkFirstTimeSetup();
+    });
 
     // 平台亮度监听
     WidgetsBinding.instance.addObserver(_ThemeModeObserver(
@@ -88,6 +94,30 @@ class _MyAppState extends State<MyApp> {
         ));
       },
     ));
+  }
+
+  /// 检查首次设置状态
+  void _checkFirstTimeSetup() {
+    try {
+      final configService = Get.find<ConfigService>();
+      // final bool isFirstTimeSetupCompleted = configService[ConfigKey.FIRST_TIME_SETUP_COMPLETED];
+      // TODO_NEEDS TO ROLLBACK
+      bool isFirstTimeSetupCompleted = false;
+      LogUtils.i('检查首次设置状态: $isFirstTimeSetupCompleted', '首次设置检测');
+      
+      if (!isFirstTimeSetupCompleted) {
+        LogUtils.i('首次设置未完成，准备跳转到首次设置页面', '首次设置检测');
+        // 使用延迟确保应用完全初始化后再跳转
+        Future.delayed(const Duration(milliseconds: 500), () {
+          LogUtils.i('开始跳转到首次设置页面', '首次设置检测');
+          Get.offAllNamed(Routes.FIRST_TIME_SETUP);
+        });
+      } else {
+        LogUtils.i('首次设置已完成，继续正常流程', '首次设置检测');
+      }
+    } catch (e) {
+      LogUtils.e('检查首次设置状态时发生错误', tag: '首次设置检测', error: e);
+    }
   }
 
   @override
@@ -180,12 +210,13 @@ class _MyAppState extends State<MyApp> {
             locale: LocaleSettings.currentLocale.flutterLocale,
             getPages: [
               GetPage(
-                name: Routes.SPLASH,
-                page: () => const SplashPage(),
-              ),
-              GetPage(
                 name: Routes.HOME,
                 page: () => const HomeNavigationLayout(),
+              ),
+              GetPage(
+                name: Routes.FIRST_TIME_SETUP,
+                page: () => const FirstTimeSetupPage(),
+                transition: Transition.fadeIn,
               ),
               GetPage(
                   name: Routes.PLAYER_SETTINGS_PAGE,
@@ -231,7 +262,7 @@ class _MyAppState extends State<MyApp> {
                 transition: Transition.cupertino,
               ),
             ],
-            initialRoute: Routes.SPLASH,
+            initialRoute: Routes.HOME,
             builder: (context, child) {
               if (null == child) {
                 return const SizedBox.shrink();

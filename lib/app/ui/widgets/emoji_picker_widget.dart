@@ -6,6 +6,7 @@ import 'package:i_iwara/app/services/emoji_library_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class EmojiPickerWidget extends StatefulWidget {
   final Function(String) onEmojiSelected;
@@ -273,64 +274,37 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                     if (group.coverUrl != null)
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          group.coverUrl!,
+                        child: CachedNetworkImage(
+                          imageUrl: group.coverUrl!,
                           width: 40,
                           height: 40,
                           fit: BoxFit.cover,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            // 如果加载进度为 null 且图片已经加载完成，显示图片
-                            if (loadingProgress == null) return child;
-                            
-                            // 显示 shimmer 加载效果
-                            return Shimmer.fromColors(
-                              baseColor: Colors.grey[300]!,
-                              highlightColor: Colors.grey[100]!,
-                              child: Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                            );
-                          },
-                          // 添加 frameBuilder 来处理初始加载状态
-                          frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-                            if (wasSynchronouslyLoaded) return child;
-                            if (frame == null) {
-                              return Shimmer.fromColors(
-                                baseColor: Colors.grey[300]!,
-                                highlightColor: Colors.grey[100]!,
-                                child: Container(
-                                  width: 40,
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                              );
-                            }
-                            return child;
-                          },
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
+                          placeholder: (context, url) => Shimmer.fromColors(
+                            baseColor: Colors.grey[300]!,
+                            highlightColor: Colors.grey[100]!,
+                            child: Container(
                               width: 40,
                               height: 40,
                               decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                color: Colors.white,
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: Center(
-                                child: Text(
-                                  group.name.isNotEmpty ? group.name[0] : '?',
-                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                                ),
+                            ),
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Center(
+                              child: Text(
+                                group.name.isNotEmpty ? group.name[0] : '?',
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                               ),
-                            );
-                          },
+                            ),
+                          ),
                         ),
                       )
                     else
@@ -372,65 +346,38 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                     if (group.coverUrl != null)
                       ClipRRect(
                         borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          group.coverUrl!,
+                        child: CachedNetworkImage(
+                          imageUrl: group.coverUrl!,
                           width: 20,
                           height: 20,
                           fit: BoxFit.cover,
-                          headers: const {'referer': CommonConstants.iwaraBaseUrl},
-                          loadingBuilder: (context, child, loadingProgress) {
-                            // 如果加载进度为 null 且图片已经加载完成，显示图片
-                            if (loadingProgress == null) return child;
-                            
-                            // 显示 shimmer 加载效果
-                            return Shimmer.fromColors(
-                              baseColor: Colors.grey[300]!,
-                              highlightColor: Colors.grey[100]!,
-                              child: Container(
-                                width: 20,
-                                height: 20,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                            );
-                          },
-                          // 添加 frameBuilder 来处理初始加载状态
-                          frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-                            if (wasSynchronouslyLoaded) return child;
-                            if (frame == null) {
-                              return Shimmer.fromColors(
-                                baseColor: Colors.grey[300]!,
-                                highlightColor: Colors.grey[100]!,
-                                child: Container(
-                                  width: 20,
-                                  height: 20,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                              );
-                            }
-                            return child;
-                          },
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
+                          httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
+                          placeholder: (context, url) => Shimmer.fromColors(
+                            baseColor: Colors.grey[300]!,
+                            highlightColor: Colors.grey[100]!,
+                            child: Container(
                               width: 20,
                               height: 20,
                               decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                color: Colors.white,
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: Center(
-                                child: Text(
-                                  group.name.isNotEmpty ? group.name[0] : '?',
-                                  style: const TextStyle(fontSize: 12),
-                                ),
+                            ),
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            width: 20,
+                            height: 20,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Center(
+                              child: Text(
+                                group.name.isNotEmpty ? group.name[0] : '?',
+                                style: const TextStyle(fontSize: 12),
                               ),
-                            );
-                          },
+                            ),
+                          ),
                         ),
                       )
                     else
@@ -518,39 +465,18 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                   ),
                     child: ClipRRect(
                     borderRadius: BorderRadius.circular(7),
-                      child: Image.network(
-                      image.thumbnailUrl ?? image.url,
-                      fit: BoxFit.cover,
-                      headers: const {'referer': CommonConstants.iwaraBaseUrl},
-                        loadingBuilder: (context, child, loadingProgress) {
-                          // 如果加载进度为 null 且图片已经加载完成，显示图片
-                          if (loadingProgress == null) return child;
-                          
-                          // 显示 shimmer 加载效果
-                          return Shimmer.fromColors(
-                            baseColor: Colors.grey[300]!,
-                            highlightColor: Colors.grey[100]!,
-                            child: Container(
-                              color: Colors.white,
-                            ),
-                          );
-                        },
-                        // 添加 frameBuilder 来处理初始加载状态
-                        frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-                          if (wasSynchronouslyLoaded) return child;
-                          if (frame == null) {
-                            return Shimmer.fromColors(
-                              baseColor: Colors.grey[300]!,
-                              highlightColor: Colors.grey[100]!,
-                              child: Container(
-                                color: Colors.white,
-                              ),
-                            );
-                          }
-                          return child;
-                        },
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
+                      child: CachedNetworkImage(
+                        imageUrl: image.thumbnailUrl ?? image.url,
+                        fit: BoxFit.cover,
+                        httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
+                        placeholder: (context, url) => Shimmer.fromColors(
+                          baseColor: Colors.grey[300]!,
+                          highlightColor: Colors.grey[100]!,
+                          child: Container(
+                            color: Colors.white,
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => Container(
                           color: Theme.of(context).colorScheme.surfaceContainerHighest,
                           child: const Center(
                             child: Icon(
@@ -558,9 +484,8 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                               color: Colors.grey,
                             ),
                           ),
-                        );
-                        },
-                    ),
+                        ),
+                      ),
                   ),
                 ),
               );
@@ -588,18 +513,16 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                       if (group.coverUrl != null)
                         ClipRRect(
                           borderRadius: BorderRadius.circular(12),
-                          child: Image.network(
-                            group.coverUrl!,
+                          child: CachedNetworkImage(
+                            imageUrl: group.coverUrl!,
                             width: 20,
                             height: 20,
                             fit: BoxFit.cover,
-                            headers: const {'referer': CommonConstants.iwaraBaseUrl},
-                            errorBuilder: (context, error, stackTrace) {
-                              return Text(
-                                group.name.isNotEmpty ? group.name[0] : '?',
-                                style: const TextStyle(fontSize: 12),
-                              );
-                            },
+                            httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
+                            errorWidget: (context, url, error) => Text(
+                              group.name.isNotEmpty ? group.name[0] : '?',
+                              style: const TextStyle(fontSize: 12),
+                            ),
                           ),
                         )
                       else
@@ -657,45 +580,23 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget>
                       ),
                        child: ClipRRect(
                         borderRadius: BorderRadius.circular(7),
-                         child: Image.network(
-                          image.thumbnailUrl ?? image.url,
+                         child: CachedNetworkImage(
+                          imageUrl: image.thumbnailUrl ?? image.url,
                           fit: BoxFit.cover,
-                          headers: const {'referer': CommonConstants.iwaraBaseUrl},
-                           loadingBuilder: (context, child, loadingProgress) {
-                             // 如果加载进度为 null 且图片已经加载完成，显示图片
-                             if (loadingProgress == null) return child;
-                             
-                             // 显示 shimmer 加载效果
-                             return Shimmer.fromColors(
-                               baseColor: Colors.grey[300]!,
-                               highlightColor: Colors.grey[100]!,
-                               child: Container(
-                                 color: Colors.white,
-                               ),
-                             );
-                           },
-                           // 添加 frameBuilder 来处理初始加载状态
-                           frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-                             if (wasSynchronouslyLoaded) return child;
-                             if (frame == null) {
-                               return Shimmer.fromColors(
-                                 baseColor: Colors.grey[300]!,
-                                 highlightColor: Colors.grey[100]!,
-                                 child: Container(
-                                   color: Colors.white,
-                                 ),
-                               );
-                             }
-                             return child;
-                           },
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Center(
-                              child: Icon(
-                                Icons.broken_image,
-                                color: Colors.grey,
-                              ),
-                            );
-                           },
+                          httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
+                          placeholder: (context, url) => Shimmer.fromColors(
+                            baseColor: Colors.grey[300]!,
+                            highlightColor: Colors.grey[100]!,
+                            child: Container(
+                              color: Colors.white,
+                            ),
+                          ),
+                          errorWidget: (context, url, error) => const Center(
+                            child: Icon(
+                              Icons.broken_image,
+                              color: Colors.grey,
+                            ),
+                          ),
                         ),
                       ),
                     ),
