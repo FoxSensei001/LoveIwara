@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_routes.dart';
 import 'package:i_iwara/app/services/config_service.dart';
-import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/ui/pages/home/home_navigation_layout.dart';
 
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/vibrate_utils.dart';
@@ -84,6 +84,9 @@ class SetupController extends GetxController {
     
     // 震动反馈
     VibrateUtils.vibrate();
+    
+    // 重置路由栈状态，确保底部导航栏正确显示
+    HomeNavigationLayout.homeNavigatorObserver.resetRouteStack();
     
     // 跳转到主页
     LogUtils.i('准备跳转到主页', '设置控制器');

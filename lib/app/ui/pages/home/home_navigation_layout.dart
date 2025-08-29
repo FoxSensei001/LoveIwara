@@ -314,8 +314,13 @@ class HomeNavigatorObserver extends NavigatorObserver {
 
   @override
   void didReplace({Route? newRoute, Route? oldRoute}) {
-    routes.remove(oldRoute);
+    // 清除旧路由
+    if (oldRoute != null) {
+      routes.remove(oldRoute);
+    }
+    // 当使用 offAllNamed 时，清空所有路由并重新开始
     if (newRoute != null) {
+      routes.clear();
       routes.add(newRoute);
     }
     _tryHideBottomNavi();
@@ -325,11 +330,18 @@ class HomeNavigatorObserver extends NavigatorObserver {
   }
 
   void _tryHideBottomNavi() {
+    // 确保在路由栈重置时正确显示底部导航栏
     if (routes.length > 1 && appService.showBottomNavi) {
       appService.showBottomNavi = false;
     } else if (routes.length <= 1 && !appService.showBottomNavi) {
       appService.showBottomNavi = true;
     }
+  }
+
+  /// 手动重置路由栈状态（用于处理特殊情况）
+  void resetRouteStack() {
+    routes.clear();
+    appService.showBottomNavi = true;
   }
 }
 

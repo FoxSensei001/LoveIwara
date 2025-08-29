@@ -14,7 +14,6 @@ class FirstTimeSetupPage extends StatefulWidget {
 
 class _FirstTimeSetupPageState extends State<FirstTimeSetupPage>
     with TickerProviderStateMixin {
-  late AnimationController _slideController;
   late AnimationController _fadeController;
   late SetupController _controller;
 
@@ -25,12 +24,8 @@ class _FirstTimeSetupPageState extends State<FirstTimeSetupPage>
 
     _controller = Get.put(SetupController());
 
-    _slideController = AnimationController(
-      duration: const Duration(milliseconds: 400),
-      vsync: this,
-    );
     _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 400),
       vsync: this,
     );
 
@@ -42,7 +37,6 @@ class _FirstTimeSetupPageState extends State<FirstTimeSetupPage>
 
   @override
   void dispose() {
-    _slideController.dispose();
     _fadeController.dispose();
     super.dispose();
   }
@@ -191,46 +185,16 @@ class _FirstTimeSetupPageState extends State<FirstTimeSetupPage>
           children: [
             // 主要内容区域
             Expanded(
-              child: GestureDetector(
-                onPanEnd: (details) {
-                  // 检查滑动速度和方向
-                  if (details.velocity.pixelsPerSecond.dx.abs() > 300) {
-                    if (details.velocity.pixelsPerSecond.dx > 0) {
-                      // 向右滑动 - 上一步
-                      if (_controller.currentStepIndex.value > 0) {
-                        _previousStep();
-                      }
-                    } else {
-                      // 向左滑动 - 下一步
-                      if (_controller.currentStepIndex.value < _controller.stepManager.totalSteps - 1 && _controller.canProceed()) {
-                        _nextStep();
-                      } else if (_controller.currentStepIndex.value == _controller.stepManager.totalSteps - 1 && _controller.canProceed()) {
-                        _completeSetup();
-                      }
-                    }
-                  }
+              child: Obx(() => AnimatedSwitcher(
+                duration: const Duration(milliseconds: 400),
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: child,
+                  );
                 },
-                child: Obx(() => Stack(
-                  children: List.generate(_controller.stepManager.totalSteps, (index) {
-                    return AnimatedPositioned(
-                      duration: const Duration(milliseconds: 500),
-                      curve: Curves.easeInOutCubic,
-                      left: (index - _controller.currentStepIndex.value) * MediaQuery.of(context).size.width,
-                      right: -(index - _controller.currentStepIndex.value) * MediaQuery.of(context).size.width,
-                      top: 0,
-                      bottom: 0,
-                      child: AnimatedOpacity(
-                        duration: const Duration(milliseconds: 300),
-                        opacity: index == _controller.currentStepIndex.value ? 1.0 : 0.0,
-                        child: IgnorePointer(
-                          ignoring: index != _controller.currentStepIndex.value,
-                          child: _buildStepContent(context, index, isDesktop, isNarrow),
-                        ),
-                      ),
-                    );
-                  }),
-                )),
-              ),
+                child: _buildStepContent(context, _controller.currentStepIndex.value, isDesktop, isNarrow),
+              )),
             ),
           ],
         ),
@@ -242,6 +206,9 @@ class _FirstTimeSetupPageState extends State<FirstTimeSetupPage>
     final currentStep = _controller.stepManager.currentStep;
     if (currentStep == null) return const SizedBox.shrink();
     
-    return currentStep.builder(context, isDesktop, isNarrow);
+    return Container(
+      key: ValueKey(step),
+      child: currentStep.builder(context, isDesktop, isNarrow),
+    );
   }
 }
