@@ -7,6 +7,7 @@ import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/common/constants.dart';
+import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/layouts.dart';
 
 class WelcomeStepWidget extends StatelessWidget {
   final String title;
@@ -24,17 +25,11 @@ class WelcomeStepWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isDesktop = screenWidth > 800;
-    final isNarrow = screenWidth < 400;
-    final theme = Theme.of(context);
     final configService = Get.find<ConfigService>();
 
-    return SingleChildScrollView(
-      padding: EdgeInsets.all(isNarrow ? 16 : (isDesktop ? 48 : 24)),
-      child: isDesktop
-          ? _buildDesktopLayout(context, theme, configService)
-          : _buildMobileLayout(context, theme, isNarrow, configService),
+    return StepResponsiveScaffold(
+      desktopBuilder: (context, theme) => _buildDesktopLayout(context, theme, configService),
+      mobileBuilder: (context, theme, isNarrow) => _buildMobileLayout(context, theme, isNarrow, configService),
     );
   }
 

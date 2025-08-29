@@ -101,7 +101,7 @@ class SetupStepFactory {
     allSteps.add(createPlayerSettingsStep());
     allSteps.add(createBasicSettingsStep());
     allSteps.add(createNetworkSettingsStep());
-    allSteps.add(createCompletionStep());
+    // allSteps.add(createCompletionStep());
 
     // 在注册时过滤，只保留应该显示的步骤
     return allSteps.where(_shouldShowStep).toList();

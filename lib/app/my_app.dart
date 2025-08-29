@@ -100,9 +100,7 @@ class _MyAppState extends State<MyApp> {
   void _checkFirstTimeSetup() {
     try {
       final configService = Get.find<ConfigService>();
-      // final bool isFirstTimeSetupCompleted = configService[ConfigKey.FIRST_TIME_SETUP_COMPLETED];
-      // TODO_NEEDS TO ROLLBACK
-      bool isFirstTimeSetupCompleted = false;
+      final bool isFirstTimeSetupCompleted = configService[ConfigKey.FIRST_TIME_SETUP_COMPLETED];
       LogUtils.i('检查首次设置状态: $isFirstTimeSetupCompleted', '首次设置检测');
       
       if (!isFirstTimeSetupCompleted) {

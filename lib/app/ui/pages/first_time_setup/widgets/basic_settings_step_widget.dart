@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/signature_edit_sheet_widget.dart';
+import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/layouts.dart';
+import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/step_container.dart';
+import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/setting_tiles.dart';
 
 class BasicSettingsStepWidget extends StatefulWidget {
   final String title;
@@ -92,16 +95,9 @@ class _BasicSettingsStepWidgetState extends State<BasicSettingsStepWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isDesktop = screenWidth > 800;
-    final isNarrow = screenWidth < 400;
-    final theme = Theme.of(context);
-
-    return SingleChildScrollView(
-      padding: EdgeInsets.all(isNarrow ? 16 : (isDesktop ? 48 : 24)),
-      child: isDesktop 
-          ? _buildDesktopLayout(context, theme) 
-          : _buildMobileLayout(context, theme, isNarrow),
+    return StepResponsiveScaffold(
+      desktopBuilder: (context, theme) => _buildDesktopLayout(context, theme),
+      mobileBuilder: (context, theme, isNarrow) => _buildMobileLayout(context, theme, isNarrow),
     );
   }
 
@@ -125,12 +121,10 @@ class _BasicSettingsStepWidgetState extends State<BasicSettingsStepWidget> {
   Widget _buildMobileLayout(BuildContext context, ThemeData theme, bool isNarrow) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: isNarrow ? 16 : 24,
       children: [
-        SizedBox(height: isNarrow ? 16 : 24),
         _buildSubtitle(context, theme, isNarrow),
-        SizedBox(height: isNarrow ? 20 : 32),
         _buildSettingsContainer(context, theme, isNarrow),
-        SizedBox(height: isNarrow ? 16 : 20),
         _buildTipContainer(context, theme, isNarrow),
       ],
     );
@@ -172,18 +166,11 @@ class _BasicSettingsStepWidgetState extends State<BasicSettingsStepWidget> {
   }
 
   Widget _buildSettingsContainer(BuildContext context, ThemeData theme, bool isNarrow) {
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(isNarrow ? 16 : 20),
-        border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.2),
-        ),
-      ),
+    return StepSectionCard(
+      isNarrow: isNarrow,
       child: Column(
         children: [
-          _buildSettingTile(
-            context: context,
+          SwitchSettingTile(
             icon: Icons.vibration,
             title: '震动反馈',
             subtitle: '在部分界面的交互里提供触觉反馈',
@@ -191,9 +178,8 @@ class _BasicSettingsStepWidgetState extends State<BasicSettingsStepWidget> {
             onChanged: _updateVibration,
             isNarrow: isNarrow,
           ),
-          _buildDivider(theme),
-          _buildSettingTile(
-            context: context,
+          const StepDivider(),
+          SwitchSettingTile(
             icon: Icons.history,
             title: '自动记录历史',
             subtitle: '记录您观看过的视频和图库等历史记录',
@@ -201,9 +187,8 @@ class _BasicSettingsStepWidgetState extends State<BasicSettingsStepWidget> {
             onChanged: _updateHistory,
             isNarrow: isNarrow,
           ),
-          _buildDivider(theme),
-          _buildSettingTile(
-            context: context,
+          const StepDivider(),
+          SwitchSettingTile(
             icon: Icons.forum,
             title: '论坛：禁用回复引用',
             subtitle: '回复时不携带被回复楼层信息',
@@ -211,9 +196,8 @@ class _BasicSettingsStepWidgetState extends State<BasicSettingsStepWidget> {
             onChanged: _updateDisableForumReplyQuote,
             isNarrow: isNarrow,
           ),
-          _buildDivider(theme),
-          _buildSettingTile(
-            context: context,
+          const StepDivider(),
+          SwitchSettingTile(
             icon: Icons.edit_note,
             title: '小尾巴',
             subtitle: '在回复时添加签名',
@@ -277,112 +261,10 @@ class _BasicSettingsStepWidgetState extends State<BasicSettingsStepWidget> {
   }
 
   Widget _buildTipContainer(BuildContext context, ThemeData theme, bool isNarrow) {
-    return Container(
-      padding: EdgeInsets.all(isNarrow ? 12 : 16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(isNarrow ? 12 : 16),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.lightbulb,
-            color: theme.colorScheme.onPrimaryContainer,
-            size: isNarrow ? 16 : 20,
-          ),
-          SizedBox(width: isNarrow ? 8 : 12),
-          Expanded(
-            child: Text(
-              '这些设置都可以在应用设置中随时修改',
-              style: (isNarrow ? theme.textTheme.bodySmall : theme.textTheme.bodyMedium)?.copyWith(
-                color: theme.colorScheme.onPrimaryContainer,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDivider(ThemeData theme) {
-    return Divider(
-      height: 1,
-      color: theme.colorScheme.outline.withValues(alpha: 0.2),
-    );
-  }
-
-  Widget _buildSettingTile({
-    required BuildContext context,
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-    required bool isNarrow,
-  }) {
-    final theme = Theme.of(context);
-
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: isNarrow ? 16 : 20,
-        vertical: isNarrow ? 8 : 12,
-      ),
-      child: Row(
-        children: [
-          _buildIconContainer(context, theme, icon, isNarrow),
-          SizedBox(width: isNarrow ? 12 : 16),
-          Expanded(
-            child: _buildTextContent(context, theme, title, subtitle, isNarrow),
-          ),
-          _buildSwitch(context, theme, value, onChanged, isNarrow),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildIconContainer(BuildContext context, ThemeData theme, IconData icon, bool isNarrow) {
-    return Container(
-      padding: EdgeInsets.all(isNarrow ? 6 : 8),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(isNarrow ? 6 : 8),
-      ),
-      child: Icon(
-        icon,
-        color: theme.colorScheme.onPrimaryContainer,
-        size: isNarrow ? 16 : 20,
-      ),
-    );
-  }
-
-  Widget _buildTextContent(BuildContext context, ThemeData theme, String title, String subtitle, bool isNarrow) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: (isNarrow ? theme.textTheme.bodyMedium : theme.textTheme.titleSmall)?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: theme.colorScheme.onSurface,
-          ),
-        ),
-        SizedBox(height: isNarrow ? 1 : 2),
-        Text(
-          subtitle,
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSwitch(BuildContext context, ThemeData theme, bool value, ValueChanged<bool> onChanged, bool isNarrow) {
-    return Switch(
-      value: value,
-      onChanged: onChanged,
-      activeColor: theme.colorScheme.primary,
-      materialTapTargetSize: isNarrow ? MaterialTapTargetSize.shrinkWrap : MaterialTapTargetSize.padded,
+    return StepTipBanner(
+      icon: Icons.lightbulb,
+      text: '这些设置都可以在应用设置中随时修改',
+      isNarrow: isNarrow,
     );
   }
 }
