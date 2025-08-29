@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:url_launcher/url_launcher.dart';
 
 class ErrorStateWidget extends StatelessWidget {
   final MyVideoStateController controller;
@@ -86,6 +88,73 @@ class ErrorStateWidget extends StatelessWidget {
     return '${message.substring(0, 50)}...';
   }
 
+  // 构建可识别链接的文本组件
+  Widget _buildLinkableText(String text) {
+    // 正则表达式匹配URL
+    final urlRegex = RegExp(
+      r'https?://[^\s<>"{}|\\^`\[\]]+',
+      caseSensitive: false,
+    );
+
+    final matches = urlRegex.allMatches(text);
+    if (matches.isEmpty) {
+      // 如果没有链接，返回普通的可选择文本
+      return SelectableText(
+        text,
+        style: const TextStyle(color: Colors.white, fontSize: 14),
+      );
+    }
+
+    // 如果有链接，构建富文本
+    final List<TextSpan> spans = [];
+    int lastIndex = 0;
+
+    for (final match in matches) {
+      // 添加链接前的普通文本
+      if (match.start > lastIndex) {
+        spans.add(TextSpan(
+          text: text.substring(lastIndex, match.start),
+          style: const TextStyle(color: Colors.white, fontSize: 14),
+        ));
+      }
+
+      // 添加链接文本
+      final url = text.substring(match.start, match.end);
+      spans.add(TextSpan(
+        text: url,
+        style: const TextStyle(
+          color: Colors.blue,
+          fontSize: 14,
+          decoration: TextDecoration.underline,
+        ),
+        recognizer: TapGestureRecognizer()
+          ..onTap = () => _launchUrl(url),
+      ));
+
+      lastIndex = match.end;
+    }
+
+    // 添加剩余的普通文本
+    if (lastIndex < text.length) {
+      spans.add(TextSpan(
+        text: text.substring(lastIndex),
+        style: const TextStyle(color: Colors.white, fontSize: 14),
+      ));
+    }
+
+    return SelectableText.rich(
+      TextSpan(children: spans),
+    );
+  }
+
+  // 启动URL
+  Future<void> _launchUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
   // 显示错误详情底部弹窗
   void _showErrorDetailSheet(BuildContext context) {
     final bottomPadding = MediaQuery.paddingOf(context).bottom;
@@ -132,10 +201,7 @@ class ErrorStateWidget extends StatelessWidget {
                 color: Colors.grey[900],
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Text(
-                controller.videoSourceErrorMessage.value!,
-                style: const TextStyle(color: Colors.white, fontSize: 14),
-              ),
+              child: _buildLinkableText(controller.videoSourceErrorMessage.value!),
             ),
             const SizedBox(height: 20),
             SizedBox(

@@ -760,21 +760,21 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   // 构建加载或控制内容
   Widget _buildLoadingOrControlContent(double playPauseIconSize, double bufferingSize) {
     final controller = widget.myVideoStateController;
-    
-    // 如果播放器未准备好，显示加载状态
-    if (!controller.videoPlayerReady.value) {
+
+     // 如果视频源有错误，显示错误状态
+    if (controller.videoSourceErrorMessage.value != null) {
       return Center(
-        child: LoadingStateWidget(
+        child: ErrorStateWidget(
           controller: controller,
           size: playPauseIconSize,
         ),
       );
     }
     
-    // 如果视频源有错误，显示错误状态
-    if (controller.videoSourceErrorMessage.value != null) {
+    // 如果播放器未准备好，显示加载状态
+    if (!controller.videoPlayerReady.value) {
       return Center(
-        child: ErrorStateWidget(
+        child: LoadingStateWidget(
           controller: controller,
           size: playPauseIconSize,
         ),
