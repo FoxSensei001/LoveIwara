@@ -72,6 +72,7 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final TranslationsEmojiEn emoji = TranslationsEmojiEn._(_root);
 	late final TranslationsSearchFilterEn searchFilter = TranslationsSearchFilterEn._(_root);
 	late final TranslationsFirstTimeSetupEn firstTimeSetup = TranslationsFirstTimeSetupEn._(_root);
+	late final TranslationsProxyHelperEn proxyHelper = TranslationsProxyHelperEn._(_root);
 	late final TranslationsTagSelectorEn tagSelector = TranslationsTagSelectorEn._(_root);
 }
 
@@ -4168,6 +4169,24 @@ class TranslationsFirstTimeSetupEn {
 	late final TranslationsFirstTimeSetupCommonEn common = TranslationsFirstTimeSetupCommonEn._(_root);
 }
 
+// Path: proxyHelper
+class TranslationsProxyHelperEn {
+	TranslationsProxyHelperEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'System proxy detected'
+	String get systemProxyDetected => 'System proxy detected';
+
+	/// en: 'Copied'
+	String get copied => 'Copied';
+
+	/// en: 'Copy'
+	String get copy => 'Copy';
+}
+
 // Path: tagSelector
 class TranslationsTagSelectorEn {
 	TranslationsTagSelectorEn._(this._root);
@@ -7090,6 +7109,9 @@ extension on Translations {
 			case 'firstTimeSetup.completion.checkboxSubtitle': return 'You cannot use the app if you disagree';
 			case 'firstTimeSetup.common.settingsChangeableTip': return 'These settings can be changed anytime in Settings';
 			case 'firstTimeSetup.common.agreeAgreementSnackbar': return 'Please agree to the user agreement and community rules first';
+			case 'proxyHelper.systemProxyDetected': return 'System proxy detected';
+			case 'proxyHelper.copied': return 'Copied';
+			case 'proxyHelper.copy': return 'Copy';
 			case 'tagSelector.selectTags': return 'Select Tags';
 			case 'tagSelector.clickToSelectTags': return 'Click to select tags';
 			case 'tagSelector.addTag': return 'Add Tag';

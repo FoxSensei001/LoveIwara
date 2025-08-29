@@ -69,6 +69,7 @@ class TranslationsZhCn implements Translations {
 	@override late final _TranslationsNavigationOrderSettingsZhCn navigationOrderSettings = _TranslationsNavigationOrderSettingsZhCn._(_root);
 	@override late final _TranslationsSearchFilterZhCn searchFilter = _TranslationsSearchFilterZhCn._(_root);
 	@override late final _TranslationsFirstTimeSetupZhCn firstTimeSetup = _TranslationsFirstTimeSetupZhCn._(_root);
+	@override late final _TranslationsProxyHelperZhCn proxyHelper = _TranslationsProxyHelperZhCn._(_root);
 	@override late final _TranslationsTagSelectorZhCn tagSelector = _TranslationsTagSelectorZhCn._(_root);
 }
 
@@ -1653,6 +1654,18 @@ class _TranslationsFirstTimeSetupZhCn implements TranslationsFirstTimeSetupEn {
 	@override late final _TranslationsFirstTimeSetupPlayerZhCn player = _TranslationsFirstTimeSetupPlayerZhCn._(_root);
 	@override late final _TranslationsFirstTimeSetupCompletionZhCn completion = _TranslationsFirstTimeSetupCompletionZhCn._(_root);
 	@override late final _TranslationsFirstTimeSetupCommonZhCn common = _TranslationsFirstTimeSetupCommonZhCn._(_root);
+}
+
+// Path: proxyHelper
+class _TranslationsProxyHelperZhCn implements TranslationsProxyHelperEn {
+	_TranslationsProxyHelperZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get systemProxyDetected => '检测到系统代理';
+	@override String get copied => '已复制';
+	@override String get copy => '复制';
 }
 
 // Path: tagSelector
@@ -3874,6 +3887,9 @@ extension on TranslationsZhCn {
 			case 'firstTimeSetup.completion.checkboxSubtitle': return '不同意将无法使用本应用';
 			case 'firstTimeSetup.common.settingsChangeableTip': return '这些设置都可以在应用设置中随时修改';
 			case 'firstTimeSetup.common.agreeAgreementSnackbar': return '请先同意用户协议和社区规则';
+			case 'proxyHelper.systemProxyDetected': return '检测到系统代理';
+			case 'proxyHelper.copied': return '已复制';
+			case 'proxyHelper.copy': return '复制';
 			case 'tagSelector.selectTags': return '选择标签';
 			case 'tagSelector.clickToSelectTags': return '点击选择标签';
 			case 'tagSelector.addTag': return '添加标签';

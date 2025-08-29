@@ -804,6 +804,11 @@ firstTimeSetup:
   common:
     settingsChangeableTip: "這些設定可在應用設定中隨時修改"
     agreeAgreementSnackbar: "請先同意使用者協議與社群規則"
+
+proxyHelper:
+  systemProxyDetected: "檢測到系統代理"
+  copied: "已複製"
+  copy: "複製"
 signIn:
   pleaseLoginFirst: 請先登入
   alreadySignedInToday: 您今天已經簽到過了！

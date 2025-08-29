@@ -1739,6 +1739,11 @@ firstTimeSetup:
     settingsChangeableTip: "これらの設定はいつでも設定画面で変更できます"
     agreeAgreementSnackbar: "まず利用規約とコミュニティルールに同意してください"
 
+proxyHelper:
+  systemProxyDetected: "システムプロキシを検出"
+  copied: "コピーしました"
+  copy: "コピー"
+
 # タグセレクターウィジェット
 tagSelector:
   selectTags: "タグを選択"

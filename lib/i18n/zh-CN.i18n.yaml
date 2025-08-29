@@ -1742,6 +1742,11 @@ firstTimeSetup:
     settingsChangeableTip: "这些设置都可以在应用设置中随时修改"
     agreeAgreementSnackbar: "请先同意用户协议和社区规则"
 
+proxyHelper:
+  systemProxyDetected: "检测到系统代理"
+  copied: "已复制"
+  copy: "复制"
+
 # 标签选择器组件
 tagSelector:
   selectTags: "选择标签"

@@ -49,6 +49,7 @@ class TranslationsZhTw implements Translations {
 	@override late final _TranslationsSettingsZhTw settings = _TranslationsSettingsZhTw._(_root);
 	@override late final _TranslationsOreno3dZhTw oreno3d = _TranslationsOreno3dZhTw._(_root);
 	@override late final _TranslationsFirstTimeSetupZhTw firstTimeSetup = _TranslationsFirstTimeSetupZhTw._(_root);
+	@override late final _TranslationsProxyHelperZhTw proxyHelper = _TranslationsProxyHelperZhTw._(_root);
 	@override late final _TranslationsSignInZhTw signIn = _TranslationsSignInZhTw._(_root);
 	@override late final _TranslationsSubscriptionsZhTw subscriptions = _TranslationsSubscriptionsZhTw._(_root);
 	@override late final _TranslationsVideoDetailZhTw videoDetail = _TranslationsVideoDetailZhTw._(_root);
@@ -726,6 +727,18 @@ class _TranslationsFirstTimeSetupZhTw implements TranslationsFirstTimeSetupEn {
 	@override late final _TranslationsFirstTimeSetupPlayerZhTw player = _TranslationsFirstTimeSetupPlayerZhTw._(_root);
 	@override late final _TranslationsFirstTimeSetupCompletionZhTw completion = _TranslationsFirstTimeSetupCompletionZhTw._(_root);
 	@override late final _TranslationsFirstTimeSetupCommonZhTw common = _TranslationsFirstTimeSetupCommonZhTw._(_root);
+}
+
+// Path: proxyHelper
+class _TranslationsProxyHelperZhTw implements TranslationsProxyHelperEn {
+	_TranslationsProxyHelperZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get systemProxyDetected => '檢測到系統代理';
+	@override String get copied => '已複製';
+	@override String get copy => '複製';
 }
 
 // Path: signIn
@@ -3015,6 +3028,9 @@ extension on TranslationsZhTw {
 			case 'firstTimeSetup.completion.checkboxSubtitle': return '不同意將無法使用本應用';
 			case 'firstTimeSetup.common.settingsChangeableTip': return '這些設定可在應用設定中隨時修改';
 			case 'firstTimeSetup.common.agreeAgreementSnackbar': return '請先同意使用者協議與社群規則';
+			case 'proxyHelper.systemProxyDetected': return '檢測到系統代理';
+			case 'proxyHelper.copied': return '已複製';
+			case 'proxyHelper.copy': return '複製';
 			case 'signIn.pleaseLoginFirst': return '請先登入';
 			case 'signIn.alreadySignedInToday': return '您今天已經簽到過了！';
 			case 'signIn.youDidNotStickToTheSignIn': return '您未能持續簽到。';

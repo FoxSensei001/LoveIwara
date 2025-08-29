@@ -69,6 +69,7 @@ class TranslationsJa implements Translations {
 	@override late final _TranslationsNavigationOrderSettingsJa navigationOrderSettings = _TranslationsNavigationOrderSettingsJa._(_root);
 	@override late final _TranslationsSearchFilterJa searchFilter = _TranslationsSearchFilterJa._(_root);
 	@override late final _TranslationsFirstTimeSetupJa firstTimeSetup = _TranslationsFirstTimeSetupJa._(_root);
+	@override late final _TranslationsProxyHelperJa proxyHelper = _TranslationsProxyHelperJa._(_root);
 	@override late final _TranslationsTagSelectorJa tagSelector = _TranslationsTagSelectorJa._(_root);
 }
 
@@ -1648,6 +1649,18 @@ class _TranslationsFirstTimeSetupJa implements TranslationsFirstTimeSetupEn {
 	@override late final _TranslationsFirstTimeSetupPlayerJa player = _TranslationsFirstTimeSetupPlayerJa._(_root);
 	@override late final _TranslationsFirstTimeSetupCompletionJa completion = _TranslationsFirstTimeSetupCompletionJa._(_root);
 	@override late final _TranslationsFirstTimeSetupCommonJa common = _TranslationsFirstTimeSetupCommonJa._(_root);
+}
+
+// Path: proxyHelper
+class _TranslationsProxyHelperJa implements TranslationsProxyHelperEn {
+	_TranslationsProxyHelperJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get systemProxyDetected => 'システムプロキシを検出';
+	@override String get copied => 'コピーしました';
+	@override String get copy => 'コピー';
 }
 
 // Path: tagSelector
@@ -3864,6 +3877,9 @@ extension on TranslationsJa {
 			case 'firstTimeSetup.completion.checkboxSubtitle': return '不同意の場合、アプリを利用できません';
 			case 'firstTimeSetup.common.settingsChangeableTip': return 'これらの設定はいつでも設定画面で変更できます';
 			case 'firstTimeSetup.common.agreeAgreementSnackbar': return 'まず利用規約とコミュニティルールに同意してください';
+			case 'proxyHelper.systemProxyDetected': return 'システムプロキシを検出';
+			case 'proxyHelper.copied': return 'コピーしました';
+			case 'proxyHelper.copy': return 'コピー';
 			case 'tagSelector.selectTags': return 'タグを選択';
 			case 'tagSelector.clickToSelectTags': return 'タグを選択するにはクリック';
 			case 'tagSelector.addTag': return 'タグを追加';

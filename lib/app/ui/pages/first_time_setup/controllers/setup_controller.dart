@@ -77,21 +77,6 @@ class SetupController extends GetxController {
   
   /// 完成设置
   Future<void> completeSetup() async {
-    LogUtils.i('用户点击完成设置按钮', '设置控制器');
-    
-    if (!configService[ConfigKey.RULES_AGREEMENT_KEY]) {
-      LogUtils.w('用户未同意协议，显示提示', '设置控制器');
-      Get.snackbar(
-        slang.t.common.tips,
-        slang.t.firstTimeSetup.common.agreeAgreementSnackbar,
-        backgroundColor: Get.theme.colorScheme.errorContainer,
-        colorText: Get.theme.colorScheme.onErrorContainer,
-      );
-      return;
-    }
-    
-    LogUtils.i('开始保存设置...', '设置控制器');
-    
     // 标记首次设置完成
     await configService.setSetting(ConfigKey.FIRST_TIME_SETUP_COMPLETED, true);
     

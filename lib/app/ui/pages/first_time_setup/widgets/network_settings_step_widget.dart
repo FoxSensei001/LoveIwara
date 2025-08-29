@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/proxy_config_widget.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/layouts.dart';
-import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/step_container.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class NetworkSettingsStepWidget extends StatefulWidget {
@@ -27,6 +26,8 @@ class NetworkSettingsStepWidget extends StatefulWidget {
 
 class _NetworkSettingsStepWidgetState extends State<NetworkSettingsStepWidget> {
   final ConfigService configService = Get.find();
+
+  final Key _proxyConfigKey = const ValueKey<int>(0);
 
   static String get _networkTipText => slang.t.firstTimeSetup.network.tip;
 
@@ -60,21 +61,14 @@ class _NetworkSettingsStepWidgetState extends State<NetworkSettingsStepWidget> {
     );
   }
 
-  Widget _buildProxyConfigContainer(
-    ThemeData theme, {
-    required EdgeInsetsGeometry padding,
-    required double borderRadius,
-    required bool wrapWithCard,
-  }) {
-    return StepSectionCard(
-      isNarrow: borderRadius <= 16,
-      child: ProxyConfigWidget(
-        configService: configService,
-        showTitle: false,
-        padding: padding,
-        compactMode: true,
-        wrapWithCard: wrapWithCard,
-      ),
+  Widget _buildProxyConfigContainer(ThemeData theme) {
+    return ProxyConfigWidget(
+      key: _proxyConfigKey,
+      configService: configService,
+      showTitle: false,
+      padding: EdgeInsets.all(0),
+      compactMode: true,
+      wrapWithCard: true,
     );
   }
 
@@ -82,7 +76,8 @@ class _NetworkSettingsStepWidgetState extends State<NetworkSettingsStepWidget> {
   Widget build(BuildContext context) {
     return StepResponsiveScaffold(
       desktopBuilder: (context, theme) => _buildDesktopLayout(context, theme),
-      mobileBuilder: (context, theme, isNarrow) => _buildMobileLayout(context, theme, isNarrow),
+      mobileBuilder: (context, theme, isNarrow) =>
+          _buildMobileLayout(context, theme, isNarrow),
     );
   }
 
@@ -120,12 +115,7 @@ class _NetworkSettingsStepWidgetState extends State<NetworkSettingsStepWidget> {
           flex: 1,
           child: Column(
             children: [
-              _buildProxyConfigContainer(
-                theme,
-                padding: const EdgeInsets.all(24),
-                borderRadius: 20,
-                wrapWithCard: false,
-              ),
+              _buildProxyConfigContainer(theme),
             ],
           ),
         ),
@@ -153,12 +143,7 @@ class _NetworkSettingsStepWidgetState extends State<NetworkSettingsStepWidget> {
                     color: theme.colorScheme.onSurface,
                   ),
         ),
-        _buildProxyConfigContainer(
-          theme,
-          padding: EdgeInsets.all(isNarrow ? 16 : 20),
-          borderRadius: isNarrow ? 16 : 20,
-          wrapWithCard: true,
-        ),
+        _buildProxyConfigContainer(theme),
         _buildNetworkTip(theme, isNarrow: isNarrow),
       ],
     );

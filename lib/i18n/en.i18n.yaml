@@ -1735,6 +1735,11 @@ firstTimeSetup:
     settingsChangeableTip: "These settings can be changed anytime in Settings"
     agreeAgreementSnackbar: "Please agree to the user agreement and community rules first"
 
+proxyHelper:
+  systemProxyDetected: "System proxy detected"
+  copied: "Copied"
+  copy: "Copy"
+
 # Tag Selector Widget
 tagSelector:
   selectTags: "Select Tags"

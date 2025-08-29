@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:i_iwara/app/ui/pages/settings/widgets/setting_item_widget.dart';
@@ -8,6 +9,7 @@ import 'package:oktoast/oktoast.dart';
 
 import '../../../../../utils/logger_utils.dart';
 import '../../../../../utils/proxy/proxy_util.dart';
+import '../../../../../utils/proxy/system_proxy_settings.dart';
 import '../../../../services/config_service.dart';
 
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -55,6 +57,9 @@ class _ProxyConfigWidgetState extends State<ProxyConfigWidget> {
   final RxBool _isProxyEnabled = false.obs;
   final RxBool _isChecking = false.obs;
 
+  String? _systemProxyCandidate; // 检测到的系统代理（host:port）
+  bool _systemProxyChecked = false; // 标记已检测，避免重复显示
+
   // 创建一个全局的 HTTP 客户端
   late http.Client _httpClient;
 
@@ -75,6 +80,16 @@ class _ProxyConfigWidgetState extends State<ProxyConfigWidget> {
     LogUtils.d(
         '初始化完成, 代理地址: ${_proxyController.text}, 是否启用代理: $_isProxyEnabled',
         _tag);
+
+    // 组件初始化时尝试检测桌面端系统代理，仅在未启用代理且地址为空时提示
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final bool isDesktop = GetPlatform.isDesktop;
+      final bool isEnabled = _isProxyEnabled.value;
+      final String url = _proxyController.text.trim();
+      if (isDesktop && !isEnabled && url.isEmpty && !_systemProxyChecked) {
+        _detectSystemProxyCandidate();
+      }
+    });
   }
 
   @override
@@ -159,6 +174,51 @@ class _ProxyConfigWidgetState extends State<ProxyConfigWidget> {
     }
   }
 
+  void _detectSystemProxyCandidate() {
+    _systemProxyChecked = true;
+    try {
+      final ProxySettings settings = ProxyUtil.getProxySettings();
+      if (settings.enabled && (settings.server?.trim().isNotEmpty ?? false)) {
+        final String? candidate = _extractPreferredProxy(settings.server!);
+        if (candidate != null && candidate.isNotEmpty) {
+          setState(() {
+            _systemProxyCandidate = candidate;
+          });
+          LogUtils.i('检测到系统代理: $candidate', _tag);
+        }
+      }
+    } catch (e) {
+      LogUtils.d('系统代理检测失败或不支持: $e', _tag);
+    }
+  }
+
+  String? _extractPreferredProxy(String rawServer) {
+    final String trimmed = rawServer.trim();
+    if (trimmed.isEmpty) return null;
+    if (!trimmed.contains('=') && !trimmed.contains(';')) {
+      return trimmed;
+    }
+    final parts = trimmed.split(';');
+    String? httpPair = parts.firstWhere(
+      (p) => p.toLowerCase().startsWith('http='),
+      orElse: () => '',
+    );
+    if (httpPair.isNotEmpty) {
+      final idx = httpPair.indexOf('=');
+      if (idx > -1 && idx + 1 < httpPair.length) {
+        return httpPair.substring(idx + 1).trim();
+      }
+    }
+    for (final p in parts) {
+      final idx = p.indexOf('=');
+      final value = idx > -1 ? p.substring(idx + 1).trim() : p.trim();
+      if (value.contains(':')) {
+        return value;
+      }
+    }
+    return null;
+  }
+
   // 设置flutter的代理
   void _setFlutterEngineProxy(String proxyUrl) {
     if (ProxyUtil.isSupportedPlatform()) {
@@ -205,6 +265,66 @@ class _ProxyConfigWidgetState extends State<ProxyConfigWidget> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (_systemProxyCandidate != null) ...[
+              Card(
+                color: theme.colorScheme.secondaryContainer,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        color: theme.colorScheme.onSecondaryContainer,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              t.proxyHelper.systemProxyDetected,
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                color: theme.colorScheme.onSecondaryContainer,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              _systemProxyCandidate!,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSecondaryContainer,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      TextButton.icon(
+                        onPressed: () async {
+                          final text = _systemProxyCandidate ?? '';
+                          if (text.isEmpty) return;
+                          await Clipboard.setData(ClipboardData(text: text));
+                          showToastWidget(
+                            MDToastWidget(
+                              message: t.proxyHelper.copied,
+                              type: MDToastType.success,
+                            ),
+                            position: ToastPosition.top,
+                          );
+                        },
+                        icon: Icon(Icons.copy, color: theme.colorScheme.onSecondaryContainer),
+                        label: Text(t.proxyHelper.copy, style: TextStyle(color: theme.colorScheme.onSecondaryContainer)),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
             if (!widget.compactMode) ...[
               Card(
                 color: theme.primaryColor,
