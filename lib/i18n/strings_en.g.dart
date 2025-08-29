@@ -71,6 +71,7 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final TranslationsLogEn log = TranslationsLogEn._(_root);
 	late final TranslationsEmojiEn emoji = TranslationsEmojiEn._(_root);
 	late final TranslationsSearchFilterEn searchFilter = TranslationsSearchFilterEn._(_root);
+	late final TranslationsFirstTimeSetupEn firstTimeSetup = TranslationsFirstTimeSetupEn._(_root);
 	late final TranslationsTagSelectorEn tagSelector = TranslationsTagSelectorEn._(_root);
 }
 
@@ -4151,6 +4152,22 @@ class TranslationsSearchFilterEn {
 	late final TranslationsSearchFilterSortTypesEn sortTypes = TranslationsSearchFilterSortTypesEn._(_root);
 }
 
+// Path: firstTimeSetup
+class TranslationsFirstTimeSetupEn {
+	TranslationsFirstTimeSetupEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	late final TranslationsFirstTimeSetupWelcomeEn welcome = TranslationsFirstTimeSetupWelcomeEn._(_root);
+	late final TranslationsFirstTimeSetupBasicEn basic = TranslationsFirstTimeSetupBasicEn._(_root);
+	late final TranslationsFirstTimeSetupNetworkEn network = TranslationsFirstTimeSetupNetworkEn._(_root);
+	late final TranslationsFirstTimeSetupThemeEn theme = TranslationsFirstTimeSetupThemeEn._(_root);
+	late final TranslationsFirstTimeSetupPlayerEn player = TranslationsFirstTimeSetupPlayerEn._(_root);
+	late final TranslationsFirstTimeSetupCompletionEn completion = TranslationsFirstTimeSetupCompletionEn._(_root);
+	late final TranslationsFirstTimeSetupCommonEn common = TranslationsFirstTimeSetupCommonEn._(_root);
+}
+
 // Path: tagSelector
 class TranslationsTagSelectorEn {
 	TranslationsTagSelectorEn._(this._root);
@@ -5334,6 +5351,144 @@ class TranslationsSearchFilterSortTypesEn {
 
 	/// en: 'Likes'
 	String get likes => 'Likes';
+}
+
+// Path: firstTimeSetup.welcome
+class TranslationsFirstTimeSetupWelcomeEn {
+	TranslationsFirstTimeSetupWelcomeEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Welcome'
+	String get title => 'Welcome';
+
+	/// en: 'Let's start your personalized setup journey'
+	String get subtitle => 'Let\'s start your personalized setup journey';
+
+	/// en: 'Just a few steps to tailor the best experience for you'
+	String get description => 'Just a few steps to tailor the best experience for you';
+}
+
+// Path: firstTimeSetup.basic
+class TranslationsFirstTimeSetupBasicEn {
+	TranslationsFirstTimeSetupBasicEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Basic Settings'
+	String get title => 'Basic Settings';
+
+	/// en: 'Personalize your experience'
+	String get subtitle => 'Personalize your experience';
+
+	/// en: 'Choose the preferences that suit you'
+	String get description => 'Choose the preferences that suit you';
+}
+
+// Path: firstTimeSetup.network
+class TranslationsFirstTimeSetupNetworkEn {
+	TranslationsFirstTimeSetupNetworkEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Network Settings'
+	String get title => 'Network Settings';
+
+	/// en: 'Configure network options'
+	String get subtitle => 'Configure network options';
+
+	/// en: 'Adjust based on your network environment'
+	String get description => 'Adjust based on your network environment';
+
+	/// en: 'A restart is required after successful configuration to take effect'
+	String get tip => 'A restart is required after successful configuration to take effect';
+}
+
+// Path: firstTimeSetup.theme
+class TranslationsFirstTimeSetupThemeEn {
+	TranslationsFirstTimeSetupThemeEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Theme Settings'
+	String get title => 'Theme Settings';
+
+	/// en: 'Choose your preferred appearance'
+	String get subtitle => 'Choose your preferred appearance';
+
+	/// en: 'Personalize your visual experience'
+	String get description => 'Personalize your visual experience';
+}
+
+// Path: firstTimeSetup.player
+class TranslationsFirstTimeSetupPlayerEn {
+	TranslationsFirstTimeSetupPlayerEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Player Settings'
+	String get title => 'Player Settings';
+
+	/// en: 'Configure playback controls'
+	String get subtitle => 'Configure playback controls';
+
+	/// en: 'Quickly set commonly used playback preferences'
+	String get description => 'Quickly set commonly used playback preferences';
+}
+
+// Path: firstTimeSetup.completion
+class TranslationsFirstTimeSetupCompletionEn {
+	TranslationsFirstTimeSetupCompletionEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Complete Setup'
+	String get title => 'Complete Setup';
+
+	/// en: 'You're ready to start your journey'
+	String get subtitle => 'You\'re ready to start your journey';
+
+	/// en: 'Please read and agree to the related agreements'
+	String get description => 'Please read and agree to the related agreements';
+
+	/// en: 'User Agreement and Community Rules'
+	String get agreementTitle => 'User Agreement and Community Rules';
+
+	/// en: 'Before using this app, please carefully read and agree to our user agreement and community rules. These terms help maintain a good environment.'
+	String get agreementDesc => 'Before using this app, please carefully read and agree to our user agreement and community rules. These terms help maintain a good environment.';
+
+	/// en: 'I have read and agree to the user agreement and community rules'
+	String get checkboxTitle => 'I have read and agree to the user agreement and community rules';
+
+	/// en: 'You cannot use the app if you disagree'
+	String get checkboxSubtitle => 'You cannot use the app if you disagree';
+}
+
+// Path: firstTimeSetup.common
+class TranslationsFirstTimeSetupCommonEn {
+	TranslationsFirstTimeSetupCommonEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'These settings can be changed anytime in Settings'
+	String get settingsChangeableTip => 'These settings can be changed anytime in Settings';
+
+	/// en: 'Please agree to the user agreement and community rules first'
+	String get agreeAgreementSnackbar => 'Please agree to the user agreement and community rules first';
 }
 
 /// Flat map(s) containing all translations.
@@ -6910,6 +7065,31 @@ extension on Translations {
 			case 'searchFilter.sortTypes.latest': return 'Latest';
 			case 'searchFilter.sortTypes.views': return 'Views';
 			case 'searchFilter.sortTypes.likes': return 'Likes';
+			case 'firstTimeSetup.welcome.title': return 'Welcome';
+			case 'firstTimeSetup.welcome.subtitle': return 'Let\'s start your personalized setup journey';
+			case 'firstTimeSetup.welcome.description': return 'Just a few steps to tailor the best experience for you';
+			case 'firstTimeSetup.basic.title': return 'Basic Settings';
+			case 'firstTimeSetup.basic.subtitle': return 'Personalize your experience';
+			case 'firstTimeSetup.basic.description': return 'Choose the preferences that suit you';
+			case 'firstTimeSetup.network.title': return 'Network Settings';
+			case 'firstTimeSetup.network.subtitle': return 'Configure network options';
+			case 'firstTimeSetup.network.description': return 'Adjust based on your network environment';
+			case 'firstTimeSetup.network.tip': return 'A restart is required after successful configuration to take effect';
+			case 'firstTimeSetup.theme.title': return 'Theme Settings';
+			case 'firstTimeSetup.theme.subtitle': return 'Choose your preferred appearance';
+			case 'firstTimeSetup.theme.description': return 'Personalize your visual experience';
+			case 'firstTimeSetup.player.title': return 'Player Settings';
+			case 'firstTimeSetup.player.subtitle': return 'Configure playback controls';
+			case 'firstTimeSetup.player.description': return 'Quickly set commonly used playback preferences';
+			case 'firstTimeSetup.completion.title': return 'Complete Setup';
+			case 'firstTimeSetup.completion.subtitle': return 'You\'re ready to start your journey';
+			case 'firstTimeSetup.completion.description': return 'Please read and agree to the related agreements';
+			case 'firstTimeSetup.completion.agreementTitle': return 'User Agreement and Community Rules';
+			case 'firstTimeSetup.completion.agreementDesc': return 'Before using this app, please carefully read and agree to our user agreement and community rules. These terms help maintain a good environment.';
+			case 'firstTimeSetup.completion.checkboxTitle': return 'I have read and agree to the user agreement and community rules';
+			case 'firstTimeSetup.completion.checkboxSubtitle': return 'You cannot use the app if you disagree';
+			case 'firstTimeSetup.common.settingsChangeableTip': return 'These settings can be changed anytime in Settings';
+			case 'firstTimeSetup.common.agreeAgreementSnackbar': return 'Please agree to the user agreement and community rules first';
 			case 'tagSelector.selectTags': return 'Select Tags';
 			case 'tagSelector.clickToSelectTags': return 'Click to select tags';
 			case 'tagSelector.addTag': return 'Add Tag';

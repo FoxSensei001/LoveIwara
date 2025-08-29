@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import '../models/setup_step.dart';
 import '../widgets/welcome_step_widget.dart';
 import '../widgets/basic_settings_step_widget.dart';
@@ -12,11 +13,11 @@ import '../widgets/player_settings_step_widget.dart';
 class SetupStepFactory {
   /// 创建欢迎步骤
   static SetupStep createWelcomeStep() {
-    return const SetupStep(
+    return SetupStep(
       id: 'welcome',
-      title: '欢迎使用',
-      subtitle: '让我们开始您的个性化设置之旅',
-      description: '只需几步，即可为您量身定制最佳使用体验',
+      title: slang.t.firstTimeSetup.welcome.title,
+      subtitle: slang.t.firstTimeSetup.welcome.subtitle,
+      description: slang.t.firstTimeSetup.welcome.description,
       icon: Icons.celebration,
       builder: _buildWelcomeStep,
     );
@@ -24,11 +25,11 @@ class SetupStepFactory {
 
   /// 创建基础设置步骤
   static SetupStep createBasicSettingsStep() {
-    return const SetupStep(
+    return SetupStep(
       id: 'basic_settings',
-      title: '基础设置',
-      subtitle: '个性化您的使用体验',
-      description: '选择适合您的功能偏好',
+      title: slang.t.firstTimeSetup.basic.title,
+      subtitle: slang.t.firstTimeSetup.basic.subtitle,
+      description: slang.t.firstTimeSetup.basic.description,
       icon: Icons.settings_suggest,
       builder: _buildBasicSettingsStep,
     );
@@ -36,11 +37,11 @@ class SetupStepFactory {
 
   /// 创建网络设置步骤（仅在桌面平台显示）
   static SetupStep createNetworkSettingsStep() {
-    return const SetupStep(
+    return SetupStep(
       id: 'network_settings',
-      title: '网络设置',
-      subtitle: '配置网络连接选项',
-      description: '根据您的网络环境进行相应配置',
+      title: slang.t.firstTimeSetup.network.title,
+      subtitle: slang.t.firstTimeSetup.network.subtitle,
+      description: slang.t.firstTimeSetup.network.description,
       icon: Icons.network_check,
       showStatus: _shouldShowNetworkSettings, // 控制是否显示此步骤
       builder: _buildNetworkSettingsStep,
@@ -52,11 +53,11 @@ class SetupStepFactory {
 
   /// 创建主题设置步骤（示例：如何添加新步骤）
   static SetupStep createThemeStep() {
-    return const SetupStep(
+    return SetupStep(
       id: 'theme_settings',
-      title: '主题设置',
-      subtitle: '选择您喜欢的界面主题',
-      description: '个性化您的视觉体验',
+      title: slang.t.firstTimeSetup.theme.title,
+      subtitle: slang.t.firstTimeSetup.theme.subtitle,
+      description: slang.t.firstTimeSetup.theme.description,
       icon: Icons.palette,
       showStatus: _shouldShowThemeSettings, // 可控制是否显示主题设置
       builder: _buildThemeStep,
@@ -65,11 +66,11 @@ class SetupStepFactory {
 
   /// 创建播放器设置步骤
   static SetupStep createPlayerSettingsStep() {
-    return const SetupStep(
+    return SetupStep(
       id: 'player_settings',
-      title: '播放器设置',
-      subtitle: '配置播放控制偏好',
-      description: '你可以在此快速设置常用的播放体验',
+      title: slang.t.firstTimeSetup.player.title,
+      subtitle: slang.t.firstTimeSetup.player.subtitle,
+      description: slang.t.firstTimeSetup.player.description,
       icon: Icons.play_circle,
       builder: _buildPlayerSettingsStep,
     );
@@ -80,11 +81,11 @@ class SetupStepFactory {
 
   /// 创建完成设置步骤
   static SetupStep createCompletionStep() {
-    return const SetupStep(
+    return SetupStep(
       id: 'completion',
-      title: '完成设置',
-      subtitle: '即将开始您的精彩之旅',
-      description: '请阅读并同意相关协议',
+      title: slang.t.firstTimeSetup.completion.title,
+      subtitle: slang.t.firstTimeSetup.completion.subtitle,
+      description: slang.t.firstTimeSetup.completion.description,
       icon: Icons.check_circle,
       // 不设置showStatus，默认为总是显示
       builder: _buildCompletionStep,
@@ -118,55 +119,55 @@ class SetupStepFactory {
 
   // 私有构建方法
   static Widget _buildWelcomeStep(BuildContext context, bool isDesktop, bool isNarrow) {
-    return const WelcomeStepWidget(
-      title: '欢迎使用',
-      subtitle: '让我们开始您的个性化设置之旅',
-      description: '只需几步，即可为您量身定制最佳使用体验',
+    return WelcomeStepWidget(
+      title: slang.t.firstTimeSetup.welcome.title,
+      subtitle: slang.t.firstTimeSetup.welcome.subtitle,
+      description: slang.t.firstTimeSetup.welcome.description,
       icon: Icons.celebration,
     );
   }
 
   static Widget _buildBasicSettingsStep(BuildContext context, bool isDesktop, bool isNarrow) {
-    return const BasicSettingsStepWidget(
-      title: '基础设置',
-      subtitle: '个性化您的使用体验',
-      description: '选择适合您的功能偏好',
+    return BasicSettingsStepWidget(
+      title: slang.t.firstTimeSetup.basic.title,
+      subtitle: slang.t.firstTimeSetup.basic.subtitle,
+      description: slang.t.firstTimeSetup.basic.description,
       icon: Icons.settings_suggest,
     );
   }
 
   static Widget _buildNetworkSettingsStep(BuildContext context, bool isDesktop, bool isNarrow) {
-    return const NetworkSettingsStepWidget(
-      title: '网络设置',
-      subtitle: '配置网络连接选项',
-      description: '根据您的网络环境进行相应配置',
+    return NetworkSettingsStepWidget(
+      title: slang.t.firstTimeSetup.network.title,
+      subtitle: slang.t.firstTimeSetup.network.subtitle,
+      description: slang.t.firstTimeSetup.network.description,
       icon: Icons.network_check,
     );
   }
 
   static Widget _buildThemeStep(BuildContext context, bool isDesktop, bool isNarrow) {
-    return const ThemeStepWidget(
-      title: '主题设置',
-      subtitle: '选择您喜欢的界面主题',
-      description: '个性化您的视觉体验',
+    return ThemeStepWidget(
+      title: slang.t.firstTimeSetup.theme.title,
+      subtitle: slang.t.firstTimeSetup.theme.subtitle,
+      description: slang.t.firstTimeSetup.theme.description,
       icon: Icons.palette,
     );
   }
 
   static Widget _buildPlayerSettingsStep(BuildContext context, bool isDesktop, bool isNarrow) {
-    return const PlayerSettingsStepWidget(
-      title: '播放器设置',
-      subtitle: '配置播放控制偏好',
-      description: '你可以在此快速设置常用的播放体验',
+    return PlayerSettingsStepWidget(
+      title: slang.t.firstTimeSetup.player.title,
+      subtitle: slang.t.firstTimeSetup.player.subtitle,
+      description: slang.t.firstTimeSetup.player.description,
       icon: Icons.play_circle,
     );
   }
 
   static Widget _buildCompletionStep(BuildContext context, bool isDesktop, bool isNarrow) {
-    return const CompletionStepWidget(
-      title: '完成设置',
-      subtitle: '即将开始您的精彩之旅',
-      description: '请阅读并同意相关协议',
+    return CompletionStepWidget(
+      title: slang.t.firstTimeSetup.completion.title,
+      subtitle: slang.t.firstTimeSetup.completion.subtitle,
+      description: slang.t.firstTimeSetup.completion.description,
       icon: Icons.check_circle,
     );
   }

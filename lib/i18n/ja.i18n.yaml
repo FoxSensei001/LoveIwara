@@ -1705,6 +1705,40 @@ searchFilter:
     views: "視聴回数"
     likes: "いいね数"
 
+firstTimeSetup:
+  welcome:
+    title: "ようこそ"
+    subtitle: "パーソナライズ設定を始めましょう"
+    description: "数ステップで最適な体験を提供します"
+  basic:
+    title: "基本設定"
+    subtitle: "体験をパーソナライズ"
+    description: "ご希望の機能設定を選択"
+  network:
+    title: "ネットワーク設定"
+    subtitle: "ネットワークオプションを構成"
+    description: "ネットワーク環境に合わせて調整"
+    tip: "設定後、再起動が必要です"
+  theme:
+    title: "テーマ設定"
+    subtitle: "お好みの見た目を選択"
+    description: "ビジュアル体験をパーソナライズ"
+  player:
+    title: "プレーヤー設定"
+    subtitle: "再生コントロールを構成"
+    description: "よく使う再生設定を素早く設定"
+  completion:
+    title: "設定完了"
+    subtitle: "すぐに始められます"
+    description: "関連規約をお読みの上ご同意ください"
+    agreementTitle: "利用規約とコミュニティルール"
+    agreementDesc: "本アプリをご利用になる前に、利用規約とコミュニティルールをよくお読みいただき、同意してください。良好な利用環境の維持に役立ちます。"
+    checkboxTitle: "利用規約とコミュニティルールに同意しました"
+    checkboxSubtitle: "不同意の場合、アプリを利用できません"
+  common:
+    settingsChangeableTip: "これらの設定はいつでも設定画面で変更できます"
+    agreeAgreementSnackbar: "まず利用規約とコミュニティルールに同意してください"
+
 # タグセレクターウィジェット
 tagSelector:
   selectTags: "タグを選択"

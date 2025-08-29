@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_routes.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/vibrate_utils.dart';
@@ -81,8 +82,8 @@ class SetupController extends GetxController {
     if (!configService[ConfigKey.RULES_AGREEMENT_KEY]) {
       LogUtils.w('用户未同意协议，显示提示', '设置控制器');
       Get.snackbar(
-        '提示',
-        '请先同意用户协议和社区规则',
+        slang.t.common.tips,
+        slang.t.firstTimeSetup.common.agreeAgreementSnackbar,
         backgroundColor: Get.theme.colorScheme.errorContainer,
         colorText: Get.theme.colorScheme.onErrorContainer,
       );

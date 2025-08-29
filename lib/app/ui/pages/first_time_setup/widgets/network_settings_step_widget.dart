@@ -4,6 +4,7 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/proxy_config_widget.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/layouts.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/step_container.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class NetworkSettingsStepWidget extends StatefulWidget {
   final String title;
@@ -27,7 +28,7 @@ class NetworkSettingsStepWidget extends StatefulWidget {
 class _NetworkSettingsStepWidgetState extends State<NetworkSettingsStepWidget> {
   final ConfigService configService = Get.find();
 
-  static const String _networkTipText = '需设置成功后重启应用才能生效';
+  static String get _networkTipText => slang.t.firstTimeSetup.network.tip;
 
   Widget _buildNetworkTip(ThemeData theme, {required bool isNarrow}) {
     return Container(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/layouts.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class CompletionStepWidget extends StatefulWidget {
   final String title;
@@ -176,7 +177,7 @@ class _CompletionStepWidgetState extends State<CompletionStepWidget> {
               ),
               SizedBox(width: titleGap),
               Text(
-                '用户协议和社区规则',
+                slang.t.firstTimeSetup.completion.agreementTitle,
                 style: (compact
                         ? (narrow ? theme.textTheme.titleSmall : theme.textTheme.titleMedium)
                         : theme.textTheme.titleMedium)
@@ -186,17 +187,17 @@ class _CompletionStepWidgetState extends State<CompletionStepWidget> {
           ),
           SizedBox(height: afterHeaderGap),
           Text(
-            '在使用本应用前，请您仔细阅读并同意我们的用户协议和社区规则。这些条款有助于维护良好的使用环境。',
+            slang.t.firstTimeSetup.completion.agreementDesc,
             style: agreementTextStyle,
           ),
           SizedBox(height: compact ? (narrow ? 12 : 16) : 20),
           CheckboxListTile(
             title: Text(
-              '我已阅读并同意用户协议和社区规则',
+              slang.t.firstTimeSetup.completion.checkboxTitle,
               style: compact && narrow ? theme.textTheme.bodySmall : null,
             ),
             subtitle: Text(
-              '不同意将无法使用本应用',
+              slang.t.firstTimeSetup.completion.checkboxSubtitle,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),

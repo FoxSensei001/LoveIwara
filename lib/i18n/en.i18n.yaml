@@ -1701,6 +1701,40 @@ searchFilter:
     views: "Views"
     likes: "Likes"
 
+firstTimeSetup:
+  welcome:
+    title: "Welcome"
+    subtitle: "Let's start your personalized setup journey"
+    description: "Just a few steps to tailor the best experience for you"
+  basic:
+    title: "Basic Settings"
+    subtitle: "Personalize your experience"
+    description: "Choose the preferences that suit you"
+  network:
+    title: "Network Settings"
+    subtitle: "Configure network options"
+    description: "Adjust based on your network environment"
+    tip: "A restart is required after successful configuration to take effect"
+  theme:
+    title: "Theme Settings"
+    subtitle: "Choose your preferred appearance"
+    description: "Personalize your visual experience"
+  player:
+    title: "Player Settings"
+    subtitle: "Configure playback controls"
+    description: "Quickly set commonly used playback preferences"
+  completion:
+    title: "Complete Setup"
+    subtitle: "You're ready to start your journey"
+    description: "Please read and agree to the related agreements"
+    agreementTitle: "User Agreement and Community Rules"
+    agreementDesc: "Before using this app, please carefully read and agree to our user agreement and community rules. These terms help maintain a good environment."
+    checkboxTitle: "I have read and agree to the user agreement and community rules"
+    checkboxSubtitle: "You cannot use the app if you disagree"
+  common:
+    settingsChangeableTip: "These settings can be changed anytime in Settings"
+    agreeAgreementSnackbar: "Please agree to the user agreement and community rules first"
+
 # Tag Selector Widget
 tagSelector:
   selectTags: "Select Tags"

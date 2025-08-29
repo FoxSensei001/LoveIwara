@@ -5,6 +5,7 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/layouts.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/step_container.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/setting_tiles.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class PlayerSettingsStepWidget extends StatefulWidget {
   final String title;
@@ -154,8 +155,8 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
         children: [
           SwitchSettingTile(
             icon: Icons.theater_comedy,
-            title: '剧院模式',
-            subtitle: '以剧院模式渲染播放器背景',
+            title: slang.t.settings.theaterMode,
+            subtitle: slang.t.settings.theaterModeDesc,
             value: theaterMode,
             onChanged: (v) => _setBool(ConfigKey.THEATER_MODE_KEY, v, (x) => theaterMode = x),
             isNarrow: isNarrow,
@@ -163,11 +164,11 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
           const StepDivider(),
           NumberSettingTile(
             icon: Icons.fast_forward,
-            title: '快进时间',
-            subtitle: '单位：秒',
+            title: slang.t.settings.fastForwardTime,
+            subtitle: slang.t.common.seconds,
             valueText: '$fastForwardSeconds',
             onTap: () async {
-              final v = await _showNumberInputDialog(context, '设置快进时间(秒)', initial: fastForwardSeconds.toString());
+              final v = await _showNumberInputDialog(context, slang.t.settings.fastForwardTime, initial: fastForwardSeconds.toString());
               if (v != null) {
                 final parsed = int.tryParse(v);
                 if (parsed != null && parsed > 0) {
@@ -180,11 +181,11 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
           const StepDivider(),
           NumberSettingTile(
             icon: Icons.fast_rewind,
-            title: '后退时间',
-            subtitle: '单位：秒',
+            title: slang.t.settings.rewindTime,
+            subtitle: slang.t.common.seconds,
             valueText: '$rewindSeconds',
             onTap: () async {
-              final v = await _showNumberInputDialog(context, '设置后退时间(秒)', initial: rewindSeconds.toString());
+              final v = await _showNumberInputDialog(context, slang.t.settings.rewindTime, initial: rewindSeconds.toString());
               if (v != null) {
                 final parsed = int.tryParse(v);
                 if (parsed != null && parsed > 0) {
@@ -197,11 +198,11 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
           const StepDivider(),
           NumberSettingTile(
             icon: Icons.speed,
-            title: '长按倍速播放',
-            subtitle: '例如：1.5 表示 1.5x',
+            title: slang.t.settings.longPressPlaybackSpeed,
+            subtitle: '1.5 = 1.5x',
             valueText: '${longPressPlaybackSpeed}',
             onTap: () async {
-              final v = await _showNumberInputDialog(context, '设置长按倍速', initial: longPressPlaybackSpeed.toString());
+              final v = await _showNumberInputDialog(context, slang.t.settings.longPressPlaybackSpeed, initial: longPressPlaybackSpeed.toString());
               if (v != null) {
                 final parsed = double.tryParse(v);
                 if (parsed != null && parsed > 0) {
@@ -214,8 +215,8 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
           const StepDivider(),
           SwitchSettingTile(
             icon: Icons.loop,
-            title: '循环播放',
-            subtitle: '播放结束后自动重新播放',
+            title: slang.t.settings.repeat,
+            subtitle: slang.t.videoDetail.autoRewind,
             value: repeat,
             onChanged: (v) => _setBool(ConfigKey.REPEAT_KEY, v, (x) => repeat = x),
             isNarrow: isNarrow,
@@ -223,8 +224,8 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
           const StepDivider(),
           SwitchSettingTile(
             icon: Icons.volume_up,
-            title: '记住音量',
-            subtitle: '再次播放时沿用上次音量',
+            title: slang.t.settings.rememberVolume,
+            subtitle: slang.t.settings.thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain,
             value: rememberVolume,
             onChanged: (v) => _setBool(ConfigKey.KEEP_LAST_VOLUME_KEY, v, (x) => rememberVolume = x),
             isNarrow: isNarrow,
@@ -233,8 +234,8 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
             const StepDivider(),
             SwitchSettingTile(
               icon: Icons.brightness_medium,
-              title: '记住亮度',
-              subtitle: '再次播放时沿用上次亮度',
+              title: slang.t.settings.rememberBrightness,
+              subtitle: slang.t.settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain,
               value: rememberBrightness,
               onChanged: (v) => _setBool(ConfigKey.KEEP_LAST_BRIGHTNESS_KEY, v, (x) => rememberBrightness = x),
               isNarrow: isNarrow,
@@ -243,8 +244,8 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
           const StepDivider(),
           SwitchSettingTile(
             icon: Icons.play_circle_outline,
-            title: '记录和恢复播放进度',
-            subtitle: '下次进入时自动恢复进度',
+            title: slang.t.settings.recordAndRestorePlaybackProgress,
+            subtitle: slang.t.videoDetail.resumeFromLastPosition(position: '10'),
             value: recordAndRestoreProgress,
             onChanged: (v) => _setBool(ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS, v, (x) => recordAndRestoreProgress = x),
             isNarrow: isNarrow,
@@ -252,8 +253,8 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
           const StepDivider(),
           SwitchSettingTile(
             icon: Icons.linear_scale,
-            title: '显示底部进度条',
-            subtitle: '当工具栏隐藏时仍显示进度条',
+            title: slang.t.settings.showVideoProgressBottomBarWhenToolbarHidden,
+            subtitle: slang.t.settings.showVideoProgressBottomBarWhenToolbarHiddenDesc,
             value: showBottomProgressBarWhenToolbarHidden,
             onChanged: (v) => _setBool(ConfigKey.SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN, v, (x) => showBottomProgressBarWhenToolbarHidden = x),
             isNarrow: isNarrow,
@@ -261,8 +262,8 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
           const StepDivider(),
           SwitchSettingTile(
             icon: Icons.visibility,
-            title: '保持工具栏常驻',
-            subtitle: '进入页面时默认显示工具栏',
+            title: slang.t.settings.defaultKeepVideoToolbarVisible,
+            subtitle: slang.t.settings.defaultKeepVideoToolbarVisibleDesc,
             value: keepToolbarVisibleByDefault,
             onChanged: (v) => _setBool(ConfigKey.DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE, v, (x) => keepToolbarVisibleByDefault = x),
             isNarrow: isNarrow,
@@ -270,8 +271,8 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
           const StepDivider(),
           SwitchSettingTile(
             icon: Icons.mouse,
-            title: '鼠标悬浮时显示工具栏',
-            subtitle: '将鼠标移至播放器上方时自动显示工具栏',
+            title: slang.t.settings.enableMouseHoverShowToolbar,
+            subtitle: slang.t.settings.enableMouseHoverShowToolbarInfo,
             value: enableMouseHoverShowToolbar,
             onChanged: (v) => _setBool(ConfigKey.ENABLE_MOUSE_HOVER_SHOW_TOOLBAR, v, (x) => enableMouseHoverShowToolbar = x),
             isNarrow: isNarrow,
@@ -284,7 +285,7 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
   Widget _buildTipContainer(BuildContext context, ThemeData theme, bool isNarrow) {
     return StepTipBanner(
       icon: Icons.tips_and_updates,
-      text: '这些设置稍后可在应用设置中随时修改',
+      text: slang.t.firstTimeSetup.common.settingsChangeableTip,
       isNarrow: isNarrow,
     );
   }
@@ -300,8 +301,8 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
           decoration: const InputDecoration(border: OutlineInputBorder()),
         ),
         actions: [
-          TextButton(onPressed: () => AppService.tryPop(), child: const Text('取消')),
-          TextButton(onPressed: () { Get.back(result: controller.text.trim()); }, child: const Text('确定')),
+          TextButton(onPressed: () => AppService.tryPop(), child: Text(slang.t.common.cancel)),
+          TextButton(onPressed: () { Get.back(result: controller.text.trim()); }, child: Text(slang.t.common.confirm)),
         ],
       ),
       barrierDismissible: true,

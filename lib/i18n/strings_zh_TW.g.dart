@@ -48,6 +48,7 @@ class TranslationsZhTw implements Translations {
 	@override late final _TranslationsMediaListZhTw mediaList = _TranslationsMediaListZhTw._(_root);
 	@override late final _TranslationsSettingsZhTw settings = _TranslationsSettingsZhTw._(_root);
 	@override late final _TranslationsOreno3dZhTw oreno3d = _TranslationsOreno3dZhTw._(_root);
+	@override late final _TranslationsFirstTimeSetupZhTw firstTimeSetup = _TranslationsFirstTimeSetupZhTw._(_root);
 	@override late final _TranslationsSignInZhTw signIn = _TranslationsSignInZhTw._(_root);
 	@override late final _TranslationsSubscriptionsZhTw subscriptions = _TranslationsSubscriptionsZhTw._(_root);
 	@override late final _TranslationsVideoDetailZhTw videoDetail = _TranslationsVideoDetailZhTw._(_root);
@@ -709,6 +710,22 @@ class _TranslationsOreno3dZhTw implements TranslationsOreno3dEn {
 	@override late final _TranslationsOreno3dErrorsZhTw errors = _TranslationsOreno3dErrorsZhTw._(_root);
 	@override late final _TranslationsOreno3dLoadingZhTw loading = _TranslationsOreno3dLoadingZhTw._(_root);
 	@override late final _TranslationsOreno3dMessagesZhTw messages = _TranslationsOreno3dMessagesZhTw._(_root);
+}
+
+// Path: firstTimeSetup
+class _TranslationsFirstTimeSetupZhTw implements TranslationsFirstTimeSetupEn {
+	_TranslationsFirstTimeSetupZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override late final _TranslationsFirstTimeSetupWelcomeZhTw welcome = _TranslationsFirstTimeSetupWelcomeZhTw._(_root);
+	@override late final _TranslationsFirstTimeSetupBasicZhTw basic = _TranslationsFirstTimeSetupBasicZhTw._(_root);
+	@override late final _TranslationsFirstTimeSetupNetworkZhTw network = _TranslationsFirstTimeSetupNetworkZhTw._(_root);
+	@override late final _TranslationsFirstTimeSetupThemeZhTw theme = _TranslationsFirstTimeSetupThemeZhTw._(_root);
+	@override late final _TranslationsFirstTimeSetupPlayerZhTw player = _TranslationsFirstTimeSetupPlayerZhTw._(_root);
+	@override late final _TranslationsFirstTimeSetupCompletionZhTw completion = _TranslationsFirstTimeSetupCompletionZhTw._(_root);
+	@override late final _TranslationsFirstTimeSetupCommonZhTw common = _TranslationsFirstTimeSetupCommonZhTw._(_root);
 }
 
 // Path: signIn
@@ -1933,6 +1950,94 @@ class _TranslationsOreno3dMessagesZhTw implements TranslationsOreno3dMessagesEn 
 	@override String get getVideoDetailFailed => '獲取視頻詳情失敗';
 }
 
+// Path: firstTimeSetup.welcome
+class _TranslationsFirstTimeSetupWelcomeZhTw implements TranslationsFirstTimeSetupWelcomeEn {
+	_TranslationsFirstTimeSetupWelcomeZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '歡迎使用';
+	@override String get subtitle => '讓我們開始您的個人化設定之旅';
+	@override String get description => '只需幾步，即可為您量身打造最佳使用體驗';
+}
+
+// Path: firstTimeSetup.basic
+class _TranslationsFirstTimeSetupBasicZhTw implements TranslationsFirstTimeSetupBasicEn {
+	_TranslationsFirstTimeSetupBasicZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '基礎設定';
+	@override String get subtitle => '個人化您的使用體驗';
+	@override String get description => '選擇適合您的功能偏好';
+}
+
+// Path: firstTimeSetup.network
+class _TranslationsFirstTimeSetupNetworkZhTw implements TranslationsFirstTimeSetupNetworkEn {
+	_TranslationsFirstTimeSetupNetworkZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '網路設定';
+	@override String get subtitle => '配置網路連線選項';
+	@override String get description => '根據您的網路環境進行相應配置';
+	@override String get tip => '設定成功後需重啟應用才會生效';
+}
+
+// Path: firstTimeSetup.theme
+class _TranslationsFirstTimeSetupThemeZhTw implements TranslationsFirstTimeSetupThemeEn {
+	_TranslationsFirstTimeSetupThemeZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '主題設定';
+	@override String get subtitle => '選擇您喜歡的介面主題';
+	@override String get description => '個人化您的視覺體驗';
+}
+
+// Path: firstTimeSetup.player
+class _TranslationsFirstTimeSetupPlayerZhTw implements TranslationsFirstTimeSetupPlayerEn {
+	_TranslationsFirstTimeSetupPlayerZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '播放器設定';
+	@override String get subtitle => '配置播放控制偏好';
+	@override String get description => '您可以在此快速設定常用的播放體驗';
+}
+
+// Path: firstTimeSetup.completion
+class _TranslationsFirstTimeSetupCompletionZhTw implements TranslationsFirstTimeSetupCompletionEn {
+	_TranslationsFirstTimeSetupCompletionZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '完成設定';
+	@override String get subtitle => '即將開始您的精彩旅程';
+	@override String get description => '請閱讀並同意相關協議';
+	@override String get agreementTitle => '使用者協議與社群規則';
+	@override String get agreementDesc => '在使用本應用前，請您仔細閱讀並同意我們的使用者協議與社群規則。這些條款有助於維護良好的使用環境。';
+	@override String get checkboxTitle => '我已閱讀並同意使用者協議與社群規則';
+	@override String get checkboxSubtitle => '不同意將無法使用本應用';
+}
+
+// Path: firstTimeSetup.common
+class _TranslationsFirstTimeSetupCommonZhTw implements TranslationsFirstTimeSetupCommonEn {
+	_TranslationsFirstTimeSetupCommonZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get settingsChangeableTip => '這些設定可在應用設定中隨時修改';
+	@override String get agreeAgreementSnackbar => '請先同意使用者協議與社群規則';
+}
+
 // Path: videoDetail.player
 class _TranslationsVideoDetailPlayerZhTw implements TranslationsVideoDetailPlayerEn {
 	_TranslationsVideoDetailPlayerZhTw._(this._root);
@@ -2885,6 +2990,31 @@ extension on TranslationsZhTw {
 			case 'oreno3d.messages.videoNotFoundOrDeleted': return '視頻不存在或已被刪除';
 			case 'oreno3d.messages.unableToGetVideoPlayLink': return '無法獲取視頻播放鏈接';
 			case 'oreno3d.messages.getVideoDetailFailed': return '獲取視頻詳情失敗';
+			case 'firstTimeSetup.welcome.title': return '歡迎使用';
+			case 'firstTimeSetup.welcome.subtitle': return '讓我們開始您的個人化設定之旅';
+			case 'firstTimeSetup.welcome.description': return '只需幾步，即可為您量身打造最佳使用體驗';
+			case 'firstTimeSetup.basic.title': return '基礎設定';
+			case 'firstTimeSetup.basic.subtitle': return '個人化您的使用體驗';
+			case 'firstTimeSetup.basic.description': return '選擇適合您的功能偏好';
+			case 'firstTimeSetup.network.title': return '網路設定';
+			case 'firstTimeSetup.network.subtitle': return '配置網路連線選項';
+			case 'firstTimeSetup.network.description': return '根據您的網路環境進行相應配置';
+			case 'firstTimeSetup.network.tip': return '設定成功後需重啟應用才會生效';
+			case 'firstTimeSetup.theme.title': return '主題設定';
+			case 'firstTimeSetup.theme.subtitle': return '選擇您喜歡的介面主題';
+			case 'firstTimeSetup.theme.description': return '個人化您的視覺體驗';
+			case 'firstTimeSetup.player.title': return '播放器設定';
+			case 'firstTimeSetup.player.subtitle': return '配置播放控制偏好';
+			case 'firstTimeSetup.player.description': return '您可以在此快速設定常用的播放體驗';
+			case 'firstTimeSetup.completion.title': return '完成設定';
+			case 'firstTimeSetup.completion.subtitle': return '即將開始您的精彩旅程';
+			case 'firstTimeSetup.completion.description': return '請閱讀並同意相關協議';
+			case 'firstTimeSetup.completion.agreementTitle': return '使用者協議與社群規則';
+			case 'firstTimeSetup.completion.agreementDesc': return '在使用本應用前，請您仔細閱讀並同意我們的使用者協議與社群規則。這些條款有助於維護良好的使用環境。';
+			case 'firstTimeSetup.completion.checkboxTitle': return '我已閱讀並同意使用者協議與社群規則';
+			case 'firstTimeSetup.completion.checkboxSubtitle': return '不同意將無法使用本應用';
+			case 'firstTimeSetup.common.settingsChangeableTip': return '這些設定可在應用設定中隨時修改';
+			case 'firstTimeSetup.common.agreeAgreementSnackbar': return '請先同意使用者協議與社群規則';
 			case 'signIn.pleaseLoginFirst': return '請先登入';
 			case 'signIn.alreadySignedInToday': return '您今天已經簽到過了！';
 			case 'signIn.youDidNotStickToTheSignIn': return '您未能持續簽到。';

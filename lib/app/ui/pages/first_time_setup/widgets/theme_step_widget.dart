@@ -7,6 +7,7 @@ import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/layouts.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/step_container.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class ThemeStepWidget extends StatelessWidget {
   final String title;
@@ -118,8 +119,8 @@ class ThemeStepWidget extends StatelessWidget {
           children: [
             _buildThemeOption(
               context: context,
-              title: '跟随系统',
-              subtitle: '根据系统主题自动切换',
+              title: slang.t.settings.followSystem,
+              subtitle: slang.t.settings.dynamicColorDesc,
               icon: Icons.brightness_auto,
               isSelected: themeService.themeMode == AppThemeMode.system,
               isNarrow: isNarrow,
@@ -127,8 +128,8 @@ class ThemeStepWidget extends StatelessWidget {
             ),
             _buildThemeOption(
               context: context,
-              title: '浅色主题',
-              subtitle: '明亮清晰的界面',
+              title: slang.t.settings.lightMode,
+              subtitle: slang.t.settings.basicTheme,
               icon: Icons.light_mode,
               isSelected: themeService.themeMode == AppThemeMode.light,
               isNarrow: isNarrow,
@@ -136,8 +137,8 @@ class ThemeStepWidget extends StatelessWidget {
             ),
             _buildThemeOption(
               context: context,
-              title: '深色主题',
-              subtitle: '护眼舒适的界面',
+              title: slang.t.settings.darkMode,
+              subtitle: slang.t.settings.basicTheme,
               icon: Icons.dark_mode,
               isSelected: themeService.themeMode == AppThemeMode.dark,
               isNarrow: isNarrow,
@@ -146,7 +147,7 @@ class ThemeStepWidget extends StatelessWidget {
             Padding(
               padding: EdgeInsets.all(isNarrow ? 12 : 16),
               child: Text(
-                '动态颜色',
+                slang.t.settings.dynamicColor,
                 style:
                     (isNarrow
                             ? theme.textTheme.titleSmall
@@ -155,8 +156,8 @@ class ThemeStepWidget extends StatelessWidget {
               ),
             ),
             SwitchListTile(
-              title: const Text('使用动态颜色'),
-              subtitle: const Text('在支持的设备上根据系统壁纸自动取色'),
+              title: Text(slang.t.settings.useDynamicColor),
+              subtitle: Text(slang.t.settings.dynamicColorDesc),
               value: themeService.useDynamicColor,
               onChanged: (value) => themeService.setUseDynamicColor(value),
               contentPadding: EdgeInsets.symmetric(
@@ -166,7 +167,7 @@ class ThemeStepWidget extends StatelessWidget {
             Padding(
               padding: EdgeInsets.all(isNarrow ? 12 : 16),
               child: Text(
-                '预设颜色',
+                slang.t.settings.presetColors,
                 style:
                     (isNarrow
                             ? theme.textTheme.titleSmall
@@ -213,7 +214,7 @@ class ThemeStepWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '自定义颜色',
+                    slang.t.settings.customColors,
                     style:
                         (isNarrow
                                 ? theme.textTheme.titleSmall
@@ -240,7 +241,7 @@ class ThemeStepWidget extends StatelessWidget {
                     () => themeService.customThemeColors.isEmpty
                         ? Center(
                             child: Text(
-                              '暂无自定义颜色',
+                              slang.t.settings.noCustomColors,
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: Colors.grey,
                               ),
@@ -337,7 +338,7 @@ class ThemeStepWidget extends StatelessWidget {
           SizedBox(width: isNarrow ? 8 : 12),
           Expanded(
             child: Text(
-              '主题设置可以在应用设置中随时修改',
+              slang.t.firstTimeSetup.common.settingsChangeableTip,
               style:
                   (isNarrow
                           ? theme.textTheme.bodySmall
@@ -476,7 +477,7 @@ class ThemeStepWidget extends StatelessWidget {
         CommonConstants.dynamicLightColorScheme?.primary ?? Colors.orange;
     Get.dialog(
       AlertDialog(
-        title: const Text('选择颜色'),
+        title: Text(slang.t.settings.pickColor),
         content: SingleChildScrollView(
           child: ColorPicker(
             pickerColor: pickerColor,
@@ -487,7 +488,7 @@ class ThemeStepWidget extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => AppService.tryPop(),
-            child: const Text('取消'),
+            child: Text(slang.t.common.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -499,7 +500,7 @@ class ThemeStepWidget extends StatelessWidget {
               themeService.addCustomThemeColor(hex);
               AppService.tryPop();
             },
-            child: const Text('确定'),
+            child: Text(slang.t.common.confirm),
           ),
         ],
       ),

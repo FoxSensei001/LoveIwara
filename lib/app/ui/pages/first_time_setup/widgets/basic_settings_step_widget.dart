@@ -5,6 +5,7 @@ import 'package:i_iwara/app/ui/pages/settings/widgets/signature_edit_sheet_widge
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/layouts.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/step_container.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/setting_tiles.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class BasicSettingsStepWidget extends StatefulWidget {
   final String title;
@@ -172,8 +173,8 @@ class _BasicSettingsStepWidgetState extends State<BasicSettingsStepWidget> {
         children: [
           SwitchSettingTile(
             icon: Icons.vibration,
-            title: '震动反馈',
-            subtitle: '在部分界面的交互里提供触觉反馈',
+            title: slang.t.settings.enableVibration,
+            subtitle: slang.t.settings.enableVibrationDesc,
             value: enableVibration,
             onChanged: _updateVibration,
             isNarrow: isNarrow,
@@ -181,8 +182,8 @@ class _BasicSettingsStepWidgetState extends State<BasicSettingsStepWidget> {
           const StepDivider(),
           SwitchSettingTile(
             icon: Icons.history,
-            title: '自动记录历史',
-            subtitle: '记录您观看过的视频和图库等历史记录',
+            title: slang.t.settings.autoRecordHistory,
+            subtitle: slang.t.settings.autoRecordHistoryDesc,
             value: enableHistory,
             onChanged: _updateHistory,
             isNarrow: isNarrow,
@@ -190,8 +191,8 @@ class _BasicSettingsStepWidgetState extends State<BasicSettingsStepWidget> {
           const StepDivider(),
           SwitchSettingTile(
             icon: Icons.forum,
-            title: '论坛：禁用回复引用',
-            subtitle: '回复时不携带被回复楼层信息',
+            title: slang.t.settings.disableForumReplyQuote,
+            subtitle: slang.t.settings.disableForumReplyQuoteDesc,
             value: disableForumReplyQuote,
             onChanged: _updateDisableForumReplyQuote,
             isNarrow: isNarrow,
@@ -199,8 +200,8 @@ class _BasicSettingsStepWidgetState extends State<BasicSettingsStepWidget> {
           const StepDivider(),
           SwitchSettingTile(
             icon: Icons.edit_note,
-            title: '小尾巴',
-            subtitle: '在回复时添加签名',
+            title: slang.t.settings.signature,
+            subtitle: slang.t.settings.enableSignatureDesc,
             value: enableSignature,
             onChanged: _updateEnableSignature,
             isNarrow: isNarrow,
@@ -227,7 +228,7 @@ class _BasicSettingsStepWidgetState extends State<BasicSettingsStepWidget> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '签名内容',
+                            slang.t.settings.signatureContent,
                             style: (isNarrow ? theme.textTheme.bodyMedium : theme.textTheme.titleSmall)?.copyWith(
                               fontWeight: FontWeight.w600,
                               color: theme.colorScheme.onSurface,
@@ -235,7 +236,7 @@ class _BasicSettingsStepWidgetState extends State<BasicSettingsStepWidget> {
                           ),
                           SizedBox(height: isNarrow ? 1 : 2),
                           Text(
-                            signatureContent.isEmpty ? '未设置' : signatureContent,
+                            signatureContent.isEmpty ? slang.t.common.noData : signatureContent,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: theme.textTheme.bodySmall?.copyWith(
@@ -263,7 +264,7 @@ class _BasicSettingsStepWidgetState extends State<BasicSettingsStepWidget> {
   Widget _buildTipContainer(BuildContext context, ThemeData theme, bool isNarrow) {
     return StepTipBanner(
       icon: Icons.lightbulb,
-      text: '这些设置都可以在应用设置中随时修改',
+      text: slang.t.firstTimeSetup.common.settingsChangeableTip,
       isNarrow: isNarrow,
     );
   }

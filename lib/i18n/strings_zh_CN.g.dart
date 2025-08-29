@@ -68,6 +68,7 @@ class TranslationsZhCn implements Translations {
 	@override late final _TranslationsLayoutSettingsZhCn layoutSettings = _TranslationsLayoutSettingsZhCn._(_root);
 	@override late final _TranslationsNavigationOrderSettingsZhCn navigationOrderSettings = _TranslationsNavigationOrderSettingsZhCn._(_root);
 	@override late final _TranslationsSearchFilterZhCn searchFilter = _TranslationsSearchFilterZhCn._(_root);
+	@override late final _TranslationsFirstTimeSetupZhCn firstTimeSetup = _TranslationsFirstTimeSetupZhCn._(_root);
 	@override late final _TranslationsTagSelectorZhCn tagSelector = _TranslationsTagSelectorZhCn._(_root);
 }
 
@@ -1638,6 +1639,22 @@ class _TranslationsSearchFilterZhCn implements TranslationsSearchFilterEn {
 	@override late final _TranslationsSearchFilterSortTypesZhCn sortTypes = _TranslationsSearchFilterSortTypesZhCn._(_root);
 }
 
+// Path: firstTimeSetup
+class _TranslationsFirstTimeSetupZhCn implements TranslationsFirstTimeSetupEn {
+	_TranslationsFirstTimeSetupZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override late final _TranslationsFirstTimeSetupWelcomeZhCn welcome = _TranslationsFirstTimeSetupWelcomeZhCn._(_root);
+	@override late final _TranslationsFirstTimeSetupBasicZhCn basic = _TranslationsFirstTimeSetupBasicZhCn._(_root);
+	@override late final _TranslationsFirstTimeSetupNetworkZhCn network = _TranslationsFirstTimeSetupNetworkZhCn._(_root);
+	@override late final _TranslationsFirstTimeSetupThemeZhCn theme = _TranslationsFirstTimeSetupThemeZhCn._(_root);
+	@override late final _TranslationsFirstTimeSetupPlayerZhCn player = _TranslationsFirstTimeSetupPlayerZhCn._(_root);
+	@override late final _TranslationsFirstTimeSetupCompletionZhCn completion = _TranslationsFirstTimeSetupCompletionZhCn._(_root);
+	@override late final _TranslationsFirstTimeSetupCommonZhCn common = _TranslationsFirstTimeSetupCommonZhCn._(_root);
+}
+
 // Path: tagSelector
 class _TranslationsTagSelectorZhCn implements TranslationsTagSelectorEn {
 	_TranslationsTagSelectorZhCn._(this._root);
@@ -2163,6 +2180,94 @@ class _TranslationsSearchFilterSortTypesZhCn implements TranslationsSearchFilter
 	@override String get latest => '最新';
 	@override String get views => '观看次数';
 	@override String get likes => '点赞数';
+}
+
+// Path: firstTimeSetup.welcome
+class _TranslationsFirstTimeSetupWelcomeZhCn implements TranslationsFirstTimeSetupWelcomeEn {
+	_TranslationsFirstTimeSetupWelcomeZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '欢迎使用';
+	@override String get subtitle => '让我们开始您的个性化设置之旅';
+	@override String get description => '只需几步，即可为您量身定制最佳使用体验';
+}
+
+// Path: firstTimeSetup.basic
+class _TranslationsFirstTimeSetupBasicZhCn implements TranslationsFirstTimeSetupBasicEn {
+	_TranslationsFirstTimeSetupBasicZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '基础设置';
+	@override String get subtitle => '个性化您的使用体验';
+	@override String get description => '选择适合您的功能偏好';
+}
+
+// Path: firstTimeSetup.network
+class _TranslationsFirstTimeSetupNetworkZhCn implements TranslationsFirstTimeSetupNetworkEn {
+	_TranslationsFirstTimeSetupNetworkZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '网络设置';
+	@override String get subtitle => '配置网络连接选项';
+	@override String get description => '根据您的网络环境进行相应配置';
+	@override String get tip => '需设置成功后重启应用才能生效';
+}
+
+// Path: firstTimeSetup.theme
+class _TranslationsFirstTimeSetupThemeZhCn implements TranslationsFirstTimeSetupThemeEn {
+	_TranslationsFirstTimeSetupThemeZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '主题设置';
+	@override String get subtitle => '选择您喜欢的界面主题';
+	@override String get description => '个性化您的视觉体验';
+}
+
+// Path: firstTimeSetup.player
+class _TranslationsFirstTimeSetupPlayerZhCn implements TranslationsFirstTimeSetupPlayerEn {
+	_TranslationsFirstTimeSetupPlayerZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '播放器设置';
+	@override String get subtitle => '配置播放控制偏好';
+	@override String get description => '你可以在此快速设置常用的播放体验';
+}
+
+// Path: firstTimeSetup.completion
+class _TranslationsFirstTimeSetupCompletionZhCn implements TranslationsFirstTimeSetupCompletionEn {
+	_TranslationsFirstTimeSetupCompletionZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '完成设置';
+	@override String get subtitle => '即将开始您的精彩之旅';
+	@override String get description => '请阅读并同意相关协议';
+	@override String get agreementTitle => '用户协议和社区规则';
+	@override String get agreementDesc => '在使用本应用前，请您仔细阅读并同意我们的用户协议和社区规则。这些条款有助于维护良好的使用环境。';
+	@override String get checkboxTitle => '我已阅读并同意用户协议和社区规则';
+	@override String get checkboxSubtitle => '不同意将无法使用本应用';
+}
+
+// Path: firstTimeSetup.common
+class _TranslationsFirstTimeSetupCommonZhCn implements TranslationsFirstTimeSetupCommonEn {
+	_TranslationsFirstTimeSetupCommonZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get settingsChangeableTip => '这些设置都可以在应用设置中随时修改';
+	@override String get agreeAgreementSnackbar => '请先同意用户协议和社区规则';
 }
 
 /// Flat map(s) containing all translations.
@@ -3744,6 +3849,31 @@ extension on TranslationsZhCn {
 			case 'searchFilter.sortTypes.latest': return '最新';
 			case 'searchFilter.sortTypes.views': return '观看次数';
 			case 'searchFilter.sortTypes.likes': return '点赞数';
+			case 'firstTimeSetup.welcome.title': return '欢迎使用';
+			case 'firstTimeSetup.welcome.subtitle': return '让我们开始您的个性化设置之旅';
+			case 'firstTimeSetup.welcome.description': return '只需几步，即可为您量身定制最佳使用体验';
+			case 'firstTimeSetup.basic.title': return '基础设置';
+			case 'firstTimeSetup.basic.subtitle': return '个性化您的使用体验';
+			case 'firstTimeSetup.basic.description': return '选择适合您的功能偏好';
+			case 'firstTimeSetup.network.title': return '网络设置';
+			case 'firstTimeSetup.network.subtitle': return '配置网络连接选项';
+			case 'firstTimeSetup.network.description': return '根据您的网络环境进行相应配置';
+			case 'firstTimeSetup.network.tip': return '需设置成功后重启应用才能生效';
+			case 'firstTimeSetup.theme.title': return '主题设置';
+			case 'firstTimeSetup.theme.subtitle': return '选择您喜欢的界面主题';
+			case 'firstTimeSetup.theme.description': return '个性化您的视觉体验';
+			case 'firstTimeSetup.player.title': return '播放器设置';
+			case 'firstTimeSetup.player.subtitle': return '配置播放控制偏好';
+			case 'firstTimeSetup.player.description': return '你可以在此快速设置常用的播放体验';
+			case 'firstTimeSetup.completion.title': return '完成设置';
+			case 'firstTimeSetup.completion.subtitle': return '即将开始您的精彩之旅';
+			case 'firstTimeSetup.completion.description': return '请阅读并同意相关协议';
+			case 'firstTimeSetup.completion.agreementTitle': return '用户协议和社区规则';
+			case 'firstTimeSetup.completion.agreementDesc': return '在使用本应用前，请您仔细阅读并同意我们的用户协议和社区规则。这些条款有助于维护良好的使用环境。';
+			case 'firstTimeSetup.completion.checkboxTitle': return '我已阅读并同意用户协议和社区规则';
+			case 'firstTimeSetup.completion.checkboxSubtitle': return '不同意将无法使用本应用';
+			case 'firstTimeSetup.common.settingsChangeableTip': return '这些设置都可以在应用设置中随时修改';
+			case 'firstTimeSetup.common.agreeAgreementSnackbar': return '请先同意用户协议和社区规则';
 			case 'tagSelector.selectTags': return '选择标签';
 			case 'tagSelector.clickToSelectTags': return '点击选择标签';
 			case 'tagSelector.addTag': return '添加标签';

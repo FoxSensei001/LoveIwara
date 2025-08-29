@@ -1708,6 +1708,40 @@ searchFilter:
     views: "观看次数"
     likes: "点赞数"
 
+firstTimeSetup:
+  welcome:
+    title: "欢迎使用"
+    subtitle: "让我们开始您的个性化设置之旅"
+    description: "只需几步，即可为您量身定制最佳使用体验"
+  basic:
+    title: "基础设置"
+    subtitle: "个性化您的使用体验"
+    description: "选择适合您的功能偏好"
+  network:
+    title: "网络设置"
+    subtitle: "配置网络连接选项"
+    description: "根据您的网络环境进行相应配置"
+    tip: "需设置成功后重启应用才能生效"
+  theme:
+    title: "主题设置"
+    subtitle: "选择您喜欢的界面主题"
+    description: "个性化您的视觉体验"
+  player:
+    title: "播放器设置"
+    subtitle: "配置播放控制偏好"
+    description: "你可以在此快速设置常用的播放体验"
+  completion:
+    title: "完成设置"
+    subtitle: "即将开始您的精彩之旅"
+    description: "请阅读并同意相关协议"
+    agreementTitle: "用户协议和社区规则"
+    agreementDesc: "在使用本应用前，请您仔细阅读并同意我们的用户协议和社区规则。这些条款有助于维护良好的使用环境。"
+    checkboxTitle: "我已阅读并同意用户协议和社区规则"
+    checkboxSubtitle: "不同意将无法使用本应用"
+  common:
+    settingsChangeableTip: "这些设置都可以在应用设置中随时修改"
+    agreeAgreementSnackbar: "请先同意用户协议和社区规则"
+
 # 标签选择器组件
 tagSelector:
   selectTags: "选择标签"

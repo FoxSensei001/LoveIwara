@@ -68,6 +68,7 @@ class TranslationsJa implements Translations {
 	@override late final _TranslationsLayoutSettingsJa layoutSettings = _TranslationsLayoutSettingsJa._(_root);
 	@override late final _TranslationsNavigationOrderSettingsJa navigationOrderSettings = _TranslationsNavigationOrderSettingsJa._(_root);
 	@override late final _TranslationsSearchFilterJa searchFilter = _TranslationsSearchFilterJa._(_root);
+	@override late final _TranslationsFirstTimeSetupJa firstTimeSetup = _TranslationsFirstTimeSetupJa._(_root);
 	@override late final _TranslationsTagSelectorJa tagSelector = _TranslationsTagSelectorJa._(_root);
 }
 
@@ -1633,6 +1634,22 @@ class _TranslationsSearchFilterJa implements TranslationsSearchFilterEn {
 	@override late final _TranslationsSearchFilterSortTypesJa sortTypes = _TranslationsSearchFilterSortTypesJa._(_root);
 }
 
+// Path: firstTimeSetup
+class _TranslationsFirstTimeSetupJa implements TranslationsFirstTimeSetupEn {
+	_TranslationsFirstTimeSetupJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override late final _TranslationsFirstTimeSetupWelcomeJa welcome = _TranslationsFirstTimeSetupWelcomeJa._(_root);
+	@override late final _TranslationsFirstTimeSetupBasicJa basic = _TranslationsFirstTimeSetupBasicJa._(_root);
+	@override late final _TranslationsFirstTimeSetupNetworkJa network = _TranslationsFirstTimeSetupNetworkJa._(_root);
+	@override late final _TranslationsFirstTimeSetupThemeJa theme = _TranslationsFirstTimeSetupThemeJa._(_root);
+	@override late final _TranslationsFirstTimeSetupPlayerJa player = _TranslationsFirstTimeSetupPlayerJa._(_root);
+	@override late final _TranslationsFirstTimeSetupCompletionJa completion = _TranslationsFirstTimeSetupCompletionJa._(_root);
+	@override late final _TranslationsFirstTimeSetupCommonJa common = _TranslationsFirstTimeSetupCommonJa._(_root);
+}
+
 // Path: tagSelector
 class _TranslationsTagSelectorJa implements TranslationsTagSelectorEn {
 	_TranslationsTagSelectorJa._(this._root);
@@ -2158,6 +2175,94 @@ class _TranslationsSearchFilterSortTypesJa implements TranslationsSearchFilterSo
 	@override String get latest => '最新';
 	@override String get views => '視聴回数';
 	@override String get likes => 'いいね数';
+}
+
+// Path: firstTimeSetup.welcome
+class _TranslationsFirstTimeSetupWelcomeJa implements TranslationsFirstTimeSetupWelcomeEn {
+	_TranslationsFirstTimeSetupWelcomeJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'ようこそ';
+	@override String get subtitle => 'パーソナライズ設定を始めましょう';
+	@override String get description => '数ステップで最適な体験を提供します';
+}
+
+// Path: firstTimeSetup.basic
+class _TranslationsFirstTimeSetupBasicJa implements TranslationsFirstTimeSetupBasicEn {
+	_TranslationsFirstTimeSetupBasicJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '基本設定';
+	@override String get subtitle => '体験をパーソナライズ';
+	@override String get description => 'ご希望の機能設定を選択';
+}
+
+// Path: firstTimeSetup.network
+class _TranslationsFirstTimeSetupNetworkJa implements TranslationsFirstTimeSetupNetworkEn {
+	_TranslationsFirstTimeSetupNetworkJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'ネットワーク設定';
+	@override String get subtitle => 'ネットワークオプションを構成';
+	@override String get description => 'ネットワーク環境に合わせて調整';
+	@override String get tip => '設定後、再起動が必要です';
+}
+
+// Path: firstTimeSetup.theme
+class _TranslationsFirstTimeSetupThemeJa implements TranslationsFirstTimeSetupThemeEn {
+	_TranslationsFirstTimeSetupThemeJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'テーマ設定';
+	@override String get subtitle => 'お好みの見た目を選択';
+	@override String get description => 'ビジュアル体験をパーソナライズ';
+}
+
+// Path: firstTimeSetup.player
+class _TranslationsFirstTimeSetupPlayerJa implements TranslationsFirstTimeSetupPlayerEn {
+	_TranslationsFirstTimeSetupPlayerJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'プレーヤー設定';
+	@override String get subtitle => '再生コントロールを構成';
+	@override String get description => 'よく使う再生設定を素早く設定';
+}
+
+// Path: firstTimeSetup.completion
+class _TranslationsFirstTimeSetupCompletionJa implements TranslationsFirstTimeSetupCompletionEn {
+	_TranslationsFirstTimeSetupCompletionJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '設定完了';
+	@override String get subtitle => 'すぐに始められます';
+	@override String get description => '関連規約をお読みの上ご同意ください';
+	@override String get agreementTitle => '利用規約とコミュニティルール';
+	@override String get agreementDesc => '本アプリをご利用になる前に、利用規約とコミュニティルールをよくお読みいただき、同意してください。良好な利用環境の維持に役立ちます。';
+	@override String get checkboxTitle => '利用規約とコミュニティルールに同意しました';
+	@override String get checkboxSubtitle => '不同意の場合、アプリを利用できません';
+}
+
+// Path: firstTimeSetup.common
+class _TranslationsFirstTimeSetupCommonJa implements TranslationsFirstTimeSetupCommonEn {
+	_TranslationsFirstTimeSetupCommonJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get settingsChangeableTip => 'これらの設定はいつでも設定画面で変更できます';
+	@override String get agreeAgreementSnackbar => 'まず利用規約とコミュニティルールに同意してください';
 }
 
 /// Flat map(s) containing all translations.
@@ -3734,6 +3839,31 @@ extension on TranslationsJa {
 			case 'searchFilter.sortTypes.latest': return '最新';
 			case 'searchFilter.sortTypes.views': return '視聴回数';
 			case 'searchFilter.sortTypes.likes': return 'いいね数';
+			case 'firstTimeSetup.welcome.title': return 'ようこそ';
+			case 'firstTimeSetup.welcome.subtitle': return 'パーソナライズ設定を始めましょう';
+			case 'firstTimeSetup.welcome.description': return '数ステップで最適な体験を提供します';
+			case 'firstTimeSetup.basic.title': return '基本設定';
+			case 'firstTimeSetup.basic.subtitle': return '体験をパーソナライズ';
+			case 'firstTimeSetup.basic.description': return 'ご希望の機能設定を選択';
+			case 'firstTimeSetup.network.title': return 'ネットワーク設定';
+			case 'firstTimeSetup.network.subtitle': return 'ネットワークオプションを構成';
+			case 'firstTimeSetup.network.description': return 'ネットワーク環境に合わせて調整';
+			case 'firstTimeSetup.network.tip': return '設定後、再起動が必要です';
+			case 'firstTimeSetup.theme.title': return 'テーマ設定';
+			case 'firstTimeSetup.theme.subtitle': return 'お好みの見た目を選択';
+			case 'firstTimeSetup.theme.description': return 'ビジュアル体験をパーソナライズ';
+			case 'firstTimeSetup.player.title': return 'プレーヤー設定';
+			case 'firstTimeSetup.player.subtitle': return '再生コントロールを構成';
+			case 'firstTimeSetup.player.description': return 'よく使う再生設定を素早く設定';
+			case 'firstTimeSetup.completion.title': return '設定完了';
+			case 'firstTimeSetup.completion.subtitle': return 'すぐに始められます';
+			case 'firstTimeSetup.completion.description': return '関連規約をお読みの上ご同意ください';
+			case 'firstTimeSetup.completion.agreementTitle': return '利用規約とコミュニティルール';
+			case 'firstTimeSetup.completion.agreementDesc': return '本アプリをご利用になる前に、利用規約とコミュニティルールをよくお読みいただき、同意してください。良好な利用環境の維持に役立ちます。';
+			case 'firstTimeSetup.completion.checkboxTitle': return '利用規約とコミュニティルールに同意しました';
+			case 'firstTimeSetup.completion.checkboxSubtitle': return '不同意の場合、アプリを利用できません';
+			case 'firstTimeSetup.common.settingsChangeableTip': return 'これらの設定はいつでも設定画面で変更できます';
+			case 'firstTimeSetup.common.agreeAgreementSnackbar': return 'まず利用規約とコミュニティルールに同意してください';
 			case 'tagSelector.selectTags': return 'タグを選択';
 			case 'tagSelector.clickToSelectTags': return 'タグを選択するにはクリック';
 			case 'tagSelector.addTag': return 'タグを追加';
