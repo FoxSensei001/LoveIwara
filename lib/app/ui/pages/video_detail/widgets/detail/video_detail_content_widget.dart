@@ -21,7 +21,7 @@ import 'package:oktoast/oktoast.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../widgets/error_widget.dart';
 import '../../controllers/my_video_state_controller.dart';
-import 'expandable_tags_widget.dart';
+import 'tags_display_widget.dart';
 import 'like_avatars_widget.dart';
 import '../player/my_video_screen.dart';
 import '../../../../widgets/follow_button_widget.dart';
@@ -290,7 +290,10 @@ class VideoDetailContent extends StatelessWidget {
                   Obx(() {
                     final tags = controller.videoInfo.value?.tags;
                     if (tags != null && tags.isNotEmpty) {
-                      return ExpandableTagsWidget(tags: tags);
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: TagsDisplayWidget(tags: tags),
+                      );
                     } else {
                       return const SizedBox.shrink();
                     }

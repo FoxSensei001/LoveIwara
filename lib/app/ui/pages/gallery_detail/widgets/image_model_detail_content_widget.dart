@@ -18,7 +18,8 @@ import 'package:oktoast/oktoast.dart';
 import '../../../../../common/enums/media_enums.dart';
 import '../../../../services/app_service.dart';
 import '../../popular_media_list/widgets/media_description_widget.dart';
-import '../../video_detail/widgets/detail/expandable_tags_widget.dart';
+import '../../video_detail/widgets/detail/expandable_section_widget.dart';
+import '../../video_detail/widgets/detail/tags_display_widget.dart';
 import '../../video_detail/widgets/detail/like_avatars_widget.dart';
 import '../controllers/gallery_detail_controller.dart';
 import '../../../widgets/follow_button_widget.dart';
@@ -242,12 +243,19 @@ class ImageModelDetailContent extends StatelessWidget {
   Widget _buildTags() {
     final tags = controller.imageModelInfo.value?.tags;
     if (tags != null && tags.isNotEmpty) {
-      return ExpandableTagsWidget(
-        tags: tags,
-        onTagTap: (tag) {
-          // 点击标签跳转到标签图库列表页
-          NaviService.navigateToTagGalleryListPage(tag);
-        },
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: ExpandableSectionWidget(
+          title: slang.t.common.iwaraTags,
+          icon: Icons.label,
+          child: TagsDisplayWidget(
+            tags: tags,
+            onTagTap: (tag) {
+              // 点击标签跳转到标签图库列表页
+              NaviService.navigateToTagGalleryListPage(tag);
+            },
+          ),
+        ),
       );
     }
     return const SizedBox.shrink();

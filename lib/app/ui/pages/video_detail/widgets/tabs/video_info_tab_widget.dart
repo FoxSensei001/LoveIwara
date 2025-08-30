@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/video_description_widget.dart';
-import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/expandable_tags_widget.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/expandable_section_widget.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/tags_display_widget.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/oreno3d_tags_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/like_avatars_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/follow_button_widget.dart';
@@ -36,36 +38,21 @@ import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/utils/vibrate_utils.dart';
 
-class VideoInfoTabWidget extends StatefulWidget {
+class VideoInfoTabWidget extends StatelessWidget {
   final MyVideoStateController controller;
 
   const VideoInfoTabWidget({super.key, required this.controller});
-
-  @override
-  State<VideoInfoTabWidget> createState() => _VideoInfoTabWidgetState();
-}
-
-class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget> {
-  late bool _isTagsExpanded;
-  late bool _isOreno3dExpanded;
-
-  @override
-  void initState() {
-    super.initState();
-    _isTagsExpanded = true;
-    _isOreno3dExpanded = true;
-  }
-
+  
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      if (widget.controller.pageLoadingState.value == VideoDetailPageLoadingState.loadingVideoInfo) {
+      if (controller.pageLoadingState.value == VideoDetailPageLoadingState.loadingVideoInfo) {
         return const Center(child: CircularProgressIndicator());
       }
-      if (widget.controller.mainErrorWidget.value != null) {
-        return widget.controller.mainErrorWidget.value!;
+      if (controller.mainErrorWidget.value != null) {
+        return controller.mainErrorWidget.value!;
       }
-      if (widget.controller.isDesktopAppFullScreen.value) {
+      if (controller.isDesktopAppFullScreen.value) {
         return const SizedBox.shrink();
       }
 
@@ -92,7 +79,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget> {
       children: [
         Expanded(
           child: SelectableText(
-            widget.controller.videoInfo.value?.title ?? '',
+            controller.videoInfo.value?.title ?? '',
             style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
@@ -100,13 +87,13 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget> {
             ),
           ),
         ),
-        if (widget.controller.videoInfo.value?.title?.isNotEmpty == true)
+        if (controller.videoInfo.value?.title?.isNotEmpty == true)
           IconButton(
             icon: const Icon(Icons.translate, size: 20),
             padding: const EdgeInsets.only(left: UIConstants.listSpacing),
             constraints: const BoxConstraints(),
             onPressed: () => Get.dialog(
-              TranslationDialog(text: widget.controller.videoInfo.value!.title!),
+              TranslationDialog(text: controller.videoInfo.value!.title!),
             ),
           ),
       ],
@@ -120,9 +107,9 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget> {
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
             onTap: () => NaviService.navigateToAuthorProfilePage(
-              widget.controller.videoInfo.value!.user!.username,
+              controller.videoInfo.value!.user!.username,
             ),
-            child: AvatarWidget(user: widget.controller.videoInfo.value?.user, size: 40),
+            child: AvatarWidget(user: controller.videoInfo.value?.user, size: 40),
           ),
         ),
         const SizedBox(width: UIConstants.pagePadding),
@@ -131,7 +118,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget> {
             cursor: SystemMouseCursors.click,
             child: GestureDetector(
               onTap: () => NaviService.navigateToAuthorProfilePage(
-                widget.controller.videoInfo.value!.user!.username,
+                controller.videoInfo.value!.user!.username,
               ),
               behavior: HitTestBehavior.opaque,
               child: Column(
@@ -140,12 +127,12 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget> {
                 children: [
                   buildUserName(
                     context,
-                    widget.controller.videoInfo.value?.user,
+                    controller.videoInfo.value?.user,
                     fontSize: 16,
                     bold: true,
                   ),
                   Text(
-                    '@${widget.controller.videoInfo.value?.user?.username ?? ''}',
+                    '@${controller.videoInfo.value?.user?.username ?? ''}',
                     style: TextStyle(
                       fontSize: 13,
                       color: Colors.grey[600],
@@ -159,13 +146,13 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget> {
             ),
           ),
         ),
-        if (widget.controller.videoInfo.value?.user != null)
+        if (controller.videoInfo.value?.user != null)
           SizedBox(
             height: 32,
             child: FollowButtonWidget(
-              user: widget.controller.videoInfo.value!.user!,
+              user: controller.videoInfo.value!.user!,
               onUserUpdated: (updatedUser) {
-                widget.controller.videoInfo.value = widget.controller.videoInfo.value
+                controller.videoInfo.value = controller.videoInfo.value
                     ?.copyWith(user: updatedUser);
               },
             ),
@@ -203,7 +190,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget> {
   Widget _buildVideoStatsCard(BuildContext context) {
     final t = slang.Translations.of(context);
     return Obx(() {
-      final videoInfo = widget.controller.videoInfo.value;
+      final videoInfo = controller.videoInfo.value;
       if (videoInfo == null) return const SizedBox.shrink();
 
       return Container(
@@ -282,7 +269,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget> {
 
   Widget _buildVideoDescriptionSection(BuildContext context) {
     return Obx(() {
-      final description = widget.controller.videoInfo.value?.body;
+      final description = controller.videoInfo.value?.body;
       if (description == null || description.isEmpty) {
         return const SizedBox.shrink();
       }
@@ -293,8 +280,8 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget> {
           const SizedBox(height: UIConstants.listSpacing),
           VideoDescriptionWidget(
             description: description,
-            isDescriptionExpanded: widget.controller.isDescriptionExpanded,
-            onToggleDescription: widget.controller.isDescriptionExpanded.toggle,
+            isDescriptionExpanded: controller.isDescriptionExpanded,
+            onToggleDescription: controller.isDescriptionExpanded.toggle,
           ),
         ],
       );
@@ -304,110 +291,180 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget> {
   Widget _buildVideoTagsSection(BuildContext context) {
     final t = slang.Translations.of(context);
     return Obx(() {
-      final tags = widget.controller.videoInfo.value?.tags;
+      final tags = controller.videoInfo.value?.tags;
       if (tags == null || tags.isEmpty) return const SizedBox.shrink();
 
-      return Container(
-        padding: const EdgeInsets.all(UIConstants.cardPadding),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.label, size: 16, color: Colors.grey[600]),
-                const SizedBox(width: UIConstants.iconTextSpacing),
-                Expanded(
-                  child: Text(
-                    t.common.iwaraTags,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.grey[700],
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: AnimatedRotation(
-                    turns: _isTagsExpanded ? 0.5 : 0.0,
-                    duration: const Duration(milliseconds: 400),
-                    curve: Curves.easeOutCubic,
-                    child: const Icon(Icons.keyboard_arrow_down, size: 20),
-                  ),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  onPressed: () {
-                    setState(() {
-                      _isTagsExpanded = !_isTagsExpanded;
-                    });
-                  },
-                ),
-              ],
-            ),
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 400),
-              switchInCurve: Curves.easeOutCubic,
-              switchOutCurve: Curves.easeInCubic,
-              transitionBuilder: (child, animation) {
-                final curvedAnimation = CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeOutCubic,
-                );
-                return FadeTransition(
-                  opacity: animation,
-                  child: SlideTransition(
-                    position: Tween<Offset>(
-                      begin: const Offset(0, -0.1),
-                      end: Offset.zero,
-                    ).animate(curvedAnimation),
-                    child: SizeTransition(
-                      sizeFactor: Tween<double>(
-                        begin: 0.0,
-                        end: 1.0,
-                      ).animate(curvedAnimation),
-                      axis: Axis.vertical,
-                      axisAlignment: -1.0,
-                      child: child,
-                    ),
-                  ),
-                );
-              },
-              child: _isTagsExpanded
-                  ? Column(
-                      key: const ValueKey('expanded_tags'),
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: UIConstants.listSpacing),
-                        ExpandableTagsWidget(
-                          tags: tags,
-                          onTagTap: (tag) {
-                            // 点击标签跳转到标签视频列表页面
-                            NaviService.navigateToTagVideoListPage(tag);
-                          },
-                        ),
-                      ],
-                    )
-                  : const SizedBox.shrink(key: ValueKey('collapsed_tags')),
-            ),
-          ],
+      return ExpandableSectionWidget(
+        title: t.common.iwaraTags,
+        icon: Icons.label,
+        child: TagsDisplayWidget(
+          tags: tags,
+          onTagTap: (tag) {
+            // 点击标签跳转到标签视频列表页面
+            NaviService.navigateToTagVideoListPage(tag);
+          },
         ),
       );
     });
   }
 
-  Widget _buildOreno3dSection(BuildContext context) {
+    Widget _buildOreno3dSection(BuildContext context) {
     final t = slang.Translations.of(context);
     return Obx(() {
-      final oreno3dDetail = widget.controller.oreno3dVideoDetail.value;
-      final isMatching = widget.controller.isOreno3dMatching.value;
-
+      final oreno3dDetail = controller.oreno3dVideoDetail.value;
+      final isMatching = controller.isOreno3dMatching.value;
 
       // 如果正在匹配，显示 loading
       if (isMatching) {
-        return _buildOreno3dLoadingSection(context);
+        return ExpandableSectionWidget(
+          title: t.oreno3d.name,
+          icon: Icons.view_in_ar,
+          onHelpTap: () => _showOreno3dInfoDialog(context),
+          showHelpButton: true,
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(UIConstants.cardPadding),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 模拟原作信息
+                Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(
+                    width: 30,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(
+                    width: 70,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: UIConstants.interElementSpacing),
+
+                // 模拟标签信息
+                Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(
+                    width: 25,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: UIConstants.iconTextSpacing,
+                  runSpacing: UIConstants.smallSpacing,
+                  children: [
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey[300]!,
+                      highlightColor: Colors.grey[100]!,
+                      child: Container(
+                        width: 50,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey[300]!,
+                      highlightColor: Colors.grey[100]!,
+                      child: Container(
+                        width: 65,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey[300]!,
+                      highlightColor: Colors.grey[100]!,
+                      child: Container(
+                        width: 45,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: UIConstants.interElementSpacing),
+
+                // 模拟角色信息
+                Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(
+                    width: 25,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: UIConstants.iconTextSpacing,
+                  runSpacing: UIConstants.smallSpacing,
+                  children: [
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey[300]!,
+                      highlightColor: Colors.grey[100]!,
+                      child: Container(
+                        width: 55,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey[300]!,
+                      highlightColor: Colors.grey[100]!,
+                      child: Container(
+                        width: 60,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
       }
 
       // 如果没有匹配到且不在匹配中，不显示
@@ -428,531 +485,25 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget> {
       }
 
       // 有数据时显示内容
-      return oreno3dDetail != null ? Container(
-        padding: const EdgeInsets.all(UIConstants.cardPadding),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.view_in_ar, size: 16, color: Colors.grey[600]),
-                const SizedBox(width: UIConstants.iconTextSpacing),
-                Expanded(
-                  child: Text(
-                    t.oreno3d.name,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.grey[700],
-                    ),
-                  ),
-                ),
-                Material(
-                  color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(16),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(16),
-                    onTap: () => _showOreno3dInfoDialog(context),
-                    child: Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: Icon(
-                        Icons.help_outline,
-                        size: 14,
-                        color: Colors.grey[500],
-                      ),
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: AnimatedRotation(
-                    turns: _isOreno3dExpanded ? 0.5 : 0.0,
-                    duration: const Duration(milliseconds: 400),
-                    curve: Curves.easeOutCubic,
-                    child: const Icon(Icons.keyboard_arrow_down, size: 20),
-                  ),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  onPressed: () {
-                    setState(() {
-                      _isOreno3dExpanded = !_isOreno3dExpanded;
-                    });
-                  },
-                ),
-              ],
-            ),
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 400),
-              switchInCurve: Curves.easeOutCubic,
-              switchOutCurve: Curves.easeInCubic,
-              transitionBuilder: (child, animation) {
-                final curvedAnimation = CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeOutCubic,
-                );
-                return FadeTransition(
-                  opacity: animation,
-                  child: SlideTransition(
-                    position: Tween<Offset>(
-                      begin: const Offset(0, -0.1),
-                      end: Offset.zero,
-                    ).animate(curvedAnimation),
-                    child: SizeTransition(
-                      sizeFactor: Tween<double>(
-                        begin: 0.0,
-                        end: 1.0,
-                      ).animate(curvedAnimation),
-                      axis: Axis.vertical,
-                      axisAlignment: -1.0,
-                      child: child,
-                    ),
-                  ),
-                );
-              },
-              child: _isOreno3dExpanded
-                  ? Column(
-                      key: const ValueKey('expanded_oreno3d'),
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: UIConstants.listSpacing),
-                        SizedBox(
-                          width: double.infinity,
-                          child: Container(
-                            padding: const EdgeInsets.all(UIConstants.cardPadding),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // 原作信息
-                                if (oreno3dDetail.origin != null) ...[
-                                  Text(
-                                    t.oreno3d.origin,
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                  const SizedBox(height: UIConstants.smallSpacing),
-                                  Material(
-                                    color: Colors.transparent,
-                                    child: InkWell(
-                                      onTap: () => _handleOreno3dSearch(
-                                        oreno3dDetail.origin!.id ?? oreno3dDetail.origin!.name,
-                                        'origin',
-                                        oreno3dDetail.origin!.name,
-                                      ),
-                                      borderRadius: BorderRadius.circular(12),
-                                      child: MouseRegion(
-                                        cursor: SystemMouseCursors.click,
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: UIConstants.tagPaddingHorizontal,
-                                            vertical: UIConstants.tagPaddingVertical,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: Colors.green.withValues(alpha: 0.1),
-                                            borderRadius: BorderRadius.circular(12),
-                                            border: Border.all(
-                                              color: Colors.green.withValues(alpha: 0.3),
-                                            ),
-                                          ),
-                                          child: Text(
-                                            oreno3dDetail.origin!.name,
-                                            style: const TextStyle(
-                                              fontSize: 11,
-                                              color: Colors.green,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-
-                                // Oreno3D标签
-                                if (oreno3dDetail.tags.isNotEmpty) ...[
-                                  if (oreno3dDetail.origin != null)
-                                    const SizedBox(height: UIConstants.interElementSpacing),
-                                  Text(
-                                    t.oreno3d.tags,
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                  const SizedBox(height: UIConstants.smallSpacing),
-                                  Wrap(
-                                    spacing: UIConstants.iconTextSpacing,
-                                    runSpacing: UIConstants.smallSpacing,
-                                    children: oreno3dDetail.tags.map((tag) {
-                                      return Material(
-                                        color: Colors.transparent,
-                                        child: InkWell(
-                                          onTap: () => _handleOreno3dSearch(
-                                            tag.id ?? tag.name,
-                                            'tag',
-                                            tag.name,
-                                          ),
-                                          borderRadius: BorderRadius.circular(12),
-                                          child: MouseRegion(
-                                            cursor: SystemMouseCursors.click,
-                                            child: Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: UIConstants.tagPaddingHorizontal,
-                                                vertical: UIConstants.tagPaddingVertical,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: Colors.purple.withValues(alpha: 0.1),
-                                                borderRadius: BorderRadius.circular(12),
-                                                border: Border.all(
-                                                  color: Colors.purple.withValues(alpha: 0.3),
-                                                ),
-                                              ),
-                                              child: Text(
-                                                tag.name,
-                                                style: const TextStyle(
-                                                  fontSize: 11,
-                                                  color: Colors.purple,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ],
-
-                                // 角色信息
-                                if (oreno3dDetail.characters.isNotEmpty) ...[
-                                  if (oreno3dDetail.tags.isNotEmpty || oreno3dDetail.origin != null)
-                                    const SizedBox(height: UIConstants.interElementSpacing),
-                                  Text(
-                                    // 'キャラ：',
-                                    t.oreno3d.characters,
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                  const SizedBox(height: UIConstants.smallSpacing),
-                                  Wrap(
-                                    spacing: UIConstants.iconTextSpacing,
-                                    runSpacing: UIConstants.smallSpacing,
-                                    children: oreno3dDetail.characters.map((character) {
-                                      return Material(
-                                        color: Colors.transparent,
-                                        child: InkWell(
-                                          onTap: () => _handleOreno3dSearch(
-                                            character.id ?? character.name,
-                                            'character',
-                                            character.name,
-                                          ),
-                                          borderRadius: BorderRadius.circular(12),
-                                          child: MouseRegion(
-                                            cursor: SystemMouseCursors.click,
-                                            child: Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: UIConstants.tagPaddingHorizontal,
-                                                vertical: UIConstants.tagPaddingVertical,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: Colors.blue.withValues(alpha: 0.1),
-                                                borderRadius: BorderRadius.circular(12),
-                                                border: Border.all(
-                                                  color: Colors.blue.withValues(alpha: 0.3),
-                                                ),
-                                              ),
-                                              child: Text(
-                                                character.name,
-                                                style: const TextStyle(
-                                                  fontSize: 11,
-                                                  color: Colors.blue,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    )
-                  : const SizedBox.shrink(key: ValueKey('collapsed_oreno3d')),
-            ),
-          ],
+      return oreno3dDetail != null ? ExpandableSectionWidget(
+        title: t.oreno3d.name,
+        icon: Icons.view_in_ar,
+        onHelpTap: () => _showOreno3dInfoDialog(context),
+        showHelpButton: true,
+        child: Oreno3dTagsWidget(
+          oreno3dDetail: oreno3dDetail,
+          onSearchTap: _handleOreno3dSearch,
         ),
       ) : const SizedBox.shrink();
     });
   }
 
-  /// 构建 Oreno3D 加载状态的 Widget
-  Widget _buildOreno3dLoadingSection(BuildContext context) {
-    final t = slang.Translations.of(context);
-    return Container(
-      padding: const EdgeInsets.all(UIConstants.cardPadding),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.view_in_ar, size: 16, color: Colors.grey[600]),
-              const SizedBox(width: UIConstants.iconTextSpacing),
-              Expanded(
-                child: Text(
-                  t.oreno3d.name,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.grey[700],
-                  ),
-                ),
-              ),
-              Material(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.circular(16),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(16),
-                  onTap: () => _showOreno3dInfoDialog(context),
-                  child: Padding(
-                    padding: const EdgeInsets.all(4.0),
-                    child: Icon(
-                      Icons.help_outline,
-                      size: 14,
-                      color: Colors.grey[500],
-                    ),
-                  ),
-                ),
-              ),
-              IconButton(
-                icon: AnimatedRotation(
-                  turns: _isOreno3dExpanded ? 0.5 : 0.0,
-                  duration: const Duration(milliseconds: 400),
-                  curve: Curves.easeOutCubic,
-                  child: const Icon(Icons.keyboard_arrow_down, size: 20),
-                ),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                onPressed: () {
-                  setState(() {
-                    _isOreno3dExpanded = !_isOreno3dExpanded;
-                  });
-                },
-              ),
-            ],
-          ),
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 400),
-            switchInCurve: Curves.easeOutCubic,
-            switchOutCurve: Curves.easeInCubic,
-            transitionBuilder: (child, animation) {
-              final curvedAnimation = CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeOutCubic,
-              );
-              return FadeTransition(
-                opacity: animation,
-                child: SlideTransition(
-                  position: Tween<Offset>(
-                    begin: const Offset(0, -0.1),
-                    end: Offset.zero,
-                  ).animate(curvedAnimation),
-                  child: SizeTransition(
-                    sizeFactor: Tween<double>(
-                      begin: 0.0,
-                      end: 1.0,
-                    ).animate(curvedAnimation),
-                    axis: Axis.vertical,
-                    axisAlignment: -1.0,
-                    child: child,
-                  ),
-                ),
-              );
-            },
-            child: _isOreno3dExpanded
-                ? Column(
-                    key: const ValueKey('expanded_oreno3d_loading'),
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: UIConstants.listSpacing),
-                      // Shimmer loading 效果
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(UIConstants.cardPadding),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // 模拟原作信息
-                            Shimmer.fromColors(
-                              baseColor: Colors.grey[300]!,
-                              highlightColor: Colors.grey[100]!,
-                              child: Container(
-                                width: 30,
-                                height: 12,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Shimmer.fromColors(
-                              baseColor: Colors.grey[300]!,
-                              highlightColor: Colors.grey[100]!,
-                              child: Container(
-                                width: 70,
-                                height: 20,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: UIConstants.interElementSpacing),
 
-                            // 模拟标签信息
-                            Shimmer.fromColors(
-                              baseColor: Colors.grey[300]!,
-                              highlightColor: Colors.grey[100]!,
-                              child: Container(
-                                width: 25,
-                                height: 12,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Wrap(
-                              spacing: UIConstants.iconTextSpacing,
-                              runSpacing: UIConstants.smallSpacing,
-                              children: [
-                                Shimmer.fromColors(
-                                  baseColor: Colors.grey[300]!,
-                                  highlightColor: Colors.grey[100]!,
-                                  child: Container(
-                                    width: 50,
-                                    height: 20,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                ),
-                                Shimmer.fromColors(
-                                  baseColor: Colors.grey[300]!,
-                                  highlightColor: Colors.grey[100]!,
-                                  child: Container(
-                                    width: 65,
-                                    height: 20,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                ),
-                                Shimmer.fromColors(
-                                  baseColor: Colors.grey[300]!,
-                                  highlightColor: Colors.grey[100]!,
-                                  child: Container(
-                                    width: 45,
-                                    height: 20,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: UIConstants.interElementSpacing),
-
-                            // 模拟角色信息
-                            Shimmer.fromColors(
-                              baseColor: Colors.grey[300]!,
-                              highlightColor: Colors.grey[100]!,
-                              child: Container(
-                                width: 25,
-                                height: 12,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Wrap(
-                              spacing: UIConstants.iconTextSpacing,
-                              runSpacing: UIConstants.smallSpacing,
-                              children: [
-                                Shimmer.fromColors(
-                                  baseColor: Colors.grey[300]!,
-                                  highlightColor: Colors.grey[100]!,
-                                  child: Container(
-                                    width: 55,
-                                    height: 20,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                ),
-                                Shimmer.fromColors(
-                                  baseColor: Colors.grey[300]!,
-                                  highlightColor: Colors.grey[100]!,
-                                  child: Container(
-                                    width: 60,
-                                    height: 20,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  )
-                : const SizedBox.shrink(key: ValueKey('collapsed_oreno3d_loading')),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildLikeAvatarsSection(BuildContext context) {
     final t = slang.Translations.of(context);
     return Obx(() {
-      final videoId = widget.controller.videoInfo.value?.id;
+      final videoId = controller.videoInfo.value?.id;
       if (videoId == null) return const SizedBox.shrink();
 
       return Column(
@@ -987,7 +538,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget> {
 
   Widget _buildActionButtonsSection(BuildContext context) {
     final t = slang.Translations.of(context);
-    final videoInfo = widget.controller.videoInfo.value;
+    final videoInfo = controller.videoInfo.value;
     if (videoInfo == null) return const SizedBox.shrink();
 
     return Column(
@@ -1016,7 +567,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget> {
   /// A more responsive action button row using Wrap.
   Widget _buildActionButtons(BuildContext context) {
     final t = slang.Translations.of(context);
-    final videoInfo = widget.controller.videoInfo.value;
+    final videoInfo = controller.videoInfo.value;
     if (videoInfo == null) return const SizedBox.shrink();
 
     return Container(
@@ -1039,10 +590,10 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget> {
           onUnlike: (id) async =>
               (await Get.find<VideoService>().unlikeVideo(id)).isSuccess,
           onLikeChanged: (liked) {
-            widget.controller.videoInfo.value = widget.controller.videoInfo.value?.copyWith(
+            controller.videoInfo.value = controller.videoInfo.value?.copyWith(
               liked: liked,
               numLikes:
-                  (widget.controller.videoInfo.value?.numLikes ?? 0) +
+                  (controller.videoInfo.value?.numLikes ?? 0) +
                   (liked ? 1 : -1),
             );
           },
@@ -1111,7 +662,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget> {
     
     Get.dialog(
       AddVideoToPlayListDialog(
-        videoId: widget.controller.videoInfo.value?.id ?? '',
+        videoId: controller.videoInfo.value?.id ?? '',
       ),
     );
   }
@@ -1138,10 +689,10 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget> {
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) => ShareVideoBottomSheet(
-        videoId: widget.controller.videoInfo.value?.id ?? '',
-        videoTitle: widget.controller.videoInfo.value?.title ?? '',
-        authorName: widget.controller.videoInfo.value?.user?.name ?? '',
-        previewUrl: widget.controller.videoInfo.value?.previewUrl ?? '',
+        videoId: controller.videoInfo.value?.id ?? '',
+        videoTitle: controller.videoInfo.value?.title ?? '',
+        authorName: controller.videoInfo.value?.user?.name ?? '',
+        previewUrl: controller.videoInfo.value?.previewUrl ?? '',
       ),
       context: context,
     );
@@ -1160,9 +711,9 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget> {
 
     // 创建临时视频对象用于路径生成
     final video = Video(
-      id: widget.controller.videoInfo.value?.id ?? 'unknown',
+      id: controller.videoInfo.value?.id ?? 'unknown',
       title: title,
-      user: widget.controller.videoInfo.value?.user,
+      user: controller.videoInfo.value?.user,
     );
 
     return await downloadPathService.getVideoDownloadPath(
@@ -1175,7 +726,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget> {
   void _showDownloadDialog(BuildContext context) {
     LogUtils.d('尝试显示下载对话框', 'VideoInfoTabWidget'); // Changed tag for clarity
     final t = slang.Translations.of(context);
-    final sources = widget.controller.currentVideoSourceList;
+    final sources = controller.currentVideoSourceList;
 
     if (sources.isEmpty) {
       LogUtils.w('没有可用的下载源', 'VideoInfoTabWidget');
@@ -1226,7 +777,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget> {
                   }
 
                   try {
-                    final videoInfo = widget.controller.videoInfo.value;
+                    final videoInfo = controller.videoInfo.value;
                     if (videoInfo == null) {
                       LogUtils.e('下载失败：视频信息为空', tag: 'VideoInfoTabWidget');
                       throw Exception(t.download.errors.videoInfoNotFound);
