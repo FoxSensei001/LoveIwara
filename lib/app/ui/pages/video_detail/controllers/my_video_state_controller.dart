@@ -25,6 +25,7 @@ import 'package:screen_brightness/screen_brightness.dart';
 import 'package:volume_controller/volume_controller.dart';
 
 import '../../../../../utils/common_utils.dart';
+import '../../../../../utils/easy_throttle.dart';
 import '../../../../../utils/x_version_calculator_utils.dart';
 import '../../../../models/user.model.dart';
 import '../../../../models/video_source.model.dart';
@@ -121,7 +122,6 @@ class MyVideoStateController extends GetxController
   StreamSubscription<bool>? playingSubscription;
   StreamSubscription<Duration>? bufferSubscription;
   StreamSubscription<String>? errorSubscription; // 添加错误监听订阅
-  int retryTimes = 0;
 
   Timer? _autoHideTimer;
   final _autoHideDelay = const Duration(seconds: 3); // 3秒后自动隐藏
@@ -1310,44 +1310,120 @@ class MyVideoStateController extends GetxController
     // 异常
     errorSubscription = player.stream.error.listen((error) {
       if (_isDisposed) return;
-      String errorMessage = CommonUtils.parseExceptionMessage(error);
-      LogUtils.e('播放器错误: $error', tag: 'MyVideoStateController');
-      // 仅在[未加载过视频 ]时抛出异常
-      final timeoutStrs = ['timeout', 'connection', 'network', 'time out'];
-      bool isTimeout = timeoutStrs.any(
-        (str) => errorMessage.toLowerCase().contains(str),
+
+      final String event = error;
+
+      // 针对常见网络/打开失败错误进行节流重试
+      if (event.startsWith('Failed to open https://') ||
+          event.startsWith('Can not open external file https://') ||
+          event.startsWith('tcp: ffurl_read returned ')) {
+        EasyThrottle.throttle(
+          'player.stream.error.retry',
+          const Duration(milliseconds: 10000),
+          () {
+            Future.delayed(const Duration(milliseconds: 3000), () async {
+              if (videoBuffering.value && buffers.isEmpty) {
+                showToastWidget(
+                  MDToastWidget(
+                    message: slang.t.mediaPlayer.retryingOpenVideoLink,
+                    type: MDToastType.info,
+                  ),
+                  position: ToastPosition.top,
+                );
+                final bool ok = await refreshPlayer();
+                if (!ok) {
+                  LogUtils.w('重试刷新播放器失败', 'MyVideoStateController');
+                }
+              }
+            });
+          },
+        );
+        return;
+      }
+
+      // 解码器错误提示
+      if (event.startsWith('Could not open codec')) {
+        showToastWidget(
+          MDToastWidget(
+            message: slang.t.mediaPlayer.decoderOpenFailedWithSuggestion(event: event),
+            type: MDToastType.warning,
+          ),
+          position: ToastPosition.top,
+          duration: const Duration(seconds: 7),
+        );
+        return;
+      }
+
+      // 可忽略的打开类错误，静默返回，避免打扰
+      if (event.startsWith('Failed to open .') ||
+          event.startsWith('Cannot open') ||
+          event.startsWith('Can not open')) {
+        return;
+      }
+
+      // 其他错误，给出提示与日志
+      showToastWidget(
+        MDToastWidget(
+          message: slang.t.mediaPlayer.videoLoadErrorWithDetail(event: event),
+          type: MDToastType.error,
+        ),
+        position: ToastPosition.top,
       );
-      // 如果超时则直接显示错误
-      if (isTimeout) {
-        videoPlayerReady.value = false;
-        videoSourceErrorMessage.value = errorMessage;
-        videoBuffering.value = false;
-        return;
-      }
-
-      // 如果未加载过视频，则重试
-      if (!firstLoaded) {
-        
-        if (retryTimes == 0) {
-          retryTimes++;
-          var lastUserSelectedResolution =
-              _configService[ConfigKey.DEFAULT_QUALITY_KEY];
-          resetVideoInfo(
-            title: videoInfo.value!.title ?? '',
-            resolutionTag:
-                currentResolutionTag.value ?? lastUserSelectedResolution,
-            videoResolutions: videoResolutions.toList(),
-          );
-        } else {
-          videoPlayerReady.value = false;
-          videoSourceErrorMessage.value = errorMessage;
-          videoBuffering.value = false;
-          return;
-        }
-
-        return;
-      }
+      LogUtils.e('视频加载错误: $event', tag: 'MyVideoStateController');
     });
+  }
+
+  /// 刷新播放器（重开当前清晰度与进度）
+  Future<bool> refreshPlayer() async {
+    if (_isDisposed) return false;
+
+    try {
+      final String? tag = currentResolutionTag.value;
+      final String? url = tag == null
+          ? null
+          : CommonUtils.findUrlByResolutionTag(videoResolutions, tag);
+
+      // 若无法定位当前清晰度 URL，则回退到 resetVideoInfo 使用现有分辨率列表
+      if (url == null || url.isEmpty) {
+        await resetVideoInfo(
+          title: videoInfo.value?.title ?? '',
+          resolutionTag: currentResolutionTag.value ??
+              (_configService[ConfigKey.DEFAULT_QUALITY_KEY] as String),
+          videoResolutions: videoResolutions.toList(),
+          position: currentPosition,
+        );
+        return true;
+      }
+
+      final String defaultTag = (_configService[ConfigKey.DEFAULT_QUALITY_KEY]
+                  is String)
+              ? (_configService[ConfigKey.DEFAULT_QUALITY_KEY] as String)
+              : '';
+      final String fallbackTag = videoResolutions.isNotEmpty
+          ? videoResolutions.first.label
+          : defaultTag;
+      final String resolvedTag = (tag ?? defaultTag).isNotEmpty
+          ? (tag ?? defaultTag)
+          : fallbackTag;
+
+      if (resolvedTag.isEmpty) {
+        await resetVideoInfo(
+          title: videoInfo.value?.title ?? '',
+          resolutionTag: currentResolutionTag.value ?? defaultTag,
+          videoResolutions: videoResolutions.toList(),
+          position: currentPosition,
+        );
+        return true;
+      }
+
+      await _switchResolutionSeamlessly(resolvedTag, url);
+      return true;
+    } catch (e) {
+      if (!_isDisposed) {
+        LogUtils.e('refreshPlayer 失败: $e', tag: 'MyVideoStateController', error: e);
+      }
+      return false;
+    }
   }
 
   /// 更新视频宽高比

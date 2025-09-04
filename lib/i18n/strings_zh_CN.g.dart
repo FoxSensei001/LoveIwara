@@ -1302,6 +1302,9 @@ class _TranslationsMediaPlayerZhCn implements TranslationsMediaPlayerEn {
 	@override String get imageLoadFailed => '图片加载失败';
 	@override String get unsupportedImageFormat => '不支持的图片格式';
 	@override String get tryOtherViewer => '请尝试使用其他查看器';
+	@override String get retryingOpenVideoLink => '视频链接打开失败，重试中';
+	@override String decoderOpenFailedWithSuggestion({required Object event}) => '无法加载解码器: ${event}，可以通过在播放器设置里切换至软解，并重新进入页面尝试';
+	@override String videoLoadErrorWithDetail({required Object event}) => '视频加载错误: ${event}';
 }
 
 // Path: linkInputDialog
@@ -3586,6 +3589,9 @@ extension on TranslationsZhCn {
 			case 'mediaPlayer.imageLoadFailed': return '图片加载失败';
 			case 'mediaPlayer.unsupportedImageFormat': return '不支持的图片格式';
 			case 'mediaPlayer.tryOtherViewer': return '请尝试使用其他查看器';
+			case 'mediaPlayer.retryingOpenVideoLink': return '视频链接打开失败，重试中';
+			case 'mediaPlayer.decoderOpenFailedWithSuggestion': return ({required Object event}) => '无法加载解码器: ${event}，可以通过在播放器设置里切换至软解，并重新进入页面尝试';
+			case 'mediaPlayer.videoLoadErrorWithDetail': return ({required Object event}) => '视频加载错误: ${event}';
 			case 'linkInputDialog.title': return '输入链接';
 			case 'linkInputDialog.supportedLinksHint': return ({required Object webName}) => '支持智能识别多个${webName}链接，并快速跳转到应用内对应页面(链接与其他文本之间用空格隔开)';
 			case 'linkInputDialog.inputHint': return ({required Object webName}) => '请输入${webName}链接';

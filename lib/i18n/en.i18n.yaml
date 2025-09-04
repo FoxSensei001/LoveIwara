@@ -1465,6 +1465,10 @@ mediaPlayer:
   tryOtherVideoPlayer: "Please try using other video players"
   video: "VIDEO"
   
+  # Custom runtime messages
+  retryingOpenVideoLink: "Video link open failed, retrying"
+  decoderOpenFailedWithSuggestion: "Unable to load decoder: ${event}. Try switching to software decoding in player settings and re-enter the page"
+  videoLoadErrorWithDetail: "Video load error: ${event}"
   # Image Widget
   imageLoadFailed: "Image Load Failed"
   unsupportedImageFormat: "Unsupported Image Format"

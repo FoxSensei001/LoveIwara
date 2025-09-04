@@ -1434,6 +1434,10 @@ mediaPlayer:
   unsupportedImageFormat: "不支援的圖片格式"
   tryOtherViewer: "請嘗試使用其他檢視器"
 
+  # 執行期自定義提示
+  retryingOpenVideoLink: "影片連結開啟失敗，重試中"
+  decoderOpenFailedWithSuggestion: "無法載入解碼器: ${event}，可在播放器設定切換為軟解，並重新進入頁面嘗試"
+  videoLoadErrorWithDetail: "影片載入錯誤: ${event}"
 linkInputDialog:
   title: "輸入連結"
   supportedLinksHint: "支持智能識別多個${webName}連結，並快速跳轉到應用內對應頁面(連結與其他文本之間用空格隔開)"

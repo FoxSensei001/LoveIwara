@@ -1328,6 +1328,9 @@ class _TranslationsMediaPlayerZhTw implements TranslationsMediaPlayerEn {
 	@override String get imageLoadFailed => '圖片載入失敗';
 	@override String get unsupportedImageFormat => '不支援的圖片格式';
 	@override String get tryOtherViewer => '請嘗試使用其他檢視器';
+	@override String get retryingOpenVideoLink => '影片連結開啟失敗，重試中';
+	@override String decoderOpenFailedWithSuggestion({required Object event}) => '無法載入解碼器: ${event}，可在播放器設定切換為軟解，並重新進入頁面嘗試';
+	@override String videoLoadErrorWithDetail({required Object event}) => '影片載入錯誤: ${event}';
 }
 
 // Path: linkInputDialog
@@ -3610,6 +3613,9 @@ extension on TranslationsZhTw {
 			case 'mediaPlayer.imageLoadFailed': return '圖片載入失敗';
 			case 'mediaPlayer.unsupportedImageFormat': return '不支援的圖片格式';
 			case 'mediaPlayer.tryOtherViewer': return '請嘗試使用其他檢視器';
+			case 'mediaPlayer.retryingOpenVideoLink': return '影片連結開啟失敗，重試中';
+			case 'mediaPlayer.decoderOpenFailedWithSuggestion': return ({required Object event}) => '無法載入解碼器: ${event}，可在播放器設定切換為軟解，並重新進入頁面嘗試';
+			case 'mediaPlayer.videoLoadErrorWithDetail': return ({required Object event}) => '影片載入錯誤: ${event}';
 			case 'linkInputDialog.title': return '輸入連結';
 			case 'linkInputDialog.supportedLinksHint': return ({required Object webName}) => '支持智能識別多個${webName}連結，並快速跳轉到應用內對應頁面(連結與其他文本之間用空格隔開)';
 			case 'linkInputDialog.inputHint': return ({required Object webName}) => '請輸入${webName}連結';

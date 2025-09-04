@@ -3505,6 +3505,15 @@ class TranslationsMediaPlayerEn {
 	/// en: 'VIDEO'
 	String get video => 'VIDEO';
 
+	/// en: 'Video link open failed, retrying'
+	String get retryingOpenVideoLink => 'Video link open failed, retrying';
+
+	/// en: 'Unable to load decoder: ${event}. Try switching to software decoding in player settings and re-enter the page'
+	String decoderOpenFailedWithSuggestion({required Object event}) => 'Unable to load decoder: ${event}. Try switching to software decoding in player settings and re-enter the page';
+
+	/// en: 'Video load error: ${event}'
+	String videoLoadErrorWithDetail({required Object event}) => 'Video load error: ${event}';
+
 	/// en: 'Image Load Failed'
 	String get imageLoadFailed => 'Image Load Failed';
 
@@ -6877,6 +6886,9 @@ extension on Translations {
 			case 'mediaPlayer.appMayLackMediaPermission': return 'The app may lack necessary media playback permissions';
 			case 'mediaPlayer.tryOtherVideoPlayer': return 'Please try using other video players';
 			case 'mediaPlayer.video': return 'VIDEO';
+			case 'mediaPlayer.retryingOpenVideoLink': return 'Video link open failed, retrying';
+			case 'mediaPlayer.decoderOpenFailedWithSuggestion': return ({required Object event}) => 'Unable to load decoder: ${event}. Try switching to software decoding in player settings and re-enter the page';
+			case 'mediaPlayer.videoLoadErrorWithDetail': return ({required Object event}) => 'Video load error: ${event}';
 			case 'mediaPlayer.imageLoadFailed': return 'Image Load Failed';
 			case 'mediaPlayer.unsupportedImageFormat': return 'Unsupported Image Format';
 			case 'mediaPlayer.tryOtherViewer': return 'Please try using other viewers';

@@ -1395,6 +1395,10 @@ mediaPlayer:
   unsupportedImageFormat: "不支持的图片格式"
   tryOtherViewer: "请尝试使用其他查看器"
 
+  # 运行期自定义提示
+  retryingOpenVideoLink: "视频链接打开失败，重试中"
+  decoderOpenFailedWithSuggestion: "无法加载解码器: ${event}，可以通过在播放器设置里切换至软解，并重新进入页面尝试"
+  videoLoadErrorWithDetail: "视频加载错误: ${event}"
 linkInputDialog:
   title: "输入链接"
   supportedLinksHint: "支持智能识别多个${webName}链接，并快速跳转到应用内对应页面(链接与其他文本之间用空格隔开)"

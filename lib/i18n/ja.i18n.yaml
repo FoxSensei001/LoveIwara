@@ -1392,6 +1392,10 @@ mediaPlayer:
   unsupportedImageFormat: "サポートされていない画像形式"
   tryOtherViewer: "他のビューアーをお試しください"
 
+  # 実行時のカスタムメッセージ
+  retryingOpenVideoLink: "動画リンクのオープンに失敗しました。再試行中"
+  decoderOpenFailedWithSuggestion: "デコーダーを読み込めませんでした: ${event}。プレーヤー設定でソフトウェアデコードに切り替え、ページに再入場してお試しください"
+  videoLoadErrorWithDetail: "動画読み込みエラー: ${event}"
 linkInputDialog:
   title: "リンクを入力"
   supportedLinksHint: "複数の${webName}リンクをインテリジェントに識別し、アプリ内の対応するページにすばやくジャンプすることをサポートします（リンクと他のテキストはスペースで区切ります）"

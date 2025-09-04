@@ -1297,6 +1297,9 @@ class _TranslationsMediaPlayerJa implements TranslationsMediaPlayerEn {
 	@override String get imageLoadFailed => '画像読み込み失敗';
 	@override String get unsupportedImageFormat => 'サポートされていない画像形式';
 	@override String get tryOtherViewer => '他のビューアーをお試しください';
+	@override String get retryingOpenVideoLink => '動画リンクのオープンに失敗しました。再試行中';
+	@override String decoderOpenFailedWithSuggestion({required Object event}) => 'デコーダーを読み込めませんでした: ${event}。プレーヤー設定でソフトウェアデコードに切り替え、ページに再入場してお試しください';
+	@override String videoLoadErrorWithDetail({required Object event}) => '動画読み込みエラー: ${event}';
 }
 
 // Path: linkInputDialog
@@ -3576,6 +3579,9 @@ extension on TranslationsJa {
 			case 'mediaPlayer.imageLoadFailed': return '画像読み込み失敗';
 			case 'mediaPlayer.unsupportedImageFormat': return 'サポートされていない画像形式';
 			case 'mediaPlayer.tryOtherViewer': return '他のビューアーをお試しください';
+			case 'mediaPlayer.retryingOpenVideoLink': return '動画リンクのオープンに失敗しました。再試行中';
+			case 'mediaPlayer.decoderOpenFailedWithSuggestion': return ({required Object event}) => 'デコーダーを読み込めませんでした: ${event}。プレーヤー設定でソフトウェアデコードに切り替え、ページに再入場してお試しください';
+			case 'mediaPlayer.videoLoadErrorWithDetail': return ({required Object event}) => '動画読み込みエラー: ${event}';
 			case 'linkInputDialog.title': return 'リンクを入力';
 			case 'linkInputDialog.supportedLinksHint': return ({required Object webName}) => '複数の${webName}リンクをインテリジェントに識別し、アプリ内の対応するページにすばやくジャンプすることをサポートします（リンクと他のテキストはスペースで区切ります）';
 			case 'linkInputDialog.inputHint': return ({required Object webName}) => '${webName}リンクを入力してください';
