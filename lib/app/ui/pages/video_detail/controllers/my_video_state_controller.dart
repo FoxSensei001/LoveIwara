@@ -197,6 +197,18 @@ class MyVideoStateController extends GetxController
 
   late final nestedScrollViewKey = GlobalKey<ExtendedNestedScrollViewState>();
 
+  void refreshScrollView() {
+    // 触发重建 - 使用更可靠的方法
+    if (nestedScrollViewKey.currentState != null) {
+      try {
+        // 强制触发 ExtendedNestedScrollView 重建
+        (nestedScrollViewKey.currentState as dynamic).setState(() {});
+        print('senko 触发');
+      } catch (ignored) {
+        // ignore: empty_catches
+      }
+    }
+  }
   MyVideoStateController(this.videoId, {this.extData});
 
   @override
@@ -1287,6 +1299,7 @@ class MyVideoStateController extends GetxController
       if (_isDisposed) return;
       if (playing != videoPlaying.value) {
         videoPlaying.value = playing;
+        // refreshScrollView();
       }
     });
 
