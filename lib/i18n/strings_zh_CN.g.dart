@@ -71,6 +71,7 @@ class TranslationsZhCn implements Translations {
 	@override late final _TranslationsFirstTimeSetupZhCn firstTimeSetup = _TranslationsFirstTimeSetupZhCn._(_root);
 	@override late final _TranslationsProxyHelperZhCn proxyHelper = _TranslationsProxyHelperZhCn._(_root);
 	@override late final _TranslationsTagSelectorZhCn tagSelector = _TranslationsTagSelectorZhCn._(_root);
+	@override late final _TranslationsAnime4kZhCn anime4k = _TranslationsAnime4kZhCn._(_root);
 }
 
 // Path: common
@@ -1693,6 +1694,29 @@ class _TranslationsTagSelectorZhCn implements TranslationsTagSelectorEn {
 	@override String get delete => '删除';
 }
 
+// Path: anime4k
+class _TranslationsAnime4kZhCn implements TranslationsAnime4kEn {
+	_TranslationsAnime4kZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get realTimeVideoUpscalingAndDenoising => 'Anime4K 实时视频上采样和降噪，提升动画视频质量';
+	@override String get settings => 'Anime4K 设置';
+	@override String get preset => 'Anime4K 预设';
+	@override String get disable => '关闭 Anime4K';
+	@override String get disableDescription => '禁用视频增强效果';
+	@override String get highQualityPresets => '高质量预设';
+	@override String get fastPresets => '快速预设';
+	@override String get litePresets => '轻量级预设';
+	@override String get moreLitePresets => '更多轻量级预设';
+	@override String get customPresets => '自定义预设';
+	@override late final _TranslationsAnime4kPresetGroupsZhCn presetGroups = _TranslationsAnime4kPresetGroupsZhCn._(_root);
+	@override late final _TranslationsAnime4kPresetDescriptionsZhCn presetDescriptions = _TranslationsAnime4kPresetDescriptionsZhCn._(_root);
+	@override late final _TranslationsAnime4kPresetNamesZhCn presetNames = _TranslationsAnime4kPresetNamesZhCn._(_root);
+	@override String get performanceTip => '💡 提示：根据设备性能选择合适的预设，低端设备建议选择轻量级预设。';
+}
+
 // Path: common.pagination
 class _TranslationsCommonPaginationZhCn implements TranslationsCommonPaginationEn {
 	_TranslationsCommonPaginationZhCn._(this._root);
@@ -2284,6 +2308,76 @@ class _TranslationsFirstTimeSetupCommonZhCn implements TranslationsFirstTimeSetu
 	// Translations
 	@override String get settingsChangeableTip => '这些设置都可以在应用设置中随时修改';
 	@override String get agreeAgreementSnackbar => '请先同意用户协议和社区规则';
+}
+
+// Path: anime4k.presetGroups
+class _TranslationsAnime4kPresetGroupsZhCn implements TranslationsAnime4kPresetGroupsEn {
+	_TranslationsAnime4kPresetGroupsZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get highQuality => '高质量';
+	@override String get fast => '快速';
+	@override String get lite => '轻量级';
+	@override String get moreLite => '更多轻量级';
+	@override String get custom => '自定义';
+}
+
+// Path: anime4k.presetDescriptions
+class _TranslationsAnime4kPresetDescriptionsZhCn implements TranslationsAnime4kPresetDescriptionsEn {
+	_TranslationsAnime4kPresetDescriptionsZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get mode_a_hq => '适用于大多数1080p动漫，特别是处理模糊、重采样和压缩瑕疵。提供最高的感知质量。';
+	@override String get mode_b_hq => '适用于轻微模糊或因缩放产生的振铃效应的动漫。可以有效减少振铃和锯齿。';
+	@override String get mode_c_hq => '适用于几乎没有瑕疵的高质量片源（如原生1080p的动画电影或壁纸）。降噪并提供最高的PSNR。';
+	@override String get mode_a_a_hq => 'Mode A的强化版，提供极致的感知质量，能重建几乎所有退化的线条。可能产生过度锐化或振铃。';
+	@override String get mode_b_b_hq => 'Mode B的强化版，提供更高的感知质量，进一步优化线条和减少瑕疵。';
+	@override String get mode_c_a_hq => 'Mode C的感知质量增强版，在保持高PSNR的同时尝试重建一些线条细节。';
+	@override String get mode_a_fast => 'Mode A的快速版本，平衡了质量与性能，适用于大多数1080p动漫。';
+	@override String get mode_b_fast => 'Mode B的快速版本，用于处理轻微瑕疵和振铃，性能开销较低。';
+	@override String get mode_c_fast => 'Mode C的快速版本，适用于高质量片源的快速降噪和放大。';
+	@override String get mode_a_a_fast => 'Mode A+A的快速版本，在性能有限的设备上追求更高的感知质量。';
+	@override String get mode_b_b_fast => 'Mode B+B的快速版本，为性能有限的设备提供增强的线条修复和瑕疵处理。';
+	@override String get mode_c_a_fast => 'Mode C+A的快速版本，在快速处理高质量片源的同时，进行轻度的线条修复。';
+	@override String get upscale_only_s => '仅使用最快的CNN模型进行x2放大，无修复和降噪，性能开销最低。';
+	@override String get upscale_deblur_fast => '使用快速的非CNN算法进行放大和去模糊，效果优于传统算法，性能开销很低。';
+	@override String get restore_s_only => '仅使用最快的CNN模型修复画面瑕疵，不进行放大。适用于原生分辨率播放，但希望改善画质的情况。';
+	@override String get denoise_bilateral_fast => '使用传统的双边滤波器进行降噪，速度极快，适用于处理轻微噪点。';
+	@override String get upscale_non_cnn => '使用快速的传统算法进行放大，性能开销极低，效果优于播放器自带算法。';
+	@override String get mode_a_fast_darken => 'Mode A (Fast) + 线条加深，在快速模式A的基础上增加线条加深效果，使线条更突出，风格化处理。';
+	@override String get mode_a_hq_thin => 'Mode A (HQ) + 线条细化，在高质量模式A的基础上增加线条细化效果，让画面看起来更精致。';
+}
+
+// Path: anime4k.presetNames
+class _TranslationsAnime4kPresetNamesZhCn implements TranslationsAnime4kPresetNamesEn {
+	_TranslationsAnime4kPresetNamesZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get mode_a_hq => 'Mode A (HQ)';
+	@override String get mode_b_hq => 'Mode B (HQ)';
+	@override String get mode_c_hq => 'Mode C (HQ)';
+	@override String get mode_a_a_hq => 'Mode A+A (HQ)';
+	@override String get mode_b_b_hq => 'Mode B+B (HQ)';
+	@override String get mode_c_a_hq => 'Mode C+A (HQ)';
+	@override String get mode_a_fast => 'Mode A (Fast)';
+	@override String get mode_b_fast => 'Mode B (Fast)';
+	@override String get mode_c_fast => 'Mode C (Fast)';
+	@override String get mode_a_a_fast => 'Mode A+A (Fast)';
+	@override String get mode_b_b_fast => 'Mode B+B (Fast)';
+	@override String get mode_c_a_fast => 'Mode C+A (Fast)';
+	@override String get upscale_only_s => 'CNN放大 (超快)';
+	@override String get upscale_deblur_fast => '放大 & 去模糊 (快速)';
+	@override String get restore_s_only => '修复 (超快)';
+	@override String get denoise_bilateral_fast => '双边降噪 (极快)';
+	@override String get upscale_non_cnn => '非CNN放大 (极快)';
+	@override String get mode_a_fast_darken => 'Mode A (Fast) + 线条加深';
+	@override String get mode_a_hq_thin => 'Mode A (HQ) + 线条细化';
 }
 
 /// Flat map(s) containing all translations.
@@ -3909,6 +4003,60 @@ extension on TranslationsZhCn {
 			case 'tagSelector.selectAll': return '全选';
 			case 'tagSelector.cancelSelectAll': return '取消全选';
 			case 'tagSelector.delete': return '删除';
+			case 'anime4k.realTimeVideoUpscalingAndDenoising': return 'Anime4K 实时视频上采样和降噪，提升动画视频质量';
+			case 'anime4k.settings': return 'Anime4K 设置';
+			case 'anime4k.preset': return 'Anime4K 预设';
+			case 'anime4k.disable': return '关闭 Anime4K';
+			case 'anime4k.disableDescription': return '禁用视频增强效果';
+			case 'anime4k.highQualityPresets': return '高质量预设';
+			case 'anime4k.fastPresets': return '快速预设';
+			case 'anime4k.litePresets': return '轻量级预设';
+			case 'anime4k.moreLitePresets': return '更多轻量级预设';
+			case 'anime4k.customPresets': return '自定义预设';
+			case 'anime4k.presetGroups.highQuality': return '高质量';
+			case 'anime4k.presetGroups.fast': return '快速';
+			case 'anime4k.presetGroups.lite': return '轻量级';
+			case 'anime4k.presetGroups.moreLite': return '更多轻量级';
+			case 'anime4k.presetGroups.custom': return '自定义';
+			case 'anime4k.presetDescriptions.mode_a_hq': return '适用于大多数1080p动漫，特别是处理模糊、重采样和压缩瑕疵。提供最高的感知质量。';
+			case 'anime4k.presetDescriptions.mode_b_hq': return '适用于轻微模糊或因缩放产生的振铃效应的动漫。可以有效减少振铃和锯齿。';
+			case 'anime4k.presetDescriptions.mode_c_hq': return '适用于几乎没有瑕疵的高质量片源（如原生1080p的动画电影或壁纸）。降噪并提供最高的PSNR。';
+			case 'anime4k.presetDescriptions.mode_a_a_hq': return 'Mode A的强化版，提供极致的感知质量，能重建几乎所有退化的线条。可能产生过度锐化或振铃。';
+			case 'anime4k.presetDescriptions.mode_b_b_hq': return 'Mode B的强化版，提供更高的感知质量，进一步优化线条和减少瑕疵。';
+			case 'anime4k.presetDescriptions.mode_c_a_hq': return 'Mode C的感知质量增强版，在保持高PSNR的同时尝试重建一些线条细节。';
+			case 'anime4k.presetDescriptions.mode_a_fast': return 'Mode A的快速版本，平衡了质量与性能，适用于大多数1080p动漫。';
+			case 'anime4k.presetDescriptions.mode_b_fast': return 'Mode B的快速版本，用于处理轻微瑕疵和振铃，性能开销较低。';
+			case 'anime4k.presetDescriptions.mode_c_fast': return 'Mode C的快速版本，适用于高质量片源的快速降噪和放大。';
+			case 'anime4k.presetDescriptions.mode_a_a_fast': return 'Mode A+A的快速版本，在性能有限的设备上追求更高的感知质量。';
+			case 'anime4k.presetDescriptions.mode_b_b_fast': return 'Mode B+B的快速版本，为性能有限的设备提供增强的线条修复和瑕疵处理。';
+			case 'anime4k.presetDescriptions.mode_c_a_fast': return 'Mode C+A的快速版本，在快速处理高质量片源的同时，进行轻度的线条修复。';
+			case 'anime4k.presetDescriptions.upscale_only_s': return '仅使用最快的CNN模型进行x2放大，无修复和降噪，性能开销最低。';
+			case 'anime4k.presetDescriptions.upscale_deblur_fast': return '使用快速的非CNN算法进行放大和去模糊，效果优于传统算法，性能开销很低。';
+			case 'anime4k.presetDescriptions.restore_s_only': return '仅使用最快的CNN模型修复画面瑕疵，不进行放大。适用于原生分辨率播放，但希望改善画质的情况。';
+			case 'anime4k.presetDescriptions.denoise_bilateral_fast': return '使用传统的双边滤波器进行降噪，速度极快，适用于处理轻微噪点。';
+			case 'anime4k.presetDescriptions.upscale_non_cnn': return '使用快速的传统算法进行放大，性能开销极低，效果优于播放器自带算法。';
+			case 'anime4k.presetDescriptions.mode_a_fast_darken': return 'Mode A (Fast) + 线条加深，在快速模式A的基础上增加线条加深效果，使线条更突出，风格化处理。';
+			case 'anime4k.presetDescriptions.mode_a_hq_thin': return 'Mode A (HQ) + 线条细化，在高质量模式A的基础上增加线条细化效果，让画面看起来更精致。';
+			case 'anime4k.presetNames.mode_a_hq': return 'Mode A (HQ)';
+			case 'anime4k.presetNames.mode_b_hq': return 'Mode B (HQ)';
+			case 'anime4k.presetNames.mode_c_hq': return 'Mode C (HQ)';
+			case 'anime4k.presetNames.mode_a_a_hq': return 'Mode A+A (HQ)';
+			case 'anime4k.presetNames.mode_b_b_hq': return 'Mode B+B (HQ)';
+			case 'anime4k.presetNames.mode_c_a_hq': return 'Mode C+A (HQ)';
+			case 'anime4k.presetNames.mode_a_fast': return 'Mode A (Fast)';
+			case 'anime4k.presetNames.mode_b_fast': return 'Mode B (Fast)';
+			case 'anime4k.presetNames.mode_c_fast': return 'Mode C (Fast)';
+			case 'anime4k.presetNames.mode_a_a_fast': return 'Mode A+A (Fast)';
+			case 'anime4k.presetNames.mode_b_b_fast': return 'Mode B+B (Fast)';
+			case 'anime4k.presetNames.mode_c_a_fast': return 'Mode C+A (Fast)';
+			case 'anime4k.presetNames.upscale_only_s': return 'CNN放大 (超快)';
+			case 'anime4k.presetNames.upscale_deblur_fast': return '放大 & 去模糊 (快速)';
+			case 'anime4k.presetNames.restore_s_only': return '修复 (超快)';
+			case 'anime4k.presetNames.denoise_bilateral_fast': return '双边降噪 (极快)';
+			case 'anime4k.presetNames.upscale_non_cnn': return '非CNN放大 (极快)';
+			case 'anime4k.presetNames.mode_a_fast_darken': return 'Mode A (Fast) + 线条加深';
+			case 'anime4k.presetNames.mode_a_hq_thin': return 'Mode A (HQ) + 线条细化';
+			case 'anime4k.performanceTip': return '💡 提示：根据设备性能选择合适的预设，低端设备建议选择轻量级预设。';
 			default: return null;
 		}
 	}

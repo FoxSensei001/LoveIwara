@@ -5,6 +5,7 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/layouts.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/step_container.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/setting_tiles.dart';
+import 'package:i_iwara/app/ui/widgets/anime4k_settings_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class PlayerSettingsStepWidget extends StatefulWidget {
@@ -75,6 +76,7 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
     setState(() => localSet(value));
     await configService.setSetting(key, value);
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -277,6 +279,12 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
             onChanged: (v) => _setBool(ConfigKey.ENABLE_MOUSE_HOVER_SHOW_TOOLBAR, v, (x) => enableMouseHoverShowToolbar = x),
             isNarrow: isNarrow,
           ),
+          const StepDivider(),
+          // Anime4K 设置
+          const Anime4KSettingsWidget(
+            showInfoCard: false,
+            isNarrow: false,
+          ),
         ],
       ),
     );
@@ -308,6 +316,7 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
       barrierDismissible: true,
     );
   }
+
 }
 
 

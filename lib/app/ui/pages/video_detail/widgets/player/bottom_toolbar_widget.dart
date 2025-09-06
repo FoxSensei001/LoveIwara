@@ -10,6 +10,7 @@ import 'package:logger/logger.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:i_iwara/app/ui/widgets/like_button_widget.dart';
 import 'package:i_iwara/app/services/video_service.dart';
+import 'package:i_iwara/common/anime4k_presets.dart';
 
 import '../../../../../../utils/common_utils.dart';
 import '../../../../../services/config_service.dart';
@@ -672,6 +673,7 @@ class BottomToolbar extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        _buildAnime4KButton(context),
         _buildPlaybackSpeedSwitcher(context),
         _buildResolutionSwitcher(context),
         if (GetPlatform.isDesktop && !currentScreenIsFullScreen)
@@ -737,5 +739,396 @@ class BottomToolbar extends StatelessWidget {
           ),
       ],
     );
+  }
+
+  /// Anime4K 设置按钮
+  Widget _buildAnime4KButton(BuildContext context) {
+    return Obx(() {
+      final configService = Get.find<ConfigService>();
+      final presetId = configService[ConfigKey.ANIME4K_PRESET_ID] as String;
+      final isEnabled = presetId.isNotEmpty;
+
+      return       PopupMenuButton<String>(
+        tooltip: slang.t.anime4k.settings,
+        icon: const Icon(
+          Icons.adjust,
+          color: Colors.white,
+        ),
+        onSelected: (value) async {
+          if (value == 'disable') {
+            await myVideoStateController.switchAnime4KPreset('');
+          } else {
+            await myVideoStateController.switchAnime4KPreset(value);
+          }
+        },
+        itemBuilder: (context) => _buildAnime4KMenuItems(
+          context,
+          isEnabled,
+          presetId,
+        ),
+      );
+    });
+  }
+
+  // 构建 Anime4K 菜单项
+  List<PopupMenuEntry<String>> _buildAnime4KMenuItems(
+    BuildContext context,
+    bool isEnabled,
+    String currentPresetId,
+  ) {
+    final items = <PopupMenuEntry<String>>[];
+
+    // 添加顶部提示文本
+    items.add(
+      PopupMenuItem<String>(
+        enabled: false,
+        child: Text(
+          slang.t.anime4k.realTimeVideoUpscalingAndDenoising,
+          style: TextStyle(
+            fontWeight: FontWeight.w500,
+            color: Colors.grey[800],
+            fontSize: 12,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+
+    // 分隔线
+    items.add(const PopupMenuDivider());
+
+    // 关闭选项
+    items.add(
+      PopupMenuItem<String>(
+        value: 'disable',
+        child: Row(
+          children: [
+            Icon(Icons.close, color: Colors.grey[600]),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    slang.t.anime4k.disable,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                  Text(
+                    slang.t.anime4k.disableDescription,
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    // 分隔线
+    items.add(const PopupMenuDivider());
+
+    // 预设分组
+    final highQualityPresets = Anime4KPresets.getPresetsByGroup(Anime4KPresetGroup.highQuality);
+    final fastPresets = Anime4KPresets.getPresetsByGroup(Anime4KPresetGroup.fast);
+    final litePresets = Anime4KPresets.getPresetsByGroup(Anime4KPresetGroup.lite);
+    final moreLitePresets = Anime4KPresets.getPresetsByGroup(Anime4KPresetGroup.moreLite);
+    final customPresets = Anime4KPresets.getPresetsByGroup(Anime4KPresetGroup.custom);
+
+    // 高质量预设
+    if (highQualityPresets.isNotEmpty) {
+      items.add(
+        PopupMenuItem<String>(
+          enabled: false,
+          child: Text(
+            slang.t.anime4k.highQualityPresets,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[700],
+              fontSize: 13,
+            ),
+          ),
+        ),
+      );
+      for (final preset in highQualityPresets) {
+        final isSelected = currentPresetId == preset.id;
+        items.add(
+          PopupMenuItem<String>(
+            value: preset.id,
+            child: Row(
+              children: [
+                Icon(
+                  isSelected
+                      ? Icons.check_circle
+                      : Icons.radio_button_unchecked,
+                  color: isSelected ? Colors.blue : Colors.grey,
+                  size: 18,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        preset.name,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: isSelected ? Colors.blue : null,
+                        ),
+                      ),
+                      Text(
+                        preset.description,
+                        style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+    }
+
+    // 快速预设
+    if (fastPresets.isNotEmpty) {
+      items.add(
+        PopupMenuItem<String>(
+          enabled: false,
+          child: Text(
+            slang.t.anime4k.fastPresets,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[700],
+              fontSize: 13,
+            ),
+          ),
+        ),
+      );
+      for (final preset in fastPresets) {
+        final isSelected = currentPresetId == preset.id;
+        items.add(
+          PopupMenuItem<String>(
+            value: preset.id,
+            child: Row(
+              children: [
+                Icon(
+                  isSelected
+                      ? Icons.check_circle
+                      : Icons.radio_button_unchecked,
+                  color: isSelected ? Colors.blue : Colors.grey,
+                  size: 18,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        preset.name,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: isSelected ? Colors.blue : null,
+                        ),
+                      ),
+                      Text(
+                        preset.description,
+                        style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+    }
+
+    // 轻量级预设
+    if (litePresets.isNotEmpty) {
+      items.add(
+        PopupMenuItem<String>(
+          enabled: false,
+          child: Text(
+            slang.t.anime4k.litePresets,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[700],
+              fontSize: 13,
+            ),
+          ),
+        ),
+      );
+      for (final preset in litePresets) {
+        final isSelected = currentPresetId == preset.id;
+        items.add(
+          PopupMenuItem<String>(
+            value: preset.id,
+            child: Row(
+              children: [
+                Icon(
+                  isSelected
+                      ? Icons.check_circle
+                      : Icons.radio_button_unchecked,
+                  color: isSelected ? Colors.blue : Colors.grey,
+                  size: 18,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        preset.name,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: isSelected ? Colors.blue : null,
+                        ),
+                      ),
+                      Text(
+                        preset.description,
+                        style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+    }
+
+    // 更多轻量级预设
+    if (moreLitePresets.isNotEmpty) {
+      items.add(
+        PopupMenuItem<String>(
+          enabled: false,
+          child: Text(
+            slang.t.anime4k.moreLitePresets,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[700],
+              fontSize: 13,
+            ),
+          ),
+        ),
+      );
+      for (final preset in moreLitePresets) {
+        final isSelected = currentPresetId == preset.id;
+        items.add(
+          PopupMenuItem<String>(
+            value: preset.id,
+            child: Row(
+              children: [
+                Icon(
+                  isSelected
+                      ? Icons.check_circle
+                      : Icons.radio_button_unchecked,
+                  color: isSelected ? Colors.blue : Colors.grey,
+                  size: 18,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        preset.name,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: isSelected ? Colors.blue : null,
+                        ),
+                      ),
+                      Text(
+                        preset.description,
+                        style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+    }
+
+    // 自定义预设
+    if (customPresets.isNotEmpty) {
+      items.add(
+        PopupMenuItem<String>(
+          enabled: false,
+          child: Text(
+            slang.t.anime4k.customPresets,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[700],
+              fontSize: 13,
+            ),
+          ),
+        ),
+      );
+      for (final preset in customPresets) {
+        final isSelected = currentPresetId == preset.id;
+        items.add(
+          PopupMenuItem<String>(
+            value: preset.id,
+            child: Row(
+              children: [
+                Icon(
+                  isSelected
+                      ? Icons.check_circle
+                      : Icons.radio_button_unchecked,
+                  color: isSelected ? Colors.blue : Colors.grey,
+                  size: 18,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        preset.name,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: isSelected ? Colors.blue : null,
+                        ),
+                      ),
+                      Text(
+                        preset.description,
+                        style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+    }
+
+    return items;
   }
 }

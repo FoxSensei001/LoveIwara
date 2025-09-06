@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/setting_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/three_section_slider.dart';
+import 'package:i_iwara/app/ui/widgets/anime4k_settings_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import '../../../../services/config_service.dart';
 
 class PlayerSettingsWidget extends StatelessWidget {
   final ConfigService _configService = Get.find();
@@ -924,6 +925,11 @@ class PlayerSettingsWidget extends StatelessWidget {
                         _configService[ConfigKey.USE_OPENSLES] = value;
                       },
                     ),
+                  // Anime4K 设置
+                  Anime4KSettingsWidget(
+                    showInfoCard: true,
+                    infoMessage: t.anime4k.realTimeVideoUpscalingAndDenoising,
+                  ),
                 ],
               ),
             ),

@@ -71,6 +71,7 @@ class TranslationsJa implements Translations {
 	@override late final _TranslationsFirstTimeSetupJa firstTimeSetup = _TranslationsFirstTimeSetupJa._(_root);
 	@override late final _TranslationsProxyHelperJa proxyHelper = _TranslationsProxyHelperJa._(_root);
 	@override late final _TranslationsTagSelectorJa tagSelector = _TranslationsTagSelectorJa._(_root);
+	@override late final _TranslationsAnime4kJa anime4k = _TranslationsAnime4kJa._(_root);
 }
 
 // Path: common
@@ -1688,6 +1689,29 @@ class _TranslationsTagSelectorJa implements TranslationsTagSelectorEn {
 	@override String get delete => '削除';
 }
 
+// Path: anime4k
+class _TranslationsAnime4kJa implements TranslationsAnime4kEn {
+	_TranslationsAnime4kJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get realTimeVideoUpscalingAndDenoising => 'Anime4K リアルタイムビデオアップスケーリングとノイズ除去、アニメーション動画の品質向上';
+	@override String get settings => 'Anime4K 設定';
+	@override String get preset => 'Anime4K プリセット';
+	@override String get disable => 'Anime4K を無効にする';
+	@override String get disableDescription => 'ビデオ強化効果を無効にする';
+	@override String get highQualityPresets => '高品質プリセット';
+	@override String get fastPresets => '高速プリセット';
+	@override String get litePresets => '軽量プリセット';
+	@override String get moreLitePresets => 'より軽量なプリセット';
+	@override String get customPresets => 'カスタムプリセット';
+	@override late final _TranslationsAnime4kPresetGroupsJa presetGroups = _TranslationsAnime4kPresetGroupsJa._(_root);
+	@override late final _TranslationsAnime4kPresetDescriptionsJa presetDescriptions = _TranslationsAnime4kPresetDescriptionsJa._(_root);
+	@override late final _TranslationsAnime4kPresetNamesJa presetNames = _TranslationsAnime4kPresetNamesJa._(_root);
+	@override String get performanceTip => '💡 ヒント：デバイスのパフォーマンスに基づいて適切なプリセットを選択してください。ローエンドデバイスでは軽量プリセットをお勧めします。';
+}
+
 // Path: common.pagination
 class _TranslationsCommonPaginationJa implements TranslationsCommonPaginationEn {
 	_TranslationsCommonPaginationJa._(this._root);
@@ -2279,6 +2303,76 @@ class _TranslationsFirstTimeSetupCommonJa implements TranslationsFirstTimeSetupC
 	// Translations
 	@override String get settingsChangeableTip => 'これらの設定はいつでも設定画面で変更できます';
 	@override String get agreeAgreementSnackbar => 'まず利用規約とコミュニティルールに同意してください';
+}
+
+// Path: anime4k.presetGroups
+class _TranslationsAnime4kPresetGroupsJa implements TranslationsAnime4kPresetGroupsEn {
+	_TranslationsAnime4kPresetGroupsJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get highQuality => '高品質';
+	@override String get fast => '高速';
+	@override String get lite => '軽量';
+	@override String get moreLite => 'より軽量';
+	@override String get custom => 'カスタム';
+}
+
+// Path: anime4k.presetDescriptions
+class _TranslationsAnime4kPresetDescriptionsJa implements TranslationsAnime4kPresetDescriptionsEn {
+	_TranslationsAnime4kPresetDescriptionsJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get mode_a_hq => 'ほとんどの1080pアニメ、特にぼかし、再サンプリング、圧縮アーティファクトを処理する場合に適しています。最高の知覚品質を提供します。';
+	@override String get mode_b_hq => 'スケーリングによる軽度のぼかしやリンギング効果のあるアニメに適しています。リンギングとエイリアスを効果的に減らすことができます。';
+	@override String get mode_c_hq => 'ほとんど欠陥のない高品質ソース（ネイティブ1080pアニメや映画など）に適しています。ノイズ除去を行い、最高のPSNRを提供します。';
+	@override String get mode_a_a_hq => 'Mode Aの強化版で、究極の知覚品質を提供し、ほぼすべての劣化ラインを再構築できます。過度なシャープネスやリンギングが発生する可能性があります。';
+	@override String get mode_b_b_hq => 'Mode Bの強化版で、より高い知覚品質を提供し、ラインをさらに最適化し、アーティファクトを減らします。';
+	@override String get mode_c_a_hq => 'Mode Cの知覚品質強化版で、高いPSNRを維持しながら一部のラインデータルを再構築しようとします。';
+	@override String get mode_a_fast => 'Mode Aの高速版で、品質とパフォーマンスのバランスが取れており、ほとんどの1080pアニメに適しています。';
+	@override String get mode_b_fast => 'Mode Bの高速版で、軽度のアーティファクトとリンギングを処理し、オーバーヘッドが低い。';
+	@override String get mode_c_fast => 'Mode Cの高速版で、高品質ソースの高速ノイズ除去とアップスケーリングに適しています。';
+	@override String get mode_a_a_fast => 'Mode A+Aの高速版で、パフォーマンスに制約のあるデバイスでより高い知覚品質を追求します。';
+	@override String get mode_b_b_fast => 'Mode B+Bの高速版で、パフォーマンスに制約のあるデバイスに強化されたライン修復とアーティファクト処理を提供します。';
+	@override String get mode_c_a_fast => 'Mode C+Aの高速版で、高品質ソースを高速処理しながら軽度のライン修復を行います。';
+	@override String get upscale_only_s => '最速のCNNモデルのみを使用してx2アップスケーリングを行い、修復とノイズ除去は行わず、最小限のパフォーマンスオーバーヘッド。';
+	@override String get upscale_deblur_fast => '従来の非CNNアルゴリズムを使用して高速アップスケーリングとデブリングを行い、デフォルトのプレーヤーアルゴリズムよりも優れた効果で、非常に低いパフォーマンスオーバーヘッド。';
+	@override String get restore_s_only => '最速のCNNモデルのみを使用して画像欠陥を修復し、アップスケーリングは行いません。ネイティブ解像度再生で品質を向上させたい場合に適しています。';
+	@override String get denoise_bilateral_fast => '従来のバイラテラルフィルタリングを使用して高速ノイズ除去を行い、非常に高速で軽度のノイズ処理に適しています。';
+	@override String get upscale_non_cnn => '従来の高速アルゴリズムを使用してアップスケーリングを行い、最小限のパフォーマンスオーバーヘッドでプレーヤーのデフォルトよりも優れた効果。';
+	@override String get mode_a_fast_darken => 'Mode A (Fast) + ライン暗化、高速モードAにライン暗化効果を追加し、ラインをより目立たせ、スタイライズ処理を行います。';
+	@override String get mode_a_hq_thin => 'Mode A (HQ) + ライン細化、高品質モードAにライン細化効果を追加し、より洗練された外観にします。';
+}
+
+// Path: anime4k.presetNames
+class _TranslationsAnime4kPresetNamesJa implements TranslationsAnime4kPresetNamesEn {
+	_TranslationsAnime4kPresetNamesJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get mode_a_hq => 'Mode A (HQ)';
+	@override String get mode_b_hq => 'Mode B (HQ)';
+	@override String get mode_c_hq => 'Mode C (HQ)';
+	@override String get mode_a_a_hq => 'Mode A+A (HQ)';
+	@override String get mode_b_b_hq => 'Mode B+B (HQ)';
+	@override String get mode_c_a_hq => 'Mode C+A (HQ)';
+	@override String get mode_a_fast => 'Mode A (Fast)';
+	@override String get mode_b_fast => 'Mode B (Fast)';
+	@override String get mode_c_fast => 'Mode C (Fast)';
+	@override String get mode_a_a_fast => 'Mode A+A (Fast)';
+	@override String get mode_b_b_fast => 'Mode B+B (Fast)';
+	@override String get mode_c_a_fast => 'Mode C+A (Fast)';
+	@override String get upscale_only_s => 'CNNアップスケーリング (超高速)';
+	@override String get upscale_deblur_fast => 'アップスケーリング & デブリング (高速)';
+	@override String get restore_s_only => '復元 (超高速)';
+	@override String get denoise_bilateral_fast => 'バイラテラルノイズ除去 (超高速)';
+	@override String get upscale_non_cnn => '非CNNアップスケーリング (超高速)';
+	@override String get mode_a_fast_darken => 'Mode A (Fast) + ライン暗化';
+	@override String get mode_a_hq_thin => 'Mode A (HQ) + ライン細化';
 }
 
 /// Flat map(s) containing all translations.
@@ -3899,6 +3993,60 @@ extension on TranslationsJa {
 			case 'tagSelector.selectAll': return 'すべて選択';
 			case 'tagSelector.cancelSelectAll': return 'すべての選択をキャンセル';
 			case 'tagSelector.delete': return '削除';
+			case 'anime4k.realTimeVideoUpscalingAndDenoising': return 'Anime4K リアルタイムビデオアップスケーリングとノイズ除去、アニメーション動画の品質向上';
+			case 'anime4k.settings': return 'Anime4K 設定';
+			case 'anime4k.preset': return 'Anime4K プリセット';
+			case 'anime4k.disable': return 'Anime4K を無効にする';
+			case 'anime4k.disableDescription': return 'ビデオ強化効果を無効にする';
+			case 'anime4k.highQualityPresets': return '高品質プリセット';
+			case 'anime4k.fastPresets': return '高速プリセット';
+			case 'anime4k.litePresets': return '軽量プリセット';
+			case 'anime4k.moreLitePresets': return 'より軽量なプリセット';
+			case 'anime4k.customPresets': return 'カスタムプリセット';
+			case 'anime4k.presetGroups.highQuality': return '高品質';
+			case 'anime4k.presetGroups.fast': return '高速';
+			case 'anime4k.presetGroups.lite': return '軽量';
+			case 'anime4k.presetGroups.moreLite': return 'より軽量';
+			case 'anime4k.presetGroups.custom': return 'カスタム';
+			case 'anime4k.presetDescriptions.mode_a_hq': return 'ほとんどの1080pアニメ、特にぼかし、再サンプリング、圧縮アーティファクトを処理する場合に適しています。最高の知覚品質を提供します。';
+			case 'anime4k.presetDescriptions.mode_b_hq': return 'スケーリングによる軽度のぼかしやリンギング効果のあるアニメに適しています。リンギングとエイリアスを効果的に減らすことができます。';
+			case 'anime4k.presetDescriptions.mode_c_hq': return 'ほとんど欠陥のない高品質ソース（ネイティブ1080pアニメや映画など）に適しています。ノイズ除去を行い、最高のPSNRを提供します。';
+			case 'anime4k.presetDescriptions.mode_a_a_hq': return 'Mode Aの強化版で、究極の知覚品質を提供し、ほぼすべての劣化ラインを再構築できます。過度なシャープネスやリンギングが発生する可能性があります。';
+			case 'anime4k.presetDescriptions.mode_b_b_hq': return 'Mode Bの強化版で、より高い知覚品質を提供し、ラインをさらに最適化し、アーティファクトを減らします。';
+			case 'anime4k.presetDescriptions.mode_c_a_hq': return 'Mode Cの知覚品質強化版で、高いPSNRを維持しながら一部のラインデータルを再構築しようとします。';
+			case 'anime4k.presetDescriptions.mode_a_fast': return 'Mode Aの高速版で、品質とパフォーマンスのバランスが取れており、ほとんどの1080pアニメに適しています。';
+			case 'anime4k.presetDescriptions.mode_b_fast': return 'Mode Bの高速版で、軽度のアーティファクトとリンギングを処理し、オーバーヘッドが低い。';
+			case 'anime4k.presetDescriptions.mode_c_fast': return 'Mode Cの高速版で、高品質ソースの高速ノイズ除去とアップスケーリングに適しています。';
+			case 'anime4k.presetDescriptions.mode_a_a_fast': return 'Mode A+Aの高速版で、パフォーマンスに制約のあるデバイスでより高い知覚品質を追求します。';
+			case 'anime4k.presetDescriptions.mode_b_b_fast': return 'Mode B+Bの高速版で、パフォーマンスに制約のあるデバイスに強化されたライン修復とアーティファクト処理を提供します。';
+			case 'anime4k.presetDescriptions.mode_c_a_fast': return 'Mode C+Aの高速版で、高品質ソースを高速処理しながら軽度のライン修復を行います。';
+			case 'anime4k.presetDescriptions.upscale_only_s': return '最速のCNNモデルのみを使用してx2アップスケーリングを行い、修復とノイズ除去は行わず、最小限のパフォーマンスオーバーヘッド。';
+			case 'anime4k.presetDescriptions.upscale_deblur_fast': return '従来の非CNNアルゴリズムを使用して高速アップスケーリングとデブリングを行い、デフォルトのプレーヤーアルゴリズムよりも優れた効果で、非常に低いパフォーマンスオーバーヘッド。';
+			case 'anime4k.presetDescriptions.restore_s_only': return '最速のCNNモデルのみを使用して画像欠陥を修復し、アップスケーリングは行いません。ネイティブ解像度再生で品質を向上させたい場合に適しています。';
+			case 'anime4k.presetDescriptions.denoise_bilateral_fast': return '従来のバイラテラルフィルタリングを使用して高速ノイズ除去を行い、非常に高速で軽度のノイズ処理に適しています。';
+			case 'anime4k.presetDescriptions.upscale_non_cnn': return '従来の高速アルゴリズムを使用してアップスケーリングを行い、最小限のパフォーマンスオーバーヘッドでプレーヤーのデフォルトよりも優れた効果。';
+			case 'anime4k.presetDescriptions.mode_a_fast_darken': return 'Mode A (Fast) + ライン暗化、高速モードAにライン暗化効果を追加し、ラインをより目立たせ、スタイライズ処理を行います。';
+			case 'anime4k.presetDescriptions.mode_a_hq_thin': return 'Mode A (HQ) + ライン細化、高品質モードAにライン細化効果を追加し、より洗練された外観にします。';
+			case 'anime4k.presetNames.mode_a_hq': return 'Mode A (HQ)';
+			case 'anime4k.presetNames.mode_b_hq': return 'Mode B (HQ)';
+			case 'anime4k.presetNames.mode_c_hq': return 'Mode C (HQ)';
+			case 'anime4k.presetNames.mode_a_a_hq': return 'Mode A+A (HQ)';
+			case 'anime4k.presetNames.mode_b_b_hq': return 'Mode B+B (HQ)';
+			case 'anime4k.presetNames.mode_c_a_hq': return 'Mode C+A (HQ)';
+			case 'anime4k.presetNames.mode_a_fast': return 'Mode A (Fast)';
+			case 'anime4k.presetNames.mode_b_fast': return 'Mode B (Fast)';
+			case 'anime4k.presetNames.mode_c_fast': return 'Mode C (Fast)';
+			case 'anime4k.presetNames.mode_a_a_fast': return 'Mode A+A (Fast)';
+			case 'anime4k.presetNames.mode_b_b_fast': return 'Mode B+B (Fast)';
+			case 'anime4k.presetNames.mode_c_a_fast': return 'Mode C+A (Fast)';
+			case 'anime4k.presetNames.upscale_only_s': return 'CNNアップスケーリング (超高速)';
+			case 'anime4k.presetNames.upscale_deblur_fast': return 'アップスケーリング & デブリング (高速)';
+			case 'anime4k.presetNames.restore_s_only': return '復元 (超高速)';
+			case 'anime4k.presetNames.denoise_bilateral_fast': return 'バイラテラルノイズ除去 (超高速)';
+			case 'anime4k.presetNames.upscale_non_cnn': return '非CNNアップスケーリング (超高速)';
+			case 'anime4k.presetNames.mode_a_fast_darken': return 'Mode A (Fast) + ライン暗化';
+			case 'anime4k.presetNames.mode_a_hq_thin': return 'Mode A (HQ) + ライン細化';
+			case 'anime4k.performanceTip': return '💡 ヒント：デバイスのパフォーマンスに基づいて適切なプリセットを選択してください。ローエンドデバイスでは軽量プリセットをお勧めします。';
 			default: return null;
 		}
 	}

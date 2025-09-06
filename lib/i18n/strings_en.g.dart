@@ -74,6 +74,7 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final TranslationsFirstTimeSetupEn firstTimeSetup = TranslationsFirstTimeSetupEn._(_root);
 	late final TranslationsProxyHelperEn proxyHelper = TranslationsProxyHelperEn._(_root);
 	late final TranslationsTagSelectorEn tagSelector = TranslationsTagSelectorEn._(_root);
+	late final TranslationsAnime4kEn anime4k = TranslationsAnime4kEn._(_root);
 }
 
 // Path: common
@@ -4244,6 +4245,52 @@ class TranslationsTagSelectorEn {
 	String get delete => 'Delete';
 }
 
+// Path: anime4k
+class TranslationsAnime4kEn {
+	TranslationsAnime4kEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Real-time video upscaling and denoising, improving animation video quality'
+	String get realTimeVideoUpscalingAndDenoising => 'Real-time video upscaling and denoising, improving animation video quality';
+
+	/// en: 'Anime4K Settings'
+	String get settings => 'Anime4K Settings';
+
+	/// en: 'Anime4K Preset'
+	String get preset => 'Anime4K Preset';
+
+	/// en: 'Disable Anime4K'
+	String get disable => 'Disable Anime4K';
+
+	/// en: 'Disable video enhancement effects'
+	String get disableDescription => 'Disable video enhancement effects';
+
+	/// en: 'High Quality Presets'
+	String get highQualityPresets => 'High Quality Presets';
+
+	/// en: 'Fast Presets'
+	String get fastPresets => 'Fast Presets';
+
+	/// en: 'Lightweight Presets'
+	String get litePresets => 'Lightweight Presets';
+
+	/// en: 'More Lightweight Presets'
+	String get moreLitePresets => 'More Lightweight Presets';
+
+	/// en: 'Custom Presets'
+	String get customPresets => 'Custom Presets';
+
+	late final TranslationsAnime4kPresetGroupsEn presetGroups = TranslationsAnime4kPresetGroupsEn._(_root);
+	late final TranslationsAnime4kPresetDescriptionsEn presetDescriptions = TranslationsAnime4kPresetDescriptionsEn._(_root);
+	late final TranslationsAnime4kPresetNamesEn presetNames = TranslationsAnime4kPresetNamesEn._(_root);
+
+	/// en: '💡 Tip: Choose appropriate presets based on device performance. Low-end devices are recommended to use lightweight presets.'
+	String get performanceTip => '💡 Tip: Choose appropriate presets based on device performance. Low-end devices are recommended to use lightweight presets.';
+}
+
 // Path: common.pagination
 class TranslationsCommonPaginationEn {
 	TranslationsCommonPaginationEn._(this._root);
@@ -5517,6 +5564,162 @@ class TranslationsFirstTimeSetupCommonEn {
 
 	/// en: 'Please agree to the user agreement and community rules first'
 	String get agreeAgreementSnackbar => 'Please agree to the user agreement and community rules first';
+}
+
+// Path: anime4k.presetGroups
+class TranslationsAnime4kPresetGroupsEn {
+	TranslationsAnime4kPresetGroupsEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'High Quality'
+	String get highQuality => 'High Quality';
+
+	/// en: 'Fast'
+	String get fast => 'Fast';
+
+	/// en: 'Lite'
+	String get lite => 'Lite';
+
+	/// en: 'More Lite'
+	String get moreLite => 'More Lite';
+
+	/// en: 'Custom'
+	String get custom => 'Custom';
+}
+
+// Path: anime4k.presetDescriptions
+class TranslationsAnime4kPresetDescriptionsEn {
+	TranslationsAnime4kPresetDescriptionsEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Suitable for most 1080p animations, especially those dealing with blur, resampling and compression artifacts. Provides the highest perceived quality.'
+	String get mode_a_hq => 'Suitable for most 1080p animations, especially those dealing with blur, resampling and compression artifacts. Provides the highest perceived quality.';
+
+	/// en: 'Suitable for animations with slight blur or ringing effects caused by scaling. Can effectively reduce ringing and aliasing.'
+	String get mode_b_hq => 'Suitable for animations with slight blur or ringing effects caused by scaling. Can effectively reduce ringing and aliasing.';
+
+	/// en: 'Suitable for high-quality sources (such as native 1080p animations or movies). Denoises and provides the highest PSNR.'
+	String get mode_c_hq => 'Suitable for high-quality sources (such as native 1080p animations or movies). Denoises and provides the highest PSNR.';
+
+	/// en: 'Enhanced version of Mode A, providing ultimate perceived quality and can reconstruct almost all degraded lines. May produce oversharpening or ringing.'
+	String get mode_a_a_hq => 'Enhanced version of Mode A, providing ultimate perceived quality and can reconstruct almost all degraded lines. May produce oversharpening or ringing.';
+
+	/// en: 'Enhanced version of Mode B, providing higher perceived quality, further optimizing lines and reducing artifacts.'
+	String get mode_b_b_hq => 'Enhanced version of Mode B, providing higher perceived quality, further optimizing lines and reducing artifacts.';
+
+	/// en: 'Perceived quality enhanced version of Mode C, maintaining high PSNR while attempting to reconstruct some line details.'
+	String get mode_c_a_hq => 'Perceived quality enhanced version of Mode C, maintaining high PSNR while attempting to reconstruct some line details.';
+
+	/// en: 'Fast version of Mode A, balancing quality and performance, suitable for most 1080p animations.'
+	String get mode_a_fast => 'Fast version of Mode A, balancing quality and performance, suitable for most 1080p animations.';
+
+	/// en: 'Fast version of Mode B, for handling slight artifacts and ringing with lower overhead.'
+	String get mode_b_fast => 'Fast version of Mode B, for handling slight artifacts and ringing with lower overhead.';
+
+	/// en: 'Fast version of Mode C, for fast denoising and upscaling of high-quality sources.'
+	String get mode_c_fast => 'Fast version of Mode C, for fast denoising and upscaling of high-quality sources.';
+
+	/// en: 'Fast version of Mode A+A, pursuing higher perceived quality in performance-constrained devices.'
+	String get mode_a_a_fast => 'Fast version of Mode A+A, pursuing higher perceived quality in performance-constrained devices.';
+
+	/// en: 'Fast version of Mode B+B, providing enhanced line repair and artifact processing for performance-constrained devices.'
+	String get mode_b_b_fast => 'Fast version of Mode B+B, providing enhanced line repair and artifact processing for performance-constrained devices.';
+
+	/// en: 'Fast version of Mode C+A, performing fast processing of high-quality sources while providing light line repair.'
+	String get mode_c_a_fast => 'Fast version of Mode C+A, performing fast processing of high-quality sources while providing light line repair.';
+
+	/// en: 'Ultra-fast x2 upscaling using only the fastest CNN model, no repair and denoising, minimal performance overhead.'
+	String get upscale_only_s => 'Ultra-fast x2 upscaling using only the fastest CNN model, no repair and denoising, minimal performance overhead.';
+
+	/// en: 'Fast upscaling and deblurring using traditional non-CNN algorithms, better than default player algorithms with very low performance overhead.'
+	String get upscale_deblur_fast => 'Fast upscaling and deblurring using traditional non-CNN algorithms, better than default player algorithms with very low performance overhead.';
+
+	/// en: 'Repair only using the fastest CNN model, no upscaling. Suitable for native resolution playback where you want to improve quality.'
+	String get restore_s_only => 'Repair only using the fastest CNN model, no upscaling. Suitable for native resolution playback where you want to improve quality.';
+
+	/// en: 'Fast denoising using traditional bilateral filtering, extremely fast, suitable for processing light noise.'
+	String get denoise_bilateral_fast => 'Fast denoising using traditional bilateral filtering, extremely fast, suitable for processing light noise.';
+
+	/// en: 'Fast upscaling using traditional algorithms, very low performance overhead, better than player defaults.'
+	String get upscale_non_cnn => 'Fast upscaling using traditional algorithms, very low performance overhead, better than player defaults.';
+
+	/// en: 'Mode A (Fast) + Line darkening, adding line darkening effects on top of fast mode A for more prominent, stylized lines.'
+	String get mode_a_fast_darken => 'Mode A (Fast) + Line darkening, adding line darkening effects on top of fast mode A for more prominent, stylized lines.';
+
+	/// en: 'Mode A (HQ) + Line thinning, adding line thinning effects on top of high quality mode A for more refined appearance.'
+	String get mode_a_hq_thin => 'Mode A (HQ) + Line thinning, adding line thinning effects on top of high quality mode A for more refined appearance.';
+}
+
+// Path: anime4k.presetNames
+class TranslationsAnime4kPresetNamesEn {
+	TranslationsAnime4kPresetNamesEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Mode A (HQ)'
+	String get mode_a_hq => 'Mode A (HQ)';
+
+	/// en: 'Mode B (HQ)'
+	String get mode_b_hq => 'Mode B (HQ)';
+
+	/// en: 'Mode C (HQ)'
+	String get mode_c_hq => 'Mode C (HQ)';
+
+	/// en: 'Mode A+A (HQ)'
+	String get mode_a_a_hq => 'Mode A+A (HQ)';
+
+	/// en: 'Mode B+B (HQ)'
+	String get mode_b_b_hq => 'Mode B+B (HQ)';
+
+	/// en: 'Mode C+A (HQ)'
+	String get mode_c_a_hq => 'Mode C+A (HQ)';
+
+	/// en: 'Mode A (Fast)'
+	String get mode_a_fast => 'Mode A (Fast)';
+
+	/// en: 'Mode B (Fast)'
+	String get mode_b_fast => 'Mode B (Fast)';
+
+	/// en: 'Mode C (Fast)'
+	String get mode_c_fast => 'Mode C (Fast)';
+
+	/// en: 'Mode A+A (Fast)'
+	String get mode_a_a_fast => 'Mode A+A (Fast)';
+
+	/// en: 'Mode B+B (Fast)'
+	String get mode_b_b_fast => 'Mode B+B (Fast)';
+
+	/// en: 'Mode C+A (Fast)'
+	String get mode_c_a_fast => 'Mode C+A (Fast)';
+
+	/// en: 'CNN Upscaling (Ultra Fast)'
+	String get upscale_only_s => 'CNN Upscaling (Ultra Fast)';
+
+	/// en: 'Upscaling & Deblurring (Fast)'
+	String get upscale_deblur_fast => 'Upscaling & Deblurring (Fast)';
+
+	/// en: 'Restoration (Ultra Fast)'
+	String get restore_s_only => 'Restoration (Ultra Fast)';
+
+	/// en: 'Bilateral Denoising (Ultra Fast)'
+	String get denoise_bilateral_fast => 'Bilateral Denoising (Ultra Fast)';
+
+	/// en: 'Non-CNN Upscaling (Ultra Fast)'
+	String get upscale_non_cnn => 'Non-CNN Upscaling (Ultra Fast)';
+
+	/// en: 'Mode A (Fast) + Line Darkening'
+	String get mode_a_fast_darken => 'Mode A (Fast) + Line Darkening';
+
+	/// en: 'Mode A (HQ) + Line Thinning'
+	String get mode_a_hq_thin => 'Mode A (HQ) + Line Thinning';
 }
 
 /// Flat map(s) containing all translations.
@@ -7137,6 +7340,60 @@ extension on Translations {
 			case 'tagSelector.selectAll': return 'Select All';
 			case 'tagSelector.cancelSelectAll': return 'Cancel Select All';
 			case 'tagSelector.delete': return 'Delete';
+			case 'anime4k.realTimeVideoUpscalingAndDenoising': return 'Real-time video upscaling and denoising, improving animation video quality';
+			case 'anime4k.settings': return 'Anime4K Settings';
+			case 'anime4k.preset': return 'Anime4K Preset';
+			case 'anime4k.disable': return 'Disable Anime4K';
+			case 'anime4k.disableDescription': return 'Disable video enhancement effects';
+			case 'anime4k.highQualityPresets': return 'High Quality Presets';
+			case 'anime4k.fastPresets': return 'Fast Presets';
+			case 'anime4k.litePresets': return 'Lightweight Presets';
+			case 'anime4k.moreLitePresets': return 'More Lightweight Presets';
+			case 'anime4k.customPresets': return 'Custom Presets';
+			case 'anime4k.presetGroups.highQuality': return 'High Quality';
+			case 'anime4k.presetGroups.fast': return 'Fast';
+			case 'anime4k.presetGroups.lite': return 'Lite';
+			case 'anime4k.presetGroups.moreLite': return 'More Lite';
+			case 'anime4k.presetGroups.custom': return 'Custom';
+			case 'anime4k.presetDescriptions.mode_a_hq': return 'Suitable for most 1080p animations, especially those dealing with blur, resampling and compression artifacts. Provides the highest perceived quality.';
+			case 'anime4k.presetDescriptions.mode_b_hq': return 'Suitable for animations with slight blur or ringing effects caused by scaling. Can effectively reduce ringing and aliasing.';
+			case 'anime4k.presetDescriptions.mode_c_hq': return 'Suitable for high-quality sources (such as native 1080p animations or movies). Denoises and provides the highest PSNR.';
+			case 'anime4k.presetDescriptions.mode_a_a_hq': return 'Enhanced version of Mode A, providing ultimate perceived quality and can reconstruct almost all degraded lines. May produce oversharpening or ringing.';
+			case 'anime4k.presetDescriptions.mode_b_b_hq': return 'Enhanced version of Mode B, providing higher perceived quality, further optimizing lines and reducing artifacts.';
+			case 'anime4k.presetDescriptions.mode_c_a_hq': return 'Perceived quality enhanced version of Mode C, maintaining high PSNR while attempting to reconstruct some line details.';
+			case 'anime4k.presetDescriptions.mode_a_fast': return 'Fast version of Mode A, balancing quality and performance, suitable for most 1080p animations.';
+			case 'anime4k.presetDescriptions.mode_b_fast': return 'Fast version of Mode B, for handling slight artifacts and ringing with lower overhead.';
+			case 'anime4k.presetDescriptions.mode_c_fast': return 'Fast version of Mode C, for fast denoising and upscaling of high-quality sources.';
+			case 'anime4k.presetDescriptions.mode_a_a_fast': return 'Fast version of Mode A+A, pursuing higher perceived quality in performance-constrained devices.';
+			case 'anime4k.presetDescriptions.mode_b_b_fast': return 'Fast version of Mode B+B, providing enhanced line repair and artifact processing for performance-constrained devices.';
+			case 'anime4k.presetDescriptions.mode_c_a_fast': return 'Fast version of Mode C+A, performing fast processing of high-quality sources while providing light line repair.';
+			case 'anime4k.presetDescriptions.upscale_only_s': return 'Ultra-fast x2 upscaling using only the fastest CNN model, no repair and denoising, minimal performance overhead.';
+			case 'anime4k.presetDescriptions.upscale_deblur_fast': return 'Fast upscaling and deblurring using traditional non-CNN algorithms, better than default player algorithms with very low performance overhead.';
+			case 'anime4k.presetDescriptions.restore_s_only': return 'Repair only using the fastest CNN model, no upscaling. Suitable for native resolution playback where you want to improve quality.';
+			case 'anime4k.presetDescriptions.denoise_bilateral_fast': return 'Fast denoising using traditional bilateral filtering, extremely fast, suitable for processing light noise.';
+			case 'anime4k.presetDescriptions.upscale_non_cnn': return 'Fast upscaling using traditional algorithms, very low performance overhead, better than player defaults.';
+			case 'anime4k.presetDescriptions.mode_a_fast_darken': return 'Mode A (Fast) + Line darkening, adding line darkening effects on top of fast mode A for more prominent, stylized lines.';
+			case 'anime4k.presetDescriptions.mode_a_hq_thin': return 'Mode A (HQ) + Line thinning, adding line thinning effects on top of high quality mode A for more refined appearance.';
+			case 'anime4k.presetNames.mode_a_hq': return 'Mode A (HQ)';
+			case 'anime4k.presetNames.mode_b_hq': return 'Mode B (HQ)';
+			case 'anime4k.presetNames.mode_c_hq': return 'Mode C (HQ)';
+			case 'anime4k.presetNames.mode_a_a_hq': return 'Mode A+A (HQ)';
+			case 'anime4k.presetNames.mode_b_b_hq': return 'Mode B+B (HQ)';
+			case 'anime4k.presetNames.mode_c_a_hq': return 'Mode C+A (HQ)';
+			case 'anime4k.presetNames.mode_a_fast': return 'Mode A (Fast)';
+			case 'anime4k.presetNames.mode_b_fast': return 'Mode B (Fast)';
+			case 'anime4k.presetNames.mode_c_fast': return 'Mode C (Fast)';
+			case 'anime4k.presetNames.mode_a_a_fast': return 'Mode A+A (Fast)';
+			case 'anime4k.presetNames.mode_b_b_fast': return 'Mode B+B (Fast)';
+			case 'anime4k.presetNames.mode_c_a_fast': return 'Mode C+A (Fast)';
+			case 'anime4k.presetNames.upscale_only_s': return 'CNN Upscaling (Ultra Fast)';
+			case 'anime4k.presetNames.upscale_deblur_fast': return 'Upscaling & Deblurring (Fast)';
+			case 'anime4k.presetNames.restore_s_only': return 'Restoration (Ultra Fast)';
+			case 'anime4k.presetNames.denoise_bilateral_fast': return 'Bilateral Denoising (Ultra Fast)';
+			case 'anime4k.presetNames.upscale_non_cnn': return 'Non-CNN Upscaling (Ultra Fast)';
+			case 'anime4k.presetNames.mode_a_fast_darken': return 'Mode A (Fast) + Line Darkening';
+			case 'anime4k.presetNames.mode_a_hq_thin': return 'Mode A (HQ) + Line Thinning';
+			case 'anime4k.performanceTip': return '💡 Tip: Choose appropriate presets based on device performance. Low-end devices are recommended to use lightweight presets.';
 			default: return null;
 		}
 	}

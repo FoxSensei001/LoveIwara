@@ -203,6 +203,7 @@ class TopToolbar extends StatelessWidget {
     );
   }
 
+
   // 显示信息模态框
   void showInfoModal(BuildContext context) {
     Get.dialog(
@@ -293,6 +294,15 @@ class TopToolbar extends StatelessWidget {
                   ],
                 ),
               ],
+              const SizedBox(height: 8),
+              // Anime4K 视频增强
+              Row(
+                children: [
+                  const Icon(Icons.high_quality),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(slang.t.anime4k.realTimeVideoUpscalingAndDenoising)),
+                ],
+              ),
               const SizedBox(height: 8),
               Row(
                 children: [

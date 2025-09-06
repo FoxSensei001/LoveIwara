@@ -307,6 +307,8 @@ enum ConfigKey {
   FULLSCREEN_ORIENTATION, // 进入全屏后的屏幕方向
   // 首次设置相关
   FIRST_TIME_SETUP_COMPLETED, // 首次设置是否已完成
+  // Anime4K 预设配置
+  ANIME4K_PRESET_ID, // 当前选中的 Anime4K 预设 ID，空字符串表示禁用
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -401,6 +403,7 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.NAVIGATION_ORDER: return 'navigation_order';
       case ConfigKey.FULLSCREEN_ORIENTATION: return 'fullscreen_orientation';
       case ConfigKey.FIRST_TIME_SETUP_COMPLETED: return 'first_time_setup_completed';
+      case ConfigKey.ANIME4K_PRESET_ID: return 'anime4k_preset_id';
     }
   }
 
@@ -563,7 +566,7 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.VIDEO_SYNC:
         return 'display-resample';
       case ConfigKey.HARDWARE_DECODING:
-        return GetPlatform.isAndroid ? 'auto-safe' : 'auto';
+        return 'auto-safe';
       case ConfigKey.ENABLE_HARDWARE_ACCELERATION:
         return true;
       case ConfigKey.USE_OPENSLES:
@@ -590,6 +593,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'landscape_left'; // 默认左侧横屏
       case ConfigKey.FIRST_TIME_SETUP_COMPLETED:
         return false;
+      case ConfigKey.ANIME4K_PRESET_ID:
+        return ''; // 默认禁用 Anime4K（空字符串表示禁用）
     }
   }
 }

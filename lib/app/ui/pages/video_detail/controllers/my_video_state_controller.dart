@@ -16,6 +16,7 @@ import 'package:i_iwara/app/services/playback_history_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/related_media_controller.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/error_widget.dart';
+import 'package:i_iwara/common/anime4k_presets.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -203,7 +204,6 @@ class MyVideoStateController extends GetxController
       try {
         // 强制触发 ExtendedNestedScrollView 重建
         (nestedScrollViewKey.currentState as dynamic).setState(() {});
-        print('senko 触发');
       } catch (ignored) {
         // ignore: empty_catches
       }
@@ -301,10 +301,10 @@ class MyVideoStateController extends GetxController
       // 移动端初始化音量控制器
       if (GetPlatform.isAndroid || GetPlatform.isIOS) {
         // 初始化并关闭系统音量UI
-        volumeController = VolumeController.instance;
+        volumeController = VolumeController();
         volumeController?.showSystemUI = false;
         // 添加音量监听
-        _volumeListenerDisposer = volumeController?.addListener((volume) {
+        _volumeListenerDisposer = volumeController?.listener((volume) {
           // 如果当前在long press状态，则不更新音量
           if (isLongPressing.value ||
               isSlidingVolumeZone.value ||
@@ -1246,6 +1246,8 @@ class MyVideoStateController extends GetxController
     if (_isDisposed) return;
     try {
       _setupListenersAfterOpen();
+
+      await setShader();
     } catch (e) {
       if (_isDisposed) return;
       LogUtils.e('设置监听器时出错: $e', tag: 'MyVideoStateController', error: e);
@@ -1738,6 +1740,74 @@ class MyVideoStateController extends GetxController
   void hideResumePositionTip() {
     showResumePositionTip.value = false;
     _resumeTipTimer?.cancel();
+  }
+
+  /// 设置 Anime4K Shader
+  Future<void> setShader({String? presetId, bool synchronized = true}) async {
+    if (player.platform is! NativePlayer) return;
+
+    final pp = player.platform as NativePlayer;
+
+    // 等待播放器初始化
+    await pp.waitForPlayerInitialization;
+    await pp.waitForVideoControllerInitializationIfAttached;
+
+    // 如果没有指定预设ID，使用配置中的默认值
+    final targetPresetId = presetId ?? _configService[ConfigKey.ANIME4K_PRESET_ID];
+
+    // 如果预设ID为空字符串，表示禁用 Anime4K，清空 shader
+    if (targetPresetId.isEmpty) {
+      await pp.command(['change-list', 'glsl-shaders', 'clr', '']);
+      LogUtils.d('已清除 Anime4K shaders', 'MyVideoStateController');
+      return;
+    }
+
+    try {
+      // 获取预设
+      final preset = Anime4KPresets.getPresetById(targetPresetId);
+      if (preset == null) {
+        LogUtils.w('未找到 Anime4K 预设: $targetPresetId', 'MyVideoStateController');
+        return;
+      }
+
+      // 构建 shader 路径
+      final shaderPaths = _buildShaderPaths(preset);
+
+      // 设置 shader
+      await pp.command([
+        'change-list',
+        'glsl-shaders',
+        'set',
+        shaderPaths,
+      ]);
+
+      LogUtils.d('成功设置 Anime4K 预设: ${preset.name} (${preset.shaders.length} 个 shaders)', 'MyVideoStateController');
+    } catch (e) {
+      LogUtils.e('设置 Anime4K shader 失败: $e', tag: 'MyVideoStateController', error: e);
+      // 失败时清空 shader
+      await pp.command(['change-list', 'glsl-shaders', 'clr', '']);
+    }
+  }
+
+  /// 构建 shader 路径列表
+  String _buildShaderPaths(Anime4KPreset preset) {
+    // 获取 assets 目录下的 shader 文件路径
+    final shaderPaths = preset.shaderPaths;
+
+    // 根据平台拼接路径分隔符
+    if (GetPlatform.isWindows) {
+      return shaderPaths.join(';');
+    } else {
+      return shaderPaths.join(':');
+    }
+  }
+
+  /// 切换 Anime4K 预设
+  Future<void> switchAnime4KPreset(String presetId) async {
+    // 更新配置
+    _configService.setSetting(ConfigKey.ANIME4K_PRESET_ID, presetId);
+    // 应用新预设
+    await setShader(presetId: presetId);
   }
 
   /// 进入画中画模式
