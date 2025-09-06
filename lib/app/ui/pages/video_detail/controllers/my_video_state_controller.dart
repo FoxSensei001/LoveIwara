@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart' show ExtendedNestedScrollViewState;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -194,17 +195,9 @@ class MyVideoStateController extends GetxController
   late final double maxVideoHeight; // 最大视频高度
   late final double videoHeight; // 当前视频高度
 
-  final GlobalKey<State<StatefulWidget>> nestedScrollViewKey =
-      GlobalKey<State<StatefulWidget>>();
+  late final nestedScrollViewKey = GlobalKey<ExtendedNestedScrollViewState>();
 
   MyVideoStateController(this.videoId, {this.extData});
-
-  void refreshScrollView() {
-    // 触发重建
-    if (nestedScrollViewKey.currentState is StatefulWidget) {
-      (nestedScrollViewKey.currentState as dynamic).setState(() {});
-    }
-  }
 
   @override
   void onInit() async {
@@ -1294,10 +1287,6 @@ class MyVideoStateController extends GetxController
       if (_isDisposed) return;
       if (playing != videoPlaying.value) {
         videoPlaying.value = playing;
-        // 当播放状态改变时，刷新滚动视图
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          refreshScrollView();
-        });
       }
     });
 

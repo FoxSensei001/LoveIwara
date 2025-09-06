@@ -28,7 +28,11 @@ class MyVideoDetailPage extends StatefulWidget {
   final String videoId;
   final Map<String, dynamic>? extData;
 
-  const MyVideoDetailPage({super.key, required this.videoId, this.extData = const {}});
+  const MyVideoDetailPage({
+    super.key,
+    required this.videoId,
+    this.extData = const {},
+  });
 
   @override
   MyVideoDetailPageState createState() => MyVideoDetailPageState();
@@ -65,7 +69,10 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
 
     // 初始化控制器
     try {
-      controller = Get.put(MyVideoStateController(videoId, extData: widget.extData), tag: uniqueTag);
+      controller = Get.put(
+        MyVideoStateController(videoId, extData: widget.extData),
+        tag: uniqueTag,
+      );
 
       commentController = Get.put(
         CommentController(id: videoId, type: CommentType.video),
@@ -236,13 +243,15 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
   ) {
     const double tabsAreaWidth = 350.0; // 固定Tab区域宽度，适当缩窄以优化播放器显示区域
 
-    if (controller.pageLoadingState.value == VideoDetailPageLoadingState.loadingVideoInfo ||
+    if (controller.pageLoadingState.value ==
+            VideoDetailPageLoadingState.loadingVideoInfo ||
         controller.pageLoadingState.value == VideoDetailPageLoadingState.init) {
       return VideoDetailWideSkeletonWidget(controller: controller);
     }
 
     // 如果是私有视频但没有fileUrl（无访问权限），则不显示内容
-    if (controller.videoInfo.value?.private == true && controller.videoInfo.value?.fileUrl == null) {
+    if (controller.videoInfo.value?.private == true &&
+        controller.videoInfo.value?.fileUrl == null) {
       return const SizedBox.shrink();
     }
 
@@ -253,10 +262,10 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
         Expanded(
           child: Obx(() {
             // 站外、站内视频都显示播放器
-            if (controller.videoInfo.value?.isExternalVideo == true || controller.videoPlayerReady.value) {
+            if (controller.videoInfo.value?.isExternalVideo == true ||
+                controller.videoPlayerReady.value) {
               return _buildPureVideoPlayer(screenSize.height, paddingTop);
             }
-
             // 否则显示播放器（包含加载状态）
             else {
               return MyVideoScreen(
@@ -283,91 +292,98 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     double paddingTop,
     slang.Translations t,
   ) {
-    if (controller.pageLoadingState.value == VideoDetailPageLoadingState.loadingVideoInfo ||
+    if (controller.pageLoadingState.value ==
+            VideoDetailPageLoadingState.loadingVideoInfo ||
         controller.pageLoadingState.value == VideoDetailPageLoadingState.init) {
       return const MediaDetailInfoSkeletonWidget();
     }
 
-    return ExtendedNestedScrollView(
-      key: controller.nestedScrollViewKey,
-      controller: controller.scrollController,
-      physics: const ClampingScrollPhysics(),
-      pinnedHeaderSliverHeightBuilder: () {
-        // 只有播放时固定播放器高度，否则 header 不固定
-        if (controller.videoPlaying.value) {
-          // 播放时，返回当前视频的高度，以防止在滚动时收缩
-          return controller.getCurrentVideoHeight(
-            screenSize.width,
-            screenSize.height,
-            paddingTop,
-          );
-        }
-        return kToolbarHeight + paddingTop;
-      },
-      headerSliverBuilder: (context, innerBoxIsScrolled) {
-        return [
-          Obx(
-            () => SliverAppBar(
-              elevation: 0,
-              scrolledUnderElevation: 0,
-              primary: false,
-              automaticallyImplyLeading: false,
-              pinned: true,
-              systemOverlayStyle: const SystemUiOverlayStyle(
-                statusBarColor: Colors.transparent,
-                statusBarIconBrightness: Brightness.light,
-                systemNavigationBarColor: Colors.transparent,
-                systemNavigationBarIconBrightness: Brightness.light,
-              ),
-              // 动态 pinned
-              expandedHeight: controller.getCurrentVideoHeight(
-                screenSize.width,
-                screenSize.height,
-                paddingTop,
-              ),
-              flexibleSpace: Stack(
-                children: [
-                  // 视频播放器
-                  Obx(() {
-                    // 站外、站内视频都显示播放器
-                    if (controller.videoInfo.value?.isExternalVideo == true || controller.videoPlayerReady.value) {
-                      return SizedBox(
-                        width: screenSize.width,
-                        height: controller.getCurrentVideoHeight(
-                          screenSize.width,
-                          screenSize.height,
-                          paddingTop,
-                        ),
-                        child: _buildVideoPlayerContent(),
-                      );
-                    }
-
-                    // 否则显示骨架屏
-                    else {
-                      return SizedBox(
-                        width: screenSize.width,
-                        height: controller.getCurrentVideoHeight(
-                          screenSize.width,
-                          screenSize.height,
-                          paddingTop,
-                        ),
-                        child: MyVideoScreen(
-                          myVideoStateController: controller,
-                          isFullScreen: false,
-                        ),
-                      );
-                    }
-                  }),
-                  // 顶部工具栏（根据滚动状态显示）
-                  Obx(() => _buildTopToolbarOverlay(context, t)),
-                ],
+    return Obx(() {
+      // 使用 Obx 包装整个 ExtendedNestedScrollView，确保 videoPlaying 状态变化时重建
+      return ExtendedNestedScrollView(
+        key: controller.nestedScrollViewKey,
+        controller: controller.scrollController,
+        physics: const NeverScrollableScrollPhysics(
+          parent: ClampingScrollPhysics(),
+        ),
+        onlyOneScrollInBody: true,
+        pinnedHeaderSliverHeightBuilder: () {
+          // 核心逻辑：播放时返回视频高度，暂停时返回工具栏高度
+          if (controller.videoPlaying.value) {
+            return controller.getCurrentVideoHeight(
+              screenSize.width,
+              screenSize.height,
+              paddingTop,
+            );
+          } else {
+            return kToolbarHeight + paddingTop;
+          }
+        },
+        headerSliverBuilder: (context, innerBoxIsScrolled) {
+          return [
+            Obx(
+              () => SliverAppBar(
+                elevation: 0,
+                scrolledUnderElevation: 0,
+                primary: false,
+                automaticallyImplyLeading: false,
+                pinned: true,
+                systemOverlayStyle: const SystemUiOverlayStyle(
+                  statusBarColor: Colors.transparent,
+                  statusBarIconBrightness: Brightness.light,
+                  systemNavigationBarColor: Colors.transparent,
+                  systemNavigationBarIconBrightness: Brightness.light,
+                ),
+                // 动态 pinned
+                expandedHeight: controller.getCurrentVideoHeight(
+                  screenSize.width,
+                  screenSize.height,
+                  paddingTop,
+                ),
+                flexibleSpace: Stack(
+                  children: [
+                    // 视频播放器
+                    Obx(() {
+                      // 站外、站内视频都显示播放器
+                      if (controller.videoInfo.value?.isExternalVideo == true ||
+                          controller.videoPlayerReady.value) {
+                        return SizedBox(
+                          width: screenSize.width,
+                          height: controller.getCurrentVideoHeight(
+                            screenSize.width,
+                            screenSize.height,
+                            paddingTop,
+                          ),
+                          child: _buildVideoPlayerContent(),
+                        );
+                      }
+                      // 否则显示骨架屏
+                      else {
+                        return SizedBox(
+                          width: screenSize.width,
+                          height: controller.getCurrentVideoHeight(
+                            screenSize.width,
+                            screenSize.height,
+                            paddingTop,
+                          ),
+                          child: MyVideoScreen(
+                            myVideoStateController: controller,
+                            isFullScreen: false,
+                          ),
+                        );
+                      }
+                    }),
+                    // 顶部工具栏（根据滚动状态显示）
+                    Obx(() => _buildTopToolbarOverlay(context, t)),
+                  ],
+                ),
               ),
             ),
-          ),
-        ];
-      },
-      body: _buildTabSection(context, 0, t),
-    );
+          ];
+        },
+        body: _buildTabSection(context, 0, t),
+      );
+    });
   }
 
   // 构建纯播放器（宽屏时使用，占满整个容器）
@@ -444,7 +460,9 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
               ],
             )
           : CommonErrorWidget(
-              text: controller.videoErrorMessage.value ?? t.videoDetail.videoLoadError,
+              text:
+                  controller.videoErrorMessage.value ??
+                  t.videoDetail.videoLoadError,
               children: [
                 ElevatedButton.icon(
                   onPressed: () => AppService.tryPop(),
@@ -504,7 +522,8 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                       controller.aspectRatio.value,
                     );
                     // 当 header 收缩时（scrollRatio > 0.8），隐藏按钮
-                    final isCollapsed = !isWide && controller.scrollRatio.value > 0.8;
+                    final isCollapsed =
+                        !isWide && controller.scrollRatio.value > 0.8;
                     return AnimatedOpacity(
                       opacity: isCollapsed ? 0.0 : 1.0,
                       duration: const Duration(milliseconds: 200),
@@ -521,9 +540,13 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                             ),
                             ElevatedButton.icon(
                               onPressed: () {
-                                if (controller.videoInfo.value?.embedUrl != null) {
+                                if (controller.videoInfo.value?.embedUrl !=
+                                    null) {
                                   launchUrl(
-                                      Uri.parse(controller.videoInfo.value!.embedUrl!));
+                                    Uri.parse(
+                                      controller.videoInfo.value!.embedUrl!,
+                                    ),
+                                  );
                                 }
                               },
                               icon: const Icon(Icons.open_in_new),
@@ -558,7 +581,8 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     return FutureBuilder<Widget>(
       future: _createBlurredBackground(thumbnailUrl, screenSize),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+        if (snapshot.connectionState == ConnectionState.done &&
+            snapshot.hasData) {
           return snapshot.data!;
         }
         // 加载过程中显示纯黑背景
@@ -572,7 +596,10 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
   }
 
   // 创建模糊背景的异步方法
-  Future<Widget> _createBlurredBackground(String thumbnailUrl, Size size) async {
+  Future<Widget> _createBlurredBackground(
+    String thumbnailUrl,
+    Size size,
+  ) async {
     try {
       // 1. 加载原始图片，使用较小的分辨率减少内存占用
       final NetworkImage networkImage = NetworkImage(thumbnailUrl);
@@ -582,14 +609,17 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       final ImageStream stream = networkImage.resolve(config);
       final Completer<ui.Image> completer = Completer<ui.Image>();
 
-      stream.addListener(ImageStreamListener((ImageInfo info, bool _) {
-        completer.complete(info.image);
-      }));
+      stream.addListener(
+        ImageStreamListener((ImageInfo info, bool _) {
+          completer.complete(info.image);
+        }),
+      );
 
       final ui.Image originalImage = await completer.future;
 
       // 2. 计算适当的绘制尺寸以保持宽高比
-      final double imageAspectRatio = originalImage.width / originalImage.height;
+      final double imageAspectRatio =
+          originalImage.width / originalImage.height;
       final double screenAspectRatio = size.width / size.height;
 
       double targetWidth = size.width;
@@ -618,7 +648,12 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       // 使用计算后的偏移量和尺寸绘制图片
       canvas.drawImageRect(
         originalImage,
-        Rect.fromLTWH(0, 0, originalImage.width.toDouble(), originalImage.height.toDouble()),
+        Rect.fromLTWH(
+          0,
+          0,
+          originalImage.width.toDouble(),
+          originalImage.height.toDouble(),
+        ),
         Rect.fromLTWH(offsetX, offsetY, targetWidth, targetHeight),
         paint,
       );
@@ -626,19 +661,19 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       // 5. 将模糊后的图片转换为图像
       final blurredImage = await recorder.endRecording().toImage(
         size.width.toInt(),
-        size.height.toInt()
+        size.height.toInt(),
       );
 
       // 6. 转换为字节数据
-      final byteData = await blurredImage.toByteData(format: ui.ImageByteFormat.png);
+      final byteData = await blurredImage.toByteData(
+        format: ui.ImageByteFormat.png,
+      );
       final buffer = byteData!.buffer.asUint8List();
 
       // 7. 创建最终的模糊背景Widget
       return Stack(
         children: [
-          Positioned.fill(
-            child: Container(color: Colors.black),
-          ),
+          Positioned.fill(child: Container(color: Colors.black)),
           Positioned.fill(
             child: Opacity(
               opacity: 0.2,
@@ -652,7 +687,6 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
           ),
         ],
       );
-
     } catch (e) {
       // 如果出现错误，返回纯黑背景
       return Container(
