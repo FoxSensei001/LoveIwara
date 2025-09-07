@@ -812,6 +812,11 @@ class PlayerSettingsWidget extends StatelessWidget {
                       _configService[ConfigKey.THEATER_MODE_KEY] = value;
                     },
                   ),
+                   // Anime4K 设置
+                  Anime4KSettingsWidget(
+                    showInfoCard: true,
+                    infoMessage: t.anime4k.realTimeVideoUpscalingAndDenoising,
+                  ),
                 ],
               ),
             ),
@@ -925,11 +930,6 @@ class PlayerSettingsWidget extends StatelessWidget {
                         _configService[ConfigKey.USE_OPENSLES] = value;
                       },
                     ),
-                  // Anime4K 设置
-                  Anime4KSettingsWidget(
-                    showInfoCard: true,
-                    infoMessage: t.anime4k.realTimeVideoUpscalingAndDenoising,
-                  ),
                 ],
               ),
             ),

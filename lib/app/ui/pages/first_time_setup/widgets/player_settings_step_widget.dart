@@ -164,6 +164,12 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
             isNarrow: isNarrow,
           ),
           const StepDivider(),
+          // Anime4K 设置
+          const Anime4KSettingsWidget(
+            showInfoCard: false,
+            isNarrow: false,
+          ),
+          const StepDivider(),
           NumberSettingTile(
             icon: Icons.fast_forward,
             title: slang.t.settings.fastForwardTime,
@@ -278,12 +284,6 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
             value: enableMouseHoverShowToolbar,
             onChanged: (v) => _setBool(ConfigKey.ENABLE_MOUSE_HOVER_SHOW_TOOLBAR, v, (x) => enableMouseHoverShowToolbar = x),
             isNarrow: isNarrow,
-          ),
-          const StepDivider(),
-          // Anime4K 设置
-          const Anime4KSettingsWidget(
-            showInfoCard: false,
-            isNarrow: false,
           ),
         ],
       ),

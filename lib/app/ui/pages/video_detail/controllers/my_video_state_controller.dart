@@ -28,6 +28,7 @@ import 'package:volume_controller/volume_controller.dart';
 
 import '../../../../../utils/common_utils.dart';
 import '../../../../../utils/easy_throttle.dart';
+import '../../../../../utils/glsl_shader_service.dart';
 import '../../../../../utils/x_version_calculator_utils.dart';
 import '../../../../models/user.model.dart';
 import '../../../../models/video_source.model.dart';
@@ -1791,6 +1792,34 @@ class MyVideoStateController extends GetxController
 
   /// 构建 shader 路径列表
   String _buildShaderPaths(Anime4KPreset preset) {
+    try {
+      // 获取 GLSL 着色器服务
+      final glslShaderService = Get.find<GlslShaderService>();
+
+      if (!glslShaderService.isInitialized) {
+        LogUtils.w('GLSL 着色器服务未初始化，使用 assets 路径作为后备', 'MyVideoStateController');
+        return _buildShaderPathsFromAssets(preset);
+      }
+
+      // 将相对路径转换为临时文件路径
+      final tempShaderPaths = preset.shaders.map((shaderFile) {
+        return glslShaderService.getTempShaderPath(shaderFile);
+      }).toList();
+
+      // 根据平台拼接路径分隔符
+      if (GetPlatform.isWindows) {
+        return tempShaderPaths.join(';');
+      } else {
+        return tempShaderPaths.join(':');
+      }
+    } catch (e) {
+      LogUtils.e('构建 shader 路径失败，使用 assets 路径作为后备', tag: 'MyVideoStateController', error: e);
+      return _buildShaderPathsFromAssets(preset);
+    }
+  }
+
+  /// 构建基于 assets 的 shader 路径列表（后备方案）
+  String _buildShaderPathsFromAssets(Anime4KPreset preset) {
     // 获取 assets 目录下的 shader 文件路径
     final shaderPaths = preset.shaderPaths;
 
