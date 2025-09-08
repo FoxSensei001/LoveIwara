@@ -1,5 +1,22 @@
 # zh-CN.i18n.yaml
 # 主要的翻译文件，如果有特殊描述，请使用 '# 注释'
+
+# Tutorial Service
+tutorial:
+  specialFollowFeature: "特别关注功能"
+  specialFollowDescription: "这里显示你特别关注的作者。在视频、图库、作者详情页点击关注按钮，然后选择\"添加为特别关注\"即可。"
+  exampleAuthorInfoRow: "示例：作者信息行"
+  authorName: "作者名称"
+  followed: "已关注"
+  specialFollowInstruction: "点击\"已关注\"按钮 → 选择\"添加为特别关注\""
+  followButtonLocations: "关注按钮位置："
+  videoDetailPage: "视频详情页"
+  galleryDetailPage: "图库详情页"
+  authorDetailPage: "作者详情页"
+  afterSpecialFollow: "特别关注后，可在此快速查看作者最新内容！"
+  specialFollowManagementTip: "特别关注列表可在侧边抽屉栏-关注列表-特别关注列表页面里管理"
+  skip: 跳过
+  
 common:
   appName: Love Iwara
   ok: 确定

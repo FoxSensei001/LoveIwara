@@ -19,6 +19,7 @@ import 'package:i_iwara/app/ui/widgets/glow_notification_widget.dart';
 import 'package:i_iwara/app/ui/pages/home_page.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
+import 'package:i_iwara/app/services/tutorial_service.dart';
 
 import 'dart:ui';
 import 'controllers/media_list_controller.dart';
@@ -56,6 +57,11 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
 
   final ScrollController _tabBarScrollController = ScrollController();
   final List<GlobalKey> _tabKeys = [];
+
+  // 教程指导需要的GlobalKey
+  final GlobalKey _userSelectorKey = GlobalKey();
+  final GlobalKey _searchButtonKey = GlobalKey();
+  final GlobalKey _floatingActionsKey = GlobalKey();
 
   // 添加节流器避免频繁处理滚动事件
   DateTime _lastScrollTime = DateTime.now();
@@ -235,6 +241,13 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
     _tabController.addListener(_onTabChange);
     mediaListController = Get.put(MediaListController());
 
+    // 显示教程指导（延迟执行，确保页面完全加载）
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        TutorialService().showSubscriptionTutorial(context);
+      }
+    });
+
     // 监听 MediaListController 的滚动变化
     _scrollListenerDisposer = ever(mediaListController.currentScrollOffset, (
       double offset,
@@ -368,6 +381,11 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
     mediaListController.refreshList();
   }
 
+  // 获取教程指导需要的GlobalKey
+  GlobalKey get userSelectorKey => _userSelectorKey;
+  GlobalKey get searchButtonKey => _searchButtonKey;
+  GlobalKey get floatingActionsKey => _floatingActionsKey;
+
   @override
   void dispose() {
     _scrollListenerDisposer?.call(); // 销毁监听器
@@ -496,6 +514,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                                         )
                                         .toList();
                                     return CompactSubscriptionDropdown(
+                                      key: _userSelectorKey,
                                       userList: userDropdownItems,
                                       selectedUserId: selectedId,
                                       onUserSelected: _onUserSelected,
@@ -513,6 +532,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                                         AppService.switchGlobalDrawer(),
                                   ),
                                   IconButton(
+                                    key: _searchButtonKey,
                                     icon: const Icon(Icons.search),
                                     onPressed: () {
                                       SearchSegment segment;
@@ -661,6 +681,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                   right: _edgePadding,
                   bottom: _edgePadding + extraBottomNow,
                   child: GridSpeedDial(
+                    key: _floatingActionsKey,
                     icon: Icons.menu,
                     activeIcon: Icons.close,
                     backgroundColor:

@@ -36,6 +36,7 @@ class TranslationsZhTw implements Translations {
 	TranslationsZhTw $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => TranslationsZhTw(meta: meta ?? this.$meta);
 
 	// Translations
+	@override late final _TranslationsTutorialZhTw tutorial = _TranslationsTutorialZhTw._(_root);
 	@override late final _TranslationsCommonZhTw common = _TranslationsCommonZhTw._(_root);
 	@override late final _TranslationsAuthZhTw auth = _TranslationsAuthZhTw._(_root);
 	@override late final _TranslationsErrorsZhTw errors = _TranslationsErrorsZhTw._(_root);
@@ -72,6 +73,28 @@ class TranslationsZhTw implements Translations {
 	@override late final _TranslationsSearchFilterZhTw searchFilter = _TranslationsSearchFilterZhTw._(_root);
 	@override late final _TranslationsTagSelectorZhTw tagSelector = _TranslationsTagSelectorZhTw._(_root);
 	@override late final _TranslationsAnime4kZhTw anime4k = _TranslationsAnime4kZhTw._(_root);
+}
+
+// Path: tutorial
+class _TranslationsTutorialZhTw implements TranslationsTutorialEn {
+	_TranslationsTutorialZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get specialFollowFeature => '特別關注功能';
+	@override String get specialFollowDescription => '這裡顯示你特別關注的作者。在影片、圖庫、作者詳情頁點擊關注按鈕，然後選擇"添加為特別關注"即可。';
+	@override String get exampleAuthorInfoRow => '示例：作者信息行';
+	@override String get authorName => '作者名稱';
+	@override String get followed => '已關注';
+	@override String get specialFollowInstruction => '點擊"已關注"按鈕 → 選擇"添加為特別關注"';
+	@override String get followButtonLocations => '關注按鈕位置：';
+	@override String get videoDetailPage => '影片詳情頁';
+	@override String get galleryDetailPage => '圖庫詳情頁';
+	@override String get authorDetailPage => '作者詳情頁';
+	@override String get afterSpecialFollow => '特別關注後，可在此快速查看作者最新內容！';
+	@override String get specialFollowManagementTip => '特別關注列表可在側邊抽屜欄-關注列表-特別關注列表頁面裡管理';
+	@override String get skip => '跳過';
 }
 
 // Path: common
@@ -2444,6 +2467,19 @@ class _TranslationsVideoDetailCastDlnaCastSheetZhTw implements TranslationsVideo
 extension on TranslationsZhTw {
 	dynamic _flatMapFunction(String path) {
 		switch (path) {
+			case 'tutorial.specialFollowFeature': return '特別關注功能';
+			case 'tutorial.specialFollowDescription': return '這裡顯示你特別關注的作者。在影片、圖庫、作者詳情頁點擊關注按鈕，然後選擇"添加為特別關注"即可。';
+			case 'tutorial.exampleAuthorInfoRow': return '示例：作者信息行';
+			case 'tutorial.authorName': return '作者名稱';
+			case 'tutorial.followed': return '已關注';
+			case 'tutorial.specialFollowInstruction': return '點擊"已關注"按鈕 → 選擇"添加為特別關注"';
+			case 'tutorial.followButtonLocations': return '關注按鈕位置：';
+			case 'tutorial.videoDetailPage': return '影片詳情頁';
+			case 'tutorial.galleryDetailPage': return '圖庫詳情頁';
+			case 'tutorial.authorDetailPage': return '作者詳情頁';
+			case 'tutorial.afterSpecialFollow': return '特別關注後，可在此快速查看作者最新內容！';
+			case 'tutorial.specialFollowManagementTip': return '特別關注列表可在側邊抽屜欄-關注列表-特別關注列表頁面裡管理';
+			case 'tutorial.skip': return '跳過';
 			case 'common.appName': return 'Love Iwara';
 			case 'common.ok': return '確定';
 			case 'common.cancel': return '取消';

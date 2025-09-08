@@ -36,6 +36,7 @@ class TranslationsZhCn implements Translations {
 	TranslationsZhCn $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => TranslationsZhCn(meta: meta ?? this.$meta);
 
 	// Translations
+	@override late final _TranslationsTutorialZhCn tutorial = _TranslationsTutorialZhCn._(_root);
 	@override late final _TranslationsCommonZhCn common = _TranslationsCommonZhCn._(_root);
 	@override late final _TranslationsAuthZhCn auth = _TranslationsAuthZhCn._(_root);
 	@override late final _TranslationsErrorsZhCn errors = _TranslationsErrorsZhCn._(_root);
@@ -72,6 +73,28 @@ class TranslationsZhCn implements Translations {
 	@override late final _TranslationsProxyHelperZhCn proxyHelper = _TranslationsProxyHelperZhCn._(_root);
 	@override late final _TranslationsTagSelectorZhCn tagSelector = _TranslationsTagSelectorZhCn._(_root);
 	@override late final _TranslationsAnime4kZhCn anime4k = _TranslationsAnime4kZhCn._(_root);
+}
+
+// Path: tutorial
+class _TranslationsTutorialZhCn implements TranslationsTutorialEn {
+	_TranslationsTutorialZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get specialFollowFeature => '特别关注功能';
+	@override String get specialFollowDescription => '这里显示你特别关注的作者。在视频、图库、作者详情页点击关注按钮，然后选择"添加为特别关注"即可。';
+	@override String get exampleAuthorInfoRow => '示例：作者信息行';
+	@override String get authorName => '作者名称';
+	@override String get followed => '已关注';
+	@override String get specialFollowInstruction => '点击"已关注"按钮 → 选择"添加为特别关注"';
+	@override String get followButtonLocations => '关注按钮位置：';
+	@override String get videoDetailPage => '视频详情页';
+	@override String get galleryDetailPage => '图库详情页';
+	@override String get authorDetailPage => '作者详情页';
+	@override String get afterSpecialFollow => '特别关注后，可在此快速查看作者最新内容！';
+	@override String get specialFollowManagementTip => '特别关注列表可在侧边抽屉栏-关注列表-特别关注列表页面里管理';
+	@override String get skip => '跳过';
 }
 
 // Path: common
@@ -2446,6 +2469,19 @@ class _TranslationsVideoDetailCastDlnaCastSheetZhCn implements TranslationsVideo
 extension on TranslationsZhCn {
 	dynamic _flatMapFunction(String path) {
 		switch (path) {
+			case 'tutorial.specialFollowFeature': return '特别关注功能';
+			case 'tutorial.specialFollowDescription': return '这里显示你特别关注的作者。在视频、图库、作者详情页点击关注按钮，然后选择"添加为特别关注"即可。';
+			case 'tutorial.exampleAuthorInfoRow': return '示例：作者信息行';
+			case 'tutorial.authorName': return '作者名称';
+			case 'tutorial.followed': return '已关注';
+			case 'tutorial.specialFollowInstruction': return '点击"已关注"按钮 → 选择"添加为特别关注"';
+			case 'tutorial.followButtonLocations': return '关注按钮位置：';
+			case 'tutorial.videoDetailPage': return '视频详情页';
+			case 'tutorial.galleryDetailPage': return '图库详情页';
+			case 'tutorial.authorDetailPage': return '作者详情页';
+			case 'tutorial.afterSpecialFollow': return '特别关注后，可在此快速查看作者最新内容！';
+			case 'tutorial.specialFollowManagementTip': return '特别关注列表可在侧边抽屉栏-关注列表-特别关注列表页面里管理';
+			case 'tutorial.skip': return '跳过';
 			case 'common.appName': return 'Love Iwara';
 			case 'common.ok': return '确定';
 			case 'common.cancel': return '取消';

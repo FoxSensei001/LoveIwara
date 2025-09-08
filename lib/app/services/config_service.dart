@@ -309,6 +309,8 @@ enum ConfigKey {
   FIRST_TIME_SETUP_COMPLETED, // 首次设置是否已完成
   // Anime4K 预设配置
   ANIME4K_PRESET_ID, // 当前选中的 Anime4K 预设 ID，空字符串表示禁用
+  // 教程指导相关配置
+  SHOW_SUBSCRIPTION_TUTORIAL, // 是否显示订阅页面教程指导
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -404,6 +406,7 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.FULLSCREEN_ORIENTATION: return 'fullscreen_orientation';
       case ConfigKey.FIRST_TIME_SETUP_COMPLETED: return 'first_time_setup_completed';
       case ConfigKey.ANIME4K_PRESET_ID: return 'anime4k_preset_id';
+      case ConfigKey.SHOW_SUBSCRIPTION_TUTORIAL: return 'show_subscription_tutorial';
     }
   }
 
@@ -595,6 +598,8 @@ extension ConfigKeyExtension on ConfigKey {
         return false;
       case ConfigKey.ANIME4K_PRESET_ID:
         return ''; // 默认禁用 Anime4K（空字符串表示禁用）
+      case ConfigKey.SHOW_SUBSCRIPTION_TUTORIAL:
+        return true; // 默认显示订阅页面教程指导
     }
   }
 }

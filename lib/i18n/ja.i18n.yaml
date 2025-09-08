@@ -1,4 +1,21 @@
 # ja-JP.i18n.yaml
+
+# Tutorial Service
+tutorial:
+  specialFollowFeature: "特別フォロー機能"
+  specialFollowDescription: "ここには特別にフォローしている著者が表示されます。動画、ギャラリー、著者詳細ページでフォローボタンをクリックし、「特別フォローとして追加」を選択してください。"
+  exampleAuthorInfoRow: "例：著者情報行"
+  authorName: "著者名"
+  followed: "フォロー済み"
+  specialFollowInstruction: "\"フォロー済み\"ボタンをクリック → \"特別フォローとして追加\"を選択"
+  followButtonLocations: "フォローボタンの場所："
+  videoDetailPage: "動画詳細ページ"
+  galleryDetailPage: "ギャラリー詳細ページ"
+  authorDetailPage: "著者詳細ページ"
+  afterSpecialFollow: "特別フォロー後、著者の最新コンテンツをすばやく確認できます！"
+  specialFollowManagementTip: "特別フォローリストはサイドバードロワー - フォローリスト - 特別フォローリストページで管理できます"
+  skip: スキップ
+
 common:
   appName: Love Iwara
   ok: 確定

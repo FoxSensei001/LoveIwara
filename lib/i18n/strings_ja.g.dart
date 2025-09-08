@@ -36,6 +36,7 @@ class TranslationsJa implements Translations {
 	TranslationsJa $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => TranslationsJa(meta: meta ?? this.$meta);
 
 	// Translations
+	@override late final _TranslationsTutorialJa tutorial = _TranslationsTutorialJa._(_root);
 	@override late final _TranslationsCommonJa common = _TranslationsCommonJa._(_root);
 	@override late final _TranslationsAuthJa auth = _TranslationsAuthJa._(_root);
 	@override late final _TranslationsErrorsJa errors = _TranslationsErrorsJa._(_root);
@@ -72,6 +73,28 @@ class TranslationsJa implements Translations {
 	@override late final _TranslationsProxyHelperJa proxyHelper = _TranslationsProxyHelperJa._(_root);
 	@override late final _TranslationsTagSelectorJa tagSelector = _TranslationsTagSelectorJa._(_root);
 	@override late final _TranslationsAnime4kJa anime4k = _TranslationsAnime4kJa._(_root);
+}
+
+// Path: tutorial
+class _TranslationsTutorialJa implements TranslationsTutorialEn {
+	_TranslationsTutorialJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get specialFollowFeature => '特別フォロー機能';
+	@override String get specialFollowDescription => 'ここには特別にフォローしている著者が表示されます。動画、ギャラリー、著者詳細ページでフォローボタンをクリックし、「特別フォローとして追加」を選択してください。';
+	@override String get exampleAuthorInfoRow => '例：著者情報行';
+	@override String get authorName => '著者名';
+	@override String get followed => 'フォロー済み';
+	@override String get specialFollowInstruction => '"フォロー済み"ボタンをクリック → "特別フォローとして追加"を選択';
+	@override String get followButtonLocations => 'フォローボタンの場所：';
+	@override String get videoDetailPage => '動画詳細ページ';
+	@override String get galleryDetailPage => 'ギャラリー詳細ページ';
+	@override String get authorDetailPage => '著者詳細ページ';
+	@override String get afterSpecialFollow => '特別フォロー後、著者の最新コンテンツをすばやく確認できます！';
+	@override String get specialFollowManagementTip => '特別フォローリストはサイドバードロワー - フォローリスト - 特別フォローリストページで管理できます';
+	@override String get skip => 'スキップ';
 }
 
 // Path: common
@@ -2441,6 +2464,19 @@ class _TranslationsVideoDetailCastDlnaCastSheetJa implements TranslationsVideoDe
 extension on TranslationsJa {
 	dynamic _flatMapFunction(String path) {
 		switch (path) {
+			case 'tutorial.specialFollowFeature': return '特別フォロー機能';
+			case 'tutorial.specialFollowDescription': return 'ここには特別にフォローしている著者が表示されます。動画、ギャラリー、著者詳細ページでフォローボタンをクリックし、「特別フォローとして追加」を選択してください。';
+			case 'tutorial.exampleAuthorInfoRow': return '例：著者情報行';
+			case 'tutorial.authorName': return '著者名';
+			case 'tutorial.followed': return 'フォロー済み';
+			case 'tutorial.specialFollowInstruction': return '"フォロー済み"ボタンをクリック → "特別フォローとして追加"を選択';
+			case 'tutorial.followButtonLocations': return 'フォローボタンの場所：';
+			case 'tutorial.videoDetailPage': return '動画詳細ページ';
+			case 'tutorial.galleryDetailPage': return 'ギャラリー詳細ページ';
+			case 'tutorial.authorDetailPage': return '著者詳細ページ';
+			case 'tutorial.afterSpecialFollow': return '特別フォロー後、著者の最新コンテンツをすばやく確認できます！';
+			case 'tutorial.specialFollowManagementTip': return '特別フォローリストはサイドバードロワー - フォローリスト - 特別フォローリストページで管理できます';
+			case 'tutorial.skip': return 'スキップ';
 			case 'common.appName': return 'Love Iwara';
 			case 'common.ok': return '確定';
 			case 'common.cancel': return 'キャンセル';

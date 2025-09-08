@@ -1,3 +1,18 @@
+# Tutorial Service
+tutorial:
+  specialFollowFeature: "特別關注功能"
+  specialFollowDescription: "這裡顯示你特別關注的作者。在影片、圖庫、作者詳情頁點擊關注按鈕，然後選擇\"添加為特別關注\"即可。"
+  exampleAuthorInfoRow: "示例：作者信息行"
+  authorName: "作者名稱"
+  followed: "已關注"
+  specialFollowInstruction: "點擊\"已關注\"按鈕 → 選擇\"添加為特別關注\""
+  followButtonLocations: "關注按鈕位置："
+  videoDetailPage: "影片詳情頁"
+  galleryDetailPage: "圖庫詳情頁"
+  authorDetailPage: "作者詳情頁"
+  afterSpecialFollow: "特別關注後，可在此快速查看作者最新內容！"
+  specialFollowManagementTip: "特別關注列表可在側邊抽屜欄-關注列表-特別關注列表頁面裡管理"
+  skip: 跳過
 common:
   appName: Love Iwara
   ok: 確定

@@ -15,7 +15,6 @@ import 'package:i_iwara/app/models/oreno3d_video.model.dart';
 import 'package:i_iwara/app/services/playback_history_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/related_media_controller.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/dlna_cast_sheet.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/error_widget.dart';
 import 'package:i_iwara/common/anime4k_presets.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -23,7 +22,6 @@ import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:volume_controller/volume_controller.dart';
 
@@ -1124,12 +1122,13 @@ class MyVideoStateController extends GetxController
       resolutionTag,
     );
     if (url == null || url.isEmpty) {
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.videoDetail.noVideoSourceFound,
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.top,
+      Get.snackbar(
+        '',
+        slang.t.videoDetail.noVideoSourceFound,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 3),
+        snackPosition: SnackPosition.top,
       );
       return;
     }
@@ -1333,12 +1332,13 @@ class MyVideoStateController extends GetxController
           () {
             Future.delayed(const Duration(milliseconds: 3000), () async {
               if (videoBuffering.value && buffers.isEmpty) {
-                showToastWidget(
-                  MDToastWidget(
-                    message: slang.t.mediaPlayer.retryingOpenVideoLink,
-                    type: MDToastType.info,
-                  ),
-                  position: ToastPosition.top,
+                Get.snackbar(
+                  '',
+                  slang.t.mediaPlayer.retryingOpenVideoLink,
+                  backgroundColor: Colors.blue,
+                  colorText: Colors.white,
+                  duration: const Duration(seconds: 3),
+                  snackPosition: SnackPosition.top,
                 );
                 final bool ok = await refreshPlayer();
                 if (!ok) {
@@ -1353,13 +1353,13 @@ class MyVideoStateController extends GetxController
 
       // 解码器错误提示
       if (event.startsWith('Could not open codec')) {
-        showToastWidget(
-          MDToastWidget(
-            message: slang.t.mediaPlayer.decoderOpenFailedWithSuggestion(event: event),
-            type: MDToastType.warning,
-          ),
-          position: ToastPosition.top,
+        Get.snackbar(
+          '',
+          slang.t.mediaPlayer.decoderOpenFailedWithSuggestion(event: event),
+          backgroundColor: Colors.orange,
+          colorText: Colors.white,
           duration: const Duration(seconds: 7),
+          snackPosition: SnackPosition.top,
         );
         return;
       }
@@ -1372,12 +1372,13 @@ class MyVideoStateController extends GetxController
       }
 
       // 其他错误，给出提示与日志
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.mediaPlayer.videoLoadErrorWithDetail(event: event),
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.top,
+      Get.snackbar(
+        '',
+        slang.t.mediaPlayer.videoLoadErrorWithDetail(event: event),
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 3),
+        snackPosition: SnackPosition.top,
       );
       LogUtils.e('视频加载错误: $event', tag: 'MyVideoStateController');
     });
@@ -2055,24 +2056,26 @@ class MyVideoStateController extends GetxController
   void showDlnaCastDialog() {
     // 检查平台支持
     if (GetPlatform.isWeb || GetPlatform.isLinux) {
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.videoDetail.cast.currentPlatformNotSupported,
-          type: MDToastType.warning,
-        ),
-        position: ToastPosition.top,
+      Get.snackbar(
+        '',
+        slang.t.videoDetail.cast.currentPlatformNotSupported,
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 3),
+        snackPosition: SnackPosition.top,
       );
       return;
     }
 
     final videoUrl = getCurrentVideoUrl();
     if (videoUrl == null || videoUrl.isEmpty) {
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.videoDetail.cast.unableToGetVideoUrl,
-          type: MDToastType.error,
-        ),
-        position: ToastPosition.top,
+      Get.snackbar(
+        '',
+        slang.t.videoDetail.cast.unableToGetVideoUrl,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 3),
+        snackPosition: SnackPosition.top,
       );
       return;
     }

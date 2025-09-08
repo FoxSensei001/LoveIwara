@@ -1,4 +1,21 @@
 # en.i18n.yaml
+
+# Tutorial Service
+tutorial:
+  specialFollowFeature: "Special Follow Feature"
+  specialFollowDescription: "This shows authors you follow specially. Go to video, gallery, or author detail pages, click the follow button, then select \"Add as Special Follow\"."
+  exampleAuthorInfoRow: "Example: Author Info Row"
+  authorName: "Author Name"
+  followed: "Followed"
+  specialFollowInstruction: "Click \"Followed\" button → Select \"Add as Special Follow\""
+  followButtonLocations: "Follow Button Locations:"
+  videoDetailPage: "Video Detail Page"
+  galleryDetailPage: "Gallery Detail Page"
+  authorDetailPage: "Author Detail Page"
+  afterSpecialFollow: "After Special Follow, you can quickly view the latest content of the author!"
+  specialFollowManagementTip: "Special Follow list can be managed in Sidebar - Following List - Special Follow List page"
+  skip: Skip
+
 common:
   appName: Love Iwara
   ok: OK

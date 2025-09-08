@@ -39,6 +39,7 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	Translations $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => Translations(meta: meta ?? this.$meta);
 
 	// Translations
+	late final TranslationsTutorialEn tutorial = TranslationsTutorialEn._(_root);
 	late final TranslationsCommonEn common = TranslationsCommonEn._(_root);
 	late final TranslationsAuthEn auth = TranslationsAuthEn._(_root);
 	late final TranslationsErrorsEn errors = TranslationsErrorsEn._(_root);
@@ -75,6 +76,54 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final TranslationsProxyHelperEn proxyHelper = TranslationsProxyHelperEn._(_root);
 	late final TranslationsTagSelectorEn tagSelector = TranslationsTagSelectorEn._(_root);
 	late final TranslationsAnime4kEn anime4k = TranslationsAnime4kEn._(_root);
+}
+
+// Path: tutorial
+class TranslationsTutorialEn {
+	TranslationsTutorialEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Special Follow Feature'
+	String get specialFollowFeature => 'Special Follow Feature';
+
+	/// en: 'This shows authors you follow specially. Go to video, gallery, or author detail pages, click the follow button, then select "Add as Special Follow".'
+	String get specialFollowDescription => 'This shows authors you follow specially. Go to video, gallery, or author detail pages, click the follow button, then select "Add as Special Follow".';
+
+	/// en: 'Example: Author Info Row'
+	String get exampleAuthorInfoRow => 'Example: Author Info Row';
+
+	/// en: 'Author Name'
+	String get authorName => 'Author Name';
+
+	/// en: 'Followed'
+	String get followed => 'Followed';
+
+	/// en: 'Click "Followed" button → Select "Add as Special Follow"'
+	String get specialFollowInstruction => 'Click "Followed" button → Select "Add as Special Follow"';
+
+	/// en: 'Follow Button Locations:'
+	String get followButtonLocations => 'Follow Button Locations:';
+
+	/// en: 'Video Detail Page'
+	String get videoDetailPage => 'Video Detail Page';
+
+	/// en: 'Gallery Detail Page'
+	String get galleryDetailPage => 'Gallery Detail Page';
+
+	/// en: 'Author Detail Page'
+	String get authorDetailPage => 'Author Detail Page';
+
+	/// en: 'After Special Follow, you can quickly view the latest content of the author!'
+	String get afterSpecialFollow => 'After Special Follow, you can quickly view the latest content of the author!';
+
+	/// en: 'Special Follow list can be managed in Sidebar - Following List - Special Follow List page'
+	String get specialFollowManagementTip => 'Special Follow list can be managed in Sidebar - Following List - Special Follow List page';
+
+	/// en: 'Skip'
+	String get skip => 'Skip';
 }
 
 // Path: common
@@ -5852,6 +5901,19 @@ class TranslationsVideoDetailCastDlnaCastSheetEn {
 extension on Translations {
 	dynamic _flatMapFunction(String path) {
 		switch (path) {
+			case 'tutorial.specialFollowFeature': return 'Special Follow Feature';
+			case 'tutorial.specialFollowDescription': return 'This shows authors you follow specially. Go to video, gallery, or author detail pages, click the follow button, then select "Add as Special Follow".';
+			case 'tutorial.exampleAuthorInfoRow': return 'Example: Author Info Row';
+			case 'tutorial.authorName': return 'Author Name';
+			case 'tutorial.followed': return 'Followed';
+			case 'tutorial.specialFollowInstruction': return 'Click "Followed" button → Select "Add as Special Follow"';
+			case 'tutorial.followButtonLocations': return 'Follow Button Locations:';
+			case 'tutorial.videoDetailPage': return 'Video Detail Page';
+			case 'tutorial.galleryDetailPage': return 'Gallery Detail Page';
+			case 'tutorial.authorDetailPage': return 'Author Detail Page';
+			case 'tutorial.afterSpecialFollow': return 'After Special Follow, you can quickly view the latest content of the author!';
+			case 'tutorial.specialFollowManagementTip': return 'Special Follow list can be managed in Sidebar - Following List - Special Follow List page';
+			case 'tutorial.skip': return 'Skip';
 			case 'common.appName': return 'Love Iwara';
 			case 'common.ok': return 'OK';
 			case 'common.cancel': return 'Cancel';
