@@ -243,7 +243,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
 
     // 显示教程指导（延迟执行，确保页面完全加载）
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
+      if (mounted && userService.isLogin) {
         TutorialService().showSubscriptionTutorial(context);
       }
     });

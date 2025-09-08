@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:i_iwara/app/services/share_service.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -76,6 +77,29 @@ class _ShareGalleryBottomSheetState extends State<ShareGalleryBottomSheet> {
       widget.galleryTitle,
       widget.authorName,
     );
+  }
+
+  Future<void> _copyLink() async {
+    final String url = '${CommonConstants.iwaraBaseUrl}/image/${widget.galleryId}';
+    try {
+      await ShareService.copyToClipboard(url);
+      showToastWidget(
+        MDToastWidget(
+          message: slang.t.galleryDetail.copyLink,
+          type: MDToastType.success
+        ),
+        position: ToastPosition.bottom
+      );
+    } catch (e) {
+      LogUtils.e('复制链接失败', error: e, tag: 'ShareGalleryBottomSheet');
+      showToastWidget(
+        MDToastWidget(
+          message: slang.t.errors.failedToOperate,
+          type: MDToastType.error
+        ),
+        position: ToastPosition.bottom
+      );
+    }
   }
 
   @override
@@ -201,27 +225,34 @@ class _ShareGalleryBottomSheetState extends State<ShareGalleryBottomSheet> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _isGeneratingImage ? null : _shareAsImage,
-                    icon: _isGeneratingImage 
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.image),
-                    label: Text(t.share.shareAsImage),
-                  ),
+                // 分享为图片按钮
+                IconButton(
+                  onPressed: _isGeneratingImage ? null : _shareAsImage,
+                  icon: _isGeneratingImage
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.image),
+                  tooltip: t.share.shareAsImage,
+                  padding: const EdgeInsets.all(16),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _shareAsText,
-                    icon: const Icon(Icons.link),
-                    label: Text(t.share.shareAsText),
-                  ),
+                // 分享为文本按钮
+                IconButton(
+                  onPressed: _shareAsText,
+                  icon: const Icon(Icons.share),
+                  tooltip: t.share.shareAsText,
+                  padding: const EdgeInsets.all(16),
+                ),
+                // 复制链接按钮
+                IconButton(
+                  onPressed: _copyLink,
+                  icon: const Icon(Icons.copy),
+                  tooltip: slang.t.galleryDetail.copyLink,
+                  padding: const EdgeInsets.all(16),
                 ),
               ],
             ),

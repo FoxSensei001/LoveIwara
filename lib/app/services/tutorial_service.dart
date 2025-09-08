@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/subscriptions/subscriptions_page.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -9,10 +10,13 @@ class TutorialService {
   /// 显示订阅页面教程指导
   void showSubscriptionTutorial(BuildContext context) {
     final configService = Get.find<ConfigService>();
+    final userService = Get.find<UserService>();
+
     final shouldShow =
         configService[ConfigKey.SHOW_SUBSCRIPTION_TUTORIAL] as bool;
 
-    if (!shouldShow) return;
+    // 只有在用户已登录且配置允许的情况下才显示教程
+    if (!shouldShow || !userService.isLogin) return;
 
     // 创建教程目标列表
     final List<TargetFocus> targets = [

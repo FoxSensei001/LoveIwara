@@ -6,6 +6,7 @@ import 'package:i_iwara/app/services/share_service.dart';
 import 'package:i_iwara/app/ui/pages/play_list/controllers/play_list_detail_controller.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
+import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/widget_extensions.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -183,6 +184,28 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
     );
   }
 
+  void _copyPlaylistLink() async {
+    final String url = '${CommonConstants.iwaraBaseUrl}/playlist/${widget.playlistId}';
+    try {
+      await ShareService.copyToClipboard(url);
+      Get.snackbar(
+        slang.t.common.success,
+        slang.t.galleryDetail.copyLink,
+        snackPosition: SnackPosition.bottom,
+        duration: const Duration(seconds: 2),
+      );
+    } catch (e) {
+      Get.snackbar(
+        slang.t.common.error,
+        slang.t.errors.failedToOperate,
+        snackPosition: SnackPosition.bottom,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 2),
+      );
+    }
+  }
+
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     final t = slang.Translations.of(context);
     return AppBar(
@@ -202,6 +225,9 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
                 break;
               case 'share':
                 _showShareDialog();
+                break;
+              case 'copyLink':
+                _copyPlaylistLink();
                 break;
             }
           },
@@ -247,6 +273,17 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
                   const Icon(Icons.share),
                   const SizedBox(width: 8),
                   Text(t.common.share),
+                ],
+              ),
+            ),
+            // 复制链接
+            PopupMenuItem(
+              value: 'copyLink',
+              child: Row(
+                children: [
+                  const Icon(Icons.copy),
+                  const SizedBox(width: 8),
+                  Text(slang.t.galleryDetail.copyLink),
                 ],
               ),
             ),

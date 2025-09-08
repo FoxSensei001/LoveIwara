@@ -4,6 +4,7 @@ import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:flutter/services.dart';
 
 class ShareService {
   /// 分享播放列表详情
@@ -112,6 +113,17 @@ class ShareService {
     } catch (e) {
       LogUtils.e('分享失败', tag: 'ShareService', error: e);
       showToastWidget(MDToastWidget(message: t.share.shareFailed, type: MDToastType.error), position: ToastPosition.bottom);
+    }
+  }
+
+  /// 复制链接到剪贴板
+  static Future<void> copyToClipboard(String url) async {
+    try {
+      await Clipboard.setData(ClipboardData(text: url));
+      LogUtils.d('链接已复制到剪贴板: $url', 'ShareService');
+    } catch (e) {
+      LogUtils.e('复制链接失败', tag: 'ShareService', error: e);
+      throw e;
     }
   }
 }

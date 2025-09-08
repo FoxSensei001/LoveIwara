@@ -108,8 +108,8 @@ class DlnaCastService extends GetxService {
       isConnected.value = true;
       
       // 设置视频 URL 并播放
-      device.setUrl(videoUrl);
-      device.play();
+      await device.setUrl(videoUrl);
+      await device.play();
       
       showToastWidget(
         MDToastWidget(

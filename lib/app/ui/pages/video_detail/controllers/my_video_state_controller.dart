@@ -2067,6 +2067,9 @@ class MyVideoStateController extends GetxController
       return;
     }
 
+    // 暂停当前视频
+    player.pause();
+
     final videoUrl = getCurrentVideoUrl();
     if (videoUrl == null || videoUrl.isEmpty) {
       Get.snackbar(

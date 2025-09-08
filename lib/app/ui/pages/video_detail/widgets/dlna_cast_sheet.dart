@@ -84,12 +84,6 @@ class _DlnaCastSheetState extends State<DlnaCastSheet> {
                     ),
                   ),
                 ),
-                IconButton(
-                  onPressed: () => Get.back(),
-                  icon: const Icon(Icons.close),
-                  tooltip: t.videoDetail.cast.dlnaCastSheet.close,
-                  iconSize: isNarrowScreen ? 20 : 24,
-                ),
               ],
             ),
           ),
@@ -210,7 +204,6 @@ class _DlnaCastSheetState extends State<DlnaCastSheet> {
                               trailing: ElevatedButton(
                                 onPressed: () {
                                   widget.dlnaController.castToDevice(device, widget.videoUrl);
-                                  Get.back(); // 投屏后关闭对话框
                                 },
                                 style: ElevatedButton.styleFrom(
                                   padding: EdgeInsets.symmetric(
@@ -227,7 +220,6 @@ class _DlnaCastSheetState extends State<DlnaCastSheet> {
                               ),
                               onTap: () {
                                 widget.dlnaController.castToDevice(device, widget.videoUrl);
-                                Get.back(); // 投屏后关闭对话框
                               },
                             ),
                           );
@@ -295,17 +287,6 @@ class _DlnaCastSheetState extends State<DlnaCastSheet> {
                       ),
                     if (widget.dlnaController.isConnected.value)
                       SizedBox(width: isNarrowScreen ? 8 : 12),
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () => Get.back(),
-                        child: Text(
-                          t.videoDetail.cast.dlnaCastSheet.close,
-                          style: TextStyle(
-                            fontSize: isNarrowScreen ? 12 : 14,
-                          ),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ],
