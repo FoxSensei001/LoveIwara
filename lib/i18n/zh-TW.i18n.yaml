@@ -906,7 +906,42 @@ videoDetail:
     addingListeners: 正在添加監聽器...
     successFecthVideoDurationInfo: 成功獲取影片資源，開始加載影片...
     successFecthVideoHeightInfo: 加載完成
-
+  # 投屏
+  cast:
+    dlnaCast: 投屏
+    unableToStartCastingSearch: '啟動投屏搜索失敗: ${error}'
+    startCastingTo: '開始投屏到 ${deviceName}'
+    castFailed: '投屏失敗: ${error}\n請嘗試重新搜索設備或切換網絡'
+    castStopped: '已停止投屏'
+    deviceTypes:
+      mediaRenderer: 媒體播放器
+      mediaServer: 媒體伺服器
+      internetGatewayDevice: 路由器
+      basicDevice: 基礎設備
+      dimmableLight: 智能燈
+      wlanAccessPoint: 無線接入點
+      wlanConnectionDevice: 無線連接設備
+      printer: 打印機
+      scanner: 掃描儀
+      digitalSecurityCamera: 攝像頭
+      unknownDevice: 未知設備
+    currentPlatformNotSupported: '當前平台不支援投屏功能'
+    unableToGetVideoUrl: '無法獲取影片地址，請稍後重試'
+    stopCasting: '停止投屏'
+    # DLNA投屏組件
+    dlnaCastSheet:
+      title: 遠程投屏
+      close: 關閉
+      searchingDevices: 正在搜索設備...
+      searchPrompt: 點擊搜索按鈕重新搜索投屏設備
+      searching: 搜索中
+      searchAgain: 重新搜索
+      noDevicesFound: '未發現投屏設備\n請確保設備在同一網絡下'
+      searchingDevicesPrompt: 正在搜索設備，請稍候...
+      cast: 投屏
+      connectedTo: '已連接到: ${deviceName}'
+      notConnected: 未連接設備
+      stopCasting: 停止投屏
 share:
   sharePlayList: 分享播放列表
   wowDidYouSeeThis: 哇哦，你看过这个吗？

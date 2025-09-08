@@ -863,7 +863,42 @@ videoDetail:
     addingListeners: Adding listeners...
     successFecthVideoDurationInfo: Successfully fetched video duration, starting to load video...
     successFecthVideoHeightInfo: Loading completed
-
+  # 投屏
+  cast:
+    dlnaCast: Cast
+    unableToStartCastingSearch: 'Failed to start casting search: ${error}'
+    startCastingTo: 'Start casting to ${deviceName}'
+    castFailed: 'Cast failed: ${error}\nPlease try to re-search for devices or switch networks'
+    castStopped: 'Cast stopped'
+    deviceTypes:
+      mediaRenderer: Media Player
+      mediaServer: Media Server
+      internetGatewayDevice: Router
+      basicDevice: Basic Device
+      dimmableLight: Smart Light
+      wlanAccessPoint: WLAN Access Point
+      wlanConnectionDevice: WLAN Connection Device
+      printer: Printer
+      scanner: Scanner
+      digitalSecurityCamera: Digital Security Camera
+      unknownDevice: Unknown Device
+    currentPlatformNotSupported: Current platform does not support casting
+    unableToGetVideoUrl: Unable to get video URL, please try again later
+    stopCasting: Stop casting
+    # DLNA Cast Sheet
+    dlnaCastSheet:
+      title: Remote Cast
+      close: Close
+      searchingDevices: Searching for devices...
+      searchPrompt: Click search button to re-search for casting devices
+      searching: Searching
+      searchAgain: Search Again
+      noDevicesFound: 'No casting devices found\nPlease ensure devices are on the same network'
+      searchingDevicesPrompt: Searching for devices, please wait...
+      cast: Cast
+      connectedTo: 'Connected to: ${deviceName}'
+      notConnected: No device connected
+      stopCasting: Stop Casting
 share:
   sharePlayList: Share Play List
   wowDidYouSeeThis: Wow, did you see this?

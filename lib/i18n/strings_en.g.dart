@@ -2039,6 +2039,7 @@ class TranslationsVideoDetailEn {
 
 	late final TranslationsVideoDetailPlayerEn player = TranslationsVideoDetailPlayerEn._(_root);
 	late final TranslationsVideoDetailSkeletonEn skeleton = TranslationsVideoDetailSkeletonEn._(_root);
+	late final TranslationsVideoDetailCastEn cast = TranslationsVideoDetailCastEn._(_root);
 }
 
 // Path: share
@@ -4999,6 +5000,43 @@ class TranslationsVideoDetailSkeletonEn {
 	String get successFecthVideoHeightInfo => 'Loading completed';
 }
 
+// Path: videoDetail.cast
+class TranslationsVideoDetailCastEn {
+	TranslationsVideoDetailCastEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Cast'
+	String get dlnaCast => 'Cast';
+
+	/// en: 'Failed to start casting search: ${error}'
+	String unableToStartCastingSearch({required Object error}) => 'Failed to start casting search: ${error}';
+
+	/// en: 'Start casting to ${deviceName}'
+	String startCastingTo({required Object deviceName}) => 'Start casting to ${deviceName}';
+
+	/// en: 'Cast failed: ${error}\nPlease try to re-search for devices or switch networks'
+	String castFailed({required Object error}) => 'Cast failed: ${error}\nPlease try to re-search for devices or switch networks';
+
+	/// en: 'Cast stopped'
+	String get castStopped => 'Cast stopped';
+
+	late final TranslationsVideoDetailCastDeviceTypesEn deviceTypes = TranslationsVideoDetailCastDeviceTypesEn._(_root);
+
+	/// en: 'Current platform does not support casting'
+	String get currentPlatformNotSupported => 'Current platform does not support casting';
+
+	/// en: 'Unable to get video URL, please try again later'
+	String get unableToGetVideoUrl => 'Unable to get video URL, please try again later';
+
+	/// en: 'Stop casting'
+	String get stopCasting => 'Stop casting';
+
+	late final TranslationsVideoDetailCastDlnaCastSheetEn dlnaCastSheet = TranslationsVideoDetailCastDlnaCastSheetEn._(_root);
+}
+
 // Path: forum.errors
 class TranslationsForumErrorsEn {
 	TranslationsForumErrorsEn._(this._root);
@@ -5720,6 +5758,93 @@ class TranslationsAnime4kPresetNamesEn {
 
 	/// en: 'Mode A (HQ) + Line Thinning'
 	String get mode_a_hq_thin => 'Mode A (HQ) + Line Thinning';
+}
+
+// Path: videoDetail.cast.deviceTypes
+class TranslationsVideoDetailCastDeviceTypesEn {
+	TranslationsVideoDetailCastDeviceTypesEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Media Player'
+	String get mediaRenderer => 'Media Player';
+
+	/// en: 'Media Server'
+	String get mediaServer => 'Media Server';
+
+	/// en: 'Router'
+	String get internetGatewayDevice => 'Router';
+
+	/// en: 'Basic Device'
+	String get basicDevice => 'Basic Device';
+
+	/// en: 'Smart Light'
+	String get dimmableLight => 'Smart Light';
+
+	/// en: 'WLAN Access Point'
+	String get wlanAccessPoint => 'WLAN Access Point';
+
+	/// en: 'WLAN Connection Device'
+	String get wlanConnectionDevice => 'WLAN Connection Device';
+
+	/// en: 'Printer'
+	String get printer => 'Printer';
+
+	/// en: 'Scanner'
+	String get scanner => 'Scanner';
+
+	/// en: 'Digital Security Camera'
+	String get digitalSecurityCamera => 'Digital Security Camera';
+
+	/// en: 'Unknown Device'
+	String get unknownDevice => 'Unknown Device';
+}
+
+// Path: videoDetail.cast.dlnaCastSheet
+class TranslationsVideoDetailCastDlnaCastSheetEn {
+	TranslationsVideoDetailCastDlnaCastSheetEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Remote Cast'
+	String get title => 'Remote Cast';
+
+	/// en: 'Close'
+	String get close => 'Close';
+
+	/// en: 'Searching for devices...'
+	String get searchingDevices => 'Searching for devices...';
+
+	/// en: 'Click search button to re-search for casting devices'
+	String get searchPrompt => 'Click search button to re-search for casting devices';
+
+	/// en: 'Searching'
+	String get searching => 'Searching';
+
+	/// en: 'Search Again'
+	String get searchAgain => 'Search Again';
+
+	/// en: 'No casting devices found\nPlease ensure devices are on the same network'
+	String get noDevicesFound => 'No casting devices found\nPlease ensure devices are on the same network';
+
+	/// en: 'Searching for devices, please wait...'
+	String get searchingDevicesPrompt => 'Searching for devices, please wait...';
+
+	/// en: 'Cast'
+	String get cast => 'Cast';
+
+	/// en: 'Connected to: ${deviceName}'
+	String connectedTo({required Object deviceName}) => 'Connected to: ${deviceName}';
+
+	/// en: 'No device connected'
+	String get notConnected => 'No device connected';
+
+	/// en: 'Stop Casting'
+	String get stopCasting => 'Stop Casting';
 }
 
 /// Flat map(s) containing all translations.
@@ -6534,6 +6659,37 @@ extension on Translations {
 			case 'videoDetail.skeleton.addingListeners': return 'Adding listeners...';
 			case 'videoDetail.skeleton.successFecthVideoDurationInfo': return 'Successfully fetched video duration, starting to load video...';
 			case 'videoDetail.skeleton.successFecthVideoHeightInfo': return 'Loading completed';
+			case 'videoDetail.cast.dlnaCast': return 'Cast';
+			case 'videoDetail.cast.unableToStartCastingSearch': return ({required Object error}) => 'Failed to start casting search: ${error}';
+			case 'videoDetail.cast.startCastingTo': return ({required Object deviceName}) => 'Start casting to ${deviceName}';
+			case 'videoDetail.cast.castFailed': return ({required Object error}) => 'Cast failed: ${error}\nPlease try to re-search for devices or switch networks';
+			case 'videoDetail.cast.castStopped': return 'Cast stopped';
+			case 'videoDetail.cast.deviceTypes.mediaRenderer': return 'Media Player';
+			case 'videoDetail.cast.deviceTypes.mediaServer': return 'Media Server';
+			case 'videoDetail.cast.deviceTypes.internetGatewayDevice': return 'Router';
+			case 'videoDetail.cast.deviceTypes.basicDevice': return 'Basic Device';
+			case 'videoDetail.cast.deviceTypes.dimmableLight': return 'Smart Light';
+			case 'videoDetail.cast.deviceTypes.wlanAccessPoint': return 'WLAN Access Point';
+			case 'videoDetail.cast.deviceTypes.wlanConnectionDevice': return 'WLAN Connection Device';
+			case 'videoDetail.cast.deviceTypes.printer': return 'Printer';
+			case 'videoDetail.cast.deviceTypes.scanner': return 'Scanner';
+			case 'videoDetail.cast.deviceTypes.digitalSecurityCamera': return 'Digital Security Camera';
+			case 'videoDetail.cast.deviceTypes.unknownDevice': return 'Unknown Device';
+			case 'videoDetail.cast.currentPlatformNotSupported': return 'Current platform does not support casting';
+			case 'videoDetail.cast.unableToGetVideoUrl': return 'Unable to get video URL, please try again later';
+			case 'videoDetail.cast.stopCasting': return 'Stop casting';
+			case 'videoDetail.cast.dlnaCastSheet.title': return 'Remote Cast';
+			case 'videoDetail.cast.dlnaCastSheet.close': return 'Close';
+			case 'videoDetail.cast.dlnaCastSheet.searchingDevices': return 'Searching for devices...';
+			case 'videoDetail.cast.dlnaCastSheet.searchPrompt': return 'Click search button to re-search for casting devices';
+			case 'videoDetail.cast.dlnaCastSheet.searching': return 'Searching';
+			case 'videoDetail.cast.dlnaCastSheet.searchAgain': return 'Search Again';
+			case 'videoDetail.cast.dlnaCastSheet.noDevicesFound': return 'No casting devices found\nPlease ensure devices are on the same network';
+			case 'videoDetail.cast.dlnaCastSheet.searchingDevicesPrompt': return 'Searching for devices, please wait...';
+			case 'videoDetail.cast.dlnaCastSheet.cast': return 'Cast';
+			case 'videoDetail.cast.dlnaCastSheet.connectedTo': return ({required Object deviceName}) => 'Connected to: ${deviceName}';
+			case 'videoDetail.cast.dlnaCastSheet.notConnected': return 'No device connected';
+			case 'videoDetail.cast.dlnaCastSheet.stopCasting': return 'Stop Casting';
 			case 'share.sharePlayList': return 'Share Play List';
 			case 'share.wowDidYouSeeThis': return 'Wow, did you see this?';
 			case 'share.nameIs': return 'Name is';

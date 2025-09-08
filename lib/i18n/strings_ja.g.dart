@@ -822,6 +822,7 @@ class _TranslationsVideoDetailJa implements TranslationsVideoDetailEn {
 	@override String get noRelatedVideos => '関連するビデオはありません';
 	@override late final _TranslationsVideoDetailPlayerJa player = _TranslationsVideoDetailPlayerJa._(_root);
 	@override late final _TranslationsVideoDetailSkeletonJa skeleton = _TranslationsVideoDetailSkeletonJa._(_root);
+	@override late final _TranslationsVideoDetailCastJa cast = _TranslationsVideoDetailCastJa._(_root);
 }
 
 // Path: share
@@ -2014,6 +2015,25 @@ class _TranslationsVideoDetailSkeletonJa implements TranslationsVideoDetailSkele
 	@override String get successFecthVideoHeightInfo => '読み込み完了';
 }
 
+// Path: videoDetail.cast
+class _TranslationsVideoDetailCastJa implements TranslationsVideoDetailCastEn {
+	_TranslationsVideoDetailCastJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get dlnaCast => 'キャスト';
+	@override String unableToStartCastingSearch({required Object error}) => 'キャスト検索の開始に失敗しました: ${error}';
+	@override String startCastingTo({required Object deviceName}) => 'キャスト開始: ${deviceName}';
+	@override String castFailed({required Object error}) => 'キャスト失敗: ${error}\n再検索してください';
+	@override String get castStopped => 'キャスト停止';
+	@override late final _TranslationsVideoDetailCastDeviceTypesJa deviceTypes = _TranslationsVideoDetailCastDeviceTypesJa._(_root);
+	@override String get currentPlatformNotSupported => '現在のプラットフォームはキャスト機能をサポートしていません';
+	@override String get unableToGetVideoUrl => 'ビデオのURLを取得できません、後でもう一度お試しください';
+	@override String get stopCasting => 'キャスト停止';
+	@override late final _TranslationsVideoDetailCastDlnaCastSheetJa dlnaCastSheet = _TranslationsVideoDetailCastDlnaCastSheetJa._(_root);
+}
+
 // Path: forum.errors
 class _TranslationsForumErrorsJa implements TranslationsForumErrorsEn {
 	_TranslationsForumErrorsJa._(this._root);
@@ -2373,6 +2393,47 @@ class _TranslationsAnime4kPresetNamesJa implements TranslationsAnime4kPresetName
 	@override String get upscale_non_cnn => '非CNNアップスケーリング (超高速)';
 	@override String get mode_a_fast_darken => 'Mode A (Fast) + ライン暗化';
 	@override String get mode_a_hq_thin => 'Mode A (HQ) + ライン細化';
+}
+
+// Path: videoDetail.cast.deviceTypes
+class _TranslationsVideoDetailCastDeviceTypesJa implements TranslationsVideoDetailCastDeviceTypesEn {
+	_TranslationsVideoDetailCastDeviceTypesJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get mediaRenderer => 'メディアレンダラー';
+	@override String get mediaServer => 'メディアサーバー';
+	@override String get internetGatewayDevice => 'ルーター';
+	@override String get basicDevice => '基本デバイス';
+	@override String get dimmableLight => 'スマートライト';
+	@override String get wlanAccessPoint => '無線アクセスポイント';
+	@override String get wlanConnectionDevice => '無線接続デバイス';
+	@override String get printer => 'プリンター';
+	@override String get scanner => 'スキャナー';
+	@override String get digitalSecurityCamera => 'カメラ';
+	@override String get unknownDevice => '不明なデバイス';
+}
+
+// Path: videoDetail.cast.dlnaCastSheet
+class _TranslationsVideoDetailCastDlnaCastSheetJa implements TranslationsVideoDetailCastDlnaCastSheetEn {
+	_TranslationsVideoDetailCastDlnaCastSheetJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'リモートキャスト';
+	@override String get close => '閉じる';
+	@override String get searchingDevices => 'デバイスを検索中...';
+	@override String get searchPrompt => '検索ボタンをクリックしてキャストデバイスを再検索';
+	@override String get searching => '検索中';
+	@override String get searchAgain => '再検索';
+	@override String get noDevicesFound => 'キャストデバイスが見つかりません\nデバイスが同じネットワークにあることを確認してください';
+	@override String get searchingDevicesPrompt => 'デバイスを検索中です。お待ちください...';
+	@override String get cast => 'キャスト';
+	@override String connectedTo({required Object deviceName}) => '接続済み: ${deviceName}';
+	@override String get notConnected => 'デバイス未接続';
+	@override String get stopCasting => 'キャスト停止';
 }
 
 /// Flat map(s) containing all translations.
@@ -3187,6 +3248,37 @@ extension on TranslationsJa {
 			case 'videoDetail.skeleton.addingListeners': return '監視器を追加中...';
 			case 'videoDetail.skeleton.successFecthVideoDurationInfo': return 'ビデオの総時間を取得しました、ビデオを読み込み中...';
 			case 'videoDetail.skeleton.successFecthVideoHeightInfo': return '読み込み完了';
+			case 'videoDetail.cast.dlnaCast': return 'キャスト';
+			case 'videoDetail.cast.unableToStartCastingSearch': return ({required Object error}) => 'キャスト検索の開始に失敗しました: ${error}';
+			case 'videoDetail.cast.startCastingTo': return ({required Object deviceName}) => 'キャスト開始: ${deviceName}';
+			case 'videoDetail.cast.castFailed': return ({required Object error}) => 'キャスト失敗: ${error}\n再検索してください';
+			case 'videoDetail.cast.castStopped': return 'キャスト停止';
+			case 'videoDetail.cast.deviceTypes.mediaRenderer': return 'メディアレンダラー';
+			case 'videoDetail.cast.deviceTypes.mediaServer': return 'メディアサーバー';
+			case 'videoDetail.cast.deviceTypes.internetGatewayDevice': return 'ルーター';
+			case 'videoDetail.cast.deviceTypes.basicDevice': return '基本デバイス';
+			case 'videoDetail.cast.deviceTypes.dimmableLight': return 'スマートライト';
+			case 'videoDetail.cast.deviceTypes.wlanAccessPoint': return '無線アクセスポイント';
+			case 'videoDetail.cast.deviceTypes.wlanConnectionDevice': return '無線接続デバイス';
+			case 'videoDetail.cast.deviceTypes.printer': return 'プリンター';
+			case 'videoDetail.cast.deviceTypes.scanner': return 'スキャナー';
+			case 'videoDetail.cast.deviceTypes.digitalSecurityCamera': return 'カメラ';
+			case 'videoDetail.cast.deviceTypes.unknownDevice': return '不明なデバイス';
+			case 'videoDetail.cast.currentPlatformNotSupported': return '現在のプラットフォームはキャスト機能をサポートしていません';
+			case 'videoDetail.cast.unableToGetVideoUrl': return 'ビデオのURLを取得できません、後でもう一度お試しください';
+			case 'videoDetail.cast.stopCasting': return 'キャスト停止';
+			case 'videoDetail.cast.dlnaCastSheet.title': return 'リモートキャスト';
+			case 'videoDetail.cast.dlnaCastSheet.close': return '閉じる';
+			case 'videoDetail.cast.dlnaCastSheet.searchingDevices': return 'デバイスを検索中...';
+			case 'videoDetail.cast.dlnaCastSheet.searchPrompt': return '検索ボタンをクリックしてキャストデバイスを再検索';
+			case 'videoDetail.cast.dlnaCastSheet.searching': return '検索中';
+			case 'videoDetail.cast.dlnaCastSheet.searchAgain': return '再検索';
+			case 'videoDetail.cast.dlnaCastSheet.noDevicesFound': return 'キャストデバイスが見つかりません\nデバイスが同じネットワークにあることを確認してください';
+			case 'videoDetail.cast.dlnaCastSheet.searchingDevicesPrompt': return 'デバイスを検索中です。お待ちください...';
+			case 'videoDetail.cast.dlnaCastSheet.cast': return 'キャスト';
+			case 'videoDetail.cast.dlnaCastSheet.connectedTo': return ({required Object deviceName}) => '接続済み: ${deviceName}';
+			case 'videoDetail.cast.dlnaCastSheet.notConnected': return 'デバイス未接続';
+			case 'videoDetail.cast.dlnaCastSheet.stopCasting': return 'キャスト停止';
 			case 'share.sharePlayList': return 'プレイリストを共有';
 			case 'share.wowDidYouSeeThis': return 'ああ、見たの？';
 			case 'share.nameIs': return '名前は';

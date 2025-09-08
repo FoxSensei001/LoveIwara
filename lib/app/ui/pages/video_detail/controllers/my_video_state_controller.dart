@@ -14,6 +14,7 @@ import 'package:i_iwara/app/services/oreno3d_client.dart' show Oreno3dClient;
 import 'package:i_iwara/app/models/oreno3d_video.model.dart';
 import 'package:i_iwara/app/services/playback_history_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/related_media_controller.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/dlna_cast_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/error_widget.dart';
 import 'package:i_iwara/common/anime4k_presets.dart';
@@ -40,6 +41,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import '../widgets/private_or_deleted_video_widget.dart';
 import 'package:floating/floating.dart';
 import '../services/video_cache_manager.dart';
+import 'dlna_cast_service.dart';
 
 enum VideoDetailPageLoadingState {
   init, // 初始化
@@ -67,6 +69,9 @@ class MyVideoStateController extends GetxController
 
   // 缓存相关
   static final VideoCacheManager _cacheManager = VideoCacheManager();
+
+  // DLNA 投屏服务
+  DlnaCastService get _dlnaCastService => DlnaCastService.instance;
 
   // Oreno3D相关状态
   final Rxn<Oreno3dVideoDetail> oreno3dVideoDetail = Rxn<Oreno3dVideoDetail>();
@@ -2035,6 +2040,56 @@ class MyVideoStateController extends GetxController
       );
     }
   }
+
+  /// 获取当前视频的播放 URL
+  String? getCurrentVideoUrl() {
+    if (currentResolutionTag.value == null) return null;
+    
+    return CommonUtils.findUrlByResolutionTag(
+      videoResolutions,
+      currentResolutionTag.value!,
+    );
+  }
+
+  /// 显示投屏对话框
+  void showDlnaCastDialog() {
+    // 检查平台支持
+    if (GetPlatform.isWeb || GetPlatform.isLinux) {
+      showToastWidget(
+        MDToastWidget(
+          message: slang.t.videoDetail.cast.currentPlatformNotSupported,
+          type: MDToastType.warning,
+        ),
+        position: ToastPosition.top,
+      );
+      return;
+    }
+
+    final videoUrl = getCurrentVideoUrl();
+    if (videoUrl == null || videoUrl.isEmpty) {
+      showToastWidget(
+        MDToastWidget(
+          message: slang.t.videoDetail.cast.unableToGetVideoUrl,
+          type: MDToastType.error,
+        ),
+        position: ToastPosition.top,
+      );
+      return;
+    }
+
+    Get.bottomSheet(
+      DlnaCastSheet(
+        videoUrl: videoUrl,
+        dlnaController: _dlnaCastService,
+      ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+    );
+  }
+
+  /// 获取 DLNA 投屏服务
+  DlnaCastService get dlnaCastService => _dlnaCastService;
 }
 
 /// 视频清晰度模型

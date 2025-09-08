@@ -50,6 +50,7 @@ import 'package:i_iwara/app/services/config_backup_service.dart';
 import 'package:i_iwara/app/services/emoji_library_service.dart';
 import 'package:i_iwara/utils/refresh_rate_helper.dart';
 import 'package:i_iwara/utils/glsl_shader_service.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/controllers/dlna_cast_service.dart';
 
 void main() {
   // 确保Flutter初始化
@@ -259,6 +260,9 @@ Future<void> _initializeBusinessServices() async {
   // 初始化 GLSL 着色器服务
   final glslShaderService = await GlslShaderService().init();
   Get.put(glslShaderService);
+
+  // 初始化 DLNA 投屏服务
+  Get.put(DlnaCastService());
 
   // 注册历史记录仓库
   Get.put(HistoryRepository());

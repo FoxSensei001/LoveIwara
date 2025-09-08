@@ -61,6 +61,7 @@ dependencies:
   volume_controller: ^2.0.7
   uuid: any
   extended_text_field: ^16.0.2
+  dlna_dart: ^0.1.0
 
   media_kit:
     git:

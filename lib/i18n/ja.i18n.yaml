@@ -864,7 +864,42 @@ videoDetail:
     addingListeners: 監視器を追加中...
     successFecthVideoDurationInfo: ビデオの総時間を取得しました、ビデオを読み込み中...
     successFecthVideoHeightInfo: 読み込み完了
-
+  # キャスト
+  cast:
+    dlnaCast: キャスト
+    unableToStartCastingSearch: 'キャスト検索の開始に失敗しました: ${error}'
+    startCastingTo: 'キャスト開始: ${deviceName}'
+    castFailed: 'キャスト失敗: ${error}\n再検索してください'
+    castStopped: 'キャスト停止'
+    deviceTypes:
+      mediaRenderer: メディアレンダラー
+      mediaServer: メディアサーバー
+      internetGatewayDevice: ルーター
+      basicDevice: 基本デバイス
+      dimmableLight: スマートライト
+      wlanAccessPoint: 無線アクセスポイント
+      wlanConnectionDevice: 無線接続デバイス
+      printer: プリンター
+      scanner: スキャナー
+      digitalSecurityCamera: カメラ
+      unknownDevice: 不明なデバイス
+    currentPlatformNotSupported: 現在のプラットフォームはキャスト機能をサポートしていません
+    unableToGetVideoUrl: ビデオのURLを取得できません、後でもう一度お試しください
+    stopCasting: キャスト停止
+    # DLNAキャストシート
+    dlnaCastSheet:
+      title: リモートキャスト
+      close: 閉じる
+      searchingDevices: デバイスを検索中...
+      searchPrompt: 検索ボタンをクリックしてキャストデバイスを再検索
+      searching: 検索中
+      searchAgain: 再検索
+      noDevicesFound: 'キャストデバイスが見つかりません\nデバイスが同じネットワークにあることを確認してください'
+      searchingDevicesPrompt: デバイスを検索中です。お待ちください...
+      cast: キャスト
+      connectedTo: '接続済み: ${deviceName}'
+      notConnected: デバイス未接続
+      stopCasting: キャスト停止
 share:
   sharePlayList: プレイリストを共有
   wowDidYouSeeThis: ああ、見たの？

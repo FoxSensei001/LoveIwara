@@ -117,9 +117,18 @@ class TopToolbar extends StatelessWidget {
                     ],
                   ),
                 ),
-                // 右侧: 画中画按钮、问号按钮和更多按钮
+                // 右侧: 投屏按钮、画中画按钮、问号按钮和更多按钮
                 Row(
                   children: [
+                    // 不是 web & linux 时显示
+                    if (!GetPlatform.isWeb && !GetPlatform.isLinux)
+                      // 投屏按钮
+                      IconButton(
+                        tooltip: t.videoDetail.cast.dlnaCast,
+                        icon: const Icon(Icons.cast, color: Colors.white),
+                        onPressed: () =>
+                            myVideoStateController.showDlnaCastDialog(),
+                      ),
                     if (GetPlatform.isAndroid)
                       // 画中画按钮
                       IconButton(
@@ -202,7 +211,6 @@ class TopToolbar extends StatelessWidget {
       },
     );
   }
-
 
   // 显示信息模态框
   void showInfoModal(BuildContext context) {
@@ -300,7 +308,11 @@ class TopToolbar extends StatelessWidget {
                 children: [
                   const Icon(Icons.high_quality),
                   const SizedBox(width: 8),
-                  Expanded(child: Text(slang.t.anime4k.realTimeVideoUpscalingAndDenoising)),
+                  Expanded(
+                    child: Text(
+                      slang.t.anime4k.realTimeVideoUpscalingAndDenoising,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 8),

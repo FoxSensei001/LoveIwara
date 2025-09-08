@@ -850,6 +850,7 @@ class _TranslationsVideoDetailZhTw implements TranslationsVideoDetailEn {
 	@override String get noRelatedVideos => '暫無相關影片';
 	@override late final _TranslationsVideoDetailPlayerZhTw player = _TranslationsVideoDetailPlayerZhTw._(_root);
 	@override late final _TranslationsVideoDetailSkeletonZhTw skeleton = _TranslationsVideoDetailSkeletonZhTw._(_root);
+	@override late final _TranslationsVideoDetailCastZhTw cast = _TranslationsVideoDetailCastZhTw._(_root);
 }
 
 // Path: share
@@ -2105,6 +2106,25 @@ class _TranslationsVideoDetailSkeletonZhTw implements TranslationsVideoDetailSke
 	@override String get successFecthVideoHeightInfo => '加載完成';
 }
 
+// Path: videoDetail.cast
+class _TranslationsVideoDetailCastZhTw implements TranslationsVideoDetailCastEn {
+	_TranslationsVideoDetailCastZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get dlnaCast => '投屏';
+	@override String unableToStartCastingSearch({required Object error}) => '啟動投屏搜索失敗: ${error}';
+	@override String startCastingTo({required Object deviceName}) => '開始投屏到 ${deviceName}';
+	@override String castFailed({required Object error}) => '投屏失敗: ${error}\n請嘗試重新搜索設備或切換網絡';
+	@override String get castStopped => '已停止投屏';
+	@override late final _TranslationsVideoDetailCastDeviceTypesZhTw deviceTypes = _TranslationsVideoDetailCastDeviceTypesZhTw._(_root);
+	@override String get currentPlatformNotSupported => '當前平台不支援投屏功能';
+	@override String get unableToGetVideoUrl => '無法獲取影片地址，請稍後重試';
+	@override String get stopCasting => '停止投屏';
+	@override late final _TranslationsVideoDetailCastDlnaCastSheetZhTw dlnaCastSheet = _TranslationsVideoDetailCastDlnaCastSheetZhTw._(_root);
+}
+
 // Path: forum.errors
 class _TranslationsForumErrorsZhTw implements TranslationsForumErrorsEn {
 	_TranslationsForumErrorsZhTw._(this._root);
@@ -2376,6 +2396,47 @@ class _TranslationsAnime4kPresetNamesZhTw implements TranslationsAnime4kPresetNa
 	@override String get upscale_non_cnn => '非CNN放大 (極快)';
 	@override String get mode_a_fast_darken => 'Mode A (Fast) + 線條加深';
 	@override String get mode_a_hq_thin => 'Mode A (HQ) + 線條細化';
+}
+
+// Path: videoDetail.cast.deviceTypes
+class _TranslationsVideoDetailCastDeviceTypesZhTw implements TranslationsVideoDetailCastDeviceTypesEn {
+	_TranslationsVideoDetailCastDeviceTypesZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get mediaRenderer => '媒體播放器';
+	@override String get mediaServer => '媒體伺服器';
+	@override String get internetGatewayDevice => '路由器';
+	@override String get basicDevice => '基礎設備';
+	@override String get dimmableLight => '智能燈';
+	@override String get wlanAccessPoint => '無線接入點';
+	@override String get wlanConnectionDevice => '無線連接設備';
+	@override String get printer => '打印機';
+	@override String get scanner => '掃描儀';
+	@override String get digitalSecurityCamera => '攝像頭';
+	@override String get unknownDevice => '未知設備';
+}
+
+// Path: videoDetail.cast.dlnaCastSheet
+class _TranslationsVideoDetailCastDlnaCastSheetZhTw implements TranslationsVideoDetailCastDlnaCastSheetEn {
+	_TranslationsVideoDetailCastDlnaCastSheetZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '遠程投屏';
+	@override String get close => '關閉';
+	@override String get searchingDevices => '正在搜索設備...';
+	@override String get searchPrompt => '點擊搜索按鈕重新搜索投屏設備';
+	@override String get searching => '搜索中';
+	@override String get searchAgain => '重新搜索';
+	@override String get noDevicesFound => '未發現投屏設備\n請確保設備在同一網絡下';
+	@override String get searchingDevicesPrompt => '正在搜索設備，請稍候...';
+	@override String get cast => '投屏';
+	@override String connectedTo({required Object deviceName}) => '已連接到: ${deviceName}';
+	@override String get notConnected => '未連接設備';
+	@override String get stopCasting => '停止投屏';
 }
 
 /// Flat map(s) containing all translations.
@@ -3218,6 +3279,37 @@ extension on TranslationsZhTw {
 			case 'videoDetail.skeleton.addingListeners': return '正在添加監聽器...';
 			case 'videoDetail.skeleton.successFecthVideoDurationInfo': return '成功獲取影片資源，開始加載影片...';
 			case 'videoDetail.skeleton.successFecthVideoHeightInfo': return '加載完成';
+			case 'videoDetail.cast.dlnaCast': return '投屏';
+			case 'videoDetail.cast.unableToStartCastingSearch': return ({required Object error}) => '啟動投屏搜索失敗: ${error}';
+			case 'videoDetail.cast.startCastingTo': return ({required Object deviceName}) => '開始投屏到 ${deviceName}';
+			case 'videoDetail.cast.castFailed': return ({required Object error}) => '投屏失敗: ${error}\n請嘗試重新搜索設備或切換網絡';
+			case 'videoDetail.cast.castStopped': return '已停止投屏';
+			case 'videoDetail.cast.deviceTypes.mediaRenderer': return '媒體播放器';
+			case 'videoDetail.cast.deviceTypes.mediaServer': return '媒體伺服器';
+			case 'videoDetail.cast.deviceTypes.internetGatewayDevice': return '路由器';
+			case 'videoDetail.cast.deviceTypes.basicDevice': return '基礎設備';
+			case 'videoDetail.cast.deviceTypes.dimmableLight': return '智能燈';
+			case 'videoDetail.cast.deviceTypes.wlanAccessPoint': return '無線接入點';
+			case 'videoDetail.cast.deviceTypes.wlanConnectionDevice': return '無線連接設備';
+			case 'videoDetail.cast.deviceTypes.printer': return '打印機';
+			case 'videoDetail.cast.deviceTypes.scanner': return '掃描儀';
+			case 'videoDetail.cast.deviceTypes.digitalSecurityCamera': return '攝像頭';
+			case 'videoDetail.cast.deviceTypes.unknownDevice': return '未知設備';
+			case 'videoDetail.cast.currentPlatformNotSupported': return '當前平台不支援投屏功能';
+			case 'videoDetail.cast.unableToGetVideoUrl': return '無法獲取影片地址，請稍後重試';
+			case 'videoDetail.cast.stopCasting': return '停止投屏';
+			case 'videoDetail.cast.dlnaCastSheet.title': return '遠程投屏';
+			case 'videoDetail.cast.dlnaCastSheet.close': return '關閉';
+			case 'videoDetail.cast.dlnaCastSheet.searchingDevices': return '正在搜索設備...';
+			case 'videoDetail.cast.dlnaCastSheet.searchPrompt': return '點擊搜索按鈕重新搜索投屏設備';
+			case 'videoDetail.cast.dlnaCastSheet.searching': return '搜索中';
+			case 'videoDetail.cast.dlnaCastSheet.searchAgain': return '重新搜索';
+			case 'videoDetail.cast.dlnaCastSheet.noDevicesFound': return '未發現投屏設備\n請確保設備在同一網絡下';
+			case 'videoDetail.cast.dlnaCastSheet.searchingDevicesPrompt': return '正在搜索設備，請稍候...';
+			case 'videoDetail.cast.dlnaCastSheet.cast': return '投屏';
+			case 'videoDetail.cast.dlnaCastSheet.connectedTo': return ({required Object deviceName}) => '已連接到: ${deviceName}';
+			case 'videoDetail.cast.dlnaCastSheet.notConnected': return '未連接設備';
+			case 'videoDetail.cast.dlnaCastSheet.stopCasting': return '停止投屏';
 			case 'share.sharePlayList': return '分享播放列表';
 			case 'share.wowDidYouSeeThis': return '哇哦，你看过这个吗？';
 			case 'share.nameIs': return '名字叫做';
