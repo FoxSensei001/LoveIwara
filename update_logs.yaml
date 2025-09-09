@@ -1,5 +1,5 @@
 # 最新版本
-currentVersion: "0.3.17"
+currentVersion: "0.3.18"
 # 更新日志
 # 格式介绍
 # 1. version: 版本号
@@ -7,6 +7,28 @@ currentVersion: "0.3.17"
 # 3. changes: 更新内容
 # 4. minVersion: 最小版本号
 updates:
+  - version: "0.3.18"
+    date: "2025-08-30"
+    minVersion: "0.3.0"
+    changes:
+      zh-CN:
+        - "新增首次加载引导页，帮助新用户了解并进行个性化配置"
+        - "新增基于 Anime4k 的超分辨率技术，可在设备性能允许的情况下，优化视频清晰度"
+        - "新增视频投屏功能（除Linux 平台）"
+        - "新增直接以复制链接的方式来分享的功能"
+        - "针对窄屏视频详情页优化交互体验：当视频处于暂停状态时，用户在列表任意位置执行上滑操作，即可灵活调整播放器上下收窄的幅度"
+      en:
+        - "Added first-time loading guide page to help new users understand and configure personalized settings"
+        - "Added Anime4k-based super-resolution technology that optimizes video clarity when device performance allows"
+        - "Added video casting functionality (except Linux platform)"
+        - "Added direct sharing via copy link functionality"
+        - "Optimized interaction experience for narrow-screen video detail pages: When video is paused, users can flexibly adjust the player expansion/contraction amplitude by performing swipe-up gestures anywhere in the list"
+      ja:
+        - "初回読み込みガイドページを追加し、新しいユーザーが理解し、パーソナライズ設定を行えるようにしました"
+        - "Anime4kベースの超解像技術を追加し、デバイスのパフォーマンスが許す場合にビデオの鮮明度を最適化します"
+        - "ビデオキャスト機能を追加（Linuxプラットフォームを除く）"
+        - "リンクコピーを介した直接共有機能を追加"
+        - "ナロースクリーン動画詳細ページのインタラクション体験を最適化：動画が一時停止状態の場合、リストの任意の位置で上スワイプジェスチャーを行うことで、プレイヤーの上下収縮振幅を柔軟に調整できます"
   - version: "0.3.17"
     date: "2025-08-16"
     minVersion: "0.3.0"

@@ -1335,10 +1335,8 @@ class MyVideoStateController extends GetxController
                 Get.snackbar(
                   '',
                   slang.t.mediaPlayer.retryingOpenVideoLink,
-                  backgroundColor: Colors.blue,
-                  colorText: Colors.white,
                   duration: const Duration(seconds: 3),
-                  snackPosition: SnackPosition.top,
+                  snackPosition: SnackPosition.bottom,
                 );
                 final bool ok = await refreshPlayer();
                 if (!ok) {
@@ -1356,10 +1354,8 @@ class MyVideoStateController extends GetxController
         Get.snackbar(
           '',
           slang.t.mediaPlayer.decoderOpenFailedWithSuggestion(event: event),
-          backgroundColor: Colors.orange,
-          colorText: Colors.white,
-          duration: const Duration(seconds: 7),
-          snackPosition: SnackPosition.top,
+          duration: const Duration(seconds: 5),
+          snackPosition: SnackPosition.bottom,
         );
         return;
       }
@@ -1375,10 +1371,8 @@ class MyVideoStateController extends GetxController
       Get.snackbar(
         '',
         slang.t.mediaPlayer.videoLoadErrorWithDetail(event: event),
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        duration: const Duration(seconds: 3),
-        snackPosition: SnackPosition.top,
+        duration: const Duration(seconds: 5),
+        snackPosition: SnackPosition.bottom,
       );
       LogUtils.e('视频加载错误: $event', tag: 'MyVideoStateController');
     });
@@ -2059,10 +2053,8 @@ class MyVideoStateController extends GetxController
       Get.snackbar(
         '',
         slang.t.videoDetail.cast.currentPlatformNotSupported,
-        backgroundColor: Colors.orange,
-        colorText: Colors.white,
-        duration: const Duration(seconds: 3),
-        snackPosition: SnackPosition.top,
+        duration: const Duration(seconds: 5),
+        snackPosition: SnackPosition.bottom,
       );
       return;
     }
@@ -2075,10 +2067,8 @@ class MyVideoStateController extends GetxController
       Get.snackbar(
         '',
         slang.t.videoDetail.cast.unableToGetVideoUrl,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        duration: const Duration(seconds: 3),
-        snackPosition: SnackPosition.top,
+        duration: const Duration(seconds: 5),
+        snackPosition: SnackPosition.bottom,
       );
       return;
     }
