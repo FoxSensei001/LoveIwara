@@ -2,7 +2,7 @@
 tutorial:
   specialFollowFeature: "特別關注功能"
   specialFollowDescription: "這裡顯示你特別關注的作者。在影片、圖庫、作者詳情頁點擊關注按鈕，然後選擇\"添加為特別關注\"即可。"
-  exampleAuthorInfoRow: "示例：作者信息行"
+  exampleAuthorInfoRow: "範例：作者資訊行"
   authorName: "作者名稱"
   followed: "已關注"
   specialFollowInstruction: "點擊\"已關注\"按鈕 → 選擇\"添加為特別關注\""
@@ -91,7 +91,7 @@ common:
   linkCopiedToClipboard: 連結地址已複製到剪貼簿
   imageCopiedToClipboard: 圖片已複製到剪貼簿
   copyImageFailed: 複製圖片失敗
-  mobileSaveImageIsUnderDevelopment: 移動端的儲存圖片功能尚在開發中
+  mobileSaveImageIsUnderDevelopment: 行動端的儲存圖片功能尚在開發中
   imageSavedTo: 圖片已儲存至
   saveImageFailed: 儲存圖片失敗
   close: 關閉
@@ -112,8 +112,8 @@ common:
   editTitle: 編輯標題
   editMode: 編輯模式
   pleaseEnterNewTitle: 請輸入新標題
-  createPlayList: 創建播放清單
-  create: 創建
+  createPlayList: 建立播放清單
+  create: 建立
   checkNetworkSettings: 檢查網路設定
   general: 大眾
   r18: R18
@@ -159,8 +159,8 @@ common:
   selectQuality: 選擇畫質
   externalVideo: 站外影片
   originalText: 原文
-  showOriginalText: 顯示原始文本
-  showProcessedText: 顯示處理後文本
+  showOriginalText: 顯示原始文字
+  showProcessedText: 顯示處理後文字
   preview: 預覽
   rules: 規則
   agree: 同意
@@ -172,7 +172,7 @@ common:
   characterCount: '${current}/${max}'
   exceedsMaxLengthLimit: '超過最大長度限制 (${max})'
   agreeToCommunityRules: 同意社群規則
-  createPost: 創建投稿
+  createPost: 建立投稿
   title: 標題
   enterTitle: 請輸入標題
   content: 內容
@@ -182,13 +182,13 @@ common:
   noData: 沒有資料
   tagLimit: 標籤上限
   enableFloatingButtons: 啟用浮動按鈕
-  disableFloatingButtons: 禁用浮動按鈕
+  disableFloatingButtons: 停用浮動按鈕
   enabledFloatingButtons: 已啟用浮動按鈕
-  disabledFloatingButtons: 已禁用浮動按鈕
+  disabledFloatingButtons: 已停用浮動按鈕
   pendingCommentCount: 待審核評論
   joined: '加入於 ${str}'
   selectDateRange: 選擇日期範圍
-  selectDateRangeHint: 選擇日期範圍，默認選擇最近30天
+  selectDateRangeHint: 選擇日期範圍，預設選擇最近30天
   clearDateRange: 清除日期範圍
   followSuccessClickAgainToSpecialFollow: 已成功關注，再次點擊以特別關注
   exitConfirmTip: 確定要退出嗎？
@@ -198,8 +198,8 @@ common:
   unsavedChanges: "您有未儲存的更改"
   specialFollowsManagementTip: 拖動可重新排序 • 向左滑動可移除
   specialFollowsManagement: 特別關注管理
-  createTimeDesc: 創建時間倒序
-  createTimeAsc: 創建時間正序
+  createTimeDesc: 建立時間倒序
+  createTimeAsc: 建立時間正序
   # 分頁相關
   pagination:
     totalItems: '共 ${num} 項'
@@ -213,7 +213,7 @@ common:
     pagination: '分頁'
   notice: 通知
   detail: 詳情
-  parseExceptionDestopHint: ' - 桌面端用戶可以在設置中配置代理'
+  parseExceptionDestopHint: ' - 桌面端使用者可以在設定中配置代理'
   iwaraTags: Iwara 標籤
   likeThisVideo: 喜歡這個影片的人
   operation: 操作
@@ -239,8 +239,8 @@ auth:
   logoutConfirmation: 你確定要登出嗎？
   logoutSuccess: 登出成功
   logoutFailed: 登出失敗
-  usernameOrEmail: 用戶名或電子郵件
-  pleaseEnterUsernameOrEmail: 請輸入用戶名或電子郵件
+  usernameOrEmail: 使用者名稱或電子郵件
+  pleaseEnterUsernameOrEmail: 請輸入使用者名稱或電子郵件
   rememberMe: 記住帳號密碼
 
 errors:
@@ -269,7 +269,7 @@ errors:
   youDoNotHavePermissionToAccessThisResource: 您沒有權限訪問此資源
   loginFailed: 登入失敗
   unknownError: 未知錯誤
-  sessionExpired: 會話已過期
+  sessionExpired: 工作階段已過期
   failedToFetchCaptcha: 獲取驗證碼失敗
   emailAlreadyExists: 電子郵件已存在
   invalidCaptcha: 無效的驗證碼
@@ -298,8 +298,8 @@ errors:
   failedToRefresh: 更新失敗
   noPermission: 權限不足
   resourceNotFound: 資源不存在
-  failedToSaveCredentials: "無法安全保存登入資訊"
-  failedToLoadSavedCredentials: "載入保存的登入資訊失敗"
+  failedToSaveCredentials: "無法安全儲存登入資訊"
+  failedToLoadSavedCredentials: "載入儲存的登入資訊失敗"
   specialFollowLimitReached: '特別關注上限超出，上限: ${cnt}，請於關注列表頁中調整'
   notFound: '內容不存在或已被刪除'
   network:
@@ -322,10 +322,10 @@ errors:
     connectionRefused: '連接被拒絕'
     networkUnreachable: '網路不可達'
     noRouteToHost: '無法找到主機'
-    connectionFailed: '連接失敗'
-    sslConnectionFailed: 'SSL連接失敗，請檢查網絡設置'
+    connectionFailed: '連線失敗'
+    sslConnectionFailed: 'SSL連線失敗，請檢查網路設定'
 friends:
-  clickToRestoreFriend: 點擊恢復朋友
+  clickToRestoreFriend: 點擊復原朋友
   friendsList: 朋友列表
   friendRequests: 朋友請求
   friendRequestsList: 朋友請求列表
@@ -339,7 +339,7 @@ authorProfile:
   userProfile: 使用者資料
 
 favorites:
-  clickToRestoreFavorite: 點擊恢復最愛
+  clickToRestoreFavorite: 點擊復原最愛
   myFavorites: 我的最愛
 
 galleryDetail:
@@ -371,14 +371,14 @@ playList:
   notSupportSetCover: 不支援設定封面
   notSupportDeleteList: 無法刪除播放清單
   notSupportSetPrivate: 無法設為私密
-  yesCreateListWillAlwaysExistAndVisibleToEveryone: 沒錯...創建的播放清單會一直存在且對所有人可見
+  yesCreateListWillAlwaysExistAndVisibleToEveryone: 沒錯...建立的播放清單會一直存在且對所有人可見
   smallSuggestion: 小建議
   useLikeToCollectContent: 如果您比較注重隱私，建議使用"按讚"功能來收藏內容
   welcomeToDiscussOnGitHub: 如果你有其他建議或想法，歡迎來 GitHub 討論！
   iUnderstand: 明白了
   searchPlaylists: 搜尋播放清單...
   newPlaylistName: 新播放清單名稱
-  createNewPlaylist: 創建新播放清單
+  createNewPlaylist: 建立新播放清單
   videos: 影片
 
 search:
@@ -395,13 +395,13 @@ search:
   notSupportCurrentSearchType: '目前尚未支援此搜尋類型 ${searchType}，敬請期待'
   searchResult: 搜尋結果
   unsupportedSearchType: '不支援的搜尋類型: ${searchType}'
-  googleSearch: "谷歌搜尋"
-  googleSearchHint: "${webName} 的搜尋功能不好用？嘗試谷歌搜尋！"
-  googleSearchDescription: "借助谷歌搜索的 :site 搜索運算符，您可以通過外部引擎來對站內的內容進行檢索，此功能在搜尋 影片、圖庫、播放清單、用戶 時非常有用。"
-  googleSearchKeywordsHint: "輸入要搜尋的關鍵詞"
+  googleSearch: "Google搜尋"
+  googleSearchHint: "${webName} 的搜尋功能不好用？嘗試Google搜尋！"
+  googleSearchDescription: "借助Google搜尋的 :site 搜尋運算符，您可以透過外部引擎來對站內的內容進行檢索，此功能在搜尋 影片、圖庫、播放清單、使用者 時非常有用。"
+  googleSearchKeywordsHint: "輸入要搜尋的關鍵字"
   openLinkJump: "打開連結跳轉"
-  googleSearchButton: "谷歌搜尋"
-  pleaseEnterSearchKeywords: "請輸入搜尋關鍵詞"
+  googleSearchButton: "Google搜尋"
+  pleaseEnterSearchKeywords: "請輸入搜尋關鍵字"
   googleSearchQueryCopied: "搜尋語句已複製到剪貼簿"
   googleSearchBrowserOpenFailed: "無法打開瀏覽器: ${error}"
 
@@ -413,7 +413,7 @@ settings:
   useTraditionalPaginationMode: 使用傳統分頁模式
   useTraditionalPaginationModeDesc: 開啟後列表將使用傳統分頁模式，關閉則使用瀑布流模式
   showVideoProgressBottomBarWhenToolbarHidden: 顯示底部進度條
-  showVideoProgressBottomBarWhenToolbarHiddenDesc: 此設定決定是否在工具欄隱藏時顯示底部進度條
+  showVideoProgressBottomBarWhenToolbarHiddenDesc: 此設定決定是否在工具列隱藏時顯示底部進度條
   basicSettings: 基礎設定
   personalizedSettings: 個性化設定
   otherSettings: 其他設定
@@ -437,7 +437,7 @@ settings:
   leftAndRightControlAreaWidth: 左右控制區域寬度
   thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer: 此設定將決定播放器左右兩側控制區域的寬度。
   proxyAddressCannotBeEmpty: 代理伺服器地址不能為空。
-  invalidProxyAddressFormatPleaseUseTheFormatOfIpPortOrDomainNamePort: 無效的代理伺服器地址格式，請使用 IP:端口 或 域名:端口 格式。
+  invalidProxyAddressFormatPleaseUseTheFormatOfIpPortOrDomainNamePort: 無效的代理伺服器地址格式，請使用 IP:埠 或 域名:埠 格式。
   proxyNormalWork: 代理伺服器正常工作。
   testProxyFailedWithStatusCode: '代理請求失敗，狀態碼: ${code}'
   testProxyFailedWithException: '代理請求出錯: ${exception}'
@@ -465,7 +465,7 @@ settings:
   needRestartToApply: 需要重啟應用以應用設定
   themeNeedRestartDescription: 主題設定需要重啟應用以應用設定
   about: 關於
-  currentVersion: 當前版本
+  currentVersion: 目前版本
   latestVersion: 最新版本
   checkForUpdates: 檢查更新
   update: 更新
@@ -479,7 +479,7 @@ settings:
   updateContent: 更新內容
   releaseDate: 發布日期
   ignoreThisVersion: 忽略此版本
-  minVersionUpdateRequired: 當前版本過低，請盡快更新
+  minVersionUpdateRequired: 目前版本過低，請盡快更新
   forceUpdateTip: "此版本為強制更新，請盡快更新到最新版本"
   viewChangelog: 查看更新日誌
   alreadyLatestVersion: 已是最新版本
@@ -487,21 +487,21 @@ settings:
   configureYourAppSettings: 配置您的應用程式設定
   history: 歷史記錄
   autoRecordHistory: 自動記錄歷史記錄
-  autoRecordHistoryDesc: 自動記錄您觀看過的影片和圖庫等信息
-  showUnprocessedMarkdownText: 顯示未處理文本
-  showUnprocessedMarkdownTextDesc: 顯示Markdown的原始文本
+  autoRecordHistoryDesc: 自動記錄您觀看過的影片和圖庫等資訊
+  showUnprocessedMarkdownText: 顯示未處理文字
+  showUnprocessedMarkdownTextDesc: 顯示Markdown的原始文字
   markdown: Markdown
   activeBackgroundPrivacyMode: 隱私模式
-  activeBackgroundPrivacyModeDesc: 禁止截圖、後台運行時隱藏畫面...
+  activeBackgroundPrivacyModeDesc: 禁止截圖、後台執行時隱藏畫面...
   privacy: 隱私
   forum: 論壇
-  disableForumReplyQuote: 禁用論壇回覆引用
-  disableForumReplyQuoteDesc: 禁用論壇回覆時攜帶被回覆樓層資訊
+  disableForumReplyQuote: 停用論壇回覆引用
+  disableForumReplyQuoteDesc: 停用論壇回覆時攜帶被回覆樓層資訊
   theaterMode: 劇院模式
-  theaterModeDesc: 開啟後，播放器背景會被設置為影片封面的模糊版本
-  appLinks: 應用鏈接
+  theaterModeDesc: 開啟後，播放器背景會被設定為影片封面的模糊版本
+  appLinks: 應用連結
   defaultBrowser: 預設瀏覽
-  defaultBrowserDesc: 請在系統設定中打開預設鏈接配置項，並添加iwara.tv網站鏈接
+  defaultBrowserDesc: 請在系統設定中打開預設連結配置項，並添加iwara.tv網站連結
   themeMode: 主題模式
   themeModeDesc: 此配置決定應用的主題模式
   dynamicColor: 動態顏色
@@ -509,12 +509,12 @@ settings:
   useDynamicColor: 使用動態顏色
   useDynamicColorDesc: 此配置決定應用是否使用動態顏色
   presetColors: 預設顏色
-  customColors: 自定義顏色
+  customColors: 自訂顏色
   pickColor: 選擇顏色
   cancel: 取消
   confirm: 確認
-  noCustomColors: 沒有自定義顏色
-  recordAndRestorePlaybackProgress: 記錄和恢復播放進度
+  noCustomColors: 沒有自訂顏色
+  recordAndRestorePlaybackProgress: 記錄和復原播放進度
   signature: 小尾巴
   enableSignature: 小尾巴啟用
   enableSignatureDesc: 此配置決定回覆時是否自動添加小尾巴
@@ -536,16 +536,16 @@ settings:
   noChanges: "暫無更新內容"
   interaction: 互動
   enableVibration: 啟用震動
-  enableVibrationDesc: 啟用應用互動時的震動反饋
+  enableVibrationDesc: 啟用應用互動時的震動回饋
   defaultKeepVideoToolbarVisible: 保持工具列常駐
   defaultKeepVideoToolbarVisibleDesc: 此設定決定首次進入影片頁面時是否保持工具列常駐顯示。
-  theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt: 移動端開啟劇院模式可能會造成性能問題，可酌情開啟。
+  theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt: 行動端開啟劇院模式可能會造成性能問題，可酌情開啟。
   lockButtonPosition: 鎖定按鈕位置
   lockButtonPositionBothSides: 兩側顯示
   lockButtonPositionLeftSide: 僅左側顯示
   lockButtonPositionRightSide: 僅右側顯示
-  fullscreenOrientation: 豎屏進入全屏後的螢幕方向
-  fullscreenOrientationDesc: 此設定決定豎屏進入全屏時螢幕的預設方向（僅移動端有效）
+  fullscreenOrientation: 豎屏進入全螢幕後的螢幕方向
+  fullscreenOrientationDesc: 此設定決定豎屏進入全螢幕時螢幕的預設方向（僅行動端有效）
   fullscreenOrientationLeftLandscape: 左側橫螢幕
   fullscreenOrientationRightLandscape: 右側橫螢幕
   jumpLink: 跳轉連結
@@ -558,31 +558,31 @@ settings:
   rightVerticalSwipeVolume: 右側上下滑動調整音量（進入新頁面時生效）
   leftVerticalSwipeBrightness: 左側上下滑動調整亮度（進入新頁面時生效）
   longPressFastForward: 長按快進
-  enableMouseHoverShowToolbar: 鼠標懸停時顯示工具欄
-  enableMouseHoverShowToolbarInfo: 開啟後，當鼠標懸停在播放器上移動時會自動顯示工具欄，停止移動3秒後自動隱藏
-  # 音視頻配置相關
-  audioVideoConfig: 音視頻配置
+  enableMouseHoverShowToolbar: 滑鼠懸停時顯示工具列
+  enableMouseHoverShowToolbarInfo: 開啟後，當滑鼠懸停在播放器上移動時會自動顯示工具列，停止移動3秒後自動隱藏
+  # 影音配置相關
+  audioVideoConfig: 影音配置
   expandBuffer: 擴大緩衝區
   expandBufferInfo: 開啟後緩衝區增大，載入時間變長但播放更流暢
-  videoSyncMode: 視頻同步模式
-  videoSyncModeSubtitle: 音視頻同步策略
+  videoSyncMode: 影片同步模式
+  videoSyncModeSubtitle: 影音同步策略
   hardwareDecodingMode: 硬解模式
   hardwareDecodingModeSubtitle: 硬體解碼設定
   enableHardwareAcceleration: 啟用硬體加速
   enableHardwareAccelerationInfo: 開啟硬體加速可以提高解碼效能，但某些裝置可能不相容
-  useOpenSLESAudioOutput: 使用OpenSLES音頻輸出
-  useOpenSLESAudioOutputInfo: 使用低延遲音頻輸出，可能提高音頻效能
-  # 視頻同步選項
-  videoSyncAudio: 音頻同步
+  useOpenSLESAudioOutput: 使用OpenSLES音訊輸出
+  useOpenSLESAudioOutputInfo: 使用低延遲音訊輸出，可能提高音頻效能
+  # 影片同步選項
+  videoSyncAudio: 音訊同步
   videoSyncDisplayResample: 顯示重採樣
   videoSyncDisplayResampleVdrop: 顯示重採樣(丟幀)
   videoSyncDisplayResampleDesync: 顯示重採樣(去同步)
   videoSyncDisplayTempo: 顯示節拍
-  videoSyncDisplayVdrop: 顯示丟視頻幀
-  videoSyncDisplayAdrop: 顯示丟音頻幀
+  videoSyncDisplayVdrop: 顯示丟影片幀
+  videoSyncDisplayAdrop: 顯示丟音訊幀
   videoSyncDisplayDesync: 顯示去同步
   videoSyncDesync: 去同步
-  # 论坛页
+  # 論壇頁
   forumSettings:
     name: 論壇
     configureYourForumSettings: 配置您的論壇設定
@@ -594,22 +594,22 @@ settings:
   hardwareDecodingAuto: 自動
   hardwareDecodingAutoCopy: 自動複製
   hardwareDecodingAutoSafe: 自動安全
-  hardwareDecodingNo: 禁用
+  hardwareDecodingNo: 停用
   hardwareDecodingYes: 強制啟用
   downloadSettings:
     downloadSettings: 下載設定
-    storagePermissionStatus: 存儲權限狀態
-    accessPublicDirectoryNeedStoragePermission: 訪問公共目錄需要存儲權限
+    storagePermissionStatus: 儲存權限狀態
+    accessPublicDirectoryNeedStoragePermission: 訪問公共目錄需要儲存權限
     checkingPermissionStatus: 檢查權限狀態...
-    storagePermissionGranted: 已授權存儲權限
-    storagePermissionNotGranted: 需要存儲權限
-    storagePermissionGrantSuccess: 存儲權限授權成功
-    storagePermissionGrantFailedButSomeFeaturesMayBeLimited: 存儲權限授權失敗，部分功能可能受限
-    grantStoragePermission: 授權存儲權限
-    customDownloadPath: 自定義下載位置
-    customDownloadPathDescription: 啟用後可以為下載的檔案選擇自定義儲存位置
+    storagePermissionGranted: 已授權儲存權限
+    storagePermissionNotGranted: 需要儲存權限
+    storagePermissionGrantSuccess: 儲存權限授權成功
+    storagePermissionGrantFailedButSomeFeaturesMayBeLimited: 儲存權限授權失敗，部分功能可能受限
+    grantStoragePermission: 授權儲存權限
+    customDownloadPath: 自訂下載位置
+    customDownloadPathDescription: 啟用後可以為下載的檔案選擇自訂儲存位置
     customDownloadPathTip: 💡 提示：選擇公共目錄（如下載資料夾）需要授予儲存權限，建議優先使用推薦路徑
-    androidWarning: Android提示：避免選擇公共目錄（如下載資料夾），建議使用應用程式專用目錄以確保存取權限。
+    androidWarning: Android提示：避免選擇公共目錄（如下載資料夾），建議使用應用程式專用目錄以確儲存取權限。
     publicDirectoryPermissionTip: ⚠️ 注意：您選擇的是公共目錄，需要儲存權限才能正常下載檔案
     permissionRequiredForPublicDirectory: 選擇公共目錄需要儲存權限
     currentDownloadPath: 目前下載路徑
@@ -617,14 +617,14 @@ settings:
     defaultAppDirectory: 預設應用程式目錄
     permissionGranted: 已授權
     permissionRequired: 需要權限
-    enableCustomDownloadPath: 啟用自定義下載路徑
+    enableCustomDownloadPath: 啟用自訂下載路徑
     disableCustomDownloadPath: 關閉時使用應用程式預設路徑
-    customDownloadPathLabel: 自定義下載路徑
+    customDownloadPathLabel: 自訂下載路徑
     selectDownloadFolder: 選擇下載資料夾
     recommendedPath: 推薦路徑
     selectFolder: 選擇資料夾
     filenameTemplate: 檔案命名範本
-    filenameTemplateDescription: 自定義下載檔案的命名規則，支援變數替換
+    filenameTemplateDescription: 自訂下載檔案的命名規則，支援變數取代
     videoFilenameTemplate: 影片檔案命名範本
     galleryFolderTemplate: 圖庫資料夾範本
     imageFilenameTemplate: 單張圖片命名範本
@@ -646,11 +646,11 @@ settings:
     testDownloadPathAndPermissions: 測試下載路徑和權限配置是否正常運作
     testResults: 測試結果
     testCompleted: 測試完成
-    testPassed: 項通過
+    testPassed: 項透過
     testFailed: 測試失敗
-    testStoragePermissionCheck: 存儲權限檢查
-    testStoragePermissionGranted: 已獲得存儲權限
-    testStoragePermissionMissing: 缺少存儲權限，部分功能可能受限
+    testStoragePermissionCheck: 儲存權限檢查
+    testStoragePermissionGranted: 已獲得儲存權限
+    testStoragePermissionMissing: 缺少儲存權限，部分功能可能受限
     testPermissionCheckFailed: 權限檢查失敗
     testDownloadPathValidation: 下載路徑驗證
     testPathValidationFailed: 路徑驗證失敗
@@ -662,7 +662,7 @@ settings:
     testDirectoryOperationNormal: 目錄建立和檔案寫入正常
     testDirectoryOperationFailed: 目錄操作失敗
     # 測試詳情相關
-    testVideoTemplate: 視頻模板
+    testVideoTemplate: 影片模板
     testGalleryTemplate: 圖庫模板
     testImageTemplate: 圖片模板
     testValid: 有效
@@ -672,7 +672,7 @@ settings:
     testError: 錯誤
     testPath: 測試路徑
     testBasePath: 基礎路徑
-    testDirectoryCreation: 目錄創建
+    testDirectoryCreation: 目錄建立
     testFileWriting: 檔案寫入
     testFileContent: 檔案內容
     # 路徑狀態相關
@@ -684,7 +684,7 @@ settings:
     issueFixed: 問題已修復
     fixFailed: 修復失敗，請手動處理
     # 下載路徑服務相關
-    lackStoragePermission: 缺少存儲權限
+    lackStoragePermission: 缺少儲存權限
     cannotAccessPublicDirectory: 無法訪問公共目錄，需要「所有檔案存取權限」
     cannotCreateDirectory: 無法建立目錄
     directoryNotWritable: 目錄不可寫入
@@ -700,8 +700,8 @@ settings:
     moviesDirectoryDesc: 系統影片目錄，媒體應用程式可識別
     documentsDirectory: 文件目錄
     documentsDirectoryDesc: iOS應用程式文件目錄
-    requiresStoragePermission: 需要存儲權限才能存取
-    # 推薦路徑組件相關
+    requiresStoragePermission: 需要儲存權限才能存取
+    # 推薦路徑元件相關
     recommendedPaths: 推薦路徑
     # 額外的推薦路徑名稱和描述
     externalAppPrivateDirectory: 外部應用程式專用目錄
@@ -769,22 +769,22 @@ oreno3d:
     serverError: 伺服器內部錯誤
     serviceUnavailable: 服務暫時不可用
     requestCancelled: 請求已取消
-    connectionError: 網路連接錯誤，請檢查網路設置
+    connectionError: 網路連接錯誤，請檢查網路設定
     networkRequestFailed: 網路請求失敗
-    searchVideoError: 搜索視頻時發生未知錯誤
-    getPopularVideoError: 獲取熱門視頻時發生未知錯誤
-    getVideoDetailError: 獲取視頻詳情時發生未知錯誤
-    parseVideoDetailError: 獲取並解析視頻詳情時發生未知錯誤
+    searchVideoError: 搜尋影片時發生未知錯誤
+    getPopularVideoError: 獲取熱門影片時發生未知錯誤
+    getVideoDetailError: 獲取影片詳情時發生未知錯誤
+    parseVideoDetailError: 獲取並解析影片詳情時發生未知錯誤
     downloadFileError: 下載文件時發生未知錯誤
 
   loading:
-    gettingVideoInfo: 正在獲取視頻信息...
+    gettingVideoInfo: 正在獲取影片資訊...
     cancel: 取消
 
   messages:
-    videoNotFoundOrDeleted: 視頻不存在或已被刪除
-    unableToGetVideoPlayLink: 無法獲取視頻播放鏈接
-    getVideoDetailFailed: 獲取視頻詳情失敗
+    videoNotFoundOrDeleted: 影片不存在或已被刪除
+    unableToGetVideoPlayLink: 無法獲取影片播放連結
+    getVideoDetailFailed: 獲取影片詳情失敗
 
 firstTimeSetup:
   welcome:
@@ -848,9 +848,9 @@ signIn:
 
 subscriptions:
   pleaseLoginFirstToViewYourSubscriptions: 請登入以查看您的訂閱內容。
-  selectUser: 選擇用戶
-  noSubscribedUsers: 尚無已訂閱用戶
-  showAllSubscribedUsersContent: 顯示所有已訂閱用戶的內容
+  selectUser: 選擇使用者
+  noSubscribedUsers: 尚無已訂閱使用者
+  showAllSubscribedUsersContent: 顯示所有已訂閱使用者的內容
 
 videoDetail:
   pipMode: 畫中畫模式
@@ -878,7 +878,7 @@ videoDetail:
   brightnessLowest: 亮度已最低
   volume: 音量
   volumeMuted: 音量已靜音
-  home: 主頁
+  home: 首頁
   videoPlayer: 影片播放器
   videoPlayerInfo: 播放器資訊
   moreSettings: 更多設定
@@ -899,86 +899,86 @@ videoDetail:
   privateVideo: 這是一個私密影片
   externalVideo: 這是一個站外影片
   openInBrowser: 在瀏覽器中打開
-  resourceDeleted: 這個影片貌似被刪除了 :/
+  resourceDeleted: 這個影片好像被刪除了 :/
   noDownloadUrl: 沒有下載連結
   startDownloading: 開始下載
   downloadFailed: 下載失敗，請稍後再試
   downloadSuccess: 下載成功
   download: 下載
   downloadManager: 下載管理
-  videoLoadError: 影片加載錯誤
+  videoLoadError: 影片載入錯誤
   resourceNotFound: 資源未找到
   authorNoOtherVideos: 作者暫無其他影片
   noRelatedVideos: 暫無相關影片
   player:
-    errorWhileLoadingVideoSource: 在加載影片來源時出現了錯誤
-    errorWhileSettingUpListeners: 在設置監聽器時出現了錯誤
+    errorWhileLoadingVideoSource: 在載入影片來源時出現了錯誤
+    errorWhileSettingUpListeners: 在設定監聽器時出現了錯誤
   skeleton:
     fetchingVideoInfo: 取得影片資訊中...
     fetchingVideoSources: 取得影片來源中...
-    loadingVideo: 正在加載影片...
+    loadingVideo: 正在載入影片...
     applyingSolution: 正在應用此解析度...
     addingListeners: 正在添加監聽器...
-    successFecthVideoDurationInfo: 成功獲取影片資源，開始加載影片...
-    successFecthVideoHeightInfo: 加載完成
-  # 投屏
+    successFecthVideoDurationInfo: 成功獲取影片資源，開始載入影片...
+    successFecthVideoHeightInfo: 載入完成
+  # 投影
   cast:
-    dlnaCast: 投屏
-    unableToStartCastingSearch: '啟動投屏搜索失敗: ${error}'
-    startCastingTo: '開始投屏到 ${deviceName}'
-    castFailed: '投屏失敗: ${error}\n請嘗試重新搜索設備或切換網絡'
-    castStopped: '已停止投屏'
+    dlnaCast: 投影
+    unableToStartCastingSearch: '啟動投影搜尋失敗: ${error}'
+    startCastingTo: '開始投影到 ${deviceName}'
+    castFailed: '投影失敗: ${error}\n請嘗試重新搜尋裝置或切換網路'
+    castStopped: '已停止投影'
     deviceTypes:
       mediaRenderer: 媒體播放器
       mediaServer: 媒體伺服器
       internetGatewayDevice: 路由器
-      basicDevice: 基礎設備
-      dimmableLight: 智能燈
+      basicDevice: 基礎裝置
+      dimmableLight: 智慧燈
       wlanAccessPoint: 無線接入點
-      wlanConnectionDevice: 無線連接設備
-      printer: 打印機
-      scanner: 掃描儀
-      digitalSecurityCamera: 攝像頭
-      unknownDevice: 未知設備
-    currentPlatformNotSupported: '當前平台不支援投屏功能'
-    unableToGetVideoUrl: '無法獲取影片地址，請稍後重試'
-    stopCasting: '停止投屏'
-    # DLNA投屏組件
+      wlanConnectionDevice: 無線連接裝置
+      printer: 印表機
+      scanner: 掃描器
+      digitalSecurityCamera: 攝影機
+      unknownDevice: 未知裝置
+    currentPlatformNotSupported: '目前平台不支援投影功能'
+    unableToGetVideoUrl: '無法獲取影片網址，請稍後重試'
+    stopCasting: '停止投影'
+    # DLNA投影元件
     dlnaCastSheet:
-      title: 遠程投屏
+      title: 遠端投影
       close: 關閉
-      searchingDevices: 正在搜索設備...
-      searchPrompt: 點擊搜索按鈕重新搜索投屏設備
-      searching: 搜索中
-      searchAgain: 重新搜索
-      noDevicesFound: '未發現投屏設備\n請確保設備在同一網絡下'
-      searchingDevicesPrompt: 正在搜索設備，請稍候...
-      cast: 投屏
+      searchingDevices: 正在搜尋裝置...
+      searchPrompt: 點擊搜尋按鈕重新搜尋投影裝置
+      searching: 搜尋中
+      searchAgain: 重新搜尋
+      noDevicesFound: '未發現投影裝置\n請確保裝置在同一網路下'
+      searchingDevicesPrompt: 正在搜尋裝置，請稍候...
+      cast: 投影
       connectedTo: '已連接到: ${deviceName}'
-      notConnected: 未連接設備
-      stopCasting: 停止投屏
+      notConnected: 未連接裝置
+      stopCasting: 停止投影
 share:
   sharePlayList: 分享播放列表
-  wowDidYouSeeThis: 哇哦，你看过这个吗？
+  wowDidYouSeeThis: 哇哦，你看過這個嗎？
   nameIs: 名字叫做
   clickLinkToView: 點擊連結查看
   iReallyLikeThis: 我真的是太喜歡這個了，你也來看看吧！
   shareFailed: 分享失敗，請稍後再試
   share: 分享
   shareAsImage: 分享為圖片
-  shareAsText: 分享為文本
+  shareAsText: 分享為文字
   shareAsImageDesc: 將影片封面分享為圖片
-  shareAsTextDesc: 將影片詳情分享為文本
+  shareAsTextDesc: 將影片詳情分享為文字
   shareAsImageFailed: 分享影片封面為圖片失敗，請稍後再試
-  shareAsTextFailed: 分享影片詳情為文本失敗，請稍後再試
+  shareAsTextFailed: 分享影片詳情為文字失敗，請稍後再試
   shareVideo: 分享影片
   authorIs: 作者是
   shareGallery: 分享圖庫
   galleryTitleIs: 圖庫名字叫做
   galleryAuthorIs: 圖庫作者是
-  shareUser: 分享用戶
-  userNameIs: 用戶名字叫做
-  userAuthorIs: 用戶作者是
+  shareUser: 分享使用者
+  userNameIs: 使用者名稱字叫做
+  userAuthorIs: 使用者作者是
   comments: 評論
   shareThread: 分享帖子
   views: 瀏覽
@@ -989,32 +989,32 @@ share:
 markdown:
   markdownSyntax: Markdown 語法
   iwaraSpecialMarkdownSyntax: Iwara 專用語法
-  internalLink: 站內鏈接
-  supportAutoConvertLinkBelow: '支持自動轉換以下類型的鏈接：'
-  convertLinkExample: '🎬 影片鏈接\n🖼️ 圖片鏈接\n👤 用戶鏈接\n📌 論壇鏈接\n🎵 播放列表鏈接\n💬 帖子鏈接'
-  mentionUser: 提及用戶
-  mentionUserDescription: '輸入@後跟用戶名，將自動轉換為用戶鏈接'
+  internalLink: 站內連結
+  supportAutoConvertLinkBelow: '支援自動轉換以下類型的連結：'
+  convertLinkExample: '🎬 影片連結\n🖼️ 圖片連結\n👤 使用者連結\n📌 論壇連結\n🎵 播放列錶連結\n💬 帖子連結'
+  mentionUser: 提及使用者
+  mentionUserDescription: '輸入@後跟使用者名稱，將自動轉換為使用者連結'
   markdownBasicSyntax: Markdown 基本語法
   paragraphAndLineBreak: 段落與換行
   paragraphAndLineBreakDescription: '段落之間空一行，行末加兩個空格實現換行'
   paragraphAndLineBreakSyntax: '這是第一段文字\n\n這是第二段文字\n這一行後面加兩個空格  \n就能換行了'
-  textStyle: 文本樣式
-  textStyleDescription: '使用特殊符號包圍文本来改變樣式'
-  textStyleSyntax: '**粗體文本**\n*斜體文本*\n~~刪除線文本~~\n`代碼文本`'
+  textStyle: 文字樣式
+  textStyleDescription: '使用特殊符號包圍文本來改變樣式'
+  textStyleSyntax: '**粗體文字**\n*斜體文字*\n~~刪除線文字~~\n`程式碼文字`'
   quote: 引用
-  quoteDescription: '使用 > 符號創建引用，多個 > 創建多級引用'
+  quoteDescription: '使用 > 符號建立引用，多個 > 建立多級引用'
   quoteSyntax: '> 這是一級引用\n>> 這是二級引用'
   list: 列表
-  listDescription: '使用數字+點號創建有序列表，使用 - 創建無序列表'
+  listDescription: '使用數字+點號建立有序列表，使用 - 建立無序列表'
   listSyntax: '1. 第一項\n2. 第二項\n\n- 無序項\n  - 子項\n  - 另一個子項'
-  linkAndImage: 鏈接與圖片
-  linkAndImageDescription: '鏈接格式：[文字](URL)\n圖片格式：![描述](URL)'
-  linkAndImageSyntax: '[鏈接文字](${link})\n![圖片描述](${imgUrl})'
+  linkAndImage: 連結與圖片
+  linkAndImageDescription: '連結格式：[文字](URL)\n圖片格式：![描述](URL)'
+  linkAndImageSyntax: '[連結文字](${link})\n![圖片描述](${imgUrl})'
   title: 標題
-  titleDescription: '使用 # 號創建標題，數量表示級別'
+  titleDescription: '使用 # 號建立標題，數量表示級別'
   titleSyntax: '# 一級標題\n## 二級標題\n### 三級標題'
   separator: 分隔線
-  separatorDescription: '使用三個或更多 - 號創建分隔線'
+  separatorDescription: '使用三個或更多 - 號建立分隔線'
   separatorSyntax: '---'
   syntax: 語法
 
@@ -1025,7 +1025,7 @@ forum:
   errors:
     pleaseSelectCategory: 請選擇分類
     threadLocked: 該主題已鎖定，無法回覆
-  createPost: 創建帖子
+  createPost: 建立帖子
   title: 標題
   enterTitle: 輸入標題
   content: 內容
@@ -1034,7 +1034,7 @@ forum:
   posts: 帖子
   threads: 主題
   forum: 論壇
-  createThread: 創建主題
+  createThread: 建立主題
   selectCategory: 選擇分類
   cooldownRemaining: '冷卻剩餘時間 ${minutes} 分 ${seconds} 秒'
   groups:
@@ -1046,7 +1046,7 @@ forum:
     other: 其他
   leafNames:
     announcements: 公告
-    feedback: 反饋
+    feedback: 回饋
     support: 幫助
     general: 一般
     guides: 指南
@@ -1065,10 +1065,10 @@ forum:
     other: 其他
   leafDescriptions:
     announcements: 官方重要通知和公告
-    feedback: 對網站功能和服務的反饋
+    feedback: 對網站功能和服務的回饋
     support: 幫助解決網站相關問題
     general: 討論任何話題
-    guides: 分享你的經驗和教程
+    guides: 分享你的經驗和教學
     questions: 提出你的疑問
     requests: 發布你的請求
     sharing: 分享有趣的內容
@@ -1093,18 +1093,18 @@ forum:
 
 notifications:
   errors:
-    unsupportedNotificationType: 暫不支持的通知類型
-    unknownUser: 未知用戶
-    unsupportedNotificationTypeWithType: '暫不支持的通知類型: ${type}'
+    unsupportedNotificationType: 暫不支援的通知類型
+    unknownUser: 未知使用者
+    unsupportedNotificationTypeWithType: '暫不支援的通知類型: ${type}'
     unknownNotificationType: 未知通知類型
   notifications: 通知
-  profile: 個人主頁
+  profile: 個人首頁
   postedNewComment: 發表了評論
-  notifiedOn: 在您的個人主頁上發表了評論
+  notifiedOn: 在您的個人首頁上發表了評論
   inYour: 在您的
   video: 影片
   repliedYourVideoComment: 回覆了您的影片評論
-  copyInfoToClipboard: 複製通知信息到剪貼簿
+  copyInfoToClipboard: 複製通知資訊到剪貼簿
   copySuccess: 已複製到剪貼簿
   copySuccessForMessage: '已複製到剪貼簿: ${str}'
   markAllAsRead: 全部標記已讀
@@ -1119,50 +1119,50 @@ notifications:
   markAsReadSuccess: 已標記為已讀
   markAsReadFailed: 標記已讀失敗
   notificationTypeHelp: 通知類型幫助
-  dueToLackOfNotificationTypeDetails: 通知類型的詳細信息不足，目前支持的類型可能沒有覆蓋到您當前收到的消息
-  helpUsImproveNotificationTypeSupport: 如果您願意幫助我們完善通知類型的支持：
-  helpUsImproveNotificationTypeSupportLongText: '1. 📋 複製通知信息\n2. 🐞 前往項目倉庫提交 issue\n\n⚠️ 注意：通知信息可能包含個人隱私，如果你不想公開，也可以通過郵件發送給項目作者。'
+  dueToLackOfNotificationTypeDetails: 通知類型的詳細資訊不足，目前支援的類型可能沒有覆蓋到您目前收到的消息
+  helpUsImproveNotificationTypeSupport: 如果您願意幫助我們完善通知類型的支援：
+  helpUsImproveNotificationTypeSupportLongText: '1. 📋 複製通知資訊\n2. 🐞 前往項目倉庫提交 issue\n\n⚠️ 注意：通知資訊可能包含個人隱私，如果你不想公開，也可以透過郵件發送給項目作者。'
   goToRepository: 前往項目倉庫
   copy: 複製
-  commentApproved: 評論已通過
-  repliedYourProfileComment: 回覆了您的個人主頁評論
+  commentApproved: 評論已透過
+  repliedYourProfileComment: 回覆了您的個人首頁評論
   kReplied: 回覆了您在
   kCommented: 評論了您的
   kVideo: 影片
   kGallery: 圖庫
-  kProfile: 主頁
+  kProfile: 首頁
   kThread: 主題
   kPost: 投稿
   kCommentSection: 下的評論
-  kApprovedComment: 評論已通過
-  kApprovedVideo: 影片已通過
-  kApprovedGallery: 圖庫已通過
+  kApprovedComment: 評論已透過
+  kApprovedVideo: 影片已透過
+  kApprovedGallery: 圖庫已透過
   kApprovedThread: 主題已審核
   kApprovedPost: 投稿已審核
-  kApprovedForumPost: 論壇發言審核通過
+  kApprovedForumPost: 論壇發言審核透過
   kRejectedContent: 內容審核被拒絕
   kUnknownType: 未知通知類型
 
 conversation:
   errors:
-    pleaseSelectAUser: 請選擇一個用戶
+    pleaseSelectAUser: 請選擇一個使用者
     pleaseEnterATitle: 請輸入標題
-    clickToSelectAUser: 點擊選擇用戶
-    loadFailedClickToRetry: 加載失敗,點擊重試
-    loadFailed: 加載失敗
+    clickToSelectAUser: 點擊選擇使用者
+    loadFailedClickToRetry: 載入失敗,點擊重試
+    loadFailed: 載入失敗
     clickToRetry: 點擊重試
     noMoreConversations: 沒有更多消息了
-  conversation: 會話
-  startConversation: 發起會話
-  noConversation: 暫無會話
-  selectFromLeftListAndStartConversation: 從左側列表選擇一個會話開始聊天
+  conversation: 工作階段
+  startConversation: 發起工作階段
+  noConversation: 暫無工作階段
+  selectFromLeftListAndStartConversation: 從左側列表選擇一個工作階段開始聊天
   title: 標題
   body: 內容
-  selectAUser: 選擇用戶
-  searchUsers: 搜索用戶...
-  tmpNoConversions: 暫無會話
+  selectAUser: 選擇使用者
+  searchUsers: 搜尋使用者...
+  tmpNoConversions: 暫無工作階段
   deleteThisMessage: 刪除此消息
-  deleteThisMessageSubtitle: 此操作不可撤銷
+  deleteThisMessageSubtitle: 此操作不可復原
   writeMessageHere: 在此處輸入消息
   sendMessage: 發送消息
 
@@ -1171,20 +1171,20 @@ splash:
     initializationFailed: 初始化失敗，請重啟應用
   preparing: 準備中...
   initializing: 初始化中...
-  loading: 加載中...
+  loading: 載入中...
   ready: 準備完成
   initializingMessageService: 初始化消息服務中...
 
 download:
   errors:
-    imageModelNotFound: 圖庫信息不存在
+    imageModelNotFound: 圖庫資訊不存在
     downloadFailed: 下載失敗
-    videoInfoNotFound: 影片信息不存在
+    videoInfoNotFound: 影片資訊不存在
     unknown: 未知
     downloadTaskAlreadyExists: 下載任務已存在
     videoAlreadyDownloaded: 該影片已下載
     downloadFailedForMessage: '添加下載任務失敗: ${errorInfo}'
-    userPausedDownload: 用戶暫停下載
+    userPausedDownload: 使用者暫停下載
     fileSystemError: '文件系統錯誤: ${errorInfo}'
     unknownError: '未知錯誤: ${errorInfo}'
     connectionTimeout: 連接超時
@@ -1198,14 +1198,14 @@ download:
     taskNotFoundOrDataError: 任務不存在或資料錯誤
     copyDownloadUrlFailed: '複製下載連結失敗'
     fileNotFound: '文件不存在'
-    openFolderFailed: '打開文件夾失敗'
-    openFolderFailedWithMessage: '打開文件夾失敗: ${message}'
+    openFolderFailed: '打開資料夾失敗'
+    openFolderFailedWithMessage: '打開資料夾失敗: ${message}'
     directoryNotFound: '目錄不存在'
     copyFailed: '複製失敗'
     openFileFailed: '打開文件失敗'
     openFileFailedWithMessage: '打開文件失敗: ${message}'
     noDownloadSource: 沒有下載源
-    noDownloadSourceNowPleaseWaitInfoLoaded: 暫無下載源，請等待信息加載完成後重試
+    noDownloadSourceNowPleaseWaitInfoLoaded: 暫無下載源，請等待資訊載入完成後重試
     noActiveDownloadTask: 暫無正在下載的任務
     noFailedDownloadTask: 暫無失敗的任務
     noCompletedDownloadTask: 暫無已完成的任務
@@ -1214,17 +1214,17 @@ download:
     linkExpiredTryAgainSuccess: 連結已過期，正在重新獲取下載連結成功
     linkExpiredTryAgainFailed: 連結已過期，正在重新獲取下載連結失敗
     taskDeleted: 任務已刪除
-    unsupportedImageFormat: '不支持的圖片格式: ${format}'
-    deleteFileError: '文件删除失败，可能是因为文件被占用'
-    deleteTaskError: '任务删除失败'
-    taskNotFound: '任务未找到'
-    canNotRefreshVideoTask: '無法刷新視頻任務'
+    unsupportedImageFormat: '不支援的圖片格式: ${format}'
+    deleteFileError: '文件刪除失敗，可能是因為文件被占用'
+    deleteTaskError: '任務刪除失敗'
+    taskNotFound: '任務未找到'
+    canNotRefreshVideoTask: '無法重新整理影片任務'
     taskAlreadyProcessing: '任務已處理中'
-    failedToLoadTasks: '加載任務失敗'
+    failedToLoadTasks: '載入任務失敗'
     partialDownloadFailedWithMessage: '部分下載失敗: ${message}'
     pleaseTryOtherViewer: '請嘗試使用其他查看器打開'
-    unsupportedImageFormatWithMessage: '不支持的圖片格式: ${extension}, 可以嘗試下載到設備上查看'
-    imageLoadFailed: '圖片加載失敗'
+    unsupportedImageFormatWithMessage: '不支援的圖片格式: ${extension}, 可以嘗試下載到裝置上查看'
+    imageLoadFailed: '圖片載入失敗'
   downloadList: 下載列表
   download: 下載
   forceDeleteTask: 強制刪除任務
@@ -1251,7 +1251,7 @@ download:
   pause: 暫停
   resume: 繼續
   copyDownloadUrl: 複製下載連結
-  showInFolder: 在文件夾中顯示
+  showInFolder: 在資料夾中顯示
   deleteTask: 刪除任務
   deleteTaskConfirmation: '確定要刪除這個下載任務嗎？\n任務的文件也會被刪除。'
   forceDeleteTaskConfirmation: '確定要強制刪除這個下載任務嗎？\n任務的文件也會被刪除，即使文件被佔用也會嘗試刪除。'
@@ -1275,14 +1275,14 @@ download:
   galleryDownloadCompletedWithName: '圖庫下載完成: ${galleryName}'
   downloadCompletedWithName: '下載完成: ${fileName}'
   stillInDevelopment: 開發中
-  saveToAppDirectory: 保存到應用程序目錄
+  saveToAppDirectory: 儲存到應用程式目錄
 
 favorite:
   errors:
     addFailed: 追加失敗
     addSuccess: 追加成功
-    deleteFolderFailed: 刪除文件夾失敗
-    deleteFolderSuccess: 刪除文件夾成功
+    deleteFolderFailed: 刪除資料夾失敗
+    deleteFolderSuccess: 刪除資料夾成功
     folderNameCannotBeEmpty: 資料夾名稱不能為空
   add: 追加
   addSuccess: 追加成功
@@ -1293,43 +1293,43 @@ favorite:
   removeConfirmation: '確定要刪除這個項目嗎？'
   removeConfirmationSuccess: '項目已從收藏夾中刪除'
   removeConfirmationFailed: '刪除項目失敗'
-  createFolderSuccess: '文件夾創建成功'
-  createFolderFailed: '創建文件夾失敗'
-  createFolder: 創建文件夾
-  enterFolderName: 輸入文件夾名稱
-  enterFolderNameHere: 在此輸入文件夾名稱...
-  create: 創建
+  createFolderSuccess: '資料夾建立成功'
+  createFolderFailed: '建立資料夾失敗'
+  createFolder: 建立資料夾
+  enterFolderName: 輸入資料夾名稱
+  enterFolderNameHere: 在此輸入資料夾名稱...
+  create: 建立
   items: 項目
-  newFolderName: 新文件夾
-  searchFolders: 搜索文件夾...
-  searchItems: 搜索項目...
-  createdAt: 創建時間
+  newFolderName: 新資料夾
+  searchFolders: 搜尋資料夾...
+  searchItems: 搜尋項目...
+  createdAt: 建立時間
   myFavorites: 我的收藏
-  deleteFolderTitle: 刪除文件夾
-  deleteFolderConfirmWithTitle: '確定要刪除 ${title} 文件夾嗎？'
+  deleteFolderTitle: 刪除資料夾
+  deleteFolderConfirmWithTitle: '確定要刪除 ${title} 資料夾嗎？'
   removeItemTitle: 刪除項目
   removeItemConfirmWithTitle: '確定要刪除 ${title} 項目嗎？'
   removeItemSuccess: 項目已從收藏夾中刪除
   removeItemFailed: 刪除項目失敗
-  localizeFavorite: 本地收藏
+  localizeFavorite: 本機收藏
   editFolderTitle: 編輯資料夾
   editFolderSuccess: 資料夾更新成功
   editFolderFailed: 資料夾更新失敗
-  searchTags: 搜索標籤
+  searchTags: 搜尋標籤
 
 translation:
   testConnection: 測試連接
-  testConnectionSuccess: 測試連接成功
-  testConnectionFailed: 測試連接失敗
-  testConnectionFailedWithMessage: '測試連接失敗: ${message}'
+  testConnectionSuccess: 測試連線成功
+  testConnectionFailed: 測試連線失敗
+  testConnectionFailedWithMessage: '測試連線失敗: ${message}'
   translation: 翻譯
   needVerification: 需要驗證
-  needVerificationContent: 請先通過連接測試才能啟用AI翻譯
+  needVerificationContent: 請先透過連接測試才能啟用AI翻譯
   confirm: 確定
   disclaimer: 使用須知
   riskWarning: 風險提示
-  dureToRisk1: '由於評論等文本為用戶生成，可能包含違反AI服務商內容政策的內容'
-  dureToRisk2: '不當內容可能導致API密鑰封禁或服務終止'
+  dureToRisk1: '由於評論等文字為使用者生成，可能包含違反AI服務商內容政策的內容'
+  dureToRisk2: '不當內容可能導致API金鑰封禁或服務終止'
   operationSuggestion: 操作建議
   operationSuggestion1: '1. 使用前請嚴格審核待翻譯內容'
   operationSuggestion2: '2. 避免翻譯涉及暴力、成人等敏感內容'
@@ -1346,34 +1346,34 @@ translation:
   requestPreview: 請求預覽
   enableAITranslation: AI翻譯
   enabled: 已啟用
-  disabled: 已禁用
+  disabled: 已停用
   testing: 測試中...
   testNow: 立即測試
   connectionStatus: 連接狀態
   success: 成功
   failed: 失敗
-  information: 信息
+  information: 資訊
   viewRawResponse: 查看原始響應
   pleaseCheckInputParametersFormat: 請檢查輸入參數格式
-  pleaseFillInAPIAddressModelNameAndKey: 請填寫API地址、模型名稱和密鑰
+  pleaseFillInAPIAddressModelNameAndKey: 請填寫API地址、模型名稱和金鑰
   pleaseFillInValidConfigurationParameters: 請填寫有效的配置參數
   pleaseCompleteConnectionTest: 請完成連接測試
   notConfigured: 未配置
   apiEndpoint: API端點
-  configuredKey: 已配置密鑰
-  notConfiguredKey: 未配置密鑰
+  configuredKey: 已配置金鑰
+  notConfiguredKey: 未配置金鑰
   authenticationStatus: 認證狀態
-  thisFieldCannotBeEmpty: 此字段不能為空
-  apiKey: API密鑰
-  apiKeyCannotBeEmpty: API密鑰不能為空
+  thisFieldCannotBeEmpty: 此欄位不能為空
+  apiKey: API金鑰
+  apiKeyCannotBeEmpty: API金鑰不能為空
   range: 範圍
   pleaseEnterValidNumber: 請輸入有效數字
   mustBeGreaterThan: 必須大於
   invalidAPIResponse: 無效的API響應
-  connectionFailedForMessage: '連接失敗: ${message}'
+  connectionFailedForMessage: '連線失敗: ${message}'
   aiTranslationNotEnabledHint: AI翻譯未啟用，請在設定中啟用
   goToSettings: 前往設定
-  disableAITranslation: 禁用AI翻譯
+  disableAITranslation: 停用AI翻譯
   currentValue: 現在值
   configureTranslationStrategy: 配置翻譯策略
   advancedSettings: "高級設定"
@@ -1385,16 +1385,16 @@ translation:
   aiTranslationWillBeDisabledDueToConfigChange: "由於修改了基礎配置,AI翻譯將被自動關閉"
   aiTranslationWillBeDisabledDueToPromptChange: "由於修改了翻譯提示詞,AI翻譯將被自動關閉" 
   aiTranslationWillBeDisabledDueToParamChange: "由於修改了參數配置,AI翻譯將被自動關閉"
-  onlyOpenAIAPISupported: "目前僅支持OpenAI兼容的API格式（application/json請求體格式）"
+  onlyOpenAIAPISupported: "目前僅支援OpenAI相容的API格式（application/json請求體格式）"
   streamingTranslation: "流式翻譯"
-  streamingTranslationSupported: "支持流式翻譯"
-  streamingTranslationNotSupported: "不支持流式翻譯"
-  streamingTranslationDescription: "流式翻譯可以在翻譯過程中實時顯示結果，提供更好的用戶體驗"
+  streamingTranslationSupported: "支援流式翻譯"
+  streamingTranslationNotSupported: "不支援流式翻譯"
+  streamingTranslationDescription: "流式翻譯可以在翻譯過程中即時顯示結果，提供更好的使用者體驗"
   baseUrlInputHelperText: "當以#結尾時，將以輸入的URL作為實際請求地址"
   usingFullUrlWithHash: "使用完整URL（以#結尾）"
   currentActualUrl: "目前實際URL: ${url}"
   urlEndingWithHashTip: "URL以#結尾時，將以輸入的URL作為實際請求地址"
-  streamingTranslationWarning: "注意：此功能需要API服務支持流式傳輸，部分模型可能不支持"
+  streamingTranslationWarning: "注意：此功能需要API服務支援流式傳輸，部分模型可能不支援"
   # Translation Service Selection
   translationService: 翻譯服務
   translationServiceDescription: 選擇您偏好的翻譯服務
@@ -1430,18 +1430,18 @@ translation:
   apiKeyOptionalHelperText: 某些 DeepLX 服務需要 API Key 進行身份驗證
   dlSession: DL Session
   dlSessionHint: Pro 模式需要的 dl_session 參數
-  dlSessionHelperText: Pro 端點必需的會話參數，從 DeepL Pro 帳戶獲取
+  dlSessionHelperText: Pro 端點必需的工作階段參數，從 DeepL Pro 帳戶獲取
   proModeRequiresDlSession: Pro 模式需要填寫 dl_session
   clickTestButtonToVerifyDeepLXAPI: 點擊測試按鈕驗證 DeepLX API 連接
   enableDeepLXTranslation: 啟用 DeepLX 翻譯
-  deepLXTranslationWillBeDisabled: DeepLX翻譯將因配置更改而被禁用
+  deepLXTranslationWillBeDisabled: DeepLX翻譯將因配置更改而被停用
   translatedResult: 翻譯結果
   # Translation Service Messages
   testSuccess: 測試成功
   pleaseFillInDeepLXServerAddress: 請填寫DeepLX伺服器地址
   invalidAPIResponseFormat: 無效的API響應格式
   translationServiceReturnedError: 翻譯服務返回錯誤或空結果
-  connectionFailed: 連接失敗
+  connectionFailed: 連線失敗
   # Translation Service Log Messages
   translationFailed: 翻譯失敗
   aiTranslationFailed: AI翻譯失敗
@@ -1450,9 +1450,9 @@ translation:
   deeplxTranslationTestFailed: DeepLX翻譯測試失敗
   streamingTranslationTimeout: 流式翻譯超時，強制關閉資源
   translationRequestTimeout: 翻譯請求超時
-  streamingTranslationDataTimeout: 流式翻譯接收數據超時
-  dataReceptionTimeout: 接收數據超時
-  streamDataParseError: 解析流數據時出錯
+  streamingTranslationDataTimeout: 流式翻譯接收資料超時
+  dataReceptionTimeout: 接收資料超時
+  streamDataParseError: 解析流資料時出錯
   streamingTranslationFailed: 流式翻譯失敗
   fallbackTranslationFailed: 降級到普通翻譯也失敗
   translationSettings: 翻譯設定
@@ -1484,13 +1484,13 @@ mediaPlayer:
   unsupportedImageFormat: "不支援的圖片格式"
   tryOtherViewer: "請嘗試使用其他檢視器"
 
-  # 執行期自定義提示
+  # 執行期自訂提示
   retryingOpenVideoLink: "影片連結開啟失敗，重試中"
   decoderOpenFailedWithSuggestion: "無法載入解碼器: ${event}，可在播放器設定切換為軟解，並重新進入頁面嘗試"
   videoLoadErrorWithDetail: "影片載入錯誤: ${event}"
 linkInputDialog:
   title: "輸入連結"
-  supportedLinksHint: "支持智能識別多個${webName}連結，並快速跳轉到應用內對應頁面(連結與其他文本之間用空格隔開)"
+  supportedLinksHint: "支援智慧識別多個${webName}連結，並快速跳轉到應用內對應頁面(連結與其他文字之間用空格隔開)"
   inputHint: "請輸入${webName}連結"
   validatorEmptyLink: "請輸入連結"
   validatorNoIwaraLink: "未檢測到有效的${webName}連結"
@@ -1498,7 +1498,7 @@ linkInputDialog:
   notIwaraLink: "不是有效的${webName}連結"
   linkParseError: "連結解析出錯: ${error}"
   unsupportedLinkDialogTitle: "不支援的連結"
-  unsupportedLinkDialogContent: "該連結類型當前應用無法直接打開，需要使用外部瀏覽器訪問。\n\n是否使用瀏覽器打開此連結？"
+  unsupportedLinkDialogContent: "該連結類型目前應用無法直接打開，需要使用外部瀏覽器訪問。\n\n是否使用瀏覽器打開此連結？"
   openInBrowser: "用瀏覽器打開"
   confirmOpenBrowserDialogTitle: "確認打開瀏覽器"
   confirmOpenBrowserDialogContent: "即將使用外部瀏覽器打開以下連結："
@@ -1510,60 +1510,60 @@ linkInputDialog:
 
 
 log:
-  logManagement: 日志管理
-  enableLogPersistence: 持久化日志
-  enableLogPersistenceDesc: 將日志保存到數據庫以便於分析問題
-  logDatabaseSizeLimit: 日志數據庫大小上限
-  logDatabaseSizeLimitDesc: '當前: ${size}'
-  exportCurrentLogs: 導出當前日志
-  exportCurrentLogsDesc: 導出當天應用日志以幫助開發者診斷問題
-  exportHistoryLogs: 導出歷史日志
-  exportHistoryLogsDesc: 導出指定日期範圍內的日志
-  exportMergedLogs: 導出合併日志
-  exportMergedLogsDesc: 導出指定日期範圍內的合併日志
-  showLogStats: 顯示日志統計信息
-  logExportSuccess: 日志導出成功
-  logExportFailed: '日志導出失敗: ${error}'
-  showLogStatsDesc: 查看各種類型日志的統計數據
-  logExtractFailed: '獲取日志統計失敗: ${error}'
-  clearAllLogs: 清理所有日志
-  clearAllLogsDesc: 清理所有日志數據
+  logManagement: 日誌管理
+  enableLogPersistence: 持久化日誌
+  enableLogPersistenceDesc: 將日誌儲存到資料庫以便於分析問題
+  logDatabaseSizeLimit: 日誌資料庫大小上限
+  logDatabaseSizeLimitDesc: '目前: ${size}'
+  exportCurrentLogs: 匯出目前日誌
+  exportCurrentLogsDesc: 匯出當天應用日誌以幫助開發者診斷問題
+  exportHistoryLogs: 匯出歷史日誌
+  exportHistoryLogsDesc: 匯出指定日期範圍內的日誌
+  exportMergedLogs: 匯出合併日誌
+  exportMergedLogsDesc: 匯出指定日期範圍內的合併日誌
+  showLogStats: 顯示日誌統計資訊
+  logExportSuccess: 日誌匯出成功
+  logExportFailed: '日誌匯出失敗: ${error}'
+  showLogStatsDesc: 查看各種類型日誌的統計資料
+  logExtractFailed: '獲取日誌統計失敗: ${error}'
+  clearAllLogs: 清理所有日誌
+  clearAllLogsDesc: 清理所有日誌資料
   confirmClearAllLogs: 確認清理
-  confirmClearAllLogsDesc: 確定要清理所有日志數據嗎？此操作不可撤銷。
-  clearAllLogsSuccess: 日志清理成功
-  clearAllLogsFailed: '清理日志失敗: ${error}'
-  unableToGetLogSizeInfo: 無法獲取日志大小信息
-  currentLogSize: '當前日志大小:'
-  logCount: '日志數量:'
+  confirmClearAllLogsDesc: 確定要清理所有日誌資料嗎？此操作不可復原。
+  clearAllLogsSuccess: 日誌清理成功
+  clearAllLogsFailed: '清理日誌失敗: ${error}'
+  unableToGetLogSizeInfo: 無法獲取日誌大小資訊
+  currentLogSize: '目前日誌大小:'
+  logCount: '日誌數量:'
   logCountUnit: '條'
   logSizeLimit: '大小上限:'
   usageRate: '使用率:'
   exceedLimit: '超出限制'
   remaining: '剩餘'
-  currentLogSizeExceededPleaseCleanOldLogsOrIncreaseLogSizeLimit: '日志空間已超出限制，建議立即清理舊日志或增加空間限制'
-  currentLogSizeAlmostExceededPleaseCleanOldLogs: '日志空間即將用盡，建議清理舊日志'
-  cleaningOldLogs: '正在自動清理舊日志...'
-  logCleaningCompleted: '日志清理完成'
-  logCleaningProcessMayNotBeCompleted: '日志清理過程可能未完成'
-  cleanExceededLogs: '清理超出限制的日志'
-  noLogsToExport: '沒有可導出的日志數據'
-  exportingLogs: '正在導出日志...'
-  noHistoryLogsToExport: '尚無可導出的歷史日志，請先使用應用一段時間再嘗試'
-  selectLogDate: '選擇日志日期'
+  currentLogSizeExceededPleaseCleanOldLogsOrIncreaseLogSizeLimit: '日誌空間已超出限制，建議立即清理舊日誌或增加空間限制'
+  currentLogSizeAlmostExceededPleaseCleanOldLogs: '日誌空間即將用盡，建議清理舊日誌'
+  cleaningOldLogs: '正在自動清理舊日誌...'
+  logCleaningCompleted: '日誌清理完成'
+  logCleaningProcessMayNotBeCompleted: '日誌清理過程可能未完成'
+  cleanExceededLogs: '清理超出限制的日誌'
+  noLogsToExport: '沒有可匯出的日誌資料'
+  exportingLogs: '正在匯出日誌...'
+  noHistoryLogsToExport: '尚無可匯出的歷史日誌，請先使用應用一段時間再嘗試'
+  selectLogDate: '選擇日誌日期'
   today: '今天'
   selectMergeRange: '選擇合併範圍'
-  selectMergeRangeHint: '請選擇要合併的日志時間範圍'
+  selectMergeRangeHint: '請選擇要合併的日誌時間範圍'
   selectMergeRangeDays: '最近 ${days} 天'
-  logStats: '日志統計信息'
-  todayLogs: '今日日志: ${count} 條'
+  logStats: '日誌統計資訊'
+  todayLogs: '今日日誌: ${count} 條'
   recent7DaysLogs: '最近7天: ${count} 條'
-  totalLogs: '總計日志: ${count} 條'
-  setLogDatabaseSizeLimit: '設置日志數據庫大小上限'
-  currentLogSizeWithSize: '當前日志大小: ${size}'
+  totalLogs: '總計日誌: ${count} 條'
+  setLogDatabaseSizeLimit: '設定日誌資料庫大小上限'
+  currentLogSizeWithSize: '目前日誌大小: ${size}'
   warning: '警告'
   newSizeLimit: '新的大小限制: ${size}'
   confirmToContinue: '確定要繼續嗎？'
-  logSizeLimitSetSuccess: '日志大小上限已設置為 ${size}'
+  logSizeLimitSetSuccess: '日誌大小上限已設定為 ${size}'
 
 emoji:
   name: 表情
@@ -1586,37 +1586,37 @@ emoji:
   deleteImage: 刪除圖片
   confirmDeleteImage: 確定要刪除這張圖片嗎？
   cancel: 取消
-  batchDelete: 批量刪除
-  confirmBatchDelete: '確定要刪除選中的${count}張圖片嗎？此操作不可撤銷。'
+  batchDelete: 批次刪除
+  confirmBatchDelete: '確定要刪除選中的${count}張圖片嗎？此操作不可復原。'
   deleteSuccess: 成功刪除
   addImage: 添加圖片
-  addImageByUrl: 通過URL添加
+  addImageByUrl: 透過URL添加
   addImageUrl: 添加圖片URL
   imageUrl: 圖片URL
   enterImageUrl: 請輸入圖片URL
   add: 添加
-  batchImport: 批量導入
-  enterJsonUrlArray: "請輸入JSON格式的URL數組:"
-  formatExample: '格式示例:\n["url1", "url2", "url3"]'
-  pasteJsonUrlArray: 請粘貼JSON格式的URL數組
-  import: 導入
-  importSuccess: '成功導入${count}張圖片'
+  batchImport: 批次匯入
+  enterJsonUrlArray: "請輸入JSON格式的URL陣列:"
+  formatExample: '格式範例:\n["url1", "url2", "url3"]'
+  pasteJsonUrlArray: 請貼上JSON格式的URL陣列
+  import: 匯入
+  importSuccess: '成功匯入${count}張圖片'
   jsonFormatError: JSON格式錯誤，請檢查輸入
-  createGroup: 創建表情包分組
+  createGroup: 建立表情包分組
   groupName: 分組名稱
   enterGroupName: 請輸入分組名稱
-  create: 創建
+  create: 建立
   editGroupName: 編輯分組名稱
-  save: 保存
+  save: 儲存
   deleteGroup: 刪除分組
   confirmDeleteGroup: 確定要刪除這個表情包分組嗎？分組內的所有圖片也會被刪除。
   imageCount: '${count}張圖片'
   selectEmoji: 選擇表情包
   noEmojisInGroup: 該分組暫無表情包
-  goToSettingsToAddEmojis: 前往設置添加表情包
+  goToSettingsToAddEmojis: 前往設定添加表情包
   emojiManagement: 表情包管理
   manageEmojiGroupsAndImages: 管理表情包分組和圖片
-  uploadLocalImages: 上傳本地圖片
+  uploadLocalImages: 上傳本機圖片
   uploadingImages: 正在上傳圖片
   uploadingImagesProgress: '正在上傳 ${count} 張圖片，請稍候...'
   doNotCloseDialog: 請不要關閉此對話框
@@ -1671,7 +1671,7 @@ layoutSettings:
   columnsCannotExceed12: 欄數不能超過12
   breakpointConflict: 斷點已存在
   confirmResetLayoutSettings: 重設版面配置設定
-  confirmResetLayoutSettingsDesc: 確定要重設所有版面配置設定到預設值嗎？\n\n將恢復為：\n• 自動模式\n• 預設斷點配置
+  confirmResetLayoutSettingsDesc: 確定要重設所有版面配置設定到預設值嗎？\n\n將復原為：\n• 自動模式\n• 預設斷點配置
   resetToDefaults: 重設為預設值
   confirmDeleteBreakpoint: 刪除斷點
   confirmDeleteBreakpointDesc: 確定要刪除 ${width}px 斷點嗎？
@@ -1689,7 +1689,7 @@ layoutSettings:
 navigationOrderSettings:
   title: 導航排序設定
   customNavigationOrder: 自訂導航順序
-  customNavigationOrderDesc: 拖拽調整底部導航欄和側邊欄中各個頁面的顯示順序
+  customNavigationOrderDesc: 拖曳調整底部導航欄和側邊欄中各個頁面的顯示順序
   restartRequired: 需重啟應用生效
   navigationItemSorting: 導航項目排序
   done: 完成
@@ -1704,12 +1704,12 @@ navigationOrderSettings:
   # 導航項目描述
   videoDescription: 瀏覽熱門影片內容
   galleryDescription: 瀏覽圖片和畫廊
-  subscriptionDescription: 查看追蹤用戶的最新內容
+  subscriptionDescription: 查看追蹤使用者的最新內容
   forumDescription: 參與社群討論
 
 # 搜尋過濾器配置
 searchFilter:
-  # 過濾器構建器組件
+  # 過濾器構建器元件
   selectField: "選擇欄位"
   add: "新增"
   clear: "清空"
@@ -1719,10 +1719,10 @@ searchFilter:
   copied: "已複製"
   filterCount: "${count} 個過濾器"
   
-  # 過濾器按鈕組件
+  # 過濾器按鈕元件
   filterSettings: "篩選項設定"
   
-  # 過濾器行組件
+  # 過濾器行元件
   field: "欄位"
   operator: "運算子"
   language: "語言"
@@ -1802,7 +1802,7 @@ searchFilter:
     views: "觀看次數"
     likes: "按讚數"
 
-# 標籤選擇器組件
+# 標籤選擇器元件
 tagSelector:
   selectTags: "選擇標籤"
   clickToSelectTags: "點擊選擇標籤"
@@ -1820,40 +1820,40 @@ tagSelector:
 
 # Anime4K 設定
 anime4k:
-  realTimeVideoUpscalingAndDenoising: "Anime4K 即時視頻上採樣和降噪，提升動畫視頻品質"
+  realTimeVideoUpscalingAndDenoising: "Anime4K 即時影片上採樣和降噪，提升動畫影片品質"
   settings: "Anime4K 設定"
   preset: "Anime4K 預設"
   disable: "關閉 Anime4K"
-  disableDescription: "禁用視頻增強效果"
+  disableDescription: "停用影片增強效果"
   highQualityPresets: "高品質預設"
   fastPresets: "快速預設"
   litePresets: "輕量級預設"
   moreLitePresets: "更多輕量級預設"
-  customPresets: "自定義預設"
+  customPresets: "自訂預設"
   presetGroups:
     highQuality: "高品質"
     fast: "快速"
     lite: "輕量級"
     moreLite: "更多輕量級"
-    custom: "自定義"
+    custom: "自訂"
   presetDescriptions:
     mode_a_hq: "適用於大多數1080p動漫，特別是處理模糊、重採樣和壓縮瑕疵。提供最高的感知品質。"
     mode_b_hq: "適用於輕微模糊或因縮放產生的振鈴效應的動漫。可以有效減少振鈴和鋸齒。"
-    mode_c_hq: "適用於幾乎沒有瑕疵的高品質片源（如原生1080p的動畫電影或壁紙）。降噪並提供最高的PSNR。"
+    mode_c_hq: "適用於幾乎沒有瑕疵的高品質片源（如原生1080p的動畫電影或桌布）。降噪並提供最高的PSNR。"
     mode_a_a_hq: "Mode A的強化版，提供極致的感知品質，能重建幾乎所有退化的線條。可能產生過度銳化或振鈴。"
-    mode_b_b_hq: "Mode B的強化版，提供更高的感知品質，進一步優化線條和減少瑕疵。"
+    mode_b_b_hq: "Mode B的強化版，提供更高的感知品質，進一步最佳化線條和減少瑕疵。"
     mode_c_a_hq: "Mode C的感知品質增強版，在保持高PSNR的同時嘗試重建一些線條細節。"
     mode_a_fast: "Mode A的快速版本，平衡了品質與性能，適用於大多數1080p動漫。"
     mode_b_fast: "Mode B的快速版本，用於處理輕微瑕疵和振鈴，性能開銷較低。"
     mode_c_fast: "Mode C的快速版本，適用於高品質片源的快速降噪和放大。"
-    mode_a_a_fast: "Mode A+A的快速版本，在性能有限的設備上追求更高的感知品質。"
-    mode_b_b_fast: "Mode B+B的快速版本，為性能有限的設備提供增強的線條修復和瑕疵處理。"
+    mode_a_a_fast: "Mode A+A的快速版本，在性能有限的裝置上追求更高的感知品質。"
+    mode_b_b_fast: "Mode B+B的快速版本，為性能有限的裝置提供增強的線條修復和瑕疵處理。"
     mode_c_a_fast: "Mode C+A的快速版本，在快速處理高品質片源的同時，進行輕度的線條修復。"
     upscale_only_s: "僅使用最快的CNN模型進行x2放大，無修復和降噪，性能開銷最低。"
-    upscale_deblur_fast: "使用快速的非CNN算法進行放大和去模糊，效果優於傳統算法，性能開銷很低。"
-    restore_s_only: "僅使用最快的CNN模型修復畫面瑕疵，不進行放大。適用於原生分辨率播放，但希望改善畫質的情況。"
+    upscale_deblur_fast: "使用快速的非CNN演算法進行放大和去模糊，效果優於傳統演算法，性能開銷很低。"
+    restore_s_only: "僅使用最快的CNN模型修復畫面瑕疵，不進行放大。適用於原生解析度播放，但希望改善畫質的情況。"
     denoise_bilateral_fast: "使用傳統的雙邊濾波器進行降噪，速度極快，適用於處理輕微噪點。"
-    upscale_non_cnn: "使用快速的傳統算法進行放大，性能開銷極低，效果優於播放器自帶算法。"
+    upscale_non_cnn: "使用快速的傳統演算法進行放大，性能開銷極低，效果優於播放器內建演算法。"
     mode_a_fast_darken: "Mode A (Fast) + 線條加深，在快速模式A的基礎上增加線條加深效果，使線條更突出，風格化處理。"
     mode_a_hq_thin: "Mode A (HQ) + 線條細化，在高品質模式A的基礎上增加線條細化效果，讓畫面看起來更精緻。"
   presetNames:
@@ -1876,4 +1876,4 @@ anime4k:
     upscale_non_cnn: "非CNN放大 (極快)"
     mode_a_fast_darken: "Mode A (Fast) + 線條加深"
     mode_a_hq_thin: "Mode A (HQ) + 線條細化"
-  performanceTip: "💡 提示：根據設備性能選擇合適的預設，低端設備建議選擇輕量級預設。"
+  performanceTip: "💡 提示：根據裝置性能選擇合適的預設，低端裝置建議選擇輕量級預設。"
