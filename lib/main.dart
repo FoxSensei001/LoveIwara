@@ -180,12 +180,16 @@ Future<void> _initializeBusinessServices() async {
   // 注册 ConfigBackupService 作为 GetxService
   Get.put(ConfigBackupService());
 
-  // 设置代理
+  // 设置代理 - 在runApp前设置全局HttpOverrides
   if (ProxyUtil.isSupportedPlatform()) {
     bool useProxy = configService.settings[ConfigKey.USE_PROXY]?.value;
+    String? proxyUrl;
     if (useProxy) {
-      String proxyUrl = configService.settings[ConfigKey.PROXY_URL]?.value;
-      HttpOverrides.global = MyHttpOverrides(proxyUrl);
+      proxyUrl = configService.settings[ConfigKey.PROXY_URL]?.value;
+    }
+    HttpOverrides.global = MyHttpOverrides(proxyUrl);
+
+    if (proxyUrl != null && proxyUrl.isNotEmpty) {
       LogUtils.i('代理设置完成: $proxyUrl', '启动初始化');
     } else {
       LogUtils.i('未启用代理', '启动初始化');
@@ -415,19 +419,19 @@ class DesktopWindowListener extends WindowListener {
 
 /// 代理设置
 class MyHttpOverrides extends HttpOverrides {
-  final String url;
+  final String? proxy;
 
-  MyHttpOverrides(this.url);
+  MyHttpOverrides(this.proxy);
 
   @override
   HttpClient createHttpClient(SecurityContext? context) {
-    return super.createHttpClient(context)
-      ..findProxy = (uri) {
-        return 'PROXY $url';
-      }
-      ..badCertificateCallback = (X509Certificate cert, String host, int port) {
-        return true;
-      };
+    final client = super.createHttpClient(context);
+
+    if (proxy != null && proxy!.isNotEmpty) {
+      client.findProxy = (uri) => 'PROXY $proxy; DIRECT';
+    }
+
+    return client;
   }
 }
 

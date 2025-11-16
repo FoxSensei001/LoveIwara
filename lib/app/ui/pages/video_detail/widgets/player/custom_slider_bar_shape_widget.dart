@@ -157,7 +157,7 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
               valueIndicatorColor: primaryColor,
               valueIndicatorTextStyle: const TextStyle(color: Colors.black),
               valueIndicatorShape: const PaddleSliderValueIndicatorShape(),
-              showValueIndicator: ShowValueIndicator.always,
+              showValueIndicator: ShowValueIndicator.onDrag,
             ),
             child: Slider(
               key: _sliderKey,

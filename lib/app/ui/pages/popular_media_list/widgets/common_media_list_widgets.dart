@@ -6,6 +6,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:dio/dio.dart';
 import 'dart:ui';
+import 'package:i_iwara/app/utils/media_layout_utils.dart';
 
 /// 全局错误监听器，用于捕获最近的DioException
 class GlobalErrorListener {
@@ -37,6 +38,44 @@ class GlobalErrorListener {
   }
 }
 
+/// 骨架图布局配置类
+class SkeletonLayoutConfig {
+  final double maxCrossAxisExtent;
+  final double crossAxisSpacing;
+  final double mainAxisSpacing;
+  final double childAspectRatio;
+
+  const SkeletonLayoutConfig({
+    required this.maxCrossAxisExtent,
+    required this.crossAxisSpacing,
+    required this.mainAxisSpacing,
+    this.childAspectRatio = 1.0,
+  });
+
+  /// 创建默认配置（使用 MediaLayoutUtils 的默认值）
+  factory SkeletonLayoutConfig.defaultConfig(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final int crossAxisCount = MediaLayoutUtils.calculateCrossAxisCount(screenWidth);
+    final double maxCrossAxisExtent = screenWidth / crossAxisCount;
+
+    return SkeletonLayoutConfig(
+      maxCrossAxisExtent: maxCrossAxisExtent,
+      crossAxisSpacing: MediaLayoutUtils.crossAxisSpacing,
+      mainAxisSpacing: MediaLayoutUtils.mainAxisSpacing,
+      childAspectRatio: 1.0,
+    );
+  }
+
+  /// 从 SliverWaterfallFlowDelegateWithMaxCrossAxisExtent 提取配置
+  factory SkeletonLayoutConfig.fromDelegate(SliverWaterfallFlowDelegateWithMaxCrossAxisExtent delegate) {
+    return SkeletonLayoutConfig(
+      maxCrossAxisExtent: delegate.maxCrossAxisExtent,
+      crossAxisSpacing: delegate.crossAxisSpacing,
+      mainAxisSpacing: delegate.mainAxisSpacing,
+      childAspectRatio: 1.0, // 默认宽高比为1:1
+    );
+  }
+}
 
 /// 构建加载指示器
 Widget? buildIndicator(
@@ -46,23 +85,32 @@ Widget? buildIndicator(
   IconData? emptyIcon,
   double paddingTop = 0,
   String? errorMessage,
+  SkeletonLayoutConfig? skeletonLayoutConfig,
 }) {
   Widget? finalWidget;
 
   // 提取通用的 shimmer grid 构建逻辑
   Widget buildShimmerGrid({required int itemCount}) {
+    // 使用传入的布局配置，如果没有则使用默认配置
+    final config = skeletonLayoutConfig ?? SkeletonLayoutConfig.defaultConfig(context);
+
+    // 计算骨架项宽度
+    final screenWidth = MediaQuery.of(context).size.width;
+    final int crossAxisCount = (screenWidth / config.maxCrossAxisExtent).floor();
+    final double actualCardWidth = (screenWidth - (crossAxisCount - 1) * config.crossAxisSpacing) / crossAxisCount;
+
     return GridView.builder(
       shrinkWrap: true,
       padding: EdgeInsets.zero,
       physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: 300,
-        crossAxisSpacing: 5,
-        mainAxisSpacing: 5,
-        childAspectRatio: 1,
+      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: config.maxCrossAxisExtent,
+        crossAxisSpacing: config.crossAxisSpacing,
+        mainAxisSpacing: config.mainAxisSpacing,
+        childAspectRatio: config.childAspectRatio,
       ),
       itemCount: itemCount,
-      itemBuilder: (context, index) => buildShimmerItem(200),
+      itemBuilder: (context, index) => buildShimmerItem(actualCardWidth),
     );
   }
 

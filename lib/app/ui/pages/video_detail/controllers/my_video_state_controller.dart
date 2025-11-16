@@ -650,22 +650,22 @@ class MyVideoStateController extends GetxController
     LogUtils.i('MyVideoStateController onClose 被调用', 'MyVideoStateController');
     _isDisposed = true;
 
+    // 首先取消所有定时器，避免dispose后还有回调执行
+    _positionUpdateThrottleTimer?.cancel();
+    _displayUpdateTimer?.cancel();
+    _lockButtonHideTimer?.cancel();
+    _autoHideTimer?.cancel();
+    _mouseMovementTimer?.cancel();
+    _resumeTipTimer?.cancel();
+    _speedChangeDebouncer?.cancel();
+    _bufferUpdateThrottleTimer?.cancel();
+    LogUtils.d('所有定时器已取消', 'MyVideoStateController');
+
     // 取消网络请求
     _cancelToken.cancel("Controller is being disposed");
     LogUtils.d('网络请求已取消', 'MyVideoStateController');
 
     try {
-      // 取消定时器
-      _positionUpdateThrottleTimer?.cancel();
-      _displayUpdateTimer?.cancel();
-      _lockButtonHideTimer?.cancel();
-      _autoHideTimer?.cancel();
-      _mouseMovementTimer?.cancel();
-      _resumeTipTimer?.cancel();
-      _speedChangeDebouncer?.cancel();
-      _bufferUpdateThrottleTimer?.cancel();
-      LogUtils.d('所有定时器已取消', 'MyVideoStateController');
-
       // 取消 Stream 订阅
       _cancelSubscriptions();
       _volumeListenerDisposer?.cancel();
@@ -1499,15 +1499,19 @@ class MyVideoStateController extends GetxController
     _autoHideTimer?.cancel();
 
     // 如果正在交互或悬浮在工具栏上，不启动定时器
-    if (_isInteracting.value || _isHoveringToolbar.value) return;
+    if (_isInteracting.value || _isHoveringToolbar.value || _isDisposed) return;
 
     _autoHideTimer = Timer(_autoHideDelay, () {
-      // 如果正在交互或悬浮在工具栏上，不执行隐藏
-      if (!_isInteracting.value &&
+      // 如果控制器已被dispose或者正在交互或悬浮在工具栏上，不执行隐藏
+      if (_isDisposed ||
+          !_isInteracting.value &&
           !_isHoveringToolbar.value &&
           animationController.value == 1.0) {
-        animationController.reverse();
-        isLockButtonVisible.value = false; // 同时隐藏锁定按钮
+        // 再次检查dispose状态，避免dispose后调用
+        if (!_isDisposed) {
+          animationController.reverse();
+          isLockButtonVisible.value = false; // 同时隐藏锁定按钮
+        }
       }
     });
   }

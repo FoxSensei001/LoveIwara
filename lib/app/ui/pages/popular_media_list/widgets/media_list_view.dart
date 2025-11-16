@@ -508,6 +508,11 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
     final int crossAxisCount = MediaLayoutUtils.calculateCrossAxisCount(screenWidth);
     final double maxCrossAxisExtent = screenWidth / crossAxisCount;
     
+    // 提取骨架图布局配置
+    final skeletonLayoutConfig = widget.extendedListDelegate is SliverWaterfallFlowDelegateWithMaxCrossAxisExtent
+        ? SkeletonLayoutConfig.fromDelegate(widget.extendedListDelegate as SliverWaterfallFlowDelegateWithMaxCrossAxisExtent)
+        : SkeletonLayoutConfig.defaultConfig(context);
+    
     return NotificationListener<ScrollNotification>(
       onNotification: _handleScrollNotification,
       child: RefreshIndicator(
@@ -563,6 +568,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
                     emptyIcon: widget.emptyIcon,
                     paddingTop: isFullScreenIndicator ? widget.paddingTop : 0,
                     errorMessage: errorMessage,
+                    skeletonLayoutConfig: skeletonLayoutConfig,
                   );
                 },
               ),
@@ -585,6 +591,11 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
     // 使用工具类计算列数和最大交叉轴范围
     final int crossAxisCount = MediaLayoutUtils.calculateCrossAxisCount(screenWidth);
     final double maxCrossAxisExtent = screenWidth / crossAxisCount;
+
+    // 提取骨架图布局配置
+    final skeletonLayoutConfig = widget.extendedListDelegate is SliverWaterfallFlowDelegateWithMaxCrossAxisExtent
+        ? SkeletonLayoutConfig.fromDelegate(widget.extendedListDelegate as SliverWaterfallFlowDelegateWithMaxCrossAxisExtent)
+        : SkeletonLayoutConfig.defaultConfig(context);
     
     return Stack(
       children: [
@@ -609,6 +620,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
                   // 全屏指示器需要应用 paddingTop
                   paddingTop: widget.paddingTop,
                   errorMessage: _errorMessage,
+                  skeletonLayoutConfig: skeletonLayoutConfig,
                 );
                 
                 // 如果是SliverFillRemaining，需要套一层CustomScrollView
@@ -648,7 +660,9 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
                         (context, index) => widget.itemBuilder(context, paginatedItems[index], index),
                         childCount: paginatedItems.length,
                       ),
-                      gridDelegate: SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
+                      gridDelegate: widget.extendedListDelegate is SliverWaterfallFlowDelegateWithMaxCrossAxisExtent
+                          ? widget.extendedListDelegate as SliverWaterfallFlowDelegateWithMaxCrossAxisExtent
+                          : SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
                         maxCrossAxisExtent: maxCrossAxisExtent,
                         crossAxisSpacing: MediaLayoutUtils.crossAxisSpacing,
                         mainAxisSpacing: MediaLayoutUtils.mainAxisSpacing,
@@ -668,6 +682,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
                         // 加载更多/错误/无更多 指示器不需要顶部padding
                         paddingTop: 0,
                         errorMessage: _errorMessage,
+                        skeletonLayoutConfig: skeletonLayoutConfig,
                       ),
                     ),
                 ],

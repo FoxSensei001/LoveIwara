@@ -153,23 +153,25 @@ class _LayoutSettingsPageState extends State<LayoutSettingsPage> {
             ),
           ),
           const Divider(height: 1),
-          Obx(() => RadioListTile<String>(
-            title: Text(slang.t.layoutSettings.autoMode),
-            subtitle: Text(slang.t.layoutSettings.autoModeDesc),
-            value: 'auto',
+          Obx(() => RadioGroup<String>(
             groupValue: _configService[ConfigKey.LAYOUT_MODE] as String,
             onChanged: (value) {
               _configService[ConfigKey.LAYOUT_MODE] = value!;
             },
-          )),
-          Obx(() => RadioListTile<String>(
-            title: Text(slang.t.layoutSettings.manualMode),
-            subtitle: Text(slang.t.layoutSettings.manualModeDesc),
-            value: 'manual',
-            groupValue: _configService[ConfigKey.LAYOUT_MODE] as String,
-            onChanged: (value) {
-              _configService[ConfigKey.LAYOUT_MODE] = value!;
-            },
+            child: Column(
+              children: [
+                RadioListTile<String>(
+                  title: Text(slang.t.layoutSettings.autoMode),
+                  subtitle: Text(slang.t.layoutSettings.autoModeDesc),
+                  value: 'auto',
+                ),
+                RadioListTile<String>(
+                  title: Text(slang.t.layoutSettings.manualMode),
+                  subtitle: Text(slang.t.layoutSettings.manualModeDesc),
+                  value: 'manual',
+                ),
+              ],
+            ),
           )),
         ],
       ),

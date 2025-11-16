@@ -193,7 +193,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
   ) {
     final t = slang.Translations.of(context);
     return DropdownButtonFormField<String>(
-      value: widget.filter.field,
+      initialValue: widget.filter.field,
       decoration: InputDecoration(
         labelText: t.searchFilter.field,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -246,7 +246,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
   Widget _buildLocaleSelector(BuildContext context) {
     final t = slang.Translations.of(context);
     return DropdownButtonFormField<String>(
-      value: widget.filter.locale ?? 'en',
+      initialValue: widget.filter.locale ?? 'en',
       decoration: InputDecoration(
         labelText: t.searchFilter.language,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -275,7 +275,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
   ) {
     final t = slang.Translations.of(context);
     return DropdownButtonFormField<FilterOperator>(
-      value: selectedOperator,
+      initialValue: selectedOperator,
       decoration: InputDecoration(
         labelText: t.searchFilter.operator,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -566,7 +566,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          value: filter.value?.toString() ?? 'true',
+          initialValue: filter.value?.toString() ?? 'true',
           decoration: InputDecoration(
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
             contentPadding: const EdgeInsets.symmetric(
@@ -756,7 +756,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          value: filter.value?.toString() ?? '',
+          initialValue: filter.value?.toString() ?? '',
           decoration: InputDecoration(
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
             contentPadding: const EdgeInsets.symmetric(

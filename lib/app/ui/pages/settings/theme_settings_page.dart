@@ -70,30 +70,37 @@ class ThemeSettingsPage extends StatelessWidget {
           ),
           const Divider(height: 1),
           Obx(
-            () => RadioListTile(
-              title: Text(t.settings.followSystem),
-              value: 0,
+            () => RadioGroup<int>(
               groupValue: themeService.themeMode.index,
-              onChanged: (value) =>
-                  themeService.setThemeMode(AppThemeMode.system),
-            ),
-          ),
-          Obx(
-            () => RadioListTile(
-              title: Text(t.settings.lightMode),
-              value: 1,
-              groupValue: themeService.themeMode.index,
-              onChanged: (value) =>
-                  themeService.setThemeMode(AppThemeMode.light),
-            ),
-          ),
-          Obx(
-            () => RadioListTile(
-              title: Text(t.settings.darkMode),
-              value: 2,
-              groupValue: themeService.themeMode.index,
-              onChanged: (value) =>
-                  themeService.setThemeMode(AppThemeMode.dark),
+              onChanged: (value) {
+                switch (value) {
+                  case 0:
+                    themeService.setThemeMode(AppThemeMode.system);
+                    break;
+                  case 1:
+                    themeService.setThemeMode(AppThemeMode.light);
+                    break;
+                  case 2:
+                    themeService.setThemeMode(AppThemeMode.dark);
+                    break;
+                }
+              },
+              child: Column(
+                children: [
+                  RadioListTile<int>(
+                    title: Text(t.settings.followSystem),
+                    value: 0,
+                  ),
+                  RadioListTile<int>(
+                    title: Text(t.settings.lightMode),
+                    value: 1,
+                  ),
+                  RadioListTile<int>(
+                    title: Text(t.settings.darkMode),
+                    value: 2,
+                  ),
+                ],
+              ),
             ),
           ),
         ],

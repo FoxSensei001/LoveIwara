@@ -426,7 +426,7 @@ class _DeepLXTranslationSettingsWidgetState
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          value: _selectedEndpointType,
+          initialValue: _selectedEndpointType,
           isExpanded: true,
           decoration: InputDecoration(
             border: OutlineInputBorder(

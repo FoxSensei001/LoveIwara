@@ -312,6 +312,25 @@ class ApiConstants {
   static String lightRule(String ruleId) => '/light/rule/$ruleId';
 }
 
+// API 消息枚举
+enum ApiMessage {
+  // 注册相关
+  registerEmailInstructionsSent('register.emailInstructionsSent'),
+
+  // 其他消息可以在这里添加
+  unknown('unknown');
+
+  const ApiMessage(this.value);
+  final String value;
+
+  static ApiMessage fromString(String value) {
+    return ApiMessage.values.firstWhere(
+      (message) => message.value == value,
+      orElse: () => ApiMessage.unknown,
+    );
+  }
+}
+
 // 视频接口的排序方式
 enum SortId {
   trending,

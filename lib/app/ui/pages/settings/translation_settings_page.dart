@@ -147,7 +147,7 @@ class _TranslationSettingsPageState extends State<TranslationSettingsPage> {
             ),
             const SizedBox(height: 16),
             Obx(() => DropdownButtonFormField<String>(
-              value: _selectedService.value,
+              initialValue: _selectedService.value,
               decoration: InputDecoration(
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),

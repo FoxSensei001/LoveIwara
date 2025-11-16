@@ -497,39 +497,29 @@ class PlayerSettingsWidget extends StatelessWidget {
                         const SizedBox(height: 12),
                         Obx(() {
                           final currentPosition = _configService[ConfigKey.VIDEO_TOOLBAR_LOCK_BUTTON_POSITION] as int;
-                          return Column(
-                            children: [
-                              RadioListTile<int>(
-                                title: Text(t.settings.lockButtonPositionBothSides),
-                                value: 1,
-                                groupValue: currentPosition,
-                                onChanged: (value) {
-                                  if (value != null) {
-                                    _configService[ConfigKey.VIDEO_TOOLBAR_LOCK_BUTTON_POSITION] = value;
-                                  }
-                                },
-                              ),
-                              RadioListTile<int>(
-                                title: Text(t.settings.lockButtonPositionLeftSide),
-                                value: 2,
-                                groupValue: currentPosition,
-                                onChanged: (value) {
-                                  if (value != null) {
-                                    _configService[ConfigKey.VIDEO_TOOLBAR_LOCK_BUTTON_POSITION] = value;
-                                  }
-                                },
-                              ),
-                              RadioListTile<int>(
-                                title: Text(t.settings.lockButtonPositionRightSide),
-                                value: 3,
-                                groupValue: currentPosition,
-                                onChanged: (value) {
-                                  if (value != null) {
-                                    _configService[ConfigKey.VIDEO_TOOLBAR_LOCK_BUTTON_POSITION] = value;
-                                  }
-                                },
-                              ),
-                            ],
+                          return RadioGroup<int>(
+                            groupValue: currentPosition,
+                            onChanged: (value) {
+                              if (value != null) {
+                                _configService[ConfigKey.VIDEO_TOOLBAR_LOCK_BUTTON_POSITION] = value;
+                              }
+                            },
+                            child: Column(
+                              children: [
+                                RadioListTile<int>(
+                                  title: Text(t.settings.lockButtonPositionBothSides),
+                                  value: 1,
+                                ),
+                                RadioListTile<int>(
+                                  title: Text(t.settings.lockButtonPositionLeftSide),
+                                  value: 2,
+                                ),
+                                RadioListTile<int>(
+                                  title: Text(t.settings.lockButtonPositionRightSide),
+                                  value: 3,
+                                ),
+                              ],
+                            ),
                           );
                         }),
                       ],
@@ -600,29 +590,25 @@ class PlayerSettingsWidget extends StatelessWidget {
                           const SizedBox(height: 12),
                           Obx(() {
                             final currentOrientation = _configService[ConfigKey.FULLSCREEN_ORIENTATION] as String;
-                            return Column(
-                              children: [
-                                RadioListTile<String>(
-                                  title: Text(t.settings.fullscreenOrientationLeftLandscape),
-                                  value: 'landscape_left',
-                                  groupValue: currentOrientation,
-                                  onChanged: (value) {
-                                    if (value != null) {
-                                      _configService[ConfigKey.FULLSCREEN_ORIENTATION] = value;
-                                    }
-                                  },
-                                ),
-                                RadioListTile<String>(
-                                  title: Text(t.settings.fullscreenOrientationRightLandscape),
-                                  value: 'landscape_right',
-                                  groupValue: currentOrientation,
-                                  onChanged: (value) {
-                                    if (value != null) {
-                                      _configService[ConfigKey.FULLSCREEN_ORIENTATION] = value;
-                                    }
-                                  },
-                                ),
-                              ],
+                            return RadioGroup<String>(
+                              groupValue: currentOrientation,
+                              onChanged: (value) {
+                                if (value != null) {
+                                  _configService[ConfigKey.FULLSCREEN_ORIENTATION] = value;
+                                }
+                              },
+                              child: Column(
+                                children: [
+                                  RadioListTile<String>(
+                                    title: Text(t.settings.fullscreenOrientationLeftLandscape),
+                                    value: 'landscape_left',
+                                  ),
+                                  RadioListTile<String>(
+                                    title: Text(t.settings.fullscreenOrientationRightLandscape),
+                                    value: 'landscape_right',
+                                  ),
+                                ],
+                              ),
                             );
                           }),
                         ],

@@ -619,8 +619,8 @@ class AuthService extends GetxService {
         options: dio.Options(headers: headers),
       );
 
-      if (response.statusCode == 200 &&
-          response.data['message'] == 'register.emailInstructionsSent') {
+      if (response.statusCode == 201 &&
+          response.data['message'] == ApiMessage.registerEmailInstructionsSent.value) {
         LogUtils.d('注册成功，邮件指令已发送', _tag);
         return ApiResult.success();
       } else {

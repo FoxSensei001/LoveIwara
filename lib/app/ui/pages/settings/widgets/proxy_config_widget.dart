@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'package:i_iwara/app/ui/pages/settings/widgets/setting_item_widget.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:oktoast/oktoast.dart';
@@ -13,25 +12,9 @@ import '../../../../../utils/proxy/system_proxy_settings.dart';
 import '../../../../services/config_service.dart';
 
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'base_proxy_widget.dart';
 
-class MyHttpOverrides extends HttpOverrides {
-  final String url;
-
-  MyHttpOverrides(this.url);
-
-  @override
-  HttpClient createHttpClient(SecurityContext? context) {
-    return super.createHttpClient(context)
-      ..findProxy = (uri) {
-        return 'PROXY $url';
-      }
-      ..badCertificateCallback = (X509Certificate cert, String host, int port) {
-        return true;
-      };
-  }
-}
-
-class ProxyConfigWidget extends StatefulWidget {
+class ProxyConfigWidget extends BaseProxyWidget {
   final ConfigService configService;
   final bool showTitle;
   final EdgeInsetsGeometry? padding;
@@ -49,43 +32,22 @@ class ProxyConfigWidget extends StatefulWidget {
   });
 
   @override
-  State<ProxyConfigWidget> createState() => _ProxyConfigWidgetState();
+  BaseProxyWidgetState<ProxyConfigWidget> createState() => _ProxyConfigWidgetState();
 }
 
-class _ProxyConfigWidgetState extends State<ProxyConfigWidget> {
-  final TextEditingController _proxyController = TextEditingController();
-  final RxBool _isProxyEnabled = false.obs;
-  final RxBool _isChecking = false.obs;
-
+class _ProxyConfigWidgetState extends BaseProxyWidgetState<ProxyConfigWidget> {
   String? _systemProxyCandidate; // 检测到的系统代理（host:port）
   bool _systemProxyChecked = false; // 标记已检测，避免重复显示
-
-  // 创建一个全局的 HTTP 客户端
-  late http.Client _httpClient;
-
-  // 定义中文标签
-  static const String _tag = '代理设置';
 
   @override
   void initState() {
     super.initState();
-    _httpClient = http.Client();
-
-    // 初始化控件的值
-    _proxyController.text =
-        widget.configService[ConfigKey.PROXY_URL]?.toString() ?? '';
-    _isProxyEnabled.value =
-        widget.configService[ConfigKey.USE_PROXY] as bool? ?? false;
-
-    LogUtils.d(
-        '初始化完成, 代理地址: ${_proxyController.text}, 是否启用代理: $_isProxyEnabled',
-        _tag);
 
     // 组件初始化时尝试检测桌面端系统代理，仅在未启用代理且地址为空时提示
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final bool isDesktop = GetPlatform.isDesktop;
-      final bool isEnabled = _isProxyEnabled.value;
-      final String url = _proxyController.text.trim();
+      final bool isEnabled = isProxyEnabled.value;
+      final String url = proxyController.text.trim();
       if (isDesktop && !isEnabled && url.isEmpty && !_systemProxyChecked) {
         _detectSystemProxyCandidate();
       }
@@ -93,86 +55,7 @@ class _ProxyConfigWidgetState extends State<ProxyConfigWidget> {
   }
 
   @override
-  void dispose() {
-    _proxyController.dispose();
-    _httpClient.close();
-    super.dispose();
-    LogUtils.d('代理设置组件已销毁', _tag);
-  }
-
-  // 校验代理地址
-  bool _isValidProxyAddress(String address) {
-    // 允许 IP:端口 或 域名:端口 格式，支持只写 IP:端口，也支持前面带有协议的地址，localhost:7890
-    final RegExp regex = RegExp(
-        r'^(?:(?:https?|socks[45]):\/\/)?(?:[a-zA-Z0-9-_.]+|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):[1-9]\d{0,4}$');
-    return regex.hasMatch(address);
-  }
-
-  // 检测代理是否正常
-  Future<void> _checkProxy() async {
-    final proxyUrl =
-        widget.configService[ConfigKey.PROXY_URL]?.toString() ?? '';
-    LogUtils.i('开始检测代理: $proxyUrl', _tag);
-    if (proxyUrl.isEmpty) {
-      showToastWidget(
-          MDToastWidget(
-              message: slang.t.settings.proxyAddressCannotBeEmpty,
-              type: MDToastType.error),
-          position: ToastPosition.top);
-      LogUtils.e('检测代理失败: 代理地址为空', tag: _tag);
-      return;
-    }
-
-    if (!_isValidProxyAddress(proxyUrl)) {
-      LogUtils.e('检测代理格式失败: $proxyUrl', tag: _tag);
-      showToastWidget(
-          MDToastWidget(
-              message: slang.t.settings
-                  .invalidProxyAddressFormatPleaseUseTheFormatOfIpPortOrDomainNamePort,
-              type: MDToastType.error),
-          position: ToastPosition.top);
-      return;
-    }
-
-    setState(() {
-      _isChecking.value = true;
-    });
-    LogUtils.d('开始发送测试请求以检测代理', _tag);
-
-    try {
-      // 使用 HTTP 包发送请求到谷歌
-      final response = await _httpClient.get(Uri.parse('https://www.google.com'));
-      if (response.statusCode == 200 || response.statusCode == 302) {
-        showToastWidget(
-            MDToastWidget(
-                message: slang.t.settings.proxyNormalWork,
-                type: MDToastType.success),
-            position: ToastPosition.bottom);
-        LogUtils.i('代理检测成功，响应状态码: ${response.statusCode}', _tag);
-      } else {
-        showToastWidget(
-            MDToastWidget(
-                message: slang.t.settings.testProxyFailedWithStatusCode(
-                    code: response.statusCode.toString()),
-                type: MDToastType.error),
-            position: ToastPosition.bottom);
-        LogUtils.e('代理检测失败，响应状态码: ${response.statusCode}', tag: _tag);
-      }
-    } catch (e) {
-      showToastWidget(
-          MDToastWidget(
-              message: slang.t.settings
-                  .testProxyFailedWithException(exception: e.toString()),
-              type: MDToastType.error),
-          position: ToastPosition.bottom);
-      LogUtils.e('代理请求出错: $e', tag: _tag);
-    } finally {
-      setState(() {
-        _isChecking.value = false;
-      });
-      LogUtils.d('代理检测完成', _tag);
-    }
-  }
+  ConfigService get configService => widget.configService;
 
   void _detectSystemProxyCandidate() {
     _systemProxyChecked = true;
@@ -184,11 +67,11 @@ class _ProxyConfigWidgetState extends State<ProxyConfigWidget> {
           setState(() {
             _systemProxyCandidate = candidate;
           });
-          LogUtils.i('检测到系统代理: $candidate', _tag);
+          LogUtils.i('检测到系统代理: $candidate', BaseProxyWidgetState.tag);
         }
       }
     } catch (e) {
-      LogUtils.d('系统代理检测失败或不支持: $e', _tag);
+      LogUtils.d('系统代理检测失败或不支持: $e', BaseProxyWidgetState.tag);
     }
   }
 
@@ -217,31 +100,6 @@ class _ProxyConfigWidgetState extends State<ProxyConfigWidget> {
       }
     }
     return null;
-  }
-
-  // 设置flutter的代理
-  void _setFlutterEngineProxy(String proxyUrl) {
-    if (ProxyUtil.isSupportedPlatform()) {
-      LogUtils.i('设置 Flutter 代理: $proxyUrl', _tag);
-      if (proxyUrl.isEmpty) {
-        HttpOverrides.global = null;
-        LogUtils.d('已清除 Flutter 全局代理', _tag);
-      } else {
-        HttpOverrides.global = MyHttpOverrides(proxyUrl);
-        LogUtils.d('已设置 Flutter 全局代理为: $proxyUrl', _tag);
-      }
-      // 显示需要重启的提示
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.settings.needRestartToApply,
-          type: MDToastType.info,
-        ),
-        position: ToastPosition.bottom,
-      );
-      LogUtils.i('代理设置已更改，需要重启应用生效', _tag);
-    } else {
-      LogUtils.e('当前平台不支持设置代理', tag: _tag);
-    }
   }
 
   @override
@@ -358,43 +216,23 @@ class _ProxyConfigWidgetState extends State<ProxyConfigWidget> {
             ],
             SettingItem(
               label: t.settings.proxyAddress,
-              labelSuffix: Obx(
-                () => _isChecking.value
-                    ? SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                              theme.primaryColor),
-                        ),
-                      )
-                    : ElevatedButton.icon(
-                        onPressed: _checkProxy,
-                        icon: const Icon(Icons.search_rounded),
-                        label: Text(t.settings.checkProxy),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 12),
-                        ),
-                      ),
-              ),
-              initialValue: _proxyController.text,
+              labelSuffix: buildProxyAddressInput(context),
+              initialValue: proxyController.text,
               validator: (value) {
                 if (value.isEmpty) {
                   return t.settings.proxyAddressCannotBeEmpty;
                 }
-                if (!_isValidProxyAddress(value)) {
+                if (!isValidProxyAddress(value)) {
                   return t.settings
                       .invalidProxyAddressFormatPleaseUseTheFormatOfIpPortOrDomainNamePort;
                 }
                 return null;
               },
               onValid: (value) {
-                widget.configService[ConfigKey.PROXY_URL] = value;
-                LogUtils.d('保存代理地址: $value', _tag);
-                if (_isProxyEnabled.value) {
-                  _setFlutterEngineProxy(value.trim());
+                configService[ConfigKey.PROXY_URL] = value;
+                LogUtils.d('保存代理地址: $value', BaseProxyWidgetState.tag);
+                if (isProxyEnabled.value) {
+                  setFlutterEngineProxy(value.trim());
                 }
               },
               icon:
@@ -438,22 +276,22 @@ class _ProxyConfigWidgetState extends State<ProxyConfigWidget> {
                     ),
                   ),
                   Obx(() => Switch(
-                        value: _isProxyEnabled.value,
+                        value: isProxyEnabled.value,
                         onChanged: (value) {
                           LogUtils.d(
-                              '启用代理: $value, 代理地址: ${widget.configService[ConfigKey.PROXY_URL]}',
-                              _tag);
-                          _isProxyEnabled.value = value;
-                          widget.configService[ConfigKey.USE_PROXY] = value;
+                              '启用代理: $value, 代理地址: ${configService[ConfigKey.PROXY_URL]}',
+                              BaseProxyWidgetState.tag);
+                          isProxyEnabled.value = value;
+                          configService[ConfigKey.USE_PROXY] = value;
                           if (value) {
-                            _setFlutterEngineProxy(_proxyController.text.trim());
-                            LogUtils.i('代理已启用', _tag);
+                            setFlutterEngineProxy(proxyController.text.trim());
+                            LogUtils.i('代理已启用', BaseProxyWidgetState.tag);
                           } else {
                             HttpOverrides.global = null;
-                            LogUtils.i('代理已禁用', _tag);
+                            LogUtils.i('代理已禁用', BaseProxyWidgetState.tag);
                           }
                         },
-                        activeColor: Get.isDarkMode ? Colors.white : null,
+                        activeThumbColor: Get.isDarkMode ? Colors.white : null,
                       )),
                 ],
               ),

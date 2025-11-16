@@ -227,14 +227,7 @@ class WelcomeStepWidget extends StatelessWidget {
           child: Obx(
             () => ConstrainedBox(
               constraints: const BoxConstraints(maxHeight: 360),
-              child: ListView(
-                shrinkWrap: true,
-                children: _languageOptions.entries.map((entry) {
-                  return RadioListTile<String>(
-                    title: Text(entry.value),
-                    value: entry.key,
-                    dense: true,
-                    contentPadding: EdgeInsets.zero,
+              child: RadioGroup<String>(
                     groupValue: configService[ConfigKey.APPLICATION_LOCALE],
                     onChanged: (String? value) async {
                       if (value != null) {
@@ -261,8 +254,17 @@ class WelcomeStepWidget extends StatelessWidget {
                         AppService.tryPop();
                       }
                     },
+                child: ListView(
+                  shrinkWrap: true,
+                  children: _languageOptions.entries.map((entry) {
+                    return RadioListTile<String>(
+                      title: Text(entry.value),
+                      value: entry.key,
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
                   );
                 }).toList(),
+                ),
               ),
             ),
           ),

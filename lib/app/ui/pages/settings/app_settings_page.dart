@@ -59,68 +59,70 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
           content: SizedBox(
             width: double.minPositive,
             child: Obx(
-              () => ListView(
-                shrinkWrap: true,
-                children: _languageOptions.entries.map((entry) {
-                  return RadioListTile<String>(
-                    title: Text(entry.value),
-                    value: entry.key,
-                    groupValue: configService[ConfigKey.APPLICATION_LOCALE],
-                    onChanged: (String? value) async {
-                      if (value != null) {
-                        // 更新配置
-                        configService.updateApplicationLocale(value);
-                        
-                        // 立即切换语言
-                        if (value == 'system') {
-                          slang.LocaleSettings.useDeviceLocale();
-                        } else {
-                          // 根据语言代码找到对应的 AppLocale
-                          slang.AppLocale? targetLocale;
-                          for (final locale in slang.AppLocale.values) {
-                            if (locale.languageTag.toLowerCase() == value.toLowerCase()) {
-                              targetLocale = locale;
-                              break;
-                            }
-                          }
-                          if (targetLocale != null) {
-                            slang.LocaleSettings.setLocale(targetLocale);
-                          }
+              () => RadioGroup<String>(
+                groupValue: configService[ConfigKey.APPLICATION_LOCALE],
+                onChanged: (String? value) async {
+                  if (value != null) {
+                    // 更新配置
+                    configService.updateApplicationLocale(value);
+                    
+                    // 立即切换语言
+                    if (value == 'system') {
+                      slang.LocaleSettings.useDeviceLocale();
+                    } else {
+                      // 根据语言代码找到对应的 AppLocale
+                      slang.AppLocale? targetLocale;
+                      for (final locale in slang.AppLocale.values) {
+                        if (locale.languageTag.toLowerCase() == value.toLowerCase()) {
+                          targetLocale = locale;
+                          break;
                         }
-                        
-                        // 强制刷新整个应用界面
-                        Get.forceAppUpdate();
-                        
-                        Navigator.of(context).pop();
-
-                        String message;
-                        String localeKey = value;
-                        if (localeKey == 'system') {
-                          // 获取设备语言，但确保是我们支持的语言
-                          String deviceLocale = CommonUtils.getDeviceLocale();
-                          // 检查设备语言是否在我们的支持列表中
-                          if (_languageChangedMessages.containsKey(deviceLocale)) {
-                            localeKey = deviceLocale;
-                          } else {
-                            // 如果不支持，使用英语作为默认
-                            localeKey = 'en';
-                          }
-                        }
-
-                        message =
-                            _languageChangedMessages[localeKey] ??
-                            _languageChangedMessages['en']!;
-
-                        showToastWidget(
-                          MDToastWidget(
-                            message: message,
-                            type: MDToastType.success,
-                          ),
-                        );
                       }
-                    },
-                  );
-                }).toList(),
+                      if (targetLocale != null) {
+                        slang.LocaleSettings.setLocale(targetLocale);
+                      }
+                    }
+                    
+                    // 强制刷新整个应用界面
+                    Get.forceAppUpdate();
+                    
+                    Navigator.of(context).pop();
+
+                    String message;
+                    String localeKey = value;
+                    if (localeKey == 'system') {
+                      // 获取设备语言，但确保是我们支持的语言
+                      String deviceLocale = CommonUtils.getDeviceLocale();
+                      // 检查设备语言是否在我们的支持列表中
+                      if (_languageChangedMessages.containsKey(deviceLocale)) {
+                        localeKey = deviceLocale;
+                      } else {
+                        // 如果不支持，使用英语作为默认
+                        localeKey = 'en';
+                      }
+                    }
+
+                    message =
+                        _languageChangedMessages[localeKey] ??
+                        _languageChangedMessages['en']!;
+
+                    showToastWidget(
+                      MDToastWidget(
+                        message: message,
+                        type: MDToastType.success,
+                      ),
+                    );
+                  }
+                },
+                child: ListView(
+                  shrinkWrap: true,
+                  children: _languageOptions.entries.map((entry) {
+                    return RadioListTile<String>(
+                      title: Text(entry.value),
+                      value: entry.key,
+                    );
+                  }).toList(),
+                ),
               ),
             ),
           ),

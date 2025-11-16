@@ -1,12 +1,12 @@
 // services/login_service.dart
 import 'package:get/get.dart';
-import '../ui/pages/login/login_page.dart';
+import '../ui/pages/login/login_page_v2.dart';
 
 /// 全局登录服务，用于统一管理登录弹窗
 class LoginService {
   static LoginService? _instance;
   static LoginService get instance => _instance ??= LoginService._();
-  
+
   LoginService._();
 
   /// 显示登录对话框
@@ -14,7 +14,7 @@ class LoginService {
   static Future<bool> showLogin() async {
     final context = Get.context;
     if (context == null) return false;
-    
+
     final result = await LoginDialog.show(context);
     return result == true;
   }

@@ -124,7 +124,7 @@ class _VolumeControlState extends State<VolumeControl>
                     valueIndicatorTextStyle: const TextStyle(
                       color: Colors.black,
                     ),
-                    showValueIndicator: ShowValueIndicator.always,
+                    showValueIndicator: ShowValueIndicator.onDrag,
                   ),
                   child: Slider(
                     value: volume,

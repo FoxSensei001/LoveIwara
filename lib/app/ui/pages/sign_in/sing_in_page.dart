@@ -337,30 +337,28 @@ class _SignInDialogState extends State<SignInDialog> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: RadioListTile<bool>(
-                    title: Text(t.signIn.signInSuccess),
-                    value: true,
-                    groupValue: isSuccess,
-                    onChanged: (value) {
-                      if (value != null) setState(() => isSuccess = value);
-                    },
+            RadioGroup<bool>(
+              groupValue: isSuccess,
+              onChanged: (value) {
+                if (value != null) setState(() => isSuccess = value);
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: RadioListTile<bool>(
+                      title: Text(t.signIn.signInSuccess),
+                      value: true,
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: RadioListTile<bool>(
-                    title: Text(t.signIn.signInFailed),
-                    value: false,
-                    groupValue: isSuccess,
-                    onChanged: (value) {
-                      if (value != null) setState(() => isSuccess = value);
-                    },
+                  Expanded(
+                    child: RadioListTile<bool>(
+                      title: Text(t.signIn.signInFailed),
+                      value: false,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             if (!isSuccess) ...[
               const SizedBox(height: 16),

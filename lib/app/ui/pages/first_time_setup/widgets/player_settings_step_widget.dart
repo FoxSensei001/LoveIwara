@@ -208,7 +208,7 @@ class _PlayerSettingsStepWidgetState extends State<PlayerSettingsStepWidget> {
             icon: Icons.speed,
             title: slang.t.settings.longPressPlaybackSpeed,
             subtitle: '1.5 = 1.5x',
-            valueText: '${longPressPlaybackSpeed}',
+            valueText: '$longPressPlaybackSpeed',
             onTap: () async {
               final v = await _showNumberInputDialog(context, slang.t.settings.longPressPlaybackSpeed, initial: longPressPlaybackSpeed.toString());
               if (v != null) {

@@ -88,7 +88,7 @@ class SwitchSettingTile extends StatelessWidget {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: theme.colorScheme.primary,
+            activeThumbColor: theme.colorScheme.primary,
             materialTapTargetSize: isNarrow ? MaterialTapTargetSize.shrinkWrap : MaterialTapTargetSize.padded,
           ),
         ],
