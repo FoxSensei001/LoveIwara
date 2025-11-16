@@ -6,6 +6,7 @@ import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:oktoast/oktoast.dart';
+import 'package:waterfall_flow/waterfall_flow.dart';
 
 class AddVideoToPlayListDialog extends StatefulWidget {
   final String videoId;
@@ -218,7 +219,7 @@ class _AddVideoToPlayListDialogState extends State<AddVideoToPlayListDialog> {
                 ],
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             if (_error != null)
               Padding(
                 padding: const EdgeInsets.all(16),
@@ -251,7 +252,7 @@ class _AddVideoToPlayListDialogState extends State<AddVideoToPlayListDialog> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const MyEmptyWidget(),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 8),
                     if (_playlists.isEmpty)
                       Text(
                         'No playlists available',
@@ -266,29 +267,106 @@ class _AddVideoToPlayListDialogState extends State<AddVideoToPlayListDialog> {
               )
             else
               Expanded(
-                child: ListView.builder(
+                child: WaterfallFlow.builder(
+                  padding: const EdgeInsets.all(12),
+                  gridDelegate: const SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 8,
+                    crossAxisSpacing: 8,
+                  ),
                   itemCount: _filteredPlaylists.length,
                   itemBuilder: (context, index) {
                     final playlist = _filteredPlaylists[index];
                     final bool isOperating = _operatingPlaylistId == playlist.id;
                     
-                    return ListTile(
-                      title: Text(playlist.title),
-                      subtitle: Text('${t.playList.videos}: ${playlist.numVideos}'),
-                      trailing: SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: isOperating
-                            ? const CircularProgressIndicator(
-                                strokeWidth: 2,
-                              )
-                            : Icon(
-                                playlist.added
-                                    ? Icons.check_box
-                                    : Icons.check_box_outline_blank,
-                              ),
+                    return Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(
+                          color: playlist.added 
+                              ? const Color(0xFF2196F3) 
+                              : Colors.transparent,
+                          width: 2,
+                        ),
                       ),
-                      onTap: isOperating ? null : () => _togglePlaylist(playlist),
+                      child: InkWell(
+                        onTap: isOperating ? null : () => _togglePlaylist(playlist),
+                        borderRadius: BorderRadius.circular(12),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // 标题和状态图标
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      playlist.title,
+                                      maxLines: 4,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  if (isOperating)
+                                    const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                      ),
+                                    )
+                                  else if (playlist.added)
+                                    const Icon(
+                                      Icons.check_circle,
+                                      color: Color(0xFF2196F3),
+                                      size: 20,
+                                    )
+                                  else
+                                    const Icon(
+                                      Icons.add_circle_outline,
+                                      color: Colors.grey,
+                                      size: 20,
+                              ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              // 视频数量标签
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF2196F3)
+                                      .withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: const Color(0xFF2196F3)
+                                        .withValues(alpha: 0.3),
+                                    width: 1,
+                                  ),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                child: Text(
+                                  '${t.playList.videos}: ${playlist.numVideos}',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Color(0xFF2196F3),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     );
                   },
                 ),

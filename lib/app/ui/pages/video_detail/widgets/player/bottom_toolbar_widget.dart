@@ -536,6 +536,8 @@ class BottomToolbar extends StatelessWidget {
                 (myVideoStateController.videoInfo.value?.numLikes ?? 0) +
                     (liked ? 1 : -1),
           );
+          // 更新缓存中的点赞信息
+          myVideoStateController.updateCachedVideoLikeInfo(videoInfo.id, liked, myVideoStateController.videoInfo.value?.numLikes ?? 0);
         },
       );
     });

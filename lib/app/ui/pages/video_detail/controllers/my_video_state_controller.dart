@@ -777,7 +777,11 @@ class MyVideoStateController extends GetxController
     // 检查视频信息缓存
     final cachedVideoInfo = _cacheManager.getVideoInfo(videoId);
     if (cachedVideoInfo != null) {
-      videoInfo.value = cachedVideoInfo;
+      // 缓存命中时，先将 liked 和 numLikes 设置为 null 表示 loading 状态
+      videoInfo.value = cachedVideoInfo.copyWith(
+        liked: null,
+        numLikes: null,
+      );
 
       // 缓存命中时，立即开始并行任务
       final List<Future<void>> parallelTasks = [];
@@ -786,7 +790,7 @@ class MyVideoStateController extends GetxController
       parallelTasks.add(_addHistoryRecord());
 
       // 2. 获取作者其他视频（可以并行执行）
-      String? authorId = videoInfo.value!.user?.id;
+      String? authorId = cachedVideoInfo.user?.id;
       if (authorId != null) {
         parallelTasks.add(_initializeAuthorVideosController(authorId));
       }
@@ -798,11 +802,14 @@ class MyVideoStateController extends GetxController
         parallelTasks.add(_tryMatchOreno3dVideo());
       }
 
+      // 4. 异步请求最新视频信息（不阻塞UI渲染）
+      parallelTasks.add(_refreshVideoLikeInfo(videoId, cachedVideoInfo));
+
       // 继续获取视频源 - 仅对站内视频
-      if (videoInfo.value!.fileUrl != null &&
-          !videoInfo.value!.isExternalVideo) {
+      if (cachedVideoInfo.fileUrl != null &&
+          !cachedVideoInfo.isExternalVideo) {
         fetchVideoSource();
-      } else if (videoInfo.value!.isExternalVideo) {
+      } else if (cachedVideoInfo.isExternalVideo) {
         // 对于站外视频，直接设置为idle状态
         pageLoadingState.value = VideoDetailPageLoadingState.idle;
         // 设置站外视频的默认宽高比（16:9）
@@ -2090,6 +2097,61 @@ class MyVideoStateController extends GetxController
 
   /// 获取 DLNA 投屏服务
   DlnaCastService get dlnaCastService => _dlnaCastService;
+
+  /// 更新缓存中的视频点赞信息
+  void updateCachedVideoLikeInfo(String videoId, bool liked, int numLikes) {
+    _cacheManager.updateVideoInfoFields(videoId, {
+      'liked': liked,
+      'numLikes': numLikes,
+    });
+  }
+
+  /// 异步刷新视频的点赞信息（缓存命中时的专用方法）
+  Future<void> _refreshVideoLikeInfo(String videoId, video_model.Video cachedVideoInfo) async {
+    if (_isDisposed) return;
+
+    try {
+      LogUtils.d('开始异步刷新视频点赞信息: $videoId', 'MyVideoStateController');
+
+      // 请求最新视频信息
+      final res = await _apiService.get(
+        '/video/$videoId',
+        cancelToken: _cancelToken,
+      );
+
+      if (_isDisposed) return;
+
+      final latestVideoInfo = video_model.Video.fromJson(res.data);
+
+      // 只更新点赞相关字段到当前显示的 videoInfo
+      if (videoInfo.value != null) {
+        videoInfo.value = videoInfo.value!.copyWith(
+          liked: latestVideoInfo.liked,
+          numLikes: latestVideoInfo.numLikes,
+        );
+      }
+
+      // 更新缓存中的点赞信息
+      _cacheManager.updateVideoInfoFields(videoId, {
+        'liked': latestVideoInfo.liked,
+        'numLikes': latestVideoInfo.numLikes,
+      });
+
+      LogUtils.d('成功刷新视频点赞信息: $videoId', 'MyVideoStateController');
+    } catch (e) {
+      if (!_isDisposed) {
+        LogUtils.w('刷新视频点赞信息失败，使用缓存数据: $videoId, error: $e', 'MyVideoStateController');
+
+        // 请求失败时，恢复使用缓存中的点赞信息
+        if (videoInfo.value != null) {
+          videoInfo.value = videoInfo.value!.copyWith(
+            liked: cachedVideoInfo.liked,
+            numLikes: cachedVideoInfo.numLikes,
+          );
+        }
+      }
+    }
+  }
 }
 
 /// 视频清晰度模型

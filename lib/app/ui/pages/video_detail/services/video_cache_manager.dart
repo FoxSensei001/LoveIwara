@@ -40,6 +40,29 @@ class VideoCacheManager {
     LogUtils.d('缓存视频信息: $videoId', 'VideoCacheManager');
     _cleanupIfNeeded();
   }
+
+  /// 更新缓存中视频信息的部分字段
+  void updateVideoInfoFields(String videoId, Map<String, dynamic> fields) {
+    final item = _videoInfoCache[videoId];
+    if (item == null) {
+      LogUtils.w('尝试更新不存在的缓存项: $videoId', 'VideoCacheManager');
+      return;
+    }
+
+    // 使用 copyWith 更新字段
+    try {
+      video_model.Video updatedVideo = item.data.copyWith(
+        liked: fields['liked'] as bool?,
+        numLikes: fields['numLikes'] as int?,
+      );
+
+      // 更新缓存项
+      _videoInfoCache[videoId] = _CacheItem(updatedVideo);
+      LogUtils.d('更新缓存视频字段: $videoId, 字段: ${fields.keys.join(', ')}', 'VideoCacheManager');
+    } catch (e) {
+      LogUtils.e('更新缓存视频字段失败: $videoId', tag: 'VideoCacheManager', error: e);
+    }
+  }
   
   /// 获取视频源
   List<VideoSource>? getVideoSources(String fileUrl) {

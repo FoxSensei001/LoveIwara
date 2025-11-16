@@ -345,6 +345,8 @@ class VideoDetailContent extends StatelessWidget {
                                     liked: liked,
                                     numLikes: (controller.videoInfo.value?.numLikes ?? 0) + (liked ? 1 : -1),
                                   );
+                                  // 更新缓存中的点赞信息
+                                  controller.updateCachedVideoLikeInfo(videoInfo.id, liked, controller.videoInfo.value?.numLikes ?? 0);
                                 },
                               ),
                               Material(

@@ -750,7 +750,10 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       controller: tabController,
       children: [
         // 视频详情Tab
-        VideoInfoTabWidget(controller: controller),
+        VideoInfoTabWidget(
+          controller: controller,
+          tabController: tabController,
+        ),
 
         // 评论Tab
         CommentsTabWidget(

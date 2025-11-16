@@ -7,6 +7,7 @@ import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:waterfall_flow/waterfall_flow.dart';
 
 class AddToFavoriteDialog extends StatefulWidget {
   final String itemId;
@@ -253,30 +254,107 @@ class _AddToFavoriteDialogState extends State<AddToFavoriteDialog> {
               const Expanded(child: MyEmptyWidget())
             else
               Expanded(
-                child: ListView.builder(
+                child: WaterfallFlow.builder(
+                  padding: const EdgeInsets.all(12),
+                  gridDelegate: const SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 8,
+                    crossAxisSpacing: 8,
+                  ),
                   itemCount: _filteredFolders.length,
                   itemBuilder: (context, index) {
                     final folder = _filteredFolders[index];
                     final bool isOperating = _operatingFolderId == folder.id;
                     final bool isInFolder = _itemFolders.any((f) => f.id == folder.id);
-                    
-                    return ListTile(
-                      title: Text(folder.title),
-                      subtitle: Text('${t.favorite.items}: ${folder.itemCount ?? 0}'),
-                      trailing: SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: isOperating
-                            ? const CircularProgressIndicator(
-                                strokeWidth: 2,
-                              )
-                            : Icon(
-                                isInFolder
-                                    ? Icons.check_box
-                                    : Icons.check_box_outline_blank,
-                              ),
+
+                    return Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(
+                          color: isInFolder
+                              ? const Color(0xFF2196F3)
+                              : Colors.transparent,
+                          width: 2,
+                        ),
                       ),
-                      onTap: isOperating ? null : () => _toggleFolder(folder),
+                      child: InkWell(
+                        onTap: isOperating ? null : () => _toggleFolder(folder),
+                        borderRadius: BorderRadius.circular(12),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // 标题和状态图标
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      folder.title,
+                                      maxLines: 4,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  if (isOperating)
+                                    const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  else if (isInFolder)
+                                    const Icon(
+                                      Icons.check_circle,
+                                      color: Color(0xFF2196F3),
+                                      size: 20,
+                                    )
+                                  else
+                                    const Icon(
+                                      Icons.add_circle_outline,
+                                      color: Colors.grey,
+                                      size: 20,
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              // 项目数量标签
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF2196F3)
+                                      .withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: const Color(0xFF2196F3)
+                                        .withValues(alpha: 0.3),
+                                    width: 1,
+                                  ),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                child: Text(
+                                  '${t.favorite.items}: ${folder.itemCount ?? 0}',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Color(0xFF2196F3),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     );
                   },
                 ),

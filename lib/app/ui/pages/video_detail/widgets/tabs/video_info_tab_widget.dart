@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' show TabController;
 import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/video_description_widget.dart';
@@ -40,8 +41,13 @@ import 'package:i_iwara/utils/vibrate_utils.dart';
 
 class VideoInfoTabWidget extends StatelessWidget {
   final MyVideoStateController controller;
+  final TabController tabController;
 
-  const VideoInfoTabWidget({super.key, required this.controller});
+  const VideoInfoTabWidget({
+    super.key,
+    required this.controller,
+    required this.tabController,
+  });
   
   @override
   Widget build(BuildContext context) {
@@ -56,18 +62,21 @@ class VideoInfoTabWidget extends StatelessWidget {
         return const SizedBox.shrink();
       }
 
-      return SingleChildScrollView(
-        padding: const EdgeInsets.all(UIConstants.pagePadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildVideoTitle(context),
-            const SizedBox(height: UIConstants.interElementSpacing),
-            _buildAuthorInfo(context),
-            const SizedBox(height: UIConstants.sectionSpacing),
-            _buildVideoDetailsSection(context),
-            const SafeArea(child: SizedBox.shrink()),
-          ],
+      return GestureDetector(
+        onHorizontalDragEnd: _handleHorizontalDragEnd,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(UIConstants.pagePadding),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildVideoTitle(context),
+              const SizedBox(height: UIConstants.interElementSpacing),
+              _buildAuthorInfo(context),
+              const SizedBox(height: UIConstants.sectionSpacing),
+              _buildVideoDetailsSection(context),
+              const SafeArea(child: SizedBox.shrink()),
+            ],
+          ),
         ),
       );
     });
@@ -596,6 +605,8 @@ class VideoInfoTabWidget extends StatelessWidget {
                   (controller.videoInfo.value?.numLikes ?? 0) +
                   (liked ? 1 : -1),
             );
+            // 更新缓存中的点赞信息
+            controller.updateCachedVideoLikeInfo(videoInfo.id, liked, controller.videoInfo.value?.numLikes ?? 0);
           },
         ),
         _buildActionButtonWidget(
@@ -938,6 +949,28 @@ class VideoInfoTabWidget extends StatelessWidget {
         'name': name, // 传递标签名
       },
     );
+  }
+
+  /// 处理水平滑动结束事件，用于切换tab
+  void _handleHorizontalDragEnd(DragEndDetails details) {
+    // 获取水平速度（正数表示向右滑动，负数表示向左滑动）
+    final velocity = details.velocity.pixelsPerSecond.dx;
+
+    // 设置阈值：速度大于300px/s或距离大于50px时才触发切换
+    const double velocityThreshold = 300.0;
+    const double distanceThreshold = 50.0;
+
+    // 检查是否达到切换阈值
+    if (velocity.abs() > velocityThreshold) {
+      // 速度足够，基于速度方向切换
+      if (velocity > 0 && tabController.index > 0) {
+        // 向右滑动，切换到上一个tab
+        tabController.animateTo(tabController.index - 1);
+      } else if (velocity < 0 && tabController.index < tabController.length - 1) {
+        // 向左滑动，切换到下一个tab
+        tabController.animateTo(tabController.index + 1);
+      }
+    }
   }
 }
 
