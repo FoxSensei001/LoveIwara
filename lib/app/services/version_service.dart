@@ -16,6 +16,10 @@ class VersionService extends GetxService {
   final ConfigService _configService = Get.find();
   final Dio _dio = Dio();
 
+  VersionService() {
+    _dio.options.persistentConnection = false;
+  }
+
   final currentVersion = ''.obs;
   final latestVersion = ''.obs;
   final hasUpdate = false.obs;

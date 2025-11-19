@@ -93,10 +93,11 @@ class ApiService extends GetxService {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json, text/plain, */*',
-        'Connection': 'keep-alive',
+        'Connection': 'close',
         'Referer': CommonConstants.iwaraApiBaseUrl,
       },
     ));
+    _dio.options.persistentConnection = false;
 
     if (_interceptorAdded) {
       return this;

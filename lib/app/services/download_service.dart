@@ -37,7 +37,7 @@ class DownloadService extends GetxService {
   final _repository = DownloadTaskRepository();
 
   static const maxConcurrentDownloads = 3;
-  final dio = Dio();
+  final dio = Dio()..options.persistentConnection = false;
 
   DownloadTaskRepository get repository => _repository;
 

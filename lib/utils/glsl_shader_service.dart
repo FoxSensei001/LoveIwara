@@ -134,3 +134,4 @@ class GlslShaderService extends GetxService {
     return await file.exists();
   }
 }
+

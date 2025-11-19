@@ -34,7 +34,7 @@ abstract class BaseProxyWidgetState<T extends BaseProxyWidget> extends State<T> 
   @override
   void initState() {
     super.initState();
-    dioClient = Dio();
+    dioClient = Dio()..options.persistentConnection = false;
 
     // 初始化控件的值
     proxyController.text =

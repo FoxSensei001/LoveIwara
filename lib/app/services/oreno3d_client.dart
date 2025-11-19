@@ -38,7 +38,7 @@ class Oreno3dClient {
     Map<String, String>? headers,
   }) {
     _dio = dio ?? Dio();
-    
+        
     _dio.options = BaseOptions(
       baseUrl: baseUrl,
       connectTimeout: connectTimeout ?? const Duration(seconds: 30),
@@ -55,6 +55,7 @@ class Oreno3dClient {
       maxRedirects: 5,
       validateStatus: (status) => status != null && status < 500,
     );
+    _dio.options.persistentConnection = false;
 
     // 添加拦截器用于调试和错误处理
     _dio.interceptors.add(

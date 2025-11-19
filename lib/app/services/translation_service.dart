@@ -16,6 +16,10 @@ class TranslationService extends GetxService {
   final ConfigService _configService = Get.find();
   final Dio dio = Dio();
 
+  TranslationService() {
+    dio.options.persistentConnection = false;
+  }
+
   // 存储当前正在进行的流式翻译
   final Map<String, StreamController<String>> _activeStreamTranslations = {};
 
@@ -409,7 +413,7 @@ class TranslationService extends GetxService {
         {"role": "user", "content": testText}
       ];
 
-      final testDio = Dio();
+      final testDio = Dio()..options.persistentConnection = false;
       final url = getFinalUrl(baseUrl);
       final response = await testDio.post(
           url,
@@ -530,7 +534,7 @@ class TranslationService extends GetxService {
         headers['Authorization'] = 'Bearer $apiKey';
       }
 
-      final testDio = Dio();
+      final testDio = Dio()..options.persistentConnection = false;
       final response = await testDio.post(
           url,
           data: requestData,

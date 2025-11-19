@@ -31,7 +31,7 @@ class AuthService extends GetxService {
   final dio.Dio _dio = dio.Dio(dio.BaseOptions(
     baseUrl: CommonConstants.iwaraApiBaseUrl,
     headers: {'Content-Type': 'application/json'},
-  ));
+  ))..options.persistentConnection = false;
 
   static const String _tag = '认证服务';
 
