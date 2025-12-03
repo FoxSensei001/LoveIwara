@@ -690,6 +690,7 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get longPressFastForward => '長押しファストフォワード';
 	@override String get enableMouseHoverShowToolbar => 'マウスホバー時にツールバーを表示';
 	@override String get enableMouseHoverShowToolbarInfo => '有効にすると、マウスがプレーヤー上にあるときにツールバーが表示されます。3秒間の非アクティブ時に自動的に非表示になります。';
+	@override String get enableHorizontalDragSeek => '横スワイプでシーク';
 	@override String get audioVideoConfig => 'オーディオビデオ設定';
 	@override String get expandBuffer => 'バッファ拡張';
 	@override String get expandBufferInfo => '有効にすると、バッファサイズが増加し、読み込み時間が長くなりますが、再生がスムーズになります';
@@ -1109,6 +1110,9 @@ class _TranslationsDownloadJa implements TranslationsDownloadEn {
 	@override String downloadCompletedWithName({required Object fileName}) => 'ダウンロードが完了しました: ${fileName}';
 	@override String get stillInDevelopment => '開発中';
 	@override String get saveToAppDirectory => 'アプリケーションディレクトリに保存';
+	@override String get alreadyDownloadedWithQuality => 'すでに同じ品質のタスクがあります。続けてダウンロードしますか？';
+	@override String alreadyDownloadedWithQualities({required Object qualities}) => 'すでに品質が${qualities}のタスクがあります。続けてダウンロードしますか？';
+	@override String get otherQualities => 'その他の品質';
 }
 
 // Path: favorite
@@ -3017,6 +3021,7 @@ extension on TranslationsJa {
 			'settings.longPressFastForward' => '長押しファストフォワード',
 			'settings.enableMouseHoverShowToolbar' => 'マウスホバー時にツールバーを表示',
 			'settings.enableMouseHoverShowToolbarInfo' => '有効にすると、マウスがプレーヤー上にあるときにツールバーが表示されます。3秒間の非アクティブ時に自動的に非表示になります。',
+			'settings.enableHorizontalDragSeek' => '横スワイプでシーク',
 			'settings.audioVideoConfig' => 'オーディオビデオ設定',
 			'settings.expandBuffer' => 'バッファ拡張',
 			'settings.expandBufferInfo' => '有効にすると、バッファサイズが増加し、読み込み時間が長くなりますが、再生がスムーズになります',
@@ -3504,13 +3509,13 @@ extension on TranslationsJa {
 			'notifications.kUnknownType' => '不明な通知タイプ',
 			'conversation.errors.pleaseSelectAUser' => 'ユーザーを選択してください',
 			'conversation.errors.pleaseEnterATitle' => 'タイトルを入力してください',
-			'conversation.errors.clickToSelectAUser' => 'ユーザーを選択してください',
 			_ => null,
 		};
 	}
 
 	dynamic _flatMapFunction$2(String path) {
 		return switch (path) {
+			'conversation.errors.clickToSelectAUser' => 'ユーザーを選択してください',
 			'conversation.errors.loadFailedClickToRetry' => '読み込みに失敗しました。クリックして再試行',
 			'conversation.errors.loadFailed' => '読み込みに失敗しました',
 			'conversation.errors.clickToRetry' => 'クリックして再試行',
@@ -3633,6 +3638,9 @@ extension on TranslationsJa {
 			'download.downloadCompletedWithName' => ({required Object fileName}) => 'ダウンロードが完了しました: ${fileName}',
 			'download.stillInDevelopment' => '開発中',
 			'download.saveToAppDirectory' => 'アプリケーションディレクトリに保存',
+			'download.alreadyDownloadedWithQuality' => 'すでに同じ品質のタスクがあります。続けてダウンロードしますか？',
+			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'すでに品質が${qualities}のタスクがあります。続けてダウンロードしますか？',
+			'download.otherQualities' => 'その他の品質',
 			'favorite.errors.addFailed' => '追加に失敗しました',
 			'favorite.errors.addSuccess' => '追加に成功しました',
 			'favorite.errors.deleteFolderFailed' => 'フォルダーの削除に失敗しました',
@@ -4019,16 +4027,16 @@ extension on TranslationsJa {
 			'navigationOrderSettings.done' => '完了',
 			'navigationOrderSettings.edit' => '編集',
 			'navigationOrderSettings.reset' => 'リセット',
-			'navigationOrderSettings.previewEffect' => 'プレビュー効果',
-			'navigationOrderSettings.bottomNavigationPreview' => 'ボトムナビゲーションバーのプレビュー：',
-			'navigationOrderSettings.sidebarPreview' => 'サイドバーのプレビュー：',
-			'navigationOrderSettings.confirmResetNavigationOrder' => 'ナビゲーション順序のリセットを確認',
 			_ => null,
 		};
 	}
 
 	dynamic _flatMapFunction$3(String path) {
 		return switch (path) {
+			'navigationOrderSettings.previewEffect' => 'プレビュー効果',
+			'navigationOrderSettings.bottomNavigationPreview' => 'ボトムナビゲーションバーのプレビュー：',
+			'navigationOrderSettings.sidebarPreview' => 'サイドバーのプレビュー：',
+			'navigationOrderSettings.confirmResetNavigationOrder' => 'ナビゲーション順序のリセットを確認',
 			'navigationOrderSettings.confirmResetNavigationOrderDesc' => 'ナビゲーション順序をデフォルト設定にリセットしてもよろしいですか？',
 			'navigationOrderSettings.cancel' => 'キャンセル',
 			'navigationOrderSettings.videoDescription' => '人気の動画コンテンツを閲覧',

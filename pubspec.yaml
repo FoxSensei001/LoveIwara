@@ -59,6 +59,7 @@ dependencies:
   archive: ^4.0.7
   ffi: ^2.1.4
   volume_controller: ^2.0.7
+  battery_plus: ^6.0.3
   uuid: any
   extended_text_field: ^16.0.2
   dlna_dart: ^0.1.0

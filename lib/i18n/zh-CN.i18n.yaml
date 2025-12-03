@@ -568,6 +568,7 @@ settings:
   longPressFastForward: 长按快进
   enableMouseHoverShowToolbar: 鼠标悬浮时显示工具栏
   enableMouseHoverShowToolbarInfo: 开启后，当鼠标悬浮在播放器上移动时会自动显示工具栏，停止移动3秒后自动隐藏
+  enableHorizontalDragSeek: 横向滑动调整进度
   # 音视频配置相关
   audioVideoConfig: 音视频配置
   expandBuffer: 扩大缓冲区
@@ -1240,7 +1241,9 @@ download:
   downloadCompletedWithName: '下载完成: ${fileName}'
   stillInDevelopment: 开发中
   saveToAppDirectory: 保存到应用目录
-
+  alreadyDownloadedWithQuality: '已有相同清晰度的任务，是否继续下载？'
+  alreadyDownloadedWithQualities: '已有清晰度为${qualities}的任务，是否继续下载？'
+  otherQualities: 其他清晰度
 favorite:
   errors:
     addFailed: 追加失败

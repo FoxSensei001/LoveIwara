@@ -28,7 +28,7 @@ class DownloadService extends GetxService {
   // 用于通知任务状态变更的 RxInt
   final _taskStatusChangedNotifier = 0.obs;
 
-  // 获取所有活跃任务（仅包含等待中和下载中的任务）
+  // 获取所有活跃任务（仅包含下载中的任务）
   Map<String, DownloadTask> get tasks => _activeTasks;
 
   // 获取任务状态变更通知器 [仅在任务状态变更时，进行通知，用于刷新UI列表数据]
@@ -57,7 +57,7 @@ class DownloadService extends GetxService {
   }
 
   // =============================== 内部方法 ===============================
-  // 活跃任务列表，只包含等待中和下载中的任务
+  // 活跃任务列表，只包含下载中的任务
   // 活跃任务列表，key是任务的id，value是任务对象，此处是最新的任务信息状态,
   // 当变更内容时，会通知_taskStatusChangedNotifier，用于刷新UI列表数据
   // 理论来说，如果任务的状态发生变更，则应该同步给持久化数据库
@@ -103,30 +103,33 @@ class DownloadService extends GetxService {
   // =============================== 加载活跃任务（仅加载下载中的任务） ===============================
   // 获取downloading、pending状态的全部任务，
   // 通过_downloadQueue来存储任务的id，供_processQueue()方法使用
-  // 通过_activeTasks来存储持久化的任务信息到内存中，供UI刷新和processQueue拿到任务信息
+  // 注意：内存中的 _activeTasks 只保存 downloading 任务
   Future<void> _loadActiveTasks() async {
     try {
-      final downloadingTasks = await _repository.getAllTasksByStatus(
-        DownloadStatus.downloading,
-      );
-      final pendingTasks = await _repository.getAllTasksByStatus(
-        DownloadStatus.pending,
-      );
+      // 拉取所有 downloading + pending 任务，按创建时间升序
+      final tasks =
+          await _repository.getDownloadingAndPendingTasksOrderByCreatedAtAsc();
+      int restoredDownloadingCount = 0;
+      int pendingCount = 0;
 
-      for (var task in downloadingTasks) {
-        task.status = DownloadStatus.pending;
-        _activeTasks[task.id] = task;
-        _downloadQueue.add(task.id);
-      }
+      for (var task in tasks) {
+        if (task.status == DownloadStatus.downloading) {
+          // 启动时遇到 downloading 任务，一律恢复为 pending 并仅持久化到数据库
+          restoredDownloadingCount++;
+          await _repository.updateTaskStatusById(
+            task.id,
+            DownloadStatus.pending,
+          );
+        } else if (task.status == DownloadStatus.pending) {
+          pendingCount++;
+        }
 
-      for (var task in pendingTasks) {
-        task.status = DownloadStatus.pending;
-        _activeTasks[task.id] = task;
+        // 队列中仅维护任务 id，顺序即为 created_at 升序
         _downloadQueue.add(task.id);
       }
 
       LogUtils.d(
-        '已加载 ${downloadingTasks.length} 个下载中任务, ${pendingTasks.length} 个等待中任务',
+        '已加载 $restoredDownloadingCount 个历史下载中任务, $pendingCount 个等待中任务',
         'DownloadService',
       );
 
@@ -158,8 +161,7 @@ class DownloadService extends GetxService {
       task.status = DownloadStatus.pending;
       await _repository.insertTask(task);
 
-      // 添加到活跃任务列表和下载队列
-      _activeTasks[task.id] = task;
+      // 仅添加到下载队列，pending 任务不常驻内存
       _downloadQueue.add(task.id);
 
       LogUtils.i('添加下载任务: ${task.fileName}', 'DownloadService');
@@ -180,8 +182,9 @@ class DownloadService extends GetxService {
   Future<void> pauseTask(String taskId) async {
     LogUtils.d('暂停任务: $taskId', 'DownloadService');
 
-    // 从内存中获取最新任务信息
-    final task = _activeTasks[taskId];
+    // 优先从内存中获取下载中任务，如不存在则从数据库获取
+    final task =
+        _activeTasks[taskId] ?? await _repository.getTaskById(taskId);
     if (task == null) {
       LogUtils.d('任务不存在: $taskId', 'DownloadService');
       return;
@@ -191,7 +194,7 @@ class DownloadService extends GetxService {
     // [优先更新持久化信息]
     await _repository.updateTask(task);
 
-    // 从内存中移除、取消下载、移除计时器
+    // 从内存/队列中移除、取消下载、移除计时器
     _clearMemoryTask(taskId, '用户暂停下载');
 
     // 通知UI变更
@@ -240,8 +243,7 @@ class DownloadService extends GetxService {
         await _repository.updateTask(task);
       }
 
-      // 添加到内存中的活跃任务
-      _activeTasks[taskId] = task;
+      // 仅将任务 id 加入等待队列，pending 任务不常驻内存
       _downloadQueue.add(taskId);
 
       // 通知任务状态变更
@@ -372,11 +374,13 @@ class DownloadService extends GetxService {
       return;
     }
 
+    // 取出队首任务 id
     final taskId = _downloadQueue.first;
-    final task = _activeTasks[taskId];
 
-    // 内存的任务状态只有pending和downloading两种状态
-    // 如果任务状态不是pending，则跳过
+    // 通过数据库获取最新任务信息，pending 任务不常驻内存
+    final task = await _repository.getTaskById(taskId);
+
+    // 仅对仍为 pending 的任务进行下载；否则跳过
     if (task == null || task.status != DownloadStatus.pending) {
       _downloadQueue.removeAt(0);
       _processQueue(); // 继续处理队列中的下一个任务
@@ -572,6 +576,7 @@ class DownloadService extends GetxService {
                 localRaf.writeFromSync(chunk);
                 task.downloadedBytes =
                     (task.downloadedBytes + chunk.length) as int;
+                // activeTasks 仅维护下载中的任务进度
                 _activeTasks[task.id] = task;
               }
             } catch (e) {
@@ -747,20 +752,19 @@ class DownloadService extends GetxService {
     _taskTimers[task.id]?.cancel();
     _taskTimers.remove(task.id);
 
-    // 从内存中移除任务
+    // 从内存中移除下载中的任务（pending 不会进入 _activeTasks）
     _activeTasks.remove(task.id);
-    _downloadQueue.remove(task.id);
 
     // 通知任务状态变更
     _taskStatusChangedNotifier.value++;
   }
 
   Future<void> _updateTaskStatus(DownloadTask task) async {
-    if (task.status == DownloadStatus.completed) {
-      // 如果任务完成，从活跃任务移到已完成任务
-      _activeTasks.remove(task.id);
-    } else {
+    // 仅在任务处于下载中时保留在内存活跃列表中
+    if (task.status == DownloadStatus.downloading) {
       _activeTasks[task.id] = task;
+    } else {
+      _activeTasks.remove(task.id);
     }
     await _repository.updateTaskStatusById(task.id, task.status);
 
@@ -792,7 +796,7 @@ class DownloadService extends GetxService {
 
   // 添加重试方法
   Future<void> retryTask(String taskId) async {
-    // 1) 优先从内存取，不存在则从数据库取
+    // 1) 优先从内存取（如果当前正在下载），否则从数据库取
     DownloadTask? task =
         _activeTasks[taskId] ?? await _repository.getTaskById(taskId);
     if (task == null) {
@@ -829,7 +833,6 @@ class DownloadService extends GetxService {
     if (!_downloadQueue.contains(taskId)) {
       _downloadQueue.add(taskId);
     }
-    _activeTasks[taskId] = task;
     await _repository.updateTask(task);
 
     // 通知UI并处理队列
@@ -855,6 +858,126 @@ class DownloadService extends GetxService {
     required int limit,
   }) async {
     return await _repository.getCompletedTasks(offset: offset, limit: limit);
+  }
+
+  /// =============================== 重复检查相关接口 ===============================
+  /// 检查视频任务是否重复
+  /// 返回检查结果，包括是否存在相同视频不同清晰度或相同清晰度的任务
+  Future<VideoTaskDuplicateCheckResult> checkVideoTaskDuplicate(
+    String videoId,
+    String quality,
+  ) async {
+    try {
+      // 使用分页查询所有任务（包括所有状态）
+      const pageSize = 50;
+      int offset = 0;
+      bool hasMore = true;
+
+      // 检查是否存在相同视频ID的任务
+      bool hasSameVideoDifferentQuality = false;
+      bool hasSameVideoSameQuality = false;
+      final existingQualities = <String>[];
+
+      // 分页查询，直到找到匹配的任务或查询完所有任务
+      // 如果找到相同清晰度的任务，可以提前停止；否则继续查找
+      while (hasMore) {
+        final tasks = await _repository.getTasksByStatus(
+          null, // null 表示查询所有状态
+          offset: offset,
+          limit: pageSize,
+        );
+
+        if (tasks.isEmpty) {
+          hasMore = false;
+          break;
+        }
+
+        // 过滤出视频类型的任务并检查
+        for (var task in tasks) {
+          if (task.extData?.type != DownloadTaskExtDataType.video) {
+            continue;
+          }
+
+          try {
+            final videoData = VideoDownloadExtData.fromJson(task.extData!.data);
+            if (videoData.id == videoId) {
+              final existingQuality = videoData.quality ?? '';
+              if (existingQuality.isNotEmpty) {
+                existingQualities.add(existingQuality);
+              }
+
+              if (existingQuality == quality) {
+                hasSameVideoSameQuality = true;
+              } else if (existingQuality.isNotEmpty) {
+                hasSameVideoDifferentQuality = true;
+              }
+            }
+          } catch (e) {
+            // 解析失败的任务跳过，记录日志但不影响主流程
+            LogUtils.w(
+              '解析视频任务扩展数据失败: ${task.id}',
+              'DownloadService',
+            );
+          }
+        }
+
+        // 如果已经找到相同清晰度的任务，可以提前停止
+        if (hasSameVideoSameQuality) {
+          break;
+        }
+
+        // 更新偏移量
+        offset += pageSize;
+        hasMore = tasks.length >= pageSize;
+      }
+
+      return VideoTaskDuplicateCheckResult(
+        hasSameVideoDifferentQuality: hasSameVideoDifferentQuality,
+        hasSameVideoSameQuality: hasSameVideoSameQuality,
+        existingQualities: existingQualities.toSet().toList(),
+      );
+    } catch (e) {
+      LogUtils.e(
+        '检查视频任务重复失败',
+        tag: 'DownloadService',
+        error: e,
+      );
+      // 发生异常时返回无重复的结果，降级处理
+      return VideoTaskDuplicateCheckResult(
+        hasSameVideoDifferentQuality: false,
+        hasSameVideoSameQuality: false,
+        existingQualities: [],
+      );
+    }
+  }
+
+  /// =============================== 统计相关接口 ===============================
+  /// 获取下载中 Tab 需要展示的任务数量（downloading + paused + pending）
+  Future<int> getActiveTasksCountForTab() async {
+    try {
+      final counts = await _repository.getTasksCount();
+      return counts['active'] ?? 0;
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  /// 获取失败任务数量
+  Future<int> getFailedTasksCount() async {
+    try {
+      return await _repository.getCountByStatus(DownloadStatus.failed);
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  /// 获取已完成任务数量
+  Future<int> getCompletedTasksCount() async {
+    try {
+      return await _repository.getCountByStatus(DownloadStatus.completed);
+    } catch (_) {
+      return 0;
+    }
   }
 
   @override
@@ -1029,7 +1152,11 @@ class DownloadService extends GetxService {
 
       // 更新任务状态
       await _repository.updateTask(task);
-      _activeTasks[task.id] = task;
+      if (task.status == DownloadStatus.downloading) {
+        _activeTasks[task.id] = task;
+      } else {
+        _activeTasks.remove(task.id);
+      }
       _taskStatusChangedNotifier.value++;
 
       // 等待一段时间后清理进度状态
@@ -1124,7 +1251,9 @@ class DownloadService extends GetxService {
 
         // 立即更新到数据库和内存
         await _repository.updateTask(task);
-        _activeTasks[task.id] = task;
+        if (task.status == DownloadStatus.downloading) {
+          _activeTasks[task.id] = task;
+        }
       }
 
       return true;
@@ -1174,4 +1303,22 @@ class DownloadService extends GetxService {
       return null;
     }
   }
+}
+
+/// 视频任务重复检查结果
+class VideoTaskDuplicateCheckResult {
+  /// 是否存在相同视频ID但不同清晰度的任务
+  final bool hasSameVideoDifferentQuality;
+
+  /// 是否存在相同视频ID且相同清晰度的任务
+  final bool hasSameVideoSameQuality;
+
+  /// 已存在的清晰度列表
+  final List<String> existingQualities;
+
+  VideoTaskDuplicateCheckResult({
+    required this.hasSameVideoDifferentQuality,
+    required this.hasSameVideoSameQuality,
+    required this.existingQualities,
+  });
 }

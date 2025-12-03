@@ -24,7 +24,7 @@ class SearchController extends GetxController {
   final Rx<SearchSegment> selectedSegment = SearchSegment.video.obs;
   final RxBool isPaginated = CommonConstants.isPaginated.obs;
   final RxInt rebuildKey = 0.obs;
-  final RxString selectedSort = 'hot'.obs; // 添加 sort 状态管理（主要用于 oreno3d）
+  final RxString selectedSort = 'latest'.obs; // 添加 sort 状态管理（主要用于 oreno3d）
   final RxString searchType = ''.obs; // 添加搜索类型状态管理（用于 oreno3d）
   final Rx<Map<String, dynamic>?> extData = Rx<Map<String, dynamic>?>(null); // 添加扩展数据管理
   final RxString currentSingleTagNameBehindSearchInput = ''.obs; // 用于显示 oreno3d 标签名

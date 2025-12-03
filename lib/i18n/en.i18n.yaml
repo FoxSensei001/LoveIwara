@@ -561,6 +561,7 @@ settings:
   longPressFastForward: Long Press Fast Forward
   enableMouseHoverShowToolbar: Enable Mouse Hover Show Toolbar
   enableMouseHoverShowToolbarInfo: When enabled, the video toolbar will be shown when the mouse is hovering over the player. It will be automatically hidden after 3 seconds of inactivity.
+  enableHorizontalDragSeek: Horizontal Swipe to Seek
   # Audio Video Configuration
   audioVideoConfig: Audio Video Configuration
   expandBuffer: Expand Buffer
@@ -1232,6 +1233,9 @@ download:
   downloadCompletedWithName: 'Download Completed: ${fileName}'
   stillInDevelopment: Still in development
   saveToAppDirectory: Save to app directory
+  alreadyDownloadedWithQuality: 'Already downloaded with the same quality, continue downloading?'
+  alreadyDownloadedWithQualities: 'Already downloaded with qualities: ${qualities}, continue downloading?'
+  otherQualities: Other qualities
 
 favorite:
   errors:

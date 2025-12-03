@@ -762,6 +762,17 @@ class PlayerSettingsWidget extends StatelessWidget {
                       _configService[ConfigKey.ENABLE_LONG_PRESS_FAST_FORWARD] = value;
                     },
                   ),
+                  // 横向滑动调整进度开关
+                  _buildSwitchSetting(
+                    context: context,
+                    iconData: Icons.swap_horiz,
+                    label: t.settings.enableHorizontalDragSeek,
+                    showInfoCard: false,
+                    rxValue: _configService.settings[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK]!,
+                    onChanged: (value) {
+                      _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] = value;
+                    },
+                  ),
                 ],
               ),
             ),

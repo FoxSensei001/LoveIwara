@@ -311,7 +311,7 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => AppService.tryPop(),
             child: Text(slang.t.common.cancel),
           ),
           TextButton(

@@ -25,25 +25,47 @@ class MediaDescriptionWidget extends StatefulWidget {
 
 class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
   late GlobalKey _contentKey;
+  late GlobalKey _measureKey;
   // 使用翻译控制器
   late final MarkdownTranslationController _translationController;
   final ConfigService _configService = Get.find();
+  bool _hasOverflow = false;
+  static const double _defaultMaxHeight = 200.0;
 
   @override
   void initState() {
     super.initState();
     _contentKey = GlobalKey();
+    _measureKey = GlobalKey();
     _translationController = MarkdownTranslationController();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkOverflow();
     });
   }
 
+  @override
+  void didUpdateWidget(MediaDescriptionWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // 当 description 内容变化时，重新检测溢出
+    if (oldWidget.description != widget.description) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _checkOverflow();
+      });
+    }
+  }
+
   void _checkOverflow() {
-    final RenderBox? renderBox =
-        _contentKey.currentContext?.findRenderObject() as RenderBox?;
-    if (renderBox != null) {
-      setState(() {});
+    // 使用隐藏的测量 widget 来获取内容的实际高度
+    final RenderBox? measureBox =
+        _measureKey.currentContext?.findRenderObject() as RenderBox?;
+    if (measureBox != null && measureBox.hasSize) {
+      final contentHeight = measureBox.size.height;
+      final hasOverflow = contentHeight > _defaultMaxHeight;
+      if (_hasOverflow != hasOverflow) {
+        setState(() {
+          _hasOverflow = hasOverflow;
+        });
+      }
     }
   }
 
@@ -92,6 +114,10 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
   Future<void> _handleTranslation() async {
     // 直接使用原始description进行翻译
     await _translationController.translate(widget.description ?? '', originalText: widget.description);
+    // 翻译后重新检测溢出
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkOverflow();
+    });
   }
 
   @override
@@ -125,6 +151,25 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
             ],
           ),
           const SizedBox(height: 8),
+          // 隐藏的测量 widget，用于检测内容的实际高度
+          Offstage(
+            child: SizedBox(
+              width: double.infinity,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  CustomMarkdownBody(
+                    key: _measureKey,
+                    data: widget.description ?? '',
+                    originalData: widget.description,
+                    showTranslationButton: false,
+                    translationController: _translationController,
+                  ),
+                ],
+              ),
+            ),
+          ),
           ClipRect(
             child: Stack(
               children: [
@@ -135,7 +180,9 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
                   child: Container(
                     width: double.infinity,
                     constraints: BoxConstraints(
-                      maxHeight: expanded ? double.infinity : 200,
+                      maxHeight: expanded || !_hasOverflow 
+                          ? double.infinity 
+                          : _defaultMaxHeight,
                     ),
                     child: SingleChildScrollView(
                       physics: const NeverScrollableScrollPhysics(),
@@ -149,13 +196,13 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
                             showTranslationButton: false,
                             translationController: _translationController,
                           ),
-                          if (!expanded) const SizedBox(height: 60),
+                          if (!expanded && _hasOverflow) const SizedBox(height: 60),
                         ],
                       ),
                     ),
                   ),
                 ),
-                if (!expanded)
+                if (!expanded && _hasOverflow)
                   Positioned(
                     left: 0,
                     right: 0,
@@ -210,8 +257,8 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
               ],
             ),
           ),
-          const SizedBox(height: 4),
-          if (expanded)
+          if (_hasOverflow) const SizedBox(height: 4),
+          if (expanded && _hasOverflow)
             Material(
               color: Colors.transparent,
               child: InkWell(

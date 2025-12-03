@@ -516,47 +516,54 @@ class _MyVideoScreenState extends State<MyVideoScreen>
               myVideoStateController: widget.myVideoStateController,
               onDoubleTapLeft: _triggerLeftRipple,
               screenSize: screenSize,
-              onHorizontalDragStart: (details) {
-                _horizontalDragStartX = details.localPosition.dx;
-                _horizontalDragStartPosition =
-                    widget.myVideoStateController.currentPosition;
-                widget.myVideoStateController.setInteracting(true);
-                widget.myVideoStateController.showSeekPreview(true);
-              },
-              onHorizontalDragUpdate: (details) {
-                if (_horizontalDragStartX == null ||
-                    _horizontalDragStartPosition == null) {
-                  return;
-                }
+              onHorizontalDragStart: _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
+                  ? (details) {
+                      _horizontalDragStartX = details.localPosition.dx;
+                      _horizontalDragStartPosition =
+                          widget.myVideoStateController.currentPosition;
+                      widget.myVideoStateController.setInteracting(true);
+                      widget.myVideoStateController.showSeekPreview(true);
+                      widget.myVideoStateController.isHorizontalDragging.value = true;
+                    }
+                  : null,
+              onHorizontalDragUpdate: _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
+                  ? (details) {
+                      if (_horizontalDragStartX == null ||
+                          _horizontalDragStartPosition == null) {
+                        return;
+                      }
 
-                double dragDistance =
-                    details.localPosition.dx - _horizontalDragStartX!;
-                double ratio = dragDistance / screenSize.width;
+                      double dragDistance =
+                          details.localPosition.dx - _horizontalDragStartX!;
+                      double ratio = dragDistance / screenSize.width;
 
-                int offsetSeconds = (ratio * maxSeekSeconds).round();
+                      int offsetSeconds = (ratio * maxSeekSeconds).round();
 
-                Duration targetPosition = Duration(
-                    seconds: (_horizontalDragStartPosition!.inSeconds +
-                            offsetSeconds)
-                        .clamp(
-                            0,
-                            widget.myVideoStateController.totalDuration.value
-                                .inSeconds));
+                      Duration targetPosition = Duration(
+                          seconds: (_horizontalDragStartPosition!.inSeconds +
+                                  offsetSeconds)
+                              .clamp(
+                                  0,
+                                  widget.myVideoStateController.totalDuration.value
+                                      .inSeconds));
 
-                widget.myVideoStateController.updateSeekPreview(targetPosition);
-              },
-              onHorizontalDragEnd: (details) {
-                if (_horizontalDragStartPosition != null) {
-                  Duration targetPosition =
-                      widget.myVideoStateController.previewPosition.value;
-                  widget.myVideoStateController.handleSeek(targetPosition);
-                }
+                      widget.myVideoStateController.updateSeekPreview(targetPosition);
+                    }
+                  : null,
+              onHorizontalDragEnd: _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
+                  ? (details) {
+                      if (_horizontalDragStartPosition != null) {
+                        Duration targetPosition =
+                            widget.myVideoStateController.previewPosition.value;
+                        widget.myVideoStateController.handleSeek(targetPosition);
+                      }
 
-                _horizontalDragStartX = null;
-                _horizontalDragStartPosition = null;
-                widget.myVideoStateController.setInteracting(false);
-                widget.myVideoStateController.showSeekPreview(false);
-              },
+                      _horizontalDragStartX = null;
+                      _horizontalDragStartPosition = null;
+                      widget.myVideoStateController.setInteracting(false);
+                      widget.myVideoStateController.showSeekPreview(false);
+                    }
+                  : null,
             ),
           )),
       Obx(() => Positioned(
@@ -575,47 +582,54 @@ class _MyVideoScreenState extends State<MyVideoScreen>
               screenSize: screenSize,
               onVolumeChange: (volume) =>
                   widget.myVideoStateController.setVolume(volume, save: false),
-              onHorizontalDragStart: (details) {
-                _horizontalDragStartX = details.localPosition.dx;
-                _horizontalDragStartPosition =
-                    widget.myVideoStateController.currentPosition;
-                widget.myVideoStateController.setInteracting(true);
-                widget.myVideoStateController.showSeekPreview(true);
-              },
-              onHorizontalDragUpdate: (details) {
-                if (_horizontalDragStartX == null ||
-                    _horizontalDragStartPosition == null) {
-                  return;
-                }
+              onHorizontalDragStart: _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
+                  ? (details) {
+                      _horizontalDragStartX = details.localPosition.dx;
+                      _horizontalDragStartPosition =
+                          widget.myVideoStateController.currentPosition;
+                      widget.myVideoStateController.setInteracting(true);
+                      widget.myVideoStateController.showSeekPreview(true);
+                      widget.myVideoStateController.isHorizontalDragging.value = true;
+                    }
+                  : null,
+              onHorizontalDragUpdate: _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
+                  ? (details) {
+                      if (_horizontalDragStartX == null ||
+                          _horizontalDragStartPosition == null) {
+                        return;
+                      }
 
-                double dragDistance =
-                    details.localPosition.dx - _horizontalDragStartX!;
-                double ratio = dragDistance / screenSize.width;
+                      double dragDistance =
+                          details.localPosition.dx - _horizontalDragStartX!;
+                      double ratio = dragDistance / screenSize.width;
 
-                int offsetSeconds = (ratio * maxSeekSeconds).round();
+                      int offsetSeconds = (ratio * maxSeekSeconds).round();
 
-                Duration targetPosition = Duration(
-                    seconds: (_horizontalDragStartPosition!.inSeconds +
-                            offsetSeconds)
-                        .clamp(
-                            0,
-                            widget.myVideoStateController.totalDuration.value
-                                .inSeconds));
+                      Duration targetPosition = Duration(
+                          seconds: (_horizontalDragStartPosition!.inSeconds +
+                                  offsetSeconds)
+                              .clamp(
+                                  0,
+                                  widget.myVideoStateController.totalDuration.value
+                                      .inSeconds));
 
-                widget.myVideoStateController.updateSeekPreview(targetPosition);
-              },
-              onHorizontalDragEnd: (details) {
-                if (_horizontalDragStartPosition != null) {
-                  Duration targetPosition =
-                      widget.myVideoStateController.previewPosition.value;
-                  widget.myVideoStateController.handleSeek(targetPosition);
-                }
+                      widget.myVideoStateController.updateSeekPreview(targetPosition);
+                    }
+                  : null,
+              onHorizontalDragEnd: _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
+                  ? (details) {
+                      if (_horizontalDragStartPosition != null) {
+                        Duration targetPosition =
+                            widget.myVideoStateController.previewPosition.value;
+                        widget.myVideoStateController.handleSeek(targetPosition);
+                      }
 
-                _horizontalDragStartX = null;
-                _horizontalDragStartPosition = null;
-                widget.myVideoStateController.setInteracting(false);
-                widget.myVideoStateController.showSeekPreview(false);
-              },
+                      _horizontalDragStartX = null;
+                      _horizontalDragStartPosition = null;
+                      widget.myVideoStateController.setInteracting(false);
+                      widget.myVideoStateController.showSeekPreview(false);
+                    }
+                  : null,
             ),
           )),
       Obx(() {
@@ -642,47 +656,53 @@ class _MyVideoScreenState extends State<MyVideoScreen>
             region: GestureRegion.center,
             myVideoStateController: widget.myVideoStateController,
             screenSize: screenSize,
-            onHorizontalDragStart: (details) {
-              _horizontalDragStartX = details.localPosition.dx;
-              _horizontalDragStartPosition =
-                  widget.myVideoStateController.currentPosition;
-              widget.myVideoStateController.setInteracting(true);
-              widget.myVideoStateController.showSeekPreview(true);
-            },
-            onHorizontalDragUpdate: (details) {
-              if (_horizontalDragStartX == null ||
-                  _horizontalDragStartPosition == null) {
-                return;
-              }
+            onHorizontalDragStart: _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
+                ? (details) {
+                    _horizontalDragStartX = details.localPosition.dx;
+                    _horizontalDragStartPosition =
+                        widget.myVideoStateController.currentPosition;
+                    widget.myVideoStateController.setInteracting(true);
+                    widget.myVideoStateController.showSeekPreview(true);
+                  }
+                : null,
+            onHorizontalDragUpdate: _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
+                ? (details) {
+                    if (_horizontalDragStartX == null ||
+                        _horizontalDragStartPosition == null) {
+                      return;
+                    }
 
-              double dragDistance =
-                  details.localPosition.dx - _horizontalDragStartX!;
-              double ratio = dragDistance / screenSize.width;
+                    double dragDistance =
+                        details.localPosition.dx - _horizontalDragStartX!;
+                    double ratio = dragDistance / screenSize.width;
 
-              int offsetSeconds = (ratio * maxSeekSeconds).round();
+                    int offsetSeconds = (ratio * maxSeekSeconds).round();
 
-              Duration targetPosition = Duration(
-                  seconds:
-                      (_horizontalDragStartPosition!.inSeconds + offsetSeconds)
-                          .clamp(
-                              0,
-                              widget.myVideoStateController.totalDuration.value
-                                  .inSeconds));
+                    Duration targetPosition = Duration(
+                        seconds:
+                            (_horizontalDragStartPosition!.inSeconds + offsetSeconds)
+                                .clamp(
+                                    0,
+                                    widget.myVideoStateController.totalDuration.value
+                                        .inSeconds));
 
-              widget.myVideoStateController.updateSeekPreview(targetPosition);
-            },
-            onHorizontalDragEnd: (details) {
-              if (_horizontalDragStartPosition != null) {
-                Duration targetPosition =
-                    widget.myVideoStateController.previewPosition.value;
-                widget.myVideoStateController.player.seek(targetPosition);
-              }
+                    widget.myVideoStateController.updateSeekPreview(targetPosition);
+                  }
+                : null,
+            onHorizontalDragEnd: _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
+                ? (details) {
+                    if (_horizontalDragStartPosition != null) {
+                      Duration targetPosition =
+                          widget.myVideoStateController.previewPosition.value;
+                      widget.myVideoStateController.handleSeek(targetPosition);
+                    }
 
-              _horizontalDragStartX = null;
-              _horizontalDragStartPosition = null;
-              widget.myVideoStateController.setInteracting(false);
-              widget.myVideoStateController.showSeekPreview(false);
-            },
+                    _horizontalDragStartX = null;
+                    _horizontalDragStartPosition = null;
+                    widget.myVideoStateController.setInteracting(false);
+                    widget.myVideoStateController.showSeekPreview(false);
+                  }
+                : null,
           ),
         );
       }),

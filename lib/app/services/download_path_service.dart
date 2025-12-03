@@ -76,13 +76,12 @@ class DownloadPathService extends GetxService {
   String get defaultDownloadPath => _defaultDownloadPath.value;
 
   /// 获取翻译实例
+  /// 注意：这里不依赖 BuildContext，以避免在应用初始化阶段（UI 树尚未就绪）
+  /// 触发诸如 "GetRoot is not part of the tree" 之类的异常。
   slang.TranslationsSettingsDownloadSettingsEn get _t {
-    final context = Get.context;
-    if (context != null) {
-      return slang.Translations.of(context).settings.downloadSettings;
-    }
-    // 如果没有上下文，返回默认英文翻译
-    return slang.TranslationsEn().settings.downloadSettings;
+    // 直接使用全局的 t（Method A），与当前 LocaleSettings 同步，
+    // 不需要依赖 Get.context 或任何 Widget 树。
+    return slang.t.settings.downloadSettings;
   }
 
   @override

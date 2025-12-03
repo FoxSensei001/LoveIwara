@@ -167,8 +167,18 @@ class GalleryDownloadTaskItem extends StatelessWidget {
                         ],
                       ),
                     ),
-                    // 主要操作按钮
-                    _buildMainActionButton(context),
+                    // 主要操作 + 快捷删除按钮
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildMainActionButton(context),
+                        IconButton(
+                          icon: const Icon(Icons.delete_outline),
+                          tooltip: t.download.deleteTask,
+                          onPressed: () => _showDeleteConfirmDialog(context),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
                 // 进度条和状态
@@ -332,6 +342,12 @@ class GalleryDownloadTaskItem extends StatelessWidget {
   Widget _buildMainActionButton(BuildContext context) {
     final t = slang.Translations.of(context);
     switch (task.status) {
+      case DownloadStatus.pending:
+        return IconButton(
+          icon: const Icon(Icons.pause),
+          tooltip: t.download.pause,
+          onPressed: () => DownloadService.to.pauseTask(task.id),
+        );
       case DownloadStatus.downloading:
         return IconButton(
           icon: const Icon(Icons.pause),
@@ -356,8 +372,6 @@ class GalleryDownloadTaskItem extends StatelessWidget {
           tooltip: t.download.openFile,
           onPressed: () => _showInFolder(context),
         );
-      default:
-        return const SizedBox.shrink();
     }
   }
 

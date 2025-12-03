@@ -253,7 +253,7 @@ class GestureAreaState extends State<GestureArea>
       rx = rx.clamp(0.0, 1.0);
 
       // 使用节流控制亮度调节
-      EasyThrottle.throttle('setBrightness', const Duration(milliseconds: 20), () {
+      EasyThrottle.throttle('${widget.myVideoStateController.randomId}_setBrightness', const Duration(milliseconds: 20), () {
         _configService.setSetting(ConfigKey.BRIGHTNESS_KEY, rx, save: false);
         _screenBrightness?.setApplicationScreenBrightness(rx);
       });
@@ -266,7 +266,7 @@ class GestureAreaState extends State<GestureArea>
       rx = rx.clamp(0.0, 1.0);
 
       // 使用节流控制音量调节
-      EasyThrottle.throttle('setVolume', const Duration(milliseconds: 20), () {
+      EasyThrottle.throttle('${widget.myVideoStateController.randomId}_setVolume', const Duration(milliseconds: 20), () {
         widget.onVolumeChange?.call(rx);
       });
 
@@ -324,20 +324,34 @@ class GestureAreaState extends State<GestureArea>
               widget.region == GestureRegion.right)
           ? _onVerticalDragUpdate
           : null,
-      // 所有区域都添加横向拖动手势
-      onHorizontalDragStart: (details) {
-        widget.myVideoStateController.setInteracting(true);
-        widget.onHorizontalDragStart?.call(details);
-      },
-      onHorizontalDragUpdate: (details) {
-        widget.onHorizontalDragUpdate?.call(details);
-      },
-      onHorizontalDragEnd: (details) {
-        widget.myVideoStateController.setInteracting(false);
-        // 触发震动
-        VibrateUtils.vibrate(type: HapticFeedback.lightImpact);
-        widget.onHorizontalDragEnd?.call(details);
-      },
+      // 所有区域都添加横向拖动手势（需要检查配置）
+      onHorizontalDragStart: _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
+          ? (details) {
+              widget.myVideoStateController.setInteracting(true);
+              widget.myVideoStateController.isHorizontalDragging.value = true;
+              widget.onHorizontalDragStart?.call(details);
+            }
+          : null,
+      onHorizontalDragUpdate: _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
+          ? (details) {
+              // 使用节流控制横向滑动更新频率，避免频繁更新进度条
+              EasyThrottle.throttle(
+                '${widget.myVideoStateController.randomId}_horizontal_drag_update',
+                const Duration(milliseconds: 16),
+                () {
+                  widget.onHorizontalDragUpdate?.call(details);
+                },
+              );
+            }
+          : null,
+      onHorizontalDragEnd: _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
+          ? (details) {
+              widget.myVideoStateController.setInteracting(false);
+              // 触发震动
+              VibrateUtils.vibrate(type: HapticFeedback.lightImpact);
+              widget.onHorizontalDragEnd?.call(details);
+            }
+          : null,
       child: Container(
         /// 如果不用transparent的Container包裹，会导致center区域无法触发手势，GTP给出的解释是
         /// "当你使用一个没有颜色（即 color: null）的 Container 时，如果它没有子组件绘制任何内容，Flutter 可能不会为这个区域分配绘制层。这意味这个区域在视觉上是透明的，但在命中测试中也是"不可命中"的，因为没有实际的绘制内容。"

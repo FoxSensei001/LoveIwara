@@ -10,6 +10,7 @@ import 'package:logger/logger.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:i_iwara/app/ui/widgets/like_button_widget.dart';
 import 'package:i_iwara/app/services/video_service.dart';
+import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/common/anime4k_presets.dart';
 
 import '../../../../../../utils/common_utils.dart';
@@ -24,6 +25,7 @@ class BottomToolbar extends StatelessWidget {
   final bool currentScreenIsFullScreen;
   final ConfigService _configService = Get.find();
   final AppService appService = Get.find();
+  final UserService _userService = Get.find<UserService>();
 
   // 缓存一些常用的组件
   final Widget _spacer4 = const SizedBox(width: 4.0);
@@ -69,10 +71,13 @@ class BottomToolbar extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  _buildLikeButton(),
-                  _spacer8,
-                  _buildFollowButton(),
-                  _spacer8,
+                  // 在全屏且未登录时隐藏点赞和关注按钮
+                  if (_userService.isLogin) ...[
+                    _buildLikeButton(),
+                    _spacer8,
+                    _buildFollowButton(),
+                    _spacer8,
+                  ],
                   _buildAuthorInfo(isSmallScreen),
                 ],
               ),
@@ -554,12 +559,7 @@ class BottomToolbar extends StatelessWidget {
         height: 28,
         child: FollowButtonWidget(
           user: videoInfo!.user!,
-          onUserUpdated: (updatedUser) {
-            myVideoStateController.videoInfo.value =
-                myVideoStateController.videoInfo.value?.copyWith(
-              user: updatedUser,
-            );
-          },
+          onUserUpdated: myVideoStateController.handleAuthorUpdated,
         ),
       );
     });

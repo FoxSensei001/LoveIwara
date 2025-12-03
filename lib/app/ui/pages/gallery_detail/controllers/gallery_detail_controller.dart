@@ -4,6 +4,8 @@ import 'package:i_iwara/app/models/history_record.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/repositories/history_repository.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
+import 'package:i_iwara/app/services/favorite_service.dart';
+import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
@@ -24,6 +26,9 @@ class GalleryDetailController extends GetxController {
   final RxBool isCommentSheetVisible = false.obs;
   final RxBool isDescriptionExpanded = false.obs;
   final RxBool isHoveringHorizontalList = false.obs;
+
+  // 收藏状态
+  final RxBool isInAnyFavorite = false.obs; // 图库是否在任何收藏夹中
 
   OtherAuthorzMediasController? otherAuthorzImageModelsController;
 
@@ -75,10 +80,45 @@ class GalleryDetailController extends GetxController {
       otherAuthorzImageModelsController?.fetchRelatedMedias();
       imageModelInfo.value = res.data;
 
+      // 检查收藏状态
+      checkFavoriteStatus();
+
     } finally {
       LogUtils.d('图片详情信息加载完成', 'GalleryDetailController');
       isImageModelInfoLoading.value = false;
       isInfoInitialized = true;
+    }
+  }
+
+  /// 检查图库的收藏状态
+  Future<void> checkFavoriteStatus() async {
+    if (imageModelId.isEmpty) return;
+
+    try {
+      final userService = Get.find<UserService>();
+      // 只在用户已登录时检查状态
+      if (!userService.isLogin) {
+        isInAnyFavorite.value = false;
+        return;
+      }
+
+      final favoriteService = Get.find<FavoriteService>();
+      final favoriteFolders = await favoriteService.getItemFolders(imageModelId);
+
+      // 检查收藏状态
+      isInAnyFavorite.value = favoriteFolders.isNotEmpty;
+
+      LogUtils.d(
+        '检查图库收藏状态完成: isInAnyFavorite=${isInAnyFavorite.value}',
+        'GalleryDetailController',
+      );
+    } catch (e) {
+      LogUtils.w(
+        '检查图库收藏状态失败: $e',
+        'GalleryDetailController',
+      );
+      // 出错时重置状态
+      isInAnyFavorite.value = false;
     }
   }
 

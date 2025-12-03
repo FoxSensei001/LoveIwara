@@ -690,6 +690,7 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get longPressFastForward => '長按快進';
 	@override String get enableMouseHoverShowToolbar => '鼠標懸停時顯示工具欄';
 	@override String get enableMouseHoverShowToolbarInfo => '開啟後，當鼠標懸停在播放器上移動時會自動顯示工具欄，停止移動3秒後自動隱藏';
+	@override String get enableHorizontalDragSeek => '橫向滑動調整進度';
 	@override String get audioVideoConfig => '音視頻配置';
 	@override String get expandBuffer => '擴大緩衝區';
 	@override String get expandBufferInfo => '開啟後緩衝區增大，載入時間變長但播放更流暢';
@@ -1140,6 +1141,9 @@ class _TranslationsDownloadZhTw implements TranslationsDownloadEn {
 	@override String downloadCompletedWithName({required Object fileName}) => '下載完成: ${fileName}';
 	@override String get stillInDevelopment => '開發中';
 	@override String get saveToAppDirectory => '保存到應用程序目錄';
+	@override String get alreadyDownloadedWithQuality => '已有相同清晰度的任務，是否繼續下載？';
+	@override String alreadyDownloadedWithQualities({required Object qualities}) => '此視頻已有${qualities}清晰度的任務，是否繼續下載？';
+	@override String get otherQualities => '其他清晰度';
 }
 
 // Path: favorite
@@ -3020,6 +3024,7 @@ extension on TranslationsZhTw {
 			'settings.longPressFastForward' => '長按快進',
 			'settings.enableMouseHoverShowToolbar' => '鼠標懸停時顯示工具欄',
 			'settings.enableMouseHoverShowToolbarInfo' => '開啟後，當鼠標懸停在播放器上移動時會自動顯示工具欄，停止移動3秒後自動隱藏',
+			'settings.enableHorizontalDragSeek' => '橫向滑動調整進度',
 			'settings.audioVideoConfig' => '音視頻配置',
 			'settings.expandBuffer' => '擴大緩衝區',
 			'settings.expandBufferInfo' => '開啟後緩衝區增大，載入時間變長但播放更流暢',
@@ -3507,13 +3512,13 @@ extension on TranslationsZhTw {
 			'notifications.markAllAsReadFailedWithException' => ({required Object exception}) => '全部標記已讀失敗: ${exception}',
 			'notifications.markSelectedAsRead' => '標記已讀',
 			'notifications.markSelectedAsReadSuccess' => '已標記為已讀',
-			'notifications.markSelectedAsReadFailed' => '標記已讀失敗',
 			_ => null,
 		};
 	}
 
 	dynamic _flatMapFunction$2(String path) {
 		return switch (path) {
+			'notifications.markSelectedAsReadFailed' => '標記已讀失敗',
 			'notifications.markSelectedAsReadFailedWithException' => ({required Object exception}) => '標記已讀失敗: ${exception}',
 			'notifications.markAsRead' => '標記已讀',
 			'notifications.markAsReadSuccess' => '已標記為已讀',
@@ -3667,6 +3672,9 @@ extension on TranslationsZhTw {
 			'download.downloadCompletedWithName' => ({required Object fileName}) => '下載完成: ${fileName}',
 			'download.stillInDevelopment' => '開發中',
 			'download.saveToAppDirectory' => '保存到應用程序目錄',
+			'download.alreadyDownloadedWithQuality' => '已有相同清晰度的任務，是否繼續下載？',
+			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => '此視頻已有${qualities}清晰度的任務，是否繼續下載？',
+			'download.otherQualities' => '其他清晰度',
 			'favorite.errors.addFailed' => '追加失敗',
 			'favorite.errors.addSuccess' => '追加成功',
 			'favorite.errors.deleteFolderFailed' => '刪除文件夾失敗',
@@ -4022,16 +4030,16 @@ extension on TranslationsZhTw {
 			'layoutSettings.screenWidthLabel' => '螢幕寬度',
 			'layoutSettings.screenWidthHint' => '600',
 			'layoutSettings.columnsLabel' => '欄數',
-			'layoutSettings.columnsHint' => '3',
-			'layoutSettings.enterWidth' => '請輸入寬度',
-			'layoutSettings.enterValidWidth' => '請輸入有效寬度',
-			'layoutSettings.widthCannotExceed9999' => '寬度不能超過9999',
 			_ => null,
 		};
 	}
 
 	dynamic _flatMapFunction$3(String path) {
 		return switch (path) {
+			'layoutSettings.columnsHint' => '3',
+			'layoutSettings.enterWidth' => '請輸入寬度',
+			'layoutSettings.enterValidWidth' => '請輸入有效寬度',
+			'layoutSettings.widthCannotExceed9999' => '寬度不能超過9999',
 			'layoutSettings.breakpointAlreadyExists' => '斷點已存在',
 			'layoutSettings.enterColumns' => '請輸入欄數',
 			'layoutSettings.enterValidColumns' => '請輸入有效欄數',

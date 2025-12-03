@@ -283,6 +283,7 @@ enum ConfigKey {
   ENABLE_RIGHT_VERTICAL_SWIPE_VOLUME, // 右侧上下滑动调整音量
   ENABLE_LONG_PRESS_FAST_FORWARD, // 长按快进
   ENABLE_MOUSE_HOVER_SHOW_TOOLBAR, // 鼠标悬浮显示工具栏
+  ENABLE_HORIZONTAL_DRAG_SEEK, // 横向滑动调整进度
   // 下载设置
   CUSTOM_DOWNLOAD_PATH, // 自定义下载路径
   ENABLE_CUSTOM_DOWNLOAD_PATH, // 启用自定义下载路径
@@ -311,6 +312,8 @@ enum ConfigKey {
   ANIME4K_PRESET_ID, // 当前选中的 Anime4K 预设 ID，空字符串表示禁用
   // 教程指导相关配置
   SHOW_SUBSCRIPTION_TUTORIAL, // 是否显示订阅页面教程指导
+  // 下载相关配置
+  LAST_DOWNLOAD_QUALITY, // 上次下载的视频清晰度
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -387,6 +390,7 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.ENABLE_RIGHT_VERTICAL_SWIPE_VOLUME: return 'enable_right_vertical_swipe_volume';
       case ConfigKey.ENABLE_LONG_PRESS_FAST_FORWARD: return 'enable_long_press_fast_forward';
       case ConfigKey.ENABLE_MOUSE_HOVER_SHOW_TOOLBAR: return 'enable_mouse_hover_show_toolbar';
+      case ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK: return 'enable_horizontal_drag_seek';
       case ConfigKey.CUSTOM_DOWNLOAD_PATH: return 'custom_download_path';
       case ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH: return 'enable_custom_download_path';
       case ConfigKey.VIDEO_FILENAME_TEMPLATE: return 'video_filename_template';
@@ -407,6 +411,7 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.FIRST_TIME_SETUP_COMPLETED: return 'first_time_setup_completed';
       case ConfigKey.ANIME4K_PRESET_ID: return 'anime4k_preset_id';
       case ConfigKey.SHOW_SUBSCRIPTION_TUTORIAL: return 'show_subscription_tutorial';
+      case ConfigKey.LAST_DOWNLOAD_QUALITY: return 'last_download_quality';
     }
   }
 
@@ -554,6 +559,8 @@ extension ConfigKeyExtension on ConfigKey {
         return true;
       case ConfigKey.ENABLE_MOUSE_HOVER_SHOW_TOOLBAR:
         return true;
+      case ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK:
+        return true; // 默认开启横向滑动调整进度
       case ConfigKey.CUSTOM_DOWNLOAD_PATH:
         return '';
       case ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH:
@@ -600,6 +607,8 @@ extension ConfigKeyExtension on ConfigKey {
         return ''; // 默认禁用 Anime4K（空字符串表示禁用）
       case ConfigKey.SHOW_SUBSCRIPTION_TUTORIAL:
         return true; // 默认显示订阅页面教程指导
+      case ConfigKey.LAST_DOWNLOAD_QUALITY:
+        return 'source'; // 默认清晰度为 source
     }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:i_iwara/app/models/video.model.dart' as video_model;
 import 'package:i_iwara/app/models/video_source.model.dart';
+import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
 /// 智能视频缓存管理器
@@ -61,6 +62,23 @@ class VideoCacheManager {
       LogUtils.d('更新缓存视频字段: $videoId, 字段: ${fields.keys.join(', ')}', 'VideoCacheManager');
     } catch (e) {
       LogUtils.e('更新缓存视频字段失败: $videoId', tag: 'VideoCacheManager', error: e);
+    }
+  }
+
+  /// 更新缓存中视频的作者信息（用于关注、取关）
+  void updateVideoAuthor(String videoId, User updatedUser) {
+    final item = _videoInfoCache[videoId];
+    if (item == null) {
+      LogUtils.w('尝试更新不存在的缓存项: $videoId', 'VideoCacheManager');
+      return;
+    }
+
+    try {
+      final updatedVideo = item.data.copyWith(user: updatedUser);
+      _videoInfoCache[videoId] = _CacheItem(updatedVideo);
+      LogUtils.d('更新缓存作者信息: $videoId, authorId: ${updatedUser.id}', 'VideoCacheManager');
+    } catch (e) {
+      LogUtils.e('更新缓存作者信息失败: $videoId', tag: 'VideoCacheManager', error: e);
     }
   }
   

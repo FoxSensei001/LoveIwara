@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'dart:async';
 
 import '../../../../../../utils/common_utils.dart';
-import '../../../../../../utils/easy_throttle.dart';
 import '../../controllers/my_video_state_controller.dart';
 
 /// 自定义的视频进度条组件
@@ -28,8 +26,14 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
   // 用于存储悬停或长按的像素位置，用于定位标签
   double? _hoverPosition;
 
-  // GlobalKey 用于获取滑动条的 RenderBox
-  final GlobalKey _sliderKey = GlobalKey();
+  // 拖拽相关状态
+  double? _dragStartX; // 拖拽起始的 X 坐标
+  double? _dragStartValue; // 拖拽起始时的进度值（秒）
+  double? _trackWidth; // 进度条总宽度
+  bool _hasMoved = false; // 是否已经移动（用于区分单击和拖拽）
+
+  // GlobalKey 用于获取进度条的 RenderBox
+  final GlobalKey _progressBarKey = GlobalKey();
 
   // 缓存常用的Paint对象
   final Paint _activePaint = Paint()
@@ -48,63 +52,27 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
     ..color = Colors.white.withValues(alpha: 0.5)
     ..style = PaintingStyle.fill;
 
+  final Paint _thumbPaint = Paint()
+    ..color = Colors.white
+    ..style = PaintingStyle.fill;
+
   // 用于判断当前是否为移动端
   bool get isMobile =>
       GetPlatform.isAndroid || GetPlatform.isIOS || GetPlatform.isFuchsia;
 
-  // 添加节流机制（节流当前播放进度和总时长更新）
-  Timer? _throttleTimer;
-  double _throttledCurrentValue = 0.0;
-  double _maxValueStored = 0.0;
-
   // 缓存上一次的缓冲区列表，用于比较是否需要更新
   List<BufferRange> _lastBufferRanges = [];
 
-  // 当未拖拽时，当前显示的进度值：拖拽时用拖拽值，否则用节流后的值
-  double get _currentValue => _dragging
-      ? (_draggingValue ?? _throttledCurrentValue)
-      : _throttledCurrentValue;
-
-  // 节流器标签
-  String videoProgressThrottleKey = 'video_progressbar:';
-  String longPressMoveThrottleKey = 'long_press_move:';
+  // 进度条高度
+  static const double _trackHeight = 4.0;
+  // Cursor 半径
+  static const double _thumbRadius = 6.0;
+  // Cursor 覆盖区域半径（用于扩大点击区域）
+  static const double _thumbOverlayRadius = 16.0;
 
   @override
   void initState() {
     super.initState();
-    // 初始化节流数值
-    _throttledCurrentValue = widget.controller.currentPosition.inSeconds
-        .toDouble();
-    _maxValueStored = widget.controller.totalDuration.value.inSeconds
-        .toDouble();
-    String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-    // 加上当前的时间戳
-    videoProgressThrottleKey += timestamp;
-    longPressMoveThrottleKey += timestamp;
-
-    // 使用EasyThrottle进行节流更新
-    _throttleTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
-      if (!_dragging) {
-        EasyThrottle.throttle(
-          videoProgressThrottleKey,
-          const Duration(milliseconds: 100),
-          () {
-            double newVal = widget.controller.currentPosition.inSeconds
-                .toDouble();
-            double newMax = widget.controller.totalDuration.value.inSeconds
-                .toDouble();
-            // 当数值变化超过 0.1 秒时更新
-            if ((newVal - _throttledCurrentValue).abs() >= 0.1 ||
-                (_maxValueStored - newMax).abs() >= 0.1) {
-              setState(() {
-                _throttledCurrentValue = newVal;
-                _maxValueStored = newMax;
-              });
-            }
-          },
-        );
-      }
-    });
   }
 
   @override
@@ -112,9 +80,9 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
     _draggingValue = null;
     _hoverValue = null;
     _hoverPosition = null;
-    _throttleTimer?.cancel();
-    EasyThrottle.cancel(videoProgressThrottleKey);
-    EasyThrottle.cancel(longPressMoveThrottleKey);
+    _dragStartX = null;
+    _dragStartValue = null;
+    _trackWidth = null;
     super.dispose();
   }
 
@@ -125,98 +93,285 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
 
     // 动态更新Paint对象的颜色
     _activePaint.color = primaryColor;
+    _thumbPaint.color = primaryColor;
+
     return RepaintBoundary(
-      child: Stack(
-        alignment: Alignment.centerLeft,
-        children: [
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              trackHeight: 4.0,
-              // 使用自定义的圆形滑块
-              thumbShape: const RoundSliderThumbShape(
-                enabledThumbRadius: 6.0,
-                pressedElevation: 4.0,
-              ),
-              // 设置滑块的覆盖效果
-              overlayShape: const RoundSliderOverlayShape(overlayRadius: 16.0),
-              // 使用自定义的轨道形状，并传入缓冲区段列表
-              trackShape: CustomSliderTrackShape(
-                hoverValue: _hoverValue,
-                currentValue: _currentValue,
-                bufferRanges: _getOptimizedBufferRanges(),
-                maxValue: _maxValueStored > 0 ? _maxValueStored : 1.0,
-                activePaint: _activePaint,
-                inactivePaint: _inactivePaint,
-                bufferedPaint: _bufferedPaint,
-                hoverPaint: _hoverPaint,
-              ),
-              activeTrackColor: primaryColor,
-              inactiveTrackColor: Colors.white.withValues(alpha: 0.3),
-              thumbColor: primaryColor,
-              overlayColor: Colors.white.withValues(alpha: 0.3),
-              valueIndicatorColor: primaryColor,
-              valueIndicatorTextStyle: const TextStyle(color: Colors.black),
-              valueIndicatorShape: const PaddleSliderValueIndicatorShape(),
-              showValueIndicator: ShowValueIndicator.onDrag,
-            ),
-            child: Slider(
-              key: _sliderKey,
-              value: _currentValue.clamp(
-                0.0,
-                _maxValueStored > 0 ? _maxValueStored : 1.0,
-              ),
-              min: 0.0,
-              max: _maxValueStored > 0 ? _maxValueStored : 1.0,
-              focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
-              autofocus: false,
-              label: CommonUtils.formatDuration(
-                Duration(seconds: _currentValue.toInt()),
-              ),
-              onChangeStart: (value) {
-                setState(() {
-                  _draggingValue = value;
-                  _dragging = true;
-                });
-                widget.controller.setInteracting(true);
-                widget.controller.showSeekPreview(true);
-                widget.controller.updateSeekPreview(
-                  Duration(seconds: value.toInt()),
-                );
-              },
-              onChanged: (value) {
-                EasyThrottle.throttle(
-                  'progress_change',
-                  const Duration(milliseconds: 16),
-                  () {
-                    setState(() {
-                      _draggingValue = value;
-                    });
-                    widget.controller.updateSeekPreview(
-                      Duration(seconds: value.toInt()),
-                    );
+      child: Obx(() {
+        // 在 Obx 内部访问响应式值，确保能够监听到变化
+        final toShowCurrentPosition =
+            widget.controller.toShowCurrentPosition.value;
+        final totalDuration = widget.controller.totalDuration.value;
+        final isHorizontalDragging = widget.controller.isHorizontalDragging.value;
+        final previewPosition = widget.controller.previewPosition.value;
+
+        // 计算当前值：
+        // 1. 如果正在拖拽进度条，使用拖拽值
+        // 2. 如果正在横向拖拽，使用预览位置
+        // 3. 否则使用实时值
+        final currentValue = _dragging
+            ? (_draggingValue ?? toShowCurrentPosition.inSeconds.toDouble())
+            : (isHorizontalDragging
+                ? previewPosition.inSeconds.toDouble()
+                : toShowCurrentPosition.inSeconds.toDouble());
+        final maxValue = totalDuration.inSeconds > 0
+            ? totalDuration.inSeconds.toDouble()
+            : 1.0;
+
+        // 使用 LayoutBuilder 获取组件宽度，用于计算滑块的像素位置
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final double maxWidth = constraints.maxWidth;
+
+            // 决定 Tooltip 显示的数据和位置
+            double? tooltipX;
+            double? tooltipTime;
+
+            if (_dragging) {
+              // 场景 A：拖拽中 -> 强制显示在滑块上方
+              // 将当前时间转换为像素位置
+              final double ratio = (currentValue / maxValue).clamp(0.0, 1.0);
+              tooltipX = ratio * maxWidth;
+              tooltipTime = currentValue;
+            } else if (isHorizontalDragging) {
+              // 场景 C：横向拖动播放器 -> 显示在 cursor 位置
+              // 将预览位置转换为像素位置
+              final double ratio = (currentValue / maxValue).clamp(0.0, 1.0);
+              tooltipX = ratio * maxWidth;
+              tooltipTime = currentValue;
+            } else if (_hoverValue != null && _hoverPosition != null) {
+              // 场景 B：仅悬停 -> 显示在鼠标位置
+              tooltipX = _hoverPosition;
+              tooltipTime = _hoverValue;
+            }
+
+            return Stack(
+              alignment: Alignment.centerLeft,
+              clipBehavior: Clip.none, // 允许子组件溢出 Stack 边界，防止 Tooltip 被裁切
+              children: [
+                GestureDetector(
+                  key: _progressBarKey,
+                  behavior: HitTestBehavior.opaque,
+                  onTapDown: (details) {
+                    // 记录点击位置，用于可能的单击跳转
+                    _handleTapDown(details, maxValue);
                   },
-                );
-              },
-              onChangeEnd: (value) async {
-                setState(() {
-                  _dragging = false;
-                });
-                if (isMobile) {
-                  await HapticFeedback.lightImpact();
-                }
-                widget.controller.sliderDragLoadFinished.value = false;
-                widget.controller.handleSeek(Duration(seconds: value.toInt()));
-                widget.controller.setInteracting(false);
-                widget.controller.showSeekPreview(false);
-              },
-            ),
-          ),
-          // 显示悬停或长按标签
-          if (_hoverValue != null && _hoverPosition != null)
-            _buildHoverPreview(),
-        ],
-      ),
+                  onTap: () {
+                    // 处理纯单击（没有拖拽）
+                    if (_dragStartValue != null && !_dragging) {
+                      widget.controller.handleSeek(
+                        Duration(seconds: _dragStartValue!.toInt()),
+                      );
+                      _dragStartX = null;
+                      _dragStartValue = null;
+                    }
+                  },
+                  onPanStart: (details) {
+                    // 拖拽开始
+                    _handlePanStart(details, currentValue, maxValue);
+                  },
+                  onPanUpdate: (details) {
+                    // 拖拽更新
+                    _handlePanUpdate(details, maxValue);
+                  },
+                  onPanEnd: (details) async {
+                    // 拖拽结束
+                    await _handlePanEnd();
+                  },
+                  onPanCancel: () async {
+                    // 拖拽取消
+                    await _handlePanEnd();
+                  },
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click, // 鼠标悬浮时显示手型指针
+                    onHover: (event) {
+                      // 鼠标悬停处理
+                      _handleMouseHover(event, maxValue);
+                    },
+                    onExit: (_) {
+                      // 鼠标离开
+                      setState(() {
+                        _hoverValue = null;
+                        _hoverPosition = null;
+                      });
+                    },
+                    child: Container(
+                      height: _thumbOverlayRadius * 2,
+                      width: maxWidth,
+                      alignment: Alignment.center,
+                      child: CustomPaint(
+                        size: Size(maxWidth, _thumbOverlayRadius * 2),
+                        painter: _ProgressBarPainter(
+                          hoverValue: _hoverValue,
+                          currentValue: currentValue,
+                          bufferRanges: _getOptimizedBufferRanges(),
+                          maxValue: maxValue,
+                          activePaint: _activePaint,
+                          inactivePaint: _inactivePaint,
+                          bufferedPaint: _bufferedPaint,
+                          hoverPaint: _hoverPaint,
+                          thumbPaint: _thumbPaint,
+                          trackHeight: _trackHeight,
+                          thumbRadius: _thumbRadius,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                // 统一显示 Tooltip (无论是拖拽还是悬停)
+                if (tooltipX != null && tooltipTime != null)
+                  _buildTooltip(tooltipX, tooltipTime),
+              ],
+            );
+          },
+        );
+      }),
     );
+  }
+
+  // 处理单击（记录点击位置）
+  void _handleTapDown(TapDownDetails details, double maxValue) {
+    // 只记录点击位置，不立即跳转
+    // 如果后续没有拖拽，则在 onPanEnd 中处理为单击
+    final RenderBox? renderBox =
+        _progressBarKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+
+    final double width = renderBox.size.width;
+    final double localX = details.localPosition.dx;
+    final double ratio = (localX / width).clamp(0.0, 1.0);
+    final double targetValue = ratio * maxValue;
+
+    // 保存点击位置，用于后续判断是否为单击
+    _dragStartX = localX;
+    _dragStartValue = targetValue;
+  }
+
+  // 处理拖拽开始
+  void _handlePanStart(DragStartDetails details, double currentValue, double maxValue) {
+    final RenderBox? renderBox =
+        _progressBarKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+
+    // 拖拽时，从当前播放位置开始，而不是点击位置
+    // 记录拖拽起始的 X 坐标（用于计算移动距离）
+    final double startX = details.localPosition.dx;
+    // 拖拽起始时的进度值应该是当前播放位置
+    final double startValue = currentValue;
+
+    setState(() {
+      _dragStartX = startX;
+      _dragStartValue = startValue;
+      _trackWidth = renderBox.size.width;
+      _dragging = true;
+      _draggingValue = startValue;
+      _hasMoved = false;
+    });
+
+    widget.controller.setInteracting(true);
+    widget.controller.showSeekPreview(true);
+    widget.controller.updateSeekPreview(
+      Duration(seconds: startValue.toInt()),
+    );
+  }
+
+  // 处理拖拽更新
+  void _handlePanUpdate(DragUpdateDetails details, double maxValue) {
+    if (_dragStartX == null || _dragStartValue == null || _trackWidth == null) {
+      return;
+    }
+
+    // 计算移动距离
+    final double deltaX = details.localPosition.dx - _dragStartX!;
+    
+    // 如果移动距离超过阈值（3 像素），标记为已移动
+    if (deltaX.abs() > 3.0) {
+      _hasMoved = true;
+    }
+
+    // 计算进度调整比例（1:1 效果）
+    final double deltaRatio = deltaX / _trackWidth!;
+    // 计算新进度值
+    double newValue = _dragStartValue! + (deltaRatio * maxValue);
+    // 限制在范围内
+    newValue = newValue.clamp(0.0, maxValue);
+
+    setState(() {
+      _draggingValue = newValue;
+    });
+
+    widget.controller.updateSeekPreview(
+      Duration(seconds: newValue.toInt()),
+    );
+  }
+
+  // 处理拖拽结束
+  Future<void> _handlePanEnd() async {
+    // 如果没有移动，视为单击，直接跳转到点击位置
+    if (!_hasMoved && _dragStartValue != null) {
+      widget.controller.handleSeek(
+        Duration(seconds: _dragStartValue!.toInt()),
+      );
+      setState(() {
+        _dragging = false;
+        _hasMoved = false;
+      });
+      widget.controller.setInteracting(false);
+      widget.controller.showSeekPreview(false);
+      _dragStartX = null;
+      _dragStartValue = null;
+      _trackWidth = null;
+      return;
+    }
+
+    if (!_dragging || _draggingValue == null) {
+      // 清理状态
+      setState(() {
+        _dragging = false;
+        _hasMoved = false;
+      });
+      _dragStartX = null;
+      _dragStartValue = null;
+      _trackWidth = null;
+      return;
+    }
+
+    setState(() {
+      _dragging = false;
+      _hasMoved = false;
+    });
+
+    if (isMobile) {
+      await HapticFeedback.lightImpact();
+    }
+
+    widget.controller.sliderDragLoadFinished.value = false;
+    widget.controller.handleSeek(
+      Duration(seconds: _draggingValue!.toInt()),
+    );
+    widget.controller.setInteracting(false);
+    widget.controller.showSeekPreview(false);
+
+    // 清理拖拽状态
+    _dragStartX = null;
+    _dragStartValue = null;
+    _trackWidth = null;
+  }
+
+  // 处理鼠标悬停
+  void _handleMouseHover(PointerEvent event, double maxValue) {
+    final RenderBox? renderBox =
+        _progressBarKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+
+    final double width = renderBox.size.width;
+    final double localX = event.localPosition.dx;
+    final double ratio = (localX / width).clamp(0.0, 1.0);
+    final double hoverValue = ratio * maxValue;
+
+    setState(() {
+      _hoverValue = hoverValue;
+      _hoverPosition = localX;
+    });
   }
 
   // 优化缓冲区列表，避免频繁更新
@@ -246,26 +401,155 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
     return true;
   }
 
-  Widget _buildHoverPreview() {
-    return Positioned(
-      left: _hoverPosition! - 30,
-      bottom: 40,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.7),
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: Text(
-          CommonUtils.formatDuration(Duration(seconds: _hoverValue!.toInt())),
-          style: const TextStyle(color: Colors.white, fontSize: 12),
-        ),
-      ),
+  // 通用的 Tooltip 构建方法
+  Widget _buildTooltip(double xPosition, double timeValue) {
+    // 基础高度：Thumb半径 + 间距
+    const double baseBottom = _thumbOverlayRadius + 10;
+    // 当 toolbar 完全收缩时增加的额外高度
+    const double extraOffset = 70.0;
+    
+    return AnimatedBuilder(
+      animation: widget.controller.animationController,
+      builder: (context, child) {
+        // 获取 toolbar 的动画值：1.0 表示展开，0.0 表示收缩
+        final double toolbarValue = widget.controller.animationController.value;
+        // 计算动态的 bottom 值：当 toolbar 收缩时（value = 0），增加额外高度
+        final double dynamicBottom = baseBottom + (1.0 - toolbarValue) * extraOffset;
+        
+        return Positioned(
+          left: xPosition,
+          // 距离底部的位置：根据 toolbar 状态动态调整，避免被遮挡
+          bottom: dynamicBottom,
+          child: FractionalTranslation(
+            // 向左偏移 50% 以实现水平居中
+            translation: const Offset(-0.5, 0),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.8),
+                borderRadius: BorderRadius.circular(4),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Text(
+                CommonUtils.formatDuration(Duration(seconds: timeValue.toInt())),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.none, // 消除可能的下划线
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
 
+/// 自定义进度条绘制器
+class _ProgressBarPainter extends CustomPainter {
+  final double? hoverValue;
+  final double currentValue;
+  final List<BufferRange> bufferRanges;
+  final double maxValue;
+  final Paint activePaint;
+  final Paint inactivePaint;
+  final Paint bufferedPaint;
+  final Paint hoverPaint;
+  final Paint thumbPaint;
+  final double trackHeight;
+  final double thumbRadius;
+
+  _ProgressBarPainter({
+    this.hoverValue,
+    required this.currentValue,
+    required this.bufferRanges,
+    required this.maxValue,
+    required this.activePaint,
+    required this.inactivePaint,
+    required this.bufferedPaint,
+    required this.hoverPaint,
+    required this.thumbPaint,
+    required this.trackHeight,
+    required this.thumbRadius,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // 计算轨道矩形
+    final double trackTop = (size.height - trackHeight) / 2;
+    final Rect trackRect = Rect.fromLTWH(0, trackTop, size.width, trackHeight);
+
+    // 计算当前播放位置的比例
+    double currentRatio = (currentValue / maxValue).clamp(0.0, 1.0);
+    double currentX = trackRect.left + currentRatio * trackRect.width;
+
+    // 绘制未播放部分
+    canvas.drawRect(
+      Rect.fromLTRB(currentX, trackRect.top, trackRect.right, trackRect.bottom),
+      inactivePaint,
+    );
+
+    // 绘制已播放部分
+    canvas.drawRect(
+      Rect.fromLTRB(trackRect.left, trackRect.top, currentX, trackRect.bottom),
+      activePaint,
+    );
+
+    // 绘制缓冲区段
+    for (BufferRange range in bufferRanges) {
+      double startRatio = (range.start.inSeconds / maxValue).clamp(0.0, 1.0);
+      double endRatio = (range.end.inSeconds / maxValue).clamp(0.0, 1.0);
+      double startX = trackRect.left + startRatio * trackRect.width;
+      double endX = trackRect.left + endRatio * trackRect.width;
+
+      // 确保缓冲区段在已播放部分之后
+      if (endX <= currentX) continue;
+
+      // 缓冲区段的起始点不能小于当前播放位置
+      if (startX < currentX) {
+        startX = currentX;
+      }
+
+      // 绘制缓冲区段
+      canvas.drawRect(
+        Rect.fromLTRB(startX, trackRect.top, endX, trackRect.bottom),
+        bufferedPaint,
+      );
+    }
+
+    // 绘制 cursor（圆形滑块）
+    // 确保 cursor 的 X 坐标在可绘制区域内，避免在两端被裁剪
+    final double thumbCenterY = size.height / 2;
+    final double thumbX = currentX.clamp(thumbRadius, size.width - thumbRadius);
+    canvas.drawCircle(
+      Offset(thumbX, thumbCenterY),
+      thumbRadius,
+      thumbPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_ProgressBarPainter oldDelegate) {
+    return oldDelegate.hoverValue != hoverValue ||
+        oldDelegate.currentValue != currentValue ||
+        oldDelegate.bufferRanges.length != bufferRanges.length ||
+        oldDelegate.maxValue != maxValue ||
+        oldDelegate.activePaint.color != activePaint.color ||
+        oldDelegate.thumbPaint.color != thumbPaint.color;
+  }
+}
+
 /// 自定义的滑动条轨道形状，用于实现鼠标悬停效果和显示多个缓冲区段
+/// 注意：此类已不再使用，保留仅用于参考
+@Deprecated('已替换为 _ProgressBarPainter')
 class CustomSliderTrackShape extends SliderTrackShape {
   final double? hoverValue;
   final double currentValue;

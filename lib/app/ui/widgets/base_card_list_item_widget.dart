@@ -167,15 +167,27 @@ class _Title extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 统一控制两行标题的真实行高，避免缩放卡片时文字被裁剪
+    final double baseFontSize = textTheme.bodyLarge!.fontSize!;
+    final double fontSize = baseFontSize * 0.95;
+    const int maxLines = 2;
+    const double lineHeight = 1.25;
+    final double textHeight = fontSize * lineHeight * maxLines;
+
     return SizedBox(
-      height: textTheme.bodyLarge!.fontSize! * 2.5,
+      height: textHeight,
       child: Text(
         title,
-        maxLines: 2,
+        maxLines: maxLines,
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
-          fontSize: textTheme.bodyLarge!.fontSize! * 0.95,
+          fontSize: fontSize,
+          height: lineHeight,
           fontWeight: FontWeight.bold,
+        ),
+        strutStyle: const StrutStyle(
+          height: lineHeight,
+          forceStrutHeight: true,
         ),
       ),
     );

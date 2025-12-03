@@ -290,8 +290,9 @@ class MarkdownFormatter {
 
   /// 将文本中的 @ 用户名格式化为 Markdown 链接
   String formatMentions(String data) {
+    // 额外排除 `[`，避免在 Markdown 链接标题中重复包裹用户名
     final mentionPattern =
-        RegExp(r'(?<![\/\w])@([\w\u4e00-\u9fa5]+)'); // 确保 @ 前不是 / 或字母数字字符
+        RegExp(r'(?<![\/\w\[])@([\w\u4e00-\u9fa5]+)');
     return data.replaceAllMapped(mentionPattern, (match) {
       final mention = match.group(0);
       final username = match.group(1);

@@ -34,6 +34,9 @@ import '../../../../models/video_source.model.dart';
 import '../../../../models/video.model.dart' as video_model;
 import '../../../../services/api_service.dart';
 import '../../../../services/config_service.dart';
+import '../../../../services/favorite_service.dart';
+import '../../../../services/play_list_service.dart';
+import '../../../../services/user_service.dart';
 import '../widgets/player/custom_slider_bar_shape_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import '../widgets/private_or_deleted_video_widget.dart';
@@ -78,6 +81,10 @@ class MyVideoStateController extends GetxController
   // 视频详情页信息
   RxBool isCommentSheetVisible = false.obs; // 评论面板是否可见
   OtherAuthorzMediasController? otherAuthorzVideosController; // 作者的其他视频控制器
+
+  // 收藏和播放列表状态
+  final RxBool isInAnyFavorite = false.obs; // 视频是否在任何收藏夹中
+  final RxBool isInAnyPlaylist = false.obs; // 视频是否在任何播放列表中
 
   // 状态
   // 播放器状态
@@ -147,6 +154,9 @@ class MyVideoStateController extends GetxController
   // 添加一个新的变量来跟踪是否正在等待seek完成
   final RxBool isWaitingForSeek = false.obs;
 
+  // 添加一个标志位，表示是否正在横向拖拽
+  final RxBool isHorizontalDragging = false.obs;
+
   // 添加一个标志位，表示是否正在通过手势调节音量
   bool _isAdjustingVolumeByGesture = false;
   // 添加音量监听器的取消函数
@@ -186,6 +196,8 @@ class MyVideoStateController extends GetxController
   final CancelToken _cancelToken = CancelToken();
   // 添加 disposed 标志位
   bool _isDisposed = false;
+  // 添加随机ID用于节流key，避免与其他视频实例冲突
+  late final String randomId;
 
   // 添加倍速播放防抖定时器
   Timer? _speedChangeDebouncer;
@@ -219,6 +231,8 @@ class MyVideoStateController extends GetxController
   void onInit() async {
     super.onInit();
     _isDisposed = false; // 初始化时确保标志位为 false
+    // 生成随机ID用于节流key
+    randomId = '${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(1000000)}';
     LogUtils.i(
       '初始化 MyVideoStateController，videoId: $videoId',
       'MyVideoStateController',
@@ -805,6 +819,9 @@ class MyVideoStateController extends GetxController
       // 4. 异步请求最新视频信息（不阻塞UI渲染）
       parallelTasks.add(_refreshVideoLikeInfo(videoId, cachedVideoInfo));
 
+      // 5. 检查收藏和播放列表状态（不阻塞UI渲染）
+      parallelTasks.add(checkFavoriteAndPlaylistStatus());
+
       // 继续获取视频源 - 仅对站内视频
       if (cachedVideoInfo.fileUrl != null &&
           !cachedVideoInfo.isExternalVideo) {
@@ -904,6 +921,9 @@ class MyVideoStateController extends GetxController
         if (parallelTasks.isNotEmpty) {
           await Future.wait(parallelTasks);
         }
+
+        // 检查收藏和播放列表状态
+        checkFavoriteAndPlaylistStatus();
       } on DioException catch (e) {
         if (_isDisposed || e.type == DioExceptionType.cancel) {
           LogUtils.w('请求被取消或Controller已销毁', 'MyVideoStateController');
@@ -1129,14 +1149,15 @@ class MyVideoStateController extends GetxController
       resolutionTag,
     );
     if (url == null || url.isEmpty) {
-      Get.snackbar(
-        '',
-        slang.t.videoDetail.noVideoSourceFound,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        duration: const Duration(seconds: 3),
-        snackPosition: SnackPosition.top,
-      );
+      if (Get.context != null) {
+        ScaffoldMessenger.of(Get.context!).showSnackBar(
+          SnackBar(
+            content: Text(slang.t.videoDetail.noVideoSourceFound),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
       return;
     }
 
@@ -1334,23 +1355,23 @@ class MyVideoStateController extends GetxController
           event.startsWith('Can not open external file https://') ||
           event.startsWith('tcp: ffurl_read returned ')) {
         EasyThrottle.throttle(
-          'player.stream.error.retry',
+          '${randomId}_player.stream.error.retry',
           const Duration(milliseconds: 10000),
-          () {
-            Future.delayed(const Duration(milliseconds: 3000), () async {
-              if (videoBuffering.value && buffers.isEmpty) {
-                Get.snackbar(
-                  '',
-                  slang.t.mediaPlayer.retryingOpenVideoLink,
-                  duration: const Duration(seconds: 3),
-                  snackPosition: SnackPosition.bottom,
+          () async {
+            if (videoBuffering.value && buffers.isEmpty) {
+              if (Get.context != null) {
+                ScaffoldMessenger.of(Get.context!).showSnackBar(
+                  SnackBar(
+                    content: Text(slang.t.mediaPlayer.retryingOpenVideoLink),
+                    duration: const Duration(seconds: 3),
+                  ),
                 );
-                final bool ok = await refreshPlayer();
-                if (!ok) {
-                  LogUtils.w('重试刷新播放器失败', 'MyVideoStateController');
-                }
               }
-            });
+              final bool ok = await refreshPlayer();
+              if (!ok) {
+                LogUtils.w('重试刷新播放器失败', 'MyVideoStateController');
+              }
+            }
           },
         );
         return;
@@ -1358,12 +1379,14 @@ class MyVideoStateController extends GetxController
 
       // 解码器错误提示
       if (event.startsWith('Could not open codec')) {
-        Get.snackbar(
-          '',
-          slang.t.mediaPlayer.decoderOpenFailedWithSuggestion(event: event),
-          duration: const Duration(seconds: 5),
-          snackPosition: SnackPosition.bottom,
-        );
+        if (Get.context != null) {
+          ScaffoldMessenger.of(Get.context!).showSnackBar(
+            SnackBar(
+              content: Text(slang.t.mediaPlayer.decoderOpenFailedWithSuggestion(event: event)),
+              duration: const Duration(seconds: 5),
+            ),
+          );
+        }
         return;
       }
 
@@ -1375,12 +1398,14 @@ class MyVideoStateController extends GetxController
       }
 
       // 其他错误，给出提示与日志
-      Get.snackbar(
-        '',
-        slang.t.mediaPlayer.videoLoadErrorWithDetail(event: event),
-        duration: const Duration(seconds: 5),
-        snackPosition: SnackPosition.bottom,
-      );
+      if (Get.context != null) {
+        ScaffoldMessenger.of(Get.context!).showSnackBar(
+          SnackBar(
+            content: Text(slang.t.mediaPlayer.videoLoadErrorWithDetail(event: event)),
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
       LogUtils.e('视频加载错误: $event', tag: 'MyVideoStateController');
     });
   }
@@ -1527,6 +1552,7 @@ class MyVideoStateController extends GetxController
   void setInteracting(bool value) {
     _isInteracting.value = value;
     if (!value) {
+      resetDisplayPosition();
       // 交互结束时重置定时器
       _resetAutoHideTimer();
     } else {
@@ -1713,11 +1739,25 @@ class MyVideoStateController extends GetxController
   /// 显示/隐藏进度预
   void showSeekPreview(bool show) {
     isSeekPreviewVisible.value = show;
+    if (!show && !_isInteracting.value) {
+      resetDisplayPosition();
+    }
   }
 
   /// 更新预览位置
   void updateSeekPreview(Duration position) {
     previewPosition.value = position;
+    if (isSeekPreviewVisible.value) {
+      _syncDisplayPosition(position);
+    }
+  }
+
+  void resetDisplayPosition() {
+    _syncDisplayPosition(currentPosition);
+  }
+
+  void _syncDisplayPosition(Duration position) {
+    toShowCurrentPosition.value = position;
   }
 
   void handleSeek(Duration newPosition) async {
@@ -1736,16 +1776,18 @@ class MyVideoStateController extends GetxController
       buffers.value = updatedBuffers;
     }
 
-    // 先更新UI位置
+    // 先更新UI位置，立即同步到显示位置，避免进度条跳回
     currentPosition = newPosition;
+    _syncDisplayPosition(newPosition);
     player.play();
     videoPlaying.value = true;
 
     // 执行实际的seek操作
     await player.seek(newPosition);
 
-    // seek完成后标记状态
+    // seek完成后标记状态，并清除横向拖拽状态
     isWaitingForSeek.value = false;
+    isHorizontalDragging.value = false;
   }
 
   // 添加关闭提示的方法:
@@ -1884,8 +1926,8 @@ class MyVideoStateController extends GetxController
 
       if (!videoPlayerReady.value) return;
 
-      // 只有在不是等待seek完成的状态下才更新位置
-      if (!isWaitingForSeek.value) {
+      // 只有在不是等待seek完成且不在横向拖拽的状态下才更新位置
+      if (!isWaitingForSeek.value && !isHorizontalDragging.value) {
         // 根据当前状态选择节流间隔
         final throttleInterval = isLongPressing.value
             ? _longPressPositionUpdateInterval
@@ -1964,8 +2006,12 @@ class MyVideoStateController extends GetxController
         return;
       }
 
-      if (videoPlayerReady.value && !isWaitingForSeek.value) {
-        toShowCurrentPosition.value = currentPosition;
+      if (videoPlayerReady.value &&
+          !isWaitingForSeek.value &&
+          !_isInteracting.value &&
+          !isSeekPreviewVisible.value &&
+          !isHorizontalDragging.value) {
+        _syncDisplayPosition(currentPosition);
       }
 
       // 动态调整更新频率
@@ -2061,12 +2107,14 @@ class MyVideoStateController extends GetxController
   void showDlnaCastDialog() {
     // 检查平台支持
     if (GetPlatform.isWeb || GetPlatform.isLinux) {
-      Get.snackbar(
-        '',
-        slang.t.videoDetail.cast.currentPlatformNotSupported,
-        duration: const Duration(seconds: 5),
-        snackPosition: SnackPosition.bottom,
-      );
+      if (Get.context != null) {
+        ScaffoldMessenger.of(Get.context!).showSnackBar(
+          SnackBar(
+            content: Text(slang.t.videoDetail.cast.currentPlatformNotSupported),
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
       return;
     }
 
@@ -2075,12 +2123,14 @@ class MyVideoStateController extends GetxController
 
     final videoUrl = getCurrentVideoUrl();
     if (videoUrl == null || videoUrl.isEmpty) {
-      Get.snackbar(
-        '',
-        slang.t.videoDetail.cast.unableToGetVideoUrl,
-        duration: const Duration(seconds: 5),
-        snackPosition: SnackPosition.bottom,
-      );
+      if (Get.context != null) {
+        ScaffoldMessenger.of(Get.context!).showSnackBar(
+          SnackBar(
+            content: Text(slang.t.videoDetail.cast.unableToGetVideoUrl),
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
       return;
     }
 
@@ -2104,6 +2154,72 @@ class MyVideoStateController extends GetxController
       'liked': liked,
       'numLikes': numLikes,
     });
+  }
+
+  /// 更新缓存中的作者信息（关注/取关后调用）
+  void _updateCachedVideoAuthor(User updatedUser) {
+    if (videoId == null) return;
+    _cacheManager.updateVideoAuthor(videoId!, updatedUser);
+  }
+
+  /// 关注状态变化后的统一处理
+  void handleAuthorUpdated(User updatedUser) {
+    final currentVideo = videoInfo.value;
+    if (currentVideo != null) {
+      videoInfo.value = currentVideo.copyWith(user: updatedUser);
+    }
+    _updateCachedVideoAuthor(updatedUser);
+  }
+
+  /// 检查视频的收藏和播放列表状态
+  Future<void> checkFavoriteAndPlaylistStatus() async {
+    if (_isDisposed || videoId == null) return;
+
+    try {
+      final userService = Get.find<UserService>();
+      // 只在用户已登录时检查状态
+      if (!userService.isLogin) {
+        isInAnyFavorite.value = false;
+        isInAnyPlaylist.value = false;
+        return;
+      }
+
+      // 并行检查收藏和播放列表状态
+      final favoriteService = Get.find<FavoriteService>();
+      final playListService = Get.find<PlayListService>();
+
+      final favoriteFolders = await favoriteService.getItemFolders(videoId!);
+      final playlistsResult = await playListService.getLightPlaylists(videoId: videoId!);
+
+      if (_isDisposed) return;
+
+      // 检查收藏状态
+      isInAnyFavorite.value = favoriteFolders.isNotEmpty;
+
+      // 检查播放列表状态
+      if (playlistsResult.isSuccess && playlistsResult.data != null) {
+        final playlists = playlistsResult.data!;
+        // 检查是否有任何播放列表的 added 字段为 true
+        isInAnyPlaylist.value = playlists.any((playlist) => playlist.added == true);
+      } else {
+        isInAnyPlaylist.value = false;
+      }
+
+      LogUtils.d(
+        '检查收藏和播放列表状态完成: isInAnyFavorite=${isInAnyFavorite.value}, isInAnyPlaylist=${isInAnyPlaylist.value}',
+        'MyVideoStateController',
+      );
+    } catch (e) {
+      if (!_isDisposed) {
+        LogUtils.w(
+          '检查收藏和播放列表状态失败: $e',
+          'MyVideoStateController',
+        );
+        // 出错时重置状态
+        isInAnyFavorite.value = false;
+        isInAnyPlaylist.value = false;
+      }
+    }
   }
 
   /// 异步刷新视频的点赞信息（缓存命中时的专用方法）

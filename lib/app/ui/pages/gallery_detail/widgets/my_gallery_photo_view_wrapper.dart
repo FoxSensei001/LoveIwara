@@ -42,6 +42,17 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
   late int currentIndex = widget.initialIndex;
   late PageController pageController;
   late List<PhotoViewController> controllers;
+  // 记录当前屏幕宽度和左右点击区域宽度，用于轻量级指针监听
+  double _screenWidth = 0;
+  double _tapAreaWidth = 0;
+
+  // 记录一次点击的按下位置和时间，用于区分点击与滑动
+  Offset? _pointerDownPosition;
+  DateTime? _pointerDownTime;
+
+  // 是否显示左右导航 UI，仅在长按时显示
+  bool _showNavigationOverlay = false;
+
   final AppService appService = Get.find();
   OverlayEntry? _overlayEntry;
   late GalleryControls _galleryControls;
@@ -187,6 +198,37 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
     _overlayEntry = null;
   }
 
+  /// 轻量级指针监听：只在「短按且位移很小」时，判断是否在左右边缘区域触发翻页
+  void _onPointerDown(PointerDownEvent event) {
+    _pointerDownPosition = event.position;
+    _pointerDownTime = DateTime.now();
+  }
+
+  void _onPointerUp(PointerUpEvent event) {
+    if (_pointerDownPosition == null || _pointerDownTime == null) return;
+
+    final duration = DateTime.now().difference(_pointerDownTime!);
+    final delta = event.position - _pointerDownPosition!;
+
+    // 判定为「轻点」：时间短、移动距离小，避免与滑动/缩放手势冲突
+    if (duration.inMilliseconds > 250) return;
+    if (delta.distance > 20) return;
+
+    final dx = event.position.dx;
+
+    // 左侧点击区域：上一张
+    if (dx <= _tapAreaWidth && currentIndex > 0) {
+      goToPreviousPage();
+      return;
+    }
+
+    // 右侧点击区域：下一张
+    if (dx >= _screenWidth - _tapAreaWidth &&
+        currentIndex < widget.galleryItems.length - 1) {
+      goToNextPage();
+    }
+  }
+
   void _showImageMenu(BuildContext context, ImageItem item, Offset position) {
     _hideMenu();
     // 计算菜单显示位置
@@ -241,11 +283,10 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
   @override
   Widget build(BuildContext context) {
     // 获取屏幕宽度
-    final screenWidth = MediaQuery.of(context).size.width;
+    _screenWidth = MediaQuery.of(context).size.width;
     // 计算点击区域宽度，宽屏和窄屏使用不同的比例
-    final tapAreaWidth = screenWidth > 600
-        ? screenWidth * 0.2
-        : screenWidth * 0.25;
+    _tapAreaWidth =
+        _screenWidth > 600 ? _screenWidth * 0.2 : _screenWidth * 0.25;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -254,13 +295,23 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
         onKeyEvent: _handleKeyPress,
         child: Listener(
           onPointerSignal: _galleryControls.handlePointerSignal,
+          onPointerDown: _onPointerDown,
+          onPointerUp: _onPointerUp,
           child: GestureDetector(
             onLongPressStart: (details) {
+              setState(() {
+                _showNavigationOverlay = true;
+              });
               _showImageMenu(
                 context,
                 widget.galleryItems[currentIndex],
                 details.globalPosition,
               );
+            },
+            onLongPressEnd: (details) {
+              setState(() {
+                _showNavigationOverlay = false;
+              });
             },
             onSecondaryTapDown: (details) {
               _showImageMenu(
@@ -327,9 +378,9 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                 ),
                 // 导航控制组件
                 NavigationControls(
-                  tapAreaWidth: tapAreaWidth,
-                  onPrevious: goToPreviousPage,
-                  onNext: goToNextPage,
+                  tapAreaWidth: _tapAreaWidth,
+                  showOverlay: _showNavigationOverlay,
+                  // 这里只负责「显示」左右渐变与箭头，真正的点击逻辑在 _onPointerDown/_onPointerUp 中处理
                   canGoPrevious: currentIndex > 0,
                   canGoNext: currentIndex < widget.galleryItems.length - 1,
                 ),

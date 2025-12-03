@@ -695,6 +695,7 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get longPressFastForward => '长按快进';
 	@override String get enableMouseHoverShowToolbar => '鼠标悬浮时显示工具栏';
 	@override String get enableMouseHoverShowToolbarInfo => '开启后，当鼠标悬浮在播放器上移动时会自动显示工具栏，停止移动3秒后自动隐藏';
+	@override String get enableHorizontalDragSeek => '横向滑动调整进度';
 	@override String get audioVideoConfig => '音视频配置';
 	@override String get expandBuffer => '扩大缓冲区';
 	@override String get expandBufferInfo => '开启后缓冲区增大，加载时间变长但播放更流畅';
@@ -1114,6 +1115,9 @@ class _TranslationsDownloadZhCn implements TranslationsDownloadEn {
 	@override String downloadCompletedWithName({required Object fileName}) => '下载完成: ${fileName}';
 	@override String get stillInDevelopment => '开发中';
 	@override String get saveToAppDirectory => '保存到应用目录';
+	@override String get alreadyDownloadedWithQuality => '已有相同清晰度的任务，是否继续下载？';
+	@override String alreadyDownloadedWithQualities({required Object qualities}) => '已有清晰度为${qualities}的任务，是否继续下载？';
+	@override String get otherQualities => '其他清晰度';
 }
 
 // Path: favorite
@@ -3027,6 +3031,7 @@ extension on TranslationsZhCn {
 			'settings.longPressFastForward' => '长按快进',
 			'settings.enableMouseHoverShowToolbar' => '鼠标悬浮时显示工具栏',
 			'settings.enableMouseHoverShowToolbarInfo' => '开启后，当鼠标悬浮在播放器上移动时会自动显示工具栏，停止移动3秒后自动隐藏',
+			'settings.enableHorizontalDragSeek' => '横向滑动调整进度',
 			'settings.audioVideoConfig' => '音视频配置',
 			'settings.expandBuffer' => '扩大缓冲区',
 			'settings.expandBufferInfo' => '开启后缓冲区增大，加载时间变长但播放更流畅',
@@ -3509,13 +3514,13 @@ extension on TranslationsZhCn {
 			'notifications.kApprovedGallery' => '图库审核通过',
 			'notifications.kApprovedThread' => '帖子审核通过',
 			'notifications.kApprovedPost' => '投稿审核通过',
-			'notifications.kApprovedForumPost' => '论坛发言审核通过',
 			_ => null,
 		};
 	}
 
 	dynamic _flatMapFunction$2(String path) {
 		return switch (path) {
+			'notifications.kApprovedForumPost' => '论坛发言审核通过',
 			'notifications.kRejectedContent' => '内容审核被拒绝',
 			'notifications.kUnknownType' => '未知通知类型',
 			'conversation.errors.pleaseSelectAUser' => '请选择一个用户',
@@ -3643,6 +3648,9 @@ extension on TranslationsZhCn {
 			'download.downloadCompletedWithName' => ({required Object fileName}) => '下载完成: ${fileName}',
 			'download.stillInDevelopment' => '开发中',
 			'download.saveToAppDirectory' => '保存到应用目录',
+			'download.alreadyDownloadedWithQuality' => '已有相同清晰度的任务，是否继续下载？',
+			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => '已有清晰度为${qualities}的任务，是否继续下载？',
+			'download.otherQualities' => '其他清晰度',
 			'favorite.errors.addFailed' => '追加失败',
 			'favorite.errors.addSuccess' => '追加成功',
 			'favorite.errors.deleteFolderFailed' => '删除文件夹失败',
@@ -4024,16 +4032,16 @@ extension on TranslationsZhCn {
 			'navigationOrderSettings.title' => '导航排序设置',
 			'navigationOrderSettings.customNavigationOrder' => '自定义导航顺序',
 			'navigationOrderSettings.customNavigationOrderDesc' => '拖拽调整底部导航栏和侧边栏中各个页面的显示顺序',
-			'navigationOrderSettings.restartRequired' => '需重启应用生效',
-			'navigationOrderSettings.navigationItemSorting' => '导航项排序',
-			'navigationOrderSettings.done' => '完成',
-			'navigationOrderSettings.edit' => '编辑',
 			_ => null,
 		};
 	}
 
 	dynamic _flatMapFunction$3(String path) {
 		return switch (path) {
+			'navigationOrderSettings.restartRequired' => '需重启应用生效',
+			'navigationOrderSettings.navigationItemSorting' => '导航项排序',
+			'navigationOrderSettings.done' => '完成',
+			'navigationOrderSettings.edit' => '编辑',
 			'navigationOrderSettings.reset' => '重置',
 			'navigationOrderSettings.previewEffect' => '预览效果',
 			'navigationOrderSettings.bottomNavigationPreview' => '底部导航栏预览：',

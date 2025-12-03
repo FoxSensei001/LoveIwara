@@ -182,14 +182,15 @@ Future<void> _initializeBusinessServices() async {
 
   // 设置代理 - 在runApp前设置全局HttpOverrides
   if (ProxyUtil.isSupportedPlatform()) {
-    bool useProxy = configService.settings[ConfigKey.USE_PROXY]?.value;
+    bool useProxy = configService.settings[ConfigKey.USE_PROXY]?.value ?? false;
     String? proxyUrl;
     if (useProxy) {
       proxyUrl = configService.settings[ConfigKey.PROXY_URL]?.value;
     }
-    HttpOverrides.global = MyHttpOverrides(proxyUrl);
-
-    if (proxyUrl != null && proxyUrl.isNotEmpty) {
+    
+    // 只有在启用代理且代理地址不为空时才设置 HttpOverrides.global
+    if (useProxy && proxyUrl != null && proxyUrl.isNotEmpty) {
+      HttpOverrides.global = MyHttpOverrides(proxyUrl);
       LogUtils.i('代理设置完成: $proxyUrl', '启动初始化');
     } else {
       LogUtils.i('未启用代理', '启动初始化');

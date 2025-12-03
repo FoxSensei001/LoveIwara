@@ -310,34 +310,54 @@ class ImageModelDetailContent extends StatelessWidget {
                     );
                   },
                 ),
-                Material(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(20),
-                  child: InkWell(
-                    onTap: () => _addToFavorite(context),
+                Obx(() {
+                  final isInFavorite = controller.isInAnyFavorite.value;
+                  final primaryColor = Theme.of(context).primaryColor;
+                  return Material(
+                    color: isInFavorite
+                        ? primaryColor.withValues(alpha: 0.1)
+                        : Theme.of(context).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(20),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.bookmark_border,
+                    child: InkWell(
+                      onTap: () => _addToFavorite(context),
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          border: isInFavorite
+                              ? Border.all(
+                                  color: primaryColor.withValues(alpha: 0.3),
+                                  width: 1,
+                                )
+                              : null,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              isInFavorite ? Icons.bookmark : Icons.bookmark_border,
                               size: 20,
-                              color: Theme.of(context).iconTheme.color
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            t.favorite.localizeFavorite,
-                            style: TextStyle(
-                                fontSize: 14,
-                                color: Theme.of(context).textTheme.bodyMedium?.color
+                              color: isInFavorite
+                                  ? primaryColor
+                                  : Theme.of(context).iconTheme.color,
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 4),
+                            Text(
+                              t.favorite.localizeFavorite,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: isInFavorite
+                                    ? primaryColor
+                                    : Theme.of(context).textTheme.bodyMedium?.color,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ),
+                  );
+                }),
                 Material(
                   color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(20),
@@ -514,6 +534,9 @@ class ImageModelDetailContent extends StatelessWidget {
           return await FavoriteService.to.addImageToFolder(imageModelInfo, folderId);
         },
       ),
-    );
+    ).then((_) {
+      // 对话框关闭后刷新收藏状态
+      controller.checkFavoriteStatus();
+    });
   }
 }

@@ -1708,6 +1708,9 @@ class TranslationsSettingsEn {
 	/// en: 'When enabled, the video toolbar will be shown when the mouse is hovering over the player. It will be automatically hidden after 3 seconds of inactivity.'
 	String get enableMouseHoverShowToolbarInfo => 'When enabled, the video toolbar will be shown when the mouse is hovering over the player. It will be automatically hidden after 3 seconds of inactivity.';
 
+	/// en: 'Horizontal Swipe to Seek'
+	String get enableHorizontalDragSeek => 'Horizontal Swipe to Seek';
+
 	/// en: 'Audio Video Configuration'
 	String get audioVideoConfig => 'Audio Video Configuration';
 
@@ -2736,6 +2739,15 @@ class TranslationsDownloadEn {
 
 	/// en: 'Save to app directory'
 	String get saveToAppDirectory => 'Save to app directory';
+
+	/// en: 'Already downloaded with the same quality, continue downloading?'
+	String get alreadyDownloadedWithQuality => 'Already downloaded with the same quality, continue downloading?';
+
+	/// en: 'Already downloaded with qualities: ${qualities}, continue downloading?'
+	String alreadyDownloadedWithQualities({required Object qualities}) => 'Already downloaded with qualities: ${qualities}, continue downloading?';
+
+	/// en: 'Other qualities'
+	String get otherQualities => 'Other qualities';
 }
 
 // Path: favorite
@@ -6454,6 +6466,7 @@ extension on Translations {
 			'settings.longPressFastForward' => 'Long Press Fast Forward',
 			'settings.enableMouseHoverShowToolbar' => 'Enable Mouse Hover Show Toolbar',
 			'settings.enableMouseHoverShowToolbarInfo' => 'When enabled, the video toolbar will be shown when the mouse is hovering over the player. It will be automatically hidden after 3 seconds of inactivity.',
+			'settings.enableHorizontalDragSeek' => 'Horizontal Swipe to Seek',
 			'settings.audioVideoConfig' => 'Audio Video Configuration',
 			'settings.expandBuffer' => 'Expand Buffer',
 			'settings.expandBufferInfo' => 'When enabled, the buffer size increases, loading time becomes longer but playback is smoother',
@@ -6941,13 +6954,13 @@ extension on Translations {
 			'notifications.kUnknownType' => 'Unknown notification type',
 			'conversation.errors.pleaseSelectAUser' => 'Please select a user',
 			'conversation.errors.pleaseEnterATitle' => 'Please enter a title',
-			'conversation.errors.clickToSelectAUser' => 'Click to select a user',
 			_ => null,
 		};
 	}
 
 	dynamic _flatMapFunction$2(String path) {
 		return switch (path) {
+			'conversation.errors.clickToSelectAUser' => 'Click to select a user',
 			'conversation.errors.loadFailedClickToRetry' => 'Load failed, click to retry',
 			'conversation.errors.loadFailed' => 'Load failed',
 			'conversation.errors.clickToRetry' => 'Click to retry',
@@ -7070,6 +7083,9 @@ extension on Translations {
 			'download.downloadCompletedWithName' => ({required Object fileName}) => 'Download Completed: ${fileName}',
 			'download.stillInDevelopment' => 'Still in development',
 			'download.saveToAppDirectory' => 'Save to app directory',
+			'download.alreadyDownloadedWithQuality' => 'Already downloaded with the same quality, continue downloading?',
+			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'Already downloaded with qualities: ${qualities}, continue downloading?',
+			'download.otherQualities' => 'Other qualities',
 			'favorite.errors.addFailed' => 'Add failed',
 			'favorite.errors.addSuccess' => 'Add success',
 			'favorite.errors.deleteFolderFailed' => 'Delete folder failed',
@@ -7456,16 +7472,16 @@ extension on Translations {
 			'emoji.selectEmoji' => 'Select Emoji',
 			'emoji.noEmojisInGroup' => 'No emojis in this group',
 			'emoji.goToSettingsToAddEmojis' => 'Go to settings to add emojis',
-			'emoji.emojiManagement' => 'Emoji Management',
-			'emoji.manageEmojiGroupsAndImages' => 'Manage emoji groups and images',
-			'emoji.uploadLocalImages' => 'Upload Local Images',
-			'emoji.uploadingImages' => 'Uploading Images',
 			_ => null,
 		};
 	}
 
 	dynamic _flatMapFunction$3(String path) {
 		return switch (path) {
+			'emoji.emojiManagement' => 'Emoji Management',
+			'emoji.manageEmojiGroupsAndImages' => 'Manage emoji groups and images',
+			'emoji.uploadLocalImages' => 'Upload Local Images',
+			'emoji.uploadingImages' => 'Uploading Images',
 			'emoji.uploadingImagesProgress' => ({required Object count}) => 'Uploading ${count} images, please wait...',
 			'emoji.doNotCloseDialog' => 'Please do not close this dialog',
 			'emoji.uploadSuccess' => ({required Object count}) => 'Successfully uploaded ${count} images',

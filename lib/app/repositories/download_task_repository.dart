@@ -36,6 +36,49 @@ class DownloadTaskRepository {
     return results.map((row) => DownloadTask.fromRow(row)).toList();
   }
 
+  /// 获取所有 downloading + pending 任务，按创建时间升序排列
+  Future<List<DownloadTask>> getDownloadingAndPendingTasksOrderByCreatedAtAsc()
+      async {
+    try {
+      final stmt = _db.prepare('''
+        SELECT * FROM download_tasks 
+        WHERE status IN ('downloading', 'pending')
+        ORDER BY created_at ASC
+      ''');
+
+      final results = stmt.select([]);
+      return results.map((row) => DownloadTask.fromRow(row)).toList();
+    } catch (e) {
+      LogUtils.e(
+        '获取 downloading/pending 任务失败',
+        tag: 'DownloadTaskRepository',
+        error: e,
+      );
+      rethrow;
+    }
+  }
+
+  /// 获取所有等待中(pending)任务，按创建时间升序排列
+  Future<List<DownloadTask>> getPendingTasksOrderByCreatedAtAsc() async {
+    try {
+      final stmt = _db.prepare('''
+        SELECT * FROM download_tasks 
+        WHERE status = 'pending'
+        ORDER BY created_at ASC
+      ''');
+
+      final results = stmt.select([]);
+      return results.map((row) => DownloadTask.fromRow(row)).toList();
+    } catch (e) {
+      LogUtils.e(
+        '获取等待中任务失败',
+        tag: 'DownloadTaskRepository',
+        error: e,
+      );
+      rethrow;
+    }
+  }
+
   // 插入任务
   Future<void> insertTask(DownloadTask task) async {
     try {
@@ -176,13 +219,33 @@ class DownloadTaskRepository {
       WHERE status = 'completed'
     ''');
 
+    final failedStmt = _db.prepare('''
+      SELECT COUNT(*) as count FROM download_tasks 
+      WHERE status = 'failed'
+    ''');
+
     final activeCount = activeStmt.select([]).first['count'] as int;
     final completedCount = completedStmt.select([]).first['count'] as int;
+    final failedCount = failedStmt.select([]).first['count'] as int;
 
     return {
       'active': activeCount,
       'completed': completedCount,
+      'failed': failedCount,
     };
+  }
+
+  /// 根据状态获取任务数量
+  Future<int> getCountByStatus(DownloadStatus status) async {
+    final stmt = _db.prepare('''
+      SELECT COUNT(*) as count FROM download_tasks 
+      WHERE status = ?
+    ''');
+    final result = stmt.select([status.name]);
+    if (result.isEmpty) {
+      return 0;
+    }
+    return result.first['count'] as int;
   }
 
   Future<DownloadTask?> getTaskById(String taskId) async {
@@ -211,7 +274,6 @@ class DownloadTaskRepository {
 class CompletedDownloadTaskRepository extends LoadingMoreBase<DownloadTask> {
   final DownloadService _downloadService = Get.find<DownloadService>();
   
-  int _pageIndex = 0;
   bool _hasMore = true;
   bool forceRefresh = false;
   
@@ -223,54 +285,6 @@ class CompletedDownloadTaskRepository extends LoadingMoreBase<DownloadTask> {
   @override
   Future<bool> refresh([bool notifyStateChanged = false]) async {
     _hasMore = true;
-    _pageIndex = 0;
-    forceRefresh = !notifyStateChanged;
-    final bool result = await super.refresh(notifyStateChanged);
-    forceRefresh = false;
-    return result;
-  }
-
-  @override
-  Future<bool> loadData([bool isLoadMoreAction = false]) async {
-    bool isSuccess = false;
-    try {
-      final tasks = await _downloadService.getCompletedTasks(
-        offset: _pageIndex * pageSize,
-        limit: pageSize,
-      );
-
-      if (_pageIndex == 0) {
-        clear();
-      }
-
-      addAll(tasks);
-
-      _hasMore = tasks.length >= pageSize;
-      _pageIndex++;
-      isSuccess = true;
-    } catch (e) {
-      isSuccess = false;
-    }
-    return isSuccess;
-  }
-}
-
-class PausedDownloadTaskRepository extends LoadingMoreBase<DownloadTask> {
-  final DownloadTaskRepository _repository = DownloadTaskRepository();
-  
-  int _pageIndex = 0;
-  bool _hasMore = true;
-  bool forceRefresh = false;
-  
-  static const int pageSize = 20;
-  
-  @override
-  bool get hasMore => _hasMore || forceRefresh;
-
-  @override
-  Future<bool> refresh([bool notifyStateChanged = false]) async {
-    _hasMore = true;
-    _pageIndex = 0;
     forceRefresh = !notifyStateChanged;
     clear();
     final bool result = await super.refresh(notifyStateChanged);
@@ -282,24 +296,18 @@ class PausedDownloadTaskRepository extends LoadingMoreBase<DownloadTask> {
   Future<bool> loadData([bool isLoadMoreAction = false]) async {
     bool isSuccess = false;
     try {
-      final tasks = await _repository.getTasksByStatus(
-        DownloadStatus.paused,
-        offset: _pageIndex * pageSize,
+      final tasks = await _downloadService.getCompletedTasks(
+        // 使用当前列表长度作为偏移量，避免删除任务后分页错位
+        offset: length,
         limit: pageSize,
       );
-
-      if (_pageIndex == 0) {
-        clear();
-      }
 
       addAll(tasks);
 
       _hasMore = tasks.length >= pageSize;
-      _pageIndex++;
       isSuccess = true;
     } catch (e) {
       isSuccess = false;
-      LogUtils.e('加载暂停任务失败', tag: 'PausedDownloadTaskRepository', error: e);
     }
     return isSuccess;
   }
@@ -308,7 +316,6 @@ class PausedDownloadTaskRepository extends LoadingMoreBase<DownloadTask> {
 class FailedDownloadTaskRepository extends LoadingMoreBase<DownloadTask> {
   final DownloadTaskRepository _repository = DownloadTaskRepository();
   
-  int _pageIndex = 0;
   bool _hasMore = true;
   bool forceRefresh = false;
   
@@ -320,7 +327,6 @@ class FailedDownloadTaskRepository extends LoadingMoreBase<DownloadTask> {
   @override
   Future<bool> refresh([bool notifyStateChanged = false]) async {
     _hasMore = true;
-    _pageIndex = 0;
     forceRefresh = !notifyStateChanged;
     clear();
     final bool result = await super.refresh(notifyStateChanged);
@@ -334,18 +340,14 @@ class FailedDownloadTaskRepository extends LoadingMoreBase<DownloadTask> {
     try {
       final tasks = await _repository.getTasksByStatus(
         DownloadStatus.failed,
-        offset: _pageIndex * pageSize,
+        // 使用当前列表长度作为偏移量，避免删除任务后分页错位
+        offset: length,
         limit: pageSize,
       );
-
-      if (_pageIndex == 0) {
-        clear();
-      }
 
       addAll(tasks);
 
       _hasMore = tasks.length >= pageSize;
-      _pageIndex++;
       isSuccess = true;
     } catch (e) {
       isSuccess = false;

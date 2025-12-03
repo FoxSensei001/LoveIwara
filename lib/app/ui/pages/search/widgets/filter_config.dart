@@ -38,7 +38,7 @@ class FilterConfig {
   }
 
   static String getDefaultSortForSegment(SearchSegment segment) {
-    if (segment == SearchSegment.oreno3d) return 'hot';
+    if (segment == SearchSegment.oreno3d) return 'latest';
     return 'date';
   }
   static const Map<FilterFieldType, List<FilterOperator>> _operators = {

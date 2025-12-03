@@ -38,6 +38,9 @@ import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/utils/vibrate_utils.dart';
+import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/models/video_source.model.dart';
+import 'package:i_iwara/app/ui/widgets/split_button_widget.dart';
 
 class VideoInfoTabWidget extends StatelessWidget {
   final MyVideoStateController controller;
@@ -160,10 +163,7 @@ class VideoInfoTabWidget extends StatelessWidget {
             height: 32,
             child: FollowButtonWidget(
               user: controller.videoInfo.value!.user!,
-              onUserUpdated: (updatedUser) {
-                controller.videoInfo.value = controller.videoInfo.value
-                    ?.copyWith(user: updatedUser);
-              },
+              onUserUpdated: controller.handleAuthorUpdated,
             ),
           ),
       ],
@@ -609,24 +609,29 @@ class VideoInfoTabWidget extends StatelessWidget {
             controller.updateCachedVideoLikeInfo(videoInfo.id, liked, controller.videoInfo.value?.numLikes ?? 0);
           },
         ),
-        _buildActionButtonWidget(
+        Obx(() => _buildActionButtonWidget(
           context: context,
-          icon: Icons.playlist_add,
+          icon: controller.isInAnyPlaylist.value 
+              ? Icons.playlist_add_check 
+              : Icons.playlist_add,
           label: t.common.playList,
           onTap: () => _handlePlaylistAction(context),
-        ),
-        _buildActionButtonWidget(
+          accentColor: controller.isInAnyPlaylist.value 
+              ? Theme.of(context).primaryColor 
+              : null,
+        )),
+        Obx(() => _buildActionButtonWidget(
           context: context,
-          icon: Icons.bookmark_border,
+          icon: controller.isInAnyFavorite.value 
+              ? Icons.bookmark 
+              : Icons.bookmark_border,
           label: t.favorite.localizeFavorite,
           onTap: () => _handleFavoriteAction(context, videoInfo),
-        ),
-        _buildActionButtonWidget(
-          context: context,
-          icon: Icons.download,
-          label: t.common.download,
-          onTap: () => _handleDownloadAction(context),
-        ),
+          accentColor: controller.isInAnyFavorite.value 
+              ? Theme.of(context).primaryColor 
+              : null,
+        )),
+        _buildDownloadSplitButton(context),
         _buildActionButtonWidget(
           context: context,
           icon: Icons.share,
@@ -675,7 +680,10 @@ class VideoInfoTabWidget extends StatelessWidget {
       AddVideoToPlayListDialog(
         videoId: controller.videoInfo.value?.id ?? '',
       ),
-    );
+    ).then((_) {
+      // 对话框关闭后刷新播放列表状态
+      controller.checkFavoriteAndPlaylistStatus();
+    });
   }
 
   /// 处理收藏操作
@@ -686,12 +694,252 @@ class VideoInfoTabWidget extends StatelessWidget {
         onAdd: (folderId) =>
             FavoriteService.to.addVideoToFolder(videoInfo, folderId),
       ),
-    );
+    ).then((_) {
+      // 对话框关闭后刷新收藏状态
+      controller.checkFavoriteAndPlaylistStatus();
+    });
   }
 
   /// 处理下载操作
   void _handleDownloadAction(BuildContext context) {
     _showDownloadDialog(context);
+  }
+
+  /// 获取当前应该显示的清晰度
+  /// 优先使用配置的清晰度，如果视频源中没有该清晰度，则按优先级选择
+  String? _getCurrentQuality(List<VideoSource> sources) {
+    if (sources.isEmpty) return null;
+    
+    final configService = Get.find<ConfigService>();
+    final lastQuality = (configService[ConfigKey.LAST_DOWNLOAD_QUALITY] as String).toLowerCase();
+    
+    // 优先级列表（小写）
+    final priorityList = ['source', '1080', '720', '540', '360', 'preview'];
+    
+    // 首先检查配置的清晰度是否存在（不区分大小写）
+    final matchingSource = sources.firstWhereOrNull(
+      (source) => (source.name?.toLowerCase() ?? '') == lastQuality,
+    );
+    if (matchingSource != null) {
+      // 返回原始大小写的清晰度名称
+      return matchingSource.name;
+    }
+    
+    // 如果配置的清晰度不存在，按优先级选择第一个存在的（不区分大小写）
+    for (final quality in priorityList) {
+      final matchingSource = sources.firstWhereOrNull(
+        (source) => (source.name?.toLowerCase() ?? '') == quality.toLowerCase(),
+      );
+      if (matchingSource != null) {
+        // 返回原始大小写的清晰度名称
+        return matchingSource.name;
+      }
+    }
+    
+    // 如果都不存在，返回第一个可用的清晰度
+    return sources.firstOrNull?.name;
+  }
+
+  /// 构建下载 Split Button
+  Widget _buildDownloadSplitButton(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final configService = Get.find<ConfigService>();
+    
+    // 声明下载图标
+    const downloadIcon = Icons.download;
+    
+    return Obx(() {
+      final sources = controller.currentVideoSourceList;
+      final videoInfo = controller.videoInfo.value;
+      final isLoading = controller.pageLoadingState.value == VideoDetailPageLoadingState.loadingVideoInfo ||
+                        controller.pageLoadingState.value == VideoDetailPageLoadingState.loadingVideoSource;
+      
+      // 如果视频信息未加载或没有可用源，禁用按钮
+      final isDisabled = videoInfo == null || sources.isEmpty || isLoading;
+      
+      final currentQuality = _getCurrentQuality(sources);
+      final qualityLabel = currentQuality ?? t.download.errors.unknown;
+      
+      return SplitFilledButton(
+        label: '${t.common.download}$qualityLabel',
+        icon: downloadIcon,
+        onPressed: isDisabled ? null : () => _handleDownloadWithQuality(context, currentQuality),
+        menuItems: sources.map((source) {
+          return PopupMenuItem<String>(
+            value: source.name ?? t.download.errors.unknown,
+            child: Text(source.name ?? t.download.errors.unknown),
+          );
+        }).toList(),
+        onMenuItemSelected: (quality) {
+          // 保存选择的清晰度到配置
+          configService.setSetting(ConfigKey.LAST_DOWNLOAD_QUALITY, quality);
+          // 使用选择的清晰度下载
+          _handleDownloadWithQuality(context, quality);
+        },
+        isDisabled: isDisabled,
+      );
+    });
+  }
+
+  /// 使用指定清晰度下载
+  void _handleDownloadWithQuality(BuildContext context, String? quality) {
+    if (quality == null) {
+      _handleDownloadAction(context);
+      return;
+    }
+    
+    final sources = controller.currentVideoSourceList;
+    // 使用 toLowerCase() 进行不区分大小写的比较
+    final source = sources.firstWhereOrNull(
+      (s) => (s.name?.toLowerCase() ?? '') == quality.toLowerCase(),
+    );
+    
+    if (source == null) {
+      _handleDownloadAction(context);
+      return;
+    }
+    
+    // 直接使用该清晰度下载，跳过选择对话框
+    _downloadWithSource(context, source);
+  }
+
+  /// 使用指定的视频源下载
+  Future<void> _downloadWithSource(BuildContext context, VideoSource source) async {
+    final t = slang.Translations.of(context);
+    
+    if (source.download == null) {
+      LogUtils.w('所选质量没有下载链接', 'VideoInfoTabWidget');
+      showToastWidget(
+        MDToastWidget(
+          message: t.videoDetail.noDownloadUrl,
+          type: MDToastType.error,
+        ),
+        position: ToastPosition.top,
+      );
+      return;
+    }
+
+    try {
+      final videoInfo = controller.videoInfo.value;
+      if (videoInfo == null) {
+        LogUtils.e('下载失败：视频信息为空', tag: 'VideoInfoTabWidget');
+        showToastWidget(
+          MDToastWidget(
+            message: t.download.errors.videoInfoNotFound,
+            type: MDToastType.error,
+          ),
+        );
+        return;
+      }
+
+      // 创建视频下载的额外信息
+      final videoExtData = VideoDownloadExtData(
+        id: videoInfo.id,
+        title: videoInfo.title,
+        thumbnail: videoInfo.thumbnailUrl,
+        authorName: videoInfo.user?.name,
+        authorUsername: videoInfo.user?.username,
+        authorAvatar: videoInfo.user?.avatar?.avatarUrl,
+        duration: videoInfo.file?.duration,
+        quality: source.name,
+      );
+      LogUtils.d('创建下载任务元数据', 'VideoInfoTabWidget');
+
+      // 检查是否存在重复任务
+      final duplicateCheck = await DownloadService.to
+          .checkVideoTaskDuplicate(
+        videoInfo.id,
+        source.name ?? 'unknown',
+      );
+
+      // 如果存在重复任务，显示确认对话框
+      if (duplicateCheck.hasSameVideoSameQuality ||
+          duplicateCheck.hasSameVideoDifferentQuality) {
+        // 检查 context 是否仍然有效
+        if (!context.mounted) {
+          LogUtils.d('Context 已失效，取消下载操作', 'VideoInfoTabWidget');
+          return;
+        }
+        
+        final shouldContinue = await _showDuplicateTaskDialog(
+          context,
+          duplicateCheck.hasSameVideoSameQuality,
+          duplicateCheck.existingQualities,
+        );
+
+        if (!shouldContinue) {
+          LogUtils.d('用户取消了重复任务下载', 'VideoInfoTabWidget');
+          return;
+        }
+      }
+
+      // 在创建下载任务之前获取保存路径
+      final savePath = await _getSavePath(
+        videoInfo.title ?? 'video',
+        source.name ?? 'unknown',
+        source.download ?? 'unknown',
+      );
+
+      if (savePath == null) {
+        LogUtils.d('用户取消了下载操作', 'VideoInfoTabWidget');
+        showToastWidget(
+          MDToastWidget(
+            message: t.common.operationCancelled,
+            type: MDToastType.info,
+          ),
+        );
+        return;
+      }
+
+      final task = DownloadTask(
+        url: source.download!,
+        savePath: savePath,
+        fileName:
+            '${videoInfo.title ?? 'video'}_${source.name}.mp4',
+        supportsRange: true,
+        extData: DownloadTaskExtData(
+          type: DownloadTaskExtDataType.video,
+          data: videoExtData.toJson(),
+        ),
+      );
+      LogUtils.d('添加下载任务: ${task.id}', 'VideoInfoTabWidget');
+
+      await DownloadService.to.addTask(task);
+
+      showToastWidget(
+        MDToastWidget(
+          message: t.videoDetail.startDownloading,
+          type: MDToastType.success,
+        ),
+        position: ToastPosition.top,
+      );
+
+      // 打开下载管理页面
+      NaviService.navigateToDownloadTaskListPage();
+    } catch (e) {
+      LogUtils.e(
+        '添加下载任务失败: $e',
+        tag: 'VideoInfoTabWidget',
+        error: e,
+      );
+      String message;
+      if (e.toString().contains(
+        t.download.errors.downloadTaskAlreadyExists,
+      )) {
+        message = t.download.errors.downloadTaskAlreadyExists;
+      } else if (e.toString().contains(
+        t.download.errors.videoAlreadyDownloaded,
+      )) {
+        message = t.download.errors.videoAlreadyDownloaded;
+      } else {
+        message = t.download.errors.downloadFailed;
+      }
+
+      showToastWidget(
+        MDToastWidget(message: message, type: MDToastType.error),
+        position: ToastPosition.top,
+      );
+    }
   }
 
   /// 处理分享操作
@@ -807,6 +1055,34 @@ class VideoInfoTabWidget extends StatelessWidget {
                     );
                     LogUtils.d('创建下载任务元数据', 'VideoInfoTabWidget');
 
+                    // 检查是否存在重复任务
+                    final duplicateCheck = await DownloadService.to
+                        .checkVideoTaskDuplicate(
+                      videoInfo.id,
+                      source.name ?? 'unknown',
+                    );
+
+                    // 如果存在重复任务，显示确认对话框
+                    if (duplicateCheck.hasSameVideoSameQuality ||
+                        duplicateCheck.hasSameVideoDifferentQuality) {
+                      // 检查 context 是否仍然有效
+                      if (!context.mounted) {
+                        LogUtils.d('Context 已失效，取消下载操作', 'VideoInfoTabWidget');
+                        return;
+                      }
+                      
+                      final shouldContinue = await _showDuplicateTaskDialog(
+                        context,
+                        duplicateCheck.hasSameVideoSameQuality,
+                        duplicateCheck.existingQualities,
+                      );
+
+                      if (!shouldContinue) {
+                        LogUtils.d('用户取消了重复任务下载', 'VideoInfoTabWidget');
+                        return;
+                      }
+                    }
+
                     // 在创建下载任务之前获取保存路径
                     final savePath = await _getSavePath(
                       videoInfo.title ?? 'video',
@@ -839,6 +1115,10 @@ class VideoInfoTabWidget extends StatelessWidget {
                     LogUtils.d('添加下载任务: ${task.id}', 'VideoInfoTabWidget');
 
                     await DownloadService.to.addTask(task);
+
+                    // 保存选择的清晰度到配置
+                    final configService = Get.find<ConfigService>();
+                    configService.setSetting(ConfigKey.LAST_DOWNLOAD_QUALITY, source.name ?? 'unknown');
 
                     showToastWidget(
                       MDToastWidget(
@@ -883,6 +1163,50 @@ class VideoInfoTabWidget extends StatelessWidget {
     } catch (e) {
       LogUtils.e('显示下载对话框失败', error: e, tag: 'VideoInfoTabWidget');
     }
+  }
+
+  /// 显示重复任务确认对话框
+  /// 返回 true 表示用户确认继续下载，false 表示取消
+  Future<bool> _showDuplicateTaskDialog(
+    BuildContext context,
+    bool hasSameQuality,
+    List<String> existingQualities,
+  ) async {
+    // 检查 context 是否仍然有效
+    if (!context.mounted) {
+      return false;
+    }
+
+    final t = slang.Translations.of(context);
+    final String message;
+    if (hasSameQuality) {
+      message = t.download.alreadyDownloadedWithQuality;
+    } else {
+      final qualitiesText = existingQualities.isNotEmpty
+          ? existingQualities.join('、')
+          : t.download.otherQualities;
+      message = t.download.alreadyDownloadedWithQualities(qualities: qualitiesText);
+    }
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(t.common.tips),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(t.common.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(t.common.confirm),
+          ),
+        ],
+      ),
+    );
+
+    return result ?? false;
   }
 
   void _showOreno3dInfoDialog(BuildContext context) {
@@ -956,9 +1280,8 @@ class VideoInfoTabWidget extends StatelessWidget {
     // 获取水平速度（正数表示向右滑动，负数表示向左滑动）
     final velocity = details.velocity.pixelsPerSecond.dx;
 
-    // 设置阈值：速度大于300px/s或距离大于50px时才触发切换
+    // 设置阈值：速度大于300px/s时才触发切换
     const double velocityThreshold = 300.0;
-    const double distanceThreshold = 50.0;
 
     // 检查是否达到切换阈值
     if (velocity.abs() > velocityThreshold) {

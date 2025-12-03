@@ -562,6 +562,7 @@ settings:
   longPressFastForward: 長押しファストフォワード
   enableMouseHoverShowToolbar: マウスホバー時にツールバーを表示
   enableMouseHoverShowToolbarInfo: 有効にすると、マウスがプレーヤー上にあるときにツールバーが表示されます。3秒間の非アクティブ時に自動的に非表示になります。
+  enableHorizontalDragSeek: 横スワイプでシーク
   # オーディオビデオ設定
   audioVideoConfig: オーディオビデオ設定
   expandBuffer: バッファ拡張
@@ -1235,6 +1236,9 @@ download:
   downloadCompletedWithName: 'ダウンロードが完了しました: ${fileName}'
   stillInDevelopment: 開発中
   saveToAppDirectory: アプリケーションディレクトリに保存
+  alreadyDownloadedWithQuality: 'すでに同じ品質のタスクがあります。続けてダウンロードしますか？'
+  alreadyDownloadedWithQualities: 'すでに品質が${qualities}のタスクがあります。続けてダウンロードしますか？'
+  otherQualities: その他の品質
 
 favorite:
   errors:
