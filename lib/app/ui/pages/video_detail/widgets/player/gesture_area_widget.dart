@@ -70,6 +70,10 @@ class GestureAreaState extends State<GestureArea>
   // 缓存计算结果
   bool? _isVerticalDragProcessable;
 
+  // 长按时横向拖动相关状态
+  double? _longPressStartX; // 长按开始时的X坐标
+  double _baseLongPressSpeed = 1.0; // 长按开始时的配置速度
+
   @override
   void initState() {
     super.initState();
@@ -159,7 +163,80 @@ class GestureAreaState extends State<GestureArea>
         widget.myVideoStateController.videoBuffering.value) {
       return;
     }
+    
+    // 记录长按开始时的X坐标和配置速度
+    _longPressStartX = details.localPosition.dx;
+    _baseLongPressSpeed = _configService[ConfigKey.LONG_PRESS_PLAYBACK_SPEED_KEY] as double;
+    
     widget.setLongPressing?.call(LongPressType.normal, true);
+  }
+
+  void _onLongPressMoveUpdate(LongPressMoveUpdateDetails details) {
+    // 检查长按快进配置
+    if (_configService[ConfigKey.ENABLE_LONG_PRESS_FAST_FORWARD] != true) {
+      return;
+    }
+    
+    // 如果没有记录开始位置或者不在长按状态，则不处理
+    if (_longPressStartX == null || 
+        !widget.myVideoStateController.isLongPressing.value) {
+      return;
+    }
+    
+    // 计算横向拖动距离（像素）
+    final double dragDistance = details.localPosition.dx - _longPressStartX!;
+    final double absDragDistance = dragDistance.abs();
+    
+    // 根据拖动距离计算速度变化的增量（0.1 到 0.5）
+    // 距离越远，每单位距离的变化幅度越大
+    // 阈值设定（像素）：
+    // 0-50px: 增量 0.1
+    // 50-100px: 增量 0.2
+    // 100-150px: 增量 0.3
+    // 150-200px: 增量 0.4
+    // 200px+: 增量 0.5
+    double speedIncrement;
+    if (absDragDistance < 50) {
+      speedIncrement = 0.1;
+    } else if (absDragDistance < 100) {
+      speedIncrement = 0.2;
+    } else if (absDragDistance < 150) {
+      speedIncrement = 0.3;
+    } else if (absDragDistance < 200) {
+      speedIncrement = 0.4;
+    } else {
+      speedIncrement = 0.5;
+    }
+    
+    // 根据累计拖动距离计算总的速度变化
+    // 每 30 像素算一个速度变化单位
+    const double pixelsPerSpeedUnit = 30.0;
+    final int speedUnits = (absDragDistance / pixelsPerSpeedUnit).floor();
+    
+    // 计算总速度变化量
+    double totalSpeedDelta = speedUnits * speedIncrement;
+    
+    // 根据方向确定是增加还是减少
+    if (dragDistance < 0) {
+      totalSpeedDelta = -totalSpeedDelta;
+    }
+    
+    // 计算新速度（向右增加，向左减少）
+    double newSpeed = _baseLongPressSpeed + totalSpeedDelta;
+    
+    // 限制速度范围 0.1 - 4.0
+    newSpeed = newSpeed.clamp(0.1, 4.0);
+    // 保留一位小数
+    newSpeed = (newSpeed * 10).roundToDouble() / 10;
+    
+    // 使用节流控制更新频率
+    EasyThrottle.throttle(
+      '${widget.myVideoStateController.randomId}_long_press_speed_update',
+      const Duration(milliseconds: 50),
+      () {
+        widget.myVideoStateController.updateLongPressSpeed(newSpeed);
+      },
+    );
   }
 
   void _onLongPressEnd(LongPressEndDetails details) async {
@@ -171,6 +248,9 @@ class GestureAreaState extends State<GestureArea>
     // 震动
     VibrateUtils.vibrate(type: HapticFeedback.lightImpact);
 
+    // 重置长按相关状态
+    _longPressStartX = null;
+    
     widget.setLongPressing?.call(LongPressType.normal, false);
     
     // 使用防抖机制恢复正常播放速度，避免频繁调用
@@ -312,6 +392,7 @@ class GestureAreaState extends State<GestureArea>
       onTap: widget.onTap,
       onDoubleTap: _onDoubleTap,
       onLongPressStart: _onLongPressStart,
+      onLongPressMoveUpdate: _onLongPressMoveUpdate,
       onLongPressEnd: _onLongPressEnd,
       onVerticalDragStart: (_) {
         widget.myVideoStateController.setInteracting(true);

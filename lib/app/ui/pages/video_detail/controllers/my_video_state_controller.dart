@@ -177,6 +177,7 @@ class MyVideoStateController extends GetxController
   final RxBool isSlidingBrightnessZone = false.obs; // 是否在滑动亮度区域
   final RxBool isSlidingVolumeZone = false.obs; // 是否在滑动音量区域
   final RxBool isLongPressing = false.obs; // 是否在长按
+  final RxDouble currentLongPressSpeed = 1.0.obs; // 长按时的当前播放速度（可通过滑动调整）
 
   // 节流相关变量
   Timer? _positionUpdateThrottleTimer;
@@ -1685,9 +1686,25 @@ class MyVideoStateController extends GetxController
       if (!_isDisposed) {
         double speed = _configService[ConfigKey.LONG_PRESS_PLAYBACK_SPEED_KEY];
         player.setRate(speed);
+        currentLongPressSpeed.value = speed;
         LogUtils.d('设置长按播放速度: ${speed}x', 'MyVideoStateController');
       }
     });
+  }
+
+  /// 更新长按时的播放速度（临时调整，不保存到配置）
+  /// [speed] 新的播放速度，范围 0.1 - 4.0
+  void updateLongPressSpeed(double speed) {
+    // 限制速度范围
+    double clampedSpeed = speed.clamp(0.1, 4.0);
+    // 保留一位小数
+    clampedSpeed = (clampedSpeed * 10).roundToDouble() / 10;
+    
+    if (!_isDisposed && isLongPressing.value) {
+      player.setRate(clampedSpeed);
+      currentLongPressSpeed.value = clampedSpeed;
+      LogUtils.d('更新长按播放速度: ${clampedSpeed}x', 'MyVideoStateController');
+    }
   }
 
   /// 设置音量

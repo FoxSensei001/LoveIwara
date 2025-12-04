@@ -958,8 +958,8 @@ class _MyVideoScreenState extends State<MyVideoScreen>
         if (!widget.myVideoStateController.isLongPressing.value) {
           return const SizedBox.shrink();
         }
-        double rate =
-            _configService[ConfigKey.LONG_PRESS_PLAYBACK_SPEED_KEY] as double;
+        // 使用控制器中的当前长按速度（可以通过横向滑动调整）
+        double rate = widget.myVideoStateController.currentLongPressSpeed.value;
         return _buildFadeTransitionNoBg(
           child: PlaybackSpeedAnimationWidget(
             playbackSpeed: rate,
