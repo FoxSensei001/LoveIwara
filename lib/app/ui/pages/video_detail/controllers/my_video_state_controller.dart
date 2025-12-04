@@ -362,6 +362,19 @@ class MyVideoStateController extends GetxController
         return;
       }
 
+      // 监听 currentVideoSourceList 变化，初始化预览播放器
+      // 提前到发起网络/缓存请求之前，避免缓存命中时事件在监听注册之前就触发导致丢失
+      currentVideoSourceList.listen((sources) {
+        if (!_isDisposed && sources.isNotEmpty) {
+          // 延迟初始化，避免影响主播放器加载
+          Future.delayed(const Duration(milliseconds: 500), () {
+            if (!_isDisposed) {
+              _initializePreviewPlayer();
+            }
+          });
+        }
+      });
+
       // 使用 WidgetsBinding.instance.addPostFrameCallback 确保基础设置完成
       // WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_isDisposed) {
@@ -428,18 +441,6 @@ class MyVideoStateController extends GetxController
 
       // 添加画中画状态监听
       _setupPiPListener();
-
-      // 监听 currentVideoSourceList 变化，初始化预览播放器
-      currentVideoSourceList.listen((sources) {
-        if (!_isDisposed && sources.isNotEmpty) {
-          // 延迟初始化，避免影响主播放器加载
-          Future.delayed(const Duration(milliseconds: 500), () {
-            if (!_isDisposed) {
-              _initializePreviewPlayer();
-            }
-          });
-        }
-      });
 
       // 启动显示时间更新定时器
       _startDisplayTimer();

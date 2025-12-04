@@ -33,6 +33,11 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
   double? _trackWidth; // 进度条总宽度
   bool _hasMoved = false; // 是否已经移动（用于区分单击和拖拽）
 
+  // Tooltip 渐隐时保持最后位置
+  double? _lastTooltipX;
+  double? _lastTooltipTime;
+  bool _tooltipVisible = false;
+
   // GlobalKey 用于获取进度条的 RenderBox
   final GlobalKey _progressBarKey = GlobalKey();
 
@@ -163,6 +168,18 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
               }
             }
 
+            // 缓存最后一次有效的位置与时间，用于淡出时“原地消失”
+            if (tooltipX != null && tooltipTime != null) {
+              _lastTooltipX = tooltipX;
+              _lastTooltipTime = tooltipTime;
+              _tooltipVisible = true;
+            } else if (_lastTooltipX != null && _lastTooltipTime != null) {
+              // 没有新的 tooltip，但之前有位置，则用缓存位置淡出
+              tooltipX = _lastTooltipX;
+              tooltipTime = _lastTooltipTime;
+              _tooltipVisible = false;
+            }
+
             return Stack(
               alignment: Alignment.centerLeft,
               clipBehavior: Clip.none, // 允许子组件溢出 Stack 边界，防止 Tooltip 被裁切
@@ -236,9 +253,13 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
                     ),
                   ),
                 ),
-                // 统一显示 Tooltip (无论是拖拽还是悬停)
+                // 统一显示 Tooltip (无论是拖拽还是悬停)，带淡入淡出效果
                 if (tooltipX != null && tooltipTime != null)
-                  _buildTooltip(tooltipX, tooltipTime),
+                  _buildTooltip(
+                    tooltipX,
+                    tooltipTime,
+                    visible: _tooltipVisible,
+                  ),
               ],
             );
           },
@@ -420,8 +441,12 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
     return true;
   }
 
-  // 通用的 Tooltip 构建方法
-  Widget _buildTooltip(double xPosition, double timeValue) {
+  // 通用的 Tooltip 构建方法（带淡入淡出效果）
+  Widget _buildTooltip(
+    double xPosition,
+    double timeValue, {
+    bool visible = true,
+  }) {
     // 基础高度：Thumb半径 + 间距（toolbar 展开时，tooltip 距离进度条的距离）
     const double baseBottom = _thumbOverlayRadius + 10;
     // 细进度条高度 + 期望的 tooltip 距离细进度条的间距
@@ -435,6 +460,11 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
       builder: (context, child) {
         // 获取 toolbar 的动画值：1.0 表示展开，0.0 表示收缩
         final double toolbarValue = widget.controller.animationController.value;
+
+        // 当工具栏完全收缩时，不渲染主进度条上的预览 Tooltip
+        if (toolbarValue <= 0.0) {
+          return const SizedBox.shrink();
+        }
         // 获取 bottomBarAnimation 的偏移量（y 值）
         final double bottomBarOffsetY = widget.controller.bottomBarAnimation.value.dy;
         
@@ -470,7 +500,14 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
           child: FractionalTranslation(
             // 向左偏移 50% 以实现水平居中
             translation: const Offset(-0.5, 0),
-            child: _buildPreviewTooltipContent(timeValue, isPreviewReady),
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 150),
+              opacity: visible ? 1.0 : 0.0,
+              child: IgnorePointer(
+                ignoring: !visible,
+                child: _buildPreviewTooltipContent(timeValue, isPreviewReady),
+              ),
+            ),
           ),
         );
       },
@@ -494,14 +531,14 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // 预览视频画面（如果可用）
+          // 优先使用预览视频画面；如果暂不可用，则仅展示时间信息
           if (isPreviewReady && widget.controller.previewVideoController != null)
             Container(
               width: 160,
               height: 90,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Colors.black,
-                borderRadius: const BorderRadius.only(
+                borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(4),
                   topRight: Radius.circular(4),
                 ),
@@ -511,29 +548,6 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
                 controller: widget.controller.previewVideoController!,
                 controls: null,
                 fit: BoxFit.cover,
-              ),
-            )
-          else if (isPreviewReady)
-            // 预览播放器正在加载
-            Container(
-              width: 160,
-              height: 90,
-              decoration: BoxDecoration(
-                color: Colors.black,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(4),
-                  topRight: Radius.circular(4),
-                ),
-              ),
-              child: const Center(
-                child: SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                ),
               ),
             ),
           // 时间文本

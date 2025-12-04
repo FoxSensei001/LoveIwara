@@ -66,6 +66,11 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   Duration? _horizontalDragStartPosition;
   static const int maxSeekSeconds = 90;
 
+  // 底部预览 tooltip 状态：用于淡出时保持最后位置
+  double? _bottomTooltipX;
+  Duration? _bottomTooltipTime;
+  bool _bottomTooltipVisible = false;
+
   // 添加缓存的模糊背景
   String? _lastThumbnailUrl;
 
@@ -467,7 +472,6 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                               _buildInfoMessage(),
                               // 播放速度信息提示（左下角）
                               _buildPlaybackSpeedInfoMessage(),
-                              _buildSeekPreview(),
                               // 添加底部进度条
                               _buildBottomProgressBar(),
                               // 添加遮罩层
@@ -1077,66 +1081,6 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     });
   }
 
-  Widget _buildSeekPreview() {
-    return Obx(() {
-      if (!widget.myVideoStateController.isSeekPreviewVisible.value) {
-        return const SizedBox.shrink();
-      }
-
-      Duration previewPosition =
-          widget.myVideoStateController.previewPosition.value;
-      Duration totalDuration =
-          widget.myVideoStateController.totalDuration.value;
-
-      // 计算进度百分比
-      double progress = totalDuration.inMilliseconds > 0
-          ? previewPosition.inMilliseconds / totalDuration.inMilliseconds
-          : 0.0;
-
-      return Positioned(
-        top: MediaQuery.of(context).padding.top + 20,
-        left: 0,
-        right: 0,
-        child: Center(
-          child: Container(
-            width: 200, // 设置固定宽度
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.8),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // 进度条
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(2),
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    backgroundColor: Colors.grey[700],
-                    valueColor:
-                        const AlwaysStoppedAnimation<Color>(Colors.white),
-                    minHeight: 4,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                // 时间对比
-                Text(
-                  '${CommonUtils.formatDuration(previewPosition)} / ${CommonUtils.formatDuration(totalDuration)}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    });
-  }
-
   // 在类中添加新的方法
   Widget _buildBottomProgressBar() {
     return Obx(() {
@@ -1155,8 +1099,9 @@ class _MyVideoScreenState extends State<MyVideoScreen>
             builder: (context, child) {
               // 当工具栏显示时（animationController.value = 1），进度条透明度为0
               // 当工具栏隐藏时（animationController.value = 0），进度条透明度为1
-              double opacity =
-                  1.0 - widget.myVideoStateController.animationController.value;
+              final toolbarValue =
+                  widget.myVideoStateController.animationController.value;
+              double opacity = 1.0 - toolbarValue;
 
               return Opacity(
                 opacity: opacity,
@@ -1203,7 +1148,10 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                         double? tooltipX;
                         Duration? tooltipTime;
                         final isPreviewReady = widget.myVideoStateController.isPreviewPlayerReady.value;
-                        if (isHorizontalDragging && opacity > 0.5) {
+                        // 工具栏完全展开时不渲染底部预览 tooltip
+                        final bool isToolbarExpanded = toolbarValue >= 1.0;
+
+                        if (!isToolbarExpanded && isHorizontalDragging && opacity > 0.5) {
                           // toolbar 隐藏时（opacity > 0.5 表示进度条可见）
                           tooltipX = progressWidth;
                           tooltipTime = previewPosition;
@@ -1212,6 +1160,17 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                           if (isPreviewReady) {
                             widget.myVideoStateController.updatePreviewSeek(previewPosition);
                           }
+                        }
+
+                        // 底部 tooltip 也保持最后位置，消失时原地淡出
+                        if (tooltipX != null && tooltipTime != null) {
+                          _bottomTooltipX = tooltipX;
+                          _bottomTooltipTime = tooltipTime;
+                          _bottomTooltipVisible = true;
+                        } else if (_bottomTooltipX != null && _bottomTooltipTime != null) {
+                          tooltipX = _bottomTooltipX;
+                          tooltipTime = _bottomTooltipTime;
+                          _bottomTooltipVisible = false;
                         }
 
                         return Stack(
@@ -1251,7 +1210,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                               height: 3,
                               color: colorTheme,
                             ),
-                            // Tooltip（仅在横向拖拽且 toolbar 隐藏时显示）
+                            // Tooltip（仅在横向拖拽且 toolbar 隐藏时显示，并带有淡入淡出效果）
                             if (tooltipX != null && tooltipTime != null)
                               Positioned(
                                 left: tooltipX,
@@ -1259,7 +1218,11 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                                 child: FractionalTranslation(
                                   // 向左偏移 50% 以实现水平居中
                                   translation: const Offset(-0.5, 0),
-                                  child: _buildPreviewTooltip(tooltipTime, isPreviewReady),
+                                  child: _buildPreviewTooltip(
+                                    tooltipTime,
+                                    isPreviewReady,
+                                    visible: _bottomTooltipVisible,
+                                  ),
                                 ),
                               ),
                           ],
@@ -1276,81 +1239,69 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     });
   }
 
-  /// 构建预览 tooltip（包含预览视频画面）
-  Widget _buildPreviewTooltip(Duration time, bool isPreviewReady) {
+  /// 构建预览 tooltip（包含预览视频画面，带淡入淡出效果）
+  Widget _buildPreviewTooltip(
+    Duration time,
+    bool isPreviewReady, {
+    bool visible = true,
+  }) {
     final controller = widget.myVideoStateController;
-    
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.8),
-        borderRadius: BorderRadius.circular(4),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 150),
+      opacity: visible ? 1.0 : 0.0,
+      child: IgnorePointer(
+        ignoring: !visible,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.8),
+            borderRadius: BorderRadius.circular(4),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.2),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // 预览视频画面（如果可用）
-          if (isPreviewReady && controller.previewVideoController != null)
-            Container(
-              width: 160,
-              height: 90,
-              decoration: BoxDecoration(
-                color: Colors.black,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(4),
-                  topRight: Radius.circular(4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 优先使用预览视频画面；如果暂不可用，则仅展示时间信息
+              if (isPreviewReady && controller.previewVideoController != null)
+                Container(
+                  width: 160,
+                  height: 90,
+                  decoration: const BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(4),
+                      topRight: Radius.circular(4),
+                    ),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Video(
+                    controller: controller.previewVideoController!,
+                    controls: null,
+                    fit: BoxFit.cover,
+                  ),
                 ),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: Video(
-                controller: controller.previewVideoController!,
-                controls: null,
-                fit: BoxFit.cover,
-              ),
-            )
-          else if (isPreviewReady)
-            // 预览播放器正在加载
-            Container(
-              width: 160,
-              height: 90,
-              decoration: BoxDecoration(
-                color: Colors.black,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(4),
-                  topRight: Radius.circular(4),
-                ),
-              ),
-              child: const Center(
-                child: SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              // 时间文本（无论是否有预览视频都展示）
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                child: Text(
+                  CommonUtils.formatDuration(time),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    decoration: TextDecoration.none,
                   ),
                 ),
               ),
-            ),
-          // 时间文本
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            child: Text(
-              CommonUtils.formatDuration(time),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                decoration: TextDecoration.none,
-              ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
