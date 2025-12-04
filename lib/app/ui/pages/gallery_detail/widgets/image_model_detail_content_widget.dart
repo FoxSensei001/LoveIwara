@@ -23,10 +23,11 @@ import '../../video_detail/widgets/detail/tags_display_widget.dart';
 import '../../video_detail/widgets/detail/like_avatars_widget.dart';
 import '../controllers/gallery_detail_controller.dart';
 import '../../../widgets/follow_button_widget.dart';
-import '../../../widgets/like_button_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/ui/widgets/split_button_widget.dart' show FilledActionButton, FilledLikeButton;
 import 'package:i_iwara/app/services/favorite_service.dart';
 import 'package:i_iwara/app/ui/widgets/add_to_favorite_dialog.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constants.dart';
 
 class ImageModelDetailContent extends StatelessWidget {
   final GalleryDetailController controller;
@@ -55,243 +56,326 @@ class ImageModelDetailContent extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 12),
           _buildGalleryTitle(),
-          const SizedBox(height: 8),
           _buildAuthorInfo(context),
-          const SizedBox(height: 8),
-          _buildPublishInfo(),
-          const SizedBox(height: 12),
-          _buildGalleryDescription(),
-          const SizedBox(height: 12),
-          _buildTags(),
-          const SizedBox(height: 12),
-          _buildLikeAvatars(),
-          const SizedBox(height: 12),
-          _buildLikeAndCommentButtons(context),
+          const SizedBox(height: UIConstants.sectionSpacing),
+          _buildGalleryDetailsSection(context),
         ],
       );
     });
   }
 
-  // 构建图库标题
+  // 构建图库详情区域（对齐视频详情页结构）
+  Widget _buildGalleryDetailsSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 图库统计信息卡片
+        _buildGalleryStatsCard(context),
+
+        // 图库描述
+        _buildGalleryDescriptionSection(context),
+
+        // 图库标签
+        _buildTagsSection(context),
+        const SizedBox(height: UIConstants.sectionSpacing),
+
+        // 操作按钮区域
+        _buildActionButtonsSection(context),
+        const SizedBox(height: UIConstants.sectionSpacing),
+        // 点赞头像区域
+        _buildLikeAvatarsSection(context),
+      ],
+    );
+  }
+
+  // 构建图库标题（对齐视频详情页）
   Widget _buildGalleryTitle() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 标题文本
-          Expanded(
-            child: SelectableText(
-              controller.imageModelInfo.value?.title ?? '',
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                height: 1.3,
-              ),
-            ),
-          ),
-          // 翻译按钮
-          if (controller.imageModelInfo.value?.title.isNotEmpty == true)
-            IconButton(
-              icon: const Icon(Icons.translate, size: 20),
-              onPressed: () {
-                Get.dialog(
-                  TranslationDialog(
-                    text: controller.imageModelInfo.value!.title,
-                  ),
-                );
-              },
-            ),
-        ],
-      ),
-    );
-  }
+    return Builder(
+      builder: (context) {
+        final title = controller.imageModelInfo.value?.title ?? '';
+        if (title.isEmpty) {
+          return const SizedBox.shrink();
+        }
 
-  // 构建作者信息区域
-  Widget _buildAuthorInfo(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Row(
-        children: [
-          _buildAuthorAvatar(context),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _buildAuthorNameButton(context),
-          ),
-          if (controller.imageModelInfo.value?.user != null)
-            SizedBox(
-              height: 32,
-              child: FollowButtonWidget(
-                user: controller.imageModelInfo.value!.user!,
-                onUserUpdated: (updatedUser) {
-                  controller.imageModelInfo.value = controller.imageModelInfo.value?.copyWith(
-                    user: updatedUser,
-                  );
-                },
-              ),
-            ),
-        ],
-      ),
-    );
-  }
+        final textStyle = TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          height: 1.3,
+          color: Theme.of(context).textTheme.bodyLarge?.color,
+        );
 
-  Widget _buildAuthorAvatar(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: () {
-          final user = controller.imageModelInfo.value?.user;
-          if (user != null) {
-            NaviService.navigateToAuthorProfilePage(user.username);
-          }
-        },
-        behavior: HitTestBehavior.opaque,
-        child: AvatarWidget(
-          user: controller.imageModelInfo.value?.user,
-          size: 40
-        ),
-      ),
-    );
-
-  }
-
-  // 构建作者名字按钮
-  Widget _buildAuthorNameButton(BuildContext context) {
-    final user = controller.imageModelInfo.value?.user;
-    if (user?.premium == true) {
-      return MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          onTap: () {
-            NaviService.navigateToAuthorProfilePage(user?.username ?? '');
-          },
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        return RichText(
+          text: TextSpan(
+            style: textStyle,
             children: [
-              buildUserName(context, user, fontSize: 16, bold: true),
-              Text(
-                '@${user?.username ?? ''}',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey[600],
-                  height: 1.2,
+              TextSpan(text: title),
+              WidgetSpan(
+                alignment: PlaceholderAlignment.middle,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 4),
+                  child: IconButton(
+                    onPressed: () {
+                      Get.dialog(TranslationDialog(text: title));
+                    },
+                    icon: Icon(
+                      Icons.translate,
+                      size: 20,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
-        ),
-      );
-    }
+        );
+      },
+    );
+  }
 
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: () {
-          NaviService.navigateToAuthorProfilePage(user?.username ?? '');
-        },
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            buildUserName(context, user, fontSize: 16, bold: true),
-            Text(
-              '@${user?.username ?? ''}',
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.grey[600],
-                height: 1.2,
+  // 构建作者信息区域（对齐视频详情页）
+  Widget _buildAuthorInfo(BuildContext context) {
+    return Row(
+      children: [
+        MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            onTap: () => NaviService.navigateToAuthorProfilePage(
+              controller.imageModelInfo.value!.user!.username,
+            ),
+            child: AvatarWidget(
+              user: controller.imageModelInfo.value?.user,
+              size: 40,
+            ),
+          ),
+        ),
+        const SizedBox(width: UIConstants.pagePadding),
+        Expanded(
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onTap: () => NaviService.navigateToAuthorProfilePage(
+                controller.imageModelInfo.value!.user!.username,
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+              behavior: HitTestBehavior.opaque,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  buildUserName(
+                    context,
+                    controller.imageModelInfo.value?.user,
+                    fontSize: 16,
+                    bold: true,
+                  ),
+                  Text(
+                    '@${controller.imageModelInfo.value?.user?.username ?? ''}',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey[600],
+                      height: 1.2,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        if (controller.imageModelInfo.value?.user != null)
+          SizedBox(
+            height: 32,
+            child: FollowButtonWidget(
+              user: controller.imageModelInfo.value!.user!,
+              onUserUpdated: (updatedUser) {
+                controller.imageModelInfo.value = controller.imageModelInfo.value?.copyWith(
+                  user: updatedUser,
+                );
+              },
+            ),
+          ),
+      ],
+    );
+  }
+
+  // 构建图库统计信息卡片（对齐视频详情页）
+  Widget _buildGalleryStatsCard(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return Obx(() {
+      final imageModelInfo = controller.imageModelInfo.value;
+      if (imageModelInfo == null) return const SizedBox.shrink();
+
+      return Container(
+        padding: const EdgeInsets.all(UIConstants.cardPadding),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.schedule, size: 16, color: Colors.grey[600]),
+                      const SizedBox(width: UIConstants.iconTextSpacing),
+                      Text(
+                        '${t.galleryDetail.publishedAt}：${CommonUtils.formatFriendlyTimestamp(imageModelInfo.createdAt)}',
+                        style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: UIConstants.smallSpacing),
+                  Row(
+                    children: [
+                      Icon(Icons.visibility, size: 16, color: Colors.grey[600]),
+                      const SizedBox(width: UIConstants.iconTextSpacing),
+                      Text(
+                        '${CommonUtils.formatFriendlyNumber(imageModelInfo.numViews.toInt())} ${t.galleryDetail.viewsCount}',
+                        style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
         ),
-      ),
-    );
+      );
+    });
   }
 
-  // 构建发布时间和观看次数
-  Widget _buildPublishInfo() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Text(
-        '${slang.t.galleryDetail.publishedAt}: ${CommonUtils.formatFriendlyTimestamp(controller.imageModelInfo.value?.createdAt)}    ${slang.t.galleryDetail.viewsCount}: ${CommonUtils.formatFriendlyNumber(controller.imageModelInfo.value?.numViews.toInt() ?? 0)}',
-        style: TextStyle(
-          color: Colors.grey.shade600,
-          fontSize: 13,
-        ),
-      ),
-    );
-  }
+  // 构建图库描述（对齐视频详情页）
+  Widget _buildGalleryDescriptionSection(BuildContext context) {
+    return Obx(() {
+      final description = controller.imageModelInfo.value?.body;
+      if (description == null || description.isEmpty) {
+        return const SizedBox.shrink();
+      }
 
-  // 构建图库描述
-  Widget _buildGalleryDescription() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: MediaDescriptionWidget(
-        description: controller.imageModelInfo.value?.body,
-        isDescriptionExpanded: controller.isDescriptionExpanded,
-      ),
-    );
-  }
-
-  // 构建标签区域
-  Widget _buildTags() {
-    final tags = controller.imageModelInfo.value?.tags;
-    if (tags != null && tags.isNotEmpty) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: ExpandableSectionWidget(
-          title: slang.t.common.iwaraTags,
-          icon: Icons.label,
-          child: TagsDisplayWidget(
-            tags: tags,
-            onTagTap: (tag) {
-              // 点击标签跳转到标签图库列表页
-              NaviService.navigateToTagGalleryListPage(tag);
-            },
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: UIConstants.listSpacing),
+          MediaDescriptionWidget(
+            description: description,
+            isDescriptionExpanded: controller.isDescriptionExpanded,
           ),
-        ),
+        ],
       );
-    }
-    return const SizedBox.shrink();
+    });
   }
 
-  // 构建点赞用户头像区域
-  Widget _buildLikeAvatars() {
-    final imageModelId = controller.imageModelInfo.value?.id;
-    if (imageModelId != null) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: SizedBox(
-          height: 40,
-          child: LikeAvatarsWidget(
-              mediaId: imageModelId, mediaType: MediaType.IMAGE),
+  // 构建标签区域（对齐视频详情页）
+  Widget _buildTagsSection(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return Obx(() {
+      final tags = controller.imageModelInfo.value?.tags;
+      if (tags == null || tags.isEmpty) return const SizedBox.shrink();
+
+      return ExpandableSectionWidget(
+        title: t.common.iwaraTags,
+        icon: Icons.label,
+        child: TagsDisplayWidget(
+          tags: tags,
+          onTagTap: (tag) {
+            // 点击标签跳转到标签图库列表页
+            NaviService.navigateToTagGalleryListPage(tag);
+          },
         ),
       );
-    }
-    return const SizedBox.shrink();
+    });
   }
 
-  // 构建点赞和评论按钮区域
-  Widget _buildLikeAndCommentButtons(BuildContext context) {
+  // 构建点赞用户头像区域（对齐视频详情页）
+  Widget _buildLikeAvatarsSection(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return Obx(() {
+      final imageModelId = controller.imageModelInfo.value?.id;
+      if (imageModelId == null) return const SizedBox.shrink();
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.favorite, size: 16, color: Colors.grey[600]),
+              const SizedBox(width: UIConstants.iconTextSpacing),
+              Text(
+                t.common.likeThisVideo,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey[700],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: UIConstants.listSpacing),
+          SizedBox(
+            height: 40,
+            child: LikeAvatarsWidget(
+              mediaId: imageModelId,
+              mediaType: MediaType.IMAGE,
+            ),
+          ),
+        ],
+      );
+    });
+  }
+
+  // 构建操作按钮区域（对齐视频详情页）
+  Widget _buildActionButtonsSection(BuildContext context) {
     final t = slang.Translations.of(context);
     final imageModelInfo = controller.imageModelInfo.value;
-    if (imageModelInfo != null) {
-      return Builder(
-        builder: (context) => Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              spacing: 8,
-              children: [
-                LikeButtonWidget(
+    if (imageModelInfo == null) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.build, size: 16, color: Colors.grey[600]),
+            const SizedBox(width: UIConstants.iconTextSpacing),
+            Text(
+              t.common.operation,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey[700],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: UIConstants.interElementSpacing),
+        _buildActionButtons(context),
+      ],
+    );
+  }
+
+  // 构建操作按钮（对齐视频详情页）
+  Widget _buildActionButtons(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final imageModelInfo = controller.imageModelInfo.value;
+    if (imageModelInfo == null) return const SizedBox.shrink();
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(UIConstants.cardPadding),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Wrap(
+        spacing: UIConstants.listSpacing, // Horizontal space between buttons
+        runSpacing: UIConstants.listSpacing, // Vertical space between rows
+        children: [
+                FilledLikeButton(
                   mediaId: imageModelInfo.id,
                   liked: imageModelInfo.liked,
                   likeCount: imageModelInfo.numLikes,
@@ -310,134 +394,46 @@ class ImageModelDetailContent extends StatelessWidget {
                     );
                   },
                 ),
-                Obx(() {
-                  final isInFavorite = controller.isInAnyFavorite.value;
-                  final primaryColor = Theme.of(context).primaryColor;
-                  return Material(
-                    color: isInFavorite
-                        ? primaryColor.withValues(alpha: 0.1)
-                        : Theme.of(context).colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(20),
-                    child: InkWell(
-                      onTap: () => _addToFavorite(context),
-                      borderRadius: BorderRadius.circular(20),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                          border: isInFavorite
-                              ? Border.all(
-                                  color: primaryColor.withValues(alpha: 0.3),
-                                  width: 1,
-                                )
-                              : null,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              isInFavorite ? Icons.bookmark : Icons.bookmark_border,
-                              size: 20,
-                              color: isInFavorite
-                                  ? primaryColor
-                                  : Theme.of(context).iconTheme.color,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              t.favorite.localizeFavorite,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: isInFavorite
-                                    ? primaryColor
-                                    : Theme.of(context).textTheme.bodyMedium?.color,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                }),
-                Material(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(20),
-                  child: InkWell(
-                    onTap: () => _downloadGallery(context),
-                    borderRadius: BorderRadius.circular(20),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.download,
-                              size: 20,
-                              color: Theme.of(context).iconTheme.color
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            t.download.download,
-                            style: TextStyle(
-                                fontSize: 14,
-                                color: Theme.of(context).textTheme.bodyMedium?.color
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                Obx(() => FilledActionButton(
+                  icon: controller.isInAnyFavorite.value 
+                      ? Icons.bookmark 
+                      : Icons.bookmark_border,
+                  label: t.favorite.localizeFavorite,
+                  onTap: () => _addToFavorite(context),
+                  accentColor: controller.isInAnyFavorite.value 
+                      ? Theme.of(context).primaryColor 
+                      : null,
+                )),
+                FilledActionButton(
+                  icon: Icons.download,
+                  label: t.download.download,
+                  onTap: () => _downloadGallery(context),
                 ),
-                Material(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(20),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(20),
-                    onTap: () {
-                      showModalBottomSheet(
-                        backgroundColor: Colors.transparent,
-                        isScrollControlled: true,
-                        builder: (context) {
-                          // Ensure imageModelInfo is not null before accessing its properties
-                          final info = controller.imageModelInfo.value;
-                          if (info == null) return const SizedBox.shrink(); // Or return an error/placeholder
-                          return ShareGalleryBottomSheet(
-                            galleryId: info.id,
-                            galleryTitle: info.title,
-                            authorName: info.user?.name ?? '',
-                            previewUrl: info.thumbnailUrl,
-                          );
-                        },
-                        context: context,
-                      );
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.share,
-                            size: 20,
-                            color: Theme.of(context).iconTheme.color
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            slang.t.common.share,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Theme.of(context).textTheme.bodyMedium?.color
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                FilledActionButton(
+                  icon: Icons.share,
+                  label: slang.t.common.share,
+                  onTap: () {
+                    showModalBottomSheet(
+                      backgroundColor: Colors.transparent,
+                      isScrollControlled: true,
+                      builder: (context) {
+                        // Ensure imageModelInfo is not null before accessing its properties
+                        final info = controller.imageModelInfo.value;
+                        if (info == null) return const SizedBox.shrink(); // Or return an error/placeholder
+                        return ShareGalleryBottomSheet(
+                          galleryId: info.id,
+                          galleryTitle: info.title,
+                          authorName: info.user?.name ?? '',
+                          previewUrl: info.thumbnailUrl,
+                        );
+                      },
+                      context: context,
+                    );
+                  },
                 ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-    return const SizedBox.shrink();
+        ],
+      ),
+    );
   }
 
   // 下载图库

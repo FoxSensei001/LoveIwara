@@ -1183,15 +1183,39 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                         final totalDuration =
                             widget.myVideoStateController.totalDuration.value;
                         final buffers = widget.myVideoStateController.buffers;
+                        final isHorizontalDragging =
+                            widget.myVideoStateController.isHorizontalDragging.value;
+                        final previewPosition =
+                            widget.myVideoStateController.previewPosition.value;
 
                         // 计算当前进度的宽度
+                        // 如果正在横向拖拽，使用预览位置；否则使用当前播放位置
+                        final Duration positionToShow = isHorizontalDragging
+                            ? previewPosition
+                            : currentPosition;
                         double progressWidth = totalDuration.inMilliseconds > 0
-                            ? (currentPosition.inMilliseconds /
+                            ? (positionToShow.inMilliseconds /
                                     totalDuration.inMilliseconds) *
                                 totalWidth
                             : 0.0;
 
+                        // 计算 tooltip 的位置（仅在横向拖拽且 toolbar 隐藏时显示）
+                        double? tooltipX;
+                        Duration? tooltipTime;
+                        final isPreviewReady = widget.myVideoStateController.isPreviewPlayerReady.value;
+                        if (isHorizontalDragging && opacity > 0.5) {
+                          // toolbar 隐藏时（opacity > 0.5 表示进度条可见）
+                          tooltipX = progressWidth;
+                          tooltipTime = previewPosition;
+                          
+                          // 更新预览播放器位置（限流）
+                          if (isPreviewReady) {
+                            widget.myVideoStateController.updatePreviewSeek(previewPosition);
+                          }
+                        }
+
                         return Stack(
+                          clipBehavior: Clip.none, // 允许 tooltip 溢出
                           children: [
                             // 背景层
                             Container(
@@ -1227,6 +1251,17 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                               height: 3,
                               color: colorTheme,
                             ),
+                            // Tooltip（仅在横向拖拽且 toolbar 隐藏时显示）
+                            if (tooltipX != null && tooltipTime != null)
+                              Positioned(
+                                left: tooltipX,
+                                bottom: 3 + 12, // 距离底部进度条 12px
+                                child: FractionalTranslation(
+                                  // 向左偏移 50% 以实现水平居中
+                                  translation: const Offset(-0.5, 0),
+                                  child: _buildPreviewTooltip(tooltipTime, isPreviewReady),
+                                ),
+                              ),
                           ],
                         );
                       });
@@ -1239,6 +1274,85 @@ class _MyVideoScreenState extends State<MyVideoScreen>
         ),
       );
     });
+  }
+
+  /// 构建预览 tooltip（包含预览视频画面）
+  Widget _buildPreviewTooltip(Duration time, bool isPreviewReady) {
+    final controller = widget.myVideoStateController;
+    
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.8),
+        borderRadius: BorderRadius.circular(4),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // 预览视频画面（如果可用）
+          if (isPreviewReady && controller.previewVideoController != null)
+            Container(
+              width: 160,
+              height: 90,
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(4),
+                  topRight: Radius.circular(4),
+                ),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Video(
+                controller: controller.previewVideoController!,
+                controls: null,
+                fit: BoxFit.cover,
+              ),
+            )
+          else if (isPreviewReady)
+            // 预览播放器正在加载
+            Container(
+              width: 160,
+              height: 90,
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(4),
+                  topRight: Radius.circular(4),
+                ),
+              ),
+              child: const Center(
+                child: SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                ),
+              ),
+            ),
+          // 时间文本
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: Text(
+              CommonUtils.formatDuration(time),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.none,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildMaskLayer() {

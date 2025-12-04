@@ -42,6 +42,7 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
   late int currentIndex = widget.initialIndex;
   late PageController pageController;
   late List<PhotoViewController> controllers;
+
   // 记录当前屏幕宽度和左右点击区域宽度，用于轻量级指针监听
   double _screenWidth = 0;
   double _tapAreaWidth = 0;
@@ -56,6 +57,7 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
   final AppService appService = Get.find();
   OverlayEntry? _overlayEntry;
   late GalleryControls _galleryControls;
+  final GlobalKey _menuButtonKey = GlobalKey();
 
   // 使用Map存储每个图片的重新加载时间戳
   final Map<int, int> _reloadTimestamps = {};
@@ -105,10 +107,11 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
     });
   }
 
-
-
   @override
   void dispose() {
+    // 清理 OverlayEntry
+    _hideMenu();
+
     // 释放所有视频播放器资源
     _releaseAllVideoPlayers();
 
@@ -178,7 +181,8 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
   /// 暂停除指定索引外的所有视频
   void _pauseAllVideosExcept(int currentIndex) {
     for (int i = 0; i < widget.galleryItems.length; i++) {
-      if (i != currentIndex && _isVideo(widget.galleryItems[i].data.originalUrl)) {
+      if (i != currentIndex &&
+          _isVideo(widget.galleryItems[i].data.originalUrl)) {
         final key = _videoPlayerKeys[i];
         if (key?.currentState != null) {
           key!.currentState!.pauseVideo();
@@ -187,15 +191,19 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
     }
   }
 
-
-
   void _showInfoModal(BuildContext context) {
     GalleryInfoDialog.show(context);
   }
 
   void _hideMenu() {
-    _overlayEntry?.remove();
-    _overlayEntry = null;
+    if (_overlayEntry != null) {
+      try {
+        _overlayEntry!.remove();
+      } catch (e) {
+        // OverlayEntry 可能已经被移除或从未插入，忽略错误
+      }
+      _overlayEntry = null;
+    }
   }
 
   /// 轻量级指针监听：只在「短按且位移很小」时，判断是否在左右边缘区域触发翻页
@@ -238,7 +246,7 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
     // 动态生成菜单项
     final menuItems = widget.menuItemsBuilder != null
         ? widget.menuItemsBuilder!(context, item)
-        : widget.menuItemsBuilder!(context, item);
+        : <MenuItem>[];
 
     // 创建菜单
     final menuWidget = DefaultImageMenu(
@@ -272,11 +280,33 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
         ],
       ),
     );
-    BuildContext? overlay = Get.overlayContext;
-    if (overlay != null) {
-      Overlay.of(overlay).insert(_overlayEntry!);
+    // 尝试多种方式获取 Overlay
+    OverlayState? overlayState;
+
+    // 首先尝试 Get 的 overlayContext
+    BuildContext? overlayContext = Get.overlayContext;
+    if (overlayContext != null) {
+      overlayState = Overlay.maybeOf(overlayContext, rootOverlay: true);
+    }
+
+    // 如果 Get 的 overlayContext 不可用，尝试从当前 context 获取根 Overlay
+    overlayState ??= Overlay.maybeOf(context, rootOverlay: true);
+
+    // 如果还是找不到，尝试通过 Navigator 获取
+    if (overlayState == null) {
+      final navigator = Navigator.maybeOf(context, rootNavigator: true);
+      if (navigator != null) {
+        overlayState = navigator.overlay;
+      }
+    }
+
+    // 如果找到了 Overlay，插入菜单
+    if (overlayState != null) {
+      overlayState.insert(_overlayEntry!);
     } else {
-      Overlay.of(context).insert(_overlayEntry!);
+      // 如果找不到 Overlay，记录错误但不抛出异常
+      // 这种情况不应该发生，但为了稳定性我们处理它
+      _overlayEntry = null;
     }
   }
 
@@ -285,8 +315,9 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
     // 获取屏幕宽度
     _screenWidth = MediaQuery.of(context).size.width;
     // 计算点击区域宽度，宽屏和窄屏使用不同的比例
-    _tapAreaWidth =
-        _screenWidth > 600 ? _screenWidth * 0.2 : _screenWidth * 0.25;
+    _tapAreaWidth = _screenWidth > 600
+        ? _screenWidth * 0.2
+        : _screenWidth * 0.25;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -337,7 +368,8 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
 
                     return PhotoViewGalleryPageOptions.customChild(
                       child: GestureDetector(
-                        onDoubleTap: () => _galleryControls.handleDoubleTap(index),
+                        onDoubleTap: () =>
+                            _galleryControls.handleDoubleTap(index),
                         child: Container(
                           color: Colors.transparent,
                           child: Center(
@@ -349,7 +381,8 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                                   ? VideoPlayerWidget(
                                       key: _getVideoPlayerKey(index),
                                       videoUrl: imageUrl,
-                                      headers: widget.galleryItems[index].headers,
+                                      headers:
+                                          widget.galleryItems[index].headers,
                                     )
                                   : imageUrl.startsWith('file://')
                                   ? Image.file(
@@ -360,7 +393,8 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                                     )
                                   : ImageWidget(
                                       imageUrl: imageUrl,
-                                      headers: widget.galleryItems[index].headers,
+                                      headers:
+                                          widget.galleryItems[index].headers,
                                     ),
                             ),
                           ),
@@ -410,7 +444,42 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                                 _showInfoModal(context);
                               },
                             ),
-                            // 更多设置按钮
+                            // 三个点菜单按钮
+                            IconButton(
+                              key: _menuButtonKey,
+                              icon: const Icon(
+                                Icons.more_vert,
+                                color: Colors.white,
+                              ),
+                              onPressed: () {
+                                // 获取按钮的位置
+                                final RenderBox? renderBox =
+                                    _menuButtonKey.currentContext
+                                            ?.findRenderObject()
+                                        as RenderBox?;
+                                if (renderBox != null) {
+                                  final buttonPosition = renderBox
+                                      .localToGlobal(Offset.zero);
+                                  final buttonSize = renderBox.size;
+                                  // 计算菜单位置（菜单右对齐按钮，显示在按钮下方）
+                                  final screenWidth = MediaQuery.of(
+                                    context,
+                                  ).size.width;
+                                  final menuPosition = Offset(
+                                    screenWidth - 300 - 16, // 菜单右对齐，留出边距
+                                    buttonPosition.dy +
+                                        buttonSize.height +
+                                        8, // 菜单显示在按钮下方
+                                  );
+                                  _showImageMenu(
+                                    context,
+                                    widget.galleryItems[currentIndex],
+                                    menuPosition,
+                                  );
+                                }
+                              },
+                            ),
+                            // 页码显示
                             const SizedBox(width: 8),
                             Text(
                               '${currentIndex + 1}/${widget.galleryItems.length}',
@@ -434,5 +503,3 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
     );
   }
 }
-
-

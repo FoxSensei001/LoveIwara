@@ -185,8 +185,14 @@ class _HorizontalImageListState extends State<HorizontalImageList>
   }
 
   void _hideMenu() {
-    _overlayEntry?.remove();
+    if (_overlayEntry != null) {
+      try {
+        _overlayEntry!.remove();
+      } catch (e) {
+        // OverlayEntry 可能已经被移除或从未插入，忽略错误
+      }
     _overlayEntry = null;
+    }
   }
 
   void _showImageMenu(BuildContext context, ImageItem item, Offset position,
@@ -199,7 +205,7 @@ class _HorizontalImageListState extends State<HorizontalImageList>
     // 动态生成菜单项
     final menuItems = widget.menuItemsBuilder != null
         ? widget.menuItemsBuilder!(context, item)
-        : widget.menuItemsBuilder!(context, item);
+        : <MenuItem>[];
 
     // 创建菜单
     final menuWidget = DefaultImageMenu(
@@ -241,11 +247,33 @@ class _HorizontalImageListState extends State<HorizontalImageList>
         ],
       ),
     );
-    BuildContext? overlay = Get.overlayContext;
-    if (overlay != null) {
-      Overlay.of(overlay).insert(_overlayEntry!);
+    // 尝试多种方式获取 Overlay
+    OverlayState? overlayState;
+    
+    // 首先尝试 Get 的 overlayContext
+    BuildContext? overlayContext = Get.overlayContext;
+    if (overlayContext != null) {
+      overlayState = Overlay.maybeOf(overlayContext, rootOverlay: true);
+    }
+    
+    // 如果 Get 的 overlayContext 不可用，尝试从当前 context 获取根 Overlay
+    overlayState ??= Overlay.maybeOf(context, rootOverlay: true);
+    
+    // 如果还是找不到，尝试通过 Navigator 获取
+    if (overlayState == null) {
+      final navigator = Navigator.maybeOf(context, rootNavigator: true);
+      if (navigator != null) {
+        overlayState = navigator.overlay;
+      }
+    }
+    
+    // 如果找到了 Overlay，插入菜单
+    if (overlayState != null) {
+      overlayState.insert(_overlayEntry!);
     } else {
-      Overlay.of(context).insert(_overlayEntry!);
+      // 如果找不到 Overlay，记录错误但不抛出异常
+      // 这种情况不应该发生，但为了稳定性我们处理它
+      _overlayEntry = null;
     }
   }
 

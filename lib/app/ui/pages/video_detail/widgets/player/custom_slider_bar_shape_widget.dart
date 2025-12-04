@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 
 import '../../../../../../utils/common_utils.dart';
 import '../../controllers/my_video_state_controller.dart';
@@ -103,6 +104,8 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
         final totalDuration = widget.controller.totalDuration.value;
         final isHorizontalDragging = widget.controller.isHorizontalDragging.value;
         final previewPosition = widget.controller.previewPosition.value;
+        // 访问 animationController.value 以确保响应式系统追踪它（虽然 AnimatedBuilder 应该能独立工作）
+        final _ = widget.controller.animationController.value; // 用于触发响应式更新
 
         // 计算当前值：
         // 1. 如果正在拖拽进度条，使用拖拽值
@@ -125,6 +128,7 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
             // 决定 Tooltip 显示的数据和位置
             double? tooltipX;
             double? tooltipTime;
+            final isPreviewReady = widget.controller.isPreviewPlayerReady.value;
 
             if (_dragging) {
               // 场景 A：拖拽中 -> 强制显示在滑块上方
@@ -132,16 +136,31 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
               final double ratio = (currentValue / maxValue).clamp(0.0, 1.0);
               tooltipX = ratio * maxWidth;
               tooltipTime = currentValue;
+              
+              // 更新预览播放器位置（限流）
+              if (isPreviewReady) {
+                widget.controller.updatePreviewSeek(Duration(seconds: currentValue.toInt()));
+              }
             } else if (isHorizontalDragging) {
               // 场景 C：横向拖动播放器 -> 显示在 cursor 位置
               // 将预览位置转换为像素位置
               final double ratio = (currentValue / maxValue).clamp(0.0, 1.0);
               tooltipX = ratio * maxWidth;
               tooltipTime = currentValue;
+              
+              // 更新预览播放器位置（限流）
+              if (isPreviewReady) {
+                widget.controller.updatePreviewSeek(Duration(seconds: currentValue.toInt()));
+              }
             } else if (_hoverValue != null && _hoverPosition != null) {
               // 场景 B：仅悬停 -> 显示在鼠标位置
               tooltipX = _hoverPosition;
               tooltipTime = _hoverValue;
+              
+              // 更新预览播放器位置（限流）
+              if (isPreviewReady) {
+                widget.controller.updatePreviewSeek(Duration(seconds: _hoverValue!.toInt()));
+              }
             }
 
             return Stack(
@@ -403,18 +422,51 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
 
   // 通用的 Tooltip 构建方法
   Widget _buildTooltip(double xPosition, double timeValue) {
-    // 基础高度：Thumb半径 + 间距
+    // 基础高度：Thumb半径 + 间距（toolbar 展开时，tooltip 距离进度条的距离）
     const double baseBottom = _thumbOverlayRadius + 10;
-    // 当 toolbar 完全收缩时增加的额外高度
-    const double extraOffset = 70.0;
-    
+    // 细进度条高度 + 期望的 tooltip 距离细进度条的间距
+    // 当 toolbar 收缩时，tooltip 应该距离屏幕底部这个距离
+    const double thinProgressBarOffset = 3.0 + 12.0; // 细进度条 3px + 间距 12px
+
+    final isPreviewReady = widget.controller.isPreviewPlayerReady.value;
+
     return AnimatedBuilder(
       animation: widget.controller.animationController,
       builder: (context, child) {
         // 获取 toolbar 的动画值：1.0 表示展开，0.0 表示收缩
         final double toolbarValue = widget.controller.animationController.value;
-        // 计算动态的 bottom 值：当 toolbar 收缩时（value = 0），增加额外高度
-        final double dynamicBottom = baseBottom + (1.0 - toolbarValue) * extraOffset;
+        // 获取 bottomBarAnimation 的偏移量（y 值）
+        final double bottomBarOffsetY = widget.controller.bottomBarAnimation.value.dy;
+        
+        // 调试信息：打印 toolbar 状态和计算值
+        print('[Tooltip Debug] toolbarValue: $toolbarValue, bottomBarOffsetY: $bottomBarOffsetY');
+        
+        // 获取屏幕高度来计算实际的滑动距离
+        final double screenHeight = MediaQuery.of(context).size.height;
+        // bottomBarAnimation 的 Offset(0, 1) 表示向下滑动一个屏幕高度
+        // 所以实际的滑动距离 = bottomBarOffsetY * screenHeight
+        final double actualSlideDistance = bottomBarOffsetY * screenHeight;
+        
+        // 计算动态的 bottom 值：
+        // - 当 toolbar 展开时（toolbarValue = 1, bottomBarOffsetY = 0）：tooltip 在进度条上方 baseBottom 距离
+        // - 当 toolbar 收缩时（toolbarValue = 0, bottomBarOffsetY = 1）：整个 toolbar 向下滑动
+        //   此时 tooltip 应该相对于屏幕底部定位，距离底部 thinProgressBarOffset
+        //   
+        //   由于 tooltip 的 bottom 是相对于 Stack 的，而 Stack 在 toolbar 中
+        //   当 toolbar 向下滑动 actualSlideDistance 时，tooltip 也会跟着向下滑动
+        //   如果 tooltip 的 bottom = thinProgressBarOffset，那么 tooltip 实际距离屏幕底部 = thinProgressBarOffset + actualSlideDistance
+        //   这太远了，看不到
+        //
+        //   正确的计算逻辑：
+        //   - 展开时：bottom = baseBottom (26)
+        //   - 收缩时：tooltip 应该距离屏幕底部 thinProgressBarOffset (15)
+        //     由于 toolbar 向下滑动 actualSlideDistance，tooltip 的 bottom 需要 = thinProgressBarOffset + actualSlideDistance
+        //     这样当 toolbar 向下滑动后，tooltip 实际距离屏幕底部 = (thinProgressBarOffset + actualSlideDistance) - actualSlideDistance = thinProgressBarOffset
+        final double dynamicBottom = toolbarValue == 1.0 
+            ? baseBottom  // 展开时，使用基础位置
+            : thinProgressBarOffset + actualSlideDistance;  // 收缩时，需要加上滑动距离，以补偿 toolbar 的向下滑动
+        
+        print('[Tooltip Debug] baseBottom: $baseBottom, dynamicBottom: $dynamicBottom, actualSlideDistance: $actualSlideDistance');
         
         return Positioned(
           left: xPosition,
@@ -423,32 +475,87 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
           child: FractionalTranslation(
             // 向左偏移 50% 以实现水平居中
             translation: const Offset(-0.5, 0),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.8),
-                borderRadius: BorderRadius.circular(4),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.2),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Text(
-                CommonUtils.formatDuration(Duration(seconds: timeValue.toInt())),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  decoration: TextDecoration.none, // 消除可能的下划线
-                ),
-              ),
-            ),
+            child: _buildPreviewTooltipContent(timeValue, isPreviewReady),
           ),
         );
       },
+    );
+  }
+
+  /// 构建预览 tooltip 内容（包含预览视频画面）
+  Widget _buildPreviewTooltipContent(double timeValue, bool isPreviewReady) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.8),
+        borderRadius: BorderRadius.circular(4),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // 预览视频画面（如果可用）
+          if (isPreviewReady && widget.controller.previewVideoController != null)
+            Container(
+              width: 160,
+              height: 90,
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(4),
+                  topRight: Radius.circular(4),
+                ),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Video(
+                controller: widget.controller.previewVideoController!,
+                controls: null,
+                fit: BoxFit.cover,
+              ),
+            )
+          else if (isPreviewReady)
+            // 预览播放器正在加载
+            Container(
+              width: 160,
+              height: 90,
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(4),
+                  topRight: Radius.circular(4),
+                ),
+              ),
+              child: const Center(
+                child: SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                ),
+              ),
+            ),
+          // 时间文本
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: Text(
+              CommonUtils.formatDuration(Duration(seconds: timeValue.toInt())),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.none,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

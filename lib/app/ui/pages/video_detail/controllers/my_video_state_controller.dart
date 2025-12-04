@@ -203,6 +203,15 @@ class MyVideoStateController extends GetxController
   Timer? _speedChangeDebouncer;
   Timer? _bufferUpdateThrottleTimer;
 
+  // 预览播放器相关变量
+  Player? previewPlayer;
+  VideoController? previewVideoController;
+  Timer? _previewSeekThrottleTimer;
+  String? previewVideoUrl;
+  final RxBool isPreviewPlayerReady = false.obs;
+  StreamSubscription<Duration?>? previewDurationSubscription;
+  StreamSubscription<bool>? previewPlayingSubscription;
+
   // 滚动相关状态管理
   final RxDouble scrollRatio = 0.0.obs; // 滚动比例
   late final ScrollController scrollController = ScrollController();
@@ -414,6 +423,18 @@ class MyVideoStateController extends GetxController
 
       // 添加画中画状态监听
       _setupPiPListener();
+
+      // 监听 currentVideoSourceList 变化，初始化预览播放器
+      currentVideoSourceList.listen((sources) {
+        if (!_isDisposed && sources.isNotEmpty) {
+          // 延迟初始化，避免影响主播放器加载
+          Future.delayed(const Duration(milliseconds: 500), () {
+            if (!_isDisposed) {
+              _initializePreviewPlayer();
+            }
+          });
+        }
+      });
 
       // 启动显示时间更新定时器
       _startDisplayTimer();
@@ -673,6 +694,7 @@ class MyVideoStateController extends GetxController
     _resumeTipTimer?.cancel();
     _speedChangeDebouncer?.cancel();
     _bufferUpdateThrottleTimer?.cancel();
+    _previewSeekThrottleTimer?.cancel();
     LogUtils.d('所有定时器已取消', 'MyVideoStateController');
 
     // 取消网络请求
@@ -694,6 +716,9 @@ class MyVideoStateController extends GetxController
       } catch (e) {
         LogUtils.w('尝试释放播放器资源时出错: $e', 'MyVideoStateController');
       }
+
+      // 释放预览播放器资源
+      _disposePreviewPlayer();
 
       // 移除生命周期观察者
       WidgetsBinding.instance.removeObserver(this);
@@ -2101,6 +2126,165 @@ class MyVideoStateController extends GetxController
       videoResolutions,
       currentResolutionTag.value!,
     );
+  }
+
+  /// 获取 preview 视频源的 URL
+  String? getPreviewVideoUrl() {
+    if (previewVideoUrl != null) {
+      return previewVideoUrl;
+    }
+
+    // 从 currentVideoSourceList 中查找 name 为 'preview' 的源
+    for (final source in currentVideoSourceList) {
+      if (source.name == 'preview' && source.src != null && source.src!.view != null) {
+        // 处理 URL 格式：https:${videoSource.src!.view}
+        final url = source.src!.view!;
+        if (url.startsWith('//')) {
+          previewVideoUrl = 'https:$url';
+        } else if (url.startsWith('http://') || url.startsWith('https://')) {
+          previewVideoUrl = url;
+        } else {
+          previewVideoUrl = 'https://$url';
+        }
+        return previewVideoUrl;
+      }
+    }
+    return null;
+  }
+
+  /// 初始化预览播放器
+  Future<void> _initializePreviewPlayer() async {
+    if (_isDisposed) return;
+
+    // 如果预览播放器已存在，先释放
+    if (previewPlayer != null) {
+      await _disposePreviewPlayer();
+    }
+
+    final previewUrl = getPreviewVideoUrl();
+    if (previewUrl == null || previewUrl.isEmpty) {
+      LogUtils.d('未找到 preview 视频源，跳过预览播放器初始化', 'MyVideoStateController');
+      return;
+    }
+
+    try {
+      LogUtils.d('开始初始化预览播放器: $previewUrl', 'MyVideoStateController');
+
+      // 创建预览播放器
+      previewPlayer = Player(
+        configuration: PlayerConfiguration(
+          bufferSize: 2 * 1024 * 1024, // 2MB 缓冲区
+          title: 'i_iwara Preview Player',
+          async: true,
+          protocolWhitelist: const [
+            'udp',
+            'rtp',
+            'tcp',
+            'tls',
+            'data',
+            'file',
+            'http',
+            'https',
+            'crypto',
+          ],
+        ),
+      );
+
+      // 创建预览视频控制器
+      previewVideoController = VideoController(
+        previewPlayer!,
+        configuration: VideoControllerConfiguration(
+          enableHardwareAcceleration:
+              _configService[ConfigKey.ENABLE_HARDWARE_ACCELERATION],
+          hwdec: _configService[ConfigKey.ENABLE_HARDWARE_ACCELERATION]
+              ? _configService[ConfigKey.HARDWARE_DECODING]
+              : null,
+        ),
+      );
+
+      // 设置静音
+      previewPlayer!.setVolume(0);
+
+      // 打开预览视频（但不自动播放）
+      await previewPlayer!.open(Media(previewUrl), play: false);
+
+      if (_isDisposed) {
+        await _disposePreviewPlayer();
+        return;
+      }
+
+      // 监听预览播放器的状态
+      previewDurationSubscription = previewPlayer!.stream.duration.listen((duration) {
+        if (_isDisposed) return;
+        // 当 duration 大于 0 时，表示预览播放器已准备好
+        // ignore: unnecessary_null_comparison
+        if (duration != null && duration > Duration.zero) {
+          isPreviewPlayerReady.value = true;
+          LogUtils.d('预览播放器已准备好', 'MyVideoStateController');
+        }
+      });
+
+      previewPlayingSubscription = previewPlayer!.stream.playing.listen((playing) {
+        if (_isDisposed) return;
+        // 可以在这里处理播放状态变化
+      });
+
+      LogUtils.d('预览播放器初始化完成', 'MyVideoStateController');
+    } catch (e) {
+      LogUtils.e('初始化预览播放器失败: $e', tag: 'MyVideoStateController', error: e);
+      await _disposePreviewPlayer();
+    }
+  }
+
+  /// 限流更新预览播放器位置
+  void updatePreviewSeek(Duration position) {
+    if (_isDisposed || previewPlayer == null || !isPreviewPlayerReady.value) {
+      return;
+    }
+
+    // 取消之前的定时器
+    _previewSeekThrottleTimer?.cancel();
+
+    // 设置新的定时器，150ms 后执行 seek
+    _previewSeekThrottleTimer = Timer(const Duration(milliseconds: 150), () {
+      if (_isDisposed || previewPlayer == null) return;
+
+      try {
+        // 执行 seek 操作
+        previewPlayer!.seek(position);
+        // 如果预览播放器未播放，则开始播放
+        previewPlayer!.play();
+      } catch (e) {
+        LogUtils.w('预览播放器 seek 失败: $e', 'MyVideoStateController');
+      }
+    });
+  }
+
+  /// 释放预览播放器资源
+  Future<void> _disposePreviewPlayer() async {
+    _previewSeekThrottleTimer?.cancel();
+    _previewSeekThrottleTimer = null;
+
+    previewDurationSubscription?.cancel();
+    previewDurationSubscription = null;
+
+    previewPlayingSubscription?.cancel();
+    previewPlayingSubscription = null;
+
+    try {
+      if (previewPlayer != null) {
+        await previewPlayer!.dispose();
+        previewPlayer = null;
+      }
+    } catch (e) {
+      LogUtils.w('释放预览播放器失败: $e', 'MyVideoStateController');
+    }
+
+    previewVideoController = null;
+    previewVideoUrl = null;
+    isPreviewPlayerReady.value = false;
+
+    LogUtils.d('预览播放器资源已释放', 'MyVideoStateController');
   }
 
   /// 显示投屏对话框

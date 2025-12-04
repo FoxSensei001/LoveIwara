@@ -9,7 +9,6 @@ import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/oreno3d_tags_wi
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/like_avatars_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/follow_button_widget.dart';
-import 'package:i_iwara/app/ui/widgets/like_button_widget.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/app/services/video_service.dart';
@@ -37,10 +36,10 @@ import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
-import 'package:i_iwara/utils/vibrate_utils.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/models/video_source.model.dart';
-import 'package:i_iwara/app/ui/widgets/split_button_widget.dart';
+import 'package:i_iwara/app/ui/widgets/split_button_widget.dart'
+    show SplitFilledButton, FilledActionButton, FilledLikeButton;
 
 class VideoInfoTabWidget extends StatelessWidget {
   final MyVideoStateController controller;
@@ -51,11 +50,12 @@ class VideoInfoTabWidget extends StatelessWidget {
     required this.controller,
     required this.tabController,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      if (controller.pageLoadingState.value == VideoDetailPageLoadingState.loadingVideoInfo) {
+      if (controller.pageLoadingState.value ==
+          VideoDetailPageLoadingState.loadingVideoInfo) {
         return const Center(child: CircularProgressIndicator());
       }
       if (controller.mainErrorWidget.value != null) {
@@ -73,7 +73,6 @@ class VideoInfoTabWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildVideoTitle(context),
-              const SizedBox(height: UIConstants.interElementSpacing),
               _buildAuthorInfo(context),
               const SizedBox(height: UIConstants.sectionSpacing),
               _buildVideoDetailsSection(context),
@@ -86,29 +85,47 @@ class VideoInfoTabWidget extends StatelessWidget {
   }
 
   Widget _buildVideoTitle(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: SelectableText(
-            controller.videoInfo.value?.title ?? '',
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              height: 1.3,
-            ),
+    return Builder(
+      builder: (context) {
+        final title = controller.videoInfo.value?.title ?? '';
+        if (title.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        final textStyle = TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          height: 1.3,
+          color: Theme.of(context).textTheme.bodyLarge?.color,
+        );
+
+        return SelectableText.rich(
+          TextSpan(
+            style: textStyle,
+            children: [
+              TextSpan(text: title),
+              WidgetSpan(
+                alignment: PlaceholderAlignment.middle,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 4),
+                  child: IconButton(
+                    onPressed: () {
+                      Get.dialog(TranslationDialog(text: title));
+                    },
+                    icon: Icon(
+                      Icons.translate,
+                      size: 20,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ),
-        if (controller.videoInfo.value?.title?.isNotEmpty == true)
-          IconButton(
-            icon: const Icon(Icons.translate, size: 20),
-            padding: const EdgeInsets.only(left: UIConstants.listSpacing),
-            constraints: const BoxConstraints(),
-            onPressed: () => Get.dialog(
-              TranslationDialog(text: controller.videoInfo.value!.title!),
-            ),
-          ),
-      ],
+        );
+      },
     );
   }
 
@@ -121,7 +138,10 @@ class VideoInfoTabWidget extends StatelessWidget {
             onTap: () => NaviService.navigateToAuthorProfilePage(
               controller.videoInfo.value!.user!.username,
             ),
-            child: AvatarWidget(user: controller.videoInfo.value?.user, size: 40),
+            child: AvatarWidget(
+              user: controller.videoInfo.value?.user,
+              size: 40,
+            ),
           ),
         ),
         const SizedBox(width: UIConstants.pagePadding),
@@ -173,7 +193,6 @@ class VideoInfoTabWidget extends StatelessWidget {
   Widget _buildVideoDetailsSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: UIConstants.sectionSpacing,
       children: [
         // 视频统计信息卡片
         _buildVideoStatsCard(context),
@@ -188,8 +207,10 @@ class VideoInfoTabWidget extends StatelessWidget {
         _buildOreno3dSection(context),
 
         // 操作按钮区域
+        const SizedBox(height: UIConstants.sectionSpacing),
         _buildActionButtonsSection(context),
-             // 点赞头像区域
+        const SizedBox(height: UIConstants.sectionSpacing),
+        // 点赞头像区域
         _buildLikeAvatarsSection(context),
         const SafeArea(child: SizedBox.shrink()),
       ],
@@ -303,211 +324,224 @@ class VideoInfoTabWidget extends StatelessWidget {
       final tags = controller.videoInfo.value?.tags;
       if (tags == null || tags.isEmpty) return const SizedBox.shrink();
 
-      return ExpandableSectionWidget(
-        title: t.common.iwaraTags,
-        icon: Icons.label,
-        child: TagsDisplayWidget(
-          tags: tags,
-          onTagTap: (tag) {
-            // 点击标签跳转到标签视频列表页面
-            NaviService.navigateToTagVideoListPage(tag);
-          },
-        ),
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: UIConstants.sectionSpacing),
+          ExpandableSectionWidget(
+            title: t.common.iwaraTags,
+            icon: Icons.label,
+            child: TagsDisplayWidget(
+              tags: tags,
+              onTagTap: (tag) {
+                // 点击标签跳转到标签视频列表页面
+                NaviService.navigateToTagVideoListPage(tag);
+              },
+            ),
+          ),
+        ],
       );
     });
   }
 
-    Widget _buildOreno3dSection(BuildContext context) {
+  Widget _buildOreno3dSection(BuildContext context) {
     final t = slang.Translations.of(context);
     return Obx(() {
       final oreno3dDetail = controller.oreno3dVideoDetail.value;
       final isMatching = controller.isOreno3dMatching.value;
 
-      // 如果正在匹配，显示 loading
-      if (isMatching) {
-        return ExpandableSectionWidget(
-          title: t.oreno3d.name,
-          icon: Icons.view_in_ar,
-          onHelpTap: () => _showOreno3dInfoDialog(context),
-          showHelpButton: true,
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(UIConstants.cardPadding),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 模拟原作信息
-                Shimmer.fromColors(
-                  baseColor: Colors.grey[300]!,
-                  highlightColor: Colors.grey[100]!,
-                  child: Container(
-                    width: 30,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Shimmer.fromColors(
-                  baseColor: Colors.grey[300]!,
-                  highlightColor: Colors.grey[100]!,
-                  child: Container(
-                    width: 70,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: UIConstants.interElementSpacing),
+      // 判断是否应该显示
+      final shouldShow = isMatching ||
+          (oreno3dDetail != null &&
+              (oreno3dDetail.origin != null ||
+                  oreno3dDetail.tags.isNotEmpty ||
+                  oreno3dDetail.characters.isNotEmpty));
 
-                // 模拟标签信息
-                Shimmer.fromColors(
-                  baseColor: Colors.grey[300]!,
-                  highlightColor: Colors.grey[100]!,
-                  child: Container(
-                    width: 25,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Wrap(
-                  spacing: UIConstants.iconTextSpacing,
-                  runSpacing: UIConstants.smallSpacing,
-                  children: [
-                    Shimmer.fromColors(
-                      baseColor: Colors.grey[300]!,
-                      highlightColor: Colors.grey[100]!,
+      // 使用 AnimatedSize 实现高度收缩动画
+      return AnimatedSize(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        alignment: Alignment.topCenter,
+        child: shouldShow
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: UIConstants.sectionSpacing),
+                  // 如果正在匹配，显示 loading
+                  if (isMatching)
+                    ExpandableSectionWidget(
+                      title: t.oreno3d.name,
+                      icon: Icons.view_in_ar,
+                      onHelpTap: () => _showOreno3dInfoDialog(context),
+                      showHelpButton: true,
                       child: Container(
-                        width: 50,
-                        height: 20,
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(UIConstants.cardPadding),
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // 模拟原作信息
+                            Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Container(
+                                width: 30,
+                                height: 12,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Container(
+                                width: 70,
+                                height: 20,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: UIConstants.interElementSpacing),
+
+                            // 模拟标签信息
+                            Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Container(
+                                width: 25,
+                                height: 12,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Wrap(
+                              spacing: UIConstants.iconTextSpacing,
+                              runSpacing: UIConstants.smallSpacing,
+                              children: [
+                                Shimmer.fromColors(
+                                  baseColor: Colors.grey[300]!,
+                                  highlightColor: Colors.grey[100]!,
+                                  child: Container(
+                                    width: 50,
+                                    height: 20,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                ),
+                                Shimmer.fromColors(
+                                  baseColor: Colors.grey[300]!,
+                                  highlightColor: Colors.grey[100]!,
+                                  child: Container(
+                                    width: 65,
+                                    height: 20,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                ),
+                                Shimmer.fromColors(
+                                  baseColor: Colors.grey[300]!,
+                                  highlightColor: Colors.grey[100]!,
+                                  child: Container(
+                                    width: 45,
+                                    height: 20,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: UIConstants.interElementSpacing),
+
+                            // 模拟角色信息
+                            Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Container(
+                                width: 25,
+                                height: 12,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Wrap(
+                              spacing: UIConstants.iconTextSpacing,
+                              runSpacing: UIConstants.smallSpacing,
+                              children: [
+                                Shimmer.fromColors(
+                                  baseColor: Colors.grey[300]!,
+                                  highlightColor: Colors.grey[100]!,
+                                  child: Container(
+                                    width: 55,
+                                    height: 20,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                ),
+                                Shimmer.fromColors(
+                                  baseColor: Colors.grey[300]!,
+                                  highlightColor: Colors.grey[100]!,
+                                  child: Container(
+                                    width: 60,
+                                    height: 20,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                    Shimmer.fromColors(
-                      baseColor: Colors.grey[300]!,
-                      highlightColor: Colors.grey[100]!,
-                      child: Container(
-                        width: 65,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                    )
+                  // 有数据时显示内容
+                  else if (oreno3dDetail != null)
+                    ExpandableSectionWidget(
+                      title: t.oreno3d.name,
+                      icon: Icons.view_in_ar,
+                      onHelpTap: () => _showOreno3dInfoDialog(context),
+                      showHelpButton: true,
+                      child: Oreno3dTagsWidget(
+                        oreno3dDetail: oreno3dDetail,
+                        onSearchTap: _handleOreno3dSearch,
                       ),
                     ),
-                    Shimmer.fromColors(
-                      baseColor: Colors.grey[300]!,
-                      highlightColor: Colors.grey[100]!,
-                      child: Container(
-                        width: 45,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: UIConstants.interElementSpacing),
-
-                // 模拟角色信息
-                Shimmer.fromColors(
-                  baseColor: Colors.grey[300]!,
-                  highlightColor: Colors.grey[100]!,
-                  child: Container(
-                    width: 25,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Wrap(
-                  spacing: UIConstants.iconTextSpacing,
-                  runSpacing: UIConstants.smallSpacing,
-                  children: [
-                    Shimmer.fromColors(
-                      baseColor: Colors.grey[300]!,
-                      highlightColor: Colors.grey[100]!,
-                      child: Container(
-                        width: 55,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                    Shimmer.fromColors(
-                      baseColor: Colors.grey[300]!,
-                      highlightColor: Colors.grey[100]!,
-                      child: Container(
-                        width: 60,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      }
-
-      // 如果没有匹配到且不在匹配中，不显示
-      if (oreno3dDetail == null && !isMatching) {
-        return const SizedBox.shrink();
-      }
-
-      // 检查是否有实际内容可显示（原作、标签、角色）
-      if (oreno3dDetail != null) {
-        final hasOrigin = oreno3dDetail.origin != null;
-        final hasTags = oreno3dDetail.tags.isNotEmpty;
-        final hasCharacters = oreno3dDetail.characters.isNotEmpty;
-        
-        // 如果三者都为空，也不显示
-        if (!hasOrigin && !hasTags && !hasCharacters) {
-          return const SizedBox.shrink();
-        }
-      }
-
-      // 有数据时显示内容
-      return oreno3dDetail != null ? ExpandableSectionWidget(
-        title: t.oreno3d.name,
-        icon: Icons.view_in_ar,
-        onHelpTap: () => _showOreno3dInfoDialog(context),
-        showHelpButton: true,
-        child: Oreno3dTagsWidget(
-          oreno3dDetail: oreno3dDetail,
-          onSearchTap: _handleOreno3dSearch,
-        ),
-      ) : const SizedBox.shrink();
+                ],
+              )
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                children: const [],
+              ),
+      );
     });
   }
-
-
 
   Widget _buildLikeAvatarsSection(BuildContext context) {
     final t = slang.Translations.of(context);
@@ -583,79 +617,70 @@ class VideoInfoTabWidget extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(UIConstants.cardPadding),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        color: Theme.of(
+          context,
+        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Wrap(
         spacing: UIConstants.listSpacing, // Horizontal space between buttons
         runSpacing: UIConstants.listSpacing, // Vertical space between rows
         children: [
-        LikeButtonWidget(
-          mediaId: videoInfo.id,
-          liked: videoInfo.liked ?? false,
-          likeCount: videoInfo.numLikes ?? 0,
-          onLike: (id) async =>
-              (await Get.find<VideoService>().likeVideo(id)).isSuccess,
-          onUnlike: (id) async =>
-              (await Get.find<VideoService>().unlikeVideo(id)).isSuccess,
-          onLikeChanged: (liked) {
-            controller.videoInfo.value = controller.videoInfo.value?.copyWith(
-              liked: liked,
-              numLikes:
-                  (controller.videoInfo.value?.numLikes ?? 0) +
-                  (liked ? 1 : -1),
-            );
-            // 更新缓存中的点赞信息
-            controller.updateCachedVideoLikeInfo(videoInfo.id, liked, controller.videoInfo.value?.numLikes ?? 0);
-          },
-        ),
-        Obx(() => _buildActionButtonWidget(
-          context: context,
-          icon: controller.isInAnyPlaylist.value 
-              ? Icons.playlist_add_check 
-              : Icons.playlist_add,
-          label: t.common.playList,
-          onTap: () => _handlePlaylistAction(context),
-          accentColor: controller.isInAnyPlaylist.value 
-              ? Theme.of(context).primaryColor 
-              : null,
-        )),
-        Obx(() => _buildActionButtonWidget(
-          context: context,
-          icon: controller.isInAnyFavorite.value 
-              ? Icons.bookmark 
-              : Icons.bookmark_border,
-          label: t.favorite.localizeFavorite,
-          onTap: () => _handleFavoriteAction(context, videoInfo),
-          accentColor: controller.isInAnyFavorite.value 
-              ? Theme.of(context).primaryColor 
-              : null,
-        )),
-        _buildDownloadSplitButton(context),
-        _buildActionButtonWidget(
-          context: context,
-          icon: Icons.share,
-          label: t.common.share,
-          onTap: () => _handleShareAction(context),
-        ),
+          FilledLikeButton(
+            mediaId: videoInfo.id,
+            liked: videoInfo.liked,
+            likeCount: videoInfo.numLikes ?? 0,
+            onLike: (id) async =>
+                (await Get.find<VideoService>().likeVideo(id)).isSuccess,
+            onUnlike: (id) async =>
+                (await Get.find<VideoService>().unlikeVideo(id)).isSuccess,
+            onLikeChanged: (liked) {
+              controller.videoInfo.value = controller.videoInfo.value?.copyWith(
+                liked: liked,
+                numLikes:
+                    (controller.videoInfo.value?.numLikes ?? 0) +
+                    (liked ? 1 : -1),
+              );
+              // 更新缓存中的点赞信息
+              controller.updateCachedVideoLikeInfo(
+                videoInfo.id,
+                liked,
+                controller.videoInfo.value?.numLikes ?? 0,
+              );
+            },
+          ),
+          Obx(
+            () => FilledActionButton(
+              icon: controller.isInAnyPlaylist.value
+                  ? Icons.playlist_add_check
+                  : Icons.playlist_add,
+              label: t.common.playList,
+              onTap: () => _handlePlaylistAction(context),
+              accentColor: controller.isInAnyPlaylist.value
+                  ? Theme.of(context).primaryColor
+                  : null,
+            ),
+          ),
+          Obx(
+            () => FilledActionButton(
+              icon: controller.isInAnyFavorite.value
+                  ? Icons.bookmark
+                  : Icons.bookmark_border,
+              label: t.favorite.localizeFavorite,
+              onTap: () => _handleFavoriteAction(context, videoInfo),
+              accentColor: controller.isInAnyFavorite.value
+                  ? Theme.of(context).primaryColor
+                  : null,
+            ),
+          ),
+          _buildDownloadSplitButton(context),
+          FilledActionButton(
+            icon: Icons.share,
+            label: t.common.share,
+            onTap: () => _handleShareAction(context),
+          ),
         ],
       ),
-    );
-  }
-
-  /// 重新设计的操作按钮组件，参考 LikeButtonWidget 的设计
-  Widget _buildActionButtonWidget({
-    required BuildContext context,
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-    Color? accentColor,
-  }) {
-    return ActionButtonWidget(
-      icon: icon,
-      label: label,
-      onTap: onTap,
-      accentColor: accentColor,
     );
   }
 
@@ -663,7 +688,7 @@ class VideoInfoTabWidget extends StatelessWidget {
   void _handlePlaylistAction(BuildContext context) {
     final t = slang.Translations.of(context);
     final UserService userService = Get.find();
-    
+
     if (!userService.isLogin) {
       showToastWidget(
         MDToastWidget(
@@ -675,11 +700,9 @@ class VideoInfoTabWidget extends StatelessWidget {
       LoginService.showLogin();
       return;
     }
-    
+
     Get.dialog(
-      AddVideoToPlayListDialog(
-        videoId: controller.videoInfo.value?.id ?? '',
-      ),
+      AddVideoToPlayListDialog(videoId: controller.videoInfo.value?.id ?? ''),
     ).then((_) {
       // 对话框关闭后刷新播放列表状态
       controller.checkFavoriteAndPlaylistStatus();
@@ -709,13 +732,15 @@ class VideoInfoTabWidget extends StatelessWidget {
   /// 优先使用配置的清晰度，如果视频源中没有该清晰度，则按优先级选择
   String? _getCurrentQuality(List<VideoSource> sources) {
     if (sources.isEmpty) return null;
-    
+
     final configService = Get.find<ConfigService>();
-    final lastQuality = (configService[ConfigKey.LAST_DOWNLOAD_QUALITY] as String).toLowerCase();
-    
+    final lastQuality =
+        (configService[ConfigKey.LAST_DOWNLOAD_QUALITY] as String)
+            .toLowerCase();
+
     // 优先级列表（小写）
     final priorityList = ['source', '1080', '720', '540', '360', 'preview'];
-    
+
     // 首先检查配置的清晰度是否存在（不区分大小写）
     final matchingSource = sources.firstWhereOrNull(
       (source) => (source.name?.toLowerCase() ?? '') == lastQuality,
@@ -724,7 +749,7 @@ class VideoInfoTabWidget extends StatelessWidget {
       // 返回原始大小写的清晰度名称
       return matchingSource.name;
     }
-    
+
     // 如果配置的清晰度不存在，按优先级选择第一个存在的（不区分大小写）
     for (final quality in priorityList) {
       final matchingSource = sources.firstWhereOrNull(
@@ -735,7 +760,7 @@ class VideoInfoTabWidget extends StatelessWidget {
         return matchingSource.name;
       }
     }
-    
+
     // 如果都不存在，返回第一个可用的清晰度
     return sources.firstOrNull?.name;
   }
@@ -744,26 +769,31 @@ class VideoInfoTabWidget extends StatelessWidget {
   Widget _buildDownloadSplitButton(BuildContext context) {
     final t = slang.Translations.of(context);
     final configService = Get.find<ConfigService>();
-    
+
     // 声明下载图标
     const downloadIcon = Icons.download;
-    
+
     return Obx(() {
       final sources = controller.currentVideoSourceList;
       final videoInfo = controller.videoInfo.value;
-      final isLoading = controller.pageLoadingState.value == VideoDetailPageLoadingState.loadingVideoInfo ||
-                        controller.pageLoadingState.value == VideoDetailPageLoadingState.loadingVideoSource;
-      
+      final isLoading =
+          controller.pageLoadingState.value ==
+              VideoDetailPageLoadingState.loadingVideoInfo ||
+          controller.pageLoadingState.value ==
+              VideoDetailPageLoadingState.loadingVideoSource;
+
       // 如果视频信息未加载或没有可用源，禁用按钮
       final isDisabled = videoInfo == null || sources.isEmpty || isLoading;
-      
+
       final currentQuality = _getCurrentQuality(sources);
       final qualityLabel = currentQuality ?? t.download.errors.unknown;
-      
+
       return SplitFilledButton(
         label: '${t.common.download}$qualityLabel',
         icon: downloadIcon,
-        onPressed: isDisabled ? null : () => _handleDownloadWithQuality(context, currentQuality),
+        onPressed: isDisabled
+            ? null
+            : () => _handleDownloadWithQuality(context, currentQuality),
         menuItems: sources.map((source) {
           return PopupMenuItem<String>(
             value: source.name ?? t.download.errors.unknown,
@@ -787,26 +817,29 @@ class VideoInfoTabWidget extends StatelessWidget {
       _handleDownloadAction(context);
       return;
     }
-    
+
     final sources = controller.currentVideoSourceList;
     // 使用 toLowerCase() 进行不区分大小写的比较
     final source = sources.firstWhereOrNull(
       (s) => (s.name?.toLowerCase() ?? '') == quality.toLowerCase(),
     );
-    
+
     if (source == null) {
       _handleDownloadAction(context);
       return;
     }
-    
+
     // 直接使用该清晰度下载，跳过选择对话框
     _downloadWithSource(context, source);
   }
 
   /// 使用指定的视频源下载
-  Future<void> _downloadWithSource(BuildContext context, VideoSource source) async {
+  Future<void> _downloadWithSource(
+    BuildContext context,
+    VideoSource source,
+  ) async {
     final t = slang.Translations.of(context);
-    
+
     if (source.download == null) {
       LogUtils.w('所选质量没有下载链接', 'VideoInfoTabWidget');
       showToastWidget(
@@ -846,8 +879,7 @@ class VideoInfoTabWidget extends StatelessWidget {
       LogUtils.d('创建下载任务元数据', 'VideoInfoTabWidget');
 
       // 检查是否存在重复任务
-      final duplicateCheck = await DownloadService.to
-          .checkVideoTaskDuplicate(
+      final duplicateCheck = await DownloadService.to.checkVideoTaskDuplicate(
         videoInfo.id,
         source.name ?? 'unknown',
       );
@@ -860,7 +892,7 @@ class VideoInfoTabWidget extends StatelessWidget {
           LogUtils.d('Context 已失效，取消下载操作', 'VideoInfoTabWidget');
           return;
         }
-        
+
         final shouldContinue = await _showDuplicateTaskDialog(
           context,
           duplicateCheck.hasSameVideoSameQuality,
@@ -894,8 +926,7 @@ class VideoInfoTabWidget extends StatelessWidget {
       final task = DownloadTask(
         url: source.download!,
         savePath: savePath,
-        fileName:
-            '${videoInfo.title ?? 'video'}_${source.name}.mp4',
+        fileName: '${videoInfo.title ?? 'video'}_${source.name}.mp4',
         supportsRange: true,
         extData: DownloadTaskExtData(
           type: DownloadTaskExtDataType.video,
@@ -917,15 +948,9 @@ class VideoInfoTabWidget extends StatelessWidget {
       // 打开下载管理页面
       NaviService.navigateToDownloadTaskListPage();
     } catch (e) {
-      LogUtils.e(
-        '添加下载任务失败: $e',
-        tag: 'VideoInfoTabWidget',
-        error: e,
-      );
+      LogUtils.e('添加下载任务失败: $e', tag: 'VideoInfoTabWidget', error: e);
       String message;
-      if (e.toString().contains(
-        t.download.errors.downloadTaskAlreadyExists,
-      )) {
+      if (e.toString().contains(t.download.errors.downloadTaskAlreadyExists)) {
         message = t.download.errors.downloadTaskAlreadyExists;
       } else if (e.toString().contains(
         t.download.errors.videoAlreadyDownloaded,
@@ -956,8 +981,6 @@ class VideoInfoTabWidget extends StatelessWidget {
       context: context,
     );
   }
-
-
 
   // 获取视频的下载地址
   Future<String?> _getSavePath(
@@ -1058,9 +1081,9 @@ class VideoInfoTabWidget extends StatelessWidget {
                     // 检查是否存在重复任务
                     final duplicateCheck = await DownloadService.to
                         .checkVideoTaskDuplicate(
-                      videoInfo.id,
-                      source.name ?? 'unknown',
-                    );
+                          videoInfo.id,
+                          source.name ?? 'unknown',
+                        );
 
                     // 如果存在重复任务，显示确认对话框
                     if (duplicateCheck.hasSameVideoSameQuality ||
@@ -1070,7 +1093,7 @@ class VideoInfoTabWidget extends StatelessWidget {
                         LogUtils.d('Context 已失效，取消下载操作', 'VideoInfoTabWidget');
                         return;
                       }
-                      
+
                       final shouldContinue = await _showDuplicateTaskDialog(
                         context,
                         duplicateCheck.hasSameVideoSameQuality,
@@ -1118,7 +1141,10 @@ class VideoInfoTabWidget extends StatelessWidget {
 
                     // 保存选择的清晰度到配置
                     final configService = Get.find<ConfigService>();
-                    configService.setSetting(ConfigKey.LAST_DOWNLOAD_QUALITY, source.name ?? 'unknown');
+                    configService.setSetting(
+                      ConfigKey.LAST_DOWNLOAD_QUALITY,
+                      source.name ?? 'unknown',
+                    );
 
                     showToastWidget(
                       MDToastWidget(
@@ -1185,7 +1211,9 @@ class VideoInfoTabWidget extends StatelessWidget {
       final qualitiesText = existingQualities.isNotEmpty
           ? existingQualities.join('、')
           : t.download.otherQualities;
-      message = t.download.alreadyDownloadedWithQualities(qualities: qualitiesText);
+      message = t.download.alreadyDownloadedWithQualities(
+        qualities: qualitiesText,
+      );
     }
 
     final result = await showDialog<bool>(
@@ -1223,9 +1251,7 @@ class VideoInfoTabWidget extends StatelessWidget {
             selectable: true,
             config: MarkdownConfig(
               configs: [
-                const PConfig(
-                  textStyle: TextStyle(fontSize: 14, height: 1.5),
-                ),
+                const PConfig(textStyle: TextStyle(fontSize: 14, height: 1.5)),
               ],
             ),
           ),
@@ -1260,7 +1286,10 @@ class VideoInfoTabWidget extends StatelessWidget {
   /// 处理 Oreno3D 搜索点击事件
   /// 处理 Oreno3D 搜索点击事件
   void _handleOreno3dSearch(String id, String type, String name) {
-    LogUtils.d('Oreno3D 搜索: id=$id, type=$type, name=$name', 'VideoInfoTabWidget');
+    LogUtils.d(
+      'Oreno3D 搜索: id=$id, type=$type, name=$name',
+      'VideoInfoTabWidget',
+    );
 
     // 跳转到搜索页面，自动选择 oreno3d 模式
     // 传递空的搜索关键词，通过 extData 传递 ID 和类型信息
@@ -1289,115 +1318,11 @@ class VideoInfoTabWidget extends StatelessWidget {
       if (velocity > 0 && tabController.index > 0) {
         // 向右滑动，切换到上一个tab
         tabController.animateTo(tabController.index - 1);
-      } else if (velocity < 0 && tabController.index < tabController.length - 1) {
+      } else if (velocity < 0 &&
+          tabController.index < tabController.length - 1) {
         // 向左滑动，切换到下一个tab
         tabController.animateTo(tabController.index + 1);
       }
     }
-  }
-}
-
-/// 操作按钮组件，参考 LikeButtonWidget 的设计
-class ActionButtonWidget extends StatefulWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-  final bool isLoading;
-  final Color? accentColor;
-
-  const ActionButtonWidget({
-    super.key,
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    this.isLoading = false,
-    this.accentColor,
-  });
-
-  @override
-  State<ActionButtonWidget> createState() => _ActionButtonWidgetState();
-}
-
-class _ActionButtonWidgetState extends State<ActionButtonWidget> {
-  bool _isLoading = false;
-
-  Future<void> _handleTap() async {
-    if (_isLoading || widget.isLoading) return;
-
-    // 添加震动反馈
-    VibrateUtils.vibrate();
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      await Future.delayed(const Duration(milliseconds: 100)); // 模拟异步操作
-      widget.onTap();
-    } catch (e) {
-      // 错误处理
-      LogUtils.e('操作按钮执行失败: $e', tag: 'ActionButtonWidget');
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isLoading = _isLoading || widget.isLoading;
-    final hasAccentColor = widget.accentColor != null;
-
-    return TextButton.icon(
-      onPressed: isLoading ? null : _handleTap,
-      icon: isLoading 
-          ? Shimmer.fromColors(
-              baseColor: hasAccentColor 
-                  ? widget.accentColor!.withValues(alpha: 0.3)
-                  : Colors.grey.shade300,
-              highlightColor: hasAccentColor 
-                  ? widget.accentColor!.withValues(alpha: 0.1)
-                  : Colors.grey.shade100,
-              child: Icon(widget.icon, size: 20),
-            )
-          : Icon(
-              widget.icon, 
-              size: 20,
-              color: hasAccentColor ? widget.accentColor : null,
-            ),
-      label: Text(
-        widget.label,
-        style: TextStyle(
-          fontSize: 14,
-          color: hasAccentColor ? widget.accentColor : null,
-        ),
-      ),
-      style: TextButton.styleFrom(
-        padding: const EdgeInsets.symmetric(
-          horizontal: UIConstants.buttonInternalPadding,
-          vertical: UIConstants.smallSpacing,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        backgroundColor: hasAccentColor 
-            ? widget.accentColor!.withValues(alpha: 0.1)
-            : Theme.of(context).colorScheme.surfaceContainerHighest,
-        foregroundColor: hasAccentColor 
-            ? widget.accentColor 
-            : Theme.of(context).colorScheme.onSurface,
-        elevation: 0,
-        shadowColor: Colors.transparent,
-        side: BorderSide(
-          color: hasAccentColor 
-              ? widget.accentColor!.withValues(alpha: 0.3)
-              : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-          width: 1,
-        ),
-      ),
-    );
   }
 }

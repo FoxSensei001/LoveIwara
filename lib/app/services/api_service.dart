@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'dart:collection';
+import 'dart:io';
 
 import 'package:dio/dio.dart' as d_dio;
 import 'package:dio/io.dart';
@@ -98,6 +99,17 @@ class ApiService extends GetxService {
       },
     ));
     _dio.options.persistentConnection = false;
+
+    // 配置 IOHttpClientAdapter，禁用共享 socket 作为双重保险
+    // 这可以解决 Android 10+ 某些 ROM（华为/荣耀等）的共享 fd 权限问题
+    _dio.httpClientAdapter = IOHttpClientAdapter(
+      createHttpClient: () {
+        final client = HttpClient();
+        // 通过设置 idleTimeout 为 0 来禁用持久连接，从而避免共享 socket
+        client.idleTimeout = Duration.zero;
+        return client;
+      },
+    );
 
     if (_interceptorAdded) {
       return this;

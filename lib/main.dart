@@ -181,6 +181,8 @@ Future<void> _initializeBusinessServices() async {
   Get.put(ConfigBackupService());
 
   // 设置代理 - 在runApp前设置全局HttpOverrides
+  // 无论是否启用代理，都要设置 HttpOverrides.global 以禁用共享 socket
+  // 这可以解决 Android 10+ 某些 ROM（华为/荣耀等）的共享 fd 权限问题
   if (ProxyUtil.isSupportedPlatform()) {
     bool useProxy = configService.settings[ConfigKey.USE_PROXY]?.value ?? false;
     String? proxyUrl;
@@ -188,13 +190,19 @@ Future<void> _initializeBusinessServices() async {
       proxyUrl = configService.settings[ConfigKey.PROXY_URL]?.value;
     }
     
-    // 只有在启用代理且代理地址不为空时才设置 HttpOverrides.global
+    // 无论是否启用代理，都设置 HttpOverrides.global 以禁用共享 socket
     if (useProxy && proxyUrl != null && proxyUrl.isNotEmpty) {
       HttpOverrides.global = MyHttpOverrides(proxyUrl);
       LogUtils.i('代理设置完成: $proxyUrl', '启动初始化');
     } else {
-      LogUtils.i('未启用代理', '启动初始化');
+      // 未启用代理时，也要设置 HttpOverrides.global 以禁用共享 socket
+      HttpOverrides.global = MyHttpOverrides(null);
+      LogUtils.i('未启用代理，已设置 HttpOverrides 以禁用共享 socket', '启动初始化');
     }
+  } else {
+    // 不支持代理的平台（如 Web），也要设置 HttpOverrides.global 以禁用共享 socket
+    HttpOverrides.global = MyHttpOverrides(null);
+    LogUtils.i('当前平台不支持代理，已设置 HttpOverrides 以禁用共享 socket', '启动初始化');
   }
 
   // 初始化用户相关服务
@@ -427,6 +435,10 @@ class MyHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
     final client = super.createHttpClient(context);
+
+    // 禁用共享 socket，解决 Android 10+ 某些 ROM（华为/荣耀等）的共享 fd 权限问题
+    // 通过设置 idleTimeout 为 0 来禁用持久连接，从而避免共享 socket
+    client.idleTimeout = Duration.zero;
 
     if (proxy != null && proxy!.isNotEmpty) {
       client.findProxy = (uri) => 'PROXY $proxy; DIRECT';
