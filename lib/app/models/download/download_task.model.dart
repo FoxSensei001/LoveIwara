@@ -14,6 +14,14 @@ class DownloadTask {
   bool supportsRange; // 是否支持断点续传
   String? error; // 错误信息
   DownloadTaskExtData? extData; // 额外数据
+  /// 媒体类型：'video' | 'gallery' 等，配合 mediaId/quality 用于快速索引
+  String? mediaType;
+
+  /// 媒体 ID，对应视频或图库的 id
+  String? mediaId;
+
+  /// 媒体质量，仅视频任务使用，例如 '1080', '720' 等
+  String? quality;
   /// 任务创建时间（来自数据库 created_at 字段，用于 UI 分组展示）
   final DateTime? createdAt;
   int speed = 0; // 当前下载速度(bytes/s)
@@ -31,6 +39,9 @@ class DownloadTask {
     this.supportsRange = false,
     this.error,
     this.extData,
+    this.mediaType,
+    this.mediaId,
+    this.quality,
     this.createdAt,
   }) : id = id ?? SnowflakeIdGenerator.getInstance().nextId();
 
@@ -59,6 +70,9 @@ class DownloadTask {
       supportsRange: row['supports_range'] == 1,
       error: row['error'],
       extData: extData,
+      mediaType: row['media_type'] as String?,
+      mediaId: row['media_id'] as String?,
+      quality: row['quality'] as String?,
       // 数据库存的是类似 1764675573 的「秒级时间戳」，这里需要转换成毫秒
       createdAt: row['created_at'] != null
           ? DateTime.fromMillisecondsSinceEpoch(
@@ -81,6 +95,9 @@ class DownloadTask {
       'supports_range': supportsRange ? 1 : 0,
       'error': error,
       'ext_data': extData != null ? jsonEncode(extData!.toJson()) : null,
+      'media_type': mediaType,
+      'media_id': mediaId,
+      'quality': quality,
       'updated_at': DateTime.now().millisecondsSinceEpoch,
     };
   }

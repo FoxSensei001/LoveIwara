@@ -6,6 +6,7 @@ import 'package:i_iwara/app/repositories/history_repository.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
+import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:oktoast/oktoast.dart';
@@ -29,6 +30,8 @@ class GalleryDetailController extends GetxController {
 
   // 收藏状态
   final RxBool isInAnyFavorite = false.obs; // 图库是否在任何收藏夹中
+  // 下载状态
+  final RxBool hasAnyDownloadTask = false.obs; // 图库是否已有下载任务
 
   OtherAuthorzMediasController? otherAuthorzImageModelsController;
 
@@ -83,6 +86,9 @@ class GalleryDetailController extends GetxController {
       // 检查收藏状态
       checkFavoriteStatus();
 
+      // 检查下载状态
+      checkDownloadTaskStatus();
+
     } finally {
       LogUtils.d('图片详情信息加载完成', 'GalleryDetailController');
       isImageModelInfoLoading.value = false;
@@ -120,6 +126,37 @@ class GalleryDetailController extends GetxController {
       // 出错时重置状态
       isInAnyFavorite.value = false;
     }
+  }
+
+  /// 检查当前图库是否存在下载任务
+  Future<void> checkDownloadTaskStatus() async {
+    if (imageModelId.isEmpty) return;
+
+    try {
+      final hasTask =
+          await DownloadService.to.hasAnyGalleryDownloadTask(imageModelId);
+      hasAnyDownloadTask.value = hasTask;
+
+      LogUtils.d(
+        '检查图库下载状态完成: hasAnyDownloadTask=${hasAnyDownloadTask.value}',
+        'GalleryDetailController',
+      );
+    } catch (e) {
+      LogUtils.w(
+        '检查图库下载状态失败: $e',
+        'GalleryDetailController',
+      );
+      hasAnyDownloadTask.value = false;
+    }
+  }
+
+  /// 标记当前图库已有下载任务
+  void markGalleryHasDownloadTask() {
+    hasAnyDownloadTask.value = true;
+    LogUtils.d(
+      '标记图库有下载任务: $imageModelId',
+      'GalleryDetailController',
+    );
   }
 
   @override

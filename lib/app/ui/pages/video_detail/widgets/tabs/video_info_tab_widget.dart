@@ -788,6 +788,10 @@ class VideoInfoTabWidget extends StatelessWidget {
       final currentQuality = _getCurrentQuality(sources);
       final qualityLabel = currentQuality ?? t.download.errors.unknown;
 
+      // 检查是否已有下载任务
+      final hasDownloadTask = controller.hasAnyDownloadTask.value;
+      final accentColor = hasDownloadTask ? Theme.of(context).primaryColor : null;
+
       return SplitFilledButton(
         label: '${t.common.download}$qualityLabel',
         icon: downloadIcon,
@@ -807,6 +811,7 @@ class VideoInfoTabWidget extends StatelessWidget {
           _handleDownloadWithQuality(context, quality);
         },
         isDisabled: isDisabled,
+        accentColor: accentColor,
       );
     });
   }
@@ -932,10 +937,16 @@ class VideoInfoTabWidget extends StatelessWidget {
           type: DownloadTaskExtDataType.video,
           data: videoExtData.toJson(),
         ),
+        mediaType: 'video',
+        mediaId: videoInfo.id,
+        quality: source.name,
       );
       LogUtils.d('添加下载任务: ${task.id}', 'VideoInfoTabWidget');
 
       await DownloadService.to.addTask(task);
+
+      // 标记视频有下载任务
+      controller.markVideoHasDownloadTask();
 
       showToastWidget(
         MDToastWidget(
@@ -1134,10 +1145,16 @@ class VideoInfoTabWidget extends StatelessWidget {
                         type: DownloadTaskExtDataType.video,
                         data: videoExtData.toJson(),
                       ),
+                      mediaType: 'video',
+                      mediaId: videoInfo.id,
+                      quality: source.name,
                     );
                     LogUtils.d('添加下载任务: ${task.id}', 'VideoInfoTabWidget');
 
                     await DownloadService.to.addTask(task);
+
+                    // 标记视频有下载任务
+                    controller.markVideoHasDownloadTask();
 
                     // 保存选择的清晰度到配置
                     final configService = Get.find<ConfigService>();

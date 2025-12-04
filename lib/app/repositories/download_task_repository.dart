@@ -84,8 +84,8 @@ class DownloadTaskRepository {
 
       _db.prepare('''
         INSERT INTO download_tasks 
-        (id, url, save_path, file_name, total_bytes, downloaded_bytes, status, supports_range, error, ext_data)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (id, url, save_path, file_name, total_bytes, downloaded_bytes, status, supports_range, error, ext_data, media_type, media_id, quality)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ''').execute([
         task.id,
         task.url,
@@ -96,7 +96,10 @@ class DownloadTaskRepository {
         task.status.name,
         task.supportsRange ? 1 : 0,
         task.error,
-        extDataJson
+        extDataJson,
+        task.mediaType,
+        task.mediaId,
+        task.quality,
       ]);
     } catch (e) {
       LogUtils.e('插入下载任务失败', tag: 'DownloadTaskRepository', error: e);
@@ -121,6 +124,9 @@ class DownloadTaskRepository {
             supports_range = ?, 
             error = ?, 
             ext_data = ?,
+            media_type = ?,
+            media_id = ?,
+            quality = ?,
             updated_at = ?
         WHERE id = ?
       ''').execute([
@@ -133,6 +139,9 @@ class DownloadTaskRepository {
         task.supportsRange ? 1 : 0,
         task.error,
         extDataJson,
+        task.mediaType,
+        task.mediaId,
+        task.quality,
         DateTime.now().millisecondsSinceEpoch,
         task.id
       ]);
@@ -263,6 +272,37 @@ class DownloadTaskRepository {
       stmt.execute([status.name, id]);
     } catch (e) {
       LogUtils.e('更新下载任务状态失败', tag: 'DownloadTaskRepository', error: e);
+      rethrow;
+    }
+  }
+
+  /// 基于媒体信息判断任务是否存在（任意状态）
+  Future<bool> existsTaskByMedia(String mediaType, String mediaId) async {
+    try {
+      final stmt = _db.prepare('''
+        SELECT 1 FROM download_tasks 
+        WHERE media_type = ? AND media_id = ?
+        LIMIT 1
+      ''');
+      final result = stmt.select([mediaType, mediaId]);
+      return result.isNotEmpty;
+    } catch (e) {
+      LogUtils.e('检查媒体任务是否存在失败', tag: 'DownloadTaskRepository', error: e);
+      rethrow;
+    }
+  }
+
+  /// 获取指定视频ID的所有下载任务（任意状态）
+  Future<List<DownloadTask>> getVideoTasksByMedia(String videoId) async {
+    try {
+      final stmt = _db.prepare('''
+        SELECT * FROM download_tasks 
+        WHERE media_type = 'video' AND media_id = ?
+      ''');
+      final results = stmt.select([videoId]);
+      return results.map((row) => DownloadTask.fromRow(row)).toList();
+    } catch (e) {
+      LogUtils.e('获取视频媒体任务失败', tag: 'DownloadTaskRepository', error: e);
       rethrow;
     }
   }

@@ -404,10 +404,15 @@ class ImageModelDetailContent extends StatelessWidget {
                       ? Theme.of(context).primaryColor 
                       : null,
                 )),
-                FilledActionButton(
-                  icon: Icons.download,
-                  label: t.download.download,
-                  onTap: () => _downloadGallery(context),
+                Obx(
+                  () => FilledActionButton(
+                    icon: Icons.download,
+                    label: t.download.download,
+                    onTap: () => _downloadGallery(context),
+                    accentColor: controller.hasAnyDownloadTask.value
+                        ? Theme.of(context).primaryColor
+                        : null,
+                  ),
                 ),
                 FilledActionButton(
                   icon: Icons.share,
@@ -483,9 +488,14 @@ class ImageModelDetailContent extends StatelessWidget {
           type: DownloadTaskExtDataType.gallery,
           data: extData.toJson(),
         ),
+        mediaType: 'gallery',
+        mediaId: imageModel.id,
       );
 
       await DownloadService.to.addTask(task);
+
+      // 标记图库有下载任务
+      controller.markGalleryHasDownloadTask();
 
       showToastWidget(MDToastWidget(
           message: t.download.startDownloading,

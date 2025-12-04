@@ -37,6 +37,7 @@ import '../../../../services/config_service.dart';
 import '../../../../services/favorite_service.dart';
 import '../../../../services/play_list_service.dart';
 import '../../../../services/user_service.dart';
+import '../../../../services/download_service.dart';
 import '../widgets/player/custom_slider_bar_shape_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import '../widgets/private_or_deleted_video_widget.dart';
@@ -85,6 +86,7 @@ class MyVideoStateController extends GetxController
   // 收藏和播放列表状态
   final RxBool isInAnyFavorite = false.obs; // 视频是否在任何收藏夹中
   final RxBool isInAnyPlaylist = false.obs; // 视频是否在任何播放列表中
+  final RxBool hasAnyDownloadTask = false.obs; // 视频是否有任何下载任务（任意清晰度）
 
   // 状态
   // 播放器状态
@@ -850,6 +852,9 @@ class MyVideoStateController extends GetxController
       // 5. 检查收藏和播放列表状态（不阻塞UI渲染）
       parallelTasks.add(checkFavoriteAndPlaylistStatus());
 
+      // 6. 检查下载任务状态（不阻塞UI渲染）
+      parallelTasks.add(checkDownloadTaskStatus());
+
       // 继续获取视频源 - 仅对站内视频
       if (cachedVideoInfo.fileUrl != null &&
           !cachedVideoInfo.isExternalVideo) {
@@ -952,6 +957,9 @@ class MyVideoStateController extends GetxController
 
         // 检查收藏和播放列表状态
         checkFavoriteAndPlaylistStatus();
+        
+        // 检查下载任务状态
+        checkDownloadTaskStatus();
       } on DioException catch (e) {
         if (_isDisposed || e.type == DioExceptionType.cancel) {
           LogUtils.w('请求被取消或Controller已销毁', 'MyVideoStateController');
@@ -2438,6 +2446,41 @@ class MyVideoStateController extends GetxController
         isInAnyPlaylist.value = false;
       }
     }
+  }
+
+  /// 检查当前视频是否有下载任务
+  Future<void> checkDownloadTaskStatus() async {
+    if (_isDisposed || videoId == null) return;
+
+    try {
+      final downloadService = Get.find<DownloadService>();
+      final hasTask = await downloadService.hasAnyVideoDownloadTask(videoId!);
+      
+      if (_isDisposed) return;
+      
+      hasAnyDownloadTask.value = hasTask;
+      
+      LogUtils.d(
+        '检查下载任务状态完成: hasAnyDownloadTask=${hasAnyDownloadTask.value}',
+        'MyVideoStateController',
+      );
+    } catch (e) {
+      if (!_isDisposed) {
+        LogUtils.w(
+          '检查下载任务状态失败: $e',
+          'MyVideoStateController',
+        );
+        // 出错时重置状态
+        hasAnyDownloadTask.value = false;
+      }
+    }
+  }
+
+  /// 标记当前视频有下载任务
+  void markVideoHasDownloadTask() {
+    if (_isDisposed) return;
+    hasAnyDownloadTask.value = true;
+    LogUtils.d('标记视频有下载任务: $videoId', 'MyVideoStateController');
   }
 
   /// 异步刷新视频的点赞信息（缓存命中时的专用方法）

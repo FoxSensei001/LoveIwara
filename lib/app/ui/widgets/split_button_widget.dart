@@ -273,6 +273,7 @@ class SplitFilledButton extends StatelessWidget {
   final Function(String)? onMenuItemSelected;
   final bool isDisabled;
   final IconData? icon; // 左侧按钮的图标
+  final Color? accentColor; // 高亮颜色，用于已下载等状态
 
   const SplitFilledButton({
     super.key,
@@ -282,19 +283,25 @@ class SplitFilledButton extends StatelessWidget {
     this.onMenuItemSelected,
     this.isDisabled = false,
     this.icon,
+    this.accentColor,
   });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isEnabled = onPressed != null && !isDisabled;
+    final hasAccentColor = accentColor != null;
 
     // 1. 颜色定义：确保边框颜色清晰
-    // 使用 outline 并提高不透明度确保可见
-    final borderColor = colorScheme.outline.withValues(alpha: 0.4);
-    final backgroundColor = colorScheme.surfaceContainerHighest;
+    // 使用 outline 并提高不透明度确保可见，或者使用 accentColor
+    final borderColor = hasAccentColor
+        ? accentColor!.withValues(alpha: 0.3)
+        : colorScheme.outline.withValues(alpha: 0.4);
+    final backgroundColor = hasAccentColor
+        ? accentColor!.withValues(alpha: 0.1)
+        : colorScheme.surfaceContainerHighest;
     final contentColor = isEnabled
-        ? colorScheme.onSurface
+        ? (hasAccentColor ? accentColor : colorScheme.onSurface)
         : colorScheme.onSurface.withValues(alpha: 0.38);
 
     // 2. 圆角定义

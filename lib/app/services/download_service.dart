@@ -157,6 +157,26 @@ class DownloadService extends GetxService {
     // 格式化task的下载路径
     task.savePath = CommonUtils.formatSavePathUriByPath(task.savePath);
     try {
+      // 自动补全媒体索引字段，便于后续通过 media_type/media_id/quality 做高效查询
+      try {
+        final ext = task.extData;
+        if (ext != null) {
+          if (ext.type == DownloadTaskExtDataType.video) {
+            final videoData = VideoDownloadExtData.fromJson(ext.data);
+            task.mediaType ??= 'video';
+            task.mediaId ??= videoData.id;
+            task.quality ??= videoData.quality;
+          } else if (ext.type == DownloadTaskExtDataType.gallery) {
+            final galleryData = GalleryDownloadExtData.fromJson(ext.data);
+            task.mediaType ??= 'gallery';
+            task.mediaId ??= galleryData.id;
+            // 图库任务目前不区分 quality，保持为 null
+          }
+        }
+      } catch (e) {
+        LogUtils.w('自动填充下载任务媒体索引字段失败: $e', 'DownloadService');
+      }
+
       // 直接插入数据库，因为ID是唯一的
       task.status = DownloadStatus.pending;
       await _repository.insertTask(task);
@@ -887,67 +907,23 @@ class DownloadService extends GetxService {
     String quality,
   ) async {
     try {
-      // 使用分页查询所有任务（包括所有状态）
-      const pageSize = 50;
-      int offset = 0;
-      bool hasMore = true;
-
-      // 检查是否存在相同视频ID的任务
+      // 使用基于 media_type/media_id 的索引查询，不再做全表遍历
+      final mediaTasks = await _repository.getVideoTasksByMedia(videoId);
       bool hasSameVideoDifferentQuality = false;
       bool hasSameVideoSameQuality = false;
       final existingQualities = <String>[];
 
-      // 分页查询，直到找到匹配的任务或查询完所有任务
-      // 如果找到相同清晰度的任务，可以提前停止；否则继续查找
-      while (hasMore) {
-        final tasks = await _repository.getTasksByStatus(
-          null, // null 表示查询所有状态
-          offset: offset,
-          limit: pageSize,
-        );
-
-        if (tasks.isEmpty) {
-          hasMore = false;
-          break;
+      for (var task in mediaTasks) {
+        final q = task.quality ?? '';
+        if (q.isNotEmpty) {
+          existingQualities.add(q);
         }
 
-        // 过滤出视频类型的任务并检查
-        for (var task in tasks) {
-          if (task.extData?.type != DownloadTaskExtDataType.video) {
-            continue;
-          }
-
-          try {
-            final videoData = VideoDownloadExtData.fromJson(task.extData!.data);
-            if (videoData.id == videoId) {
-              final existingQuality = videoData.quality ?? '';
-              if (existingQuality.isNotEmpty) {
-                existingQualities.add(existingQuality);
-              }
-
-              if (existingQuality == quality) {
-                hasSameVideoSameQuality = true;
-              } else if (existingQuality.isNotEmpty) {
-                hasSameVideoDifferentQuality = true;
-              }
-            }
-          } catch (e) {
-            // 解析失败的任务跳过，记录日志但不影响主流程
-            LogUtils.w(
-              '解析视频任务扩展数据失败: ${task.id}',
-              'DownloadService',
-            );
-          }
+        if (q == quality) {
+          hasSameVideoSameQuality = true;
+        } else if (q.isNotEmpty) {
+          hasSameVideoDifferentQuality = true;
         }
-
-        // 如果已经找到相同清晰度的任务，可以提前停止
-        if (hasSameVideoSameQuality) {
-          break;
-        }
-
-        // 更新偏移量
-        offset += pageSize;
-        hasMore = tasks.length >= pageSize;
       }
 
       return VideoTaskDuplicateCheckResult(
@@ -967,6 +943,40 @@ class DownloadService extends GetxService {
         hasSameVideoSameQuality: false,
         existingQualities: [],
       );
+    }
+  }
+
+  /// 检查指定视频是否存在任何下载任务（任意清晰度）
+  /// 返回 true 表示存在至少一个下载任务，false 表示不存在
+  Future<bool> hasAnyVideoDownloadTask(String videoId) async {
+    try {
+      // 直接使用基于媒体索引的查询，避免全表遍历
+      return await _repository.existsTaskByMedia('video', videoId);
+    } catch (e) {
+      LogUtils.e(
+        '检查视频下载任务失败',
+        tag: 'DownloadService',
+        error: e,
+      );
+      // 发生异常时返回 false，降级处理
+      return false;
+    }
+  }
+
+  /// 检查指定图库是否存在任何下载任务
+  /// 返回 true 表示存在至少一个下载任务，false 表示不存在
+  Future<bool> hasAnyGalleryDownloadTask(String galleryId) async {
+    try {
+      // 直接使用基于媒体索引的查询，避免全表遍历
+      return await _repository.existsTaskByMedia('gallery', galleryId);
+    } catch (e) {
+      LogUtils.e(
+        '检查图库下载任务失败',
+        tag: 'DownloadService',
+        error: e,
+      );
+      // 发生异常时返回 false，降级处理
+      return false;
     }
   }
 
