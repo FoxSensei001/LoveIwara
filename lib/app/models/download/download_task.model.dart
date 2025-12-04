@@ -14,6 +14,8 @@ class DownloadTask {
   bool supportsRange; // 是否支持断点续传
   String? error; // 错误信息
   DownloadTaskExtData? extData; // 额外数据
+  /// 任务创建时间（来自数据库 created_at 字段，用于 UI 分组展示）
+  final DateTime? createdAt;
   int speed = 0; // 当前下载速度(bytes/s)
   DateTime? lastSpeedUpdateTime; // 上次速度更新时间
   int lastDownloadedBytes = 0; // 上次下载的字节数
@@ -29,6 +31,7 @@ class DownloadTask {
     this.supportsRange = false,
     this.error,
     this.extData,
+    this.createdAt,
   }) : id = id ?? SnowflakeIdGenerator.getInstance().nextId();
 
   // 从数据库行转换
@@ -56,6 +59,12 @@ class DownloadTask {
       supportsRange: row['supports_range'] == 1,
       error: row['error'],
       extData: extData,
+      // 数据库存的是类似 1764675573 的「秒级时间戳」，这里需要转换成毫秒
+      createdAt: row['created_at'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(
+              (row['created_at'] as int) * 1000,
+            )
+          : null,
     );
   }
 

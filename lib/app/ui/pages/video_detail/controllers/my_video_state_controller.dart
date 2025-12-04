@@ -212,6 +212,8 @@ class MyVideoStateController extends GetxController
   final RxBool isPreviewPlayerReady = false.obs;
   StreamSubscription<Duration?>? previewDurationSubscription;
   StreamSubscription<bool>? previewPlayingSubscription;
+  // 预览 seek 最新目标位置（与 EasyThrottle 配合使用）
+  Duration? _latestPreviewSeekPosition;
 
   // 滚动相关状态管理
   final RxDouble scrollRatio = 0.0.obs; // 滚动比例
@@ -2190,7 +2192,7 @@ class MyVideoStateController extends GetxController
       // 创建预览播放器
       previewPlayer = Player(
         configuration: PlayerConfiguration(
-          bufferSize: 2 * 1024 * 1024, // 2MB 缓冲区
+          bufferSize: 32 * 1024 * 1024, // 32MB 缓冲区（与主播放器默认一致）
           title: 'i_iwara Preview Player',
           async: true,
           protocolWhitelist: const [
@@ -2253,28 +2255,43 @@ class MyVideoStateController extends GetxController
     }
   }
 
-  /// 限流更新预览播放器位置
+  /// 限流更新预览播放器位置（使用 EasyThrottle，只对最后一次位置进行 seek）
   void updatePreviewSeek(Duration position) {
     if (_isDisposed || previewPlayer == null || !isPreviewPlayerReady.value) {
       return;
     }
 
-    // 取消之前的定时器
-    _previewSeekThrottleTimer?.cancel();
+    // 记录最新的目标位置
+    _latestPreviewSeekPosition = position;
 
-    // 设置新的定时器，150ms 后执行 seek
-    _previewSeekThrottleTimer = Timer(const Duration(milliseconds: 150), () {
-      if (_isDisposed || previewPlayer == null) return;
+    // 使用 EasyThrottle 控制实际 seek 频率
+    EasyThrottle.throttle(
+      '${randomId}_preview_seek',
+      const Duration(milliseconds: 150),
+      () {
+        if (_isDisposed || previewPlayer == null || !isPreviewPlayerReady.value) {
+          return;
+        }
 
-      try {
-        // 执行 seek 操作
-        previewPlayer!.seek(position);
-        // 如果预览播放器未播放，则开始播放
-        previewPlayer!.play();
-      } catch (e) {
-        LogUtils.w('预览播放器 seek 失败: $e', 'MyVideoStateController');
-      }
-    });
+        final Duration? target = _latestPreviewSeekPosition;
+        if (target == null) {
+          return;
+        }
+
+        try {
+          // 执行 seek 操作，并在对应位置停住用于预览
+          previewPlayer!.seek(target).then((_) {
+            if (_isDisposed || previewPlayer == null) {
+              return;
+            }
+            // 预览模式下保持暂停状态，确保画面停留在 tooltip 对应的时间点
+            previewPlayer!.pause();
+          });
+        } catch (e) {
+          LogUtils.w('预览播放器 seek 失败: $e', 'MyVideoStateController');
+        }
+      },
+    );
   }
 
   /// 释放预览播放器资源

@@ -3,9 +3,6 @@ import 'package:i_iwara/db/database_service.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:sqlite3/common.dart';
 import 'dart:convert';
-import 'package:get/get.dart';
-import 'package:i_iwara/app/services/download_service.dart';
-import 'package:loading_more_list/loading_more_list.dart';
 
 class DownloadTaskRepository {
   late final CommonDatabase _db;
@@ -269,90 +266,25 @@ class DownloadTaskRepository {
       rethrow;
     }
   }
-}
 
-class CompletedDownloadTaskRepository extends LoadingMoreBase<DownloadTask> {
-  final DownloadService _downloadService = Get.find<DownloadService>();
-  
-  bool _hasMore = true;
-  bool forceRefresh = false;
-  
-  static const int pageSize = 20;
-  
-  @override
-  bool get hasMore => _hasMore || forceRefresh;
-
-  @override
-  Future<bool> refresh([bool notifyStateChanged = false]) async {
-    _hasMore = true;
-    forceRefresh = !notifyStateChanged;
-    clear();
-    final bool result = await super.refresh(notifyStateChanged);
-    forceRefresh = false;
-    return result;
-  }
-
-  @override
-  Future<bool> loadData([bool isLoadMoreAction = false]) async {
-    bool isSuccess = false;
+  /// 分页获取历史任务（paused/failed/completed），按创建时间降序排列
+  Future<List<DownloadTask>> getHistoryTasks({
+    required int offset,
+    required int limit,
+  }) async {
     try {
-      final tasks = await _downloadService.getCompletedTasks(
-        // 使用当前列表长度作为偏移量，避免删除任务后分页错位
-        offset: length,
-        limit: pageSize,
-      );
+      final stmt = _db.prepare('''
+        SELECT * FROM download_tasks 
+        WHERE status IN ('paused', 'failed', 'completed')
+        ORDER BY created_at DESC
+        LIMIT ? OFFSET ?
+      ''');
 
-      addAll(tasks);
-
-      _hasMore = tasks.length >= pageSize;
-      isSuccess = true;
+      final results = stmt.select([limit, offset]);
+      return results.map((row) => DownloadTask.fromRow(row)).toList();
     } catch (e) {
-      isSuccess = false;
+      LogUtils.e('获取历史任务失败', tag: 'DownloadTaskRepository', error: e);
+      rethrow;
     }
-    return isSuccess;
-  }
-}
-
-class FailedDownloadTaskRepository extends LoadingMoreBase<DownloadTask> {
-  final DownloadTaskRepository _repository = DownloadTaskRepository();
-  
-  bool _hasMore = true;
-  bool forceRefresh = false;
-  
-  static const int pageSize = 20;
-  
-  @override
-  bool get hasMore => _hasMore || forceRefresh;
-
-  @override
-  Future<bool> refresh([bool notifyStateChanged = false]) async {
-    _hasMore = true;
-    forceRefresh = !notifyStateChanged;
-    clear();
-    final bool result = await super.refresh(notifyStateChanged);
-    forceRefresh = false;
-    return result;
-  }
-
-  @override
-  Future<bool> loadData([bool isLoadMoreAction = false]) async {
-    bool isSuccess = false;
-    try {
-      final tasks = await _repository.getTasksByStatus(
-        DownloadStatus.failed,
-        // 使用当前列表长度作为偏移量，避免删除任务后分页错位
-        offset: length,
-        limit: pageSize,
-      );
-
-      addAll(tasks);
-
-      _hasMore = tasks.length >= pageSize;
-      isSuccess = true;
-    } catch (e) {
-      isSuccess = false;
-      LogUtils.e('加载失败任务失败', tag: 'FailedDownloadTaskRepository', error: e);
-    }
-    return isSuccess;
   }
 }

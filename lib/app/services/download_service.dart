@@ -231,8 +231,9 @@ class DownloadService extends GetxService {
             slang.t.download.errors.canNotRefreshVideoTask,
             Colors.red,
           );
-          // 让任务变为失败状态
+          // 让任务变为失败状态，并记录错误信息
           task.status = DownloadStatus.failed;
+          task.error = slang.t.download.errors.canNotRefreshVideoTask;
           await _repository.updateTask(task); // [更新持久化信息]
           _clearMemoryTask(taskId, '刷新视频任务失败，无法处理');
           LogUtils.d('刷新视频任务失败，无法处理: $taskId', 'DownloadService');
@@ -414,7 +415,7 @@ class DownloadService extends GetxService {
     RandomAccessFile? raf;
     StreamSubscription? subscription;
     int retryCount = 0;
-    const maxRetries = 2;
+    const maxRetries = 3;
     const retryDelay = Duration(seconds: 3);
 
     while (retryCount < maxRetries) {
@@ -688,6 +689,35 @@ class DownloadService extends GetxService {
           continue;
         }
       } catch (e) {
+        // 针对网络类错误做一点「智能重试」：
+        // 如果是 Http 连接被中断（Connection closed）并且是视频任务，
+        // 尝试像 resumeTask 一样刷新下载链接后再重试一次。
+        final isConnectionClosedError =
+            e is HttpException && e.message.contains('Connection closed');
+
+        if (isConnectionClosedError &&
+            retryCount < maxRetries - 1 &&
+            task.extData?.type == DownloadTaskExtDataType.video) {
+          try {
+            final refreshed = await refreshVideoTask(task);
+            if (refreshed != null) {
+              LogUtils.d(
+                '检测到连接中断，已刷新视频下载链接，准备重试: ${task.id}',
+                'DownloadService',
+              );
+              task = refreshed;
+              retryCount++;
+              await Future.delayed(retryDelay);
+              continue;
+            }
+          } catch (refreshError) {
+            LogUtils.w(
+              '连接中断时刷新视频任务链接失败，将按照普通错误处理: $refreshError',
+              'DownloadService',
+            );
+          }
+        }
+
         if (retryCount >= maxRetries - 1) {
           if (e is DioException) {
             final errorMsg = _getErrorMessage(e);
@@ -766,7 +796,8 @@ class DownloadService extends GetxService {
     } else {
       _activeTasks.remove(task.id);
     }
-    await _repository.updateTaskStatusById(task.id, task.status);
+    // 使用完整更新，确保 error、downloadedBytes 等字段也能持久化
+    await _repository.updateTask(task);
 
     // 通知任务状态变更
     _taskStatusChangedNotifier.value++;
@@ -838,18 +869,6 @@ class DownloadService extends GetxService {
     // 通知UI并处理队列
     _taskStatusChangedNotifier.value++;
     _processQueue();
-  }
-
-  // 清除所有失败的任务
-  Future<void> clearFailedTasks() async {
-    final failedTasks = await _repository.getTasksByStatus(
-      DownloadStatus.failed,
-    );
-    for (var task in failedTasks) {
-      await deleteTask(task.id);
-    }
-    // 通知任务状态变更
-    _taskStatusChangedNotifier.value++;
   }
 
   // 获取已完成的任务（分页）
@@ -1002,9 +1021,29 @@ class DownloadService extends GetxService {
   }
 
   void _showMessage(String message, Color color) {
-    Get.showSnackbar(
-      GetSnackBar(
-        message: message,
+    // 改用 Flutter 自带的 ScaffoldMessenger + 当前 context 来展示 SnackBar，
+    // 避免依赖 Overlay 直接抛出 “No Overlay widget found”。
+    final context = Get.context ?? Get.key.currentContext;
+    if (context == null) {
+      LogUtils.w(
+        '当前没有可用的 BuildContext，跳过 SnackBar 提示: $message',
+        'DownloadService',
+      );
+      return;
+    }
+
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    if (messenger == null) {
+      LogUtils.w(
+        '当前 context 下没有 ScaffoldMessenger，跳过 SnackBar 提示: $message',
+        'DownloadService',
+      );
+      return;
+    }
+
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(message),
         duration: const Duration(seconds: 2),
         backgroundColor: color,
       ),

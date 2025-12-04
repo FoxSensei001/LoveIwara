@@ -438,9 +438,6 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
         // 获取 bottomBarAnimation 的偏移量（y 值）
         final double bottomBarOffsetY = widget.controller.bottomBarAnimation.value.dy;
         
-        // 调试信息：打印 toolbar 状态和计算值
-        print('[Tooltip Debug] toolbarValue: $toolbarValue, bottomBarOffsetY: $bottomBarOffsetY');
-        
         // 获取屏幕高度来计算实际的滑动距离
         final double screenHeight = MediaQuery.of(context).size.height;
         // bottomBarAnimation 的 Offset(0, 1) 表示向下滑动一个屏幕高度
@@ -465,9 +462,7 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
         final double dynamicBottom = toolbarValue == 1.0 
             ? baseBottom  // 展开时，使用基础位置
             : thinProgressBarOffset + actualSlideDistance;  // 收缩时，需要加上滑动距离，以补偿 toolbar 的向下滑动
-        
-        print('[Tooltip Debug] baseBottom: $baseBottom, dynamicBottom: $dynamicBottom, actualSlideDistance: $actualSlideDistance');
-        
+
         return Positioned(
           left: xPosition,
           // 距离底部的位置：根据 toolbar 状态动态调整，避免被遮挡

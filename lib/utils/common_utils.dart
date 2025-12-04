@@ -421,13 +421,28 @@ class CommonUtils {
   }
 
   /// 获取视频链接的过期时间
+  /// 链接示例：https://firefly.iwara.tv/download?filename=xxx.mp4&expires=1764679161&hash=xxx
+  /// expires 参数是 Unix 时间戳（秒）
   static DateTime? getVideoLinkExpireTime(String videoLink) {
-    final uri = Uri.parse(videoLink);
-    final expires = uri.queryParameters['expires'];
-    if (expires == null) {
+    try {
+      final uri = Uri.parse(videoLink);
+      final expiresStr = uri.queryParameters['expires'];
+      if (expiresStr == null || expiresStr.isEmpty) {
+        return null;
+      }
+      
+      // 将 Unix 时间戳（秒）转换为 DateTime
+      final expiresTimestamp = int.tryParse(expiresStr);
+      if (expiresTimestamp == null) {
+        return null;
+      }
+      
+      // Unix 时间戳是秒，需要转换为毫秒
+      return DateTime.fromMillisecondsSinceEpoch(expiresTimestamp * 1000);
+    } catch (e) {
+      LogUtils.e('解析视频链接过期时间失败', tag: 'CommonUtils', error: e);
       return null;
     }
-    return DateTime.parse(expires);
   }
 
   // 通过path来格式化uri
