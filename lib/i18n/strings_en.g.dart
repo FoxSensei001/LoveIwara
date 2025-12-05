@@ -2590,6 +2590,9 @@ class TranslationsDownloadEn {
 	/// en: 'Download List'
 	String get downloadList => 'Download List';
 
+	/// en: 'View Download List'
+	String get viewDownloadList => 'View Download List';
+
 	/// en: 'Download'
 	String get download => 'Download';
 
@@ -7033,6 +7036,7 @@ extension on Translations {
 			'download.errors.imageLoadFailed' => 'Image load failed',
 			'download.errors.pleaseTryOtherViewer' => 'Please try using other viewers to open',
 			'download.downloadList' => 'Download List',
+			'download.viewDownloadList' => 'View Download List',
 			'download.download' => 'Download',
 			'download.startDownloading' => 'Start Downloading',
 			'download.clearAllFailedTasks' => 'Clear All Failed Tasks',
@@ -7471,13 +7475,13 @@ extension on Translations {
 			'emoji.imageCount' => ({required Object count}) => '${count} images',
 			'emoji.selectEmoji' => 'Select Emoji',
 			'emoji.noEmojisInGroup' => 'No emojis in this group',
-			'emoji.goToSettingsToAddEmojis' => 'Go to settings to add emojis',
 			_ => null,
 		};
 	}
 
 	dynamic _flatMapFunction$3(String path) {
 		return switch (path) {
+			'emoji.goToSettingsToAddEmojis' => 'Go to settings to add emojis',
 			'emoji.emojiManagement' => 'Emoji Management',
 			'emoji.manageEmojiGroupsAndImages' => 'Manage emoji groups and images',
 			'emoji.uploadLocalImages' => 'Upload Local Images',

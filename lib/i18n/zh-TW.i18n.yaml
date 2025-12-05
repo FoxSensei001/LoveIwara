@@ -1227,6 +1227,7 @@ download:
     unsupportedImageFormatWithMessage: '不支持的圖片格式: ${extension}, 可以嘗試下載到設備上查看'
     imageLoadFailed: '圖片加載失敗'
   downloadList: 下載列表
+  viewDownloadList: 查看下載列表
   download: 下載
   forceDeleteTask: 強制刪除任務
   startDownloading: 開始下載...

@@ -1191,6 +1191,7 @@ download:
     imageLoadFailed: '图片加载失败'
     pleaseTryOtherViewer: '请尝试使用其他查看器打开'
   downloadList: 下载列表
+  viewDownloadList: 查看下载列表
   download: 下载
   forceDeleteTask: 强制删除任务
   startDownloading: 开始下载...

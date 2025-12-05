@@ -1065,6 +1065,7 @@ class _TranslationsDownloadZhCn implements TranslationsDownloadEn {
 	// Translations
 	@override late final _TranslationsDownloadErrorsZhCn errors = _TranslationsDownloadErrorsZhCn._(_root);
 	@override String get downloadList => '下载列表';
+	@override String get viewDownloadList => '查看下载列表';
 	@override String get download => '下载';
 	@override String get forceDeleteTask => '强制删除任务';
 	@override String get startDownloading => '开始下载...';
@@ -3598,6 +3599,7 @@ extension on TranslationsZhCn {
 			'download.errors.imageLoadFailed' => '图片加载失败',
 			'download.errors.pleaseTryOtherViewer' => '请尝试使用其他查看器打开',
 			'download.downloadList' => '下载列表',
+			'download.viewDownloadList' => '查看下载列表',
 			'download.download' => '下载',
 			'download.forceDeleteTask' => '强制删除任务',
 			'download.startDownloading' => '开始下载...',
@@ -4031,13 +4033,13 @@ extension on TranslationsZhCn {
 			'layoutSettings.save' => '保存',
 			'navigationOrderSettings.title' => '导航排序设置',
 			'navigationOrderSettings.customNavigationOrder' => '自定义导航顺序',
-			'navigationOrderSettings.customNavigationOrderDesc' => '拖拽调整底部导航栏和侧边栏中各个页面的显示顺序',
 			_ => null,
 		};
 	}
 
 	dynamic _flatMapFunction$3(String path) {
 		return switch (path) {
+			'navigationOrderSettings.customNavigationOrderDesc' => '拖拽调整底部导航栏和侧边栏中各个页面的显示顺序',
 			'navigationOrderSettings.restartRequired' => '需重启应用生效',
 			'navigationOrderSettings.navigationItemSorting' => '导航项排序',
 			'navigationOrderSettings.done' => '完成',

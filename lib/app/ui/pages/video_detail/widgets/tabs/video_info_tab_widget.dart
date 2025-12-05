@@ -798,13 +798,40 @@ class VideoInfoTabWidget extends StatelessWidget {
         onPressed: isDisabled
             ? null
             : () => _handleDownloadWithQuality(context, currentQuality),
-        menuItems: sources.map((source) {
-          return PopupMenuItem<String>(
-            value: source.name ?? t.download.errors.unknown,
-            child: Text(source.name ?? t.download.errors.unknown),
-          );
-        }).toList(),
+        menuItems: [
+          // 置顶菜单项：查看下载列表
+          PopupMenuItem<String>(
+            value: '__download_list__',
+            child: Row(
+              children: [
+                Icon(Icons.download_outlined, size: 18, color: Theme.of(context).primaryColor),
+                const SizedBox(width: UIConstants.iconTextSpacing),
+                Text(
+                  t.download.viewDownloadList,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // 分割线
+          const PopupMenuDivider(),
+          // 清晰度选项
+          ...sources.map((source) {
+            return PopupMenuItem<String>(
+              value: source.name ?? t.download.errors.unknown,
+              child: Text(source.name ?? t.download.errors.unknown),
+            );
+          }),
+        ],
         onMenuItemSelected: (quality) {
+          // 如果是跳转到下载列表
+          if (quality == '__download_list__') {
+            NaviService.navigateToDownloadTaskListPage();
+            return;
+          }
           // 保存选择的清晰度到配置
           configService.setSetting(ConfigKey.LAST_DOWNLOAD_QUALITY, quality);
           // 使用选择的清晰度下载
@@ -948,16 +975,21 @@ class VideoInfoTabWidget extends StatelessWidget {
       // 标记视频有下载任务
       controller.markVideoHasDownloadTask();
 
-      showToastWidget(
-        MDToastWidget(
-          message: t.videoDetail.startDownloading,
-          type: MDToastType.success,
-        ),
-        position: ToastPosition.top,
-      );
-
-      // 打开下载管理页面
-      NaviService.navigateToDownloadTaskListPage();
+      // 使用 SnackBar 提示下载开始，并提供跳转按钮
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(t.videoDetail.startDownloading),
+            duration: const Duration(seconds: 4),
+            action: SnackBarAction(
+              label: t.download.viewDownloadList,
+              onPressed: () {
+                NaviService.navigateToDownloadTaskListPage();
+              },
+            ),
+          ),
+        );
+      }
     } catch (e) {
       LogUtils.e('添加下载任务失败: $e', tag: 'VideoInfoTabWidget', error: e);
       String message;
@@ -1163,16 +1195,21 @@ class VideoInfoTabWidget extends StatelessWidget {
                       source.name ?? 'unknown',
                     );
 
-                    showToastWidget(
-                      MDToastWidget(
-                        message: t.videoDetail.startDownloading,
-                        type: MDToastType.success,
-                      ),
-                      position: ToastPosition.top,
-                    );
-
-                    // 打开下载管理页面
-                    NaviService.navigateToDownloadTaskListPage();
+                    // 使用 SnackBar 提示下载开始，并提供跳转按钮
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(t.videoDetail.startDownloading),
+                          duration: const Duration(seconds: 4),
+                          action: SnackBarAction(
+                            label: t.download.viewDownloadList,
+                            onPressed: () {
+                              NaviService.navigateToDownloadTaskListPage();
+                            },
+                          ),
+                        ),
+                      );
+                    }
                   } catch (e) {
                     LogUtils.e(
                       '添加下载任务失败: $e',

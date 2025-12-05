@@ -1183,6 +1183,7 @@ download:
     imageLoadFailed: 'Image load failed'
     pleaseTryOtherViewer: 'Please try using other viewers to open'
   downloadList: Download List
+  viewDownloadList: View Download List
   download: Download
   startDownloading: Start Downloading
   clearAllFailedTasks: Clear All Failed Tasks

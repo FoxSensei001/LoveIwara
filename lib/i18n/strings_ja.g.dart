@@ -1060,6 +1060,7 @@ class _TranslationsDownloadJa implements TranslationsDownloadEn {
 	// Translations
 	@override late final _TranslationsDownloadErrorsJa errors = _TranslationsDownloadErrorsJa._(_root);
 	@override String get downloadList => 'ダウンロードリスト';
+	@override String get viewDownloadList => 'ダウンロードリストを表示';
 	@override String get download => 'ダウンロード';
 	@override String get forceDeleteTask => '強制削除タスク';
 	@override String get startDownloading => 'ダウンロードを開始';
@@ -3588,6 +3589,7 @@ extension on TranslationsJa {
 			'download.errors.imageLoadFailed' => '画像の読み込みに失敗しました',
 			'download.errors.pleaseTryOtherViewer' => '他のビューアーを使用してみてください',
 			'download.downloadList' => 'ダウンロードリスト',
+			'download.viewDownloadList' => 'ダウンロードリストを表示',
 			'download.download' => 'ダウンロード',
 			'download.forceDeleteTask' => '強制削除タスク',
 			'download.startDownloading' => 'ダウンロードを開始',
@@ -4026,13 +4028,13 @@ extension on TranslationsJa {
 			'navigationOrderSettings.navigationItemSorting' => 'ナビゲーション項目の並べ替え',
 			'navigationOrderSettings.done' => '完了',
 			'navigationOrderSettings.edit' => '編集',
-			'navigationOrderSettings.reset' => 'リセット',
 			_ => null,
 		};
 	}
 
 	dynamic _flatMapFunction$3(String path) {
 		return switch (path) {
+			'navigationOrderSettings.reset' => 'リセット',
 			'navigationOrderSettings.previewEffect' => 'プレビュー効果',
 			'navigationOrderSettings.bottomNavigationPreview' => 'ボトムナビゲーションバーのプレビュー：',
 			'navigationOrderSettings.sidebarPreview' => 'サイドバーのプレビュー：',

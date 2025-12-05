@@ -1091,6 +1091,7 @@ class _TranslationsDownloadZhTw implements TranslationsDownloadEn {
 	// Translations
 	@override late final _TranslationsDownloadErrorsZhTw errors = _TranslationsDownloadErrorsZhTw._(_root);
 	@override String get downloadList => '下載列表';
+	@override String get viewDownloadList => '查看下載列表';
 	@override String get download => '下載';
 	@override String get forceDeleteTask => '強制刪除任務';
 	@override String get startDownloading => '開始下載...';
@@ -3622,6 +3623,7 @@ extension on TranslationsZhTw {
 			'download.errors.unsupportedImageFormatWithMessage' => ({required Object extension}) => '不支持的圖片格式: ${extension}, 可以嘗試下載到設備上查看',
 			'download.errors.imageLoadFailed' => '圖片加載失敗',
 			'download.downloadList' => '下載列表',
+			'download.viewDownloadList' => '查看下載列表',
 			'download.download' => '下載',
 			'download.forceDeleteTask' => '強制刪除任務',
 			'download.startDownloading' => '開始下載...',
@@ -4029,13 +4031,13 @@ extension on TranslationsZhTw {
 			'layoutSettings.deleteBreakpoint' => '刪除斷點',
 			'layoutSettings.screenWidthLabel' => '螢幕寬度',
 			'layoutSettings.screenWidthHint' => '600',
-			'layoutSettings.columnsLabel' => '欄數',
 			_ => null,
 		};
 	}
 
 	dynamic _flatMapFunction$3(String path) {
 		return switch (path) {
+			'layoutSettings.columnsLabel' => '欄數',
 			'layoutSettings.columnsHint' => '3',
 			'layoutSettings.enterWidth' => '請輸入寬度',
 			'layoutSettings.enterValidWidth' => '請輸入有效寬度',
