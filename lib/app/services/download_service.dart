@@ -70,6 +70,15 @@ class DownloadService extends GetxService {
   // 任务计时器映射，key是任务的id，value是任务的计时器，用于计时更新任务的下载进度UI
   final _taskTimers = <String, Timer>{};
 
+  // 队列处理锁，防止并发调用 _processQueue 导致超过最大并发数
+  bool _isProcessingQueue = false;
+
+  // 正在处理中的任务ID集合（用于 loading 状态）
+  final _processingTaskIds = <String>{}.obs;
+
+  // 检查任务是否正在处理中（用于 UI 显示 loading）
+  bool isTaskProcessing(String taskId) => _processingTaskIds.contains(taskId);
+
   // =============================== 图库下载相关的字段(图库需要特殊处理，因为它需要下载多个图片而非单个文件) ===============================
   // 图库下载相关的字段, key是任务的id，value是图库下载进度
   final _galleryDownloadProgress = <String, Map<String, bool>>{}.obs;
@@ -226,51 +235,61 @@ class DownloadService extends GetxService {
 
   // 恢复任务 [数据库 -> 内存]
   Future<void> resumeTask(String taskId) async {
-    LogUtils.d('恢复任务: $taskId', 'DownloadService');
-    // 从数据库加载任务
-    DownloadTask? task = await _repository.getTaskById(taskId);
-    if (task == null) {
-      LogUtils.d('任务不存在于数据库，无法恢复: $taskId', 'DownloadService');
-      _showMessage(slang.t.download.errors.taskNotFound, Colors.red);
+    // 防止重复点击
+    if (_processingTaskIds.contains(taskId)) {
       return;
     }
+    _processingTaskIds.add(taskId);
 
-    if (task.status == DownloadStatus.paused ||
-        task.status == DownloadStatus.failed) {
-      LogUtils.d('任务状态为暂停或失败，需要验证链接有效性: $taskId', 'DownloadService');
-      // 如果是视频任务，需要验证链接有效性
-      if (task.extData?.type == DownloadTaskExtDataType.video) {
-        DownloadTask? newTask = await refreshVideoTask(task);
-        if (newTask != null) {
-          LogUtils.d('刷新视频任务成功: $taskId', 'DownloadService');
-          newTask.status = DownloadStatus.pending;
-          task = newTask;
-          await _repository.updateTask(newTask); // [更新持久化信息]
-        } else {
-          _showMessage(
-            slang.t.download.errors.canNotRefreshVideoTask,
-            Colors.red,
-          );
-          // 让任务变为失败状态，并记录错误信息
-          task.status = DownloadStatus.failed;
-          task.error = slang.t.download.errors.canNotRefreshVideoTask;
-          await _repository.updateTask(task); // [更新持久化信息]
-          _clearMemoryTask(taskId, '刷新视频任务失败，无法处理');
-          LogUtils.d('刷新视频任务失败，无法处理: $taskId', 'DownloadService');
-          return;
-        }
-      } else {
-        task.status = DownloadStatus.pending;
-        await _repository.updateTask(task);
+    try {
+      LogUtils.d('恢复任务: $taskId', 'DownloadService');
+      // 从数据库加载任务
+      DownloadTask? task = await _repository.getTaskById(taskId);
+      if (task == null) {
+        LogUtils.d('任务不存在于数据库，无法恢复: $taskId', 'DownloadService');
+        _showMessage(slang.t.download.errors.taskNotFound, Colors.red);
+        return;
       }
 
-      // 仅将任务 id 加入等待队列，pending 任务不常驻内存
-      _downloadQueue.add(taskId);
+      if (task.status == DownloadStatus.paused ||
+          task.status == DownloadStatus.failed) {
+        LogUtils.d('任务状态为暂停或失败，需要验证链接有效性: $taskId', 'DownloadService');
+        // 如果是视频任务，需要验证链接有效性
+        if (task.extData?.type == DownloadTaskExtDataType.video) {
+          DownloadTask? newTask = await refreshVideoTask(task);
+          if (newTask != null) {
+            LogUtils.d('刷新视频任务成功: $taskId', 'DownloadService');
+            newTask.status = DownloadStatus.pending;
+            task = newTask;
+            await _repository.updateTask(newTask); // [更新持久化信息]
+          } else {
+            _showMessage(
+              slang.t.download.errors.canNotRefreshVideoTask,
+              Colors.red,
+            );
+            // 让任务变为失败状态，并记录错误信息
+            task.status = DownloadStatus.failed;
+            task.error = slang.t.download.errors.canNotRefreshVideoTask;
+            await _repository.updateTask(task); // [更新持久化信息]
+            _clearMemoryTask(taskId, '刷新视频任务失败，无法处理');
+            LogUtils.d('刷新视频任务失败，无法处理: $taskId', 'DownloadService');
+            return;
+          }
+        } else {
+          task.status = DownloadStatus.pending;
+          await _repository.updateTask(task);
+        }
 
-      // 通知任务状态变更
-      _taskStatusChangedNotifier.value++;
+        // 仅将任务 id 加入等待队列，pending 任务不常驻内存
+        _downloadQueue.add(taskId);
 
-      _processQueue();
+        // 通知任务状态变更
+        _taskStatusChangedNotifier.value++;
+
+        _processQueue();
+      }
+    } finally {
+      _processingTaskIds.remove(taskId);
     }
   }
 
@@ -385,21 +404,21 @@ class DownloadService extends GetxService {
 
   // 处理下载队列
   void _processQueue() async {
-    // 检查当前活动下载数量是否达到上限
-    if (_activeDownloads.length >= maxConcurrentDownloads) {
+    // 防止并发调用导致超过最大并发数
+    if (_isProcessingQueue) {
       return;
     }
+    _isProcessingQueue = true;
 
-    // 检查下载队列是否为空
-    if (_downloadQueue.isEmpty) {
-      return;
-    }
+    try {
+      // 使用 while 循环持续处理队列，直到达到并发上限或队列为空
+      while (_activeDownloads.length < maxConcurrentDownloads &&
+          _downloadQueue.isNotEmpty) {
+        // 取出队首任务 id
+        final taskId = _downloadQueue.first;
 
-    // 取出队首任务 id
-    final taskId = _downloadQueue.first;
-
-    // 通过数据库获取最新任务信息，pending 任务不常驻内存
-    final task = await _repository.getTaskById(taskId);
+        // 通过数据库获取最新任务信息，pending 任务不常驻内存
+        final task = await _repository.getTaskById(taskId);
 
     // 仅对仍为 pending 的任务进行下载；否则跳过
     if (task == null || task.status != DownloadStatus.pending) {
@@ -407,28 +426,41 @@ class DownloadService extends GetxService {
       _processQueue(); // 继续处理队列中的下一个任务
       return;
     }
+        // 仅对仍为 pending 的任务进行下载；否则跳过
+        if (task == null || task.status != DownloadStatus.pending) {
+          _downloadQueue.removeAt(0);
+          continue; // 继续处理队列中的下一个任务
+        }
 
-    // 从下载队列中移除任务
-    _downloadQueue.removeAt(0);
+        // 从下载队列中移除任务
+        _downloadQueue.removeAt(0);
 
-    // 记录开始下载的时间
-    LogUtils.i(
-      '开始下载任务: ${task.fileName} (当前活动下载数: ${_activeDownloads.length + 1}/$maxConcurrentDownloads)',
-      'DownloadService',
-    );
+        // 记录开始下载的时间
+        LogUtils.i(
+          '开始下载任务: ${task.fileName} (当前活动下载数: ${_activeDownloads.length + 1}/$maxConcurrentDownloads)',
+          'DownloadService',
+        );
 
-    await _startRealDownload(task);
+        // 注意：这里不使用 await，让下载任务异步执行
+        // 但需要在调用 _startRealDownload 之前就预占位置，防止超过并发数
+        final cancelToken = CancelToken();
+        _activeDownloads[task.id] = cancelToken;
+
+        // 异步执行下载任务
+        _startRealDownload(task, cancelToken);
+      }
+    } finally {
+      _isProcessingQueue = false;
+    }
   }
 
   // 真正的下载任务
-  Future<void> _startRealDownload(DownloadTask task) async {
-    // 向activeDownloads中添加取消令牌用于通知取消
-    final cancelToken = CancelToken();
-    _activeDownloads[task.id] = cancelToken;
+  Future<void> _startRealDownload(DownloadTask task, CancelToken cancelToken) async {
+    // CancelToken 已在 _processQueue 中创建并添加到 _activeDownloads
 
     // 如果是图库下载
     if (task.extData?.type == DownloadTaskExtDataType.gallery) {
-      await _startGalleryDownload(task);
+      await _startGalleryDownload(task, cancelToken);
       return;
     }
 
@@ -836,59 +868,100 @@ class DownloadService extends GetxService {
           return slang.t.download.errors.serverError(
             errorInfo: error.response?.statusCode.toString() ?? '',
           );
+        case DioExceptionType.connectionError:
+          // 处理连接错误，包括 SSL/TLS 握手失败
+          final innerError = error.error;
+          if (innerError is HandshakeException) {
+            return slang.t.download.errors.sslHandshakeFailed;
+          } else if (innerError is SocketException) {
+            return slang.t.download.errors.connectionFailed;
+          }
+          return slang.t.download.errors.connectionFailed;
+        case DioExceptionType.unknown:
+          // 处理未知错误，尝试提取内部错误信息
+          final innerError = error.error;
+          if (innerError is HandshakeException) {
+            return slang.t.download.errors.sslHandshakeFailed;
+          } else if (innerError is SocketException) {
+            return slang.t.download.errors.connectionFailed;
+          } else if (innerError is HttpException) {
+            return innerError.message;
+          }
+          // 如果有消息就返回消息，否则返回未知网络错误
+          if (error.message != null && error.message!.isNotEmpty) {
+            return error.message!;
+          }
+          return slang.t.download.errors.unknownNetworkError;
         default:
           return error.message ?? slang.t.download.errors.unknownNetworkError;
       }
     } else if (error is FileSystemException) {
       return slang.t.download.errors.fileSystemError(errorInfo: error.message);
+    } else if (error is HandshakeException) {
+      return slang.t.download.errors.sslHandshakeFailed;
+    } else if (error is SocketException) {
+      return slang.t.download.errors.connectionFailed;
+    } else if (error is HttpException) {
+      return error.message;
     }
     return error.toString();
   }
 
   // 添加重试方法
   Future<void> retryTask(String taskId) async {
-    // 1) 优先从内存取（如果当前正在下载），否则从数据库取
-    DownloadTask? task =
-        _activeTasks[taskId] ?? await _repository.getTaskById(taskId);
-    if (task == null) {
-      LogUtils.d('重试失败：任务不存在: $taskId', 'DownloadService');
-      _showMessage(slang.t.download.errors.taskNotFound, Colors.red);
+    // 防止重复点击
+    if (_processingTaskIds.contains(taskId)) {
       return;
     }
+    _processingTaskIds.add(taskId);
 
-    // 2) 仅允许对失败任务重试
-    if (task.status != DownloadStatus.failed) {
-      LogUtils.d('重试忽略：任务非失败状态: $taskId / ${task.status}', 'DownloadService');
-      return;
-    }
-
-    // 3) 如为视频任务，校验/刷新链接
-    if (task.extData?.type == DownloadTaskExtDataType.video) {
-      final refreshed = await refreshVideoTask(task);
-      if (refreshed == null) {
-        // 刷新失败，维持失败状态并提示
-        _showMessage(
-          slang.t.download.errors.canNotRefreshVideoTask,
-          Colors.red,
-        );
-        await _repository.updateTask(task);
+    try {
+      // 1) 优先从内存取（如果当前正在下载），否则从数据库取
+      DownloadTask? task =
+          _activeTasks[taskId] ?? await _repository.getTaskById(taskId);
+      if (task == null) {
+        LogUtils.d('重试失败：任务不存在: $taskId', 'DownloadService');
+        _showMessage(slang.t.download.errors.taskNotFound, Colors.red);
         return;
       }
-      task = refreshed;
-    }
 
-    // 4) 清理错误信息，入队并持久化
-    LogUtils.i('重试下载任务: ${task.fileName}', 'DownloadService');
-    task.error = null;
-    task.status = DownloadStatus.pending;
-    if (!_downloadQueue.contains(taskId)) {
-      _downloadQueue.add(taskId);
-    }
-    await _repository.updateTask(task);
+      // 2) 仅允许对失败任务重试
+      if (task.status != DownloadStatus.failed) {
+        LogUtils.d(
+            '重试忽略：任务非失败状态: $taskId / ${task.status}', 'DownloadService');
+        return;
+      }
 
-    // 通知UI并处理队列
-    _taskStatusChangedNotifier.value++;
-    _processQueue();
+      // 3) 如为视频任务，校验/刷新链接
+      if (task.extData?.type == DownloadTaskExtDataType.video) {
+        final refreshed = await refreshVideoTask(task);
+        if (refreshed == null) {
+          // 刷新失败，维持失败状态并提示
+          _showMessage(
+            slang.t.download.errors.canNotRefreshVideoTask,
+            Colors.red,
+          );
+          await _repository.updateTask(task);
+          return;
+        }
+        task = refreshed;
+      }
+
+      // 4) 清理错误信息，入队并持久化
+      LogUtils.i('重试下载任务: ${task.fileName}', 'DownloadService');
+      task.error = null;
+      task.status = DownloadStatus.pending;
+      if (!_downloadQueue.contains(taskId)) {
+        _downloadQueue.add(taskId);
+      }
+      await _repository.updateTask(task);
+
+      // 通知UI并处理队列
+      _taskStatusChangedNotifier.value++;
+      _processQueue();
+    } finally {
+      _processingTaskIds.remove(taskId);
+    }
   }
 
   // 获取已完成的任务（分页）
@@ -1061,7 +1134,7 @@ class DownloadService extends GetxService {
   }
 
   // 图库下载的方法
-  Future<void> _startGalleryDownload(DownloadTask task) async {
+  Future<void> _startGalleryDownload(DownloadTask task, CancelToken cancelToken) async {
     try {
       final galleryData = GalleryDownloadExtData.fromJson(task.extData!.data);
       final savePath = path_lib.normalize(task.savePath);

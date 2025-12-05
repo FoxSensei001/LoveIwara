@@ -341,38 +341,61 @@ class GalleryDownloadTaskItem extends StatelessWidget {
 
   Widget _buildMainActionButton(BuildContext context) {
     final t = slang.Translations.of(context);
-    switch (task.status) {
-      case DownloadStatus.pending:
-        return IconButton(
-          icon: const Icon(Icons.pause),
-          tooltip: t.download.pause,
-          onPressed: () => DownloadService.to.pauseTask(task.id),
+
+    // 使用 Obx 监听处理状态
+    return Obx(() {
+      final isProcessing = DownloadService.to.isTaskProcessing(task.id);
+
+      // 如果正在处理中，显示 loading
+      if (isProcessing) {
+        return const SizedBox(
+          width: 48,
+          height: 48,
+          child: Padding(
+            padding: EdgeInsets.all(12),
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
         );
-      case DownloadStatus.downloading:
-        return IconButton(
-          icon: const Icon(Icons.pause),
-          tooltip: t.download.pause,
-          onPressed: () => DownloadService.to.pauseTask(task.id),
-        );
-      case DownloadStatus.paused:
-        return IconButton(
-          icon: const Icon(Icons.play_arrow),
-          tooltip: t.download.resume,
-          onPressed: () => DownloadService.to.resumeTask(task.id),
-        );
-      case DownloadStatus.failed:
-        return IconButton(
-          icon: const Icon(Icons.refresh),
-          tooltip: t.common.retry,
-          onPressed: () => DownloadService.to.retryTask(task.id),
-        );
-      case DownloadStatus.completed:
-        return IconButton(
-          icon: const Icon(Icons.folder_open),
-          tooltip: t.download.openFile,
-          onPressed: () => _showInFolder(context),
-        );
-    }
+      }
+
+      switch (task.status) {
+        case DownloadStatus.pending:
+          return IconButton(
+            icon: const Icon(Icons.pause),
+            tooltip: t.download.pause,
+            onPressed: () => DownloadService.to.pauseTask(task.id),
+          );
+        case DownloadStatus.downloading:
+          return IconButton(
+            icon: const Icon(Icons.pause),
+            tooltip: t.download.pause,
+            onPressed: () => DownloadService.to.pauseTask(task.id),
+          );
+        case DownloadStatus.paused:
+          return IconButton(
+            icon: const Icon(Icons.play_arrow),
+            tooltip: t.download.resume,
+            onPressed: () => DownloadService.to.resumeTask(task.id),
+          );
+        case DownloadStatus.failed:
+          return IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: t.common.retry,
+            onPressed: () => DownloadService.to.retryTask(task.id),
+          );
+        case DownloadStatus.completed:
+          // 仅在桌面平台显示"打开文件夹"按钮
+          if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+            return IconButton(
+              icon: const Icon(Icons.folder_open),
+              tooltip: t.download.showInFolder,
+              onPressed: () => _showInFolder(context),
+            );
+          }
+          // 移动平台不显示按钮（点击卡片即可查看图库）
+          return const SizedBox(width: 48, height: 48);
+      }
+    });
   }
 
   String _getStatusText(BuildContext context) {

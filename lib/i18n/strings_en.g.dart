@@ -5386,6 +5386,12 @@ class TranslationsDownloadErrorsEn {
 	/// en: 'Unknown network error'
 	String get unknownNetworkError => 'Unknown network error';
 
+	/// en: 'SSL handshake failed, please check your network'
+	String get sslHandshakeFailed => 'SSL handshake failed, please check your network';
+
+	/// en: 'Connection failed, please check your network'
+	String get connectionFailed => 'Connection failed, please check your network';
+
 	/// en: 'Download service is closing'
 	String get serviceIsClosing => 'Download service is closing';
 
@@ -7002,6 +7008,8 @@ extension on Translations {
 			'download.errors.receiveTimeout' => 'Receive timeout',
 			'download.errors.serverError' => ({required Object errorInfo}) => 'Server error: ${errorInfo}',
 			'download.errors.unknownNetworkError' => 'Unknown network error',
+			'download.errors.sslHandshakeFailed' => 'SSL handshake failed, please check your network',
+			'download.errors.connectionFailed' => 'Connection failed, please check your network',
 			'download.errors.serviceIsClosing' => 'Download service is closing',
 			'download.errors.partialDownloadFailed' => 'Partial content download failed',
 			'download.errors.noDownloadTask' => 'No download task',
@@ -7473,14 +7481,14 @@ extension on Translations {
 			'emoji.deleteGroup' => 'Delete Group',
 			'emoji.confirmDeleteGroup' => 'Are you sure you want to delete this emoji group? All images in the group will also be deleted.',
 			'emoji.imageCount' => ({required Object count}) => '${count} images',
-			'emoji.selectEmoji' => 'Select Emoji',
-			'emoji.noEmojisInGroup' => 'No emojis in this group',
 			_ => null,
 		};
 	}
 
 	dynamic _flatMapFunction$3(String path) {
 		return switch (path) {
+			'emoji.selectEmoji' => 'Select Emoji',
+			'emoji.noEmojisInGroup' => 'No emojis in this group',
 			'emoji.goToSettingsToAddEmojis' => 'Go to settings to add emojis',
 			'emoji.emojiManagement' => 'Emoji Management',
 			'emoji.manageEmojiGroupsAndImages' => 'Manage emoji groups and images',

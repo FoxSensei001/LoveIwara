@@ -2204,6 +2204,8 @@ class _TranslationsDownloadErrorsJa implements TranslationsDownloadErrorsEn {
 	@override String get receiveTimeout => '受信タイムアウト';
 	@override String serverError({required Object errorInfo}) => 'サーバーエラー: ${errorInfo}';
 	@override String get unknownNetworkError => '不明なネットワークエラー';
+	@override String get sslHandshakeFailed => 'SSLハンドシェイクに失敗しました、ネットワーク環境を確認してください';
+	@override String get connectionFailed => '接続に失敗しました、ネットワークを確認してください';
 	@override String get serviceIsClosing => 'ダウンロードサービスが閉じています';
 	@override String get partialDownloadFailed => '部分内容ダウンロード失敗';
 	@override String get noDownloadTask => 'ダウンロードタスクがありません';
@@ -3555,6 +3557,8 @@ extension on TranslationsJa {
 			'download.errors.receiveTimeout' => '受信タイムアウト',
 			'download.errors.serverError' => ({required Object errorInfo}) => 'サーバーエラー: ${errorInfo}',
 			'download.errors.unknownNetworkError' => '不明なネットワークエラー',
+			'download.errors.sslHandshakeFailed' => 'SSLハンドシェイクに失敗しました、ネットワーク環境を確認してください',
+			'download.errors.connectionFailed' => '接続に失敗しました、ネットワークを確認してください',
 			'download.errors.serviceIsClosing' => 'ダウンロードサービスが閉じています',
 			'download.errors.partialDownloadFailed' => '部分内容ダウンロード失敗',
 			'download.errors.noDownloadTask' => 'ダウンロードタスクがありません',
@@ -4026,14 +4030,14 @@ extension on TranslationsJa {
 			'navigationOrderSettings.customNavigationOrderDesc' => 'ドラッグしてボトムナビゲーションバーとサイドバーの各ページの表示順序を調整',
 			'navigationOrderSettings.restartRequired' => 'アプリの再起動が必要です',
 			'navigationOrderSettings.navigationItemSorting' => 'ナビゲーション項目の並べ替え',
-			'navigationOrderSettings.done' => '完了',
-			'navigationOrderSettings.edit' => '編集',
 			_ => null,
 		};
 	}
 
 	dynamic _flatMapFunction$3(String path) {
 		return switch (path) {
+			'navigationOrderSettings.done' => '完了',
+			'navigationOrderSettings.edit' => '編集',
 			'navigationOrderSettings.reset' => 'リセット',
 			'navigationOrderSettings.previewEffect' => 'プレビュー効果',
 			'navigationOrderSettings.bottomNavigationPreview' => 'ボトムナビゲーションバーのプレビュー：',

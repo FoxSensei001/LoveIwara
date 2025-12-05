@@ -2295,6 +2295,8 @@ class _TranslationsDownloadErrorsZhTw implements TranslationsDownloadErrorsEn {
 	@override String get receiveTimeout => '接收超時';
 	@override String serverError({required Object errorInfo}) => '伺服器錯誤: ${errorInfo}';
 	@override String get unknownNetworkError => '未知網路錯誤';
+	@override String get sslHandshakeFailed => 'SSL握手失敗，請檢查網路環境';
+	@override String get connectionFailed => '連接失敗，請檢查網路';
 	@override String get serviceIsClosing => '下載服務正在關閉';
 	@override String get partialDownloadFailed => '部分內容下載失敗';
 	@override String get noDownloadTask => '暫無下載任務';
@@ -3589,6 +3591,8 @@ extension on TranslationsZhTw {
 			'download.errors.receiveTimeout' => '接收超時',
 			'download.errors.serverError' => ({required Object errorInfo}) => '伺服器錯誤: ${errorInfo}',
 			'download.errors.unknownNetworkError' => '未知網路錯誤',
+			'download.errors.sslHandshakeFailed' => 'SSL握手失敗，請檢查網路環境',
+			'download.errors.connectionFailed' => '連接失敗，請檢查網路',
 			'download.errors.serviceIsClosing' => '下載服務正在關閉',
 			'download.errors.partialDownloadFailed' => '部分內容下載失敗',
 			'download.errors.noDownloadTask' => '暫無下載任務',
@@ -4029,14 +4033,14 @@ extension on TranslationsZhTw {
 			'layoutSettings.addBreakpoint' => '新增斷點',
 			'layoutSettings.editBreakpoint' => '編輯斷點',
 			'layoutSettings.deleteBreakpoint' => '刪除斷點',
-			'layoutSettings.screenWidthLabel' => '螢幕寬度',
-			'layoutSettings.screenWidthHint' => '600',
 			_ => null,
 		};
 	}
 
 	dynamic _flatMapFunction$3(String path) {
 		return switch (path) {
+			'layoutSettings.screenWidthLabel' => '螢幕寬度',
+			'layoutSettings.screenWidthHint' => '600',
 			'layoutSettings.columnsLabel' => '欄數',
 			'layoutSettings.columnsHint' => '3',
 			'layoutSettings.enterWidth' => '請輸入寬度',

@@ -2209,6 +2209,8 @@ class _TranslationsDownloadErrorsZhCn implements TranslationsDownloadErrorsEn {
 	@override String get receiveTimeout => '接收超时';
 	@override String serverError({required Object errorInfo}) => '服务器错误: ${errorInfo}';
 	@override String get unknownNetworkError => '未知网络错误';
+	@override String get sslHandshakeFailed => 'SSL握手失败，请检查网络环境';
+	@override String get connectionFailed => '连接失败，请检查网络';
 	@override String get serviceIsClosing => '下载服务正在关闭';
 	@override String get partialDownloadFailed => '部分内容下载失败';
 	@override String get noDownloadTask => '暂无下载任务';
@@ -3565,6 +3567,8 @@ extension on TranslationsZhCn {
 			'download.errors.receiveTimeout' => '接收超时',
 			'download.errors.serverError' => ({required Object errorInfo}) => '服务器错误: ${errorInfo}',
 			'download.errors.unknownNetworkError' => '未知网络错误',
+			'download.errors.sslHandshakeFailed' => 'SSL握手失败，请检查网络环境',
+			'download.errors.connectionFailed' => '连接失败，请检查网络',
 			'download.errors.serviceIsClosing' => '下载服务正在关闭',
 			'download.errors.partialDownloadFailed' => '部分内容下载失败',
 			'download.errors.noDownloadTask' => '暂无下载任务',
@@ -4031,14 +4035,14 @@ extension on TranslationsZhCn {
 			'layoutSettings.delete' => '删除',
 			'layoutSettings.cancel' => '取消',
 			'layoutSettings.save' => '保存',
-			'navigationOrderSettings.title' => '导航排序设置',
-			'navigationOrderSettings.customNavigationOrder' => '自定义导航顺序',
 			_ => null,
 		};
 	}
 
 	dynamic _flatMapFunction$3(String path) {
 		return switch (path) {
+			'navigationOrderSettings.title' => '导航排序设置',
+			'navigationOrderSettings.customNavigationOrder' => '自定义导航顺序',
 			'navigationOrderSettings.customNavigationOrderDesc' => '拖拽调整底部导航栏和侧边栏中各个页面的显示顺序',
 			'navigationOrderSettings.restartRequired' => '需重启应用生效',
 			'navigationOrderSettings.navigationItemSorting' => '导航项排序',

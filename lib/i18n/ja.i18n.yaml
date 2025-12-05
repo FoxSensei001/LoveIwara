@@ -1152,6 +1152,8 @@ download:
     receiveTimeout: 受信タイムアウト
     serverError: 'サーバーエラー: ${errorInfo}'
     unknownNetworkError: 不明なネットワークエラー
+    sslHandshakeFailed: SSLハンドシェイクに失敗しました、ネットワーク環境を確認してください
+    connectionFailed: 接続に失敗しました、ネットワークを確認してください
     serviceIsClosing: ダウンロードサービスが閉じています
     partialDownloadFailed: 部分内容ダウンロード失敗
     noDownloadTask: ダウンロードタスクがありません

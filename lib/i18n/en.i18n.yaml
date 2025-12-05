@@ -1149,6 +1149,8 @@ download:
     receiveTimeout: Receive timeout
     serverError: 'Server error: ${errorInfo}'
     unknownNetworkError: Unknown network error
+    sslHandshakeFailed: SSL handshake failed, please check your network
+    connectionFailed: Connection failed, please check your network
     serviceIsClosing: Download service is closing
     partialDownloadFailed: Partial content download failed
     noDownloadTask: No download task

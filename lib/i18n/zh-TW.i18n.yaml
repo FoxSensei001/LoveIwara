@@ -1193,6 +1193,8 @@ download:
     receiveTimeout: 接收超時
     serverError: '伺服器錯誤: ${errorInfo}'
     unknownNetworkError: 未知網路錯誤
+    sslHandshakeFailed: SSL握手失敗，請檢查網路環境
+    connectionFailed: 連接失敗，請檢查網路
     serviceIsClosing: 下載服務正在關閉
     partialDownloadFailed: 部分內容下載失敗
     noDownloadTask: 暫無下載任務
