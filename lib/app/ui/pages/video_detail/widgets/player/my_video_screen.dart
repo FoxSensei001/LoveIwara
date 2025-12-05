@@ -1215,14 +1215,12 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                               Positioned(
                                 left: tooltipX,
                                 bottom: 3 + 12, // 距离底部进度条 12px
-                                child: FractionalTranslation(
-                                  // 向左偏移 50% 以实现水平居中
-                                  translation: const Offset(-0.5, 0),
-                                  child: _buildPreviewTooltip(
-                                    tooltipTime,
-                                    isPreviewReady,
-                                    visible: _bottomTooltipVisible,
-                                  ),
+                                child: _buildPreviewTooltip(
+                                  tooltipTime,
+                                  isPreviewReady,
+                                  visible: _bottomTooltipVisible,
+                                  tooltipX: tooltipX,
+                                  totalWidth: totalWidth,
                                 ),
                               ),
                           ],
@@ -1239,67 +1237,95 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     });
   }
 
+  // Tooltip 宽度常量
+  static const double _tooltipWidth = 160.0;
+
   /// 构建预览 tooltip（包含预览视频画面，带淡入淡出效果）
   Widget _buildPreviewTooltip(
     Duration time,
     bool isPreviewReady, {
     bool visible = true,
+    required double tooltipX,
+    required double totalWidth,
   }) {
     final controller = widget.myVideoStateController;
 
-    return AnimatedOpacity(
-      duration: const Duration(milliseconds: 150),
-      opacity: visible ? 1.0 : 0.0,
-      child: IgnorePointer(
-        ignoring: !visible,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.black.withValues(alpha: 0.8),
-            borderRadius: BorderRadius.circular(4),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // 优先使用预览视频画面；如果暂不可用，则仅展示时间信息
-              if (isPreviewReady && controller.previewVideoController != null)
-                Container(
-                  width: 160,
-                  height: 90,
-                  decoration: const BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(4),
-                      topRight: Radius.circular(4),
+    // 计算 tooltip 的水平偏移量，确保不超出屏幕边界
+    // tooltip 宽度的一半
+    const double halfTooltipWidth = _tooltipWidth / 2;
+    // 默认居中偏移 -0.5
+    double horizontalOffset = -0.5;
+
+    // 左边界检查：如果 tooltip 左边会超出屏幕
+    if (tooltipX < halfTooltipWidth) {
+      // 计算需要的偏移量，使 tooltip 左边缘对齐到屏幕左边缘（留 4px 边距）
+      horizontalOffset = -(tooltipX - 4) / _tooltipWidth;
+      horizontalOffset = horizontalOffset.clamp(-1.0, 0.0);
+    }
+    // 右边界检查：如果 tooltip 右边会超出屏幕
+    else if (tooltipX > totalWidth - halfTooltipWidth) {
+      // 计算需要的偏移量，使 tooltip 右边缘对齐到屏幕右边缘（留 4px 边距）
+      horizontalOffset = -1.0 + (totalWidth - tooltipX - 4) / _tooltipWidth;
+      horizontalOffset = horizontalOffset.clamp(-1.0, 0.0);
+    }
+
+    return FractionalTranslation(
+      // 根据位置动态调整水平偏移，确保 tooltip 不超出边界
+      translation: Offset(horizontalOffset, 0),
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 150),
+        opacity: visible ? 1.0 : 0.0,
+        child: IgnorePointer(
+          ignoring: !visible,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.8),
+              borderRadius: BorderRadius.circular(4),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.2),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // 优先使用预览视频画面；如果暂不可用，则仅展示时间信息
+                if (isPreviewReady && controller.previewVideoController != null)
+                  Container(
+                    width: 160,
+                    height: 90,
+                    decoration: const BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(4),
+                        topRight: Radius.circular(4),
+                      ),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: Video(
+                      controller: controller.previewVideoController!,
+                      controls: null,
+                      fit: BoxFit.cover,
                     ),
                   ),
-                  clipBehavior: Clip.antiAlias,
-                  child: Video(
-                    controller: controller.previewVideoController!,
-                    controls: null,
-                    fit: BoxFit.cover,
+                // 时间文本（无论是否有预览视频都展示）
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: Text(
+                    CommonUtils.formatDuration(time),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      decoration: TextDecoration.none,
+                    ),
                   ),
                 ),
-              // 时间文本（无论是否有预览视频都展示）
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                child: Text(
-                  CommonUtils.formatDuration(time),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    decoration: TextDecoration.none,
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

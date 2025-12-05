@@ -259,6 +259,7 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
                     tooltipX,
                     tooltipTime,
                     visible: _tooltipVisible,
+                    trackWidth: maxWidth,
                   ),
               ],
             );
@@ -441,11 +442,15 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
     return true;
   }
 
+  // Tooltip 宽度常量
+  static const double _tooltipWidth = 160.0;
+
   // 通用的 Tooltip 构建方法（带淡入淡出效果）
   Widget _buildTooltip(
     double xPosition,
     double timeValue, {
     bool visible = true,
+    required double trackWidth,
   }) {
     // 基础高度：Thumb半径 + 间距（toolbar 展开时，tooltip 距离进度条的距离）
     const double baseBottom = _thumbOverlayRadius + 10;
@@ -454,6 +459,25 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
     const double thinProgressBarOffset = 3.0 + 12.0; // 细进度条 3px + 间距 12px
 
     final isPreviewReady = widget.controller.isPreviewPlayerReady.value;
+
+    // 计算 tooltip 的水平偏移量，确保不超出进度条边界
+    // tooltip 宽度的一半
+    const double halfTooltipWidth = _tooltipWidth / 2;
+    // 默认居中偏移 -0.5
+    double horizontalOffset = -0.5;
+
+    // 左边界检查：如果 tooltip 左边会超出
+    if (xPosition < halfTooltipWidth) {
+      // 计算需要的偏移量，使 tooltip 左边缘对齐到左边缘（留 4px 边距）
+      horizontalOffset = -(xPosition - 4) / _tooltipWidth;
+      horizontalOffset = horizontalOffset.clamp(-1.0, 0.0);
+    }
+    // 右边界检查：如果 tooltip 右边会超出（使用进度条宽度而非屏幕宽度）
+    else if (xPosition > trackWidth - halfTooltipWidth) {
+      // 计算需要的偏移量，使 tooltip 右边缘对齐到右边缘（留 4px 边距）
+      horizontalOffset = -1.0 + (trackWidth - xPosition - 4) / _tooltipWidth;
+      horizontalOffset = horizontalOffset.clamp(-1.0, 0.0);
+    }
 
     return AnimatedBuilder(
       animation: widget.controller.animationController,
@@ -467,18 +491,18 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
         }
         // 获取 bottomBarAnimation 的偏移量（y 值）
         final double bottomBarOffsetY = widget.controller.bottomBarAnimation.value.dy;
-        
+
         // 获取屏幕高度来计算实际的滑动距离
         final double screenHeight = MediaQuery.of(context).size.height;
         // bottomBarAnimation 的 Offset(0, 1) 表示向下滑动一个屏幕高度
         // 所以实际的滑动距离 = bottomBarOffsetY * screenHeight
         final double actualSlideDistance = bottomBarOffsetY * screenHeight;
-        
+
         // 计算动态的 bottom 值：
         // - 当 toolbar 展开时（toolbarValue = 1, bottomBarOffsetY = 0）：tooltip 在进度条上方 baseBottom 距离
         // - 当 toolbar 收缩时（toolbarValue = 0, bottomBarOffsetY = 1）：整个 toolbar 向下滑动
         //   此时 tooltip 应该相对于屏幕底部定位，距离底部 thinProgressBarOffset
-        //   
+        //
         //   由于 tooltip 的 bottom 是相对于 Stack 的，而 Stack 在 toolbar 中
         //   当 toolbar 向下滑动 actualSlideDistance 时，tooltip 也会跟着向下滑动
         //   如果 tooltip 的 bottom = thinProgressBarOffset，那么 tooltip 实际距离屏幕底部 = thinProgressBarOffset + actualSlideDistance
@@ -489,7 +513,7 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
         //   - 收缩时：tooltip 应该距离屏幕底部 thinProgressBarOffset (15)
         //     由于 toolbar 向下滑动 actualSlideDistance，tooltip 的 bottom 需要 = thinProgressBarOffset + actualSlideDistance
         //     这样当 toolbar 向下滑动后，tooltip 实际距离屏幕底部 = (thinProgressBarOffset + actualSlideDistance) - actualSlideDistance = thinProgressBarOffset
-        final double dynamicBottom = toolbarValue == 1.0 
+        final double dynamicBottom = toolbarValue == 1.0
             ? baseBottom  // 展开时，使用基础位置
             : thinProgressBarOffset + actualSlideDistance;  // 收缩时，需要加上滑动距离，以补偿 toolbar 的向下滑动
 
@@ -498,8 +522,8 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
           // 距离底部的位置：根据 toolbar 状态动态调整，避免被遮挡
           bottom: dynamicBottom,
           child: FractionalTranslation(
-            // 向左偏移 50% 以实现水平居中
-            translation: const Offset(-0.5, 0),
+            // 根据位置动态调整水平偏移，确保 tooltip 不超出边界
+            translation: Offset(horizontalOffset, 0),
             child: AnimatedOpacity(
               duration: const Duration(milliseconds: 150),
               opacity: visible ? 1.0 : 0.0,
