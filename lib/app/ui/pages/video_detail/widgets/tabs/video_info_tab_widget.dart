@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart' show TabController;
 import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/video_description_widget.dart';
@@ -41,7 +40,7 @@ import 'package:i_iwara/app/models/video_source.model.dart';
 import 'package:i_iwara/app/ui/widgets/split_button_widget.dart'
     show SplitFilledButton, FilledActionButton, FilledLikeButton;
 
-class VideoInfoTabWidget extends StatelessWidget {
+class VideoInfoTabWidget extends StatefulWidget {
   final MyVideoStateController controller;
   final TabController tabController;
 
@@ -52,16 +51,27 @@ class VideoInfoTabWidget extends StatelessWidget {
   });
 
   @override
+  State<VideoInfoTabWidget> createState() => _VideoInfoTabWidgetState();
+}
+
+class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context); // 必须调用 super.build
+
     return Obx(() {
-      if (controller.pageLoadingState.value ==
+      if (widget.controller.pageLoadingState.value ==
           VideoDetailPageLoadingState.loadingVideoInfo) {
         return const Center(child: CircularProgressIndicator());
       }
-      if (controller.mainErrorWidget.value != null) {
-        return controller.mainErrorWidget.value!;
+      if (widget.controller.mainErrorWidget.value != null) {
+        return widget.controller.mainErrorWidget.value!;
       }
-      if (controller.isDesktopAppFullScreen.value) {
+      if (widget.controller.isDesktopAppFullScreen.value) {
         return const SizedBox.shrink();
       }
 
@@ -87,7 +97,7 @@ class VideoInfoTabWidget extends StatelessWidget {
   Widget _buildVideoTitle(BuildContext context) {
     return Builder(
       builder: (context) {
-        final title = controller.videoInfo.value?.title ?? '';
+        final title = widget.controller.videoInfo.value?.title ?? '';
         if (title.isEmpty) {
           return const SizedBox.shrink();
         }
@@ -136,10 +146,10 @@ class VideoInfoTabWidget extends StatelessWidget {
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
             onTap: () => NaviService.navigateToAuthorProfilePage(
-              controller.videoInfo.value!.user!.username,
+              widget.controller.videoInfo.value!.user!.username,
             ),
             child: AvatarWidget(
-              user: controller.videoInfo.value?.user,
+              user: widget.controller.videoInfo.value?.user,
               size: 40,
             ),
           ),
@@ -150,7 +160,7 @@ class VideoInfoTabWidget extends StatelessWidget {
             cursor: SystemMouseCursors.click,
             child: GestureDetector(
               onTap: () => NaviService.navigateToAuthorProfilePage(
-                controller.videoInfo.value!.user!.username,
+                widget.controller.videoInfo.value!.user!.username,
               ),
               behavior: HitTestBehavior.opaque,
               child: Column(
@@ -159,12 +169,12 @@ class VideoInfoTabWidget extends StatelessWidget {
                 children: [
                   buildUserName(
                     context,
-                    controller.videoInfo.value?.user,
+                    widget.controller.videoInfo.value?.user,
                     fontSize: 16,
                     bold: true,
                   ),
                   Text(
-                    '@${controller.videoInfo.value?.user?.username ?? ''}',
+                    '@${widget.controller.videoInfo.value?.user?.username ?? ''}',
                     style: TextStyle(
                       fontSize: 13,
                       color: Colors.grey[600],
@@ -178,12 +188,12 @@ class VideoInfoTabWidget extends StatelessWidget {
             ),
           ),
         ),
-        if (controller.videoInfo.value?.user != null)
+        if (widget.controller.videoInfo.value?.user != null)
           SizedBox(
             height: 32,
             child: FollowButtonWidget(
-              user: controller.videoInfo.value!.user!,
-              onUserUpdated: controller.handleAuthorUpdated,
+              user: widget.controller.videoInfo.value!.user!,
+              onUserUpdated: widget.controller.handleAuthorUpdated,
             ),
           ),
       ],
@@ -220,7 +230,7 @@ class VideoInfoTabWidget extends StatelessWidget {
   Widget _buildVideoStatsCard(BuildContext context) {
     final t = slang.Translations.of(context);
     return Obx(() {
-      final videoInfo = controller.videoInfo.value;
+      final videoInfo = widget.controller.videoInfo.value;
       if (videoInfo == null) return const SizedBox.shrink();
 
       return Container(
@@ -299,7 +309,7 @@ class VideoInfoTabWidget extends StatelessWidget {
 
   Widget _buildVideoDescriptionSection(BuildContext context) {
     return Obx(() {
-      final description = controller.videoInfo.value?.body;
+      final description = widget.controller.videoInfo.value?.body;
       if (description == null || description.isEmpty) {
         return const SizedBox.shrink();
       }
@@ -310,8 +320,8 @@ class VideoInfoTabWidget extends StatelessWidget {
           const SizedBox(height: UIConstants.listSpacing),
           VideoDescriptionWidget(
             description: description,
-            isDescriptionExpanded: controller.isDescriptionExpanded,
-            onToggleDescription: controller.isDescriptionExpanded.toggle,
+            isDescriptionExpanded: widget.controller.isDescriptionExpanded,
+            onToggleDescription: widget.controller.isDescriptionExpanded.toggle,
           ),
         ],
       );
@@ -321,7 +331,7 @@ class VideoInfoTabWidget extends StatelessWidget {
   Widget _buildVideoTagsSection(BuildContext context) {
     final t = slang.Translations.of(context);
     return Obx(() {
-      final tags = controller.videoInfo.value?.tags;
+      final tags = widget.controller.videoInfo.value?.tags;
       if (tags == null || tags.isEmpty) return const SizedBox.shrink();
 
       return Column(
@@ -347,8 +357,8 @@ class VideoInfoTabWidget extends StatelessWidget {
   Widget _buildOreno3dSection(BuildContext context) {
     final t = slang.Translations.of(context);
     return Obx(() {
-      final oreno3dDetail = controller.oreno3dVideoDetail.value;
-      final isMatching = controller.isOreno3dMatching.value;
+      final oreno3dDetail = widget.controller.oreno3dVideoDetail.value;
+      final isMatching = widget.controller.isOreno3dMatching.value;
 
       // 判断是否应该显示
       final shouldShow = isMatching ||
@@ -546,7 +556,7 @@ class VideoInfoTabWidget extends StatelessWidget {
   Widget _buildLikeAvatarsSection(BuildContext context) {
     final t = slang.Translations.of(context);
     return Obx(() {
-      final videoId = controller.videoInfo.value?.id;
+      final videoId = widget.controller.videoInfo.value?.id;
       if (videoId == null) return const SizedBox.shrink();
 
       return Column(
@@ -581,7 +591,7 @@ class VideoInfoTabWidget extends StatelessWidget {
 
   Widget _buildActionButtonsSection(BuildContext context) {
     final t = slang.Translations.of(context);
-    final videoInfo = controller.videoInfo.value;
+    final videoInfo = widget.controller.videoInfo.value;
     if (videoInfo == null) return const SizedBox.shrink();
 
     return Column(
@@ -610,7 +620,7 @@ class VideoInfoTabWidget extends StatelessWidget {
   /// A more responsive action button row using Wrap.
   Widget _buildActionButtons(BuildContext context) {
     final t = slang.Translations.of(context);
-    final videoInfo = controller.videoInfo.value;
+    final videoInfo = widget.controller.videoInfo.value;
     if (videoInfo == null) return const SizedBox.shrink();
 
     return Container(
@@ -635,40 +645,40 @@ class VideoInfoTabWidget extends StatelessWidget {
             onUnlike: (id) async =>
                 (await Get.find<VideoService>().unlikeVideo(id)).isSuccess,
             onLikeChanged: (liked) {
-              controller.videoInfo.value = controller.videoInfo.value?.copyWith(
+              widget.controller.videoInfo.value = widget.controller.videoInfo.value?.copyWith(
                 liked: liked,
                 numLikes:
-                    (controller.videoInfo.value?.numLikes ?? 0) +
+                    (widget.controller.videoInfo.value?.numLikes ?? 0) +
                     (liked ? 1 : -1),
               );
               // 更新缓存中的点赞信息
-              controller.updateCachedVideoLikeInfo(
+              widget.controller.updateCachedVideoLikeInfo(
                 videoInfo.id,
                 liked,
-                controller.videoInfo.value?.numLikes ?? 0,
+                widget.controller.videoInfo.value?.numLikes ?? 0,
               );
             },
           ),
           Obx(
             () => FilledActionButton(
-              icon: controller.isInAnyPlaylist.value
+              icon: widget.controller.isInAnyPlaylist.value
                   ? Icons.playlist_add_check
                   : Icons.playlist_add,
               label: t.common.playList,
               onTap: () => _handlePlaylistAction(context),
-              accentColor: controller.isInAnyPlaylist.value
+              accentColor: widget.controller.isInAnyPlaylist.value
                   ? Theme.of(context).primaryColor
                   : null,
             ),
           ),
           Obx(
             () => FilledActionButton(
-              icon: controller.isInAnyFavorite.value
+              icon: widget.controller.isInAnyFavorite.value
                   ? Icons.bookmark
                   : Icons.bookmark_border,
               label: t.favorite.localizeFavorite,
               onTap: () => _handleFavoriteAction(context, videoInfo),
-              accentColor: controller.isInAnyFavorite.value
+              accentColor: widget.controller.isInAnyFavorite.value
                   ? Theme.of(context).primaryColor
                   : null,
             ),
@@ -702,10 +712,10 @@ class VideoInfoTabWidget extends StatelessWidget {
     }
 
     Get.dialog(
-      AddVideoToPlayListDialog(videoId: controller.videoInfo.value?.id ?? ''),
+      AddVideoToPlayListDialog(videoId: widget.controller.videoInfo.value?.id ?? ''),
     ).then((_) {
       // 对话框关闭后刷新播放列表状态
-      controller.checkFavoriteAndPlaylistStatus();
+      widget.controller.checkFavoriteAndPlaylistStatus();
     });
   }
 
@@ -719,7 +729,7 @@ class VideoInfoTabWidget extends StatelessWidget {
       ),
     ).then((_) {
       // 对话框关闭后刷新收藏状态
-      controller.checkFavoriteAndPlaylistStatus();
+      widget.controller.checkFavoriteAndPlaylistStatus();
     });
   }
 
@@ -774,12 +784,12 @@ class VideoInfoTabWidget extends StatelessWidget {
     const downloadIcon = Icons.download;
 
     return Obx(() {
-      final sources = controller.currentVideoSourceList;
-      final videoInfo = controller.videoInfo.value;
+      final sources = widget.controller.currentVideoSourceList;
+      final videoInfo = widget.controller.videoInfo.value;
       final isLoading =
-          controller.pageLoadingState.value ==
+          widget.controller.pageLoadingState.value ==
               VideoDetailPageLoadingState.loadingVideoInfo ||
-          controller.pageLoadingState.value ==
+          widget.controller.pageLoadingState.value ==
               VideoDetailPageLoadingState.loadingVideoSource;
 
       // 如果视频信息未加载或没有可用源，禁用按钮
@@ -789,7 +799,7 @@ class VideoInfoTabWidget extends StatelessWidget {
       final qualityLabel = currentQuality ?? t.download.errors.unknown;
 
       // 检查是否已有下载任务
-      final hasDownloadTask = controller.hasAnyDownloadTask.value;
+      final hasDownloadTask = widget.controller.hasAnyDownloadTask.value;
       final accentColor = hasDownloadTask ? Theme.of(context).primaryColor : null;
 
       return SplitFilledButton(
@@ -850,7 +860,7 @@ class VideoInfoTabWidget extends StatelessWidget {
       return;
     }
 
-    final sources = controller.currentVideoSourceList;
+    final sources = widget.controller.currentVideoSourceList;
     // 使用 toLowerCase() 进行不区分大小写的比较
     final source = sources.firstWhereOrNull(
       (s) => (s.name?.toLowerCase() ?? '') == quality.toLowerCase(),
@@ -885,7 +895,7 @@ class VideoInfoTabWidget extends StatelessWidget {
     }
 
     try {
-      final videoInfo = controller.videoInfo.value;
+      final videoInfo = widget.controller.videoInfo.value;
       if (videoInfo == null) {
         LogUtils.e('下载失败：视频信息为空', tag: 'VideoInfoTabWidget');
         showToastWidget(
@@ -973,7 +983,7 @@ class VideoInfoTabWidget extends StatelessWidget {
       await DownloadService.to.addTask(task);
 
       // 标记视频有下载任务
-      controller.markVideoHasDownloadTask();
+      widget.controller.markVideoHasDownloadTask();
 
       // 使用 SnackBar 提示下载开始，并提供跳转按钮
       if (context.mounted) {
@@ -1016,10 +1026,10 @@ class VideoInfoTabWidget extends StatelessWidget {
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) => ShareVideoBottomSheet(
-        videoId: controller.videoInfo.value?.id ?? '',
-        videoTitle: controller.videoInfo.value?.title ?? '',
-        authorName: controller.videoInfo.value?.user?.name ?? '',
-        previewUrl: controller.videoInfo.value?.previewUrl ?? '',
+        videoId: widget.controller.videoInfo.value?.id ?? '',
+        videoTitle: widget.controller.videoInfo.value?.title ?? '',
+        authorName: widget.controller.videoInfo.value?.user?.name ?? '',
+        previewUrl: widget.controller.videoInfo.value?.previewUrl ?? '',
       ),
       context: context,
     );
@@ -1036,9 +1046,9 @@ class VideoInfoTabWidget extends StatelessWidget {
 
     // 创建临时视频对象用于路径生成
     final video = Video(
-      id: controller.videoInfo.value?.id ?? 'unknown',
+      id: widget.controller.videoInfo.value?.id ?? 'unknown',
       title: title,
-      user: controller.videoInfo.value?.user,
+      user: widget.controller.videoInfo.value?.user,
     );
 
     return await downloadPathService.getVideoDownloadPath(
@@ -1051,7 +1061,7 @@ class VideoInfoTabWidget extends StatelessWidget {
   void _showDownloadDialog(BuildContext context) {
     LogUtils.d('尝试显示下载对话框', 'VideoInfoTabWidget'); // Changed tag for clarity
     final t = slang.Translations.of(context);
-    final sources = controller.currentVideoSourceList;
+    final sources = widget.controller.currentVideoSourceList;
 
     if (sources.isEmpty) {
       LogUtils.w('没有可用的下载源', 'VideoInfoTabWidget');
@@ -1102,7 +1112,7 @@ class VideoInfoTabWidget extends StatelessWidget {
                   }
 
                   try {
-                    final videoInfo = controller.videoInfo.value;
+                    final videoInfo = widget.controller.videoInfo.value;
                     if (videoInfo == null) {
                       LogUtils.e('下载失败：视频信息为空', tag: 'VideoInfoTabWidget');
                       throw Exception(t.download.errors.videoInfoNotFound);
@@ -1186,7 +1196,7 @@ class VideoInfoTabWidget extends StatelessWidget {
                     await DownloadService.to.addTask(task);
 
                     // 标记视频有下载任务
-                    controller.markVideoHasDownloadTask();
+                    widget.controller.markVideoHasDownloadTask();
 
                     // 保存选择的清晰度到配置
                     final configService = Get.find<ConfigService>();
@@ -1369,13 +1379,13 @@ class VideoInfoTabWidget extends StatelessWidget {
     // 检查是否达到切换阈值
     if (velocity.abs() > velocityThreshold) {
       // 速度足够，基于速度方向切换
-      if (velocity > 0 && tabController.index > 0) {
+      if (velocity > 0 && widget.tabController.index > 0) {
         // 向右滑动，切换到上一个tab
-        tabController.animateTo(tabController.index - 1);
+        widget.tabController.animateTo(widget.tabController.index - 1);
       } else if (velocity < 0 &&
-          tabController.index < tabController.length - 1) {
+          widget.tabController.index < widget.tabController.length - 1) {
         // 向左滑动，切换到下一个tab
-        tabController.animateTo(tabController.index + 1);
+        widget.tabController.animateTo(widget.tabController.index + 1);
       }
     }
   }

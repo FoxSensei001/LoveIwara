@@ -420,12 +420,6 @@ class DownloadService extends GetxService {
         // 通过数据库获取最新任务信息，pending 任务不常驻内存
         final task = await _repository.getTaskById(taskId);
 
-    // 仅对仍为 pending 的任务进行下载；否则跳过
-    if (task == null || task.status != DownloadStatus.pending) {
-      _downloadQueue.removeAt(0);
-      _processQueue(); // 继续处理队列中的下一个任务
-      return;
-    }
         // 仅对仍为 pending 的任务进行下载；否则跳过
         if (task == null || task.status != DownloadStatus.pending) {
           _downloadQueue.removeAt(0);
