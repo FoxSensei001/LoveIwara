@@ -51,16 +51,19 @@ class ImageModelDetailContent extends StatelessWidget {
   // 构建图库详情区域
   Widget _buildGalleryDetails(BuildContext context) {
     return Obx(() {
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildGalleryTitle(),
-          _buildAuthorInfo(context),
-          const SizedBox(height: UIConstants.sectionSpacing),
-          _buildGalleryDetailsSection(context),
-        ],
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildGalleryTitle(),
+            _buildAuthorInfo(context),
+            const SizedBox(height: UIConstants.sectionSpacing),
+            _buildGalleryDetailsSection(context),
+          ],
+        ),
       );
     });
   }
@@ -75,6 +78,7 @@ class ImageModelDetailContent extends StatelessWidget {
 
         // 图库描述
         _buildGalleryDescriptionSection(context),
+        const SizedBox(height: UIConstants.sectionSpacing),
 
         // 图库标签
         _buildTagsSection(context),
