@@ -1219,6 +1219,32 @@ class MyVideoStateController extends GetxController
   ) async {
     if (_isDisposed) return;
 
+    // 尝试从本地下载获取文件
+    String finalUrl = url;
+    if (videoId != null) {
+      try {
+        final downloadService = Get.find<DownloadService>();
+        final localPath = await downloadService.getCompletedVideoLocalPath(
+          videoId!,
+          resolutionTag,
+        );
+
+        if (localPath != null && !_isDisposed) {
+          // 使用本地文件路径
+          finalUrl = 'file://$localPath';
+          LogUtils.i(
+            '使用本地下载文件播放: videoId=$videoId, quality=$resolutionTag, path=$localPath',
+            'MyVideoStateController',
+          );
+        }
+      } catch (e) {
+        LogUtils.w(
+          '检查本地文件失败，使用在线播放: $e',
+          'MyVideoStateController',
+        );
+      }
+    }
+
     // 设置缓冲状态，显示 loading 动画
     videoBuffering.value = true;
 
@@ -1235,7 +1261,7 @@ class MyVideoStateController extends GetxController
 
     try {
       // 打开新的视频源
-      await player.open(Media(url, start: currentPosition), play: true);
+      await player.open(Media(finalUrl, start: currentPosition), play: true);
 
       if (_isDisposed) return;
 
@@ -1302,9 +1328,35 @@ class MyVideoStateController extends GetxController
       return;
     }
 
+    // 尝试从本地下载获取文件
+    String finalUrl = url;
+    if (videoId != null) {
+      try {
+        final downloadService = Get.find<DownloadService>();
+        final localPath = await downloadService.getCompletedVideoLocalPath(
+          videoId!,
+          resolutionTag,
+        );
+
+        if (localPath != null && !_isDisposed) {
+          // 使用本地文件路径
+          finalUrl = 'file://$localPath';
+          LogUtils.i(
+            '使用本地下载文件播放: videoId=$videoId, quality=$resolutionTag, path=$localPath',
+            'MyVideoStateController',
+          );
+        }
+      } catch (e) {
+        LogUtils.w(
+          '检查本地文件失败，使用在线播放: $e',
+          'MyVideoStateController',
+        );
+      }
+    }
+
     if (_isDisposed) return;
     try {
-      player.open(Media(url, start: currentPosition), play: true);
+      player.open(Media(finalUrl, start: currentPosition), play: true);
       pageLoadingState.value = VideoDetailPageLoadingState.addingListeners;
     } catch (e) {
       if (_isDisposed) return;

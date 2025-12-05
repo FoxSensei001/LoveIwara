@@ -1030,6 +1030,53 @@ class DownloadService extends GetxService {
     }
   }
 
+  /// 获取已完成的下载任务的本地文件路径
+  /// [videoId] 视频ID
+  /// [quality] 视频清晰度（如 "Source", "1080", "720" 等）
+  /// 返回本地文件路径，如果没有找到或文件不存在则返回 null
+  Future<String?> getCompletedVideoLocalPath(String videoId, String quality) async {
+    try {
+      // 获取该视频的所有下载任务
+      final tasks = await _repository.getVideoTasksByMedia(videoId);
+
+      // 找到匹配清晰度且已完成的任务
+      for (final task in tasks) {
+        // 不区分大小写比较清晰度
+        if (task.quality?.toLowerCase() == quality.toLowerCase() &&
+            task.status == DownloadStatus.completed &&
+            task.savePath.isNotEmpty) {
+          // 验证文件是否存在
+          final file = File(task.savePath);
+          if (await file.exists()) {
+            LogUtils.d(
+              '找到本地下载文件: videoId=$videoId, quality=$quality, path=${task.savePath}',
+              'DownloadService',
+            );
+            return task.savePath;
+          } else {
+            LogUtils.w(
+              '本地文件不存在: ${task.savePath}',
+              'DownloadService',
+            );
+          }
+        }
+      }
+
+      LogUtils.d(
+        '未找到本地下载文件: videoId=$videoId, quality=$quality',
+        'DownloadService',
+      );
+      return null;
+    } catch (e) {
+      LogUtils.e(
+        '查询本地视频文件失败: videoId=$videoId, quality=$quality',
+        tag: 'DownloadService',
+        error: e,
+      );
+      return null;
+    }
+  }
+
   /// 检查指定图库是否存在任何下载任务
   /// 返回 true 表示存在至少一个下载任务，false 表示不存在
   Future<bool> hasAnyGalleryDownloadTask(String galleryId) async {
@@ -1044,6 +1091,68 @@ class DownloadService extends GetxService {
       );
       // 发生异常时返回 false，降级处理
       return false;
+    }
+  }
+
+  /// 获取已完成的图库下载的本地图片路径映射
+  /// [galleryId] 图库ID
+  /// 返回 Map<String, String>，key 为图片ID，value 为本地文件路径
+  /// 如果没有找到已完成的下载任务或文件不存在则返回空 Map
+  Future<Map<String, String>> getCompletedGalleryLocalPaths(String galleryId) async {
+    try {
+      // 获取该图库的所有下载任务
+      final tasks = await _repository.getAllTasksByStatus(DownloadStatus.completed);
+
+      // 找到匹配图库ID且已完成的任务
+      for (final task in tasks) {
+        if (task.mediaType == 'gallery' &&
+            task.mediaId == galleryId &&
+            task.status == DownloadStatus.completed &&
+            task.extData?.type == DownloadTaskExtDataType.gallery) {
+
+          final galleryData = GalleryDownloadExtData.fromJson(task.extData!.data);
+          final validLocalPaths = <String, String>{};
+
+          // 验证每个本地文件是否存在
+          for (final entry in galleryData.localPaths.entries) {
+            final imageId = entry.key;
+            final localPath = entry.value;
+
+            if (localPath.isNotEmpty) {
+              final file = File(localPath);
+              if (await file.exists()) {
+                validLocalPaths[imageId] = localPath;
+              } else {
+                LogUtils.w(
+                  '本地图片文件不存在: imageId=$imageId, path=$localPath',
+                  'DownloadService',
+                );
+              }
+            }
+          }
+
+          if (validLocalPaths.isNotEmpty) {
+            LogUtils.d(
+              '找到图库本地文件: galleryId=$galleryId, 图片数量=${validLocalPaths.length}',
+              'DownloadService',
+            );
+            return validLocalPaths;
+          }
+        }
+      }
+
+      LogUtils.d(
+        '未找到图库本地文件: galleryId=$galleryId',
+        'DownloadService',
+      );
+      return {};
+    } catch (e) {
+      LogUtils.e(
+        '查询图库本地文件失败: galleryId=$galleryId',
+        tag: 'DownloadService',
+        error: e,
+      );
+      return {};
     }
   }
 
