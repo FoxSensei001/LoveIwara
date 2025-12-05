@@ -83,7 +83,7 @@ class GlslShaderService extends GetxService {
       final tempFile = File(tempFilePath);
       if (await tempFile.exists()) {
         // 如果文件已存在，跳过复制
-        LogUtils.d('GLSL 文件已存在，跳过: $fileName', 'GlslShaderService');
+        // LogUtils.d('GLSL 文件已存在，跳过: $fileName', 'GlslShaderService');
         return;
       }
 

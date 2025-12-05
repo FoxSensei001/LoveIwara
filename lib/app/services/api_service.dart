@@ -1,7 +1,7 @@
 // api_service.dart
+// API 服务 - 处理所有 HTTP 请求，包括 401 处理和网络重试
 
 import 'dart:async';
-import 'dart:collection';
 import 'dart:io';
 
 import 'package:dio/dio.dart' as d_dio;
@@ -13,84 +13,51 @@ import '../../utils/logger_utils.dart';
 import '../ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'auth_service.dart';
 
-// 自定义Queue类
-class _TokenQueue {
-  final Queue<Future Function()> _queue = Queue();
-  bool _processing = false;
-  static const int maxQueueSize = 100;
+/// API 服务配置
+class ApiServiceConfig {
+  /// 请求超时时间
+  static const Duration requestTimeout = Duration(seconds: 15);
 
-  Future<T> add<T>(Future<T> Function() task) async {
-    LogUtils.d('TokenQueue: 添加任务到队列，当前队列长度: ${_queue.length}');
-    if (_queue.length >= maxQueueSize) {
-      throw Exception('Token refresh queue is full');
-    }
+  /// 最大网络重试次数
+  static const int maxNetworkRetries = 3;
 
-    final completer = Completer<T>();
+  /// 网络重试基础延迟
+  static const Duration baseRetryDelay = Duration(milliseconds: 500);
 
-    Future<void> executeTask() async {
-      try {
-        LogUtils.d('TokenQueue: 开始执行队列任务');
-        final result = await task();
-        completer.complete(result);
-        LogUtils.d('TokenQueue: 队列任务执行完成');
-      } catch (e) {
-        LogUtils.e('TokenQueue: 队列任务执行失败', error: e);
-        completer.completeError(e);
-      }
-    }
-
-    _queue.add(executeTask);
-
-    if (!_processing) {
-      _processing = true;
-      LogUtils.d('TokenQueue: 队列开始处理，队列长度: ${_queue.length}');
-      while (_queue.isNotEmpty) {
-        final nextTask = _queue.removeFirst();
-        await nextTask();
-      }
-      _processing = false;
-      LogUtils.d('TokenQueue: 队列处理完成');
-    } else {
-      LogUtils.d('TokenQueue: 队列正在处理中，新任务已添加到队列');
-    }
-
-    return completer.future;
-  }
+  /// 最大重试延迟
+  static const Duration maxRetryDelay = Duration(seconds: 5);
 }
 
+/// API 服务
 class ApiService extends GetxService {
   static ApiService? _instance;
   late d_dio.Dio _dio;
   final AuthService _authService = Get.find<AuthService>();
   final String _tag = 'ApiService';
 
-  // 重试相关配置
-  static const int maxRetries = 3;
-  static const Duration baseRetryDelay = Duration(seconds: 1);
-  static const Duration requestTimeout = Duration(seconds: 45);
-
-  // 队列定义
-  final _TokenQueue _refreshQueue = _TokenQueue();
-
   bool _interceptorAdded = false;
 
-  // 构造函数返回的是同一个
+  // 等待 token 刷新的请求队列
+  final List<_PendingRequest> _pendingRequests = [];
+  bool _isProcessingQueue = false;
+
   ApiService._();
 
   d_dio.Dio get dio => _dio;
 
-  // 获取实例的静态方法
+  /// 获取单例实例
   static Future<ApiService> getInstance() async {
     _instance ??= await ApiService._().init();
     return _instance!;
   }
 
+  /// 初始化
   Future<ApiService> init() async {
     _dio = d_dio.Dio(d_dio.BaseOptions(
       baseUrl: CommonConstants.iwaraApiBaseUrl,
-      connectTimeout: requestTimeout,
-      receiveTimeout: requestTimeout,
-      sendTimeout: requestTimeout,
+      connectTimeout: ApiServiceConfig.requestTimeout,
+      receiveTimeout: ApiServiceConfig.requestTimeout,
+      sendTimeout: ApiServiceConfig.requestTimeout,
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json, text/plain, */*',
@@ -100,12 +67,10 @@ class ApiService extends GetxService {
     ));
     _dio.options.persistentConnection = false;
 
-    // 配置 IOHttpClientAdapter，禁用共享 socket 作为双重保险
-    // 这可以解决 Android 10+ 某些 ROM（华为/荣耀等）的共享 fd 权限问题
+    // 配置 HTTP 客户端适配器
     _dio.httpClientAdapter = IOHttpClientAdapter(
       createHttpClient: () {
         final client = HttpClient();
-        // 通过设置 idleTimeout 为 0 来禁用持久连接，从而避免共享 socket
         client.idleTimeout = Duration.zero;
         return client;
       },
@@ -115,98 +80,257 @@ class ApiService extends GetxService {
       return this;
     }
 
-    // 修改拦截器
-    _dio.interceptors.add(d_dio.InterceptorsWrapper(
-      onRequest: (options, handler) async {
-        final accessToken = _authService.accessToken;
-        LogUtils.d('ApiService: 拦截器处理请求: ${options.path}, params: ${options.queryParameters}');
-
-        if (accessToken != null) {
-          options.headers['Authorization'] = 'Bearer $accessToken';
-        }
-
-        return handler.next(options);
-      },
-      onError: (error, handler) async {
-        // 将 DioException 转换为 curl 命令并打印（仅在调试模式下）
-        // CurlConverterUtils.convertDioExceptionToCurl(
-        //   error,
-        //   logLevel: LogLevel.debug,
-        // );
-
-        // 处理 Cloudflare 403 质询
-        if (error.response?.statusCode == 403) {
-          final cfMitigated = error.response?.headers['cf-mitigated']?.firstOrNull;
-          if (cfMitigated == 'challenge') {
-            LogUtils.w('ApiService: 检测到 Cloudflare 403 质询，跳过 token 刷新');
-            // Cloudflare 问题，直接返回原始错误，不进行 token 刷新
-            return handler.next(error);
-          }
-        }
-        
-        if (error.response?.statusCode == 401) {
-          LogUtils.e('ApiService: 认证错误 ${error.response?.statusCode}');
-
-          // 如果是刷新token的请求失败，直接处理认证错误
-          if (error.requestOptions.path == '/user/token') {
-            await handleAuthError();
-            return handler.next(error);
-          }
-
-          // 检查是否还有有效的refresh token
-          if (!_authService.hasToken || _authService.isAuthTokenExpired) {
-            LogUtils.w('ApiService: 没有有效的refresh token，直接登出');
-            await handleAuthError();
-            return handler.next(error);
-          }
-
-          // 只有401错误且有有效refresh token才尝试刷新
-          try {
-            final result = await _refreshQueue.add(() async {
-              return await _authService.refreshAccessToken();
-            });
-
-            if (result) {
-              try {
-                final response = await _retryRequest(error.requestOptions);
-                return handler.resolve(response);
-              } catch (e) {
-                LogUtils.e('ApiService: 重试请求失败', error: e);
-                await handleAuthError();
-              }
-            } else {
-              LogUtils.w('ApiService: token刷新失败，执行登出');
-              await handleAuthError();
-            }
-          } catch (e) {
-            if (e is NetworkException) {
-              LogUtils.w('ApiService: 刷新token时网络错误，保持原错误: $e');
-              // 网络错误时不清理认证状态，直接返回原始错误
-              return handler.next(error);
-            } else {
-              LogUtils.e('ApiService: 刷新token时发生未知错误', error: e);
-              await handleAuthError();
-            }
-          }
-        }
-        return handler.next(error);
-      },
-    ));
-
+    // 添加拦截器
+    _dio.interceptors.add(_createInterceptor());
     _interceptorAdded = true;
+
     return this;
   }
 
-  // 重试请求
-  Future<d_dio.Response<T>> _retryRequest<T>(d_dio.RequestOptions options) async {
-    LogUtils.d('ApiService: 开始重试请求: ${options.path}');
+  /// 创建拦截器
+  d_dio.InterceptorsWrapper _createInterceptor() {
+    return d_dio.InterceptorsWrapper(
+      onRequest: _onRequest,
+      onError: _onError,
+    );
+  }
 
+  /// 请求拦截
+  void _onRequest(
+      d_dio.RequestOptions options, d_dio.RequestInterceptorHandler handler) {
+    final accessToken = _authService.accessToken;
+
+    // 如果 token 正在刷新中，检查是否需要等待
+    final tokenManager = _authService.tokenManager;
+    if (tokenManager.isRefreshing && _authService.hasToken) {
+      LogUtils.d('$_tag Token 正在刷新中，请求 ${options.path} 等待刷新完成');
+      _waitForRefreshThenRequest(options, handler);
+      return;
+    }
+
+    if (accessToken != null) {
+      options.headers['Authorization'] = 'Bearer $accessToken';
+    }
+
+    // 标记请求开始时间，用于判断 token 有效性
+    options.extra['requestStartTime'] = DateTime.now().millisecondsSinceEpoch;
+
+    LogUtils.d('$_tag 请求: ${options.method} ${options.path}');
+    handler.next(options);
+  }
+
+  /// 等待 token 刷新完成后发送请求
+  Future<void> _waitForRefreshThenRequest(
+      d_dio.RequestOptions options, d_dio.RequestInterceptorHandler handler) async {
+    try {
+      final tokenManager = _authService.tokenManager;
+      final result = await tokenManager.refreshAccessToken();
+
+      if (result.success) {
+        // 使用新 token 发送请求
+        final accessToken = _authService.accessToken;
+        if (accessToken != null) {
+          options.headers['Authorization'] = 'Bearer $accessToken';
+        }
+        options.extra['requestStartTime'] = DateTime.now().millisecondsSinceEpoch;
+        LogUtils.d('$_tag Token 刷新完成，继续请求: ${options.path}');
+        handler.next(options);
+      } else if (result.isAuthError) {
+        // 认证错误，拒绝请求
+        LogUtils.w('$_tag Token 刷新失败，拒绝请求: ${options.path}');
+        handler.reject(d_dio.DioException(
+          requestOptions: options,
+          error: 'Token refresh failed: ${result.errorMessage}',
+          type: d_dio.DioExceptionType.unknown,
+        ));
+      } else {
+        // 网络错误，使用现有 token 尝试请求
+        final accessToken = _authService.accessToken;
+        if (accessToken != null) {
+          options.headers['Authorization'] = 'Bearer $accessToken';
+        }
+        options.extra['requestStartTime'] = DateTime.now().millisecondsSinceEpoch;
+        LogUtils.d('$_tag Token 刷新遇到网络错误，使用现有 token 尝试请求: ${options.path}');
+        handler.next(options);
+      }
+    } catch (e) {
+      LogUtils.e('$_tag 等待 token 刷新时出错', error: e);
+      handler.reject(d_dio.DioException(
+        requestOptions: options,
+        error: e,
+        type: d_dio.DioExceptionType.unknown,
+      ));
+    }
+  }
+
+  /// 错误拦截
+  Future<void> _onError(
+      d_dio.DioException error, d_dio.ErrorInterceptorHandler handler) async {
+    // 处理 Cloudflare 403 质询
+    if (error.response?.statusCode == 403) {
+      final cfMitigated = error.response?.headers['cf-mitigated']?.firstOrNull;
+      if (cfMitigated == 'challenge') {
+        LogUtils.w('$_tag Cloudflare 403 质询，跳过 token 刷新');
+        return handler.next(error);
+      }
+    }
+
+    // 处理 401 错误
+    if (error.response?.statusCode == 401) {
+      final result = await _handle401Error(error);
+      if (result != null) {
+        return handler.resolve(result);
+      }
+      return handler.next(error);
+    }
+
+    // 处理网络错误 - 重试逻辑
+    if (_isNetworkError(error)) {
+      final retryResult = await _handleNetworkRetry(error);
+      if (retryResult != null) {
+        return handler.resolve(retryResult);
+      }
+    }
+
+    handler.next(error);
+  }
+
+  /// 处理 401 错误
+  Future<d_dio.Response?> _handle401Error(d_dio.DioException error) async {
+    final options = error.requestOptions;
+
+    LogUtils.w('$_tag 收到 401 错误: ${options.path}');
+
+    // 如果是 token 刷新请求本身失败，直接处理认证错误
+    if (options.path == '/user/token') {
+      LogUtils.e('$_tag Token 刷新请求返回 401，需要重新登录');
+      await _authService.handleTokenExpired();
+      return null;
+    }
+
+    // 检查是否有有效的 refresh token
+    if (!_authService.hasToken || _authService.isAuthTokenExpired) {
+      LogUtils.w('$_tag 没有有效的 refresh token，需要重新登录');
+      await _authService.handleTokenExpired();
+      return null;
+    }
+
+    // 获取 TokenManager
+    final tokenManager = _authService.tokenManager;
+
+    // 检查请求时 access token 是否实际有效
+    // 如果请求开始时 token 还有效（剩余时间 > 10秒），说明可能是服务器端的问题
+    final requestStartTime = options.extra['requestStartTime'] as int?;
+    if (requestStartTime != null) {
+      final requestTime = DateTime.fromMillisecondsSinceEpoch(requestStartTime);
+      // 计算请求开始时 token 是否还有效
+      final tokenRemainingAtRequest = tokenManager.accessTokenRemainingSeconds +
+          DateTime.now().difference(requestTime).inSeconds;
+
+      if (tokenRemainingAtRequest > 10 && !tokenManager.isRefreshing) {
+        // Token 应该还有效，可能是服务器问题，直接重试一次
+        LogUtils.d(
+            '$_tag Token 在请求时应该有效 (剩余 ${tokenRemainingAtRequest}s)，直接重试');
+        try {
+          final response = await _retryRequest(options);
+          return response;
+        } catch (e) {
+          LogUtils.w('$_tag 直接重试失败: $e');
+          // 继续执行刷新逻辑
+        }
+      }
+    }
+
+    // 如果已经有刷新任务在进行，将请求加入等待队列
+    if (tokenManager.isRefreshing) {
+      LogUtils.d('$_tag Token 刷新中，将请求加入等待队列');
+      return _waitForRefreshAndRetry(options);
+    }
+
+    // 尝试刷新 token
+    LogUtils.d('$_tag 开始刷新 token');
+    final refreshResult = await tokenManager.refreshAccessToken();
+
+    if (refreshResult.success) {
+      LogUtils.d('$_tag Token 刷新成功，重试请求');
+
+      // 处理等待队列中的请求
+      _processQueuedRequests();
+
+      // 重试当前请求
+      try {
+        final response = await _retryRequest(options);
+        return response;
+      } catch (e) {
+        LogUtils.e('$_tag 刷新后重试失败', error: e);
+        // 如果重试仍然失败，可能是其他问题
+        if (e is d_dio.DioException && e.response?.statusCode == 401) {
+          await _authService.handleTokenExpired();
+        }
+        return null;
+      }
+    } else if (refreshResult.isAuthError) {
+      LogUtils.w('$_tag Token 刷新失败（认证错误），需要重新登录');
+      await _authService.handleTokenExpired();
+
+      // 通知等待队列中的请求失败
+      _failQueuedRequests('Token refresh failed');
+      return null;
+    } else {
+      // 网络错误，不清理 token
+      LogUtils.w('$_tag Token 刷新失败（网络错误）: ${refreshResult.errorMessage}');
+      _failQueuedRequests('Network error during token refresh');
+      return null;
+    }
+  }
+
+  /// 等待 token 刷新完成后重试请求
+  Future<d_dio.Response?> _waitForRefreshAndRetry(
+      d_dio.RequestOptions options) async {
+    final completer = Completer<d_dio.Response?>();
+    _pendingRequests.add(_PendingRequest(options, completer));
+
+    return completer.future;
+  }
+
+  /// 处理等待队列中的请求
+  void _processQueuedRequests() {
+    if (_isProcessingQueue || _pendingRequests.isEmpty) return;
+
+    _isProcessingQueue = true;
+
+    Future.microtask(() async {
+      while (_pendingRequests.isNotEmpty) {
+        final pending = _pendingRequests.removeAt(0);
+        try {
+          final response = await _retryRequest(pending.options);
+          pending.completer.complete(response);
+        } catch (e) {
+          LogUtils.e('$_tag 队列请求重试失败', error: e);
+          pending.completer.complete(null);
+        }
+      }
+      _isProcessingQueue = false;
+    });
+  }
+
+  /// 使等待队列中的请求失败
+  void _failQueuedRequests(String reason) {
+    LogUtils.d('$_tag 使 ${_pendingRequests.length} 个等待请求失败: $reason');
+    for (final pending in _pendingRequests) {
+      pending.completer.complete(null);
+    }
+    _pendingRequests.clear();
+  }
+
+  /// 重试请求
+  Future<d_dio.Response> _retryRequest(d_dio.RequestOptions options) async {
     // 获取最新的 token
     final accessToken = _authService.accessToken;
     if (accessToken != null) {
       options.headers['Authorization'] = 'Bearer $accessToken';
     } else {
-      LogUtils.w('ApiService: 重试时没有可用的access token');
+      LogUtils.w('$_tag 重试时没有可用的 access token');
       throw d_dio.DioException(
         requestOptions: options,
         error: 'No valid access token for retry',
@@ -214,27 +338,98 @@ class ApiService extends GetxService {
       );
     }
 
-    LogUtils.d('ApiService: 重试请求 Headers: ${options.headers}');
+    LogUtils.d('$_tag 重试请求: ${options.path}');
 
-    return _dio.fetch<T>(options..copyWith(
-      baseUrl: options.baseUrl,
-      // 确保使用原始请求的所有参数
-      queryParameters: options.queryParameters,
-      data: options.data,
-      // 其他参数保持不变
-    ));
+    return _dio.fetch(options);
   }
 
-  // 处理认证错误
+  /// 处理网络重试
+  Future<d_dio.Response?> _handleNetworkRetry(d_dio.DioException error) async {
+    final options = error.requestOptions;
+
+    // 获取当前重试次数
+    final currentRetry = options.extra['retryCount'] as int? ?? 0;
+
+    if (currentRetry >= ApiServiceConfig.maxNetworkRetries) {
+      LogUtils.w('$_tag 达到最大重试次数 (${ApiServiceConfig.maxNetworkRetries})');
+      return null;
+    }
+
+    // 计算延迟时间（指数退避）
+    final delayMs = ApiServiceConfig.baseRetryDelay.inMilliseconds *
+        (1 << currentRetry); // 2^retry
+    final delay = Duration(
+      milliseconds: delayMs.clamp(
+        0,
+        ApiServiceConfig.maxRetryDelay.inMilliseconds,
+      ),
+    );
+
+    LogUtils.d('$_tag 网络错误，${delay.inMilliseconds}ms 后重试 '
+        '(${currentRetry + 1}/${ApiServiceConfig.maxNetworkRetries})');
+
+    await Future.delayed(delay);
+
+    // 更新重试次数
+    options.extra['retryCount'] = currentRetry + 1;
+
+    // 更新 token（可能在等待期间刷新了）
+    final accessToken = _authService.accessToken;
+    if (accessToken != null) {
+      options.headers['Authorization'] = 'Bearer $accessToken';
+    }
+
+    try {
+      final response = await _dio.fetch(options);
+      return response;
+    } on d_dio.DioException catch (retryError) {
+      // 如果重试仍然失败，检查是否需要继续重试
+      if (_isNetworkError(retryError)) {
+        return _handleNetworkRetry(retryError);
+      }
+      // 其他错误（如 401、500）不继续网络重试
+      rethrow;
+    }
+  }
+
+  /// 判断是否为网络错误（应该重试的错误）
+  bool _isNetworkError(d_dio.DioException e) {
+    switch (e.type) {
+      case d_dio.DioExceptionType.connectionTimeout:
+      case d_dio.DioExceptionType.sendTimeout:
+      case d_dio.DioExceptionType.receiveTimeout:
+      case d_dio.DioExceptionType.connectionError:
+        return true;
+      case d_dio.DioExceptionType.unknown:
+        // 检查是否为网络相关异常
+        final error = e.error;
+        if (error != null) {
+          final errorStr = error.toString().toLowerCase();
+          if (errorStr.contains('handshake') ||
+              errorStr.contains('socket') ||
+              errorStr.contains('connection') ||
+              errorStr.contains('network') ||
+              errorStr.contains('reset')) {
+            return true;
+          }
+        }
+        return false;
+      default:
+        return false;
+    }
+  }
+
+  /// 处理认证错误
   Future<void> handleAuthError() async {
-    // 清理token和用户状态
     await _authService.handleTokenExpired();
   }
 
-  Future<d_dio.Response<T>> get<T>(String path,
-      {Map<String, dynamic>? queryParameters,
-        Map<String, dynamic>? headers,
-        d_dio.CancelToken? cancelToken}) async {
+  /// GET 请求
+  Future<d_dio.Response<T>> get<T>(String path, {
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? headers,
+    d_dio.CancelToken? cancelToken,
+  }) async {
     try {
       return await _dio.get<T>(
         path,
@@ -243,56 +438,71 @@ class ApiService extends GetxService {
         cancelToken: cancelToken,
       );
     } on d_dio.DioException catch (e) {
-      // 记录到全局错误监听器
       GlobalErrorListener.recordDioException(e);
-      LogUtils.e('GET请求失败: ${e.message}, Path: $path', tag: _tag, error: e);
+      LogUtils.e('$_tag GET 请求失败: ${e.message}, Path: $path', error: e);
       rethrow;
     }
   }
 
-  Future<d_dio.Response<T>> post<T>(String path,
-      {dynamic data, Map<String, dynamic>? queryParameters}) async {
+  /// POST 请求
+  Future<d_dio.Response<T>> post<T>(String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+  }) async {
     try {
-      return await _dio.post<T>(path,
-          data: data, queryParameters: queryParameters);
+      return await _dio.post<T>(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+      );
     } on d_dio.DioException catch (e) {
-      // 记录到全局错误监听器
       GlobalErrorListener.recordDioException(e);
-      LogUtils.e('POST请求失败: ${e.message}', tag: _tag, error: e);
+      LogUtils.e('$_tag POST 请求失败: ${e.message}', error: e);
       rethrow;
     }
   }
 
-  Future<d_dio.Response<T>> delete<T>(String path,
-      {Map<String, dynamic>? queryParameters}) async {
+  /// DELETE 请求
+  Future<d_dio.Response<T>> delete<T>(String path, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
     try {
       return await _dio.delete<T>(path, queryParameters: queryParameters);
     } on d_dio.DioException catch (e) {
-      // 记录到全局错误监听器
       GlobalErrorListener.recordDioException(e);
-      LogUtils.e('DELETE请求失败: ${e.message}', tag: _tag, error: e);
+      LogUtils.e('$_tag DELETE 请求失败: ${e.message}', error: e);
       rethrow;
     }
   }
 
-  Future<d_dio.Response<T>> put<T>(String path,
-      {dynamic data, Map<String, dynamic>? queryParameters}) async {
+  /// PUT 请求
+  Future<d_dio.Response<T>> put<T>(String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+  }) async {
     try {
-      return await _dio.put<T>(path,
-          data: data, queryParameters: queryParameters);
+      return await _dio.put<T>(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+      );
     } on d_dio.DioException catch (e) {
-      // 记录到全局错误监听器
       GlobalErrorListener.recordDioException(e);
-      LogUtils.e('PUT请求失败: ${e.message}', tag: _tag, error: e);
+      LogUtils.e('$_tag PUT 请求失败: ${e.message}', error: e);
       rethrow;
     }
   }
 
-  // resetProxy
+  /// 重置代理设置
   void resetProxy() {
     _dio.httpClientAdapter = IOHttpClientAdapter();
   }
+}
 
+/// 等待中的请求
+class _PendingRequest {
+  final d_dio.RequestOptions options;
+  final Completer<d_dio.Response?> completer;
 
-
+  _PendingRequest(this.options, this.completer);
 }

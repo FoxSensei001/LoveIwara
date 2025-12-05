@@ -32,6 +32,7 @@ import 'models/dto/escape_intent.dart';
 import 'services/theme_service.dart';
 import 'services/message_service.dart';
 import 'services/deep_link_service.dart';
+import 'services/auth_service.dart';
 import 'utils/exit_confirm_util.dart';
 
 class MyApp extends StatefulWidget {
@@ -299,6 +300,7 @@ class MyAppLayout extends StatefulWidget {
 class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
   bool _showPrivacyOverlay = false;
   late ConfigService _configService;
+  DateTime? _lastPausedTime;
 
   @override
   void initState() {
@@ -324,6 +326,8 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
             _showPrivacyOverlay = false;
           });
         }
+        // 应用恢复到前台时，通知 AuthService 检查并刷新 token
+        _onAppResumed();
         break;
       case AppLifecycleState.inactive:
         if (activeBackgroundPrivacyMode && !_showPrivacyOverlay) {
@@ -333,6 +337,8 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
         }
         break;
       case AppLifecycleState.paused:
+        // 记录进入后台的时间
+        _lastPausedTime = DateTime.now();
         break;
       case AppLifecycleState.hidden:
         if (activeBackgroundPrivacyMode && !_showPrivacyOverlay) {
@@ -343,6 +349,24 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
         break;
       case AppLifecycleState.detached:
         break;
+    }
+  }
+
+  /// 应用恢复到前台时的处理
+  void _onAppResumed() {
+    // 如果应用在后台超过 1 分钟，触发 token 刷新检查
+    if (_lastPausedTime != null) {
+      final duration = DateTime.now().difference(_lastPausedTime!);
+      if (duration.inMinutes >= 1) {
+        LogUtils.d('应用在后台 ${duration.inMinutes} 分钟，检查 token 状态');
+        try {
+          final authService = Get.find<AuthService>();
+          authService.onAppResumed();
+        } catch (e) {
+          LogUtils.e('恢复前台时刷新 token 失败', error: e);
+        }
+      }
+      _lastPausedTime = null;
     }
   }
 
