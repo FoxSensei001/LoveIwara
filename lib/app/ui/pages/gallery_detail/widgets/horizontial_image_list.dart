@@ -4,14 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart'; // Import TickerProvider
 import 'package:flutter/services.dart'; // Import for keyboard events
 import 'package:get/get.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
-
-import 'menu_item_widget.dart';
 
 enum MediaItemType {
   image,
@@ -126,7 +125,6 @@ class _HorizontalImageListState extends State<HorizontalImageList>
   bool _showLeftButton = false;
   late bool _showRightButton;
   final Map<String, double> _loadedAspectRatios = {};
-  OverlayEntry? _overlayEntry;
 
   // --- Continuous Scroll State ---
   Ticker? _ticker;
@@ -153,7 +151,6 @@ class _HorizontalImageListState extends State<HorizontalImageList>
   void dispose() {
     _focusNode.dispose(); // Dispose FocusNode
     _ticker?.dispose(); // Dispose ticker
-    _hideMenu();
     _scrollController.removeListener(_updateButtonVisibility);
     _scrollController.dispose();
     super.dispose();
@@ -184,97 +181,53 @@ class _HorizontalImageListState extends State<HorizontalImageList>
     }
   }
 
-  void _hideMenu() {
-    if (_overlayEntry != null) {
-      try {
-        _overlayEntry!.remove();
-      } catch (e) {
-        // OverlayEntry 可能已经被移除或从未插入，忽略错误
-      }
-    _overlayEntry = null;
-    }
-  }
-
-  void _showImageMenu(BuildContext context, ImageItem item, Offset position,
-      Size containerSize) {
-    _hideMenu();
-    // 计算菜单显示位置
-    final dx = position.dx;
-    final dy = position.dy;
-
+  void _showImageMenu(BuildContext context, ImageItem item) {
     // 动态生成菜单项
     final menuItems = widget.menuItemsBuilder != null
         ? widget.menuItemsBuilder!(context, item)
         : <MenuItem>[];
 
-    // 创建菜单
-    final menuWidget = DefaultImageMenu(
-      item: item,
-      onDismiss: _hideMenu,
-      customBuilder: widget.menuBuilder,
-      constraints: BoxConstraints(
-        maxWidth: containerSize.width * 0.3, // 限制菜单最大宽度为容器的30%
-        maxHeight: containerSize.height * 0.8, // 限制菜单最大高度为容器的80%
-      ),
-      position: Offset(dx, dy),
-      // 使用计算后的相对位置
-      menuItems: menuItems, // 传递菜单项列表
-    );
+    // 如果没有菜单项，不显示对话框
+    if (menuItems.isEmpty) return;
 
-    // 插入菜单到Overlay
-    _overlayEntry = OverlayEntry(
-      builder: (context) => Stack(
-        children: [
-          // 添加透明层，点击时关闭菜单
-          Positioned.fill(
-            child: GestureDetector(
-              onTap: _hideMenu,
-              onSecondaryTap: _hideMenu,
-              child: Container(
-                color: Colors.transparent,
-              ),
-            ),
+    // 使用 Get.dialog 显示菜单
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 300),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 菜单项列表
+              ...menuItems.asMap().entries.map((entry) {
+                final index = entry.key;
+                final menuItem = entry.value;
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ListTile(
+                      leading: Icon(menuItem.icon),
+                      title: Text(menuItem.title),
+                      onTap: () {
+                        AppService.tryPop(); // 关闭对话框
+                        menuItem.onTap(); // 执行菜单项动作
+                      },
+                    ),
+                    // 添加分隔线，最后一项不添加
+                    if (index < menuItems.length - 1)
+                      const Divider(height: 1),
+                  ],
+                );
+              }),
+            ],
           ),
-          // 显示菜单
-          Positioned(
-            left: dx,
-            top: dy,
-            child: Material(
-              color: Colors.transparent,
-              child: menuWidget,
-            ),
-          ),
-        ],
+        ),
       ),
+      barrierDismissible: true, // 点击外部关闭
     );
-    // 尝试多种方式获取 Overlay
-    OverlayState? overlayState;
-    
-    // 首先尝试 Get 的 overlayContext
-    BuildContext? overlayContext = Get.overlayContext;
-    if (overlayContext != null) {
-      overlayState = Overlay.maybeOf(overlayContext, rootOverlay: true);
-    }
-    
-    // 如果 Get 的 overlayContext 不可用，尝试从当前 context 获取根 Overlay
-    overlayState ??= Overlay.maybeOf(context, rootOverlay: true);
-    
-    // 如果还是找不到，尝试通过 Navigator 获取
-    if (overlayState == null) {
-      final navigator = Navigator.maybeOf(context, rootNavigator: true);
-      if (navigator != null) {
-        overlayState = navigator.overlay;
-      }
-    }
-    
-    // 如果找到了 Overlay，插入菜单
-    if (overlayState != null) {
-      overlayState.insert(_overlayEntry!);
-    } else {
-      // 如果找不到 Overlay，记录错误但不抛出异常
-      // 这种情况不应该发生，但为了稳定性我们处理它
-      _overlayEntry = null;
-    }
   }
 
   @override
@@ -394,12 +347,10 @@ class _HorizontalImageListState extends State<HorizontalImageList>
 
     return GestureDetector(
       onLongPressStart: (details) {
-        _showImageMenu(
-            context, imageItem, details.globalPosition, containerSize);
+        _showImageMenu(context, imageItem);
       },
       onSecondaryTapDown: (details) {
-        _showImageMenu(
-            context, imageItem, details.globalPosition, containerSize);
+        _showImageMenu(context, imageItem);
       },
       child: Padding(
         padding: EdgeInsets.symmetric(

@@ -9,7 +9,6 @@ import 'package:i_iwara/utils/common_utils.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
-import 'menu_item_widget.dart';
 import 'video_player_widget.dart';
 import 'image_widget.dart';
 import 'navigation_controls.dart';
@@ -23,6 +22,7 @@ class MyGalleryPhotoViewWrapper extends StatefulWidget {
     this.initialIndex = 0,
     this.menuBuilder,
     this.menuItemsBuilder,
+    this.enableMenu = true,
   });
 
   final List<ImageItem> galleryItems;
@@ -31,6 +31,7 @@ class MyGalleryPhotoViewWrapper extends StatefulWidget {
   menuBuilder; // 自定义菜单构建器
   final List<MenuItem> Function(BuildContext, ImageItem)?
   menuItemsBuilder; // 动态菜单项生成器
+  final bool enableMenu; // 是否启用菜单和相关触发
 
   @override
   State<MyGalleryPhotoViewWrapper> createState() =>
@@ -55,7 +56,6 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
   bool _showNavigationOverlay = false;
 
   final AppService appService = Get.find();
-  OverlayEntry? _overlayEntry;
   late GalleryControls _galleryControls;
   final GlobalKey _menuButtonKey = GlobalKey();
 
@@ -109,9 +109,6 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
 
   @override
   void dispose() {
-    // 清理 OverlayEntry
-    _hideMenu();
-
     // 释放所有视频播放器资源
     _releaseAllVideoPlayers();
 
@@ -195,17 +192,6 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
     GalleryInfoDialog.show(context);
   }
 
-  void _hideMenu() {
-    if (_overlayEntry != null) {
-      try {
-        _overlayEntry!.remove();
-      } catch (e) {
-        // OverlayEntry 可能已经被移除或从未插入，忽略错误
-      }
-      _overlayEntry = null;
-    }
-  }
-
   /// 轻量级指针监听：只在「短按且位移很小」时，判断是否在左右边缘区域触发翻页
   void _onPointerDown(PointerDownEvent event) {
     _pointerDownPosition = event.position;
@@ -237,77 +223,56 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
     }
   }
 
-  void _showImageMenu(BuildContext context, ImageItem item, Offset position) {
-    _hideMenu();
-    // 计算菜单显示位置
-    final dx = position.dx;
-    final dy = position.dy;
+  void _showImageMenu(BuildContext context, ImageItem item) {
+    // 如果禁用了菜单，直接返回
+    if (!widget.enableMenu) return;
 
     // 动态生成菜单项
     final menuItems = widget.menuItemsBuilder != null
         ? widget.menuItemsBuilder!(context, item)
         : <MenuItem>[];
 
-    // 创建菜单
-    final menuWidget = DefaultImageMenu(
-      item: item,
-      onDismiss: _hideMenu,
-      customBuilder: widget.menuBuilder,
-      constraints: const BoxConstraints(maxWidth: 300, maxHeight: 400),
-      position: Offset(dx, dy),
-      // 使用计算后的相对位置
-      menuItems: menuItems, // 传递菜单项列表
-    );
+    // 如果没有菜单项，不显示对话框
+    if (menuItems.isEmpty) return;
 
-    // 插入菜单到Overlay
-    _overlayEntry = OverlayEntry(
-      builder: (context) => Stack(
-        children: [
-          // 添加透明层，点击时关闭菜单
-          Positioned.fill(
-            child: GestureDetector(
-              onTap: _hideMenu,
-              onSecondaryTap: _hideMenu,
-              child: Container(color: Colors.transparent),
-            ),
+    // 使用 Get.dialog 显示菜单
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 300),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 菜单项列表
+              ...menuItems.asMap().entries.map((entry) {
+                final index = entry.key;
+                final menuItem = entry.value;
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ListTile(
+                      leading: Icon(menuItem.icon),
+                      title: Text(menuItem.title),
+                      onTap: () {
+                        AppService.tryPop(); // 关闭对话框
+                        menuItem.onTap(); // 执行菜单项动作
+                      },
+                    ),
+                    // 添加分隔线，最后一项不添加
+                    if (index < menuItems.length - 1)
+                      const Divider(height: 1),
+                  ],
+                );
+              }),
+            ],
           ),
-          // 显示菜单
-          Positioned(
-            left: dx,
-            top: dy,
-            child: Material(color: Colors.transparent, child: menuWidget),
-          ),
-        ],
+        ),
       ),
+      barrierDismissible: true, // 点击外部关闭
     );
-    // 尝试多种方式获取 Overlay
-    OverlayState? overlayState;
-
-    // 首先尝试 Get 的 overlayContext
-    BuildContext? overlayContext = Get.overlayContext;
-    if (overlayContext != null) {
-      overlayState = Overlay.maybeOf(overlayContext, rootOverlay: true);
-    }
-
-    // 如果 Get 的 overlayContext 不可用，尝试从当前 context 获取根 Overlay
-    overlayState ??= Overlay.maybeOf(context, rootOverlay: true);
-
-    // 如果还是找不到，尝试通过 Navigator 获取
-    if (overlayState == null) {
-      final navigator = Navigator.maybeOf(context, rootNavigator: true);
-      if (navigator != null) {
-        overlayState = navigator.overlay;
-      }
-    }
-
-    // 如果找到了 Overlay，插入菜单
-    if (overlayState != null) {
-      overlayState.insert(_overlayEntry!);
-    } else {
-      // 如果找不到 Overlay，记录错误但不抛出异常
-      // 这种情况不应该发生，但为了稳定性我们处理它
-      _overlayEntry = null;
-    }
   }
 
   @override
@@ -330,25 +295,26 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
           onPointerUp: _onPointerUp,
           child: GestureDetector(
             onLongPressStart: (details) {
+              if (!widget.enableMenu) return;
               setState(() {
                 _showNavigationOverlay = true;
               });
               _showImageMenu(
                 context,
                 widget.galleryItems[currentIndex],
-                details.globalPosition,
               );
             },
             onLongPressEnd: (details) {
+              if (!widget.enableMenu) return;
               setState(() {
                 _showNavigationOverlay = false;
               });
             },
             onSecondaryTapDown: (details) {
+              if (!widget.enableMenu) return;
               _showImageMenu(
                 context,
                 widget.galleryItems[currentIndex],
-                details.globalPosition,
               );
             },
             child: Stack(
@@ -445,40 +411,20 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                               },
                             ),
                             // 三个点菜单按钮
-                            IconButton(
-                              key: _menuButtonKey,
-                              icon: const Icon(
-                                Icons.more_vert,
-                                color: Colors.white,
-                              ),
-                              onPressed: () {
-                                // 获取按钮的位置
-                                final RenderBox? renderBox =
-                                    _menuButtonKey.currentContext
-                                            ?.findRenderObject()
-                                        as RenderBox?;
-                                if (renderBox != null) {
-                                  final buttonPosition = renderBox
-                                      .localToGlobal(Offset.zero);
-                                  final buttonSize = renderBox.size;
-                                  // 计算菜单位置（菜单右对齐按钮，显示在按钮下方）
-                                  final screenWidth = MediaQuery.of(
-                                    context,
-                                  ).size.width;
-                                  final menuPosition = Offset(
-                                    screenWidth - 300 - 16, // 菜单右对齐，留出边距
-                                    buttonPosition.dy +
-                                        buttonSize.height +
-                                        8, // 菜单显示在按钮下方
-                                  );
-                                  _showImageMenu(
-                                    context,
-                                    widget.galleryItems[currentIndex],
-                                    menuPosition,
-                                  );
-                                }
-                              },
+                        if (widget.enableMenu)
+                          IconButton(
+                            key: _menuButtonKey,
+                            icon: const Icon(
+                              Icons.more_vert,
+                              color: Colors.white,
                             ),
+                            onPressed: () {
+                              _showImageMenu(
+                                context,
+                                widget.galleryItems[currentIndex],
+                              );
+                            },
+                          ),
                             // 页码显示
                             const SizedBox(width: 8),
                             Text(

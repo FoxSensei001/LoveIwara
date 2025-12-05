@@ -370,6 +370,7 @@ class NaviService {
     required List<ImageItem> imageItems,
     required int initialIndex,
     required List<MenuItem> Function(dynamic context, dynamic item) menuItemsBuilder,
+    bool enableMenu = true,
   }) {
     _navigateToPage(
       routeName: Routes.PHOTO_VIEW_WRAPPER,
@@ -377,6 +378,7 @@ class NaviService {
         galleryItems: imageItems,
         initialIndex: initialIndex,
         menuItemsBuilder: menuItemsBuilder,
+        enableMenu: enableMenu,
       ),
       transitionDuration: const Duration(milliseconds: 300),
       transitionType: TransitionType.fade,

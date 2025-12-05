@@ -94,6 +94,7 @@ class _GalleryDownloadTaskDetailPageState extends State<GalleryDownloadTaskDetai
       imageItems: imageItems,
       initialIndex: index,
       menuItemsBuilder: (context, item) => _buildImageMenuItems(context, item),
+      enableMenu: false, // 下载详情进入的查看页不需要菜单/弹窗
     );
   }
 
