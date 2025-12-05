@@ -2093,6 +2093,7 @@ class TranslationsVideoDetailEn {
 	late final TranslationsVideoDetailPlayerEn player = TranslationsVideoDetailPlayerEn._(_root);
 	late final TranslationsVideoDetailSkeletonEn skeleton = TranslationsVideoDetailSkeletonEn._(_root);
 	late final TranslationsVideoDetailCastEn cast = TranslationsVideoDetailCastEn._(_root);
+	late final TranslationsVideoDetailLikeAvatarsEn likeAvatars = TranslationsVideoDetailLikeAvatarsEn._(_root);
 }
 
 // Path: share
@@ -5102,6 +5103,39 @@ class TranslationsVideoDetailCastEn {
 	late final TranslationsVideoDetailCastDlnaCastSheetEn dlnaCastSheet = TranslationsVideoDetailCastDlnaCastSheetEn._(_root);
 }
 
+// Path: videoDetail.likeAvatars
+class TranslationsVideoDetailLikeAvatarsEn {
+	TranslationsVideoDetailLikeAvatarsEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Who's secretly liking'
+	String get dialogTitle => 'Who\'s secretly liking';
+
+	/// en: 'Curious who they are? Flip through this "Like Album"~'
+	String get dialogDescription => 'Curious who they are? Flip through this "Like Album"~';
+
+	/// en: 'Close'
+	String get closeTooltip => 'Close';
+
+	/// en: 'Retry'
+	String get retry => 'Retry';
+
+	/// en: 'No one has appeared here yet. Be the first!'
+	String get noLikesYet => 'No one has appeared here yet. Be the first!';
+
+	/// en: 'Page ${page} / ${totalPages} · Total ${totalCount} people'
+	String pageInfo({required Object page, required Object totalPages, required Object totalCount}) => 'Page ${page} / ${totalPages} · Total ${totalCount} people';
+
+	/// en: 'Previous Page'
+	String get prevPage => 'Previous Page';
+
+	/// en: 'Next Page'
+	String get nextPage => 'Next Page';
+}
+
 // Path: forum.errors
 class TranslationsForumErrorsEn {
 	TranslationsForumErrorsEn._(this._root);
@@ -6791,6 +6825,14 @@ extension on Translations {
 			'videoDetail.cast.dlnaCastSheet.connectedTo' => ({required Object deviceName}) => 'Connected to: ${deviceName}',
 			'videoDetail.cast.dlnaCastSheet.notConnected' => 'No device connected',
 			'videoDetail.cast.dlnaCastSheet.stopCasting' => 'Stop Casting',
+			'videoDetail.likeAvatars.dialogTitle' => 'Who\'s secretly liking',
+			'videoDetail.likeAvatars.dialogDescription' => 'Curious who they are? Flip through this "Like Album"~',
+			'videoDetail.likeAvatars.closeTooltip' => 'Close',
+			'videoDetail.likeAvatars.retry' => 'Retry',
+			'videoDetail.likeAvatars.noLikesYet' => 'No one has appeared here yet. Be the first!',
+			'videoDetail.likeAvatars.pageInfo' => ({required Object page, required Object totalPages, required Object totalCount}) => 'Page ${page} / ${totalPages} · Total ${totalCount} people',
+			'videoDetail.likeAvatars.prevPage' => 'Previous Page',
+			'videoDetail.likeAvatars.nextPage' => 'Next Page',
 			'share.sharePlayList' => 'Share Play List',
 			'share.wowDidYouSeeThis' => 'Wow, did you see this?',
 			'share.nameIs' => 'Name is',
@@ -6955,6 +6997,12 @@ extension on Translations {
 			'notifications.kCommentSection' => 'comment section',
 			'notifications.kApprovedComment' => 'Comment approved',
 			'notifications.kApprovedVideo' => 'Video approved',
+			_ => null,
+		};
+	}
+
+	dynamic _flatMapFunction$2(String path) {
+		return switch (path) {
 			'notifications.kApprovedGallery' => 'Gallery approved',
 			'notifications.kApprovedThread' => 'Thread approved',
 			'notifications.kApprovedPost' => 'Post approved',
@@ -6963,12 +7011,6 @@ extension on Translations {
 			'notifications.kUnknownType' => 'Unknown notification type',
 			'conversation.errors.pleaseSelectAUser' => 'Please select a user',
 			'conversation.errors.pleaseEnterATitle' => 'Please enter a title',
-			_ => null,
-		};
-	}
-
-	dynamic _flatMapFunction$2(String path) {
-		return switch (path) {
 			'conversation.errors.clickToSelectAUser' => 'Click to select a user',
 			'conversation.errors.loadFailedClickToRetry' => 'Load failed, click to retry',
 			'conversation.errors.loadFailed' => 'Load failed',
@@ -7473,6 +7515,12 @@ extension on Translations {
 			'emoji.importSuccess' => ({required Object count}) => 'Successfully imported ${count} images',
 			'emoji.jsonFormatError' => 'JSON format error, please check input',
 			'emoji.createGroup' => 'Create Emoji Group',
+			_ => null,
+		};
+	}
+
+	dynamic _flatMapFunction$3(String path) {
+		return switch (path) {
 			'emoji.groupName' => 'Group Name',
 			'emoji.enterGroupName' => 'Please enter group name',
 			'emoji.create' => 'Create',
@@ -7481,12 +7529,6 @@ extension on Translations {
 			'emoji.deleteGroup' => 'Delete Group',
 			'emoji.confirmDeleteGroup' => 'Are you sure you want to delete this emoji group? All images in the group will also be deleted.',
 			'emoji.imageCount' => ({required Object count}) => '${count} images',
-			_ => null,
-		};
-	}
-
-	dynamic _flatMapFunction$3(String path) {
-		return switch (path) {
 			'emoji.selectEmoji' => 'Select Emoji',
 			'emoji.noEmojisInGroup' => 'No emojis in this group',
 			'emoji.goToSettingsToAddEmojis' => 'Go to settings to add emojis',

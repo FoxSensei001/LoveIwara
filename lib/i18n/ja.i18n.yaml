@@ -918,6 +918,16 @@ videoDetail:
       connectedTo: '接続済み: ${deviceName}'
       notConnected: デバイス未接続
       stopCasting: キャスト停止
+  # いいねアバターコンポーネント
+  likeAvatars:
+    dialogTitle: 誰がこっそり「いいね」したの？
+    dialogDescription: 誰か気になる？この「いいねアルバム」をめくってみよう～
+    closeTooltip: 閉じる
+    retry: 再試行
+    noLikesYet: まだ誰もここに現れていません。最初の一人になりましょう！
+    pageInfo: '${page} / ${totalPages} ページ · 合計 ${totalCount} 人'
+    prevPage: 前のページ
+    nextPage: 次のページ
 share:
   sharePlayList: プレイリストを共有
   wowDidYouSeeThis: ああ、見たの？

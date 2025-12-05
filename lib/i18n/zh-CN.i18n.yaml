@@ -924,6 +924,16 @@ videoDetail:
       connectedTo: '已连接到: ${deviceName}'
       notConnected: 未连接设备
       stopCasting: 停止投屏
+  # 点赞头像组件
+  likeAvatars:
+    dialogTitle: 谁在偷偷喜欢
+    dialogDescription: 好奇他们是谁？翻翻这本「点赞相册」吧～
+    closeTooltip: 关闭
+    retry: 重试
+    noLikesYet: 还没有人出现在这里，来当第一个吧！
+    pageInfo: '第 ${page} / ${totalPages} 页 · 共 ${totalCount} 人'
+    prevPage: 上一页
+    nextPage: 下一页
 
 share:
   sharePlayList: 分享播放列表

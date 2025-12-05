@@ -848,6 +848,7 @@ class _TranslationsVideoDetailJa implements TranslationsVideoDetailEn {
 	@override late final _TranslationsVideoDetailPlayerJa player = _TranslationsVideoDetailPlayerJa._(_root);
 	@override late final _TranslationsVideoDetailSkeletonJa skeleton = _TranslationsVideoDetailSkeletonJa._(_root);
 	@override late final _TranslationsVideoDetailCastJa cast = _TranslationsVideoDetailCastJa._(_root);
+	@override late final _TranslationsVideoDetailLikeAvatarsJa likeAvatars = _TranslationsVideoDetailLikeAvatarsJa._(_root);
 }
 
 // Path: share
@@ -2061,6 +2062,23 @@ class _TranslationsVideoDetailCastJa implements TranslationsVideoDetailCastEn {
 	@override String get unableToGetVideoUrl => 'ビデオのURLを取得できません、後でもう一度お試しください';
 	@override String get stopCasting => 'キャスト停止';
 	@override late final _TranslationsVideoDetailCastDlnaCastSheetJa dlnaCastSheet = _TranslationsVideoDetailCastDlnaCastSheetJa._(_root);
+}
+
+// Path: videoDetail.likeAvatars
+class _TranslationsVideoDetailLikeAvatarsJa implements TranslationsVideoDetailLikeAvatarsEn {
+	_TranslationsVideoDetailLikeAvatarsJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get dialogTitle => '誰がこっそり「いいね」したの？';
+	@override String get dialogDescription => '誰か気になる？この「いいねアルバム」をめくってみよう～';
+	@override String get closeTooltip => '閉じる';
+	@override String get retry => '再試行';
+	@override String get noLikesYet => 'まだ誰もここに現れていません。最初の一人になりましょう！';
+	@override String pageInfo({required Object page, required Object totalPages, required Object totalCount}) => '${page} / ${totalPages} ページ · 合計 ${totalCount} 人';
+	@override String get prevPage => '前のページ';
+	@override String get nextPage => '次のページ';
 }
 
 // Path: forum.errors
@@ -3340,6 +3358,14 @@ extension on TranslationsJa {
 			'videoDetail.cast.dlnaCastSheet.connectedTo' => ({required Object deviceName}) => '接続済み: ${deviceName}',
 			'videoDetail.cast.dlnaCastSheet.notConnected' => 'デバイス未接続',
 			'videoDetail.cast.dlnaCastSheet.stopCasting' => 'キャスト停止',
+			'videoDetail.likeAvatars.dialogTitle' => '誰がこっそり「いいね」したの？',
+			'videoDetail.likeAvatars.dialogDescription' => '誰か気になる？この「いいねアルバム」をめくってみよう～',
+			'videoDetail.likeAvatars.closeTooltip' => '閉じる',
+			'videoDetail.likeAvatars.retry' => '再試行',
+			'videoDetail.likeAvatars.noLikesYet' => 'まだ誰もここに現れていません。最初の一人になりましょう！',
+			'videoDetail.likeAvatars.pageInfo' => ({required Object page, required Object totalPages, required Object totalCount}) => '${page} / ${totalPages} ページ · 合計 ${totalCount} 人',
+			'videoDetail.likeAvatars.prevPage' => '前のページ',
+			'videoDetail.likeAvatars.nextPage' => '次のページ',
 			'share.sharePlayList' => 'プレイリストを共有',
 			'share.wowDidYouSeeThis' => 'ああ、見たの？',
 			'share.nameIs' => '名前は',
@@ -3504,6 +3530,12 @@ extension on TranslationsJa {
 			'notifications.kCommentSection' => '',
 			'notifications.kApprovedComment' => 'コメントが承認されました',
 			'notifications.kApprovedVideo' => '動画が承認されました',
+			_ => null,
+		};
+	}
+
+	dynamic _flatMapFunction$2(String path) {
+		return switch (path) {
 			'notifications.kApprovedGallery' => 'ギャラリーが承認されました',
 			'notifications.kApprovedThread' => 'スレッドが承認されました',
 			'notifications.kApprovedPost' => '投稿が承認されました',
@@ -3512,12 +3544,6 @@ extension on TranslationsJa {
 			'notifications.kUnknownType' => '不明な通知タイプ',
 			'conversation.errors.pleaseSelectAUser' => 'ユーザーを選択してください',
 			'conversation.errors.pleaseEnterATitle' => 'タイトルを入力してください',
-			_ => null,
-		};
-	}
-
-	dynamic _flatMapFunction$2(String path) {
-		return switch (path) {
 			'conversation.errors.clickToSelectAUser' => 'ユーザーを選択してください',
 			'conversation.errors.loadFailedClickToRetry' => '読み込みに失敗しました。クリックして再試行',
 			'conversation.errors.loadFailed' => '読み込みに失敗しました',
@@ -4022,6 +4048,12 @@ extension on TranslationsJa {
 			'layoutSettings.breakpointRangeDescFirst' => ({required Object width}) => '≤${width}px',
 			'layoutSettings.breakpointRangeDescMiddle' => ({required Object start, required Object end}) => '${start}-${end}px',
 			'layoutSettings.edit' => '編集',
+			_ => null,
+		};
+	}
+
+	dynamic _flatMapFunction$3(String path) {
+		return switch (path) {
 			'layoutSettings.delete' => '削除',
 			'layoutSettings.cancel' => 'キャンセル',
 			'layoutSettings.save' => '保存',
@@ -4030,12 +4062,6 @@ extension on TranslationsJa {
 			'navigationOrderSettings.customNavigationOrderDesc' => 'ドラッグしてボトムナビゲーションバーとサイドバーの各ページの表示順序を調整',
 			'navigationOrderSettings.restartRequired' => 'アプリの再起動が必要です',
 			'navigationOrderSettings.navigationItemSorting' => 'ナビゲーション項目の並べ替え',
-			_ => null,
-		};
-	}
-
-	dynamic _flatMapFunction$3(String path) {
-		return switch (path) {
 			'navigationOrderSettings.done' => '完了',
 			'navigationOrderSettings.edit' => '編集',
 			'navigationOrderSettings.reset' => 'リセット',

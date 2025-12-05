@@ -853,6 +853,7 @@ class _TranslationsVideoDetailZhCn implements TranslationsVideoDetailEn {
 	@override late final _TranslationsVideoDetailPlayerZhCn player = _TranslationsVideoDetailPlayerZhCn._(_root);
 	@override late final _TranslationsVideoDetailSkeletonZhCn skeleton = _TranslationsVideoDetailSkeletonZhCn._(_root);
 	@override late final _TranslationsVideoDetailCastZhCn cast = _TranslationsVideoDetailCastZhCn._(_root);
+	@override late final _TranslationsVideoDetailLikeAvatarsZhCn likeAvatars = _TranslationsVideoDetailLikeAvatarsZhCn._(_root);
 }
 
 // Path: share
@@ -2066,6 +2067,23 @@ class _TranslationsVideoDetailCastZhCn implements TranslationsVideoDetailCastEn 
 	@override String get unableToGetVideoUrl => '无法获取视频地址，请稍后重试';
 	@override String get stopCasting => '停止投屏';
 	@override late final _TranslationsVideoDetailCastDlnaCastSheetZhCn dlnaCastSheet = _TranslationsVideoDetailCastDlnaCastSheetZhCn._(_root);
+}
+
+// Path: videoDetail.likeAvatars
+class _TranslationsVideoDetailLikeAvatarsZhCn implements TranslationsVideoDetailLikeAvatarsEn {
+	_TranslationsVideoDetailLikeAvatarsZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get dialogTitle => '谁在偷偷喜欢';
+	@override String get dialogDescription => '好奇他们是谁？翻翻这本「点赞相册」吧～';
+	@override String get closeTooltip => '关闭';
+	@override String get retry => '重试';
+	@override String get noLikesYet => '还没有人出现在这里，来当第一个吧！';
+	@override String pageInfo({required Object page, required Object totalPages, required Object totalCount}) => '第 ${page} / ${totalPages} 页 · 共 ${totalCount} 人';
+	@override String get prevPage => '上一页';
+	@override String get nextPage => '下一页';
 }
 
 // Path: forum.errors
@@ -3350,6 +3368,14 @@ extension on TranslationsZhCn {
 			'videoDetail.cast.dlnaCastSheet.connectedTo' => ({required Object deviceName}) => '已连接到: ${deviceName}',
 			'videoDetail.cast.dlnaCastSheet.notConnected' => '未连接设备',
 			'videoDetail.cast.dlnaCastSheet.stopCasting' => '停止投屏',
+			'videoDetail.likeAvatars.dialogTitle' => '谁在偷偷喜欢',
+			'videoDetail.likeAvatars.dialogDescription' => '好奇他们是谁？翻翻这本「点赞相册」吧～',
+			'videoDetail.likeAvatars.closeTooltip' => '关闭',
+			'videoDetail.likeAvatars.retry' => '重试',
+			'videoDetail.likeAvatars.noLikesYet' => '还没有人出现在这里，来当第一个吧！',
+			'videoDetail.likeAvatars.pageInfo' => ({required Object page, required Object totalPages, required Object totalCount}) => '第 ${page} / ${totalPages} 页 · 共 ${totalCount} 人',
+			'videoDetail.likeAvatars.prevPage' => '上一页',
+			'videoDetail.likeAvatars.nextPage' => '下一页',
 			'share.sharePlayList' => '分享播放列表',
 			'share.wowDidYouSeeThis' => '哇哦，你看过这个吗？',
 			'share.nameIs' => '名字叫做',
@@ -3509,6 +3535,12 @@ extension on TranslationsZhCn {
 			'notifications.kVideo' => '视频',
 			'notifications.kGallery' => '图库',
 			'notifications.kProfile' => '主页',
+			_ => null,
+		};
+	}
+
+	dynamic _flatMapFunction$2(String path) {
+		return switch (path) {
 			'notifications.kThread' => '主题',
 			'notifications.kPost' => '投稿',
 			'notifications.kCommentSection' => '下的评论',
@@ -3517,12 +3549,6 @@ extension on TranslationsZhCn {
 			'notifications.kApprovedGallery' => '图库审核通过',
 			'notifications.kApprovedThread' => '帖子审核通过',
 			'notifications.kApprovedPost' => '投稿审核通过',
-			_ => null,
-		};
-	}
-
-	dynamic _flatMapFunction$2(String path) {
-		return switch (path) {
 			'notifications.kApprovedForumPost' => '论坛发言审核通过',
 			'notifications.kRejectedContent' => '内容审核被拒绝',
 			'notifications.kUnknownType' => '未知通知类型',
@@ -4027,6 +4053,12 @@ extension on TranslationsZhCn {
 			'layoutSettings.confirmDeleteBreakpoint' => '删除断点',
 			'layoutSettings.confirmDeleteBreakpointDesc' => ({required Object width}) => '确定要删除 ${width}px 断点吗？',
 			'layoutSettings.noCustomBreakpoints' => '暂无自定义断点，使用默认列数',
+			_ => null,
+		};
+	}
+
+	dynamic _flatMapFunction$3(String path) {
+		return switch (path) {
 			'layoutSettings.breakpointRange' => '断点区间',
 			'layoutSettings.breakpointRangeDesc' => ({required Object range}) => '${range}px',
 			'layoutSettings.breakpointRangeDescFirst' => ({required Object width}) => '≤${width}px',
@@ -4035,12 +4067,6 @@ extension on TranslationsZhCn {
 			'layoutSettings.delete' => '删除',
 			'layoutSettings.cancel' => '取消',
 			'layoutSettings.save' => '保存',
-			_ => null,
-		};
-	}
-
-	dynamic _flatMapFunction$3(String path) {
-		return switch (path) {
 			'navigationOrderSettings.title' => '导航排序设置',
 			'navigationOrderSettings.customNavigationOrder' => '自定义导航顺序',
 			'navigationOrderSettings.customNavigationOrderDesc' => '拖拽调整底部导航栏和侧边栏中各个页面的显示顺序',

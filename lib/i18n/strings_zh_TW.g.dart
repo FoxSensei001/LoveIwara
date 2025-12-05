@@ -876,6 +876,7 @@ class _TranslationsVideoDetailZhTw implements TranslationsVideoDetailEn {
 	@override late final _TranslationsVideoDetailPlayerZhTw player = _TranslationsVideoDetailPlayerZhTw._(_root);
 	@override late final _TranslationsVideoDetailSkeletonZhTw skeleton = _TranslationsVideoDetailSkeletonZhTw._(_root);
 	@override late final _TranslationsVideoDetailCastZhTw cast = _TranslationsVideoDetailCastZhTw._(_root);
+	@override late final _TranslationsVideoDetailLikeAvatarsZhTw likeAvatars = _TranslationsVideoDetailLikeAvatarsZhTw._(_root);
 }
 
 // Path: share
@@ -2154,6 +2155,23 @@ class _TranslationsVideoDetailCastZhTw implements TranslationsVideoDetailCastEn 
 	@override late final _TranslationsVideoDetailCastDlnaCastSheetZhTw dlnaCastSheet = _TranslationsVideoDetailCastDlnaCastSheetZhTw._(_root);
 }
 
+// Path: videoDetail.likeAvatars
+class _TranslationsVideoDetailLikeAvatarsZhTw implements TranslationsVideoDetailLikeAvatarsEn {
+	_TranslationsVideoDetailLikeAvatarsZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get dialogTitle => '誰悄悄地喜歡';
+	@override String get dialogDescription => '好奇他們是誰？來翻翻這本「按讚相簿」吧～';
+	@override String get closeTooltip => '關閉';
+	@override String get retry => '重試';
+	@override String get noLikesYet => '還沒有人出現在這裡，來當第一個吧！';
+	@override String pageInfo({required Object page, required Object totalPages, required Object totalCount}) => '第 ${page} / ${totalPages} 頁 · 共 ${totalCount} 人';
+	@override String get prevPage => '上一頁';
+	@override String get nextPage => '下一頁';
+}
+
 // Path: forum.errors
 class _TranslationsForumErrorsZhTw implements TranslationsForumErrorsEn {
 	_TranslationsForumErrorsZhTw._(this._root);
@@ -3371,6 +3389,14 @@ extension on TranslationsZhTw {
 			'videoDetail.cast.dlnaCastSheet.connectedTo' => ({required Object deviceName}) => '已連接到: ${deviceName}',
 			'videoDetail.cast.dlnaCastSheet.notConnected' => '未連接設備',
 			'videoDetail.cast.dlnaCastSheet.stopCasting' => '停止投屏',
+			'videoDetail.likeAvatars.dialogTitle' => '誰悄悄地喜歡',
+			'videoDetail.likeAvatars.dialogDescription' => '好奇他們是誰？來翻翻這本「按讚相簿」吧～',
+			'videoDetail.likeAvatars.closeTooltip' => '關閉',
+			'videoDetail.likeAvatars.retry' => '重試',
+			'videoDetail.likeAvatars.noLikesYet' => '還沒有人出現在這裡，來當第一個吧！',
+			'videoDetail.likeAvatars.pageInfo' => ({required Object page, required Object totalPages, required Object totalCount}) => '第 ${page} / ${totalPages} 頁 · 共 ${totalCount} 人',
+			'videoDetail.likeAvatars.prevPage' => '上一頁',
+			'videoDetail.likeAvatars.nextPage' => '下一頁',
 			'share.sharePlayList' => '分享播放列表',
 			'share.wowDidYouSeeThis' => '哇哦，你看过这个吗？',
 			'share.nameIs' => '名字叫做',
@@ -3507,6 +3533,12 @@ extension on TranslationsZhTw {
 			'notifications.video' => '影片',
 			'notifications.repliedYourVideoComment' => '回覆了您的影片評論',
 			'notifications.copyInfoToClipboard' => '複製通知信息到剪貼簿',
+			_ => null,
+		};
+	}
+
+	dynamic _flatMapFunction$2(String path) {
+		return switch (path) {
 			'notifications.copySuccess' => '已複製到剪貼簿',
 			'notifications.copySuccessForMessage' => ({required Object str}) => '已複製到剪貼簿: ${str}',
 			'notifications.markAllAsRead' => '全部標記已讀',
@@ -3515,12 +3547,6 @@ extension on TranslationsZhTw {
 			'notifications.markAllAsReadFailedWithException' => ({required Object exception}) => '全部標記已讀失敗: ${exception}',
 			'notifications.markSelectedAsRead' => '標記已讀',
 			'notifications.markSelectedAsReadSuccess' => '已標記為已讀',
-			_ => null,
-		};
-	}
-
-	dynamic _flatMapFunction$2(String path) {
-		return switch (path) {
 			'notifications.markSelectedAsReadFailed' => '標記已讀失敗',
 			'notifications.markSelectedAsReadFailedWithException' => ({required Object exception}) => '標記已讀失敗: ${exception}',
 			'notifications.markAsRead' => '標記已讀',
@@ -4025,6 +4051,12 @@ extension on TranslationsZhTw {
 			'layoutSettings.fixedColumns' => '固定欄數',
 			'layoutSettings.columns' => '欄',
 			'layoutSettings.breakpointConfig' => '斷點配置',
+			_ => null,
+		};
+	}
+
+	dynamic _flatMapFunction$3(String path) {
+		return switch (path) {
 			'layoutSettings.add' => '新增',
 			'layoutSettings.defaultColumns' => '預設欄數',
 			'layoutSettings.defaultColumnsDesc' => '大螢幕預設顯示',
@@ -4033,12 +4065,6 @@ extension on TranslationsZhTw {
 			'layoutSettings.addBreakpoint' => '新增斷點',
 			'layoutSettings.editBreakpoint' => '編輯斷點',
 			'layoutSettings.deleteBreakpoint' => '刪除斷點',
-			_ => null,
-		};
-	}
-
-	dynamic _flatMapFunction$3(String path) {
-		return switch (path) {
 			'layoutSettings.screenWidthLabel' => '螢幕寬度',
 			'layoutSettings.screenWidthHint' => '600',
 			'layoutSettings.columnsLabel' => '欄數',

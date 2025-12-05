@@ -958,6 +958,16 @@ videoDetail:
       connectedTo: '已連接到: ${deviceName}'
       notConnected: 未連接設備
       stopCasting: 停止投屏
+    # 按讚頭像元件
+  likeAvatars:
+    dialogTitle: 誰悄悄地喜歡
+    dialogDescription: 好奇他們是誰？來翻翻這本「按讚相簿」吧～
+    closeTooltip: 關閉
+    retry: 重試
+    noLikesYet: 還沒有人出現在這裡，來當第一個吧！
+    pageInfo: '第 ${page} / ${totalPages} 頁 · 共 ${totalCount} 人'
+    prevPage: 上一頁
+    nextPage: 下一頁
 share:
   sharePlayList: 分享播放列表
   wowDidYouSeeThis: 哇哦，你看过这个吗？

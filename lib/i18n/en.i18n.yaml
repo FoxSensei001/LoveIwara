@@ -917,6 +917,16 @@ videoDetail:
       connectedTo: 'Connected to: ${deviceName}'
       notConnected: No device connected
       stopCasting: Stop Casting
+  # Like Avatars Component
+  likeAvatars:
+    dialogTitle: Who's secretly liking
+    dialogDescription: Curious who they are? Flip through this "Like Album"~
+    closeTooltip: Close
+    retry: Retry
+    noLikesYet: No one has appeared here yet. Be the first!
+    pageInfo: 'Page ${page} / ${totalPages} · Total ${totalCount} people'
+    prevPage: Previous Page
+    nextPage: Next Page
 share:
   sharePlayList: Share Play List
   wowDidYouSeeThis: Wow, did you see this?
