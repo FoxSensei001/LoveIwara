@@ -361,7 +361,8 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
       final isMatching = widget.controller.isOreno3dMatching.value;
 
       // 判断是否应该显示
-      final shouldShow = isMatching ||
+      final shouldShow =
+          isMatching ||
           (oreno3dDetail != null &&
               (oreno3dDetail.origin != null ||
                   oreno3dDetail.tags.isNotEmpty ||
@@ -389,9 +390,9 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
                         width: double.infinity,
                         padding: const EdgeInsets.all(UIConstants.cardPadding),
                         decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .surfaceContainerHighest,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surfaceContainerHighest,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Column(
@@ -423,7 +424,9 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
                                 ),
                               ),
                             ),
-                            const SizedBox(height: UIConstants.interElementSpacing),
+                            const SizedBox(
+                              height: UIConstants.interElementSpacing,
+                            ),
 
                             // 模拟标签信息
                             Shimmer.fromColors(
@@ -481,7 +484,9 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
                                 ),
                               ],
                             ),
-                            const SizedBox(height: UIConstants.interElementSpacing),
+                            const SizedBox(
+                              height: UIConstants.interElementSpacing,
+                            ),
 
                             // 模拟角色信息
                             Shimmer.fromColors(
@@ -545,10 +550,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
                     ),
                 ],
               )
-            : Column(
-                mainAxisSize: MainAxisSize.min,
-                children: const [],
-              ),
+            : Column(mainAxisSize: MainAxisSize.min, children: const []),
       );
     });
   }
@@ -645,12 +647,16 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
             onUnlike: (id) async =>
                 (await Get.find<VideoService>().unlikeVideo(id)).isSuccess,
             onLikeChanged: (liked) {
-              widget.controller.videoInfo.value = widget.controller.videoInfo.value?.copyWith(
-                liked: liked,
-                numLikes:
-                    (widget.controller.videoInfo.value?.numLikes ?? 0) +
-                    (liked ? 1 : -1),
-              );
+              widget.controller.videoInfo.value = widget
+                  .controller
+                  .videoInfo
+                  .value
+                  ?.copyWith(
+                    liked: liked,
+                    numLikes:
+                        (widget.controller.videoInfo.value?.numLikes ?? 0) +
+                        (liked ? 1 : -1),
+                  );
               // 更新缓存中的点赞信息
               widget.controller.updateCachedVideoLikeInfo(
                 videoInfo.id,
@@ -712,7 +718,9 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
     }
 
     Get.dialog(
-      AddVideoToPlayListDialog(videoId: widget.controller.videoInfo.value?.id ?? ''),
+      AddVideoToPlayListDialog(
+        videoId: widget.controller.videoInfo.value?.id ?? '',
+      ),
     ).then((_) {
       // 对话框关闭后刷新播放列表状态
       widget.controller.checkFavoriteAndPlaylistStatus();
@@ -800,7 +808,9 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
 
       // 检查是否已有下载任务
       final hasDownloadTask = widget.controller.hasAnyDownloadTask.value;
-      final accentColor = hasDownloadTask ? Theme.of(context).primaryColor : null;
+      final accentColor = hasDownloadTask
+          ? Theme.of(context).primaryColor
+          : null;
 
       return SplitFilledButton(
         label: '${t.common.download}$qualityLabel',
@@ -814,7 +824,11 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
             value: '__download_list__',
             child: Row(
               children: [
-                Icon(Icons.download_outlined, size: 18, color: Theme.of(context).primaryColor),
+                Icon(
+                  Icons.download_outlined,
+                  size: 18,
+                  color: Theme.of(context).primaryColor,
+                ),
                 const SizedBox(width: UIConstants.iconTextSpacing),
                 Text(
                   t.download.viewDownloadList,
@@ -985,21 +999,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
       // 标记视频有下载任务
       widget.controller.markVideoHasDownloadTask();
 
-      // 使用 SnackBar 提示下载开始，并提供跳转按钮
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(t.videoDetail.startDownloading),
-            duration: const Duration(seconds: 4),
-            action: SnackBarAction(
-              label: t.download.viewDownloadList,
-              onPressed: () {
-                NaviService.navigateToDownloadTaskListPage();
-              },
-            ),
-          ),
-        );
-      }
+      _showDownloadStartedSnackBar(context);
     } catch (e) {
       LogUtils.e('添加下载任务失败: $e', tag: 'VideoInfoTabWidget', error: e);
       String message;
@@ -1018,6 +1018,58 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
         position: ToastPosition.top,
       );
     }
+  }
+
+  /// 统一展示“开始下载”的 SnackBar，确保旧提示被清理并按时消失
+  void _showDownloadStartedSnackBar(BuildContext context) {
+    final t = slang.Translations.of(context);
+
+    // 使用 showToastWidget 自定义一个类似 SnackBar 的 UI
+    showToastWidget(
+      Container(
+        margin: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: Theme.of(
+            context,
+          ).colorScheme.inverseSurface, // 通常 SnackBar 是深色的
+          borderRadius: BorderRadius.circular(4),
+          boxShadow: const [BoxShadow(blurRadius: 8, color: Colors.black26)],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Expanded(
+              child: Text(
+                t.videoDetail.startDownloading,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onInverseSurface,
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            TextButton(
+              onPressed: () {
+                // 关闭 Toast (如果你没有引用 dismissAllToast，可以让它自然消失，或者手动调用)
+                dismissAllToast();
+                NaviService.navigateToDownloadTaskListPage();
+              },
+              child: Text(
+                t.download.viewDownloadList,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.inversePrimary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      position: ToastPosition.bottom,
+      duration: const Duration(seconds: 4),
+      handleTouch: true, // 关键：允许点击 Toast 内部的按钮
+      dismissOtherToast: true, // 可选：显示新的时关闭旧的
+    );
   }
 
   /// 处理分享操作
@@ -1205,21 +1257,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
                       source.name ?? 'unknown',
                     );
 
-                    // 使用 SnackBar 提示下载开始，并提供跳转按钮
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(t.videoDetail.startDownloading),
-                          duration: const Duration(seconds: 4),
-                          action: SnackBarAction(
-                            label: t.download.viewDownloadList,
-                            onPressed: () {
-                              NaviService.navigateToDownloadTaskListPage();
-                            },
-                          ),
-                        ),
-                      );
-                    }
+                    _showDownloadStartedSnackBar(context);
                   } catch (e) {
                     LogUtils.e(
                       '添加下载任务失败: $e',

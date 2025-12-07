@@ -1,6 +1,7 @@
 import 'dart:async';
-import 'dart:math';
+import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart' show ExtendedNestedScrollViewState;
@@ -227,6 +228,12 @@ class MyVideoStateController extends GetxController
   late final double videoHeight; // 当前视频高度
 
   late final nestedScrollViewKey = GlobalKey<ExtendedNestedScrollViewState>();
+
+  // 视频源过期管理
+  Timer? _videoSourceExpirationTimer; // 视频源过期检查定时器
+  DateTime? _currentVideoSourceExpireTime; // 视频源的过期时间（所有清晰度共享）
+
+
 
   void refreshScrollView() {
     // 触发重建 - 使用更可靠的方法
@@ -701,6 +708,7 @@ class MyVideoStateController extends GetxController
     _speedChangeDebouncer?.cancel();
     _bufferUpdateThrottleTimer?.cancel();
     _previewSeekThrottleTimer?.cancel();
+    _videoSourceExpirationTimer?.cancel();
     LogUtils.d('所有定时器已取消', 'MyVideoStateController');
 
     // 取消网络请求
@@ -1058,7 +1066,7 @@ class MyVideoStateController extends GetxController
   }
 
   /// 获取视频源信息
-  Future<void> fetchVideoSource() async {
+  Future<void> fetchVideoSource({bool forceRefresh = false}) async {
     if (_isDisposed) return;
     if (videoInfo.value?.fileUrl == null) {
       return;
@@ -1071,6 +1079,7 @@ class MyVideoStateController extends GetxController
     // 检查缓存
     final cacheKey = videoInfo.value!.fileUrl!;
     final cachedSources = _cacheManager.getVideoSources(cacheKey);
+    final logVideoUrl = videoInfo.value!.fileUrl!;
     // 尝试还原历史记录
     Duration targetDuration = Duration.zero;
     try {
@@ -1094,7 +1103,22 @@ class MyVideoStateController extends GetxController
       LogUtils.e('还原历史记录失败: $e', tag: 'MyVideoStateController', error: e);
     }
 
-    if (cachedSources != null) {
+    if (cachedSources != null && !forceRefresh) {
+      final serializedSources = cachedSources
+          .map(
+            (source) => {
+              'id': source.id,
+              'name': source.name,
+              'view': source.view,
+              'download': source.download,
+              'type': source.type,
+            },
+          )
+          .toList();
+      LogUtils.d(
+        '使用缓存视频源($logVideoUrl): ${jsonEncode(serializedSources)}',
+        'MyVideoStateController',
+      );
       currentVideoSourceList.value = cachedSources;
 
       var lastUserSelectedResolution =
@@ -1116,6 +1140,13 @@ class MyVideoStateController extends GetxController
     }
 
     try {
+      if (forceRefresh && cachedSources != null) {
+        LogUtils.i(
+          '强制刷新视频源，忽略缓存: $logVideoUrl',
+          'MyVideoStateController',
+        );
+      }
+
       var res = await _apiService.get(
         videoInfo.value!.fileUrl!,
         headers: {
@@ -1132,11 +1163,39 @@ class MyVideoStateController extends GetxController
       List<VideoSource> sources = data
           .map((item) => VideoSource.fromJson(item))
           .toList();
+      final serializedSources = sources
+          .map(
+            (source) => {
+              'id': source.id,
+              'name': source.name,
+              'view': source.view,
+              'download': source.download,
+              'type': source.type,
+            },
+          )
+          .toList();
+      LogUtils.d(
+        '接口获取视频源($logVideoUrl): ${jsonEncode(serializedSources)}',
+        'MyVideoStateController',
+      );
 
       // 缓存结果
       _cacheManager.cacheVideoSources(cacheKey, sources);
 
       currentVideoSourceList.value = sources;
+
+      // 解析视频源过期时间（所有清晰度的过期时间都一样，只需解析一次）
+      _currentVideoSourceExpireTime = null;
+      for (var source in sources) {
+        if (source.view != null) {
+          final expireTime = CommonUtils.getVideoLinkExpireTime(source.view!);
+          if (expireTime != null) {
+            _currentVideoSourceExpireTime = expireTime;
+            LogUtils.d('视频源过期时间: $expireTime', 'MyVideoStateController');
+            break; // 找到一个有效的过期时间即可
+          }
+        }
+      }
 
       var lastUserSelectedResolution =
           _configService[ConfigKey.DEFAULT_QUALITY_KEY];
@@ -1152,6 +1211,9 @@ class MyVideoStateController extends GetxController
         ),
         position: targetDuration,
       );
+
+      // 设置视频源过期定时器
+      _setupVideoSourceExpirationTimer();
     } catch (e) {
       String errorMessage = CommonUtils.parseExceptionMessage(e);
       if (!_isDisposed) {
@@ -1438,16 +1500,21 @@ class MyVideoStateController extends GetxController
       if (_isDisposed) return;
 
       final String event = error;
+      LogUtils.w('播放器错误事件: $event', 'MyVideoStateController');
 
       // 针对常见网络/打开失败错误进行节流重试
       if (event.startsWith('Failed to open https://') ||
           event.startsWith('Can not open external file https://') ||
-          event.startsWith('tcp: ffurl_read returned ')) {
+          event.startsWith('tcp: ffurl_read returned ') ||
+          event.contains('Connection timed out') ||
+          event.startsWith('tcp: Connection to ')) {
+        LogUtils.i('检测到网络/打开失败错误，开始节流重试', 'MyVideoStateController');
         EasyThrottle.throttle(
           '${randomId}_player.stream.error.retry',
           const Duration(milliseconds: 10000),
           () async {
             if (videoBuffering.value && buffers.isEmpty) {
+              LogUtils.i('开始重试刷新播放器，当前缓冲状态: buffering=${videoBuffering.value}, buffers=${buffers.length}', 'MyVideoStateController');
               if (Get.context != null) {
                 ScaffoldMessenger.of(Get.context!).showSnackBar(
                   SnackBar(
@@ -1456,6 +1523,7 @@ class MyVideoStateController extends GetxController
                   ),
                 );
               }
+              await fetchVideoSource(forceRefresh: true);
               final bool ok = await refreshPlayer();
               if (!ok) {
                 LogUtils.w('重试刷新播放器失败', 'MyVideoStateController');
@@ -1468,6 +1536,7 @@ class MyVideoStateController extends GetxController
 
       // 解码器错误提示
       if (event.startsWith('Could not open codec')) {
+        LogUtils.w('检测到解码器错误: $event', 'MyVideoStateController');
         if (Get.context != null) {
           ScaffoldMessenger.of(Get.context!).showSnackBar(
             SnackBar(
@@ -1483,10 +1552,12 @@ class MyVideoStateController extends GetxController
       if (event.startsWith('Failed to open .') ||
           event.startsWith('Cannot open') ||
           event.startsWith('Can not open')) {
+        LogUtils.i('检测到可忽略的打开类错误，已静默处理: $event', 'MyVideoStateController');
         return;
       }
 
       // 其他错误，给出提示与日志
+      LogUtils.w('检测到其他类型的播放器错误，将显示用户提示: $event', 'MyVideoStateController');
       if (Get.context != null) {
         ScaffoldMessenger.of(Get.context!).showSnackBar(
           SnackBar(
@@ -1545,10 +1616,132 @@ class MyVideoStateController extends GetxController
       await _switchResolutionSeamlessly(resolvedTag, url);
       return true;
     } catch (e) {
-      if (!_isDisposed) {
-        LogUtils.e('refreshPlayer 失败: $e', tag: 'MyVideoStateController', error: e);
-      }
+      LogUtils.e('刷新播放器失败: $e', tag: 'MyVideoStateController', error: e);
       return false;
+    }
+  }
+
+  /// 设置视频源过期定时器
+  void _setupVideoSourceExpirationTimer() {
+    _videoSourceExpirationTimer?.cancel();
+    
+    // 如果没有过期时间，则不设置定时器
+    if (_currentVideoSourceExpireTime == null) {
+      return;
+    }
+    
+    final expireTime = _currentVideoSourceExpireTime!;
+    
+    // 计算刷新时间：在过期前5分钟刷新
+    final refreshTime = expireTime.subtract(const Duration(minutes: 5));
+    final now = DateTime.now();
+    
+    if (now.isAfter(refreshTime)) {
+      // 已经过期或即将过期，立即刷新
+      LogUtils.w('视频源即将过期或已过期，立即刷新', 'MyVideoStateController');
+      _refreshVideoSourceBeforeExpiration();
+    } else {
+      // 设置定时器在刷新时间触发
+      final delay = refreshTime.difference(now);
+      LogUtils.i('设置视频源刷新定时器，将在 ${delay.inMinutes} 分钟后刷新 (过期时间: $expireTime)', 'MyVideoStateController');
+      
+      _videoSourceExpirationTimer = Timer(delay, () {
+        _refreshVideoSourceBeforeExpiration();
+      });
+    }
+  }
+
+  /// 刷新视频源（过期时间管理）
+  Future<void> _refreshVideoSourceBeforeExpiration() async {
+    if (_isDisposed || videoInfo.value?.fileUrl == null) {
+      return;
+    }
+    
+    LogUtils.i('开始刷新视频源（过期时间管理）', 'MyVideoStateController');
+    
+    try {
+      // 强制刷新视频源
+      var res = await _apiService.get(
+        videoInfo.value!.fileUrl!,
+        headers: {
+          'X-Version': XVersionCalculatorUtil.calculateXVersion(
+            videoInfo.value!.fileUrl!,
+          ),
+        },
+        cancelToken: _cancelToken,
+      );
+      
+      if (_isDisposed) return;
+      
+      List<dynamic> data = res.data;
+      List<VideoSource> sources = data
+          .map((item) => VideoSource.fromJson(item))
+          .toList();
+      
+      // 更新缓存
+      final cacheKey = videoInfo.value!.fileUrl!;
+      _cacheManager.cacheVideoSources(cacheKey, sources);
+      currentVideoSourceList.value = sources;
+      
+      // 解析过期时间（所有清晰度的过期时间都一样，只需解析一次）
+      _currentVideoSourceExpireTime = null;
+      for (var source in sources) {
+        if (source.view != null) {
+          final expireTime = CommonUtils.getVideoLinkExpireTime(source.view!);
+          if (expireTime != null) {
+            _currentVideoSourceExpireTime = expireTime;
+            LogUtils.d('刷新后视频源过期时间: $expireTime', 'MyVideoStateController');
+            break; // 找到一个有效的过期时间即可
+          }
+        }
+      }
+      
+      // 如果当前正在播放，需要更新播放器的URL
+      if (currentResolutionTag.value != null && videoPlayerReady.value) {
+        String? newUrl = CommonUtils.findUrlByResolutionTag(
+          CommonUtils.convertVideoSourcesToResolutions(sources, filterPreview: true),
+          currentResolutionTag.value!,
+        );
+        
+        if (newUrl != null) {
+          // 无缝切换到新的URL（保持播放位置）
+          await _switchToRefreshedUrl(newUrl);
+        }
+      }
+      
+      // 重新设置定时器
+      _setupVideoSourceExpirationTimer();
+      
+      LogUtils.i('视频源刷新成功', 'MyVideoStateController');
+    } catch (e) {
+      LogUtils.e('刷新视频源失败: $e', tag: 'MyVideoStateController', error: e);
+      // 如果刷新失败，5分钟后重试
+      _videoSourceExpirationTimer = Timer(const Duration(minutes: 5), () {
+        _refreshVideoSourceBeforeExpiration();
+      });
+    }
+  }
+
+  /// 切换到刷新后的视频URL（无缝切换）
+  Future<void> _switchToRefreshedUrl(String newUrl) async {
+    if (_isDisposed) return;
+    
+    LogUtils.i('切换到刷新后的视频URL', 'MyVideoStateController');
+    
+    try {
+      // 保存当前播放位置和播放状态
+      final savedPosition = currentPosition;
+      final isPlaying = videoPlaying.value;
+      
+      // 打开新URL，保持播放状态
+      await player.open(
+        Media(newUrl, start: savedPosition),
+        play: isPlaying,
+      );
+      
+      LogUtils.i('成功切换到新的视频URL', 'MyVideoStateController');
+    } catch (e) {
+      LogUtils.e('切换视频URL失败: $e', tag: 'MyVideoStateController', error: e);
     }
   }
 

@@ -736,10 +736,35 @@ class DownloadService extends GetxService {
         }
       } catch (e) {
         // 针对网络类错误做一点「智能重试」：
-        // 如果是 Http 连接被中断（Connection closed）并且是视频任务，
-        // 尝试像 resumeTask 一样刷新下载链接后再重试一次。
+        // 1) 403: 可能是签名/鉴权过期，视频任务需要强制刷新下载链接再重试
+        // 2) 连接中断: 尝试像 resumeTask 一样刷新下载链接后再重试一次。
+        final isDio403Error =
+            e is DioException && e.response?.statusCode == 403;
         final isConnectionClosedError =
             e is HttpException && e.message.contains('Connection closed');
+
+        if (isDio403Error &&
+            retryCount < maxRetries - 1 &&
+            task.extData?.type == DownloadTaskExtDataType.video) {
+          try {
+            final refreshed = await refreshVideoTask(task, force: true);
+            if (refreshed != null) {
+              LogUtils.w(
+                '检测到403，已强制刷新视频下载链接，准备重试: ${task.id}',
+                'DownloadService',
+              );
+              task = refreshed;
+              retryCount++;
+              await Future.delayed(retryDelay);
+              continue;
+            }
+          } catch (refreshError) {
+            LogUtils.w(
+              '403 时刷新视频任务链接失败，将按照普通错误处理: $refreshError',
+              'DownloadService',
+            );
+          }
+        }
 
         if (isConnectionClosedError &&
             retryCount < maxRetries - 1 &&
@@ -1038,6 +1063,21 @@ class DownloadService extends GetxService {
     try {
       // 获取该视频的所有下载任务
       final tasks = await _repository.getVideoTasksByMedia(videoId);
+
+      // 同一清晰度可能被重复下载，优先选择最新完成且文件存在的任务
+      tasks.sort((a, b) {
+        final aTs = a.createdAt?.millisecondsSinceEpoch;
+        final bTs = b.createdAt?.millisecondsSinceEpoch;
+        if (aTs != null && bTs != null) return bTs.compareTo(aTs); // 新的在前
+        if (aTs != null) return -1; // 只有 a 有时间戳，a 在前
+        if (bTs != null) return 1; // 只有 b 有时间戳，b 在前
+
+        // 没有时间戳时使用雪花 ID 作为时间序排序（ID 越大越新）
+        final aId = int.tryParse(a.id);
+        final bId = int.tryParse(b.id);
+        if (aId != null && bId != null) return bId.compareTo(aId);
+        return b.id.compareTo(a.id);
+      });
 
       // 找到匹配清晰度且已完成的任务
       for (final task in tasks) {
@@ -1493,40 +1533,41 @@ class DownloadService extends GetxService {
   // 刷新视频任务
   // 用于更新任务的url
   // @return 返回新的任务信息，如果刷新失败则返回null
-  Future<DownloadTask?> refreshVideoTask(DownloadTask task) async {
+  Future<DownloadTask?> refreshVideoTask(DownloadTask task,
+      {bool force = false}) async {
     VideoDownloadExtData videoExtData = VideoDownloadExtData.fromJson(
       task.extData!.data,
     );
     final videoLink = task.url;
     final expireTime = CommonUtils.getVideoLinkExpireTime(videoLink);
-    if (expireTime != null) {
-      if (DateTime.now().isAfter(
-        expireTime.subtract(const Duration(minutes: 1)),
-      )) {
-        // 需要刷新链接
-        String? newVideoDownloadUrl = await VideoService.to
-            .getVideoDownloadUrlByIdAndQuality(
-              videoExtData.id ?? '',
-              videoExtData.quality!,
-            );
+    final shouldForceRefresh = force || expireTime == null;
 
-        // 如果获取到新的链接，则更新任务信息
-        if (newVideoDownloadUrl != null) {
-          task.url = newVideoDownloadUrl;
-          return task;
-        } else {
-          _showMessage(
-            slang.t.download.errors.linkExpiredTryAgainFailed,
-            Colors.red,
-          );
-          return null;
-        }
-      } else {
+    final isNearlyExpired = expireTime != null &&
+        DateTime.now().isAfter(expireTime.subtract(const Duration(minutes: 1)));
+
+    if (shouldForceRefresh || isNearlyExpired) {
+      // 需要刷新链接
+      String? newVideoDownloadUrl =
+          await VideoService.to.getVideoDownloadUrlByIdAndQuality(
+        videoExtData.id ?? '',
+        videoExtData.quality!,
+      );
+
+      // 如果获取到新的链接，则更新任务信息
+      if (newVideoDownloadUrl != null) {
+        task.url = newVideoDownloadUrl;
         return task;
+      } else {
+        _showMessage(
+          slang.t.download.errors.linkExpiredTryAgainFailed,
+          Colors.red,
+        );
+        return null;
       }
-    } else {
-      return null;
     }
+
+    // 链接尚未过期，且无需强制刷新
+    return task;
   }
 }
 

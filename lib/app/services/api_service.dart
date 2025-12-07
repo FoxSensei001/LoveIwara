@@ -16,7 +16,7 @@ import 'auth_service.dart';
 /// API 服务配置
 class ApiServiceConfig {
   /// 请求超时时间
-  static const Duration requestTimeout = Duration(seconds: 15);
+  static const Duration requestTimeout = Duration(seconds: 10);
 
   /// 最大网络重试次数
   static const int maxNetworkRetries = 3;
