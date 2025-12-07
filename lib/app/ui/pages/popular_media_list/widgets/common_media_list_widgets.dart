@@ -124,7 +124,7 @@ Widget? buildIndicator(
         baseColor: Colors.grey[300]!,
         highlightColor: Colors.grey[100]!,
         child: buildShimmerGrid(
-          itemCount: 1
+          itemCount: 2
         ),
       );
       // 加载更多指示器使用固定的垂直 Padding

@@ -190,22 +190,20 @@ class GestureAreaState extends State<GestureArea>
     // 根据拖动距离计算速度变化的增量（0.1 到 0.5）
     // 距离越远，每单位距离的变化幅度越大
     // 阈值设定（像素）：
-    // 0-50px: 增量 0.1
-    // 50-100px: 增量 0.2
-    // 100-150px: 增量 0.3
-    // 150-200px: 增量 0.4
-    // 200px+: 增量 0.5
+    // 0-30px: 增量 0.1
+    // 30-60px: 增量 0.2
+    // 60-90px: 增量 0.3
+    // 90-120px: 增量 0.4
+    // 120px+: 增量 0.5
     double speedIncrement;
-    if (absDragDistance < 50) {
+    if (absDragDistance < 60) {
       speedIncrement = 0.1;
-    } else if (absDragDistance < 100) {
+    } else if (absDragDistance < 90) {
       speedIncrement = 0.2;
-    } else if (absDragDistance < 150) {
+    } else if (absDragDistance < 120) {
       speedIncrement = 0.3;
-    } else if (absDragDistance < 200) {
-      speedIncrement = 0.4;
     } else {
-      speedIncrement = 0.5;
+      speedIncrement = 0.4;
     }
     
     // 根据累计拖动距离计算总的速度变化
