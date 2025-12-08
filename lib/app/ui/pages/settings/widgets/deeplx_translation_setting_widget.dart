@@ -4,13 +4,29 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/translation_service.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'dart:convert';
 import 'package:waterfall_flow/waterfall_flow.dart';
 
+class DeepLXTranslationSettingsPage extends StatelessWidget {
+  final bool isWideScreen;
+
+  const DeepLXTranslationSettingsPage({super.key, this.isWideScreen = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: DeepLXTranslationSettingsWidget(isWideScreen: isWideScreen),
+    );
+  }
+}
+
 class DeepLXTranslationSettingsWidget extends StatefulWidget {
-  const DeepLXTranslationSettingsWidget({super.key});
+  final bool isWideScreen;
+
+  const DeepLXTranslationSettingsWidget({super.key, this.isWideScreen = false});
 
   @override
   State<DeepLXTranslationSettingsWidget> createState() =>
@@ -49,9 +65,11 @@ class _DeepLXTranslationSettingsWidgetState
     _baseUrlController.text = configService[ConfigKey.DEEPLX_BASE_URL];
     _apiKeyController.text = configService[ConfigKey.DEEPLX_API_KEY];
     _dlSessionController.text = configService[ConfigKey.DEEPLX_DL_SESSION];
-    _isDeepLXEnabled = configService[ConfigKey.USE_DEEPLX_TRANSLATION] as bool? ?? false;
+    _isDeepLXEnabled =
+        configService[ConfigKey.USE_DEEPLX_TRANSLATION] as bool? ?? false;
 
-    final endpointType = configService[ConfigKey.DEEPLX_ENDPOINT_TYPE] as String;
+    final endpointType =
+        configService[ConfigKey.DEEPLX_ENDPOINT_TYPE] as String;
     if (_endpointTypes.contains(endpointType)) {
       _selectedEndpointType = endpointType;
     } else {
@@ -74,7 +92,9 @@ class _DeepLXTranslationSettingsWidgetState
       _isConnectionValid = false;
       _hasTested = false;
       _testResult = null;
-      _disableDeepLXTranslation(message: slang.t.translation.deepLXTranslationWillBeDisabled);
+      _disableDeepLXTranslation(
+        message: slang.t.translation.deepLXTranslationWillBeDisabled,
+      );
     });
   }
 
@@ -102,7 +122,8 @@ class _DeepLXTranslationSettingsWidgetState
     if (_isConnectionValid) {
       configService[ConfigKey.DEEPLX_BASE_URL] = _baseUrlController.text.trim();
       configService[ConfigKey.DEEPLX_API_KEY] = _apiKeyController.text.trim();
-      configService[ConfigKey.DEEPLX_DL_SESSION] = _dlSessionController.text.trim();
+      configService[ConfigKey.DEEPLX_DL_SESSION] = _dlSessionController.text
+          .trim();
       configService[ConfigKey.DEEPLX_ENDPOINT_TYPE] = _selectedEndpointType;
     }
   }
@@ -155,34 +176,42 @@ class _DeepLXTranslationSettingsWidgetState
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      child: SliverPadding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        sliver: SliverLayoutBuilder(
-          builder: (context, constraints) {
-            final double width = constraints.crossAxisExtent;
-            final bool isWide = width >= 1000;
-            final int crossCount = isWide ? 2 : 1;
+      child: CustomScrollView(
+        slivers: [
+          BlurredSliverAppBar(
+            title: slang.t.translation.deeplxTranslation,
+            isWideScreen: widget.isWideScreen,
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverLayoutBuilder(
+              builder: (context, constraints) {
+                final double width = constraints.crossAxisExtent;
+                final bool isWide = width >= 1000;
+                final int crossCount = isWide ? 2 : 1;
 
-            final List<Widget> cards = [
-              _buildStatusCard(context),
-              _buildDisclaimerCard(context),
-              _buildAPIConfigSection(context),
-              _buildTestConnectionSection(context),
-              _buildEnableSection(context),
-              SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
-            ];
+                final List<Widget> cards = [
+                  _buildStatusCard(context),
+                  _buildDisclaimerCard(context),
+                  _buildAPIConfigSection(context),
+                  _buildTestConnectionSection(context),
+                  _buildEnableSection(context),
+                  SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
+                ];
 
-            return SliverWaterfallFlow(
-              gridDelegate:
-              SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
-                crossAxisCount: crossCount,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-              ),
-              delegate: SliverChildListDelegate(cards),
-            );
-          },
-        ),
+                return SliverWaterfallFlow(
+                  gridDelegate:
+                      SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossCount,
+                        mainAxisSpacing: 16,
+                        crossAxisSpacing: 16,
+                      ),
+                  delegate: SliverChildListDelegate(cards),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -200,13 +229,12 @@ class _DeepLXTranslationSettingsWidgetState
       child: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: isEnabled ? [
-              Colors.blue.withAlpha(25), // Simplified withAlpha
-              Colors.blue.withAlpha(12),
-            ] : [
-              Colors.grey.withAlpha(25),
-              Colors.grey.withAlpha(12),
-            ],
+            colors: isEnabled
+                ? [
+                    Colors.blue.withAlpha(25), // Simplified withAlpha
+                    Colors.blue.withAlpha(12),
+                  ]
+                : [Colors.grey.withAlpha(25), Colors.grey.withAlpha(12)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -236,7 +264,9 @@ class _DeepLXTranslationSettingsWidgetState
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      isEnabled ? slang.t.translation.enabled : slang.t.translation.disabled,
+                      isEnabled
+                          ? slang.t.translation.enabled
+                          : slang.t.translation.disabled,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: isEnabled ? Colors.blue : Colors.grey,
                         fontWeight: FontWeight.w500,
@@ -323,7 +353,9 @@ class _DeepLXTranslationSettingsWidgetState
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(77),
+              color: Theme.of(
+                context,
+              ).colorScheme.surfaceContainerHighest.withAlpha(77),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -384,14 +416,24 @@ class _DeepLXTranslationSettingsWidgetState
                             hintText: slang.t.translation.serverAddressHint,
                             configKey: ConfigKey.DEEPLX_BASE_URL,
                             icon: Icons.link,
-                            helperText: slang.t.translation.serverAddressHelperText,
+                            helperText:
+                                slang.t.translation.serverAddressHelperText,
                           ),
                         ),
-                        SizedBox(width: itemWidth, child: _buildEndpointTypeSelector(context)),
-                        SizedBox(width: itemWidth, child: _buildApiKeyInputSection(context)),
+                        SizedBox(
+                          width: itemWidth,
+                          child: _buildEndpointTypeSelector(context),
+                        ),
+                        SizedBox(
+                          width: itemWidth,
+                          child: _buildApiKeyInputSection(context),
+                        ),
                         // Conditionally show DlSession input without Obx
                         if (_selectedEndpointType == 'Pro')
-                          SizedBox(width: itemWidth, child: _buildDlSessionInputSection(context)),
+                          SizedBox(
+                            width: itemWidth,
+                            child: _buildDlSessionInputSection(context),
+                          ),
                       ],
                     ),
                   ],
@@ -418,9 +460,9 @@ class _DeepLXTranslationSettingsWidgetState
             const SizedBox(width: 8),
             Text(
               slang.t.translation.endpointType,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
             ),
           ],
         ),
@@ -429,10 +471,11 @@ class _DeepLXTranslationSettingsWidgetState
           initialValue: _selectedEndpointType,
           isExpanded: true,
           decoration: InputDecoration(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           ),
           items: _endpointTypes.map((type) {
             String description;
@@ -471,7 +514,7 @@ class _DeepLXTranslationSettingsWidgetState
         ),
         const SizedBox(height: 8),
         // Conditional URL display without Obx
-            () {
+        () {
           final baseUrl = _baseUrlController.text.trim();
           if (baseUrl.isEmpty) {
             return const SizedBox.shrink();
@@ -488,13 +531,17 @@ class _DeepLXTranslationSettingsWidgetState
               endpoint = '/translate';
               break;
           }
-          final finalUrl = baseUrl.endsWith('/') ? '$baseUrl${endpoint.substring(1)}' : '$baseUrl$endpoint';
+          final finalUrl = baseUrl.endsWith('/')
+              ? '$baseUrl${endpoint.substring(1)}'
+              : '$baseUrl$endpoint';
 
           return Container(
             width: double.infinity,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainer.withAlpha(128),
+              color: Theme.of(
+                context,
+              ).colorScheme.surfaceContainer.withAlpha(128),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
                 color: Theme.of(context).colorScheme.outline.withAlpha(77),
@@ -550,9 +597,9 @@ class _DeepLXTranslationSettingsWidgetState
             const SizedBox(width: 8),
             Text(
               label,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
             ),
           ],
         ),
@@ -561,16 +608,20 @@ class _DeepLXTranslationSettingsWidgetState
           controller: controller,
           decoration: InputDecoration(
             hintText: hintText,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             helperText: helperText,
             helperMaxLines: 2,
           ),
           validator: (value) {
-            if (configKey == ConfigKey.DEEPLX_BASE_URL && (value == null || value.trim().isEmpty)) {
-              return slang.t.translation.serverAddress.isEmpty ? slang.t.translation.thisFieldCannotBeEmpty : slang.t.translation.serverAddress;
+            if (configKey == ConfigKey.DEEPLX_BASE_URL &&
+                (value == null || value.trim().isEmpty)) {
+              return slang.t.translation.serverAddress.isEmpty
+                  ? slang.t.translation.thisFieldCannotBeEmpty
+                  : slang.t.translation.serverAddress;
             }
             return null;
           },
@@ -599,9 +650,9 @@ class _DeepLXTranslationSettingsWidgetState
             const SizedBox(width: 8),
             Text(
               slang.t.translation.apiKeyOptional,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
             ),
           ],
         ),
@@ -611,10 +662,11 @@ class _DeepLXTranslationSettingsWidgetState
           obscureText: _obscureApiKey,
           decoration: InputDecoration(
             hintText: slang.t.translation.apiKeyOptionalHint,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             suffixIcon: IconButton(
               icon: Icon(
                 _obscureApiKey ? Icons.visibility : Icons.visibility_off,
@@ -648,9 +700,9 @@ class _DeepLXTranslationSettingsWidgetState
             const SizedBox(width: 8),
             Text(
               slang.t.translation.dlSession,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
             ),
           ],
         ),
@@ -660,22 +712,25 @@ class _DeepLXTranslationSettingsWidgetState
           obscureText: _obscureDlSession,
           decoration: InputDecoration(
             hintText: slang.t.translation.dlSessionHint,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             suffixIcon: IconButton(
               icon: Icon(
                 _obscureDlSession ? Icons.visibility : Icons.visibility_off,
                 size: 20,
               ),
-              onPressed: () => setState(() => _obscureDlSession = !_obscureDlSession),
+              onPressed: () =>
+                  setState(() => _obscureDlSession = !_obscureDlSession),
             ),
             helperText: slang.t.translation.dlSessionHelperText,
             helperMaxLines: 2,
           ),
           validator: (value) {
-            if (_selectedEndpointType == 'Pro' && (value == null || value.trim().isEmpty)) {
+            if (_selectedEndpointType == 'Pro' &&
+                (value == null || value.trim().isEmpty)) {
               return slang.t.translation.proModeRequiresDlSession;
             }
             return null;
@@ -700,7 +755,9 @@ class _DeepLXTranslationSettingsWidgetState
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(77),
+              color: Theme.of(
+                context,
+              ).colorScheme.surfaceContainerHighest.withAlpha(77),
             ),
             child: Row(
               children: [
@@ -722,22 +779,27 @@ class _DeepLXTranslationSettingsWidgetState
                   onPressed: _isTesting ? null : _testConnection,
                   icon: _isTesting
                       ? SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        Theme.of(context).colorScheme.onPrimary,
-                      ),
-                    ),
-                  )
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Theme.of(context).colorScheme.onPrimary,
+                            ),
+                          ),
+                        )
                       : const Icon(Icons.play_arrow, size: 16),
                   label: Text(
-                    _isTesting ? slang.t.translation.testing : slang.t.translation.testConnection,
+                    _isTesting
+                        ? slang.t.translation.testing
+                        : slang.t.translation.testConnection,
                     style: const TextStyle(fontSize: 12),
                   ),
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     minimumSize: const Size(0, 32),
                   ),
                 ),
@@ -781,7 +843,7 @@ class _DeepLXTranslationSettingsWidgetState
             successColor: colorScheme.onPrimaryContainer,
             errorColor: colorScheme.onErrorContainer,
           ),
-          const SizedBox(height:16),
+          const SizedBox(height: 16),
           _buildStatusRow(
             slang.t.translation.information,
             _testResult!.custMessage,
@@ -790,7 +852,7 @@ class _DeepLXTranslationSettingsWidgetState
             errorColor: colorScheme.onErrorContainer,
           ),
           if (_testResult!.translatedText != null) ...[
-            const SizedBox(height:16),
+            const SizedBox(height: 16),
             _buildStatusRow(
               slang.t.translation.translatedResult,
               _testResult!.translatedText!,
@@ -834,7 +896,10 @@ class _DeepLXTranslationSettingsWidgetState
     );
   }
 
-  Widget _buildStatusRow(String label, String value, bool isSuccess, {
+  Widget _buildStatusRow(
+    String label,
+    String value,
+    bool isSuccess, {
     required Color successColor,
     required Color errorColor,
   }) {
@@ -876,7 +941,9 @@ class _DeepLXTranslationSettingsWidgetState
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color ?? Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(77),
+        color:
+            color ??
+            Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(77),
       ),
       child: child,
     );
@@ -903,7 +970,9 @@ class _DeepLXTranslationSettingsWidgetState
           style: Theme.of(context).textTheme.titleMedium,
         ),
         subtitle: Text(
-          _isDeepLXEnabled ? slang.t.translation.enabled : slang.t.translation.disabled,
+          _isDeepLXEnabled
+              ? slang.t.translation.enabled
+              : slang.t.translation.disabled,
           style: Theme.of(context).textTheme.bodySmall,
         ),
         value: _isDeepLXEnabled,

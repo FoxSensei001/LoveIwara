@@ -1214,6 +1214,7 @@ class _TranslationsTranslationZhTw implements TranslationsTranslationEn {
 	final TranslationsZhTw _root; // ignore: unused_field
 
 	// Translations
+	@override String get currentService => '目前服務';
 	@override String get testConnection => '測試連接';
 	@override String get testConnectionSuccess => '測試連接成功';
 	@override String get testConnectionFailed => '測試連接失敗';
@@ -1235,7 +1236,7 @@ class _TranslationsTranslationZhTw implements TranslationsTranslationEn {
 	@override String get modelName => '模型名稱';
 	@override String get modelNameHintText => '例如：gpt-4-turbo';
 	@override String get maxTokens => '最大Token數';
-	@override String get maxTokensHintText => '例如：1024';
+	@override String get maxTokensHintText => '例如：32000';
 	@override String get temperature => '溫度係數';
 	@override String get temperatureHintText => '0.0-2.0';
 	@override String get clickTestButtonToVerifyAPIConnection => '點擊測試按鈕驗證API連接有效性';
@@ -3778,6 +3779,7 @@ extension on TranslationsZhTw {
 			'favorite.editFolderSuccess' => '資料夾更新成功',
 			'favorite.editFolderFailed' => '資料夾更新失敗',
 			'favorite.searchTags' => '搜索標籤',
+			'translation.currentService' => '目前服務',
 			'translation.testConnection' => '測試連接',
 			'translation.testConnectionSuccess' => '測試連接成功',
 			'translation.testConnectionFailed' => '測試連接失敗',
@@ -3799,7 +3801,7 @@ extension on TranslationsZhTw {
 			'translation.modelName' => '模型名稱',
 			'translation.modelNameHintText' => '例如：gpt-4-turbo',
 			'translation.maxTokens' => '最大Token數',
-			'translation.maxTokensHintText' => '例如：1024',
+			'translation.maxTokensHintText' => '例如：32000',
 			'translation.temperature' => '溫度係數',
 			'translation.temperatureHintText' => '0.0-2.0',
 			'translation.clickTestButtonToVerifyAPIConnection' => '點擊測試按鈕驗證API連接有效性',
@@ -4067,13 +4069,13 @@ extension on TranslationsZhTw {
 			'emoji.uploadErrorMessage' => ({required Object error}) => '上傳過程中發生錯誤: ${error}',
 			'displaySettings.title' => '顯示設定',
 			'displaySettings.layoutSettings' => '版面配置設定',
-			'displaySettings.layoutSettingsDesc' => '自訂欄數和斷點配置',
 			_ => null,
 		};
 	}
 
 	dynamic _flatMapFunction$3(String path) {
 		return switch (path) {
+			'displaySettings.layoutSettingsDesc' => '自訂欄數和斷點配置',
 			'displaySettings.gridLayout' => '網格版面配置',
 			'displaySettings.navigationOrderSettings' => '導航排序設定',
 			'displaySettings.customNavigationOrder' => '自訂導航順序',

@@ -1309,6 +1309,7 @@ favorite:
   searchTags: Search tags
 
 translation:
+  currentService: Current Service
   testConnection: Test Connection
   testConnectionSuccess: Test connection success
   testConnectionFailed: Test connection failed
@@ -1330,7 +1331,7 @@ translation:
   modelName: Model Name
   modelNameHintText: 'For example: gpt-4-turbo'
   maxTokens: Max Tokens
-  maxTokensHintText: 'For example: 1024'
+  maxTokensHintText: 'For example: 32000'
   temperature: Temperature
   temperatureHintText: '0.0-2.0'
   clickTestButtonToVerifyAPIConnection: 'Click test button to verify API connection validity'

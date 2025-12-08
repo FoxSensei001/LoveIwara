@@ -1183,6 +1183,7 @@ class _TranslationsTranslationJa implements TranslationsTranslationEn {
 	final TranslationsJa _root; // ignore: unused_field
 
 	// Translations
+	@override String get currentService => '現在のサービス';
 	@override String get testConnection => 'テスト接続';
 	@override String get testConnectionSuccess => 'テスト接続成功';
 	@override String get testConnectionFailed => 'テスト接続失敗';
@@ -1204,7 +1205,7 @@ class _TranslationsTranslationJa implements TranslationsTranslationEn {
 	@override String get modelName => 'モデル名';
 	@override String get modelNameHintText => '例：gpt-4-turbo';
 	@override String get maxTokens => '最大トークン数';
-	@override String get maxTokensHintText => '例：1024';
+	@override String get maxTokensHintText => '例：32000';
 	@override String get temperature => '温度係数';
 	@override String get temperatureHintText => '0.0-2.0';
 	@override String get clickTestButtonToVerifyAPIConnection => 'テストボタンをクリックしてAPI接続を検証';
@@ -3744,6 +3745,7 @@ extension on TranslationsJa {
 			'favorite.editFolderSuccess' => 'フォルダー名を更新しました',
 			'favorite.editFolderFailed' => 'フォルダー名の更新に失敗しました',
 			'favorite.searchTags' => 'タグを検索',
+			'translation.currentService' => '現在のサービス',
 			'translation.testConnection' => 'テスト接続',
 			'translation.testConnectionSuccess' => 'テスト接続成功',
 			'translation.testConnectionFailed' => 'テスト接続失敗',
@@ -3765,7 +3767,7 @@ extension on TranslationsJa {
 			'translation.modelName' => 'モデル名',
 			'translation.modelNameHintText' => '例：gpt-4-turbo',
 			'translation.maxTokens' => '最大トークン数',
-			'translation.maxTokensHintText' => '例：1024',
+			'translation.maxTokensHintText' => '例：32000',
 			'translation.temperature' => '温度係数',
 			'translation.temperatureHintText' => '0.0-2.0',
 			'translation.clickTestButtonToVerifyAPIConnection' => 'テストボタンをクリックしてAPI接続を検証',
@@ -4064,13 +4066,13 @@ extension on TranslationsJa {
 			'layoutSettings.columnsLabel' => 'カラム数',
 			'layoutSettings.columnsHint' => '3',
 			'layoutSettings.enterWidth' => '幅を入力してください',
-			'layoutSettings.enterValidWidth' => '有効な幅を入力してください',
 			_ => null,
 		};
 	}
 
 	dynamic _flatMapFunction$3(String path) {
 		return switch (path) {
+			'layoutSettings.enterValidWidth' => '有効な幅を入力してください',
 			'layoutSettings.widthCannotExceed9999' => '幅は9999を超えることはできません',
 			'layoutSettings.breakpointAlreadyExists' => 'ブレークポイントが既に存在します',
 			'layoutSettings.enterColumns' => 'カラム数を入力してください',

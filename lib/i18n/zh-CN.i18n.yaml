@@ -1316,6 +1316,7 @@ favorite:
   searchTags: 搜索标签
 
 translation:
+  currentService: 当前服务
   testConnection: 测试连接
   testConnectionSuccess: 测试连接成功
   testConnectionFailed: 测试连接失败
@@ -1337,7 +1338,7 @@ translation:
   modelName: 模型名称
   modelNameHintText: '例如：gpt-4-turbo'
   maxTokens: 最大Token数
-  maxTokensHintText: '例如：1024'
+  maxTokensHintText: '例如：32000'
   temperature: 温度系数
   temperatureHintText: '0.0-2.0'
   clickTestButtonToVerifyAPIConnection: '点击测试按钮验证API连接有效性'

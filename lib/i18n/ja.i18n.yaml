@@ -1313,6 +1313,7 @@ favorite:
   searchTags: タグを検索
 
 translation:
+  currentService: 現在のサービス
   testConnection: テスト接続
   testConnectionSuccess: テスト接続成功
   testConnectionFailed: テスト接続失敗
@@ -1334,7 +1335,7 @@ translation:
   modelName: モデル名
   modelNameHintText: '例：gpt-4-turbo'
   maxTokens: 最大トークン数
-  maxTokensHintText: '例：1024'
+  maxTokensHintText: '例：32000'
   temperature: 温度係数
   temperatureHintText: '0.0-2.0'
   clickTestButtonToVerifyAPIConnection: 'テストボタンをクリックしてAPI接続を検証'

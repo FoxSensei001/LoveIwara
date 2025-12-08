@@ -23,24 +23,15 @@ class AITranslationSettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          BlurredSliverAppBar(
-            title: slang.t.translation.translation,
-            isWideScreen: isWideScreen,
-          ),
-          const SliverPadding(
-            padding: EdgeInsets.all(16),
-            sliver: AITranslationSettingsWidget(),
-          ),
-        ],
-      ),
+      body: AITranslationSettingsWidget(isWideScreen: isWideScreen),
     );
   }
 }
 
 class AITranslationSettingsWidget extends StatefulWidget {
-  const AITranslationSettingsWidget({super.key});
+  final bool isWideScreen;
+
+  const AITranslationSettingsWidget({super.key, this.isWideScreen = false});
 
   @override
   State<AITranslationSettingsWidget> createState() =>
@@ -155,36 +146,44 @@ class _AITranslationSettingsWidgetState
     // 将 Form 提升到最外层
     return Form(
       key: _formKey,
-      child: SliverPadding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        sliver: SliverLayoutBuilder(
-          builder: (context, constraints) {
-            final double width = constraints.crossAxisExtent;
-            final bool isWide = width >= 1000;
-            final int crossCount = isWide ? 2 : 1;
+      child: CustomScrollView(
+        slivers: [
+          BlurredSliverAppBar(
+            title: slang.t.translation.translation,
+            isWideScreen: widget.isWideScreen,
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverLayoutBuilder(
+              builder: (context, constraints) {
+                final double width = constraints.crossAxisExtent;
+                final bool isWide = width >= 1000;
+                final int crossCount = isWide ? 2 : 1;
 
-            final List<Widget> cards = [
-              Obx(() => _buildStatusCard(context)),
-              _buildDisclaimerCard(context),
-              _buildAPIConfigSection(context),
-              _buildAdvancedConfigSection(context),
-              _buildPreviewSection(context),
-              _buildTestConnectionSection(context),
-              _buildEnableSection(context),
-              SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
-            ];
+                final List<Widget> cards = [
+                  Obx(() => _buildStatusCard(context)),
+                  _buildDisclaimerCard(context),
+                  _buildAPIConfigSection(context),
+                  _buildAdvancedConfigSection(context),
+                  _buildPreviewSection(context),
+                  _buildTestConnectionSection(context),
+                  _buildEnableSection(context),
+                  SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
+                ];
 
-            return SliverWaterfallFlow(
-              gridDelegate:
-                  SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
-                crossAxisCount: crossCount,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-              ),
-              delegate: SliverChildListDelegate(cards),
-            );
-          },
-        ),
+                return SliverWaterfallFlow(
+                  gridDelegate:
+                      SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossCount,
+                        mainAxisSpacing: 16,
+                        crossAxisSpacing: 16,
+                      ),
+                  delegate: SliverChildListDelegate(cards),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -199,13 +198,15 @@ class _AITranslationSettingsWidgetState
       child: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: isEnabled ? [
-              Colors.purple.withValues(alpha: 0.1),
-              Colors.purple.withValues(alpha: 0.05),
-            ] : [
-              Colors.grey.withValues(alpha: 0.1),
-              Colors.grey.withValues(alpha: 0.05),
-            ],
+            colors: isEnabled
+                ? [
+                    Colors.purple.withValues(alpha: 0.1),
+                    Colors.purple.withValues(alpha: 0.05),
+                  ]
+                : [
+                    Colors.grey.withValues(alpha: 0.1),
+                    Colors.grey.withValues(alpha: 0.05),
+                  ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -216,13 +217,9 @@ class _AITranslationSettingsWidgetState
             children: [
               ShaderMask(
                 shaderCallback: (bounds) => LinearGradient(
-                  colors: isEnabled ? [
-                    const Color(0xFF6B8DE3),
-                    const Color(0xFF8B5CF6),
-                  ] : [
-                    Colors.grey,
-                    Colors.grey,
-                  ],
+                  colors: isEnabled
+                      ? [const Color(0xFF6B8DE3), const Color(0xFF8B5CF6)]
+                      : [Colors.grey, Colors.grey],
                 ).createShader(bounds),
                 child: const Icon(
                   Icons.auto_awesome,
@@ -243,7 +240,9 @@ class _AITranslationSettingsWidgetState
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      isEnabled ? slang.t.translation.enabled : slang.t.translation.disabled,
+                      isEnabled
+                          ? slang.t.translation.enabled
+                          : slang.t.translation.disabled,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: isEnabled ? Colors.purple : Colors.grey,
                         fontWeight: FontWeight.w500,
@@ -405,22 +404,31 @@ class _AITranslationSettingsWidgetState
                             hintText: 'https://api.example.com/v1',
                             configKey: ConfigKey.AI_TRANSLATION_BASE_URL,
                             icon: Icons.link,
-                            helperText: slang.t.translation.baseUrlInputHelperText,
+                            helperText:
+                                slang.t.translation.baseUrlInputHelperText,
                           ),
                         ),
                         SizedBox(
                           width: constraints.maxWidth,
                           child: Obx(() {
                             final baseUrl =
-                                configService[ConfigKey.AI_TRANSLATION_BASE_URL];
-                            final actualUrl = translationService.getFinalUrl(baseUrl);
+                                configService[ConfigKey
+                                    .AI_TRANSLATION_BASE_URL];
+                            final actualUrl = translationService.getFinalUrl(
+                              baseUrl,
+                            );
                             return Text(
-                              slang.t.translation.currentActualUrl(url: actualUrl),
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                fontSize: 12,
-                                height: 1.2,
+                              slang.t.translation.currentActualUrl(
+                                url: actualUrl,
                               ),
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                    fontSize: 12,
+                                    height: 1.2,
+                                  ),
                             ).paddingLeft(12);
                           }),
                         ),
@@ -448,7 +456,9 @@ class _AITranslationSettingsWidgetState
                             icon: Icons.numbers,
                             hintText: slang.t.translation.maxTokensHintText,
                             controller: _maxTokensController,
-                            defaultValue: configService[ConfigKey.AI_TRANSLATION_MAX_TOKENS],
+                            defaultValue:
+                                configService[ConfigKey
+                                    .AI_TRANSLATION_MAX_TOKENS],
                           ),
                         ),
                         SizedBox(

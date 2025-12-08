@@ -2919,6 +2919,9 @@ class TranslationsTranslationEn {
 
 	// Translations
 
+	/// en: 'Current Service'
+	String get currentService => 'Current Service';
+
 	/// en: 'Test Connection'
 	String get testConnection => 'Test Connection';
 
@@ -2982,8 +2985,8 @@ class TranslationsTranslationEn {
 	/// en: 'Max Tokens'
 	String get maxTokens => 'Max Tokens';
 
-	/// en: 'For example: 1024'
-	String get maxTokensHintText => 'For example: 1024';
+	/// en: 'For example: 32000'
+	String get maxTokensHintText => 'For example: 32000';
 
 	/// en: 'Temperature'
 	String get temperature => 'Temperature';
@@ -7245,6 +7248,7 @@ extension on Translations {
 			'favorite.editFolderSuccess' => 'Folder updated successfully',
 			'favorite.editFolderFailed' => 'Failed to update folder',
 			'favorite.searchTags' => 'Search tags',
+			'translation.currentService' => 'Current Service',
 			'translation.testConnection' => 'Test Connection',
 			'translation.testConnectionSuccess' => 'Test connection success',
 			'translation.testConnectionFailed' => 'Test connection failed',
@@ -7266,7 +7270,7 @@ extension on Translations {
 			'translation.modelName' => 'Model Name',
 			'translation.modelNameHintText' => 'For example: gpt-4-turbo',
 			'translation.maxTokens' => 'Max Tokens',
-			'translation.maxTokensHintText' => 'For example: 1024',
+			'translation.maxTokensHintText' => 'For example: 32000',
 			'translation.temperature' => 'Temperature',
 			'translation.temperatureHintText' => '0.0-2.0',
 			'translation.clickTestButtonToVerifyAPIConnection' => 'Click test button to verify API connection validity',
@@ -7565,13 +7569,13 @@ extension on Translations {
 			'emoji.close' => 'Close',
 			'emoji.deleteImage' => 'Delete Image',
 			'emoji.confirmDeleteImage' => 'Are you sure you want to delete this image?',
-			'emoji.cancel' => 'Cancel',
 			_ => null,
 		};
 	}
 
 	dynamic _flatMapFunction$3(String path) {
 		return switch (path) {
+			'emoji.cancel' => 'Cancel',
 			'emoji.batchDelete' => 'Batch Delete',
 			'emoji.confirmBatchDelete' => ({required Object count}) => 'Are you sure you want to delete the selected ${count} images? This operation cannot be undone.',
 			'emoji.deleteSuccess' => 'Successfully deleted',

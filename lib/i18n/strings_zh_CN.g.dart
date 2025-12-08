@@ -1188,6 +1188,7 @@ class _TranslationsTranslationZhCn implements TranslationsTranslationEn {
 	final TranslationsZhCn _root; // ignore: unused_field
 
 	// Translations
+	@override String get currentService => '当前服务';
 	@override String get testConnection => '测试连接';
 	@override String get testConnectionSuccess => '测试连接成功';
 	@override String get testConnectionFailed => '测试连接失败';
@@ -1209,7 +1210,7 @@ class _TranslationsTranslationZhCn implements TranslationsTranslationEn {
 	@override String get modelName => '模型名称';
 	@override String get modelNameHintText => '例如：gpt-4-turbo';
 	@override String get maxTokens => '最大Token数';
-	@override String get maxTokensHintText => '例如：1024';
+	@override String get maxTokensHintText => '例如：32000';
 	@override String get temperature => '温度系数';
 	@override String get temperatureHintText => '0.0-2.0';
 	@override String get clickTestButtonToVerifyAPIConnection => '点击测试按钮验证API连接有效性';
@@ -3754,6 +3755,7 @@ extension on TranslationsZhCn {
 			'favorite.editFolderSuccess' => '文件夹更新成功',
 			'favorite.editFolderFailed' => '文件夹更新失败',
 			'favorite.searchTags' => '搜索标签',
+			'translation.currentService' => '当前服务',
 			'translation.testConnection' => '测试连接',
 			'translation.testConnectionSuccess' => '测试连接成功',
 			'translation.testConnectionFailed' => '测试连接失败',
@@ -3775,7 +3777,7 @@ extension on TranslationsZhCn {
 			'translation.modelName' => '模型名称',
 			'translation.modelNameHintText' => '例如：gpt-4-turbo',
 			'translation.maxTokens' => '最大Token数',
-			'translation.maxTokensHintText' => '例如：1024',
+			'translation.maxTokensHintText' => '例如：32000',
 			'translation.temperature' => '温度系数',
 			'translation.temperatureHintText' => '0.0-2.0',
 			'translation.clickTestButtonToVerifyAPIConnection' => '点击测试按钮验证API连接有效性',
@@ -4069,13 +4071,13 @@ extension on TranslationsZhCn {
 			'layoutSettings.addBreakpoint' => '添加断点',
 			'layoutSettings.editBreakpoint' => '编辑断点',
 			'layoutSettings.deleteBreakpoint' => '删除断点',
-			'layoutSettings.screenWidthLabel' => '屏幕宽度',
 			_ => null,
 		};
 	}
 
 	dynamic _flatMapFunction$3(String path) {
 		return switch (path) {
+			'layoutSettings.screenWidthLabel' => '屏幕宽度',
 			'layoutSettings.screenWidthHint' => '600',
 			'layoutSettings.columnsLabel' => '列数',
 			'layoutSettings.columnsHint' => '3',

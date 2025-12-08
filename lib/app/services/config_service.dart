@@ -16,7 +16,8 @@ class ConfigService extends GetxService {
 
   late final CommonDatabase _db;
 
-  final Rx<Sort> _currentTranslationSort = CommonConstants.translationSorts.first.obs;
+  final Rx<Sort> _currentTranslationSort =
+      CommonConstants.translationSorts.first.obs;
   Sort get currentTranslationSort => _currentTranslationSort.value;
   String get currentTranslationLanguage => currentTranslationSort.extData;
 
@@ -35,14 +36,15 @@ class ConfigService extends GetxService {
     await _loadSettings();
 
     // 检查隐私模式（仅在安卓下执行）
-    if (settings[ConfigKey.ACTIVE_BACKGROUND_PRIVACY_MODE]!.value == true && GetPlatform.isAndroid) {
+    if (settings[ConfigKey.ACTIVE_BACKGROUND_PRIVACY_MODE]!.value == true &&
+        GetPlatform.isAndroid) {
       await screenshotChannel.invokeMethod('preventScreenshot');
     }
 
     // 初始化翻译语言
     String savedLanguage = settings[ConfigKey.DEFAULT_LANGUAGE_KEY]!.value;
     _currentTranslationSort.value = CommonConstants.translationSorts.firstWhere(
-          (sort) => sort.extData == savedLanguage,
+      (sort) => sort.extData == savedLanguage,
       orElse: () => CommonConstants.translationSorts.first,
     );
 
@@ -53,30 +55,46 @@ class ConfigService extends GetxService {
     }
 
     // 初始化目标翻译语言（处理方式与源语言相同）
-    String savedTargetLanguage = settings[ConfigKey.USER_TARGET_LANGUAGE_KEY]!.value;
-    _currentTargetLanguageSort = Rx<Sort>(CommonConstants.translationSorts.firstWhere(
-          (sort) => sort.extData == savedTargetLanguage,
-      orElse: () => CommonConstants.translationSorts.firstWhere(
-              (sort) => sort.extData == ConfigKey.USER_TARGET_LANGUAGE_KEY.defaultValue
+    String savedTargetLanguage =
+        settings[ConfigKey.USER_TARGET_LANGUAGE_KEY]!.value;
+    _currentTargetLanguageSort = Rx<Sort>(
+      CommonConstants.translationSorts.firstWhere(
+        (sort) => sort.extData == savedTargetLanguage,
+        orElse: () => CommonConstants.translationSorts.firstWhere(
+          (sort) =>
+              sort.extData == ConfigKey.USER_TARGET_LANGUAGE_KEY.defaultValue,
+        ),
       ),
-    ));
+    );
 
     // 同步目标语言设置到数据库（如果不一致）
     if (_currentTargetLanguageSort.value.extData != savedTargetLanguage) {
       savedTargetLanguage = _currentTargetLanguageSort.value.extData;
-      await saveSetting(ConfigKey.USER_TARGET_LANGUAGE_KEY, savedTargetLanguage);
+      await saveSetting(
+        ConfigKey.USER_TARGET_LANGUAGE_KEY,
+        savedTargetLanguage,
+      );
     }
 
     // 初始化其他配置
     CommonConstants.themeMode = settings[ConfigKey.THEME_MODE_KEY]!.value;
-    CommonConstants.useDynamicColor = settings[ConfigKey.USE_DYNAMIC_COLOR_KEY]!.value;
-    CommonConstants.customThemeColors = List<String>.from(settings[ConfigKey.CUSTOM_THEME_COLORS_KEY]!.value);
-    CommonConstants.usePresetColor = settings[ConfigKey.USE_PRESET_COLOR_KEY]!.value;
-    CommonConstants.currentPresetIndex = settings[ConfigKey.CURRENT_PRESET_INDEX_KEY]!.value;
-    CommonConstants.currentCustomHex = settings[ConfigKey.CURRENT_CUSTOM_HEX_KEY]!.value;
-    CommonConstants.enableHistory = settings[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS]!.value;
-    CommonConstants.enableVibration = settings[ConfigKey.ENABLE_VIBRATION]!.value;
-    CommonConstants.isPaginated = settings[ConfigKey.DEFAULT_PAGINATION_MODE]!.value;
+    CommonConstants.useDynamicColor =
+        settings[ConfigKey.USE_DYNAMIC_COLOR_KEY]!.value;
+    CommonConstants.customThemeColors = List<String>.from(
+      settings[ConfigKey.CUSTOM_THEME_COLORS_KEY]!.value,
+    );
+    CommonConstants.usePresetColor =
+        settings[ConfigKey.USE_PRESET_COLOR_KEY]!.value;
+    CommonConstants.currentPresetIndex =
+        settings[ConfigKey.CURRENT_PRESET_INDEX_KEY]!.value;
+    CommonConstants.currentCustomHex =
+        settings[ConfigKey.CURRENT_CUSTOM_HEX_KEY]!.value;
+    CommonConstants.enableHistory =
+        settings[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS]!.value;
+    CommonConstants.enableVibration =
+        settings[ConfigKey.ENABLE_VIBRATION]!.value;
+    CommonConstants.isPaginated =
+        settings[ConfigKey.DEFAULT_PAGINATION_MODE]!.value;
 
     return this;
   }
@@ -84,7 +102,9 @@ class ConfigService extends GetxService {
   // 从数据库加载配置，若不存在则写入默认值
   Future<void> _loadSettings() async {
     for (final key in ConfigKey.values) {
-      final result = _db.select('SELECT value FROM app_config WHERE key = ?', [key.key]);
+      final result = _db.select('SELECT value FROM app_config WHERE key = ?', [
+        key.key,
+      ]);
       if (result.isNotEmpty) {
         final storedValue = result.first['value'] as String;
         dynamic parsedValue;
@@ -104,11 +124,22 @@ class ConfigService extends GetxService {
             if (decoded is Map) {
               // 根据默认值的类型进行类型转换
               if (defaultVal is Map<String, int>) {
-                parsedValue = Map<String, int>.from(decoded.map((key, value) => 
-                  MapEntry(key.toString(), value is int ? value : int.tryParse(value.toString()) ?? 0)));
+                parsedValue = Map<String, int>.from(
+                  decoded.map(
+                    (key, value) => MapEntry(
+                      key.toString(),
+                      value is int
+                          ? value
+                          : int.tryParse(value.toString()) ?? 0,
+                    ),
+                  ),
+                );
               } else if (defaultVal is Map<String, String>) {
-                parsedValue = Map<String, String>.from(decoded.map((key, value) => 
-                  MapEntry(key.toString(), value.toString())));
+                parsedValue = Map<String, String>.from(
+                  decoded.map(
+                    (key, value) => MapEntry(key.toString(), value.toString()),
+                  ),
+                );
               } else {
                 parsedValue = Map<String, dynamic>.from(decoded);
               }
@@ -136,19 +167,27 @@ class ConfigService extends GetxService {
     } else {
       valueStr = value.toString();
     }
-    _db.execute('''
+    _db.execute(
+      '''
       INSERT OR REPLACE INTO app_config (key, value)
       VALUES (?, ?)
-    ''', [key.key, valueStr]);
+    ''',
+      [key.key, valueStr],
+    );
   }
 
   // 通过 setSetting 同步更新内存和数据库，同时处理隐私模式变更
-  Future<void> setSetting(ConfigKey key, dynamic value, {bool save = true}) async {
+  Future<void> setSetting(
+    ConfigKey key,
+    dynamic value, {
+    bool save = true,
+  }) async {
     settings[key]!.value = value;
     if (save) {
       await saveSetting(key, value);
     }
-    if (GetPlatform.isAndroid && key == ConfigKey.ACTIVE_BACKGROUND_PRIVACY_MODE) {
+    if (GetPlatform.isAndroid &&
+        key == ConfigKey.ACTIVE_BACKGROUND_PRIVACY_MODE) {
       if (value == true) {
         await screenshotChannel.invokeMethod('preventScreenshot');
       } else {
@@ -262,7 +301,7 @@ enum ConfigKey {
   DEEPLX_API_KEY,
   DEEPLX_ENDPOINT_TYPE, // Free, Pro, Official
   DEEPLX_DL_SESSION, // Pro 模式需要的 dl_session
-  ENABLE_SIGNATURE_KEY,  // 是否启用小尾巴
+  ENABLE_SIGNATURE_KEY, // 是否启用小尾巴
   SIGNATURE_CONTENT_KEY, // 小尾巴内容
   ENABLE_VIBRATION, // 是否开启震动
   SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN, // 是否在工具栏隐藏时显示进度条
@@ -322,101 +361,196 @@ enum ConfigKey {
 extension ConfigKeyExtension on ConfigKey {
   String get key {
     switch (this) {
-      case ConfigKey.AUTO_PLAY_KEY: return 'auto_play';
-      case ConfigKey.DEFAULT_BRIGHTNESS_KEY: return 'default_brightness';
-      case ConfigKey.LONG_PRESS_PLAYBACK_SPEED_KEY: return 'long_press_playback_speed';
-      case ConfigKey.FAST_FORWARD_SECONDS_KEY: return 'fast_forward_seconds';
-      case ConfigKey.REWIND_SECONDS_KEY: return 'rewind_seconds';
-      case ConfigKey.DEFAULT_QUALITY_KEY: return 'default_quality';
-      case ConfigKey.REPEAT_KEY: return 'repeat';
-      case ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO: return 'video_left_and_right_control_area_ratio';
-      case ConfigKey.BRIGHTNESS_KEY: return 'brightness';
-      case ConfigKey.KEEP_LAST_BRIGHTNESS_KEY: return 'keep_last_brightness';
-      case ConfigKey.VOLUME_KEY: return 'volume';
-      case ConfigKey.KEEP_LAST_VOLUME_KEY: return 'keep_last_volume';
-      case ConfigKey.USE_PROXY: return 'use_proxy';
-      case ConfigKey.PROXY_URL: return 'proxy_url';
-      case ConfigKey.RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN: return 'render_vertical_video_in_vertical_screen';
-      case ConfigKey.ACTIVE_BACKGROUND_PRIVACY_MODE: return 'active_background_privacy_mode';
-      case ConfigKey.DEFAULT_LANGUAGE_KEY: return 'default_language';
-      case ConfigKey.THEATER_MODE_KEY: return 'theater_mode';
-      case ConfigKey.REMOTE_REPO_RELEASE_URL: return 'remote_repo_release_url';
-      case ConfigKey.REMOTE_REPO_URL: return 'remote_repo_url';
-      case ConfigKey.SETTINGS_SELECTED_INDEX_KEY: return 'settings_selected_index';
-      case ConfigKey.REMOTE_REPO_UPDATE_LOGS_YAML_URL: return 'remote_repo_update_logs_yaml_url';
-      case ConfigKey.IGNORED_VERSION: return 'ignored_version';
-      case ConfigKey.LAST_CHECK_UPDATE_TIME: return 'last_check_update_time';
-      case ConfigKey.AUTO_CHECK_UPDATE: return 'auto_check_update';
-      case ConfigKey.RULES_AGREEMENT_KEY: return 'rules_agreement';
-      case ConfigKey.AUTO_RECORD_HISTORY_KEY: return 'auto_record_history';
-      case ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY: return 'show_unprocessed_markdown_text';
-      case ConfigKey.DISABLE_FORUM_REPLY_QUOTE_KEY: return 'disable_forum_reply_quote';
-      case ConfigKey.THEME_MODE_KEY: return 'current_theme_mode';
-      case ConfigKey.USE_DYNAMIC_COLOR_KEY: return 'use_dynamic_color';
-      case ConfigKey.USE_PRESET_COLOR_KEY: return 'use_preset_color';
-      case ConfigKey.CURRENT_PRESET_INDEX_KEY: return 'current_preset_index';
-      case ConfigKey.CURRENT_CUSTOM_HEX_KEY: return 'current_custom_hex';
-      case ConfigKey.CUSTOM_THEME_COLORS_KEY: return 'custom_theme_colors';
-      case ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS: return 'record_and_restore_video_progress';
-      case ConfigKey.USE_AI_TRANSLATION: return 'use_ai_translation';
-      case ConfigKey.AI_TRANSLATION_BASE_URL: return 'ai_translation_base_url';
-      case ConfigKey.AI_TRANSLATION_MODEL: return 'ai_translation_model';
-      case ConfigKey.AI_TRANSLATION_API_KEY: return 'ai_translation_api_key';
-      case ConfigKey.AI_TRANSLATION_MAX_TOKENS: return 'ai_translation_max_tokens';
-      case ConfigKey.AI_TRANSLATION_TEMPERATURE: return 'ai_translation_temperature';
-      case ConfigKey.REMEMBER_ME_KEY: return 'remember_me';
-      case ConfigKey.AI_TRANSLATION_PROMPT: return 'ai_translation_prompt';
-      case ConfigKey.AI_TRANSLATION_SUPPORTS_STREAMING: return 'ai_translation_supports_streaming';
-      case ConfigKey.USE_DEEPLX_TRANSLATION: return 'use_deeplx_translation';
-      case ConfigKey.DEEPLX_BASE_URL: return 'deeplx_base_url';
-      case ConfigKey.DEEPLX_API_KEY: return 'deeplx_api_key';
-      case ConfigKey.DEEPLX_ENDPOINT_TYPE: return 'deeplx_endpoint_type';
-      case ConfigKey.DEEPLX_DL_SESSION: return 'deeplx_dl_session';
-      case ConfigKey.USER_TARGET_LANGUAGE_KEY: return 'user_target_language';
-      case ConfigKey.ENABLE_SIGNATURE_KEY: return 'enable_signature';
-      case ConfigKey.SIGNATURE_CONTENT_KEY: return 'signature_content';
-      case ConfigKey.ENABLE_VIBRATION: return 'enable_vibration';
-      case ConfigKey.SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN: return 'show_video_progress_bottom_bar_when_toolbar_hidden';
-      case ConfigKey.SHOW_FOLLOW_TIP_COUNT: return 'show_follow_tip_count';
-      case ConfigKey.DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE: return 'default_keep_video_toolbar_visable';
-      case ConfigKey.VIDEO_TOOLBAR_LOCK_BUTTON_POSITION: return 'video_toolbar_lock_button_position';
-      case ConfigKey.DEFAULT_PAGINATION_MODE: return 'default_pagination_mode';
-      case ConfigKey.WINDOW_WIDTH: return 'window_width';
-      case ConfigKey.WINDOW_HEIGHT: return 'window_height';
-      case ConfigKey.WINDOW_X: return 'window_x';
-      case ConfigKey.WINDOW_Y: return 'window_y';
-      case ConfigKey.APPLICATION_LOCALE: return 'application_locale';
-      case ConfigKey.ENABLE_LEFT_DOUBLE_TAP_REWIND: return 'enable_left_double_tap_rewind';
-      case ConfigKey.ENABLE_RIGHT_DOUBLE_TAP_FAST_FORWARD: return 'enable_right_double_tap_fast_forward';
-      case ConfigKey.ENABLE_DOUBLE_TAP_PAUSE: return 'enable_double_tap_pause';
-      case ConfigKey.ENABLE_LEFT_VERTICAL_SWIPE_BRIGHTNESS: return 'enable_left_vertical_swipe_brightness';
-      case ConfigKey.ENABLE_RIGHT_VERTICAL_SWIPE_VOLUME: return 'enable_right_vertical_swipe_volume';
-      case ConfigKey.ENABLE_LONG_PRESS_FAST_FORWARD: return 'enable_long_press_fast_forward';
-      case ConfigKey.ENABLE_MOUSE_HOVER_SHOW_TOOLBAR: return 'enable_mouse_hover_show_toolbar';
-      case ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK: return 'enable_horizontal_drag_seek';
-      case ConfigKey.CUSTOM_DOWNLOAD_PATH: return 'custom_download_path';
-      case ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH: return 'enable_custom_download_path';
-      case ConfigKey.VIDEO_FILENAME_TEMPLATE: return 'video_filename_template';
-      case ConfigKey.GALLERY_FILENAME_TEMPLATE: return 'gallery_filename_template';
-      case ConfigKey.IMAGE_FILENAME_TEMPLATE: return 'image_filename_template';
-      case ConfigKey.EXPAND_BUFFER: return 'expand_buffer';
-      case ConfigKey.VIDEO_SYNC: return 'video_sync';
-      case ConfigKey.HARDWARE_DECODING: return 'hardware_decoding';
-      case ConfigKey.ENABLE_HARDWARE_ACCELERATION: return 'enable_hardware_acceleration';
-      case ConfigKey.USE_OPENSLES: return 'use_opensles';
-      case ConfigKey.DEFAULT_EMOJI_SIZE: return 'default_emoji_size';
-      case ConfigKey.COMMENT_SORT_ORDER: return 'comment_sort_order';
-      case ConfigKey.LAYOUT_MODE: return 'layout_mode';
-      case ConfigKey.MANUAL_COLUMNS_COUNT: return 'manual_columns_count';
-      case ConfigKey.LAYOUT_BREAKPOINTS: return 'layout_breakpoints';
-      case ConfigKey.NAVIGATION_ORDER: return 'navigation_order';
-      case ConfigKey.FULLSCREEN_ORIENTATION: return 'fullscreen_orientation';
-      case ConfigKey.FIRST_TIME_SETUP_COMPLETED: return 'first_time_setup_completed';
-      case ConfigKey.ANIME4K_PRESET_ID: return 'anime4k_preset_id';
-      case ConfigKey.SHOW_SUBSCRIPTION_TUTORIAL: return 'show_subscription_tutorial';
-      case ConfigKey.LAST_DOWNLOAD_QUALITY: return 'last_download_quality';
-      case ConfigKey.CDN_DISTRIBUTION_STRATEGY: return 'cdn_distribution_strategy';
-      case ConfigKey.CDN_SPECIAL_SERVER: return 'cdn_special_server';
+      case ConfigKey.AUTO_PLAY_KEY:
+        return 'auto_play';
+      case ConfigKey.DEFAULT_BRIGHTNESS_KEY:
+        return 'default_brightness';
+      case ConfigKey.LONG_PRESS_PLAYBACK_SPEED_KEY:
+        return 'long_press_playback_speed';
+      case ConfigKey.FAST_FORWARD_SECONDS_KEY:
+        return 'fast_forward_seconds';
+      case ConfigKey.REWIND_SECONDS_KEY:
+        return 'rewind_seconds';
+      case ConfigKey.DEFAULT_QUALITY_KEY:
+        return 'default_quality';
+      case ConfigKey.REPEAT_KEY:
+        return 'repeat';
+      case ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO:
+        return 'video_left_and_right_control_area_ratio';
+      case ConfigKey.BRIGHTNESS_KEY:
+        return 'brightness';
+      case ConfigKey.KEEP_LAST_BRIGHTNESS_KEY:
+        return 'keep_last_brightness';
+      case ConfigKey.VOLUME_KEY:
+        return 'volume';
+      case ConfigKey.KEEP_LAST_VOLUME_KEY:
+        return 'keep_last_volume';
+      case ConfigKey.USE_PROXY:
+        return 'use_proxy';
+      case ConfigKey.PROXY_URL:
+        return 'proxy_url';
+      case ConfigKey.RENDER_VERTICAL_VIDEO_IN_VERTICAL_SCREEN:
+        return 'render_vertical_video_in_vertical_screen';
+      case ConfigKey.ACTIVE_BACKGROUND_PRIVACY_MODE:
+        return 'active_background_privacy_mode';
+      case ConfigKey.DEFAULT_LANGUAGE_KEY:
+        return 'default_language';
+      case ConfigKey.THEATER_MODE_KEY:
+        return 'theater_mode';
+      case ConfigKey.REMOTE_REPO_RELEASE_URL:
+        return 'remote_repo_release_url';
+      case ConfigKey.REMOTE_REPO_URL:
+        return 'remote_repo_url';
+      case ConfigKey.SETTINGS_SELECTED_INDEX_KEY:
+        return 'settings_selected_index';
+      case ConfigKey.REMOTE_REPO_UPDATE_LOGS_YAML_URL:
+        return 'remote_repo_update_logs_yaml_url';
+      case ConfigKey.IGNORED_VERSION:
+        return 'ignored_version';
+      case ConfigKey.LAST_CHECK_UPDATE_TIME:
+        return 'last_check_update_time';
+      case ConfigKey.AUTO_CHECK_UPDATE:
+        return 'auto_check_update';
+      case ConfigKey.RULES_AGREEMENT_KEY:
+        return 'rules_agreement';
+      case ConfigKey.AUTO_RECORD_HISTORY_KEY:
+        return 'auto_record_history';
+      case ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY:
+        return 'show_unprocessed_markdown_text';
+      case ConfigKey.DISABLE_FORUM_REPLY_QUOTE_KEY:
+        return 'disable_forum_reply_quote';
+      case ConfigKey.THEME_MODE_KEY:
+        return 'current_theme_mode';
+      case ConfigKey.USE_DYNAMIC_COLOR_KEY:
+        return 'use_dynamic_color';
+      case ConfigKey.USE_PRESET_COLOR_KEY:
+        return 'use_preset_color';
+      case ConfigKey.CURRENT_PRESET_INDEX_KEY:
+        return 'current_preset_index';
+      case ConfigKey.CURRENT_CUSTOM_HEX_KEY:
+        return 'current_custom_hex';
+      case ConfigKey.CUSTOM_THEME_COLORS_KEY:
+        return 'custom_theme_colors';
+      case ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS:
+        return 'record_and_restore_video_progress';
+      case ConfigKey.USE_AI_TRANSLATION:
+        return 'use_ai_translation';
+      case ConfigKey.AI_TRANSLATION_BASE_URL:
+        return 'ai_translation_base_url';
+      case ConfigKey.AI_TRANSLATION_MODEL:
+        return 'ai_translation_model';
+      case ConfigKey.AI_TRANSLATION_API_KEY:
+        return 'ai_translation_api_key';
+      case ConfigKey.AI_TRANSLATION_MAX_TOKENS:
+        return 'ai_translation_max_tokens';
+      case ConfigKey.AI_TRANSLATION_TEMPERATURE:
+        return 'ai_translation_temperature';
+      case ConfigKey.REMEMBER_ME_KEY:
+        return 'remember_me';
+      case ConfigKey.AI_TRANSLATION_PROMPT:
+        return 'ai_translation_prompt';
+      case ConfigKey.AI_TRANSLATION_SUPPORTS_STREAMING:
+        return 'ai_translation_supports_streaming';
+      case ConfigKey.USE_DEEPLX_TRANSLATION:
+        return 'use_deeplx_translation';
+      case ConfigKey.DEEPLX_BASE_URL:
+        return 'deeplx_base_url';
+      case ConfigKey.DEEPLX_API_KEY:
+        return 'deeplx_api_key';
+      case ConfigKey.DEEPLX_ENDPOINT_TYPE:
+        return 'deeplx_endpoint_type';
+      case ConfigKey.DEEPLX_DL_SESSION:
+        return 'deeplx_dl_session';
+      case ConfigKey.USER_TARGET_LANGUAGE_KEY:
+        return 'user_target_language';
+      case ConfigKey.ENABLE_SIGNATURE_KEY:
+        return 'enable_signature';
+      case ConfigKey.SIGNATURE_CONTENT_KEY:
+        return 'signature_content';
+      case ConfigKey.ENABLE_VIBRATION:
+        return 'enable_vibration';
+      case ConfigKey.SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN:
+        return 'show_video_progress_bottom_bar_when_toolbar_hidden';
+      case ConfigKey.SHOW_FOLLOW_TIP_COUNT:
+        return 'show_follow_tip_count';
+      case ConfigKey.DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE:
+        return 'default_keep_video_toolbar_visable';
+      case ConfigKey.VIDEO_TOOLBAR_LOCK_BUTTON_POSITION:
+        return 'video_toolbar_lock_button_position';
+      case ConfigKey.DEFAULT_PAGINATION_MODE:
+        return 'default_pagination_mode';
+      case ConfigKey.WINDOW_WIDTH:
+        return 'window_width';
+      case ConfigKey.WINDOW_HEIGHT:
+        return 'window_height';
+      case ConfigKey.WINDOW_X:
+        return 'window_x';
+      case ConfigKey.WINDOW_Y:
+        return 'window_y';
+      case ConfigKey.APPLICATION_LOCALE:
+        return 'application_locale';
+      case ConfigKey.ENABLE_LEFT_DOUBLE_TAP_REWIND:
+        return 'enable_left_double_tap_rewind';
+      case ConfigKey.ENABLE_RIGHT_DOUBLE_TAP_FAST_FORWARD:
+        return 'enable_right_double_tap_fast_forward';
+      case ConfigKey.ENABLE_DOUBLE_TAP_PAUSE:
+        return 'enable_double_tap_pause';
+      case ConfigKey.ENABLE_LEFT_VERTICAL_SWIPE_BRIGHTNESS:
+        return 'enable_left_vertical_swipe_brightness';
+      case ConfigKey.ENABLE_RIGHT_VERTICAL_SWIPE_VOLUME:
+        return 'enable_right_vertical_swipe_volume';
+      case ConfigKey.ENABLE_LONG_PRESS_FAST_FORWARD:
+        return 'enable_long_press_fast_forward';
+      case ConfigKey.ENABLE_MOUSE_HOVER_SHOW_TOOLBAR:
+        return 'enable_mouse_hover_show_toolbar';
+      case ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK:
+        return 'enable_horizontal_drag_seek';
+      case ConfigKey.CUSTOM_DOWNLOAD_PATH:
+        return 'custom_download_path';
+      case ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH:
+        return 'enable_custom_download_path';
+      case ConfigKey.VIDEO_FILENAME_TEMPLATE:
+        return 'video_filename_template';
+      case ConfigKey.GALLERY_FILENAME_TEMPLATE:
+        return 'gallery_filename_template';
+      case ConfigKey.IMAGE_FILENAME_TEMPLATE:
+        return 'image_filename_template';
+      case ConfigKey.EXPAND_BUFFER:
+        return 'expand_buffer';
+      case ConfigKey.VIDEO_SYNC:
+        return 'video_sync';
+      case ConfigKey.HARDWARE_DECODING:
+        return 'hardware_decoding';
+      case ConfigKey.ENABLE_HARDWARE_ACCELERATION:
+        return 'enable_hardware_acceleration';
+      case ConfigKey.USE_OPENSLES:
+        return 'use_opensles';
+      case ConfigKey.DEFAULT_EMOJI_SIZE:
+        return 'default_emoji_size';
+      case ConfigKey.COMMENT_SORT_ORDER:
+        return 'comment_sort_order';
+      case ConfigKey.LAYOUT_MODE:
+        return 'layout_mode';
+      case ConfigKey.MANUAL_COLUMNS_COUNT:
+        return 'manual_columns_count';
+      case ConfigKey.LAYOUT_BREAKPOINTS:
+        return 'layout_breakpoints';
+      case ConfigKey.NAVIGATION_ORDER:
+        return 'navigation_order';
+      case ConfigKey.FULLSCREEN_ORIENTATION:
+        return 'fullscreen_orientation';
+      case ConfigKey.FIRST_TIME_SETUP_COMPLETED:
+        return 'first_time_setup_completed';
+      case ConfigKey.ANIME4K_PRESET_ID:
+        return 'anime4k_preset_id';
+      case ConfigKey.SHOW_SUBSCRIPTION_TUTORIAL:
+        return 'show_subscription_tutorial';
+      case ConfigKey.LAST_DOWNLOAD_QUALITY:
+        return 'last_download_quality';
+      case ConfigKey.CDN_DISTRIBUTION_STRATEGY:
+        return 'cdn_distribution_strategy';
+      case ConfigKey.CDN_SPECIAL_SERVER:
+        return 'cdn_special_server';
     }
   }
 
@@ -505,7 +639,7 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.AI_TRANSLATION_API_KEY:
         return '';
       case ConfigKey.AI_TRANSLATION_MAX_TOKENS:
-        return 1024;
+        return 32000;
       case ConfigKey.AI_TRANSLATION_TEMPERATURE:
         return 0.3;
       case ConfigKey.REMEMBER_ME_KEY:
