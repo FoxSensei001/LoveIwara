@@ -1,7 +1,7 @@
 name: Flutter Build
 
 env:
-  FLUTTER_VERSION: '3.38.3'
+  FLUTTER_VERSION: '3.38.4'
 
 on:
   workflow_dispatch:
