@@ -597,6 +597,24 @@ settings:
   hardwareDecodingAutoSafe: 自動安全
   hardwareDecodingNo: 禁用
   hardwareDecodingYes: 強制啟用
+  # CDN 內容分流策略
+  cdnDistributionStrategy: 內容分流策略
+  cdnDistributionStrategyDesc: 選擇影片來源伺服器的分流方式，可優化載入速度
+  cdnDistributionStrategyLabel: 分流策略
+  cdnDistributionStrategyNoChange: 不更動（使用原本的伺服器）
+  cdnDistributionStrategyAuto: 自動選擇（最快的伺服器）
+  cdnDistributionStrategySpecial: 指定伺服器
+  cdnSpecialServer: 指定伺服器
+  cdnRefreshServerListHint: 請先點選下方按鈕重新整理伺服器清單
+  cdnRefreshButton: 重新整理
+  cdnFastRingServers: 快速環伺服器
+  cdnRefreshServerListTooltip: 重新整理伺服器清單
+  cdnSpeedTestButton: 測速
+  cdnSpeedTestingButton: '測速中 (${count})'
+  cdnNoServerDataHint: 查無伺服器資料，請點選重新整理按鈕
+  cdnTestingStatus: 測速中
+  cdnUnreachableStatus: 無法連線
+  cdnNotTestedStatus: 尚未測速
   downloadSettings:
     downloadSettings: 下載設定
     storagePermissionStatus: 存儲權限狀態

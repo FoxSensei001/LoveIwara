@@ -1789,6 +1789,57 @@ class TranslationsSettingsEn {
 	/// en: 'Force Enable'
 	String get hardwareDecodingYes => 'Force Enable';
 
+	/// en: 'Content Distribution Strategy'
+	String get cdnDistributionStrategy => 'Content Distribution Strategy';
+
+	/// en: 'Select video source server distribution strategy to optimize loading speed'
+	String get cdnDistributionStrategyDesc => 'Select video source server distribution strategy to optimize loading speed';
+
+	/// en: 'Distribution Strategy'
+	String get cdnDistributionStrategyLabel => 'Distribution Strategy';
+
+	/// en: 'No Change (Use Original Server)'
+	String get cdnDistributionStrategyNoChange => 'No Change (Use Original Server)';
+
+	/// en: 'Auto Select (Fastest Server)'
+	String get cdnDistributionStrategyAuto => 'Auto Select (Fastest Server)';
+
+	/// en: 'Specify Server'
+	String get cdnDistributionStrategySpecial => 'Specify Server';
+
+	/// en: 'Specify Server'
+	String get cdnSpecialServer => 'Specify Server';
+
+	/// en: 'Please click the button below to refresh the server list'
+	String get cdnRefreshServerListHint => 'Please click the button below to refresh the server list';
+
+	/// en: 'Refresh'
+	String get cdnRefreshButton => 'Refresh';
+
+	/// en: 'Fast Ring Servers'
+	String get cdnFastRingServers => 'Fast Ring Servers';
+
+	/// en: 'Refresh server list'
+	String get cdnRefreshServerListTooltip => 'Refresh server list';
+
+	/// en: 'Speed Test'
+	String get cdnSpeedTestButton => 'Speed Test';
+
+	/// en: 'Testing (${count})'
+	String cdnSpeedTestingButton({required Object count}) => 'Testing (${count})';
+
+	/// en: 'No server data available, please click the refresh button'
+	String get cdnNoServerDataHint => 'No server data available, please click the refresh button';
+
+	/// en: 'Testing'
+	String get cdnTestingStatus => 'Testing';
+
+	/// en: 'Unreachable'
+	String get cdnUnreachableStatus => 'Unreachable';
+
+	/// en: 'Not Tested'
+	String get cdnNotTestedStatus => 'Not Tested';
+
 	late final TranslationsSettingsDownloadSettingsEn downloadSettings = TranslationsSettingsDownloadSettingsEn._(_root);
 }
 
@@ -6539,6 +6590,23 @@ extension on Translations {
 			'settings.hardwareDecodingAutoSafe' => 'Auto Safe',
 			'settings.hardwareDecodingNo' => 'Disabled',
 			'settings.hardwareDecodingYes' => 'Force Enable',
+			'settings.cdnDistributionStrategy' => 'Content Distribution Strategy',
+			'settings.cdnDistributionStrategyDesc' => 'Select video source server distribution strategy to optimize loading speed',
+			'settings.cdnDistributionStrategyLabel' => 'Distribution Strategy',
+			'settings.cdnDistributionStrategyNoChange' => 'No Change (Use Original Server)',
+			'settings.cdnDistributionStrategyAuto' => 'Auto Select (Fastest Server)',
+			'settings.cdnDistributionStrategySpecial' => 'Specify Server',
+			'settings.cdnSpecialServer' => 'Specify Server',
+			'settings.cdnRefreshServerListHint' => 'Please click the button below to refresh the server list',
+			'settings.cdnRefreshButton' => 'Refresh',
+			'settings.cdnFastRingServers' => 'Fast Ring Servers',
+			'settings.cdnRefreshServerListTooltip' => 'Refresh server list',
+			'settings.cdnSpeedTestButton' => 'Speed Test',
+			'settings.cdnSpeedTestingButton' => ({required Object count}) => 'Testing (${count})',
+			'settings.cdnNoServerDataHint' => 'No server data available, please click the refresh button',
+			'settings.cdnTestingStatus' => 'Testing',
+			'settings.cdnUnreachableStatus' => 'Unreachable',
+			'settings.cdnNotTestedStatus' => 'Not Tested',
 			'settings.downloadSettings.downloadSettings' => 'Download Settings',
 			'settings.downloadSettings.storagePermissionStatus' => 'Storage Permission Status',
 			'settings.downloadSettings.accessPublicDirectoryNeedStoragePermission' => 'Access Public Directory Need Storage Permission',
@@ -6980,6 +7048,12 @@ extension on Translations {
 			'notifications.markAsReadSuccess' => 'Notification has been marked as read',
 			'notifications.markAsReadFailed' => 'Notification marked as read failed',
 			'notifications.notificationTypeHelp' => 'Notification Type Help',
+			_ => null,
+		};
+	}
+
+	dynamic _flatMapFunction$2(String path) {
+		return switch (path) {
 			'notifications.dueToLackOfNotificationTypeDetails' => 'Due to the lack of notification type details, the supported types may not cover the messages you currently receive',
 			'notifications.helpUsImproveNotificationTypeSupport' => 'If you are willing to help us improve the support for notification types',
 			'notifications.helpUsImproveNotificationTypeSupportLongText' => '1. 📋 Copy the notification information\n2. 🐞 Submit an issue to the project repository\n\n⚠️ Note: Notification information may contain personal privacy, if you do not want to public, you can also send it to the project author by email.',
@@ -6997,12 +7071,6 @@ extension on Translations {
 			'notifications.kCommentSection' => 'comment section',
 			'notifications.kApprovedComment' => 'Comment approved',
 			'notifications.kApprovedVideo' => 'Video approved',
-			_ => null,
-		};
-	}
-
-	dynamic _flatMapFunction$2(String path) {
-		return switch (path) {
 			'notifications.kApprovedGallery' => 'Gallery approved',
 			'notifications.kApprovedThread' => 'Thread approved',
 			'notifications.kApprovedPost' => 'Post approved',
@@ -7498,6 +7566,12 @@ extension on Translations {
 			'emoji.deleteImage' => 'Delete Image',
 			'emoji.confirmDeleteImage' => 'Are you sure you want to delete this image?',
 			'emoji.cancel' => 'Cancel',
+			_ => null,
+		};
+	}
+
+	dynamic _flatMapFunction$3(String path) {
+		return switch (path) {
 			'emoji.batchDelete' => 'Batch Delete',
 			'emoji.confirmBatchDelete' => ({required Object count}) => 'Are you sure you want to delete the selected ${count} images? This operation cannot be undone.',
 			'emoji.deleteSuccess' => 'Successfully deleted',
@@ -7515,12 +7589,6 @@ extension on Translations {
 			'emoji.importSuccess' => ({required Object count}) => 'Successfully imported ${count} images',
 			'emoji.jsonFormatError' => 'JSON format error, please check input',
 			'emoji.createGroup' => 'Create Emoji Group',
-			_ => null,
-		};
-	}
-
-	dynamic _flatMapFunction$3(String path) {
-		return switch (path) {
 			'emoji.groupName' => 'Group Name',
 			'emoji.enterGroupName' => 'Please enter group name',
 			'emoji.create' => 'Create',

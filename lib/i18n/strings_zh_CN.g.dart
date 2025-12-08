@@ -723,6 +723,23 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get hardwareDecodingAutoSafe => '自动安全';
 	@override String get hardwareDecodingNo => '禁用';
 	@override String get hardwareDecodingYes => '强制启用';
+	@override String get cdnDistributionStrategy => '内容分发策略';
+	@override String get cdnDistributionStrategyDesc => '选择视频源服务器的分发策略，可优化加载速度';
+	@override String get cdnDistributionStrategyLabel => '分发策略';
+	@override String get cdnDistributionStrategyNoChange => '不修改（使用原服务器）';
+	@override String get cdnDistributionStrategyAuto => '自动选择（最快服务器）';
+	@override String get cdnDistributionStrategySpecial => '指定服务器';
+	@override String get cdnSpecialServer => '指定服务器';
+	@override String get cdnRefreshServerListHint => '请先点击下方按钮刷新服务器列表';
+	@override String get cdnRefreshButton => '刷新';
+	@override String get cdnFastRingServers => '快速环服务器';
+	@override String get cdnRefreshServerListTooltip => '刷新服务器列表';
+	@override String get cdnSpeedTestButton => '测速';
+	@override String cdnSpeedTestingButton({required Object count}) => '测速中 (${count})';
+	@override String get cdnNoServerDataHint => '暂无服务器数据，请点击刷新按钮';
+	@override String get cdnTestingStatus => '测速中';
+	@override String get cdnUnreachableStatus => '不可达';
+	@override String get cdnNotTestedStatus => '未测速';
 	@override late final _TranslationsSettingsDownloadSettingsZhCn downloadSettings = _TranslationsSettingsDownloadSettingsZhCn._(_root);
 }
 
@@ -3082,6 +3099,23 @@ extension on TranslationsZhCn {
 			'settings.hardwareDecodingAutoSafe' => '自动安全',
 			'settings.hardwareDecodingNo' => '禁用',
 			'settings.hardwareDecodingYes' => '强制启用',
+			'settings.cdnDistributionStrategy' => '内容分发策略',
+			'settings.cdnDistributionStrategyDesc' => '选择视频源服务器的分发策略，可优化加载速度',
+			'settings.cdnDistributionStrategyLabel' => '分发策略',
+			'settings.cdnDistributionStrategyNoChange' => '不修改（使用原服务器）',
+			'settings.cdnDistributionStrategyAuto' => '自动选择（最快服务器）',
+			'settings.cdnDistributionStrategySpecial' => '指定服务器',
+			'settings.cdnSpecialServer' => '指定服务器',
+			'settings.cdnRefreshServerListHint' => '请先点击下方按钮刷新服务器列表',
+			'settings.cdnRefreshButton' => '刷新',
+			'settings.cdnFastRingServers' => '快速环服务器',
+			'settings.cdnRefreshServerListTooltip' => '刷新服务器列表',
+			'settings.cdnSpeedTestButton' => '测速',
+			'settings.cdnSpeedTestingButton' => ({required Object count}) => '测速中 (${count})',
+			'settings.cdnNoServerDataHint' => '暂无服务器数据，请点击刷新按钮',
+			'settings.cdnTestingStatus' => '测速中',
+			'settings.cdnUnreachableStatus' => '不可达',
+			'settings.cdnNotTestedStatus' => '未测速',
 			'settings.downloadSettings.downloadSettings' => '下载设置',
 			'settings.downloadSettings.storagePermissionStatus' => '存储权限状态',
 			'settings.downloadSettings.accessPublicDirectoryNeedStoragePermission' => '访问公共目录需要存储权限',
@@ -3518,6 +3552,12 @@ extension on TranslationsZhCn {
 			'notifications.markSelectedAsRead' => '标记选中项为已读',
 			'notifications.markSelectedAsReadSuccess' => '选中的通知已标记为已读',
 			'notifications.markSelectedAsReadFailed' => '标记选中项为已读失败',
+			_ => null,
+		};
+	}
+
+	dynamic _flatMapFunction$2(String path) {
+		return switch (path) {
 			'notifications.markAsRead' => '标记已读',
 			'notifications.markAsReadSuccess' => '已标记为已读',
 			'notifications.markAsReadFailed' => '标记已读失败',
@@ -3535,12 +3575,6 @@ extension on TranslationsZhCn {
 			'notifications.kVideo' => '视频',
 			'notifications.kGallery' => '图库',
 			'notifications.kProfile' => '主页',
-			_ => null,
-		};
-	}
-
-	dynamic _flatMapFunction$2(String path) {
-		return switch (path) {
 			'notifications.kThread' => '主题',
 			'notifications.kPost' => '投稿',
 			'notifications.kCommentSection' => '下的评论',
@@ -4036,6 +4070,12 @@ extension on TranslationsZhCn {
 			'layoutSettings.editBreakpoint' => '编辑断点',
 			'layoutSettings.deleteBreakpoint' => '删除断点',
 			'layoutSettings.screenWidthLabel' => '屏幕宽度',
+			_ => null,
+		};
+	}
+
+	dynamic _flatMapFunction$3(String path) {
+		return switch (path) {
 			'layoutSettings.screenWidthHint' => '600',
 			'layoutSettings.columnsLabel' => '列数',
 			'layoutSettings.columnsHint' => '3',
@@ -4053,12 +4093,6 @@ extension on TranslationsZhCn {
 			'layoutSettings.confirmDeleteBreakpoint' => '删除断点',
 			'layoutSettings.confirmDeleteBreakpointDesc' => ({required Object width}) => '确定要删除 ${width}px 断点吗？',
 			'layoutSettings.noCustomBreakpoints' => '暂无自定义断点，使用默认列数',
-			_ => null,
-		};
-	}
-
-	dynamic _flatMapFunction$3(String path) {
-		return switch (path) {
 			'layoutSettings.breakpointRange' => '断点区间',
 			'layoutSettings.breakpointRangeDesc' => ({required Object range}) => '${range}px',
 			'layoutSettings.breakpointRangeDescFirst' => ({required Object width}) => '≤${width}px',

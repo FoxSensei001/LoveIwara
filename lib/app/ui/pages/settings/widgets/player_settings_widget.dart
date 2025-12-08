@@ -4,6 +4,7 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/setting_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/three_section_slider.dart';
 import 'package:i_iwara/app/ui/widgets/anime4k_settings_widget.dart';
+import 'package:i_iwara/app/services/iwara_server_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class PlayerSettingsWidget extends StatelessWidget {
@@ -249,6 +250,186 @@ class PlayerSettingsWidget extends StatelessWidget {
     if (result != null && result != currentValue) {
       onChanged(result);
     }
+  }
+
+  // 构建快速环服务器列表区域
+  Widget _buildFastRingServerSection(BuildContext context) {
+    final serverService = Get.find<IwaraServerService>();
+    final t = slang.Translations.of(context);
+    
+    return Obx(() {
+      // 只显示快速环服务器
+      final servers = serverService.fastRingServers;
+      final speedResults = serverService.speedTestResults;
+      final isLoading = serverService.isLoading.value;
+      final testingNames = serverService.testingServerNames;
+      
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 标题行：快速环 + 刷新/测速按钮
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                t.settings.cdnFastRingServers,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 刷新按钮
+                  IconButton(
+                    icon: isLoading
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.refresh, size: 20),
+                    onPressed: isLoading ? null : () => serverService.refreshServerList(),
+                    tooltip: t.settings.cdnRefreshServerListTooltip,
+                    iconSize: 20,
+                    constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                  ),
+                  // 测速按钮
+                  TextButton.icon(
+                    icon: testingNames.isNotEmpty
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.speed, size: 18),
+                    label: Text(testingNames.isNotEmpty
+                        ? t.settings.cdnSpeedTestingButton(count: testingNames.length)
+                        : t.settings.cdnSpeedTestButton),
+                    onPressed: testingNames.isNotEmpty || isLoading
+                        ? null
+                        : () => serverService.testServersSpeed(
+                              targetServers: servers.toList(),
+                              saveToDatabase: true,
+                            ),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      minimumSize: const Size(60, 32),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          // 服务器列表
+          if (servers.isEmpty)
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Center(
+                child: Text(
+                  t.settings.cdnNoServerDataHint,
+                  style: const TextStyle(color: Colors.grey),
+                ),
+              ),
+            )
+          else
+            Container(
+              constraints: const BoxConstraints(maxHeight: 200),
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: servers.length,
+                itemBuilder: (context, index) {
+                  final server = servers[index];
+                  final result = speedResults[server.name];
+                  final isTesting = testingNames.contains(server.name);
+                  
+                  return Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Colors.grey.withValues(alpha: 0.2),
+                          width: 0.5,
+                        ),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        // 服务器名称
+                        Expanded(
+                          flex: 2,
+                          child: Text(
+                            server.name,
+                            style: const TextStyle(fontSize: 13),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        // 延迟/状态
+                        SizedBox(
+                          width: 80,
+                          child: isTesting
+                              ? Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    SizedBox(
+                                      width: 14,
+                                      height: 14,
+                                      child: CircularProgressIndicator(strokeWidth: 2),
+                                    ),
+                                    SizedBox(width: 4),
+                                    Text(t.settings.cdnTestingStatus, style: const TextStyle(fontSize: 12)),
+                                  ],
+                                )
+                              : result != null
+                                  ? Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          result.isReachable ? Icons.check_circle : Icons.error,
+                                          size: 14,
+                                          color: result.isReachable ? Colors.green : Colors.red,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          result.isReachable
+                                              ? '${result.latencyMs}ms'
+                                              : t.settings.cdnUnreachableStatus,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: result.isReachable
+                                                ? (result.latencyMs! < 500
+                                                    ? Colors.green
+                                                    : result.latencyMs! < 1000
+                                                        ? Colors.orange
+                                                        : Colors.red)
+                                                : Colors.red,
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  : Text(
+                                      t.settings.cdnNotTestedStatus,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+        ],
+      );
+    });
   }
 
   @override
@@ -927,6 +1108,102 @@ class PlayerSettingsWidget extends StatelessWidget {
                         _configService[ConfigKey.USE_OPENSLES] = value;
                       },
                     ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          // CDN 内容分发策略卡片
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    t.settings.cdnDistributionStrategy,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    t.settings.cdnDistributionStrategyDesc,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // 策略选择
+                  Obx(() {
+                    final currentStrategy = _configService[ConfigKey.CDN_DISTRIBUTION_STRATEGY] as String;
+                    return _buildSelectionSetting(
+                      context: context,
+                      iconData: Icons.cloud_sync,
+                      label: t.settings.cdnDistributionStrategyLabel,
+                      currentValue: currentStrategy,
+                      options: ['no_change', 'auto', 'special'],
+                      optionLabels: {
+                        'no_change': t.settings.cdnDistributionStrategyNoChange,
+                        'auto': t.settings.cdnDistributionStrategyAuto,
+                        'special': t.settings.cdnDistributionStrategySpecial,
+                      },
+                      onChanged: (value) {
+                        _configService[ConfigKey.CDN_DISTRIBUTION_STRATEGY] = value;
+                      },
+                    );
+                  }),
+                  // 当策略为 special 时显示服务器选择
+                  Obx(() {
+                    final strategy = _configService[ConfigKey.CDN_DISTRIBUTION_STRATEGY] as String;
+                    if (strategy != 'special') return const SizedBox.shrink();
+                    
+                    final serverService = Get.find<IwaraServerService>();
+                    final servers = serverService.servers;
+                    final currentServer = _configService[ConfigKey.CDN_SPECIAL_SERVER] as String;
+                    
+                    if (servers.isEmpty) {
+                      return Card(
+                        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.info_outline, size: 20),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(t.settings.cdnRefreshServerListHint),
+                              ),
+                              TextButton(
+                                onPressed: () => serverService.refreshServerList(),
+                                child: Text(t.settings.cdnRefreshButton),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+                    
+                    return _buildSelectionSetting(
+                      context: context,
+                      iconData: Icons.dns,
+                      label: t.settings.cdnSpecialServer,
+                      currentValue: currentServer.isEmpty ? servers.first.name : currentServer,
+                      options: servers.map((s) => s.name).toList(),
+                      onChanged: (value) {
+                        _configService[ConfigKey.CDN_SPECIAL_SERVER] = value;
+                      },
+                    );
+                  }),
+                  const SizedBox(height: 8),
+                  // 快速环服务器列表和测速按钮
+                  _buildFastRingServerSection(context),
                 ],
               ),
             ),

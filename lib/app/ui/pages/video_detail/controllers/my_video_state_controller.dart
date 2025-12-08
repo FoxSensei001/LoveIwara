@@ -45,6 +45,7 @@ import '../widgets/private_or_deleted_video_widget.dart';
 import 'package:floating/floating.dart';
 import '../services/video_cache_manager.dart';
 import 'dlna_cast_service.dart';
+import '../../../../services/iwara_server_service.dart';
 
 enum VideoDetailPageLoadingState {
   init, // 初始化
@@ -1065,6 +1066,95 @@ class MyVideoStateController extends GetxController
     }
   }
 
+  /// 应用 CDN 分发策略，替换视频源中的服务器域名
+  List<VideoSource> _applyCdnStrategy(List<VideoSource> sources) {
+    final strategy = _configService[ConfigKey.CDN_DISTRIBUTION_STRATEGY] as String;
+    
+    if (strategy == 'no_change') return sources;
+    
+    final serverService = Get.find<IwaraServerService>();
+    
+    // 检查是否有快速环服务器数据
+    if (serverService.fastRingServers.isEmpty) {
+      // 没有服务器数据，回退到 no_change，并触发后台刷新
+      LogUtils.w('CDN策略需要服务器数据但快速环为空，回退到no_change并触发刷新', 'CDN');
+      unawaited(serverService.refreshServerList());
+      return sources;
+    }
+    
+    String? targetServer;
+    if (strategy == 'special') {
+      targetServer = _configService[ConfigKey.CDN_SPECIAL_SERVER] as String?;
+      // 检查指定的服务器是否在快速环中且可达
+      if (targetServer != null && targetServer.isNotEmpty) {
+        if (!serverService.isServerInFastRingAndReachable(targetServer)) {
+          LogUtils.w('指定服务器 $targetServer 不在快速环中或不可达，回退到原始数据', 'CDN');
+          // 触发后台测速更新数据
+          unawaited(serverService.testServersSpeed(
+            targetServers: serverService.fastRingServers,
+            saveToDatabase: true,
+          ));
+          return sources;
+        }
+      }
+    } else if (strategy == 'auto') {
+      targetServer = serverService.getFastestReachableServer();
+      // 如果没有测速结果，回退并触发测速
+      if (targetServer == null) {
+        LogUtils.w('auto模式但无测速结果，回退到no_change并触发测速', 'CDN');
+        unawaited(serverService.testServersSpeed(
+          targetServers: serverService.fastRingServers,
+          saveToDatabase: true,
+        ));
+        return sources;
+      }
+    }
+    
+    if (targetServer == null || targetServer.isEmpty) return sources;
+    
+    LogUtils.i('应用CDN策略: $strategy, 目标服务器: $targetServer', 'CDN');
+    
+    // 替换 src.view 和 src.download 中的域名，并记录覆写前后的对比
+    final modifiedSources = sources.map((source) {
+      // 跳过 preview 视频源的 CDN 处理
+      if (source.name == 'preview') {
+        LogUtils.d('跳过 preview 视频源的 CDN 处理', 'CDN');
+        return source;
+      }
+      
+      final originalUrl = source.view ?? source.download;
+      final newSource = source.copyWithServer(targetServer!);
+      final newUrl = newSource.view ?? newSource.download;
+      
+      // 提取域名进行对比
+      if (originalUrl != null && newUrl != null && originalUrl != newUrl) {
+        final originalDomain = _extractDomain(originalUrl);
+        final newDomain = _extractDomain(newUrl);
+        LogUtils.i(
+          'CDN域名覆写 [${source.name ?? "未知"}] - 原域名: $originalDomain -> 新域名: $newDomain',
+          'CDN',
+        );
+      }
+      
+      return newSource;
+    }).toList();
+    
+    return modifiedSources;
+  }
+
+  /// 从 URL 中提取域名
+  String _extractDomain(String url) {
+    try {
+      final uri = Uri.parse(url);
+      return uri.host;
+    } catch (e) {
+      // 如果解析失败，尝试用正则提取
+      final regex = RegExp(r'(?:https?:)?//([^/]+)');
+      final match = regex.firstMatch(url);
+      return match?.group(1) ?? url;
+    }
+  }
+
   /// 获取视频源信息
   Future<void> fetchVideoSource({bool forceRefresh = false}) async {
     if (_isDisposed) return;
@@ -1163,6 +1253,9 @@ class MyVideoStateController extends GetxController
       List<VideoSource> sources = data
           .map((item) => VideoSource.fromJson(item))
           .toList();
+      
+      // 应用 CDN 分发策略
+      sources = _applyCdnStrategy(sources);
       final serializedSources = sources
           .map(
             (source) => {
@@ -1323,6 +1416,10 @@ class MyVideoStateController extends GetxController
 
     try {
       // 打开新的视频源
+      LogUtils.i(
+        '播放器即将播放视频源 [无缝切换] - 分辨率: $resolutionTag, URL: $finalUrl, 起始位置: ${currentPosition.inSeconds}秒, 是否本地文件: ${finalUrl.startsWith("file://")}',
+        'MyVideoStateController',
+      );
       await player.open(Media(finalUrl, start: currentPosition), play: true);
 
       if (_isDisposed) return;
@@ -1418,6 +1515,10 @@ class MyVideoStateController extends GetxController
 
     if (_isDisposed) return;
     try {
+      LogUtils.i(
+        '播放器即将播放视频源 [重置模式] - 分辨率: $resolutionTag, URL: $finalUrl, 起始位置: ${currentPosition.inSeconds}秒, 是否本地文件: ${finalUrl.startsWith("file://")}',
+        'MyVideoStateController',
+      );
       player.open(Media(finalUrl, start: currentPosition), play: true);
       pageLoadingState.value = VideoDetailPageLoadingState.addingListeners;
     } catch (e) {
@@ -1643,7 +1744,7 @@ class MyVideoStateController extends GetxController
     } else {
       // 设置定时器在刷新时间触发
       final delay = refreshTime.difference(now);
-      LogUtils.i('设置视频源刷新定时器，将在 ${delay.inMinutes} 分钟后刷新 (过期时间: $expireTime)', 'MyVideoStateController');
+      LogUtils.d('设置视频源刷新定时器，将在 ${delay.inMinutes} 分钟后刷新 (过期时间: $expireTime)', 'MyVideoStateController');
       
       _videoSourceExpirationTimer = Timer(delay, () {
         _refreshVideoSourceBeforeExpiration();
@@ -1725,8 +1826,7 @@ class MyVideoStateController extends GetxController
   /// 切换到刷新后的视频URL（无缝切换）
   Future<void> _switchToRefreshedUrl(String newUrl) async {
     if (_isDisposed) return;
-    
-    LogUtils.i('切换到刷新后的视频URL', 'MyVideoStateController');
+    LogUtils.d('切换到刷新后的视频URL: $newUrl', 'MyVideoStateController');
     
     try {
       // 保存当前播放位置和播放状态
@@ -2402,7 +2502,7 @@ class MyVideoStateController extends GetxController
   }
 
   /// 获取 preview 视频源的 URL
-  String? getPreviewVideoUrl() {
+  Future<String?> getPreviewVideoUrl() async {
     if (previewVideoUrl != null) {
       return previewVideoUrl;
     }
@@ -2410,15 +2510,34 @@ class MyVideoStateController extends GetxController
     // 从 currentVideoSourceList 中查找 name 为 'preview' 的源
     for (final source in currentVideoSourceList) {
       if (source.name == 'preview' && source.src != null && source.src!.view != null) {
-        // 处理 URL 格式：https:${videoSource.src!.view}
-        final url = source.src!.view!;
-        if (url.startsWith('//')) {
-          previewVideoUrl = 'https:$url';
-        } else if (url.startsWith('http://') || url.startsWith('https://')) {
-          previewVideoUrl = url;
-        } else {
-          previewVideoUrl = 'https://$url';
+        String? url = CommonUtils.normalizeUrl(source.src!.view);
+        
+        // 尝试从本地下载获取 preview 文件
+        if (videoId != null) {
+          try {
+            final downloadService = Get.find<DownloadService>();
+            final localPath = await downloadService.getCompletedVideoLocalPath(
+              videoId!,
+              'preview',
+            );
+
+            if (localPath != null) {
+              // 使用本地文件路径
+              url = 'file://$localPath';
+              LogUtils.i(
+                '使用本地下载的 preview 文件: videoId=$videoId, path=$localPath',
+                'MyVideoStateController',
+              );
+            }
+          } catch (e) {
+            LogUtils.w(
+              '检查本地 preview 文件失败，使用在线播放: $e',
+              'MyVideoStateController',
+            );
+          }
         }
+        
+        previewVideoUrl = url;
         return previewVideoUrl;
       }
     }
@@ -2434,7 +2553,7 @@ class MyVideoStateController extends GetxController
       await _disposePreviewPlayer();
     }
 
-    final previewUrl = getPreviewVideoUrl();
+    final previewUrl = await getPreviewVideoUrl();
     if (previewUrl == null || previewUrl.isEmpty) {
       LogUtils.d('未找到 preview 视频源，跳过预览播放器初始化', 'MyVideoStateController');
       return;

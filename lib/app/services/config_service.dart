@@ -314,6 +314,9 @@ enum ConfigKey {
   SHOW_SUBSCRIPTION_TUTORIAL, // 是否显示订阅页面教程指导
   // 下载相关配置
   LAST_DOWNLOAD_QUALITY, // 上次下载的视频清晰度
+  // CDN 内容分发策略
+  CDN_DISTRIBUTION_STRATEGY, // 内容分发策略: no_change, auto, special
+  CDN_SPECIAL_SERVER, // 指定的分发服务器子域名
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -412,6 +415,8 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.ANIME4K_PRESET_ID: return 'anime4k_preset_id';
       case ConfigKey.SHOW_SUBSCRIPTION_TUTORIAL: return 'show_subscription_tutorial';
       case ConfigKey.LAST_DOWNLOAD_QUALITY: return 'last_download_quality';
+      case ConfigKey.CDN_DISTRIBUTION_STRATEGY: return 'cdn_distribution_strategy';
+      case ConfigKey.CDN_SPECIAL_SERVER: return 'cdn_special_server';
     }
   }
 
@@ -609,6 +614,10 @@ extension ConfigKeyExtension on ConfigKey {
         return true; // 默认显示订阅页面教程指导
       case ConfigKey.LAST_DOWNLOAD_QUALITY:
         return 'source'; // 默认清晰度为 source
+      case ConfigKey.CDN_DISTRIBUTION_STRATEGY:
+        return 'auto'; // 默认不修改
+      case ConfigKey.CDN_SPECIAL_SERVER:
+        return ''; // 默认空
     }
   }
 }

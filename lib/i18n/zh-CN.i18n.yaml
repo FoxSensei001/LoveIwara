@@ -605,6 +605,24 @@ settings:
   hardwareDecodingAutoSafe: 自动安全
   hardwareDecodingNo: 禁用
   hardwareDecodingYes: 强制启用
+  # CDN 内容分发策略
+  cdnDistributionStrategy: 内容分发策略
+  cdnDistributionStrategyDesc: 选择视频源服务器的分发策略，可优化加载速度
+  cdnDistributionStrategyLabel: 分发策略
+  cdnDistributionStrategyNoChange: 不修改（使用原服务器）
+  cdnDistributionStrategyAuto: 自动选择（最快服务器）
+  cdnDistributionStrategySpecial: 指定服务器
+  cdnSpecialServer: 指定服务器
+  cdnRefreshServerListHint: 请先点击下方按钮刷新服务器列表
+  cdnRefreshButton: 刷新
+  cdnFastRingServers: 快速环服务器
+  cdnRefreshServerListTooltip: 刷新服务器列表
+  cdnSpeedTestButton: 测速
+  cdnSpeedTestingButton: '测速中 (${count})'
+  cdnNoServerDataHint: 暂无服务器数据，请点击刷新按钮
+  cdnTestingStatus: 测速中
+  cdnUnreachableStatus: 不可达
+  cdnNotTestedStatus: 未测速
   downloadSettings:
     downloadSettings: 下载设置
     storagePermissionStatus: 存储权限状态

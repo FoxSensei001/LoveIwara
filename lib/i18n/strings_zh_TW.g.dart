@@ -718,6 +718,23 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get hardwareDecodingAutoSafe => '自動安全';
 	@override String get hardwareDecodingNo => '禁用';
 	@override String get hardwareDecodingYes => '強制啟用';
+	@override String get cdnDistributionStrategy => '內容分流策略';
+	@override String get cdnDistributionStrategyDesc => '選擇影片來源伺服器的分流方式，可優化載入速度';
+	@override String get cdnDistributionStrategyLabel => '分流策略';
+	@override String get cdnDistributionStrategyNoChange => '不更動（使用原本的伺服器）';
+	@override String get cdnDistributionStrategyAuto => '自動選擇（最快的伺服器）';
+	@override String get cdnDistributionStrategySpecial => '指定伺服器';
+	@override String get cdnSpecialServer => '指定伺服器';
+	@override String get cdnRefreshServerListHint => '請先點選下方按鈕重新整理伺服器清單';
+	@override String get cdnRefreshButton => '重新整理';
+	@override String get cdnFastRingServers => '快速環伺服器';
+	@override String get cdnRefreshServerListTooltip => '重新整理伺服器清單';
+	@override String get cdnSpeedTestButton => '測速';
+	@override String cdnSpeedTestingButton({required Object count}) => '測速中 (${count})';
+	@override String get cdnNoServerDataHint => '查無伺服器資料，請點選重新整理按鈕';
+	@override String get cdnTestingStatus => '測速中';
+	@override String get cdnUnreachableStatus => '無法連線';
+	@override String get cdnNotTestedStatus => '尚未測速';
 	@override late final _TranslationsSettingsDownloadSettingsZhTw downloadSettings = _TranslationsSettingsDownloadSettingsZhTw._(_root);
 }
 
@@ -3075,6 +3092,23 @@ extension on TranslationsZhTw {
 			'settings.hardwareDecodingAutoSafe' => '自動安全',
 			'settings.hardwareDecodingNo' => '禁用',
 			'settings.hardwareDecodingYes' => '強制啟用',
+			'settings.cdnDistributionStrategy' => '內容分流策略',
+			'settings.cdnDistributionStrategyDesc' => '選擇影片來源伺服器的分流方式，可優化載入速度',
+			'settings.cdnDistributionStrategyLabel' => '分流策略',
+			'settings.cdnDistributionStrategyNoChange' => '不更動（使用原本的伺服器）',
+			'settings.cdnDistributionStrategyAuto' => '自動選擇（最快的伺服器）',
+			'settings.cdnDistributionStrategySpecial' => '指定伺服器',
+			'settings.cdnSpecialServer' => '指定伺服器',
+			'settings.cdnRefreshServerListHint' => '請先點選下方按鈕重新整理伺服器清單',
+			'settings.cdnRefreshButton' => '重新整理',
+			'settings.cdnFastRingServers' => '快速環伺服器',
+			'settings.cdnRefreshServerListTooltip' => '重新整理伺服器清單',
+			'settings.cdnSpeedTestButton' => '測速',
+			'settings.cdnSpeedTestingButton' => ({required Object count}) => '測速中 (${count})',
+			'settings.cdnNoServerDataHint' => '查無伺服器資料，請點選重新整理按鈕',
+			'settings.cdnTestingStatus' => '測速中',
+			'settings.cdnUnreachableStatus' => '無法連線',
+			'settings.cdnNotTestedStatus' => '尚未測速',
 			'settings.downloadSettings.downloadSettings' => '下載設定',
 			'settings.downloadSettings.storagePermissionStatus' => '存儲權限狀態',
 			'settings.downloadSettings.accessPublicDirectoryNeedStoragePermission' => '訪問公共目錄需要存儲權限',
@@ -3516,6 +3550,12 @@ extension on TranslationsZhTw {
 			'forum.reply' => '回覆',
 			'forum.pendingReview' => '審核中',
 			'forum.editedAt' => '編輯時間',
+			_ => null,
+		};
+	}
+
+	dynamic _flatMapFunction$2(String path) {
+		return switch (path) {
 			'forum.copySuccess' => '已複製到剪貼簿',
 			'forum.copySuccessForMessage' => ({required Object str}) => '已複製到剪貼簿: ${str}',
 			'forum.editReply' => '編輯回覆',
@@ -3533,12 +3573,6 @@ extension on TranslationsZhTw {
 			'notifications.video' => '影片',
 			'notifications.repliedYourVideoComment' => '回覆了您的影片評論',
 			'notifications.copyInfoToClipboard' => '複製通知信息到剪貼簿',
-			_ => null,
-		};
-	}
-
-	dynamic _flatMapFunction$2(String path) {
-		return switch (path) {
 			'notifications.copySuccess' => '已複製到剪貼簿',
 			'notifications.copySuccessForMessage' => ({required Object str}) => '已複製到剪貼簿: ${str}',
 			'notifications.markAllAsRead' => '全部標記已讀',
@@ -4034,6 +4068,12 @@ extension on TranslationsZhTw {
 			'displaySettings.title' => '顯示設定',
 			'displaySettings.layoutSettings' => '版面配置設定',
 			'displaySettings.layoutSettingsDesc' => '自訂欄數和斷點配置',
+			_ => null,
+		};
+	}
+
+	dynamic _flatMapFunction$3(String path) {
+		return switch (path) {
 			'displaySettings.gridLayout' => '網格版面配置',
 			'displaySettings.navigationOrderSettings' => '導航排序設定',
 			'displaySettings.customNavigationOrder' => '自訂導航順序',
@@ -4051,12 +4091,6 @@ extension on TranslationsZhTw {
 			'layoutSettings.fixedColumns' => '固定欄數',
 			'layoutSettings.columns' => '欄',
 			'layoutSettings.breakpointConfig' => '斷點配置',
-			_ => null,
-		};
-	}
-
-	dynamic _flatMapFunction$3(String path) {
-		return switch (path) {
 			'layoutSettings.add' => '新增',
 			'layoutSettings.defaultColumns' => '預設欄數',
 			'layoutSettings.defaultColumnsDesc' => '大螢幕預設顯示',

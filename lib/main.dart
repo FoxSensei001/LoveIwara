@@ -51,6 +51,7 @@ import 'package:i_iwara/app/services/emoji_library_service.dart';
 import 'package:i_iwara/utils/refresh_rate_helper.dart';
 import 'package:i_iwara/utils/glsl_shader_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/dlna_cast_service.dart';
+import 'package:i_iwara/app/services/iwara_server_service.dart';
 
 void main() {
   // 确保Flutter初始化
@@ -279,6 +280,51 @@ Future<void> _initializeBusinessServices() async {
 
   // 注册历史记录仓库
   Get.put(HistoryRepository());
+
+  // 初始化 Iwara 服务器管理服务
+  final iwaraServerService = Get.put(IwaraServerService());
+  
+  // 启动优化：并行处理测速和刷新
+  // 1. 如果数据库有缓存的快速环服务器，立即开始测速（不等待API刷新）
+  // 2. 同时异步刷新服务器列表，刷新后如果有新服务器再重新测速
+  
+  // 等待 IwaraServerService 的 onInit 完成（会加载数据库缓存）
+  Future.delayed(const Duration(milliseconds: 100), () {
+    // 1. 如果数据库已有快速环服务器，立即开始测速
+    if (iwaraServerService.fastRingServers.isNotEmpty) {
+      LogUtils.i('从数据库加载了 ${iwaraServerService.fastRingServers.length} 个快速环服务器，开始测速', '启动初始化');
+      unawaited(iwaraServerService.testServersSpeed(
+        targetServers: iwaraServerService.fastRingServers,
+        saveToDatabase: true,
+      ).catchError((error) {
+        LogUtils.e('启动时测速失败', tag: '启动初始化', error: error);
+      }));
+    }
+    
+    // 2. 异步刷新服务器列表（与测速并行执行）
+    unawaited(
+      iwaraServerService.refreshServerList().then((_) {
+        // 刷新成功后，如果有新的服务器需要测速
+        final serversNeedTest = iwaraServerService.fastRingServers.where((server) {
+          return !iwaraServerService.speedTestResults.containsKey(server.name);
+        }).toList();
+        
+        if (serversNeedTest.isNotEmpty) {
+          LogUtils.i('发现 ${serversNeedTest.length} 个新服务器需要测速', '启动初始化');
+          return iwaraServerService.testServersSpeed(
+            targetServers: serversNeedTest,
+            saveToDatabase: true,
+          );
+        }
+      }).catchError((error) {
+        LogUtils.e('启动时刷新服务器列表失败', tag: '启动初始化', error: error);
+      })
+    );
+    
+    // 3. 启动定时刷新任务（每隔5分钟自动刷新并测速）
+    iwaraServerService.startPeriodicRefresh();
+    LogUtils.i('已启动服务器定时刷新任务', '启动初始化');
+  });
 }
 
 /// 初始化桌面端设置

@@ -69,7 +69,7 @@ class Oreno3dClient {
             'headers': options.headers,
             'data': options.data,
           };
-          LogUtils.i('🚀 发送请求: ${options.method} ${options.baseUrl}${options.path}', 'Oreno3dClient');
+          LogUtils.d('🚀 发送请求: ${options.method} ${options.baseUrl}${options.path}', 'Oreno3dClient');
           LogUtils.d('请求详情: $requestInfo', 'Oreno3dClient');
           handler.next(options);
         },
@@ -82,7 +82,7 @@ class Oreno3dClient {
             'responseSize': response.data?.toString().length ?? 0,
             'duration': response.requestOptions.extra['duration'] ?? 'unknown',
           };
-          LogUtils.i('✅ 收到响应: ${response.statusCode} ${response.requestOptions.baseUrl}${response.requestOptions.path}', 'Oreno3dClient');
+          LogUtils.d('✅ 收到响应: ${response.statusCode} ${response.requestOptions.baseUrl}${response.requestOptions.path}', 'Oreno3dClient');
           LogUtils.d('响应详情: $responseInfo', 'Oreno3dClient');
           handler.next(response);
         },

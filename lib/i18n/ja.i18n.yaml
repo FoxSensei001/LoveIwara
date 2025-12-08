@@ -599,6 +599,24 @@ settings:
   hardwareDecodingAutoSafe: 自動セーフ
   hardwareDecodingNo: 無効
   hardwareDecodingYes: 強制有効
+  # CDN コンテンツ配信戦略
+  cdnDistributionStrategy: コンテンツ配信戦略
+  cdnDistributionStrategyDesc: 動画ソースサーバーの配信戦略を選択して、読み込み速度を最適化します
+  cdnDistributionStrategyLabel: 配信戦略
+  cdnDistributionStrategyNoChange: 変更なし（元のサーバーを使用）
+  cdnDistributionStrategyAuto: 自動選択（最速サーバー）
+  cdnDistributionStrategySpecial: サーバーを指定
+  cdnSpecialServer: サーバーを指定
+  cdnRefreshServerListHint: 下のボタンをクリックしてサーバーリストを更新してください
+  cdnRefreshButton: 更新
+  cdnFastRingServers: 高速リングサーバー
+  cdnRefreshServerListTooltip: サーバーリストを更新
+  cdnSpeedTestButton: 速度テスト
+  cdnSpeedTestingButton: 'テスト中 (${count})'
+  cdnNoServerDataHint: サーバーデータがありません、更新ボタンをクリックしてください
+  cdnTestingStatus: テスト中
+  cdnUnreachableStatus: 到達不可
+  cdnNotTestedStatus: 未テスト
   downloadSettings:
     downloadSettings: ダウンロード設定
     storagePermissionStatus: ストレージ権限状態

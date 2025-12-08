@@ -598,6 +598,24 @@ settings:
   hardwareDecodingAutoSafe: Auto Safe
   hardwareDecodingNo: Disabled
   hardwareDecodingYes: Force Enable
+  # CDN Distribution Strategy
+  cdnDistributionStrategy: Content Distribution Strategy
+  cdnDistributionStrategyDesc: Select video source server distribution strategy to optimize loading speed
+  cdnDistributionStrategyLabel: Distribution Strategy
+  cdnDistributionStrategyNoChange: No Change (Use Original Server)
+  cdnDistributionStrategyAuto: Auto Select (Fastest Server)
+  cdnDistributionStrategySpecial: Specify Server
+  cdnSpecialServer: Specify Server
+  cdnRefreshServerListHint: Please click the button below to refresh the server list
+  cdnRefreshButton: Refresh
+  cdnFastRingServers: Fast Ring Servers
+  cdnRefreshServerListTooltip: Refresh server list
+  cdnSpeedTestButton: Speed Test
+  cdnSpeedTestingButton: 'Testing (${count})'
+  cdnNoServerDataHint: No server data available, please click the refresh button
+  cdnTestingStatus: Testing
+  cdnUnreachableStatus: Unreachable
+  cdnNotTestedStatus: Not Tested
   downloadSettings:
     downloadSettings: Download Settings
     storagePermissionStatus: Storage Permission Status

@@ -14,6 +14,26 @@ import 'package:path/path.dart' as p;
 import 'package:i_iwara/app/services/config_service.dart';
 
 class CommonUtils {
+  /// 规范化 URL，确保有正确的协议前缀
+  /// 如果 URL 已经包含 http:// 或 https://，则直接返回
+  /// 如果 URL 以 // 开头，则添加 https: 前缀
+  static String? normalizeUrl(String? url) {
+    if (url == null || url.isEmpty) return url;
+    
+    // 如果已经有完整的协议前缀，直接返回
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    
+    // 如果以 // 开头，添加 https: 前缀
+    if (url.startsWith('//')) {
+      return 'https:$url';
+    }
+    
+    // 其他情况，假设需要添加完整的 https:// 前缀
+    return 'https://$url';
+  }
+
   /// 格式化Duration 为 mm:ss 或 hh:mm:ss（适用于超过1小时的视频）
   static String formatDuration(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
@@ -213,7 +233,7 @@ class CommonUtils {
         videoResolutions.add(
           VideoResolution(
             label: videoSource.name ?? '',
-            url: 'https:${videoSource.src!.view}',
+            url: CommonUtils.normalizeUrl(videoSource.src!.view) ?? '',
           ),
         );
       }

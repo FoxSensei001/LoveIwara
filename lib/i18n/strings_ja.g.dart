@@ -718,6 +718,23 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get hardwareDecodingAutoSafe => '自動セーフ';
 	@override String get hardwareDecodingNo => '無効';
 	@override String get hardwareDecodingYes => '強制有効';
+	@override String get cdnDistributionStrategy => 'コンテンツ配信戦略';
+	@override String get cdnDistributionStrategyDesc => '動画ソースサーバーの配信戦略を選択して、読み込み速度を最適化します';
+	@override String get cdnDistributionStrategyLabel => '配信戦略';
+	@override String get cdnDistributionStrategyNoChange => '変更なし（元のサーバーを使用）';
+	@override String get cdnDistributionStrategyAuto => '自動選択（最速サーバー）';
+	@override String get cdnDistributionStrategySpecial => 'サーバーを指定';
+	@override String get cdnSpecialServer => 'サーバーを指定';
+	@override String get cdnRefreshServerListHint => '下のボタンをクリックしてサーバーリストを更新してください';
+	@override String get cdnRefreshButton => '更新';
+	@override String get cdnFastRingServers => '高速リングサーバー';
+	@override String get cdnRefreshServerListTooltip => 'サーバーリストを更新';
+	@override String get cdnSpeedTestButton => '速度テスト';
+	@override String cdnSpeedTestingButton({required Object count}) => 'テスト中 (${count})';
+	@override String get cdnNoServerDataHint => 'サーバーデータがありません、更新ボタンをクリックしてください';
+	@override String get cdnTestingStatus => 'テスト中';
+	@override String get cdnUnreachableStatus => '到達不可';
+	@override String get cdnNotTestedStatus => '未テスト';
 	@override late final _TranslationsSettingsDownloadSettingsJa downloadSettings = _TranslationsSettingsDownloadSettingsJa._(_root);
 }
 
@@ -3072,6 +3089,23 @@ extension on TranslationsJa {
 			'settings.hardwareDecodingAutoSafe' => '自動セーフ',
 			'settings.hardwareDecodingNo' => '無効',
 			'settings.hardwareDecodingYes' => '強制有効',
+			'settings.cdnDistributionStrategy' => 'コンテンツ配信戦略',
+			'settings.cdnDistributionStrategyDesc' => '動画ソースサーバーの配信戦略を選択して、読み込み速度を最適化します',
+			'settings.cdnDistributionStrategyLabel' => '配信戦略',
+			'settings.cdnDistributionStrategyNoChange' => '変更なし（元のサーバーを使用）',
+			'settings.cdnDistributionStrategyAuto' => '自動選択（最速サーバー）',
+			'settings.cdnDistributionStrategySpecial' => 'サーバーを指定',
+			'settings.cdnSpecialServer' => 'サーバーを指定',
+			'settings.cdnRefreshServerListHint' => '下のボタンをクリックしてサーバーリストを更新してください',
+			'settings.cdnRefreshButton' => '更新',
+			'settings.cdnFastRingServers' => '高速リングサーバー',
+			'settings.cdnRefreshServerListTooltip' => 'サーバーリストを更新',
+			'settings.cdnSpeedTestButton' => '速度テスト',
+			'settings.cdnSpeedTestingButton' => ({required Object count}) => 'テスト中 (${count})',
+			'settings.cdnNoServerDataHint' => 'サーバーデータがありません、更新ボタンをクリックしてください',
+			'settings.cdnTestingStatus' => 'テスト中',
+			'settings.cdnUnreachableStatus' => '到達不可',
+			'settings.cdnNotTestedStatus' => '未テスト',
 			'settings.downloadSettings.downloadSettings' => 'ダウンロード設定',
 			'settings.downloadSettings.storagePermissionStatus' => 'ストレージ権限状態',
 			'settings.downloadSettings.accessPublicDirectoryNeedStoragePermission' => 'パブリックディレクトリにアクセスするにはストレージ権限が必要です',
@@ -3513,6 +3547,12 @@ extension on TranslationsJa {
 			'notifications.markAsReadSuccess' => '通知が既読になりました',
 			'notifications.markAsReadFailed' => '通知を既読にするに失敗しました',
 			'notifications.notificationTypeHelp' => '通知タイプのヘルプ',
+			_ => null,
+		};
+	}
+
+	dynamic _flatMapFunction$2(String path) {
+		return switch (path) {
 			'notifications.dueToLackOfNotificationTypeDetails' => '通知タイプの詳細情報が不足しているため、現在サポートされているタイプが受信したメッセージをカバーしていない可能性があります',
 			'notifications.helpUsImproveNotificationTypeSupport' => '通知タイプのサポート改善にご協力いただける場合',
 			'notifications.helpUsImproveNotificationTypeSupportLongText' => '1. 📋 通知情報をコピー\n2. 🐞 プロジェクトリポジトリに issue を提出\n\n⚠️ 注意：通知情報には個人情報が含まれている場合があります。公開したくない場合は、プロジェクト作者にメールで送信することもできます。',
@@ -3530,12 +3570,6 @@ extension on TranslationsJa {
 			'notifications.kCommentSection' => '',
 			'notifications.kApprovedComment' => 'コメントが承認されました',
 			'notifications.kApprovedVideo' => '動画が承認されました',
-			_ => null,
-		};
-	}
-
-	dynamic _flatMapFunction$2(String path) {
-		return switch (path) {
 			'notifications.kApprovedGallery' => 'ギャラリーが承認されました',
 			'notifications.kApprovedThread' => 'スレッドが承認されました',
 			'notifications.kApprovedPost' => '投稿が承認されました',
@@ -4031,6 +4065,12 @@ extension on TranslationsJa {
 			'layoutSettings.columnsHint' => '3',
 			'layoutSettings.enterWidth' => '幅を入力してください',
 			'layoutSettings.enterValidWidth' => '有効な幅を入力してください',
+			_ => null,
+		};
+	}
+
+	dynamic _flatMapFunction$3(String path) {
+		return switch (path) {
 			'layoutSettings.widthCannotExceed9999' => '幅は9999を超えることはできません',
 			'layoutSettings.breakpointAlreadyExists' => 'ブレークポイントが既に存在します',
 			'layoutSettings.enterColumns' => 'カラム数を入力してください',
@@ -4048,12 +4088,6 @@ extension on TranslationsJa {
 			'layoutSettings.breakpointRangeDescFirst' => ({required Object width}) => '≤${width}px',
 			'layoutSettings.breakpointRangeDescMiddle' => ({required Object start, required Object end}) => '${start}-${end}px',
 			'layoutSettings.edit' => '編集',
-			_ => null,
-		};
-	}
-
-	dynamic _flatMapFunction$3(String path) {
-		return switch (path) {
 			'layoutSettings.delete' => '削除',
 			'layoutSettings.cancel' => 'キャンセル',
 			'layoutSettings.save' => '保存',
