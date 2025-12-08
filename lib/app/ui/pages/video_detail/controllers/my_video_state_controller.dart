@@ -4,7 +4,8 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:dio/dio.dart';
-import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart' show ExtendedNestedScrollViewState;
+import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart'
+    show ExtendedNestedScrollViewState;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -45,7 +46,6 @@ import '../widgets/private_or_deleted_video_widget.dart';
 import 'package:floating/floating.dart';
 import '../services/video_cache_manager.dart';
 import 'dlna_cast_service.dart';
-import '../../../../services/iwara_server_service.dart';
 
 enum VideoDetailPageLoadingState {
   init, // 初始化
@@ -234,8 +234,6 @@ class MyVideoStateController extends GetxController
   Timer? _videoSourceExpirationTimer; // 视频源过期检查定时器
   DateTime? _currentVideoSourceExpireTime; // 视频源的过期时间（所有清晰度共享）
 
-
-
   void refreshScrollView() {
     // 触发重建 - 使用更可靠的方法
     if (nestedScrollViewKey.currentState != null) {
@@ -247,6 +245,7 @@ class MyVideoStateController extends GetxController
       }
     }
   }
+
   MyVideoStateController(this.videoId, {this.extData});
 
   @override
@@ -254,7 +253,8 @@ class MyVideoStateController extends GetxController
     super.onInit();
     _isDisposed = false; // 初始化时确保标志位为 false
     // 生成随机ID用于节流key
-    randomId = '${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(1000000)}';
+    randomId =
+        '${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(1000000)}';
     LogUtils.i(
       '初始化 MyVideoStateController，videoId: $videoId',
       'MyVideoStateController',
@@ -832,10 +832,7 @@ class MyVideoStateController extends GetxController
     final cachedVideoInfo = _cacheManager.getVideoInfo(videoId);
     if (cachedVideoInfo != null) {
       // 缓存命中时，先将 liked 和 numLikes 设置为 null 表示 loading 状态
-      videoInfo.value = cachedVideoInfo.copyWith(
-        liked: null,
-        numLikes: null,
-      );
+      videoInfo.value = cachedVideoInfo.copyWith(liked: null, numLikes: null);
 
       // 缓存命中时，立即开始并行任务
       final List<Future<void>> parallelTasks = [];
@@ -866,8 +863,7 @@ class MyVideoStateController extends GetxController
       parallelTasks.add(checkDownloadTaskStatus());
 
       // 继续获取视频源 - 仅对站内视频
-      if (cachedVideoInfo.fileUrl != null &&
-          !cachedVideoInfo.isExternalVideo) {
+      if (cachedVideoInfo.fileUrl != null && !cachedVideoInfo.isExternalVideo) {
         fetchVideoSource();
       } else if (cachedVideoInfo.isExternalVideo) {
         // 对于站外视频，直接设置为idle状态
@@ -967,7 +963,7 @@ class MyVideoStateController extends GetxController
 
         // 检查收藏和播放列表状态
         checkFavoriteAndPlaylistStatus();
-        
+
         // 检查下载任务状态
         checkDownloadTaskStatus();
       } on DioException catch (e) {
@@ -1066,95 +1062,6 @@ class MyVideoStateController extends GetxController
     }
   }
 
-  /// 应用 CDN 分发策略，替换视频源中的服务器域名
-  List<VideoSource> _applyCdnStrategy(List<VideoSource> sources) {
-    final strategy = _configService[ConfigKey.CDN_DISTRIBUTION_STRATEGY] as String;
-    
-    if (strategy == 'no_change') return sources;
-    
-    final serverService = Get.find<IwaraServerService>();
-    
-    // 检查是否有快速环服务器数据
-    if (serverService.fastRingServers.isEmpty) {
-      // 没有服务器数据，回退到 no_change，并触发后台刷新
-      LogUtils.w('CDN策略需要服务器数据但快速环为空，回退到no_change并触发刷新', 'CDN');
-      unawaited(serverService.refreshServerList());
-      return sources;
-    }
-    
-    String? targetServer;
-    if (strategy == 'special') {
-      targetServer = _configService[ConfigKey.CDN_SPECIAL_SERVER] as String?;
-      // 检查指定的服务器是否在快速环中且可达
-      if (targetServer != null && targetServer.isNotEmpty) {
-        if (!serverService.isServerInFastRingAndReachable(targetServer)) {
-          LogUtils.w('指定服务器 $targetServer 不在快速环中或不可达，回退到原始数据', 'CDN');
-          // 触发后台测速更新数据
-          unawaited(serverService.testServersSpeed(
-            targetServers: serverService.fastRingServers,
-            saveToDatabase: true,
-          ));
-          return sources;
-        }
-      }
-    } else if (strategy == 'auto') {
-      targetServer = serverService.getFastestReachableServer();
-      // 如果没有测速结果，回退并触发测速
-      if (targetServer == null) {
-        LogUtils.w('auto模式但无测速结果，回退到no_change并触发测速', 'CDN');
-        unawaited(serverService.testServersSpeed(
-          targetServers: serverService.fastRingServers,
-          saveToDatabase: true,
-        ));
-        return sources;
-      }
-    }
-    
-    if (targetServer == null || targetServer.isEmpty) return sources;
-    
-    LogUtils.i('应用CDN策略: $strategy, 目标服务器: $targetServer', 'CDN');
-    
-    // 替换 src.view 和 src.download 中的域名，并记录覆写前后的对比
-    final modifiedSources = sources.map((source) {
-      // 跳过 preview 视频源的 CDN 处理
-      if (source.name == 'preview') {
-        LogUtils.d('跳过 preview 视频源的 CDN 处理', 'CDN');
-        return source;
-      }
-      
-      final originalUrl = source.view ?? source.download;
-      final newSource = source.copyWithServer(targetServer!);
-      final newUrl = newSource.view ?? newSource.download;
-      
-      // 提取域名进行对比
-      if (originalUrl != null && newUrl != null && originalUrl != newUrl) {
-        final originalDomain = _extractDomain(originalUrl);
-        final newDomain = _extractDomain(newUrl);
-        LogUtils.i(
-          'CDN域名覆写 [${source.name ?? "未知"}] - 原域名: $originalDomain -> 新域名: $newDomain',
-          'CDN',
-        );
-      }
-      
-      return newSource;
-    }).toList();
-    
-    return modifiedSources;
-  }
-
-  /// 从 URL 中提取域名
-  String _extractDomain(String url) {
-    try {
-      final uri = Uri.parse(url);
-      return uri.host;
-    } catch (e) {
-      // 如果解析失败，尝试用正则提取
-      final regex = RegExp(r'(?:https?:)?//([^/]+)');
-      final match = regex.firstMatch(url);
-      return match?.group(1) ?? url;
-    }
-  }
-
   /// 获取视频源信息
   Future<void> fetchVideoSource({bool forceRefresh = false}) async {
     if (_isDisposed) return;
@@ -1231,10 +1138,7 @@ class MyVideoStateController extends GetxController
 
     try {
       if (forceRefresh && cachedSources != null) {
-        LogUtils.i(
-          '强制刷新视频源，忽略缓存: $logVideoUrl',
-          'MyVideoStateController',
-        );
+        LogUtils.i('强制刷新视频源，忽略缓存: $logVideoUrl', 'MyVideoStateController');
       }
 
       var res = await _apiService.get(
@@ -1253,9 +1157,7 @@ class MyVideoStateController extends GetxController
       List<VideoSource> sources = data
           .map((item) => VideoSource.fromJson(item))
           .toList();
-      
-      // 应用 CDN 分发策略
-      sources = _applyCdnStrategy(sources);
+
       final serializedSources = sources
           .map(
             (source) => {
@@ -1370,8 +1272,9 @@ class MyVideoStateController extends GetxController
   /// 无缝切换分辨率（不显示骨架屏）
   Future<void> _switchResolutionSeamlessly(
     String resolutionTag,
-    String url,
-  ) async {
+    String url, {
+    Duration? startPosition,
+  }) async {
     if (_isDisposed) return;
 
     // 尝试从本地下载获取文件
@@ -1393,10 +1296,7 @@ class MyVideoStateController extends GetxController
           );
         }
       } catch (e) {
-        LogUtils.w(
-          '检查本地文件失败，使用在线播放: $e',
-          'MyVideoStateController',
-        );
+        LogUtils.w('检查本地文件失败，使用在线播放: $e', 'MyVideoStateController');
       }
     }
 
@@ -1417,10 +1317,13 @@ class MyVideoStateController extends GetxController
     try {
       // 打开新的视频源
       LogUtils.i(
-        '播放器即将播放视频源 [无缝切换] - 分辨率: $resolutionTag, URL: $finalUrl, 起始位置: ${currentPosition.inSeconds}秒, 是否本地文件: ${finalUrl.startsWith("file://")}',
+        '播放器即将播放视频源 [无缝切换] - 分辨率: $resolutionTag, URL: $finalUrl, 起始位置: ${startPosition?.inSeconds ?? currentPosition.inSeconds}秒, 是否本地文件: ${finalUrl.startsWith("file://")}',
         'MyVideoStateController',
       );
-      await player.open(Media(finalUrl, start: currentPosition), play: true);
+      await player.open(
+        Media(finalUrl, start: startPosition ?? currentPosition),
+        play: true,
+      );
 
       if (_isDisposed) return;
 
@@ -1506,10 +1409,7 @@ class MyVideoStateController extends GetxController
           );
         }
       } catch (e) {
-        LogUtils.w(
-          '检查本地文件失败，使用在线播放: $e',
-          'MyVideoStateController',
-        );
+        LogUtils.w('检查本地文件失败，使用在线播放: $e', 'MyVideoStateController');
       }
     }
 
@@ -1609,13 +1509,22 @@ class MyVideoStateController extends GetxController
           event.startsWith('tcp: ffurl_read returned ') ||
           event.contains('Connection timed out') ||
           event.startsWith('tcp: Connection to ')) {
-        LogUtils.i('检测到网络/打开失败错误，开始节流重试', 'MyVideoStateController');
+        // 记录出错时的播放位置
+        final Duration savedErrorPosition = currentPosition;
+
+        LogUtils.i(
+          '检测到网络/打开失败错误，开始节流重试，出错位置: $savedErrorPosition',
+          'MyVideoStateController',
+        );
         EasyThrottle.throttle(
           '${randomId}_player.stream.error.retry',
           const Duration(milliseconds: 10000),
           () async {
             if (videoBuffering.value && buffers.isEmpty) {
-              LogUtils.i('开始重试刷新播放器，当前缓冲状态: buffering=${videoBuffering.value}, buffers=${buffers.length}', 'MyVideoStateController');
+              LogUtils.i(
+                '开始重试刷新播放器，当前缓冲状态: buffering=${videoBuffering.value}, buffers=${buffers.length}',
+                'MyVideoStateController',
+              );
               if (Get.context != null) {
                 ScaffoldMessenger.of(Get.context!).showSnackBar(
                   SnackBar(
@@ -1625,7 +1534,7 @@ class MyVideoStateController extends GetxController
                 );
               }
               await fetchVideoSource(forceRefresh: true);
-              final bool ok = await refreshPlayer();
+              final bool ok = await refreshPlayer(seekTo: savedErrorPosition);
               if (!ok) {
                 LogUtils.w('重试刷新播放器失败', 'MyVideoStateController');
               }
@@ -1641,7 +1550,11 @@ class MyVideoStateController extends GetxController
         if (Get.context != null) {
           ScaffoldMessenger.of(Get.context!).showSnackBar(
             SnackBar(
-              content: Text(slang.t.mediaPlayer.decoderOpenFailedWithSuggestion(event: event)),
+              content: Text(
+                slang.t.mediaPlayer.decoderOpenFailedWithSuggestion(
+                  event: event,
+                ),
+              ),
               duration: const Duration(seconds: 5),
             ),
           );
@@ -1662,7 +1575,9 @@ class MyVideoStateController extends GetxController
       if (Get.context != null) {
         ScaffoldMessenger.of(Get.context!).showSnackBar(
           SnackBar(
-            content: Text(slang.t.mediaPlayer.videoLoadErrorWithDetail(event: event)),
+            content: Text(
+              slang.t.mediaPlayer.videoLoadErrorWithDetail(event: event),
+            ),
             duration: const Duration(seconds: 5),
           ),
         );
@@ -1672,7 +1587,7 @@ class MyVideoStateController extends GetxController
   }
 
   /// 刷新播放器（重开当前清晰度与进度）
-  Future<bool> refreshPlayer() async {
+  Future<bool> refreshPlayer({Duration? seekTo}) async {
     if (_isDisposed) return false;
 
     try {
@@ -1685,18 +1600,19 @@ class MyVideoStateController extends GetxController
       if (url == null || url.isEmpty) {
         await resetVideoInfo(
           title: videoInfo.value?.title ?? '',
-          resolutionTag: currentResolutionTag.value ??
+          resolutionTag:
+              currentResolutionTag.value ??
               (_configService[ConfigKey.DEFAULT_QUALITY_KEY] as String),
           videoResolutions: videoResolutions.toList(),
-          position: currentPosition,
+          position: seekTo ?? currentPosition,
         );
         return true;
       }
 
-      final String defaultTag = (_configService[ConfigKey.DEFAULT_QUALITY_KEY]
-                  is String)
-              ? (_configService[ConfigKey.DEFAULT_QUALITY_KEY] as String)
-              : '';
+      final String defaultTag =
+          (_configService[ConfigKey.DEFAULT_QUALITY_KEY] is String)
+          ? (_configService[ConfigKey.DEFAULT_QUALITY_KEY] as String)
+          : '';
       final String fallbackTag = videoResolutions.isNotEmpty
           ? videoResolutions.first.label
           : defaultTag;
@@ -1709,12 +1625,16 @@ class MyVideoStateController extends GetxController
           title: videoInfo.value?.title ?? '',
           resolutionTag: currentResolutionTag.value ?? defaultTag,
           videoResolutions: videoResolutions.toList(),
-          position: currentPosition,
+          position: seekTo ?? currentPosition,
         );
         return true;
       }
 
-      await _switchResolutionSeamlessly(resolvedTag, url);
+      await _switchResolutionSeamlessly(
+        resolvedTag,
+        url,
+        startPosition: seekTo,
+      );
       return true;
     } catch (e) {
       LogUtils.e('刷新播放器失败: $e', tag: 'MyVideoStateController', error: e);
@@ -1725,18 +1645,18 @@ class MyVideoStateController extends GetxController
   /// 设置视频源过期定时器
   void _setupVideoSourceExpirationTimer() {
     _videoSourceExpirationTimer?.cancel();
-    
+
     // 如果没有过期时间，则不设置定时器
     if (_currentVideoSourceExpireTime == null) {
       return;
     }
-    
+
     final expireTime = _currentVideoSourceExpireTime!;
-    
+
     // 计算刷新时间：在过期前5分钟刷新
     final refreshTime = expireTime.subtract(const Duration(minutes: 5));
     final now = DateTime.now();
-    
+
     if (now.isAfter(refreshTime)) {
       // 已经过期或即将过期，立即刷新
       LogUtils.w('视频源即将过期或已过期，立即刷新', 'MyVideoStateController');
@@ -1744,8 +1664,11 @@ class MyVideoStateController extends GetxController
     } else {
       // 设置定时器在刷新时间触发
       final delay = refreshTime.difference(now);
-      LogUtils.d('设置视频源刷新定时器，将在 ${delay.inMinutes} 分钟后刷新 (过期时间: $expireTime)', 'MyVideoStateController');
-      
+      LogUtils.d(
+        '设置视频源刷新定时器，将在 ${delay.inMinutes} 分钟后刷新 (过期时间: $expireTime)',
+        'MyVideoStateController',
+      );
+
       _videoSourceExpirationTimer = Timer(delay, () {
         _refreshVideoSourceBeforeExpiration();
       });
@@ -1757,9 +1680,9 @@ class MyVideoStateController extends GetxController
     if (_isDisposed || videoInfo.value?.fileUrl == null) {
       return;
     }
-    
+
     LogUtils.i('开始刷新视频源（过期时间管理）', 'MyVideoStateController');
-    
+
     try {
       // 强制刷新视频源
       var res = await _apiService.get(
@@ -1771,19 +1694,19 @@ class MyVideoStateController extends GetxController
         },
         cancelToken: _cancelToken,
       );
-      
+
       if (_isDisposed) return;
-      
+
       List<dynamic> data = res.data;
       List<VideoSource> sources = data
           .map((item) => VideoSource.fromJson(item))
           .toList();
-      
+
       // 更新缓存
       final cacheKey = videoInfo.value!.fileUrl!;
       _cacheManager.cacheVideoSources(cacheKey, sources);
       currentVideoSourceList.value = sources;
-      
+
       // 解析过期时间（所有清晰度的过期时间都一样，只需解析一次）
       _currentVideoSourceExpireTime = null;
       for (var source in sources) {
@@ -1796,23 +1719,26 @@ class MyVideoStateController extends GetxController
           }
         }
       }
-      
+
       // 如果当前正在播放，需要更新播放器的URL
       if (currentResolutionTag.value != null && videoPlayerReady.value) {
         String? newUrl = CommonUtils.findUrlByResolutionTag(
-          CommonUtils.convertVideoSourcesToResolutions(sources, filterPreview: true),
+          CommonUtils.convertVideoSourcesToResolutions(
+            sources,
+            filterPreview: true,
+          ),
           currentResolutionTag.value!,
         );
-        
+
         if (newUrl != null) {
           // 无缝切换到新的URL（保持播放位置）
           await _switchToRefreshedUrl(newUrl);
         }
       }
-      
+
       // 重新设置定时器
       _setupVideoSourceExpirationTimer();
-      
+
       LogUtils.i('视频源刷新成功', 'MyVideoStateController');
     } catch (e) {
       LogUtils.e('刷新视频源失败: $e', tag: 'MyVideoStateController', error: e);
@@ -1827,18 +1753,15 @@ class MyVideoStateController extends GetxController
   Future<void> _switchToRefreshedUrl(String newUrl) async {
     if (_isDisposed) return;
     LogUtils.d('切换到刷新后的视频URL: $newUrl', 'MyVideoStateController');
-    
+
     try {
       // 保存当前播放位置和播放状态
       final savedPosition = currentPosition;
       final isPlaying = videoPlaying.value;
-      
+
       // 打开新URL，保持播放状态
-      await player.open(
-        Media(newUrl, start: savedPosition),
-        play: isPlaying,
-      );
-      
+      await player.open(Media(newUrl, start: savedPosition), play: isPlaying);
+
       LogUtils.i('成功切换到新的视频URL', 'MyVideoStateController');
     } catch (e) {
       LogUtils.e('切换视频URL失败: $e', tag: 'MyVideoStateController', error: e);
@@ -1919,8 +1842,8 @@ class MyVideoStateController extends GetxController
       // 如果控制器已被dispose或者正在交互或悬浮在工具栏上，不执行隐藏
       if (_isDisposed ||
           !_isInteracting.value &&
-          !_isHoveringToolbar.value &&
-          animationController.value == 1.0) {
+              !_isHoveringToolbar.value &&
+              animationController.value == 1.0) {
         // 再次检查dispose状态，避免dispose后调用
         if (!_isDisposed) {
           animationController.reverse();
@@ -2055,7 +1978,7 @@ class MyVideoStateController extends GetxController
     double clampedSpeed = speed.clamp(0.1, 4.0);
     // 保留一位小数
     clampedSpeed = (clampedSpeed * 10).roundToDouble() / 10;
-    
+
     if (!_isDisposed && isLongPressing.value) {
       player.setRate(clampedSpeed);
       currentLongPressSpeed.value = clampedSpeed;
@@ -2205,7 +2128,8 @@ class MyVideoStateController extends GetxController
     await pp.waitForVideoControllerInitializationIfAttached;
 
     // 如果没有指定预设ID，使用配置中的默认值
-    final targetPresetId = presetId ?? _configService[ConfigKey.ANIME4K_PRESET_ID];
+    final targetPresetId =
+        presetId ?? _configService[ConfigKey.ANIME4K_PRESET_ID];
 
     // 如果预设ID为空字符串，表示禁用 Anime4K，清空 shader
     if (targetPresetId.isEmpty) {
@@ -2226,16 +2150,18 @@ class MyVideoStateController extends GetxController
       final shaderPaths = _buildShaderPaths(preset);
 
       // 设置 shader
-      await pp.command([
-        'change-list',
-        'glsl-shaders',
-        'set',
-        shaderPaths,
-      ]);
+      await pp.command(['change-list', 'glsl-shaders', 'set', shaderPaths]);
 
-      LogUtils.d('成功设置 Anime4K 预设: ${preset.name} (${preset.shaders.length} 个 shaders)', 'MyVideoStateController');
+      LogUtils.d(
+        '成功设置 Anime4K 预设: ${preset.name} (${preset.shaders.length} 个 shaders)',
+        'MyVideoStateController',
+      );
     } catch (e) {
-      LogUtils.e('设置 Anime4K shader 失败: $e', tag: 'MyVideoStateController', error: e);
+      LogUtils.e(
+        '设置 Anime4K shader 失败: $e',
+        tag: 'MyVideoStateController',
+        error: e,
+      );
       // 失败时清空 shader
       await pp.command(['change-list', 'glsl-shaders', 'clr', '']);
     }
@@ -2264,7 +2190,11 @@ class MyVideoStateController extends GetxController
         return tempShaderPaths.join(':');
       }
     } catch (e) {
-      LogUtils.e('构建 shader 路径失败，使用 assets 路径作为后备', tag: 'MyVideoStateController', error: e);
+      LogUtils.e(
+        '构建 shader 路径失败，使用 assets 路径作为后备',
+        tag: 'MyVideoStateController',
+        error: e,
+      );
       return _buildShaderPathsFromAssets(preset);
     }
   }
@@ -2494,7 +2424,7 @@ class MyVideoStateController extends GetxController
   /// 获取当前视频的播放 URL
   String? getCurrentVideoUrl() {
     if (currentResolutionTag.value == null) return null;
-    
+
     return CommonUtils.findUrlByResolutionTag(
       videoResolutions,
       currentResolutionTag.value!,
@@ -2509,9 +2439,11 @@ class MyVideoStateController extends GetxController
 
     // 从 currentVideoSourceList 中查找 name 为 'preview' 的源
     for (final source in currentVideoSourceList) {
-      if (source.name == 'preview' && source.src != null && source.src!.view != null) {
+      if (source.name == 'preview' &&
+          source.src != null &&
+          source.src!.view != null) {
         String? url = CommonUtils.normalizeUrl(source.src!.view);
-        
+
         // 尝试从本地下载获取 preview 文件
         if (videoId != null) {
           try {
@@ -2536,7 +2468,7 @@ class MyVideoStateController extends GetxController
             );
           }
         }
-        
+
         previewVideoUrl = url;
         return previewVideoUrl;
       }
@@ -2606,7 +2538,9 @@ class MyVideoStateController extends GetxController
       }
 
       // 监听预览播放器的状态
-      previewDurationSubscription = previewPlayer!.stream.duration.listen((duration) {
+      previewDurationSubscription = previewPlayer!.stream.duration.listen((
+        duration,
+      ) {
         if (_isDisposed) return;
         // 当 duration 大于 0 时，表示预览播放器已准备好
         // ignore: unnecessary_null_comparison
@@ -2616,7 +2550,9 @@ class MyVideoStateController extends GetxController
         }
       });
 
-      previewPlayingSubscription = previewPlayer!.stream.playing.listen((playing) {
+      previewPlayingSubscription = previewPlayer!.stream.playing.listen((
+        playing,
+      ) {
         if (_isDisposed) return;
         // 可以在这里处理播放状态变化
       });
@@ -2642,7 +2578,9 @@ class MyVideoStateController extends GetxController
       '${randomId}_preview_seek',
       const Duration(milliseconds: 150),
       () {
-        if (_isDisposed || previewPlayer == null || !isPreviewPlayerReady.value) {
+        if (_isDisposed ||
+            previewPlayer == null ||
+            !isPreviewPlayerReady.value) {
           return;
         }
 
@@ -2726,10 +2664,7 @@ class MyVideoStateController extends GetxController
     }
 
     Get.bottomSheet(
-      DlnaCastSheet(
-        videoUrl: videoUrl,
-        dlnaController: _dlnaCastService,
-      ),
+      DlnaCastSheet(videoUrl: videoUrl, dlnaController: _dlnaCastService),
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -2780,7 +2715,9 @@ class MyVideoStateController extends GetxController
       final playListService = Get.find<PlayListService>();
 
       final favoriteFolders = await favoriteService.getItemFolders(videoId!);
-      final playlistsResult = await playListService.getLightPlaylists(videoId: videoId!);
+      final playlistsResult = await playListService.getLightPlaylists(
+        videoId: videoId!,
+      );
 
       if (_isDisposed) return;
 
@@ -2791,7 +2728,9 @@ class MyVideoStateController extends GetxController
       if (playlistsResult.isSuccess && playlistsResult.data != null) {
         final playlists = playlistsResult.data!;
         // 检查是否有任何播放列表的 added 字段为 true
-        isInAnyPlaylist.value = playlists.any((playlist) => playlist.added == true);
+        isInAnyPlaylist.value = playlists.any(
+          (playlist) => playlist.added == true,
+        );
       } else {
         isInAnyPlaylist.value = false;
       }
@@ -2802,10 +2741,7 @@ class MyVideoStateController extends GetxController
       );
     } catch (e) {
       if (!_isDisposed) {
-        LogUtils.w(
-          '检查收藏和播放列表状态失败: $e',
-          'MyVideoStateController',
-        );
+        LogUtils.w('检查收藏和播放列表状态失败: $e', 'MyVideoStateController');
         // 出错时重置状态
         isInAnyFavorite.value = false;
         isInAnyPlaylist.value = false;
@@ -2820,21 +2756,18 @@ class MyVideoStateController extends GetxController
     try {
       final downloadService = Get.find<DownloadService>();
       final hasTask = await downloadService.hasAnyVideoDownloadTask(videoId!);
-      
+
       if (_isDisposed) return;
-      
+
       hasAnyDownloadTask.value = hasTask;
-      
+
       LogUtils.d(
         '检查下载任务状态完成: hasAnyDownloadTask=${hasAnyDownloadTask.value}',
         'MyVideoStateController',
       );
     } catch (e) {
       if (!_isDisposed) {
-        LogUtils.w(
-          '检查下载任务状态失败: $e',
-          'MyVideoStateController',
-        );
+        LogUtils.w('检查下载任务状态失败: $e', 'MyVideoStateController');
         // 出错时重置状态
         hasAnyDownloadTask.value = false;
       }
@@ -2849,7 +2782,10 @@ class MyVideoStateController extends GetxController
   }
 
   /// 异步刷新视频的点赞信息（缓存命中时的专用方法）
-  Future<void> _refreshVideoLikeInfo(String videoId, video_model.Video cachedVideoInfo) async {
+  Future<void> _refreshVideoLikeInfo(
+    String videoId,
+    video_model.Video cachedVideoInfo,
+  ) async {
     if (_isDisposed) return;
 
     try {
@@ -2882,7 +2818,10 @@ class MyVideoStateController extends GetxController
       LogUtils.d('成功刷新视频点赞信息: $videoId', 'MyVideoStateController');
     } catch (e) {
       if (!_isDisposed) {
-        LogUtils.w('刷新视频点赞信息失败，使用缓存数据: $videoId, error: $e', 'MyVideoStateController');
+        LogUtils.w(
+          '刷新视频点赞信息失败，使用缓存数据: $videoId, error: $e',
+          'MyVideoStateController',
+        );
 
         // 请求失败时，恢复使用缓存中的点赞信息
         if (videoInfo.value != null) {

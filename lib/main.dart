@@ -51,81 +51,87 @@ import 'package:i_iwara/app/services/emoji_library_service.dart';
 import 'package:i_iwara/utils/refresh_rate_helper.dart';
 import 'package:i_iwara/utils/glsl_shader_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/dlna_cast_service.dart';
-import 'package:i_iwara/app/services/iwara_server_service.dart';
 
 void main() {
   // 确保Flutter初始化
-  runZonedGuarded(() async {
+  runZonedGuarded(
+    () async {
+      // 确保Flutter初始化
+      WidgetsFlutterBinding.ensureInitialized();
 
-    // 确保Flutter初始化
-    WidgetsFlutterBinding.ensureInitialized();
+      // 日志初始化 - 仅初始化基本功能，不依赖数据库
+      bool isProduction = !kDebugMode;
+      await LogUtils.init(isProduction: isProduction);
 
-    // 日志初始化 - 仅初始化基本功能，不依赖数据库
-    bool isProduction = !kDebugMode;
-    await LogUtils.init(isProduction: isProduction);
-    
-    // 记录应用启动信息
-    LogUtils.i('应用启动', '启动初始化');
+      // 记录应用启动信息
+      LogUtils.i('应用启动', '启动初始化');
 
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
-      systemNavigationBarColor: Colors.white,
-      systemNavigationBarIconBrightness: Brightness.dark,
-      systemNavigationBarDividerColor: Colors.transparent.withAlpha(0x01)/*Android=28,不能用全透明 */
-    ));
-
-    // 设置Flutter错误处理
-    FlutterError.onError = (FlutterErrorDetails details) {
-      LogUtils.e('Flutter框架错误',
-        tag: '全局错误处理',
-        error: details.exception,
-        stackTrace: details.stack
+      SystemChrome.setSystemUIOverlayStyle(
+        SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.dark,
+          systemNavigationBarColor: Colors.white,
+          systemNavigationBarIconBrightness: Brightness.dark,
+          systemNavigationBarDividerColor: Colors.transparent.withAlpha(
+            0x01,
+          ) /*Android=28,不能用全透明 */,
+        ),
       );
-      
-      FlutterError.presentError(details);
-    };
 
-    // 初始化基础服务
-    await _initializeBaseServices();
+      // 设置Flutter错误处理
+      FlutterError.onError = (FlutterErrorDetails details) {
+        LogUtils.e(
+          'Flutter框架错误',
+          tag: '全局错误处理',
+          error: details.exception,
+          stackTrace: details.stack,
+        );
 
-    // 初始化业务服务
-    await _initializeBusinessServices();
+        FlutterError.presentError(details);
+      };
 
-    // 运行应用
-    runApp(TranslationProvider(child: const MyApp()));
+      // 初始化基础服务
+      await _initializeBaseServices();
 
-    if (GetPlatform.isDesktop) {
-      await _initializeDesktop();
-    }
+      // 初始化业务服务
+      await _initializeBusinessServices();
 
-    // 在应用启动时配置图片缓存
-    configureImageCache();
+      // 运行应用
+      runApp(TranslationProvider(child: const MyApp()));
 
-    // 启用高刷新率（仅限Android）
-    if (GetPlatform.isAndroid) {
-      RefreshRateHelper.enableHighRefreshRate().then((success) {
-        if (success) {
-          LogUtils.i('高刷新率已启用', '启动初始化');
-        } else {
-          LogUtils.w('启用高刷新率失败，使用默认刷新率', '启动初始化');
-        }
-      }).catchError((error) {
-        LogUtils.e('启用高刷新率时发生错误', tag: '启动初始化', error: error);
-      });
-    }
+      if (GetPlatform.isDesktop) {
+        await _initializeDesktop();
+      }
 
-  }, (error, stackTrace) {
-    // 在这里处理未捕获的异常
-    LogUtils.e('未捕获的异常: $error', tag: '全局异常处理', stackTrace: stackTrace);
-    
-    // TODO: 可以在这里添加额外处理，例如显示错误页面或重启应用
-  });
+      // 在应用启动时配置图片缓存
+      configureImageCache();
+
+      // 启用高刷新率（仅限Android）
+      if (GetPlatform.isAndroid) {
+        RefreshRateHelper.enableHighRefreshRate()
+            .then((success) {
+              if (success) {
+                LogUtils.i('高刷新率已启用', '启动初始化');
+              } else {
+                LogUtils.w('启用高刷新率失败，使用默认刷新率', '启动初始化');
+              }
+            })
+            .catchError((error) {
+              LogUtils.e('启用高刷新率时发生错误', tag: '启动初始化', error: error);
+            });
+      }
+    },
+    (error, stackTrace) {
+      // 在这里处理未捕获的异常
+      LogUtils.e('未捕获的异常: $error', tag: '全局异常处理', stackTrace: stackTrace);
+
+      // TODO: 可以在这里添加额外处理，例如显示错误页面或重启应用
+    },
+  );
 }
 
 /// 初始化基础服务
 Future<void> _initializeBaseServices() async {
-
   // 初始化深度链接服务
   final deepLinkService = DeepLinkService();
   await deepLinkService.init();
@@ -149,7 +155,6 @@ Future<void> _initializeBaseServices() async {
 
 /// 初始化业务服务
 Future<void> _initializeBusinessServices() async {
-
   // 初始化应用服务
   Get.put(AppService());
 
@@ -157,7 +162,7 @@ Future<void> _initializeBusinessServices() async {
   var configService = await ConfigService().init();
   Get.put(configService);
 
-   // 初始化语言设置
+  // 初始化语言设置
   String applicationLocale = configService[ConfigKey.APPLICATION_LOCALE];
   if (applicationLocale == 'system') {
     LocaleSettings.useDeviceLocale();
@@ -175,7 +180,7 @@ Future<void> _initializeBusinessServices() async {
       LocaleSettings.useDeviceLocale();
     }
   }
-  
+
   LogUtils.i('日志系统已简化，仅支持控制台输出', '启动初始化');
 
   // 注册 ConfigBackupService 作为 GetxService
@@ -190,7 +195,7 @@ Future<void> _initializeBusinessServices() async {
     if (useProxy) {
       proxyUrl = configService.settings[ConfigKey.PROXY_URL]?.value;
     }
-    
+
     // 无论是否启用代理，都设置 HttpOverrides.global 以禁用共享 socket
     if (useProxy && proxyUrl != null && proxyUrl.isNotEmpty) {
       HttpOverrides.global = MyHttpOverrides(proxyUrl);
@@ -280,51 +285,6 @@ Future<void> _initializeBusinessServices() async {
 
   // 注册历史记录仓库
   Get.put(HistoryRepository());
-
-  // 初始化 Iwara 服务器管理服务
-  final iwaraServerService = Get.put(IwaraServerService());
-  
-  // 启动优化：并行处理测速和刷新
-  // 1. 如果数据库有缓存的快速环服务器，立即开始测速（不等待API刷新）
-  // 2. 同时异步刷新服务器列表，刷新后如果有新服务器再重新测速
-  
-  // 等待 IwaraServerService 的 onInit 完成（会加载数据库缓存）
-  Future.delayed(const Duration(milliseconds: 100), () {
-    // 1. 如果数据库已有快速环服务器，立即开始测速
-    if (iwaraServerService.fastRingServers.isNotEmpty) {
-      LogUtils.i('从数据库加载了 ${iwaraServerService.fastRingServers.length} 个快速环服务器，开始测速', '启动初始化');
-      unawaited(iwaraServerService.testServersSpeed(
-        targetServers: iwaraServerService.fastRingServers,
-        saveToDatabase: true,
-      ).catchError((error) {
-        LogUtils.e('启动时测速失败', tag: '启动初始化', error: error);
-      }));
-    }
-    
-    // 2. 异步刷新服务器列表（与测速并行执行）
-    unawaited(
-      iwaraServerService.refreshServerList().then((_) {
-        // 刷新成功后，如果有新的服务器需要测速
-        final serversNeedTest = iwaraServerService.fastRingServers.where((server) {
-          return !iwaraServerService.speedTestResults.containsKey(server.name);
-        }).toList();
-        
-        if (serversNeedTest.isNotEmpty) {
-          LogUtils.i('发现 ${serversNeedTest.length} 个新服务器需要测速', '启动初始化');
-          return iwaraServerService.testServersSpeed(
-            targetServers: serversNeedTest,
-            saveToDatabase: true,
-          );
-        }
-      }).catchError((error) {
-        LogUtils.e('启动时刷新服务器列表失败', tag: '启动初始化', error: error);
-      })
-    );
-    
-    // 3. 启动定时刷新任务（每隔5分钟自动刷新并测速）
-    iwaraServerService.startPeriodicRefresh();
-    LogUtils.i('已启动服务器定时刷新任务', '启动初始化');
-  });
 }
 
 /// 初始化桌面端设置
@@ -345,14 +305,16 @@ Future<void> _initializeDesktop() async {
   const minHeight = 200.0;
 
   // 先设置窗口大小（不需要补偿，因为此时标题栏还未隐藏）
-  if (storedWidth != null && storedHeight != null &&
-      storedWidth >= minWidth && storedHeight >= minHeight) {
+  if (storedWidth != null &&
+      storedHeight != null &&
+      storedWidth >= minWidth &&
+      storedHeight >= minHeight) {
     await windowManager.setSize(Size(storedWidth, storedHeight));
     LogUtils.d('已从配置恢复窗口大小: ${storedWidth}x$storedHeight', '桌面初始化');
   } else {
     // 如果没有存储的尺寸或尺寸无效，则使用默认尺寸
     await windowManager.setSize(const Size(defaultWidth, defaultHeight));
-     LogUtils.d('使用默认窗口大小: ${defaultWidth}x$defaultHeight', '桌面初始化');
+    LogUtils.d('使用默认窗口大小: ${defaultWidth}x$defaultHeight', '桌面初始化');
   }
 
   // 先设置标题栏样式为隐藏
@@ -365,10 +327,16 @@ Future<void> _initializeDesktop() async {
   // }
 
   // 在隐藏标题栏之后再恢复窗口位置，此时需要减去系统标题栏高度进行补偿
-  if (storedX != null && storedY != null && storedX != -1.0 && storedY != -1.0) {
+  if (storedX != null &&
+      storedY != null &&
+      storedX != -1.0 &&
+      storedY != -1.0) {
     final adjustedY = storedY;
     await windowManager.setPosition(Offset(storedX, adjustedY));
-    LogUtils.d('已从配置恢复窗口位置: x=$storedX, y=$storedY (调整后: x=$storedX, y=$adjustedY)', '桌面初始化');
+    LogUtils.d(
+      '已从配置恢复窗口位置: x=$storedX, y=$storedY (调整后: x=$storedX, y=$adjustedY)',
+      '桌面初始化',
+    );
   }
 
   await windowManager.show();
@@ -432,17 +400,28 @@ class DesktopWindowListener extends WindowListener {
 
       // 异步保存到持久化存储
       unawaited(
-        configService.saveSettingToStorage(ConfigKey.WINDOW_WIDTH, size.width)
-          .then((_) => configService.saveSettingToStorage(ConfigKey.WINDOW_HEIGHT, size.height))
-          .then((_) {
-            LogUtils.d('窗口大小已保存: ${size.width}x${size.height}', '桌面监听器');
-          })
-          .catchError((error, stackTrace) {
-            LogUtils.e('保存窗口大小失败', tag: '桌面监听器', error: error, stackTrace: stackTrace);
-          })
+        configService
+            .saveSettingToStorage(ConfigKey.WINDOW_WIDTH, size.width)
+            .then(
+              (_) => configService.saveSettingToStorage(
+                ConfigKey.WINDOW_HEIGHT,
+                size.height,
+              ),
+            )
+            .then((_) {
+              LogUtils.d('窗口大小已保存: ${size.width}x${size.height}', '桌面监听器');
+            })
+            .catchError((error, stackTrace) {
+              LogUtils.e(
+                '保存窗口大小失败',
+                tag: '桌面监听器',
+                error: error,
+                stackTrace: stackTrace,
+              );
+            }),
       );
     } catch (e, s) {
-        LogUtils.e('获取或保存窗口大小时出错', tag: '桌面监听器', error: e, stackTrace: s);
+      LogUtils.e('获取或保存窗口大小时出错', tag: '桌面监听器', error: e, stackTrace: s);
     }
   }
 
@@ -457,14 +436,28 @@ class DesktopWindowListener extends WindowListener {
       configService.updateSetting(ConfigKey.WINDOW_Y, adjustedY);
 
       unawaited(
-        configService.saveSettingToStorage(ConfigKey.WINDOW_X, position.dx)
-          .then((_) => configService.saveSettingToStorage(ConfigKey.WINDOW_Y, adjustedY))
-          .then((_) {
-            LogUtils.d('窗口位置已保存: x=${position.dx}, y=${position.dy} (存储为: x=${position.dx}, y=$adjustedY)', '桌面监听器');
-          })
-          .catchError((error, stackTrace) {
-            LogUtils.e('保存窗口位置失败', tag: '桌面监听器', error: error, stackTrace: stackTrace);
-          })
+        configService
+            .saveSettingToStorage(ConfigKey.WINDOW_X, position.dx)
+            .then(
+              (_) => configService.saveSettingToStorage(
+                ConfigKey.WINDOW_Y,
+                adjustedY,
+              ),
+            )
+            .then((_) {
+              LogUtils.d(
+                '窗口位置已保存: x=${position.dx}, y=${position.dy} (存储为: x=${position.dx}, y=$adjustedY)',
+                '桌面监听器',
+              );
+            })
+            .catchError((error, stackTrace) {
+              LogUtils.e(
+                '保存窗口位置失败',
+                tag: '桌面监听器',
+                error: error,
+                stackTrace: stackTrace,
+              );
+            }),
       );
     } catch (e, s) {
       LogUtils.e('获取或保存窗口位置时出错', tag: '桌面监听器', error: e, stackTrace: s);
@@ -508,7 +501,8 @@ Future<void> _closeServices() async {
 void configureImageCache() {
   // 适当调整图片缓存大小，平衡内存使用和性能
   PaintingBinding.instance.imageCache.maximumSize = 100; // 减少到100张图片
-  PaintingBinding.instance.imageCache.maximumSizeBytes = 50 * 1024 * 1024; // 限制内存占用为50MB
+  PaintingBinding.instance.imageCache.maximumSizeBytes =
+      50 * 1024 * 1024; // 限制内存占用为50MB
 
   // 预热渲染管道
   WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -521,18 +515,21 @@ void _prewarmRendering() {
   // 创建一个离屏的图像进行渲染预热
   final recorder = PictureRecorder();
   final canvas = Canvas(recorder);
-  
+
   // 预热一些常用的绘制操作
   final paint = Paint()
     ..color = Colors.transparent
     ..style = PaintingStyle.fill;
-  
+
   canvas.drawRect(Rect.fromLTWH(0, 0, 100, 100), paint);
-  canvas.drawRRect(RRect.fromRectAndRadius(
-    Rect.fromLTWH(0, 0, 100, 100),
-    const Radius.circular(8.0),
-  ), paint);
-  
+  canvas.drawRRect(
+    RRect.fromRectAndRadius(
+      Rect.fromLTWH(0, 0, 100, 100),
+      const Radius.circular(8.0),
+    ),
+    paint,
+  );
+
   // 确保预热的内容被光栅化
   final Picture picture = recorder.endRecording();
   picture.toImage(1, 1).then((image) {
