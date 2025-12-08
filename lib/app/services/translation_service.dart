@@ -51,7 +51,11 @@ class TranslationService extends GetxService {
   /// [baseUrl] 基础URL
   /// [keepHash] 是否保留URL末尾的#符号（用于展示）
   /// [forDisplay] 是否用于UI展示（如果为true且baseUrl为空，则返回"未配置"）
-  String getFinalUrl(String baseUrl, {bool keepHash = false, bool forDisplay = false}) {
+  String getFinalUrl(
+    String baseUrl, {
+    bool keepHash = false,
+    bool forDisplay = false,
+  }) {
     if (baseUrl.isEmpty && forDisplay) {
       return t.translation.notConfigured;
     }
@@ -73,9 +77,13 @@ class TranslationService extends GetxService {
   // 翻译核心方法 ---------------------------
 
   /// 翻译文本，会根据配置选择谷歌翻译、AI翻译或DeepLX翻译
-  Future<ApiResult<String>> translate(String text, {String? targetLanguage}) async {
+  Future<ApiResult<String>> translate(
+    String text, {
+    String? targetLanguage,
+  }) async {
     final useAI = _getConfig<bool>(ConfigKey.USE_AI_TRANSLATION) ?? false;
-    final useDeepLX = _getConfig<bool>(ConfigKey.USE_DEEPLX_TRANSLATION) ?? false;
+    final useDeepLX =
+        _getConfig<bool>(ConfigKey.USE_DEEPLX_TRANSLATION) ?? false;
 
     if (useDeepLX) {
       return _translateWithDeepLX(text, targetLanguage: targetLanguage);
@@ -87,17 +95,26 @@ class TranslationService extends GetxService {
   }
 
   /// 使用Google翻译服务（分段 + 适量并发）
-  Future<ApiResult<String>> _translateWithGoogle(String text, String? targetLanguage) async {
+  Future<ApiResult<String>> _translateWithGoogle(
+    String text,
+    String? targetLanguage,
+  ) async {
     try {
       if (text.trim().isEmpty) {
         return ApiResult.success(message: '', data: '');
       }
 
-      final chunks = _splitTextForGoogle(text, maxChunkChars: _googleMaxChunkChars);
+      final chunks = _splitTextForGoogle(
+        text,
+        maxChunkChars: _googleMaxChunkChars,
+      );
 
       // 单段直接调用
       if (chunks.length == 1) {
-        final translated = await _googleTranslateSingle(chunks.first, targetLanguage);
+        final translated = await _googleTranslateSingle(
+          chunks.first,
+          targetLanguage,
+        );
         return ApiResult.success(message: '', data: translated);
       }
 
@@ -106,7 +123,9 @@ class TranslationService extends GetxService {
       for (int i = 0; i < chunks.length; i += _googleMaxConcurrency) {
         final end = min(i + _googleMaxConcurrency, chunks.length);
         final batch = chunks.sublist(i, end);
-        final futures = batch.map((seg) => _googleTranslateSingle(seg, targetLanguage)).toList();
+        final futures = batch
+            .map((seg) => _googleTranslateSingle(seg, targetLanguage))
+            .toList();
         final results = await Future.wait(futures);
         for (final r in results) {
           buffer.write(r);
@@ -115,7 +134,11 @@ class TranslationService extends GetxService {
 
       return ApiResult.success(message: '', data: buffer.toString());
     } catch (e) {
-      LogUtils.e(slang.t.translation.translationFailed, tag: 'TranslationService', error: e);
+      LogUtils.e(
+        slang.t.translation.translationFailed,
+        tag: 'TranslationService',
+        error: e,
+      );
       return ApiResult.fail(t.errors.failedToOperate);
     }
   }
@@ -127,7 +150,20 @@ class TranslationService extends GetxService {
     }
 
     const boundaries = {
-      '\n', '\r', '。', '！', '？', '；', '，', '、', '.', '!', '?', ';', ':', ' '
+      '\n',
+      '\r',
+      '。',
+      '！',
+      '？',
+      '；',
+      '，',
+      '、',
+      '.',
+      '!',
+      '?',
+      ';',
+      ':',
+      ' ',
     };
 
     final chunks = <String>[];
@@ -163,7 +199,10 @@ class TranslationService extends GetxService {
   }
 
   // 单段 Google 翻译，带重试与超时
-  Future<String> _googleTranslateSingle(String text, String? targetLanguage) async {
+  Future<String> _googleTranslateSingle(
+    String text,
+    String? targetLanguage,
+  ) async {
     const int maxRetries = 2;
     int attempt = 0;
 
@@ -218,7 +257,9 @@ class TranslationService extends GetxService {
         }
 
         // 退化结构：data[0][0] 直接是字符串
-        if (data[0] is List && (data[0] as List).isNotEmpty && data[0][0] is String) {
+        if (data[0] is List &&
+            (data[0] as List).isNotEmpty &&
+            data[0][0] is String) {
           return data[0][0] as String;
         }
       }
@@ -229,43 +270,86 @@ class TranslationService extends GetxService {
   }
 
   /// 使用AI服务进行翻译
-  Future<ApiResult<String>> _translateWithAI(String text, {String? targetLanguage}) async {
+  Future<ApiResult<String>> _translateWithAI(
+    String text, {
+    String? targetLanguage,
+  }) async {
     try {
-      final stream = _getConfig<bool>(ConfigKey.AI_TRANSLATION_SUPPORTS_STREAMING) ?? false;
-      final requestData = _buildAIRequestData(text, targetLanguage: targetLanguage, stream: stream);
-      final url = getFinalUrl(_getConfig<String>(ConfigKey.AI_TRANSLATION_BASE_URL) ?? '');
+      LogUtils.i('开始 AI 翻译，文本长度: ${text.length}', 'TranslationService');
 
-      final response = await dio.post(
-          url,
-          data: requestData,
-          options: Options(headers: _getAuthHeaders())
+      final stream =
+          _getConfig<bool>(ConfigKey.AI_TRANSLATION_SUPPORTS_STREAMING) ??
+          false;
+      LogUtils.d('流式翻译配置: $stream', 'TranslationService');
+
+      final requestData = _buildAIRequestData(
+        text,
+        targetLanguage: targetLanguage,
+        stream: stream,
+      );
+      final url = getFinalUrl(
+        _getConfig<String>(ConfigKey.AI_TRANSLATION_BASE_URL) ?? '',
       );
 
+      LogUtils.d('请求 URL: $url', 'TranslationService');
+      LogUtils.d('请求数据: $requestData', 'TranslationService');
+
+      final response = await dio.post(
+        url,
+        data: requestData,
+        options: Options(headers: _getAuthHeaders()),
+      );
+
+      LogUtils.i('AI 翻译响应状态码: ${response.statusCode}', 'TranslationService');
+
       if (response.statusCode != 200) {
+        LogUtils.e(
+          'AI 翻译失败，状态码: ${response.statusCode}',
+          tag: 'TranslationService',
+        );
         return ApiResult.fail(t.errors.translationFailedPleaseTryAgainLater);
       }
 
-      return _parseAIResponse(response.data);
+      final result = _parseAIResponse(response.data);
+      LogUtils.i(
+        'AI 翻译解析结果: ${result.isSuccess ? "成功" : "失败"}',
+        'TranslationService',
+      );
+      return result;
     } catch (e) {
-      LogUtils.e(slang.t.translation.aiTranslationFailed, tag: 'TranslationService', error: e);
+      LogUtils.e(
+        slang.t.translation.aiTranslationFailed,
+        tag: 'TranslationService',
+        error: e,
+      );
       return ApiResult.fail(t.errors.translationFailedPleaseTryAgainLater);
     }
   }
 
   /// 构建AI请求的数据部分
-  Map<String, dynamic> _buildAIRequestData(String text, {String? targetLanguage, bool stream = false}) {
+  Map<String, dynamic> _buildAIRequestData(
+    String text, {
+    String? targetLanguage,
+    bool stream = false,
+  }) {
     final currentLanguage = _getCurrentLanguage(targetLanguage);
-    final prompt = _getConfig<String>(ConfigKey.AI_TRANSLATION_PROMPT)
-        ?.replaceAll(CommonConstants.defaultLanguagePlaceholder, currentLanguage) ?? '';
+    final prompt =
+        _getConfig<String>(ConfigKey.AI_TRANSLATION_PROMPT)?.replaceAll(
+          CommonConstants.defaultLanguagePlaceholder,
+          currentLanguage,
+        ) ??
+        '';
 
     final result = {
       "model": _getConfig<String>(ConfigKey.AI_TRANSLATION_MODEL) ?? '',
       "messages": [
         {"role": "system", "content": prompt},
-        {"role": "user", "content": text}
+        {"role": "user", "content": text},
       ],
-      "temperature": _getConfig<double>(ConfigKey.AI_TRANSLATION_TEMPERATURE) ?? 0.7,
-      "max_tokens": _getConfig<int>(ConfigKey.AI_TRANSLATION_MAX_TOKENS) ?? 1000
+      "temperature":
+          _getConfig<double>(ConfigKey.AI_TRANSLATION_TEMPERATURE) ?? 0.7,
+      "max_tokens":
+          _getConfig<int>(ConfigKey.AI_TRANSLATION_MAX_TOKENS) ?? 1000,
     };
 
     if (stream) {
@@ -278,8 +362,9 @@ class TranslationService extends GetxService {
   /// 获取认证请求头
   Map<String, String> _getAuthHeaders() {
     return {
-      'Authorization': 'Bearer ${_getConfig<String>(ConfigKey.AI_TRANSLATION_API_KEY) ?? ''}',
-      'Content-Type': 'application/json'
+      'Authorization':
+          'Bearer ${_getConfig<String>(ConfigKey.AI_TRANSLATION_API_KEY) ?? ''}',
+      'Content-Type': 'application/json',
     };
   }
 
@@ -297,14 +382,18 @@ class TranslationService extends GetxService {
   }
 
   /// 使用DeepLX服务进行翻译
-  Future<ApiResult<String>> _translateWithDeepLX(String text, {String? targetLanguage}) async {
+  Future<ApiResult<String>> _translateWithDeepLX(
+    String text, {
+    String? targetLanguage,
+  }) async {
     try {
       if (text.trim().isEmpty) {
         return ApiResult.success(message: '', data: '');
       }
 
       final baseUrl = _getConfig<String>(ConfigKey.DEEPLX_BASE_URL) ?? '';
-      final endpointType = _getConfig<String>(ConfigKey.DEEPLX_ENDPOINT_TYPE) ?? 'Free';
+      final endpointType =
+          _getConfig<String>(ConfigKey.DEEPLX_ENDPOINT_TYPE) ?? 'Free';
       final apiKey = _getConfig<String>(ConfigKey.DEEPLX_API_KEY) ?? '';
       final dlSession = _getConfig<String>(ConfigKey.DEEPLX_DL_SESSION) ?? '';
 
@@ -326,7 +415,9 @@ class TranslationService extends GetxService {
           break;
       }
 
-      final url = baseUrl.endsWith('/') ? '$baseUrl${endpoint.substring(1)}' : '$baseUrl$endpoint';
+      final url = baseUrl.endsWith('/')
+          ? '$baseUrl${endpoint.substring(1)}'
+          : '$baseUrl$endpoint';
 
       // 转换语言代码
       final currentLanguage = _getCurrentLanguage(targetLanguage);
@@ -344,13 +435,12 @@ class TranslationService extends GetxService {
       }
 
       // 构建请求头
-      final headers = <String, String>{
-        'Content-Type': 'application/json',
-      };
+      final headers = <String, String>{'Content-Type': 'application/json'};
 
       if (endpointType == 'Official' && apiKey.isNotEmpty) {
         headers['Authorization'] = 'DeepL-Auth-Key $apiKey';
-      } else if ((endpointType == 'Free' || endpointType == 'Pro') && apiKey.isNotEmpty) {
+      } else if ((endpointType == 'Free' || endpointType == 'Pro') &&
+          apiKey.isNotEmpty) {
         headers['Authorization'] = 'Bearer $apiKey';
       }
 
@@ -369,7 +459,11 @@ class TranslationService extends GetxService {
 
       return _parseDeepLXResponse(response.data);
     } catch (e) {
-      LogUtils.e(slang.t.translation.deeplxTranslationFailed, tag: 'TranslationService', error: e);
+      LogUtils.e(
+        slang.t.translation.deeplxTranslationFailed,
+        tag: 'TranslationService',
+        error: e,
+      );
       return ApiResult.fail(t.errors.translationFailedPleaseTryAgainLater);
     }
   }
@@ -399,46 +493,55 @@ class TranslationService extends GetxService {
 
   /// 测试AI翻译连接
   Future<ApiResult<AITestResult>> testAITranslation(
-      String baseUrl, String model, String apiKey,
-      {String? targetLanguage}) async {
+    String baseUrl,
+    String model,
+    String apiKey, {
+    String? targetLanguage,
+  }) async {
     try {
       const testText = "Hello";
 
       final currentLanguage = _getCurrentLanguage(targetLanguage);
-      final prompt = _getConfig<String>(ConfigKey.AI_TRANSLATION_PROMPT)
-          ?.replaceAll(CommonConstants.defaultLanguagePlaceholder, currentLanguage) ?? '';
+      final prompt =
+          _getConfig<String>(ConfigKey.AI_TRANSLATION_PROMPT)?.replaceAll(
+            CommonConstants.defaultLanguagePlaceholder,
+            currentLanguage,
+          ) ??
+          '';
 
       final messages = [
         {"role": "system", "content": prompt},
-        {"role": "user", "content": testText}
+        {"role": "user", "content": testText},
       ];
 
       final testDio = Dio()..options.persistentConnection = false;
       final url = getFinalUrl(baseUrl);
       final response = await testDio.post(
-          url,
-          data: {
-            "model": model,
-            "messages": messages,
-            "temperature": _getConfig<double>(ConfigKey.AI_TRANSLATION_TEMPERATURE) ?? 0.7,
-            "max_tokens": _getConfig<int>(ConfigKey.AI_TRANSLATION_MAX_TOKENS) ?? 1000
+        url,
+        data: {
+          "model": model,
+          "messages": messages,
+          "temperature":
+              _getConfig<double>(ConfigKey.AI_TRANSLATION_TEMPERATURE) ?? 0.7,
+          "max_tokens":
+              _getConfig<int>(ConfigKey.AI_TRANSLATION_MAX_TOKENS) ?? 1000,
+        },
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $apiKey',
+            'Content-Type': 'application/json',
           },
-          options: Options(
-              headers: {
-                'Authorization': 'Bearer $apiKey',
-                'Content-Type': 'application/json'
-              },
-              validateStatus: (status) => status! < 500
-          )
+          validateStatus: (status) => status! < 500,
+        ),
       );
 
       if (response.statusCode != 200) {
         return ApiResult.success(
-            code: response.statusCode ?? 500,
-            data: AITestResult(
-                custMessage: 'HTTP ${response.statusCode}',
-                connectionValid: false
-            )
+          code: response.statusCode ?? 500,
+          data: AITestResult(
+            custMessage: 'HTTP ${response.statusCode}',
+            connectionValid: false,
+          ),
         );
       }
 
@@ -448,47 +551,57 @@ class TranslationService extends GetxService {
           (data['choices'] as List).isEmpty ||
           data['choices'][0]['message'] == null) {
         return ApiResult.success(
-            data: AITestResult(
-                custMessage: slang.t.translation.invalidAPIResponse,
-                connectionValid: false
-            )
+          data: AITestResult(
+            custMessage: slang.t.translation.invalidAPIResponse,
+            connectionValid: false,
+          ),
         );
       }
 
       final content = data['choices'][0]['message']['content'] as String? ?? '';
 
       return ApiResult.success(
-          data: AITestResult(
-              rawResponse: jsonEncode(data),
-              translatedText: content,
-              connectionValid: true,
-              custMessage: slang.t.translation.testSuccess
-          )
+        data: AITestResult(
+          rawResponse: jsonEncode(data),
+          translatedText: content,
+          connectionValid: true,
+          custMessage: slang.t.translation.testSuccess,
+        ),
       );
     } catch (e) {
-      LogUtils.e(slang.t.translation.aiTranslationTestFailed, tag: 'TranslationService', error: e);
+      LogUtils.e(
+        slang.t.translation.aiTranslationTestFailed,
+        tag: 'TranslationService',
+        error: e,
+      );
       return ApiResult.success(
-          data: AITestResult(
-              custMessage: slang.t.translation.connectionFailedForMessage(message: e.toString()),
-              connectionValid: false
-          )
+        data: AITestResult(
+          custMessage: slang.t.translation.connectionFailedForMessage(
+            message: e.toString(),
+          ),
+          connectionValid: false,
+        ),
       );
     }
   }
 
   /// 测试DeepLX翻译连接
   Future<ApiResult<AITestResult>> testDeepLXTranslation(
-      String baseUrl, String endpointType, String apiKey, String dlSession,
-      {String? targetLanguage}) async {
+    String baseUrl,
+    String endpointType,
+    String apiKey,
+    String dlSession, {
+    String? targetLanguage,
+  }) async {
     try {
       const testText = "Hello";
 
       if (baseUrl.isEmpty) {
         return ApiResult.success(
-            data: AITestResult(
-                custMessage: slang.t.translation.pleaseFillInDeepLXServerAddress,
-                connectionValid: false
-            )
+          data: AITestResult(
+            custMessage: slang.t.translation.pleaseFillInDeepLXServerAddress,
+            connectionValid: false,
+          ),
         );
       }
 
@@ -506,7 +619,9 @@ class TranslationService extends GetxService {
           break;
       }
 
-      final url = baseUrl.endsWith('/') ? '$baseUrl${endpoint.substring(1)}' : '$baseUrl$endpoint';
+      final url = baseUrl.endsWith('/')
+          ? '$baseUrl${endpoint.substring(1)}'
+          : '$baseUrl$endpoint';
 
       // 转换语言代码
       final currentLanguage = _getCurrentLanguage(targetLanguage);
@@ -524,44 +639,43 @@ class TranslationService extends GetxService {
       }
 
       // 构建请求头
-      final headers = <String, String>{
-        'Content-Type': 'application/json',
-      };
+      final headers = <String, String>{'Content-Type': 'application/json'};
 
       if (endpointType == 'Official' && apiKey.isNotEmpty) {
         headers['Authorization'] = 'DeepL-Auth-Key $apiKey';
-      } else if ((endpointType == 'Free' || endpointType == 'Pro') && apiKey.isNotEmpty) {
+      } else if ((endpointType == 'Free' || endpointType == 'Pro') &&
+          apiKey.isNotEmpty) {
         headers['Authorization'] = 'Bearer $apiKey';
       }
 
       final testDio = Dio()..options.persistentConnection = false;
       final response = await testDio.post(
-          url,
-          data: requestData,
-          options: Options(
-              headers: headers,
-              validateStatus: (status) => status! < 500,
-              receiveTimeout: const Duration(seconds: 30),
-          )
+        url,
+        data: requestData,
+        options: Options(
+          headers: headers,
+          validateStatus: (status) => status! < 500,
+          receiveTimeout: const Duration(seconds: 30),
+        ),
       );
 
       if (response.statusCode != 200) {
         return ApiResult.success(
-            code: response.statusCode ?? 500,
-            data: AITestResult(
-                custMessage: 'HTTP ${response.statusCode}',
-                connectionValid: false
-            )
+          code: response.statusCode ?? 500,
+          data: AITestResult(
+            custMessage: 'HTTP ${response.statusCode}',
+            connectionValid: false,
+          ),
         );
       }
 
       final data = response.data;
       if (data is! Map<String, dynamic>) {
         return ApiResult.success(
-            data: AITestResult(
-                custMessage: slang.t.translation.invalidAPIResponseFormat,
-                connectionValid: false
-            )
+          data: AITestResult(
+            custMessage: slang.t.translation.invalidAPIResponseFormat,
+            connectionValid: false,
+          ),
         );
       }
 
@@ -571,29 +685,34 @@ class TranslationService extends GetxService {
 
       if (code != 200 || translatedText == null || translatedText.isEmpty) {
         return ApiResult.success(
-            data: AITestResult(
-                custMessage: slang.t.translation.translationServiceReturnedError,
-                connectionValid: false,
-                rawResponse: jsonEncode(data)
-            )
+          data: AITestResult(
+            custMessage: slang.t.translation.translationServiceReturnedError,
+            connectionValid: false,
+            rawResponse: jsonEncode(data),
+          ),
         );
       }
 
       return ApiResult.success(
-          data: AITestResult(
-              rawResponse: jsonEncode(data),
-              translatedText: translatedText,
-              connectionValid: true,
-              custMessage: slang.t.translation.testSuccess
-          )
+        data: AITestResult(
+          rawResponse: jsonEncode(data),
+          translatedText: translatedText,
+          connectionValid: true,
+          custMessage: slang.t.translation.testSuccess,
+        ),
       );
     } catch (e) {
-      LogUtils.e(slang.t.translation.deeplxTranslationTestFailed, tag: 'TranslationService', error: e);
+      LogUtils.e(
+        slang.t.translation.deeplxTranslationTestFailed,
+        tag: 'TranslationService',
+        error: e,
+      );
       return ApiResult.success(
-          data: AITestResult(
-              custMessage: '${slang.t.translation.connectionFailed}: ${e.toString()}',
-              connectionValid: false
-          )
+        data: AITestResult(
+          custMessage:
+              '${slang.t.translation.connectionFailed}: ${e.toString()}',
+          connectionValid: false,
+        ),
       );
     }
   }
@@ -607,22 +726,40 @@ class TranslationService extends GetxService {
 
   /// 使用流式传输进行翻译，返回一个流
   Stream<String>? translateStream(String text, {String? targetLanguage}) {
+    LogUtils.i(
+      'translateStream 被调用，文本长度: ${text.length}',
+      'TranslationService',
+    );
+
     final useAI = _getConfig<bool>(ConfigKey.USE_AI_TRANSLATION) ?? false;
-    final useDeepLX = _getConfig<bool>(ConfigKey.USE_DEEPLX_TRANSLATION) ?? false;
+    final useDeepLX =
+        _getConfig<bool>(ConfigKey.USE_DEEPLX_TRANSLATION) ?? false;
+
+    LogUtils.d('useAI: $useAI, useDeepLX: $useDeepLX', 'TranslationService');
 
     // 如果使用DeepLX或不使用AI，返回null（DeepLX不支持流式翻译）
     if (useDeepLX || !useAI) {
+      LogUtils.i(
+        '不使用流式翻译（useDeepLX: $useDeepLX, useAI: $useAI）',
+        'TranslationService',
+      );
       return null;
     }
 
     // 检查用户是否启用了流式翻译
-    final streamEnabled = _getConfig<bool>(ConfigKey.AI_TRANSLATION_SUPPORTS_STREAMING) ?? true;
+    final streamEnabled =
+        _getConfig<bool>(ConfigKey.AI_TRANSLATION_SUPPORTS_STREAMING) ?? true;
+    LogUtils.d('流式翻译启用状态: $streamEnabled', 'TranslationService');
+
     if (!streamEnabled) {
+      LogUtils.i('用户禁用了流式翻译', 'TranslationService');
       return null; // 如果用户禁用了流式翻译，直接返回null
     }
 
     // 为每个翻译请求创建一个唯一ID
     final translationId = DateTime.now().millisecondsSinceEpoch.toString();
+    LogUtils.i('创建流式翻译，ID: $translationId', 'TranslationService');
+
     final streamController = StreamController<String>();
     _activeStreamTranslations[translationId] = streamController;
 
@@ -634,6 +771,7 @@ class TranslationService extends GetxService {
 
     // 当流被取消时，清理资源
     streamController.onCancel = () {
+      LogUtils.i('流式翻译被取消，ID: $translationId', 'TranslationService');
       _cleanupTranslationResources(translationId);
     };
 
@@ -646,14 +784,23 @@ class TranslationService extends GetxService {
     _translationTimeouts[translationId]?.cancel();
 
     // 创建新的计时器
-    _translationTimeouts[translationId] = Timer(Duration(seconds: _streamTranslationTimeoutSeconds), () {
-      LogUtils.w(slang.t.translation.streamingTranslationTimeout, 'TranslationService');
-      _cleanupTranslationResources(translationId, isTimeout: true);
-    });
+    _translationTimeouts[translationId] = Timer(
+      Duration(seconds: _streamTranslationTimeoutSeconds),
+      () {
+        LogUtils.w(
+          slang.t.translation.streamingTranslationTimeout,
+          'TranslationService',
+        );
+        _cleanupTranslationResources(translationId, isTimeout: true);
+      },
+    );
   }
 
   /// 清理翻译相关资源
-  void _cleanupTranslationResources(String translationId, {bool isTimeout = false}) {
+  void _cleanupTranslationResources(
+    String translationId, {
+    bool isTimeout = false,
+  }) {
     // 取消超时计时器
     _translationTimeouts[translationId]?.cancel();
     _translationTimeouts.remove(translationId);
@@ -663,7 +810,9 @@ class TranslationService extends GetxService {
     if (streamController != null && !streamController.isClosed) {
       if (isTimeout) {
         // 如果是因为超时关闭的，添加错误信息
-        streamController.addError(slang.t.translation.translationRequestTimeout);
+        streamController.addError(
+          slang.t.translation.translationRequestTimeout,
+        );
       }
       streamController.close();
     }
@@ -671,14 +820,24 @@ class TranslationService extends GetxService {
   }
 
   /// 使用流式传输进行AI翻译
-  Future<void> _translateWithAIStream(String text, String translationId, {String? targetLanguage}) async {
+  Future<void> _translateWithAIStream(
+    String text,
+    String translationId, {
+    String? targetLanguage,
+  }) async {
     // 获取流控制器，如果不存在则返回
     final streamController = _activeStreamTranslations[translationId];
     if (streamController == null) return;
 
     try {
-      final requestData = _buildAIRequestData(text, targetLanguage: targetLanguage, stream: true);
-      final url = getFinalUrl(_getConfig<String>(ConfigKey.AI_TRANSLATION_BASE_URL) ?? '');
+      final requestData = _buildAIRequestData(
+        text,
+        targetLanguage: targetLanguage,
+        stream: true,
+      );
+      final url = getFinalUrl(
+        _getConfig<String>(ConfigKey.AI_TRANSLATION_BASE_URL) ?? '',
+      );
 
       final response = await dio.post(
         url,
@@ -705,7 +864,10 @@ class TranslationService extends GetxService {
         inactivityTimer?.cancel();
         inactivityTimer = Timer(const Duration(seconds: 30), () {
           if (isActive) {
-            LogUtils.w(slang.t.translation.streamingTranslationDataTimeout, 'TranslationService');
+            LogUtils.w(
+              slang.t.translation.streamingTranslationDataTimeout,
+              'TranslationService',
+            );
             isActive = false;
             streamController.addError(slang.t.translation.dataReceptionTimeout);
             _cleanupTranslationResources(translationId);
@@ -728,8 +890,11 @@ class TranslationService extends GetxService {
         final chunkString = utf8.decode(chunk);
 
         // 处理SSE格式的数据
-        final lines = chunkString.split('\n')
-            .where((line) => line.startsWith('data: ') && line != 'data: [DONE]')
+        final lines = chunkString
+            .split('\n')
+            .where(
+              (line) => line.startsWith('data: ') && line != 'data: [DONE]',
+            )
             .map((line) => line.substring(6));
 
         for (final line in lines) {
@@ -739,7 +904,6 @@ class TranslationService extends GetxService {
                 (data['choices'] as List).isNotEmpty &&
                 data['choices'][0].containsKey('delta') &&
                 data['choices'][0]['delta'].containsKey('content')) {
-
               final content = data['choices'][0]['delta']['content'] as String;
               fullTranslation += content;
 
@@ -759,7 +923,6 @@ class TranslationService extends GetxService {
       if (!streamController.isClosed && isActive) {
         await streamController.close();
       }
-
     } catch (e) {
       LogUtils.e(slang.t.translation.streamingTranslationFailed, error: e);
 
@@ -767,14 +930,20 @@ class TranslationService extends GetxService {
       if (!streamController.isClosed) {
         try {
           // 使用普通翻译获取结果
-          final result = await _translateWithAI(text, targetLanguage: targetLanguage);
+          final result = await _translateWithAI(
+            text,
+            targetLanguage: targetLanguage,
+          );
           if (result.isSuccess && result.data != null) {
             streamController.add(result.data!);
           } else {
             streamController.addError(result.message);
           }
         } catch (fallbackError) {
-          LogUtils.e(slang.t.translation.fallbackTranslationFailed, error: fallbackError);
+          LogUtils.e(
+            slang.t.translation.fallbackTranslationFailed,
+            error: fallbackError,
+          );
           streamController.addError(fallbackError);
         } finally {
           // 关闭流
