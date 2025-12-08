@@ -3,6 +3,7 @@
 ///
 // coverage:ignore-file
 // ignore_for_file: type=lint, unused_import
+// dart format off
 
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
@@ -10,7 +11,7 @@ import 'package:slang/generated.dart';
 import 'strings.g.dart';
 
 // Path: <root>
-class TranslationsJa implements Translations {
+class TranslationsJa with BaseTranslations<AppLocale, Translations> implements Translations {
 	/// You can call this constructor and build your own translation instance of this locale.
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	TranslationsJa({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
@@ -2502,1757 +2503,1765 @@ class _TranslationsVideoDetailCastDlnaCastSheetJa implements TranslationsVideoDe
 	@override String get stopCasting => 'キャスト停止';
 }
 
-/// Flat map(s) containing all translations.
+/// The flat map containing all translations for locale <ja>.
 /// Only for edge cases! For simple maps, use the map function of this library.
+///
+/// The Dart AOT compiler has issues with very large switch statements,
+/// so the map is split into smaller functions (512 entries each).
 extension on TranslationsJa {
 	dynamic _flatMapFunction(String path) {
-		switch (path) {
-			case 'tutorial.specialFollowFeature': return '特別フォロー機能';
-			case 'tutorial.specialFollowDescription': return 'ここには特別にフォローしている著者が表示されます。動画、ギャラリー、著者詳細ページでフォローボタンをクリックし、「特別フォローとして追加」を選択してください。';
-			case 'tutorial.exampleAuthorInfoRow': return '例：著者情報行';
-			case 'tutorial.authorName': return '著者名';
-			case 'tutorial.followed': return 'フォロー済み';
-			case 'tutorial.specialFollowInstruction': return '"フォロー済み"ボタンをクリック → "特別フォローとして追加"を選択';
-			case 'tutorial.followButtonLocations': return 'フォローボタンの場所：';
-			case 'tutorial.videoDetailPage': return '動画詳細ページ';
-			case 'tutorial.galleryDetailPage': return 'ギャラリー詳細ページ';
-			case 'tutorial.authorDetailPage': return '著者詳細ページ';
-			case 'tutorial.afterSpecialFollow': return '特別フォロー後、著者の最新コンテンツをすばやく確認できます！';
-			case 'tutorial.specialFollowManagementTip': return '特別フォローリストはサイドバードロワー - フォローリスト - 特別フォローリストページで管理できます';
-			case 'tutorial.skip': return 'スキップ';
-			case 'common.appName': return 'Love Iwara';
-			case 'common.ok': return '確定';
-			case 'common.cancel': return 'キャンセル';
-			case 'common.save': return '保存';
-			case 'common.delete': return '削除';
-			case 'common.visit': return 'アクセス';
-			case 'common.loading': return '読み込み中...';
-			case 'common.scrollToTop': return 'トップに戻る';
-			case 'common.privacyHint': return 'プライバシー内容、表示しません';
-			case 'common.latest': return '最新';
-			case 'common.likesCount': return 'いいね数';
-			case 'common.viewsCount': return '視聴回数';
-			case 'common.popular': return '人気';
-			case 'common.trending': return 'トレンド';
-			case 'common.commentList': return 'コメント一覧';
-			case 'common.sendComment': return 'コメントを投稿';
-			case 'common.send': return '送信';
-			case 'common.retry': return '再試行';
-			case 'common.premium': return 'プレミアム会員';
-			case 'common.follower': return 'フォロワー';
-			case 'common.friend': return '友達';
-			case 'common.video': return 'ビデオ';
-			case 'common.following': return 'フォロー中';
-			case 'common.expand': return '展開';
-			case 'common.collapse': return '收起';
-			case 'common.cancelFriendRequest': return '友達申請を取り消す';
-			case 'common.cancelSpecialFollow': return '特別フォローを解除';
-			case 'common.addFriend': return '友達を追加';
-			case 'common.removeFriend': return '友達を解除';
-			case 'common.followed': return 'フォロー済み';
-			case 'common.follow': return 'フォローする';
-			case 'common.unfollow': return 'フォロー解除';
-			case 'common.specialFollow': return '特別フォロー';
-			case 'common.specialFollowed': return '特別フォロー済み';
-			case 'common.specialFollowsManagementTip': return 'ドラッグして並べ替え • 左スワイプで削除';
-			case 'common.specialFollowsManagement': return '特別フォロー管理';
-			case 'common.createTimeDesc': return '作成時間降順';
-			case 'common.createTimeAsc': return '作成時間昇順';
-			case 'common.gallery': return 'ギャラリー';
-			case 'common.playlist': return 'プレイリスト';
-			case 'common.commentPostedSuccessfully': return 'コメントが正常に投稿されました';
-			case 'common.commentPostedFailed': return 'コメントの投稿に失敗しました';
-			case 'common.success': return '成功';
-			case 'common.commentDeletedSuccessfully': return 'コメントが削除されました';
-			case 'common.commentUpdatedSuccessfully': return 'コメントが更新されました';
-			case 'common.totalComments': return ({required Object count}) => '${count} 件のコメント';
-			case 'common.writeYourCommentHere': return 'ここにコメントを入力...';
-			case 'common.tmpNoReplies': return '返信はありません';
-			case 'common.loadMore': return 'もっと読み込む';
-			case 'common.noMoreDatas': return 'これ以上データはありません';
-			case 'common.selectTranslationLanguage': return '翻訳言語を選択';
-			case 'common.translate': return '翻訳';
-			case 'common.translateFailedPleaseTryAgainLater': return '翻訳に失敗しました。後でもう一度お試しください';
-			case 'common.translationResult': return '翻訳結果';
-			case 'common.justNow': return 'たった今';
-			case 'common.minutesAgo': return ({required Object num}) => '${num} 分前';
-			case 'common.hoursAgo': return ({required Object num}) => '${num} 時間前';
-			case 'common.daysAgo': return ({required Object num}) => '${num} 日前';
-			case 'common.editedAt': return ({required Object num}) => '${num} 編集';
-			case 'common.editComment': return 'コメントを編集';
-			case 'common.commentUpdated': return 'コメントが更新されました';
-			case 'common.replyComment': return 'コメントに返信';
-			case 'common.reply': return '返信';
-			case 'common.edit': return '編集';
-			case 'common.unknownUser': return '不明なユーザー';
-			case 'common.me': return '私';
-			case 'common.author': return '作者';
-			case 'common.admin': return '管理者';
-			case 'common.viewReplies': return ({required Object num}) => '返信を表示 (${num})';
-			case 'common.hideReplies': return '返信を非表示';
-			case 'common.confirmDelete': return '削除を確認';
-			case 'common.areYouSureYouWantToDeleteThisItem': return 'この項目を削除してもよろしいですか？';
-			case 'common.tmpNoComments': return 'コメントがありません';
-			case 'common.refresh': return '更新';
-			case 'common.back': return '戻る';
-			case 'common.tips': return 'ヒント';
-			case 'common.linkIsEmpty': return 'リンクアドレスが空です';
-			case 'common.linkCopiedToClipboard': return 'リンクアドレスがクリップボードにコピーされました';
-			case 'common.imageCopiedToClipboard': return '画像がクリップボードにコピーされました';
-			case 'common.copyImageFailed': return '画像のコピーに失敗しました';
-			case 'common.mobileSaveImageIsUnderDevelopment': return 'モバイル端末での画像保存機能は現在開発中です';
-			case 'common.imageSavedTo': return '画像が保存されました';
-			case 'common.saveImageFailed': return '画像の保存に失敗しました';
-			case 'common.close': return '閉じる';
-			case 'common.more': return 'もっと見る';
-			case 'common.moreFeaturesToBeDeveloped': return 'さらに機能が開発中です';
-			case 'common.all': return 'すべて';
-			case 'common.selectedRecords': return ({required Object num}) => '${num} 件のレコードが選択されました';
-			case 'common.cancelSelectAll': return 'すべての選択を解除';
-			case 'common.selectAll': return 'すべて選択';
-			case 'common.exitEditMode': return '編集モードを終了';
-			case 'common.areYouSureYouWantToDeleteSelectedItems': return ({required Object num}) => '選択した ${num} 件のレコードを削除してもよろしいですか？';
-			case 'common.searchHistoryRecords': return '検索履歴...';
-			case 'common.settings': return '設定';
-			case 'common.subscriptions': return 'サブスクリプション';
-			case 'common.videoCount': return ({required Object num}) => '${num} 本の動画';
-			case 'common.share': return '共有';
-			case 'common.areYouSureYouWantToShareThisPlaylist': return 'このプレイリストを共有してもよろしいですか？';
-			case 'common.editTitle': return 'タイトルを編集';
-			case 'common.editMode': return '編集モード';
-			case 'common.pleaseEnterNewTitle': return '新しいタイトルを入力してください';
-			case 'common.createPlayList': return 'プレイリストを作成';
-			case 'common.create': return '作成';
-			case 'common.checkNetworkSettings': return 'ネットワーク設定を確認';
-			case 'common.general': return '一般';
-			case 'common.r18': return 'R18';
-			case 'common.sensitive': return 'センシティブ';
-			case 'common.year': return '年';
-			case 'common.month': return '月';
-			case 'common.tag': return 'タグ';
-			case 'common.notice': return 'お知らせ';
-			case 'common.private': return 'プライベート';
-			case 'common.noTitle': return 'タイトルなし';
-			case 'common.search': return '検索';
-			case 'common.noContent': return 'コンテンツがありません';
-			case 'common.recording': return '録画中';
-			case 'common.paused': return '一時停止';
-			case 'common.clear': return 'クリア';
-			case 'common.user': return 'ユーザー';
-			case 'common.post': return '投稿';
-			case 'common.seconds': return '秒';
-			case 'common.comingSoon': return '近日公開';
-			case 'common.confirm': return '確認';
-			case 'common.hour': return '時';
-			case 'common.minute': return '分';
-			case 'common.clickToRefresh': return 'クリックして更新';
-			case 'common.history': return '履歴';
-			case 'common.favorites': return 'お気に入り';
-			case 'common.friends': return '友達';
-			case 'common.playList': return 'プレイリスト';
-			case 'common.checkLicense': return 'ライセンスを確認';
-			case 'common.logout': return 'ログアウト';
-			case 'common.fensi': return 'フォロワー';
-			case 'common.accept': return '受け入れる';
-			case 'common.reject': return '拒否';
-			case 'common.clearAllHistory': return 'すべての履歴をクリア';
-			case 'common.clearAllHistoryConfirm': return 'すべての履歴をクリアしてもよろしいですか？';
-			case 'common.followingList': return 'フォロー中リスト';
-			case 'common.followersList': return 'フォロワーリスト';
-			case 'common.follows': return 'フォロー';
-			case 'common.fans': return 'フォロワー';
-			case 'common.followsAndFans': return 'フォローとフォロワー';
-			case 'common.numViews': return '視聴回数';
-			case 'common.updatedAt': return '更新時間';
-			case 'common.publishedAt': return '発表時間';
-			case 'common.externalVideo': return '站外動画';
-			case 'common.originalText': return '原文';
-			case 'common.showOriginalText': return '原文を表示';
-			case 'common.showProcessedText': return '処理後の原文を表示';
-			case 'common.preview': return 'プレビュー';
-			case 'common.rules': return 'ルール';
-			case 'common.agree': return '同意';
-			case 'common.disagree': return '不同意';
-			case 'common.agreeToRules': return '同意ルール';
-			case 'common.markdownSyntaxHelp': return 'Markdown構文ヘルプ';
-			case 'common.previewContent': return '内容をプレビュー';
-			case 'common.characterCount': return ({required Object current, required Object max}) => '${current}/${max}';
-			case 'common.exceedsMaxLengthLimit': return ({required Object max}) => '最大文字数制限を超過 (${max})';
-			case 'common.agreeToCommunityRules': return 'コミュニティルールに同意';
-			case 'common.createPost': return '投稿を作成';
-			case 'common.title': return 'タイトル';
-			case 'common.enterTitle': return 'タイトルを入力してください';
-			case 'common.content': return '内容';
-			case 'common.enterContent': return '内容を入力してください';
-			case 'common.writeYourContentHere': return '内容を入力してください...';
-			case 'common.tagBlacklist': return 'ブラックリストタグ';
-			case 'common.noData': return 'データがありません';
-			case 'common.tagLimit': return 'タグ上限';
-			case 'common.enableFloatingButtons': return 'フローティングボタンを有効';
-			case 'common.disableFloatingButtons': return 'フローティングボタンを無効';
-			case 'common.enabledFloatingButtons': return 'フローティングボタンが有効';
-			case 'common.disabledFloatingButtons': return 'フローティングボタンが無効';
-			case 'common.pendingCommentCount': return '未審核コメント';
-			case 'common.joined': return ({required Object str}) => '${str} に参加';
-			case 'common.download': return 'ダウンロード';
-			case 'common.selectQuality': return '画質を選択';
-			case 'common.selectDateRange': return '日付範囲を選択';
-			case 'common.selectDateRangeHint': return '日付範囲を選択，デフォルトは最近30日';
-			case 'common.clearDateRange': return '日付範囲をクリア';
-			case 'common.followSuccessClickAgainToSpecialFollow': return 'フォローに成功しました。再度クリックして特別フォロー';
-			case 'common.exitConfirmTip': return '本当に退出しますか？';
-			case 'common.error': return 'エラー';
-			case 'common.taskRunning': return '既にタスクが実行中です。しばらくお待ちください。';
-			case 'common.operationCancelled': return '操作がキャンセルされました。';
-			case 'common.unsavedChanges': return '未保存の変更があります';
-			case 'common.pagination.totalItems': return ({required Object num}) => '全 ${num} 件';
-			case 'common.pagination.jumpToPage': return 'ページ指定';
-			case 'common.pagination.pleaseEnterPageNumber': return ({required Object max}) => 'ページ番号を入力してください (1-${max})';
-			case 'common.pagination.pageNumber': return 'ページ番号';
-			case 'common.pagination.jump': return '移動';
-			case 'common.pagination.invalidPageNumber': return ({required Object max}) => '有効なページ番号を入力してください (1-${max})';
-			case 'common.pagination.invalidInput': return '有効なページ番号を入力してください';
-			case 'common.pagination.waterfall': return 'ウォーターフォール';
-			case 'common.pagination.pagination': return 'ページネーション';
-			case 'common.detail': return '詳細';
-			case 'common.parseExceptionDestopHint': return ' - デスクトップユーザーは設定でプロキシを構成できます';
-			case 'common.iwaraTags': return 'Iwara タグ';
-			case 'common.likeThisVideo': return 'この動画が好きな人';
-			case 'common.operation': return '操作';
-			case 'common.replies': return '返信';
-			case 'auth.login': return 'ログイン';
-			case 'auth.logout': return 'ログアウト';
-			case 'auth.email': return 'メールアドレス';
-			case 'auth.password': return 'パスワード';
-			case 'auth.loginOrRegister': return 'ログイン / 新規登録';
-			case 'auth.register': return '新規登録';
-			case 'auth.pleaseEnterEmail': return 'メールアドレスを入力してください';
-			case 'auth.pleaseEnterPassword': return 'パスワードを入力してください';
-			case 'auth.passwordMustBeAtLeast6Characters': return 'パスワードは6文字以上必要です';
-			case 'auth.pleaseEnterCaptcha': return 'キャプチャを入力してください';
-			case 'auth.captcha': return 'キャプチャ';
-			case 'auth.refreshCaptcha': return 'キャプチャを更新';
-			case 'auth.captchaNotLoaded': return 'キャプチャを読み込めませんでした';
-			case 'auth.loginSuccess': return 'ログインに成功しました';
-			case 'auth.emailVerificationSent': return 'メール認証が送信されました';
-			case 'auth.notLoggedIn': return 'ログインしていません';
-			case 'auth.clickToLogin': return 'こちらをクリックしてログイン';
-			case 'auth.logoutConfirmation': return '本当にログアウトしますか？';
-			case 'auth.logoutSuccess': return 'ログアウトに成功しました';
-			case 'auth.logoutFailed': return 'ログアウトに失敗しました';
-			case 'auth.usernameOrEmail': return 'ユーザー名またはメールアドレス';
-			case 'auth.pleaseEnterUsernameOrEmail': return 'ユーザー名またはメールアドレスを入力してください';
-			case 'auth.rememberMe': return 'ユーザー名とパスワードを記憶';
-			case 'errors.error': return 'エラー';
-			case 'errors.required': return 'この項目は必須です';
-			case 'errors.invalidEmail': return 'メールアドレスの形式が正しくありません';
-			case 'errors.networkError': return 'ネットワークエラーが発生しました。再試行してください';
-			case 'errors.errorWhileFetching': return '情報の取得に失敗しました';
-			case 'errors.commentCanNotBeEmpty': return 'コメント内容は空にできません';
-			case 'errors.errorWhileFetchingReplies': return '返信の取得中にエラーが発生しました。ネットワーク接続を確認してください';
-			case 'errors.canNotFindCommentController': return 'コメントコントローラーが見つかりません';
-			case 'errors.errorWhileLoadingGallery': return 'ギャラリーの読み込み中にエラーが発生しました';
-			case 'errors.howCouldThereBeNoDataItCantBePossible': return 'え？データがありません。エラーが発生した可能性があります :<';
-			case 'errors.unsupportedImageFormat': return ({required Object str}) => 'サポートされていない画像形式: ${str}';
-			case 'errors.invalidGalleryId': return '無効なギャラリーIDです';
-			case 'errors.translationFailedPleaseTryAgainLater': return '翻訳に失敗しました。後でもう一度お試しください';
-			case 'errors.errorOccurred': return 'エラーが発生しました。しばらくしてから再試行してください。';
-			case 'errors.errorOccurredWhileProcessingRequest': return 'リクエストの処理中にエラーが発生しました';
-			case 'errors.errorWhileFetchingDatas': return 'データの取得中にエラーが発生しました。後でもう一度お試しください';
-			case 'errors.serviceNotInitialized': return 'サービスが初期化されていません';
-			case 'errors.unknownType': return '不明なタイプです';
-			case 'errors.errorWhileOpeningLink': return ({required Object link}) => 'リンクを開けませんでした: ${link}';
-			case 'errors.invalidUrl': return '無効なURLです';
-			case 'errors.failedToOperate': return '操作に失敗しました';
-			case 'errors.permissionDenied': return '権限がありません';
-			case 'errors.youDoNotHavePermissionToAccessThisResource': return 'このリソースにアクセスする権限がありません';
-			case 'errors.loginFailed': return 'ログインに失敗しました';
-			case 'errors.unknownError': return '不明なエラーです';
-			case 'errors.sessionExpired': return 'セッションが期限切れです';
-			case 'errors.failedToFetchCaptcha': return 'キャプチャの取得に失敗しました';
-			case 'errors.emailAlreadyExists': return 'メールアドレスは既に存在します';
-			case 'errors.invalidCaptcha': return '無効なキャプチャです';
-			case 'errors.registerFailed': return '登録に失敗しました';
-			case 'errors.failedToFetchComments': return 'コメントの取得に失敗しました';
-			case 'errors.failedToFetchImageDetail': return '画像の取得に失敗しました';
-			case 'errors.failedToFetchImageList': return '画像の取得に失敗しました';
-			case 'errors.failedToFetchData': return 'データの取得に失敗しました';
-			case 'errors.invalidParameter': return '無効なパラメータです';
-			case 'errors.pleaseLoginFirst': return 'ログインしてください';
-			case 'errors.errorWhileLoadingPost': return '投稿の取得中にエラーが発生しました';
-			case 'errors.errorWhileLoadingPostDetail': return '投稿詳細の取得中にエラーが発生しました';
-			case 'errors.invalidPostId': return '無効な投稿IDです';
-			case 'errors.forceUpdateNotPermittedToGoBack': return '現在強制更新状態です。戻ることはできません';
-			case 'errors.pleaseLoginAgain': return 'ログインしてください';
-			case 'errors.invalidLogin': return 'ログインに失敗しました。メールアドレスとパスワードを確認してください';
-			case 'errors.tooManyRequests': return 'リクエストが多すぎます。後でもう一度お試しください';
-			case 'errors.exceedsMaxLength': return ({required Object max}) => '最大長さを超えています: ${max}';
-			case 'errors.contentCanNotBeEmpty': return 'コンテンツは空にできません';
-			case 'errors.titleCanNotBeEmpty': return 'タイトルは空にできません';
-			case 'errors.tooManyRequestsPleaseTryAgainLaterText': return 'リクエストが多すぎます。後でもう一度お試しください。残り時間';
-			case 'errors.remainingHours': return ({required Object num}) => '${num}時間';
-			case 'errors.remainingMinutes': return ({required Object num}) => '${num}分';
-			case 'errors.remainingSeconds': return ({required Object num}) => '${num}秒';
-			case 'errors.tagLimitExceeded': return ({required Object limit}) => 'タグの上限を超えています。上限: ${limit}';
-			case 'errors.failedToRefresh': return '更新に失敗しました';
-			case 'errors.noPermission': return '権限がありません';
-			case 'errors.resourceNotFound': return 'リソースが見つかりません';
-			case 'errors.failedToSaveCredentials': return 'ログイン情報の保存に失敗しました';
-			case 'errors.failedToLoadSavedCredentials': return '保存されたログイン情報の読み込みに失敗しました';
-			case 'errors.specialFollowLimitReached': return ({required Object cnt}) => '特別フォローの上限を超えています。上限: ${cnt}，フォローリストページで調整してください';
-			case 'errors.notFound': return 'コンテンツが見つかりませんまたは削除されました';
-			case 'errors.network.basicPrefix': return 'ネットワークエラー - ';
-			case 'errors.network.failedToConnectToServer': return 'サーバーへの接続に失敗しました';
-			case 'errors.network.serverNotAvailable': return 'サーバーが利用できません';
-			case 'errors.network.requestTimeout': return 'リクエストタイムアウト';
-			case 'errors.network.unexpectedError': return '予期しないエラー';
-			case 'errors.network.invalidResponse': return '無効なレスポンス';
-			case 'errors.network.invalidRequest': return '無効なリクエスト';
-			case 'errors.network.invalidUrl': return '無効なURL';
-			case 'errors.network.invalidMethod': return '無効なメソッド';
-			case 'errors.network.invalidHeader': return '無効なヘッダー';
-			case 'errors.network.invalidBody': return '無効なボディ';
-			case 'errors.network.invalidStatusCode': return '無効なステータスコード';
-			case 'errors.network.serverError': return 'サーバーエラー';
-			case 'errors.network.requestCanceled': return 'リクエストがキャンセルされました';
-			case 'errors.network.invalidPort': return '無効なポート';
-			case 'errors.network.proxyPortError': return 'プロキシポートエラー';
-			case 'errors.network.connectionRefused': return '接続が拒否されました';
-			case 'errors.network.networkUnreachable': return 'ネットワークに到達できません';
-			case 'errors.network.noRouteToHost': return 'ホストに到達できません';
-			case 'errors.network.connectionFailed': return '接続に失敗しました';
-			case 'errors.network.sslConnectionFailed': return 'SSL接続に失敗しました。ネットワーク設定を確認してください';
-			case 'friends.clickToRestoreFriend': return '友達を復元するにはクリックしてください';
-			case 'friends.friendsList': return '友達リスト';
-			case 'friends.friendRequests': return '友達リクエスト';
-			case 'friends.friendRequestsList': return '友達リクエスト一覧';
-			case 'friends.removingFriend': return 'フレンド解除中...';
-			case 'friends.failedToRemoveFriend': return 'フレンド解除に失敗しました';
-			case 'friends.cancelingRequest': return 'フレンド申請をキャンセル中...';
-			case 'friends.failedToCancelRequest': return 'フレンド申請のキャンセルに失敗しました';
-			case 'authorProfile.noMoreDatas': return 'これ以上データはありません';
-			case 'authorProfile.userProfile': return 'ユーザープロフィール';
-			case 'favorites.clickToRestoreFavorite': return 'お気に入りを復元するにはクリックしてください';
-			case 'favorites.myFavorites': return '私のお気に入り';
-			case 'galleryDetail.galleryDetail': return 'ギャラリー詳細';
-			case 'galleryDetail.viewGalleryDetail': return 'ギャラリー詳細を表示';
-			case 'galleryDetail.copyLink': return 'リンクをコピー';
-			case 'galleryDetail.copyImage': return '画像をコピー';
-			case 'galleryDetail.saveAs': return '名前を付けて保存';
-			case 'galleryDetail.saveToAlbum': return 'アルバムに保存';
-			case 'galleryDetail.publishedAt': return '公開日時';
-			case 'galleryDetail.viewsCount': return '視聴回数';
-			case 'galleryDetail.imageLibraryFunctionIntroduction': return 'ギャラリー機能の紹介';
-			case 'galleryDetail.rightClickToSaveSingleImage': return '右クリックで単一画像を保存';
-			case 'galleryDetail.batchSave': return 'バッチ保存';
-			case 'galleryDetail.keyboardLeftAndRightToSwitch': return 'キーボードの左右キーで切り替え';
-			case 'galleryDetail.keyboardUpAndDownToZoom': return 'キーボードの上下キーでズーム';
-			case 'galleryDetail.mouseWheelToSwitch': return 'マウスホイールで切り替え';
-			case 'galleryDetail.ctrlAndMouseWheelToZoom': return 'CTRL + マウスホイールでズーム';
-			case 'galleryDetail.moreFeaturesToBeDiscovered': return 'さらに機能が発見されます...';
-			case 'galleryDetail.authorOtherGalleries': return '作者の他のギャラリー';
-			case 'galleryDetail.relatedGalleries': return '関連ギャラリー';
-			case 'galleryDetail.clickLeftAndRightEdgeToSwitchImage': return '左端と右端をクリックして切り替え';
-			case 'playList.myPlayList': return '私のプレイリスト';
-			case 'playList.friendlyTips': return 'フレンドリーティップス';
-			case 'playList.dearUser': return '親愛なるユーザー';
-			case 'playList.iwaraPlayListSystemIsNotPerfectYet': return 'iwaraのプレイリストシステムはまだ完全ではありません';
-			case 'playList.notSupportSetCover': return 'カバー設定はサポートされていません';
-			case 'playList.notSupportDeleteList': return 'リストの削除はできません';
-			case 'playList.notSupportSetPrivate': return 'プライベート設定はできません';
-			case 'playList.yesCreateListWillAlwaysExistAndVisibleToEveryone': return 'はい...作成されたリストは常に存在し、全員に表示されます';
-			case 'playList.smallSuggestion': return '小さな提案';
-			case 'playList.useLikeToCollectContent': return 'プライバシーを重視する場合は、「いいね」機能を使用してコンテンツを収集することをお勧めします';
-			case 'playList.welcomeToDiscussOnGitHub': return 'その他の提案やアイデアがある場合は、GitHubでのディスカッションを歓迎します！';
-			case 'playList.iUnderstand': return 'わかりました';
-			case 'playList.searchPlaylists': return 'プレイリストを検索...';
-			case 'playList.newPlaylistName': return '新しいプレイリスト名';
-			case 'playList.createNewPlaylist': return '新しいプレイリストを作成';
-			case 'playList.videos': return '動画';
-			case 'search.googleSearchScope': return '検索範囲';
-			case 'search.searchTags': return 'タグを検索...';
-			case 'search.contentRating': return 'コンテンツレーティング';
-			case 'search.removeTag': return 'タグを削除';
-			case 'search.pleaseEnterSearchContent': return '検索内容を入力してください';
-			case 'search.searchHistory': return '検索履歴';
-			case 'search.searchSuggestion': return '検索提案';
-			case 'search.usedTimes': return '使用回数';
-			case 'search.lastUsed': return '最後の使用';
-			case 'search.noSearchHistoryRecords': return '検索履歴がありません';
-			case 'search.notSupportCurrentSearchType': return ({required Object searchType}) => '現在の検索タイプ ${searchType} はまだ実装されていません。お楽しみに';
-			case 'search.searchResult': return '検索結果';
-			case 'search.unsupportedSearchType': return ({required Object searchType}) => 'サポートされていない検索タイプ: ${searchType}';
-			case 'search.googleSearch': return 'グーグル検索';
-			case 'search.googleSearchHint': return ({required Object webName}) => '${webName} の検索機能は使いにくいですか？ グーグル検索を試してみてください！';
-			case 'search.googleSearchDescription': return 'Google Search の :site 検索演算子を使用して、サイトのコンテンツを検索します。これは、動画、ギャラリー、プレイリスト、ユーザーを検索する際に非常に便利です。';
-			case 'search.googleSearchKeywordsHint': return '検索するキーワードを入力してください';
-			case 'search.openLinkJump': return 'リンクジャンプを開く';
-			case 'search.googleSearchButton': return 'グーグル検索';
-			case 'search.pleaseEnterSearchKeywords': return '検索するキーワードを入力してください';
-			case 'search.googleSearchQueryCopied': return '検索語句をクリップボードにコピーしました';
-			case 'search.googleSearchBrowserOpenFailed': return ({required Object error}) => 'ブラウザを開けませんでした: ${error}';
-			case 'mediaList.personalIntroduction': return '個人紹介';
-			case 'settings.listViewMode': return 'リスト表示モード';
-			case 'settings.useTraditionalPaginationMode': return '従来のページネーションモードを使用';
-			case 'settings.useTraditionalPaginationModeDesc': return '従来のページネーションモードを使用すると、ページネーションモードが無効になります。';
-			case 'settings.showVideoProgressBottomBarWhenToolbarHidden': return '底部プログレスバー';
-			case 'settings.showVideoProgressBottomBarWhenToolbarHiddenDesc': return 'この設定は、ツールバーが非表示のときに底部プログレスバーを表示するかどうかを決定します。';
-			case 'settings.basicSettings': return '基本設定';
-			case 'settings.personalizedSettings': return '個性化設定';
-			case 'settings.otherSettings': return 'その他設定';
-			case 'settings.searchConfig': return '検索設定';
-			case 'settings.thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain': return 'この設定は、今後動画を再生する際に以前の設定を使用するかどうかを決定します。';
-			case 'settings.playControl': return '再生コントロール';
-			case 'settings.fastForwardTime': return '早送り時間';
-			case 'settings.fastForwardTimeMustBeAPositiveInteger': return '早送り時間は正の整数でなければなりません。';
-			case 'settings.rewindTime': return '巻き戻し時間';
-			case 'settings.rewindTimeMustBeAPositiveInteger': return '巻き戻し時間は正の整数でなければなりません。';
-			case 'settings.longPressPlaybackSpeed': return '長押し再生速度';
-			case 'settings.longPressPlaybackSpeedMustBeAPositiveNumber': return '長押し再生速度は正の数でなければなりません。';
-			case 'settings.repeat': return 'リピート';
-			case 'settings.renderVerticalVideoInVerticalScreen': return '全画面再生時に縦向きビデオを縦画面モードでレンダリング';
-			case 'settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen': return 'この設定は、全画面再生時に縦向きビデオを縦画面モードでレンダリングするかどうかを決定します。';
-			case 'settings.rememberVolume': return '音量を記憶';
-			case 'settings.thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain': return 'この設定は、今後動画を再生する際に以前の音量設定を使用するかどうかを決定します。';
-			case 'settings.rememberBrightness': return '明るさを記憶';
-			case 'settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain': return 'この設定は、今後動画を再生する際に以前の明るさ設定を使用するかどうかを決定します。';
-			case 'settings.playControlArea': return '再生コントロールエリア';
-			case 'settings.leftAndRightControlAreaWidth': return '左右コントロールエリアの幅';
-			case 'settings.thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer': return 'この設定は、プレイヤーの左右にあるコントロールエリアの幅を決定します。';
-			case 'settings.proxyAddressCannotBeEmpty': return 'プロキシアドレスは空にできません。';
-			case 'settings.invalidProxyAddressFormatPleaseUseTheFormatOfIpPortOrDomainNamePort': return '無効なプロキシアドレス形式です。IP:ポート または ドメイン名:ポート の形式を使用してください。';
-			case 'settings.proxyNormalWork': return 'プロキシが正常に動作しています。';
-			case 'settings.testProxyFailedWithStatusCode': return ({required Object code}) => 'プロキシリクエストが失敗しました。ステータスコード: ${code}';
-			case 'settings.testProxyFailedWithException': return ({required Object exception}) => 'プロキシリクエスト中にエラーが発生しました: ${exception}';
-			case 'settings.proxyConfig': return 'プロキシ設定';
-			case 'settings.thisIsHttpProxyAddress': return 'ここにHTTPプロキシアドレスを入力してください';
-			case 'settings.checkProxy': return 'プロキシを確認';
-			case 'settings.proxyAddress': return 'プロキシアドレス';
-			case 'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080': return 'プロキシサーバーのURLを入力してください（例: 127.0.0.1:8080）';
-			case 'settings.enableProxy': return 'プロキシを有効にする';
-			case 'settings.left': return '左';
-			case 'settings.middle': return '中央';
-			case 'settings.right': return '右';
-			case 'settings.playerSettings': return 'プレイヤー設定';
-			case 'settings.networkSettings': return 'ネットワーク設定';
-			case 'settings.customizeYourPlaybackExperience': return '再生体験をカスタマイズ';
-			case 'settings.chooseYourFavoriteAppAppearance': return 'お好みのアプリ外観を選択';
-			case 'settings.configureYourProxyServer': return 'プロキシサーバーを設定';
-			case 'settings.settings': return '設定';
-			case 'settings.themeSettings': return 'テーマ設定';
-			case 'settings.followSystem': return 'システムに従う';
-			case 'settings.lightMode': return 'ライトモード';
-			case 'settings.darkMode': return 'ダークモード';
-			case 'settings.presetTheme': return 'プリセットテーマ';
-			case 'settings.basicTheme': return 'ベーシックテーマ';
-			case 'settings.needRestartToApply': return 'アプリを再起動して設定を適用してください';
-			case 'settings.themeNeedRestartDescription': return 'テーマ設定はアプリを再起動して設定を適用してください';
-			case 'settings.about': return 'アバウト';
-			case 'settings.currentVersion': return '現在のバージョン';
-			case 'settings.latestVersion': return '最新バージョン';
-			case 'settings.checkForUpdates': return '更新をチェック';
-			case 'settings.update': return '更新';
-			case 'settings.newVersionAvailable': return '新しいバージョンが利用可能です';
-			case 'settings.projectHome': return 'プロジェクトホーム';
-			case 'settings.release': return 'リリース';
-			case 'settings.issueReport': return '問題報告';
-			case 'settings.openSourceLicense': return 'オープンソースライセンス';
-			case 'settings.checkForUpdatesFailed': return '更新のチェックに失敗しました。後でもう一度お試しください';
-			case 'settings.autoCheckUpdate': return '自動更新';
-			case 'settings.updateContent': return '更新内容';
-			case 'settings.releaseDate': return 'リリース日';
-			case 'settings.ignoreThisVersion': return 'このバージョンを無視';
-			case 'settings.minVersionUpdateRequired': return '現在のバージョンが低すぎます。すぐに更新してください';
-			case 'settings.forceUpdateTip': return 'これは必須アップデートです。できるだけ早く最新バージョンにアップデートしてください';
-			case 'settings.viewChangelog': return '更新内容を表示';
-			case 'settings.alreadyLatestVersion': return 'すでに最新バージョンです';
-			case 'settings.appSettings': return 'アプリ設定';
-			case 'settings.configureYourAppSettings': return 'アプリ設定を設定';
-			case 'settings.history': return '履歴';
-			case 'settings.autoRecordHistory': return '自動記録履歴';
-			case 'settings.autoRecordHistoryDesc': return '視聴した動画やギャラリーなどの情報を自動的に記録します';
-			case 'settings.showUnprocessedMarkdownText': return '未処理のMarkdownテキストを表示';
-			case 'settings.showUnprocessedMarkdownTextDesc': return 'Markdownの元のテキストを表示';
-			case 'settings.markdown': return 'Markdown';
-			case 'settings.activeBackgroundPrivacyMode': return 'プライバシーモード';
-			case 'settings.activeBackgroundPrivacyModeDesc': return 'スクリーンショットを禁止し、バックグラウンド実行時に画面を隠す...';
-			case 'settings.privacy': return 'プライバシー';
-			case 'settings.forum': return 'フォーラム';
-			case 'settings.disableForumReplyQuote': return 'フォーラム返信引用を無効にする';
-			case 'settings.disableForumReplyQuoteDesc': return 'フォーラム返信時の返信階層情報の携帯を無効にする';
-			case 'settings.theaterMode': return '劇院モード';
-			case 'settings.theaterModeDesc': return '開啟後、プレーヤー背景がビデオカバーのぼかしバージョンに設定されます';
-			case 'settings.appLinks': return 'アプリリンク';
-			case 'settings.defaultBrowser': return 'デフォルトブラウザ';
-			case 'settings.defaultBrowserDesc': return 'システム設定でデフォルトリンク設定項目を開き、iwara.tvサイトリンクを追加してください';
-			case 'settings.themeMode': return 'テーマモード';
-			case 'settings.themeModeDesc': return 'この設定はアプリのテーマモードを決定します';
-			case 'settings.dynamicColor': return 'ダイナミックカラー';
-			case 'settings.dynamicColorDesc': return 'この設定はアプリがダイナミックカラーを使用するかどうかを決定します';
-			case 'settings.useDynamicColor': return 'ダイナミックカラーを使用';
-			case 'settings.useDynamicColorDesc': return 'この設定はアプリがダイナミックカラーを使用するかどうかを決定します';
-			case 'settings.presetColors': return 'プリセットカラー';
-			case 'settings.customColors': return 'カスタムカラー';
-			case 'settings.pickColor': return 'カラーを選択';
-			case 'settings.cancel': return 'キャンセル';
-			case 'settings.confirm': return '確認';
-			case 'settings.noCustomColors': return 'カスタムカラーがありません';
-			case 'settings.recordAndRestorePlaybackProgress': return '再生進度を記録して復元';
-			case 'settings.signature': return '小尾巴';
-			case 'settings.enableSignature': return '小尾巴を有効にする';
-			case 'settings.enableSignatureDesc': return 'この設定はアプリが回覆時に小尾巴を有効にするかどうかを決定します';
-			case 'settings.enterSignature': return '小尾巴を入力';
-			case 'settings.editSignature': return '小尾巴を編集';
-			case 'settings.signatureContent': return '小尾巴の内容';
-			case 'settings.exportConfig': return 'アプリ設定をエクスポート';
-			case 'settings.exportConfigDesc': return 'ダウンロード記録を除いたアプリ設定をファイルにエクスポートします';
-			case 'settings.importConfig': return 'アプリ設定をインポート';
-			case 'settings.importConfigDesc': return 'ファイルからアプリ設定をインポートします';
-			case 'settings.exportConfigSuccess': return '設定が正常にエクスポートされました';
-			case 'settings.exportConfigFailed': return '設定のエクスポートに失敗しました';
-			case 'settings.importConfigSuccess': return '設定が正常にインポートされました';
-			case 'settings.importConfigFailed': return '設定のインポートに失敗しました';
-			case 'settings.historyUpdateLogs': return '歴代アップデートログ';
-			case 'settings.noUpdateLogs': return 'アップデートログが取得できませんでした';
-			case 'settings.versionLabel': return 'バージョン: {version}';
-			case 'settings.releaseDateLabel': return 'リリース日: {date}';
-			case 'settings.noChanges': return '更新内容がありません';
-			case 'settings.interaction': return 'インタラクション';
-			case 'settings.enableVibration': return 'バイブレーション';
-			case 'settings.enableVibrationDesc': return 'アプリの操作時にバイブレーションフィードバックを有効にする';
-			case 'settings.defaultKeepVideoToolbarVisible': return 'ツールバーを常に表示';
-			case 'settings.defaultKeepVideoToolbarVisibleDesc': return 'この設定は、動画ページに入った時にツールバーを常に表示するかどうかを決定します。';
-			case 'settings.theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt': return 'モバイル端でシアターモードを有効にすると、パフォーマンスの問題が発生する可能性があるため、状況に応じてご利用ください。';
-			case 'settings.lockButtonPosition': return 'ロックボタンの位置';
-			case 'settings.lockButtonPositionBothSides': return '両側に表示';
-			case 'settings.lockButtonPositionLeftSide': return '左側のみ表示';
-			case 'settings.lockButtonPositionRightSide': return '右側のみ表示';
-			case 'settings.fullscreenOrientation': return 'フルスクリーン時のデフォルト画面方向';
-			case 'settings.fullscreenOrientationDesc': return 'この設定は、フルスクリーン時のデフォルト画面方向を決定します（モバイルのみ）';
-			case 'settings.fullscreenOrientationLeftLandscape': return '左横画面';
-			case 'settings.fullscreenOrientationRightLandscape': return '右横画面';
-			case 'settings.jumpLink': return 'リンクをジャンプ';
-			case 'settings.language': return '言語';
-			case 'settings.languageChanged': return '言語設定が変更されました。アプリを再起動して有効にしてください。';
-			case 'settings.gestureControl': return 'ジェスチャー制御';
-			case 'settings.leftDoubleTapRewind': return '左側ダブルタップリワインド';
-			case 'settings.rightDoubleTapFastForward': return '右側ダブルタップファストフォワード';
-			case 'settings.doubleTapPause': return 'ダブルタップポーズ';
-			case 'settings.rightVerticalSwipeVolume': return '右側垂直スワイプボリューム（新ページに入った時に有効）';
-			case 'settings.leftVerticalSwipeBrightness': return '左側垂直スワイプブライトネス（新ページに入った時に有効）';
-			case 'settings.longPressFastForward': return '長押しファストフォワード';
-			case 'settings.enableMouseHoverShowToolbar': return 'マウスホバー時にツールバーを表示';
-			case 'settings.enableMouseHoverShowToolbarInfo': return '有効にすると、マウスがプレーヤー上にあるときにツールバーが表示されます。3秒間の非アクティブ時に自動的に非表示になります。';
-			case 'settings.enableHorizontalDragSeek': return '横スワイプでシーク';
-			case 'settings.audioVideoConfig': return 'オーディオビデオ設定';
-			case 'settings.expandBuffer': return 'バッファ拡張';
-			case 'settings.expandBufferInfo': return '有効にすると、バッファサイズが増加し、読み込み時間が長くなりますが、再生がスムーズになります';
-			case 'settings.videoSyncMode': return 'ビデオ同期モード';
-			case 'settings.videoSyncModeSubtitle': return 'オーディオビデオ同期戦略';
-			case 'settings.hardwareDecodingMode': return 'ハードウェアデコードモード';
-			case 'settings.hardwareDecodingModeSubtitle': return 'ハードウェアデコード設定';
-			case 'settings.enableHardwareAcceleration': return 'ハードウェアアクセラレーションを有効にする';
-			case 'settings.enableHardwareAccelerationInfo': return 'ハードウェアアクセラレーションを有効にすると、デコード性能が向上しますが、一部のデバイスでは互換性がない場合があります';
-			case 'settings.useOpenSLESAudioOutput': return 'OpenSLESオーディオ出力を使用';
-			case 'settings.useOpenSLESAudioOutputInfo': return '低遅延オーディオ出力を使用し、オーディオ性能が向上する可能性があります';
-			case 'settings.videoSyncAudio': return 'オーディオ同期';
-			case 'settings.videoSyncDisplayResample': return 'ディスプレイリサンプル';
-			case 'settings.videoSyncDisplayResampleVdrop': return 'ディスプレイリサンプル（フレームドロップ）';
-			case 'settings.videoSyncDisplayResampleDesync': return 'ディスプレイリサンプル（非同期）';
-			case 'settings.videoSyncDisplayTempo': return 'ディスプレイテンポ';
-			case 'settings.videoSyncDisplayVdrop': return 'ディスプレイビデオフレームドロップ';
-			case 'settings.videoSyncDisplayAdrop': return 'ディスプレイオーディオフレームドロップ';
-			case 'settings.videoSyncDisplayDesync': return 'ディスプレイ非同期';
-			case 'settings.videoSyncDesync': return '非同期';
-			case 'settings.forumSettings.name': return 'フォーラム';
-			case 'settings.forumSettings.configureYourForumSettings': return 'フォーラム設定を構成する';
-			case 'settings.chatSettings.name': return 'チャット';
-			case 'settings.chatSettings.configureYourChatSettings': return 'チャット設定を構成する';
-			case 'settings.hardwareDecodingAuto': return '自動';
-			case 'settings.hardwareDecodingAutoCopy': return '自動コピー';
-			case 'settings.hardwareDecodingAutoSafe': return '自動セーフ';
-			case 'settings.hardwareDecodingNo': return '無効';
-			case 'settings.hardwareDecodingYes': return '強制有効';
-			case 'settings.cdnDistributionStrategy': return 'コンテンツ配信戦略';
-			case 'settings.cdnDistributionStrategyDesc': return '動画ソースサーバーの配信戦略を選択して、読み込み速度を最適化します';
-			case 'settings.cdnDistributionStrategyLabel': return '配信戦略';
-			case 'settings.cdnDistributionStrategyNoChange': return '変更なし（元のサーバーを使用）';
-			case 'settings.cdnDistributionStrategyAuto': return '自動選択（最速サーバー）';
-			case 'settings.cdnDistributionStrategySpecial': return 'サーバーを指定';
-			case 'settings.cdnSpecialServer': return 'サーバーを指定';
-			case 'settings.cdnRefreshServerListHint': return '下のボタンをクリックしてサーバーリストを更新してください';
-			case 'settings.cdnRefreshButton': return '更新';
-			case 'settings.cdnFastRingServers': return '高速リングサーバー';
-			case 'settings.cdnRefreshServerListTooltip': return 'サーバーリストを更新';
-			case 'settings.cdnSpeedTestButton': return '速度テスト';
-			case 'settings.cdnSpeedTestingButton': return ({required Object count}) => 'テスト中 (${count})';
-			case 'settings.cdnNoServerDataHint': return 'サーバーデータがありません、更新ボタンをクリックしてください';
-			case 'settings.cdnTestingStatus': return 'テスト中';
-			case 'settings.cdnUnreachableStatus': return '到達不可';
-			case 'settings.cdnNotTestedStatus': return '未テスト';
-			case 'settings.downloadSettings.downloadSettings': return 'ダウンロード設定';
-			case 'settings.downloadSettings.storagePermissionStatus': return 'ストレージ権限状態';
-			case 'settings.downloadSettings.accessPublicDirectoryNeedStoragePermission': return 'パブリックディレクトリにアクセスするにはストレージ権限が必要です';
-			case 'settings.downloadSettings.checkingPermissionStatus': return '権限状態を確認中...';
-			case 'settings.downloadSettings.storagePermissionGranted': return 'ストレージ権限が付与されました';
-			case 'settings.downloadSettings.storagePermissionNotGranted': return 'ストレージ権限が付与されていません';
-			case 'settings.downloadSettings.storagePermissionGrantSuccess': return 'ストレージ権限が付与されました';
-			case 'settings.downloadSettings.storagePermissionGrantFailedButSomeFeaturesMayBeLimited': return 'ストレージ権限が付与されませんでしたが、一部の機能が制限される可能性があります';
-			case 'settings.downloadSettings.grantStoragePermission': return 'ストレージ権限を付与';
-			case 'settings.downloadSettings.customDownloadPath': return 'カスタムダウンロードパス';
-			case 'settings.downloadSettings.customDownloadPathDescription': return '有効にすると、ダウンロードファイルのカスタム保存場所を選択できます';
-			case 'settings.downloadSettings.customDownloadPathTip': return '💡 ヒント：パブリックディレクトリ（ダウンロードフォルダなど）を選択するにはストレージ権限が必要です。推奨パスの使用をお勧めします';
-			case 'settings.downloadSettings.androidWarning': return 'Android注意：パブリックディレクトリ（ダウンロードフォルダなど）の選択を避け、アクセス権限を確保するためにアプリ専用ディレクトリの使用をお勧めします。';
-			case 'settings.downloadSettings.publicDirectoryPermissionTip': return '⚠️ 注意：パブリックディレクトリを選択しました。正常にファイルをダウンロードするにはストレージ権限が必要です';
-			case 'settings.downloadSettings.permissionRequiredForPublicDirectory': return 'パブリックディレクトリにはストレージ権限が必要です';
-			case 'settings.downloadSettings.currentDownloadPath': return '現在のダウンロードパス';
-			case 'settings.downloadSettings.actualDownloadPath': return '実際のダウンロードパス';
-			case 'settings.downloadSettings.defaultAppDirectory': return 'デフォルトアプリディレクトリ';
-			case 'settings.downloadSettings.permissionGranted': return '付与済み';
-			case 'settings.downloadSettings.permissionRequired': return '権限が必要';
-			case 'settings.downloadSettings.enableCustomDownloadPath': return 'カスタムダウンロードパスを有効にする';
-			case 'settings.downloadSettings.disableCustomDownloadPath': return '無効時はアプリのデフォルトパスを使用';
-			case 'settings.downloadSettings.customDownloadPathLabel': return 'カスタムダウンロードパス';
-			case 'settings.downloadSettings.selectDownloadFolder': return 'ダウンロードフォルダを選択';
-			case 'settings.downloadSettings.recommendedPath': return '推奨パス';
-			case 'settings.downloadSettings.selectFolder': return 'フォルダを選択';
-			case 'settings.downloadSettings.filenameTemplate': return 'ファイル名テンプレート';
-			case 'settings.downloadSettings.filenameTemplateDescription': return 'ダウンロードファイルの命名規則をカスタマイズし、変数置換をサポート';
-			case 'settings.downloadSettings.videoFilenameTemplate': return '動画ファイル名テンプレート';
-			case 'settings.downloadSettings.galleryFolderTemplate': return 'ギャラリーフォルダテンプレート';
-			case 'settings.downloadSettings.imageFilenameTemplate': return '画像ファイル名テンプレート';
-			case 'settings.downloadSettings.resetToDefault': return 'デフォルトにリセット';
-			case 'settings.downloadSettings.supportedVariables': return 'サポートされている変数';
-			case 'settings.downloadSettings.supportedVariablesDescription': return 'ファイル名テンプレートで以下の変数を使用できます：';
-			case 'settings.downloadSettings.copyVariable': return '変数をコピー';
-			case 'settings.downloadSettings.variableCopied': return '変数がコピーされました';
-			case 'settings.downloadSettings.warningPublicDirectory': return '警告：選択されたパブリックディレクトリにアクセスできない可能性があります。アプリ専用ディレクトリの選択をお勧めします。';
-			case 'settings.downloadSettings.downloadPathUpdated': return 'ダウンロードパスが更新されました';
-			case 'settings.downloadSettings.selectPathFailed': return 'パスの選択に失敗しました';
-			case 'settings.downloadSettings.recommendedPathSet': return '推奨パスに設定されました';
-			case 'settings.downloadSettings.setRecommendedPathFailed': return '推奨パスの設定に失敗しました';
-			case 'settings.downloadSettings.templateResetToDefault': return 'デフォルトテンプレートにリセットされました';
-			case 'settings.downloadSettings.functionalTest': return '機能テスト';
-			case 'settings.downloadSettings.testInProgress': return 'テスト中...';
-			case 'settings.downloadSettings.runTest': return 'テスト実行';
-			case 'settings.downloadSettings.testDownloadPathAndPermissions': return 'ダウンロードパスと権限設定が正常に動作するかテストします';
-			case 'settings.downloadSettings.testResults': return 'テスト結果';
-			case 'settings.downloadSettings.testCompleted': return 'テスト完了';
-			case 'settings.downloadSettings.testPassed': return '項目が通過しました';
-			case 'settings.downloadSettings.testFailed': return 'テスト失敗';
-			case 'settings.downloadSettings.testStoragePermissionCheck': return 'ストレージ権限チェック';
-			case 'settings.downloadSettings.testStoragePermissionGranted': return 'ストレージ権限が付与されています';
-			case 'settings.downloadSettings.testStoragePermissionMissing': return 'ストレージ権限がありません、一部の機能が制限される可能性があります';
-			case 'settings.downloadSettings.testPermissionCheckFailed': return '権限チェックに失敗しました';
-			case 'settings.downloadSettings.testDownloadPathValidation': return 'ダウンロードパス検証';
-			case 'settings.downloadSettings.testPathValidationFailed': return 'パス検証に失敗しました';
-			case 'settings.downloadSettings.testFilenameTemplateValidation': return 'ファイル名テンプレート検証';
-			case 'settings.downloadSettings.testAllTemplatesValid': return 'すべてのテンプレートが有効です';
-			case 'settings.downloadSettings.testSomeTemplatesInvalid': return '一部のテンプレートに無効な文字が含まれています';
-			case 'settings.downloadSettings.testTemplateValidationFailed': return 'テンプレート検証に失敗しました';
-			case 'settings.downloadSettings.testDirectoryOperationTest': return 'ディレクトリ操作テスト';
-			case 'settings.downloadSettings.testDirectoryOperationNormal': return 'ディレクトリ作成とファイル書き込みが正常です';
-			case 'settings.downloadSettings.testDirectoryOperationFailed': return 'ディレクトリ操作に失敗しました';
-			case 'settings.downloadSettings.testVideoTemplate': return '動画テンプレート';
-			case 'settings.downloadSettings.testGalleryTemplate': return 'ギャラリーテンプレート';
-			case 'settings.downloadSettings.testImageTemplate': return '画像テンプレート';
-			case 'settings.downloadSettings.testValid': return '有効';
-			case 'settings.downloadSettings.testInvalid': return '無効';
-			case 'settings.downloadSettings.testSuccess': return '成功';
-			case 'settings.downloadSettings.testCorrect': return '正しい';
-			case 'settings.downloadSettings.testError': return 'エラー';
-			case 'settings.downloadSettings.testPath': return 'テストパス';
-			case 'settings.downloadSettings.testBasePath': return '基本パス';
-			case 'settings.downloadSettings.testDirectoryCreation': return 'ディレクトリ作成';
-			case 'settings.downloadSettings.testFileWriting': return 'ファイル書き込み';
-			case 'settings.downloadSettings.testFileContent': return 'ファイル内容';
-			case 'settings.downloadSettings.checkingPathStatus': return 'パス状態を確認中...';
-			case 'settings.downloadSettings.unableToGetPathStatus': return 'パス状態を取得できません';
-			case 'settings.downloadSettings.actualPathDifferentFromSelected': return '注意：実際のパスが選択されたパスと異なります';
-			case 'settings.downloadSettings.grantPermission': return '権限を付与';
-			case 'settings.downloadSettings.fixIssue': return '問題を修正';
-			case 'settings.downloadSettings.issueFixed': return '問題が修正されました';
-			case 'settings.downloadSettings.fixFailed': return '修正に失敗しました、手動で処理してください';
-			case 'settings.downloadSettings.lackStoragePermission': return 'ストレージ権限がありません';
-			case 'settings.downloadSettings.cannotAccessPublicDirectory': return 'パブリックディレクトリにアクセスできません、「すべてのファイルアクセス権限」が必要です';
-			case 'settings.downloadSettings.cannotCreateDirectory': return 'ディレクトリを作成できません';
-			case 'settings.downloadSettings.directoryNotWritable': return 'ディレクトリに書き込みできません';
-			case 'settings.downloadSettings.insufficientSpace': return '利用可能な容量が不足しています';
-			case 'settings.downloadSettings.pathValid': return 'パスが有効です';
-			case 'settings.downloadSettings.validationFailed': return '検証に失敗しました';
-			case 'settings.downloadSettings.usingDefaultAppDirectory': return 'デフォルトアプリディレクトリを使用';
-			case 'settings.downloadSettings.appPrivateDirectory': return 'アプリ専用ディレクトリ';
-			case 'settings.downloadSettings.appPrivateDirectoryDesc': return '安全で信頼性があり、追加の権限は不要';
-			case 'settings.downloadSettings.downloadDirectory': return 'ダウンロードディレクトリ';
-			case 'settings.downloadSettings.downloadDirectoryDesc': return 'システムデフォルトのダウンロード場所、管理が簡単';
-			case 'settings.downloadSettings.moviesDirectory': return '動画ディレクトリ';
-			case 'settings.downloadSettings.moviesDirectoryDesc': return 'システム動画ディレクトリ、メディアアプリで認識可能';
-			case 'settings.downloadSettings.documentsDirectory': return 'ドキュメントディレクトリ';
-			case 'settings.downloadSettings.documentsDirectoryDesc': return 'iOSアプリドキュメントディレクトリ';
-			case 'settings.downloadSettings.requiresStoragePermission': return 'アクセスにはストレージ権限が必要';
-			case 'settings.downloadSettings.recommendedPaths': return '推奨パス';
-			case 'settings.downloadSettings.externalAppPrivateDirectory': return '外部アプリ専用ディレクトリ';
-			case 'settings.downloadSettings.externalAppPrivateDirectoryDesc': return '外部ストレージのアプリ専用ディレクトリ、ユーザーがアクセス可能、容量が大きい';
-			case 'settings.downloadSettings.internalAppPrivateDirectory': return '内部アプリ専用ディレクトリ';
-			case 'settings.downloadSettings.internalAppPrivateDirectoryDesc': return 'アプリ内部ストレージ、権限不要、容量が小さい';
-			case 'settings.downloadSettings.appDocumentsDirectory': return 'アプリドキュメントディレクトリ';
-			case 'settings.downloadSettings.appDocumentsDirectoryDesc': return 'アプリ専用ドキュメントディレクトリ、安全で信頼性が高い';
-			case 'settings.downloadSettings.downloadsFolder': return 'ダウンロードフォルダ';
-			case 'settings.downloadSettings.downloadsFolderDesc': return 'システムデフォルトのダウンロードディレクトリ';
-			case 'settings.downloadSettings.selectRecommendedDownloadLocation': return '推奨されるダウンロード場所を選択';
-			case 'settings.downloadSettings.noRecommendedPaths': return '推奨パスがありません';
-			case 'settings.downloadSettings.recommended': return '推奨';
-			case 'settings.downloadSettings.requiresPermission': return '権限が必要';
-			case 'settings.downloadSettings.authorizeAndSelect': return '認証して選択';
-			case 'settings.downloadSettings.select': return '選択';
-			case 'settings.downloadSettings.permissionAuthorizationFailed': return '権限認証に失敗しました、このパスを選択できません';
-			case 'settings.downloadSettings.pathValidationFailed': return 'パス検証に失敗しました';
-			case 'settings.downloadSettings.downloadPathSetTo': return 'ダウンロードパスが設定されました';
-			case 'settings.downloadSettings.setPathFailed': return 'パスの設定に失敗しました';
-			case 'settings.downloadSettings.variableTitle': return 'タイトル';
-			case 'settings.downloadSettings.variableAuthor': return '作者名';
-			case 'settings.downloadSettings.variableUsername': return '作者ユーザー名';
-			case 'settings.downloadSettings.variableQuality': return '動画品質';
-			case 'settings.downloadSettings.variableFilename': return '元のファイル名';
-			case 'settings.downloadSettings.variableId': return 'コンテンツID';
-			case 'settings.downloadSettings.variableCount': return 'ギャラリー画像数';
-			case 'settings.downloadSettings.variableDate': return '現在の日付 (YYYY-MM-DD)';
-			case 'settings.downloadSettings.variableTime': return '現在の時刻 (HH-MM-SS)';
-			case 'settings.downloadSettings.variableDatetime': return '現在の日時 (YYYY-MM-DD_HH-MM-SS)';
-			case 'settings.downloadSettings.downloadSettingsTitle': return 'ダウンロード設定';
-			case 'settings.downloadSettings.downloadSettingsSubtitle': return 'ダウンロードパスとファイル命名規則を設定';
-			case 'settings.downloadSettings.suchAsTitleQuality': return '例: %title_%quality';
-			case 'settings.downloadSettings.suchAsTitleId': return '例: %title_%id';
-			case 'settings.downloadSettings.suchAsTitleFilename': return '例: %title_%filename';
-			case 'oreno3d.name': return 'Oreno3D';
-			case 'oreno3d.tags': return 'タグ';
-			case 'oreno3d.characters': return 'キャラクター';
-			case 'oreno3d.origin': return '原作';
-			case 'oreno3d.thirdPartyTagsExplanation': return 'ここに表示される**タグ**、**キャラクター**、**原作**情報は第三者サイト **Oreno3D** が提供するものであり、参考情報です。\n\nこの情報ソースは日本語のみのため、現在国際化対応が不足しています。\n\nもし国際化開発にご興味があれば、ぜひリポジトリにアクセスしてご協力ください！';
-			case 'oreno3d.sortTypes.hot': return '急上昇';
-			case 'oreno3d.sortTypes.favorites': return '高評価';
-			case 'oreno3d.sortTypes.latest': return '新着';
-			case 'oreno3d.sortTypes.popularity': return '人気';
-			case 'oreno3d.errors.requestFailed': return 'リクエストが失敗しました、ステータスコード';
-			case 'oreno3d.errors.connectionTimeout': return '接続がタイムアウトしました、ネットワーク接続を確認してください';
-			case 'oreno3d.errors.sendTimeout': return 'リクエスト送信がタイムアウトしました';
-			case 'oreno3d.errors.receiveTimeout': return 'レスポンス受信がタイムアウトしました';
-			case 'oreno3d.errors.badCertificate': return '証明書の検証に失敗しました';
-			case 'oreno3d.errors.resourceNotFound': return '要求されたリソースが見つかりません';
-			case 'oreno3d.errors.accessDenied': return 'アクセスが拒否されました、認証または権限が必要な可能性があります';
-			case 'oreno3d.errors.serverError': return 'サーバー内部エラー';
-			case 'oreno3d.errors.serviceUnavailable': return 'サービスが一時的に利用できません';
-			case 'oreno3d.errors.requestCancelled': return 'リクエストがキャンセルされました';
-			case 'oreno3d.errors.connectionError': return 'ネットワーク接続エラー、ネットワーク設定を確認してください';
-			case 'oreno3d.errors.networkRequestFailed': return 'ネットワークリクエストが失敗しました';
-			case 'oreno3d.errors.searchVideoError': return '動画検索中に不明なエラーが発生しました';
-			case 'oreno3d.errors.getPopularVideoError': return '人気動画取得中に不明なエラーが発生しました';
-			case 'oreno3d.errors.getVideoDetailError': return '動画詳細取得中に不明なエラーが発生しました';
-			case 'oreno3d.errors.parseVideoDetailError': return '動画詳細の取得と解析中に不明なエラーが発生しました';
-			case 'oreno3d.errors.downloadFileError': return 'ファイルダウンロード中に不明なエラーが発生しました';
-			case 'oreno3d.loading.gettingVideoInfo': return '動画情報を取得中...';
-			case 'oreno3d.loading.cancel': return 'キャンセル';
-			case 'oreno3d.messages.videoNotFoundOrDeleted': return '動画が見つからないか削除されました';
-			case 'oreno3d.messages.unableToGetVideoPlayLink': return '動画再生リンクを取得できません';
-			case 'oreno3d.messages.getVideoDetailFailed': return '動画詳細の取得に失敗しました';
-			case 'signIn.pleaseLoginFirst': return 'サインインする前にログインしてください';
-			case 'signIn.alreadySignedInToday': return '今日は既にサインインしています！';
-			case 'signIn.youDidNotStickToTheSignIn': return 'サインインを続けることができませんでした。';
-			case 'signIn.signInSuccess': return 'サインインに成功しました！';
-			case 'signIn.signInFailed': return 'サインインに失敗しました。後でもう一度お試しください';
-			case 'signIn.consecutiveSignIns': return '連続サインイン日数';
-			case 'signIn.failureReason': return 'サインインに失敗した理由';
-			case 'signIn.selectDateRange': return '日付範囲を選択';
-			case 'signIn.startDate': return '開始日';
-			case 'signIn.endDate': return '終了日';
-			case 'signIn.invalidDate': return '日付形式が正しくありません';
-			case 'signIn.invalidDateRange': return '日付範囲が無効です';
-			case 'signIn.errorFormatText': return '日付形式が正しくありません';
-			case 'signIn.errorInvalidText': return '日付範囲が無効です';
-			case 'signIn.errorInvalidRangeText': return '日付範囲が無効です';
-			case 'signIn.dateRangeCantBeMoreThanOneYear': return '日付範囲は1年を超えることはできません';
-			case 'signIn.signIn': return 'サインイン';
-			case 'signIn.signInRecord': return 'サインイン記録';
-			case 'signIn.totalSignIns': return '合計サインイン数';
-			case 'signIn.pleaseSelectSignInStatus': return 'サインインステータスを選択してください';
-			case 'subscriptions.pleaseLoginFirstToViewYourSubscriptions': return 'サブスクリプションを表示するにはログインしてください。';
-			case 'subscriptions.selectUser': return 'ユーザーを選択してください';
-			case 'subscriptions.noSubscribedUsers': return '購読中のユーザーがいません';
-			case 'subscriptions.showAllSubscribedUsersContent': return 'すべての購読中のユーザーのコンテンツを表示';
-			case 'videoDetail.pipMode': return 'ピプモード';
-			case 'videoDetail.resumeFromLastPosition': return ({required Object position}) => '${position} から続けて再生';
-			case 'videoDetail.videoIdIsEmpty': return 'ビデオIDが空です';
-			case 'videoDetail.videoInfoIsEmpty': return 'ビデオ情報が空です';
-			case 'videoDetail.thisIsAPrivateVideo': return 'これはプライベートビデオです';
-			case 'videoDetail.getVideoInfoFailed': return 'ビデオ情報の取得に失敗しました。後でもう一度お試しください';
-			case 'videoDetail.noVideoSourceFound': return '対応するビデオソースが見つかりません';
-			case 'videoDetail.tagCopiedToClipboard': return ({required Object tagId}) => 'タグ "${tagId}" がクリップボードにコピーされました';
-			case 'videoDetail.errorLoadingVideo': return 'ビデオの読み込み中にエラーが発生しました';
-			case 'videoDetail.play': return '再生';
-			case 'videoDetail.pause': return '一時停止';
-			case 'videoDetail.exitAppFullscreen': return 'アプリの全画面表示を終了';
-			case 'videoDetail.enterAppFullscreen': return 'アプリを全画面表示';
-			case 'videoDetail.exitSystemFullscreen': return 'システム全画面表示を終了';
-			case 'videoDetail.enterSystemFullscreen': return 'システム全画面表示';
-			case 'videoDetail.seekTo': return '指定時間にシーク';
-			case 'videoDetail.switchResolution': return '解像度を変更';
-			case 'videoDetail.switchPlaybackSpeed': return '再生速度を変更';
-			case 'videoDetail.rewindSeconds': return ({required Object num}) => '${num} 秒巻き戻し';
-			case 'videoDetail.fastForwardSeconds': return ({required Object num}) => '${num} 秒早送り';
-			case 'videoDetail.playbackSpeedIng': return ({required Object rate}) => '${rate} 倍速で再生中';
-			case 'videoDetail.brightness': return '明るさ';
-			case 'videoDetail.brightnessLowest': return '明るさが最低になっています';
-			case 'videoDetail.volume': return '音量';
-			case 'videoDetail.volumeMuted': return '音量がミュートされています';
-			case 'videoDetail.home': return 'ホーム';
-			case 'videoDetail.videoPlayer': return 'ビデオプレーヤー';
-			case 'videoDetail.videoPlayerInfo': return 'プレーヤー情報';
-			case 'videoDetail.moreSettings': return 'さらに設定';
-			case 'videoDetail.videoPlayerFeatureInfo': return 'プレーヤー機能の紹介';
-			case 'videoDetail.autoRewind': return '自動リワインド';
-			case 'videoDetail.rewindAndFastForward': return '両側をダブルクリックして早送りまたは巻き戻し';
-			case 'videoDetail.volumeAndBrightness': return '両側を上下にスワイプして音量と明るさを調整';
-			case 'videoDetail.centerAreaDoubleTapPauseOrPlay': return '中央エリアをダブルタップして一時停止または再生';
-			case 'videoDetail.showVerticalVideoInFullScreen': return '全画面表示時に縦向きビデオを表示';
-			case 'videoDetail.keepLastVolumeAndBrightness': return '前回の音量と明るさを保持';
-			case 'videoDetail.setProxy': return 'プロキシを設定';
-			case 'videoDetail.moreFeaturesToBeDiscovered': return 'さらに機能が発見されます...';
-			case 'videoDetail.videoPlayerSettings': return 'プレーヤー設定';
-			case 'videoDetail.commentCount': return ({required Object num}) => '${num} 件のコメント';
-			case 'videoDetail.writeYourCommentHere': return 'ここにコメントを入力...';
-			case 'videoDetail.authorOtherVideos': return '作者の他のビデオ';
-			case 'videoDetail.relatedVideos': return '関連ビデオ';
-			case 'videoDetail.privateVideo': return 'これはプライベートビデオです';
-			case 'videoDetail.externalVideo': return 'これは站外ビデオです';
-			case 'videoDetail.openInBrowser': return 'ブラウザで開く';
-			case 'videoDetail.resourceDeleted': return 'このビデオは削除されたようです :/';
-			case 'videoDetail.noDownloadUrl': return 'ダウンロードURLがありません';
-			case 'videoDetail.startDownloading': return 'ダウンロードを開始';
-			case 'videoDetail.downloadFailed': return 'ダウンロードに失敗しました。後でもう一度お試しください';
-			case 'videoDetail.downloadSuccess': return 'ダウンロードに成功しました';
-			case 'videoDetail.download': return 'ダウンロード';
-			case 'videoDetail.downloadManager': return 'ダウンロード管理';
-			case 'videoDetail.videoLoadError': return 'ビデオの読み込みに失敗しました';
-			case 'videoDetail.resourceNotFound': return 'リソースが見つかりませんでした';
-			case 'videoDetail.authorNoOtherVideos': return '作者は他のビデオを所有していません';
-			case 'videoDetail.noRelatedVideos': return '関連するビデオはありません';
-			case 'videoDetail.player.errorWhileLoadingVideoSource': return 'ビデオソースの読み込み中にエラーが発生しました';
-			case 'videoDetail.player.errorWhileSettingUpListeners': return '監視器の設定中にエラーが発生しました';
-			case 'videoDetail.skeleton.fetchingVideoInfo': return 'ビデオ情報を取得中...';
-			case 'videoDetail.skeleton.fetchingVideoSources': return 'ビデオソースを取得中...';
-			case 'videoDetail.skeleton.loadingVideo': return 'ビデオを読み込み中...';
-			case 'videoDetail.skeleton.applyingSolution': return '解像度を適用中...';
-			case 'videoDetail.skeleton.addingListeners': return '監視器を追加中...';
-			case 'videoDetail.skeleton.successFecthVideoDurationInfo': return 'ビデオの総時間を取得しました、ビデオを読み込み中...';
-			case 'videoDetail.skeleton.successFecthVideoHeightInfo': return '読み込み完了';
-			case 'videoDetail.cast.dlnaCast': return 'キャスト';
-			case 'videoDetail.cast.unableToStartCastingSearch': return ({required Object error}) => 'キャスト検索の開始に失敗しました: ${error}';
-			case 'videoDetail.cast.startCastingTo': return ({required Object deviceName}) => 'キャスト開始: ${deviceName}';
-			case 'videoDetail.cast.castFailed': return ({required Object error}) => 'キャスト失敗: ${error}\n再検索してください';
-			case 'videoDetail.cast.castStopped': return 'キャスト停止';
-			case 'videoDetail.cast.deviceTypes.mediaRenderer': return 'メディアレンダラー';
-			case 'videoDetail.cast.deviceTypes.mediaServer': return 'メディアサーバー';
-			case 'videoDetail.cast.deviceTypes.internetGatewayDevice': return 'ルーター';
-			case 'videoDetail.cast.deviceTypes.basicDevice': return '基本デバイス';
-			case 'videoDetail.cast.deviceTypes.dimmableLight': return 'スマートライト';
-			case 'videoDetail.cast.deviceTypes.wlanAccessPoint': return '無線アクセスポイント';
-			case 'videoDetail.cast.deviceTypes.wlanConnectionDevice': return '無線接続デバイス';
-			case 'videoDetail.cast.deviceTypes.printer': return 'プリンター';
-			case 'videoDetail.cast.deviceTypes.scanner': return 'スキャナー';
-			case 'videoDetail.cast.deviceTypes.digitalSecurityCamera': return 'カメラ';
-			case 'videoDetail.cast.deviceTypes.unknownDevice': return '不明なデバイス';
-			case 'videoDetail.cast.currentPlatformNotSupported': return '現在のプラットフォームはキャスト機能をサポートしていません';
-			case 'videoDetail.cast.unableToGetVideoUrl': return 'ビデオのURLを取得できません、後でもう一度お試しください';
-			case 'videoDetail.cast.stopCasting': return 'キャスト停止';
-			case 'videoDetail.cast.dlnaCastSheet.title': return 'リモートキャスト';
-			case 'videoDetail.cast.dlnaCastSheet.close': return '閉じる';
-			case 'videoDetail.cast.dlnaCastSheet.searchingDevices': return 'デバイスを検索中...';
-			case 'videoDetail.cast.dlnaCastSheet.searchPrompt': return '検索ボタンをクリックしてキャストデバイスを再検索';
-			case 'videoDetail.cast.dlnaCastSheet.searching': return '検索中';
-			case 'videoDetail.cast.dlnaCastSheet.searchAgain': return '再検索';
-			case 'videoDetail.cast.dlnaCastSheet.noDevicesFound': return 'キャストデバイスが見つかりません\nデバイスが同じネットワークにあることを確認してください';
-			case 'videoDetail.cast.dlnaCastSheet.searchingDevicesPrompt': return 'デバイスを検索中です。お待ちください...';
-			case 'videoDetail.cast.dlnaCastSheet.cast': return 'キャスト';
-			case 'videoDetail.cast.dlnaCastSheet.connectedTo': return ({required Object deviceName}) => '接続済み: ${deviceName}';
-			case 'videoDetail.cast.dlnaCastSheet.notConnected': return 'デバイス未接続';
-			case 'videoDetail.cast.dlnaCastSheet.stopCasting': return 'キャスト停止';
-			case 'videoDetail.likeAvatars.dialogTitle': return '誰がこっそり「いいね」したの？';
-			case 'videoDetail.likeAvatars.dialogDescription': return '誰か気になる？この「いいねアルバム」をめくってみよう～';
-			case 'videoDetail.likeAvatars.closeTooltip': return '閉じる';
-			case 'videoDetail.likeAvatars.retry': return '再試行';
-			case 'videoDetail.likeAvatars.noLikesYet': return 'まだ誰もここに現れていません。最初の一人になりましょう！';
-			case 'videoDetail.likeAvatars.pageInfo': return ({required Object page, required Object totalPages, required Object totalCount}) => '${page} / ${totalPages} ページ · 合計 ${totalCount} 人';
-			case 'videoDetail.likeAvatars.prevPage': return '前のページ';
-			case 'videoDetail.likeAvatars.nextPage': return '次のページ';
-			case 'share.sharePlayList': return 'プレイリストを共有';
-			case 'share.wowDidYouSeeThis': return 'ああ、見たの？';
-			case 'share.nameIs': return '名前は';
-			case 'share.clickLinkToView': return 'リンクをクリックして見る';
-			case 'share.iReallyLikeThis': return '本当に好きです';
-			case 'share.shareFailed': return '共有に失敗しました。後でもう一度お試しください';
-			case 'share.share': return '共有';
-			case 'share.shareAsImage': return '画像として共有';
-			case 'share.shareAsText': return 'テキストとして共有';
-			case 'share.shareAsImageDesc': return '動画のサムネイルを画像として共有';
-			case 'share.shareAsTextDesc': return '動画の詳細をテキストとして共有';
-			case 'share.shareAsImageFailed': return 'サムネイルの共有に失敗しました。後でもう一度お試しください';
-			case 'share.shareAsTextFailed': return '詳細の共有に失敗しました。後でもう一度お試しください';
-			case 'share.shareVideo': return '動画を共有';
-			case 'share.authorIs': return '作者は';
-			case 'share.shareGallery': return 'ギャラリーを共有';
-			case 'share.galleryTitleIs': return 'ギャラリーのタイトルは';
-			case 'share.galleryAuthorIs': return 'ギャラリーの作者は';
-			case 'share.shareUser': return 'ユーザーを共有';
-			case 'share.userNameIs': return 'ユーザーの名前は';
-			case 'share.userAuthorIs': return 'ユーザーの作者は';
-			case 'share.comments': return 'コメント';
-			case 'share.shareThread': return 'スレッドを共有';
-			case 'share.views': return '閲覧';
-			case 'share.sharePost': return '投稿を共有';
-			case 'share.postTitleIs': return '投稿のタイトルは';
-			case 'share.postAuthorIs': return '投稿の作者は';
-			case 'markdown.markdownSyntax': return 'Markdown 構文';
-			case 'markdown.iwaraSpecialMarkdownSyntax': return 'Iwara 専用構文';
-			case 'markdown.internalLink': return '站内鏈接';
-			case 'markdown.supportAutoConvertLinkBelow': return '以下のタイプのリンクを自動変換します：';
-			case 'markdown.convertLinkExample': return '🎬 ビデオリンク\n🖼️ 画像リンク\n👤 ユーザーリンク\n📌 フォーラムリンク\n🎵 プレイリストリンク\n💬 スレッドリンク';
-			case 'markdown.mentionUser': return 'ユーザーを言及';
-			case 'markdown.mentionUserDescription': return '@後にユーザー名を入力すると、ユーザーリンクに自動変換されます';
-			case 'markdown.markdownBasicSyntax': return 'Markdown 基本構文';
-			case 'markdown.paragraphAndLineBreak': return '段落と改行';
-			case 'markdown.paragraphAndLineBreakDescription': return '段落間に空行を入れ、行末に2つのスペースを追加すると改行されます';
-			case 'markdown.paragraphAndLineBreakSyntax': return 'これは第一段落です\n\nこれは第二段落です\nこの行の後に2つのスペースを追加して  \n改行されます';
-			case 'markdown.textStyle': return 'テキストスタイル';
-			case 'markdown.textStyleDescription': return '特殊記号でテキストのスタイルを変更';
-			case 'markdown.textStyleSyntax': return '**太字テキスト**\n*斜体テキスト*\n~~削除線テキスト~~\n`コードテキスト`';
-			case 'markdown.quote': return '引用';
-			case 'markdown.quoteDescription': return '> 符号で引用を作成し、複数の > で多段引用を作成';
-			case 'markdown.quoteSyntax': return '> これは一階引用です\n>> これは二階引用です';
-			case 'markdown.list': return 'リスト';
-			case 'markdown.listDescription': return '数字+点号で順序付きリストを作成し、- で順序なしリストを作成';
-			case 'markdown.listSyntax': return '1. 第一項\n2. 第二項\n\n- 順序なし項\n  - 子項\n  - 別の子項';
-			case 'markdown.linkAndImage': return 'リンクと画像';
-			case 'markdown.linkAndImageDescription': return 'リンク形式：[テキスト](URL)\n画像形式：![説明](URL)';
-			case 'markdown.linkAndImageSyntax': return ({required Object link, required Object imgUrl}) => '[リンクテキスト](${link})\n![画像説明](${imgUrl})';
-			case 'markdown.title': return 'タイトル';
-			case 'markdown.titleDescription': return '＃ 号でタイトルを作成し、数でレベルを表示';
-			case 'markdown.titleSyntax': return '# 一階タイトル\n## 二階タイトル\n### 三階タイトル';
-			case 'markdown.separator': return '分隔線';
-			case 'markdown.separatorDescription': return '三個以上の - 号で分隔線を作成';
-			case 'markdown.separatorSyntax': return '---';
-			case 'markdown.syntax': return '語法';
-			case 'forum.recent': return '最近';
-			case 'forum.category': return 'カテゴリ';
-			case 'forum.lastReply': return '最終返信';
-			case 'forum.errors.pleaseSelectCategory': return 'カテゴリを選択してください';
-			case 'forum.errors.threadLocked': return 'このスレッドはロックされています。';
-			case 'forum.title': return 'タイトル';
-			case 'forum.createPost': return '投稿を作成';
-			case 'forum.enterTitle': return 'タイトルを入力してください';
-			case 'forum.content': return 'コンテンツ';
-			case 'forum.enterContent': return 'コンテンツを入力してください';
-			case 'forum.writeYourContentHere': return 'ここにコンテンツを入力...';
-			case 'forum.posts': return '投稿';
-			case 'forum.threads': return 'スレッド';
-			case 'forum.forum': return 'フォーラム';
-			case 'forum.createThread': return 'スレッドを作成';
-			case 'forum.selectCategory': return 'カテゴリを選択';
-			case 'forum.cooldownRemaining': return ({required Object minutes, required Object seconds}) => 'クールダウン残り時間 ${minutes} 分 ${seconds} 秒';
-			case 'forum.groups.administration': return '管理';
-			case 'forum.groups.global': return 'グローバル';
-			case 'forum.groups.chinese': return '中国語';
-			case 'forum.groups.japanese': return '日本語';
-			case 'forum.groups.korean': return '韓国語';
-			case 'forum.groups.other': return 'その他';
-			case 'forum.leafNames.announcements': return 'お知らせ';
-			case 'forum.leafNames.feedback': return 'フィードバック';
-			case 'forum.leafNames.support': return 'サポート';
-			case 'forum.leafNames.general': return '一般';
-			case 'forum.leafNames.guides': return 'ガイド';
-			case 'forum.leafNames.questions': return '質問';
-			case 'forum.leafNames.requests': return 'リクエスト';
-			case 'forum.leafNames.sharing': return 'シェア';
-			case 'forum.leafNames.general_zh': return '一般';
-			case 'forum.leafNames.questions_zh': return '質問';
-			case 'forum.leafNames.requests_zh': return 'リクエスト';
-			case 'forum.leafNames.support_zh': return 'サポート';
-			case 'forum.leafNames.general_ja': return '一般';
-			case 'forum.leafNames.questions_ja': return '質問';
-			case 'forum.leafNames.requests_ja': return 'リクエスト';
-			case 'forum.leafNames.support_ja': return 'サポート';
-			case 'forum.leafNames.korean': return '韓国語';
-			case 'forum.leafNames.other': return 'その他';
-			case 'forum.leafDescriptions.announcements': return '公式の重要なお知らせと通知';
-			case 'forum.leafDescriptions.feedback': return 'サイトの機能やサービスに対するフィードバック';
-			case 'forum.leafDescriptions.support': return 'サイト関連の問題を解決する手助け';
-			case 'forum.leafDescriptions.general': return 'あらゆる話題を議論する';
-			case 'forum.leafDescriptions.guides': return '経験やチュートリアルを共有する';
-			case 'forum.leafDescriptions.questions': return '疑問を提起する';
-			case 'forum.leafDescriptions.requests': return 'リクエストを投稿する';
-			case 'forum.leafDescriptions.sharing': return '面白いコンテンツを共有する';
-			case 'forum.leafDescriptions.general_zh': return 'あらゆる話題を議論する';
-			case 'forum.leafDescriptions.questions_zh': return '疑問を提起する';
-			case 'forum.leafDescriptions.requests_zh': return 'リクエストを投稿する';
-			case 'forum.leafDescriptions.support_zh': return 'サイト関連の問題を解決する手助け';
-			case 'forum.leafDescriptions.general_ja': return 'あらゆる話題を議論する';
-			case 'forum.leafDescriptions.questions_ja': return '疑問を提起する';
-			case 'forum.leafDescriptions.requests_ja': return 'リクエストを投稿する';
-			case 'forum.leafDescriptions.support_ja': return 'サイト関連の問題を解決する手助け';
-			case 'forum.leafDescriptions.korean': return '韓国語に関する議論';
-			case 'forum.leafDescriptions.other': return 'その他の未分類のコンテンツ';
-			case 'forum.reply': return '回覆';
-			case 'forum.pendingReview': return '審査中';
-			case 'forum.editedAt': return '編集日時';
-			case 'forum.copySuccess': return 'クリップボードにコピーされました';
-			case 'forum.copySuccessForMessage': return ({required Object str}) => 'クリップボードにコピーされました: ${str}';
-			case 'forum.editReply': return '編集回覆';
-			case 'forum.editTitle': return '編集タイトル';
-			case 'forum.submit': return '提出';
-			case 'notifications.errors.unsupportedNotificationType': return 'サポートされていない通知タイプ';
-			case 'notifications.errors.unknownUser': return '未知ユーザー';
-			case 'notifications.errors.unsupportedNotificationTypeWithType': return ({required Object type}) => 'サポートされていない通知タイプ: ${type}';
-			case 'notifications.errors.unknownNotificationType': return '未知通知タイプ';
-			case 'notifications.notifications': return '通知';
-			case 'notifications.profile': return '個人主頁';
-			case 'notifications.postedNewComment': return '新しいコメントを投稿';
-			case 'notifications.inYour': return 'あなたの';
-			case 'notifications.video': return 'ビデオ';
-			case 'notifications.repliedYourVideoComment': return 'あなたのビデオコメントに返信しました';
-			case 'notifications.copyInfoToClipboard': return '通知情報をクリップボードにコピー';
-			case 'notifications.copySuccess': return 'クリップボードにコピーされました';
-			case 'notifications.copySuccessForMessage': return ({required Object str}) => 'クリップボードにコピーされました: ${str}';
-			case 'notifications.markAllAsRead': return '全てを既読にする';
-			case 'notifications.markAllAsReadSuccess': return '全ての通知が既読になりました';
-			case 'notifications.markAllAsReadFailed': return '全てを既読にするに失敗しました';
-			case 'notifications.markSelectedAsRead': return '選択した通知を既読にする';
-			case 'notifications.markSelectedAsReadSuccess': return '選択した通知が既読になりました';
-			case 'notifications.markSelectedAsReadFailed': return '選択した通知を既読にするに失敗しました';
-			case 'notifications.markAsRead': return '既読にする';
-			case 'notifications.markAsReadSuccess': return '通知が既読になりました';
-			case 'notifications.markAsReadFailed': return '通知を既読にするに失敗しました';
-			case 'notifications.notificationTypeHelp': return '通知タイプのヘルプ';
-			case 'notifications.dueToLackOfNotificationTypeDetails': return '通知タイプの詳細情報が不足しているため、現在サポートされているタイプが受信したメッセージをカバーしていない可能性があります';
-			case 'notifications.helpUsImproveNotificationTypeSupport': return '通知タイプのサポート改善にご協力いただける場合';
-			case 'notifications.helpUsImproveNotificationTypeSupportLongText': return '1. 📋 通知情報をコピー\n2. 🐞 プロジェクトリポジトリに issue を提出\n\n⚠️ 注意：通知情報には個人情報が含まれている場合があります。公開したくない場合は、プロジェクト作者にメールで送信することもできます。';
-			case 'notifications.goToRepository': return 'リポジトリに移動';
-			case 'notifications.copy': return 'コピー';
-			case 'notifications.commentApproved': return 'コメントが承認されました';
-			case 'notifications.repliedYourProfileComment': return 'あなたの個人主頁コメントに返信しました';
-			case 'notifications.kReplied': return 'さんが';
-			case 'notifications.kCommented': return 'さんが';
-			case 'notifications.kVideo': return 'ビデオ';
-			case 'notifications.kGallery': return 'ギャラリー';
-			case 'notifications.kProfile': return 'プロフィール';
-			case 'notifications.kThread': return 'スレッド';
-			case 'notifications.kPost': return '投稿';
-			case 'notifications.kCommentSection': return '';
-			case 'notifications.kApprovedComment': return 'コメントが承認されました';
-			case 'notifications.kApprovedVideo': return '動画が承認されました';
-			case 'notifications.kApprovedGallery': return 'ギャラリーが承認されました';
-			case 'notifications.kApprovedThread': return 'スレッドが承認されました';
-			case 'notifications.kApprovedPost': return '投稿が承認されました';
-			case 'notifications.kApprovedForumPost': return 'フォーラム投稿が承認されました';
-			case 'notifications.kRejectedContent': return 'コンテンツ審査が拒否されました';
-			case 'notifications.kUnknownType': return '不明な通知タイプ';
-			case 'conversation.errors.pleaseSelectAUser': return 'ユーザーを選択してください';
-			case 'conversation.errors.pleaseEnterATitle': return 'タイトルを入力してください';
-			case 'conversation.errors.clickToSelectAUser': return 'ユーザーを選択してください';
-			case 'conversation.errors.loadFailedClickToRetry': return '読み込みに失敗しました。クリックして再試行';
-			case 'conversation.errors.loadFailed': return '読み込みに失敗しました';
-			case 'conversation.errors.clickToRetry': return 'クリックして再試行';
-			case 'conversation.errors.noMoreConversations': return 'もう会話がありません';
-			case 'conversation.conversation': return '会話';
-			case 'conversation.startConversation': return '会話を開始';
-			case 'conversation.noConversation': return '会話がありません';
-			case 'conversation.selectFromLeftListAndStartConversation': return '左側の会話リストから会話を選択して開始';
-			case 'conversation.title': return 'タイトル';
-			case 'conversation.body': return '内容';
-			case 'conversation.selectAUser': return 'ユーザーを選択';
-			case 'conversation.searchUsers': return 'ユーザーを検索...';
-			case 'conversation.tmpNoConversions': return '会話がありません';
-			case 'conversation.deleteThisMessage': return 'このメッセージを削除';
-			case 'conversation.deleteThisMessageSubtitle': return 'この操作は取り消せません';
-			case 'conversation.writeMessageHere': return 'ここにメッセージを入力...';
-			case 'conversation.sendMessage': return 'メッセージを送信';
-			case 'splash.errors.initializationFailed': return '初期化に失敗しました。アプリを再起動してください';
-			case 'splash.preparing': return '準備中...';
-			case 'splash.initializing': return '初期化中...';
-			case 'splash.loading': return '読み込み中...';
-			case 'splash.ready': return '準備完了';
-			case 'splash.initializingMessageService': return 'メッセージサービスを初期化中...';
-			case 'download.errors.imageModelNotFound': return '画像モデルが見つかりません';
-			case 'download.errors.downloadFailed': return 'ダウンロードに失敗しました';
-			case 'download.errors.videoInfoNotFound': return 'ビデオ情報が見つかりません';
-			case 'download.errors.unknown': return '不明';
-			case 'download.errors.downloadTaskAlreadyExists': return 'ダウンロードタスクが既に存在します';
-			case 'download.errors.videoAlreadyDownloaded': return 'ビデオはすでにダウンロードされています';
-			case 'download.errors.downloadFailedForMessage': return ({required Object errorInfo}) => 'ダウンロードタスクの追加に失敗しました: ${errorInfo}';
-			case 'download.errors.userPausedDownload': return 'ユーザーがダウンロードを一時停止';
-			case 'download.errors.fileSystemError': return ({required Object errorInfo}) => 'ファイルシステムエラー: ${errorInfo}';
-			case 'download.errors.unknownError': return ({required Object errorInfo}) => '不明なエラー: ${errorInfo}';
-			case 'download.errors.connectionTimeout': return '接続タイムアウト';
-			case 'download.errors.sendTimeout': return '送信タイムアウト';
-			case 'download.errors.receiveTimeout': return '受信タイムアウト';
-			case 'download.errors.serverError': return ({required Object errorInfo}) => 'サーバーエラー: ${errorInfo}';
-			case 'download.errors.unknownNetworkError': return '不明なネットワークエラー';
-			case 'download.errors.sslHandshakeFailed': return 'SSLハンドシェイクに失敗しました、ネットワーク環境を確認してください';
-			case 'download.errors.connectionFailed': return '接続に失敗しました、ネットワークを確認してください';
-			case 'download.errors.serviceIsClosing': return 'ダウンロードサービスが閉じています';
-			case 'download.errors.partialDownloadFailed': return '部分内容ダウンロード失敗';
-			case 'download.errors.noDownloadTask': return 'ダウンロードタスクがありません';
-			case 'download.errors.taskNotFoundOrDataError': return 'タスクが見つかりませんまたはデータが正しくありません';
-			case 'download.errors.copyDownloadUrlFailed': return 'ダウンロードリンクのコピーに失敗しました';
-			case 'download.errors.fileNotFound': return 'ファイルが見つかりません';
-			case 'download.errors.openFolderFailed': return 'ファイルフォルダーを開くのに失敗しました';
-			case 'download.errors.openFolderFailedWithMessage': return ({required Object message}) => 'ファイルフォルダーを開くのに失敗しました: ${message}';
-			case 'download.errors.directoryNotFound': return 'ディレクトリが見つかりません';
-			case 'download.errors.copyFailed': return 'コピーに失敗しました';
-			case 'download.errors.openFileFailed': return 'ファイルを開くのに失敗しました';
-			case 'download.errors.openFileFailedWithMessage': return ({required Object message}) => 'ファイルを開くのに失敗しました: ${message}';
-			case 'download.errors.noDownloadSource': return 'ダウンロードソースがありません';
-			case 'download.errors.noDownloadSourceNowPleaseWaitInfoLoaded': return 'ダウンロードソースがありません。情報を読み込んだ後、もう一度お試しください。';
-			case 'download.errors.noActiveDownloadTask': return 'ダウンロード中のタスクがありません';
-			case 'download.errors.noFailedDownloadTask': return '失敗したタスクがありません';
-			case 'download.errors.noCompletedDownloadTask': return '完了したタスクがありません';
-			case 'download.errors.taskAlreadyCompletedDoNotAdd': return 'タスクはすでに完了しています。再度追加しないでください';
-			case 'download.errors.linkExpiredTryAgain': return 'リンクが期限切れです。新しいダウンロードリンクを取得しています';
-			case 'download.errors.linkExpiredTryAgainSuccess': return 'リンクが期限切れです。新しいダウンロードリンクを取得しました';
-			case 'download.errors.linkExpiredTryAgainFailed': return 'リンクが期限切れです。新しいダウンロードリンクを取得に失敗しました';
-			case 'download.errors.taskDeleted': return 'タスクが削除されました';
-			case 'download.errors.unsupportedImageFormat': return ({required Object format}) => 'サポートされていない画像形式: ${format}';
-			case 'download.errors.deleteFileError': return 'ファイルの削除に失敗しました。ファイルが他のプロセスによって使用されている可能性があります';
-			case 'download.errors.deleteTaskError': return 'タスクの削除に失敗しました';
-			case 'download.errors.taskNotFound': return 'タスクが見つかりません';
-			case 'download.errors.canNotRefreshVideoTask': return 'ビデオタスクの更新に失敗しました';
-			case 'download.errors.taskAlreadyProcessing': return 'タスクはすでに処理中です';
-			case 'download.errors.failedToLoadTasks': return 'タスクの読み込みに失敗しました';
-			case 'download.errors.partialDownloadFailedWithMessage': return ({required Object message}) => '部分ダウンロードに失敗しました: ${message}';
-			case 'download.errors.unsupportedImageFormatWithMessage': return ({required Object extension}) => 'サポートされていない画像形式: ${extension}, デバイスにダウンロードして表示することができます';
-			case 'download.errors.imageLoadFailed': return '画像の読み込みに失敗しました';
-			case 'download.errors.pleaseTryOtherViewer': return '他のビューアーを使用してみてください';
-			case 'download.downloadList': return 'ダウンロードリスト';
-			case 'download.viewDownloadList': return 'ダウンロードリストを表示';
-			case 'download.download': return 'ダウンロード';
-			case 'download.forceDeleteTask': return '強制削除タスク';
-			case 'download.startDownloading': return 'ダウンロードを開始';
-			case 'download.clearAllFailedTasks': return 'すべての失敗タスクをクリア';
-			case 'download.clearAllFailedTasksConfirmation': return 'すべての失敗タスクをクリアしますか？\nこれらのタスクのファイルも削除されます。';
-			case 'download.clearAllFailedTasksSuccess': return 'すべての失敗タスクをクリアしました';
-			case 'download.clearAllFailedTasksError': return '失敗タスクのクリア中にエラーが発生しました';
-			case 'download.downloadStatus': return 'ダウンロード状態';
-			case 'download.imageList': return '画像リスト';
-			case 'download.retryDownload': return '再試行ダウンロード';
-			case 'download.notDownloaded': return '未ダウンロード';
-			case 'download.downloaded': return 'ダウンロード済み';
-			case 'download.waitingForDownload': return 'ダウンロード待機中';
-			case 'download.downloadingProgressForImageProgress': return ({required Object downloaded, required Object total, required Object progress}) => 'ダウンロード中 (${downloaded}/${total}枚 ${progress}%)';
-			case 'download.downloadingSingleImageProgress': return ({required Object downloaded}) => 'ダウンロード中 (${downloaded}枚)';
-			case 'download.pausedProgressForImageProgress': return ({required Object downloaded, required Object total, required Object progress}) => 'ダウンロード一時停止中 (${downloaded}/${total}枚 ${progress}%)';
-			case 'download.pausedSingleImageProgress': return ({required Object downloaded}) => 'ダウンロード一時停止中 (${downloaded}枚)';
-			case 'download.downloadedProgressForImageProgress': return ({required Object total}) => 'ダウンロード完了 (合計${total}枚)';
-			case 'download.viewVideoDetail': return 'ビデオ詳細を表示';
-			case 'download.viewGalleryDetail': return 'ギャラリー詳細を表示';
-			case 'download.moreOptions': return 'もっと操作';
-			case 'download.openFile': return 'ファイルを開く';
-			case 'download.pause': return '一時停止';
-			case 'download.resume': return '継続';
-			case 'download.copyDownloadUrl': return 'ダウンロードリンクをコピー';
-			case 'download.showInFolder': return 'フォルダーで表示';
-			case 'download.deleteTask': return 'タスクを削除';
-			case 'download.deleteTaskConfirmation': return 'このダウンロードタスクを削除しますか？\nタスクのファイルも削除されます。';
-			case 'download.forceDeleteTaskConfirmation': return 'このダウンロードタスクを強制削除しますか？\nファイルが使用中でも削除を試行し、タスクのファイルも削除されます。';
-			case 'download.downloadingProgressForVideoTask': return ({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'ダウンロード中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
-			case 'download.downloadingOnlyDownloadedAndSpeed': return ({required Object downloaded, required Object speed}) => 'ダウンロード中 ${downloaded} • ${speed}MB/s';
-			case 'download.pausedForDownloadedAndTotal': return ({required Object downloaded, required Object total, required Object progress}) => '一時停止中 ${downloaded}/${total} (${progress}%)';
-			case 'download.pausedAndDownloaded': return ({required Object downloaded}) => '一時停止中 • ダウンロード済み ${downloaded}';
-			case 'download.downloadedWithSize': return ({required Object size}) => 'ダウンロード完了 • ${size}';
-			case 'download.copyDownloadUrlSuccess': return 'ダウンロードリンクをコピーしました';
-			case 'download.totalImageNums': return ({required Object num}) => '${num}枚';
-			case 'download.downloadingDownloadedTotalProgressSpeed': return ({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'ダウンロード中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
-			case 'download.downloading': return 'ダウンロード中';
-			case 'download.failed': return '失敗';
-			case 'download.completed': return '完了';
-			case 'download.downloadDetail': return 'ダウンロード詳細';
-			case 'download.copy': return 'コピー';
-			case 'download.copySuccess': return 'コピーしました';
-			case 'download.waiting': return '待機中';
-			case 'download.paused': return '一時停止中';
-			case 'download.downloadingOnlyDownloaded': return ({required Object downloaded}) => 'ダウンロード中 ${downloaded}';
-			case 'download.galleryDownloadCompletedWithName': return ({required Object galleryName}) => 'ギャラリーのダウンロードが完了しました: ${galleryName}';
-			case 'download.downloadCompletedWithName': return ({required Object fileName}) => 'ダウンロードが完了しました: ${fileName}';
-			case 'download.stillInDevelopment': return '開発中';
-			case 'download.saveToAppDirectory': return 'アプリケーションディレクトリに保存';
-			case 'download.alreadyDownloadedWithQuality': return 'すでに同じ品質のタスクがあります。続けてダウンロードしますか？';
-			case 'download.alreadyDownloadedWithQualities': return ({required Object qualities}) => 'すでに品質が${qualities}のタスクがあります。続けてダウンロードしますか？';
-			case 'download.otherQualities': return 'その他の品質';
-			case 'favorite.errors.addFailed': return '追加に失敗しました';
-			case 'favorite.errors.addSuccess': return '追加に成功しました';
-			case 'favorite.errors.deleteFolderFailed': return 'フォルダーの削除に失敗しました';
-			case 'favorite.errors.deleteFolderSuccess': return 'フォルダーの削除に成功しました';
-			case 'favorite.errors.folderNameCannotBeEmpty': return 'フォルダー名を入力してください';
-			case 'favorite.add': return '追加';
-			case 'favorite.addSuccess': return '追加に成功しました';
-			case 'favorite.addFailed': return '追加に失敗しました';
-			case 'favorite.remove': return '削除';
-			case 'favorite.removeSuccess': return '削除に成功しました';
-			case 'favorite.removeFailed': return '削除に失敗しました';
-			case 'favorite.removeConfirmation': return 'このアイテムをお気に入りから削除しますか？';
-			case 'favorite.removeConfirmationSuccess': return 'アイテムがお気に入りから削除されました';
-			case 'favorite.removeConfirmationFailed': return 'アイテムをお気に入りから削除に失敗しました';
-			case 'favorite.createFolderSuccess': return 'フォルダーが作成されました';
-			case 'favorite.createFolderFailed': return 'フォルダーの作成に失敗しました';
-			case 'favorite.createFolder': return 'フォルダーを作成';
-			case 'favorite.enterFolderName': return 'フォルダー名を入力';
-			case 'favorite.enterFolderNameHere': return 'フォルダー名を入力してください...';
-			case 'favorite.create': return '作成';
-			case 'favorite.items': return 'アイテム';
-			case 'favorite.newFolderName': return '新しいフォルダー';
-			case 'favorite.searchFolders': return 'フォルダーを検索...';
-			case 'favorite.searchItems': return 'アイテムを検索...';
-			case 'favorite.createdAt': return '作成日時';
-			case 'favorite.myFavorites': return 'お気に入り';
-			case 'favorite.deleteFolderTitle': return 'フォルダーを削除';
-			case 'favorite.deleteFolderConfirmWithTitle': return ({required Object title}) => '${title} フォルダーを削除しますか？';
-			case 'favorite.removeItemTitle': return 'アイテムを削除';
-			case 'favorite.removeItemConfirmWithTitle': return ({required Object title}) => '${title} アイテムを削除しますか？';
-			case 'favorite.removeItemSuccess': return 'アイテムがお気に入りから削除されました';
-			case 'favorite.removeItemFailed': return 'アイテムをお気に入りから削除に失敗しました';
-			case 'favorite.localizeFavorite': return 'ローカライズお気に入り';
-			case 'favorite.editFolderTitle': return 'フォルダー名を編集';
-			case 'favorite.editFolderSuccess': return 'フォルダー名を更新しました';
-			case 'favorite.editFolderFailed': return 'フォルダー名の更新に失敗しました';
-			case 'favorite.searchTags': return 'タグを検索';
-			case 'translation.currentService': return '現在のサービス';
-			case 'translation.testConnection': return 'テスト接続';
-			case 'translation.testConnectionSuccess': return 'テスト接続成功';
-			case 'translation.testConnectionFailed': return 'テスト接続失敗';
-			case 'translation.testConnectionFailedWithMessage': return ({required Object message}) => 'テスト接続失敗: ${message}';
-			case 'translation.translation': return '翻訳';
-			case 'translation.needVerification': return '検証が必要です';
-			case 'translation.needVerificationContent': return 'まず接続テストを行ってからAI翻訳を有効にしてください';
-			case 'translation.confirm': return '確定';
-			case 'translation.disclaimer': return '使用須知';
-			case 'translation.riskWarning': return '風險提示';
-			case 'translation.dureToRisk1': return 'ユーザーが生成したテキストが原因で、AIサービスプロバイダーのコンテンツポリシーに違反する内容が含まれる場合があります';
-			case 'translation.dureToRisk2': return '不当なコンテンツはAPIキーの停止やサービスの終了を引き起こす可能性があります';
-			case 'translation.operationSuggestion': return '操作推奨';
-			case 'translation.operationSuggestion1': return '1. 翻訳前に内容を厳格に審査してください';
-			case 'translation.operationSuggestion2': return '2. 暴力、成人向けコンテンツなどを翻訳しないでください';
-			case 'translation.apiConfig': return 'API設定';
-			case 'translation.modifyConfigWillAutoCloseAITranslation': return '設定を変更するとAI翻訳が自動的に閉じられます。再度開くには接続テストを行ってください';
-			case 'translation.apiAddress': return 'APIアドレス';
-			case 'translation.modelName': return 'モデル名';
-			case 'translation.modelNameHintText': return '例：gpt-4-turbo';
-			case 'translation.maxTokens': return '最大トークン数';
-			case 'translation.maxTokensHintText': return '例：32000';
-			case 'translation.temperature': return '温度係数';
-			case 'translation.temperatureHintText': return '0.0-2.0';
-			case 'translation.clickTestButtonToVerifyAPIConnection': return 'テストボタンをクリックしてAPI接続を検証';
-			case 'translation.requestPreview': return 'リクエストプレビュー';
-			case 'translation.enableAITranslation': return 'AI翻訳';
-			case 'translation.enabled': return '有効';
-			case 'translation.disabled': return '無効';
-			case 'translation.testing': return 'テスト中...';
-			case 'translation.testNow': return '今すぐテスト';
-			case 'translation.connectionStatus': return '接続状態';
-			case 'translation.success': return '成功';
-			case 'translation.failed': return '失敗';
-			case 'translation.information': return '情報';
-			case 'translation.viewRawResponse': return '生の応答を表示';
-			case 'translation.pleaseCheckInputParametersFormat': return '入力パラメーターの形式を確認してください';
-			case 'translation.pleaseFillInAPIAddressModelNameAndKey': return 'APIアドレス、モデル名、およびキーを入力してください';
-			case 'translation.pleaseFillInValidConfigurationParameters': return '有効な設定パラメーターを入力してください';
-			case 'translation.pleaseCompleteConnectionTest': return '接続テストを完了してください';
-			case 'translation.notConfigured': return '未設定';
-			case 'translation.apiEndpoint': return 'APIエンドポイント';
-			case 'translation.configuredKey': return '設定済みキー';
-			case 'translation.notConfiguredKey': return '未設定キー';
-			case 'translation.authenticationStatus': return '認証状態';
-			case 'translation.thisFieldCannotBeEmpty': return 'このフィールドは空にできません';
-			case 'translation.apiKey': return 'APIキー';
-			case 'translation.apiKeyCannotBeEmpty': return 'APIキーは空にできません';
-			case 'translation.pleaseEnterValidNumber': return '有効な数値を入力してください';
-			case 'translation.range': return '範囲';
-			case 'translation.mustBeGreaterThan': return '以上';
-			case 'translation.invalidAPIResponse': return '無効なAPI応答';
-			case 'translation.connectionFailedForMessage': return ({required Object message}) => '接続失敗: ${message}';
-			case 'translation.aiTranslationNotEnabledHint': return 'AI翻訳は有効にされていません。設定で有効にしてください';
-			case 'translation.goToSettings': return '設定に移動';
-			case 'translation.disableAITranslation': return 'AI翻訳を無効にする';
-			case 'translation.currentValue': return '現在値';
-			case 'translation.configureTranslationStrategy': return '翻訳戦略を設定';
-			case 'translation.advancedSettings': return '高度な設定';
-			case 'translation.translationPrompt': return '翻訳プロンプト';
-			case 'translation.promptHint': return '翻訳プロンプトを入力してください。[TL]を目標言語のプレースホルダーとして使用します';
-			case 'translation.promptHelperText': return 'プロンプトには[TL]を目標言語のプレースホルダーとして含めてください';
-			case 'translation.promptMustContainTargetLang': return 'プロンプトには[TL]プレースホルダーを含めてください';
-			case 'translation.aiTranslationWillBeDisabled': return 'AI翻訳が自動的に無効にされます';
-			case 'translation.aiTranslationWillBeDisabledDueToConfigChange': return '基本設定を変更したため、AI翻訳が自動的に無効にされます';
-			case 'translation.aiTranslationWillBeDisabledDueToPromptChange': return '翻訳プロンプトを変更したため、AI翻訳が自動的に無効にされます';
-			case 'translation.aiTranslationWillBeDisabledDueToParamChange': return 'パラメーター設定を変更したため、AI翻訳が自動的に無効にされます';
-			case 'translation.onlyOpenAIAPISupported': return '現在、OpenAI互換のAPI形式（application/jsonリクエストボディ形式）のみサポートされています';
-			case 'translation.streamingTranslation': return 'ストリーミング翻訳';
-			case 'translation.streamingTranslationSupported': return 'ストリーミング翻訳対応';
-			case 'translation.streamingTranslationNotSupported': return 'ストリーミング翻訳非対応';
-			case 'translation.streamingTranslationDescription': return 'ストリーミング翻訳は翻訳プロセス中にリアルタイムで結果を表示し、より良いユーザー体験を提供します';
-			case 'translation.baseUrlInputHelperText': return '末尾が#の場合、入力されたURLを実際のリクエストアドレスとして使用します';
-			case 'translation.currentActualUrl': return ({required Object url}) => '現在の実際のURL: ${url}';
-			case 'translation.usingFullUrlWithHash': return '完全なURL（#で終わる）を使用';
-			case 'translation.urlEndingWithHashTip': return 'URLが#で終わる場合、入力されたURLを実際のリクエストアドレスとして使用します';
-			case 'translation.streamingTranslationWarning': return '注意：この機能はAPIサービスがストリーミング伝送をサポートする必要があり、一部のモデルではサポートされていない場合があります';
-			case 'translation.translationService': return '翻訳サービス';
-			case 'translation.translationServiceDescription': return 'お好みの翻訳サービスを選択してください';
-			case 'translation.googleTranslation': return 'Google 翻訳';
-			case 'translation.googleTranslationDescription': return '複数の言語をサポートする無料のオンライン翻訳サービス';
-			case 'translation.aiTranslation': return 'AI 翻訳';
-			case 'translation.aiTranslationDescription': return '大規模言語モデルに基づくインテリジェント翻訳サービス';
-			case 'translation.deeplxTranslation': return 'DeepLX 翻訳';
-			case 'translation.deeplxTranslationDescription': return 'DeepL翻訳のオープンソース実装、高品質な翻訳を提供';
-			case 'translation.googleTranslationFeatures': return '機能';
-			case 'translation.freeToUse': return '無料で使用';
-			case 'translation.freeToUseDescription': return '設定不要、すぐに使用可能';
-			case 'translation.fastResponse': return '高速応答';
-			case 'translation.fastResponseDescription': return '翻訳速度が速く、遅延が低い';
-			case 'translation.stableAndReliable': return '安定で信頼性が高い';
-			case 'translation.stableAndReliableDescription': return 'Google公式APIに基づく';
-			case 'translation.enabledDefaultService': return '有効 - デフォルト翻訳サービス';
-			case 'translation.notEnabled': return '無効';
-			case 'translation.deeplxTranslationService': return 'DeepLX 翻訳サービス';
-			case 'translation.deeplxDescription': return 'DeepLXはDeepL翻訳のオープンソース実装で、Free、Pro、Officialの3つのエンドポイントモードをサポートしています';
-			case 'translation.serverAddress': return 'サーバーアドレス';
-			case 'translation.serverAddressHint': return 'https://api.deeplx.org';
-			case 'translation.serverAddressHelperText': return 'DeepLXサーバーのベースアドレス';
-			case 'translation.endpointType': return 'エンドポイントタイプ';
-			case 'translation.freeEndpoint': return 'Free - 無料エンドポイント、レート制限がある場合があります';
-			case 'translation.proEndpoint': return 'Pro - dl_sessionが必要、より安定';
-			case 'translation.officialEndpoint': return 'Official - 公式API形式';
-			case 'translation.finalRequestUrl': return '最終リクエストURL';
-			case 'translation.apiKeyOptional': return 'API Key (オプション)';
-			case 'translation.apiKeyOptionalHint': return '保護されたDeepLXサービスへのアクセス用';
-			case 'translation.apiKeyOptionalHelperText': return '一部のDeepLXサービスは認証にAPI Keyが必要です';
-			case 'translation.dlSession': return 'DL Session';
-			case 'translation.dlSessionHint': return 'Proモードに必要なdl_sessionパラメーター';
-			case 'translation.dlSessionHelperText': return 'Proエンドポイントに必要なセッションパラメーター、DeepL Proアカウントから取得';
-			case 'translation.proModeRequiresDlSession': return 'Proモードにはdl_sessionの入力が必要です';
-			case 'translation.clickTestButtonToVerifyDeepLXAPI': return 'テストボタンをクリックしてDeepLX API接続を検証';
-			case 'translation.enableDeepLXTranslation': return 'DeepLX翻訳を有効にする';
-			case 'translation.deepLXTranslationWillBeDisabled': return '設定変更によりDeepLX翻訳が無効になります';
-			case 'translation.translatedResult': return '翻訳結果';
-			case 'translation.testSuccess': return 'テスト成功';
-			case 'translation.pleaseFillInDeepLXServerAddress': return 'DeepLXサーバーアドレスを入力してください';
-			case 'translation.invalidAPIResponseFormat': return '無効なAPI応答形式';
-			case 'translation.translationServiceReturnedError': return '翻訳サービスがエラーまたは空の結果を返しました';
-			case 'translation.connectionFailed': return '接続失敗';
-			case 'translation.translationFailed': return '翻訳失敗';
-			case 'translation.aiTranslationFailed': return 'AI翻訳失敗';
-			case 'translation.deeplxTranslationFailed': return 'DeepLX翻訳失敗';
-			case 'translation.aiTranslationTestFailed': return 'AI翻訳テスト失敗';
-			case 'translation.deeplxTranslationTestFailed': return 'DeepLX翻訳テスト失敗';
-			case 'translation.streamingTranslationTimeout': return 'ストリーミング翻訳タイムアウト、リソース強制クリーンアップ';
-			case 'translation.translationRequestTimeout': return '翻訳リクエストタイムアウト';
-			case 'translation.streamingTranslationDataTimeout': return 'ストリーミング翻訳データ受信タイムアウト';
-			case 'translation.dataReceptionTimeout': return 'データ受信タイムアウト';
-			case 'translation.streamDataParseError': return 'ストリームデータ解析エラー';
-			case 'translation.streamingTranslationFailed': return 'ストリーミング翻訳失敗';
-			case 'translation.fallbackTranslationFailed': return '通常翻訳へのフォールバックも失敗';
-			case 'translation.translationSettings': return '翻訳設定';
-			case 'translation.enableGoogleTranslation': return 'Google翻訳を有効にする';
-			case 'mediaPlayer.videoPlayerError': return 'ビデオプレイヤーエラー';
-			case 'mediaPlayer.videoLoadFailed': return 'ビデオ読み込み失敗';
-			case 'mediaPlayer.videoCodecNotSupported': return 'ビデオコーデックがサポートされていません';
-			case 'mediaPlayer.networkConnectionIssue': return 'ネットワーク接続の問題';
-			case 'mediaPlayer.insufficientPermission': return '権限不足';
-			case 'mediaPlayer.unsupportedVideoFormat': return 'サポートされていないビデオ形式';
-			case 'mediaPlayer.retry': return '再試行';
-			case 'mediaPlayer.externalPlayer': return '外部プレイヤー';
-			case 'mediaPlayer.detailedErrorInfo': return '詳細エラー情報';
-			case 'mediaPlayer.format': return '形式';
-			case 'mediaPlayer.suggestion': return '提案';
-			case 'mediaPlayer.androidWebmCompatibilityIssue': return 'AndroidデバイスはWEBM形式のサポートが限定的です。外部プレイヤーの使用またはWEBMをサポートするプレイヤーアプリのダウンロードをお勧めします';
-			case 'mediaPlayer.currentDeviceCodecNotSupported': return '現在のデバイスはこのビデオ形式のコーデックをサポートしていません';
-			case 'mediaPlayer.checkNetworkConnection': return 'ネットワーク接続を確認して再試行してください';
-			case 'mediaPlayer.appMayLackMediaPermission': return 'アプリに必要なメディア再生権限が不足している可能性があります';
-			case 'mediaPlayer.tryOtherVideoPlayer': return '他のビデオプレイヤーをお試しください';
-			case 'mediaPlayer.video': return 'ビデオ';
-			case 'mediaPlayer.imageLoadFailed': return '画像読み込み失敗';
-			case 'mediaPlayer.unsupportedImageFormat': return 'サポートされていない画像形式';
-			case 'mediaPlayer.tryOtherViewer': return '他のビューアーをお試しください';
-			case 'mediaPlayer.retryingOpenVideoLink': return '動画リンクのオープンに失敗しました。再試行中';
-			case 'mediaPlayer.decoderOpenFailedWithSuggestion': return ({required Object event}) => 'デコーダーを読み込めませんでした: ${event}。プレーヤー設定でソフトウェアデコードに切り替え、ページに再入場してお試しください';
-			case 'mediaPlayer.videoLoadErrorWithDetail': return ({required Object event}) => '動画読み込みエラー: ${event}';
-			case 'linkInputDialog.title': return 'リンクを入力';
-			case 'linkInputDialog.supportedLinksHint': return ({required Object webName}) => '複数の${webName}リンクをインテリジェントに識別し、アプリ内の対応するページにすばやくジャンプすることをサポートします（リンクと他のテキストはスペースで区切ります）';
-			case 'linkInputDialog.inputHint': return ({required Object webName}) => '${webName}リンクを入力してください';
-			case 'linkInputDialog.validatorEmptyLink': return 'リンクを入力してください';
-			case 'linkInputDialog.validatorNoIwaraLink': return ({required Object webName}) => '有効な${webName}リンクが検出されませんでした';
-			case 'linkInputDialog.multipleLinksDetected': return '複数のリンクが検出されました。1つ選択してください：';
-			case 'linkInputDialog.notIwaraLink': return ({required Object webName}) => '有効な${webName}リンクではありません';
-			case 'linkInputDialog.linkParseError': return ({required Object error}) => 'リンク解析エラー: ${error}';
-			case 'linkInputDialog.unsupportedLinkDialogTitle': return 'サポートされていないリンク';
-			case 'linkInputDialog.unsupportedLinkDialogContent': return 'このリンクタイプは現在アプリ内で直接開くことができず、外部ブラウザを使用してアクセスする必要があります。\n\nブラウザでこのリンクを開きますか？';
-			case 'linkInputDialog.openInBrowser': return 'ブラウザで開く';
-			case 'linkInputDialog.confirmOpenBrowserDialogTitle': return 'ブラウザを開くことを確認';
-			case 'linkInputDialog.confirmOpenBrowserDialogContent': return '次のリンクを外部ブラウザで開こうとしています：';
-			case 'linkInputDialog.confirmContinueBrowserOpen': return '続行してもよろしいですか？';
-			case 'linkInputDialog.browserOpenFailed': return 'リンクを開けませんでした';
-			case 'linkInputDialog.unsupportedLink': return 'サポートされていないリンク';
-			case 'linkInputDialog.cancel': return 'キャンセル';
-			case 'linkInputDialog.confirm': return 'ブラウザで開く';
-			case 'log.logManagement': return 'ログ管理';
-			case 'log.enableLogPersistence': return 'ログ保存を有効にする';
-			case 'log.enableLogPersistenceDesc': return 'ログをデータベースに保存して分析に使用';
-			case 'log.logDatabaseSizeLimit': return 'ログデータベースサイズ上限';
-			case 'log.logDatabaseSizeLimitDesc': return ({required Object size}) => '現在: ${size}';
-			case 'log.exportCurrentLogs': return '現在のログをエクスポート';
-			case 'log.exportCurrentLogsDesc': return '現在のアプリケーションログを開発者が診断に使用できるようにエクスポート';
-			case 'log.exportHistoryLogs': return '履歴ログをエクスポート';
-			case 'log.exportHistoryLogsDesc': return '指定された日付範囲内のログをエクスポート';
-			case 'log.exportMergedLogs': return 'マージログをエクスポート';
-			case 'log.exportMergedLogsDesc': return '指定された日付範囲内のマージログをエクスポート';
-			case 'log.showLogStats': return 'ログ統計情報を表示';
-			case 'log.logExportSuccess': return 'ログエクスポート成功';
-			case 'log.logExportFailed': return ({required Object error}) => 'ログエクスポート失敗: ${error}';
-			case 'log.showLogStatsDesc': return '様々なタイプのログの統計情報を表示';
-			case 'log.logExtractFailed': return ({required Object error}) => 'ログ統計情報の取得に失敗しました: ${error}';
-			case 'log.clearAllLogs': return 'すべてのログをクリア';
-			case 'log.clearAllLogsDesc': return 'すべてのログデータをクリア';
-			case 'log.confirmClearAllLogs': return '確認クリア';
-			case 'log.confirmClearAllLogsDesc': return 'すべてのログデータをクリアしますか？この操作は元に戻すことができません';
-			case 'log.clearAllLogsSuccess': return 'ログクリア成功';
-			case 'log.clearAllLogsFailed': return ({required Object error}) => 'ログクリア失敗: ${error}';
-			case 'log.unableToGetLogSizeInfo': return 'ログサイズ情報を取得できません';
-			case 'log.currentLogSize': return '現在のログサイズ:';
-			case 'log.logCount': return 'ログ数:';
-			case 'log.logCountUnit': return 'ログ';
-			case 'log.logSizeLimit': return 'ログサイズ上限:';
-			case 'log.usageRate': return '使用率:';
-			case 'log.exceedLimit': return '超過';
-			case 'log.remaining': return '残り';
-			case 'log.currentLogSizeExceededPleaseCleanOldLogsOrIncreaseLogSizeLimit': return '現在のログサイズが超過しています。古いログをクリアするか、ログサイズ上限を増加してください';
-			case 'log.currentLogSizeAlmostExceededPleaseCleanOldLogs': return '現在のログサイズがほぼ超過しています。古いログをクリアしてください';
-			case 'log.cleaningOldLogs': return '古いログを自動的にクリアしています...';
-			case 'log.logCleaningCompleted': return 'ログクリアが完了しました';
-			case 'log.logCleaningProcessMayNotBeCompleted': return 'ログクリア過程が完了しない可能性があります';
-			case 'log.cleanExceededLogs': return '超過ログをクリア';
-			case 'log.noLogsToExport': return 'エクスポート可能なログデータがありません';
-			case 'log.exportingLogs': return 'ログをエクスポートしています...';
-			case 'log.noHistoryLogsToExport': return '履歴ログをエクスポートするのに十分なデータがありません。アプリを使用してからしばらくしてから再試行してください';
-			case 'log.selectLogDate': return 'ログ日付を選択';
-			case 'log.today': return '今日';
-			case 'log.selectMergeRange': return 'マージ範囲を選択';
-			case 'log.selectMergeRangeHint': return 'マージするログの日付範囲を選択してください';
-			case 'log.selectMergeRangeDays': return ({required Object days}) => '最近 ${days} 日';
-			case 'log.logStats': return 'ログ統計情報';
-			case 'log.todayLogs': return ({required Object count}) => '今日のログ: ${count} 件';
-			case 'log.recent7DaysLogs': return ({required Object count}) => '最近7日のログ: ${count} 件';
-			case 'log.totalLogs': return ({required Object count}) => '合計ログ: ${count} 件';
-			case 'log.setLogDatabaseSizeLimit': return 'ログデータベースサイズ上限を設定';
-			case 'log.currentLogSizeWithSize': return ({required Object size}) => '現在のログサイズ: ${size}';
-			case 'log.warning': return '警告';
-			case 'log.newSizeLimit': return ({required Object size}) => '新しいサイズ上限: ${size}';
-			case 'log.confirmToContinue': return '続行してもよろしいですか？';
-			case 'log.logSizeLimitSetSuccess': return ({required Object size}) => 'ログサイズ上限を ${size} に設定しました';
-			case 'emoji.name': return '絵文字';
-			case 'emoji.size': return 'サイズ';
-			case 'emoji.small': return '小';
-			case 'emoji.medium': return '中';
-			case 'emoji.large': return '大';
-			case 'emoji.extraLarge': return '超大';
-			case 'emoji.copyEmojiLinkSuccess': return '絵文字リンクをコピーしました';
-			case 'emoji.preview': return '絵文字プレビュー';
-			case 'emoji.library': return '絵文字ライブラリ';
-			case 'emoji.noEmojis': return '絵文字がありません';
-			case 'emoji.clickToAddEmojis': return '右上のボタンをクリックして絵文字を追加';
-			case 'emoji.addEmojis': return '絵文字を追加';
-			case 'emoji.imagePreview': return '画像プレビュー';
-			case 'emoji.imageLoadFailed': return '画像の読み込みに失敗しました';
-			case 'emoji.loading': return '読み込み中...';
-			case 'emoji.delete': return '削除';
-			case 'emoji.close': return '閉じる';
-			case 'emoji.deleteImage': return '画像を削除';
-			case 'emoji.confirmDeleteImage': return 'この画像を削除してもよろしいですか？';
-			case 'emoji.cancel': return 'キャンセル';
-			case 'emoji.batchDelete': return '一括削除';
-			case 'emoji.confirmBatchDelete': return ({required Object count}) => '選択された${count}枚の画像を削除してもよろしいですか？この操作は元に戻せません。';
-			case 'emoji.deleteSuccess': return '削除しました';
-			case 'emoji.addImage': return '画像を追加';
-			case 'emoji.addImageByUrl': return 'URLで追加';
-			case 'emoji.addImageUrl': return '画像URLを追加';
-			case 'emoji.imageUrl': return '画像URL';
-			case 'emoji.enterImageUrl': return '画像URLを入力してください';
-			case 'emoji.add': return '追加';
-			case 'emoji.batchImport': return '一括インポート';
-			case 'emoji.enterJsonUrlArray': return 'JSON形式のURL配列を入力してください:';
-			case 'emoji.formatExample': return '形式例:\n["url1", "url2", "url3"]';
-			case 'emoji.pasteJsonUrlArray': return 'JSON形式のURL配列を貼り付けてください';
-			case 'emoji.import': return 'インポート';
-			case 'emoji.importSuccess': return ({required Object count}) => '${count}枚の画像をインポートしました';
-			case 'emoji.jsonFormatError': return 'JSON形式エラー、入力を確認してください';
-			case 'emoji.createGroup': return '絵文字グループを作成';
-			case 'emoji.groupName': return 'グループ名';
-			case 'emoji.enterGroupName': return 'グループ名を入力してください';
-			case 'emoji.create': return '作成';
-			case 'emoji.editGroupName': return 'グループ名を編集';
-			case 'emoji.save': return '保存';
-			case 'emoji.deleteGroup': return 'グループを削除';
-			case 'emoji.confirmDeleteGroup': return 'この絵文字グループを削除してもよろしいですか？グループ内のすべての画像も削除されます。';
-			case 'emoji.imageCount': return ({required Object count}) => '${count}枚の画像';
-			case 'emoji.selectEmoji': return '絵文字を選択';
-			case 'emoji.noEmojisInGroup': return 'このグループには絵文字がありません';
-			case 'emoji.goToSettingsToAddEmojis': return '設定で絵文字を追加してください';
-			case 'emoji.emojiManagement': return '絵文字管理';
-			case 'emoji.manageEmojiGroupsAndImages': return '絵文字グループと画像を管理';
-			case 'emoji.uploadLocalImages': return 'ローカル画像をアップロード';
-			case 'emoji.uploadingImages': return '画像をアップロード中';
-			case 'emoji.uploadingImagesProgress': return ({required Object count}) => '${count} 枚の画像をアップロード中、お待ちください...';
-			case 'emoji.doNotCloseDialog': return 'このダイアログを閉じないでください';
-			case 'emoji.uploadSuccess': return ({required Object count}) => '${count} 枚の画像をアップロードしました';
-			case 'emoji.uploadFailed': return ({required Object count}) => '${count} 枚失敗';
-			case 'emoji.uploadFailedMessage': return '画像のアップロードに失敗しました。ネットワーク接続またはファイル形式を確認してください';
-			case 'emoji.uploadErrorMessage': return ({required Object error}) => 'アップロード中にエラーが発生しました: ${error}';
-			case 'displaySettings.title': return '表示設定';
-			case 'displaySettings.layoutSettings': return 'レイアウト設定';
-			case 'displaySettings.layoutSettingsDesc': return 'カラム数とブレークポイント設定をカスタマイズ';
-			case 'displaySettings.gridLayout': return 'グリッドレイアウト';
-			case 'displaySettings.navigationOrderSettings': return 'ナビゲーション順序設定';
-			case 'displaySettings.customNavigationOrder': return 'カスタムナビゲーション順序';
-			case 'displaySettings.customNavigationOrderDesc': return 'ボトムナビゲーションバーとサイドバーのページ表示順序を調整';
-			case 'layoutSettings.title': return 'レイアウト設定';
-			case 'layoutSettings.descriptionTitle': return 'レイアウト設定の説明';
-			case 'layoutSettings.descriptionContent': return 'ここでの設定は、動画とギャラリーリストページで表示されるカラム数を決定します。自動モードを選択して画面幅に基づいて自動調整するか、手動モードを選択してカラム数を固定できます。';
-			case 'layoutSettings.layoutMode': return 'レイアウトモード';
-			case 'layoutSettings.reset': return 'リセット';
-			case 'layoutSettings.autoMode': return '自動モード';
-			case 'layoutSettings.autoModeDesc': return '画面幅に基づいて自動調整';
-			case 'layoutSettings.manualMode': return '手動モード';
-			case 'layoutSettings.manualModeDesc': return '固定カラム数を使用';
-			case 'layoutSettings.manualSettings': return '手動設定';
-			case 'layoutSettings.fixedColumns': return '固定カラム数';
-			case 'layoutSettings.columns': return 'カラム';
-			case 'layoutSettings.breakpointConfig': return 'ブレークポイント設定';
-			case 'layoutSettings.add': return '追加';
-			case 'layoutSettings.defaultColumns': return 'デフォルトカラム数';
-			case 'layoutSettings.defaultColumnsDesc': return '大画面のデフォルト表示';
-			case 'layoutSettings.previewEffect': return 'プレビュー効果';
-			case 'layoutSettings.screenWidth': return '画面幅';
-			case 'layoutSettings.addBreakpoint': return 'ブレークポイントを追加';
-			case 'layoutSettings.editBreakpoint': return 'ブレークポイントを編集';
-			case 'layoutSettings.deleteBreakpoint': return 'ブレークポイントを削除';
-			case 'layoutSettings.screenWidthLabel': return '画面幅';
-			case 'layoutSettings.screenWidthHint': return '600';
-			case 'layoutSettings.columnsLabel': return 'カラム数';
-			case 'layoutSettings.columnsHint': return '3';
-			case 'layoutSettings.enterWidth': return '幅を入力してください';
-			case 'layoutSettings.enterValidWidth': return '有効な幅を入力してください';
-			case 'layoutSettings.widthCannotExceed9999': return '幅は9999を超えることはできません';
-			case 'layoutSettings.breakpointAlreadyExists': return 'ブレークポイントが既に存在します';
-			case 'layoutSettings.enterColumns': return 'カラム数を入力してください';
-			case 'layoutSettings.enterValidColumns': return '有効なカラム数を入力してください';
-			case 'layoutSettings.columnsCannotExceed12': return 'カラム数は12を超えることはできません';
-			case 'layoutSettings.breakpointConflict': return 'ブレークポイントが既に存在します';
-			case 'layoutSettings.confirmResetLayoutSettings': return 'レイアウト設定をリセット';
-			case 'layoutSettings.confirmResetLayoutSettingsDesc': return 'すべてのレイアウト設定をデフォルト値にリセットしてもよろしいですか？\n\n以下に復元されます：\n• 自動モード\n• デフォルトブレークポイント設定';
-			case 'layoutSettings.resetToDefaults': return 'デフォルトにリセット';
-			case 'layoutSettings.confirmDeleteBreakpoint': return 'ブレークポイントを削除';
-			case 'layoutSettings.confirmDeleteBreakpointDesc': return ({required Object width}) => '${width}px のブレークポイントを削除してもよろしいですか？';
-			case 'layoutSettings.noCustomBreakpoints': return 'カスタムブレークポイントがありません、デフォルトカラム数を使用';
-			case 'layoutSettings.breakpointRange': return 'ブレークポイント範囲';
-			case 'layoutSettings.breakpointRangeDesc': return ({required Object range}) => '${range}px';
-			case 'layoutSettings.breakpointRangeDescFirst': return ({required Object width}) => '≤${width}px';
-			case 'layoutSettings.breakpointRangeDescMiddle': return ({required Object start, required Object end}) => '${start}-${end}px';
-			case 'layoutSettings.edit': return '編集';
-			case 'layoutSettings.delete': return '削除';
-			case 'layoutSettings.cancel': return 'キャンセル';
-			case 'layoutSettings.save': return '保存';
-			case 'navigationOrderSettings.title': return 'ナビゲーション順序設定';
-			case 'navigationOrderSettings.customNavigationOrder': return 'カスタムナビゲーション順序';
-			case 'navigationOrderSettings.customNavigationOrderDesc': return 'ドラッグしてボトムナビゲーションバーとサイドバーの各ページの表示順序を調整';
-			case 'navigationOrderSettings.restartRequired': return 'アプリの再起動が必要です';
-			case 'navigationOrderSettings.navigationItemSorting': return 'ナビゲーション項目の並べ替え';
-			case 'navigationOrderSettings.done': return '完了';
-			case 'navigationOrderSettings.edit': return '編集';
-			case 'navigationOrderSettings.reset': return 'リセット';
-			case 'navigationOrderSettings.previewEffect': return 'プレビュー効果';
-			case 'navigationOrderSettings.bottomNavigationPreview': return 'ボトムナビゲーションバーのプレビュー：';
-			case 'navigationOrderSettings.sidebarPreview': return 'サイドバーのプレビュー：';
-			case 'navigationOrderSettings.confirmResetNavigationOrder': return 'ナビゲーション順序のリセットを確認';
-			case 'navigationOrderSettings.confirmResetNavigationOrderDesc': return 'ナビゲーション順序をデフォルト設定にリセットしてもよろしいですか？';
-			case 'navigationOrderSettings.cancel': return 'キャンセル';
-			case 'navigationOrderSettings.videoDescription': return '人気の動画コンテンツを閲覧';
-			case 'navigationOrderSettings.galleryDescription': return '画像とギャラリーを閲覧';
-			case 'navigationOrderSettings.subscriptionDescription': return 'フォローしているユーザーの最新コンテンツを表示';
-			case 'navigationOrderSettings.forumDescription': return 'コミュニティディスカッションに参加';
-			case 'searchFilter.selectField': return 'フィールドを選択';
-			case 'searchFilter.add': return '追加';
-			case 'searchFilter.clear': return 'クリア';
-			case 'searchFilter.clearAll': return 'すべてクリア';
-			case 'searchFilter.generatedQuery': return '生成されたクエリ';
-			case 'searchFilter.copyToClipboard': return 'クリップボードにコピー';
-			case 'searchFilter.copied': return 'コピーしました';
-			case 'searchFilter.filterCount': return ({required Object count}) => '${count} 個のフィルター';
-			case 'searchFilter.filterSettings': return 'フィルター設定';
-			case 'searchFilter.field': return 'フィールド';
-			case 'searchFilter.operator': return '演算子';
-			case 'searchFilter.language': return '言語';
-			case 'searchFilter.value': return '値';
-			case 'searchFilter.dateRange': return '日付範囲';
-			case 'searchFilter.numberRange': return '数値範囲';
-			case 'searchFilter.from': return 'から';
-			case 'searchFilter.to': return 'まで';
-			case 'searchFilter.date': return '日付';
-			case 'searchFilter.number': return '数値';
-			case 'searchFilter.boolean': return 'ブール値';
-			case 'searchFilter.tags': return 'タグ';
-			case 'searchFilter.select': return '選択';
-			case 'searchFilter.clickToSelectDate': return '日付を選択するにはクリック';
-			case 'searchFilter.pleaseEnterValidNumber': return '有効な数値を入力してください';
-			case 'searchFilter.pleaseEnterValidDate': return '有効な日付形式を入力してください (YYYY-MM-DD)';
-			case 'searchFilter.startValueMustBeLessThanEndValue': return '開始値は終了値より小さくする必要があります';
-			case 'searchFilter.startDateMustBeBeforeEndDate': return '開始日は終了日より前である必要があります';
-			case 'searchFilter.pleaseFillStartValue': return '開始値を入力してください';
-			case 'searchFilter.pleaseFillEndValue': return '終了値を入力してください';
-			case 'searchFilter.rangeValueFormatError': return '範囲値の形式エラー';
-			case 'searchFilter.contains': return '含む';
-			case 'searchFilter.equals': return '等しい';
-			case 'searchFilter.notEquals': return '等しくない';
-			case 'searchFilter.greaterThan': return '>';
-			case 'searchFilter.greaterEqual': return '>=';
-			case 'searchFilter.lessThan': return '<';
-			case 'searchFilter.lessEqual': return '<=';
-			case 'searchFilter.range': return '範囲';
-			case 'searchFilter.kIn': return 'いずれかを含む';
-			case 'searchFilter.notIn': return 'いずれも含まない';
-			case 'searchFilter.username': return 'ユーザー名';
-			case 'searchFilter.nickname': return 'ニックネーム';
-			case 'searchFilter.registrationDate': return '登録日';
-			case 'searchFilter.description': return '説明';
-			case 'searchFilter.title': return 'タイトル';
-			case 'searchFilter.body': return '本文';
-			case 'searchFilter.author': return '作者';
-			case 'searchFilter.publishDate': return '公開日';
-			case 'searchFilter.private': return 'プライベート';
-			case 'searchFilter.duration': return '時間（秒）';
-			case 'searchFilter.likes': return 'いいね数';
-			case 'searchFilter.views': return '視聴回数';
-			case 'searchFilter.comments': return 'コメント数';
-			case 'searchFilter.rating': return '評価';
-			case 'searchFilter.imageCount': return '画像数';
-			case 'searchFilter.videoCount': return '動画数';
-			case 'searchFilter.createDate': return '作成日';
-			case 'searchFilter.content': return 'コンテンツ';
-			case 'searchFilter.all': return 'すべて';
-			case 'searchFilter.adult': return '成人向け';
-			case 'searchFilter.general': return '一般';
-			case 'searchFilter.yes': return 'はい';
-			case 'searchFilter.no': return 'いいえ';
-			case 'searchFilter.users': return 'ユーザー';
-			case 'searchFilter.videos': return '動画';
-			case 'searchFilter.images': return '画像';
-			case 'searchFilter.posts': return '投稿';
-			case 'searchFilter.forumThreads': return 'フォーラムスレッド';
-			case 'searchFilter.forumPosts': return 'フォーラム投稿';
-			case 'searchFilter.playlists': return 'プレイリスト';
-			case 'searchFilter.sortTypes.relevance': return '関連性';
-			case 'searchFilter.sortTypes.latest': return '最新';
-			case 'searchFilter.sortTypes.views': return '視聴回数';
-			case 'searchFilter.sortTypes.likes': return 'いいね数';
-			case 'firstTimeSetup.welcome.title': return 'ようこそ';
-			case 'firstTimeSetup.welcome.subtitle': return 'パーソナライズ設定を始めましょう';
-			case 'firstTimeSetup.welcome.description': return '数ステップで最適な体験を提供します';
-			case 'firstTimeSetup.basic.title': return '基本設定';
-			case 'firstTimeSetup.basic.subtitle': return '体験をパーソナライズ';
-			case 'firstTimeSetup.basic.description': return 'ご希望の機能設定を選択';
-			case 'firstTimeSetup.network.title': return 'ネットワーク設定';
-			case 'firstTimeSetup.network.subtitle': return 'ネットワークオプションを構成';
-			case 'firstTimeSetup.network.description': return 'ネットワーク環境に合わせて調整';
-			case 'firstTimeSetup.network.tip': return '設定後、再起動が必要です';
-			case 'firstTimeSetup.theme.title': return 'テーマ設定';
-			case 'firstTimeSetup.theme.subtitle': return 'お好みの見た目を選択';
-			case 'firstTimeSetup.theme.description': return 'ビジュアル体験をパーソナライズ';
-			case 'firstTimeSetup.player.title': return 'プレーヤー設定';
-			case 'firstTimeSetup.player.subtitle': return '再生コントロールを構成';
-			case 'firstTimeSetup.player.description': return 'よく使う再生設定を素早く設定';
-			case 'firstTimeSetup.completion.title': return '設定完了';
-			case 'firstTimeSetup.completion.subtitle': return 'すぐに始められます';
-			case 'firstTimeSetup.completion.description': return '関連規約をお読みの上ご同意ください';
-			case 'firstTimeSetup.completion.agreementTitle': return '利用規約とコミュニティルール';
-			case 'firstTimeSetup.completion.agreementDesc': return '本アプリをご利用になる前に、利用規約とコミュニティルールをよくお読みいただき、同意してください。良好な利用環境の維持に役立ちます。';
-			case 'firstTimeSetup.completion.checkboxTitle': return '利用規約とコミュニティルールに同意しました';
-			case 'firstTimeSetup.completion.checkboxSubtitle': return '不同意の場合、アプリを利用できません';
-			case 'firstTimeSetup.common.settingsChangeableTip': return 'これらの設定はいつでも設定画面で変更できます';
-			case 'firstTimeSetup.common.agreeAgreementSnackbar': return 'まず利用規約とコミュニティルールに同意してください';
-			case 'proxyHelper.systemProxyDetected': return 'システムプロキシを検出';
-			case 'proxyHelper.copied': return 'コピーしました';
-			case 'proxyHelper.copy': return 'コピー';
-			case 'tagSelector.selectTags': return 'タグを選択';
-			case 'tagSelector.clickToSelectTags': return 'タグを選択するにはクリック';
-			case 'tagSelector.addTag': return 'タグを追加';
-			case 'tagSelector.removeTag': return 'タグを削除';
-			case 'tagSelector.deleteTag': return 'タグを削除';
-			case 'tagSelector.usageInstructions': return 'まずタグを追加してから、既存のタグからクリックして選択してください';
-			case 'tagSelector.usageInstructionsTooltip': return '使用方法';
-			case 'tagSelector.addTagTooltip': return 'タグを追加';
-			case 'tagSelector.removeTagTooltip': return 'タグを削除';
-			case 'tagSelector.cancelSelection': return '選択をキャンセル';
-			case 'tagSelector.selectAll': return 'すべて選択';
-			case 'tagSelector.cancelSelectAll': return 'すべての選択をキャンセル';
-			case 'tagSelector.delete': return '削除';
-			case 'anime4k.realTimeVideoUpscalingAndDenoising': return 'Anime4K リアルタイムビデオアップスケーリングとノイズ除去、アニメーション動画の品質向上';
-			case 'anime4k.settings': return 'Anime4K 設定';
-			case 'anime4k.preset': return 'Anime4K プリセット';
-			case 'anime4k.disable': return 'Anime4K を無効にする';
-			case 'anime4k.disableDescription': return 'ビデオ強化効果を無効にする';
-			case 'anime4k.highQualityPresets': return '高品質プリセット';
-			case 'anime4k.fastPresets': return '高速プリセット';
-			case 'anime4k.litePresets': return '軽量プリセット';
-			case 'anime4k.moreLitePresets': return 'より軽量なプリセット';
-			case 'anime4k.customPresets': return 'カスタムプリセット';
-			case 'anime4k.presetGroups.highQuality': return '高品質';
-			case 'anime4k.presetGroups.fast': return '高速';
-			case 'anime4k.presetGroups.lite': return '軽量';
-			case 'anime4k.presetGroups.moreLite': return 'より軽量';
-			case 'anime4k.presetGroups.custom': return 'カスタム';
-			case 'anime4k.presetDescriptions.mode_a_hq': return 'ほとんどの1080pアニメ、特にぼかし、再サンプリング、圧縮アーティファクトを処理する場合に適しています。最高の知覚品質を提供します。';
-			case 'anime4k.presetDescriptions.mode_b_hq': return 'スケーリングによる軽度のぼかしやリンギング効果のあるアニメに適しています。リンギングとエイリアスを効果的に減らすことができます。';
-			case 'anime4k.presetDescriptions.mode_c_hq': return 'ほとんど欠陥のない高品質ソース（ネイティブ1080pアニメや映画など）に適しています。ノイズ除去を行い、最高のPSNRを提供します。';
-			case 'anime4k.presetDescriptions.mode_a_a_hq': return 'Mode Aの強化版で、究極の知覚品質を提供し、ほぼすべての劣化ラインを再構築できます。過度なシャープネスやリンギングが発生する可能性があります。';
-			case 'anime4k.presetDescriptions.mode_b_b_hq': return 'Mode Bの強化版で、より高い知覚品質を提供し、ラインをさらに最適化し、アーティファクトを減らします。';
-			case 'anime4k.presetDescriptions.mode_c_a_hq': return 'Mode Cの知覚品質強化版で、高いPSNRを維持しながら一部のラインデータルを再構築しようとします。';
-			case 'anime4k.presetDescriptions.mode_a_fast': return 'Mode Aの高速版で、品質とパフォーマンスのバランスが取れており、ほとんどの1080pアニメに適しています。';
-			case 'anime4k.presetDescriptions.mode_b_fast': return 'Mode Bの高速版で、軽度のアーティファクトとリンギングを処理し、オーバーヘッドが低い。';
-			case 'anime4k.presetDescriptions.mode_c_fast': return 'Mode Cの高速版で、高品質ソースの高速ノイズ除去とアップスケーリングに適しています。';
-			case 'anime4k.presetDescriptions.mode_a_a_fast': return 'Mode A+Aの高速版で、パフォーマンスに制約のあるデバイスでより高い知覚品質を追求します。';
-			case 'anime4k.presetDescriptions.mode_b_b_fast': return 'Mode B+Bの高速版で、パフォーマンスに制約のあるデバイスに強化されたライン修復とアーティファクト処理を提供します。';
-			case 'anime4k.presetDescriptions.mode_c_a_fast': return 'Mode C+Aの高速版で、高品質ソースを高速処理しながら軽度のライン修復を行います。';
-			case 'anime4k.presetDescriptions.upscale_only_s': return '最速のCNNモデルのみを使用してx2アップスケーリングを行い、修復とノイズ除去は行わず、最小限のパフォーマンスオーバーヘッド。';
-			case 'anime4k.presetDescriptions.upscale_deblur_fast': return '従来の非CNNアルゴリズムを使用して高速アップスケーリングとデブリングを行い、デフォルトのプレーヤーアルゴリズムよりも優れた効果で、非常に低いパフォーマンスオーバーヘッド。';
-			case 'anime4k.presetDescriptions.restore_s_only': return '最速のCNNモデルのみを使用して画像欠陥を修復し、アップスケーリングは行いません。ネイティブ解像度再生で品質を向上させたい場合に適しています。';
-			case 'anime4k.presetDescriptions.denoise_bilateral_fast': return '従来のバイラテラルフィルタリングを使用して高速ノイズ除去を行い、非常に高速で軽度のノイズ処理に適しています。';
-			case 'anime4k.presetDescriptions.upscale_non_cnn': return '従来の高速アルゴリズムを使用してアップスケーリングを行い、最小限のパフォーマンスオーバーヘッドでプレーヤーのデフォルトよりも優れた効果。';
-			case 'anime4k.presetDescriptions.mode_a_fast_darken': return 'Mode A (Fast) + ライン暗化、高速モードAにライン暗化効果を追加し、ラインをより目立たせ、スタイライズ処理を行います。';
-			case 'anime4k.presetDescriptions.mode_a_hq_thin': return 'Mode A (HQ) + ライン細化、高品質モードAにライン細化効果を追加し、より洗練された外観にします。';
-			case 'anime4k.presetNames.mode_a_hq': return 'Mode A (HQ)';
-			case 'anime4k.presetNames.mode_b_hq': return 'Mode B (HQ)';
-			case 'anime4k.presetNames.mode_c_hq': return 'Mode C (HQ)';
-			case 'anime4k.presetNames.mode_a_a_hq': return 'Mode A+A (HQ)';
-			case 'anime4k.presetNames.mode_b_b_hq': return 'Mode B+B (HQ)';
-			case 'anime4k.presetNames.mode_c_a_hq': return 'Mode C+A (HQ)';
-			case 'anime4k.presetNames.mode_a_fast': return 'Mode A (Fast)';
-			case 'anime4k.presetNames.mode_b_fast': return 'Mode B (Fast)';
-			case 'anime4k.presetNames.mode_c_fast': return 'Mode C (Fast)';
-			case 'anime4k.presetNames.mode_a_a_fast': return 'Mode A+A (Fast)';
-			case 'anime4k.presetNames.mode_b_b_fast': return 'Mode B+B (Fast)';
-			case 'anime4k.presetNames.mode_c_a_fast': return 'Mode C+A (Fast)';
-			case 'anime4k.presetNames.upscale_only_s': return 'CNNアップスケーリング (超高速)';
-			case 'anime4k.presetNames.upscale_deblur_fast': return 'アップスケーリング & デブリング (高速)';
-			case 'anime4k.presetNames.restore_s_only': return '復元 (超高速)';
-			case 'anime4k.presetNames.denoise_bilateral_fast': return 'バイラテラルノイズ除去 (超高速)';
-			case 'anime4k.presetNames.upscale_non_cnn': return '非CNNアップスケーリング (超高速)';
-			case 'anime4k.presetNames.mode_a_fast_darken': return 'Mode A (Fast) + ライン暗化';
-			case 'anime4k.presetNames.mode_a_hq_thin': return 'Mode A (HQ) + ライン細化';
-			case 'anime4k.performanceTip': return '💡 ヒント：デバイスのパフォーマンスに基づいて適切なプリセットを選択してください。ローエンドデバイスでは軽量プリセットをお勧めします。';
-			default: return null;
-		}
+		return switch (path) {
+			'tutorial.specialFollowFeature' => '特別フォロー機能',
+			'tutorial.specialFollowDescription' => 'ここには特別にフォローしている著者が表示されます。動画、ギャラリー、著者詳細ページでフォローボタンをクリックし、「特別フォローとして追加」を選択してください。',
+			'tutorial.exampleAuthorInfoRow' => '例：著者情報行',
+			'tutorial.authorName' => '著者名',
+			'tutorial.followed' => 'フォロー済み',
+			'tutorial.specialFollowInstruction' => '"フォロー済み"ボタンをクリック → "特別フォローとして追加"を選択',
+			'tutorial.followButtonLocations' => 'フォローボタンの場所：',
+			'tutorial.videoDetailPage' => '動画詳細ページ',
+			'tutorial.galleryDetailPage' => 'ギャラリー詳細ページ',
+			'tutorial.authorDetailPage' => '著者詳細ページ',
+			'tutorial.afterSpecialFollow' => '特別フォロー後、著者の最新コンテンツをすばやく確認できます！',
+			'tutorial.specialFollowManagementTip' => '特別フォローリストはサイドバードロワー - フォローリスト - 特別フォローリストページで管理できます',
+			'tutorial.skip' => 'スキップ',
+			'common.appName' => 'Love Iwara',
+			'common.ok' => '確定',
+			'common.cancel' => 'キャンセル',
+			'common.save' => '保存',
+			'common.delete' => '削除',
+			'common.visit' => 'アクセス',
+			'common.loading' => '読み込み中...',
+			'common.scrollToTop' => 'トップに戻る',
+			'common.privacyHint' => 'プライバシー内容、表示しません',
+			'common.latest' => '最新',
+			'common.likesCount' => 'いいね数',
+			'common.viewsCount' => '視聴回数',
+			'common.popular' => '人気',
+			'common.trending' => 'トレンド',
+			'common.commentList' => 'コメント一覧',
+			'common.sendComment' => 'コメントを投稿',
+			'common.send' => '送信',
+			'common.retry' => '再試行',
+			'common.premium' => 'プレミアム会員',
+			'common.follower' => 'フォロワー',
+			'common.friend' => '友達',
+			'common.video' => 'ビデオ',
+			'common.following' => 'フォロー中',
+			'common.expand' => '展開',
+			'common.collapse' => '收起',
+			'common.cancelFriendRequest' => '友達申請を取り消す',
+			'common.cancelSpecialFollow' => '特別フォローを解除',
+			'common.addFriend' => '友達を追加',
+			'common.removeFriend' => '友達を解除',
+			'common.followed' => 'フォロー済み',
+			'common.follow' => 'フォローする',
+			'common.unfollow' => 'フォロー解除',
+			'common.specialFollow' => '特別フォロー',
+			'common.specialFollowed' => '特別フォロー済み',
+			'common.specialFollowsManagementTip' => 'ドラッグして並べ替え • 左スワイプで削除',
+			'common.specialFollowsManagement' => '特別フォロー管理',
+			'common.createTimeDesc' => '作成時間降順',
+			'common.createTimeAsc' => '作成時間昇順',
+			'common.gallery' => 'ギャラリー',
+			'common.playlist' => 'プレイリスト',
+			'common.commentPostedSuccessfully' => 'コメントが正常に投稿されました',
+			'common.commentPostedFailed' => 'コメントの投稿に失敗しました',
+			'common.success' => '成功',
+			'common.commentDeletedSuccessfully' => 'コメントが削除されました',
+			'common.commentUpdatedSuccessfully' => 'コメントが更新されました',
+			'common.totalComments' => ({required Object count}) => '${count} 件のコメント',
+			'common.writeYourCommentHere' => 'ここにコメントを入力...',
+			'common.tmpNoReplies' => '返信はありません',
+			'common.loadMore' => 'もっと読み込む',
+			'common.noMoreDatas' => 'これ以上データはありません',
+			'common.selectTranslationLanguage' => '翻訳言語を選択',
+			'common.translate' => '翻訳',
+			'common.translateFailedPleaseTryAgainLater' => '翻訳に失敗しました。後でもう一度お試しください',
+			'common.translationResult' => '翻訳結果',
+			'common.justNow' => 'たった今',
+			'common.minutesAgo' => ({required Object num}) => '${num} 分前',
+			'common.hoursAgo' => ({required Object num}) => '${num} 時間前',
+			'common.daysAgo' => ({required Object num}) => '${num} 日前',
+			'common.editedAt' => ({required Object num}) => '${num} 編集',
+			'common.editComment' => 'コメントを編集',
+			'common.commentUpdated' => 'コメントが更新されました',
+			'common.replyComment' => 'コメントに返信',
+			'common.reply' => '返信',
+			'common.edit' => '編集',
+			'common.unknownUser' => '不明なユーザー',
+			'common.me' => '私',
+			'common.author' => '作者',
+			'common.admin' => '管理者',
+			'common.viewReplies' => ({required Object num}) => '返信を表示 (${num})',
+			'common.hideReplies' => '返信を非表示',
+			'common.confirmDelete' => '削除を確認',
+			'common.areYouSureYouWantToDeleteThisItem' => 'この項目を削除してもよろしいですか？',
+			'common.tmpNoComments' => 'コメントがありません',
+			'common.refresh' => '更新',
+			'common.back' => '戻る',
+			'common.tips' => 'ヒント',
+			'common.linkIsEmpty' => 'リンクアドレスが空です',
+			'common.linkCopiedToClipboard' => 'リンクアドレスがクリップボードにコピーされました',
+			'common.imageCopiedToClipboard' => '画像がクリップボードにコピーされました',
+			'common.copyImageFailed' => '画像のコピーに失敗しました',
+			'common.mobileSaveImageIsUnderDevelopment' => 'モバイル端末での画像保存機能は現在開発中です',
+			'common.imageSavedTo' => '画像が保存されました',
+			'common.saveImageFailed' => '画像の保存に失敗しました',
+			'common.close' => '閉じる',
+			'common.more' => 'もっと見る',
+			'common.moreFeaturesToBeDeveloped' => 'さらに機能が開発中です',
+			'common.all' => 'すべて',
+			'common.selectedRecords' => ({required Object num}) => '${num} 件のレコードが選択されました',
+			'common.cancelSelectAll' => 'すべての選択を解除',
+			'common.selectAll' => 'すべて選択',
+			'common.exitEditMode' => '編集モードを終了',
+			'common.areYouSureYouWantToDeleteSelectedItems' => ({required Object num}) => '選択した ${num} 件のレコードを削除してもよろしいですか？',
+			'common.searchHistoryRecords' => '検索履歴...',
+			'common.settings' => '設定',
+			'common.subscriptions' => 'サブスクリプション',
+			'common.videoCount' => ({required Object num}) => '${num} 本の動画',
+			'common.share' => '共有',
+			'common.areYouSureYouWantToShareThisPlaylist' => 'このプレイリストを共有してもよろしいですか？',
+			'common.editTitle' => 'タイトルを編集',
+			'common.editMode' => '編集モード',
+			'common.pleaseEnterNewTitle' => '新しいタイトルを入力してください',
+			'common.createPlayList' => 'プレイリストを作成',
+			'common.create' => '作成',
+			'common.checkNetworkSettings' => 'ネットワーク設定を確認',
+			'common.general' => '一般',
+			'common.r18' => 'R18',
+			'common.sensitive' => 'センシティブ',
+			'common.year' => '年',
+			'common.month' => '月',
+			'common.tag' => 'タグ',
+			'common.notice' => 'お知らせ',
+			'common.private' => 'プライベート',
+			'common.noTitle' => 'タイトルなし',
+			'common.search' => '検索',
+			'common.noContent' => 'コンテンツがありません',
+			'common.recording' => '録画中',
+			'common.paused' => '一時停止',
+			'common.clear' => 'クリア',
+			'common.user' => 'ユーザー',
+			'common.post' => '投稿',
+			'common.seconds' => '秒',
+			'common.comingSoon' => '近日公開',
+			'common.confirm' => '確認',
+			'common.hour' => '時',
+			'common.minute' => '分',
+			'common.clickToRefresh' => 'クリックして更新',
+			'common.history' => '履歴',
+			'common.favorites' => 'お気に入り',
+			'common.friends' => '友達',
+			'common.playList' => 'プレイリスト',
+			'common.checkLicense' => 'ライセンスを確認',
+			'common.logout' => 'ログアウト',
+			'common.fensi' => 'フォロワー',
+			'common.accept' => '受け入れる',
+			'common.reject' => '拒否',
+			'common.clearAllHistory' => 'すべての履歴をクリア',
+			'common.clearAllHistoryConfirm' => 'すべての履歴をクリアしてもよろしいですか？',
+			'common.followingList' => 'フォロー中リスト',
+			'common.followersList' => 'フォロワーリスト',
+			'common.follows' => 'フォロー',
+			'common.fans' => 'フォロワー',
+			'common.followsAndFans' => 'フォローとフォロワー',
+			'common.numViews' => '視聴回数',
+			'common.updatedAt' => '更新時間',
+			'common.publishedAt' => '発表時間',
+			'common.externalVideo' => '站外動画',
+			'common.originalText' => '原文',
+			'common.showOriginalText' => '原文を表示',
+			'common.showProcessedText' => '処理後の原文を表示',
+			'common.preview' => 'プレビュー',
+			'common.rules' => 'ルール',
+			'common.agree' => '同意',
+			'common.disagree' => '不同意',
+			'common.agreeToRules' => '同意ルール',
+			'common.markdownSyntaxHelp' => 'Markdown構文ヘルプ',
+			'common.previewContent' => '内容をプレビュー',
+			'common.characterCount' => ({required Object current, required Object max}) => '${current}/${max}',
+			'common.exceedsMaxLengthLimit' => ({required Object max}) => '最大文字数制限を超過 (${max})',
+			'common.agreeToCommunityRules' => 'コミュニティルールに同意',
+			'common.createPost' => '投稿を作成',
+			'common.title' => 'タイトル',
+			'common.enterTitle' => 'タイトルを入力してください',
+			'common.content' => '内容',
+			'common.enterContent' => '内容を入力してください',
+			'common.writeYourContentHere' => '内容を入力してください...',
+			'common.tagBlacklist' => 'ブラックリストタグ',
+			'common.noData' => 'データがありません',
+			'common.tagLimit' => 'タグ上限',
+			'common.enableFloatingButtons' => 'フローティングボタンを有効',
+			'common.disableFloatingButtons' => 'フローティングボタンを無効',
+			'common.enabledFloatingButtons' => 'フローティングボタンが有効',
+			'common.disabledFloatingButtons' => 'フローティングボタンが無効',
+			'common.pendingCommentCount' => '未審核コメント',
+			'common.joined' => ({required Object str}) => '${str} に参加',
+			'common.download' => 'ダウンロード',
+			'common.selectQuality' => '画質を選択',
+			'common.selectDateRange' => '日付範囲を選択',
+			'common.selectDateRangeHint' => '日付範囲を選択，デフォルトは最近30日',
+			'common.clearDateRange' => '日付範囲をクリア',
+			'common.followSuccessClickAgainToSpecialFollow' => 'フォローに成功しました。再度クリックして特別フォロー',
+			'common.exitConfirmTip' => '本当に退出しますか？',
+			'common.error' => 'エラー',
+			'common.taskRunning' => '既にタスクが実行中です。しばらくお待ちください。',
+			'common.operationCancelled' => '操作がキャンセルされました。',
+			'common.unsavedChanges' => '未保存の変更があります',
+			'common.pagination.totalItems' => ({required Object num}) => '全 ${num} 件',
+			'common.pagination.jumpToPage' => 'ページ指定',
+			'common.pagination.pleaseEnterPageNumber' => ({required Object max}) => 'ページ番号を入力してください (1-${max})',
+			'common.pagination.pageNumber' => 'ページ番号',
+			'common.pagination.jump' => '移動',
+			'common.pagination.invalidPageNumber' => ({required Object max}) => '有効なページ番号を入力してください (1-${max})',
+			'common.pagination.invalidInput' => '有効なページ番号を入力してください',
+			'common.pagination.waterfall' => 'ウォーターフォール',
+			'common.pagination.pagination' => 'ページネーション',
+			'common.detail' => '詳細',
+			'common.parseExceptionDestopHint' => ' - デスクトップユーザーは設定でプロキシを構成できます',
+			'common.iwaraTags' => 'Iwara タグ',
+			'common.likeThisVideo' => 'この動画が好きな人',
+			'common.operation' => '操作',
+			'common.replies' => '返信',
+			'auth.login' => 'ログイン',
+			'auth.logout' => 'ログアウト',
+			'auth.email' => 'メールアドレス',
+			'auth.password' => 'パスワード',
+			'auth.loginOrRegister' => 'ログイン / 新規登録',
+			'auth.register' => '新規登録',
+			'auth.pleaseEnterEmail' => 'メールアドレスを入力してください',
+			'auth.pleaseEnterPassword' => 'パスワードを入力してください',
+			'auth.passwordMustBeAtLeast6Characters' => 'パスワードは6文字以上必要です',
+			'auth.pleaseEnterCaptcha' => 'キャプチャを入力してください',
+			'auth.captcha' => 'キャプチャ',
+			'auth.refreshCaptcha' => 'キャプチャを更新',
+			'auth.captchaNotLoaded' => 'キャプチャを読み込めませんでした',
+			'auth.loginSuccess' => 'ログインに成功しました',
+			'auth.emailVerificationSent' => 'メール認証が送信されました',
+			'auth.notLoggedIn' => 'ログインしていません',
+			'auth.clickToLogin' => 'こちらをクリックしてログイン',
+			'auth.logoutConfirmation' => '本当にログアウトしますか？',
+			'auth.logoutSuccess' => 'ログアウトに成功しました',
+			'auth.logoutFailed' => 'ログアウトに失敗しました',
+			'auth.usernameOrEmail' => 'ユーザー名またはメールアドレス',
+			'auth.pleaseEnterUsernameOrEmail' => 'ユーザー名またはメールアドレスを入力してください',
+			'auth.rememberMe' => 'ユーザー名とパスワードを記憶',
+			'errors.error' => 'エラー',
+			'errors.required' => 'この項目は必須です',
+			'errors.invalidEmail' => 'メールアドレスの形式が正しくありません',
+			'errors.networkError' => 'ネットワークエラーが発生しました。再試行してください',
+			'errors.errorWhileFetching' => '情報の取得に失敗しました',
+			'errors.commentCanNotBeEmpty' => 'コメント内容は空にできません',
+			'errors.errorWhileFetchingReplies' => '返信の取得中にエラーが発生しました。ネットワーク接続を確認してください',
+			'errors.canNotFindCommentController' => 'コメントコントローラーが見つかりません',
+			'errors.errorWhileLoadingGallery' => 'ギャラリーの読み込み中にエラーが発生しました',
+			'errors.howCouldThereBeNoDataItCantBePossible' => 'え？データがありません。エラーが発生した可能性があります :<',
+			'errors.unsupportedImageFormat' => ({required Object str}) => 'サポートされていない画像形式: ${str}',
+			'errors.invalidGalleryId' => '無効なギャラリーIDです',
+			'errors.translationFailedPleaseTryAgainLater' => '翻訳に失敗しました。後でもう一度お試しください',
+			'errors.errorOccurred' => 'エラーが発生しました。しばらくしてから再試行してください。',
+			'errors.errorOccurredWhileProcessingRequest' => 'リクエストの処理中にエラーが発生しました',
+			'errors.errorWhileFetchingDatas' => 'データの取得中にエラーが発生しました。後でもう一度お試しください',
+			'errors.serviceNotInitialized' => 'サービスが初期化されていません',
+			'errors.unknownType' => '不明なタイプです',
+			'errors.errorWhileOpeningLink' => ({required Object link}) => 'リンクを開けませんでした: ${link}',
+			'errors.invalidUrl' => '無効なURLです',
+			'errors.failedToOperate' => '操作に失敗しました',
+			'errors.permissionDenied' => '権限がありません',
+			'errors.youDoNotHavePermissionToAccessThisResource' => 'このリソースにアクセスする権限がありません',
+			'errors.loginFailed' => 'ログインに失敗しました',
+			'errors.unknownError' => '不明なエラーです',
+			'errors.sessionExpired' => 'セッションが期限切れです',
+			'errors.failedToFetchCaptcha' => 'キャプチャの取得に失敗しました',
+			'errors.emailAlreadyExists' => 'メールアドレスは既に存在します',
+			'errors.invalidCaptcha' => '無効なキャプチャです',
+			'errors.registerFailed' => '登録に失敗しました',
+			'errors.failedToFetchComments' => 'コメントの取得に失敗しました',
+			'errors.failedToFetchImageDetail' => '画像の取得に失敗しました',
+			'errors.failedToFetchImageList' => '画像の取得に失敗しました',
+			'errors.failedToFetchData' => 'データの取得に失敗しました',
+			'errors.invalidParameter' => '無効なパラメータです',
+			'errors.pleaseLoginFirst' => 'ログインしてください',
+			'errors.errorWhileLoadingPost' => '投稿の取得中にエラーが発生しました',
+			'errors.errorWhileLoadingPostDetail' => '投稿詳細の取得中にエラーが発生しました',
+			'errors.invalidPostId' => '無効な投稿IDです',
+			'errors.forceUpdateNotPermittedToGoBack' => '現在強制更新状態です。戻ることはできません',
+			'errors.pleaseLoginAgain' => 'ログインしてください',
+			'errors.invalidLogin' => 'ログインに失敗しました。メールアドレスとパスワードを確認してください',
+			'errors.tooManyRequests' => 'リクエストが多すぎます。後でもう一度お試しください',
+			'errors.exceedsMaxLength' => ({required Object max}) => '最大長さを超えています: ${max}',
+			'errors.contentCanNotBeEmpty' => 'コンテンツは空にできません',
+			'errors.titleCanNotBeEmpty' => 'タイトルは空にできません',
+			'errors.tooManyRequestsPleaseTryAgainLaterText' => 'リクエストが多すぎます。後でもう一度お試しください。残り時間',
+			'errors.remainingHours' => ({required Object num}) => '${num}時間',
+			'errors.remainingMinutes' => ({required Object num}) => '${num}分',
+			'errors.remainingSeconds' => ({required Object num}) => '${num}秒',
+			'errors.tagLimitExceeded' => ({required Object limit}) => 'タグの上限を超えています。上限: ${limit}',
+			'errors.failedToRefresh' => '更新に失敗しました',
+			'errors.noPermission' => '権限がありません',
+			'errors.resourceNotFound' => 'リソースが見つかりません',
+			'errors.failedToSaveCredentials' => 'ログイン情報の保存に失敗しました',
+			'errors.failedToLoadSavedCredentials' => '保存されたログイン情報の読み込みに失敗しました',
+			'errors.specialFollowLimitReached' => ({required Object cnt}) => '特別フォローの上限を超えています。上限: ${cnt}，フォローリストページで調整してください',
+			'errors.notFound' => 'コンテンツが見つかりませんまたは削除されました',
+			'errors.network.basicPrefix' => 'ネットワークエラー - ',
+			'errors.network.failedToConnectToServer' => 'サーバーへの接続に失敗しました',
+			'errors.network.serverNotAvailable' => 'サーバーが利用できません',
+			'errors.network.requestTimeout' => 'リクエストタイムアウト',
+			'errors.network.unexpectedError' => '予期しないエラー',
+			'errors.network.invalidResponse' => '無効なレスポンス',
+			'errors.network.invalidRequest' => '無効なリクエスト',
+			'errors.network.invalidUrl' => '無効なURL',
+			'errors.network.invalidMethod' => '無効なメソッド',
+			'errors.network.invalidHeader' => '無効なヘッダー',
+			'errors.network.invalidBody' => '無効なボディ',
+			'errors.network.invalidStatusCode' => '無効なステータスコード',
+			'errors.network.serverError' => 'サーバーエラー',
+			'errors.network.requestCanceled' => 'リクエストがキャンセルされました',
+			'errors.network.invalidPort' => '無効なポート',
+			'errors.network.proxyPortError' => 'プロキシポートエラー',
+			'errors.network.connectionRefused' => '接続が拒否されました',
+			'errors.network.networkUnreachable' => 'ネットワークに到達できません',
+			'errors.network.noRouteToHost' => 'ホストに到達できません',
+			'errors.network.connectionFailed' => '接続に失敗しました',
+			'errors.network.sslConnectionFailed' => 'SSL接続に失敗しました。ネットワーク設定を確認してください',
+			'friends.clickToRestoreFriend' => '友達を復元するにはクリックしてください',
+			'friends.friendsList' => '友達リスト',
+			'friends.friendRequests' => '友達リクエスト',
+			'friends.friendRequestsList' => '友達リクエスト一覧',
+			'friends.removingFriend' => 'フレンド解除中...',
+			'friends.failedToRemoveFriend' => 'フレンド解除に失敗しました',
+			'friends.cancelingRequest' => 'フレンド申請をキャンセル中...',
+			'friends.failedToCancelRequest' => 'フレンド申請のキャンセルに失敗しました',
+			'authorProfile.noMoreDatas' => 'これ以上データはありません',
+			'authorProfile.userProfile' => 'ユーザープロフィール',
+			'favorites.clickToRestoreFavorite' => 'お気に入りを復元するにはクリックしてください',
+			'favorites.myFavorites' => '私のお気に入り',
+			'galleryDetail.galleryDetail' => 'ギャラリー詳細',
+			'galleryDetail.viewGalleryDetail' => 'ギャラリー詳細を表示',
+			'galleryDetail.copyLink' => 'リンクをコピー',
+			'galleryDetail.copyImage' => '画像をコピー',
+			'galleryDetail.saveAs' => '名前を付けて保存',
+			'galleryDetail.saveToAlbum' => 'アルバムに保存',
+			'galleryDetail.publishedAt' => '公開日時',
+			'galleryDetail.viewsCount' => '視聴回数',
+			'galleryDetail.imageLibraryFunctionIntroduction' => 'ギャラリー機能の紹介',
+			'galleryDetail.rightClickToSaveSingleImage' => '右クリックで単一画像を保存',
+			'galleryDetail.batchSave' => 'バッチ保存',
+			'galleryDetail.keyboardLeftAndRightToSwitch' => 'キーボードの左右キーで切り替え',
+			'galleryDetail.keyboardUpAndDownToZoom' => 'キーボードの上下キーでズーム',
+			'galleryDetail.mouseWheelToSwitch' => 'マウスホイールで切り替え',
+			'galleryDetail.ctrlAndMouseWheelToZoom' => 'CTRL + マウスホイールでズーム',
+			'galleryDetail.moreFeaturesToBeDiscovered' => 'さらに機能が発見されます...',
+			'galleryDetail.authorOtherGalleries' => '作者の他のギャラリー',
+			'galleryDetail.relatedGalleries' => '関連ギャラリー',
+			'galleryDetail.clickLeftAndRightEdgeToSwitchImage' => '左端と右端をクリックして切り替え',
+			'playList.myPlayList' => '私のプレイリスト',
+			'playList.friendlyTips' => 'フレンドリーティップス',
+			'playList.dearUser' => '親愛なるユーザー',
+			'playList.iwaraPlayListSystemIsNotPerfectYet' => 'iwaraのプレイリストシステムはまだ完全ではありません',
+			'playList.notSupportSetCover' => 'カバー設定はサポートされていません',
+			'playList.notSupportDeleteList' => 'リストの削除はできません',
+			'playList.notSupportSetPrivate' => 'プライベート設定はできません',
+			'playList.yesCreateListWillAlwaysExistAndVisibleToEveryone' => 'はい...作成されたリストは常に存在し、全員に表示されます',
+			'playList.smallSuggestion' => '小さな提案',
+			'playList.useLikeToCollectContent' => 'プライバシーを重視する場合は、「いいね」機能を使用してコンテンツを収集することをお勧めします',
+			'playList.welcomeToDiscussOnGitHub' => 'その他の提案やアイデアがある場合は、GitHubでのディスカッションを歓迎します！',
+			'playList.iUnderstand' => 'わかりました',
+			'playList.searchPlaylists' => 'プレイリストを検索...',
+			'playList.newPlaylistName' => '新しいプレイリスト名',
+			'playList.createNewPlaylist' => '新しいプレイリストを作成',
+			'playList.videos' => '動画',
+			'search.googleSearchScope' => '検索範囲',
+			'search.searchTags' => 'タグを検索...',
+			'search.contentRating' => 'コンテンツレーティング',
+			'search.removeTag' => 'タグを削除',
+			'search.pleaseEnterSearchContent' => '検索内容を入力してください',
+			'search.searchHistory' => '検索履歴',
+			'search.searchSuggestion' => '検索提案',
+			'search.usedTimes' => '使用回数',
+			'search.lastUsed' => '最後の使用',
+			'search.noSearchHistoryRecords' => '検索履歴がありません',
+			'search.notSupportCurrentSearchType' => ({required Object searchType}) => '現在の検索タイプ ${searchType} はまだ実装されていません。お楽しみに',
+			'search.searchResult' => '検索結果',
+			'search.unsupportedSearchType' => ({required Object searchType}) => 'サポートされていない検索タイプ: ${searchType}',
+			'search.googleSearch' => 'グーグル検索',
+			'search.googleSearchHint' => ({required Object webName}) => '${webName} の検索機能は使いにくいですか？ グーグル検索を試してみてください！',
+			'search.googleSearchDescription' => 'Google Search の :site 検索演算子を使用して、サイトのコンテンツを検索します。これは、動画、ギャラリー、プレイリスト、ユーザーを検索する際に非常に便利です。',
+			'search.googleSearchKeywordsHint' => '検索するキーワードを入力してください',
+			'search.openLinkJump' => 'リンクジャンプを開く',
+			'search.googleSearchButton' => 'グーグル検索',
+			'search.pleaseEnterSearchKeywords' => '検索するキーワードを入力してください',
+			'search.googleSearchQueryCopied' => '検索語句をクリップボードにコピーしました',
+			'search.googleSearchBrowserOpenFailed' => ({required Object error}) => 'ブラウザを開けませんでした: ${error}',
+			'mediaList.personalIntroduction' => '個人紹介',
+			'settings.listViewMode' => 'リスト表示モード',
+			'settings.useTraditionalPaginationMode' => '従来のページネーションモードを使用',
+			'settings.useTraditionalPaginationModeDesc' => '従来のページネーションモードを使用すると、ページネーションモードが無効になります。',
+			'settings.showVideoProgressBottomBarWhenToolbarHidden' => '底部プログレスバー',
+			'settings.showVideoProgressBottomBarWhenToolbarHiddenDesc' => 'この設定は、ツールバーが非表示のときに底部プログレスバーを表示するかどうかを決定します。',
+			'settings.basicSettings' => '基本設定',
+			'settings.personalizedSettings' => '個性化設定',
+			'settings.otherSettings' => 'その他設定',
+			'settings.searchConfig' => '検索設定',
+			'settings.thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain' => 'この設定は、今後動画を再生する際に以前の設定を使用するかどうかを決定します。',
+			'settings.playControl' => '再生コントロール',
+			'settings.fastForwardTime' => '早送り時間',
+			'settings.fastForwardTimeMustBeAPositiveInteger' => '早送り時間は正の整数でなければなりません。',
+			'settings.rewindTime' => '巻き戻し時間',
+			'settings.rewindTimeMustBeAPositiveInteger' => '巻き戻し時間は正の整数でなければなりません。',
+			'settings.longPressPlaybackSpeed' => '長押し再生速度',
+			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => '長押し再生速度は正の数でなければなりません。',
+			'settings.repeat' => 'リピート',
+			'settings.renderVerticalVideoInVerticalScreen' => '全画面再生時に縦向きビデオを縦画面モードでレンダリング',
+			'settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen' => 'この設定は、全画面再生時に縦向きビデオを縦画面モードでレンダリングするかどうかを決定します。',
+			'settings.rememberVolume' => '音量を記憶',
+			'settings.thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain' => 'この設定は、今後動画を再生する際に以前の音量設定を使用するかどうかを決定します。',
+			'settings.rememberBrightness' => '明るさを記憶',
+			'settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain' => 'この設定は、今後動画を再生する際に以前の明るさ設定を使用するかどうかを決定します。',
+			'settings.playControlArea' => '再生コントロールエリア',
+			'settings.leftAndRightControlAreaWidth' => '左右コントロールエリアの幅',
+			'settings.thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer' => 'この設定は、プレイヤーの左右にあるコントロールエリアの幅を決定します。',
+			'settings.proxyAddressCannotBeEmpty' => 'プロキシアドレスは空にできません。',
+			'settings.invalidProxyAddressFormatPleaseUseTheFormatOfIpPortOrDomainNamePort' => '無効なプロキシアドレス形式です。IP:ポート または ドメイン名:ポート の形式を使用してください。',
+			'settings.proxyNormalWork' => 'プロキシが正常に動作しています。',
+			'settings.testProxyFailedWithStatusCode' => ({required Object code}) => 'プロキシリクエストが失敗しました。ステータスコード: ${code}',
+			'settings.testProxyFailedWithException' => ({required Object exception}) => 'プロキシリクエスト中にエラーが発生しました: ${exception}',
+			'settings.proxyConfig' => 'プロキシ設定',
+			'settings.thisIsHttpProxyAddress' => 'ここにHTTPプロキシアドレスを入力してください',
+			'settings.checkProxy' => 'プロキシを確認',
+			'settings.proxyAddress' => 'プロキシアドレス',
+			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => 'プロキシサーバーのURLを入力してください（例: 127.0.0.1:8080）',
+			'settings.enableProxy' => 'プロキシを有効にする',
+			'settings.left' => '左',
+			'settings.middle' => '中央',
+			'settings.right' => '右',
+			'settings.playerSettings' => 'プレイヤー設定',
+			'settings.networkSettings' => 'ネットワーク設定',
+			'settings.customizeYourPlaybackExperience' => '再生体験をカスタマイズ',
+			'settings.chooseYourFavoriteAppAppearance' => 'お好みのアプリ外観を選択',
+			'settings.configureYourProxyServer' => 'プロキシサーバーを設定',
+			'settings.settings' => '設定',
+			'settings.themeSettings' => 'テーマ設定',
+			'settings.followSystem' => 'システムに従う',
+			'settings.lightMode' => 'ライトモード',
+			'settings.darkMode' => 'ダークモード',
+			'settings.presetTheme' => 'プリセットテーマ',
+			'settings.basicTheme' => 'ベーシックテーマ',
+			'settings.needRestartToApply' => 'アプリを再起動して設定を適用してください',
+			'settings.themeNeedRestartDescription' => 'テーマ設定はアプリを再起動して設定を適用してください',
+			'settings.about' => 'アバウト',
+			'settings.currentVersion' => '現在のバージョン',
+			'settings.latestVersion' => '最新バージョン',
+			'settings.checkForUpdates' => '更新をチェック',
+			'settings.update' => '更新',
+			'settings.newVersionAvailable' => '新しいバージョンが利用可能です',
+			'settings.projectHome' => 'プロジェクトホーム',
+			'settings.release' => 'リリース',
+			'settings.issueReport' => '問題報告',
+			'settings.openSourceLicense' => 'オープンソースライセンス',
+			'settings.checkForUpdatesFailed' => '更新のチェックに失敗しました。後でもう一度お試しください',
+			'settings.autoCheckUpdate' => '自動更新',
+			'settings.updateContent' => '更新内容',
+			'settings.releaseDate' => 'リリース日',
+			'settings.ignoreThisVersion' => 'このバージョンを無視',
+			'settings.minVersionUpdateRequired' => '現在のバージョンが低すぎます。すぐに更新してください',
+			'settings.forceUpdateTip' => 'これは必須アップデートです。できるだけ早く最新バージョンにアップデートしてください',
+			'settings.viewChangelog' => '更新内容を表示',
+			'settings.alreadyLatestVersion' => 'すでに最新バージョンです',
+			'settings.appSettings' => 'アプリ設定',
+			'settings.configureYourAppSettings' => 'アプリ設定を設定',
+			'settings.history' => '履歴',
+			'settings.autoRecordHistory' => '自動記録履歴',
+			'settings.autoRecordHistoryDesc' => '視聴した動画やギャラリーなどの情報を自動的に記録します',
+			'settings.showUnprocessedMarkdownText' => '未処理のMarkdownテキストを表示',
+			'settings.showUnprocessedMarkdownTextDesc' => 'Markdownの元のテキストを表示',
+			'settings.markdown' => 'Markdown',
+			'settings.activeBackgroundPrivacyMode' => 'プライバシーモード',
+			'settings.activeBackgroundPrivacyModeDesc' => 'スクリーンショットを禁止し、バックグラウンド実行時に画面を隠す...',
+			'settings.privacy' => 'プライバシー',
+			'settings.forum' => 'フォーラム',
+			'settings.disableForumReplyQuote' => 'フォーラム返信引用を無効にする',
+			'settings.disableForumReplyQuoteDesc' => 'フォーラム返信時の返信階層情報の携帯を無効にする',
+			'settings.theaterMode' => '劇院モード',
+			'settings.theaterModeDesc' => '開啟後、プレーヤー背景がビデオカバーのぼかしバージョンに設定されます',
+			'settings.appLinks' => 'アプリリンク',
+			'settings.defaultBrowser' => 'デフォルトブラウザ',
+			'settings.defaultBrowserDesc' => 'システム設定でデフォルトリンク設定項目を開き、iwara.tvサイトリンクを追加してください',
+			'settings.themeMode' => 'テーマモード',
+			'settings.themeModeDesc' => 'この設定はアプリのテーマモードを決定します',
+			'settings.dynamicColor' => 'ダイナミックカラー',
+			'settings.dynamicColorDesc' => 'この設定はアプリがダイナミックカラーを使用するかどうかを決定します',
+			'settings.useDynamicColor' => 'ダイナミックカラーを使用',
+			'settings.useDynamicColorDesc' => 'この設定はアプリがダイナミックカラーを使用するかどうかを決定します',
+			'settings.presetColors' => 'プリセットカラー',
+			'settings.customColors' => 'カスタムカラー',
+			'settings.pickColor' => 'カラーを選択',
+			'settings.cancel' => 'キャンセル',
+			'settings.confirm' => '確認',
+			'settings.noCustomColors' => 'カスタムカラーがありません',
+			'settings.recordAndRestorePlaybackProgress' => '再生進度を記録して復元',
+			'settings.signature' => '小尾巴',
+			'settings.enableSignature' => '小尾巴を有効にする',
+			'settings.enableSignatureDesc' => 'この設定はアプリが回覆時に小尾巴を有効にするかどうかを決定します',
+			'settings.enterSignature' => '小尾巴を入力',
+			'settings.editSignature' => '小尾巴を編集',
+			'settings.signatureContent' => '小尾巴の内容',
+			'settings.exportConfig' => 'アプリ設定をエクスポート',
+			'settings.exportConfigDesc' => 'ダウンロード記録を除いたアプリ設定をファイルにエクスポートします',
+			'settings.importConfig' => 'アプリ設定をインポート',
+			'settings.importConfigDesc' => 'ファイルからアプリ設定をインポートします',
+			'settings.exportConfigSuccess' => '設定が正常にエクスポートされました',
+			'settings.exportConfigFailed' => '設定のエクスポートに失敗しました',
+			'settings.importConfigSuccess' => '設定が正常にインポートされました',
+			'settings.importConfigFailed' => '設定のインポートに失敗しました',
+			'settings.historyUpdateLogs' => '歴代アップデートログ',
+			'settings.noUpdateLogs' => 'アップデートログが取得できませんでした',
+			'settings.versionLabel' => 'バージョン: {version}',
+			'settings.releaseDateLabel' => 'リリース日: {date}',
+			'settings.noChanges' => '更新内容がありません',
+			'settings.interaction' => 'インタラクション',
+			'settings.enableVibration' => 'バイブレーション',
+			_ => null,
+		} ?? switch (path) {
+			'settings.enableVibrationDesc' => 'アプリの操作時にバイブレーションフィードバックを有効にする',
+			'settings.defaultKeepVideoToolbarVisible' => 'ツールバーを常に表示',
+			'settings.defaultKeepVideoToolbarVisibleDesc' => 'この設定は、動画ページに入った時にツールバーを常に表示するかどうかを決定します。',
+			'settings.theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt' => 'モバイル端でシアターモードを有効にすると、パフォーマンスの問題が発生する可能性があるため、状況に応じてご利用ください。',
+			'settings.lockButtonPosition' => 'ロックボタンの位置',
+			'settings.lockButtonPositionBothSides' => '両側に表示',
+			'settings.lockButtonPositionLeftSide' => '左側のみ表示',
+			'settings.lockButtonPositionRightSide' => '右側のみ表示',
+			'settings.fullscreenOrientation' => 'フルスクリーン時のデフォルト画面方向',
+			'settings.fullscreenOrientationDesc' => 'この設定は、フルスクリーン時のデフォルト画面方向を決定します（モバイルのみ）',
+			'settings.fullscreenOrientationLeftLandscape' => '左横画面',
+			'settings.fullscreenOrientationRightLandscape' => '右横画面',
+			'settings.jumpLink' => 'リンクをジャンプ',
+			'settings.language' => '言語',
+			'settings.languageChanged' => '言語設定が変更されました。アプリを再起動して有効にしてください。',
+			'settings.gestureControl' => 'ジェスチャー制御',
+			'settings.leftDoubleTapRewind' => '左側ダブルタップリワインド',
+			'settings.rightDoubleTapFastForward' => '右側ダブルタップファストフォワード',
+			'settings.doubleTapPause' => 'ダブルタップポーズ',
+			'settings.rightVerticalSwipeVolume' => '右側垂直スワイプボリューム（新ページに入った時に有効）',
+			'settings.leftVerticalSwipeBrightness' => '左側垂直スワイプブライトネス（新ページに入った時に有効）',
+			'settings.longPressFastForward' => '長押しファストフォワード',
+			'settings.enableMouseHoverShowToolbar' => 'マウスホバー時にツールバーを表示',
+			'settings.enableMouseHoverShowToolbarInfo' => '有効にすると、マウスがプレーヤー上にあるときにツールバーが表示されます。3秒間の非アクティブ時に自動的に非表示になります。',
+			'settings.enableHorizontalDragSeek' => '横スワイプでシーク',
+			'settings.audioVideoConfig' => 'オーディオビデオ設定',
+			'settings.expandBuffer' => 'バッファ拡張',
+			'settings.expandBufferInfo' => '有効にすると、バッファサイズが増加し、読み込み時間が長くなりますが、再生がスムーズになります',
+			'settings.videoSyncMode' => 'ビデオ同期モード',
+			'settings.videoSyncModeSubtitle' => 'オーディオビデオ同期戦略',
+			'settings.hardwareDecodingMode' => 'ハードウェアデコードモード',
+			'settings.hardwareDecodingModeSubtitle' => 'ハードウェアデコード設定',
+			'settings.enableHardwareAcceleration' => 'ハードウェアアクセラレーションを有効にする',
+			'settings.enableHardwareAccelerationInfo' => 'ハードウェアアクセラレーションを有効にすると、デコード性能が向上しますが、一部のデバイスでは互換性がない場合があります',
+			'settings.useOpenSLESAudioOutput' => 'OpenSLESオーディオ出力を使用',
+			'settings.useOpenSLESAudioOutputInfo' => '低遅延オーディオ出力を使用し、オーディオ性能が向上する可能性があります',
+			'settings.videoSyncAudio' => 'オーディオ同期',
+			'settings.videoSyncDisplayResample' => 'ディスプレイリサンプル',
+			'settings.videoSyncDisplayResampleVdrop' => 'ディスプレイリサンプル（フレームドロップ）',
+			'settings.videoSyncDisplayResampleDesync' => 'ディスプレイリサンプル（非同期）',
+			'settings.videoSyncDisplayTempo' => 'ディスプレイテンポ',
+			'settings.videoSyncDisplayVdrop' => 'ディスプレイビデオフレームドロップ',
+			'settings.videoSyncDisplayAdrop' => 'ディスプレイオーディオフレームドロップ',
+			'settings.videoSyncDisplayDesync' => 'ディスプレイ非同期',
+			'settings.videoSyncDesync' => '非同期',
+			'settings.forumSettings.name' => 'フォーラム',
+			'settings.forumSettings.configureYourForumSettings' => 'フォーラム設定を構成する',
+			'settings.chatSettings.name' => 'チャット',
+			'settings.chatSettings.configureYourChatSettings' => 'チャット設定を構成する',
+			'settings.hardwareDecodingAuto' => '自動',
+			'settings.hardwareDecodingAutoCopy' => '自動コピー',
+			'settings.hardwareDecodingAutoSafe' => '自動セーフ',
+			'settings.hardwareDecodingNo' => '無効',
+			'settings.hardwareDecodingYes' => '強制有効',
+			'settings.cdnDistributionStrategy' => 'コンテンツ配信戦略',
+			'settings.cdnDistributionStrategyDesc' => '動画ソースサーバーの配信戦略を選択して、読み込み速度を最適化します',
+			'settings.cdnDistributionStrategyLabel' => '配信戦略',
+			'settings.cdnDistributionStrategyNoChange' => '変更なし（元のサーバーを使用）',
+			'settings.cdnDistributionStrategyAuto' => '自動選択（最速サーバー）',
+			'settings.cdnDistributionStrategySpecial' => 'サーバーを指定',
+			'settings.cdnSpecialServer' => 'サーバーを指定',
+			'settings.cdnRefreshServerListHint' => '下のボタンをクリックしてサーバーリストを更新してください',
+			'settings.cdnRefreshButton' => '更新',
+			'settings.cdnFastRingServers' => '高速リングサーバー',
+			'settings.cdnRefreshServerListTooltip' => 'サーバーリストを更新',
+			'settings.cdnSpeedTestButton' => '速度テスト',
+			'settings.cdnSpeedTestingButton' => ({required Object count}) => 'テスト中 (${count})',
+			'settings.cdnNoServerDataHint' => 'サーバーデータがありません、更新ボタンをクリックしてください',
+			'settings.cdnTestingStatus' => 'テスト中',
+			'settings.cdnUnreachableStatus' => '到達不可',
+			'settings.cdnNotTestedStatus' => '未テスト',
+			'settings.downloadSettings.downloadSettings' => 'ダウンロード設定',
+			'settings.downloadSettings.storagePermissionStatus' => 'ストレージ権限状態',
+			'settings.downloadSettings.accessPublicDirectoryNeedStoragePermission' => 'パブリックディレクトリにアクセスするにはストレージ権限が必要です',
+			'settings.downloadSettings.checkingPermissionStatus' => '権限状態を確認中...',
+			'settings.downloadSettings.storagePermissionGranted' => 'ストレージ権限が付与されました',
+			'settings.downloadSettings.storagePermissionNotGranted' => 'ストレージ権限が付与されていません',
+			'settings.downloadSettings.storagePermissionGrantSuccess' => 'ストレージ権限が付与されました',
+			'settings.downloadSettings.storagePermissionGrantFailedButSomeFeaturesMayBeLimited' => 'ストレージ権限が付与されませんでしたが、一部の機能が制限される可能性があります',
+			'settings.downloadSettings.grantStoragePermission' => 'ストレージ権限を付与',
+			'settings.downloadSettings.customDownloadPath' => 'カスタムダウンロードパス',
+			'settings.downloadSettings.customDownloadPathDescription' => '有効にすると、ダウンロードファイルのカスタム保存場所を選択できます',
+			'settings.downloadSettings.customDownloadPathTip' => '💡 ヒント：パブリックディレクトリ（ダウンロードフォルダなど）を選択するにはストレージ権限が必要です。推奨パスの使用をお勧めします',
+			'settings.downloadSettings.androidWarning' => 'Android注意：パブリックディレクトリ（ダウンロードフォルダなど）の選択を避け、アクセス権限を確保するためにアプリ専用ディレクトリの使用をお勧めします。',
+			'settings.downloadSettings.publicDirectoryPermissionTip' => '⚠️ 注意：パブリックディレクトリを選択しました。正常にファイルをダウンロードするにはストレージ権限が必要です',
+			'settings.downloadSettings.permissionRequiredForPublicDirectory' => 'パブリックディレクトリにはストレージ権限が必要です',
+			'settings.downloadSettings.currentDownloadPath' => '現在のダウンロードパス',
+			'settings.downloadSettings.actualDownloadPath' => '実際のダウンロードパス',
+			'settings.downloadSettings.defaultAppDirectory' => 'デフォルトアプリディレクトリ',
+			'settings.downloadSettings.permissionGranted' => '付与済み',
+			'settings.downloadSettings.permissionRequired' => '権限が必要',
+			'settings.downloadSettings.enableCustomDownloadPath' => 'カスタムダウンロードパスを有効にする',
+			'settings.downloadSettings.disableCustomDownloadPath' => '無効時はアプリのデフォルトパスを使用',
+			'settings.downloadSettings.customDownloadPathLabel' => 'カスタムダウンロードパス',
+			'settings.downloadSettings.selectDownloadFolder' => 'ダウンロードフォルダを選択',
+			'settings.downloadSettings.recommendedPath' => '推奨パス',
+			'settings.downloadSettings.selectFolder' => 'フォルダを選択',
+			'settings.downloadSettings.filenameTemplate' => 'ファイル名テンプレート',
+			'settings.downloadSettings.filenameTemplateDescription' => 'ダウンロードファイルの命名規則をカスタマイズし、変数置換をサポート',
+			'settings.downloadSettings.videoFilenameTemplate' => '動画ファイル名テンプレート',
+			'settings.downloadSettings.galleryFolderTemplate' => 'ギャラリーフォルダテンプレート',
+			'settings.downloadSettings.imageFilenameTemplate' => '画像ファイル名テンプレート',
+			'settings.downloadSettings.resetToDefault' => 'デフォルトにリセット',
+			'settings.downloadSettings.supportedVariables' => 'サポートされている変数',
+			'settings.downloadSettings.supportedVariablesDescription' => 'ファイル名テンプレートで以下の変数を使用できます：',
+			'settings.downloadSettings.copyVariable' => '変数をコピー',
+			'settings.downloadSettings.variableCopied' => '変数がコピーされました',
+			'settings.downloadSettings.warningPublicDirectory' => '警告：選択されたパブリックディレクトリにアクセスできない可能性があります。アプリ専用ディレクトリの選択をお勧めします。',
+			'settings.downloadSettings.downloadPathUpdated' => 'ダウンロードパスが更新されました',
+			'settings.downloadSettings.selectPathFailed' => 'パスの選択に失敗しました',
+			'settings.downloadSettings.recommendedPathSet' => '推奨パスに設定されました',
+			'settings.downloadSettings.setRecommendedPathFailed' => '推奨パスの設定に失敗しました',
+			'settings.downloadSettings.templateResetToDefault' => 'デフォルトテンプレートにリセットされました',
+			'settings.downloadSettings.functionalTest' => '機能テスト',
+			'settings.downloadSettings.testInProgress' => 'テスト中...',
+			'settings.downloadSettings.runTest' => 'テスト実行',
+			'settings.downloadSettings.testDownloadPathAndPermissions' => 'ダウンロードパスと権限設定が正常に動作するかテストします',
+			'settings.downloadSettings.testResults' => 'テスト結果',
+			'settings.downloadSettings.testCompleted' => 'テスト完了',
+			'settings.downloadSettings.testPassed' => '項目が通過しました',
+			'settings.downloadSettings.testFailed' => 'テスト失敗',
+			'settings.downloadSettings.testStoragePermissionCheck' => 'ストレージ権限チェック',
+			'settings.downloadSettings.testStoragePermissionGranted' => 'ストレージ権限が付与されています',
+			'settings.downloadSettings.testStoragePermissionMissing' => 'ストレージ権限がありません、一部の機能が制限される可能性があります',
+			'settings.downloadSettings.testPermissionCheckFailed' => '権限チェックに失敗しました',
+			'settings.downloadSettings.testDownloadPathValidation' => 'ダウンロードパス検証',
+			'settings.downloadSettings.testPathValidationFailed' => 'パス検証に失敗しました',
+			'settings.downloadSettings.testFilenameTemplateValidation' => 'ファイル名テンプレート検証',
+			'settings.downloadSettings.testAllTemplatesValid' => 'すべてのテンプレートが有効です',
+			'settings.downloadSettings.testSomeTemplatesInvalid' => '一部のテンプレートに無効な文字が含まれています',
+			'settings.downloadSettings.testTemplateValidationFailed' => 'テンプレート検証に失敗しました',
+			'settings.downloadSettings.testDirectoryOperationTest' => 'ディレクトリ操作テスト',
+			'settings.downloadSettings.testDirectoryOperationNormal' => 'ディレクトリ作成とファイル書き込みが正常です',
+			'settings.downloadSettings.testDirectoryOperationFailed' => 'ディレクトリ操作に失敗しました',
+			'settings.downloadSettings.testVideoTemplate' => '動画テンプレート',
+			'settings.downloadSettings.testGalleryTemplate' => 'ギャラリーテンプレート',
+			'settings.downloadSettings.testImageTemplate' => '画像テンプレート',
+			'settings.downloadSettings.testValid' => '有効',
+			'settings.downloadSettings.testInvalid' => '無効',
+			'settings.downloadSettings.testSuccess' => '成功',
+			'settings.downloadSettings.testCorrect' => '正しい',
+			'settings.downloadSettings.testError' => 'エラー',
+			'settings.downloadSettings.testPath' => 'テストパス',
+			'settings.downloadSettings.testBasePath' => '基本パス',
+			'settings.downloadSettings.testDirectoryCreation' => 'ディレクトリ作成',
+			'settings.downloadSettings.testFileWriting' => 'ファイル書き込み',
+			'settings.downloadSettings.testFileContent' => 'ファイル内容',
+			'settings.downloadSettings.checkingPathStatus' => 'パス状態を確認中...',
+			'settings.downloadSettings.unableToGetPathStatus' => 'パス状態を取得できません',
+			'settings.downloadSettings.actualPathDifferentFromSelected' => '注意：実際のパスが選択されたパスと異なります',
+			'settings.downloadSettings.grantPermission' => '権限を付与',
+			'settings.downloadSettings.fixIssue' => '問題を修正',
+			'settings.downloadSettings.issueFixed' => '問題が修正されました',
+			'settings.downloadSettings.fixFailed' => '修正に失敗しました、手動で処理してください',
+			'settings.downloadSettings.lackStoragePermission' => 'ストレージ権限がありません',
+			'settings.downloadSettings.cannotAccessPublicDirectory' => 'パブリックディレクトリにアクセスできません、「すべてのファイルアクセス権限」が必要です',
+			'settings.downloadSettings.cannotCreateDirectory' => 'ディレクトリを作成できません',
+			'settings.downloadSettings.directoryNotWritable' => 'ディレクトリに書き込みできません',
+			'settings.downloadSettings.insufficientSpace' => '利用可能な容量が不足しています',
+			'settings.downloadSettings.pathValid' => 'パスが有効です',
+			'settings.downloadSettings.validationFailed' => '検証に失敗しました',
+			'settings.downloadSettings.usingDefaultAppDirectory' => 'デフォルトアプリディレクトリを使用',
+			'settings.downloadSettings.appPrivateDirectory' => 'アプリ専用ディレクトリ',
+			'settings.downloadSettings.appPrivateDirectoryDesc' => '安全で信頼性があり、追加の権限は不要',
+			'settings.downloadSettings.downloadDirectory' => 'ダウンロードディレクトリ',
+			'settings.downloadSettings.downloadDirectoryDesc' => 'システムデフォルトのダウンロード場所、管理が簡単',
+			'settings.downloadSettings.moviesDirectory' => '動画ディレクトリ',
+			'settings.downloadSettings.moviesDirectoryDesc' => 'システム動画ディレクトリ、メディアアプリで認識可能',
+			'settings.downloadSettings.documentsDirectory' => 'ドキュメントディレクトリ',
+			'settings.downloadSettings.documentsDirectoryDesc' => 'iOSアプリドキュメントディレクトリ',
+			'settings.downloadSettings.requiresStoragePermission' => 'アクセスにはストレージ権限が必要',
+			'settings.downloadSettings.recommendedPaths' => '推奨パス',
+			'settings.downloadSettings.externalAppPrivateDirectory' => '外部アプリ専用ディレクトリ',
+			'settings.downloadSettings.externalAppPrivateDirectoryDesc' => '外部ストレージのアプリ専用ディレクトリ、ユーザーがアクセス可能、容量が大きい',
+			'settings.downloadSettings.internalAppPrivateDirectory' => '内部アプリ専用ディレクトリ',
+			'settings.downloadSettings.internalAppPrivateDirectoryDesc' => 'アプリ内部ストレージ、権限不要、容量が小さい',
+			'settings.downloadSettings.appDocumentsDirectory' => 'アプリドキュメントディレクトリ',
+			'settings.downloadSettings.appDocumentsDirectoryDesc' => 'アプリ専用ドキュメントディレクトリ、安全で信頼性が高い',
+			'settings.downloadSettings.downloadsFolder' => 'ダウンロードフォルダ',
+			'settings.downloadSettings.downloadsFolderDesc' => 'システムデフォルトのダウンロードディレクトリ',
+			'settings.downloadSettings.selectRecommendedDownloadLocation' => '推奨されるダウンロード場所を選択',
+			'settings.downloadSettings.noRecommendedPaths' => '推奨パスがありません',
+			'settings.downloadSettings.recommended' => '推奨',
+			'settings.downloadSettings.requiresPermission' => '権限が必要',
+			'settings.downloadSettings.authorizeAndSelect' => '認証して選択',
+			'settings.downloadSettings.select' => '選択',
+			'settings.downloadSettings.permissionAuthorizationFailed' => '権限認証に失敗しました、このパスを選択できません',
+			'settings.downloadSettings.pathValidationFailed' => 'パス検証に失敗しました',
+			'settings.downloadSettings.downloadPathSetTo' => 'ダウンロードパスが設定されました',
+			'settings.downloadSettings.setPathFailed' => 'パスの設定に失敗しました',
+			'settings.downloadSettings.variableTitle' => 'タイトル',
+			'settings.downloadSettings.variableAuthor' => '作者名',
+			'settings.downloadSettings.variableUsername' => '作者ユーザー名',
+			'settings.downloadSettings.variableQuality' => '動画品質',
+			'settings.downloadSettings.variableFilename' => '元のファイル名',
+			'settings.downloadSettings.variableId' => 'コンテンツID',
+			'settings.downloadSettings.variableCount' => 'ギャラリー画像数',
+			'settings.downloadSettings.variableDate' => '現在の日付 (YYYY-MM-DD)',
+			'settings.downloadSettings.variableTime' => '現在の時刻 (HH-MM-SS)',
+			'settings.downloadSettings.variableDatetime' => '現在の日時 (YYYY-MM-DD_HH-MM-SS)',
+			'settings.downloadSettings.downloadSettingsTitle' => 'ダウンロード設定',
+			'settings.downloadSettings.downloadSettingsSubtitle' => 'ダウンロードパスとファイル命名規則を設定',
+			'settings.downloadSettings.suchAsTitleQuality' => '例: %title_%quality',
+			'settings.downloadSettings.suchAsTitleId' => '例: %title_%id',
+			'settings.downloadSettings.suchAsTitleFilename' => '例: %title_%filename',
+			'oreno3d.name' => 'Oreno3D',
+			'oreno3d.tags' => 'タグ',
+			'oreno3d.characters' => 'キャラクター',
+			'oreno3d.origin' => '原作',
+			'oreno3d.thirdPartyTagsExplanation' => 'ここに表示される**タグ**、**キャラクター**、**原作**情報は第三者サイト **Oreno3D** が提供するものであり、参考情報です。\n\nこの情報ソースは日本語のみのため、現在国際化対応が不足しています。\n\nもし国際化開発にご興味があれば、ぜひリポジトリにアクセスしてご協力ください！',
+			'oreno3d.sortTypes.hot' => '急上昇',
+			'oreno3d.sortTypes.favorites' => '高評価',
+			'oreno3d.sortTypes.latest' => '新着',
+			'oreno3d.sortTypes.popularity' => '人気',
+			'oreno3d.errors.requestFailed' => 'リクエストが失敗しました、ステータスコード',
+			'oreno3d.errors.connectionTimeout' => '接続がタイムアウトしました、ネットワーク接続を確認してください',
+			'oreno3d.errors.sendTimeout' => 'リクエスト送信がタイムアウトしました',
+			'oreno3d.errors.receiveTimeout' => 'レスポンス受信がタイムアウトしました',
+			'oreno3d.errors.badCertificate' => '証明書の検証に失敗しました',
+			'oreno3d.errors.resourceNotFound' => '要求されたリソースが見つかりません',
+			'oreno3d.errors.accessDenied' => 'アクセスが拒否されました、認証または権限が必要な可能性があります',
+			'oreno3d.errors.serverError' => 'サーバー内部エラー',
+			'oreno3d.errors.serviceUnavailable' => 'サービスが一時的に利用できません',
+			'oreno3d.errors.requestCancelled' => 'リクエストがキャンセルされました',
+			'oreno3d.errors.connectionError' => 'ネットワーク接続エラー、ネットワーク設定を確認してください',
+			'oreno3d.errors.networkRequestFailed' => 'ネットワークリクエストが失敗しました',
+			'oreno3d.errors.searchVideoError' => '動画検索中に不明なエラーが発生しました',
+			'oreno3d.errors.getPopularVideoError' => '人気動画取得中に不明なエラーが発生しました',
+			'oreno3d.errors.getVideoDetailError' => '動画詳細取得中に不明なエラーが発生しました',
+			'oreno3d.errors.parseVideoDetailError' => '動画詳細の取得と解析中に不明なエラーが発生しました',
+			'oreno3d.errors.downloadFileError' => 'ファイルダウンロード中に不明なエラーが発生しました',
+			'oreno3d.loading.gettingVideoInfo' => '動画情報を取得中...',
+			'oreno3d.loading.cancel' => 'キャンセル',
+			'oreno3d.messages.videoNotFoundOrDeleted' => '動画が見つからないか削除されました',
+			'oreno3d.messages.unableToGetVideoPlayLink' => '動画再生リンクを取得できません',
+			'oreno3d.messages.getVideoDetailFailed' => '動画詳細の取得に失敗しました',
+			'signIn.pleaseLoginFirst' => 'サインインする前にログインしてください',
+			'signIn.alreadySignedInToday' => '今日は既にサインインしています！',
+			'signIn.youDidNotStickToTheSignIn' => 'サインインを続けることができませんでした。',
+			'signIn.signInSuccess' => 'サインインに成功しました！',
+			'signIn.signInFailed' => 'サインインに失敗しました。後でもう一度お試しください',
+			'signIn.consecutiveSignIns' => '連続サインイン日数',
+			'signIn.failureReason' => 'サインインに失敗した理由',
+			'signIn.selectDateRange' => '日付範囲を選択',
+			'signIn.startDate' => '開始日',
+			'signIn.endDate' => '終了日',
+			'signIn.invalidDate' => '日付形式が正しくありません',
+			'signIn.invalidDateRange' => '日付範囲が無効です',
+			'signIn.errorFormatText' => '日付形式が正しくありません',
+			'signIn.errorInvalidText' => '日付範囲が無効です',
+			'signIn.errorInvalidRangeText' => '日付範囲が無効です',
+			'signIn.dateRangeCantBeMoreThanOneYear' => '日付範囲は1年を超えることはできません',
+			'signIn.signIn' => 'サインイン',
+			'signIn.signInRecord' => 'サインイン記録',
+			'signIn.totalSignIns' => '合計サインイン数',
+			'signIn.pleaseSelectSignInStatus' => 'サインインステータスを選択してください',
+			'subscriptions.pleaseLoginFirstToViewYourSubscriptions' => 'サブスクリプションを表示するにはログインしてください。',
+			'subscriptions.selectUser' => 'ユーザーを選択してください',
+			'subscriptions.noSubscribedUsers' => '購読中のユーザーがいません',
+			'subscriptions.showAllSubscribedUsersContent' => 'すべての購読中のユーザーのコンテンツを表示',
+			'videoDetail.pipMode' => 'ピプモード',
+			'videoDetail.resumeFromLastPosition' => ({required Object position}) => '${position} から続けて再生',
+			'videoDetail.videoIdIsEmpty' => 'ビデオIDが空です',
+			'videoDetail.videoInfoIsEmpty' => 'ビデオ情報が空です',
+			'videoDetail.thisIsAPrivateVideo' => 'これはプライベートビデオです',
+			'videoDetail.getVideoInfoFailed' => 'ビデオ情報の取得に失敗しました。後でもう一度お試しください',
+			'videoDetail.noVideoSourceFound' => '対応するビデオソースが見つかりません',
+			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => 'タグ "${tagId}" がクリップボードにコピーされました',
+			'videoDetail.errorLoadingVideo' => 'ビデオの読み込み中にエラーが発生しました',
+			'videoDetail.play' => '再生',
+			'videoDetail.pause' => '一時停止',
+			'videoDetail.exitAppFullscreen' => 'アプリの全画面表示を終了',
+			'videoDetail.enterAppFullscreen' => 'アプリを全画面表示',
+			'videoDetail.exitSystemFullscreen' => 'システム全画面表示を終了',
+			'videoDetail.enterSystemFullscreen' => 'システム全画面表示',
+			'videoDetail.seekTo' => '指定時間にシーク',
+			'videoDetail.switchResolution' => '解像度を変更',
+			'videoDetail.switchPlaybackSpeed' => '再生速度を変更',
+			'videoDetail.rewindSeconds' => ({required Object num}) => '${num} 秒巻き戻し',
+			'videoDetail.fastForwardSeconds' => ({required Object num}) => '${num} 秒早送り',
+			'videoDetail.playbackSpeedIng' => ({required Object rate}) => '${rate} 倍速で再生中',
+			'videoDetail.brightness' => '明るさ',
+			'videoDetail.brightnessLowest' => '明るさが最低になっています',
+			'videoDetail.volume' => '音量',
+			'videoDetail.volumeMuted' => '音量がミュートされています',
+			'videoDetail.home' => 'ホーム',
+			'videoDetail.videoPlayer' => 'ビデオプレーヤー',
+			'videoDetail.videoPlayerInfo' => 'プレーヤー情報',
+			'videoDetail.moreSettings' => 'さらに設定',
+			'videoDetail.videoPlayerFeatureInfo' => 'プレーヤー機能の紹介',
+			'videoDetail.autoRewind' => '自動リワインド',
+			'videoDetail.rewindAndFastForward' => '両側をダブルクリックして早送りまたは巻き戻し',
+			'videoDetail.volumeAndBrightness' => '両側を上下にスワイプして音量と明るさを調整',
+			'videoDetail.centerAreaDoubleTapPauseOrPlay' => '中央エリアをダブルタップして一時停止または再生',
+			'videoDetail.showVerticalVideoInFullScreen' => '全画面表示時に縦向きビデオを表示',
+			'videoDetail.keepLastVolumeAndBrightness' => '前回の音量と明るさを保持',
+			'videoDetail.setProxy' => 'プロキシを設定',
+			'videoDetail.moreFeaturesToBeDiscovered' => 'さらに機能が発見されます...',
+			'videoDetail.videoPlayerSettings' => 'プレーヤー設定',
+			'videoDetail.commentCount' => ({required Object num}) => '${num} 件のコメント',
+			'videoDetail.writeYourCommentHere' => 'ここにコメントを入力...',
+			'videoDetail.authorOtherVideos' => '作者の他のビデオ',
+			'videoDetail.relatedVideos' => '関連ビデオ',
+			'videoDetail.privateVideo' => 'これはプライベートビデオです',
+			'videoDetail.externalVideo' => 'これは站外ビデオです',
+			'videoDetail.openInBrowser' => 'ブラウザで開く',
+			'videoDetail.resourceDeleted' => 'このビデオは削除されたようです :/',
+			'videoDetail.noDownloadUrl' => 'ダウンロードURLがありません',
+			'videoDetail.startDownloading' => 'ダウンロードを開始',
+			'videoDetail.downloadFailed' => 'ダウンロードに失敗しました。後でもう一度お試しください',
+			'videoDetail.downloadSuccess' => 'ダウンロードに成功しました',
+			'videoDetail.download' => 'ダウンロード',
+			'videoDetail.downloadManager' => 'ダウンロード管理',
+			'videoDetail.videoLoadError' => 'ビデオの読み込みに失敗しました',
+			'videoDetail.resourceNotFound' => 'リソースが見つかりませんでした',
+			'videoDetail.authorNoOtherVideos' => '作者は他のビデオを所有していません',
+			'videoDetail.noRelatedVideos' => '関連するビデオはありません',
+			'videoDetail.player.errorWhileLoadingVideoSource' => 'ビデオソースの読み込み中にエラーが発生しました',
+			'videoDetail.player.errorWhileSettingUpListeners' => '監視器の設定中にエラーが発生しました',
+			'videoDetail.skeleton.fetchingVideoInfo' => 'ビデオ情報を取得中...',
+			'videoDetail.skeleton.fetchingVideoSources' => 'ビデオソースを取得中...',
+			'videoDetail.skeleton.loadingVideo' => 'ビデオを読み込み中...',
+			'videoDetail.skeleton.applyingSolution' => '解像度を適用中...',
+			'videoDetail.skeleton.addingListeners' => '監視器を追加中...',
+			'videoDetail.skeleton.successFecthVideoDurationInfo' => 'ビデオの総時間を取得しました、ビデオを読み込み中...',
+			'videoDetail.skeleton.successFecthVideoHeightInfo' => '読み込み完了',
+			'videoDetail.cast.dlnaCast' => 'キャスト',
+			'videoDetail.cast.unableToStartCastingSearch' => ({required Object error}) => 'キャスト検索の開始に失敗しました: ${error}',
+			'videoDetail.cast.startCastingTo' => ({required Object deviceName}) => 'キャスト開始: ${deviceName}',
+			'videoDetail.cast.castFailed' => ({required Object error}) => 'キャスト失敗: ${error}\n再検索してください',
+			'videoDetail.cast.castStopped' => 'キャスト停止',
+			'videoDetail.cast.deviceTypes.mediaRenderer' => 'メディアレンダラー',
+			'videoDetail.cast.deviceTypes.mediaServer' => 'メディアサーバー',
+			'videoDetail.cast.deviceTypes.internetGatewayDevice' => 'ルーター',
+			'videoDetail.cast.deviceTypes.basicDevice' => '基本デバイス',
+			'videoDetail.cast.deviceTypes.dimmableLight' => 'スマートライト',
+			'videoDetail.cast.deviceTypes.wlanAccessPoint' => '無線アクセスポイント',
+			'videoDetail.cast.deviceTypes.wlanConnectionDevice' => '無線接続デバイス',
+			'videoDetail.cast.deviceTypes.printer' => 'プリンター',
+			'videoDetail.cast.deviceTypes.scanner' => 'スキャナー',
+			'videoDetail.cast.deviceTypes.digitalSecurityCamera' => 'カメラ',
+			'videoDetail.cast.deviceTypes.unknownDevice' => '不明なデバイス',
+			'videoDetail.cast.currentPlatformNotSupported' => '現在のプラットフォームはキャスト機能をサポートしていません',
+			'videoDetail.cast.unableToGetVideoUrl' => 'ビデオのURLを取得できません、後でもう一度お試しください',
+			'videoDetail.cast.stopCasting' => 'キャスト停止',
+			'videoDetail.cast.dlnaCastSheet.title' => 'リモートキャスト',
+			'videoDetail.cast.dlnaCastSheet.close' => '閉じる',
+			'videoDetail.cast.dlnaCastSheet.searchingDevices' => 'デバイスを検索中...',
+			'videoDetail.cast.dlnaCastSheet.searchPrompt' => '検索ボタンをクリックしてキャストデバイスを再検索',
+			'videoDetail.cast.dlnaCastSheet.searching' => '検索中',
+			'videoDetail.cast.dlnaCastSheet.searchAgain' => '再検索',
+			'videoDetail.cast.dlnaCastSheet.noDevicesFound' => 'キャストデバイスが見つかりません\nデバイスが同じネットワークにあることを確認してください',
+			'videoDetail.cast.dlnaCastSheet.searchingDevicesPrompt' => 'デバイスを検索中です。お待ちください...',
+			'videoDetail.cast.dlnaCastSheet.cast' => 'キャスト',
+			'videoDetail.cast.dlnaCastSheet.connectedTo' => ({required Object deviceName}) => '接続済み: ${deviceName}',
+			'videoDetail.cast.dlnaCastSheet.notConnected' => 'デバイス未接続',
+			'videoDetail.cast.dlnaCastSheet.stopCasting' => 'キャスト停止',
+			'videoDetail.likeAvatars.dialogTitle' => '誰がこっそり「いいね」したの？',
+			'videoDetail.likeAvatars.dialogDescription' => '誰か気になる？この「いいねアルバム」をめくってみよう～',
+			'videoDetail.likeAvatars.closeTooltip' => '閉じる',
+			'videoDetail.likeAvatars.retry' => '再試行',
+			'videoDetail.likeAvatars.noLikesYet' => 'まだ誰もここに現れていません。最初の一人になりましょう！',
+			'videoDetail.likeAvatars.pageInfo' => ({required Object page, required Object totalPages, required Object totalCount}) => '${page} / ${totalPages} ページ · 合計 ${totalCount} 人',
+			'videoDetail.likeAvatars.prevPage' => '前のページ',
+			'videoDetail.likeAvatars.nextPage' => '次のページ',
+			'share.sharePlayList' => 'プレイリストを共有',
+			'share.wowDidYouSeeThis' => 'ああ、見たの？',
+			'share.nameIs' => '名前は',
+			'share.clickLinkToView' => 'リンクをクリックして見る',
+			'share.iReallyLikeThis' => '本当に好きです',
+			'share.shareFailed' => '共有に失敗しました。後でもう一度お試しください',
+			'share.share' => '共有',
+			'share.shareAsImage' => '画像として共有',
+			'share.shareAsText' => 'テキストとして共有',
+			'share.shareAsImageDesc' => '動画のサムネイルを画像として共有',
+			'share.shareAsTextDesc' => '動画の詳細をテキストとして共有',
+			'share.shareAsImageFailed' => 'サムネイルの共有に失敗しました。後でもう一度お試しください',
+			'share.shareAsTextFailed' => '詳細の共有に失敗しました。後でもう一度お試しください',
+			'share.shareVideo' => '動画を共有',
+			'share.authorIs' => '作者は',
+			'share.shareGallery' => 'ギャラリーを共有',
+			'share.galleryTitleIs' => 'ギャラリーのタイトルは',
+			'share.galleryAuthorIs' => 'ギャラリーの作者は',
+			'share.shareUser' => 'ユーザーを共有',
+			'share.userNameIs' => 'ユーザーの名前は',
+			'share.userAuthorIs' => 'ユーザーの作者は',
+			'share.comments' => 'コメント',
+			'share.shareThread' => 'スレッドを共有',
+			'share.views' => '閲覧',
+			'share.sharePost' => '投稿を共有',
+			'share.postTitleIs' => '投稿のタイトルは',
+			'share.postAuthorIs' => '投稿の作者は',
+			'markdown.markdownSyntax' => 'Markdown 構文',
+			'markdown.iwaraSpecialMarkdownSyntax' => 'Iwara 専用構文',
+			'markdown.internalLink' => '站内鏈接',
+			'markdown.supportAutoConvertLinkBelow' => '以下のタイプのリンクを自動変換します：',
+			'markdown.convertLinkExample' => '🎬 ビデオリンク\n🖼️ 画像リンク\n👤 ユーザーリンク\n📌 フォーラムリンク\n🎵 プレイリストリンク\n💬 スレッドリンク',
+			'markdown.mentionUser' => 'ユーザーを言及',
+			'markdown.mentionUserDescription' => '@後にユーザー名を入力すると、ユーザーリンクに自動変換されます',
+			'markdown.markdownBasicSyntax' => 'Markdown 基本構文',
+			'markdown.paragraphAndLineBreak' => '段落と改行',
+			'markdown.paragraphAndLineBreakDescription' => '段落間に空行を入れ、行末に2つのスペースを追加すると改行されます',
+			'markdown.paragraphAndLineBreakSyntax' => 'これは第一段落です\n\nこれは第二段落です\nこの行の後に2つのスペースを追加して  \n改行されます',
+			'markdown.textStyle' => 'テキストスタイル',
+			'markdown.textStyleDescription' => '特殊記号でテキストのスタイルを変更',
+			'markdown.textStyleSyntax' => '**太字テキスト**\n*斜体テキスト*\n~~削除線テキスト~~\n`コードテキスト`',
+			'markdown.quote' => '引用',
+			'markdown.quoteDescription' => '> 符号で引用を作成し、複数の > で多段引用を作成',
+			'markdown.quoteSyntax' => '> これは一階引用です\n>> これは二階引用です',
+			'markdown.list' => 'リスト',
+			'markdown.listDescription' => '数字+点号で順序付きリストを作成し、- で順序なしリストを作成',
+			'markdown.listSyntax' => '1. 第一項\n2. 第二項\n\n- 順序なし項\n  - 子項\n  - 別の子項',
+			'markdown.linkAndImage' => 'リンクと画像',
+			'markdown.linkAndImageDescription' => 'リンク形式：[テキスト](URL)\n画像形式：![説明](URL)',
+			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[リンクテキスト](${link})\n![画像説明](${imgUrl})',
+			'markdown.title' => 'タイトル',
+			'markdown.titleDescription' => '＃ 号でタイトルを作成し、数でレベルを表示',
+			'markdown.titleSyntax' => '# 一階タイトル\n## 二階タイトル\n### 三階タイトル',
+			'markdown.separator' => '分隔線',
+			'markdown.separatorDescription' => '三個以上の - 号で分隔線を作成',
+			'markdown.separatorSyntax' => '---',
+			'markdown.syntax' => '語法',
+			'forum.recent' => '最近',
+			'forum.category' => 'カテゴリ',
+			'forum.lastReply' => '最終返信',
+			'forum.errors.pleaseSelectCategory' => 'カテゴリを選択してください',
+			'forum.errors.threadLocked' => 'このスレッドはロックされています。',
+			'forum.title' => 'タイトル',
+			'forum.createPost' => '投稿を作成',
+			'forum.enterTitle' => 'タイトルを入力してください',
+			'forum.content' => 'コンテンツ',
+			'forum.enterContent' => 'コンテンツを入力してください',
+			'forum.writeYourContentHere' => 'ここにコンテンツを入力...',
+			'forum.posts' => '投稿',
+			'forum.threads' => 'スレッド',
+			'forum.forum' => 'フォーラム',
+			'forum.createThread' => 'スレッドを作成',
+			'forum.selectCategory' => 'カテゴリを選択',
+			'forum.cooldownRemaining' => ({required Object minutes, required Object seconds}) => 'クールダウン残り時間 ${minutes} 分 ${seconds} 秒',
+			'forum.groups.administration' => '管理',
+			'forum.groups.global' => 'グローバル',
+			'forum.groups.chinese' => '中国語',
+			'forum.groups.japanese' => '日本語',
+			'forum.groups.korean' => '韓国語',
+			'forum.groups.other' => 'その他',
+			'forum.leafNames.announcements' => 'お知らせ',
+			'forum.leafNames.feedback' => 'フィードバック',
+			'forum.leafNames.support' => 'サポート',
+			'forum.leafNames.general' => '一般',
+			'forum.leafNames.guides' => 'ガイド',
+			'forum.leafNames.questions' => '質問',
+			'forum.leafNames.requests' => 'リクエスト',
+			'forum.leafNames.sharing' => 'シェア',
+			'forum.leafNames.general_zh' => '一般',
+			'forum.leafNames.questions_zh' => '質問',
+			'forum.leafNames.requests_zh' => 'リクエスト',
+			'forum.leafNames.support_zh' => 'サポート',
+			'forum.leafNames.general_ja' => '一般',
+			'forum.leafNames.questions_ja' => '質問',
+			'forum.leafNames.requests_ja' => 'リクエスト',
+			'forum.leafNames.support_ja' => 'サポート',
+			'forum.leafNames.korean' => '韓国語',
+			'forum.leafNames.other' => 'その他',
+			'forum.leafDescriptions.announcements' => '公式の重要なお知らせと通知',
+			'forum.leafDescriptions.feedback' => 'サイトの機能やサービスに対するフィードバック',
+			'forum.leafDescriptions.support' => 'サイト関連の問題を解決する手助け',
+			'forum.leafDescriptions.general' => 'あらゆる話題を議論する',
+			'forum.leafDescriptions.guides' => '経験やチュートリアルを共有する',
+			'forum.leafDescriptions.questions' => '疑問を提起する',
+			'forum.leafDescriptions.requests' => 'リクエストを投稿する',
+			'forum.leafDescriptions.sharing' => '面白いコンテンツを共有する',
+			'forum.leafDescriptions.general_zh' => 'あらゆる話題を議論する',
+			'forum.leafDescriptions.questions_zh' => '疑問を提起する',
+			'forum.leafDescriptions.requests_zh' => 'リクエストを投稿する',
+			'forum.leafDescriptions.support_zh' => 'サイト関連の問題を解決する手助け',
+			'forum.leafDescriptions.general_ja' => 'あらゆる話題を議論する',
+			'forum.leafDescriptions.questions_ja' => '疑問を提起する',
+			'forum.leafDescriptions.requests_ja' => 'リクエストを投稿する',
+			'forum.leafDescriptions.support_ja' => 'サイト関連の問題を解決する手助け',
+			'forum.leafDescriptions.korean' => '韓国語に関する議論',
+			'forum.leafDescriptions.other' => 'その他の未分類のコンテンツ',
+			'forum.reply' => '回覆',
+			'forum.pendingReview' => '審査中',
+			'forum.editedAt' => '編集日時',
+			'forum.copySuccess' => 'クリップボードにコピーされました',
+			'forum.copySuccessForMessage' => ({required Object str}) => 'クリップボードにコピーされました: ${str}',
+			'forum.editReply' => '編集回覆',
+			'forum.editTitle' => '編集タイトル',
+			'forum.submit' => '提出',
+			'notifications.errors.unsupportedNotificationType' => 'サポートされていない通知タイプ',
+			'notifications.errors.unknownUser' => '未知ユーザー',
+			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => 'サポートされていない通知タイプ: ${type}',
+			'notifications.errors.unknownNotificationType' => '未知通知タイプ',
+			'notifications.notifications' => '通知',
+			'notifications.profile' => '個人主頁',
+			'notifications.postedNewComment' => '新しいコメントを投稿',
+			'notifications.inYour' => 'あなたの',
+			'notifications.video' => 'ビデオ',
+			'notifications.repliedYourVideoComment' => 'あなたのビデオコメントに返信しました',
+			'notifications.copyInfoToClipboard' => '通知情報をクリップボードにコピー',
+			'notifications.copySuccess' => 'クリップボードにコピーされました',
+			'notifications.copySuccessForMessage' => ({required Object str}) => 'クリップボードにコピーされました: ${str}',
+			'notifications.markAllAsRead' => '全てを既読にする',
+			'notifications.markAllAsReadSuccess' => '全ての通知が既読になりました',
+			'notifications.markAllAsReadFailed' => '全てを既読にするに失敗しました',
+			'notifications.markSelectedAsRead' => '選択した通知を既読にする',
+			'notifications.markSelectedAsReadSuccess' => '選択した通知が既読になりました',
+			'notifications.markSelectedAsReadFailed' => '選択した通知を既読にするに失敗しました',
+			'notifications.markAsRead' => '既読にする',
+			'notifications.markAsReadSuccess' => '通知が既読になりました',
+			'notifications.markAsReadFailed' => '通知を既読にするに失敗しました',
+			'notifications.notificationTypeHelp' => '通知タイプのヘルプ',
+			_ => null,
+		} ?? switch (path) {
+			'notifications.dueToLackOfNotificationTypeDetails' => '通知タイプの詳細情報が不足しているため、現在サポートされているタイプが受信したメッセージをカバーしていない可能性があります',
+			'notifications.helpUsImproveNotificationTypeSupport' => '通知タイプのサポート改善にご協力いただける場合',
+			'notifications.helpUsImproveNotificationTypeSupportLongText' => '1. 📋 通知情報をコピー\n2. 🐞 プロジェクトリポジトリに issue を提出\n\n⚠️ 注意：通知情報には個人情報が含まれている場合があります。公開したくない場合は、プロジェクト作者にメールで送信することもできます。',
+			'notifications.goToRepository' => 'リポジトリに移動',
+			'notifications.copy' => 'コピー',
+			'notifications.commentApproved' => 'コメントが承認されました',
+			'notifications.repliedYourProfileComment' => 'あなたの個人主頁コメントに返信しました',
+			'notifications.kReplied' => 'さんが',
+			'notifications.kCommented' => 'さんが',
+			'notifications.kVideo' => 'ビデオ',
+			'notifications.kGallery' => 'ギャラリー',
+			'notifications.kProfile' => 'プロフィール',
+			'notifications.kThread' => 'スレッド',
+			'notifications.kPost' => '投稿',
+			'notifications.kCommentSection' => '',
+			'notifications.kApprovedComment' => 'コメントが承認されました',
+			'notifications.kApprovedVideo' => '動画が承認されました',
+			'notifications.kApprovedGallery' => 'ギャラリーが承認されました',
+			'notifications.kApprovedThread' => 'スレッドが承認されました',
+			'notifications.kApprovedPost' => '投稿が承認されました',
+			'notifications.kApprovedForumPost' => 'フォーラム投稿が承認されました',
+			'notifications.kRejectedContent' => 'コンテンツ審査が拒否されました',
+			'notifications.kUnknownType' => '不明な通知タイプ',
+			'conversation.errors.pleaseSelectAUser' => 'ユーザーを選択してください',
+			'conversation.errors.pleaseEnterATitle' => 'タイトルを入力してください',
+			'conversation.errors.clickToSelectAUser' => 'ユーザーを選択してください',
+			'conversation.errors.loadFailedClickToRetry' => '読み込みに失敗しました。クリックして再試行',
+			'conversation.errors.loadFailed' => '読み込みに失敗しました',
+			'conversation.errors.clickToRetry' => 'クリックして再試行',
+			'conversation.errors.noMoreConversations' => 'もう会話がありません',
+			'conversation.conversation' => '会話',
+			'conversation.startConversation' => '会話を開始',
+			'conversation.noConversation' => '会話がありません',
+			'conversation.selectFromLeftListAndStartConversation' => '左側の会話リストから会話を選択して開始',
+			'conversation.title' => 'タイトル',
+			'conversation.body' => '内容',
+			'conversation.selectAUser' => 'ユーザーを選択',
+			'conversation.searchUsers' => 'ユーザーを検索...',
+			'conversation.tmpNoConversions' => '会話がありません',
+			'conversation.deleteThisMessage' => 'このメッセージを削除',
+			'conversation.deleteThisMessageSubtitle' => 'この操作は取り消せません',
+			'conversation.writeMessageHere' => 'ここにメッセージを入力...',
+			'conversation.sendMessage' => 'メッセージを送信',
+			'splash.errors.initializationFailed' => '初期化に失敗しました。アプリを再起動してください',
+			'splash.preparing' => '準備中...',
+			'splash.initializing' => '初期化中...',
+			'splash.loading' => '読み込み中...',
+			'splash.ready' => '準備完了',
+			'splash.initializingMessageService' => 'メッセージサービスを初期化中...',
+			'download.errors.imageModelNotFound' => '画像モデルが見つかりません',
+			'download.errors.downloadFailed' => 'ダウンロードに失敗しました',
+			'download.errors.videoInfoNotFound' => 'ビデオ情報が見つかりません',
+			'download.errors.unknown' => '不明',
+			'download.errors.downloadTaskAlreadyExists' => 'ダウンロードタスクが既に存在します',
+			'download.errors.videoAlreadyDownloaded' => 'ビデオはすでにダウンロードされています',
+			'download.errors.downloadFailedForMessage' => ({required Object errorInfo}) => 'ダウンロードタスクの追加に失敗しました: ${errorInfo}',
+			'download.errors.userPausedDownload' => 'ユーザーがダウンロードを一時停止',
+			'download.errors.fileSystemError' => ({required Object errorInfo}) => 'ファイルシステムエラー: ${errorInfo}',
+			'download.errors.unknownError' => ({required Object errorInfo}) => '不明なエラー: ${errorInfo}',
+			'download.errors.connectionTimeout' => '接続タイムアウト',
+			'download.errors.sendTimeout' => '送信タイムアウト',
+			'download.errors.receiveTimeout' => '受信タイムアウト',
+			'download.errors.serverError' => ({required Object errorInfo}) => 'サーバーエラー: ${errorInfo}',
+			'download.errors.unknownNetworkError' => '不明なネットワークエラー',
+			'download.errors.sslHandshakeFailed' => 'SSLハンドシェイクに失敗しました、ネットワーク環境を確認してください',
+			'download.errors.connectionFailed' => '接続に失敗しました、ネットワークを確認してください',
+			'download.errors.serviceIsClosing' => 'ダウンロードサービスが閉じています',
+			'download.errors.partialDownloadFailed' => '部分内容ダウンロード失敗',
+			'download.errors.noDownloadTask' => 'ダウンロードタスクがありません',
+			'download.errors.taskNotFoundOrDataError' => 'タスクが見つかりませんまたはデータが正しくありません',
+			'download.errors.copyDownloadUrlFailed' => 'ダウンロードリンクのコピーに失敗しました',
+			'download.errors.fileNotFound' => 'ファイルが見つかりません',
+			'download.errors.openFolderFailed' => 'ファイルフォルダーを開くのに失敗しました',
+			'download.errors.openFolderFailedWithMessage' => ({required Object message}) => 'ファイルフォルダーを開くのに失敗しました: ${message}',
+			'download.errors.directoryNotFound' => 'ディレクトリが見つかりません',
+			'download.errors.copyFailed' => 'コピーに失敗しました',
+			'download.errors.openFileFailed' => 'ファイルを開くのに失敗しました',
+			'download.errors.openFileFailedWithMessage' => ({required Object message}) => 'ファイルを開くのに失敗しました: ${message}',
+			'download.errors.noDownloadSource' => 'ダウンロードソースがありません',
+			'download.errors.noDownloadSourceNowPleaseWaitInfoLoaded' => 'ダウンロードソースがありません。情報を読み込んだ後、もう一度お試しください。',
+			'download.errors.noActiveDownloadTask' => 'ダウンロード中のタスクがありません',
+			'download.errors.noFailedDownloadTask' => '失敗したタスクがありません',
+			'download.errors.noCompletedDownloadTask' => '完了したタスクがありません',
+			'download.errors.taskAlreadyCompletedDoNotAdd' => 'タスクはすでに完了しています。再度追加しないでください',
+			'download.errors.linkExpiredTryAgain' => 'リンクが期限切れです。新しいダウンロードリンクを取得しています',
+			'download.errors.linkExpiredTryAgainSuccess' => 'リンクが期限切れです。新しいダウンロードリンクを取得しました',
+			'download.errors.linkExpiredTryAgainFailed' => 'リンクが期限切れです。新しいダウンロードリンクを取得に失敗しました',
+			'download.errors.taskDeleted' => 'タスクが削除されました',
+			'download.errors.unsupportedImageFormat' => ({required Object format}) => 'サポートされていない画像形式: ${format}',
+			'download.errors.deleteFileError' => 'ファイルの削除に失敗しました。ファイルが他のプロセスによって使用されている可能性があります',
+			'download.errors.deleteTaskError' => 'タスクの削除に失敗しました',
+			'download.errors.taskNotFound' => 'タスクが見つかりません',
+			'download.errors.canNotRefreshVideoTask' => 'ビデオタスクの更新に失敗しました',
+			'download.errors.taskAlreadyProcessing' => 'タスクはすでに処理中です',
+			'download.errors.failedToLoadTasks' => 'タスクの読み込みに失敗しました',
+			'download.errors.partialDownloadFailedWithMessage' => ({required Object message}) => '部分ダウンロードに失敗しました: ${message}',
+			'download.errors.unsupportedImageFormatWithMessage' => ({required Object extension}) => 'サポートされていない画像形式: ${extension}, デバイスにダウンロードして表示することができます',
+			'download.errors.imageLoadFailed' => '画像の読み込みに失敗しました',
+			'download.errors.pleaseTryOtherViewer' => '他のビューアーを使用してみてください',
+			'download.downloadList' => 'ダウンロードリスト',
+			'download.viewDownloadList' => 'ダウンロードリストを表示',
+			'download.download' => 'ダウンロード',
+			'download.forceDeleteTask' => '強制削除タスク',
+			'download.startDownloading' => 'ダウンロードを開始',
+			'download.clearAllFailedTasks' => 'すべての失敗タスクをクリア',
+			'download.clearAllFailedTasksConfirmation' => 'すべての失敗タスクをクリアしますか？\nこれらのタスクのファイルも削除されます。',
+			'download.clearAllFailedTasksSuccess' => 'すべての失敗タスクをクリアしました',
+			'download.clearAllFailedTasksError' => '失敗タスクのクリア中にエラーが発生しました',
+			'download.downloadStatus' => 'ダウンロード状態',
+			'download.imageList' => '画像リスト',
+			'download.retryDownload' => '再試行ダウンロード',
+			'download.notDownloaded' => '未ダウンロード',
+			'download.downloaded' => 'ダウンロード済み',
+			'download.waitingForDownload' => 'ダウンロード待機中',
+			'download.downloadingProgressForImageProgress' => ({required Object downloaded, required Object total, required Object progress}) => 'ダウンロード中 (${downloaded}/${total}枚 ${progress}%)',
+			'download.downloadingSingleImageProgress' => ({required Object downloaded}) => 'ダウンロード中 (${downloaded}枚)',
+			'download.pausedProgressForImageProgress' => ({required Object downloaded, required Object total, required Object progress}) => 'ダウンロード一時停止中 (${downloaded}/${total}枚 ${progress}%)',
+			'download.pausedSingleImageProgress' => ({required Object downloaded}) => 'ダウンロード一時停止中 (${downloaded}枚)',
+			'download.downloadedProgressForImageProgress' => ({required Object total}) => 'ダウンロード完了 (合計${total}枚)',
+			'download.viewVideoDetail' => 'ビデオ詳細を表示',
+			'download.viewGalleryDetail' => 'ギャラリー詳細を表示',
+			'download.moreOptions' => 'もっと操作',
+			'download.openFile' => 'ファイルを開く',
+			'download.pause' => '一時停止',
+			'download.resume' => '継続',
+			'download.copyDownloadUrl' => 'ダウンロードリンクをコピー',
+			'download.showInFolder' => 'フォルダーで表示',
+			'download.deleteTask' => 'タスクを削除',
+			'download.deleteTaskConfirmation' => 'このダウンロードタスクを削除しますか？\nタスクのファイルも削除されます。',
+			'download.forceDeleteTaskConfirmation' => 'このダウンロードタスクを強制削除しますか？\nファイルが使用中でも削除を試行し、タスクのファイルも削除されます。',
+			'download.downloadingProgressForVideoTask' => ({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'ダウンロード中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s',
+			'download.downloadingOnlyDownloadedAndSpeed' => ({required Object downloaded, required Object speed}) => 'ダウンロード中 ${downloaded} • ${speed}MB/s',
+			'download.pausedForDownloadedAndTotal' => ({required Object downloaded, required Object total, required Object progress}) => '一時停止中 ${downloaded}/${total} (${progress}%)',
+			'download.pausedAndDownloaded' => ({required Object downloaded}) => '一時停止中 • ダウンロード済み ${downloaded}',
+			'download.downloadedWithSize' => ({required Object size}) => 'ダウンロード完了 • ${size}',
+			'download.copyDownloadUrlSuccess' => 'ダウンロードリンクをコピーしました',
+			'download.totalImageNums' => ({required Object num}) => '${num}枚',
+			'download.downloadingDownloadedTotalProgressSpeed' => ({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'ダウンロード中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s',
+			'download.downloading' => 'ダウンロード中',
+			'download.failed' => '失敗',
+			'download.completed' => '完了',
+			'download.downloadDetail' => 'ダウンロード詳細',
+			'download.copy' => 'コピー',
+			'download.copySuccess' => 'コピーしました',
+			'download.waiting' => '待機中',
+			'download.paused' => '一時停止中',
+			'download.downloadingOnlyDownloaded' => ({required Object downloaded}) => 'ダウンロード中 ${downloaded}',
+			'download.galleryDownloadCompletedWithName' => ({required Object galleryName}) => 'ギャラリーのダウンロードが完了しました: ${galleryName}',
+			'download.downloadCompletedWithName' => ({required Object fileName}) => 'ダウンロードが完了しました: ${fileName}',
+			'download.stillInDevelopment' => '開発中',
+			'download.saveToAppDirectory' => 'アプリケーションディレクトリに保存',
+			'download.alreadyDownloadedWithQuality' => 'すでに同じ品質のタスクがあります。続けてダウンロードしますか？',
+			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'すでに品質が${qualities}のタスクがあります。続けてダウンロードしますか？',
+			'download.otherQualities' => 'その他の品質',
+			'favorite.errors.addFailed' => '追加に失敗しました',
+			'favorite.errors.addSuccess' => '追加に成功しました',
+			'favorite.errors.deleteFolderFailed' => 'フォルダーの削除に失敗しました',
+			'favorite.errors.deleteFolderSuccess' => 'フォルダーの削除に成功しました',
+			'favorite.errors.folderNameCannotBeEmpty' => 'フォルダー名を入力してください',
+			'favorite.add' => '追加',
+			'favorite.addSuccess' => '追加に成功しました',
+			'favorite.addFailed' => '追加に失敗しました',
+			'favorite.remove' => '削除',
+			'favorite.removeSuccess' => '削除に成功しました',
+			'favorite.removeFailed' => '削除に失敗しました',
+			'favorite.removeConfirmation' => 'このアイテムをお気に入りから削除しますか？',
+			'favorite.removeConfirmationSuccess' => 'アイテムがお気に入りから削除されました',
+			'favorite.removeConfirmationFailed' => 'アイテムをお気に入りから削除に失敗しました',
+			'favorite.createFolderSuccess' => 'フォルダーが作成されました',
+			'favorite.createFolderFailed' => 'フォルダーの作成に失敗しました',
+			'favorite.createFolder' => 'フォルダーを作成',
+			'favorite.enterFolderName' => 'フォルダー名を入力',
+			'favorite.enterFolderNameHere' => 'フォルダー名を入力してください...',
+			'favorite.create' => '作成',
+			'favorite.items' => 'アイテム',
+			'favorite.newFolderName' => '新しいフォルダー',
+			'favorite.searchFolders' => 'フォルダーを検索...',
+			'favorite.searchItems' => 'アイテムを検索...',
+			'favorite.createdAt' => '作成日時',
+			'favorite.myFavorites' => 'お気に入り',
+			'favorite.deleteFolderTitle' => 'フォルダーを削除',
+			'favorite.deleteFolderConfirmWithTitle' => ({required Object title}) => '${title} フォルダーを削除しますか？',
+			'favorite.removeItemTitle' => 'アイテムを削除',
+			'favorite.removeItemConfirmWithTitle' => ({required Object title}) => '${title} アイテムを削除しますか？',
+			'favorite.removeItemSuccess' => 'アイテムがお気に入りから削除されました',
+			'favorite.removeItemFailed' => 'アイテムをお気に入りから削除に失敗しました',
+			'favorite.localizeFavorite' => 'ローカライズお気に入り',
+			'favorite.editFolderTitle' => 'フォルダー名を編集',
+			'favorite.editFolderSuccess' => 'フォルダー名を更新しました',
+			'favorite.editFolderFailed' => 'フォルダー名の更新に失敗しました',
+			'favorite.searchTags' => 'タグを検索',
+			'translation.currentService' => '現在のサービス',
+			'translation.testConnection' => 'テスト接続',
+			'translation.testConnectionSuccess' => 'テスト接続成功',
+			'translation.testConnectionFailed' => 'テスト接続失敗',
+			'translation.testConnectionFailedWithMessage' => ({required Object message}) => 'テスト接続失敗: ${message}',
+			'translation.translation' => '翻訳',
+			'translation.needVerification' => '検証が必要です',
+			'translation.needVerificationContent' => 'まず接続テストを行ってからAI翻訳を有効にしてください',
+			'translation.confirm' => '確定',
+			'translation.disclaimer' => '使用須知',
+			'translation.riskWarning' => '風險提示',
+			'translation.dureToRisk1' => 'ユーザーが生成したテキストが原因で、AIサービスプロバイダーのコンテンツポリシーに違反する内容が含まれる場合があります',
+			'translation.dureToRisk2' => '不当なコンテンツはAPIキーの停止やサービスの終了を引き起こす可能性があります',
+			'translation.operationSuggestion' => '操作推奨',
+			'translation.operationSuggestion1' => '1. 翻訳前に内容を厳格に審査してください',
+			'translation.operationSuggestion2' => '2. 暴力、成人向けコンテンツなどを翻訳しないでください',
+			'translation.apiConfig' => 'API設定',
+			'translation.modifyConfigWillAutoCloseAITranslation' => '設定を変更するとAI翻訳が自動的に閉じられます。再度開くには接続テストを行ってください',
+			'translation.apiAddress' => 'APIアドレス',
+			'translation.modelName' => 'モデル名',
+			'translation.modelNameHintText' => '例：gpt-4-turbo',
+			'translation.maxTokens' => '最大トークン数',
+			'translation.maxTokensHintText' => '例：32000',
+			'translation.temperature' => '温度係数',
+			'translation.temperatureHintText' => '0.0-2.0',
+			'translation.clickTestButtonToVerifyAPIConnection' => 'テストボタンをクリックしてAPI接続を検証',
+			'translation.requestPreview' => 'リクエストプレビュー',
+			'translation.enableAITranslation' => 'AI翻訳',
+			'translation.enabled' => '有効',
+			'translation.disabled' => '無効',
+			'translation.testing' => 'テスト中...',
+			'translation.testNow' => '今すぐテスト',
+			'translation.connectionStatus' => '接続状態',
+			'translation.success' => '成功',
+			'translation.failed' => '失敗',
+			'translation.information' => '情報',
+			'translation.viewRawResponse' => '生の応答を表示',
+			'translation.pleaseCheckInputParametersFormat' => '入力パラメーターの形式を確認してください',
+			'translation.pleaseFillInAPIAddressModelNameAndKey' => 'APIアドレス、モデル名、およびキーを入力してください',
+			'translation.pleaseFillInValidConfigurationParameters' => '有効な設定パラメーターを入力してください',
+			'translation.pleaseCompleteConnectionTest' => '接続テストを完了してください',
+			'translation.notConfigured' => '未設定',
+			'translation.apiEndpoint' => 'APIエンドポイント',
+			'translation.configuredKey' => '設定済みキー',
+			'translation.notConfiguredKey' => '未設定キー',
+			'translation.authenticationStatus' => '認証状態',
+			'translation.thisFieldCannotBeEmpty' => 'このフィールドは空にできません',
+			'translation.apiKey' => 'APIキー',
+			'translation.apiKeyCannotBeEmpty' => 'APIキーは空にできません',
+			'translation.pleaseEnterValidNumber' => '有効な数値を入力してください',
+			'translation.range' => '範囲',
+			'translation.mustBeGreaterThan' => '以上',
+			'translation.invalidAPIResponse' => '無効なAPI応答',
+			'translation.connectionFailedForMessage' => ({required Object message}) => '接続失敗: ${message}',
+			'translation.aiTranslationNotEnabledHint' => 'AI翻訳は有効にされていません。設定で有効にしてください',
+			'translation.goToSettings' => '設定に移動',
+			'translation.disableAITranslation' => 'AI翻訳を無効にする',
+			'translation.currentValue' => '現在値',
+			'translation.configureTranslationStrategy' => '翻訳戦略を設定',
+			'translation.advancedSettings' => '高度な設定',
+			'translation.translationPrompt' => '翻訳プロンプト',
+			'translation.promptHint' => '翻訳プロンプトを入力してください。[TL]を目標言語のプレースホルダーとして使用します',
+			'translation.promptHelperText' => 'プロンプトには[TL]を目標言語のプレースホルダーとして含めてください',
+			'translation.promptMustContainTargetLang' => 'プロンプトには[TL]プレースホルダーを含めてください',
+			'translation.aiTranslationWillBeDisabled' => 'AI翻訳が自動的に無効にされます',
+			'translation.aiTranslationWillBeDisabledDueToConfigChange' => '基本設定を変更したため、AI翻訳が自動的に無効にされます',
+			'translation.aiTranslationWillBeDisabledDueToPromptChange' => '翻訳プロンプトを変更したため、AI翻訳が自動的に無効にされます',
+			'translation.aiTranslationWillBeDisabledDueToParamChange' => 'パラメーター設定を変更したため、AI翻訳が自動的に無効にされます',
+			'translation.onlyOpenAIAPISupported' => '現在、OpenAI互換のAPI形式（application/jsonリクエストボディ形式）のみサポートされています',
+			'translation.streamingTranslation' => 'ストリーミング翻訳',
+			'translation.streamingTranslationSupported' => 'ストリーミング翻訳対応',
+			'translation.streamingTranslationNotSupported' => 'ストリーミング翻訳非対応',
+			'translation.streamingTranslationDescription' => 'ストリーミング翻訳は翻訳プロセス中にリアルタイムで結果を表示し、より良いユーザー体験を提供します',
+			'translation.baseUrlInputHelperText' => '末尾が#の場合、入力されたURLを実際のリクエストアドレスとして使用します',
+			'translation.currentActualUrl' => ({required Object url}) => '現在の実際のURL: ${url}',
+			'translation.usingFullUrlWithHash' => '完全なURL（#で終わる）を使用',
+			'translation.urlEndingWithHashTip' => 'URLが#で終わる場合、入力されたURLを実際のリクエストアドレスとして使用します',
+			'translation.streamingTranslationWarning' => '注意：この機能はAPIサービスがストリーミング伝送をサポートする必要があり、一部のモデルではサポートされていない場合があります',
+			'translation.translationService' => '翻訳サービス',
+			'translation.translationServiceDescription' => 'お好みの翻訳サービスを選択してください',
+			'translation.googleTranslation' => 'Google 翻訳',
+			'translation.googleTranslationDescription' => '複数の言語をサポートする無料のオンライン翻訳サービス',
+			'translation.aiTranslation' => 'AI 翻訳',
+			'translation.aiTranslationDescription' => '大規模言語モデルに基づくインテリジェント翻訳サービス',
+			'translation.deeplxTranslation' => 'DeepLX 翻訳',
+			'translation.deeplxTranslationDescription' => 'DeepL翻訳のオープンソース実装、高品質な翻訳を提供',
+			'translation.googleTranslationFeatures' => '機能',
+			'translation.freeToUse' => '無料で使用',
+			'translation.freeToUseDescription' => '設定不要、すぐに使用可能',
+			'translation.fastResponse' => '高速応答',
+			'translation.fastResponseDescription' => '翻訳速度が速く、遅延が低い',
+			'translation.stableAndReliable' => '安定で信頼性が高い',
+			'translation.stableAndReliableDescription' => 'Google公式APIに基づく',
+			'translation.enabledDefaultService' => '有効 - デフォルト翻訳サービス',
+			'translation.notEnabled' => '無効',
+			'translation.deeplxTranslationService' => 'DeepLX 翻訳サービス',
+			'translation.deeplxDescription' => 'DeepLXはDeepL翻訳のオープンソース実装で、Free、Pro、Officialの3つのエンドポイントモードをサポートしています',
+			'translation.serverAddress' => 'サーバーアドレス',
+			'translation.serverAddressHint' => 'https://api.deeplx.org',
+			'translation.serverAddressHelperText' => 'DeepLXサーバーのベースアドレス',
+			'translation.endpointType' => 'エンドポイントタイプ',
+			'translation.freeEndpoint' => 'Free - 無料エンドポイント、レート制限がある場合があります',
+			'translation.proEndpoint' => 'Pro - dl_sessionが必要、より安定',
+			'translation.officialEndpoint' => 'Official - 公式API形式',
+			'translation.finalRequestUrl' => '最終リクエストURL',
+			'translation.apiKeyOptional' => 'API Key (オプション)',
+			'translation.apiKeyOptionalHint' => '保護されたDeepLXサービスへのアクセス用',
+			'translation.apiKeyOptionalHelperText' => '一部のDeepLXサービスは認証にAPI Keyが必要です',
+			'translation.dlSession' => 'DL Session',
+			'translation.dlSessionHint' => 'Proモードに必要なdl_sessionパラメーター',
+			'translation.dlSessionHelperText' => 'Proエンドポイントに必要なセッションパラメーター、DeepL Proアカウントから取得',
+			'translation.proModeRequiresDlSession' => 'Proモードにはdl_sessionの入力が必要です',
+			'translation.clickTestButtonToVerifyDeepLXAPI' => 'テストボタンをクリックしてDeepLX API接続を検証',
+			'translation.enableDeepLXTranslation' => 'DeepLX翻訳を有効にする',
+			'translation.deepLXTranslationWillBeDisabled' => '設定変更によりDeepLX翻訳が無効になります',
+			'translation.translatedResult' => '翻訳結果',
+			'translation.testSuccess' => 'テスト成功',
+			'translation.pleaseFillInDeepLXServerAddress' => 'DeepLXサーバーアドレスを入力してください',
+			'translation.invalidAPIResponseFormat' => '無効なAPI応答形式',
+			'translation.translationServiceReturnedError' => '翻訳サービスがエラーまたは空の結果を返しました',
+			'translation.connectionFailed' => '接続失敗',
+			'translation.translationFailed' => '翻訳失敗',
+			'translation.aiTranslationFailed' => 'AI翻訳失敗',
+			'translation.deeplxTranslationFailed' => 'DeepLX翻訳失敗',
+			'translation.aiTranslationTestFailed' => 'AI翻訳テスト失敗',
+			'translation.deeplxTranslationTestFailed' => 'DeepLX翻訳テスト失敗',
+			'translation.streamingTranslationTimeout' => 'ストリーミング翻訳タイムアウト、リソース強制クリーンアップ',
+			'translation.translationRequestTimeout' => '翻訳リクエストタイムアウト',
+			'translation.streamingTranslationDataTimeout' => 'ストリーミング翻訳データ受信タイムアウト',
+			'translation.dataReceptionTimeout' => 'データ受信タイムアウト',
+			'translation.streamDataParseError' => 'ストリームデータ解析エラー',
+			'translation.streamingTranslationFailed' => 'ストリーミング翻訳失敗',
+			'translation.fallbackTranslationFailed' => '通常翻訳へのフォールバックも失敗',
+			'translation.translationSettings' => '翻訳設定',
+			'translation.enableGoogleTranslation' => 'Google翻訳を有効にする',
+			'mediaPlayer.videoPlayerError' => 'ビデオプレイヤーエラー',
+			'mediaPlayer.videoLoadFailed' => 'ビデオ読み込み失敗',
+			'mediaPlayer.videoCodecNotSupported' => 'ビデオコーデックがサポートされていません',
+			'mediaPlayer.networkConnectionIssue' => 'ネットワーク接続の問題',
+			'mediaPlayer.insufficientPermission' => '権限不足',
+			'mediaPlayer.unsupportedVideoFormat' => 'サポートされていないビデオ形式',
+			'mediaPlayer.retry' => '再試行',
+			'mediaPlayer.externalPlayer' => '外部プレイヤー',
+			'mediaPlayer.detailedErrorInfo' => '詳細エラー情報',
+			'mediaPlayer.format' => '形式',
+			'mediaPlayer.suggestion' => '提案',
+			'mediaPlayer.androidWebmCompatibilityIssue' => 'AndroidデバイスはWEBM形式のサポートが限定的です。外部プレイヤーの使用またはWEBMをサポートするプレイヤーアプリのダウンロードをお勧めします',
+			'mediaPlayer.currentDeviceCodecNotSupported' => '現在のデバイスはこのビデオ形式のコーデックをサポートしていません',
+			'mediaPlayer.checkNetworkConnection' => 'ネットワーク接続を確認して再試行してください',
+			'mediaPlayer.appMayLackMediaPermission' => 'アプリに必要なメディア再生権限が不足している可能性があります',
+			'mediaPlayer.tryOtherVideoPlayer' => '他のビデオプレイヤーをお試しください',
+			'mediaPlayer.video' => 'ビデオ',
+			'mediaPlayer.imageLoadFailed' => '画像読み込み失敗',
+			'mediaPlayer.unsupportedImageFormat' => 'サポートされていない画像形式',
+			'mediaPlayer.tryOtherViewer' => '他のビューアーをお試しください',
+			'mediaPlayer.retryingOpenVideoLink' => '動画リンクのオープンに失敗しました。再試行中',
+			'mediaPlayer.decoderOpenFailedWithSuggestion' => ({required Object event}) => 'デコーダーを読み込めませんでした: ${event}。プレーヤー設定でソフトウェアデコードに切り替え、ページに再入場してお試しください',
+			'mediaPlayer.videoLoadErrorWithDetail' => ({required Object event}) => '動画読み込みエラー: ${event}',
+			'linkInputDialog.title' => 'リンクを入力',
+			'linkInputDialog.supportedLinksHint' => ({required Object webName}) => '複数の${webName}リンクをインテリジェントに識別し、アプリ内の対応するページにすばやくジャンプすることをサポートします（リンクと他のテキストはスペースで区切ります）',
+			'linkInputDialog.inputHint' => ({required Object webName}) => '${webName}リンクを入力してください',
+			'linkInputDialog.validatorEmptyLink' => 'リンクを入力してください',
+			'linkInputDialog.validatorNoIwaraLink' => ({required Object webName}) => '有効な${webName}リンクが検出されませんでした',
+			'linkInputDialog.multipleLinksDetected' => '複数のリンクが検出されました。1つ選択してください：',
+			'linkInputDialog.notIwaraLink' => ({required Object webName}) => '有効な${webName}リンクではありません',
+			'linkInputDialog.linkParseError' => ({required Object error}) => 'リンク解析エラー: ${error}',
+			'linkInputDialog.unsupportedLinkDialogTitle' => 'サポートされていないリンク',
+			'linkInputDialog.unsupportedLinkDialogContent' => 'このリンクタイプは現在アプリ内で直接開くことができず、外部ブラウザを使用してアクセスする必要があります。\n\nブラウザでこのリンクを開きますか？',
+			'linkInputDialog.openInBrowser' => 'ブラウザで開く',
+			'linkInputDialog.confirmOpenBrowserDialogTitle' => 'ブラウザを開くことを確認',
+			'linkInputDialog.confirmOpenBrowserDialogContent' => '次のリンクを外部ブラウザで開こうとしています：',
+			'linkInputDialog.confirmContinueBrowserOpen' => '続行してもよろしいですか？',
+			'linkInputDialog.browserOpenFailed' => 'リンクを開けませんでした',
+			'linkInputDialog.unsupportedLink' => 'サポートされていないリンク',
+			'linkInputDialog.cancel' => 'キャンセル',
+			'linkInputDialog.confirm' => 'ブラウザで開く',
+			'log.logManagement' => 'ログ管理',
+			'log.enableLogPersistence' => 'ログ保存を有効にする',
+			'log.enableLogPersistenceDesc' => 'ログをデータベースに保存して分析に使用',
+			'log.logDatabaseSizeLimit' => 'ログデータベースサイズ上限',
+			'log.logDatabaseSizeLimitDesc' => ({required Object size}) => '現在: ${size}',
+			'log.exportCurrentLogs' => '現在のログをエクスポート',
+			'log.exportCurrentLogsDesc' => '現在のアプリケーションログを開発者が診断に使用できるようにエクスポート',
+			'log.exportHistoryLogs' => '履歴ログをエクスポート',
+			'log.exportHistoryLogsDesc' => '指定された日付範囲内のログをエクスポート',
+			'log.exportMergedLogs' => 'マージログをエクスポート',
+			'log.exportMergedLogsDesc' => '指定された日付範囲内のマージログをエクスポート',
+			'log.showLogStats' => 'ログ統計情報を表示',
+			'log.logExportSuccess' => 'ログエクスポート成功',
+			'log.logExportFailed' => ({required Object error}) => 'ログエクスポート失敗: ${error}',
+			'log.showLogStatsDesc' => '様々なタイプのログの統計情報を表示',
+			'log.logExtractFailed' => ({required Object error}) => 'ログ統計情報の取得に失敗しました: ${error}',
+			'log.clearAllLogs' => 'すべてのログをクリア',
+			'log.clearAllLogsDesc' => 'すべてのログデータをクリア',
+			'log.confirmClearAllLogs' => '確認クリア',
+			'log.confirmClearAllLogsDesc' => 'すべてのログデータをクリアしますか？この操作は元に戻すことができません',
+			'log.clearAllLogsSuccess' => 'ログクリア成功',
+			'log.clearAllLogsFailed' => ({required Object error}) => 'ログクリア失敗: ${error}',
+			'log.unableToGetLogSizeInfo' => 'ログサイズ情報を取得できません',
+			'log.currentLogSize' => '現在のログサイズ:',
+			'log.logCount' => 'ログ数:',
+			'log.logCountUnit' => 'ログ',
+			'log.logSizeLimit' => 'ログサイズ上限:',
+			'log.usageRate' => '使用率:',
+			'log.exceedLimit' => '超過',
+			'log.remaining' => '残り',
+			'log.currentLogSizeExceededPleaseCleanOldLogsOrIncreaseLogSizeLimit' => '現在のログサイズが超過しています。古いログをクリアするか、ログサイズ上限を増加してください',
+			'log.currentLogSizeAlmostExceededPleaseCleanOldLogs' => '現在のログサイズがほぼ超過しています。古いログをクリアしてください',
+			'log.cleaningOldLogs' => '古いログを自動的にクリアしています...',
+			'log.logCleaningCompleted' => 'ログクリアが完了しました',
+			'log.logCleaningProcessMayNotBeCompleted' => 'ログクリア過程が完了しない可能性があります',
+			'log.cleanExceededLogs' => '超過ログをクリア',
+			'log.noLogsToExport' => 'エクスポート可能なログデータがありません',
+			'log.exportingLogs' => 'ログをエクスポートしています...',
+			'log.noHistoryLogsToExport' => '履歴ログをエクスポートするのに十分なデータがありません。アプリを使用してからしばらくしてから再試行してください',
+			'log.selectLogDate' => 'ログ日付を選択',
+			'log.today' => '今日',
+			'log.selectMergeRange' => 'マージ範囲を選択',
+			'log.selectMergeRangeHint' => 'マージするログの日付範囲を選択してください',
+			'log.selectMergeRangeDays' => ({required Object days}) => '最近 ${days} 日',
+			'log.logStats' => 'ログ統計情報',
+			'log.todayLogs' => ({required Object count}) => '今日のログ: ${count} 件',
+			'log.recent7DaysLogs' => ({required Object count}) => '最近7日のログ: ${count} 件',
+			'log.totalLogs' => ({required Object count}) => '合計ログ: ${count} 件',
+			'log.setLogDatabaseSizeLimit' => 'ログデータベースサイズ上限を設定',
+			'log.currentLogSizeWithSize' => ({required Object size}) => '現在のログサイズ: ${size}',
+			'log.warning' => '警告',
+			'log.newSizeLimit' => ({required Object size}) => '新しいサイズ上限: ${size}',
+			'log.confirmToContinue' => '続行してもよろしいですか？',
+			'log.logSizeLimitSetSuccess' => ({required Object size}) => 'ログサイズ上限を ${size} に設定しました',
+			'emoji.name' => '絵文字',
+			'emoji.size' => 'サイズ',
+			'emoji.small' => '小',
+			'emoji.medium' => '中',
+			'emoji.large' => '大',
+			'emoji.extraLarge' => '超大',
+			'emoji.copyEmojiLinkSuccess' => '絵文字リンクをコピーしました',
+			'emoji.preview' => '絵文字プレビュー',
+			'emoji.library' => '絵文字ライブラリ',
+			'emoji.noEmojis' => '絵文字がありません',
+			'emoji.clickToAddEmojis' => '右上のボタンをクリックして絵文字を追加',
+			'emoji.addEmojis' => '絵文字を追加',
+			'emoji.imagePreview' => '画像プレビュー',
+			'emoji.imageLoadFailed' => '画像の読み込みに失敗しました',
+			'emoji.loading' => '読み込み中...',
+			'emoji.delete' => '削除',
+			'emoji.close' => '閉じる',
+			'emoji.deleteImage' => '画像を削除',
+			'emoji.confirmDeleteImage' => 'この画像を削除してもよろしいですか？',
+			'emoji.cancel' => 'キャンセル',
+			'emoji.batchDelete' => '一括削除',
+			'emoji.confirmBatchDelete' => ({required Object count}) => '選択された${count}枚の画像を削除してもよろしいですか？この操作は元に戻せません。',
+			'emoji.deleteSuccess' => '削除しました',
+			'emoji.addImage' => '画像を追加',
+			'emoji.addImageByUrl' => 'URLで追加',
+			'emoji.addImageUrl' => '画像URLを追加',
+			'emoji.imageUrl' => '画像URL',
+			'emoji.enterImageUrl' => '画像URLを入力してください',
+			'emoji.add' => '追加',
+			'emoji.batchImport' => '一括インポート',
+			'emoji.enterJsonUrlArray' => 'JSON形式のURL配列を入力してください:',
+			'emoji.formatExample' => '形式例:\n["url1", "url2", "url3"]',
+			'emoji.pasteJsonUrlArray' => 'JSON形式のURL配列を貼り付けてください',
+			'emoji.import' => 'インポート',
+			'emoji.importSuccess' => ({required Object count}) => '${count}枚の画像をインポートしました',
+			'emoji.jsonFormatError' => 'JSON形式エラー、入力を確認してください',
+			'emoji.createGroup' => '絵文字グループを作成',
+			'emoji.groupName' => 'グループ名',
+			'emoji.enterGroupName' => 'グループ名を入力してください',
+			'emoji.create' => '作成',
+			'emoji.editGroupName' => 'グループ名を編集',
+			'emoji.save' => '保存',
+			'emoji.deleteGroup' => 'グループを削除',
+			'emoji.confirmDeleteGroup' => 'この絵文字グループを削除してもよろしいですか？グループ内のすべての画像も削除されます。',
+			'emoji.imageCount' => ({required Object count}) => '${count}枚の画像',
+			'emoji.selectEmoji' => '絵文字を選択',
+			'emoji.noEmojisInGroup' => 'このグループには絵文字がありません',
+			'emoji.goToSettingsToAddEmojis' => '設定で絵文字を追加してください',
+			'emoji.emojiManagement' => '絵文字管理',
+			'emoji.manageEmojiGroupsAndImages' => '絵文字グループと画像を管理',
+			'emoji.uploadLocalImages' => 'ローカル画像をアップロード',
+			'emoji.uploadingImages' => '画像をアップロード中',
+			'emoji.uploadingImagesProgress' => ({required Object count}) => '${count} 枚の画像をアップロード中、お待ちください...',
+			'emoji.doNotCloseDialog' => 'このダイアログを閉じないでください',
+			'emoji.uploadSuccess' => ({required Object count}) => '${count} 枚の画像をアップロードしました',
+			'emoji.uploadFailed' => ({required Object count}) => '${count} 枚失敗',
+			'emoji.uploadFailedMessage' => '画像のアップロードに失敗しました。ネットワーク接続またはファイル形式を確認してください',
+			'emoji.uploadErrorMessage' => ({required Object error}) => 'アップロード中にエラーが発生しました: ${error}',
+			'displaySettings.title' => '表示設定',
+			'displaySettings.layoutSettings' => 'レイアウト設定',
+			'displaySettings.layoutSettingsDesc' => 'カラム数とブレークポイント設定をカスタマイズ',
+			'displaySettings.gridLayout' => 'グリッドレイアウト',
+			'displaySettings.navigationOrderSettings' => 'ナビゲーション順序設定',
+			'displaySettings.customNavigationOrder' => 'カスタムナビゲーション順序',
+			'displaySettings.customNavigationOrderDesc' => 'ボトムナビゲーションバーとサイドバーのページ表示順序を調整',
+			'layoutSettings.title' => 'レイアウト設定',
+			'layoutSettings.descriptionTitle' => 'レイアウト設定の説明',
+			'layoutSettings.descriptionContent' => 'ここでの設定は、動画とギャラリーリストページで表示されるカラム数を決定します。自動モードを選択して画面幅に基づいて自動調整するか、手動モードを選択してカラム数を固定できます。',
+			'layoutSettings.layoutMode' => 'レイアウトモード',
+			'layoutSettings.reset' => 'リセット',
+			'layoutSettings.autoMode' => '自動モード',
+			'layoutSettings.autoModeDesc' => '画面幅に基づいて自動調整',
+			'layoutSettings.manualMode' => '手動モード',
+			'layoutSettings.manualModeDesc' => '固定カラム数を使用',
+			'layoutSettings.manualSettings' => '手動設定',
+			'layoutSettings.fixedColumns' => '固定カラム数',
+			'layoutSettings.columns' => 'カラム',
+			'layoutSettings.breakpointConfig' => 'ブレークポイント設定',
+			'layoutSettings.add' => '追加',
+			'layoutSettings.defaultColumns' => 'デフォルトカラム数',
+			'layoutSettings.defaultColumnsDesc' => '大画面のデフォルト表示',
+			'layoutSettings.previewEffect' => 'プレビュー効果',
+			'layoutSettings.screenWidth' => '画面幅',
+			'layoutSettings.addBreakpoint' => 'ブレークポイントを追加',
+			'layoutSettings.editBreakpoint' => 'ブレークポイントを編集',
+			'layoutSettings.deleteBreakpoint' => 'ブレークポイントを削除',
+			'layoutSettings.screenWidthLabel' => '画面幅',
+			'layoutSettings.screenWidthHint' => '600',
+			'layoutSettings.columnsLabel' => 'カラム数',
+			'layoutSettings.columnsHint' => '3',
+			'layoutSettings.enterWidth' => '幅を入力してください',
+			_ => null,
+		} ?? switch (path) {
+			'layoutSettings.enterValidWidth' => '有効な幅を入力してください',
+			'layoutSettings.widthCannotExceed9999' => '幅は9999を超えることはできません',
+			'layoutSettings.breakpointAlreadyExists' => 'ブレークポイントが既に存在します',
+			'layoutSettings.enterColumns' => 'カラム数を入力してください',
+			'layoutSettings.enterValidColumns' => '有効なカラム数を入力してください',
+			'layoutSettings.columnsCannotExceed12' => 'カラム数は12を超えることはできません',
+			'layoutSettings.breakpointConflict' => 'ブレークポイントが既に存在します',
+			'layoutSettings.confirmResetLayoutSettings' => 'レイアウト設定をリセット',
+			'layoutSettings.confirmResetLayoutSettingsDesc' => 'すべてのレイアウト設定をデフォルト値にリセットしてもよろしいですか？\n\n以下に復元されます：\n• 自動モード\n• デフォルトブレークポイント設定',
+			'layoutSettings.resetToDefaults' => 'デフォルトにリセット',
+			'layoutSettings.confirmDeleteBreakpoint' => 'ブレークポイントを削除',
+			'layoutSettings.confirmDeleteBreakpointDesc' => ({required Object width}) => '${width}px のブレークポイントを削除してもよろしいですか？',
+			'layoutSettings.noCustomBreakpoints' => 'カスタムブレークポイントがありません、デフォルトカラム数を使用',
+			'layoutSettings.breakpointRange' => 'ブレークポイント範囲',
+			'layoutSettings.breakpointRangeDesc' => ({required Object range}) => '${range}px',
+			'layoutSettings.breakpointRangeDescFirst' => ({required Object width}) => '≤${width}px',
+			'layoutSettings.breakpointRangeDescMiddle' => ({required Object start, required Object end}) => '${start}-${end}px',
+			'layoutSettings.edit' => '編集',
+			'layoutSettings.delete' => '削除',
+			'layoutSettings.cancel' => 'キャンセル',
+			'layoutSettings.save' => '保存',
+			'navigationOrderSettings.title' => 'ナビゲーション順序設定',
+			'navigationOrderSettings.customNavigationOrder' => 'カスタムナビゲーション順序',
+			'navigationOrderSettings.customNavigationOrderDesc' => 'ドラッグしてボトムナビゲーションバーとサイドバーの各ページの表示順序を調整',
+			'navigationOrderSettings.restartRequired' => 'アプリの再起動が必要です',
+			'navigationOrderSettings.navigationItemSorting' => 'ナビゲーション項目の並べ替え',
+			'navigationOrderSettings.done' => '完了',
+			'navigationOrderSettings.edit' => '編集',
+			'navigationOrderSettings.reset' => 'リセット',
+			'navigationOrderSettings.previewEffect' => 'プレビュー効果',
+			'navigationOrderSettings.bottomNavigationPreview' => 'ボトムナビゲーションバーのプレビュー：',
+			'navigationOrderSettings.sidebarPreview' => 'サイドバーのプレビュー：',
+			'navigationOrderSettings.confirmResetNavigationOrder' => 'ナビゲーション順序のリセットを確認',
+			'navigationOrderSettings.confirmResetNavigationOrderDesc' => 'ナビゲーション順序をデフォルト設定にリセットしてもよろしいですか？',
+			'navigationOrderSettings.cancel' => 'キャンセル',
+			'navigationOrderSettings.videoDescription' => '人気の動画コンテンツを閲覧',
+			'navigationOrderSettings.galleryDescription' => '画像とギャラリーを閲覧',
+			'navigationOrderSettings.subscriptionDescription' => 'フォローしているユーザーの最新コンテンツを表示',
+			'navigationOrderSettings.forumDescription' => 'コミュニティディスカッションに参加',
+			'searchFilter.selectField' => 'フィールドを選択',
+			'searchFilter.add' => '追加',
+			'searchFilter.clear' => 'クリア',
+			'searchFilter.clearAll' => 'すべてクリア',
+			'searchFilter.generatedQuery' => '生成されたクエリ',
+			'searchFilter.copyToClipboard' => 'クリップボードにコピー',
+			'searchFilter.copied' => 'コピーしました',
+			'searchFilter.filterCount' => ({required Object count}) => '${count} 個のフィルター',
+			'searchFilter.filterSettings' => 'フィルター設定',
+			'searchFilter.field' => 'フィールド',
+			'searchFilter.operator' => '演算子',
+			'searchFilter.language' => '言語',
+			'searchFilter.value' => '値',
+			'searchFilter.dateRange' => '日付範囲',
+			'searchFilter.numberRange' => '数値範囲',
+			'searchFilter.from' => 'から',
+			'searchFilter.to' => 'まで',
+			'searchFilter.date' => '日付',
+			'searchFilter.number' => '数値',
+			'searchFilter.boolean' => 'ブール値',
+			'searchFilter.tags' => 'タグ',
+			'searchFilter.select' => '選択',
+			'searchFilter.clickToSelectDate' => '日付を選択するにはクリック',
+			'searchFilter.pleaseEnterValidNumber' => '有効な数値を入力してください',
+			'searchFilter.pleaseEnterValidDate' => '有効な日付形式を入力してください (YYYY-MM-DD)',
+			'searchFilter.startValueMustBeLessThanEndValue' => '開始値は終了値より小さくする必要があります',
+			'searchFilter.startDateMustBeBeforeEndDate' => '開始日は終了日より前である必要があります',
+			'searchFilter.pleaseFillStartValue' => '開始値を入力してください',
+			'searchFilter.pleaseFillEndValue' => '終了値を入力してください',
+			'searchFilter.rangeValueFormatError' => '範囲値の形式エラー',
+			'searchFilter.contains' => '含む',
+			'searchFilter.equals' => '等しい',
+			'searchFilter.notEquals' => '等しくない',
+			'searchFilter.greaterThan' => '>',
+			'searchFilter.greaterEqual' => '>=',
+			'searchFilter.lessThan' => '<',
+			'searchFilter.lessEqual' => '<=',
+			'searchFilter.range' => '範囲',
+			'searchFilter.kIn' => 'いずれかを含む',
+			'searchFilter.notIn' => 'いずれも含まない',
+			'searchFilter.username' => 'ユーザー名',
+			'searchFilter.nickname' => 'ニックネーム',
+			'searchFilter.registrationDate' => '登録日',
+			'searchFilter.description' => '説明',
+			'searchFilter.title' => 'タイトル',
+			'searchFilter.body' => '本文',
+			'searchFilter.author' => '作者',
+			'searchFilter.publishDate' => '公開日',
+			'searchFilter.private' => 'プライベート',
+			'searchFilter.duration' => '時間（秒）',
+			'searchFilter.likes' => 'いいね数',
+			'searchFilter.views' => '視聴回数',
+			'searchFilter.comments' => 'コメント数',
+			'searchFilter.rating' => '評価',
+			'searchFilter.imageCount' => '画像数',
+			'searchFilter.videoCount' => '動画数',
+			'searchFilter.createDate' => '作成日',
+			'searchFilter.content' => 'コンテンツ',
+			'searchFilter.all' => 'すべて',
+			'searchFilter.adult' => '成人向け',
+			'searchFilter.general' => '一般',
+			'searchFilter.yes' => 'はい',
+			'searchFilter.no' => 'いいえ',
+			'searchFilter.users' => 'ユーザー',
+			'searchFilter.videos' => '動画',
+			'searchFilter.images' => '画像',
+			'searchFilter.posts' => '投稿',
+			'searchFilter.forumThreads' => 'フォーラムスレッド',
+			'searchFilter.forumPosts' => 'フォーラム投稿',
+			'searchFilter.playlists' => 'プレイリスト',
+			'searchFilter.sortTypes.relevance' => '関連性',
+			'searchFilter.sortTypes.latest' => '最新',
+			'searchFilter.sortTypes.views' => '視聴回数',
+			'searchFilter.sortTypes.likes' => 'いいね数',
+			'firstTimeSetup.welcome.title' => 'ようこそ',
+			'firstTimeSetup.welcome.subtitle' => 'パーソナライズ設定を始めましょう',
+			'firstTimeSetup.welcome.description' => '数ステップで最適な体験を提供します',
+			'firstTimeSetup.basic.title' => '基本設定',
+			'firstTimeSetup.basic.subtitle' => '体験をパーソナライズ',
+			'firstTimeSetup.basic.description' => 'ご希望の機能設定を選択',
+			'firstTimeSetup.network.title' => 'ネットワーク設定',
+			'firstTimeSetup.network.subtitle' => 'ネットワークオプションを構成',
+			'firstTimeSetup.network.description' => 'ネットワーク環境に合わせて調整',
+			'firstTimeSetup.network.tip' => '設定後、再起動が必要です',
+			'firstTimeSetup.theme.title' => 'テーマ設定',
+			'firstTimeSetup.theme.subtitle' => 'お好みの見た目を選択',
+			'firstTimeSetup.theme.description' => 'ビジュアル体験をパーソナライズ',
+			'firstTimeSetup.player.title' => 'プレーヤー設定',
+			'firstTimeSetup.player.subtitle' => '再生コントロールを構成',
+			'firstTimeSetup.player.description' => 'よく使う再生設定を素早く設定',
+			'firstTimeSetup.completion.title' => '設定完了',
+			'firstTimeSetup.completion.subtitle' => 'すぐに始められます',
+			'firstTimeSetup.completion.description' => '関連規約をお読みの上ご同意ください',
+			'firstTimeSetup.completion.agreementTitle' => '利用規約とコミュニティルール',
+			'firstTimeSetup.completion.agreementDesc' => '本アプリをご利用になる前に、利用規約とコミュニティルールをよくお読みいただき、同意してください。良好な利用環境の維持に役立ちます。',
+			'firstTimeSetup.completion.checkboxTitle' => '利用規約とコミュニティルールに同意しました',
+			'firstTimeSetup.completion.checkboxSubtitle' => '不同意の場合、アプリを利用できません',
+			'firstTimeSetup.common.settingsChangeableTip' => 'これらの設定はいつでも設定画面で変更できます',
+			'firstTimeSetup.common.agreeAgreementSnackbar' => 'まず利用規約とコミュニティルールに同意してください',
+			'proxyHelper.systemProxyDetected' => 'システムプロキシを検出',
+			'proxyHelper.copied' => 'コピーしました',
+			'proxyHelper.copy' => 'コピー',
+			'tagSelector.selectTags' => 'タグを選択',
+			'tagSelector.clickToSelectTags' => 'タグを選択するにはクリック',
+			'tagSelector.addTag' => 'タグを追加',
+			'tagSelector.removeTag' => 'タグを削除',
+			'tagSelector.deleteTag' => 'タグを削除',
+			'tagSelector.usageInstructions' => 'まずタグを追加してから、既存のタグからクリックして選択してください',
+			'tagSelector.usageInstructionsTooltip' => '使用方法',
+			'tagSelector.addTagTooltip' => 'タグを追加',
+			'tagSelector.removeTagTooltip' => 'タグを削除',
+			'tagSelector.cancelSelection' => '選択をキャンセル',
+			'tagSelector.selectAll' => 'すべて選択',
+			'tagSelector.cancelSelectAll' => 'すべての選択をキャンセル',
+			'tagSelector.delete' => '削除',
+			'anime4k.realTimeVideoUpscalingAndDenoising' => 'Anime4K リアルタイムビデオアップスケーリングとノイズ除去、アニメーション動画の品質向上',
+			'anime4k.settings' => 'Anime4K 設定',
+			'anime4k.preset' => 'Anime4K プリセット',
+			'anime4k.disable' => 'Anime4K を無効にする',
+			'anime4k.disableDescription' => 'ビデオ強化効果を無効にする',
+			'anime4k.highQualityPresets' => '高品質プリセット',
+			'anime4k.fastPresets' => '高速プリセット',
+			'anime4k.litePresets' => '軽量プリセット',
+			'anime4k.moreLitePresets' => 'より軽量なプリセット',
+			'anime4k.customPresets' => 'カスタムプリセット',
+			'anime4k.presetGroups.highQuality' => '高品質',
+			'anime4k.presetGroups.fast' => '高速',
+			'anime4k.presetGroups.lite' => '軽量',
+			'anime4k.presetGroups.moreLite' => 'より軽量',
+			'anime4k.presetGroups.custom' => 'カスタム',
+			'anime4k.presetDescriptions.mode_a_hq' => 'ほとんどの1080pアニメ、特にぼかし、再サンプリング、圧縮アーティファクトを処理する場合に適しています。最高の知覚品質を提供します。',
+			'anime4k.presetDescriptions.mode_b_hq' => 'スケーリングによる軽度のぼかしやリンギング効果のあるアニメに適しています。リンギングとエイリアスを効果的に減らすことができます。',
+			'anime4k.presetDescriptions.mode_c_hq' => 'ほとんど欠陥のない高品質ソース（ネイティブ1080pアニメや映画など）に適しています。ノイズ除去を行い、最高のPSNRを提供します。',
+			'anime4k.presetDescriptions.mode_a_a_hq' => 'Mode Aの強化版で、究極の知覚品質を提供し、ほぼすべての劣化ラインを再構築できます。過度なシャープネスやリンギングが発生する可能性があります。',
+			'anime4k.presetDescriptions.mode_b_b_hq' => 'Mode Bの強化版で、より高い知覚品質を提供し、ラインをさらに最適化し、アーティファクトを減らします。',
+			'anime4k.presetDescriptions.mode_c_a_hq' => 'Mode Cの知覚品質強化版で、高いPSNRを維持しながら一部のラインデータルを再構築しようとします。',
+			'anime4k.presetDescriptions.mode_a_fast' => 'Mode Aの高速版で、品質とパフォーマンスのバランスが取れており、ほとんどの1080pアニメに適しています。',
+			'anime4k.presetDescriptions.mode_b_fast' => 'Mode Bの高速版で、軽度のアーティファクトとリンギングを処理し、オーバーヘッドが低い。',
+			'anime4k.presetDescriptions.mode_c_fast' => 'Mode Cの高速版で、高品質ソースの高速ノイズ除去とアップスケーリングに適しています。',
+			'anime4k.presetDescriptions.mode_a_a_fast' => 'Mode A+Aの高速版で、パフォーマンスに制約のあるデバイスでより高い知覚品質を追求します。',
+			'anime4k.presetDescriptions.mode_b_b_fast' => 'Mode B+Bの高速版で、パフォーマンスに制約のあるデバイスに強化されたライン修復とアーティファクト処理を提供します。',
+			'anime4k.presetDescriptions.mode_c_a_fast' => 'Mode C+Aの高速版で、高品質ソースを高速処理しながら軽度のライン修復を行います。',
+			'anime4k.presetDescriptions.upscale_only_s' => '最速のCNNモデルのみを使用してx2アップスケーリングを行い、修復とノイズ除去は行わず、最小限のパフォーマンスオーバーヘッド。',
+			'anime4k.presetDescriptions.upscale_deblur_fast' => '従来の非CNNアルゴリズムを使用して高速アップスケーリングとデブリングを行い、デフォルトのプレーヤーアルゴリズムよりも優れた効果で、非常に低いパフォーマンスオーバーヘッド。',
+			'anime4k.presetDescriptions.restore_s_only' => '最速のCNNモデルのみを使用して画像欠陥を修復し、アップスケーリングは行いません。ネイティブ解像度再生で品質を向上させたい場合に適しています。',
+			'anime4k.presetDescriptions.denoise_bilateral_fast' => '従来のバイラテラルフィルタリングを使用して高速ノイズ除去を行い、非常に高速で軽度のノイズ処理に適しています。',
+			'anime4k.presetDescriptions.upscale_non_cnn' => '従来の高速アルゴリズムを使用してアップスケーリングを行い、最小限のパフォーマンスオーバーヘッドでプレーヤーのデフォルトよりも優れた効果。',
+			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (Fast) + ライン暗化、高速モードAにライン暗化効果を追加し、ラインをより目立たせ、スタイライズ処理を行います。',
+			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + ライン細化、高品質モードAにライン細化効果を追加し、より洗練された外観にします。',
+			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
+			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
+			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
+			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
+			'anime4k.presetNames.mode_b_b_hq' => 'Mode B+B (HQ)',
+			'anime4k.presetNames.mode_c_a_hq' => 'Mode C+A (HQ)',
+			'anime4k.presetNames.mode_a_fast' => 'Mode A (Fast)',
+			'anime4k.presetNames.mode_b_fast' => 'Mode B (Fast)',
+			'anime4k.presetNames.mode_c_fast' => 'Mode C (Fast)',
+			'anime4k.presetNames.mode_a_a_fast' => 'Mode A+A (Fast)',
+			'anime4k.presetNames.mode_b_b_fast' => 'Mode B+B (Fast)',
+			'anime4k.presetNames.mode_c_a_fast' => 'Mode C+A (Fast)',
+			'anime4k.presetNames.upscale_only_s' => 'CNNアップスケーリング (超高速)',
+			'anime4k.presetNames.upscale_deblur_fast' => 'アップスケーリング & デブリング (高速)',
+			'anime4k.presetNames.restore_s_only' => '復元 (超高速)',
+			'anime4k.presetNames.denoise_bilateral_fast' => 'バイラテラルノイズ除去 (超高速)',
+			'anime4k.presetNames.upscale_non_cnn' => '非CNNアップスケーリング (超高速)',
+			'anime4k.presetNames.mode_a_fast_darken' => 'Mode A (Fast) + ライン暗化',
+			'anime4k.presetNames.mode_a_hq_thin' => 'Mode A (HQ) + ライン細化',
+			'anime4k.performanceTip' => '💡 ヒント：デバイスのパフォーマンスに基づいて適切なプリセットを選択してください。ローエンドデバイスでは軽量プリセットをお勧めします。',
+			_ => null,
+		};
 	}
 }
-
