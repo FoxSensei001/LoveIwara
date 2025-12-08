@@ -3,7 +3,6 @@
 ///
 // coverage:ignore-file
 // ignore_for_file: type=lint, unused_import
-// dart format off
 
 part of 'strings.g.dart';
 
@@ -6006,1785 +6005,1757 @@ class TranslationsVideoDetailCastDlnaCastSheetEn {
 	String get stopCasting => 'Stop Casting';
 }
 
-/// The flat map containing all translations for locale <en>.
+/// Flat map(s) containing all translations.
 /// Only for edge cases! For simple maps, use the map function of this library.
-///
-/// The Dart AOT compiler has issues with very large switch statements,
-/// so the map is split into smaller functions (512 entries each).
 extension on Translations {
 	dynamic _flatMapFunction(String path) {
-		return _flatMapFunction$0(path)
-			?? _flatMapFunction$1(path)
-			?? _flatMapFunction$2(path)
-			?? _flatMapFunction$3(path);
-	}
-
-	dynamic _flatMapFunction$0(String path) {
-		return switch (path) {
-			'tutorial.specialFollowFeature' => 'Special Follow Feature',
-			'tutorial.specialFollowDescription' => 'This shows authors you follow specially. Go to video, gallery, or author detail pages, click the follow button, then select "Add as Special Follow".',
-			'tutorial.exampleAuthorInfoRow' => 'Example: Author Info Row',
-			'tutorial.authorName' => 'Author Name',
-			'tutorial.followed' => 'Followed',
-			'tutorial.specialFollowInstruction' => 'Click "Followed" button → Select "Add as Special Follow"',
-			'tutorial.followButtonLocations' => 'Follow Button Locations:',
-			'tutorial.videoDetailPage' => 'Video Detail Page',
-			'tutorial.galleryDetailPage' => 'Gallery Detail Page',
-			'tutorial.authorDetailPage' => 'Author Detail Page',
-			'tutorial.afterSpecialFollow' => 'After Special Follow, you can quickly view the latest content of the author!',
-			'tutorial.specialFollowManagementTip' => 'Special Follow list can be managed in Sidebar - Following List - Special Follow List page',
-			'tutorial.skip' => 'Skip',
-			'common.appName' => 'Love Iwara',
-			'common.ok' => 'OK',
-			'common.cancel' => 'Cancel',
-			'common.save' => 'Save',
-			'common.delete' => 'Delete',
-			'common.visit' => 'Visit',
-			'common.loading' => 'Loading...',
-			'common.scrollToTop' => 'Scroll to Top',
-			'common.privacyHint' => 'Privacy content, not displayed',
-			'common.latest' => 'Latest',
-			'common.likesCount' => 'Likes',
-			'common.viewsCount' => 'Views',
-			'common.popular' => 'Popular',
-			'common.trending' => 'Trending',
-			'common.commentList' => 'Comment List',
-			'common.sendComment' => 'Send Comment',
-			'common.send' => 'Send',
-			'common.retry' => 'Retry',
-			'common.premium' => 'Premium',
-			'common.follower' => 'Follower',
-			'common.friend' => 'Friend',
-			'common.video' => 'Video',
-			'common.following' => 'Following',
-			'common.expand' => 'Expand',
-			'common.collapse' => 'Collapse',
-			'common.cancelFriendRequest' => 'Cancel Request',
-			'common.cancelSpecialFollow' => 'Cancel Special Follow',
-			'common.addFriend' => 'Add Friend',
-			'common.removeFriend' => 'Remove Friend',
-			'common.followed' => 'Followed',
-			'common.follow' => 'Follow',
-			'common.unfollow' => 'Unfollow',
-			'common.specialFollow' => 'Special Follow',
-			'common.specialFollowed' => 'Special Followed',
-			'common.gallery' => 'Gallery',
-			'common.playlist' => 'Playlist',
-			'common.commentPostedSuccessfully' => 'Comment Posted Successfully',
-			'common.commentPostedFailed' => 'Comment Posted Failed',
-			'common.success' => 'Success',
-			'common.commentDeletedSuccessfully' => 'Comment Deleted Successfully',
-			'common.commentUpdatedSuccessfully' => 'Comment Updated Successfully',
-			'common.totalComments' => ({required Object count}) => '${count} Comments',
-			'common.writeYourCommentHere' => 'Write your comment here...',
-			'common.tmpNoReplies' => 'No replies yet',
-			'common.loadMore' => 'Load More',
-			'common.noMoreDatas' => 'No more data',
-			'common.selectTranslationLanguage' => 'Select Translation Language',
-			'common.translate' => 'Translate',
-			'common.translateFailedPleaseTryAgainLater' => 'Translate failed, please try again later',
-			'common.translationResult' => 'Translation Result',
-			'common.justNow' => 'Just Now',
-			'common.minutesAgo' => ({required Object num}) => '${num} minutes ago',
-			'common.hoursAgo' => ({required Object num}) => '${num} hours ago',
-			'common.daysAgo' => ({required Object num}) => '${num} days ago',
-			'common.editedAt' => ({required Object num}) => '${num} edited',
-			'common.editComment' => 'Edit Comment',
-			'common.commentUpdated' => 'Comment Updated',
-			'common.replyComment' => 'Reply Comment',
-			'common.reply' => 'Reply',
-			'common.edit' => 'Edit',
-			'common.unknownUser' => 'Unknown User',
-			'common.me' => 'Me',
-			'common.author' => 'Author',
-			'common.admin' => 'Admin',
-			'common.viewReplies' => ({required Object num}) => 'View Replies (${num})',
-			'common.hideReplies' => 'Hide Replies',
-			'common.confirmDelete' => 'Confirm Delete',
-			'common.areYouSureYouWantToDeleteThisItem' => 'Are you sure you want to delete this item?',
-			'common.tmpNoComments' => 'No comments yet',
-			'common.refresh' => 'Refresh',
-			'common.back' => 'Back',
-			'common.tips' => 'Tips',
-			'common.linkIsEmpty' => 'Link is empty',
-			'common.linkCopiedToClipboard' => 'Link copied to clipboard',
-			'common.imageCopiedToClipboard' => 'Image copied to clipboard',
-			'common.copyImageFailed' => 'Copy image failed',
-			'common.mobileSaveImageIsUnderDevelopment' => 'Mobile save image is under development',
-			'common.imageSavedTo' => 'Image saved to',
-			'common.saveImageFailed' => 'Save image failed',
-			'common.close' => 'Close',
-			'common.more' => 'More',
-			'common.moreFeaturesToBeDeveloped' => 'More features to be developed',
-			'common.all' => 'All',
-			'common.selectedRecords' => ({required Object num}) => 'Selected ${num} records',
-			'common.cancelSelectAll' => 'Cancel Select All',
-			'common.selectAll' => 'Select All',
-			'common.exitEditMode' => 'Exit Edit Mode',
-			'common.areYouSureYouWantToDeleteSelectedItems' => ({required Object num}) => 'Are you sure you want to delete selected ${num} items?',
-			'common.searchHistoryRecords' => 'Search History Records...',
-			'common.settings' => 'Settings',
-			'common.subscriptions' => 'Subscriptions',
-			'common.videoCount' => ({required Object num}) => '${num} videos',
-			'common.share' => 'Share',
-			'common.areYouSureYouWantToShareThisPlaylist' => 'Are you sure you want to share this playlist?',
-			'common.editTitle' => 'Edit Title',
-			'common.editMode' => 'Edit Mode',
-			'common.pleaseEnterNewTitle' => 'Please enter new title',
-			'common.createPlayList' => 'Create Play List',
-			'common.create' => 'Create',
-			'common.checkNetworkSettings' => 'Check Network Settings',
-			'common.general' => 'General',
-			'common.r18' => 'R18',
-			'common.sensitive' => 'Sensitive',
-			'common.year' => 'Year',
-			'common.month' => 'Month',
-			'common.tag' => 'Tag',
-			'common.private' => 'Private',
-			'common.noTitle' => 'No Title',
-			'common.search' => 'Search',
-			'common.noContent' => 'No content',
-			'common.recording' => 'Recording',
-			'common.paused' => 'Paused',
-			'common.clear' => 'Clear',
-			'common.user' => 'User',
-			'common.post' => 'Post',
-			'common.seconds' => 'Seconds',
-			'common.comingSoon' => 'Coming Soon',
-			'common.confirm' => 'Confirm',
-			'common.hour' => 'Hour',
-			'common.minute' => 'Minute',
-			'common.clickToRefresh' => 'Click to Refresh',
-			'common.history' => 'History',
-			'common.favorites' => 'Favorites',
-			'common.friends' => 'Friends',
-			'common.playList' => 'Play List',
-			'common.checkLicense' => 'Check License',
-			'common.logout' => 'Logout',
-			'common.fensi' => 'Fans',
-			'common.accept' => 'Accept',
-			'common.reject' => 'Reject',
-			'common.clearAllHistory' => 'Clear All History',
-			'common.clearAllHistoryConfirm' => 'Are you sure you want to clear all history?',
-			'common.followingList' => 'Following List',
-			'common.followersList' => 'Followers List',
-			'common.follows' => 'Follows',
-			'common.fans' => 'Fans',
-			'common.followsAndFans' => 'Follows and Fans',
-			'common.numViews' => 'Views',
-			'common.updatedAt' => 'Updated At',
-			'common.publishedAt' => 'Published At',
-			'common.externalVideo' => 'External Video',
-			'common.originalText' => 'Original Text',
-			'common.showOriginalText' => 'Show Original Text',
-			'common.showProcessedText' => 'Show Processed Text',
-			'common.preview' => 'Preview',
-			'common.rules' => 'Rules',
-			'common.agree' => 'Agree',
-			'common.disagree' => 'Disagree',
-			'common.agreeToRules' => 'Agree to Rules',
-			'common.markdownSyntaxHelp' => 'Markdown Syntax Help',
-			'common.previewContent' => 'Preview Content',
-			'common.characterCount' => ({required Object current, required Object max}) => '${current}/${max}',
-			'common.exceedsMaxLengthLimit' => ({required Object max}) => 'Exceeds max length limit (${max})',
-			'common.agreeToCommunityRules' => 'Agree to Community Rules',
-			'common.createPost' => 'Create Post',
-			'common.title' => 'Title',
-			'common.enterTitle' => 'Please enter title',
-			'common.content' => 'Content',
-			'common.enterContent' => 'Please enter content',
-			'common.writeYourContentHere' => 'Please enter content...',
-			'common.tagBlacklist' => 'Tag Blacklist',
-			'common.noData' => 'No data',
-			'common.tagLimit' => 'Tag Limit',
-			'common.enableFloatingButtons' => 'Enable Floating Buttons',
-			'common.disableFloatingButtons' => 'Disable Floating Buttons',
-			'common.enabledFloatingButtons' => 'Enabled Floating Buttons',
-			'common.disabledFloatingButtons' => 'Disabled Floating Buttons',
-			'common.pendingCommentCount' => 'Pending Comment Count',
-			'common.joined' => ({required Object str}) => 'Joined at ${str}',
-			'common.download' => 'Download',
-			'common.selectQuality' => 'Select Quality',
-			'common.selectDateRange' => 'Select Date Range',
-			'common.selectDateRangeHint' => 'Select date range, default is recent 30 days',
-			'common.clearDateRange' => 'Clear Date Range',
-			'common.followSuccessClickAgainToSpecialFollow' => 'Followed successfully, click again to special follow',
-			'common.exitConfirmTip' => 'Are you sure you want to exit?',
-			'common.error' => 'Error',
-			'common.taskRunning' => 'A task is already running, please wait.',
-			'common.operationCancelled' => 'Operation cancelled.',
-			'common.unsavedChanges' => 'You have unsaved changes',
-			'common.specialFollowsManagementTip' => 'Drag to reorder • Swipe left to remove',
-			'common.specialFollowsManagement' => 'Special Follows Management',
-			'common.createTimeDesc' => 'Create Time Desc',
-			'common.createTimeAsc' => 'Create Time Asc',
-			'common.pagination.totalItems' => ({required Object num}) => 'Total ${num} items',
-			'common.pagination.jumpToPage' => 'Jump to page',
-			'common.pagination.pleaseEnterPageNumber' => ({required Object max}) => 'Please enter page number (1-${max})',
-			'common.pagination.pageNumber' => 'Page number',
-			'common.pagination.jump' => 'Jump',
-			'common.pagination.invalidPageNumber' => ({required Object max}) => 'Please enter a valid page number (1-${max})',
-			'common.pagination.invalidInput' => 'Please enter a valid page number',
-			'common.pagination.waterfall' => 'Waterfall',
-			'common.pagination.pagination' => 'Pagination',
-			'common.notice' => 'Notice',
-			'common.detail' => 'Detail',
-			'common.parseExceptionDestopHint' => ' - Desktop users can configure proxy in settings',
-			'common.iwaraTags' => 'Iwara Tags',
-			'common.likeThisVideo' => 'Like This Video',
-			'common.operation' => 'Operation',
-			'common.replies' => 'Replies',
-			'auth.login' => 'Login',
-			'auth.logout' => 'Logout',
-			'auth.email' => 'Email',
-			'auth.password' => 'Password',
-			'auth.loginOrRegister' => 'Login / Register',
-			'auth.register' => 'Register',
-			'auth.pleaseEnterEmail' => 'Please enter email',
-			'auth.pleaseEnterPassword' => 'Please enter password',
-			'auth.passwordMustBeAtLeast6Characters' => 'Password must be at least 6 characters',
-			'auth.pleaseEnterCaptcha' => 'Please enter captcha',
-			'auth.captcha' => 'Captcha',
-			'auth.refreshCaptcha' => 'Refresh Captcha',
-			'auth.captchaNotLoaded' => 'Captcha not loaded',
-			'auth.loginSuccess' => 'Login Success',
-			'auth.emailVerificationSent' => 'Email verification sent',
-			'auth.notLoggedIn' => 'Not Logged In',
-			'auth.clickToLogin' => 'Click to Login',
-			'auth.logoutConfirmation' => 'Are you sure you want to logout?',
-			'auth.logoutSuccess' => 'Logout Success',
-			'auth.logoutFailed' => 'Logout Failed',
-			'auth.usernameOrEmail' => 'Username or Email',
-			'auth.pleaseEnterUsernameOrEmail' => 'Please enter username or email',
-			'auth.rememberMe' => 'Remember Username and Password',
-			'errors.error' => 'Error',
-			'errors.required' => 'This field is required',
-			'errors.invalidEmail' => 'Invalid email address',
-			'errors.networkError' => 'Network error, please try again',
-			'errors.errorWhileFetching' => 'Error while fetching',
-			'errors.commentCanNotBeEmpty' => 'Comment content cannot be empty',
-			'errors.errorWhileFetchingReplies' => 'Error while fetching replies, please check network connection',
-			'errors.canNotFindCommentController' => 'Can not find comment controller',
-			'errors.errorWhileLoadingGallery' => 'Error while loading gallery',
-			'errors.howCouldThereBeNoDataItCantBePossible' => 'How could there be no data? It can\'t be possible :<',
-			'errors.unsupportedImageFormat' => ({required Object str}) => 'Unsupported image format: ${str}',
-			'errors.invalidGalleryId' => 'Invalid gallery ID',
-			'errors.translationFailedPleaseTryAgainLater' => 'Translation failed, please try again later',
-			'errors.errorOccurred' => 'An error occurred, please try again later.',
-			'errors.errorOccurredWhileProcessingRequest' => 'Error occurred while processing request',
-			'errors.errorWhileFetchingDatas' => 'Error while fetching datas, please try again later',
-			'errors.serviceNotInitialized' => 'Service not initialized',
-			'errors.unknownType' => 'Unknown type',
-			'errors.errorWhileOpeningLink' => ({required Object link}) => 'Error while opening link: ${link}',
-			'errors.invalidUrl' => 'Invalid URL',
-			'errors.failedToOperate' => 'Failed to operate',
-			'errors.permissionDenied' => 'Permission Denied',
-			'errors.youDoNotHavePermissionToAccessThisResource' => 'You do not have permission to access this resource',
-			'errors.loginFailed' => 'Login Failed',
-			'errors.unknownError' => 'Unknown Error',
-			'errors.sessionExpired' => 'Session Expired',
-			'errors.failedToFetchCaptcha' => 'Failed to fetch captcha',
-			'errors.emailAlreadyExists' => 'Email already exists',
-			'errors.invalidCaptcha' => 'Invalid Captcha',
-			'errors.registerFailed' => 'Register Failed',
-			'errors.failedToFetchComments' => 'Failed to fetch comments',
-			'errors.failedToFetchImageDetail' => 'Failed to fetch image detail',
-			'errors.failedToFetchImageList' => 'Failed to fetch image list',
-			'errors.failedToFetchData' => 'Failed to fetch data',
-			'errors.invalidParameter' => 'Invalid parameter',
-			'errors.pleaseLoginFirst' => 'Please login first',
-			'errors.errorWhileLoadingPost' => 'Error while loading post',
-			'errors.errorWhileLoadingPostDetail' => 'Error while loading post detail',
-			'errors.invalidPostId' => 'Invalid post ID',
-			'errors.forceUpdateNotPermittedToGoBack' => 'Currently in force update state, cannot go back',
-			'errors.pleaseLoginAgain' => 'Please login again',
-			'errors.invalidLogin' => 'Invalid login, Please check your email and password',
-			'errors.tooManyRequests' => 'Too many requests, please try again later',
-			'errors.exceedsMaxLength' => ({required Object max}) => 'Exceeds max length: ${max}',
-			'errors.contentCanNotBeEmpty' => 'Content cannot be empty',
-			'errors.titleCanNotBeEmpty' => 'Title cannot be empty',
-			'errors.tooManyRequestsPleaseTryAgainLaterText' => 'Too many requests, please try again later, remaining',
-			'errors.remainingHours' => ({required Object num}) => '${num} hours',
-			'errors.remainingMinutes' => ({required Object num}) => '${num} minutes',
-			'errors.remainingSeconds' => ({required Object num}) => '${num} seconds',
-			'errors.tagLimitExceeded' => ({required Object limit}) => 'Tag limit exceeded, limit: ${limit}',
-			'errors.failedToRefresh' => 'Failed to refresh',
-			'errors.noPermission' => 'No permission',
-			'errors.resourceNotFound' => 'Resource not found',
-			'errors.failedToSaveCredentials' => 'Failed to save login credentials',
-			'errors.failedToLoadSavedCredentials' => 'Failed to load saved credentials',
-			'errors.specialFollowLimitReached' => ({required Object cnt}) => 'Special follow limit exceeded, limit: ${cnt}, please adjust in the follow list page',
-			'errors.notFound' => 'Content not found or has been deleted',
-			'errors.network.basicPrefix' => 'Network error - ',
-			'errors.network.failedToConnectToServer' => 'Failed to connect to server',
-			'errors.network.serverNotAvailable' => 'Server not available',
-			'errors.network.requestTimeout' => 'Request timeout',
-			'errors.network.unexpectedError' => 'Unexpected error',
-			'errors.network.invalidResponse' => 'Invalid response',
-			'errors.network.invalidRequest' => 'Invalid request',
-			'errors.network.invalidUrl' => 'Invalid URL',
-			'errors.network.invalidMethod' => 'Invalid method',
-			'errors.network.invalidHeader' => 'Invalid header',
-			'errors.network.invalidBody' => 'Invalid body',
-			'errors.network.invalidStatusCode' => 'Invalid status code',
-			'errors.network.serverError' => 'Server error',
-			'errors.network.requestCanceled' => 'Request canceled',
-			'errors.network.invalidPort' => 'Invalid port',
-			'errors.network.proxyPortError' => 'Proxy port error',
-			'errors.network.connectionRefused' => 'Connection refused',
-			'errors.network.networkUnreachable' => 'Network unreachable',
-			'errors.network.noRouteToHost' => 'No route to host',
-			'errors.network.connectionFailed' => 'Connection failed',
-			'errors.network.sslConnectionFailed' => 'SSL connection failed, please check your network settings',
-			'friends.clickToRestoreFriend' => 'Click to restore friend',
-			'friends.friendsList' => 'Friends List',
-			'friends.friendRequests' => 'Friend Requests',
-			'friends.friendRequestsList' => 'Friend Requests List',
-			'friends.removingFriend' => 'Removing friend...',
-			'friends.failedToRemoveFriend' => 'Failed to remove friend',
-			'friends.cancelingRequest' => 'Canceling friend request...',
-			'friends.failedToCancelRequest' => 'Failed to cancel friend request',
-			'authorProfile.noMoreDatas' => 'No more data',
-			'authorProfile.userProfile' => 'User Profile',
-			'favorites.clickToRestoreFavorite' => 'Click to restore favorite',
-			'favorites.myFavorites' => 'My Favorites',
-			'galleryDetail.galleryDetail' => 'Gallery Detail',
-			'galleryDetail.viewGalleryDetail' => 'View Gallery Detail',
-			'galleryDetail.copyLink' => 'Copy Link',
-			'galleryDetail.copyImage' => 'Copy Image',
-			'galleryDetail.saveAs' => 'Save As',
-			'galleryDetail.saveToAlbum' => 'Save to Album',
-			'galleryDetail.publishedAt' => 'Published At',
-			'galleryDetail.viewsCount' => 'Views Count',
-			'galleryDetail.imageLibraryFunctionIntroduction' => 'Image Library Function Introduction',
-			'galleryDetail.rightClickToSaveSingleImage' => 'Right Click to Save Single Image',
-			'galleryDetail.batchSave' => 'Batch Save',
-			'galleryDetail.keyboardLeftAndRightToSwitch' => 'Keyboard Left and Right to Switch',
-			'galleryDetail.keyboardUpAndDownToZoom' => 'Keyboard Up and Down to Zoom',
-			'galleryDetail.mouseWheelToSwitch' => 'Mouse Wheel to Switch',
-			'galleryDetail.ctrlAndMouseWheelToZoom' => 'CTRL + Mouse Wheel to Zoom',
-			'galleryDetail.moreFeaturesToBeDiscovered' => 'More Features to Be Discovered...',
-			'galleryDetail.authorOtherGalleries' => 'Author\'s Other Galleries',
-			'galleryDetail.relatedGalleries' => 'Related Galleries',
-			'galleryDetail.clickLeftAndRightEdgeToSwitchImage' => 'Click Left and Right Edge to Switch Image',
-			'playList.myPlayList' => 'My Play List',
-			'playList.friendlyTips' => 'Friendly Tips',
-			'playList.dearUser' => 'Dear User',
-			'playList.iwaraPlayListSystemIsNotPerfectYet' => 'iwara\'s play list system is not perfect yet',
-			'playList.notSupportSetCover' => 'Not support set cover',
-			'playList.notSupportDeleteList' => 'Not support delete list',
-			'playList.notSupportSetPrivate' => 'Not support set private',
-			'playList.yesCreateListWillAlwaysExistAndVisibleToEveryone' => 'Yes... create list will always exist and visible to everyone',
-			'playList.smallSuggestion' => 'Small Suggestion',
-			'playList.useLikeToCollectContent' => 'If you are more concerned about privacy, it is recommended to use the "like" function to collect content',
-			'playList.welcomeToDiscussOnGitHub' => 'If you have other suggestions or ideas, welcome to discuss on GitHub!',
-			'playList.iUnderstand' => 'I Understand',
-			'playList.searchPlaylists' => 'Search Playlists...',
-			'playList.newPlaylistName' => 'New Playlist Name',
-			'playList.createNewPlaylist' => 'Create New Playlist',
-			'playList.videos' => 'Videos',
-			'search.googleSearchScope' => 'Search Scope',
-			'search.searchTags' => 'Search Tags...',
-			'search.contentRating' => 'Content Rating',
-			'search.removeTag' => 'Remove Tag',
-			'search.pleaseEnterSearchContent' => 'Please enter search content',
-			'search.searchHistory' => 'Search History',
-			'search.searchSuggestion' => 'Search Suggestion',
-			'search.usedTimes' => 'Used Times',
-			'search.lastUsed' => 'Last Used',
-			'search.noSearchHistoryRecords' => 'No search history',
-			'search.notSupportCurrentSearchType' => ({required Object searchType}) => 'Not support current search type ${searchType}, please wait for the update',
-			'search.searchResult' => 'Search Result',
-			'search.unsupportedSearchType' => ({required Object searchType}) => 'Unsupported search type: ${searchType}',
-			'search.googleSearch' => 'Google Search',
-			'search.googleSearchHint' => ({required Object webName}) => '${webName} \'s search function is not easy to use? Try Google Search!',
-			'search.googleSearchDescription' => 'Use the :site search operator of Google Search to search for content on the site. This is very useful when searching for videos, galleries, playlists, and users.',
-			'search.googleSearchKeywordsHint' => 'Enter keywords to search',
-			'search.openLinkJump' => 'Open Link Jump',
-			'search.googleSearchButton' => 'Google Search',
-			'search.pleaseEnterSearchKeywords' => 'Please enter search keywords',
-			'search.googleSearchQueryCopied' => 'Search query copied to clipboard',
-			'search.googleSearchBrowserOpenFailed' => ({required Object error}) => 'Failed to open browser: ${error}',
-			'mediaList.personalIntroduction' => 'Introduction',
-			'settings.listViewMode' => 'List View Mode',
-			'settings.useTraditionalPaginationMode' => 'Use Traditional Pagination Mode',
-			'settings.useTraditionalPaginationModeDesc' => 'Enable traditional pagination mode, disable waterfall mode',
-			'settings.showVideoProgressBottomBarWhenToolbarHidden' => 'Show Video Progress Bottom Bar When Toolbar Hidden',
-			'settings.showVideoProgressBottomBarWhenToolbarHiddenDesc' => 'This configuration determines whether the video progress bottom bar will be shown when the toolbar is hidden.',
-			'settings.basicSettings' => 'Basic Settings',
-			'settings.personalizedSettings' => 'Personalized Settings',
-			'settings.otherSettings' => 'Other Settings',
-			'settings.searchConfig' => 'Search Config',
-			'settings.thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain' => 'This configuration determines whether the previous configuration will be used when playing videos again.',
-			'settings.playControl' => 'Play Control',
-			'settings.fastForwardTime' => 'Fast Forward Time',
-			'settings.fastForwardTimeMustBeAPositiveInteger' => 'Fast forward time must be a positive integer.',
-			'settings.rewindTime' => 'Rewind Time',
-			'settings.rewindTimeMustBeAPositiveInteger' => 'Rewind time must be a positive integer.',
-			'settings.longPressPlaybackSpeed' => 'Long Press Playback Speed',
-			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => 'Long press playback speed must be a positive number.',
-			'settings.repeat' => 'Repeat',
-			'settings.renderVerticalVideoInVerticalScreen' => 'Render Vertical Video in Vertical Screen',
-			'settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen' => 'This configuration determines whether the video will be rendered in vertical screen when playing in full screen.',
-			'settings.rememberVolume' => 'Remember Volume',
-			'settings.thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain' => 'This configuration determines whether the volume will be kept when playing videos again.',
-			'settings.rememberBrightness' => 'Remember Brightness',
-			'settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain' => 'This configuration determines whether the brightness will be kept when playing videos again.',
-			'settings.playControlArea' => 'Play Control Area',
-			'settings.leftAndRightControlAreaWidth' => 'Left and Right Control Area Width',
-			'settings.thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer' => 'This configuration determines the width of the control areas on the left and right sides of the player.',
-			'settings.proxyAddressCannotBeEmpty' => 'Proxy address cannot be empty.',
-			'settings.invalidProxyAddressFormatPleaseUseTheFormatOfIpPortOrDomainNamePort' => 'Invalid proxy address format. Please use the format of IP:port or domain name:port.',
-			'settings.proxyNormalWork' => 'Proxy normal work.',
-			'settings.testProxyFailedWithStatusCode' => ({required Object code}) => 'Test proxy failed, status code: ${code}',
-			'settings.testProxyFailedWithException' => ({required Object exception}) => 'Test proxy failed, exception: ${exception}',
-			'settings.proxyConfig' => 'Proxy Config',
-			'settings.thisIsHttpProxyAddress' => 'This is http proxy address',
-			'settings.checkProxy' => 'Check Proxy',
-			'settings.proxyAddress' => 'Proxy Address',
-			'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080' => 'Please enter the URL of the proxy server, for example 127.0.0.1:8080',
-			'settings.enableProxy' => 'Enable Proxy',
-			'settings.left' => 'Left',
-			'settings.middle' => 'Middle',
-			'settings.right' => 'Right',
-			'settings.playerSettings' => 'Player Settings',
-			'settings.networkSettings' => 'Network Settings',
-			'settings.customizeYourPlaybackExperience' => 'Customize Your Playback Experience',
-			'settings.chooseYourFavoriteAppAppearance' => 'Choose Your Favorite App Appearance',
-			'settings.configureYourProxyServer' => 'Configure Your Proxy Server',
-			'settings.settings' => 'Settings',
-			'settings.themeSettings' => 'Theme Settings',
-			'settings.followSystem' => 'Follow System',
-			'settings.lightMode' => 'Light Mode',
-			'settings.darkMode' => 'Dark Mode',
-			'settings.presetTheme' => 'Preset Theme',
-			'settings.basicTheme' => 'Basic Theme',
-			'settings.needRestartToApply' => 'Need to restart the app to apply the settings',
-			'settings.themeNeedRestartDescription' => 'The theme settings need to restart the app to apply the settings',
-			'settings.about' => 'About',
-			'settings.currentVersion' => 'Current Version',
-			'settings.latestVersion' => 'Latest Version',
-			'settings.checkForUpdates' => 'Check for Updates',
-			'settings.update' => 'Update',
-			'settings.newVersionAvailable' => 'New Version Available',
-			'settings.projectHome' => 'Project Home',
-			'settings.release' => 'Release',
-			'settings.issueReport' => 'Issue Report',
-			'settings.openSourceLicense' => 'Open Source License',
-			'settings.checkForUpdatesFailed' => 'Check for updates failed, please try again later',
-			'settings.autoCheckUpdate' => 'Auto Check Update',
-			'settings.updateContent' => 'Update Content',
-			'settings.releaseDate' => 'Release Date',
-			'settings.ignoreThisVersion' => 'Ignore This Version',
-			'settings.minVersionUpdateRequired' => 'Current version is too low, please update as soon as possible',
-			'settings.forceUpdateTip' => 'This is a mandatory update. Please update to the latest version as soon as possible',
-			'settings.viewChangelog' => 'View Changelog',
-			'settings.alreadyLatestVersion' => 'Already the latest version',
-			'settings.appSettings' => 'App Settings',
-			'settings.configureYourAppSettings' => 'Configure Your App Settings',
-			'settings.history' => 'History',
-			'settings.autoRecordHistory' => 'Auto Record History',
-			'settings.autoRecordHistoryDesc' => 'Auto record the videos and images you have watched',
-			'settings.showUnprocessedMarkdownText' => 'Show Unprocessed Markdown Text',
-			'settings.showUnprocessedMarkdownTextDesc' => 'Show the original text of the markdown',
-			'settings.markdown' => 'Markdown',
-			'settings.activeBackgroundPrivacyMode' => 'Privacy Mode',
-			'settings.activeBackgroundPrivacyModeDesc' => 'Prevent screenshots, hide screen when running in the background...',
-			'settings.privacy' => 'Privacy',
-			'settings.forum' => 'Forum',
-			'settings.disableForumReplyQuote' => 'Disable Forum Reply Quote',
-			'settings.disableForumReplyQuoteDesc' => 'Disable carrying replied floor information when replying in forum',
-			'settings.theaterMode' => 'Theater Mode',
-			'settings.theaterModeDesc' => 'After opening, the player background will be set to the blurred version of the video cover',
-			'settings.appLinks' => 'App Links',
-			'settings.defaultBrowser' => 'Default Browse',
-			'settings.defaultBrowserDesc' => 'Please open the default link configuration item in the system settings and add the iwara.tv website link',
-			'settings.themeMode' => 'Theme Mode',
-			'settings.themeModeDesc' => 'This configuration determines the theme mode of the app',
-			'settings.dynamicColor' => 'Dynamic Color',
-			'settings.dynamicColorDesc' => 'This configuration determines whether the app uses dynamic color',
-			'settings.useDynamicColor' => 'Use Dynamic Color',
-			'settings.useDynamicColorDesc' => 'This configuration determines whether the app uses dynamic color',
-			'settings.presetColors' => 'Preset Colors',
-			'settings.customColors' => 'Custom Colors',
-			'settings.pickColor' => 'Pick Color',
-			'settings.cancel' => 'Cancel',
-			'settings.confirm' => 'Confirm',
-			'settings.noCustomColors' => 'No custom colors',
-			'settings.recordAndRestorePlaybackProgress' => 'Record and Restore Playback Progress',
-			'settings.signature' => 'Signature',
-			'settings.enableSignature' => 'Enable Signature',
-			'settings.enableSignatureDesc' => 'This configuration determines whether the app will add signature when replying',
-			'settings.enterSignature' => 'Enter Signature',
-			'settings.editSignature' => 'Edit Signature',
-			'settings.signatureContent' => 'Signature Content',
-			'settings.exportConfig' => 'Export App Configuration',
-			'settings.exportConfigDesc' => 'Export app configuration to a file (excluding download records)',
-			'settings.importConfig' => 'Import App Configuration',
-			'settings.importConfigDesc' => 'Import app configuration from a file',
-			'settings.exportConfigSuccess' => 'Configuration exported successfully!',
-			'settings.exportConfigFailed' => 'Failed to export configuration',
-			'settings.importConfigSuccess' => 'Configuration imported successfully!',
-			'settings.importConfigFailed' => 'Failed to import configuration',
-			'settings.historyUpdateLogs' => 'History Update Logs',
-			'settings.noUpdateLogs' => 'No update logs available',
-			'settings.versionLabel' => 'Version: {version}',
-			'settings.releaseDateLabel' => 'Release Date: {date}',
-			'settings.noChanges' => 'No update content available',
-			'settings.interaction' => 'Interaction',
-			'settings.enableVibration' => 'Enable Vibration',
-			_ => null,
-		};
-	}
-
-	dynamic _flatMapFunction$1(String path) {
-		return switch (path) {
-			'settings.enableVibrationDesc' => 'Enable vibration feedback when interacting with the app',
-			'settings.defaultKeepVideoToolbarVisible' => 'Keep Video Toolbar Visible',
-			'settings.defaultKeepVideoToolbarVisibleDesc' => 'This setting determines whether the video toolbar remains visible when first entering the video page.',
-			'settings.theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt' => 'Mobile devices enable theater mode, which may cause performance issues. You can choose to enable it.',
-			'settings.lockButtonPosition' => 'Lock Button Position',
-			'settings.lockButtonPositionBothSides' => 'Both Sides',
-			'settings.lockButtonPositionLeftSide' => 'Left Side',
-			'settings.lockButtonPositionRightSide' => 'Right Side',
-			'settings.fullscreenOrientation' => 'Vertical Screen Orientation After Entering Fullscreen',
-			'settings.fullscreenOrientationDesc' => 'This setting determines the default screen orientation when entering fullscreen (mobile only)',
-			'settings.fullscreenOrientationLeftLandscape' => 'Left Landscape',
-			'settings.fullscreenOrientationRightLandscape' => 'Right Landscape',
-			'settings.jumpLink' => 'Jump Link',
-			'settings.language' => 'Language',
-			'settings.languageChanged' => 'Language setting has been changed, please restart the app to take effect.',
-			'settings.gestureControl' => 'Gesture Control',
-			'settings.leftDoubleTapRewind' => 'Left Double Tap Rewind',
-			'settings.rightDoubleTapFastForward' => 'Right Double Tap Fast Forward',
-			'settings.doubleTapPause' => 'Double Tap Pause',
-			'settings.rightVerticalSwipeVolume' => 'Right Vertical Swipe Volume (Effective when entering a new page)',
-			'settings.leftVerticalSwipeBrightness' => 'Left Vertical Swipe Brightness (Effective when entering a new page)',
-			'settings.longPressFastForward' => 'Long Press Fast Forward',
-			'settings.enableMouseHoverShowToolbar' => 'Enable Mouse Hover Show Toolbar',
-			'settings.enableMouseHoverShowToolbarInfo' => 'When enabled, the video toolbar will be shown when the mouse is hovering over the player. It will be automatically hidden after 3 seconds of inactivity.',
-			'settings.enableHorizontalDragSeek' => 'Horizontal Swipe to Seek',
-			'settings.audioVideoConfig' => 'Audio Video Configuration',
-			'settings.expandBuffer' => 'Expand Buffer',
-			'settings.expandBufferInfo' => 'When enabled, the buffer size increases, loading time becomes longer but playback is smoother',
-			'settings.videoSyncMode' => 'Video Sync Mode',
-			'settings.videoSyncModeSubtitle' => 'Audio-video synchronization strategy',
-			'settings.hardwareDecodingMode' => 'Hardware Decoding Mode',
-			'settings.hardwareDecodingModeSubtitle' => 'Hardware decoding settings',
-			'settings.enableHardwareAcceleration' => 'Enable Hardware Acceleration',
-			'settings.enableHardwareAccelerationInfo' => 'Enabling hardware acceleration can improve decoding performance, but some devices may not be compatible',
-			'settings.useOpenSLESAudioOutput' => 'Use OpenSLES Audio Output',
-			'settings.useOpenSLESAudioOutputInfo' => 'Use low-latency audio output, may improve audio performance',
-			'settings.videoSyncAudio' => 'Audio Sync',
-			'settings.videoSyncDisplayResample' => 'Display Resample',
-			'settings.videoSyncDisplayResampleVdrop' => 'Display Resample (Drop Frames)',
-			'settings.videoSyncDisplayResampleDesync' => 'Display Resample (Desync)',
-			'settings.videoSyncDisplayTempo' => 'Display Tempo',
-			'settings.videoSyncDisplayVdrop' => 'Display Drop Video Frames',
-			'settings.videoSyncDisplayAdrop' => 'Display Drop Audio Frames',
-			'settings.videoSyncDisplayDesync' => 'Display Desync',
-			'settings.videoSyncDesync' => 'Desync',
-			'settings.forumSettings.name' => 'Forum',
-			'settings.forumSettings.configureYourForumSettings' => 'Configure Your Forum Settings',
-			'settings.chatSettings.name' => 'Chat',
-			'settings.chatSettings.configureYourChatSettings' => 'Configure Your Chat Settings',
-			'settings.hardwareDecodingAuto' => 'Auto',
-			'settings.hardwareDecodingAutoCopy' => 'Auto Copy',
-			'settings.hardwareDecodingAutoSafe' => 'Auto Safe',
-			'settings.hardwareDecodingNo' => 'Disabled',
-			'settings.hardwareDecodingYes' => 'Force Enable',
-			'settings.cdnDistributionStrategy' => 'Content Distribution Strategy',
-			'settings.cdnDistributionStrategyDesc' => 'Select video source server distribution strategy to optimize loading speed',
-			'settings.cdnDistributionStrategyLabel' => 'Distribution Strategy',
-			'settings.cdnDistributionStrategyNoChange' => 'No Change (Use Original Server)',
-			'settings.cdnDistributionStrategyAuto' => 'Auto Select (Fastest Server)',
-			'settings.cdnDistributionStrategySpecial' => 'Specify Server',
-			'settings.cdnSpecialServer' => 'Specify Server',
-			'settings.cdnRefreshServerListHint' => 'Please click the button below to refresh the server list',
-			'settings.cdnRefreshButton' => 'Refresh',
-			'settings.cdnFastRingServers' => 'Fast Ring Servers',
-			'settings.cdnRefreshServerListTooltip' => 'Refresh server list',
-			'settings.cdnSpeedTestButton' => 'Speed Test',
-			'settings.cdnSpeedTestingButton' => ({required Object count}) => 'Testing (${count})',
-			'settings.cdnNoServerDataHint' => 'No server data available, please click the refresh button',
-			'settings.cdnTestingStatus' => 'Testing',
-			'settings.cdnUnreachableStatus' => 'Unreachable',
-			'settings.cdnNotTestedStatus' => 'Not Tested',
-			'settings.downloadSettings.downloadSettings' => 'Download Settings',
-			'settings.downloadSettings.storagePermissionStatus' => 'Storage Permission Status',
-			'settings.downloadSettings.accessPublicDirectoryNeedStoragePermission' => 'Access Public Directory Need Storage Permission',
-			'settings.downloadSettings.checkingPermissionStatus' => 'Checking Permission Status...',
-			'settings.downloadSettings.storagePermissionGranted' => 'Storage Permission Granted',
-			'settings.downloadSettings.storagePermissionNotGranted' => 'Storage Permission Not Granted',
-			'settings.downloadSettings.storagePermissionGrantSuccess' => 'Storage Permission Grant Success',
-			'settings.downloadSettings.storagePermissionGrantFailedButSomeFeaturesMayBeLimited' => 'Storage Permission Grant Failed But Some Features May Be Limited',
-			'settings.downloadSettings.grantStoragePermission' => 'Grant Storage Permission',
-			'settings.downloadSettings.customDownloadPath' => 'Custom Download Path',
-			'settings.downloadSettings.customDownloadPathDescription' => 'When enabled, you can choose a custom save location for downloaded files',
-			'settings.downloadSettings.customDownloadPathTip' => '💡 Tip: Selecting public directories (like Downloads folder) requires storage permission, recommend using recommended paths first',
-			'settings.downloadSettings.androidWarning' => 'Android Note: Avoid selecting public directories (such as Downloads folder), recommend using app-specific directories to ensure access permissions.',
-			'settings.downloadSettings.publicDirectoryPermissionTip' => '⚠️ Notice: You selected a public directory, storage permission is required for normal file downloads',
-			'settings.downloadSettings.permissionRequiredForPublicDirectory' => 'Storage permission required for public directories',
-			'settings.downloadSettings.currentDownloadPath' => 'Current Download Path',
-			'settings.downloadSettings.actualDownloadPath' => 'Actual Download Path',
-			'settings.downloadSettings.defaultAppDirectory' => 'Default App Directory',
-			'settings.downloadSettings.permissionGranted' => 'Granted',
-			'settings.downloadSettings.permissionRequired' => 'Permission Required',
-			'settings.downloadSettings.enableCustomDownloadPath' => 'Enable Custom Download Path',
-			'settings.downloadSettings.disableCustomDownloadPath' => 'Use app default path when disabled',
-			'settings.downloadSettings.customDownloadPathLabel' => 'Custom Download Path',
-			'settings.downloadSettings.selectDownloadFolder' => 'Select download folder',
-			'settings.downloadSettings.recommendedPath' => 'Recommended Path',
-			'settings.downloadSettings.selectFolder' => 'Select Folder',
-			'settings.downloadSettings.filenameTemplate' => 'Filename Template',
-			'settings.downloadSettings.filenameTemplateDescription' => 'Customize the naming rules for downloaded files, supports variable substitution',
-			'settings.downloadSettings.videoFilenameTemplate' => 'Video Filename Template',
-			'settings.downloadSettings.galleryFolderTemplate' => 'Gallery Folder Template',
-			'settings.downloadSettings.imageFilenameTemplate' => 'Image Filename Template',
-			'settings.downloadSettings.resetToDefault' => 'Reset to Default',
-			'settings.downloadSettings.supportedVariables' => 'Supported Variables',
-			'settings.downloadSettings.supportedVariablesDescription' => 'The following variables can be used in filename templates:',
-			'settings.downloadSettings.copyVariable' => 'Copy Variable',
-			'settings.downloadSettings.variableCopied' => 'Variable copied',
-			'settings.downloadSettings.warningPublicDirectory' => 'Warning: Selected public directory may not be accessible. Recommend selecting app-specific directory.',
-			'settings.downloadSettings.downloadPathUpdated' => 'Download path updated',
-			'settings.downloadSettings.selectPathFailed' => 'Failed to select path',
-			'settings.downloadSettings.recommendedPathSet' => 'Set to recommended path',
-			'settings.downloadSettings.setRecommendedPathFailed' => 'Failed to set recommended path',
-			'settings.downloadSettings.templateResetToDefault' => 'Reset to default template',
-			'settings.downloadSettings.functionalTest' => 'Functional Test',
-			'settings.downloadSettings.testInProgress' => 'Testing...',
-			'settings.downloadSettings.runTest' => 'Run Test',
-			'settings.downloadSettings.testDownloadPathAndPermissions' => 'Test if download path and permission configuration work properly',
-			'settings.downloadSettings.testResults' => 'Test Results',
-			'settings.downloadSettings.testCompleted' => 'Test completed',
-			'settings.downloadSettings.testPassed' => 'items passed',
-			'settings.downloadSettings.testFailed' => 'Test failed',
-			'settings.downloadSettings.testStoragePermissionCheck' => 'Storage Permission Check',
-			'settings.downloadSettings.testStoragePermissionGranted' => 'Storage permission granted',
-			'settings.downloadSettings.testStoragePermissionMissing' => 'Storage permission missing, some features may be limited',
-			'settings.downloadSettings.testPermissionCheckFailed' => 'Permission check failed',
-			'settings.downloadSettings.testDownloadPathValidation' => 'Download Path Validation',
-			'settings.downloadSettings.testPathValidationFailed' => 'Path validation failed',
-			'settings.downloadSettings.testFilenameTemplateValidation' => 'Filename Template Validation',
-			'settings.downloadSettings.testAllTemplatesValid' => 'All templates are valid',
-			'settings.downloadSettings.testSomeTemplatesInvalid' => 'Some templates contain invalid characters',
-			'settings.downloadSettings.testTemplateValidationFailed' => 'Template validation failed',
-			'settings.downloadSettings.testDirectoryOperationTest' => 'Directory Operation Test',
-			'settings.downloadSettings.testDirectoryOperationNormal' => 'Directory creation and file writing are normal',
-			'settings.downloadSettings.testDirectoryOperationFailed' => 'Directory operation failed',
-			'settings.downloadSettings.testVideoTemplate' => 'Video Template',
-			'settings.downloadSettings.testGalleryTemplate' => 'Gallery Template',
-			'settings.downloadSettings.testImageTemplate' => 'Image Template',
-			'settings.downloadSettings.testValid' => 'Valid',
-			'settings.downloadSettings.testInvalid' => 'Invalid',
-			'settings.downloadSettings.testSuccess' => 'Success',
-			'settings.downloadSettings.testCorrect' => 'Correct',
-			'settings.downloadSettings.testError' => 'Error',
-			'settings.downloadSettings.testPath' => 'Test Path',
-			'settings.downloadSettings.testBasePath' => 'Base Path',
-			'settings.downloadSettings.testDirectoryCreation' => 'Directory Creation',
-			'settings.downloadSettings.testFileWriting' => 'File Writing',
-			'settings.downloadSettings.testFileContent' => 'File Content',
-			'settings.downloadSettings.checkingPathStatus' => 'Checking path status...',
-			'settings.downloadSettings.unableToGetPathStatus' => 'Unable to get path status',
-			'settings.downloadSettings.actualPathDifferentFromSelected' => 'Note: Actual path differs from selected path',
-			'settings.downloadSettings.grantPermission' => 'Grant Permission',
-			'settings.downloadSettings.fixIssue' => 'Fix Issue',
-			'settings.downloadSettings.issueFixed' => 'Issue fixed',
-			'settings.downloadSettings.fixFailed' => 'Fix failed, please handle manually',
-			'settings.downloadSettings.lackStoragePermission' => 'Lack storage permission',
-			'settings.downloadSettings.cannotAccessPublicDirectory' => 'Cannot access public directory, need "All files access permission"',
-			'settings.downloadSettings.cannotCreateDirectory' => 'Cannot create directory',
-			'settings.downloadSettings.directoryNotWritable' => 'Directory not writable',
-			'settings.downloadSettings.insufficientSpace' => 'Insufficient available space',
-			'settings.downloadSettings.pathValid' => 'Path is valid',
-			'settings.downloadSettings.validationFailed' => 'Validation failed',
-			'settings.downloadSettings.usingDefaultAppDirectory' => 'Using default app directory',
-			'settings.downloadSettings.appPrivateDirectory' => 'App Private Directory',
-			'settings.downloadSettings.appPrivateDirectoryDesc' => 'Safe and reliable, no additional permissions required',
-			'settings.downloadSettings.downloadDirectory' => 'Download Directory',
-			'settings.downloadSettings.downloadDirectoryDesc' => 'System default download location, easy to manage',
-			'settings.downloadSettings.moviesDirectory' => 'Movies Directory',
-			'settings.downloadSettings.moviesDirectoryDesc' => 'System movies directory, recognizable by media apps',
-			'settings.downloadSettings.documentsDirectory' => 'Documents Directory',
-			'settings.downloadSettings.documentsDirectoryDesc' => 'iOS app documents directory',
-			'settings.downloadSettings.requiresStoragePermission' => 'Requires storage permission to access',
-			'settings.downloadSettings.recommendedPaths' => 'Recommended Paths',
-			'settings.downloadSettings.externalAppPrivateDirectory' => 'External App Private Directory',
-			'settings.downloadSettings.externalAppPrivateDirectoryDesc' => 'External storage app private directory, user accessible, larger space',
-			'settings.downloadSettings.internalAppPrivateDirectory' => 'Internal App Private Directory',
-			'settings.downloadSettings.internalAppPrivateDirectoryDesc' => 'App internal storage, no permissions required, smaller space',
-			'settings.downloadSettings.appDocumentsDirectory' => 'App Documents Directory',
-			'settings.downloadSettings.appDocumentsDirectoryDesc' => 'App-specific documents directory, safe and reliable',
-			'settings.downloadSettings.downloadsFolder' => 'Downloads Folder',
-			'settings.downloadSettings.downloadsFolderDesc' => 'System default download directory',
-			'settings.downloadSettings.selectRecommendedDownloadLocation' => 'Select a recommended download location',
-			'settings.downloadSettings.noRecommendedPaths' => 'No recommended paths available',
-			'settings.downloadSettings.recommended' => 'Recommended',
-			'settings.downloadSettings.requiresPermission' => 'Requires Permission',
-			'settings.downloadSettings.authorizeAndSelect' => 'Authorize and Select',
-			'settings.downloadSettings.select' => 'Select',
-			'settings.downloadSettings.permissionAuthorizationFailed' => 'Permission authorization failed, cannot select this path',
-			'settings.downloadSettings.pathValidationFailed' => 'Path validation failed',
-			'settings.downloadSettings.downloadPathSetTo' => 'Download path set to',
-			'settings.downloadSettings.setPathFailed' => 'Failed to set path',
-			'settings.downloadSettings.variableTitle' => 'Title',
-			'settings.downloadSettings.variableAuthor' => 'Author name',
-			'settings.downloadSettings.variableUsername' => 'Author username',
-			'settings.downloadSettings.variableQuality' => 'Video quality',
-			'settings.downloadSettings.variableFilename' => 'Original filename',
-			'settings.downloadSettings.variableId' => 'Content ID',
-			'settings.downloadSettings.variableCount' => 'Gallery image count',
-			'settings.downloadSettings.variableDate' => 'Current date (YYYY-MM-DD)',
-			'settings.downloadSettings.variableTime' => 'Current time (HH-MM-SS)',
-			'settings.downloadSettings.variableDatetime' => 'Current date time (YYYY-MM-DD_HH-MM-SS)',
-			'settings.downloadSettings.downloadSettingsTitle' => 'Download Settings',
-			'settings.downloadSettings.downloadSettingsSubtitle' => 'Configure download path and file naming rules',
-			'settings.downloadSettings.suchAsTitleQuality' => 'For example: %title_%quality',
-			'settings.downloadSettings.suchAsTitleId' => 'For example: %title_%id',
-			'settings.downloadSettings.suchAsTitleFilename' => 'For example: %title_%filename',
-			'oreno3d.name' => 'Oreno3D',
-			'oreno3d.tags' => 'Tags',
-			'oreno3d.characters' => 'Characters',
-			'oreno3d.origin' => 'Origin',
-			'oreno3d.thirdPartyTagsExplanation' => 'The **tags**, **characters**, and **origin** information displayed here are provided by the third-party site **Oreno3D** for reference only.\n\nSince this information source is only available in Japanese, it currently lacks internationalization adaptation.\n\nIf you are interested in contributing to internationalization efforts, please visit the repository to help improve it!',
-			'oreno3d.sortTypes.hot' => 'Hot',
-			'oreno3d.sortTypes.favorites' => 'Favorites',
-			'oreno3d.sortTypes.latest' => 'Latest',
-			'oreno3d.sortTypes.popularity' => 'Popular',
-			'oreno3d.errors.requestFailed' => 'Request failed, status code',
-			'oreno3d.errors.connectionTimeout' => 'Connection timeout, please check network connection',
-			'oreno3d.errors.sendTimeout' => 'Send request timeout',
-			'oreno3d.errors.receiveTimeout' => 'Receive response timeout',
-			'oreno3d.errors.badCertificate' => 'Certificate verification failed',
-			'oreno3d.errors.resourceNotFound' => 'Requested resource not found',
-			'oreno3d.errors.accessDenied' => 'Access denied, may require authentication or permission',
-			'oreno3d.errors.serverError' => 'Internal server error',
-			'oreno3d.errors.serviceUnavailable' => 'Service temporarily unavailable',
-			'oreno3d.errors.requestCancelled' => 'Request cancelled',
-			'oreno3d.errors.connectionError' => 'Network connection error, please check network settings',
-			'oreno3d.errors.networkRequestFailed' => 'Network request failed',
-			'oreno3d.errors.searchVideoError' => 'Unknown error occurred while searching videos',
-			'oreno3d.errors.getPopularVideoError' => 'Unknown error occurred while getting popular videos',
-			'oreno3d.errors.getVideoDetailError' => 'Unknown error occurred while getting video details',
-			'oreno3d.errors.parseVideoDetailError' => 'Unknown error occurred while getting and parsing video details',
-			'oreno3d.errors.downloadFileError' => 'Unknown error occurred while downloading file',
-			'oreno3d.loading.gettingVideoInfo' => 'Getting video information...',
-			'oreno3d.loading.cancel' => 'Cancel',
-			'oreno3d.messages.videoNotFoundOrDeleted' => 'Video not found or has been deleted',
-			'oreno3d.messages.unableToGetVideoPlayLink' => 'Unable to get video playback link',
-			'oreno3d.messages.getVideoDetailFailed' => 'Failed to get video details',
-			'signIn.pleaseLoginFirst' => 'Please login first',
-			'signIn.alreadySignedInToday' => 'You have already signed in today!',
-			'signIn.youDidNotStickToTheSignIn' => 'You did not stick to the sign in.',
-			'signIn.signInSuccess' => 'Sign in successfully!',
-			'signIn.signInFailed' => 'Sign in failed, please try again later',
-			'signIn.consecutiveSignIns' => 'Consecutive Sign Ins',
-			'signIn.failureReason' => 'Failure Reason',
-			'signIn.selectDateRange' => 'Select Date Range',
-			'signIn.startDate' => 'Start Date',
-			'signIn.endDate' => 'End Date',
-			'signIn.invalidDate' => 'Invalid Date',
-			'signIn.invalidDateRange' => 'Invalid Date Range',
-			'signIn.errorFormatText' => 'Date Format Error',
-			'signIn.errorInvalidText' => 'Invalid Date Range',
-			'signIn.errorInvalidRangeText' => 'Invalid Date Range',
-			'signIn.dateRangeCantBeMoreThanOneYear' => 'Date range cannot be more than one year',
-			'signIn.signIn' => 'Sign In',
-			'signIn.signInRecord' => 'Sign In Record',
-			'signIn.totalSignIns' => 'Total Sign Ins',
-			'signIn.pleaseSelectSignInStatus' => 'Please select sign in status',
-			'subscriptions.pleaseLoginFirstToViewYourSubscriptions' => 'Please login first to view your subscriptions.',
-			'subscriptions.selectUser' => 'Select User',
-			'subscriptions.noSubscribedUsers' => 'No subscribed users',
-			'subscriptions.showAllSubscribedUsersContent' => 'Show all subscribed users content',
-			'videoDetail.pipMode' => 'PiP Mode',
-			'videoDetail.resumeFromLastPosition' => ({required Object position}) => 'Resume from last position: ${position}',
-			'videoDetail.videoIdIsEmpty' => 'Video ID is empty',
-			'videoDetail.videoInfoIsEmpty' => 'Video info is empty',
-			'videoDetail.thisIsAPrivateVideo' => 'This is a private video',
-			'videoDetail.getVideoInfoFailed' => 'Get video info failed, please try again later',
-			'videoDetail.noVideoSourceFound' => 'No video source found',
-			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => 'Tag "${tagId}" copied to clipboard',
-			'videoDetail.errorLoadingVideo' => 'Error loading video',
-			'videoDetail.play' => 'Play',
-			'videoDetail.pause' => 'Pause',
-			'videoDetail.exitAppFullscreen' => 'Exit App Fullscreen',
-			'videoDetail.enterAppFullscreen' => 'Enter App Fullscreen',
-			'videoDetail.exitSystemFullscreen' => 'Exit System Fullscreen',
-			'videoDetail.enterSystemFullscreen' => 'Enter System Fullscreen',
-			'videoDetail.seekTo' => 'Seek To',
-			'videoDetail.switchResolution' => 'Switch Resolution',
-			'videoDetail.switchPlaybackSpeed' => 'Switch Playback Speed',
-			'videoDetail.rewindSeconds' => ({required Object num}) => 'Rewind ${num} seconds',
-			'videoDetail.fastForwardSeconds' => ({required Object num}) => 'Fast Forward ${num} seconds',
-			'videoDetail.playbackSpeedIng' => ({required Object rate}) => 'Playing at ${rate}x speed',
-			'videoDetail.brightness' => 'Brightness',
-			'videoDetail.brightnessLowest' => 'Brightness is lowest',
-			'videoDetail.volume' => 'Volume',
-			'videoDetail.volumeMuted' => 'Volume is muted',
-			'videoDetail.home' => 'Home',
-			'videoDetail.videoPlayer' => 'Video Player',
-			'videoDetail.videoPlayerInfo' => 'Video Player Info',
-			'videoDetail.moreSettings' => 'More Settings',
-			'videoDetail.videoPlayerFeatureInfo' => 'Video Player Feature Info',
-			'videoDetail.autoRewind' => 'Auto Rewind',
-			'videoDetail.rewindAndFastForward' => 'Rewind and Fast Forward',
-			'videoDetail.volumeAndBrightness' => 'Volume and Brightness',
-			'videoDetail.centerAreaDoubleTapPauseOrPlay' => 'Center Area Double Tap Pause or Play',
-			'videoDetail.showVerticalVideoInFullScreen' => 'Show Vertical Video in Full Screen',
-			'videoDetail.keepLastVolumeAndBrightness' => 'Keep Last Volume and Brightness',
-			'videoDetail.setProxy' => 'Set Proxy',
-			'videoDetail.moreFeaturesToBeDiscovered' => 'More Features to Be Discovered...',
-			'videoDetail.videoPlayerSettings' => 'Video Player Settings',
-			'videoDetail.commentCount' => ({required Object num}) => '${num} comments',
-			'videoDetail.writeYourCommentHere' => 'Write your comment here...',
-			'videoDetail.authorOtherVideos' => 'Author\'s Other Videos',
-			'videoDetail.relatedVideos' => 'Related Videos',
-			'videoDetail.privateVideo' => 'This is a private video',
-			'videoDetail.externalVideo' => 'This is an external video',
-			'videoDetail.openInBrowser' => 'Open in Browser',
-			'videoDetail.resourceDeleted' => 'This video seems to have been deleted :/',
-			'videoDetail.noDownloadUrl' => 'No download URL',
-			'videoDetail.startDownloading' => 'Start downloading',
-			'videoDetail.downloadFailed' => 'Download failed, please try again later',
-			'videoDetail.downloadSuccess' => 'Download success',
-			'videoDetail.download' => 'Download',
-			'videoDetail.downloadManager' => 'Download Manager',
-			'videoDetail.resourceNotFound' => 'Resource not found',
-			'videoDetail.videoLoadError' => 'Video load error',
-			'videoDetail.authorNoOtherVideos' => 'Author has no other videos',
-			'videoDetail.noRelatedVideos' => 'No related videos',
-			'videoDetail.player.errorWhileLoadingVideoSource' => 'Error while loading video source',
-			'videoDetail.player.errorWhileSettingUpListeners' => 'Error while setting up listeners',
-			'videoDetail.skeleton.fetchingVideoInfo' => 'Fetching video info...',
-			'videoDetail.skeleton.fetchingVideoSources' => 'Fetching video sources...',
-			'videoDetail.skeleton.loadingVideo' => 'Loading video...',
-			'videoDetail.skeleton.applyingSolution' => 'Applying solution...',
-			'videoDetail.skeleton.addingListeners' => 'Adding listeners...',
-			'videoDetail.skeleton.successFecthVideoDurationInfo' => 'Successfully fetched video duration, starting to load video...',
-			'videoDetail.skeleton.successFecthVideoHeightInfo' => 'Loading completed',
-			'videoDetail.cast.dlnaCast' => 'Cast',
-			'videoDetail.cast.unableToStartCastingSearch' => ({required Object error}) => 'Failed to start casting search: ${error}',
-			'videoDetail.cast.startCastingTo' => ({required Object deviceName}) => 'Start casting to ${deviceName}',
-			'videoDetail.cast.castFailed' => ({required Object error}) => 'Cast failed: ${error}\nPlease try to re-search for devices or switch networks',
-			'videoDetail.cast.castStopped' => 'Cast stopped',
-			'videoDetail.cast.deviceTypes.mediaRenderer' => 'Media Player',
-			'videoDetail.cast.deviceTypes.mediaServer' => 'Media Server',
-			'videoDetail.cast.deviceTypes.internetGatewayDevice' => 'Router',
-			'videoDetail.cast.deviceTypes.basicDevice' => 'Basic Device',
-			'videoDetail.cast.deviceTypes.dimmableLight' => 'Smart Light',
-			'videoDetail.cast.deviceTypes.wlanAccessPoint' => 'WLAN Access Point',
-			'videoDetail.cast.deviceTypes.wlanConnectionDevice' => 'WLAN Connection Device',
-			'videoDetail.cast.deviceTypes.printer' => 'Printer',
-			'videoDetail.cast.deviceTypes.scanner' => 'Scanner',
-			'videoDetail.cast.deviceTypes.digitalSecurityCamera' => 'Digital Security Camera',
-			'videoDetail.cast.deviceTypes.unknownDevice' => 'Unknown Device',
-			'videoDetail.cast.currentPlatformNotSupported' => 'Current platform does not support casting',
-			'videoDetail.cast.unableToGetVideoUrl' => 'Unable to get video URL, please try again later',
-			'videoDetail.cast.stopCasting' => 'Stop casting',
-			'videoDetail.cast.dlnaCastSheet.title' => 'Remote Cast',
-			'videoDetail.cast.dlnaCastSheet.close' => 'Close',
-			'videoDetail.cast.dlnaCastSheet.searchingDevices' => 'Searching for devices...',
-			'videoDetail.cast.dlnaCastSheet.searchPrompt' => 'Click search button to re-search for casting devices',
-			'videoDetail.cast.dlnaCastSheet.searching' => 'Searching',
-			'videoDetail.cast.dlnaCastSheet.searchAgain' => 'Search Again',
-			'videoDetail.cast.dlnaCastSheet.noDevicesFound' => 'No casting devices found\nPlease ensure devices are on the same network',
-			'videoDetail.cast.dlnaCastSheet.searchingDevicesPrompt' => 'Searching for devices, please wait...',
-			'videoDetail.cast.dlnaCastSheet.cast' => 'Cast',
-			'videoDetail.cast.dlnaCastSheet.connectedTo' => ({required Object deviceName}) => 'Connected to: ${deviceName}',
-			'videoDetail.cast.dlnaCastSheet.notConnected' => 'No device connected',
-			'videoDetail.cast.dlnaCastSheet.stopCasting' => 'Stop Casting',
-			'videoDetail.likeAvatars.dialogTitle' => 'Who\'s secretly liking',
-			'videoDetail.likeAvatars.dialogDescription' => 'Curious who they are? Flip through this "Like Album"~',
-			'videoDetail.likeAvatars.closeTooltip' => 'Close',
-			'videoDetail.likeAvatars.retry' => 'Retry',
-			'videoDetail.likeAvatars.noLikesYet' => 'No one has appeared here yet. Be the first!',
-			'videoDetail.likeAvatars.pageInfo' => ({required Object page, required Object totalPages, required Object totalCount}) => 'Page ${page} / ${totalPages} · Total ${totalCount} people',
-			'videoDetail.likeAvatars.prevPage' => 'Previous Page',
-			'videoDetail.likeAvatars.nextPage' => 'Next Page',
-			'share.sharePlayList' => 'Share Play List',
-			'share.wowDidYouSeeThis' => 'Wow, did you see this?',
-			'share.nameIs' => 'Name is',
-			'share.clickLinkToView' => 'Click link to view',
-			'share.iReallyLikeThis' => 'I really like this',
-			'share.shareFailed' => 'Share failed, please try again later',
-			'share.share' => 'Share',
-			'share.shareAsImage' => 'Share as Image',
-			'share.shareAsText' => 'Share as Text',
-			'share.shareAsImageDesc' => 'Share the video cover as an image',
-			'share.shareAsTextDesc' => 'Share the video details as text',
-			'share.shareAsImageFailed' => 'Share the video cover as an image failed, please try again later',
-			'share.shareAsTextFailed' => 'Share the video details as text failed, please try again later',
-			'share.shareVideo' => 'Share Video',
-			'share.authorIs' => 'Author is',
-			'share.shareGallery' => 'Share Gallery',
-			'share.galleryTitleIs' => 'Gallery title is',
-			'share.galleryAuthorIs' => 'Gallery author is',
-			'share.shareUser' => 'Share User',
-			'share.userNameIs' => 'User name is',
-			'share.userAuthorIs' => 'User author is',
-			'share.comments' => 'Comments',
-			'share.shareThread' => 'Share Thread',
-			'share.views' => 'Views',
-			'share.sharePost' => 'Share Post',
-			'share.postTitleIs' => 'Post title is',
-			'share.postAuthorIs' => 'Post author is',
-			'markdown.markdownSyntax' => 'Markdown Syntax',
-			'markdown.iwaraSpecialMarkdownSyntax' => 'Iwara Special Markdown Syntax',
-			'markdown.internalLink' => 'Internal Link',
-			'markdown.supportAutoConvertLinkBelow' => 'Support auto convert link below:',
-			'markdown.convertLinkExample' => '🎬 Video Link\n🖼️ Image Link\n👤 User Link\n📌 Forum Link\n🎵 Playlist Link\n💬 Thread Link',
-			'markdown.mentionUser' => 'Mention User',
-			'markdown.mentionUserDescription' => 'Input @ followed by username, will be automatically converted to user link',
-			'markdown.markdownBasicSyntax' => 'Markdown Basic Syntax',
-			'markdown.paragraphAndLineBreak' => 'Paragraph and Line Break',
-			'markdown.paragraphAndLineBreakDescription' => 'Paragraphs are separated by a line, and two spaces at the end of the line will be converted to a line break',
-			'markdown.paragraphAndLineBreakSyntax' => 'This is the first paragraph\n\nThis is the second paragraph\nThis line ends with two spaces  \nwill be converted to a line break',
-			'markdown.textStyle' => 'Text Style',
-			'markdown.textStyleDescription' => 'Use special symbols to surround text to change style',
-			'markdown.textStyleSyntax' => '**Bold Text**\n*Italic Text*\n~~Strikethrough Text~~\n`Code Text`',
-			'markdown.quote' => 'Quote',
-			'markdown.quoteDescription' => 'Use > symbol to create quote, multiple > to create multi-level quote',
-			'markdown.quoteSyntax' => '> This is a first-level quote\n>> This is a second-level quote',
-			'markdown.list' => 'List',
-			'markdown.listDescription' => 'Create ordered list with number+dot, create unordered list with -',
-			'markdown.listSyntax' => '1. First item\n2. Second item\n\n- Unordered item\n  - Subitem\n  - Another subitem',
-			'markdown.linkAndImage' => 'Link and Image',
-			'markdown.linkAndImageDescription' => 'Link format: [text](URL)\nImage format: ![description](URL)',
-			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[link text](${link})\n![image description](${imgUrl})',
-			'markdown.title' => 'Title',
-			'markdown.titleDescription' => 'Use # symbol to create title, number to show level',
-			'markdown.titleSyntax' => '# First-level title\n## Second-level title\n### Third-level title',
-			'markdown.separator' => 'Separator',
-			'markdown.separatorDescription' => 'Create separator with three or more - symbols',
-			'markdown.separatorSyntax' => '---',
-			'markdown.syntax' => 'Syntax',
-			'forum.recent' => 'Recent',
-			'forum.category' => 'Category',
-			'forum.lastReply' => 'Last Reply',
-			'forum.errors.pleaseSelectCategory' => 'Please select a category',
-			'forum.errors.threadLocked' => 'This thread is locked, cannot reply',
-			'forum.createPost' => 'Create Post',
-			'forum.title' => 'Title',
-			'forum.enterTitle' => 'Enter Title',
-			'forum.content' => 'Content',
-			'forum.enterContent' => 'Enter Content',
-			'forum.writeYourContentHere' => 'Write your content here...',
-			'forum.posts' => 'Posts',
-			'forum.threads' => 'Threads',
-			'forum.forum' => 'Forum',
-			'forum.createThread' => 'Create Thread',
-			'forum.selectCategory' => 'Select Category',
-			'forum.cooldownRemaining' => ({required Object minutes, required Object seconds}) => 'Cooldown remaining ${minutes} minutes ${seconds} seconds',
-			'forum.groups.administration' => 'Administration',
-			'forum.groups.global' => 'Global',
-			'forum.groups.chinese' => 'Chinese',
-			'forum.groups.japanese' => 'Japanese',
-			'forum.groups.korean' => 'Korean',
-			'forum.groups.other' => 'Other',
-			'forum.leafNames.announcements' => 'Announcements',
-			'forum.leafNames.feedback' => 'Feedback',
-			'forum.leafNames.support' => 'Support',
-			'forum.leafNames.general' => 'General',
-			'forum.leafNames.guides' => 'Guides',
-			'forum.leafNames.questions' => 'Questions',
-			'forum.leafNames.requests' => 'Requests',
-			'forum.leafNames.sharing' => 'Sharing',
-			'forum.leafNames.general_zh' => 'General',
-			'forum.leafNames.questions_zh' => 'Questions',
-			'forum.leafNames.requests_zh' => 'Requests',
-			'forum.leafNames.support_zh' => 'Support',
-			'forum.leafNames.general_ja' => 'General',
-			'forum.leafNames.questions_ja' => 'Questions',
-			'forum.leafNames.requests_ja' => 'Requests',
-			'forum.leafNames.support_ja' => 'Support',
-			'forum.leafNames.korean' => 'Korean',
-			'forum.leafNames.other' => 'Other',
-			'forum.leafDescriptions.announcements' => 'Official important notifications and announcements',
-			'forum.leafDescriptions.feedback' => 'Feedback on the website\'s features and services',
-			'forum.leafDescriptions.support' => 'Help to resolve website-related issues',
-			'forum.leafDescriptions.general' => 'Discuss any topic',
-			'forum.leafDescriptions.guides' => 'Share your experiences and tutorials',
-			'forum.leafDescriptions.questions' => 'Raise your inquiries',
-			'forum.leafDescriptions.requests' => 'Post your requests',
-			'forum.leafDescriptions.sharing' => 'Share interesting content',
-			'forum.leafDescriptions.general_zh' => 'Discuss any topic',
-			'forum.leafDescriptions.questions_zh' => 'Raise your inquiries',
-			'forum.leafDescriptions.requests_zh' => 'Post your requests',
-			'forum.leafDescriptions.support_zh' => 'Help to resolve website-related issues',
-			'forum.leafDescriptions.general_ja' => 'Discuss any topic',
-			'forum.leafDescriptions.questions_ja' => 'Raise your inquiries',
-			'forum.leafDescriptions.requests_ja' => 'Post your requests',
-			'forum.leafDescriptions.support_ja' => 'Help to resolve website-related issues',
-			'forum.leafDescriptions.korean' => 'Discussions related to Korean',
-			'forum.leafDescriptions.other' => 'Other unclassified content',
-			'forum.reply' => 'Reply',
-			'forum.pendingReview' => 'Pending Review',
-			'forum.editedAt' => 'Edited At',
-			'forum.copySuccess' => 'Copied to clipboard',
-			'forum.copySuccessForMessage' => ({required Object str}) => 'Copied to clipboard: ${str}',
-			'forum.editReply' => 'Edit Reply',
-			'forum.editTitle' => 'Edit Title',
-			'forum.submit' => 'Submit',
-			'notifications.errors.unsupportedNotificationType' => 'Unsupported notification type',
-			'notifications.errors.unknownUser' => 'Unknown user',
-			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => 'Unsupported notification type: ${type}',
-			'notifications.errors.unknownNotificationType' => 'Unknown notification type',
-			'notifications.notifications' => 'Notifications',
-			'notifications.profile' => 'Profile',
-			'notifications.postedNewComment' => 'Posted new comment',
-			'notifications.inYour' => 'In your',
-			'notifications.video' => 'Video',
-			'notifications.repliedYourVideoComment' => 'Replied your video comment',
-			'notifications.copyInfoToClipboard' => 'Copy notification info to clipboard',
-			'notifications.copySuccess' => 'Copied to clipboard',
-			'notifications.copySuccessForMessage' => ({required Object str}) => 'Copied to clipboard: ${str}',
-			'notifications.markAllAsRead' => 'Mark all as read',
-			'notifications.markAllAsReadSuccess' => 'All notifications have been marked as read',
-			'notifications.markAllAsReadFailed' => 'Mark all as read failed',
-			'notifications.markSelectedAsRead' => 'Mark selected as read',
-			'notifications.markSelectedAsReadSuccess' => 'Selected notifications have been marked as read',
-			'notifications.markSelectedAsReadFailed' => 'Mark selected as read failed',
-			'notifications.markAsRead' => 'Mark as read',
-			'notifications.markAsReadSuccess' => 'Notification has been marked as read',
-			'notifications.markAsReadFailed' => 'Notification marked as read failed',
-			'notifications.notificationTypeHelp' => 'Notification Type Help',
-			_ => null,
-		};
-	}
-
-	dynamic _flatMapFunction$2(String path) {
-		return switch (path) {
-			'notifications.dueToLackOfNotificationTypeDetails' => 'Due to the lack of notification type details, the supported types may not cover the messages you currently receive',
-			'notifications.helpUsImproveNotificationTypeSupport' => 'If you are willing to help us improve the support for notification types',
-			'notifications.helpUsImproveNotificationTypeSupportLongText' => '1. 📋 Copy the notification information\n2. 🐞 Submit an issue to the project repository\n\n⚠️ Note: Notification information may contain personal privacy, if you do not want to public, you can also send it to the project author by email.',
-			'notifications.goToRepository' => 'Go to Repository',
-			'notifications.copy' => 'Copy',
-			'notifications.commentApproved' => 'Comment Approved',
-			'notifications.repliedYourProfileComment' => 'Replied your profile comment',
-			'notifications.kReplied' => 'replied to your comment on',
-			'notifications.kCommented' => 'commented on your',
-			'notifications.kVideo' => 'video',
-			'notifications.kGallery' => 'gallery',
-			'notifications.kProfile' => 'profile',
-			'notifications.kThread' => 'thread',
-			'notifications.kPost' => 'post',
-			'notifications.kCommentSection' => 'comment section',
-			'notifications.kApprovedComment' => 'Comment approved',
-			'notifications.kApprovedVideo' => 'Video approved',
-			'notifications.kApprovedGallery' => 'Gallery approved',
-			'notifications.kApprovedThread' => 'Thread approved',
-			'notifications.kApprovedPost' => 'Post approved',
-			'notifications.kApprovedForumPost' => 'Forum post approved',
-			'notifications.kRejectedContent' => 'Content review rejected',
-			'notifications.kUnknownType' => 'Unknown notification type',
-			'conversation.errors.pleaseSelectAUser' => 'Please select a user',
-			'conversation.errors.pleaseEnterATitle' => 'Please enter a title',
-			'conversation.errors.clickToSelectAUser' => 'Click to select a user',
-			'conversation.errors.loadFailedClickToRetry' => 'Load failed, click to retry',
-			'conversation.errors.loadFailed' => 'Load failed',
-			'conversation.errors.clickToRetry' => 'Click to retry',
-			'conversation.errors.noMoreConversations' => 'No more conversations',
-			'conversation.conversation' => 'Conversation',
-			'conversation.startConversation' => 'Start Conversation',
-			'conversation.noConversation' => 'No conversation',
-			'conversation.selectFromLeftListAndStartConversation' => 'Select from left list and start conversation',
-			'conversation.title' => 'Title',
-			'conversation.body' => 'Body',
-			'conversation.selectAUser' => 'Select a user',
-			'conversation.searchUsers' => 'Search users...',
-			'conversation.tmpNoConversions' => 'No conversions',
-			'conversation.deleteThisMessage' => 'Delete this message',
-			'conversation.deleteThisMessageSubtitle' => 'This operation cannot be undone',
-			'conversation.writeMessageHere' => 'Write message here...',
-			'conversation.sendMessage' => 'Send message',
-			'splash.errors.initializationFailed' => 'Initialization failed, please restart the app',
-			'splash.preparing' => 'Preparing...',
-			'splash.initializing' => 'Initializing...',
-			'splash.loading' => 'Loading...',
-			'splash.ready' => 'Ready',
-			'splash.initializingMessageService' => 'Initializing message service...',
-			'download.errors.imageModelNotFound' => 'Image model not found',
-			'download.errors.downloadFailed' => 'Download failed',
-			'download.errors.videoInfoNotFound' => 'Video info not found',
-			'download.errors.downloadTaskAlreadyExists' => 'Download task already exists',
-			'download.errors.videoAlreadyDownloaded' => 'Video already downloaded',
-			'download.errors.downloadFailedForMessage' => ({required Object errorInfo}) => 'Add download task failed: ${errorInfo}',
-			'download.errors.userPausedDownload' => 'User paused download',
-			'download.errors.unknown' => 'Unknown',
-			'download.errors.fileSystemError' => ({required Object errorInfo}) => 'File system error: ${errorInfo}',
-			'download.errors.unknownError' => ({required Object errorInfo}) => 'Unknown error: ${errorInfo}',
-			'download.errors.connectionTimeout' => 'Connection timeout',
-			'download.errors.sendTimeout' => 'Send timeout',
-			'download.errors.receiveTimeout' => 'Receive timeout',
-			'download.errors.serverError' => ({required Object errorInfo}) => 'Server error: ${errorInfo}',
-			'download.errors.unknownNetworkError' => 'Unknown network error',
-			'download.errors.sslHandshakeFailed' => 'SSL handshake failed, please check your network',
-			'download.errors.connectionFailed' => 'Connection failed, please check your network',
-			'download.errors.serviceIsClosing' => 'Download service is closing',
-			'download.errors.partialDownloadFailed' => 'Partial content download failed',
-			'download.errors.noDownloadTask' => 'No download task',
-			'download.errors.taskNotFoundOrDataError' => 'Task not found or data error',
-			'download.errors.fileNotFound' => 'File not found',
-			'download.errors.openFolderFailed' => 'Failed to open folder',
-			'download.errors.copyDownloadUrlFailed' => 'Failed to copy download URL',
-			'download.errors.openFolderFailedWithMessage' => ({required Object message}) => 'Failed to open folder: ${message}',
-			'download.errors.directoryNotFound' => 'Directory not found',
-			'download.errors.copyFailed' => 'Copy failed',
-			'download.errors.openFileFailed' => 'Failed to open file',
-			'download.errors.openFileFailedWithMessage' => ({required Object message}) => 'Failed to open file: ${message}',
-			'download.errors.noDownloadSource' => 'No download source',
-			'download.errors.noDownloadSourceNowPleaseWaitInfoLoaded' => 'No download source, please wait for information loading to be completed and try again',
-			'download.errors.noActiveDownloadTask' => 'No active download task',
-			'download.errors.noFailedDownloadTask' => 'No failed download task',
-			'download.errors.noCompletedDownloadTask' => 'No completed download task',
-			'download.errors.taskAlreadyCompletedDoNotAdd' => 'Task already completed, do not add again',
-			'download.errors.linkExpiredTryAgain' => 'Link expired, trying to get new download link',
-			'download.errors.linkExpiredTryAgainSuccess' => 'Link expired, trying to get new download link success',
-			'download.errors.linkExpiredTryAgainFailed' => 'Link expired, trying to get new download link failed',
-			'download.errors.taskDeleted' => 'Task deleted',
-			'download.errors.unsupportedImageFormat' => ({required Object format}) => 'Unsupported image format: ${format}',
-			'download.errors.deleteFileError' => 'Failed to delete file, possibly because the file is being used by another process',
-			'download.errors.deleteTaskError' => 'Failed to delete task',
-			'download.errors.canNotRefreshVideoTask' => 'Failed to refresh video task',
-			'download.errors.taskAlreadyProcessing' => 'Task already processing',
-			'download.errors.taskNotFound' => 'Task not found',
-			'download.errors.failedToLoadTasks' => 'Failed to load tasks',
-			'download.errors.partialDownloadFailedWithMessage' => ({required Object message}) => 'Partial download failed: ${message}',
-			'download.errors.unsupportedImageFormatWithMessage' => ({required Object extension}) => 'Unsupported image format: ${extension}, you can try to download it to your device to view it',
-			'download.errors.imageLoadFailed' => 'Image load failed',
-			'download.errors.pleaseTryOtherViewer' => 'Please try using other viewers to open',
-			'download.downloadList' => 'Download List',
-			'download.viewDownloadList' => 'View Download List',
-			'download.download' => 'Download',
-			'download.startDownloading' => 'Start Downloading',
-			'download.clearAllFailedTasks' => 'Clear All Failed Tasks',
-			'download.clearAllFailedTasksConfirmation' => 'Are you sure you want to clear all failed download tasks? The files of these tasks will also be deleted.',
-			'download.clearAllFailedTasksSuccess' => 'Cleared all failed tasks',
-			'download.clearAllFailedTasksError' => 'Error occurred while clearing failed tasks',
-			'download.downloadStatus' => 'Download Status',
-			'download.imageList' => 'Image List',
-			'download.retryDownload' => 'Retry Download',
-			'download.notDownloaded' => 'Not Downloaded',
-			'download.downloaded' => 'Downloaded',
-			'download.waitingForDownload' => 'Waiting for Download',
-			'download.downloadingProgressForImageProgress' => ({required Object downloaded, required Object total, required Object progress}) => 'Downloading (${downloaded}/${total} images ${progress}%)',
-			'download.downloadingSingleImageProgress' => ({required Object downloaded}) => 'Downloading (${downloaded} images)',
-			'download.pausedProgressForImageProgress' => ({required Object downloaded, required Object total, required Object progress}) => 'Paused (${downloaded}/${total} images ${progress}%)',
-			'download.pausedSingleImageProgress' => ({required Object downloaded}) => 'Paused (${downloaded} images)',
-			'download.downloadedProgressForImageProgress' => ({required Object total}) => 'Downloaded (Total ${total} images)',
-			'download.viewVideoDetail' => 'View Video Detail',
-			'download.viewGalleryDetail' => 'View Gallery Detail',
-			'download.moreOptions' => 'More Options',
-			'download.openFile' => 'Open File',
-			'download.pause' => 'Pause',
-			'download.resume' => 'Resume',
-			'download.copyDownloadUrl' => 'Copy Download URL',
-			'download.showInFolder' => 'Show in Folder',
-			'download.deleteTask' => 'Delete Task',
-			'download.deleteTaskConfirmation' => 'Are you sure you want to delete this download task?\nThe task file will also be deleted.',
-			'download.forceDeleteTask' => 'Force Delete Task',
-			'download.forceDeleteTaskConfirmation' => 'Are you sure you want to force delete this download task?\nThe task file will also be deleted, even if the file is being used.',
-			'download.downloadingProgressForVideoTask' => ({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'Downloading ${downloaded}/${total} (${progress}%) • ${speed}MB/s',
-			'download.downloadingOnlyDownloadedAndSpeed' => ({required Object downloaded, required Object speed}) => 'Downloading ${downloaded} • ${speed}MB/s',
-			'download.pausedForDownloadedAndTotal' => ({required Object downloaded, required Object total, required Object progress}) => 'Paused ${downloaded}/${total} (${progress}%)',
-			'download.pausedAndDownloaded' => ({required Object downloaded}) => 'Paused • Downloaded ${downloaded}',
-			'download.downloadedWithSize' => ({required Object size}) => 'Downloaded • ${size}',
-			'download.copyDownloadUrlSuccess' => 'Download URL copied',
-			'download.totalImageNums' => ({required Object num}) => '${num} images',
-			'download.downloadingDownloadedTotalProgressSpeed' => ({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'Downloading ${downloaded}/${total} (${progress}%) • ${speed}MB/s',
-			'download.downloading' => 'Downloading',
-			'download.failed' => 'Failed',
-			'download.completed' => 'Completed',
-			'download.downloadDetail' => 'Download Detail',
-			'download.copy' => 'Copy',
-			'download.copySuccess' => 'Copied',
-			'download.waiting' => 'Waiting',
-			'download.paused' => 'Paused',
-			'download.downloadingOnlyDownloaded' => ({required Object downloaded}) => 'Downloading ${downloaded}',
-			'download.galleryDownloadCompletedWithName' => ({required Object galleryName}) => 'Gallery Download Completed: ${galleryName}',
-			'download.downloadCompletedWithName' => ({required Object fileName}) => 'Download Completed: ${fileName}',
-			'download.stillInDevelopment' => 'Still in development',
-			'download.saveToAppDirectory' => 'Save to app directory',
-			'download.alreadyDownloadedWithQuality' => 'Already downloaded with the same quality, continue downloading?',
-			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'Already downloaded with qualities: ${qualities}, continue downloading?',
-			'download.otherQualities' => 'Other qualities',
-			'favorite.errors.addFailed' => 'Add failed',
-			'favorite.errors.addSuccess' => 'Add success',
-			'favorite.errors.deleteFolderFailed' => 'Delete folder failed',
-			'favorite.errors.deleteFolderSuccess' => 'Delete folder success',
-			'favorite.errors.folderNameCannotBeEmpty' => 'Folder name cannot be empty',
-			'favorite.add' => 'Add',
-			'favorite.addSuccess' => 'Add success',
-			'favorite.addFailed' => 'Add failed',
-			'favorite.remove' => 'Remove',
-			'favorite.removeSuccess' => 'Remove success',
-			'favorite.removeFailed' => 'Remove failed',
-			'favorite.removeConfirmation' => 'Are you sure you want to remove this item from favorites?',
-			'favorite.removeConfirmationSuccess' => 'Item removed from favorites',
-			'favorite.removeConfirmationFailed' => 'Failed to remove item from favorites',
-			'favorite.createFolderSuccess' => 'Folder created successfully',
-			'favorite.createFolderFailed' => 'Failed to create folder',
-			'favorite.createFolder' => 'Create Folder',
-			'favorite.enterFolderName' => 'Enter folder name',
-			'favorite.enterFolderNameHere' => 'Enter folder name here...',
-			'favorite.create' => 'Create',
-			'favorite.items' => 'Items',
-			'favorite.newFolderName' => 'New Folder',
-			'favorite.searchFolders' => 'Search folders...',
-			'favorite.searchItems' => 'Search items...',
-			'favorite.createdAt' => 'Created At',
-			'favorite.myFavorites' => 'My Favorites',
-			'favorite.deleteFolderTitle' => 'Delete Folder',
-			'favorite.deleteFolderConfirmWithTitle' => ({required Object title}) => 'Are you sure you want to delete ${title} folder?',
-			'favorite.removeItemTitle' => 'Remove Item',
-			'favorite.removeItemConfirmWithTitle' => ({required Object title}) => 'Are you sure you want to delete ${title} item?',
-			'favorite.removeItemSuccess' => 'Item removed from favorites',
-			'favorite.removeItemFailed' => 'Failed to remove item from favorites',
-			'favorite.localizeFavorite' => 'Local Favorite',
-			'favorite.editFolderTitle' => 'Edit Folder',
-			'favorite.editFolderSuccess' => 'Folder updated successfully',
-			'favorite.editFolderFailed' => 'Failed to update folder',
-			'favorite.searchTags' => 'Search tags',
-			'translation.currentService' => 'Current Service',
-			'translation.testConnection' => 'Test Connection',
-			'translation.testConnectionSuccess' => 'Test connection success',
-			'translation.testConnectionFailed' => 'Test connection failed',
-			'translation.testConnectionFailedWithMessage' => ({required Object message}) => 'Test connection failed: ${message}',
-			'translation.translation' => 'Translation',
-			'translation.needVerification' => 'Need Verification',
-			'translation.needVerificationContent' => 'Please test the connection first before enabling AI translation',
-			'translation.confirm' => 'Confirm',
-			'translation.disclaimer' => 'Disclaimer',
-			'translation.riskWarning' => 'Risk Warning',
-			'translation.dureToRisk1' => 'Due to the text being generated by users, it may contain content that violates the content policy of the AI service provider',
-			'translation.dureToRisk2' => 'Inappropriate content may lead to API key suspension or service termination',
-			'translation.operationSuggestion' => 'Operation Suggestion',
-			'translation.operationSuggestion1' => '1. Use before strictly reviewing the content to be translated',
-			'translation.operationSuggestion2' => '2. Avoid translating content involving violence, adult content, etc.',
-			'translation.apiConfig' => 'API Config',
-			'translation.modifyConfigWillAutoCloseAITranslation' => 'Modify configuration will automatically close AI translation, need to test again after opening',
-			'translation.apiAddress' => 'API Address',
-			'translation.modelName' => 'Model Name',
-			'translation.modelNameHintText' => 'For example: gpt-4-turbo',
-			'translation.maxTokens' => 'Max Tokens',
-			'translation.maxTokensHintText' => 'For example: 32000',
-			'translation.temperature' => 'Temperature',
-			'translation.temperatureHintText' => '0.0-2.0',
-			'translation.clickTestButtonToVerifyAPIConnection' => 'Click test button to verify API connection validity',
-			'translation.requestPreview' => 'Request Preview',
-			'translation.enableAITranslation' => 'Enable AI',
-			'translation.enabled' => 'Enabled',
-			'translation.disabled' => 'Disabled',
-			'translation.testing' => 'Testing...',
-			'translation.testNow' => 'Test Now',
-			'translation.connectionStatus' => 'Connection Status',
-			'translation.success' => 'Success',
-			'translation.failed' => 'Failed',
-			'translation.information' => 'Information',
-			'translation.viewRawResponse' => 'View Raw Response',
-			'translation.pleaseCheckInputParametersFormat' => 'Please check input parameters format',
-			'translation.pleaseFillInAPIAddressModelNameAndKey' => 'Please fill in API address, model name and key',
-			'translation.pleaseFillInValidConfigurationParameters' => 'Please fill in valid configuration parameters',
-			'translation.pleaseCompleteConnectionTest' => 'Please complete connection test',
-			'translation.notConfigured' => 'Not Configured',
-			'translation.apiEndpoint' => 'API Endpoint',
-			'translation.configuredKey' => 'Configured Key',
-			'translation.notConfiguredKey' => 'Not Configured Key',
-			'translation.authenticationStatus' => 'Authentication Status',
-			'translation.thisFieldCannotBeEmpty' => 'This field cannot be empty',
-			'translation.apiKey' => 'API Key',
-			'translation.apiKeyCannotBeEmpty' => 'API key cannot be empty',
-			'translation.pleaseEnterValidNumber' => 'Please enter valid number',
-			'translation.range' => 'Range',
-			'translation.mustBeGreaterThan' => 'Must be greater than',
-			'translation.invalidAPIResponse' => 'Invalid API response',
-			'translation.connectionFailedForMessage' => ({required Object message}) => 'Connection failed: ${message}',
-			'translation.aiTranslationNotEnabledHint' => 'AI translation is not enabled, please enable it in settings',
-			'translation.goToSettings' => 'Go to Settings',
-			'translation.disableAITranslation' => 'Disable AI Translation',
-			'translation.currentValue' => 'Current Value',
-			'translation.configureTranslationStrategy' => 'Configure Translation Strategy',
-			'translation.advancedSettings' => 'Advanced Settings',
-			'translation.translationPrompt' => 'Translation Prompt',
-			'translation.promptHint' => 'Please enter translation prompt, use [TL] as the placeholder for the target language',
-			'translation.promptHelperText' => 'The prompt must contain [TL] as the placeholder for the target language',
-			'translation.promptMustContainTargetLang' => 'The prompt must contain [TL] placeholder',
-			'translation.aiTranslationWillBeDisabled' => 'AI translation will be disabled',
-			'translation.aiTranslationWillBeDisabledDueToConfigChange' => 'Due to the change of basic configuration, AI translation will be disabled',
-			'translation.aiTranslationWillBeDisabledDueToPromptChange' => 'Due to the change of translation prompt, AI translation will be disabled',
-			'translation.aiTranslationWillBeDisabledDueToParamChange' => 'Due to the change of parameter configuration, AI translation will be disabled',
-			'translation.onlyOpenAIAPISupported' => 'Currently only supports OpenAI-compatible API format (application/json request body)',
-			'translation.streamingTranslation' => 'Streaming Translation',
-			'translation.streamingTranslationSupported' => 'Streaming Translation Supported',
-			'translation.streamingTranslationNotSupported' => 'Streaming Translation Not Supported',
-			'translation.streamingTranslationDescription' => 'Streaming translation can display results in real-time during the translation process, providing a better user experience',
-			'translation.usingFullUrlWithHash' => 'Using full URL (ending with #)',
-			'translation.baseUrlInputHelperText' => 'When ending with #, it will be used as the actual request address',
-			'translation.currentActualUrl' => ({required Object url}) => 'Current actual URL: ${url}',
-			'translation.urlEndingWithHashTip' => 'URL ending with # will be used directly without adding any suffix',
-			'translation.streamingTranslationWarning' => 'Note: This feature requires API service support for streaming transmission, some models may not support it',
-			'translation.translationService' => 'Translation Service',
-			'translation.translationServiceDescription' => 'Select your preferred translation service',
-			'translation.googleTranslation' => 'Google Translation',
-			'translation.googleTranslationDescription' => 'Free online translation service supporting multiple languages',
-			'translation.aiTranslation' => 'AI Translation',
-			'translation.aiTranslationDescription' => 'Intelligent translation service based on large language models',
-			'translation.deeplxTranslation' => 'DeepLX Translation',
-			'translation.deeplxTranslationDescription' => 'Open source implementation of DeepL translation, providing high-quality translation',
-			'translation.googleTranslationFeatures' => 'Features',
-			'translation.freeToUse' => 'Free to use',
-			'translation.freeToUseDescription' => 'No configuration required, ready to use',
-			'translation.fastResponse' => 'Fast response',
-			'translation.fastResponseDescription' => 'Fast translation speed with low latency',
-			'translation.stableAndReliable' => 'Stable and reliable',
-			'translation.stableAndReliableDescription' => 'Based on Google official API',
-			'translation.enabledDefaultService' => 'Enabled - Default translation service',
-			'translation.notEnabled' => 'Not enabled',
-			'translation.deeplxTranslationService' => 'DeepLX Translation Service',
-			'translation.deeplxDescription' => 'DeepLX is an open source implementation of DeepL translation, supporting Free, Pro and Official endpoint modes',
-			'translation.serverAddress' => 'Server Address',
-			'translation.serverAddressHint' => 'https://api.deeplx.org',
-			'translation.serverAddressHelperText' => 'Base address of DeepLX server',
-			'translation.endpointType' => 'Endpoint Type',
-			'translation.freeEndpoint' => 'Free - Free endpoint, may have rate limits',
-			'translation.proEndpoint' => 'Pro - Requires dl_session, more stable',
-			'translation.officialEndpoint' => 'Official - Official API format',
-			'translation.finalRequestUrl' => 'Final Request URL',
-			'translation.apiKeyOptional' => 'API Key (Optional)',
-			'translation.apiKeyOptionalHint' => 'For accessing protected DeepLX services',
-			'translation.apiKeyOptionalHelperText' => 'Some DeepLX services require API Key for authentication',
-			'translation.dlSession' => 'DL Session',
-			'translation.dlSessionHint' => 'dl_session parameter required for Pro mode',
-			'translation.dlSessionHelperText' => 'Session parameter required for Pro endpoint, obtained from DeepL Pro account',
-			'translation.proModeRequiresDlSession' => 'Pro mode requires dl_session',
-			'translation.clickTestButtonToVerifyDeepLXAPI' => 'Click test button to verify DeepLX API connection',
-			'translation.enableDeepLXTranslation' => 'Enable DeepLX Translation',
-			'translation.deepLXTranslationWillBeDisabled' => 'DeepLX translation will be disabled due to configuration changes',
-			'translation.translatedResult' => 'Translated Result',
-			'translation.testSuccess' => 'Test successful',
-			'translation.pleaseFillInDeepLXServerAddress' => 'Please fill in DeepLX server address',
-			'translation.invalidAPIResponseFormat' => 'Invalid API response format',
-			'translation.translationServiceReturnedError' => 'Translation service returned error or empty result',
-			'translation.connectionFailed' => 'Connection failed',
-			'translation.translationFailed' => 'Translation failed',
-			'translation.aiTranslationFailed' => 'AI translation failed',
-			'translation.deeplxTranslationFailed' => 'DeepLX translation failed',
-			'translation.aiTranslationTestFailed' => 'AI translation test failed',
-			'translation.deeplxTranslationTestFailed' => 'DeepLX translation test failed',
-			'translation.streamingTranslationTimeout' => 'Streaming translation timeout, forcing resource cleanup',
-			'translation.translationRequestTimeout' => 'Translation request timeout',
-			'translation.streamingTranslationDataTimeout' => 'Streaming translation data reception timeout',
-			'translation.dataReceptionTimeout' => 'Data reception timeout',
-			'translation.streamDataParseError' => 'Error parsing stream data',
-			'translation.streamingTranslationFailed' => 'Streaming translation failed',
-			'translation.fallbackTranslationFailed' => 'Fallback to normal translation also failed',
-			'translation.translationSettings' => 'Translation Settings',
-			'translation.enableGoogleTranslation' => 'Enable Google Translation',
-			'navigationOrderSettings.title' => 'Navigation Order Settings',
-			'navigationOrderSettings.customNavigationOrder' => 'Custom Navigation Order',
-			'navigationOrderSettings.customNavigationOrderDesc' => 'Drag to adjust the display order of pages in the bottom navigation bar and sidebar',
-			'navigationOrderSettings.restartRequired' => 'Restart app required',
-			'navigationOrderSettings.navigationItemSorting' => 'Navigation Item Sorting',
-			'navigationOrderSettings.done' => 'Done',
-			'navigationOrderSettings.edit' => 'Edit',
-			'navigationOrderSettings.reset' => 'Reset',
-			'navigationOrderSettings.previewEffect' => 'Preview Effect',
-			'navigationOrderSettings.bottomNavigationPreview' => 'Bottom Navigation Preview:',
-			'navigationOrderSettings.sidebarPreview' => 'Sidebar Preview:',
-			'navigationOrderSettings.confirmResetNavigationOrder' => 'Confirm Reset Navigation Order',
-			'navigationOrderSettings.confirmResetNavigationOrderDesc' => 'Are you sure you want to reset the navigation order to default settings?',
-			'navigationOrderSettings.cancel' => 'Cancel',
-			'navigationOrderSettings.videoDescription' => 'Browse popular video content',
-			'navigationOrderSettings.galleryDescription' => 'Browse images and galleries',
-			'navigationOrderSettings.subscriptionDescription' => 'View latest content from followed users',
-			'navigationOrderSettings.forumDescription' => 'Participate in community discussions',
-			'displaySettings.title' => 'Display Settings',
-			'displaySettings.layoutSettings' => 'Layout Settings',
-			'displaySettings.layoutSettingsDesc' => 'Customize column count and breakpoint configuration',
-			'displaySettings.gridLayout' => 'Grid Layout',
-			'displaySettings.navigationOrderSettings' => 'Navigation Order Settings',
-			'displaySettings.customNavigationOrder' => 'Custom Navigation Order',
-			'displaySettings.customNavigationOrderDesc' => 'Adjust the display order of pages in the bottom navigation bar and sidebar',
-			'layoutSettings.title' => 'Layout Settings',
-			'layoutSettings.descriptionTitle' => 'Layout Configuration Description',
-			'layoutSettings.descriptionContent' => 'The configuration here will determine the number of columns displayed in video and gallery list pages. You can choose auto mode to let the system automatically adjust based on screen width, or choose manual mode to fix the column count.',
-			'layoutSettings.layoutMode' => 'Layout Mode',
-			'layoutSettings.reset' => 'Reset',
-			'layoutSettings.autoMode' => 'Auto Mode',
-			'layoutSettings.autoModeDesc' => 'Automatically adjust based on screen width',
-			'layoutSettings.manualMode' => 'Manual Mode',
-			'layoutSettings.manualModeDesc' => 'Use fixed column count',
-			'layoutSettings.manualSettings' => 'Manual Settings',
-			'layoutSettings.fixedColumns' => 'Fixed Columns',
-			'layoutSettings.columns' => 'columns',
-			'layoutSettings.breakpointConfig' => 'Breakpoint Configuration',
-			'layoutSettings.add' => 'Add',
-			'layoutSettings.defaultColumns' => 'Default Columns',
-			'layoutSettings.defaultColumnsDesc' => 'Default display for large screens',
-			'layoutSettings.previewEffect' => 'Preview Effect',
-			'layoutSettings.screenWidth' => 'Screen Width',
-			'layoutSettings.addBreakpoint' => 'Add Breakpoint',
-			'layoutSettings.editBreakpoint' => 'Edit Breakpoint',
-			'layoutSettings.deleteBreakpoint' => 'Delete Breakpoint',
-			'layoutSettings.screenWidthLabel' => 'Screen Width',
-			'layoutSettings.screenWidthHint' => '600',
-			'layoutSettings.columnsLabel' => 'Columns',
-			'layoutSettings.columnsHint' => '3',
-			'layoutSettings.enterWidth' => 'Please enter width',
-			'layoutSettings.enterValidWidth' => 'Please enter valid width',
-			'layoutSettings.widthCannotExceed9999' => 'Width cannot exceed 9999',
-			'layoutSettings.breakpointAlreadyExists' => 'Breakpoint already exists',
-			'layoutSettings.enterColumns' => 'Please enter columns',
-			'layoutSettings.enterValidColumns' => 'Please enter valid columns',
-			'layoutSettings.columnsCannotExceed12' => 'Columns cannot exceed 12',
-			'layoutSettings.breakpointConflict' => 'Breakpoint already exists',
-			'layoutSettings.confirmResetLayoutSettings' => 'Reset Layout Settings',
-			'layoutSettings.confirmResetLayoutSettingsDesc' => 'Are you sure you want to reset all layout settings to default values?\n\nWill restore to:\n• Auto mode\n• Default breakpoint configuration',
-			'layoutSettings.resetToDefaults' => 'Reset to Defaults',
-			'layoutSettings.confirmDeleteBreakpoint' => 'Delete Breakpoint',
-			'layoutSettings.confirmDeleteBreakpointDesc' => ({required Object width}) => 'Are you sure you want to delete the ${width}px breakpoint?',
-			'layoutSettings.noCustomBreakpoints' => 'No custom breakpoints, using default columns',
-			'layoutSettings.breakpointRange' => 'Breakpoint Range',
-			'layoutSettings.breakpointRangeDesc' => ({required Object range}) => '${range}px',
-			'layoutSettings.breakpointRangeDescFirst' => ({required Object width}) => '≤${width}px',
-			'layoutSettings.breakpointRangeDescMiddle' => ({required Object start, required Object end}) => '${start}-${end}px',
-			'layoutSettings.edit' => 'Edit',
-			'layoutSettings.delete' => 'Delete',
-			'layoutSettings.cancel' => 'Cancel',
-			'layoutSettings.save' => 'Save',
-			'mediaPlayer.videoPlayerError' => 'Video Player Error',
-			'mediaPlayer.videoLoadFailed' => 'Video Load Failed',
-			'mediaPlayer.videoCodecNotSupported' => 'Video Codec Not Supported',
-			'mediaPlayer.networkConnectionIssue' => 'Network Connection Issue',
-			'mediaPlayer.insufficientPermission' => 'Insufficient Permission',
-			'mediaPlayer.unsupportedVideoFormat' => 'Unsupported Video Format',
-			'mediaPlayer.retry' => 'Retry',
-			'mediaPlayer.externalPlayer' => 'External Player',
-			'mediaPlayer.detailedErrorInfo' => 'Detailed Error Information',
-			'mediaPlayer.format' => 'Format',
-			'mediaPlayer.suggestion' => 'Suggestion',
-			'mediaPlayer.androidWebmCompatibilityIssue' => 'Android devices have limited support for WEBM format. It is recommended to use an external player or download a player app that supports WEBM',
-			'mediaPlayer.currentDeviceCodecNotSupported' => 'Current device does not support the codec for this video format',
-			'mediaPlayer.checkNetworkConnection' => 'Please check your network connection and try again',
-			'mediaPlayer.appMayLackMediaPermission' => 'The app may lack necessary media playback permissions',
-			'mediaPlayer.tryOtherVideoPlayer' => 'Please try using other video players',
-			'mediaPlayer.video' => 'VIDEO',
-			'mediaPlayer.retryingOpenVideoLink' => 'Video link open failed, retrying',
-			'mediaPlayer.decoderOpenFailedWithSuggestion' => ({required Object event}) => 'Unable to load decoder: ${event}. Try switching to software decoding in player settings and re-enter the page',
-			'mediaPlayer.videoLoadErrorWithDetail' => ({required Object event}) => 'Video load error: ${event}',
-			'mediaPlayer.imageLoadFailed' => 'Image Load Failed',
-			'mediaPlayer.unsupportedImageFormat' => 'Unsupported Image Format',
-			'mediaPlayer.tryOtherViewer' => 'Please try using other viewers',
-			'linkInputDialog.title' => 'Input Link',
-			'linkInputDialog.supportedLinksHint' => ({required Object webName}) => 'Support intelligently identify multiple ${webName} links and quickly jump to the corresponding page in the app (separate links from other text with spaces)',
-			'linkInputDialog.inputHint' => ({required Object webName}) => 'Please enter ${webName} link',
-			'linkInputDialog.validatorEmptyLink' => 'Please enter link',
-			'linkInputDialog.validatorNoIwaraLink' => ({required Object webName}) => 'No valid ${webName} link detected',
-			'linkInputDialog.multipleLinksDetected' => 'Multiple links detected, please select one:',
-			'linkInputDialog.notIwaraLink' => ({required Object webName}) => 'Not a valid ${webName} link',
-			'linkInputDialog.linkParseError' => ({required Object error}) => 'Link parsing error: ${error}',
-			'linkInputDialog.unsupportedLinkDialogTitle' => 'Unsupported Link',
-			'linkInputDialog.unsupportedLinkDialogContent' => 'This link type cannot be opened directly in the app and needs to be accessed using an external browser.\n\nDo you want to open this link in a browser?',
-			'linkInputDialog.openInBrowser' => 'Open in Browser',
-			'linkInputDialog.confirmOpenBrowserDialogTitle' => 'Confirm Open Browser',
-			'linkInputDialog.confirmOpenBrowserDialogContent' => 'The following link is about to be opened in an external browser:',
-			'linkInputDialog.confirmContinueBrowserOpen' => 'Are you sure you want to continue?',
-			'linkInputDialog.browserOpenFailed' => 'Failed to open link',
-			'linkInputDialog.unsupportedLink' => 'Unsupported Link',
-			'linkInputDialog.cancel' => 'Cancel',
-			'linkInputDialog.confirm' => 'Open in Browser',
-			'log.logManagement' => 'Log Management',
-			'log.enableLogPersistence' => 'Enable Log Persistence',
-			'log.enableLogPersistenceDesc' => 'Save logs to the database for analysis',
-			'log.logDatabaseSizeLimit' => 'Log Database Size Limit',
-			'log.logDatabaseSizeLimitDesc' => ({required Object size}) => 'Current: ${size}',
-			'log.exportCurrentLogs' => 'Export Current Logs',
-			'log.exportCurrentLogsDesc' => 'Export the current application logs to help developers diagnose problems',
-			'log.exportHistoryLogs' => 'Export History Logs',
-			'log.exportHistoryLogsDesc' => 'Export logs within a specified date range',
-			'log.exportMergedLogs' => 'Export Merged Logs',
-			'log.exportMergedLogsDesc' => 'Export merged logs within a specified date range',
-			'log.showLogStats' => 'Show Log Stats',
-			'log.logExportSuccess' => 'Log export success',
-			'log.logExportFailed' => ({required Object error}) => 'Log export failed: ${error}',
-			'log.showLogStatsDesc' => 'View statistics of various types of logs',
-			'log.logExtractFailed' => ({required Object error}) => 'Failed to get log statistics: ${error}',
-			'log.clearAllLogs' => 'Clear All Logs',
-			'log.clearAllLogsDesc' => 'Clear all log data',
-			'log.confirmClearAllLogs' => 'Confirm Clear',
-			'log.confirmClearAllLogsDesc' => 'Are you sure you want to clear all log data? This operation cannot be undone.',
-			'log.clearAllLogsSuccess' => 'Log cleared successfully',
-			'log.clearAllLogsFailed' => ({required Object error}) => 'Failed to clear logs: ${error}',
-			'log.unableToGetLogSizeInfo' => 'Unable to get log size information',
-			'log.currentLogSize' => 'Current Log Size:',
-			'log.logCount' => 'Log Count:',
-			'log.logCountUnit' => 'logs',
-			'log.logSizeLimit' => 'Log Size Limit:',
-			'log.usageRate' => 'Usage Rate:',
-			'log.exceedLimit' => 'Exceed Limit',
-			'log.remaining' => 'Remaining',
-			'log.currentLogSizeExceededPleaseCleanOldLogsOrIncreaseLogSizeLimit' => 'Current log size exceeded, please clean old logs or increase log size limit',
-			'log.currentLogSizeAlmostExceededPleaseCleanOldLogs' => 'Current log size almost exceeded, please clean old logs',
-			'log.cleaningOldLogs' => 'Cleaning old logs...',
-			'log.logCleaningCompleted' => 'Log cleaning completed',
-			'log.logCleaningProcessMayNotBeCompleted' => 'Log cleaning process may not be completed',
-			'log.cleanExceededLogs' => 'Clean exceeded logs',
-			'log.noLogsToExport' => 'No logs to export',
-			'log.exportingLogs' => 'Exporting logs...',
-			'log.noHistoryLogsToExport' => 'No history logs to export, please try using the app for a while first',
-			'log.selectLogDate' => 'Select Log Date',
-			'log.today' => 'Today',
-			'log.selectMergeRange' => 'Select Merge Range',
-			'log.selectMergeRangeHint' => 'Please select the log time range to merge',
-			'log.selectMergeRangeDays' => ({required Object days}) => 'Recent ${days} days',
-			'log.logStats' => 'Log Stats',
-			'log.todayLogs' => ({required Object count}) => 'Today Logs: ${count} logs',
-			'log.recent7DaysLogs' => ({required Object count}) => 'Recent 7 Days Logs: ${count} logs',
-			'log.totalLogs' => ({required Object count}) => 'Total Logs: ${count} logs',
-			'log.setLogDatabaseSizeLimit' => 'Set Log Database Size Limit',
-			'log.currentLogSizeWithSize' => ({required Object size}) => 'Current Log Size: ${size}',
-			'log.warning' => 'Warning',
-			'log.newSizeLimit' => ({required Object size}) => 'New size limit: ${size}',
-			'log.confirmToContinue' => 'Confirm to continue',
-			'log.logSizeLimitSetSuccess' => ({required Object size}) => 'Log size limit set to ${size}',
-			'emoji.name' => 'Emoji',
-			'emoji.size' => 'Size',
-			'emoji.small' => 'Small',
-			'emoji.medium' => 'Medium',
-			'emoji.large' => 'Large',
-			'emoji.extraLarge' => 'Extra Large',
-			'emoji.copyEmojiLinkSuccess' => 'Emoji link copied',
-			'emoji.preview' => 'Emoji Preview',
-			'emoji.library' => 'Emoji Library',
-			'emoji.noEmojis' => 'No emojis',
-			'emoji.clickToAddEmojis' => 'Click the button in the top right to add emojis',
-			'emoji.addEmojis' => 'Add Emojis',
-			'emoji.imagePreview' => 'Image Preview',
-			'emoji.imageLoadFailed' => 'Image load failed',
-			'emoji.loading' => 'Loading...',
-			'emoji.delete' => 'Delete',
-			'emoji.close' => 'Close',
-			'emoji.deleteImage' => 'Delete Image',
-			'emoji.confirmDeleteImage' => 'Are you sure you want to delete this image?',
-			_ => null,
-		};
-	}
-
-	dynamic _flatMapFunction$3(String path) {
-		return switch (path) {
-			'emoji.cancel' => 'Cancel',
-			'emoji.batchDelete' => 'Batch Delete',
-			'emoji.confirmBatchDelete' => ({required Object count}) => 'Are you sure you want to delete the selected ${count} images? This operation cannot be undone.',
-			'emoji.deleteSuccess' => 'Successfully deleted',
-			'emoji.addImage' => 'Add Image',
-			'emoji.addImageByUrl' => 'Add by URL',
-			'emoji.addImageUrl' => 'Add Image URL',
-			'emoji.imageUrl' => 'Image URL',
-			'emoji.enterImageUrl' => 'Please enter image URL',
-			'emoji.add' => 'Add',
-			'emoji.batchImport' => 'Batch Import',
-			'emoji.enterJsonUrlArray' => 'Please enter JSON format URL array:',
-			'emoji.formatExample' => 'Format example:\n["url1", "url2", "url3"]',
-			'emoji.pasteJsonUrlArray' => 'Please paste JSON format URL array',
-			'emoji.import' => 'Import',
-			'emoji.importSuccess' => ({required Object count}) => 'Successfully imported ${count} images',
-			'emoji.jsonFormatError' => 'JSON format error, please check input',
-			'emoji.createGroup' => 'Create Emoji Group',
-			'emoji.groupName' => 'Group Name',
-			'emoji.enterGroupName' => 'Please enter group name',
-			'emoji.create' => 'Create',
-			'emoji.editGroupName' => 'Edit Group Name',
-			'emoji.save' => 'Save',
-			'emoji.deleteGroup' => 'Delete Group',
-			'emoji.confirmDeleteGroup' => 'Are you sure you want to delete this emoji group? All images in the group will also be deleted.',
-			'emoji.imageCount' => ({required Object count}) => '${count} images',
-			'emoji.selectEmoji' => 'Select Emoji',
-			'emoji.noEmojisInGroup' => 'No emojis in this group',
-			'emoji.goToSettingsToAddEmojis' => 'Go to settings to add emojis',
-			'emoji.emojiManagement' => 'Emoji Management',
-			'emoji.manageEmojiGroupsAndImages' => 'Manage emoji groups and images',
-			'emoji.uploadLocalImages' => 'Upload Local Images',
-			'emoji.uploadingImages' => 'Uploading Images',
-			'emoji.uploadingImagesProgress' => ({required Object count}) => 'Uploading ${count} images, please wait...',
-			'emoji.doNotCloseDialog' => 'Please do not close this dialog',
-			'emoji.uploadSuccess' => ({required Object count}) => 'Successfully uploaded ${count} images',
-			'emoji.uploadFailed' => ({required Object count}) => 'Failed ${count}',
-			'emoji.uploadFailedMessage' => 'Image upload failed, please check network connection or file format',
-			'emoji.uploadErrorMessage' => ({required Object error}) => 'Error occurred during upload: ${error}',
-			'searchFilter.selectField' => 'Select Field',
-			'searchFilter.add' => 'Add',
-			'searchFilter.clear' => 'Clear',
-			'searchFilter.clearAll' => 'Clear All',
-			'searchFilter.generatedQuery' => 'Generated Query',
-			'searchFilter.copyToClipboard' => 'Copy to Clipboard',
-			'searchFilter.copied' => 'Copied',
-			'searchFilter.filterCount' => ({required Object count}) => '${count} filters',
-			'searchFilter.filterSettings' => 'Filter Settings',
-			'searchFilter.field' => 'Field',
-			'searchFilter.operator' => 'Operator',
-			'searchFilter.language' => 'Language',
-			'searchFilter.value' => 'Value',
-			'searchFilter.dateRange' => 'Date Range',
-			'searchFilter.numberRange' => 'Number Range',
-			'searchFilter.from' => 'From',
-			'searchFilter.to' => 'To',
-			'searchFilter.date' => 'Date',
-			'searchFilter.number' => 'Number',
-			'searchFilter.boolean' => 'Boolean',
-			'searchFilter.tags' => 'Tags',
-			'searchFilter.select' => 'Select',
-			'searchFilter.clickToSelectDate' => 'Click to select date',
-			'searchFilter.pleaseEnterValidNumber' => 'Please enter valid number',
-			'searchFilter.pleaseEnterValidDate' => 'Please enter valid date format (YYYY-MM-DD)',
-			'searchFilter.startValueMustBeLessThanEndValue' => 'Start value must be less than end value',
-			'searchFilter.startDateMustBeBeforeEndDate' => 'Start date must be before end date',
-			'searchFilter.pleaseFillStartValue' => 'Please fill start value',
-			'searchFilter.pleaseFillEndValue' => 'Please fill end value',
-			'searchFilter.rangeValueFormatError' => 'Range value format error',
-			'searchFilter.contains' => 'Contains',
-			'searchFilter.equals' => 'Equals',
-			'searchFilter.notEquals' => 'Not Equals',
-			'searchFilter.greaterThan' => '>',
-			'searchFilter.greaterEqual' => '>=',
-			'searchFilter.lessThan' => '<',
-			'searchFilter.lessEqual' => '<=',
-			'searchFilter.range' => 'Range',
-			'searchFilter.kIn' => 'Contains Any',
-			'searchFilter.notIn' => 'Not Contains Any',
-			'searchFilter.username' => 'Username',
-			'searchFilter.nickname' => 'Nickname',
-			'searchFilter.registrationDate' => 'Registration Date',
-			'searchFilter.description' => 'Description',
-			'searchFilter.title' => 'Title',
-			'searchFilter.body' => 'Body',
-			'searchFilter.author' => 'Author',
-			'searchFilter.publishDate' => 'Publish Date',
-			'searchFilter.private' => 'Private',
-			'searchFilter.duration' => 'Duration (seconds)',
-			'searchFilter.likes' => 'Likes',
-			'searchFilter.views' => 'Views',
-			'searchFilter.comments' => 'Comments',
-			'searchFilter.rating' => 'Rating',
-			'searchFilter.imageCount' => 'Image Count',
-			'searchFilter.videoCount' => 'Video Count',
-			'searchFilter.createDate' => 'Create Date',
-			'searchFilter.content' => 'Content',
-			'searchFilter.all' => 'All',
-			'searchFilter.adult' => 'Adult',
-			'searchFilter.general' => 'General',
-			'searchFilter.yes' => 'Yes',
-			'searchFilter.no' => 'No',
-			'searchFilter.users' => 'Users',
-			'searchFilter.videos' => 'Videos',
-			'searchFilter.images' => 'Images',
-			'searchFilter.posts' => 'Posts',
-			'searchFilter.forumThreads' => 'Forum Threads',
-			'searchFilter.forumPosts' => 'Forum Posts',
-			'searchFilter.playlists' => 'Playlists',
-			'searchFilter.sortTypes.relevance' => 'Relevance',
-			'searchFilter.sortTypes.latest' => 'Latest',
-			'searchFilter.sortTypes.views' => 'Views',
-			'searchFilter.sortTypes.likes' => 'Likes',
-			'firstTimeSetup.welcome.title' => 'Welcome',
-			'firstTimeSetup.welcome.subtitle' => 'Let\'s start your personalized setup journey',
-			'firstTimeSetup.welcome.description' => 'Just a few steps to tailor the best experience for you',
-			'firstTimeSetup.basic.title' => 'Basic Settings',
-			'firstTimeSetup.basic.subtitle' => 'Personalize your experience',
-			'firstTimeSetup.basic.description' => 'Choose the preferences that suit you',
-			'firstTimeSetup.network.title' => 'Network Settings',
-			'firstTimeSetup.network.subtitle' => 'Configure network options',
-			'firstTimeSetup.network.description' => 'Adjust based on your network environment',
-			'firstTimeSetup.network.tip' => 'A restart is required after successful configuration to take effect',
-			'firstTimeSetup.theme.title' => 'Theme Settings',
-			'firstTimeSetup.theme.subtitle' => 'Choose your preferred appearance',
-			'firstTimeSetup.theme.description' => 'Personalize your visual experience',
-			'firstTimeSetup.player.title' => 'Player Settings',
-			'firstTimeSetup.player.subtitle' => 'Configure playback controls',
-			'firstTimeSetup.player.description' => 'Quickly set commonly used playback preferences',
-			'firstTimeSetup.completion.title' => 'Complete Setup',
-			'firstTimeSetup.completion.subtitle' => 'You\'re ready to start your journey',
-			'firstTimeSetup.completion.description' => 'Please read and agree to the related agreements',
-			'firstTimeSetup.completion.agreementTitle' => 'User Agreement and Community Rules',
-			'firstTimeSetup.completion.agreementDesc' => 'Before using this app, please carefully read and agree to our user agreement and community rules. These terms help maintain a good environment.',
-			'firstTimeSetup.completion.checkboxTitle' => 'I have read and agree to the user agreement and community rules',
-			'firstTimeSetup.completion.checkboxSubtitle' => 'You cannot use the app if you disagree',
-			'firstTimeSetup.common.settingsChangeableTip' => 'These settings can be changed anytime in Settings',
-			'firstTimeSetup.common.agreeAgreementSnackbar' => 'Please agree to the user agreement and community rules first',
-			'proxyHelper.systemProxyDetected' => 'System proxy detected',
-			'proxyHelper.copied' => 'Copied',
-			'proxyHelper.copy' => 'Copy',
-			'tagSelector.selectTags' => 'Select Tags',
-			'tagSelector.clickToSelectTags' => 'Click to select tags',
-			'tagSelector.addTag' => 'Add Tag',
-			'tagSelector.removeTag' => 'Remove Tag',
-			'tagSelector.deleteTag' => 'Delete Tag',
-			'tagSelector.usageInstructions' => 'First add tags, then click to select from existing tags',
-			'tagSelector.usageInstructionsTooltip' => 'Usage Instructions',
-			'tagSelector.addTagTooltip' => 'Add Tag',
-			'tagSelector.removeTagTooltip' => 'Remove Tag',
-			'tagSelector.cancelSelection' => 'Cancel Selection',
-			'tagSelector.selectAll' => 'Select All',
-			'tagSelector.cancelSelectAll' => 'Cancel Select All',
-			'tagSelector.delete' => 'Delete',
-			'anime4k.realTimeVideoUpscalingAndDenoising' => 'Real-time video upscaling and denoising, improving animation video quality',
-			'anime4k.settings' => 'Anime4K Settings',
-			'anime4k.preset' => 'Anime4K Preset',
-			'anime4k.disable' => 'Disable Anime4K',
-			'anime4k.disableDescription' => 'Disable video enhancement effects',
-			'anime4k.highQualityPresets' => 'High Quality Presets',
-			'anime4k.fastPresets' => 'Fast Presets',
-			'anime4k.litePresets' => 'Lightweight Presets',
-			'anime4k.moreLitePresets' => 'More Lightweight Presets',
-			'anime4k.customPresets' => 'Custom Presets',
-			'anime4k.presetGroups.highQuality' => 'High Quality',
-			'anime4k.presetGroups.fast' => 'Fast',
-			'anime4k.presetGroups.lite' => 'Lite',
-			'anime4k.presetGroups.moreLite' => 'More Lite',
-			'anime4k.presetGroups.custom' => 'Custom',
-			'anime4k.presetDescriptions.mode_a_hq' => 'Suitable for most 1080p animations, especially those dealing with blur, resampling and compression artifacts. Provides the highest perceived quality.',
-			'anime4k.presetDescriptions.mode_b_hq' => 'Suitable for animations with slight blur or ringing effects caused by scaling. Can effectively reduce ringing and aliasing.',
-			'anime4k.presetDescriptions.mode_c_hq' => 'Suitable for high-quality sources (such as native 1080p animations or movies). Denoises and provides the highest PSNR.',
-			'anime4k.presetDescriptions.mode_a_a_hq' => 'Enhanced version of Mode A, providing ultimate perceived quality and can reconstruct almost all degraded lines. May produce oversharpening or ringing.',
-			'anime4k.presetDescriptions.mode_b_b_hq' => 'Enhanced version of Mode B, providing higher perceived quality, further optimizing lines and reducing artifacts.',
-			'anime4k.presetDescriptions.mode_c_a_hq' => 'Perceived quality enhanced version of Mode C, maintaining high PSNR while attempting to reconstruct some line details.',
-			'anime4k.presetDescriptions.mode_a_fast' => 'Fast version of Mode A, balancing quality and performance, suitable for most 1080p animations.',
-			'anime4k.presetDescriptions.mode_b_fast' => 'Fast version of Mode B, for handling slight artifacts and ringing with lower overhead.',
-			'anime4k.presetDescriptions.mode_c_fast' => 'Fast version of Mode C, for fast denoising and upscaling of high-quality sources.',
-			'anime4k.presetDescriptions.mode_a_a_fast' => 'Fast version of Mode A+A, pursuing higher perceived quality in performance-constrained devices.',
-			'anime4k.presetDescriptions.mode_b_b_fast' => 'Fast version of Mode B+B, providing enhanced line repair and artifact processing for performance-constrained devices.',
-			'anime4k.presetDescriptions.mode_c_a_fast' => 'Fast version of Mode C+A, performing fast processing of high-quality sources while providing light line repair.',
-			'anime4k.presetDescriptions.upscale_only_s' => 'Ultra-fast x2 upscaling using only the fastest CNN model, no repair and denoising, minimal performance overhead.',
-			'anime4k.presetDescriptions.upscale_deblur_fast' => 'Fast upscaling and deblurring using traditional non-CNN algorithms, better than default player algorithms with very low performance overhead.',
-			'anime4k.presetDescriptions.restore_s_only' => 'Repair only using the fastest CNN model, no upscaling. Suitable for native resolution playback where you want to improve quality.',
-			'anime4k.presetDescriptions.denoise_bilateral_fast' => 'Fast denoising using traditional bilateral filtering, extremely fast, suitable for processing light noise.',
-			'anime4k.presetDescriptions.upscale_non_cnn' => 'Fast upscaling using traditional algorithms, very low performance overhead, better than player defaults.',
-			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (Fast) + Line darkening, adding line darkening effects on top of fast mode A for more prominent, stylized lines.',
-			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + Line thinning, adding line thinning effects on top of high quality mode A for more refined appearance.',
-			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
-			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
-			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
-			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
-			'anime4k.presetNames.mode_b_b_hq' => 'Mode B+B (HQ)',
-			'anime4k.presetNames.mode_c_a_hq' => 'Mode C+A (HQ)',
-			'anime4k.presetNames.mode_a_fast' => 'Mode A (Fast)',
-			'anime4k.presetNames.mode_b_fast' => 'Mode B (Fast)',
-			'anime4k.presetNames.mode_c_fast' => 'Mode C (Fast)',
-			'anime4k.presetNames.mode_a_a_fast' => 'Mode A+A (Fast)',
-			'anime4k.presetNames.mode_b_b_fast' => 'Mode B+B (Fast)',
-			'anime4k.presetNames.mode_c_a_fast' => 'Mode C+A (Fast)',
-			'anime4k.presetNames.upscale_only_s' => 'CNN Upscaling (Ultra Fast)',
-			'anime4k.presetNames.upscale_deblur_fast' => 'Upscaling & Deblurring (Fast)',
-			'anime4k.presetNames.restore_s_only' => 'Restoration (Ultra Fast)',
-			'anime4k.presetNames.denoise_bilateral_fast' => 'Bilateral Denoising (Ultra Fast)',
-			'anime4k.presetNames.upscale_non_cnn' => 'Non-CNN Upscaling (Ultra Fast)',
-			'anime4k.presetNames.mode_a_fast_darken' => 'Mode A (Fast) + Line Darkening',
-			'anime4k.presetNames.mode_a_hq_thin' => 'Mode A (HQ) + Line Thinning',
-			'anime4k.performanceTip' => '💡 Tip: Choose appropriate presets based on device performance. Low-end devices are recommended to use lightweight presets.',
-			_ => null,
-		};
+		switch (path) {
+			case 'tutorial.specialFollowFeature': return 'Special Follow Feature';
+			case 'tutorial.specialFollowDescription': return 'This shows authors you follow specially. Go to video, gallery, or author detail pages, click the follow button, then select "Add as Special Follow".';
+			case 'tutorial.exampleAuthorInfoRow': return 'Example: Author Info Row';
+			case 'tutorial.authorName': return 'Author Name';
+			case 'tutorial.followed': return 'Followed';
+			case 'tutorial.specialFollowInstruction': return 'Click "Followed" button → Select "Add as Special Follow"';
+			case 'tutorial.followButtonLocations': return 'Follow Button Locations:';
+			case 'tutorial.videoDetailPage': return 'Video Detail Page';
+			case 'tutorial.galleryDetailPage': return 'Gallery Detail Page';
+			case 'tutorial.authorDetailPage': return 'Author Detail Page';
+			case 'tutorial.afterSpecialFollow': return 'After Special Follow, you can quickly view the latest content of the author!';
+			case 'tutorial.specialFollowManagementTip': return 'Special Follow list can be managed in Sidebar - Following List - Special Follow List page';
+			case 'tutorial.skip': return 'Skip';
+			case 'common.appName': return 'Love Iwara';
+			case 'common.ok': return 'OK';
+			case 'common.cancel': return 'Cancel';
+			case 'common.save': return 'Save';
+			case 'common.delete': return 'Delete';
+			case 'common.visit': return 'Visit';
+			case 'common.loading': return 'Loading...';
+			case 'common.scrollToTop': return 'Scroll to Top';
+			case 'common.privacyHint': return 'Privacy content, not displayed';
+			case 'common.latest': return 'Latest';
+			case 'common.likesCount': return 'Likes';
+			case 'common.viewsCount': return 'Views';
+			case 'common.popular': return 'Popular';
+			case 'common.trending': return 'Trending';
+			case 'common.commentList': return 'Comment List';
+			case 'common.sendComment': return 'Send Comment';
+			case 'common.send': return 'Send';
+			case 'common.retry': return 'Retry';
+			case 'common.premium': return 'Premium';
+			case 'common.follower': return 'Follower';
+			case 'common.friend': return 'Friend';
+			case 'common.video': return 'Video';
+			case 'common.following': return 'Following';
+			case 'common.expand': return 'Expand';
+			case 'common.collapse': return 'Collapse';
+			case 'common.cancelFriendRequest': return 'Cancel Request';
+			case 'common.cancelSpecialFollow': return 'Cancel Special Follow';
+			case 'common.addFriend': return 'Add Friend';
+			case 'common.removeFriend': return 'Remove Friend';
+			case 'common.followed': return 'Followed';
+			case 'common.follow': return 'Follow';
+			case 'common.unfollow': return 'Unfollow';
+			case 'common.specialFollow': return 'Special Follow';
+			case 'common.specialFollowed': return 'Special Followed';
+			case 'common.gallery': return 'Gallery';
+			case 'common.playlist': return 'Playlist';
+			case 'common.commentPostedSuccessfully': return 'Comment Posted Successfully';
+			case 'common.commentPostedFailed': return 'Comment Posted Failed';
+			case 'common.success': return 'Success';
+			case 'common.commentDeletedSuccessfully': return 'Comment Deleted Successfully';
+			case 'common.commentUpdatedSuccessfully': return 'Comment Updated Successfully';
+			case 'common.totalComments': return ({required Object count}) => '${count} Comments';
+			case 'common.writeYourCommentHere': return 'Write your comment here...';
+			case 'common.tmpNoReplies': return 'No replies yet';
+			case 'common.loadMore': return 'Load More';
+			case 'common.noMoreDatas': return 'No more data';
+			case 'common.selectTranslationLanguage': return 'Select Translation Language';
+			case 'common.translate': return 'Translate';
+			case 'common.translateFailedPleaseTryAgainLater': return 'Translate failed, please try again later';
+			case 'common.translationResult': return 'Translation Result';
+			case 'common.justNow': return 'Just Now';
+			case 'common.minutesAgo': return ({required Object num}) => '${num} minutes ago';
+			case 'common.hoursAgo': return ({required Object num}) => '${num} hours ago';
+			case 'common.daysAgo': return ({required Object num}) => '${num} days ago';
+			case 'common.editedAt': return ({required Object num}) => '${num} edited';
+			case 'common.editComment': return 'Edit Comment';
+			case 'common.commentUpdated': return 'Comment Updated';
+			case 'common.replyComment': return 'Reply Comment';
+			case 'common.reply': return 'Reply';
+			case 'common.edit': return 'Edit';
+			case 'common.unknownUser': return 'Unknown User';
+			case 'common.me': return 'Me';
+			case 'common.author': return 'Author';
+			case 'common.admin': return 'Admin';
+			case 'common.viewReplies': return ({required Object num}) => 'View Replies (${num})';
+			case 'common.hideReplies': return 'Hide Replies';
+			case 'common.confirmDelete': return 'Confirm Delete';
+			case 'common.areYouSureYouWantToDeleteThisItem': return 'Are you sure you want to delete this item?';
+			case 'common.tmpNoComments': return 'No comments yet';
+			case 'common.refresh': return 'Refresh';
+			case 'common.back': return 'Back';
+			case 'common.tips': return 'Tips';
+			case 'common.linkIsEmpty': return 'Link is empty';
+			case 'common.linkCopiedToClipboard': return 'Link copied to clipboard';
+			case 'common.imageCopiedToClipboard': return 'Image copied to clipboard';
+			case 'common.copyImageFailed': return 'Copy image failed';
+			case 'common.mobileSaveImageIsUnderDevelopment': return 'Mobile save image is under development';
+			case 'common.imageSavedTo': return 'Image saved to';
+			case 'common.saveImageFailed': return 'Save image failed';
+			case 'common.close': return 'Close';
+			case 'common.more': return 'More';
+			case 'common.moreFeaturesToBeDeveloped': return 'More features to be developed';
+			case 'common.all': return 'All';
+			case 'common.selectedRecords': return ({required Object num}) => 'Selected ${num} records';
+			case 'common.cancelSelectAll': return 'Cancel Select All';
+			case 'common.selectAll': return 'Select All';
+			case 'common.exitEditMode': return 'Exit Edit Mode';
+			case 'common.areYouSureYouWantToDeleteSelectedItems': return ({required Object num}) => 'Are you sure you want to delete selected ${num} items?';
+			case 'common.searchHistoryRecords': return 'Search History Records...';
+			case 'common.settings': return 'Settings';
+			case 'common.subscriptions': return 'Subscriptions';
+			case 'common.videoCount': return ({required Object num}) => '${num} videos';
+			case 'common.share': return 'Share';
+			case 'common.areYouSureYouWantToShareThisPlaylist': return 'Are you sure you want to share this playlist?';
+			case 'common.editTitle': return 'Edit Title';
+			case 'common.editMode': return 'Edit Mode';
+			case 'common.pleaseEnterNewTitle': return 'Please enter new title';
+			case 'common.createPlayList': return 'Create Play List';
+			case 'common.create': return 'Create';
+			case 'common.checkNetworkSettings': return 'Check Network Settings';
+			case 'common.general': return 'General';
+			case 'common.r18': return 'R18';
+			case 'common.sensitive': return 'Sensitive';
+			case 'common.year': return 'Year';
+			case 'common.month': return 'Month';
+			case 'common.tag': return 'Tag';
+			case 'common.private': return 'Private';
+			case 'common.noTitle': return 'No Title';
+			case 'common.search': return 'Search';
+			case 'common.noContent': return 'No content';
+			case 'common.recording': return 'Recording';
+			case 'common.paused': return 'Paused';
+			case 'common.clear': return 'Clear';
+			case 'common.user': return 'User';
+			case 'common.post': return 'Post';
+			case 'common.seconds': return 'Seconds';
+			case 'common.comingSoon': return 'Coming Soon';
+			case 'common.confirm': return 'Confirm';
+			case 'common.hour': return 'Hour';
+			case 'common.minute': return 'Minute';
+			case 'common.clickToRefresh': return 'Click to Refresh';
+			case 'common.history': return 'History';
+			case 'common.favorites': return 'Favorites';
+			case 'common.friends': return 'Friends';
+			case 'common.playList': return 'Play List';
+			case 'common.checkLicense': return 'Check License';
+			case 'common.logout': return 'Logout';
+			case 'common.fensi': return 'Fans';
+			case 'common.accept': return 'Accept';
+			case 'common.reject': return 'Reject';
+			case 'common.clearAllHistory': return 'Clear All History';
+			case 'common.clearAllHistoryConfirm': return 'Are you sure you want to clear all history?';
+			case 'common.followingList': return 'Following List';
+			case 'common.followersList': return 'Followers List';
+			case 'common.follows': return 'Follows';
+			case 'common.fans': return 'Fans';
+			case 'common.followsAndFans': return 'Follows and Fans';
+			case 'common.numViews': return 'Views';
+			case 'common.updatedAt': return 'Updated At';
+			case 'common.publishedAt': return 'Published At';
+			case 'common.externalVideo': return 'External Video';
+			case 'common.originalText': return 'Original Text';
+			case 'common.showOriginalText': return 'Show Original Text';
+			case 'common.showProcessedText': return 'Show Processed Text';
+			case 'common.preview': return 'Preview';
+			case 'common.rules': return 'Rules';
+			case 'common.agree': return 'Agree';
+			case 'common.disagree': return 'Disagree';
+			case 'common.agreeToRules': return 'Agree to Rules';
+			case 'common.markdownSyntaxHelp': return 'Markdown Syntax Help';
+			case 'common.previewContent': return 'Preview Content';
+			case 'common.characterCount': return ({required Object current, required Object max}) => '${current}/${max}';
+			case 'common.exceedsMaxLengthLimit': return ({required Object max}) => 'Exceeds max length limit (${max})';
+			case 'common.agreeToCommunityRules': return 'Agree to Community Rules';
+			case 'common.createPost': return 'Create Post';
+			case 'common.title': return 'Title';
+			case 'common.enterTitle': return 'Please enter title';
+			case 'common.content': return 'Content';
+			case 'common.enterContent': return 'Please enter content';
+			case 'common.writeYourContentHere': return 'Please enter content...';
+			case 'common.tagBlacklist': return 'Tag Blacklist';
+			case 'common.noData': return 'No data';
+			case 'common.tagLimit': return 'Tag Limit';
+			case 'common.enableFloatingButtons': return 'Enable Floating Buttons';
+			case 'common.disableFloatingButtons': return 'Disable Floating Buttons';
+			case 'common.enabledFloatingButtons': return 'Enabled Floating Buttons';
+			case 'common.disabledFloatingButtons': return 'Disabled Floating Buttons';
+			case 'common.pendingCommentCount': return 'Pending Comment Count';
+			case 'common.joined': return ({required Object str}) => 'Joined at ${str}';
+			case 'common.download': return 'Download';
+			case 'common.selectQuality': return 'Select Quality';
+			case 'common.selectDateRange': return 'Select Date Range';
+			case 'common.selectDateRangeHint': return 'Select date range, default is recent 30 days';
+			case 'common.clearDateRange': return 'Clear Date Range';
+			case 'common.followSuccessClickAgainToSpecialFollow': return 'Followed successfully, click again to special follow';
+			case 'common.exitConfirmTip': return 'Are you sure you want to exit?';
+			case 'common.error': return 'Error';
+			case 'common.taskRunning': return 'A task is already running, please wait.';
+			case 'common.operationCancelled': return 'Operation cancelled.';
+			case 'common.unsavedChanges': return 'You have unsaved changes';
+			case 'common.specialFollowsManagementTip': return 'Drag to reorder • Swipe left to remove';
+			case 'common.specialFollowsManagement': return 'Special Follows Management';
+			case 'common.createTimeDesc': return 'Create Time Desc';
+			case 'common.createTimeAsc': return 'Create Time Asc';
+			case 'common.pagination.totalItems': return ({required Object num}) => 'Total ${num} items';
+			case 'common.pagination.jumpToPage': return 'Jump to page';
+			case 'common.pagination.pleaseEnterPageNumber': return ({required Object max}) => 'Please enter page number (1-${max})';
+			case 'common.pagination.pageNumber': return 'Page number';
+			case 'common.pagination.jump': return 'Jump';
+			case 'common.pagination.invalidPageNumber': return ({required Object max}) => 'Please enter a valid page number (1-${max})';
+			case 'common.pagination.invalidInput': return 'Please enter a valid page number';
+			case 'common.pagination.waterfall': return 'Waterfall';
+			case 'common.pagination.pagination': return 'Pagination';
+			case 'common.notice': return 'Notice';
+			case 'common.detail': return 'Detail';
+			case 'common.parseExceptionDestopHint': return ' - Desktop users can configure proxy in settings';
+			case 'common.iwaraTags': return 'Iwara Tags';
+			case 'common.likeThisVideo': return 'Like This Video';
+			case 'common.operation': return 'Operation';
+			case 'common.replies': return 'Replies';
+			case 'auth.login': return 'Login';
+			case 'auth.logout': return 'Logout';
+			case 'auth.email': return 'Email';
+			case 'auth.password': return 'Password';
+			case 'auth.loginOrRegister': return 'Login / Register';
+			case 'auth.register': return 'Register';
+			case 'auth.pleaseEnterEmail': return 'Please enter email';
+			case 'auth.pleaseEnterPassword': return 'Please enter password';
+			case 'auth.passwordMustBeAtLeast6Characters': return 'Password must be at least 6 characters';
+			case 'auth.pleaseEnterCaptcha': return 'Please enter captcha';
+			case 'auth.captcha': return 'Captcha';
+			case 'auth.refreshCaptcha': return 'Refresh Captcha';
+			case 'auth.captchaNotLoaded': return 'Captcha not loaded';
+			case 'auth.loginSuccess': return 'Login Success';
+			case 'auth.emailVerificationSent': return 'Email verification sent';
+			case 'auth.notLoggedIn': return 'Not Logged In';
+			case 'auth.clickToLogin': return 'Click to Login';
+			case 'auth.logoutConfirmation': return 'Are you sure you want to logout?';
+			case 'auth.logoutSuccess': return 'Logout Success';
+			case 'auth.logoutFailed': return 'Logout Failed';
+			case 'auth.usernameOrEmail': return 'Username or Email';
+			case 'auth.pleaseEnterUsernameOrEmail': return 'Please enter username or email';
+			case 'auth.rememberMe': return 'Remember Username and Password';
+			case 'errors.error': return 'Error';
+			case 'errors.required': return 'This field is required';
+			case 'errors.invalidEmail': return 'Invalid email address';
+			case 'errors.networkError': return 'Network error, please try again';
+			case 'errors.errorWhileFetching': return 'Error while fetching';
+			case 'errors.commentCanNotBeEmpty': return 'Comment content cannot be empty';
+			case 'errors.errorWhileFetchingReplies': return 'Error while fetching replies, please check network connection';
+			case 'errors.canNotFindCommentController': return 'Can not find comment controller';
+			case 'errors.errorWhileLoadingGallery': return 'Error while loading gallery';
+			case 'errors.howCouldThereBeNoDataItCantBePossible': return 'How could there be no data? It can\'t be possible :<';
+			case 'errors.unsupportedImageFormat': return ({required Object str}) => 'Unsupported image format: ${str}';
+			case 'errors.invalidGalleryId': return 'Invalid gallery ID';
+			case 'errors.translationFailedPleaseTryAgainLater': return 'Translation failed, please try again later';
+			case 'errors.errorOccurred': return 'An error occurred, please try again later.';
+			case 'errors.errorOccurredWhileProcessingRequest': return 'Error occurred while processing request';
+			case 'errors.errorWhileFetchingDatas': return 'Error while fetching datas, please try again later';
+			case 'errors.serviceNotInitialized': return 'Service not initialized';
+			case 'errors.unknownType': return 'Unknown type';
+			case 'errors.errorWhileOpeningLink': return ({required Object link}) => 'Error while opening link: ${link}';
+			case 'errors.invalidUrl': return 'Invalid URL';
+			case 'errors.failedToOperate': return 'Failed to operate';
+			case 'errors.permissionDenied': return 'Permission Denied';
+			case 'errors.youDoNotHavePermissionToAccessThisResource': return 'You do not have permission to access this resource';
+			case 'errors.loginFailed': return 'Login Failed';
+			case 'errors.unknownError': return 'Unknown Error';
+			case 'errors.sessionExpired': return 'Session Expired';
+			case 'errors.failedToFetchCaptcha': return 'Failed to fetch captcha';
+			case 'errors.emailAlreadyExists': return 'Email already exists';
+			case 'errors.invalidCaptcha': return 'Invalid Captcha';
+			case 'errors.registerFailed': return 'Register Failed';
+			case 'errors.failedToFetchComments': return 'Failed to fetch comments';
+			case 'errors.failedToFetchImageDetail': return 'Failed to fetch image detail';
+			case 'errors.failedToFetchImageList': return 'Failed to fetch image list';
+			case 'errors.failedToFetchData': return 'Failed to fetch data';
+			case 'errors.invalidParameter': return 'Invalid parameter';
+			case 'errors.pleaseLoginFirst': return 'Please login first';
+			case 'errors.errorWhileLoadingPost': return 'Error while loading post';
+			case 'errors.errorWhileLoadingPostDetail': return 'Error while loading post detail';
+			case 'errors.invalidPostId': return 'Invalid post ID';
+			case 'errors.forceUpdateNotPermittedToGoBack': return 'Currently in force update state, cannot go back';
+			case 'errors.pleaseLoginAgain': return 'Please login again';
+			case 'errors.invalidLogin': return 'Invalid login, Please check your email and password';
+			case 'errors.tooManyRequests': return 'Too many requests, please try again later';
+			case 'errors.exceedsMaxLength': return ({required Object max}) => 'Exceeds max length: ${max}';
+			case 'errors.contentCanNotBeEmpty': return 'Content cannot be empty';
+			case 'errors.titleCanNotBeEmpty': return 'Title cannot be empty';
+			case 'errors.tooManyRequestsPleaseTryAgainLaterText': return 'Too many requests, please try again later, remaining';
+			case 'errors.remainingHours': return ({required Object num}) => '${num} hours';
+			case 'errors.remainingMinutes': return ({required Object num}) => '${num} minutes';
+			case 'errors.remainingSeconds': return ({required Object num}) => '${num} seconds';
+			case 'errors.tagLimitExceeded': return ({required Object limit}) => 'Tag limit exceeded, limit: ${limit}';
+			case 'errors.failedToRefresh': return 'Failed to refresh';
+			case 'errors.noPermission': return 'No permission';
+			case 'errors.resourceNotFound': return 'Resource not found';
+			case 'errors.failedToSaveCredentials': return 'Failed to save login credentials';
+			case 'errors.failedToLoadSavedCredentials': return 'Failed to load saved credentials';
+			case 'errors.specialFollowLimitReached': return ({required Object cnt}) => 'Special follow limit exceeded, limit: ${cnt}, please adjust in the follow list page';
+			case 'errors.notFound': return 'Content not found or has been deleted';
+			case 'errors.network.basicPrefix': return 'Network error - ';
+			case 'errors.network.failedToConnectToServer': return 'Failed to connect to server';
+			case 'errors.network.serverNotAvailable': return 'Server not available';
+			case 'errors.network.requestTimeout': return 'Request timeout';
+			case 'errors.network.unexpectedError': return 'Unexpected error';
+			case 'errors.network.invalidResponse': return 'Invalid response';
+			case 'errors.network.invalidRequest': return 'Invalid request';
+			case 'errors.network.invalidUrl': return 'Invalid URL';
+			case 'errors.network.invalidMethod': return 'Invalid method';
+			case 'errors.network.invalidHeader': return 'Invalid header';
+			case 'errors.network.invalidBody': return 'Invalid body';
+			case 'errors.network.invalidStatusCode': return 'Invalid status code';
+			case 'errors.network.serverError': return 'Server error';
+			case 'errors.network.requestCanceled': return 'Request canceled';
+			case 'errors.network.invalidPort': return 'Invalid port';
+			case 'errors.network.proxyPortError': return 'Proxy port error';
+			case 'errors.network.connectionRefused': return 'Connection refused';
+			case 'errors.network.networkUnreachable': return 'Network unreachable';
+			case 'errors.network.noRouteToHost': return 'No route to host';
+			case 'errors.network.connectionFailed': return 'Connection failed';
+			case 'errors.network.sslConnectionFailed': return 'SSL connection failed, please check your network settings';
+			case 'friends.clickToRestoreFriend': return 'Click to restore friend';
+			case 'friends.friendsList': return 'Friends List';
+			case 'friends.friendRequests': return 'Friend Requests';
+			case 'friends.friendRequestsList': return 'Friend Requests List';
+			case 'friends.removingFriend': return 'Removing friend...';
+			case 'friends.failedToRemoveFriend': return 'Failed to remove friend';
+			case 'friends.cancelingRequest': return 'Canceling friend request...';
+			case 'friends.failedToCancelRequest': return 'Failed to cancel friend request';
+			case 'authorProfile.noMoreDatas': return 'No more data';
+			case 'authorProfile.userProfile': return 'User Profile';
+			case 'favorites.clickToRestoreFavorite': return 'Click to restore favorite';
+			case 'favorites.myFavorites': return 'My Favorites';
+			case 'galleryDetail.galleryDetail': return 'Gallery Detail';
+			case 'galleryDetail.viewGalleryDetail': return 'View Gallery Detail';
+			case 'galleryDetail.copyLink': return 'Copy Link';
+			case 'galleryDetail.copyImage': return 'Copy Image';
+			case 'galleryDetail.saveAs': return 'Save As';
+			case 'galleryDetail.saveToAlbum': return 'Save to Album';
+			case 'galleryDetail.publishedAt': return 'Published At';
+			case 'galleryDetail.viewsCount': return 'Views Count';
+			case 'galleryDetail.imageLibraryFunctionIntroduction': return 'Image Library Function Introduction';
+			case 'galleryDetail.rightClickToSaveSingleImage': return 'Right Click to Save Single Image';
+			case 'galleryDetail.batchSave': return 'Batch Save';
+			case 'galleryDetail.keyboardLeftAndRightToSwitch': return 'Keyboard Left and Right to Switch';
+			case 'galleryDetail.keyboardUpAndDownToZoom': return 'Keyboard Up and Down to Zoom';
+			case 'galleryDetail.mouseWheelToSwitch': return 'Mouse Wheel to Switch';
+			case 'galleryDetail.ctrlAndMouseWheelToZoom': return 'CTRL + Mouse Wheel to Zoom';
+			case 'galleryDetail.moreFeaturesToBeDiscovered': return 'More Features to Be Discovered...';
+			case 'galleryDetail.authorOtherGalleries': return 'Author\'s Other Galleries';
+			case 'galleryDetail.relatedGalleries': return 'Related Galleries';
+			case 'galleryDetail.clickLeftAndRightEdgeToSwitchImage': return 'Click Left and Right Edge to Switch Image';
+			case 'playList.myPlayList': return 'My Play List';
+			case 'playList.friendlyTips': return 'Friendly Tips';
+			case 'playList.dearUser': return 'Dear User';
+			case 'playList.iwaraPlayListSystemIsNotPerfectYet': return 'iwara\'s play list system is not perfect yet';
+			case 'playList.notSupportSetCover': return 'Not support set cover';
+			case 'playList.notSupportDeleteList': return 'Not support delete list';
+			case 'playList.notSupportSetPrivate': return 'Not support set private';
+			case 'playList.yesCreateListWillAlwaysExistAndVisibleToEveryone': return 'Yes... create list will always exist and visible to everyone';
+			case 'playList.smallSuggestion': return 'Small Suggestion';
+			case 'playList.useLikeToCollectContent': return 'If you are more concerned about privacy, it is recommended to use the "like" function to collect content';
+			case 'playList.welcomeToDiscussOnGitHub': return 'If you have other suggestions or ideas, welcome to discuss on GitHub!';
+			case 'playList.iUnderstand': return 'I Understand';
+			case 'playList.searchPlaylists': return 'Search Playlists...';
+			case 'playList.newPlaylistName': return 'New Playlist Name';
+			case 'playList.createNewPlaylist': return 'Create New Playlist';
+			case 'playList.videos': return 'Videos';
+			case 'search.googleSearchScope': return 'Search Scope';
+			case 'search.searchTags': return 'Search Tags...';
+			case 'search.contentRating': return 'Content Rating';
+			case 'search.removeTag': return 'Remove Tag';
+			case 'search.pleaseEnterSearchContent': return 'Please enter search content';
+			case 'search.searchHistory': return 'Search History';
+			case 'search.searchSuggestion': return 'Search Suggestion';
+			case 'search.usedTimes': return 'Used Times';
+			case 'search.lastUsed': return 'Last Used';
+			case 'search.noSearchHistoryRecords': return 'No search history';
+			case 'search.notSupportCurrentSearchType': return ({required Object searchType}) => 'Not support current search type ${searchType}, please wait for the update';
+			case 'search.searchResult': return 'Search Result';
+			case 'search.unsupportedSearchType': return ({required Object searchType}) => 'Unsupported search type: ${searchType}';
+			case 'search.googleSearch': return 'Google Search';
+			case 'search.googleSearchHint': return ({required Object webName}) => '${webName} \'s search function is not easy to use? Try Google Search!';
+			case 'search.googleSearchDescription': return 'Use the :site search operator of Google Search to search for content on the site. This is very useful when searching for videos, galleries, playlists, and users.';
+			case 'search.googleSearchKeywordsHint': return 'Enter keywords to search';
+			case 'search.openLinkJump': return 'Open Link Jump';
+			case 'search.googleSearchButton': return 'Google Search';
+			case 'search.pleaseEnterSearchKeywords': return 'Please enter search keywords';
+			case 'search.googleSearchQueryCopied': return 'Search query copied to clipboard';
+			case 'search.googleSearchBrowserOpenFailed': return ({required Object error}) => 'Failed to open browser: ${error}';
+			case 'mediaList.personalIntroduction': return 'Introduction';
+			case 'settings.listViewMode': return 'List View Mode';
+			case 'settings.useTraditionalPaginationMode': return 'Use Traditional Pagination Mode';
+			case 'settings.useTraditionalPaginationModeDesc': return 'Enable traditional pagination mode, disable waterfall mode';
+			case 'settings.showVideoProgressBottomBarWhenToolbarHidden': return 'Show Video Progress Bottom Bar When Toolbar Hidden';
+			case 'settings.showVideoProgressBottomBarWhenToolbarHiddenDesc': return 'This configuration determines whether the video progress bottom bar will be shown when the toolbar is hidden.';
+			case 'settings.basicSettings': return 'Basic Settings';
+			case 'settings.personalizedSettings': return 'Personalized Settings';
+			case 'settings.otherSettings': return 'Other Settings';
+			case 'settings.searchConfig': return 'Search Config';
+			case 'settings.thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain': return 'This configuration determines whether the previous configuration will be used when playing videos again.';
+			case 'settings.playControl': return 'Play Control';
+			case 'settings.fastForwardTime': return 'Fast Forward Time';
+			case 'settings.fastForwardTimeMustBeAPositiveInteger': return 'Fast forward time must be a positive integer.';
+			case 'settings.rewindTime': return 'Rewind Time';
+			case 'settings.rewindTimeMustBeAPositiveInteger': return 'Rewind time must be a positive integer.';
+			case 'settings.longPressPlaybackSpeed': return 'Long Press Playback Speed';
+			case 'settings.longPressPlaybackSpeedMustBeAPositiveNumber': return 'Long press playback speed must be a positive number.';
+			case 'settings.repeat': return 'Repeat';
+			case 'settings.renderVerticalVideoInVerticalScreen': return 'Render Vertical Video in Vertical Screen';
+			case 'settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen': return 'This configuration determines whether the video will be rendered in vertical screen when playing in full screen.';
+			case 'settings.rememberVolume': return 'Remember Volume';
+			case 'settings.thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain': return 'This configuration determines whether the volume will be kept when playing videos again.';
+			case 'settings.rememberBrightness': return 'Remember Brightness';
+			case 'settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain': return 'This configuration determines whether the brightness will be kept when playing videos again.';
+			case 'settings.playControlArea': return 'Play Control Area';
+			case 'settings.leftAndRightControlAreaWidth': return 'Left and Right Control Area Width';
+			case 'settings.thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer': return 'This configuration determines the width of the control areas on the left and right sides of the player.';
+			case 'settings.proxyAddressCannotBeEmpty': return 'Proxy address cannot be empty.';
+			case 'settings.invalidProxyAddressFormatPleaseUseTheFormatOfIpPortOrDomainNamePort': return 'Invalid proxy address format. Please use the format of IP:port or domain name:port.';
+			case 'settings.proxyNormalWork': return 'Proxy normal work.';
+			case 'settings.testProxyFailedWithStatusCode': return ({required Object code}) => 'Test proxy failed, status code: ${code}';
+			case 'settings.testProxyFailedWithException': return ({required Object exception}) => 'Test proxy failed, exception: ${exception}';
+			case 'settings.proxyConfig': return 'Proxy Config';
+			case 'settings.thisIsHttpProxyAddress': return 'This is http proxy address';
+			case 'settings.checkProxy': return 'Check Proxy';
+			case 'settings.proxyAddress': return 'Proxy Address';
+			case 'settings.pleaseEnterTheUrlOfTheProxyServerForExample1270018080': return 'Please enter the URL of the proxy server, for example 127.0.0.1:8080';
+			case 'settings.enableProxy': return 'Enable Proxy';
+			case 'settings.left': return 'Left';
+			case 'settings.middle': return 'Middle';
+			case 'settings.right': return 'Right';
+			case 'settings.playerSettings': return 'Player Settings';
+			case 'settings.networkSettings': return 'Network Settings';
+			case 'settings.customizeYourPlaybackExperience': return 'Customize Your Playback Experience';
+			case 'settings.chooseYourFavoriteAppAppearance': return 'Choose Your Favorite App Appearance';
+			case 'settings.configureYourProxyServer': return 'Configure Your Proxy Server';
+			case 'settings.settings': return 'Settings';
+			case 'settings.themeSettings': return 'Theme Settings';
+			case 'settings.followSystem': return 'Follow System';
+			case 'settings.lightMode': return 'Light Mode';
+			case 'settings.darkMode': return 'Dark Mode';
+			case 'settings.presetTheme': return 'Preset Theme';
+			case 'settings.basicTheme': return 'Basic Theme';
+			case 'settings.needRestartToApply': return 'Need to restart the app to apply the settings';
+			case 'settings.themeNeedRestartDescription': return 'The theme settings need to restart the app to apply the settings';
+			case 'settings.about': return 'About';
+			case 'settings.currentVersion': return 'Current Version';
+			case 'settings.latestVersion': return 'Latest Version';
+			case 'settings.checkForUpdates': return 'Check for Updates';
+			case 'settings.update': return 'Update';
+			case 'settings.newVersionAvailable': return 'New Version Available';
+			case 'settings.projectHome': return 'Project Home';
+			case 'settings.release': return 'Release';
+			case 'settings.issueReport': return 'Issue Report';
+			case 'settings.openSourceLicense': return 'Open Source License';
+			case 'settings.checkForUpdatesFailed': return 'Check for updates failed, please try again later';
+			case 'settings.autoCheckUpdate': return 'Auto Check Update';
+			case 'settings.updateContent': return 'Update Content';
+			case 'settings.releaseDate': return 'Release Date';
+			case 'settings.ignoreThisVersion': return 'Ignore This Version';
+			case 'settings.minVersionUpdateRequired': return 'Current version is too low, please update as soon as possible';
+			case 'settings.forceUpdateTip': return 'This is a mandatory update. Please update to the latest version as soon as possible';
+			case 'settings.viewChangelog': return 'View Changelog';
+			case 'settings.alreadyLatestVersion': return 'Already the latest version';
+			case 'settings.appSettings': return 'App Settings';
+			case 'settings.configureYourAppSettings': return 'Configure Your App Settings';
+			case 'settings.history': return 'History';
+			case 'settings.autoRecordHistory': return 'Auto Record History';
+			case 'settings.autoRecordHistoryDesc': return 'Auto record the videos and images you have watched';
+			case 'settings.showUnprocessedMarkdownText': return 'Show Unprocessed Markdown Text';
+			case 'settings.showUnprocessedMarkdownTextDesc': return 'Show the original text of the markdown';
+			case 'settings.markdown': return 'Markdown';
+			case 'settings.activeBackgroundPrivacyMode': return 'Privacy Mode';
+			case 'settings.activeBackgroundPrivacyModeDesc': return 'Prevent screenshots, hide screen when running in the background...';
+			case 'settings.privacy': return 'Privacy';
+			case 'settings.forum': return 'Forum';
+			case 'settings.disableForumReplyQuote': return 'Disable Forum Reply Quote';
+			case 'settings.disableForumReplyQuoteDesc': return 'Disable carrying replied floor information when replying in forum';
+			case 'settings.theaterMode': return 'Theater Mode';
+			case 'settings.theaterModeDesc': return 'After opening, the player background will be set to the blurred version of the video cover';
+			case 'settings.appLinks': return 'App Links';
+			case 'settings.defaultBrowser': return 'Default Browse';
+			case 'settings.defaultBrowserDesc': return 'Please open the default link configuration item in the system settings and add the iwara.tv website link';
+			case 'settings.themeMode': return 'Theme Mode';
+			case 'settings.themeModeDesc': return 'This configuration determines the theme mode of the app';
+			case 'settings.dynamicColor': return 'Dynamic Color';
+			case 'settings.dynamicColorDesc': return 'This configuration determines whether the app uses dynamic color';
+			case 'settings.useDynamicColor': return 'Use Dynamic Color';
+			case 'settings.useDynamicColorDesc': return 'This configuration determines whether the app uses dynamic color';
+			case 'settings.presetColors': return 'Preset Colors';
+			case 'settings.customColors': return 'Custom Colors';
+			case 'settings.pickColor': return 'Pick Color';
+			case 'settings.cancel': return 'Cancel';
+			case 'settings.confirm': return 'Confirm';
+			case 'settings.noCustomColors': return 'No custom colors';
+			case 'settings.recordAndRestorePlaybackProgress': return 'Record and Restore Playback Progress';
+			case 'settings.signature': return 'Signature';
+			case 'settings.enableSignature': return 'Enable Signature';
+			case 'settings.enableSignatureDesc': return 'This configuration determines whether the app will add signature when replying';
+			case 'settings.enterSignature': return 'Enter Signature';
+			case 'settings.editSignature': return 'Edit Signature';
+			case 'settings.signatureContent': return 'Signature Content';
+			case 'settings.exportConfig': return 'Export App Configuration';
+			case 'settings.exportConfigDesc': return 'Export app configuration to a file (excluding download records)';
+			case 'settings.importConfig': return 'Import App Configuration';
+			case 'settings.importConfigDesc': return 'Import app configuration from a file';
+			case 'settings.exportConfigSuccess': return 'Configuration exported successfully!';
+			case 'settings.exportConfigFailed': return 'Failed to export configuration';
+			case 'settings.importConfigSuccess': return 'Configuration imported successfully!';
+			case 'settings.importConfigFailed': return 'Failed to import configuration';
+			case 'settings.historyUpdateLogs': return 'History Update Logs';
+			case 'settings.noUpdateLogs': return 'No update logs available';
+			case 'settings.versionLabel': return 'Version: {version}';
+			case 'settings.releaseDateLabel': return 'Release Date: {date}';
+			case 'settings.noChanges': return 'No update content available';
+			case 'settings.interaction': return 'Interaction';
+			case 'settings.enableVibration': return 'Enable Vibration';
+			case 'settings.enableVibrationDesc': return 'Enable vibration feedback when interacting with the app';
+			case 'settings.defaultKeepVideoToolbarVisible': return 'Keep Video Toolbar Visible';
+			case 'settings.defaultKeepVideoToolbarVisibleDesc': return 'This setting determines whether the video toolbar remains visible when first entering the video page.';
+			case 'settings.theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt': return 'Mobile devices enable theater mode, which may cause performance issues. You can choose to enable it.';
+			case 'settings.lockButtonPosition': return 'Lock Button Position';
+			case 'settings.lockButtonPositionBothSides': return 'Both Sides';
+			case 'settings.lockButtonPositionLeftSide': return 'Left Side';
+			case 'settings.lockButtonPositionRightSide': return 'Right Side';
+			case 'settings.fullscreenOrientation': return 'Vertical Screen Orientation After Entering Fullscreen';
+			case 'settings.fullscreenOrientationDesc': return 'This setting determines the default screen orientation when entering fullscreen (mobile only)';
+			case 'settings.fullscreenOrientationLeftLandscape': return 'Left Landscape';
+			case 'settings.fullscreenOrientationRightLandscape': return 'Right Landscape';
+			case 'settings.jumpLink': return 'Jump Link';
+			case 'settings.language': return 'Language';
+			case 'settings.languageChanged': return 'Language setting has been changed, please restart the app to take effect.';
+			case 'settings.gestureControl': return 'Gesture Control';
+			case 'settings.leftDoubleTapRewind': return 'Left Double Tap Rewind';
+			case 'settings.rightDoubleTapFastForward': return 'Right Double Tap Fast Forward';
+			case 'settings.doubleTapPause': return 'Double Tap Pause';
+			case 'settings.rightVerticalSwipeVolume': return 'Right Vertical Swipe Volume (Effective when entering a new page)';
+			case 'settings.leftVerticalSwipeBrightness': return 'Left Vertical Swipe Brightness (Effective when entering a new page)';
+			case 'settings.longPressFastForward': return 'Long Press Fast Forward';
+			case 'settings.enableMouseHoverShowToolbar': return 'Enable Mouse Hover Show Toolbar';
+			case 'settings.enableMouseHoverShowToolbarInfo': return 'When enabled, the video toolbar will be shown when the mouse is hovering over the player. It will be automatically hidden after 3 seconds of inactivity.';
+			case 'settings.enableHorizontalDragSeek': return 'Horizontal Swipe to Seek';
+			case 'settings.audioVideoConfig': return 'Audio Video Configuration';
+			case 'settings.expandBuffer': return 'Expand Buffer';
+			case 'settings.expandBufferInfo': return 'When enabled, the buffer size increases, loading time becomes longer but playback is smoother';
+			case 'settings.videoSyncMode': return 'Video Sync Mode';
+			case 'settings.videoSyncModeSubtitle': return 'Audio-video synchronization strategy';
+			case 'settings.hardwareDecodingMode': return 'Hardware Decoding Mode';
+			case 'settings.hardwareDecodingModeSubtitle': return 'Hardware decoding settings';
+			case 'settings.enableHardwareAcceleration': return 'Enable Hardware Acceleration';
+			case 'settings.enableHardwareAccelerationInfo': return 'Enabling hardware acceleration can improve decoding performance, but some devices may not be compatible';
+			case 'settings.useOpenSLESAudioOutput': return 'Use OpenSLES Audio Output';
+			case 'settings.useOpenSLESAudioOutputInfo': return 'Use low-latency audio output, may improve audio performance';
+			case 'settings.videoSyncAudio': return 'Audio Sync';
+			case 'settings.videoSyncDisplayResample': return 'Display Resample';
+			case 'settings.videoSyncDisplayResampleVdrop': return 'Display Resample (Drop Frames)';
+			case 'settings.videoSyncDisplayResampleDesync': return 'Display Resample (Desync)';
+			case 'settings.videoSyncDisplayTempo': return 'Display Tempo';
+			case 'settings.videoSyncDisplayVdrop': return 'Display Drop Video Frames';
+			case 'settings.videoSyncDisplayAdrop': return 'Display Drop Audio Frames';
+			case 'settings.videoSyncDisplayDesync': return 'Display Desync';
+			case 'settings.videoSyncDesync': return 'Desync';
+			case 'settings.forumSettings.name': return 'Forum';
+			case 'settings.forumSettings.configureYourForumSettings': return 'Configure Your Forum Settings';
+			case 'settings.chatSettings.name': return 'Chat';
+			case 'settings.chatSettings.configureYourChatSettings': return 'Configure Your Chat Settings';
+			case 'settings.hardwareDecodingAuto': return 'Auto';
+			case 'settings.hardwareDecodingAutoCopy': return 'Auto Copy';
+			case 'settings.hardwareDecodingAutoSafe': return 'Auto Safe';
+			case 'settings.hardwareDecodingNo': return 'Disabled';
+			case 'settings.hardwareDecodingYes': return 'Force Enable';
+			case 'settings.cdnDistributionStrategy': return 'Content Distribution Strategy';
+			case 'settings.cdnDistributionStrategyDesc': return 'Select video source server distribution strategy to optimize loading speed';
+			case 'settings.cdnDistributionStrategyLabel': return 'Distribution Strategy';
+			case 'settings.cdnDistributionStrategyNoChange': return 'No Change (Use Original Server)';
+			case 'settings.cdnDistributionStrategyAuto': return 'Auto Select (Fastest Server)';
+			case 'settings.cdnDistributionStrategySpecial': return 'Specify Server';
+			case 'settings.cdnSpecialServer': return 'Specify Server';
+			case 'settings.cdnRefreshServerListHint': return 'Please click the button below to refresh the server list';
+			case 'settings.cdnRefreshButton': return 'Refresh';
+			case 'settings.cdnFastRingServers': return 'Fast Ring Servers';
+			case 'settings.cdnRefreshServerListTooltip': return 'Refresh server list';
+			case 'settings.cdnSpeedTestButton': return 'Speed Test';
+			case 'settings.cdnSpeedTestingButton': return ({required Object count}) => 'Testing (${count})';
+			case 'settings.cdnNoServerDataHint': return 'No server data available, please click the refresh button';
+			case 'settings.cdnTestingStatus': return 'Testing';
+			case 'settings.cdnUnreachableStatus': return 'Unreachable';
+			case 'settings.cdnNotTestedStatus': return 'Not Tested';
+			case 'settings.downloadSettings.downloadSettings': return 'Download Settings';
+			case 'settings.downloadSettings.storagePermissionStatus': return 'Storage Permission Status';
+			case 'settings.downloadSettings.accessPublicDirectoryNeedStoragePermission': return 'Access Public Directory Need Storage Permission';
+			case 'settings.downloadSettings.checkingPermissionStatus': return 'Checking Permission Status...';
+			case 'settings.downloadSettings.storagePermissionGranted': return 'Storage Permission Granted';
+			case 'settings.downloadSettings.storagePermissionNotGranted': return 'Storage Permission Not Granted';
+			case 'settings.downloadSettings.storagePermissionGrantSuccess': return 'Storage Permission Grant Success';
+			case 'settings.downloadSettings.storagePermissionGrantFailedButSomeFeaturesMayBeLimited': return 'Storage Permission Grant Failed But Some Features May Be Limited';
+			case 'settings.downloadSettings.grantStoragePermission': return 'Grant Storage Permission';
+			case 'settings.downloadSettings.customDownloadPath': return 'Custom Download Path';
+			case 'settings.downloadSettings.customDownloadPathDescription': return 'When enabled, you can choose a custom save location for downloaded files';
+			case 'settings.downloadSettings.customDownloadPathTip': return '💡 Tip: Selecting public directories (like Downloads folder) requires storage permission, recommend using recommended paths first';
+			case 'settings.downloadSettings.androidWarning': return 'Android Note: Avoid selecting public directories (such as Downloads folder), recommend using app-specific directories to ensure access permissions.';
+			case 'settings.downloadSettings.publicDirectoryPermissionTip': return '⚠️ Notice: You selected a public directory, storage permission is required for normal file downloads';
+			case 'settings.downloadSettings.permissionRequiredForPublicDirectory': return 'Storage permission required for public directories';
+			case 'settings.downloadSettings.currentDownloadPath': return 'Current Download Path';
+			case 'settings.downloadSettings.actualDownloadPath': return 'Actual Download Path';
+			case 'settings.downloadSettings.defaultAppDirectory': return 'Default App Directory';
+			case 'settings.downloadSettings.permissionGranted': return 'Granted';
+			case 'settings.downloadSettings.permissionRequired': return 'Permission Required';
+			case 'settings.downloadSettings.enableCustomDownloadPath': return 'Enable Custom Download Path';
+			case 'settings.downloadSettings.disableCustomDownloadPath': return 'Use app default path when disabled';
+			case 'settings.downloadSettings.customDownloadPathLabel': return 'Custom Download Path';
+			case 'settings.downloadSettings.selectDownloadFolder': return 'Select download folder';
+			case 'settings.downloadSettings.recommendedPath': return 'Recommended Path';
+			case 'settings.downloadSettings.selectFolder': return 'Select Folder';
+			case 'settings.downloadSettings.filenameTemplate': return 'Filename Template';
+			case 'settings.downloadSettings.filenameTemplateDescription': return 'Customize the naming rules for downloaded files, supports variable substitution';
+			case 'settings.downloadSettings.videoFilenameTemplate': return 'Video Filename Template';
+			case 'settings.downloadSettings.galleryFolderTemplate': return 'Gallery Folder Template';
+			case 'settings.downloadSettings.imageFilenameTemplate': return 'Image Filename Template';
+			case 'settings.downloadSettings.resetToDefault': return 'Reset to Default';
+			case 'settings.downloadSettings.supportedVariables': return 'Supported Variables';
+			case 'settings.downloadSettings.supportedVariablesDescription': return 'The following variables can be used in filename templates:';
+			case 'settings.downloadSettings.copyVariable': return 'Copy Variable';
+			case 'settings.downloadSettings.variableCopied': return 'Variable copied';
+			case 'settings.downloadSettings.warningPublicDirectory': return 'Warning: Selected public directory may not be accessible. Recommend selecting app-specific directory.';
+			case 'settings.downloadSettings.downloadPathUpdated': return 'Download path updated';
+			case 'settings.downloadSettings.selectPathFailed': return 'Failed to select path';
+			case 'settings.downloadSettings.recommendedPathSet': return 'Set to recommended path';
+			case 'settings.downloadSettings.setRecommendedPathFailed': return 'Failed to set recommended path';
+			case 'settings.downloadSettings.templateResetToDefault': return 'Reset to default template';
+			case 'settings.downloadSettings.functionalTest': return 'Functional Test';
+			case 'settings.downloadSettings.testInProgress': return 'Testing...';
+			case 'settings.downloadSettings.runTest': return 'Run Test';
+			case 'settings.downloadSettings.testDownloadPathAndPermissions': return 'Test if download path and permission configuration work properly';
+			case 'settings.downloadSettings.testResults': return 'Test Results';
+			case 'settings.downloadSettings.testCompleted': return 'Test completed';
+			case 'settings.downloadSettings.testPassed': return 'items passed';
+			case 'settings.downloadSettings.testFailed': return 'Test failed';
+			case 'settings.downloadSettings.testStoragePermissionCheck': return 'Storage Permission Check';
+			case 'settings.downloadSettings.testStoragePermissionGranted': return 'Storage permission granted';
+			case 'settings.downloadSettings.testStoragePermissionMissing': return 'Storage permission missing, some features may be limited';
+			case 'settings.downloadSettings.testPermissionCheckFailed': return 'Permission check failed';
+			case 'settings.downloadSettings.testDownloadPathValidation': return 'Download Path Validation';
+			case 'settings.downloadSettings.testPathValidationFailed': return 'Path validation failed';
+			case 'settings.downloadSettings.testFilenameTemplateValidation': return 'Filename Template Validation';
+			case 'settings.downloadSettings.testAllTemplatesValid': return 'All templates are valid';
+			case 'settings.downloadSettings.testSomeTemplatesInvalid': return 'Some templates contain invalid characters';
+			case 'settings.downloadSettings.testTemplateValidationFailed': return 'Template validation failed';
+			case 'settings.downloadSettings.testDirectoryOperationTest': return 'Directory Operation Test';
+			case 'settings.downloadSettings.testDirectoryOperationNormal': return 'Directory creation and file writing are normal';
+			case 'settings.downloadSettings.testDirectoryOperationFailed': return 'Directory operation failed';
+			case 'settings.downloadSettings.testVideoTemplate': return 'Video Template';
+			case 'settings.downloadSettings.testGalleryTemplate': return 'Gallery Template';
+			case 'settings.downloadSettings.testImageTemplate': return 'Image Template';
+			case 'settings.downloadSettings.testValid': return 'Valid';
+			case 'settings.downloadSettings.testInvalid': return 'Invalid';
+			case 'settings.downloadSettings.testSuccess': return 'Success';
+			case 'settings.downloadSettings.testCorrect': return 'Correct';
+			case 'settings.downloadSettings.testError': return 'Error';
+			case 'settings.downloadSettings.testPath': return 'Test Path';
+			case 'settings.downloadSettings.testBasePath': return 'Base Path';
+			case 'settings.downloadSettings.testDirectoryCreation': return 'Directory Creation';
+			case 'settings.downloadSettings.testFileWriting': return 'File Writing';
+			case 'settings.downloadSettings.testFileContent': return 'File Content';
+			case 'settings.downloadSettings.checkingPathStatus': return 'Checking path status...';
+			case 'settings.downloadSettings.unableToGetPathStatus': return 'Unable to get path status';
+			case 'settings.downloadSettings.actualPathDifferentFromSelected': return 'Note: Actual path differs from selected path';
+			case 'settings.downloadSettings.grantPermission': return 'Grant Permission';
+			case 'settings.downloadSettings.fixIssue': return 'Fix Issue';
+			case 'settings.downloadSettings.issueFixed': return 'Issue fixed';
+			case 'settings.downloadSettings.fixFailed': return 'Fix failed, please handle manually';
+			case 'settings.downloadSettings.lackStoragePermission': return 'Lack storage permission';
+			case 'settings.downloadSettings.cannotAccessPublicDirectory': return 'Cannot access public directory, need "All files access permission"';
+			case 'settings.downloadSettings.cannotCreateDirectory': return 'Cannot create directory';
+			case 'settings.downloadSettings.directoryNotWritable': return 'Directory not writable';
+			case 'settings.downloadSettings.insufficientSpace': return 'Insufficient available space';
+			case 'settings.downloadSettings.pathValid': return 'Path is valid';
+			case 'settings.downloadSettings.validationFailed': return 'Validation failed';
+			case 'settings.downloadSettings.usingDefaultAppDirectory': return 'Using default app directory';
+			case 'settings.downloadSettings.appPrivateDirectory': return 'App Private Directory';
+			case 'settings.downloadSettings.appPrivateDirectoryDesc': return 'Safe and reliable, no additional permissions required';
+			case 'settings.downloadSettings.downloadDirectory': return 'Download Directory';
+			case 'settings.downloadSettings.downloadDirectoryDesc': return 'System default download location, easy to manage';
+			case 'settings.downloadSettings.moviesDirectory': return 'Movies Directory';
+			case 'settings.downloadSettings.moviesDirectoryDesc': return 'System movies directory, recognizable by media apps';
+			case 'settings.downloadSettings.documentsDirectory': return 'Documents Directory';
+			case 'settings.downloadSettings.documentsDirectoryDesc': return 'iOS app documents directory';
+			case 'settings.downloadSettings.requiresStoragePermission': return 'Requires storage permission to access';
+			case 'settings.downloadSettings.recommendedPaths': return 'Recommended Paths';
+			case 'settings.downloadSettings.externalAppPrivateDirectory': return 'External App Private Directory';
+			case 'settings.downloadSettings.externalAppPrivateDirectoryDesc': return 'External storage app private directory, user accessible, larger space';
+			case 'settings.downloadSettings.internalAppPrivateDirectory': return 'Internal App Private Directory';
+			case 'settings.downloadSettings.internalAppPrivateDirectoryDesc': return 'App internal storage, no permissions required, smaller space';
+			case 'settings.downloadSettings.appDocumentsDirectory': return 'App Documents Directory';
+			case 'settings.downloadSettings.appDocumentsDirectoryDesc': return 'App-specific documents directory, safe and reliable';
+			case 'settings.downloadSettings.downloadsFolder': return 'Downloads Folder';
+			case 'settings.downloadSettings.downloadsFolderDesc': return 'System default download directory';
+			case 'settings.downloadSettings.selectRecommendedDownloadLocation': return 'Select a recommended download location';
+			case 'settings.downloadSettings.noRecommendedPaths': return 'No recommended paths available';
+			case 'settings.downloadSettings.recommended': return 'Recommended';
+			case 'settings.downloadSettings.requiresPermission': return 'Requires Permission';
+			case 'settings.downloadSettings.authorizeAndSelect': return 'Authorize and Select';
+			case 'settings.downloadSettings.select': return 'Select';
+			case 'settings.downloadSettings.permissionAuthorizationFailed': return 'Permission authorization failed, cannot select this path';
+			case 'settings.downloadSettings.pathValidationFailed': return 'Path validation failed';
+			case 'settings.downloadSettings.downloadPathSetTo': return 'Download path set to';
+			case 'settings.downloadSettings.setPathFailed': return 'Failed to set path';
+			case 'settings.downloadSettings.variableTitle': return 'Title';
+			case 'settings.downloadSettings.variableAuthor': return 'Author name';
+			case 'settings.downloadSettings.variableUsername': return 'Author username';
+			case 'settings.downloadSettings.variableQuality': return 'Video quality';
+			case 'settings.downloadSettings.variableFilename': return 'Original filename';
+			case 'settings.downloadSettings.variableId': return 'Content ID';
+			case 'settings.downloadSettings.variableCount': return 'Gallery image count';
+			case 'settings.downloadSettings.variableDate': return 'Current date (YYYY-MM-DD)';
+			case 'settings.downloadSettings.variableTime': return 'Current time (HH-MM-SS)';
+			case 'settings.downloadSettings.variableDatetime': return 'Current date time (YYYY-MM-DD_HH-MM-SS)';
+			case 'settings.downloadSettings.downloadSettingsTitle': return 'Download Settings';
+			case 'settings.downloadSettings.downloadSettingsSubtitle': return 'Configure download path and file naming rules';
+			case 'settings.downloadSettings.suchAsTitleQuality': return 'For example: %title_%quality';
+			case 'settings.downloadSettings.suchAsTitleId': return 'For example: %title_%id';
+			case 'settings.downloadSettings.suchAsTitleFilename': return 'For example: %title_%filename';
+			case 'oreno3d.name': return 'Oreno3D';
+			case 'oreno3d.tags': return 'Tags';
+			case 'oreno3d.characters': return 'Characters';
+			case 'oreno3d.origin': return 'Origin';
+			case 'oreno3d.thirdPartyTagsExplanation': return 'The **tags**, **characters**, and **origin** information displayed here are provided by the third-party site **Oreno3D** for reference only.\n\nSince this information source is only available in Japanese, it currently lacks internationalization adaptation.\n\nIf you are interested in contributing to internationalization efforts, please visit the repository to help improve it!';
+			case 'oreno3d.sortTypes.hot': return 'Hot';
+			case 'oreno3d.sortTypes.favorites': return 'Favorites';
+			case 'oreno3d.sortTypes.latest': return 'Latest';
+			case 'oreno3d.sortTypes.popularity': return 'Popular';
+			case 'oreno3d.errors.requestFailed': return 'Request failed, status code';
+			case 'oreno3d.errors.connectionTimeout': return 'Connection timeout, please check network connection';
+			case 'oreno3d.errors.sendTimeout': return 'Send request timeout';
+			case 'oreno3d.errors.receiveTimeout': return 'Receive response timeout';
+			case 'oreno3d.errors.badCertificate': return 'Certificate verification failed';
+			case 'oreno3d.errors.resourceNotFound': return 'Requested resource not found';
+			case 'oreno3d.errors.accessDenied': return 'Access denied, may require authentication or permission';
+			case 'oreno3d.errors.serverError': return 'Internal server error';
+			case 'oreno3d.errors.serviceUnavailable': return 'Service temporarily unavailable';
+			case 'oreno3d.errors.requestCancelled': return 'Request cancelled';
+			case 'oreno3d.errors.connectionError': return 'Network connection error, please check network settings';
+			case 'oreno3d.errors.networkRequestFailed': return 'Network request failed';
+			case 'oreno3d.errors.searchVideoError': return 'Unknown error occurred while searching videos';
+			case 'oreno3d.errors.getPopularVideoError': return 'Unknown error occurred while getting popular videos';
+			case 'oreno3d.errors.getVideoDetailError': return 'Unknown error occurred while getting video details';
+			case 'oreno3d.errors.parseVideoDetailError': return 'Unknown error occurred while getting and parsing video details';
+			case 'oreno3d.errors.downloadFileError': return 'Unknown error occurred while downloading file';
+			case 'oreno3d.loading.gettingVideoInfo': return 'Getting video information...';
+			case 'oreno3d.loading.cancel': return 'Cancel';
+			case 'oreno3d.messages.videoNotFoundOrDeleted': return 'Video not found or has been deleted';
+			case 'oreno3d.messages.unableToGetVideoPlayLink': return 'Unable to get video playback link';
+			case 'oreno3d.messages.getVideoDetailFailed': return 'Failed to get video details';
+			case 'signIn.pleaseLoginFirst': return 'Please login first';
+			case 'signIn.alreadySignedInToday': return 'You have already signed in today!';
+			case 'signIn.youDidNotStickToTheSignIn': return 'You did not stick to the sign in.';
+			case 'signIn.signInSuccess': return 'Sign in successfully!';
+			case 'signIn.signInFailed': return 'Sign in failed, please try again later';
+			case 'signIn.consecutiveSignIns': return 'Consecutive Sign Ins';
+			case 'signIn.failureReason': return 'Failure Reason';
+			case 'signIn.selectDateRange': return 'Select Date Range';
+			case 'signIn.startDate': return 'Start Date';
+			case 'signIn.endDate': return 'End Date';
+			case 'signIn.invalidDate': return 'Invalid Date';
+			case 'signIn.invalidDateRange': return 'Invalid Date Range';
+			case 'signIn.errorFormatText': return 'Date Format Error';
+			case 'signIn.errorInvalidText': return 'Invalid Date Range';
+			case 'signIn.errorInvalidRangeText': return 'Invalid Date Range';
+			case 'signIn.dateRangeCantBeMoreThanOneYear': return 'Date range cannot be more than one year';
+			case 'signIn.signIn': return 'Sign In';
+			case 'signIn.signInRecord': return 'Sign In Record';
+			case 'signIn.totalSignIns': return 'Total Sign Ins';
+			case 'signIn.pleaseSelectSignInStatus': return 'Please select sign in status';
+			case 'subscriptions.pleaseLoginFirstToViewYourSubscriptions': return 'Please login first to view your subscriptions.';
+			case 'subscriptions.selectUser': return 'Select User';
+			case 'subscriptions.noSubscribedUsers': return 'No subscribed users';
+			case 'subscriptions.showAllSubscribedUsersContent': return 'Show all subscribed users content';
+			case 'videoDetail.pipMode': return 'PiP Mode';
+			case 'videoDetail.resumeFromLastPosition': return ({required Object position}) => 'Resume from last position: ${position}';
+			case 'videoDetail.videoIdIsEmpty': return 'Video ID is empty';
+			case 'videoDetail.videoInfoIsEmpty': return 'Video info is empty';
+			case 'videoDetail.thisIsAPrivateVideo': return 'This is a private video';
+			case 'videoDetail.getVideoInfoFailed': return 'Get video info failed, please try again later';
+			case 'videoDetail.noVideoSourceFound': return 'No video source found';
+			case 'videoDetail.tagCopiedToClipboard': return ({required Object tagId}) => 'Tag "${tagId}" copied to clipboard';
+			case 'videoDetail.errorLoadingVideo': return 'Error loading video';
+			case 'videoDetail.play': return 'Play';
+			case 'videoDetail.pause': return 'Pause';
+			case 'videoDetail.exitAppFullscreen': return 'Exit App Fullscreen';
+			case 'videoDetail.enterAppFullscreen': return 'Enter App Fullscreen';
+			case 'videoDetail.exitSystemFullscreen': return 'Exit System Fullscreen';
+			case 'videoDetail.enterSystemFullscreen': return 'Enter System Fullscreen';
+			case 'videoDetail.seekTo': return 'Seek To';
+			case 'videoDetail.switchResolution': return 'Switch Resolution';
+			case 'videoDetail.switchPlaybackSpeed': return 'Switch Playback Speed';
+			case 'videoDetail.rewindSeconds': return ({required Object num}) => 'Rewind ${num} seconds';
+			case 'videoDetail.fastForwardSeconds': return ({required Object num}) => 'Fast Forward ${num} seconds';
+			case 'videoDetail.playbackSpeedIng': return ({required Object rate}) => 'Playing at ${rate}x speed';
+			case 'videoDetail.brightness': return 'Brightness';
+			case 'videoDetail.brightnessLowest': return 'Brightness is lowest';
+			case 'videoDetail.volume': return 'Volume';
+			case 'videoDetail.volumeMuted': return 'Volume is muted';
+			case 'videoDetail.home': return 'Home';
+			case 'videoDetail.videoPlayer': return 'Video Player';
+			case 'videoDetail.videoPlayerInfo': return 'Video Player Info';
+			case 'videoDetail.moreSettings': return 'More Settings';
+			case 'videoDetail.videoPlayerFeatureInfo': return 'Video Player Feature Info';
+			case 'videoDetail.autoRewind': return 'Auto Rewind';
+			case 'videoDetail.rewindAndFastForward': return 'Rewind and Fast Forward';
+			case 'videoDetail.volumeAndBrightness': return 'Volume and Brightness';
+			case 'videoDetail.centerAreaDoubleTapPauseOrPlay': return 'Center Area Double Tap Pause or Play';
+			case 'videoDetail.showVerticalVideoInFullScreen': return 'Show Vertical Video in Full Screen';
+			case 'videoDetail.keepLastVolumeAndBrightness': return 'Keep Last Volume and Brightness';
+			case 'videoDetail.setProxy': return 'Set Proxy';
+			case 'videoDetail.moreFeaturesToBeDiscovered': return 'More Features to Be Discovered...';
+			case 'videoDetail.videoPlayerSettings': return 'Video Player Settings';
+			case 'videoDetail.commentCount': return ({required Object num}) => '${num} comments';
+			case 'videoDetail.writeYourCommentHere': return 'Write your comment here...';
+			case 'videoDetail.authorOtherVideos': return 'Author\'s Other Videos';
+			case 'videoDetail.relatedVideos': return 'Related Videos';
+			case 'videoDetail.privateVideo': return 'This is a private video';
+			case 'videoDetail.externalVideo': return 'This is an external video';
+			case 'videoDetail.openInBrowser': return 'Open in Browser';
+			case 'videoDetail.resourceDeleted': return 'This video seems to have been deleted :/';
+			case 'videoDetail.noDownloadUrl': return 'No download URL';
+			case 'videoDetail.startDownloading': return 'Start downloading';
+			case 'videoDetail.downloadFailed': return 'Download failed, please try again later';
+			case 'videoDetail.downloadSuccess': return 'Download success';
+			case 'videoDetail.download': return 'Download';
+			case 'videoDetail.downloadManager': return 'Download Manager';
+			case 'videoDetail.resourceNotFound': return 'Resource not found';
+			case 'videoDetail.videoLoadError': return 'Video load error';
+			case 'videoDetail.authorNoOtherVideos': return 'Author has no other videos';
+			case 'videoDetail.noRelatedVideos': return 'No related videos';
+			case 'videoDetail.player.errorWhileLoadingVideoSource': return 'Error while loading video source';
+			case 'videoDetail.player.errorWhileSettingUpListeners': return 'Error while setting up listeners';
+			case 'videoDetail.skeleton.fetchingVideoInfo': return 'Fetching video info...';
+			case 'videoDetail.skeleton.fetchingVideoSources': return 'Fetching video sources...';
+			case 'videoDetail.skeleton.loadingVideo': return 'Loading video...';
+			case 'videoDetail.skeleton.applyingSolution': return 'Applying solution...';
+			case 'videoDetail.skeleton.addingListeners': return 'Adding listeners...';
+			case 'videoDetail.skeleton.successFecthVideoDurationInfo': return 'Successfully fetched video duration, starting to load video...';
+			case 'videoDetail.skeleton.successFecthVideoHeightInfo': return 'Loading completed';
+			case 'videoDetail.cast.dlnaCast': return 'Cast';
+			case 'videoDetail.cast.unableToStartCastingSearch': return ({required Object error}) => 'Failed to start casting search: ${error}';
+			case 'videoDetail.cast.startCastingTo': return ({required Object deviceName}) => 'Start casting to ${deviceName}';
+			case 'videoDetail.cast.castFailed': return ({required Object error}) => 'Cast failed: ${error}\nPlease try to re-search for devices or switch networks';
+			case 'videoDetail.cast.castStopped': return 'Cast stopped';
+			case 'videoDetail.cast.deviceTypes.mediaRenderer': return 'Media Player';
+			case 'videoDetail.cast.deviceTypes.mediaServer': return 'Media Server';
+			case 'videoDetail.cast.deviceTypes.internetGatewayDevice': return 'Router';
+			case 'videoDetail.cast.deviceTypes.basicDevice': return 'Basic Device';
+			case 'videoDetail.cast.deviceTypes.dimmableLight': return 'Smart Light';
+			case 'videoDetail.cast.deviceTypes.wlanAccessPoint': return 'WLAN Access Point';
+			case 'videoDetail.cast.deviceTypes.wlanConnectionDevice': return 'WLAN Connection Device';
+			case 'videoDetail.cast.deviceTypes.printer': return 'Printer';
+			case 'videoDetail.cast.deviceTypes.scanner': return 'Scanner';
+			case 'videoDetail.cast.deviceTypes.digitalSecurityCamera': return 'Digital Security Camera';
+			case 'videoDetail.cast.deviceTypes.unknownDevice': return 'Unknown Device';
+			case 'videoDetail.cast.currentPlatformNotSupported': return 'Current platform does not support casting';
+			case 'videoDetail.cast.unableToGetVideoUrl': return 'Unable to get video URL, please try again later';
+			case 'videoDetail.cast.stopCasting': return 'Stop casting';
+			case 'videoDetail.cast.dlnaCastSheet.title': return 'Remote Cast';
+			case 'videoDetail.cast.dlnaCastSheet.close': return 'Close';
+			case 'videoDetail.cast.dlnaCastSheet.searchingDevices': return 'Searching for devices...';
+			case 'videoDetail.cast.dlnaCastSheet.searchPrompt': return 'Click search button to re-search for casting devices';
+			case 'videoDetail.cast.dlnaCastSheet.searching': return 'Searching';
+			case 'videoDetail.cast.dlnaCastSheet.searchAgain': return 'Search Again';
+			case 'videoDetail.cast.dlnaCastSheet.noDevicesFound': return 'No casting devices found\nPlease ensure devices are on the same network';
+			case 'videoDetail.cast.dlnaCastSheet.searchingDevicesPrompt': return 'Searching for devices, please wait...';
+			case 'videoDetail.cast.dlnaCastSheet.cast': return 'Cast';
+			case 'videoDetail.cast.dlnaCastSheet.connectedTo': return ({required Object deviceName}) => 'Connected to: ${deviceName}';
+			case 'videoDetail.cast.dlnaCastSheet.notConnected': return 'No device connected';
+			case 'videoDetail.cast.dlnaCastSheet.stopCasting': return 'Stop Casting';
+			case 'videoDetail.likeAvatars.dialogTitle': return 'Who\'s secretly liking';
+			case 'videoDetail.likeAvatars.dialogDescription': return 'Curious who they are? Flip through this "Like Album"~';
+			case 'videoDetail.likeAvatars.closeTooltip': return 'Close';
+			case 'videoDetail.likeAvatars.retry': return 'Retry';
+			case 'videoDetail.likeAvatars.noLikesYet': return 'No one has appeared here yet. Be the first!';
+			case 'videoDetail.likeAvatars.pageInfo': return ({required Object page, required Object totalPages, required Object totalCount}) => 'Page ${page} / ${totalPages} · Total ${totalCount} people';
+			case 'videoDetail.likeAvatars.prevPage': return 'Previous Page';
+			case 'videoDetail.likeAvatars.nextPage': return 'Next Page';
+			case 'share.sharePlayList': return 'Share Play List';
+			case 'share.wowDidYouSeeThis': return 'Wow, did you see this?';
+			case 'share.nameIs': return 'Name is';
+			case 'share.clickLinkToView': return 'Click link to view';
+			case 'share.iReallyLikeThis': return 'I really like this';
+			case 'share.shareFailed': return 'Share failed, please try again later';
+			case 'share.share': return 'Share';
+			case 'share.shareAsImage': return 'Share as Image';
+			case 'share.shareAsText': return 'Share as Text';
+			case 'share.shareAsImageDesc': return 'Share the video cover as an image';
+			case 'share.shareAsTextDesc': return 'Share the video details as text';
+			case 'share.shareAsImageFailed': return 'Share the video cover as an image failed, please try again later';
+			case 'share.shareAsTextFailed': return 'Share the video details as text failed, please try again later';
+			case 'share.shareVideo': return 'Share Video';
+			case 'share.authorIs': return 'Author is';
+			case 'share.shareGallery': return 'Share Gallery';
+			case 'share.galleryTitleIs': return 'Gallery title is';
+			case 'share.galleryAuthorIs': return 'Gallery author is';
+			case 'share.shareUser': return 'Share User';
+			case 'share.userNameIs': return 'User name is';
+			case 'share.userAuthorIs': return 'User author is';
+			case 'share.comments': return 'Comments';
+			case 'share.shareThread': return 'Share Thread';
+			case 'share.views': return 'Views';
+			case 'share.sharePost': return 'Share Post';
+			case 'share.postTitleIs': return 'Post title is';
+			case 'share.postAuthorIs': return 'Post author is';
+			case 'markdown.markdownSyntax': return 'Markdown Syntax';
+			case 'markdown.iwaraSpecialMarkdownSyntax': return 'Iwara Special Markdown Syntax';
+			case 'markdown.internalLink': return 'Internal Link';
+			case 'markdown.supportAutoConvertLinkBelow': return 'Support auto convert link below:';
+			case 'markdown.convertLinkExample': return '🎬 Video Link\n🖼️ Image Link\n👤 User Link\n📌 Forum Link\n🎵 Playlist Link\n💬 Thread Link';
+			case 'markdown.mentionUser': return 'Mention User';
+			case 'markdown.mentionUserDescription': return 'Input @ followed by username, will be automatically converted to user link';
+			case 'markdown.markdownBasicSyntax': return 'Markdown Basic Syntax';
+			case 'markdown.paragraphAndLineBreak': return 'Paragraph and Line Break';
+			case 'markdown.paragraphAndLineBreakDescription': return 'Paragraphs are separated by a line, and two spaces at the end of the line will be converted to a line break';
+			case 'markdown.paragraphAndLineBreakSyntax': return 'This is the first paragraph\n\nThis is the second paragraph\nThis line ends with two spaces  \nwill be converted to a line break';
+			case 'markdown.textStyle': return 'Text Style';
+			case 'markdown.textStyleDescription': return 'Use special symbols to surround text to change style';
+			case 'markdown.textStyleSyntax': return '**Bold Text**\n*Italic Text*\n~~Strikethrough Text~~\n`Code Text`';
+			case 'markdown.quote': return 'Quote';
+			case 'markdown.quoteDescription': return 'Use > symbol to create quote, multiple > to create multi-level quote';
+			case 'markdown.quoteSyntax': return '> This is a first-level quote\n>> This is a second-level quote';
+			case 'markdown.list': return 'List';
+			case 'markdown.listDescription': return 'Create ordered list with number+dot, create unordered list with -';
+			case 'markdown.listSyntax': return '1. First item\n2. Second item\n\n- Unordered item\n  - Subitem\n  - Another subitem';
+			case 'markdown.linkAndImage': return 'Link and Image';
+			case 'markdown.linkAndImageDescription': return 'Link format: [text](URL)\nImage format: ![description](URL)';
+			case 'markdown.linkAndImageSyntax': return ({required Object link, required Object imgUrl}) => '[link text](${link})\n![image description](${imgUrl})';
+			case 'markdown.title': return 'Title';
+			case 'markdown.titleDescription': return 'Use # symbol to create title, number to show level';
+			case 'markdown.titleSyntax': return '# First-level title\n## Second-level title\n### Third-level title';
+			case 'markdown.separator': return 'Separator';
+			case 'markdown.separatorDescription': return 'Create separator with three or more - symbols';
+			case 'markdown.separatorSyntax': return '---';
+			case 'markdown.syntax': return 'Syntax';
+			case 'forum.recent': return 'Recent';
+			case 'forum.category': return 'Category';
+			case 'forum.lastReply': return 'Last Reply';
+			case 'forum.errors.pleaseSelectCategory': return 'Please select a category';
+			case 'forum.errors.threadLocked': return 'This thread is locked, cannot reply';
+			case 'forum.createPost': return 'Create Post';
+			case 'forum.title': return 'Title';
+			case 'forum.enterTitle': return 'Enter Title';
+			case 'forum.content': return 'Content';
+			case 'forum.enterContent': return 'Enter Content';
+			case 'forum.writeYourContentHere': return 'Write your content here...';
+			case 'forum.posts': return 'Posts';
+			case 'forum.threads': return 'Threads';
+			case 'forum.forum': return 'Forum';
+			case 'forum.createThread': return 'Create Thread';
+			case 'forum.selectCategory': return 'Select Category';
+			case 'forum.cooldownRemaining': return ({required Object minutes, required Object seconds}) => 'Cooldown remaining ${minutes} minutes ${seconds} seconds';
+			case 'forum.groups.administration': return 'Administration';
+			case 'forum.groups.global': return 'Global';
+			case 'forum.groups.chinese': return 'Chinese';
+			case 'forum.groups.japanese': return 'Japanese';
+			case 'forum.groups.korean': return 'Korean';
+			case 'forum.groups.other': return 'Other';
+			case 'forum.leafNames.announcements': return 'Announcements';
+			case 'forum.leafNames.feedback': return 'Feedback';
+			case 'forum.leafNames.support': return 'Support';
+			case 'forum.leafNames.general': return 'General';
+			case 'forum.leafNames.guides': return 'Guides';
+			case 'forum.leafNames.questions': return 'Questions';
+			case 'forum.leafNames.requests': return 'Requests';
+			case 'forum.leafNames.sharing': return 'Sharing';
+			case 'forum.leafNames.general_zh': return 'General';
+			case 'forum.leafNames.questions_zh': return 'Questions';
+			case 'forum.leafNames.requests_zh': return 'Requests';
+			case 'forum.leafNames.support_zh': return 'Support';
+			case 'forum.leafNames.general_ja': return 'General';
+			case 'forum.leafNames.questions_ja': return 'Questions';
+			case 'forum.leafNames.requests_ja': return 'Requests';
+			case 'forum.leafNames.support_ja': return 'Support';
+			case 'forum.leafNames.korean': return 'Korean';
+			case 'forum.leafNames.other': return 'Other';
+			case 'forum.leafDescriptions.announcements': return 'Official important notifications and announcements';
+			case 'forum.leafDescriptions.feedback': return 'Feedback on the website\'s features and services';
+			case 'forum.leafDescriptions.support': return 'Help to resolve website-related issues';
+			case 'forum.leafDescriptions.general': return 'Discuss any topic';
+			case 'forum.leafDescriptions.guides': return 'Share your experiences and tutorials';
+			case 'forum.leafDescriptions.questions': return 'Raise your inquiries';
+			case 'forum.leafDescriptions.requests': return 'Post your requests';
+			case 'forum.leafDescriptions.sharing': return 'Share interesting content';
+			case 'forum.leafDescriptions.general_zh': return 'Discuss any topic';
+			case 'forum.leafDescriptions.questions_zh': return 'Raise your inquiries';
+			case 'forum.leafDescriptions.requests_zh': return 'Post your requests';
+			case 'forum.leafDescriptions.support_zh': return 'Help to resolve website-related issues';
+			case 'forum.leafDescriptions.general_ja': return 'Discuss any topic';
+			case 'forum.leafDescriptions.questions_ja': return 'Raise your inquiries';
+			case 'forum.leafDescriptions.requests_ja': return 'Post your requests';
+			case 'forum.leafDescriptions.support_ja': return 'Help to resolve website-related issues';
+			case 'forum.leafDescriptions.korean': return 'Discussions related to Korean';
+			case 'forum.leafDescriptions.other': return 'Other unclassified content';
+			case 'forum.reply': return 'Reply';
+			case 'forum.pendingReview': return 'Pending Review';
+			case 'forum.editedAt': return 'Edited At';
+			case 'forum.copySuccess': return 'Copied to clipboard';
+			case 'forum.copySuccessForMessage': return ({required Object str}) => 'Copied to clipboard: ${str}';
+			case 'forum.editReply': return 'Edit Reply';
+			case 'forum.editTitle': return 'Edit Title';
+			case 'forum.submit': return 'Submit';
+			case 'notifications.errors.unsupportedNotificationType': return 'Unsupported notification type';
+			case 'notifications.errors.unknownUser': return 'Unknown user';
+			case 'notifications.errors.unsupportedNotificationTypeWithType': return ({required Object type}) => 'Unsupported notification type: ${type}';
+			case 'notifications.errors.unknownNotificationType': return 'Unknown notification type';
+			case 'notifications.notifications': return 'Notifications';
+			case 'notifications.profile': return 'Profile';
+			case 'notifications.postedNewComment': return 'Posted new comment';
+			case 'notifications.inYour': return 'In your';
+			case 'notifications.video': return 'Video';
+			case 'notifications.repliedYourVideoComment': return 'Replied your video comment';
+			case 'notifications.copyInfoToClipboard': return 'Copy notification info to clipboard';
+			case 'notifications.copySuccess': return 'Copied to clipboard';
+			case 'notifications.copySuccessForMessage': return ({required Object str}) => 'Copied to clipboard: ${str}';
+			case 'notifications.markAllAsRead': return 'Mark all as read';
+			case 'notifications.markAllAsReadSuccess': return 'All notifications have been marked as read';
+			case 'notifications.markAllAsReadFailed': return 'Mark all as read failed';
+			case 'notifications.markSelectedAsRead': return 'Mark selected as read';
+			case 'notifications.markSelectedAsReadSuccess': return 'Selected notifications have been marked as read';
+			case 'notifications.markSelectedAsReadFailed': return 'Mark selected as read failed';
+			case 'notifications.markAsRead': return 'Mark as read';
+			case 'notifications.markAsReadSuccess': return 'Notification has been marked as read';
+			case 'notifications.markAsReadFailed': return 'Notification marked as read failed';
+			case 'notifications.notificationTypeHelp': return 'Notification Type Help';
+			case 'notifications.dueToLackOfNotificationTypeDetails': return 'Due to the lack of notification type details, the supported types may not cover the messages you currently receive';
+			case 'notifications.helpUsImproveNotificationTypeSupport': return 'If you are willing to help us improve the support for notification types';
+			case 'notifications.helpUsImproveNotificationTypeSupportLongText': return '1. 📋 Copy the notification information\n2. 🐞 Submit an issue to the project repository\n\n⚠️ Note: Notification information may contain personal privacy, if you do not want to public, you can also send it to the project author by email.';
+			case 'notifications.goToRepository': return 'Go to Repository';
+			case 'notifications.copy': return 'Copy';
+			case 'notifications.commentApproved': return 'Comment Approved';
+			case 'notifications.repliedYourProfileComment': return 'Replied your profile comment';
+			case 'notifications.kReplied': return 'replied to your comment on';
+			case 'notifications.kCommented': return 'commented on your';
+			case 'notifications.kVideo': return 'video';
+			case 'notifications.kGallery': return 'gallery';
+			case 'notifications.kProfile': return 'profile';
+			case 'notifications.kThread': return 'thread';
+			case 'notifications.kPost': return 'post';
+			case 'notifications.kCommentSection': return 'comment section';
+			case 'notifications.kApprovedComment': return 'Comment approved';
+			case 'notifications.kApprovedVideo': return 'Video approved';
+			case 'notifications.kApprovedGallery': return 'Gallery approved';
+			case 'notifications.kApprovedThread': return 'Thread approved';
+			case 'notifications.kApprovedPost': return 'Post approved';
+			case 'notifications.kApprovedForumPost': return 'Forum post approved';
+			case 'notifications.kRejectedContent': return 'Content review rejected';
+			case 'notifications.kUnknownType': return 'Unknown notification type';
+			case 'conversation.errors.pleaseSelectAUser': return 'Please select a user';
+			case 'conversation.errors.pleaseEnterATitle': return 'Please enter a title';
+			case 'conversation.errors.clickToSelectAUser': return 'Click to select a user';
+			case 'conversation.errors.loadFailedClickToRetry': return 'Load failed, click to retry';
+			case 'conversation.errors.loadFailed': return 'Load failed';
+			case 'conversation.errors.clickToRetry': return 'Click to retry';
+			case 'conversation.errors.noMoreConversations': return 'No more conversations';
+			case 'conversation.conversation': return 'Conversation';
+			case 'conversation.startConversation': return 'Start Conversation';
+			case 'conversation.noConversation': return 'No conversation';
+			case 'conversation.selectFromLeftListAndStartConversation': return 'Select from left list and start conversation';
+			case 'conversation.title': return 'Title';
+			case 'conversation.body': return 'Body';
+			case 'conversation.selectAUser': return 'Select a user';
+			case 'conversation.searchUsers': return 'Search users...';
+			case 'conversation.tmpNoConversions': return 'No conversions';
+			case 'conversation.deleteThisMessage': return 'Delete this message';
+			case 'conversation.deleteThisMessageSubtitle': return 'This operation cannot be undone';
+			case 'conversation.writeMessageHere': return 'Write message here...';
+			case 'conversation.sendMessage': return 'Send message';
+			case 'splash.errors.initializationFailed': return 'Initialization failed, please restart the app';
+			case 'splash.preparing': return 'Preparing...';
+			case 'splash.initializing': return 'Initializing...';
+			case 'splash.loading': return 'Loading...';
+			case 'splash.ready': return 'Ready';
+			case 'splash.initializingMessageService': return 'Initializing message service...';
+			case 'download.errors.imageModelNotFound': return 'Image model not found';
+			case 'download.errors.downloadFailed': return 'Download failed';
+			case 'download.errors.videoInfoNotFound': return 'Video info not found';
+			case 'download.errors.downloadTaskAlreadyExists': return 'Download task already exists';
+			case 'download.errors.videoAlreadyDownloaded': return 'Video already downloaded';
+			case 'download.errors.downloadFailedForMessage': return ({required Object errorInfo}) => 'Add download task failed: ${errorInfo}';
+			case 'download.errors.userPausedDownload': return 'User paused download';
+			case 'download.errors.unknown': return 'Unknown';
+			case 'download.errors.fileSystemError': return ({required Object errorInfo}) => 'File system error: ${errorInfo}';
+			case 'download.errors.unknownError': return ({required Object errorInfo}) => 'Unknown error: ${errorInfo}';
+			case 'download.errors.connectionTimeout': return 'Connection timeout';
+			case 'download.errors.sendTimeout': return 'Send timeout';
+			case 'download.errors.receiveTimeout': return 'Receive timeout';
+			case 'download.errors.serverError': return ({required Object errorInfo}) => 'Server error: ${errorInfo}';
+			case 'download.errors.unknownNetworkError': return 'Unknown network error';
+			case 'download.errors.sslHandshakeFailed': return 'SSL handshake failed, please check your network';
+			case 'download.errors.connectionFailed': return 'Connection failed, please check your network';
+			case 'download.errors.serviceIsClosing': return 'Download service is closing';
+			case 'download.errors.partialDownloadFailed': return 'Partial content download failed';
+			case 'download.errors.noDownloadTask': return 'No download task';
+			case 'download.errors.taskNotFoundOrDataError': return 'Task not found or data error';
+			case 'download.errors.fileNotFound': return 'File not found';
+			case 'download.errors.openFolderFailed': return 'Failed to open folder';
+			case 'download.errors.copyDownloadUrlFailed': return 'Failed to copy download URL';
+			case 'download.errors.openFolderFailedWithMessage': return ({required Object message}) => 'Failed to open folder: ${message}';
+			case 'download.errors.directoryNotFound': return 'Directory not found';
+			case 'download.errors.copyFailed': return 'Copy failed';
+			case 'download.errors.openFileFailed': return 'Failed to open file';
+			case 'download.errors.openFileFailedWithMessage': return ({required Object message}) => 'Failed to open file: ${message}';
+			case 'download.errors.noDownloadSource': return 'No download source';
+			case 'download.errors.noDownloadSourceNowPleaseWaitInfoLoaded': return 'No download source, please wait for information loading to be completed and try again';
+			case 'download.errors.noActiveDownloadTask': return 'No active download task';
+			case 'download.errors.noFailedDownloadTask': return 'No failed download task';
+			case 'download.errors.noCompletedDownloadTask': return 'No completed download task';
+			case 'download.errors.taskAlreadyCompletedDoNotAdd': return 'Task already completed, do not add again';
+			case 'download.errors.linkExpiredTryAgain': return 'Link expired, trying to get new download link';
+			case 'download.errors.linkExpiredTryAgainSuccess': return 'Link expired, trying to get new download link success';
+			case 'download.errors.linkExpiredTryAgainFailed': return 'Link expired, trying to get new download link failed';
+			case 'download.errors.taskDeleted': return 'Task deleted';
+			case 'download.errors.unsupportedImageFormat': return ({required Object format}) => 'Unsupported image format: ${format}';
+			case 'download.errors.deleteFileError': return 'Failed to delete file, possibly because the file is being used by another process';
+			case 'download.errors.deleteTaskError': return 'Failed to delete task';
+			case 'download.errors.canNotRefreshVideoTask': return 'Failed to refresh video task';
+			case 'download.errors.taskAlreadyProcessing': return 'Task already processing';
+			case 'download.errors.taskNotFound': return 'Task not found';
+			case 'download.errors.failedToLoadTasks': return 'Failed to load tasks';
+			case 'download.errors.partialDownloadFailedWithMessage': return ({required Object message}) => 'Partial download failed: ${message}';
+			case 'download.errors.unsupportedImageFormatWithMessage': return ({required Object extension}) => 'Unsupported image format: ${extension}, you can try to download it to your device to view it';
+			case 'download.errors.imageLoadFailed': return 'Image load failed';
+			case 'download.errors.pleaseTryOtherViewer': return 'Please try using other viewers to open';
+			case 'download.downloadList': return 'Download List';
+			case 'download.viewDownloadList': return 'View Download List';
+			case 'download.download': return 'Download';
+			case 'download.startDownloading': return 'Start Downloading';
+			case 'download.clearAllFailedTasks': return 'Clear All Failed Tasks';
+			case 'download.clearAllFailedTasksConfirmation': return 'Are you sure you want to clear all failed download tasks? The files of these tasks will also be deleted.';
+			case 'download.clearAllFailedTasksSuccess': return 'Cleared all failed tasks';
+			case 'download.clearAllFailedTasksError': return 'Error occurred while clearing failed tasks';
+			case 'download.downloadStatus': return 'Download Status';
+			case 'download.imageList': return 'Image List';
+			case 'download.retryDownload': return 'Retry Download';
+			case 'download.notDownloaded': return 'Not Downloaded';
+			case 'download.downloaded': return 'Downloaded';
+			case 'download.waitingForDownload': return 'Waiting for Download';
+			case 'download.downloadingProgressForImageProgress': return ({required Object downloaded, required Object total, required Object progress}) => 'Downloading (${downloaded}/${total} images ${progress}%)';
+			case 'download.downloadingSingleImageProgress': return ({required Object downloaded}) => 'Downloading (${downloaded} images)';
+			case 'download.pausedProgressForImageProgress': return ({required Object downloaded, required Object total, required Object progress}) => 'Paused (${downloaded}/${total} images ${progress}%)';
+			case 'download.pausedSingleImageProgress': return ({required Object downloaded}) => 'Paused (${downloaded} images)';
+			case 'download.downloadedProgressForImageProgress': return ({required Object total}) => 'Downloaded (Total ${total} images)';
+			case 'download.viewVideoDetail': return 'View Video Detail';
+			case 'download.viewGalleryDetail': return 'View Gallery Detail';
+			case 'download.moreOptions': return 'More Options';
+			case 'download.openFile': return 'Open File';
+			case 'download.pause': return 'Pause';
+			case 'download.resume': return 'Resume';
+			case 'download.copyDownloadUrl': return 'Copy Download URL';
+			case 'download.showInFolder': return 'Show in Folder';
+			case 'download.deleteTask': return 'Delete Task';
+			case 'download.deleteTaskConfirmation': return 'Are you sure you want to delete this download task?\nThe task file will also be deleted.';
+			case 'download.forceDeleteTask': return 'Force Delete Task';
+			case 'download.forceDeleteTaskConfirmation': return 'Are you sure you want to force delete this download task?\nThe task file will also be deleted, even if the file is being used.';
+			case 'download.downloadingProgressForVideoTask': return ({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'Downloading ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
+			case 'download.downloadingOnlyDownloadedAndSpeed': return ({required Object downloaded, required Object speed}) => 'Downloading ${downloaded} • ${speed}MB/s';
+			case 'download.pausedForDownloadedAndTotal': return ({required Object downloaded, required Object total, required Object progress}) => 'Paused ${downloaded}/${total} (${progress}%)';
+			case 'download.pausedAndDownloaded': return ({required Object downloaded}) => 'Paused • Downloaded ${downloaded}';
+			case 'download.downloadedWithSize': return ({required Object size}) => 'Downloaded • ${size}';
+			case 'download.copyDownloadUrlSuccess': return 'Download URL copied';
+			case 'download.totalImageNums': return ({required Object num}) => '${num} images';
+			case 'download.downloadingDownloadedTotalProgressSpeed': return ({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'Downloading ${downloaded}/${total} (${progress}%) • ${speed}MB/s';
+			case 'download.downloading': return 'Downloading';
+			case 'download.failed': return 'Failed';
+			case 'download.completed': return 'Completed';
+			case 'download.downloadDetail': return 'Download Detail';
+			case 'download.copy': return 'Copy';
+			case 'download.copySuccess': return 'Copied';
+			case 'download.waiting': return 'Waiting';
+			case 'download.paused': return 'Paused';
+			case 'download.downloadingOnlyDownloaded': return ({required Object downloaded}) => 'Downloading ${downloaded}';
+			case 'download.galleryDownloadCompletedWithName': return ({required Object galleryName}) => 'Gallery Download Completed: ${galleryName}';
+			case 'download.downloadCompletedWithName': return ({required Object fileName}) => 'Download Completed: ${fileName}';
+			case 'download.stillInDevelopment': return 'Still in development';
+			case 'download.saveToAppDirectory': return 'Save to app directory';
+			case 'download.alreadyDownloadedWithQuality': return 'Already downloaded with the same quality, continue downloading?';
+			case 'download.alreadyDownloadedWithQualities': return ({required Object qualities}) => 'Already downloaded with qualities: ${qualities}, continue downloading?';
+			case 'download.otherQualities': return 'Other qualities';
+			case 'favorite.errors.addFailed': return 'Add failed';
+			case 'favorite.errors.addSuccess': return 'Add success';
+			case 'favorite.errors.deleteFolderFailed': return 'Delete folder failed';
+			case 'favorite.errors.deleteFolderSuccess': return 'Delete folder success';
+			case 'favorite.errors.folderNameCannotBeEmpty': return 'Folder name cannot be empty';
+			case 'favorite.add': return 'Add';
+			case 'favorite.addSuccess': return 'Add success';
+			case 'favorite.addFailed': return 'Add failed';
+			case 'favorite.remove': return 'Remove';
+			case 'favorite.removeSuccess': return 'Remove success';
+			case 'favorite.removeFailed': return 'Remove failed';
+			case 'favorite.removeConfirmation': return 'Are you sure you want to remove this item from favorites?';
+			case 'favorite.removeConfirmationSuccess': return 'Item removed from favorites';
+			case 'favorite.removeConfirmationFailed': return 'Failed to remove item from favorites';
+			case 'favorite.createFolderSuccess': return 'Folder created successfully';
+			case 'favorite.createFolderFailed': return 'Failed to create folder';
+			case 'favorite.createFolder': return 'Create Folder';
+			case 'favorite.enterFolderName': return 'Enter folder name';
+			case 'favorite.enterFolderNameHere': return 'Enter folder name here...';
+			case 'favorite.create': return 'Create';
+			case 'favorite.items': return 'Items';
+			case 'favorite.newFolderName': return 'New Folder';
+			case 'favorite.searchFolders': return 'Search folders...';
+			case 'favorite.searchItems': return 'Search items...';
+			case 'favorite.createdAt': return 'Created At';
+			case 'favorite.myFavorites': return 'My Favorites';
+			case 'favorite.deleteFolderTitle': return 'Delete Folder';
+			case 'favorite.deleteFolderConfirmWithTitle': return ({required Object title}) => 'Are you sure you want to delete ${title} folder?';
+			case 'favorite.removeItemTitle': return 'Remove Item';
+			case 'favorite.removeItemConfirmWithTitle': return ({required Object title}) => 'Are you sure you want to delete ${title} item?';
+			case 'favorite.removeItemSuccess': return 'Item removed from favorites';
+			case 'favorite.removeItemFailed': return 'Failed to remove item from favorites';
+			case 'favorite.localizeFavorite': return 'Local Favorite';
+			case 'favorite.editFolderTitle': return 'Edit Folder';
+			case 'favorite.editFolderSuccess': return 'Folder updated successfully';
+			case 'favorite.editFolderFailed': return 'Failed to update folder';
+			case 'favorite.searchTags': return 'Search tags';
+			case 'translation.currentService': return 'Current Service';
+			case 'translation.testConnection': return 'Test Connection';
+			case 'translation.testConnectionSuccess': return 'Test connection success';
+			case 'translation.testConnectionFailed': return 'Test connection failed';
+			case 'translation.testConnectionFailedWithMessage': return ({required Object message}) => 'Test connection failed: ${message}';
+			case 'translation.translation': return 'Translation';
+			case 'translation.needVerification': return 'Need Verification';
+			case 'translation.needVerificationContent': return 'Please test the connection first before enabling AI translation';
+			case 'translation.confirm': return 'Confirm';
+			case 'translation.disclaimer': return 'Disclaimer';
+			case 'translation.riskWarning': return 'Risk Warning';
+			case 'translation.dureToRisk1': return 'Due to the text being generated by users, it may contain content that violates the content policy of the AI service provider';
+			case 'translation.dureToRisk2': return 'Inappropriate content may lead to API key suspension or service termination';
+			case 'translation.operationSuggestion': return 'Operation Suggestion';
+			case 'translation.operationSuggestion1': return '1. Use before strictly reviewing the content to be translated';
+			case 'translation.operationSuggestion2': return '2. Avoid translating content involving violence, adult content, etc.';
+			case 'translation.apiConfig': return 'API Config';
+			case 'translation.modifyConfigWillAutoCloseAITranslation': return 'Modify configuration will automatically close AI translation, need to test again after opening';
+			case 'translation.apiAddress': return 'API Address';
+			case 'translation.modelName': return 'Model Name';
+			case 'translation.modelNameHintText': return 'For example: gpt-4-turbo';
+			case 'translation.maxTokens': return 'Max Tokens';
+			case 'translation.maxTokensHintText': return 'For example: 32000';
+			case 'translation.temperature': return 'Temperature';
+			case 'translation.temperatureHintText': return '0.0-2.0';
+			case 'translation.clickTestButtonToVerifyAPIConnection': return 'Click test button to verify API connection validity';
+			case 'translation.requestPreview': return 'Request Preview';
+			case 'translation.enableAITranslation': return 'Enable AI';
+			case 'translation.enabled': return 'Enabled';
+			case 'translation.disabled': return 'Disabled';
+			case 'translation.testing': return 'Testing...';
+			case 'translation.testNow': return 'Test Now';
+			case 'translation.connectionStatus': return 'Connection Status';
+			case 'translation.success': return 'Success';
+			case 'translation.failed': return 'Failed';
+			case 'translation.information': return 'Information';
+			case 'translation.viewRawResponse': return 'View Raw Response';
+			case 'translation.pleaseCheckInputParametersFormat': return 'Please check input parameters format';
+			case 'translation.pleaseFillInAPIAddressModelNameAndKey': return 'Please fill in API address, model name and key';
+			case 'translation.pleaseFillInValidConfigurationParameters': return 'Please fill in valid configuration parameters';
+			case 'translation.pleaseCompleteConnectionTest': return 'Please complete connection test';
+			case 'translation.notConfigured': return 'Not Configured';
+			case 'translation.apiEndpoint': return 'API Endpoint';
+			case 'translation.configuredKey': return 'Configured Key';
+			case 'translation.notConfiguredKey': return 'Not Configured Key';
+			case 'translation.authenticationStatus': return 'Authentication Status';
+			case 'translation.thisFieldCannotBeEmpty': return 'This field cannot be empty';
+			case 'translation.apiKey': return 'API Key';
+			case 'translation.apiKeyCannotBeEmpty': return 'API key cannot be empty';
+			case 'translation.pleaseEnterValidNumber': return 'Please enter valid number';
+			case 'translation.range': return 'Range';
+			case 'translation.mustBeGreaterThan': return 'Must be greater than';
+			case 'translation.invalidAPIResponse': return 'Invalid API response';
+			case 'translation.connectionFailedForMessage': return ({required Object message}) => 'Connection failed: ${message}';
+			case 'translation.aiTranslationNotEnabledHint': return 'AI translation is not enabled, please enable it in settings';
+			case 'translation.goToSettings': return 'Go to Settings';
+			case 'translation.disableAITranslation': return 'Disable AI Translation';
+			case 'translation.currentValue': return 'Current Value';
+			case 'translation.configureTranslationStrategy': return 'Configure Translation Strategy';
+			case 'translation.advancedSettings': return 'Advanced Settings';
+			case 'translation.translationPrompt': return 'Translation Prompt';
+			case 'translation.promptHint': return 'Please enter translation prompt, use [TL] as the placeholder for the target language';
+			case 'translation.promptHelperText': return 'The prompt must contain [TL] as the placeholder for the target language';
+			case 'translation.promptMustContainTargetLang': return 'The prompt must contain [TL] placeholder';
+			case 'translation.aiTranslationWillBeDisabled': return 'AI translation will be disabled';
+			case 'translation.aiTranslationWillBeDisabledDueToConfigChange': return 'Due to the change of basic configuration, AI translation will be disabled';
+			case 'translation.aiTranslationWillBeDisabledDueToPromptChange': return 'Due to the change of translation prompt, AI translation will be disabled';
+			case 'translation.aiTranslationWillBeDisabledDueToParamChange': return 'Due to the change of parameter configuration, AI translation will be disabled';
+			case 'translation.onlyOpenAIAPISupported': return 'Currently only supports OpenAI-compatible API format (application/json request body)';
+			case 'translation.streamingTranslation': return 'Streaming Translation';
+			case 'translation.streamingTranslationSupported': return 'Streaming Translation Supported';
+			case 'translation.streamingTranslationNotSupported': return 'Streaming Translation Not Supported';
+			case 'translation.streamingTranslationDescription': return 'Streaming translation can display results in real-time during the translation process, providing a better user experience';
+			case 'translation.usingFullUrlWithHash': return 'Using full URL (ending with #)';
+			case 'translation.baseUrlInputHelperText': return 'When ending with #, it will be used as the actual request address';
+			case 'translation.currentActualUrl': return ({required Object url}) => 'Current actual URL: ${url}';
+			case 'translation.urlEndingWithHashTip': return 'URL ending with # will be used directly without adding any suffix';
+			case 'translation.streamingTranslationWarning': return 'Note: This feature requires API service support for streaming transmission, some models may not support it';
+			case 'translation.translationService': return 'Translation Service';
+			case 'translation.translationServiceDescription': return 'Select your preferred translation service';
+			case 'translation.googleTranslation': return 'Google Translation';
+			case 'translation.googleTranslationDescription': return 'Free online translation service supporting multiple languages';
+			case 'translation.aiTranslation': return 'AI Translation';
+			case 'translation.aiTranslationDescription': return 'Intelligent translation service based on large language models';
+			case 'translation.deeplxTranslation': return 'DeepLX Translation';
+			case 'translation.deeplxTranslationDescription': return 'Open source implementation of DeepL translation, providing high-quality translation';
+			case 'translation.googleTranslationFeatures': return 'Features';
+			case 'translation.freeToUse': return 'Free to use';
+			case 'translation.freeToUseDescription': return 'No configuration required, ready to use';
+			case 'translation.fastResponse': return 'Fast response';
+			case 'translation.fastResponseDescription': return 'Fast translation speed with low latency';
+			case 'translation.stableAndReliable': return 'Stable and reliable';
+			case 'translation.stableAndReliableDescription': return 'Based on Google official API';
+			case 'translation.enabledDefaultService': return 'Enabled - Default translation service';
+			case 'translation.notEnabled': return 'Not enabled';
+			case 'translation.deeplxTranslationService': return 'DeepLX Translation Service';
+			case 'translation.deeplxDescription': return 'DeepLX is an open source implementation of DeepL translation, supporting Free, Pro and Official endpoint modes';
+			case 'translation.serverAddress': return 'Server Address';
+			case 'translation.serverAddressHint': return 'https://api.deeplx.org';
+			case 'translation.serverAddressHelperText': return 'Base address of DeepLX server';
+			case 'translation.endpointType': return 'Endpoint Type';
+			case 'translation.freeEndpoint': return 'Free - Free endpoint, may have rate limits';
+			case 'translation.proEndpoint': return 'Pro - Requires dl_session, more stable';
+			case 'translation.officialEndpoint': return 'Official - Official API format';
+			case 'translation.finalRequestUrl': return 'Final Request URL';
+			case 'translation.apiKeyOptional': return 'API Key (Optional)';
+			case 'translation.apiKeyOptionalHint': return 'For accessing protected DeepLX services';
+			case 'translation.apiKeyOptionalHelperText': return 'Some DeepLX services require API Key for authentication';
+			case 'translation.dlSession': return 'DL Session';
+			case 'translation.dlSessionHint': return 'dl_session parameter required for Pro mode';
+			case 'translation.dlSessionHelperText': return 'Session parameter required for Pro endpoint, obtained from DeepL Pro account';
+			case 'translation.proModeRequiresDlSession': return 'Pro mode requires dl_session';
+			case 'translation.clickTestButtonToVerifyDeepLXAPI': return 'Click test button to verify DeepLX API connection';
+			case 'translation.enableDeepLXTranslation': return 'Enable DeepLX Translation';
+			case 'translation.deepLXTranslationWillBeDisabled': return 'DeepLX translation will be disabled due to configuration changes';
+			case 'translation.translatedResult': return 'Translated Result';
+			case 'translation.testSuccess': return 'Test successful';
+			case 'translation.pleaseFillInDeepLXServerAddress': return 'Please fill in DeepLX server address';
+			case 'translation.invalidAPIResponseFormat': return 'Invalid API response format';
+			case 'translation.translationServiceReturnedError': return 'Translation service returned error or empty result';
+			case 'translation.connectionFailed': return 'Connection failed';
+			case 'translation.translationFailed': return 'Translation failed';
+			case 'translation.aiTranslationFailed': return 'AI translation failed';
+			case 'translation.deeplxTranslationFailed': return 'DeepLX translation failed';
+			case 'translation.aiTranslationTestFailed': return 'AI translation test failed';
+			case 'translation.deeplxTranslationTestFailed': return 'DeepLX translation test failed';
+			case 'translation.streamingTranslationTimeout': return 'Streaming translation timeout, forcing resource cleanup';
+			case 'translation.translationRequestTimeout': return 'Translation request timeout';
+			case 'translation.streamingTranslationDataTimeout': return 'Streaming translation data reception timeout';
+			case 'translation.dataReceptionTimeout': return 'Data reception timeout';
+			case 'translation.streamDataParseError': return 'Error parsing stream data';
+			case 'translation.streamingTranslationFailed': return 'Streaming translation failed';
+			case 'translation.fallbackTranslationFailed': return 'Fallback to normal translation also failed';
+			case 'translation.translationSettings': return 'Translation Settings';
+			case 'translation.enableGoogleTranslation': return 'Enable Google Translation';
+			case 'navigationOrderSettings.title': return 'Navigation Order Settings';
+			case 'navigationOrderSettings.customNavigationOrder': return 'Custom Navigation Order';
+			case 'navigationOrderSettings.customNavigationOrderDesc': return 'Drag to adjust the display order of pages in the bottom navigation bar and sidebar';
+			case 'navigationOrderSettings.restartRequired': return 'Restart app required';
+			case 'navigationOrderSettings.navigationItemSorting': return 'Navigation Item Sorting';
+			case 'navigationOrderSettings.done': return 'Done';
+			case 'navigationOrderSettings.edit': return 'Edit';
+			case 'navigationOrderSettings.reset': return 'Reset';
+			case 'navigationOrderSettings.previewEffect': return 'Preview Effect';
+			case 'navigationOrderSettings.bottomNavigationPreview': return 'Bottom Navigation Preview:';
+			case 'navigationOrderSettings.sidebarPreview': return 'Sidebar Preview:';
+			case 'navigationOrderSettings.confirmResetNavigationOrder': return 'Confirm Reset Navigation Order';
+			case 'navigationOrderSettings.confirmResetNavigationOrderDesc': return 'Are you sure you want to reset the navigation order to default settings?';
+			case 'navigationOrderSettings.cancel': return 'Cancel';
+			case 'navigationOrderSettings.videoDescription': return 'Browse popular video content';
+			case 'navigationOrderSettings.galleryDescription': return 'Browse images and galleries';
+			case 'navigationOrderSettings.subscriptionDescription': return 'View latest content from followed users';
+			case 'navigationOrderSettings.forumDescription': return 'Participate in community discussions';
+			case 'displaySettings.title': return 'Display Settings';
+			case 'displaySettings.layoutSettings': return 'Layout Settings';
+			case 'displaySettings.layoutSettingsDesc': return 'Customize column count and breakpoint configuration';
+			case 'displaySettings.gridLayout': return 'Grid Layout';
+			case 'displaySettings.navigationOrderSettings': return 'Navigation Order Settings';
+			case 'displaySettings.customNavigationOrder': return 'Custom Navigation Order';
+			case 'displaySettings.customNavigationOrderDesc': return 'Adjust the display order of pages in the bottom navigation bar and sidebar';
+			case 'layoutSettings.title': return 'Layout Settings';
+			case 'layoutSettings.descriptionTitle': return 'Layout Configuration Description';
+			case 'layoutSettings.descriptionContent': return 'The configuration here will determine the number of columns displayed in video and gallery list pages. You can choose auto mode to let the system automatically adjust based on screen width, or choose manual mode to fix the column count.';
+			case 'layoutSettings.layoutMode': return 'Layout Mode';
+			case 'layoutSettings.reset': return 'Reset';
+			case 'layoutSettings.autoMode': return 'Auto Mode';
+			case 'layoutSettings.autoModeDesc': return 'Automatically adjust based on screen width';
+			case 'layoutSettings.manualMode': return 'Manual Mode';
+			case 'layoutSettings.manualModeDesc': return 'Use fixed column count';
+			case 'layoutSettings.manualSettings': return 'Manual Settings';
+			case 'layoutSettings.fixedColumns': return 'Fixed Columns';
+			case 'layoutSettings.columns': return 'columns';
+			case 'layoutSettings.breakpointConfig': return 'Breakpoint Configuration';
+			case 'layoutSettings.add': return 'Add';
+			case 'layoutSettings.defaultColumns': return 'Default Columns';
+			case 'layoutSettings.defaultColumnsDesc': return 'Default display for large screens';
+			case 'layoutSettings.previewEffect': return 'Preview Effect';
+			case 'layoutSettings.screenWidth': return 'Screen Width';
+			case 'layoutSettings.addBreakpoint': return 'Add Breakpoint';
+			case 'layoutSettings.editBreakpoint': return 'Edit Breakpoint';
+			case 'layoutSettings.deleteBreakpoint': return 'Delete Breakpoint';
+			case 'layoutSettings.screenWidthLabel': return 'Screen Width';
+			case 'layoutSettings.screenWidthHint': return '600';
+			case 'layoutSettings.columnsLabel': return 'Columns';
+			case 'layoutSettings.columnsHint': return '3';
+			case 'layoutSettings.enterWidth': return 'Please enter width';
+			case 'layoutSettings.enterValidWidth': return 'Please enter valid width';
+			case 'layoutSettings.widthCannotExceed9999': return 'Width cannot exceed 9999';
+			case 'layoutSettings.breakpointAlreadyExists': return 'Breakpoint already exists';
+			case 'layoutSettings.enterColumns': return 'Please enter columns';
+			case 'layoutSettings.enterValidColumns': return 'Please enter valid columns';
+			case 'layoutSettings.columnsCannotExceed12': return 'Columns cannot exceed 12';
+			case 'layoutSettings.breakpointConflict': return 'Breakpoint already exists';
+			case 'layoutSettings.confirmResetLayoutSettings': return 'Reset Layout Settings';
+			case 'layoutSettings.confirmResetLayoutSettingsDesc': return 'Are you sure you want to reset all layout settings to default values?\n\nWill restore to:\n• Auto mode\n• Default breakpoint configuration';
+			case 'layoutSettings.resetToDefaults': return 'Reset to Defaults';
+			case 'layoutSettings.confirmDeleteBreakpoint': return 'Delete Breakpoint';
+			case 'layoutSettings.confirmDeleteBreakpointDesc': return ({required Object width}) => 'Are you sure you want to delete the ${width}px breakpoint?';
+			case 'layoutSettings.noCustomBreakpoints': return 'No custom breakpoints, using default columns';
+			case 'layoutSettings.breakpointRange': return 'Breakpoint Range';
+			case 'layoutSettings.breakpointRangeDesc': return ({required Object range}) => '${range}px';
+			case 'layoutSettings.breakpointRangeDescFirst': return ({required Object width}) => '≤${width}px';
+			case 'layoutSettings.breakpointRangeDescMiddle': return ({required Object start, required Object end}) => '${start}-${end}px';
+			case 'layoutSettings.edit': return 'Edit';
+			case 'layoutSettings.delete': return 'Delete';
+			case 'layoutSettings.cancel': return 'Cancel';
+			case 'layoutSettings.save': return 'Save';
+			case 'mediaPlayer.videoPlayerError': return 'Video Player Error';
+			case 'mediaPlayer.videoLoadFailed': return 'Video Load Failed';
+			case 'mediaPlayer.videoCodecNotSupported': return 'Video Codec Not Supported';
+			case 'mediaPlayer.networkConnectionIssue': return 'Network Connection Issue';
+			case 'mediaPlayer.insufficientPermission': return 'Insufficient Permission';
+			case 'mediaPlayer.unsupportedVideoFormat': return 'Unsupported Video Format';
+			case 'mediaPlayer.retry': return 'Retry';
+			case 'mediaPlayer.externalPlayer': return 'External Player';
+			case 'mediaPlayer.detailedErrorInfo': return 'Detailed Error Information';
+			case 'mediaPlayer.format': return 'Format';
+			case 'mediaPlayer.suggestion': return 'Suggestion';
+			case 'mediaPlayer.androidWebmCompatibilityIssue': return 'Android devices have limited support for WEBM format. It is recommended to use an external player or download a player app that supports WEBM';
+			case 'mediaPlayer.currentDeviceCodecNotSupported': return 'Current device does not support the codec for this video format';
+			case 'mediaPlayer.checkNetworkConnection': return 'Please check your network connection and try again';
+			case 'mediaPlayer.appMayLackMediaPermission': return 'The app may lack necessary media playback permissions';
+			case 'mediaPlayer.tryOtherVideoPlayer': return 'Please try using other video players';
+			case 'mediaPlayer.video': return 'VIDEO';
+			case 'mediaPlayer.retryingOpenVideoLink': return 'Video link open failed, retrying';
+			case 'mediaPlayer.decoderOpenFailedWithSuggestion': return ({required Object event}) => 'Unable to load decoder: ${event}. Try switching to software decoding in player settings and re-enter the page';
+			case 'mediaPlayer.videoLoadErrorWithDetail': return ({required Object event}) => 'Video load error: ${event}';
+			case 'mediaPlayer.imageLoadFailed': return 'Image Load Failed';
+			case 'mediaPlayer.unsupportedImageFormat': return 'Unsupported Image Format';
+			case 'mediaPlayer.tryOtherViewer': return 'Please try using other viewers';
+			case 'linkInputDialog.title': return 'Input Link';
+			case 'linkInputDialog.supportedLinksHint': return ({required Object webName}) => 'Support intelligently identify multiple ${webName} links and quickly jump to the corresponding page in the app (separate links from other text with spaces)';
+			case 'linkInputDialog.inputHint': return ({required Object webName}) => 'Please enter ${webName} link';
+			case 'linkInputDialog.validatorEmptyLink': return 'Please enter link';
+			case 'linkInputDialog.validatorNoIwaraLink': return ({required Object webName}) => 'No valid ${webName} link detected';
+			case 'linkInputDialog.multipleLinksDetected': return 'Multiple links detected, please select one:';
+			case 'linkInputDialog.notIwaraLink': return ({required Object webName}) => 'Not a valid ${webName} link';
+			case 'linkInputDialog.linkParseError': return ({required Object error}) => 'Link parsing error: ${error}';
+			case 'linkInputDialog.unsupportedLinkDialogTitle': return 'Unsupported Link';
+			case 'linkInputDialog.unsupportedLinkDialogContent': return 'This link type cannot be opened directly in the app and needs to be accessed using an external browser.\n\nDo you want to open this link in a browser?';
+			case 'linkInputDialog.openInBrowser': return 'Open in Browser';
+			case 'linkInputDialog.confirmOpenBrowserDialogTitle': return 'Confirm Open Browser';
+			case 'linkInputDialog.confirmOpenBrowserDialogContent': return 'The following link is about to be opened in an external browser:';
+			case 'linkInputDialog.confirmContinueBrowserOpen': return 'Are you sure you want to continue?';
+			case 'linkInputDialog.browserOpenFailed': return 'Failed to open link';
+			case 'linkInputDialog.unsupportedLink': return 'Unsupported Link';
+			case 'linkInputDialog.cancel': return 'Cancel';
+			case 'linkInputDialog.confirm': return 'Open in Browser';
+			case 'log.logManagement': return 'Log Management';
+			case 'log.enableLogPersistence': return 'Enable Log Persistence';
+			case 'log.enableLogPersistenceDesc': return 'Save logs to the database for analysis';
+			case 'log.logDatabaseSizeLimit': return 'Log Database Size Limit';
+			case 'log.logDatabaseSizeLimitDesc': return ({required Object size}) => 'Current: ${size}';
+			case 'log.exportCurrentLogs': return 'Export Current Logs';
+			case 'log.exportCurrentLogsDesc': return 'Export the current application logs to help developers diagnose problems';
+			case 'log.exportHistoryLogs': return 'Export History Logs';
+			case 'log.exportHistoryLogsDesc': return 'Export logs within a specified date range';
+			case 'log.exportMergedLogs': return 'Export Merged Logs';
+			case 'log.exportMergedLogsDesc': return 'Export merged logs within a specified date range';
+			case 'log.showLogStats': return 'Show Log Stats';
+			case 'log.logExportSuccess': return 'Log export success';
+			case 'log.logExportFailed': return ({required Object error}) => 'Log export failed: ${error}';
+			case 'log.showLogStatsDesc': return 'View statistics of various types of logs';
+			case 'log.logExtractFailed': return ({required Object error}) => 'Failed to get log statistics: ${error}';
+			case 'log.clearAllLogs': return 'Clear All Logs';
+			case 'log.clearAllLogsDesc': return 'Clear all log data';
+			case 'log.confirmClearAllLogs': return 'Confirm Clear';
+			case 'log.confirmClearAllLogsDesc': return 'Are you sure you want to clear all log data? This operation cannot be undone.';
+			case 'log.clearAllLogsSuccess': return 'Log cleared successfully';
+			case 'log.clearAllLogsFailed': return ({required Object error}) => 'Failed to clear logs: ${error}';
+			case 'log.unableToGetLogSizeInfo': return 'Unable to get log size information';
+			case 'log.currentLogSize': return 'Current Log Size:';
+			case 'log.logCount': return 'Log Count:';
+			case 'log.logCountUnit': return 'logs';
+			case 'log.logSizeLimit': return 'Log Size Limit:';
+			case 'log.usageRate': return 'Usage Rate:';
+			case 'log.exceedLimit': return 'Exceed Limit';
+			case 'log.remaining': return 'Remaining';
+			case 'log.currentLogSizeExceededPleaseCleanOldLogsOrIncreaseLogSizeLimit': return 'Current log size exceeded, please clean old logs or increase log size limit';
+			case 'log.currentLogSizeAlmostExceededPleaseCleanOldLogs': return 'Current log size almost exceeded, please clean old logs';
+			case 'log.cleaningOldLogs': return 'Cleaning old logs...';
+			case 'log.logCleaningCompleted': return 'Log cleaning completed';
+			case 'log.logCleaningProcessMayNotBeCompleted': return 'Log cleaning process may not be completed';
+			case 'log.cleanExceededLogs': return 'Clean exceeded logs';
+			case 'log.noLogsToExport': return 'No logs to export';
+			case 'log.exportingLogs': return 'Exporting logs...';
+			case 'log.noHistoryLogsToExport': return 'No history logs to export, please try using the app for a while first';
+			case 'log.selectLogDate': return 'Select Log Date';
+			case 'log.today': return 'Today';
+			case 'log.selectMergeRange': return 'Select Merge Range';
+			case 'log.selectMergeRangeHint': return 'Please select the log time range to merge';
+			case 'log.selectMergeRangeDays': return ({required Object days}) => 'Recent ${days} days';
+			case 'log.logStats': return 'Log Stats';
+			case 'log.todayLogs': return ({required Object count}) => 'Today Logs: ${count} logs';
+			case 'log.recent7DaysLogs': return ({required Object count}) => 'Recent 7 Days Logs: ${count} logs';
+			case 'log.totalLogs': return ({required Object count}) => 'Total Logs: ${count} logs';
+			case 'log.setLogDatabaseSizeLimit': return 'Set Log Database Size Limit';
+			case 'log.currentLogSizeWithSize': return ({required Object size}) => 'Current Log Size: ${size}';
+			case 'log.warning': return 'Warning';
+			case 'log.newSizeLimit': return ({required Object size}) => 'New size limit: ${size}';
+			case 'log.confirmToContinue': return 'Confirm to continue';
+			case 'log.logSizeLimitSetSuccess': return ({required Object size}) => 'Log size limit set to ${size}';
+			case 'emoji.name': return 'Emoji';
+			case 'emoji.size': return 'Size';
+			case 'emoji.small': return 'Small';
+			case 'emoji.medium': return 'Medium';
+			case 'emoji.large': return 'Large';
+			case 'emoji.extraLarge': return 'Extra Large';
+			case 'emoji.copyEmojiLinkSuccess': return 'Emoji link copied';
+			case 'emoji.preview': return 'Emoji Preview';
+			case 'emoji.library': return 'Emoji Library';
+			case 'emoji.noEmojis': return 'No emojis';
+			case 'emoji.clickToAddEmojis': return 'Click the button in the top right to add emojis';
+			case 'emoji.addEmojis': return 'Add Emojis';
+			case 'emoji.imagePreview': return 'Image Preview';
+			case 'emoji.imageLoadFailed': return 'Image load failed';
+			case 'emoji.loading': return 'Loading...';
+			case 'emoji.delete': return 'Delete';
+			case 'emoji.close': return 'Close';
+			case 'emoji.deleteImage': return 'Delete Image';
+			case 'emoji.confirmDeleteImage': return 'Are you sure you want to delete this image?';
+			case 'emoji.cancel': return 'Cancel';
+			case 'emoji.batchDelete': return 'Batch Delete';
+			case 'emoji.confirmBatchDelete': return ({required Object count}) => 'Are you sure you want to delete the selected ${count} images? This operation cannot be undone.';
+			case 'emoji.deleteSuccess': return 'Successfully deleted';
+			case 'emoji.addImage': return 'Add Image';
+			case 'emoji.addImageByUrl': return 'Add by URL';
+			case 'emoji.addImageUrl': return 'Add Image URL';
+			case 'emoji.imageUrl': return 'Image URL';
+			case 'emoji.enterImageUrl': return 'Please enter image URL';
+			case 'emoji.add': return 'Add';
+			case 'emoji.batchImport': return 'Batch Import';
+			case 'emoji.enterJsonUrlArray': return 'Please enter JSON format URL array:';
+			case 'emoji.formatExample': return 'Format example:\n["url1", "url2", "url3"]';
+			case 'emoji.pasteJsonUrlArray': return 'Please paste JSON format URL array';
+			case 'emoji.import': return 'Import';
+			case 'emoji.importSuccess': return ({required Object count}) => 'Successfully imported ${count} images';
+			case 'emoji.jsonFormatError': return 'JSON format error, please check input';
+			case 'emoji.createGroup': return 'Create Emoji Group';
+			case 'emoji.groupName': return 'Group Name';
+			case 'emoji.enterGroupName': return 'Please enter group name';
+			case 'emoji.create': return 'Create';
+			case 'emoji.editGroupName': return 'Edit Group Name';
+			case 'emoji.save': return 'Save';
+			case 'emoji.deleteGroup': return 'Delete Group';
+			case 'emoji.confirmDeleteGroup': return 'Are you sure you want to delete this emoji group? All images in the group will also be deleted.';
+			case 'emoji.imageCount': return ({required Object count}) => '${count} images';
+			case 'emoji.selectEmoji': return 'Select Emoji';
+			case 'emoji.noEmojisInGroup': return 'No emojis in this group';
+			case 'emoji.goToSettingsToAddEmojis': return 'Go to settings to add emojis';
+			case 'emoji.emojiManagement': return 'Emoji Management';
+			case 'emoji.manageEmojiGroupsAndImages': return 'Manage emoji groups and images';
+			case 'emoji.uploadLocalImages': return 'Upload Local Images';
+			case 'emoji.uploadingImages': return 'Uploading Images';
+			case 'emoji.uploadingImagesProgress': return ({required Object count}) => 'Uploading ${count} images, please wait...';
+			case 'emoji.doNotCloseDialog': return 'Please do not close this dialog';
+			case 'emoji.uploadSuccess': return ({required Object count}) => 'Successfully uploaded ${count} images';
+			case 'emoji.uploadFailed': return ({required Object count}) => 'Failed ${count}';
+			case 'emoji.uploadFailedMessage': return 'Image upload failed, please check network connection or file format';
+			case 'emoji.uploadErrorMessage': return ({required Object error}) => 'Error occurred during upload: ${error}';
+			case 'searchFilter.selectField': return 'Select Field';
+			case 'searchFilter.add': return 'Add';
+			case 'searchFilter.clear': return 'Clear';
+			case 'searchFilter.clearAll': return 'Clear All';
+			case 'searchFilter.generatedQuery': return 'Generated Query';
+			case 'searchFilter.copyToClipboard': return 'Copy to Clipboard';
+			case 'searchFilter.copied': return 'Copied';
+			case 'searchFilter.filterCount': return ({required Object count}) => '${count} filters';
+			case 'searchFilter.filterSettings': return 'Filter Settings';
+			case 'searchFilter.field': return 'Field';
+			case 'searchFilter.operator': return 'Operator';
+			case 'searchFilter.language': return 'Language';
+			case 'searchFilter.value': return 'Value';
+			case 'searchFilter.dateRange': return 'Date Range';
+			case 'searchFilter.numberRange': return 'Number Range';
+			case 'searchFilter.from': return 'From';
+			case 'searchFilter.to': return 'To';
+			case 'searchFilter.date': return 'Date';
+			case 'searchFilter.number': return 'Number';
+			case 'searchFilter.boolean': return 'Boolean';
+			case 'searchFilter.tags': return 'Tags';
+			case 'searchFilter.select': return 'Select';
+			case 'searchFilter.clickToSelectDate': return 'Click to select date';
+			case 'searchFilter.pleaseEnterValidNumber': return 'Please enter valid number';
+			case 'searchFilter.pleaseEnterValidDate': return 'Please enter valid date format (YYYY-MM-DD)';
+			case 'searchFilter.startValueMustBeLessThanEndValue': return 'Start value must be less than end value';
+			case 'searchFilter.startDateMustBeBeforeEndDate': return 'Start date must be before end date';
+			case 'searchFilter.pleaseFillStartValue': return 'Please fill start value';
+			case 'searchFilter.pleaseFillEndValue': return 'Please fill end value';
+			case 'searchFilter.rangeValueFormatError': return 'Range value format error';
+			case 'searchFilter.contains': return 'Contains';
+			case 'searchFilter.equals': return 'Equals';
+			case 'searchFilter.notEquals': return 'Not Equals';
+			case 'searchFilter.greaterThan': return '>';
+			case 'searchFilter.greaterEqual': return '>=';
+			case 'searchFilter.lessThan': return '<';
+			case 'searchFilter.lessEqual': return '<=';
+			case 'searchFilter.range': return 'Range';
+			case 'searchFilter.kIn': return 'Contains Any';
+			case 'searchFilter.notIn': return 'Not Contains Any';
+			case 'searchFilter.username': return 'Username';
+			case 'searchFilter.nickname': return 'Nickname';
+			case 'searchFilter.registrationDate': return 'Registration Date';
+			case 'searchFilter.description': return 'Description';
+			case 'searchFilter.title': return 'Title';
+			case 'searchFilter.body': return 'Body';
+			case 'searchFilter.author': return 'Author';
+			case 'searchFilter.publishDate': return 'Publish Date';
+			case 'searchFilter.private': return 'Private';
+			case 'searchFilter.duration': return 'Duration (seconds)';
+			case 'searchFilter.likes': return 'Likes';
+			case 'searchFilter.views': return 'Views';
+			case 'searchFilter.comments': return 'Comments';
+			case 'searchFilter.rating': return 'Rating';
+			case 'searchFilter.imageCount': return 'Image Count';
+			case 'searchFilter.videoCount': return 'Video Count';
+			case 'searchFilter.createDate': return 'Create Date';
+			case 'searchFilter.content': return 'Content';
+			case 'searchFilter.all': return 'All';
+			case 'searchFilter.adult': return 'Adult';
+			case 'searchFilter.general': return 'General';
+			case 'searchFilter.yes': return 'Yes';
+			case 'searchFilter.no': return 'No';
+			case 'searchFilter.users': return 'Users';
+			case 'searchFilter.videos': return 'Videos';
+			case 'searchFilter.images': return 'Images';
+			case 'searchFilter.posts': return 'Posts';
+			case 'searchFilter.forumThreads': return 'Forum Threads';
+			case 'searchFilter.forumPosts': return 'Forum Posts';
+			case 'searchFilter.playlists': return 'Playlists';
+			case 'searchFilter.sortTypes.relevance': return 'Relevance';
+			case 'searchFilter.sortTypes.latest': return 'Latest';
+			case 'searchFilter.sortTypes.views': return 'Views';
+			case 'searchFilter.sortTypes.likes': return 'Likes';
+			case 'firstTimeSetup.welcome.title': return 'Welcome';
+			case 'firstTimeSetup.welcome.subtitle': return 'Let\'s start your personalized setup journey';
+			case 'firstTimeSetup.welcome.description': return 'Just a few steps to tailor the best experience for you';
+			case 'firstTimeSetup.basic.title': return 'Basic Settings';
+			case 'firstTimeSetup.basic.subtitle': return 'Personalize your experience';
+			case 'firstTimeSetup.basic.description': return 'Choose the preferences that suit you';
+			case 'firstTimeSetup.network.title': return 'Network Settings';
+			case 'firstTimeSetup.network.subtitle': return 'Configure network options';
+			case 'firstTimeSetup.network.description': return 'Adjust based on your network environment';
+			case 'firstTimeSetup.network.tip': return 'A restart is required after successful configuration to take effect';
+			case 'firstTimeSetup.theme.title': return 'Theme Settings';
+			case 'firstTimeSetup.theme.subtitle': return 'Choose your preferred appearance';
+			case 'firstTimeSetup.theme.description': return 'Personalize your visual experience';
+			case 'firstTimeSetup.player.title': return 'Player Settings';
+			case 'firstTimeSetup.player.subtitle': return 'Configure playback controls';
+			case 'firstTimeSetup.player.description': return 'Quickly set commonly used playback preferences';
+			case 'firstTimeSetup.completion.title': return 'Complete Setup';
+			case 'firstTimeSetup.completion.subtitle': return 'You\'re ready to start your journey';
+			case 'firstTimeSetup.completion.description': return 'Please read and agree to the related agreements';
+			case 'firstTimeSetup.completion.agreementTitle': return 'User Agreement and Community Rules';
+			case 'firstTimeSetup.completion.agreementDesc': return 'Before using this app, please carefully read and agree to our user agreement and community rules. These terms help maintain a good environment.';
+			case 'firstTimeSetup.completion.checkboxTitle': return 'I have read and agree to the user agreement and community rules';
+			case 'firstTimeSetup.completion.checkboxSubtitle': return 'You cannot use the app if you disagree';
+			case 'firstTimeSetup.common.settingsChangeableTip': return 'These settings can be changed anytime in Settings';
+			case 'firstTimeSetup.common.agreeAgreementSnackbar': return 'Please agree to the user agreement and community rules first';
+			case 'proxyHelper.systemProxyDetected': return 'System proxy detected';
+			case 'proxyHelper.copied': return 'Copied';
+			case 'proxyHelper.copy': return 'Copy';
+			case 'tagSelector.selectTags': return 'Select Tags';
+			case 'tagSelector.clickToSelectTags': return 'Click to select tags';
+			case 'tagSelector.addTag': return 'Add Tag';
+			case 'tagSelector.removeTag': return 'Remove Tag';
+			case 'tagSelector.deleteTag': return 'Delete Tag';
+			case 'tagSelector.usageInstructions': return 'First add tags, then click to select from existing tags';
+			case 'tagSelector.usageInstructionsTooltip': return 'Usage Instructions';
+			case 'tagSelector.addTagTooltip': return 'Add Tag';
+			case 'tagSelector.removeTagTooltip': return 'Remove Tag';
+			case 'tagSelector.cancelSelection': return 'Cancel Selection';
+			case 'tagSelector.selectAll': return 'Select All';
+			case 'tagSelector.cancelSelectAll': return 'Cancel Select All';
+			case 'tagSelector.delete': return 'Delete';
+			case 'anime4k.realTimeVideoUpscalingAndDenoising': return 'Real-time video upscaling and denoising, improving animation video quality';
+			case 'anime4k.settings': return 'Anime4K Settings';
+			case 'anime4k.preset': return 'Anime4K Preset';
+			case 'anime4k.disable': return 'Disable Anime4K';
+			case 'anime4k.disableDescription': return 'Disable video enhancement effects';
+			case 'anime4k.highQualityPresets': return 'High Quality Presets';
+			case 'anime4k.fastPresets': return 'Fast Presets';
+			case 'anime4k.litePresets': return 'Lightweight Presets';
+			case 'anime4k.moreLitePresets': return 'More Lightweight Presets';
+			case 'anime4k.customPresets': return 'Custom Presets';
+			case 'anime4k.presetGroups.highQuality': return 'High Quality';
+			case 'anime4k.presetGroups.fast': return 'Fast';
+			case 'anime4k.presetGroups.lite': return 'Lite';
+			case 'anime4k.presetGroups.moreLite': return 'More Lite';
+			case 'anime4k.presetGroups.custom': return 'Custom';
+			case 'anime4k.presetDescriptions.mode_a_hq': return 'Suitable for most 1080p animations, especially those dealing with blur, resampling and compression artifacts. Provides the highest perceived quality.';
+			case 'anime4k.presetDescriptions.mode_b_hq': return 'Suitable for animations with slight blur or ringing effects caused by scaling. Can effectively reduce ringing and aliasing.';
+			case 'anime4k.presetDescriptions.mode_c_hq': return 'Suitable for high-quality sources (such as native 1080p animations or movies). Denoises and provides the highest PSNR.';
+			case 'anime4k.presetDescriptions.mode_a_a_hq': return 'Enhanced version of Mode A, providing ultimate perceived quality and can reconstruct almost all degraded lines. May produce oversharpening or ringing.';
+			case 'anime4k.presetDescriptions.mode_b_b_hq': return 'Enhanced version of Mode B, providing higher perceived quality, further optimizing lines and reducing artifacts.';
+			case 'anime4k.presetDescriptions.mode_c_a_hq': return 'Perceived quality enhanced version of Mode C, maintaining high PSNR while attempting to reconstruct some line details.';
+			case 'anime4k.presetDescriptions.mode_a_fast': return 'Fast version of Mode A, balancing quality and performance, suitable for most 1080p animations.';
+			case 'anime4k.presetDescriptions.mode_b_fast': return 'Fast version of Mode B, for handling slight artifacts and ringing with lower overhead.';
+			case 'anime4k.presetDescriptions.mode_c_fast': return 'Fast version of Mode C, for fast denoising and upscaling of high-quality sources.';
+			case 'anime4k.presetDescriptions.mode_a_a_fast': return 'Fast version of Mode A+A, pursuing higher perceived quality in performance-constrained devices.';
+			case 'anime4k.presetDescriptions.mode_b_b_fast': return 'Fast version of Mode B+B, providing enhanced line repair and artifact processing for performance-constrained devices.';
+			case 'anime4k.presetDescriptions.mode_c_a_fast': return 'Fast version of Mode C+A, performing fast processing of high-quality sources while providing light line repair.';
+			case 'anime4k.presetDescriptions.upscale_only_s': return 'Ultra-fast x2 upscaling using only the fastest CNN model, no repair and denoising, minimal performance overhead.';
+			case 'anime4k.presetDescriptions.upscale_deblur_fast': return 'Fast upscaling and deblurring using traditional non-CNN algorithms, better than default player algorithms with very low performance overhead.';
+			case 'anime4k.presetDescriptions.restore_s_only': return 'Repair only using the fastest CNN model, no upscaling. Suitable for native resolution playback where you want to improve quality.';
+			case 'anime4k.presetDescriptions.denoise_bilateral_fast': return 'Fast denoising using traditional bilateral filtering, extremely fast, suitable for processing light noise.';
+			case 'anime4k.presetDescriptions.upscale_non_cnn': return 'Fast upscaling using traditional algorithms, very low performance overhead, better than player defaults.';
+			case 'anime4k.presetDescriptions.mode_a_fast_darken': return 'Mode A (Fast) + Line darkening, adding line darkening effects on top of fast mode A for more prominent, stylized lines.';
+			case 'anime4k.presetDescriptions.mode_a_hq_thin': return 'Mode A (HQ) + Line thinning, adding line thinning effects on top of high quality mode A for more refined appearance.';
+			case 'anime4k.presetNames.mode_a_hq': return 'Mode A (HQ)';
+			case 'anime4k.presetNames.mode_b_hq': return 'Mode B (HQ)';
+			case 'anime4k.presetNames.mode_c_hq': return 'Mode C (HQ)';
+			case 'anime4k.presetNames.mode_a_a_hq': return 'Mode A+A (HQ)';
+			case 'anime4k.presetNames.mode_b_b_hq': return 'Mode B+B (HQ)';
+			case 'anime4k.presetNames.mode_c_a_hq': return 'Mode C+A (HQ)';
+			case 'anime4k.presetNames.mode_a_fast': return 'Mode A (Fast)';
+			case 'anime4k.presetNames.mode_b_fast': return 'Mode B (Fast)';
+			case 'anime4k.presetNames.mode_c_fast': return 'Mode C (Fast)';
+			case 'anime4k.presetNames.mode_a_a_fast': return 'Mode A+A (Fast)';
+			case 'anime4k.presetNames.mode_b_b_fast': return 'Mode B+B (Fast)';
+			case 'anime4k.presetNames.mode_c_a_fast': return 'Mode C+A (Fast)';
+			case 'anime4k.presetNames.upscale_only_s': return 'CNN Upscaling (Ultra Fast)';
+			case 'anime4k.presetNames.upscale_deblur_fast': return 'Upscaling & Deblurring (Fast)';
+			case 'anime4k.presetNames.restore_s_only': return 'Restoration (Ultra Fast)';
+			case 'anime4k.presetNames.denoise_bilateral_fast': return 'Bilateral Denoising (Ultra Fast)';
+			case 'anime4k.presetNames.upscale_non_cnn': return 'Non-CNN Upscaling (Ultra Fast)';
+			case 'anime4k.presetNames.mode_a_fast_darken': return 'Mode A (Fast) + Line Darkening';
+			case 'anime4k.presetNames.mode_a_hq_thin': return 'Mode A (HQ) + Line Thinning';
+			case 'anime4k.performanceTip': return '💡 Tip: Choose appropriate presets based on device performance. Low-end devices are recommended to use lightweight presets.';
+			default: return null;
+		}
 	}
 }
 
