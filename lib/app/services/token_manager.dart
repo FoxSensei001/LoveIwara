@@ -85,7 +85,7 @@ class TokenManager {
   // 配置常量
   static const int _refreshThresholdSeconds = 5 * 60; // 提前5分钟刷新
   static const Duration _tokenRequestTimeout = Duration(seconds: 15);
-  static const Duration _backgroundRefreshInterval = Duration(minutes: 30);
+  static const Duration _backgroundRefreshInterval = Duration(minutes: 13);
 
   // Getters
   String? get authToken => _authToken;
