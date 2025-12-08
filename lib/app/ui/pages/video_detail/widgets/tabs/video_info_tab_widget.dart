@@ -813,7 +813,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
           : null;
 
       return SplitFilledButton(
-        label: '${t.common.download}$qualityLabel',
+        label: '${t.common.download} $qualityLabel',
         icon: downloadIcon,
         onPressed: isDisabled
             ? null

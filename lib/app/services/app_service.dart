@@ -21,7 +21,6 @@ import 'package:i_iwara/app/ui/pages/play_list/play_list_detail.dart';
 import 'package:i_iwara/app/ui/pages/settings/layout_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/navigation_order_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/settings_page.dart';
-import 'package:i_iwara/app/ui/pages/settings/translation_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/tag_blacklist/tag_blacklist_page.dart';
 import 'package:i_iwara/app/ui/pages/tag_videos/tag_gallery_list_page.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
@@ -32,9 +31,8 @@ import 'package:i_iwara/app/ui/pages/download/gallery_download_task_detail_page.
 import 'package:i_iwara/app/ui/pages/tag_videos/tag_video_list_page.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/ui/pages/emoji_library/emoji_library_page.dart';
-// import 'package:i_iwara/utils/logger_utils.dart';
-// import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/utils/proxy/proxy_util.dart';
 
 import '../routes/app_routes.dart';
 import '../ui/pages/author_profile/author_profile_page.dart';
@@ -47,8 +45,8 @@ import '../ui/pages/post_detail/post_detail_page.dart';
 /// 定义转场动画类型
 enum TransitionType {
   slideRight, // 从右向左滑动
-  fade,       // 淡入淡出
-  none,       // 无动画
+  fade, // 淡入淡出
+  none, // 无动画
 }
 
 class AppService extends GetxService {
@@ -92,8 +90,9 @@ class AppService extends GetxService {
       GlobalKey<ScaffoldState>();
 
   // 获取Home页面的navigatorKey
-  static final GlobalKey<NavigatorState> homeNavigatorKey =
-      Get.nestedKey(Routes.HOME)!.navigatorKey;
+  static final GlobalKey<NavigatorState> homeNavigatorKey = Get.nestedKey(
+    Routes.HOME,
+  )!.navigatorKey;
 
   AppService() {
     if (GetPlatform.isDesktop) {
@@ -104,9 +103,8 @@ class AppService extends GetxService {
   bool get showTitleBar => _showTitleBar.value;
 
   set showTitleBar(bool value) => {
-        if (GetPlatform.isDesktop)
-          _showTitleBar.value = value
-      };
+    if (GetPlatform.isDesktop) _showTitleBar.value = value,
+  };
 
   bool get showRailNavi => _showRailNavi.value;
 
@@ -200,32 +198,31 @@ class NaviService {
     Duration transitionDuration = const Duration(milliseconds: 200),
     TransitionType transitionType = TransitionType.slideRight,
   }) {
-    AppService.homeNavigatorKey.currentState?.push(PageRouteBuilder(
-      settings: RouteSettings(name: routeName),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return page;
-      },
-      transitionDuration: transitionDuration,
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        switch (transitionType) {
-          case TransitionType.slideRight:
-            return SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(1, 0),
-                end: Offset.zero,
-              ).animate(animation),
-              child: child,
-            );
-          case TransitionType.fade:
-            return FadeTransition(
-              opacity: animation,
-              child: child,
-            );
-          case TransitionType.none:
-            return child;
-        }
-      },
-    ));
+    AppService.homeNavigatorKey.currentState?.push(
+      PageRouteBuilder(
+        settings: RouteSettings(name: routeName),
+        pageBuilder: (context, animation, secondaryAnimation) {
+          return page;
+        },
+        transitionDuration: transitionDuration,
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          switch (transitionType) {
+            case TransitionType.slideRight:
+              return SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(1, 0),
+                  end: Offset.zero,
+                ).animate(animation),
+                child: child,
+              );
+            case TransitionType.fade:
+              return FadeTransition(opacity: animation, child: child);
+            case TransitionType.none:
+              return child;
+          }
+        },
+      ),
+    );
   }
 
   /// 跳转到作者个人主页
@@ -245,7 +242,11 @@ class NaviService {
   }
 
   /// 跳转到视频详情页
-  static void navigateToVideoDetailPage(String id, [Map<String, dynamic>? extData]) { // 注意 extData 外面的 []
+  static void navigateToVideoDetailPage(
+    String id, [
+    Map<String, dynamic>? extData,
+  ]) {
+    // 注意 extData 外面的 []
     _navigateToPage(
       routeName: Routes.VIDEO_DETAIL(id),
       page: MyVideoDetailPage(videoId: id, extData: extData),
@@ -297,18 +298,12 @@ class NaviService {
 
   /// 跳转到最爱页
   static void navigateToFavoritePage() {
-    _navigateToPage(
-      routeName: Routes.FAVORITE,
-      page: const MyFavorites(),
-    );
+    _navigateToPage(routeName: Routes.FAVORITE, page: const MyFavorites());
   }
 
   /// 跳转到好友列表页
   static void navigateToFriendsPage() {
-    _navigateToPage(
-      routeName: Routes.FRIENDS,
-      page: const FriendsPage(),
-    );
+    _navigateToPage(routeName: Routes.FRIENDS, page: const FriendsPage());
   }
 
   /// 跳转到历史记录列表页
@@ -321,7 +316,8 @@ class NaviService {
 
   /// 跳转到全屏视频播放页
   static void navigateToFullScreenVideoPlayerScreenPage(
-      MyVideoStateController myVideoStateController) {
+    MyVideoStateController myVideoStateController,
+  ) {
     _navigateToPage(
       routeName: Routes.FULL_SCREEN_VIDEO_PLAYER_SCREEN,
       page: MyVideoScreen(
@@ -333,7 +329,11 @@ class NaviService {
     );
   }
 
-  static void navigateToFollowingListPage(String userId, String name, String username) {
+  static void navigateToFollowingListPage(
+    String userId,
+    String name,
+    String username,
+  ) {
     _navigateToPage(
       routeName: Routes.FOLLOWING_LIST(userId),
       page: FollowsPage(
@@ -345,7 +345,11 @@ class NaviService {
     );
   }
 
-  static void navigateToFollowersListPage(String userId, String name, String username) {
+  static void navigateToFollowersListPage(
+    String userId,
+    String name,
+    String username,
+  ) {
     _navigateToPage(
       routeName: Routes.FOLLOWERS_LIST(userId),
       page: FollowsPage(
@@ -369,7 +373,8 @@ class NaviService {
   static void navigateToPhotoViewWrapper({
     required List<ImageItem> imageItems,
     required int initialIndex,
-    required List<MenuItem> Function(dynamic context, dynamic item) menuItemsBuilder,
+    required List<MenuItem> Function(dynamic context, dynamic item)
+    menuItemsBuilder,
     bool enableMenu = true,
   }) {
     _navigateToPage(
@@ -402,7 +407,10 @@ class NaviService {
   }
 
   /// 跳转到论坛帖子详情页
-  static void navigateToForumThreadDetailPage(String categoryId, String threadId) {
+  static void navigateToForumThreadDetailPage(
+    String categoryId,
+    String threadId,
+  ) {
     _navigateToPage(
       routeName: Routes.FORUM_THREAD_DETAIL(categoryId, threadId),
       page: ThreadDetailPage(categoryId: categoryId, threadId: threadId),
@@ -461,7 +469,10 @@ class NaviService {
   }
 
   /// 跳转到本地收藏夹详情页
-  static void navigateToLocalFavoriteDetailPage(String folderId, String? folderTitle) {
+  static void navigateToLocalFavoriteDetailPage(
+    String folderId,
+    String? folderTitle,
+  ) {
     _navigateToPage(
       routeName: Routes.LOCAL_FAVORITE_DETAIL(folderId),
       page: FavoriteFolderDetailPage(
@@ -506,8 +517,8 @@ class NaviService {
   // 跳转到翻译设置页
   static void navigateToTranslationSettingsPage() {
     _navigateToPage(
-      routeName: Routes.TRANSLATION_SETTINGS_PAGE,
-      page: const TranslationSettingsPage(),
+      routeName: Routes.SETTINGS_PAGE,
+      page: SettingsPage(initialPage: ProxyUtil.isSupportedPlatform() ? 1 : 0),
     );
   }
 

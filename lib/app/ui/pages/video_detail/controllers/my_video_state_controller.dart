@@ -1503,6 +1503,58 @@ class MyVideoStateController extends GetxController
       final String event = error;
       LogUtils.w('播放器错误事件: $event', 'MyVideoStateController');
 
+      // TODO Hack: 针对 mikoto 服务器故障，自动切换到 hime
+      // 如果检测到是 Failed to open 错误，并且视频源还是 mikoto 这个子域名，那么就替换当前的所有视频源并更新缓存，为 hime 这个子域名，然后重试
+      final info = videoInfo.value;
+      final sources = info?.videoSources;
+      bool isMikotoSource = false;
+      if (sources != null && sources.isNotEmpty) {
+        // 检查当前使用的视频源是否是 mikoto
+        // 注意：这里简单取第一个视频源检查，实际上应该检查当前播放的 URL，但考虑到 mikoto 故障通常是全站性的，且源结构一致，这样检查应该足够
+        isMikotoSource =
+            sources.first.view?.contains('mikoto.iwara.tv') == true;
+      }
+
+      if (event.startsWith('Failed to open ') &&
+          (event.contains('mikoto.iwara.tv') || isMikotoSource)) {
+        LogUtils.w(
+          '检测到 mikoto 服务器故障，尝试切换到 hime 服务器并重试',
+          'MyVideoStateController',
+        );
+
+        if (info != null && sources != null && sources.isNotEmpty) {
+          final newSources = sources.map((s) {
+            return s.copyWithServer('hime.iwara.tv');
+          }).toList();
+
+          videoInfo.value = info.copyWith(videoSources: newSources);
+          currentVideoSourceList.value = newSources;
+
+          final newResolutions = CommonUtils.convertVideoSourcesToResolutions(
+            newSources,
+            filterPreview: true,
+          );
+          videoResolutions.value = newResolutions;
+
+          if (info.fileUrl != null) {
+            // 更新缓存
+            _cacheManager.cacheVideoSources(info.fileUrl!, newSources);
+          }
+
+          if (Get.context != null) {
+            ScaffoldMessenger.of(Get.context!).showSnackBar(
+              const SnackBar(
+                content: Text('检测到服务器故障，已自动切换线路并重试'),
+                duration: Duration(seconds: 3),
+              ),
+            );
+          }
+
+          refreshPlayer(seekTo: currentPosition);
+          return;
+        }
+      }
+
       // 针对常见网络/打开失败错误进行节流重试
       if (event.startsWith('Failed to open https://') ||
           event.startsWith('Can not open external file https://') ||

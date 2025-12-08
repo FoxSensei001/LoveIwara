@@ -29,8 +29,8 @@ class CommentItem extends StatefulWidget {
   final bool isReply;
 
   const CommentItem({
-    super.key, 
-    required this.comment, 
+    super.key,
+    required this.comment,
     this.authorUserId,
     this.controller,
     this.isReply = false,
@@ -44,7 +44,7 @@ class _CommentItemState extends State<CommentItem> {
   final UserService _userService = Get.find();
   final ConfigService _configService = Get.find();
   final CommentService _commentService = Get.find();
-  
+
   // 翻译控制器
   late final MarkdownTranslationController _translationController;
 
@@ -56,7 +56,7 @@ class _CommentItemState extends State<CommentItem> {
     super.initState();
     _translationController = MarkdownTranslationController();
   }
-  
+
   @override
   void dispose() {
     _overlayEntry?.remove();
@@ -72,13 +72,14 @@ class _CommentItemState extends State<CommentItem> {
       builder: (context) => CommentRepliesBottomSheet(
         parentComment: widget.comment,
         authorUserId: widget.authorUserId,
+        controller: widget.controller,
       ),
     );
   }
 
   void _showTranslationMenuOverlay() {
     _overlayEntry?.remove();
-    
+
     final overlay = Overlay.of(context);
     _overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
@@ -92,7 +93,8 @@ class _CommentItemState extends State<CommentItem> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: CommonConstants.translationSorts.map((sort) {
-                final isSelected = sort.id == _configService.currentTranslationSort.id;
+                final isSelected =
+                    sort.id == _configService.currentTranslationSort.id;
                 return ListTile(
                   dense: true,
                   selected: isSelected,
@@ -111,7 +113,7 @@ class _CommentItemState extends State<CommentItem> {
         ),
       ),
     );
-    
+
     overlay.insert(_overlayEntry!);
   }
 
@@ -129,42 +131,51 @@ class _CommentItemState extends State<CommentItem> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Obx(() => IconButton(
-          onPressed: _translationController.isTranslating.value ? null : () => _handleTranslation(),
-          icon: _translationController.isTranslating.value
-              ? SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      Theme.of(context).colorScheme.primary,
+        Obx(
+          () => IconButton(
+            onPressed: _translationController.isTranslating.value
+                ? null
+                : () => _handleTranslation(),
+            icon: _translationController.isTranslating.value
+                ? SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Theme.of(context).colorScheme.primary,
+                      ),
                     ),
+                  )
+                : Icon(
+                    Icons.translate,
+                    size: 24,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
-                )
-              : Icon(
-                  Icons.translate,
-                  size: 24,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-        )),
-        Obx(() => TranslationLanguageSelector(
-              compact: true,
-              extrimCompact: true,
-              selectedLanguage: configService.currentTranslationSort,
-              onLanguageSelected: (sort) {
-                configService.updateTranslationLanguage(sort);
-                if (_translationController.hasTranslation) {
-                  _handleTranslation();
-                }
-              },
-            )),
+          ),
+        ),
+        Obx(
+          () => TranslationLanguageSelector(
+            compact: true,
+            extrimCompact: true,
+            selectedLanguage: configService.currentTranslationSort,
+            onLanguageSelected: (sort) {
+              configService.updateTranslationLanguage(sort);
+              if (_translationController.hasTranslation) {
+                _handleTranslation();
+              }
+            },
+          ),
+        ),
       ],
     );
   }
 
   Future<void> _handleTranslation() async {
-    await _translationController.translate(widget.comment.body, originalText: widget.comment.body);
+    await _translationController.translate(
+      widget.comment.body,
+      originalText: widget.comment.body,
+    );
   }
 
   Widget _buildCommentTag(String text, Color color, IconData icon) {
@@ -203,11 +214,7 @@ class _CommentItemState extends State<CommentItem> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                icon,
-                size: 10,
-                color: tagColor.withValues(alpha: 0.8),
-              ),
+              Icon(icon, size: 10, color: tagColor.withValues(alpha: 0.8)),
               const SizedBox(width: 4),
               Text(
                 text,
@@ -228,13 +235,16 @@ class _CommentItemState extends State<CommentItem> {
     final t = slang.Translations.of(context);
     if (comment.createdAt == null) return const SizedBox.shrink();
 
-    final hasEdit = comment.updatedAt != null &&
+    final hasEdit =
+        comment.updatedAt != null &&
         comment.createdAt != null &&
         comment.updatedAt!.isAfter(comment.createdAt!);
 
     final timeTextStyle = TextStyle(
       fontSize: 12,
-      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.75),
+      color: Theme.of(
+        context,
+      ).colorScheme.onSurfaceVariant.withValues(alpha: 0.75),
     );
 
     return Row(
@@ -248,7 +258,9 @@ class _CommentItemState extends State<CommentItem> {
                   Icon(
                     Icons.access_time,
                     size: 14,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.75),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurfaceVariant.withValues(alpha: 0.75),
                   ),
                   const SizedBox(width: 4),
                   Text(
@@ -266,11 +278,17 @@ class _CommentItemState extends State<CommentItem> {
                       Icon(
                         Icons.edit_calendar,
                         size: 14,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.75),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurfaceVariant.withValues(alpha: 0.75),
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        t.common.editedAt(num: CommonUtils.formatFriendlyTimestamp(comment.updatedAt)),
+                        t.common.editedAt(
+                          num: CommonUtils.formatFriendlyTimestamp(
+                            comment.updatedAt,
+                          ),
+                        ),
                         style: timeTextStyle,
                       ),
                     ],
@@ -316,7 +334,13 @@ class _CommentItemState extends State<CommentItem> {
 
   void _showDeleteConfirmDialog() {
     if (widget.controller == null) {
-      showToastWidget(MDToastWidget(message: slang.t.errors.canNotFindCommentController, type: MDToastType.error), position: ToastPosition.bottom);
+      showToastWidget(
+        MDToastWidget(
+          message: slang.t.errors.canNotFindCommentController,
+          type: MDToastType.error,
+        ),
+        position: ToastPosition.bottom,
+      );
       return;
     }
 
@@ -332,7 +356,13 @@ class _CommentItemState extends State<CommentItem> {
 
   void _showEditDialog() {
     if (widget.controller == null) {
-      showToastWidget(MDToastWidget(message: slang.t.errors.canNotFindCommentController, type: MDToastType.error), position: ToastPosition.bottom );
+      showToastWidget(
+        MDToastWidget(
+          message: slang.t.errors.canNotFindCommentController,
+          type: MDToastType.error,
+        ),
+        position: ToastPosition.bottom,
+      );
       return;
     }
 
@@ -346,21 +376,38 @@ class _CommentItemState extends State<CommentItem> {
         submitText: slang.t.common.save,
         onSubmit: (text) async {
           if (text.trim().isEmpty) {
-            showToastWidget(MDToastWidget(message: slang.t.errors.commentCanNotBeEmpty, type: MDToastType.error), position: ToastPosition.bottom);
+            showToastWidget(
+              MDToastWidget(
+                message: slang.t.errors.commentCanNotBeEmpty,
+                type: MDToastType.error,
+              ),
+              position: ToastPosition.bottom,
+            );
             return;
           }
 
           if (widget.comment.parent == null) {
             await widget.controller!.editComment(widget.comment.id, text);
           } else {
-            final result = await _commentService.editComment(widget.comment.id, text);
+            final result = await _commentService.editComment(
+              widget.comment.id,
+              text,
+            );
             if (!mounted) return;
             if (result.isSuccess) {
-              showToastWidget(MDToastWidget(message: slang.t.common.commentUpdated, type: MDToastType.success));
+              showToastWidget(
+                MDToastWidget(
+                  message: slang.t.common.commentUpdated,
+                  type: MDToastType.success,
+                ),
+              );
               // ignore: use_build_context_synchronously
               Navigator.of(context).pop();
             } else {
-              showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error), position: ToastPosition.bottom);
+              showToastWidget(
+                MDToastWidget(message: result.message, type: MDToastType.error),
+                position: ToastPosition.bottom,
+              );
             }
           }
         },
@@ -370,7 +417,13 @@ class _CommentItemState extends State<CommentItem> {
 
   void _showReplyDialog() {
     if (widget.controller == null) {
-      showToastWidget(MDToastWidget(message: slang.t.errors.canNotFindCommentController, type: MDToastType.error), position: ToastPosition.bottom);
+      showToastWidget(
+        MDToastWidget(
+          message: slang.t.errors.canNotFindCommentController,
+          type: MDToastType.error,
+        ),
+        position: ToastPosition.bottom,
+      );
       return;
     }
 
@@ -383,7 +436,13 @@ class _CommentItemState extends State<CommentItem> {
         submitText: slang.t.common.reply,
         onSubmit: (text) async {
           if (text.trim().isEmpty) {
-            showToastWidget(MDToastWidget(message: slang.t.errors.commentCanNotBeEmpty, type: MDToastType.error), position: ToastPosition.bottom);
+            showToastWidget(
+              MDToastWidget(
+                message: slang.t.errors.commentCanNotBeEmpty,
+                type: MDToastType.error,
+              ),
+              position: ToastPosition.bottom,
+            );
             return;
           }
           await widget.controller!.postComment(
@@ -397,17 +456,18 @@ class _CommentItemState extends State<CommentItem> {
 
   Widget _buildActionMenu(BuildContext context) {
     final t = slang.Translations.of(context);
-    
+
     // 检查是否有菜单项
     final hasReplyOption = widget.comment.parent == null && !widget.isReply;
-    final isOwner = _userService.currentUser.value?.id == widget.comment.user?.id;
+    final isOwner =
+        _userService.currentUser.value?.id == widget.comment.user?.id;
     final hasMenuItems = hasReplyOption || isOwner;
-    
+
     // 如果没有菜单项，返回空的 SizedBox
     if (!hasMenuItems) {
       return const SizedBox.shrink();
     }
-    
+
     return PopupMenuButton<String>(
       icon: const Icon(Icons.more_vert, size: 16),
       padding: EdgeInsets.zero,
@@ -481,7 +541,9 @@ class _CommentItemState extends State<CommentItem> {
             MouseRegion(
               cursor: SystemMouseCursors.click,
               child: GestureDetector(
-                onTap: () => NaviService.navigateToAuthorProfilePage(comment.user?.username ?? ''),
+                onTap: () => NaviService.navigateToAuthorProfilePage(
+                  comment.user?.username ?? '',
+                ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -496,16 +558,24 @@ class _CommentItemState extends State<CommentItem> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Flexible(
-                                child: buildUserName(context, comment.user!, fontSize: 14, bold: true),
+                                child: buildUserName(
+                                  context,
+                                  comment.user!,
+                                  fontSize: 14,
+                                  bold: true,
+                                ),
                               ),
                               // 显示楼号（只有顶级评论显示）
-                              if (widget.comment.parent == null && comment.floorNumber != null)
+                              if (widget.comment.parent == null &&
+                                  comment.floorNumber != null)
                                 Text(
                                   '#${comment.floorNumber}',
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
-                                    color: Theme.of(context).colorScheme.primary,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
                                   ),
                                 ),
                             ],
@@ -515,14 +585,32 @@ class _CommentItemState extends State<CommentItem> {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                if (comment.user?.id == _userService.currentUser.value?.id)
-                                  _buildCommentTag(t.common.me, Colors.blue, Icons.person),
+                                if (comment.user?.id ==
+                                    _userService.currentUser.value?.id)
+                                  _buildCommentTag(
+                                    t.common.me,
+                                    Colors.blue,
+                                    Icons.person,
+                                  ),
                                 if (comment.user?.premium == true)
-                                  _buildCommentTag(t.common.premium, Colors.purple, Icons.star),
+                                  _buildCommentTag(
+                                    t.common.premium,
+                                    Colors.purple,
+                                    Icons.star,
+                                  ),
                                 if (comment.user?.id == widget.authorUserId)
-                                  _buildCommentTag(t.common.author, Colors.green, Icons.verified_user),
-                                if (comment.user?.role.contains('admin') == true)
-                                  _buildCommentTag(t.common.admin, Colors.red, Icons.admin_panel_settings),
+                                  _buildCommentTag(
+                                    t.common.author,
+                                    Colors.green,
+                                    Icons.verified_user,
+                                  ),
+                                if (comment.user?.role.contains('admin') ==
+                                    true)
+                                  _buildCommentTag(
+                                    t.common.admin,
+                                    Colors.red,
+                                    Icons.admin_panel_settings,
+                                  ),
                               ],
                             ),
                           ),
@@ -553,7 +641,9 @@ class _CommentItemState extends State<CommentItem> {
                     borderRadius: BorderRadius.circular(8),
                     clipBehavior: Clip.antiAlias,
                     child: InkWell(
-                      onTap: !widget.isReply && widget.comment.parent == null ? _showReplyDialog : null,
+                      onTap: !widget.isReply && widget.comment.parent == null
+                          ? _showReplyDialog
+                          : null,
                       child: CustomMarkdownBody(
                         data: comment.body,
                         originalData: comment.body,
@@ -574,7 +664,9 @@ class _CommentItemState extends State<CommentItem> {
                           visualDensity: VisualDensity.compact,
                           tooltip: t.common.reply,
                           style: IconButton.styleFrom(
-                            foregroundColor: Theme.of(context).colorScheme.primary,
+                            foregroundColor: Theme.of(
+                              context,
+                            ).colorScheme.primary,
                           ),
                         ),
                       _buildActionMenu(context),
@@ -592,9 +684,6 @@ class _CommentItemState extends State<CommentItem> {
   }
 
   Widget _buildUserAvatar(Comment comment) {
-    return AvatarWidget(
-      user: comment.user,
-      size: 32
-    );
+    return AvatarWidget(user: comment.user, size: 32);
   }
 }

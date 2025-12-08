@@ -7,35 +7,43 @@ import '../../../../models/comment.model.dart';
 import '../../../../services/comment_service.dart';
 import 'comment_item_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'comment_input_bottom_sheet.dart';
+import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:oktoast/oktoast.dart';
 
 class CommentRepliesBottomSheet extends StatefulWidget {
   final Comment parentComment;
   final String? authorUserId;
+  final CommentController? controller;
 
   const CommentRepliesBottomSheet({
     super.key,
     required this.parentComment,
     this.authorUserId,
+    this.controller,
   });
 
   @override
-  State<CommentRepliesBottomSheet> createState() => _CommentRepliesBottomSheetState();
+  State<CommentRepliesBottomSheet> createState() =>
+      _CommentRepliesBottomSheetState();
 }
 
 class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
   final CommentService _commentService = Get.find();
   final ScrollController _scrollController = ScrollController();
-  
+
   final List<Comment> _replies = [];
   bool _isLoading = false;
   bool _hasMore = true;
   int _currentPage = 0;
   final int _pageSize = 20;
   String? _errorMessage;
+  late int _replyCount;
 
   @override
   void initState() {
     super.initState();
+    _replyCount = widget.parentComment.numReplies;
     _scrollController.addListener(_onScroll);
     _loadReplies(refresh: true);
   }
@@ -47,9 +55,10 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= 
-        _scrollController.position.maxScrollExtent - 200 &&
-        !_isLoading && _hasMore) {
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 200 &&
+        !_isLoading &&
+        _hasMore) {
       _loadReplies();
     }
   }
@@ -116,7 +125,7 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
           _hasMore = false;
         });
       }
-      } catch (e) {
+    } catch (e) {
       if (!mounted) return;
       setState(() {
         _errorMessage = slang.t.errors.errorWhileFetchingReplies;
@@ -131,9 +140,122 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
     }
   }
 
+  void _showReplyDialog() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => CommentInputBottomSheet(
+        title: slang.t.common.replyComment,
+        submitText: slang.t.common.reply,
+        onSubmit: (text) async {
+          if (text.trim().isEmpty) {
+            showToastWidget(
+              MDToastWidget(
+                message: slang.t.errors.commentCanNotBeEmpty,
+                type: MDToastType.error,
+              ),
+              position: ToastPosition.bottom,
+            );
+            return;
+          }
+
+          try {
+            bool success = false;
+            String? errorMessage;
+
+            if (widget.controller != null) {
+              final result = await widget.controller!.postComment(
+                text,
+                parentId: widget.parentComment.id,
+              );
+              if (result.isSuccess) {
+                success = true;
+              } else {
+                errorMessage = result.message;
+              }
+            } else {
+              String type;
+              String id;
+              if (widget.parentComment.videoId != null) {
+                type = CommentType.video.name;
+                id = widget.parentComment.videoId!;
+              } else if (widget.parentComment.profileId != null) {
+                type = CommentType.profile.name;
+                id = widget.parentComment.profileId!;
+              } else if (widget.parentComment.imageId != null) {
+                type = CommentType.image.name;
+                id = widget.parentComment.imageId!;
+              } else if (widget.parentComment.postId != null) {
+                type = CommentType.post.name;
+                id = widget.parentComment.postId!;
+              } else {
+                showToastWidget(
+                  MDToastWidget(
+                    message: 'Unknown comment type',
+                    type: MDToastType.error,
+                  ),
+                  position: ToastPosition.bottom,
+                );
+                return;
+              }
+
+              final result = await _commentService.postComment(
+                type: type,
+                id: id,
+                body: text,
+                parentId: widget.parentComment.id,
+              );
+
+              if (result.isSuccess) {
+                success = true;
+              } else {
+                errorMessage = result.message;
+              }
+            }
+
+            if (success) {
+              showToastWidget(
+                MDToastWidget(
+                  message: slang.t.common.commentPostedSuccessfully,
+                  type: MDToastType.success,
+                ),
+              );
+              if (mounted) {
+                Navigator.pop(context); // Close input sheet
+              }
+              setState(() {
+                _replyCount++;
+              });
+              _loadReplies(refresh: true); // Refresh replies
+            } else {
+              showToastWidget(
+                MDToastWidget(
+                  message: errorMessage ?? slang.t.common.commentPostedFailed,
+                  type: MDToastType.error,
+                ),
+                position: ToastPosition.bottom,
+              );
+            }
+          } catch (e) {
+            showToastWidget(
+              MDToastWidget(
+                message: slang.t.common.commentPostedFailed,
+                type: MDToastType.error,
+              ),
+              position: ToastPosition.bottom,
+            );
+          }
+        },
+      ),
+    );
+  }
+
   Widget _buildShimmerItem() {
     return Shimmer.fromColors(
-      baseColor: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+      baseColor: Theme.of(
+        context,
+      ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
       highlightColor: Theme.of(context).colorScheme.surface,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -162,7 +284,9 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
                     height: 12.0,
                     width: 100.0,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(4.0),
                     ),
                   ),
@@ -170,7 +294,9 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
                   Container(
                     height: 10.0,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(4.0),
                     ),
                   ),
@@ -217,9 +343,14 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
         padding: const EdgeInsets.all(16.0),
         child: Center(
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 8.0,
+            ),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+              color: Theme.of(
+                context,
+              ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(20.0),
             ),
             child: Row(
@@ -255,7 +386,9 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
         margin: const EdgeInsets.all(24.0),
         padding: const EdgeInsets.all(24.0),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.errorContainer.withValues(alpha: 0.1),
+          color: Theme.of(
+            context,
+          ).colorScheme.errorContainer.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12.0),
           border: Border.all(
             color: Theme.of(context).colorScheme.error.withValues(alpha: 0.2),
@@ -286,7 +419,10 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
               icon: const Icon(Icons.refresh_rounded),
               label: Text(t.common.retry),
               style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24.0,
+                  vertical: 12.0,
+                ),
               ),
             ),
           ],
@@ -302,7 +438,9 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
         margin: const EdgeInsets.all(24.0),
         padding: const EdgeInsets.all(32.0),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+          color: Theme.of(
+            context,
+          ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(16.0),
         ),
         child: Column(
@@ -332,7 +470,7 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    
+
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
@@ -345,8 +483,12 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
           Container(
             padding: const EdgeInsets.all(16.0),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16.0)),
+              color: Theme.of(
+                context,
+              ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16.0),
+              ),
             ),
             child: Row(
               children: [
@@ -357,7 +499,7 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
                 ),
                 const SizedBox(width: 8.0),
                 Text(
-                  '${widget.parentComment.numReplies} ${t.common.replies}',
+                  '$_replyCount ${t.common.replies}',
                   style: TextStyle(
                     fontSize: 16.0,
                     fontWeight: FontWeight.w600,
@@ -365,6 +507,12 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
                   ),
                 ),
                 const Spacer(),
+                IconButton(
+                  onPressed: _showReplyDialog,
+                  icon: const Icon(Icons.reply),
+                  visualDensity: VisualDensity.compact,
+                  tooltip: t.common.reply,
+                ),
                 IconButton(
                   onPressed: () => Navigator.of(context).pop(),
                   icon: const Icon(Icons.close_rounded),

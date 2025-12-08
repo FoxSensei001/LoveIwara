@@ -406,7 +406,7 @@ class IwaraServerService extends GetxService {
     final total = serversToTest.length;
 
     // 使用并发控制，避免同时发起过多请求
-    const concurrency = 20; // 同时测试20个服务器（提高测速速度）
+    const concurrency = 30; // 同时测试30个服务器（提高测速速度）
     final chunks = <List<IwaraServer>>[];
     
     for (var i = 0; i < serversToTest.length; i += concurrency) {
