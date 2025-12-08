@@ -34,7 +34,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     'en': 'English',
     'ja': '日本語',
     'zh-CN': '简体中文',
-    'zh-TW': '繁体中文',
+    'zh-TW': '繁體中文',
   };
 
   // 根据当前设备语言获取"跟随系统"的文本
