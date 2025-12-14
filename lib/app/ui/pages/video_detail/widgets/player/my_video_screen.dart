@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/rapple_painter.dart';
+import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/vibrate_utils.dart';
@@ -94,7 +95,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _focusNode.requestFocus();
       });
-      
+
       // 在全屏状态下监听重力感应变化
       _startGravityOrientationListener();
     }
@@ -122,15 +123,15 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       duration: Duration(milliseconds: duration),
       vsync: this,
     )..addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          setState(() {
-            _isLeftRippleActive1 = false;
-            _isLeftRippleActive2 = false;
-            _isRightRippleActive1 = false;
-            _isRightRippleActive2 = false;
-          });
-        }
-      });
+      if (status == AnimationStatus.completed) {
+        setState(() {
+          _isLeftRippleActive1 = false;
+          _isLeftRippleActive2 = false;
+          _isRightRippleActive1 = false;
+          _isRightRippleActive2 = false;
+        });
+      }
+    });
   }
 
   void _initializeInfoMessageController() {
@@ -159,13 +160,16 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     }
 
     // 使用定时器定期检查方向变化
-    _orientationCheckTimer = Timer.periodic(const Duration(milliseconds: 1000), (timer) {
-      if (!mounted || !widget.isFullScreen) {
-        timer.cancel();
-        return;
-      }
-      _checkOrientationChange();
-    });
+    _orientationCheckTimer = Timer.periodic(
+      const Duration(milliseconds: 1000),
+      (timer) {
+        if (!mounted || !widget.isFullScreen) {
+          timer.cancel();
+          return;
+        }
+        _checkOrientationChange();
+      },
+    );
   }
 
   /// 检查方向变化
@@ -176,11 +180,11 @@ class _MyVideoScreenState extends State<MyVideoScreen>
 
     // 获取当前方向
     final currentOrientation = MediaQuery.of(context).orientation;
-    
+
     // 检查方向是否发生变化
     if (_lastOrientation != currentOrientation) {
       _lastOrientation = currentOrientation;
-      
+
       // 只在横屏状态下处理
       if (currentOrientation == Orientation.landscape) {
         LogUtils.d('进入横屏模式 jui', 'MyVideoScreen');
@@ -263,8 +267,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     });
 
     // 获取当前的时间
-    Duration currentPosition =
-        widget.myVideoStateController.currentPosition;
+    Duration currentPosition = widget.myVideoStateController.currentPosition;
     int seconds = _configService[ConfigKey.REWIND_SECONDS_KEY] as int;
     if (currentPosition.inSeconds - seconds > 0) {
       currentPosition = Duration(seconds: currentPosition.inSeconds - seconds);
@@ -292,8 +295,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     });
 
     // 获取当前的时间
-    Duration currentPosition =
-        widget.myVideoStateController.currentPosition;
+    Duration currentPosition = widget.myVideoStateController.currentPosition;
     Duration totalDuration = widget.myVideoStateController.totalDuration.value;
     int seconds = _configService[ConfigKey.FAST_FORWARD_SECONDS_KEY] as int;
     if (currentPosition.inSeconds + seconds < totalDuration.inSeconds) {
@@ -364,278 +366,364 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       child: Scaffold(
         backgroundColor: Colors.black,
         body: Stack(
-            children: [
-              // 剧院模式背景
-              Obx(() {
-                final isTheaterMode = _configService[ConfigKey.THEATER_MODE_KEY] as bool;
-                if (!isTheaterMode) {
-                  return const SizedBox.shrink();
-                }
+          children: [
+            // 剧院模式背景
+            Obx(() {
+              final isTheaterMode =
+                  _configService[ConfigKey.THEATER_MODE_KEY] as bool;
+              if (!isTheaterMode) {
+                return const SizedBox.shrink();
+              }
 
-                // 使用 LayoutBuilder 获取精确尺寸
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    final size = Size(constraints.maxWidth, constraints.maxHeight);
-                    final thumbnailUrl = widget.myVideoStateController.videoInfo.value?.thumbnailUrl;
-                    return _createBlurredBackground(thumbnailUrl, size);
-                  },
+              // 使用 LayoutBuilder 获取精确尺寸
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  final size = Size(
+                    constraints.maxWidth,
+                    constraints.maxHeight,
+                  );
+                  final thumbnailUrl = widget
+                      .myVideoStateController
+                      .videoInfo
+                      .value
+                      ?.thumbnailUrl;
+                  return _createBlurredBackground(thumbnailUrl, size);
+                },
+              );
+            }),
+            // 主要内容
+            LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) {
+                // 计算可用尺寸一次获得，避免重复调用 MediaQuery
+                final Size screenSize = Size(
+                  constraints.maxWidth,
+                  constraints.maxHeight,
                 );
-              }),
-              // 主要内容
-              LayoutBuilder(
-                builder: (BuildContext context, BoxConstraints constraints) {
-                  // 计算可用尺寸一次获得，避免重复调用 MediaQuery
-                  final Size screenSize =
-                      Size(constraints.maxWidth, constraints.maxHeight);
-                  final double playPauseIconSize =
-                      (screenSize.width * 0.15).clamp(40.0, 100.0);
-                  final double bufferingSize = playPauseIconSize * 0.8;
-                  final double maxRadius =
-                      (screenSize.height - paddingTop) * 2 / 3;
+                final double playPauseIconSize = (screenSize.width * 0.15)
+                    .clamp(40.0, 100.0);
+                final double bufferingSize = playPauseIconSize * 0.8;
+                final double maxRadius =
+                    (screenSize.height - paddingTop) * 2 / 3;
 
-                  return FocusScope(
-                    autofocus: true,
-                    canRequestFocus: true,
-                    child: MouseRegion(
-                      onEnter: (_) {
-                        // 鼠标进入播放器区域
-                        widget.myVideoStateController.setMouseHoveringPlayer(true);
-                      },
-                      onExit: (_) {
-                        // 鼠标离开播放器区域
-                        widget.myVideoStateController.setMouseHoveringPlayer(false);
-                      },
-                      onHover: (_) {
-                        // 鼠标在播放器区域内移动时，处理移动事件
-                        widget.myVideoStateController.onMouseMoveInPlayer();
-                      },
-                      child: KeyboardListener(
-                        focusNode: _focusNode,
-                        onKeyEvent: (KeyEvent event) {
-                          if (event is KeyDownEvent) {
-                            if (event.logicalKey ==
-                                LogicalKeyboardKey.arrowLeft) {
-                              _handleLeftKeyPress();
-                            } else if (event.logicalKey ==
-                                LogicalKeyboardKey.arrowRight) {
-                              _handleRightKeyPress();
-                            } else if (event.logicalKey ==
-                                LogicalKeyboardKey.space) {
-                              if (widget
-                                  .myVideoStateController.videoPlaying.value) {
-                                widget.myVideoStateController.player.pause();
-                              } else {
-                                widget.myVideoStateController.player.play();
-                                widget.myVideoStateController.animateToTop();
-                              }
-                            } else if (event.logicalKey ==
-                                LogicalKeyboardKey.arrowUp) {
-                              // 获取当前音量
-                              double currentVolume =
-                                  _configService[ConfigKey.VOLUME_KEY];
-                              // 增加音量，每次增加0.1，最大为1.0
-                              double newVolume =
-                                  (currentVolume + 0.1).clamp(0.0, 1.0);
-                              widget.myVideoStateController.setVolume(newVolume);
-                              // 显示音量提示
-                              _showVolumeInfo();
-                            } else if (event.logicalKey ==
-                                LogicalKeyboardKey.arrowDown) {
-                              // 获取当前音量
-                              double currentVolume =
-                                  _configService[ConfigKey.VOLUME_KEY];
-                              // 减少音量，每次减少0.1，最小为0.0
-                              double newVolume =
-                                  (currentVolume - 0.1).clamp(0.0, 1.0);
-                              widget.myVideoStateController.setVolume(newVolume);
-                              // 显示音量提示
-                              _showVolumeInfo();
+                return FocusScope(
+                  autofocus: true,
+                  canRequestFocus: true,
+                  child: MouseRegion(
+                    onEnter: (_) {
+                      // 鼠标进入播放器区域
+                      widget.myVideoStateController.setMouseHoveringPlayer(
+                        true,
+                      );
+                    },
+                    onExit: (_) {
+                      // 鼠标离开播放器区域
+                      widget.myVideoStateController.setMouseHoveringPlayer(
+                        false,
+                      );
+                    },
+                    onHover: (_) {
+                      // 鼠标在播放器区域内移动时，处理移动事件
+                      widget.myVideoStateController.onMouseMoveInPlayer();
+                    },
+                    child: KeyboardListener(
+                      focusNode: _focusNode,
+                      onKeyEvent: (KeyEvent event) {
+                        if (event is KeyDownEvent) {
+                          if (event.logicalKey ==
+                              LogicalKeyboardKey.arrowLeft) {
+                            _handleLeftKeyPress();
+                          } else if (event.logicalKey ==
+                              LogicalKeyboardKey.arrowRight) {
+                            _handleRightKeyPress();
+                          } else if (event.logicalKey ==
+                              LogicalKeyboardKey.space) {
+                            if (widget
+                                .myVideoStateController
+                                .videoPlaying
+                                .value) {
+                              widget.myVideoStateController.player.pause();
+                            } else {
+                              widget.myVideoStateController.player.play();
+                              widget.myVideoStateController.animateToTop();
                             }
+                          } else if (event.logicalKey ==
+                              LogicalKeyboardKey.arrowUp) {
+                            // 获取当前音量
+                            double currentVolume =
+                                _configService[ConfigKey.VOLUME_KEY];
+                            // 增加音量，每次增加0.1，最大为1.0
+                            double newVolume = (currentVolume + 0.1).clamp(
+                              0.0,
+                              1.0,
+                            );
+                            widget.myVideoStateController.setVolume(newVolume);
+                            // 显示音量提示
+                            _showVolumeInfo();
+                          } else if (event.logicalKey ==
+                              LogicalKeyboardKey.arrowDown) {
+                            // 获取当前音量
+                            double currentVolume =
+                                _configService[ConfigKey.VOLUME_KEY];
+                            // 减少音量，每次减少0.1，最小为0.0
+                            double newVolume = (currentVolume - 0.1).clamp(
+                              0.0,
+                              1.0,
+                            );
+                            widget.myVideoStateController.setVolume(newVolume);
+                            // 显示音量提示
+                            _showVolumeInfo();
                           }
-                        },
-                        child: Container(
-                          padding: EdgeInsets.only(top: paddingTop),
-                          child: Stack(
-                            children: [
-                              // 视频播放区域
-                              _buildVideoPlayer(),
-                              // 手势监听区域（抽取后减少整体重绘）
-                              ..._buildGestureAreas(screenSize),
-                              // 工具栏部分
-                              ..._buildToolbars(),
-                              // 双击波纹动画等效果
-                              _buildRippleEffects(screenSize, maxRadius),
-                              // 中央控制面板，比如播放/暂停按钮
-                              _buildVideoControlOverlay(
-                                  playPauseIconSize, bufferingSize),
-                              // InfoMessage 提示区域
-                              _buildInfoMessage(),
-                              // 播放速度信息提示（左下角）
-                              _buildPlaybackSpeedInfoMessage(),
-                              // 添加底部进度条
-                              _buildBottomProgressBar(),
-                              // 添加遮罩层
-                              _buildMaskLayer(),
-                              // 添加锁定按钮
-                              _buildLockButton(),
-                            ],
-                          ),
+                        }
+                      },
+                      child: Container(
+                        padding: EdgeInsets.only(top: paddingTop),
+                        child: Stack(
+                          children: [
+                            // 视频播放区域
+                            _buildVideoPlayer(),
+                            // 手势监听区域（抽取后减少整体重绘）
+                            ..._buildGestureAreas(screenSize),
+                            // 工具栏部分
+                            ..._buildToolbars(),
+                            // 双击波纹动画等效果
+                            _buildRippleEffects(screenSize, maxRadius),
+                            // 中央控制面板，比如播放/暂停按钮
+                            _buildVideoControlOverlay(
+                              playPauseIconSize,
+                              bufferingSize,
+                            ),
+                            // InfoMessage 提示区域
+                            _buildInfoMessage(),
+                            // 播放速度信息提示（左下角）
+                            _buildPlaybackSpeedInfoMessage(),
+                            // 添加底部进度条
+                            _buildBottomProgressBar(),
+                            // 添加遮罩层
+                            _buildMaskLayer(),
+                            // 添加锁定按钮
+                            _buildLockButton(),
+                          ],
                         ),
                       ),
                     ),
-                  );
-                },
-              ),
-            ],
-          ),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildVideoPlayer() {
     return Center(
-      child: Obx(() => AspectRatio(
-            aspectRatio: widget.myVideoStateController.aspectRatio.value,
-            child: Video(
-              controller: widget.myVideoStateController.videoController,
-              controls: null,
-            ),
-          )),
+      child: Obx(
+        () => AspectRatio(
+          aspectRatio: widget.myVideoStateController.aspectRatio.value,
+          child: Video(
+            controller: widget.myVideoStateController.videoController,
+            controls: null,
+          ),
+        ),
+      ),
     );
   }
 
   List<Widget> _buildGestureAreas(Size screenSize) {
     return [
-      Obx(() => Positioned(
-            left: 0,
-            top: 0,
-            bottom: 0,
-            width: screenSize.width *
-                _configService[
-                    ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO],
-            child: GestureArea(
-              setLongPressing: _setLongPressing,
-              onTap: _onTap,
-              region: GestureRegion.left,
-              myVideoStateController: widget.myVideoStateController,
-              onDoubleTapLeft: _triggerLeftRipple,
-              screenSize: screenSize,
-              onHorizontalDragStart: _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
-                  ? (details) {
-                      _horizontalDragStartX = details.localPosition.dx;
-                      _horizontalDragStartPosition =
-                          widget.myVideoStateController.currentPosition;
-                      widget.myVideoStateController.setInteracting(true);
-                      widget.myVideoStateController.showSeekPreview(true);
-                      widget.myVideoStateController.isHorizontalDragging.value = true;
+      Obx(
+        () => Positioned(
+          left: 0,
+          top: 0,
+          bottom: 0,
+          width:
+              screenSize.width *
+              _configService[ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO],
+          child: GestureArea(
+            setLongPressing: _setLongPressing,
+            onTap: _onTap,
+            region: GestureRegion.left,
+            myVideoStateController: widget.myVideoStateController,
+            onDoubleTapLeft: _triggerLeftRipple,
+            screenSize: screenSize,
+            onHorizontalDragStart:
+                _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
+                ? (details) {
+                    _horizontalDragStartX = details.localPosition.dx;
+                    _horizontalDragStartPosition =
+                        widget.myVideoStateController.currentPosition;
+                    widget.myVideoStateController.setInteracting(true);
+                    widget.myVideoStateController.showSeekPreview(true);
+                    widget.myVideoStateController.isHorizontalDragging.value =
+                        true;
+                  }
+                : null,
+            onHorizontalDragUpdate:
+                _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
+                ? (details) {
+                    if (_horizontalDragStartX == null ||
+                        _horizontalDragStartPosition == null) {
+                      return;
                     }
-                  : null,
-              onHorizontalDragUpdate: _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
-                  ? (details) {
-                      if (_horizontalDragStartX == null ||
-                          _horizontalDragStartPosition == null) {
-                        return;
-                      }
 
-                      double dragDistance =
-                          details.localPosition.dx - _horizontalDragStartX!;
-                      double ratio = dragDistance / screenSize.width;
+                    // 检查是否从边缘区域开始滑动
+                    const edgeThreshold =
+                        CommonConstants.videoPlayerEdgeGestureThreshold;
+                    final screenWidth = screenSize.width;
 
-                      int offsetSeconds = (ratio * maxSeekSeconds).round();
+                    // 从左侧边缘向右滑动,忽略
+                    if (_horizontalDragStartX! < edgeThreshold &&
+                        details.localPosition.dx - _horizontalDragStartX! > 0) {
+                      return;
+                    }
 
-                      Duration targetPosition = Duration(
-                          seconds: (_horizontalDragStartPosition!.inSeconds +
+                    // 从右侧边缘向左滑动,忽略
+                    if (_horizontalDragStartX! > screenWidth - edgeThreshold &&
+                        details.localPosition.dx - _horizontalDragStartX! < 0) {
+                      return;
+                    }
+
+                    double dragDistance =
+                        details.localPosition.dx - _horizontalDragStartX!;
+                    double ratio = dragDistance / screenSize.width;
+
+                    int offsetSeconds = (ratio * maxSeekSeconds).round();
+
+                    Duration targetPosition = Duration(
+                      seconds:
+                          (_horizontalDragStartPosition!.inSeconds +
                                   offsetSeconds)
                               .clamp(
-                                  0,
-                                  widget.myVideoStateController.totalDuration.value
-                                      .inSeconds));
+                                0,
+                                widget
+                                    .myVideoStateController
+                                    .totalDuration
+                                    .value
+                                    .inSeconds,
+                              ),
+                    );
 
-                      widget.myVideoStateController.updateSeekPreview(targetPosition);
+                    widget.myVideoStateController.updateSeekPreview(
+                      targetPosition,
+                    );
+                  }
+                : null,
+            onHorizontalDragEnd:
+                _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
+                ? (details) {
+                    if (_horizontalDragStartPosition != null) {
+                      Duration targetPosition =
+                          widget.myVideoStateController.previewPosition.value;
+                      widget.myVideoStateController.handleSeek(targetPosition);
                     }
-                  : null,
-              onHorizontalDragEnd: _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
-                  ? (details) {
-                      if (_horizontalDragStartPosition != null) {
-                        Duration targetPosition =
-                            widget.myVideoStateController.previewPosition.value;
-                        widget.myVideoStateController.handleSeek(targetPosition);
-                      }
 
-                      _horizontalDragStartX = null;
-                      _horizontalDragStartPosition = null;
-                      widget.myVideoStateController.setInteracting(false);
-                      widget.myVideoStateController.showSeekPreview(false);
+                    _horizontalDragStartX = null;
+                    _horizontalDragStartPosition = null;
+                    widget.myVideoStateController.setInteracting(false);
+                    widget.myVideoStateController.showSeekPreview(false);
+                  }
+                : null,
+          ),
+        ),
+      ),
+      Obx(
+        () => Positioned(
+          right: 0,
+          top: 0,
+          bottom: 0,
+          width:
+              screenSize.width *
+              _configService[ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO],
+          child: GestureArea(
+            setLongPressing: _setLongPressing,
+            onTap: _onTap,
+            region: GestureRegion.right,
+            myVideoStateController: widget.myVideoStateController,
+            onDoubleTapRight: _triggerRightRipple,
+            screenSize: screenSize,
+            onVolumeChange: (volume) =>
+                widget.myVideoStateController.setVolume(volume, save: false),
+            onHorizontalDragStart:
+                _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
+                ? (details) {
+                    _horizontalDragStartX = details.localPosition.dx;
+                    _horizontalDragStartPosition =
+                        widget.myVideoStateController.currentPosition;
+                    widget.myVideoStateController.setInteracting(true);
+                    widget.myVideoStateController.showSeekPreview(true);
+                    widget.myVideoStateController.isHorizontalDragging.value =
+                        true;
+                  }
+                : null,
+            onHorizontalDragUpdate:
+                _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
+                ? (details) {
+                    if (_horizontalDragStartX == null ||
+                        _horizontalDragStartPosition == null) {
+                      return;
                     }
-                  : null,
-            ),
-          )),
-      Obx(() => Positioned(
-            right: 0,
-            top: 0,
-            bottom: 0,
-            width: screenSize.width *
-                _configService[
-                    ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO],
-            child: GestureArea(
-              setLongPressing: _setLongPressing,
-              onTap: _onTap,
-              region: GestureRegion.right,
-              myVideoStateController: widget.myVideoStateController,
-              onDoubleTapRight: _triggerRightRipple,
-              screenSize: screenSize,
-              onVolumeChange: (volume) =>
-                  widget.myVideoStateController.setVolume(volume, save: false),
-              onHorizontalDragStart: _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
-                  ? (details) {
-                      _horizontalDragStartX = details.localPosition.dx;
-                      _horizontalDragStartPosition =
-                          widget.myVideoStateController.currentPosition;
-                      widget.myVideoStateController.setInteracting(true);
-                      widget.myVideoStateController.showSeekPreview(true);
-                      widget.myVideoStateController.isHorizontalDragging.value = true;
+
+                    // 检查是否从边缘区域开始滑动
+                    const edgeThreshold =
+                        CommonConstants.videoPlayerEdgeGestureThreshold;
+                    final screenWidth = screenSize.width;
+
+                    // 从左侧边缘向右滑动,忽略
+                    if (_horizontalDragStartX! < edgeThreshold &&
+                        details.localPosition.dx - _horizontalDragStartX! > 0) {
+                      return;
                     }
-                  : null,
-              onHorizontalDragUpdate: _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
-                  ? (details) {
-                      if (_horizontalDragStartX == null ||
-                          _horizontalDragStartPosition == null) {
-                        return;
-                      }
 
-                      double dragDistance =
-                          details.localPosition.dx - _horizontalDragStartX!;
-                      double ratio = dragDistance / screenSize.width;
+                    // 从右侧边缘向左滑动,忽略
+                    if (_horizontalDragStartX! > screenWidth - edgeThreshold &&
+                        details.localPosition.dx - _horizontalDragStartX! < 0) {
+                      return;
+                    }
 
-                      int offsetSeconds = (ratio * maxSeekSeconds).round();
+                    double dragDistance =
+                        details.localPosition.dx - _horizontalDragStartX!;
+                    double ratio = dragDistance / screenSize.width;
 
-                      Duration targetPosition = Duration(
-                          seconds: (_horizontalDragStartPosition!.inSeconds +
+                    int offsetSeconds = (ratio * maxSeekSeconds).round();
+
+                    Duration targetPosition = Duration(
+                      seconds:
+                          (_horizontalDragStartPosition!.inSeconds +
                                   offsetSeconds)
                               .clamp(
-                                  0,
-                                  widget.myVideoStateController.totalDuration.value
-                                      .inSeconds));
+                                0,
+                                widget
+                                    .myVideoStateController
+                                    .totalDuration
+                                    .value
+                                    .inSeconds,
+                              ),
+                    );
 
-                      widget.myVideoStateController.updateSeekPreview(targetPosition);
+                    widget.myVideoStateController.updateSeekPreview(
+                      targetPosition,
+                    );
+                  }
+                : null,
+            onHorizontalDragEnd:
+                _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
+                ? (details) {
+                    if (_horizontalDragStartPosition != null) {
+                      Duration targetPosition =
+                          widget.myVideoStateController.previewPosition.value;
+                      widget.myVideoStateController.handleSeek(targetPosition);
                     }
-                  : null,
-              onHorizontalDragEnd: _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
-                  ? (details) {
-                      if (_horizontalDragStartPosition != null) {
-                        Duration targetPosition =
-                            widget.myVideoStateController.previewPosition.value;
-                        widget.myVideoStateController.handleSeek(targetPosition);
-                      }
 
-                      _horizontalDragStartX = null;
-                      _horizontalDragStartPosition = null;
-                      widget.myVideoStateController.setInteracting(false);
-                      widget.myVideoStateController.showSeekPreview(false);
-                    }
-                  : null,
-            ),
-          )),
+                    _horizontalDragStartX = null;
+                    _horizontalDragStartPosition = null;
+                    widget.myVideoStateController.setInteracting(false);
+                    widget.myVideoStateController.showSeekPreview(false);
+                  }
+                : null,
+          ),
+        ),
+      ),
       Obx(() {
         double ratio =
             _configService[ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO]
@@ -660,7 +748,8 @@ class _MyVideoScreenState extends State<MyVideoScreen>
             region: GestureRegion.center,
             myVideoStateController: widget.myVideoStateController,
             screenSize: screenSize,
-            onHorizontalDragStart: _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
+            onHorizontalDragStart:
+                _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
                 ? (details) {
                     _horizontalDragStartX = details.localPosition.dx;
                     _horizontalDragStartPosition =
@@ -669,10 +758,28 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                     widget.myVideoStateController.showSeekPreview(true);
                   }
                 : null,
-            onHorizontalDragUpdate: _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
+            onHorizontalDragUpdate:
+                _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
                 ? (details) {
                     if (_horizontalDragStartX == null ||
                         _horizontalDragStartPosition == null) {
+                      return;
+                    }
+
+                    // 检查是否从边缘区域开始滑动
+                    const edgeThreshold =
+                        CommonConstants.videoPlayerEdgeGestureThreshold;
+                    final screenWidth = screenSize.width;
+
+                    // 从左侧边缘向右滑动,忽略
+                    if (_horizontalDragStartX! < edgeThreshold &&
+                        details.localPosition.dx - _horizontalDragStartX! > 0) {
+                      return;
+                    }
+
+                    // 从右侧边缘向左滑动,忽略
+                    if (_horizontalDragStartX! > screenWidth - edgeThreshold &&
+                        details.localPosition.dx - _horizontalDragStartX! < 0) {
                       return;
                     }
 
@@ -683,17 +790,26 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                     int offsetSeconds = (ratio * maxSeekSeconds).round();
 
                     Duration targetPosition = Duration(
-                        seconds:
-                            (_horizontalDragStartPosition!.inSeconds + offsetSeconds)
-                                .clamp(
-                                    0,
-                                    widget.myVideoStateController.totalDuration.value
-                                        .inSeconds));
+                      seconds:
+                          (_horizontalDragStartPosition!.inSeconds +
+                                  offsetSeconds)
+                              .clamp(
+                                0,
+                                widget
+                                    .myVideoStateController
+                                    .totalDuration
+                                    .value
+                                    .inSeconds,
+                              ),
+                    );
 
-                    widget.myVideoStateController.updateSeekPreview(targetPosition);
+                    widget.myVideoStateController.updateSeekPreview(
+                      targetPosition,
+                    );
                   }
                 : null,
-            onHorizontalDragEnd: _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
+            onHorizontalDragEnd:
+                _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
                 ? (details) {
                     if (_horizontalDragStartPosition != null) {
                       Duration targetPosition =
@@ -720,16 +836,18 @@ class _MyVideoScreenState extends State<MyVideoScreen>
         left: 0,
         right: 0,
         child: TopToolbar(
-            myVideoStateController: widget.myVideoStateController,
-            currentScreenIsFullScreen: widget.isFullScreen),
+          myVideoStateController: widget.myVideoStateController,
+          currentScreenIsFullScreen: widget.isFullScreen,
+        ),
       ),
       Positioned(
         bottom: 0,
         left: 0,
         right: 0,
         child: BottomToolbar(
-            myVideoStateController: widget.myVideoStateController,
-            currentScreenIsFullScreen: widget.isFullScreen),
+          myVideoStateController: widget.myVideoStateController,
+          currentScreenIsFullScreen: widget.isFullScreen,
+        ),
       ),
     ];
   }
@@ -739,24 +857,39 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       child: Stack(
         children: [
           if (_isLeftRippleActive1)
-            _buildRipple(_leftRippleController1,
-                Offset(0, screenSize.height / 2), maxRadius),
+            _buildRipple(
+              _leftRippleController1,
+              Offset(0, screenSize.height / 2),
+              maxRadius,
+            ),
           if (_isLeftRippleActive2)
-            _buildRipple(_leftRippleController2,
-                Offset(0, screenSize.height / 2), maxRadius),
+            _buildRipple(
+              _leftRippleController2,
+              Offset(0, screenSize.height / 2),
+              maxRadius,
+            ),
           if (_isRightRippleActive1)
-            _buildRipple(_rightRippleController1,
-                Offset(screenSize.width, screenSize.height / 2), maxRadius),
+            _buildRipple(
+              _rightRippleController1,
+              Offset(screenSize.width, screenSize.height / 2),
+              maxRadius,
+            ),
           if (_isRightRippleActive2)
-            _buildRipple(_rightRippleController2,
-                Offset(screenSize.width, screenSize.height / 2), maxRadius),
+            _buildRipple(
+              _rightRippleController2,
+              Offset(screenSize.width, screenSize.height / 2),
+              maxRadius,
+            ),
         ],
       ),
     );
   }
 
   Widget _buildRipple(
-      AnimationController controller, Offset origin, double maxRadius) {
+    AnimationController controller,
+    Offset origin,
+    double maxRadius,
+  ) {
     return AnimatedBuilder(
       animation: controller,
       builder: (context, child) {
@@ -773,7 +906,9 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   }
 
   Widget _buildVideoControlOverlay(
-      double playPauseIconSize, double bufferingSize) {
+    double playPauseIconSize,
+    double bufferingSize,
+  ) {
     return Obx(
       () => Positioned.fill(
         child: _buildLoadingOrControlContent(playPauseIconSize, bufferingSize),
@@ -782,10 +917,13 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   }
 
   // 构建加载或控制内容
-  Widget _buildLoadingOrControlContent(double playPauseIconSize, double bufferingSize) {
+  Widget _buildLoadingOrControlContent(
+    double playPauseIconSize,
+    double bufferingSize,
+  ) {
     final controller = widget.myVideoStateController;
 
-     // 如果视频源有错误，显示错误状态
+    // 如果视频源有错误，显示错误状态
     if (controller.videoSourceErrorMessage.value != null) {
       return Center(
         child: ErrorStateWidget(
@@ -794,7 +932,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
         ),
       );
     }
-    
+
     // 如果播放器未准备好，显示加载状态
     if (!controller.videoPlayerReady.value) {
       return Center(
@@ -804,93 +942,100 @@ class _MyVideoScreenState extends State<MyVideoScreen>
         ),
       );
     }
-    
+
     // 正常状态：显示缓冲动画或播放/暂停按钮
     return controller.videoBuffering.value
-        ? Center(
-            child: _buildBufferingAnimation(controller, bufferingSize),
-          )
-        : Center(
-            child: _buildPlayPauseIcon(controller, playPauseIconSize),
-          );
+        ? Center(child: _buildBufferingAnimation(controller, bufferingSize))
+        : Center(child: _buildPlayPauseIcon(controller, playPauseIconSize));
   }
 
-
-
   Widget _buildPlayPauseIcon(
-      MyVideoStateController myVideoStateController, double size) {
-    return Obx(() => AnimatedOpacity(
-          opacity: myVideoStateController.videoPlaying.value ? 0.0 : 1.0,
-          duration: const Duration(milliseconds: 150),
-          child: Container(
-            width: size,
-            height: size,
-            decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.5),
-              shape: BoxShape.circle,
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () async {
-                  // 添加震动反馈
-                  VibrateUtils.vibrate();
+    MyVideoStateController myVideoStateController,
+    double size,
+  ) {
+    return Obx(
+      () => AnimatedOpacity(
+        opacity: myVideoStateController.videoPlaying.value ? 0.0 : 1.0,
+        duration: const Duration(milliseconds: 150),
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.5),
+            shape: BoxShape.circle,
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () async {
+                // 添加震动反馈
+                VibrateUtils.vibrate();
 
-                  if (myVideoStateController.videoPlaying.value) {
-                    myVideoStateController.player.pause();
-                  } else {
-                    myVideoStateController.player.play();
-                    myVideoStateController.animateToTop();
-                  }
-                },
-                customBorder: const CircleBorder(),
-                child: AnimatedScale(
-                  scale: myVideoStateController.videoPlaying.value ? 1.0 : 0.9,
-                  duration: const Duration(milliseconds: 150),
-                  child: Icon(
-                    myVideoStateController.videoPlaying.value
-                        ? Icons.pause
-                        : Icons.play_arrow,
-                    color: Colors.white,
-                    size: size * 0.6, // 图标大小为容器的60%
-                    shadows: [
-                      Shadow(
-                        blurRadius: 8.0,
-                        color: Colors.black.withValues(alpha: 0.5),
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
+                if (myVideoStateController.videoPlaying.value) {
+                  myVideoStateController.player.pause();
+                } else {
+                  myVideoStateController.player.play();
+                  myVideoStateController.animateToTop();
+                }
+              },
+              customBorder: const CircleBorder(),
+              child: AnimatedScale(
+                scale: myVideoStateController.videoPlaying.value ? 1.0 : 0.9,
+                duration: const Duration(milliseconds: 150),
+                child: Icon(
+                  myVideoStateController.videoPlaying.value
+                      ? Icons.pause
+                      : Icons.play_arrow,
+                  color: Colors.white,
+                  size: size * 0.6, // 图标大小为容器的60%
+                  shadows: [
+                    Shadow(
+                      blurRadius: 8.0,
+                      color: Colors.black.withValues(alpha: 0.5),
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 
   /// 构建缓冲动画，尺寸自适应
   Widget _buildBufferingAnimation(
-      MyVideoStateController myVideoStateController, double size) {
-    return Obx(() => myVideoStateController.videoBuffering.value
-        ? Container(
-            width: size,
-            height: size,
-            decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.5),
-              shape: BoxShape.circle,
-            ),
-            child: Padding(
-              padding: EdgeInsets.all(size * 0.2), // 内边距为尺寸的20%
-              child: CircularProgressIndicator(
-                valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-                strokeWidth: size * 0.08, // 线条宽度为尺寸的8%
-              ).animate(onPlay: (controller) => controller.repeat()).rotate(
-                    duration: const Duration(milliseconds: 1000),
-                    curve: Curves.linear,
-                  ),
-            ),
-          )
-        : const SizedBox.shrink());
+    MyVideoStateController myVideoStateController,
+    double size,
+  ) {
+    return Obx(
+      () => myVideoStateController.videoBuffering.value
+          ? Container(
+              width: size,
+              height: size,
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.5),
+                shape: BoxShape.circle,
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(size * 0.2), // 内边距为尺寸的20%
+                child:
+                    CircularProgressIndicator(
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
+                          strokeWidth: size * 0.08, // 线条宽度为尺寸的8%
+                        )
+                        .animate(onPlay: (controller) => controller.repeat())
+                        .rotate(
+                          duration: const Duration(milliseconds: 1000),
+                          curve: Curves.linear,
+                        ),
+              ),
+            )
+          : const SizedBox.shrink(),
+    );
   }
 
   void _setLongPressing(LongPressType? longPressType, bool value) async {
@@ -935,9 +1080,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       top: MediaQuery.of(context).padding.top + 100,
       left: 0,
       right: 0,
-      child: Center(
-        child: _buildInfoContent(),
-      ),
+      child: Center(child: _buildInfoContent()),
     );
   }
 
@@ -989,13 +1132,8 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   }
 
   Widget _buildFadeTransitionNoBg({required Widget child}) {
-    return FadeTransition(
-      opacity: _infoMessageOpacity,
-      child: child,
-    );
+    return FadeTransition(opacity: _infoMessageOpacity, child: child);
   }
-
-
 
   Widget _buildBrightnessInfoMessage() {
     return Obx(() {
@@ -1084,8 +1222,8 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   // 在类中添加新的方法
   Widget _buildBottomProgressBar() {
     return Obx(() {
-      if (!_configService[
-          ConfigKey.SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN]) {
+      if (!_configService[ConfigKey
+          .SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN]) {
         return const SizedBox.shrink();
       }
 
@@ -1123,13 +1261,17 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                       final colorTheme = Theme.of(context).colorScheme.primary;
 
                       return Obx(() {
-                        final currentPosition =
-                            widget.myVideoStateController.toShowCurrentPosition.value;
+                        final currentPosition = widget
+                            .myVideoStateController
+                            .toShowCurrentPosition
+                            .value;
                         final totalDuration =
                             widget.myVideoStateController.totalDuration.value;
                         final buffers = widget.myVideoStateController.buffers;
-                        final isHorizontalDragging =
-                            widget.myVideoStateController.isHorizontalDragging.value;
+                        final isHorizontalDragging = widget
+                            .myVideoStateController
+                            .isHorizontalDragging
+                            .value;
                         final previewPosition =
                             widget.myVideoStateController.previewPosition.value;
 
@@ -1140,25 +1282,32 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                             : currentPosition;
                         double progressWidth = totalDuration.inMilliseconds > 0
                             ? (positionToShow.inMilliseconds /
-                                    totalDuration.inMilliseconds) *
-                                totalWidth
+                                      totalDuration.inMilliseconds) *
+                                  totalWidth
                             : 0.0;
 
                         // 计算 tooltip 的位置（仅在横向拖拽且 toolbar 隐藏时显示）
                         double? tooltipX;
                         Duration? tooltipTime;
-                        final isPreviewReady = widget.myVideoStateController.isPreviewPlayerReady.value;
+                        final isPreviewReady = widget
+                            .myVideoStateController
+                            .isPreviewPlayerReady
+                            .value;
                         // 工具栏完全展开时不渲染底部预览 tooltip
                         final bool isToolbarExpanded = toolbarValue >= 1.0;
 
-                        if (!isToolbarExpanded && isHorizontalDragging && opacity > 0.5) {
+                        if (!isToolbarExpanded &&
+                            isHorizontalDragging &&
+                            opacity > 0.5) {
                           // toolbar 隐藏时（opacity > 0.5 表示进度条可见）
                           tooltipX = progressWidth;
                           tooltipTime = previewPosition;
-                          
+
                           // 更新预览播放器位置（限流）
                           if (isPreviewReady) {
-                            widget.myVideoStateController.updatePreviewSeek(previewPosition);
+                            widget.myVideoStateController.updatePreviewSeek(
+                              previewPosition,
+                            );
                           }
                         }
 
@@ -1167,7 +1316,8 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                           _bottomTooltipX = tooltipX;
                           _bottomTooltipTime = tooltipTime;
                           _bottomTooltipVisible = true;
-                        } else if (_bottomTooltipX != null && _bottomTooltipTime != null) {
+                        } else if (_bottomTooltipX != null &&
+                            _bottomTooltipTime != null) {
                           tooltipX = _bottomTooltipX;
                           tooltipTime = _bottomTooltipTime;
                           _bottomTooltipVisible = false;
@@ -1186,13 +1336,13 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                             ...buffers.map((buffer) {
                               double startX = totalDuration.inMilliseconds > 0
                                   ? (buffer.start.inMilliseconds /
-                                          totalDuration.inMilliseconds) *
-                                      totalWidth
+                                            totalDuration.inMilliseconds) *
+                                        totalWidth
                                   : 0.0;
                               double endX = totalDuration.inMilliseconds > 0
                                   ? (buffer.end.inMilliseconds /
-                                          totalDuration.inMilliseconds) *
-                                      totalWidth
+                                            totalDuration.inMilliseconds) *
+                                        totalWidth
                                   : 0.0;
 
                               return Positioned(
@@ -1313,7 +1463,10 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                   ),
                 // 时间文本（无论是否有预览视频都展示）
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   child: Text(
                     CommonUtils.formatDuration(time),
                     style: const TextStyle(
@@ -1333,23 +1486,24 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   }
 
   Widget _buildMaskLayer() {
-    return Obx(() => widget.myVideoStateController.isToolbarsLocked.value
-        ? Positioned.fill(
-            child: GestureDetector(
-              onTap: () {
-                widget.myVideoStateController.showLockButton();
-              },
-              child: Container(
-                color: Colors.transparent,
+    return Obx(
+      () => widget.myVideoStateController.isToolbarsLocked.value
+          ? Positioned.fill(
+              child: GestureDetector(
+                onTap: () {
+                  widget.myVideoStateController.showLockButton();
+                },
+                child: Container(color: Colors.transparent),
               ),
-            ),
-          )
-        : const SizedBox.shrink());
+            )
+          : const SizedBox.shrink(),
+    );
   }
 
   Widget _buildLockButton() {
-    final lockButtonPosition = _configService[ConfigKey.VIDEO_TOOLBAR_LOCK_BUTTON_POSITION] as int;
-    
+    final lockButtonPosition =
+        _configService[ConfigKey.VIDEO_TOOLBAR_LOCK_BUTTON_POSITION] as int;
+
     return Stack(
       children: [
         // 左侧按钮
@@ -1360,8 +1514,10 @@ class _MyVideoScreenState extends State<MyVideoScreen>
             bottom: 0,
             child: Center(
               child: Obx(() {
-                final isVisible = widget.myVideoStateController.isLockButtonVisible.value;
-                final isLocked = widget.myVideoStateController.isToolbarsLocked.value;
+                final isVisible =
+                    widget.myVideoStateController.isLockButtonVisible.value;
+                final isLocked =
+                    widget.myVideoStateController.isToolbarsLocked.value;
 
                 return IgnorePointer(
                   ignoring: !isVisible,
@@ -1386,13 +1542,18 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                             VibrateUtils.vibrate();
                             // 如果当前处于未锁定，且视频暂停，则播放视频
                             if (!isLocked &&
-                                !widget.myVideoStateController.videoPlaying.value) {
+                                !widget
+                                    .myVideoStateController
+                                    .videoPlaying
+                                    .value) {
                               widget.myVideoStateController.player.play();
                             }
                           },
                           borderRadius: BorderRadius.circular(8),
                           child: Icon(
-                            isLocked ? Icons.lock_rounded : Icons.lock_open_rounded,
+                            isLocked
+                                ? Icons.lock_rounded
+                                : Icons.lock_open_rounded,
                             color: Colors.white,
                             size: 24,
                           ),
@@ -1404,7 +1565,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
               }),
             ),
           ),
-        
+
         // 右侧按钮
         if (lockButtonPosition == 1 || lockButtonPosition == 3)
           Positioned(
@@ -1413,8 +1574,10 @@ class _MyVideoScreenState extends State<MyVideoScreen>
             bottom: 0,
             child: Center(
               child: Obx(() {
-                final isVisible = widget.myVideoStateController.isLockButtonVisible.value;
-                final isLocked = widget.myVideoStateController.isToolbarsLocked.value;
+                final isVisible =
+                    widget.myVideoStateController.isLockButtonVisible.value;
+                final isLocked =
+                    widget.myVideoStateController.isToolbarsLocked.value;
 
                 return IgnorePointer(
                   ignoring: !isVisible,
@@ -1439,13 +1602,18 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                             VibrateUtils.vibrate();
                             // 如果当前处于未锁定，且视频暂停，则播放视频
                             if (!isLocked &&
-                                !widget.myVideoStateController.videoPlaying.value) {
+                                !widget
+                                    .myVideoStateController
+                                    .videoPlaying
+                                    .value) {
                               widget.myVideoStateController.player.play();
                             }
                           },
                           borderRadius: BorderRadius.circular(8),
                           child: Icon(
-                            isLocked ? Icons.lock_rounded : Icons.lock_open_rounded,
+                            isLocked
+                                ? Icons.lock_rounded
+                                : Icons.lock_open_rounded,
                             color: Colors.white,
                             size: 24,
                           ),
@@ -1493,7 +1661,6 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   Timer? _blurUpdateTimer;
 
   void _performBlurUpdate(String thumbnailUrl, Size size) async {
-
     try {
       // 1. 首先加载原始图片，使用较小的分辨率减少内存占用
       final NetworkImage networkImage = NetworkImage(thumbnailUrl);
@@ -1503,16 +1670,19 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       final ImageStream stream = networkImage.resolve(config);
       final Completer<ui.Image> completer = Completer<ui.Image>();
 
-      stream.addListener(ImageStreamListener((ImageInfo info, bool _) {
-        completer.complete(info.image);
-      }));
+      stream.addListener(
+        ImageStreamListener((ImageInfo info, bool _) {
+          completer.complete(info.image);
+        }),
+      );
 
       final ui.Image originalImage = await completer.future;
 
       // 2. 计算适当的绘制尺寸以保持宽高比
-      final double imageAspectRatio = originalImage.width / originalImage.height;
+      final double imageAspectRatio =
+          originalImage.width / originalImage.height;
       final double screenAspectRatio = size.width / size.height;
-      
+
       double targetWidth = size.width;
       double targetHeight = size.height;
       double offsetX = 0;
@@ -1531,27 +1701,34 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       // 3. 创建一个自定义画布，使用目标尺寸
       final recorder = ui.PictureRecorder();
       final canvas = Canvas(recorder);
-      
+
       // 4. 绘制图片并应用模糊效果
       final paint = Paint()
         ..imageFilter = ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20);
-      
+
       // 使用计算后的偏移量和尺寸绘制图片
       canvas.drawImageRect(
         originalImage,
-        Rect.fromLTWH(0, 0, originalImage.width.toDouble(), originalImage.height.toDouble()),
+        Rect.fromLTWH(
+          0,
+          0,
+          originalImage.width.toDouble(),
+          originalImage.height.toDouble(),
+        ),
         Rect.fromLTWH(offsetX, offsetY, targetWidth, targetHeight),
         paint,
       );
-      
+
       // 5. 将模糊后的图片转换为图像
       final blurredImage = await recorder.endRecording().toImage(
         size.width.toInt(),
-        size.height.toInt()
+        size.height.toInt(),
       );
-      
+
       // 6. 转换为字节数据
-      final byteData = await blurredImage.toByteData(format: ui.ImageByteFormat.png);
+      final byteData = await blurredImage.toByteData(
+        format: ui.ImageByteFormat.png,
+      );
       final buffer = byteData!.buffer.asUint8List();
 
       // 7. 创建新的缓存Widget
@@ -1559,9 +1736,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
         setState(() {
           _sizedBlurredBackground = Stack(
             children: [
-              Positioned.fill(
-                child: Container(color: Colors.black),
-              ),
+              Positioned.fill(child: Container(color: Colors.black)),
               Positioned.fill(
                 child: Opacity(
                   opacity: 0.2,
@@ -1577,7 +1752,6 @@ class _MyVideoScreenState extends State<MyVideoScreen>
           );
         });
       }
-
     } catch (e) {
       LogUtils.e('创建模糊背景失败: $e', tag: 'MyVideoScreen');
       _sizedBlurredBackground = Container(
@@ -1591,11 +1765,11 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   // 修改 _createBlurredBackground 方法
   Widget _createBlurredBackground(String? thumbnailUrl, Size size) {
     // 如果缓存不存在，触发异步更新
-    if (_sizedBlurredBackground == null || 
-        _lastSize != size || 
+    if (_sizedBlurredBackground == null ||
+        _lastSize != size ||
         _lastThumbnailUrl != thumbnailUrl) {
       _updateBlurredBackground(thumbnailUrl, size);
-      
+
       // 返回一个占位的黑色背景
       return Container(
         width: size.width,
@@ -1603,15 +1777,11 @@ class _MyVideoScreenState extends State<MyVideoScreen>
         color: Colors.black,
       );
     }
-    
+
     // 返回缓存的模糊背景
     return _sizedBlurredBackground!;
   }
 }
 
 /// 长按类型 [滑动也属于长按]
-enum LongPressType {
-  brightness,
-  volume,
-  normal,
-}
+enum LongPressType { brightness, volume, normal }
