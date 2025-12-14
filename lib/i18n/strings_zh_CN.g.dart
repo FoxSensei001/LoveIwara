@@ -2050,6 +2050,7 @@ class _TranslationsVideoDetailPlayerZhCn implements TranslationsVideoDetailPlaye
 	// Translations
 	@override String get errorWhileLoadingVideoSource => '在加载视频源时出现了错误';
 	@override String get errorWhileSettingUpListeners => '在设置监听器时出现了错误';
+	@override String get serverFaultDetectedAutoSwitched => '检测到服务器故障，已自动切换线路并重试';
 }
 
 // Path: videoDetail.skeleton
@@ -3354,6 +3355,7 @@ extension on TranslationsZhCn {
 			'videoDetail.noRelatedVideos' => '暂无相关视频',
 			'videoDetail.player.errorWhileLoadingVideoSource' => '在加载视频源时出现了错误',
 			'videoDetail.player.errorWhileSettingUpListeners' => '在设置监听器时出现了错误',
+			'videoDetail.player.serverFaultDetectedAutoSwitched' => '检测到服务器故障，已自动切换线路并重试',
 			'videoDetail.skeleton.fetchingVideoInfo' => '正在获取视频信息...',
 			'videoDetail.skeleton.fetchingVideoSources' => '正在获取视频源...',
 			'videoDetail.skeleton.loadingVideo' => '正在加载视频...',
@@ -3541,9 +3543,9 @@ extension on TranslationsZhCn {
 			'notifications.markAllAsReadFailed' => '全部标记已读失败',
 			'notifications.markSelectedAsRead' => '标记选中项为已读',
 			'notifications.markSelectedAsReadSuccess' => '选中的通知已标记为已读',
-			'notifications.markSelectedAsReadFailed' => '标记选中项为已读失败',
 			_ => null,
 		} ?? switch (path) {
+			'notifications.markSelectedAsReadFailed' => '标记选中项为已读失败',
 			'notifications.markAsRead' => '标记已读',
 			'notifications.markAsReadSuccess' => '已标记为已读',
 			'notifications.markAsReadFailed' => '标记已读失败',
@@ -4055,9 +4057,9 @@ extension on TranslationsZhCn {
 			'layoutSettings.screenWidth' => '屏幕宽度',
 			'layoutSettings.addBreakpoint' => '添加断点',
 			'layoutSettings.editBreakpoint' => '编辑断点',
-			'layoutSettings.deleteBreakpoint' => '删除断点',
 			_ => null,
 		} ?? switch (path) {
+			'layoutSettings.deleteBreakpoint' => '删除断点',
 			'layoutSettings.screenWidthLabel' => '屏幕宽度',
 			'layoutSettings.screenWidthHint' => '600',
 			'layoutSettings.columnsLabel' => '列数',

@@ -892,6 +892,7 @@ videoDetail:
   player:
     errorWhileLoadingVideoSource: ビデオソースの読み込み中にエラーが発生しました
     errorWhileSettingUpListeners: 監視器の設定中にエラーが発生しました
+    serverFaultDetectedAutoSwitched: サーバー障害を検出しました。自動的にルートを切り替えて再試行しています
   skeleton:
     fetchingVideoInfo: ビデオ情報を取得中...
     fetchingVideoSources: ビデオソースを取得中...

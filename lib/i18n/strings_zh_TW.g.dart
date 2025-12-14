@@ -2136,6 +2136,7 @@ class _TranslationsVideoDetailPlayerZhTw implements TranslationsVideoDetailPlaye
 	// Translations
 	@override String get errorWhileLoadingVideoSource => '在載入影片來源時出現了錯誤';
 	@override String get errorWhileSettingUpListeners => '在設定監聽器時出現了錯誤';
+	@override String get serverFaultDetectedAutoSwitched => '檢測到伺服器故障，已自動切換線路並重試';
 }
 
 // Path: videoDetail.skeleton
@@ -3375,6 +3376,7 @@ extension on TranslationsZhTw {
 			'videoDetail.noRelatedVideos' => '暫無相關影片',
 			'videoDetail.player.errorWhileLoadingVideoSource' => '在載入影片來源時出現了錯誤',
 			'videoDetail.player.errorWhileSettingUpListeners' => '在設定監聽器時出現了錯誤',
+			'videoDetail.player.serverFaultDetectedAutoSwitched' => '檢測到伺服器故障，已自動切換線路並重試',
 			'videoDetail.skeleton.fetchingVideoInfo' => '取得影片資訊中...',
 			'videoDetail.skeleton.fetchingVideoSources' => '取得影片來源中...',
 			'videoDetail.skeleton.loadingVideo' => '正在載入影片...',
@@ -3539,9 +3541,9 @@ extension on TranslationsZhTw {
 			'forum.leafDescriptions.other' => '其他未分類的內容',
 			'forum.reply' => '回覆',
 			'forum.pendingReview' => '審核中',
-			'forum.editedAt' => '編輯時間',
 			_ => null,
 		} ?? switch (path) {
+			'forum.editedAt' => '編輯時間',
 			'forum.copySuccess' => '已複製到剪貼簿',
 			'forum.copySuccessForMessage' => ({required Object str}) => '已複製到剪貼簿: ${str}',
 			'forum.editReply' => '編輯回覆',
@@ -4053,9 +4055,9 @@ extension on TranslationsZhTw {
 			'emoji.uploadFailedMessage' => '圖片上傳失敗，請檢查網路連接或檔案格式',
 			'emoji.uploadErrorMessage' => ({required Object error}) => '上傳過程中發生錯誤: ${error}',
 			'displaySettings.title' => '顯示設定',
-			'displaySettings.layoutSettings' => '版面配置設定',
 			_ => null,
 		} ?? switch (path) {
+			'displaySettings.layoutSettings' => '版面配置設定',
 			'displaySettings.layoutSettingsDesc' => '自訂欄數和斷點配置',
 			'displaySettings.gridLayout' => '網格版面配置',
 			'displaySettings.navigationOrderSettings' => '導航排序設定',

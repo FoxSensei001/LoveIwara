@@ -1543,9 +1543,9 @@ class MyVideoStateController extends GetxController
 
           if (Get.context != null) {
             ScaffoldMessenger.of(Get.context!).showSnackBar(
-              const SnackBar(
-                content: Text('检测到服务器故障，已自动切换线路并重试'),
-                duration: Duration(seconds: 3),
+              SnackBar(
+                content: Text(slang.t.videoDetail.player.serverFaultDetectedAutoSwitched),
+                duration: const Duration(seconds: 3),
               ),
             );
           }

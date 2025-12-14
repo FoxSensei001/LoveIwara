@@ -5088,6 +5088,9 @@ class TranslationsVideoDetailPlayerEn {
 
 	/// en: 'Error while setting up listeners'
 	String get errorWhileSettingUpListeners => 'Error while setting up listeners';
+
+	/// en: 'Server fault detected, automatically switched route and retrying'
+	String get serverFaultDetectedAutoSwitched => 'Server fault detected, automatically switched route and retrying';
 }
 
 // Path: videoDetail.skeleton
@@ -6847,6 +6850,7 @@ extension on Translations {
 			'videoDetail.noRelatedVideos' => 'No related videos',
 			'videoDetail.player.errorWhileLoadingVideoSource' => 'Error while loading video source',
 			'videoDetail.player.errorWhileSettingUpListeners' => 'Error while setting up listeners',
+			'videoDetail.player.serverFaultDetectedAutoSwitched' => 'Server fault detected, automatically switched route and retrying',
 			'videoDetail.skeleton.fetchingVideoInfo' => 'Fetching video info...',
 			'videoDetail.skeleton.fetchingVideoSources' => 'Fetching video sources...',
 			'videoDetail.skeleton.loadingVideo' => 'Loading video...',
@@ -7039,9 +7043,9 @@ extension on Translations {
 			'notifications.markAsRead' => 'Mark as read',
 			'notifications.markAsReadSuccess' => 'Notification has been marked as read',
 			'notifications.markAsReadFailed' => 'Notification marked as read failed',
-			'notifications.notificationTypeHelp' => 'Notification Type Help',
 			_ => null,
 		} ?? switch (path) {
+			'notifications.notificationTypeHelp' => 'Notification Type Help',
 			'notifications.dueToLackOfNotificationTypeDetails' => 'Due to the lack of notification type details, the supported types may not cover the messages you currently receive',
 			'notifications.helpUsImproveNotificationTypeSupport' => 'If you are willing to help us improve the support for notification types',
 			'notifications.helpUsImproveNotificationTypeSupportLongText' => '1. 📋 Copy the notification information\n2. 🐞 Submit an issue to the project repository\n\n⚠️ Note: Notification information may contain personal privacy, if you do not want to public, you can also send it to the project author by email.',
@@ -7553,9 +7557,9 @@ extension on Translations {
 			'emoji.delete' => 'Delete',
 			'emoji.close' => 'Close',
 			'emoji.deleteImage' => 'Delete Image',
-			'emoji.confirmDeleteImage' => 'Are you sure you want to delete this image?',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.confirmDeleteImage' => 'Are you sure you want to delete this image?',
 			'emoji.cancel' => 'Cancel',
 			'emoji.batchDelete' => 'Batch Delete',
 			'emoji.confirmBatchDelete' => ({required Object count}) => 'Are you sure you want to delete the selected ${count} images? This operation cannot be undone.',

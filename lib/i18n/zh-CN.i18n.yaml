@@ -898,6 +898,7 @@ videoDetail:
   player:
     errorWhileLoadingVideoSource: 在加载视频源时出现了错误
     errorWhileSettingUpListeners: 在设置监听器时出现了错误
+    serverFaultDetectedAutoSwitched: 检测到服务器故障，已自动切换线路并重试
   skeleton:
     fetchingVideoInfo: 正在获取视频信息...
     fetchingVideoSources: 正在获取视频源...

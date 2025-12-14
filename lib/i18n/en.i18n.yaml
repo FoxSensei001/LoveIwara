@@ -891,6 +891,7 @@ videoDetail:
   player:
     errorWhileLoadingVideoSource: Error while loading video source
     errorWhileSettingUpListeners: Error while setting up listeners
+    serverFaultDetectedAutoSwitched: Server fault detected, automatically switched route and retrying
   skeleton:
     fetchingVideoInfo: Fetching video info...
     fetchingVideoSources: Fetching video sources...

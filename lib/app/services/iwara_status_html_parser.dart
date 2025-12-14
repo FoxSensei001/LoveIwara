@@ -245,3 +245,4 @@ class IwaraStatusHtmlParser {
     return null;
   }
 }
+

@@ -932,6 +932,7 @@ videoDetail:
   player:
     errorWhileLoadingVideoSource: 在載入影片來源時出現了錯誤
     errorWhileSettingUpListeners: 在設定監聽器時出現了錯誤
+    serverFaultDetectedAutoSwitched: 檢測到伺服器故障，已自動切換線路並重試
   skeleton:
     fetchingVideoInfo: 取得影片資訊中...
     fetchingVideoSources: 取得影片來源中...

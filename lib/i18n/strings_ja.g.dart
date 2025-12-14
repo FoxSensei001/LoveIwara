@@ -2045,6 +2045,7 @@ class _TranslationsVideoDetailPlayerJa implements TranslationsVideoDetailPlayerE
 	// Translations
 	@override String get errorWhileLoadingVideoSource => 'ビデオソースの読み込み中にエラーが発生しました';
 	@override String get errorWhileSettingUpListeners => '監視器の設定中にエラーが発生しました';
+	@override String get serverFaultDetectedAutoSwitched => 'サーバー障害を検出しました。自動的にルートを切り替えて再試行しています';
 }
 
 // Path: videoDetail.skeleton
@@ -3344,6 +3345,7 @@ extension on TranslationsJa {
 			'videoDetail.noRelatedVideos' => '関連するビデオはありません',
 			'videoDetail.player.errorWhileLoadingVideoSource' => 'ビデオソースの読み込み中にエラーが発生しました',
 			'videoDetail.player.errorWhileSettingUpListeners' => '監視器の設定中にエラーが発生しました',
+			'videoDetail.player.serverFaultDetectedAutoSwitched' => 'サーバー障害を検出しました。自動的にルートを切り替えて再試行しています',
 			'videoDetail.skeleton.fetchingVideoInfo' => 'ビデオ情報を取得中...',
 			'videoDetail.skeleton.fetchingVideoSources' => 'ビデオソースを取得中...',
 			'videoDetail.skeleton.loadingVideo' => 'ビデオを読み込み中...',
@@ -3536,9 +3538,9 @@ extension on TranslationsJa {
 			'notifications.markAsRead' => '既読にする',
 			'notifications.markAsReadSuccess' => '通知が既読になりました',
 			'notifications.markAsReadFailed' => '通知を既読にするに失敗しました',
-			'notifications.notificationTypeHelp' => '通知タイプのヘルプ',
 			_ => null,
 		} ?? switch (path) {
+			'notifications.notificationTypeHelp' => '通知タイプのヘルプ',
 			'notifications.dueToLackOfNotificationTypeDetails' => '通知タイプの詳細情報が不足しているため、現在サポートされているタイプが受信したメッセージをカバーしていない可能性があります',
 			'notifications.helpUsImproveNotificationTypeSupport' => '通知タイプのサポート改善にご協力いただける場合',
 			'notifications.helpUsImproveNotificationTypeSupportLongText' => '1. 📋 通知情報をコピー\n2. 🐞 プロジェクトリポジトリに issue を提出\n\n⚠️ 注意：通知情報には個人情報が含まれている場合があります。公開したくない場合は、プロジェクト作者にメールで送信することもできます。',
@@ -4050,9 +4052,9 @@ extension on TranslationsJa {
 			'layoutSettings.screenWidthHint' => '600',
 			'layoutSettings.columnsLabel' => 'カラム数',
 			'layoutSettings.columnsHint' => '3',
-			'layoutSettings.enterWidth' => '幅を入力してください',
 			_ => null,
 		} ?? switch (path) {
+			'layoutSettings.enterWidth' => '幅を入力してください',
 			'layoutSettings.enterValidWidth' => '有効な幅を入力してください',
 			'layoutSettings.widthCannotExceed9999' => '幅は9999を超えることはできません',
 			'layoutSettings.breakpointAlreadyExists' => 'ブレークポイントが既に存在します',
