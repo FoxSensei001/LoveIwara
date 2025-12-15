@@ -236,7 +236,7 @@ class DeepLinkService extends GetxService {
   }
 
   /// 处理文件 URI，用于本地视频播放
-  void _handleFileUri(Uri uri) {
+  void _handleFileUri(Uri uri) async {
     LogUtils.i('收到文件 URI: $uri', 'DeepLinkService');
     LogUtils.i('URI scheme: ${uri.scheme}', 'DeepLinkService');
     LogUtils.i('URI path: ${uri.path}', 'DeepLinkService');
@@ -258,10 +258,20 @@ class DeepLinkService extends GetxService {
       filePath = uri.toFilePath();
       LogUtils.i('file:// URI 转换为路径: $filePath', 'DeepLinkService');
     } else if (uri.scheme == 'content') {
-      // content:// URI (Android)，需要将 URI 字符串传递给播放器
-      // media_kit 可以直接处理 content:// URI
-      filePath = uri.toString();
-      LogUtils.i('content:// URI: $filePath', 'DeepLinkService');
+      // content:// URI (Android)
+      // 由于 media_kit/mpv 无法正确处理 content:// URI（会报 "unsafe playlist" 错误）
+      // 我们需要将文件复制到缓存目录，然后使用 file:// 路径播放
+      LogUtils.i('检测到 content:// URI，尝试复制到缓存目录', 'DeepLinkService');
+
+      final cachedPath = await copyContentUriToCache(uri.toString());
+      if (cachedPath != null) {
+        filePath = cachedPath;
+        LogUtils.i('content:// URI 已复制到缓存: $filePath', 'DeepLinkService');
+      } else {
+        // 复制失败，尝试直接使用 content:// URI（可能会失败）
+        LogUtils.w('复制 content:// URI 失败，尝试直接使用', 'DeepLinkService');
+        filePath = uri.toString();
+      }
     }
 
     if (filePath != null && filePath.isNotEmpty) {
@@ -269,7 +279,7 @@ class DeepLinkService extends GetxService {
       // 对于 content:// URI，需要先解码 URL 编码再检查扩展名
       String pathForExtCheck = filePath;
       if (uri.scheme == 'content') {
-        pathForExtCheck = Uri.decodeFull(filePath);
+        pathForExtCheck = Uri.decodeFull(uri.toString());
       }
       final ext = pathForExtCheck.toLowerCase().split('.').lastOrNull ?? '';
       LogUtils.i('文件扩展名: $ext', 'DeepLinkService');
@@ -295,6 +305,36 @@ class DeepLinkService extends GetxService {
       }
     } else {
       LogUtils.w('文件路径为空', 'DeepLinkService');
+    }
+  }
+
+  /// 将 Android content:// URI 复制到应用缓存目录
+  /// 这是解决 media_kit/mpv 无法播放 content:// URI 的 workaround
+  /// 返回缓存文件的绝对路径，失败时返回 null
+  static Future<String?> copyContentUriToCache(String contentUri) async {
+    if (!GetPlatform.isAndroid) {
+      LogUtils.w('copyContentUriToCache 仅支持 Android 平台', 'DeepLinkService');
+      return null;
+    }
+
+    try {
+      LogUtils.i('开始复制 content:// URI 到缓存: $contentUri', 'DeepLinkService');
+
+      final result = await _fileHandlerChannel.invokeMethod<String>(
+        'copyContentUriToCache',
+        {'uri': contentUri},
+      );
+
+      if (result != null && result.isNotEmpty) {
+        LogUtils.i('成功复制到缓存: $result', 'DeepLinkService');
+        return result;
+      } else {
+        LogUtils.w('复制返回空结果', 'DeepLinkService');
+        return null;
+      }
+    } catch (e) {
+      LogUtils.e('复制 content:// URI 失败: $e', tag: 'DeepLinkService', error: e);
+      return null;
     }
   }
 }

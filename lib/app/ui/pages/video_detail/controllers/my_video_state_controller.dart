@@ -341,15 +341,20 @@ class MyVideoStateController extends GetxController
           async: !kDebugMode,
           // 设置合适的协议白名单
           protocolWhitelist: const [
-            'udp',
-            'rtp',
-            'tcp',
-            'tls',
-            'data',
             'file',
             'http',
             'https',
+            'tcp',
+            'tls',
             'crypto',
+            'hls',
+            'applehttp',
+            'udp',
+            'rtp',
+            'data',
+            'httpproxy',
+            'content', // Android content:// URI 支持
+            'fd', // 处理某些设备上 content:// 转 fd:// 的场景
           ],
         ),
       );
@@ -538,16 +543,35 @@ class MyVideoStateController extends GetxController
       // 处理不同类型的 URI
       String pathToCheck = localVideoPath!;
       bool isContentUri = pathToCheck.startsWith('content://');
+      // 当从特定厂商文件管理器（如 ColorOS）返回的 content:// URI 实际上包含真实路径时，
+      // 我们尝试解析出真实的文件路径，优先使用 file:// 打开以绕过 media_kit 的 content:// 问题
+      String? fileSchemePathOverride;
 
       if (isContentUri) {
         // Android content:// URI 需要特殊处理
-        // 对于 content:// URI，我们无法使用 File.exists() 检查
-        // media_kit 可以直接处理 content:// URI，所以只需要解码 URL 编码的字符
+        // 先解码 URL 编码的字符
         pathToCheck = Uri.decodeFull(pathToCheck);
         LogUtils.d(
           'content:// URI 已解码: $pathToCheck',
           'MyVideoStateController',
         );
+
+        // 针对 ColorOS 文件管理器返回的形如：
+        // content://com.coloros.filemanager/root/storage/emulated/0/Download/xxx.mp4
+        // 的 URI，尝试提取真实文件路径 /storage/emulated/0/Download/xxx.mp4
+        const colorOsPrefix = 'content://com.coloros.filemanager/root';
+        if (pathToCheck.startsWith(colorOsPrefix)) {
+          final fsPath = pathToCheck.substring(colorOsPrefix.length);
+          if (fsPath.startsWith('/storage')) {
+            fileSchemePathOverride = fsPath;
+            pathToCheck = fsPath;
+            isContentUri = false; // 后续按普通文件路径处理
+            LogUtils.d(
+              '检测到 ColorOS 文件管理 URI，转换为文件路径: $fsPath',
+              'MyVideoStateController',
+            );
+          }
+        }
       } else if (pathToCheck.startsWith('file://')) {
         pathToCheck = Uri.parse(pathToCheck).toFilePath();
         LogUtils.d(
@@ -615,7 +639,10 @@ class MyVideoStateController extends GetxController
       // 对于 content:// URI，直接使用解码后的 URI
       // 对于普通路径，转换为 file:// URI
       String mediaPath;
-      if (localVideoPath!.startsWith('content://')) {
+      if (fileSchemePathOverride != null) {
+        // 优先使用我们解析出的真实文件路径
+        mediaPath = 'file://$fileSchemePathOverride';
+      } else if (localVideoPath!.startsWith('content://')) {
         // content:// URI 需要解码 URL 编码字符并直接使用
         mediaPath = Uri.decodeFull(localVideoPath!);
       } else if (localVideoPath!.startsWith('file://')) {
@@ -663,6 +690,25 @@ class MyVideoStateController extends GetxController
       // 没有多清晰度信息，只添加当前文件
       if (localVideoPath != null) {
         String quality = slang.t.mediaPlayer.local;
+        String urlPath = localVideoPath!;
+
+        // 针对 ColorOS 文件管理器返回的 content://com.coloros.filemanager/root/...，
+        // 在构建清晰度列表时也尝试转换为真实文件路径，保持与播放器打开时一致
+        if (urlPath.startsWith('content://')) {
+          final decoded = Uri.decodeFull(urlPath);
+          const colorOsPrefix = 'content://com.coloros.filemanager/root';
+          if (decoded.startsWith(colorOsPrefix)) {
+            final fsPath = decoded.substring(colorOsPrefix.length);
+            if (fsPath.startsWith('/storage')) {
+              urlPath = 'file://$fsPath';
+              LogUtils.d(
+                '本地清晰度列表使用 ColorOS 解析路径: $urlPath',
+                'MyVideoStateController',
+              );
+            }
+          }
+        }
+
         if (localVideoTask != null) {
           final extData = VideoDownloadExtData.fromJson(
             localVideoTask!.extData!.data,
@@ -672,9 +718,7 @@ class MyVideoStateController extends GetxController
         videoResolutions.add(
           VideoResolution(
             label: quality,
-            url: localVideoPath!.startsWith('file://')
-                ? localVideoPath!
-                : 'file://$localVideoPath',
+            url: urlPath.startsWith('file://') ? urlPath : 'file://$urlPath',
           ),
         );
         currentResolutionTag.value = quality;
@@ -931,6 +975,12 @@ class MyVideoStateController extends GetxController
       String videoSync = _configService[ConfigKey.VIDEO_SYNC];
       await platform.setProperty("video-sync", videoSync);
       LogUtils.d('设置视频同步模式: $videoSync', 'MyVideoStateController');
+
+      // 允许加载被 mpv 判定为“潜在不安全”的播放列表/URL（content://、fd:// 等）
+      // 参考 media-kit issue #1002
+      // 还是没效果，只能先用 copy 大法临时解决了
+      await platform.setProperty("load-unsafe-playlists", "yes");
+      LogUtils.d('允许加载潜在不安全的播放列表/URL', 'MyVideoStateController');
 
       // 设置音频输出（仅Android）
       if (Platform.isAndroid) {
@@ -2824,16 +2874,22 @@ class MyVideoStateController extends GetxController
           title: 'i_iwara Preview Player',
           // 注意：在 macOS 上开启 async: true 可能会导致热重启时崩溃，因此在调试模式下关闭
           async: !kDebugMode,
+          // 与主播放器保持一致的协议白名单
           protocolWhitelist: const [
-            'udp',
-            'rtp',
-            'tcp',
-            'tls',
-            'data',
             'file',
             'http',
             'https',
+            'tcp',
+            'tls',
             'crypto',
+            'hls',
+            'applehttp',
+            'udp',
+            'rtp',
+            'data',
+            'httpproxy',
+            'content', // Android content:// URI 支持
+            'fd', // 处理某些设备上 content:// 转 fd:// 的场景
           ],
         ),
       );

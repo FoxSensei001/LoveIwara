@@ -141,16 +141,20 @@ class DefaultDownloadTaskItem extends StatelessWidget {
       },
       child: Card(
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        clipBehavior: Clip.hardEdge,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
         child: InkWell(
           onTap: () => _onTap(context),
-          borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              children: [
-                Row(
+          child: Column(
+            children: [
+              // 上部内容区域（带 padding）
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 8,
                   children: [
                     // 文件图标
                     Container(
@@ -160,7 +164,7 @@ class DefaultDownloadTaskItem extends StatelessWidget {
                         color: Theme.of(context).colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: _isImageFile() ? 
+                      child: _isImageFile() ?
                         ClipRRect(
                           borderRadius: BorderRadius.circular(8),
                           child: Image.file(
@@ -217,44 +221,10 @@ class DefaultDownloadTaskItem extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
-                // 进度条和状态
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 如果已完成，则不显示indicator
-                    if (task.status != DownloadStatus.completed)
-                    _buildProgressIndicator(),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              StatusLabel(status: task.status, text: _getStatusText(context)),
-                              if (task.error != null)
-                                Text(
-                                  task.error!,
-                                  style: const TextStyle(color: Colors.red),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                            ],
-                          ),
-                        ),
-                        // 更多操作按钮
-                        IconButton(
-                          icon: const Icon(Icons.more_horiz),
-                          onPressed: () => _showMoreOptionsDialog(context),
-                          tooltip: t.common.more,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
+              ),
+              // 进度和状态（紧贴边缘，无 padding）
+              _buildProgressStatusBar(context),
+            ],
           ),
         ),
       ),
@@ -423,30 +393,68 @@ class DefaultDownloadTaskItem extends StatelessWidget {
     );
   }
 
-  Widget _buildProgressIndicator() {
-    // 如果有总大小，显示具体进度
-    if (task.totalBytes > 0) {
-      return LinearProgressIndicator(
-        value: task.downloadedBytes / task.totalBytes,
-        backgroundColor: Colors.grey[200],
-        valueColor: AlwaysStoppedAnimation<Color>(_getProgressColor(task.status)),
+  Widget _buildProgressStatusBar(BuildContext context) {
+    final t = slang.Translations.of(context);
+
+    return Obx(() {
+      // 监听进度变更
+      DownloadService.to.getProgressTrigger(task.id).value;
+
+      // 计算进度
+      double progress = 0.0;
+      if (task.totalBytes > 0) {
+        progress = task.downloadedBytes / task.totalBytes;
+      } else if (task.status == DownloadStatus.completed) {
+        progress = 1.0;
+      }
+
+      // 完成状态使用更淡的颜色
+      final isCompleted = task.status == DownloadStatus.completed;
+      final alphaStart = isCompleted ? 0.15 : 0.3;
+      final alphaEnd = isCompleted ? 0.05 : 0.1;
+
+      return Container(
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(12),
+            bottomRight: Radius.circular(12),
+          ),
+          gradient: LinearGradient(
+            colors: [
+              _getProgressColor(task.status).withValues(alpha: alphaStart),
+              _getProgressColor(task.status).withValues(alpha: alphaEnd),
+            ],
+            stops: [progress.clamp(0.0, 1.0), progress.clamp(0.0, 1.0)],
+          ),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  StatusLabel(status: task.status, text: _getStatusText(context)),
+                  if (task.error != null)
+                    Text(
+                      task.error!,
+                      style: const TextStyle(color: Colors.red),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                ],
+              ),
+            ),
+            // 更多操作按钮
+            IconButton(
+              icon: const Icon(Icons.more_horiz),
+              onPressed: () => _showMoreOptionsDialog(context),
+              tooltip: t.common.more,
+            ),
+          ],
+        ),
       );
-    }
-    // 如果没有总大小但正在下载，显示不确定进度
-    else if (task.status == DownloadStatus.downloading) {
-      return const LinearProgressIndicator(
-        backgroundColor: Colors.grey,
-        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-      );
-    }
-    // 其他状态（完成/失败）
-    else {
-      return LinearProgressIndicator(
-        value: task.status == DownloadStatus.completed ? 1.0 : 0.0,
-        backgroundColor: Colors.grey[200],
-        valueColor: AlwaysStoppedAnimation<Color>(_getProgressColor(task.status)),
-      );
-    }
+    });
   }
 
   Color _getProgressColor(DownloadStatus status) {

@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -38,38 +37,47 @@ class GalleryDownloadTaskItem extends StatelessWidget {
 
     if (extData == null) return const SizedBox.shrink();
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      clipBehavior: Clip.antiAlias,
-      child: Stack(
-        children: [
-          // 模糊背景
-          if (extData.previewUrls.isNotEmpty)
-            Positioned.fill(
-              child: CachedNetworkImage(
-                imageUrl: extData.previewUrls[0],
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Container(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                ),
-                errorWidget: (context, url, error) => Container(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+    return RepaintBoundary(
+      child: Card(
+        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        clipBehavior: Clip.hardEdge,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Stack(
+          children: [
+            // 背景封面图 - 对应 Android 的 ivCoverBg
+            if (extData.previewUrls.isNotEmpty)
+              Positioned.fill(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: RepaintBoundary(
+                    child: CachedNetworkImage(
+                      imageUrl: extData.previewUrls[0],
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Container(
+                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ),
-          if (extData.previewUrls.isNotEmpty)
-            Positioned.fill(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            // 半透明遮罩层（替代模糊效果，避免边缘问题）
+            if (extData.previewUrls.isNotEmpty)
+              Positioned.fill(
                 child: Container(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.surface.withValues(alpha: 0.7),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.85),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
-            ),
-          // 内容层
-          GestureDetector(
+            // 内容层
+            GestureDetector(
             onSecondaryTapUp: (details) {
               final RenderBox overlay =
                   Overlay.of(context).context.findRenderObject() as RenderBox;
@@ -244,7 +252,8 @@ class GalleryDownloadTaskItem extends StatelessWidget {
               ),
             ),
           ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -414,6 +423,11 @@ class GalleryDownloadTaskItem extends StatelessWidget {
         progress = 1.0;
       }
 
+      // 完成状态使用更淡的颜色
+      final isCompleted = task.status == DownloadStatus.completed;
+      final alphaStart = isCompleted ? 0.15 : 0.3;
+      final alphaEnd = isCompleted ? 0.05 : 0.1;
+
       return Container(
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.only(
@@ -422,13 +436,13 @@ class GalleryDownloadTaskItem extends StatelessWidget {
           ),
           gradient: LinearGradient(
             colors: [
-              _getProgressColor(task.status).withValues(alpha: 0.3),
-              _getProgressColor(task.status).withValues(alpha: 0.1),
+              _getProgressColor(task.status).withValues(alpha: alphaStart),
+              _getProgressColor(task.status).withValues(alpha: alphaEnd),
             ],
             stops: [progress.clamp(0.0, 1.0), progress.clamp(0.0, 1.0)],
           ),
         ),
-        padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Row(
           children: [
             Expanded(
