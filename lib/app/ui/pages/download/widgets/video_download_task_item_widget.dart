@@ -56,7 +56,9 @@ class VideoDownloadTaskItem extends StatelessWidget {
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                 child: Container(
-                  color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.7),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.surface.withValues(alpha: 0.7),
                 ),
               ),
             ),
@@ -117,7 +119,9 @@ class VideoDownloadTaskItem extends StatelessWidget {
                       ),
                       onTap: () => _playLocalVideo(context),
                     ),
-                    if (Platform.isWindows || Platform.isMacOS || Platform.isLinux)
+                    if (Platform.isWindows ||
+                        Platform.isMacOS ||
+                        Platform.isLinux)
                       PopupMenuItem(
                         child: Row(
                           children: [
@@ -176,7 +180,12 @@ class VideoDownloadTaskItem extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // 视频缩略图
-                        _buildThumbnail(context, videoData, isSmallScreen, quality),
+                        _buildThumbnail(
+                          context,
+                          videoData,
+                          isSmallScreen,
+                          quality,
+                        ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
@@ -198,7 +207,9 @@ class VideoDownloadTaskItem extends StatelessWidget {
                                       : SystemMouseCursors.basic,
                                   child: GestureDetector(
                                     onTap: videoData.authorUsername != null
-                                        ? () => _navigateToAuthorProfile(videoData)
+                                        ? () => _navigateToAuthorProfile(
+                                            videoData,
+                                          )
                                         : null,
                                     child: Row(
                                       children: [
@@ -209,7 +220,9 @@ class VideoDownloadTaskItem extends StatelessWidget {
                                         const SizedBox(width: 12),
                                         Text(
                                           videoData.authorName!,
-                                          style: Theme.of(context).textTheme.titleMedium,
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.titleMedium,
                                         ),
                                       ],
                                     ),
@@ -292,7 +305,8 @@ class VideoDownloadTaskItem extends StatelessWidget {
               child: CachedNetworkImage(
                 imageUrl: videoData.thumbnail!,
                 fit: BoxFit.cover,
-                placeholder: (context, url) => Container(color: Colors.grey[200]),
+                placeholder: (context, url) =>
+                    Container(color: Colors.grey[200]),
                 errorWidget: (context, url, error) => Container(
                   color: Colors.grey[200],
                   child: const Icon(Icons.error_outline),
@@ -360,71 +374,77 @@ class VideoDownloadTaskItem extends StatelessWidget {
   ) {
     final t = slang.Translations.of(context);
 
-    // 计算进度
-    double progress = 0.0;
-    if (task.totalBytes > 0) {
-      progress = task.downloadedBytes / task.totalBytes;
-    } else if (task.status == DownloadStatus.completed) {
-      progress = 1.0;
-    }
+    return Obx(() {
+      // 监听进度变更
+      DownloadService.to.getProgressTrigger(task.id).value;
 
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(12),
-          bottomRight: Radius.circular(12),
-        ),
-        gradient: LinearGradient(
-          colors: [
-            _getProgressColor(task.status).withValues(alpha: 0.3),
-            _getProgressColor(task.status).withValues(alpha: 0.1),
-          ],
-          stops: [progress.clamp(0.0, 1.0), progress.clamp(0.0, 1.0)],
-        ),
-      ),
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 窄屏下载中状态：分两行显示
-                if (isSmallScreen && task.status == DownloadStatus.downloading)
-                  _buildSmallScreenDownloadingStatus(context, t)
-                // 窄屏其他状态或宽屏所有状态：单行显示
-                else
-                  StatusLabel(
-                    status: task.status,
-                    text: _getStatusText(context),
-                  ),
-                if (task.error != null)
-                  Text(
-                    task.error!,
-                    style: const TextStyle(color: Colors.red),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-              ],
-            ),
+      // 计算进度
+      double progress = 0.0;
+      if (task.totalBytes > 0) {
+        progress = task.downloadedBytes / task.totalBytes;
+      } else if (task.status == DownloadStatus.completed) {
+        progress = 1.0;
+      }
+
+      return Container(
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(12),
+            bottomRight: Radius.circular(12),
           ),
-          // 视频详情按钮
-          if (videoData.id != null)
+          gradient: LinearGradient(
+            colors: [
+              _getProgressColor(task.status).withValues(alpha: 0.3),
+              _getProgressColor(task.status).withValues(alpha: 0.1),
+            ],
+            stops: [progress.clamp(0.0, 1.0), progress.clamp(0.0, 1.0)],
+          ),
+        ),
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 窄屏下载中状态：分两行显示
+                  if (isSmallScreen &&
+                      task.status == DownloadStatus.downloading)
+                    _buildSmallScreenDownloadingStatus(context, t)
+                  // 窄屏其他状态或宽屏所有状态：单行显示
+                  else
+                    StatusLabel(
+                      status: task.status,
+                      text: _getStatusText(context),
+                    ),
+                  if (task.error != null)
+                    Text(
+                      task.error!,
+                      style: const TextStyle(color: Colors.red),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                ],
+              ),
+            ),
+            // 视频详情按钮
+            if (videoData.id != null)
+              IconButton(
+                icon: const Icon(Icons.video_library),
+                onPressed: () =>
+                    NaviService.navigateToVideoDetailPage(videoData.id!),
+                tooltip: t.download.viewVideoDetail,
+              ),
+            // 更多操作按钮
             IconButton(
-              icon: const Icon(Icons.video_library),
-              onPressed: () =>
-                  NaviService.navigateToVideoDetailPage(videoData.id!),
-              tooltip: t.download.viewVideoDetail,
+              icon: const Icon(Icons.more_horiz),
+              onPressed: () => _showMoreOptionsDialog(context),
+              tooltip: t.download.moreOptions,
             ),
-          // 更多操作按钮
-          IconButton(
-            icon: const Icon(Icons.more_horiz),
-            onPressed: () => _showMoreOptionsDialog(context),
-            tooltip: t.download.moreOptions,
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    });
   }
 
   // 窄屏下载中状态的专用显示组件
@@ -459,10 +479,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
         // 第二行：下载中 tag + 网速
         Row(
           children: [
-            StatusLabel(
-              status: task.status,
-              text: t.download.downloading,
-            ),
+            StatusLabel(status: task.status, text: t.download.downloading),
             const SizedBox(width: 8),
             Text(
               '${speed}MB/s',
@@ -901,7 +918,9 @@ class VideoDownloadTaskItem extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              t.download.errors.playLocallyFailedWithMessage(message: e.toString()),
+              t.download.errors.playLocallyFailedWithMessage(
+                message: e.toString(),
+              ),
             ),
           ),
         );
@@ -911,7 +930,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
 
   void _onTap(BuildContext context) {
     if (task.status == DownloadStatus.completed) {
-      _openFile(context);
+      _playLocalVideo(context);
     } else {
       // 如果是视频类型且有视频ID，可以跳转到视频详情页
       final videoData = VideoDownloadExtData.fromJson(task.extData!.data);

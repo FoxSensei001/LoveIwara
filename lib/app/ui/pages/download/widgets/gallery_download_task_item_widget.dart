@@ -62,7 +62,9 @@ class GalleryDownloadTaskItem extends StatelessWidget {
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                 child: Container(
-                  color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.7),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.surface.withValues(alpha: 0.7),
                 ),
               ),
             ),
@@ -400,71 +402,77 @@ class GalleryDownloadTaskItem extends StatelessWidget {
     if (extData == null) return const SizedBox.shrink();
     final isSmallScreen = MediaQuery.of(context).size.width < 600;
 
-    // 计算进度
-    double progress = 0.0;
-    if (task.totalBytes > 0) {
-      progress = task.downloadedBytes / task.totalBytes;
-    } else if (task.status == DownloadStatus.completed) {
-      progress = 1.0;
-    }
+    return Obx(() {
+      // 监听进度变更
+      DownloadService.to.getProgressTrigger(task.id).value;
 
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(12),
-          bottomRight: Radius.circular(12),
-        ),
-        gradient: LinearGradient(
-          colors: [
-            _getProgressColor(task.status).withValues(alpha: 0.3),
-            _getProgressColor(task.status).withValues(alpha: 0.1),
-          ],
-          stops: [progress.clamp(0.0, 1.0), progress.clamp(0.0, 1.0)],
-        ),
-      ),
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 窄屏下载中状态：分两行显示
-                if (isSmallScreen && task.status == DownloadStatus.downloading)
-                  _buildSmallScreenDownloadingStatus(context, t)
-                // 窄屏其他状态或宽屏所有状态：单行显示
-                else
-                  StatusLabel(
-                    status: task.status,
-                    text: _getStatusText(context),
-                  ),
-                if (task.error != null)
-                  Text(
-                    task.error!,
-                    style: const TextStyle(color: Colors.red),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-              ],
-            ),
+      // 计算进度
+      double progress = 0.0;
+      if (task.totalBytes > 0) {
+        progress = task.downloadedBytes / task.totalBytes;
+      } else if (task.status == DownloadStatus.completed) {
+        progress = 1.0;
+      }
+
+      return Container(
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(12),
+            bottomRight: Radius.circular(12),
           ),
-          // 图库详情按钮
-          if (extData.id != null)
+          gradient: LinearGradient(
+            colors: [
+              _getProgressColor(task.status).withValues(alpha: 0.3),
+              _getProgressColor(task.status).withValues(alpha: 0.1),
+            ],
+            stops: [progress.clamp(0.0, 1.0), progress.clamp(0.0, 1.0)],
+          ),
+        ),
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 窄屏下载中状态：分两行显示
+                  if (isSmallScreen &&
+                      task.status == DownloadStatus.downloading)
+                    _buildSmallScreenDownloadingStatus(context, t)
+                  // 窄屏其他状态或宽屏所有状态：单行显示
+                  else
+                    StatusLabel(
+                      status: task.status,
+                      text: _getStatusText(context),
+                    ),
+                  if (task.error != null)
+                    Text(
+                      task.error!,
+                      style: const TextStyle(color: Colors.red),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                ],
+              ),
+            ),
+            // 图库详情按钮
+            if (extData.id != null)
+              IconButton(
+                icon: const Icon(Icons.photo_library),
+                onPressed: () =>
+                    NaviService.navigateToGalleryDetailPage(extData.id!),
+                tooltip: t.download.viewGalleryDetail,
+              ),
+            // 更多操作按钮
             IconButton(
-              icon: const Icon(Icons.photo_library),
-              onPressed: () =>
-                  NaviService.navigateToGalleryDetailPage(extData.id!),
-              tooltip: t.download.viewGalleryDetail,
+              icon: const Icon(Icons.more_horiz),
+              onPressed: () => _showMoreOptionsDialog(context),
+              tooltip: t.download.moreOptions,
             ),
-          // 更多操作按钮
-          IconButton(
-            icon: const Icon(Icons.more_horiz),
-            onPressed: () => _showMoreOptionsDialog(context),
-            tooltip: t.download.moreOptions,
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    });
   }
 
   Color _getProgressColor(DownloadStatus status) {
@@ -498,8 +506,9 @@ class GalleryDownloadTaskItem extends StatelessWidget {
     }
 
     return Obx(() {
-      final downloadProgress = DownloadService.to
-          .getGalleryDownloadProgress(task.id);
+      final downloadProgress = DownloadService.to.getGalleryDownloadProgress(
+        task.id,
+      );
 
       String imageProgressText = '';
       if (downloadProgress != null) {
@@ -525,10 +534,7 @@ class GalleryDownloadTaskItem extends StatelessWidget {
           if (imageProgressText.isNotEmpty)
             Row(
               children: [
-                StatusLabel(
-                  status: task.status,
-                  text: t.download.downloading,
-                ),
+                StatusLabel(status: task.status, text: t.download.downloading),
                 const SizedBox(width: 8),
                 Text(
                   imageProgressText,
