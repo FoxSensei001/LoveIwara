@@ -140,6 +140,11 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
   }
 
   Widget _buildAuthorInfo(BuildContext context) {
+    // 本地播放模式下不显示作者信息区域
+    if (widget.controller.isLocalVideoMode) {
+      return const SizedBox.shrink();
+    }
+
     return Row(
       children: [
         MouseRegion(

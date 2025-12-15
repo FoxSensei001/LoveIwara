@@ -70,6 +70,28 @@ class DownloadService extends GetxService {
   // 任务计时器映射，key是任务的id，value是任务的计时器，用于计时更新任务的下载进度UI
   final _taskTimers = <String, Timer>{};
 
+  // 进度通知器映射，key是任务的id，value是RxInt，用于高频通知单个Item刷新进度
+  final _progressTriggers = <String, RxInt>{};
+  // 上次通知时间映射，用于节流
+  final _lastNotifyTime = <String, int>{};
+
+  // 获取特定任务的进度通知器
+  RxInt getProgressTrigger(String taskId) {
+    return _progressTriggers.putIfAbsent(taskId, () => 0.obs);
+  }
+
+  // 通知进度更新（带节流）
+  void _notifyProgress(String taskId) {
+    const throttleDuration = 200; // 200ms节流
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final lastTime = _lastNotifyTime[taskId] ?? 0;
+
+    if (now - lastTime > throttleDuration) {
+      _lastNotifyTime[taskId] = now;
+      _progressTriggers[taskId]?.value++;
+    }
+  }
+
   // 队列处理锁，防止并发调用 _processQueue 导致超过最大并发数
   bool _isProcessingQueue = false;
 
@@ -116,8 +138,8 @@ class DownloadService extends GetxService {
   Future<void> _loadActiveTasks() async {
     try {
       // 拉取所有 downloading + pending 任务，按创建时间升序
-      final tasks =
-          await _repository.getDownloadingAndPendingTasksOrderByCreatedAtAsc();
+      final tasks = await _repository
+          .getDownloadingAndPendingTasksOrderByCreatedAtAsc();
       int restoredDownloadingCount = 0;
       int pendingCount = 0;
 
@@ -212,8 +234,7 @@ class DownloadService extends GetxService {
     LogUtils.d('暂停任务: $taskId', 'DownloadService');
 
     // 优先从内存中获取下载中任务，如不存在则从数据库获取
-    final task =
-        _activeTasks[taskId] ?? await _repository.getTaskById(taskId);
+    final task = _activeTasks[taskId] ?? await _repository.getTaskById(taskId);
     if (task == null) {
       LogUtils.d('任务不存在: $taskId', 'DownloadService');
       return;
@@ -300,9 +321,10 @@ class DownloadService extends GetxService {
     // 取消下载
     _activeDownloads[taskId]?.cancel(message);
     _activeDownloads.remove(taskId);
-    // 移除计时器
+    // 移除计时器和进度追踪器
     _taskTimers[taskId]?.cancel();
     _taskTimers.remove(taskId);
+    // 不立即移除 _progressTriggers，因为 UI 可能还在监听，让它自然回收或在适当时候清理
   }
 
   // 删除任务
@@ -311,95 +333,132 @@ class DownloadService extends GetxService {
     String taskId, {
     bool ignoreFileDeleteError = false,
   }) async {
-    LogUtils.i('开始删除下载任务: $taskId', 'DownloadService');
-    DownloadTask? task;
-    // 获取任务信息
-    task = _activeTasks[taskId] ?? await _repository.getTaskById(taskId);
-
-    // 如果内存和数据库中都没有任务信息，则直接返回
-    if (task == null) {
-      LogUtils.e('任务不存在: $taskId', tag: 'DownloadService');
-      _showMessage(slang.t.download.errors.taskNotFound, Colors.red);
-      // 防止内存问题，清理内存中的信息
-      _clearMemoryTask(taskId, '任务不存在时的清理');
+    // 防止重复删除
+    if (_processingTaskIds.contains(taskId)) {
       return;
     }
+    _processingTaskIds.add(taskId);
 
-    // 先尝试删除文件
-    final fileOrDir = FileSystemEntity.typeSync(task.savePath);
-    bool isDeleteSuccess = false;
+    try {
+      LogUtils.i('开始删除下载任务: $taskId', 'DownloadService');
+      DownloadTask? task;
+      // 获取任务信息
+      task = _activeTasks[taskId] ?? await _repository.getTaskById(taskId);
 
-    if (fileOrDir == FileSystemEntityType.notFound) {
-      // 目标不存在，视为已删除
-      LogUtils.w('目标不存在，无需删除: ${task.savePath}', 'DownloadService');
-      isDeleteSuccess = true;
-    } else if (fileOrDir == FileSystemEntityType.directory) {
-      // 如果是文件夹则删除整个文件夹
-      final dir = Directory(task.savePath);
-      if (await dir.exists()) {
-        try {
-          await dir.delete(recursive: true);
-          LogUtils.d('已删除文件夹: ${task.savePath}', 'DownloadService');
+      // 如果内存和数据库中都没有任务信息，则直接返回
+      if (task == null) {
+        LogUtils.e('任务不存在: $taskId', tag: 'DownloadService');
+        _showMessage(slang.t.download.errors.taskNotFound, Colors.red);
+        // 防止内存问题，清理内存中的信息
+        _clearMemoryTask(taskId, '任务不存在时的清理');
+        return;
+      }
+
+      // 如果任务正在下载中，先取消下载并等待资源释放
+      if (task.status == DownloadStatus.downloading ||
+          _activeDownloads.containsKey(taskId)) {
+        LogUtils.d('任务正在下载中，先取消下载: $taskId', 'DownloadService');
+        _clearMemoryTask(taskId, '删除任务前取消下载');
+        // 等待文件资源释放
+        await Future.delayed(const Duration(milliseconds: 500));
+      }
+
+      // 尝试删除文件，支持重试
+      bool isDeleteSuccess = false;
+      int retryCount = 0;
+      const maxRetries = 3;
+      const retryDelay = Duration(milliseconds: 300);
+
+      while (!isDeleteSuccess && retryCount < maxRetries) {
+        final fileOrDir = FileSystemEntity.typeSync(task.savePath);
+
+        if (fileOrDir == FileSystemEntityType.notFound) {
+          // 目标不存在，视为已删除
+          LogUtils.w('目标不存在，无需删除: ${task.savePath}', 'DownloadService');
           isDeleteSuccess = true;
-        } catch (e) {
-          // 若并发导致此时目录已不存在，也视为成功
-          if (!await dir.exists()) {
-            LogUtils.w('删除时目录已不存在: ${task.savePath}', 'DownloadService');
-            isDeleteSuccess = true;
+        } else if (fileOrDir == FileSystemEntityType.directory) {
+          // 如果是文件夹则删除整个文件夹
+          final dir = Directory(task.savePath);
+          if (await dir.exists()) {
+            try {
+              await dir.delete(recursive: true);
+              LogUtils.d('已删除文件夹: ${task.savePath}', 'DownloadService');
+              isDeleteSuccess = true;
+            } catch (e) {
+              // 若并发导致此时目录已不存在，也视为成功
+              if (!await dir.exists()) {
+                LogUtils.w('删除时目录已不存在: ${task.savePath}', 'DownloadService');
+                isDeleteSuccess = true;
+              } else {
+                LogUtils.e(
+                  '删除文件夹失败，可能被占用: ${task.savePath} (重试 $retryCount/$maxRetries)',
+                  tag: 'DownloadService',
+                  error: e,
+                );
+                if (retryCount < maxRetries - 1) {
+                  retryCount++;
+                  await Future.delayed(retryDelay);
+                } else {
+                  retryCount++;
+                }
+              }
+            }
           } else {
-            LogUtils.e(
-              '删除文件夹失败，可能被占用: ${task.savePath}',
-              tag: 'DownloadService',
-              error: e,
-            );
+            // 不存在也当做成功
+            LogUtils.w('目录不存在，无需删除: ${task.savePath}', 'DownloadService');
+            isDeleteSuccess = true;
+          }
+        } else {
+          // 如果是文件则删除文件（包含符号链接等情况）
+          final file = File(task.savePath);
+          if (await file.exists()) {
+            try {
+              await file.delete();
+              LogUtils.d('已删除文件: ${task.savePath}', 'DownloadService');
+              isDeleteSuccess = true;
+            } catch (e) {
+              // 若并发导致此时文件已不存在，也视为成功
+              if (!await file.exists()) {
+                LogUtils.w('删除时文件已不存在: ${task.savePath}', 'DownloadService');
+                isDeleteSuccess = true;
+              } else {
+                LogUtils.e(
+                  '删除文件失败，可能被占用: ${task.savePath} (重试 $retryCount/$maxRetries)',
+                  tag: 'DownloadService',
+                  error: e,
+                );
+                if (retryCount < maxRetries - 1) {
+                  retryCount++;
+                  await Future.delayed(retryDelay);
+                } else {
+                  retryCount++;
+                }
+              }
+            }
+          } else {
+            // 不存在也当做成功
+            LogUtils.w('文件不存在，无需删除: ${task.savePath}', 'DownloadService');
+            isDeleteSuccess = true;
           }
         }
-      } else {
-        // 不存在也当做成功
-        LogUtils.w('目录不存在，无需删除: ${task.savePath}', 'DownloadService');
-        isDeleteSuccess = true;
       }
-    } else {
-      // 如果是文件则删除文件（包含符号链接等情况）
-      final file = File(task.savePath);
-      if (await file.exists()) {
-        try {
-          await file.delete();
-          LogUtils.d('已删除文件: ${task.savePath}', 'DownloadService');
-          isDeleteSuccess = true;
-        } catch (e) {
-          // 若并发导致此时文件已不存在，也视为成功
-          if (!await file.exists()) {
-            LogUtils.w('删除时文件已不存在: ${task.savePath}', 'DownloadService');
-            isDeleteSuccess = true;
-          } else {
-            LogUtils.e(
-              '删除文件失败，可能被占用: ${task.savePath}',
-              tag: 'DownloadService',
-              error: e,
-            );
-          }
-        }
-      } else {
-        // 不存在也当做成功
-        LogUtils.w('文件不存在，无需删除: ${task.savePath}', 'DownloadService');
-        isDeleteSuccess = true;
+
+      if (!isDeleteSuccess && !ignoreFileDeleteError) {
+        LogUtils.e('删除文件失败: ${task.savePath}', tag: 'DownloadService');
+        _showMessage(slang.t.download.errors.deleteFileError, Colors.red);
+        return;
       }
+
+      // 从数据库删除任务记录
+      await _repository.deleteTask(taskId);
+
+      _clearMemoryTask(taskId, '任务已删除');
+
+      // 通知任务状态变更，触发UI刷新
+      _taskStatusChangedNotifier.value++;
+    } finally {
+      _processingTaskIds.remove(taskId);
     }
-
-    if (!isDeleteSuccess && !ignoreFileDeleteError) {
-      LogUtils.e('删除文件失败: ${task.savePath}', tag: 'DownloadService');
-      _showMessage(slang.t.download.errors.deleteFileError, Colors.red);
-      return;
-    }
-
-    // 从数据库删除任务记录
-    await _repository.deleteTask(taskId);
-
-    _clearMemoryTask(taskId, '任务已删除');
-
-    // 通知任务状态变更，触发UI刷新
-    _taskStatusChangedNotifier.value++;
   }
 
   // 处理下载队列
@@ -449,7 +508,10 @@ class DownloadService extends GetxService {
   }
 
   // 真正的下载任务
-  Future<void> _startRealDownload(DownloadTask task, CancelToken cancelToken) async {
+  Future<void> _startRealDownload(
+    DownloadTask task,
+    CancelToken cancelToken,
+  ) async {
     // CancelToken 已在 _processQueue 中创建并添加到 _activeDownloads
 
     // 如果是图库下载
@@ -623,8 +685,11 @@ class DownloadService extends GetxService {
                 localRaf.writeFromSync(chunk);
                 task.downloadedBytes =
                     (task.downloadedBytes + chunk.length) as int;
-                // activeTasks 仅维护下载中的任务进度
-                _activeTasks[task.id] = task;
+                // 不再直接更新 _activeTasks以避免触发整个列表的重建
+                // _activeTasks[task.id] = task;
+
+                // 而是触发单个任务的进度通知
+                _notifyProgress(task.id);
               }
             } catch (e) {
               LogUtils.e('写入文件失败: $e', tag: 'DownloadService', error: e);
@@ -853,6 +918,9 @@ class DownloadService extends GetxService {
     _taskTimers[task.id]?.cancel();
     _taskTimers.remove(task.id);
 
+    // 清理进度节流记录
+    _lastNotifyTime.remove(task.id);
+
     // 从内存中移除下载中的任务（pending 不会进入 _activeTasks）
     _activeTasks.remove(task.id);
 
@@ -946,8 +1014,7 @@ class DownloadService extends GetxService {
 
       // 2) 仅允许对失败任务重试
       if (task.status != DownloadStatus.failed) {
-        LogUtils.d(
-            '重试忽略：任务非失败状态: $taskId / ${task.status}', 'DownloadService');
+        LogUtils.d('重试忽略：任务非失败状态: $taskId / ${task.status}', 'DownloadService');
         return;
       }
 
@@ -1024,11 +1091,7 @@ class DownloadService extends GetxService {
         existingQualities: existingQualities.toSet().toList(),
       );
     } catch (e) {
-      LogUtils.e(
-        '检查视频任务重复失败',
-        tag: 'DownloadService',
-        error: e,
-      );
+      LogUtils.e('检查视频任务重复失败', tag: 'DownloadService', error: e);
       // 发生异常时返回无重复的结果，降级处理
       return VideoTaskDuplicateCheckResult(
         hasSameVideoDifferentQuality: false,
@@ -1045,11 +1108,7 @@ class DownloadService extends GetxService {
       // 直接使用基于媒体索引的查询，避免全表遍历
       return await _repository.existsTaskByMedia('video', videoId);
     } catch (e) {
-      LogUtils.e(
-        '检查视频下载任务失败',
-        tag: 'DownloadService',
-        error: e,
-      );
+      LogUtils.e('检查视频下载任务失败', tag: 'DownloadService', error: e);
       // 发生异常时返回 false，降级处理
       return false;
     }
@@ -1059,7 +1118,10 @@ class DownloadService extends GetxService {
   /// [videoId] 视频ID
   /// [quality] 视频清晰度（如 "Source", "1080", "720" 等）
   /// 返回本地文件路径，如果没有找到或文件不存在则返回 null
-  Future<String?> getCompletedVideoLocalPath(String videoId, String quality) async {
+  Future<String?> getCompletedVideoLocalPath(
+    String videoId,
+    String quality,
+  ) async {
     try {
       // 获取该视频的所有下载任务
       final tasks = await _repository.getVideoTasksByMedia(videoId);
@@ -1094,10 +1156,7 @@ class DownloadService extends GetxService {
             );
             return task.savePath;
           } else {
-            LogUtils.w(
-              '本地文件不存在: ${task.savePath}',
-              'DownloadService',
-            );
+            LogUtils.w('本地文件不存在: ${task.savePath}', 'DownloadService');
           }
         }
       }
@@ -1124,11 +1183,7 @@ class DownloadService extends GetxService {
       // 直接使用基于媒体索引的查询，避免全表遍历
       return await _repository.existsTaskByMedia('gallery', galleryId);
     } catch (e) {
-      LogUtils.e(
-        '检查图库下载任务失败',
-        tag: 'DownloadService',
-        error: e,
-      );
+      LogUtils.e('检查图库下载任务失败', tag: 'DownloadService', error: e);
       // 发生异常时返回 false，降级处理
       return false;
     }
@@ -1138,10 +1193,14 @@ class DownloadService extends GetxService {
   /// [galleryId] 图库ID
   /// 返回 Map<String, String>，key 为图片ID，value 为本地文件路径
   /// 如果没有找到已完成的下载任务或文件不存在则返回空 Map
-  Future<Map<String, String>> getCompletedGalleryLocalPaths(String galleryId) async {
+  Future<Map<String, String>> getCompletedGalleryLocalPaths(
+    String galleryId,
+  ) async {
     try {
       // 获取该图库的所有下载任务
-      final tasks = await _repository.getAllTasksByStatus(DownloadStatus.completed);
+      final tasks = await _repository.getAllTasksByStatus(
+        DownloadStatus.completed,
+      );
 
       // 找到匹配图库ID且已完成的任务
       for (final task in tasks) {
@@ -1149,8 +1208,9 @@ class DownloadService extends GetxService {
             task.mediaId == galleryId &&
             task.status == DownloadStatus.completed &&
             task.extData?.type == DownloadTaskExtDataType.gallery) {
-
-          final galleryData = GalleryDownloadExtData.fromJson(task.extData!.data);
+          final galleryData = GalleryDownloadExtData.fromJson(
+            task.extData!.data,
+          );
           final validLocalPaths = <String, String>{};
 
           // 验证每个本地文件是否存在
@@ -1181,10 +1241,7 @@ class DownloadService extends GetxService {
         }
       }
 
-      LogUtils.d(
-        '未找到图库本地文件: galleryId=$galleryId',
-        'DownloadService',
-      );
+      LogUtils.d('未找到图库本地文件: galleryId=$galleryId', 'DownloadService');
       return {};
     } catch (e) {
       LogUtils.e(
@@ -1239,6 +1296,9 @@ class DownloadService extends GetxService {
     }
     _taskTimers.clear();
 
+    _progressTriggers.clear();
+    _lastNotifyTime.clear();
+
     // 清理其他资源
     _activeTasks.clear();
     _downloadQueue.clear();
@@ -1277,7 +1337,10 @@ class DownloadService extends GetxService {
   }
 
   // 图库下载的方法
-  Future<void> _startGalleryDownload(DownloadTask task, CancelToken cancelToken) async {
+  Future<void> _startGalleryDownload(
+    DownloadTask task,
+    CancelToken cancelToken,
+  ) async {
     try {
       final galleryData = GalleryDownloadExtData.fromJson(task.extData!.data);
       final savePath = path_lib.normalize(task.savePath);
@@ -1355,7 +1418,8 @@ class DownloadService extends GetxService {
                   return path != null && File(path).existsSync();
                 }).length;
                 await _repository.updateTask(task);
-                _activeTasks[task.id] = task;
+                // _activeTasks[task.id] = task; // 移除此行
+                _notifyProgress(task.id);
               }
             } else if (retry == 1) {
               // 第二次尝试也失败，记录错误
@@ -1422,7 +1486,8 @@ class DownloadService extends GetxService {
       } else {
         _activeTasks.remove(task.id);
       }
-      _taskStatusChangedNotifier.value++;
+      _taskStatusChangedNotifier.value++; // 状态变更，通知列表刷新
+      _notifyProgress(task.id); // 确保最后一次进度被更新
 
       // 等待一段时间后清理进度状态
       await Future.delayed(const Duration(seconds: 1));
@@ -1473,6 +1538,10 @@ class DownloadService extends GetxService {
         onReceiveProgress: (received, total) {
           if (total != -1) {
             _updateImageProgress(task.id, imageId, received / total);
+            // 这里可以考虑 notifyProgress，但图库下载通常图片较小，
+            // 且 _startGalleryDownload 外层循环也会调用 notify，
+            // 或者在这里也调用但要注意节流
+            _notifyProgress(task.id);
           }
         },
       );
@@ -1483,6 +1552,7 @@ class DownloadService extends GetxService {
       // 更新进度
       _updateGalleryProgress(task.id, imageId, true);
       _updateImageProgress(task.id, imageId, 1.0);
+      _notifyProgress(task.id); // 通知 UI 更新
 
       // 计算总进度
       final downloadedCount =
@@ -1533,8 +1603,10 @@ class DownloadService extends GetxService {
   // 刷新视频任务
   // 用于更新任务的url
   // @return 返回新的任务信息，如果刷新失败则返回null
-  Future<DownloadTask?> refreshVideoTask(DownloadTask task,
-      {bool force = false}) async {
+  Future<DownloadTask?> refreshVideoTask(
+    DownloadTask task, {
+    bool force = false,
+  }) async {
     VideoDownloadExtData videoExtData = VideoDownloadExtData.fromJson(
       task.extData!.data,
     );
@@ -1542,16 +1614,17 @@ class DownloadService extends GetxService {
     final expireTime = CommonUtils.getVideoLinkExpireTime(videoLink);
     final shouldForceRefresh = force || expireTime == null;
 
-    final isNearlyExpired = expireTime != null &&
+    final isNearlyExpired =
+        expireTime != null &&
         DateTime.now().isAfter(expireTime.subtract(const Duration(minutes: 1)));
 
     if (shouldForceRefresh || isNearlyExpired) {
       // 需要刷新链接
-      String? newVideoDownloadUrl =
-          await VideoService.to.getVideoDownloadUrlByIdAndQuality(
-        videoExtData.id ?? '',
-        videoExtData.quality!,
-      );
+      String? newVideoDownloadUrl = await VideoService.to
+          .getVideoDownloadUrlByIdAndQuality(
+            videoExtData.id ?? '',
+            videoExtData.quality!,
+          );
 
       // 如果获取到新的链接，则更新任务信息
       if (newVideoDownloadUrl != null) {

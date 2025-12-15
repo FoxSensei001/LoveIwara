@@ -37,7 +37,7 @@ class _TopToolbarState extends State<TopToolbar> {
 
   Timer? _timeTimer;
   DateTime _currentTime = DateTime.now();
-  
+
   final Battery _battery = Battery();
   int _batteryLevel = 100;
   BatteryState _batteryState = BatteryState.unknown;
@@ -60,7 +60,7 @@ class _TopToolbarState extends State<TopToolbar> {
     super.initState();
     _initializeTime();
     _initializeBattery();
-     _initializeConnectivity();
+    _initializeConnectivity();
   }
 
   @override
@@ -87,8 +87,9 @@ class _TopToolbarState extends State<TopToolbar> {
     try {
       // 初始状态（取列表的第一个结果）
       final results = await _connectivity.checkConnectivity();
-      final ConnectivityResult result =
-          results.isNotEmpty ? results.first : ConnectivityResult.none;
+      final ConnectivityResult result = results.isNotEmpty
+          ? results.first
+          : ConnectivityResult.none;
       if (mounted) {
         setState(() {
           _connectivityResult = result;
@@ -101,10 +102,12 @@ class _TopToolbarState extends State<TopToolbar> {
       }
 
       // 监听变化（同样取列表的第一个结果）
-      _connectivitySubscription =
-          _connectivity.onConnectivityChanged.listen((List<ConnectivityResult> results) async {
-        final ConnectivityResult result =
-            results.isNotEmpty ? results.first : ConnectivityResult.none;
+      _connectivitySubscription = _connectivity.onConnectivityChanged.listen((
+        List<ConnectivityResult> results,
+      ) async {
+        final ConnectivityResult result = results.isNotEmpty
+            ? results.first
+            : ConnectivityResult.none;
         if (mounted) {
           setState(() {
             _connectivityResult = result;
@@ -168,7 +171,7 @@ class _TopToolbarState extends State<TopToolbar> {
       // 初始获取电量
       final level = await _battery.batteryLevel;
       final state = await _battery.batteryState;
-      
+
       if (mounted) {
         setState(() {
           _batteryLevel = level;
@@ -176,9 +179,11 @@ class _TopToolbarState extends State<TopToolbar> {
           _batterySupported = true;
         });
       }
-      
+
       // 监听电池状态变化 (充电、未充电等)
-      _batterySubscription = _battery.onBatteryStateChanged.listen((BatteryState state) async {
+      _batterySubscription = _battery.onBatteryStateChanged.listen((
+        BatteryState state,
+      ) async {
         final level = await _battery.batteryLevel;
         if (mounted) {
           setState(() {
@@ -207,7 +212,7 @@ class _TopToolbarState extends State<TopToolbar> {
   /// 根据时间段获取时间图标 SVG
   Widget _buildTimeIcon(DateTime time) {
     final hour = time.hour;
-    
+
     // 定义简单的 SVG 路径
     // 上午 6-11 点: 日出/早上
     // 11-17 点: 太阳/白天
@@ -215,8 +220,8 @@ class _TopToolbarState extends State<TopToolbar> {
     // 19-6 点: 月亮/晚上
 
     if (hour >= 6 && hour < 11) {
-       // Morning (Sun partly rising)
-       return const Icon(Icons.wb_twilight, color: Colors.white, size: 16); 
+      // Morning (Sun partly rising)
+      return const Icon(Icons.wb_twilight, color: Colors.white, size: 16);
     } else if (hour >= 11 && hour < 17) {
       // Day (Full Sun)
       return const Icon(Icons.wb_sunny_outlined, color: Colors.white, size: 16);
@@ -225,7 +230,11 @@ class _TopToolbarState extends State<TopToolbar> {
       return const Icon(Icons.wb_twilight, color: Colors.white, size: 16);
     } else {
       // Night (Moon)
-      return const Icon(Icons.nights_stay_outlined, color: Colors.white, size: 16);
+      return const Icon(
+        Icons.nights_stay_outlined,
+        color: Colors.white,
+        size: 16,
+      );
     }
   }
 
@@ -233,7 +242,8 @@ class _TopToolbarState extends State<TopToolbar> {
   Widget _buildBatterySvg(int level, BatteryState state) {
     // 确定颜色
     Color batteryColor = Colors.white;
-    bool isCharging = state == BatteryState.charging || state == BatteryState.full;
+    bool isCharging =
+        state == BatteryState.charging || state == BatteryState.full;
 
     if (isCharging) {
       batteryColor = const Color(0xFF4CAF50); // 充电中显示绿色
@@ -242,12 +252,13 @@ class _TopToolbarState extends State<TopToolbar> {
     }
 
     // 将 Color 转换为 Hex String for SVG
-    final int argb = (batteryColor.a * 255).toInt() << 24 |
-                     (batteryColor.r * 255).toInt() << 16 |
-                     (batteryColor.g * 255).toInt() << 8 |
-                     (batteryColor.b * 255).toInt();
+    final int argb =
+        (batteryColor.a * 255).toInt() << 24 |
+        (batteryColor.r * 255).toInt() << 16 |
+        (batteryColor.g * 255).toInt() << 8 |
+        (batteryColor.b * 255).toInt();
     String colorHex = '#${argb.toRadixString(16).padLeft(8, '0').substring(2)}';
-    
+
     // 计算内部矩形的宽度
     // 电池外框从 x=5 到 x=19，宽度为 14
     // 考虑到 stroke-width=1.5，实际内部可用区域从 x=6.5 到 x=17.5，宽度为 11
@@ -258,7 +269,8 @@ class _TopToolbarState extends State<TopToolbar> {
     if (fillWidth > maxFillWidth) fillWidth = maxFillWidth;
 
     // SVG 字符串
-    String svgString = '''
+    String svgString =
+        '''
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <!-- 电池外框 -->
         <path d="M17 6H7C5.89543 6 5 6.89543 5 8V16C5 17.1046 5.89543 18 7 18H17C18.1046 18 19 17.1046 19 16V8C19 6.89543 18.1046 6 17 6Z" stroke="$colorHex" stroke-width="1.5"/>
@@ -268,10 +280,9 @@ class _TopToolbarState extends State<TopToolbar> {
         <!-- 电量填充 -->
         <rect x="6.5" y="7.5" width="$fillWidth" height="9" rx="0.5" fill="$colorHex"/>
         
-        ${isCharging ? 
-          // 充电闪电图标 (居中覆盖)
-          '''<path d="M11 15L13.5 10H10.5L13 7" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="white"/>''' 
-          : ''}
+        ${isCharging ?
+              // 充电闪电图标 (居中覆盖)
+              '''<path d="M11 15L13.5 10H10.5L13 7" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="white"/>''' : ''}
       </svg>
     ''';
 
@@ -324,11 +335,7 @@ class _TopToolbarState extends State<TopToolbar> {
       </svg>
     ''';
 
-    return SvgPicture.string(
-      svgString,
-      width: 20,
-      height: 16,
-    );
+    return SvgPicture.string(svgString, width: 20, height: 16);
   }
 
   /// 移动网络图标（统一样式）
@@ -350,11 +357,7 @@ class _TopToolbarState extends State<TopToolbar> {
       </svg>
     ''';
 
-    return SvgPicture.string(
-      svgString,
-      width: 20,
-      height: 16,
-    );
+    return SvgPicture.string(svgString, width: 20, height: 16);
   }
 
   /// 宽带（以太网）图标
@@ -374,11 +377,7 @@ class _TopToolbarState extends State<TopToolbar> {
       </svg>
     ''';
 
-    return SvgPicture.string(
-      svgString,
-      width: 20,
-      height: 16,
-    );
+    return SvgPicture.string(svgString, width: 20, height: 16);
   }
 
   /// 无网络图标
@@ -395,13 +394,9 @@ class _TopToolbarState extends State<TopToolbar> {
       </svg>
     ''';
 
-    return SvgPicture.string(
-      svgString,
-      width: 20,
-      height: 16,
-    );
+    return SvgPicture.string(svgString, width: 20, height: 16);
   }
-  
+
   // --- SVG 构建逻辑结束 ---
 
   @override
@@ -414,8 +409,10 @@ class _TopToolbarState extends State<TopToolbar> {
       child: FadeTransition(
         opacity: widget.myVideoStateController.animationController,
         child: MouseRegion(
-          onEnter: (_) => widget.myVideoStateController.setToolbarHovering(true),
-          onExit: (_) => widget.myVideoStateController.setToolbarHovering(false),
+          onEnter: (_) =>
+              widget.myVideoStateController.setToolbarHovering(true),
+          onExit: (_) =>
+              widget.myVideoStateController.setToolbarHovering(false),
           child: Container(
             height: 60 + statusBarHeight,
             padding: EdgeInsets.only(top: statusBarHeight),
@@ -452,7 +449,10 @@ class _TopToolbarState extends State<TopToolbar> {
                         },
                       ),
                       if (!widget.currentScreenIsFullScreen &&
-                          !widget.myVideoStateController.isDesktopAppFullScreen.value)
+                          !widget
+                              .myVideoStateController
+                              .isDesktopAppFullScreen
+                              .value)
                         IconButton(
                           tooltip: t.videoDetail.home,
                           icon: _homeIcon,
@@ -474,7 +474,11 @@ class _TopToolbarState extends State<TopToolbar> {
                       Expanded(
                         child: Obx(
                           () => Text(
-                            widget.myVideoStateController.videoInfo.value?.title ??
+                            widget
+                                    .myVideoStateController
+                                    .videoInfo
+                                    .value
+                                    ?.title ??
                                 t.videoDetail.videoPlayer,
                             style: const TextStyle(
                               color: Colors.white,
@@ -488,14 +492,18 @@ class _TopToolbarState extends State<TopToolbar> {
                     ],
                   ),
                 ),
-                
+
                 // 中间:[状态信息]全屏模式下显示时间、电量、网络状态
                 // 但在移动端竖屏全屏时不显示
                 if (widget.currentScreenIsFullScreen &&
                     !((GetPlatform.isAndroid || GetPlatform.isIOS) &&
-                        MediaQuery.of(context).orientation == Orientation.portrait))
+                        MediaQuery.of(context).orientation ==
+                            Orientation.portrait))
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.black12, // 稍微加深一点背景，使其更易读
                       borderRadius: BorderRadius.circular(20),
@@ -523,7 +531,11 @@ class _TopToolbarState extends State<TopToolbar> {
                         // 分隔符
                         if (_batterySupported) ...[
                           const SizedBox(width: 8),
-                          Container(width: 1, height: 12, color: Colors.white24),
+                          Container(
+                            width: 1,
+                            height: 12,
+                            color: Colors.white24,
+                          ),
                           const SizedBox(width: 8),
                         ],
                         // 电量显示 (SVG 动态构建)
@@ -537,11 +549,12 @@ class _TopToolbarState extends State<TopToolbar> {
                                 '$_batteryLevel%',
                                 style: TextStyle(
                                   // 电量文字颜色也跟随状态变色，或者保持白色
-                                  color: (_batteryState == BatteryState.charging)
+                                  color:
+                                      (_batteryState == BatteryState.charging)
                                       ? const Color(0xFF4CAF50)
                                       : (_batteryLevel <= 20
-                                          ? const Color(0xFFF44336)
-                                          : Colors.white),
+                                            ? const Color(0xFFF44336)
+                                            : Colors.white),
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -552,12 +565,15 @@ class _TopToolbarState extends State<TopToolbar> {
                         // 电量与网络之间的分隔
                         if (_shouldShowNetworkStatus()) ...[
                           const SizedBox(width: 8),
-                          Container(width: 1, height: 12, color: Colors.white24),
+                          Container(
+                            width: 1,
+                            height: 12,
+                            color: Colors.white24,
+                          ),
                           const SizedBox(width: 8),
                         ],
                         // 网络状态
-                        if (_shouldShowNetworkStatus())
-                          _buildNetworkStatus(),
+                        if (_shouldShowNetworkStatus()) _buildNetworkStatus(),
                       ],
                     ),
                   ),
@@ -565,7 +581,9 @@ class _TopToolbarState extends State<TopToolbar> {
                 // 右侧部分保持不变
                 Row(
                   children: [
-                    if (!GetPlatform.isWeb && !GetPlatform.isLinux)
+                    if (!GetPlatform.isWeb &&
+                        !GetPlatform.isLinux &&
+                        !widget.myVideoStateController.isLocalVideoMode)
                       IconButton(
                         tooltip: t.videoDetail.cast.dlnaCast,
                         icon: const Icon(Icons.cast, color: Colors.white),
@@ -588,10 +606,12 @@ class _TopToolbarState extends State<TopToolbar> {
                               if (widget.currentScreenIsFullScreen) {
                                 AppService.tryPop();
                               }
-                              if (widget.myVideoStateController
+                              if (widget
+                                  .myVideoStateController
                                   .isDesktopAppFullScreen
                                   .value) {
-                                widget.myVideoStateController
+                                widget
+                                        .myVideoStateController
                                         .isDesktopAppFullScreen
                                         .value =
                                     false;
@@ -625,7 +645,7 @@ class _TopToolbarState extends State<TopToolbar> {
 
   // ... 后面保持原本的 showSettingsModal 和 showInfoModal 代码不变 ...
   // 为了简洁，这里省略了未修改的 modal 代码，实际使用时请保留原有的代码
-  
+
   void showSettingsModal(BuildContext context) {
     showModalBottomSheet(
       context: context,

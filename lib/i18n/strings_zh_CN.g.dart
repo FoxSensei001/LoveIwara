@@ -1106,6 +1106,7 @@ class _TranslationsDownloadZhCn implements TranslationsDownloadEn {
 	@override String get viewGalleryDetail => '查看图库详情';
 	@override String get moreOptions => '更多操作';
 	@override String get openFile => '打开文件';
+	@override String get playLocally => '本地播放';
 	@override String get pause => '暂停';
 	@override String get resume => '继续';
 	@override String get copyDownloadUrl => '复制下载链接';
@@ -1349,6 +1350,14 @@ class _TranslationsMediaPlayerZhCn implements TranslationsMediaPlayerEn {
 	@override String get appMayLackMediaPermission => '应用可能缺少必要的媒体播放权限';
 	@override String get tryOtherVideoPlayer => '请尝试使用其他视频播放器';
 	@override String get video => '视频';
+	@override String get local => '本地';
+	@override String get unknown => '未知';
+	@override String get localVideoPathEmpty => '本地视频路径为空';
+	@override String localVideoFileNotExists({required Object path}) => '本地视频文件不存在: ${path}';
+	@override String unableToPlayLocalVideo({required Object error}) => '无法播放本地视频: ${error}';
+	@override String get dropVideoFileHere => '拖放视频文件到此处播放';
+	@override String get supportedFormats => '支持格式: MP4, MKV, AVI, MOV, WEBM 等';
+	@override String get noSupportedVideoFile => '未找到支持的视频文件';
 	@override String get imageLoadFailed => '图片加载失败';
 	@override String get unsupportedImageFormat => '不支持的图片格式';
 	@override String get tryOtherViewer => '请尝试使用其他查看器';
@@ -2260,6 +2269,8 @@ class _TranslationsDownloadErrorsZhCn implements TranslationsDownloadErrorsEn {
 	@override String get copyFailed => '复制失败';
 	@override String get openFileFailed => '打开文件失败';
 	@override String openFileFailedWithMessage({required Object message}) => '打开文件失败: ${message}';
+	@override String get playLocallyFailed => '本地播放失败';
+	@override String playLocallyFailedWithMessage({required Object message}) => '本地播放失败: ${message}';
 	@override String get noDownloadSource => '没有下载源';
 	@override String get noDownloadSourceNowPleaseWaitInfoLoaded => '暂无下载源，请等待信息加载完成后重试';
 	@override String get noActiveDownloadTask => '暂无正在下载的任务';
@@ -3629,6 +3640,8 @@ extension on TranslationsZhCn {
 			'download.errors.copyFailed' => '复制失败',
 			'download.errors.openFileFailed' => '打开文件失败',
 			'download.errors.openFileFailedWithMessage' => ({required Object message}) => '打开文件失败: ${message}',
+			'download.errors.playLocallyFailed' => '本地播放失败',
+			'download.errors.playLocallyFailedWithMessage' => ({required Object message}) => '本地播放失败: ${message}',
 			'download.errors.noDownloadSource' => '没有下载源',
 			'download.errors.noDownloadSourceNowPleaseWaitInfoLoaded' => '暂无下载源，请等待信息加载完成后重试',
 			'download.errors.noActiveDownloadTask' => '暂无正在下载的任务',
@@ -3674,6 +3687,7 @@ extension on TranslationsZhCn {
 			'download.viewGalleryDetail' => '查看图库详情',
 			'download.moreOptions' => '更多操作',
 			'download.openFile' => '打开文件',
+			'download.playLocally' => '本地播放',
 			'download.pause' => '暂停',
 			'download.resume' => '继续',
 			'download.copyDownloadUrl' => '复制下载链接',
@@ -3894,6 +3908,14 @@ extension on TranslationsZhCn {
 			'mediaPlayer.appMayLackMediaPermission' => '应用可能缺少必要的媒体播放权限',
 			'mediaPlayer.tryOtherVideoPlayer' => '请尝试使用其他视频播放器',
 			'mediaPlayer.video' => '视频',
+			'mediaPlayer.local' => '本地',
+			'mediaPlayer.unknown' => '未知',
+			'mediaPlayer.localVideoPathEmpty' => '本地视频路径为空',
+			'mediaPlayer.localVideoFileNotExists' => ({required Object path}) => '本地视频文件不存在: ${path}',
+			'mediaPlayer.unableToPlayLocalVideo' => ({required Object error}) => '无法播放本地视频: ${error}',
+			'mediaPlayer.dropVideoFileHere' => '拖放视频文件到此处播放',
+			'mediaPlayer.supportedFormats' => '支持格式: MP4, MKV, AVI, MOV, WEBM 等',
+			'mediaPlayer.noSupportedVideoFile' => '未找到支持的视频文件',
 			'mediaPlayer.imageLoadFailed' => '图片加载失败',
 			'mediaPlayer.unsupportedImageFormat' => '不支持的图片格式',
 			'mediaPlayer.tryOtherViewer' => '请尝试使用其他查看器',
@@ -4046,6 +4068,8 @@ extension on TranslationsZhCn {
 			'layoutSettings.autoModeDesc' => '根据屏幕宽度自动调整',
 			'layoutSettings.manualMode' => '手动模式',
 			'layoutSettings.manualModeDesc' => '使用固定列数',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.manualSettings' => '手动设置',
 			'layoutSettings.fixedColumns' => '固定列数',
 			'layoutSettings.columns' => '列',
@@ -4057,8 +4081,6 @@ extension on TranslationsZhCn {
 			'layoutSettings.screenWidth' => '屏幕宽度',
 			'layoutSettings.addBreakpoint' => '添加断点',
 			'layoutSettings.editBreakpoint' => '编辑断点',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.deleteBreakpoint' => '删除断点',
 			'layoutSettings.screenWidthLabel' => '屏幕宽度',
 			'layoutSettings.screenWidthHint' => '600',

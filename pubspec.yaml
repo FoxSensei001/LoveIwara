@@ -87,6 +87,7 @@ dependencies:
   dio: ^5.8.0+1
 #  native_dio_adapter: ^1.4.0
   html: ^0.15.6
+  desktop_drop: ^0.7.0
 
 dev_dependencies:
   flutter_test:

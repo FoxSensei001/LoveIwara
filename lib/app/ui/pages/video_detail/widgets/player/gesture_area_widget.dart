@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -74,6 +73,9 @@ class GestureAreaState extends State<GestureArea>
   double? _longPressStartX; // 长按开始时的X坐标
   double _baseLongPressSpeed = 1.0; // 长按开始时的配置速度
 
+  // 垂直拖动起始位置(用于边缘检测)
+  double? _verticalDragStartY; // 垂直拖动开始时的Y坐标
+
   @override
   void initState() {
     super.initState();
@@ -82,7 +84,7 @@ class GestureAreaState extends State<GestureArea>
     if (!GetPlatform.isLinux) {
       _screenBrightness = ScreenBrightness();
     }
-    
+
     // 预计算垂直拖动是否可处理
     _isVerticalDragProcessable = _checkLeftAndCenterVerticalDragProcessable();
   }
@@ -107,7 +109,8 @@ class GestureAreaState extends State<GestureArea>
         break;
       case GestureRegion.right:
         // 检查右侧双击快进配置
-        if (_configService[ConfigKey.ENABLE_RIGHT_DOUBLE_TAP_FAST_FORWARD] == true) {
+        if (_configService[ConfigKey.ENABLE_RIGHT_DOUBLE_TAP_FAST_FORWARD] ==
+            true) {
           // 触发右侧波纹动画
           widget.onDoubleTapRight?.call();
           _showInfoMessage();
@@ -134,10 +137,14 @@ class GestureAreaState extends State<GestureArea>
     String message;
     if (widget.region == GestureRegion.left) {
       // message = '后退${_configService[ConfigKey.REWIND_SECONDS_KEY]}秒';
-      message = slang.t.videoDetail.rewindSeconds(num:_configService[ConfigKey.REWIND_SECONDS_KEY]);
+      message = slang.t.videoDetail.rewindSeconds(
+        num: _configService[ConfigKey.REWIND_SECONDS_KEY],
+      );
     } else {
       // message = '快进${_configService[ConfigKey.FAST_FORWARD_SECONDS_KEY]}秒';
-      message = slang.t.videoDetail.fastForwardSeconds(num:_configService[ConfigKey.FAST_FORWARD_SECONDS_KEY]);
+      message = slang.t.videoDetail.fastForwardSeconds(
+        num: _configService[ConfigKey.FAST_FORWARD_SECONDS_KEY],
+      );
     }
 
     setState(() {
@@ -163,11 +170,12 @@ class GestureAreaState extends State<GestureArea>
         widget.myVideoStateController.videoBuffering.value) {
       return;
     }
-    
+
     // 记录长按开始时的X坐标和配置速度
     _longPressStartX = details.localPosition.dx;
-    _baseLongPressSpeed = _configService[ConfigKey.LONG_PRESS_PLAYBACK_SPEED_KEY] as double;
-    
+    _baseLongPressSpeed =
+        _configService[ConfigKey.LONG_PRESS_PLAYBACK_SPEED_KEY] as double;
+
     widget.setLongPressing?.call(LongPressType.normal, true);
   }
 
@@ -176,17 +184,17 @@ class GestureAreaState extends State<GestureArea>
     if (_configService[ConfigKey.ENABLE_LONG_PRESS_FAST_FORWARD] != true) {
       return;
     }
-    
+
     // 如果没有记录开始位置或者不在长按状态，则不处理
-    if (_longPressStartX == null || 
+    if (_longPressStartX == null ||
         !widget.myVideoStateController.isLongPressing.value) {
       return;
     }
-    
+
     // 计算横向拖动距离（像素）
     final double dragDistance = details.localPosition.dx - _longPressStartX!;
     final double absDragDistance = dragDistance.abs();
-    
+
     // 根据拖动距离计算速度变化的增量（0.1 到 0.5）
     // 距离越远，每单位距离的变化幅度越大
     // 阈值设定（像素）：
@@ -205,28 +213,28 @@ class GestureAreaState extends State<GestureArea>
     } else {
       speedIncrement = 0.4;
     }
-    
+
     // 根据累计拖动距离计算总的速度变化
     // 每 30 像素算一个速度变化单位
     const double pixelsPerSpeedUnit = 30.0;
     final int speedUnits = (absDragDistance / pixelsPerSpeedUnit).floor();
-    
+
     // 计算总速度变化量
     double totalSpeedDelta = speedUnits * speedIncrement;
-    
+
     // 根据方向确定是增加还是减少
     if (dragDistance < 0) {
       totalSpeedDelta = -totalSpeedDelta;
     }
-    
+
     // 计算新速度（向右增加，向左减少）
     double newSpeed = _baseLongPressSpeed + totalSpeedDelta;
-    
+
     // 限制速度范围 0.1 - 4.0
     newSpeed = newSpeed.clamp(0.1, 4.0);
     // 保留一位小数
     newSpeed = (newSpeed * 10).roundToDouble() / 10;
-    
+
     // 使用节流控制更新频率
     EasyThrottle.throttle(
       '${widget.myVideoStateController.randomId}_long_press_speed_update',
@@ -248,9 +256,9 @@ class GestureAreaState extends State<GestureArea>
 
     // 重置长按相关状态
     _longPressStartX = null;
-    
+
     widget.setLongPressing?.call(LongPressType.normal, false);
-    
+
     // 使用防抖机制恢复正常播放速度，避免频繁调用
     Timer(const Duration(milliseconds: 50), () {
       if (mounted) {
@@ -271,12 +279,14 @@ class GestureAreaState extends State<GestureArea>
       if (GetPlatform.isDesktop) {
         return false;
       }
-      return _configService[ConfigKey.ENABLE_LEFT_VERTICAL_SWIPE_BRIGHTNESS] == true;
+      return _configService[ConfigKey.ENABLE_LEFT_VERTICAL_SWIPE_BRIGHTNESS] ==
+          true;
     }
 
     // 检查右侧音量调节配置
     if (widget.region == GestureRegion.right) {
-      return _configService[ConfigKey.ENABLE_RIGHT_VERTICAL_SWIPE_VOLUME] == true;
+      return _configService[ConfigKey.ENABLE_RIGHT_VERTICAL_SWIPE_VOLUME] ==
+          true;
     }
 
     return false;
@@ -291,20 +301,29 @@ class GestureAreaState extends State<GestureArea>
     if (widget.region == GestureRegion.left) {
       type = LongPressType.brightness;
       // 在亮度调节结束时保存设置
-      _configService.setSetting(ConfigKey.BRIGHTNESS_KEY, _configService[ConfigKey.BRIGHTNESS_KEY], save: true);
+      _configService.setSetting(
+        ConfigKey.BRIGHTNESS_KEY,
+        _configService[ConfigKey.BRIGHTNESS_KEY],
+        save: true,
+      );
       // 保存亮度设置
       CommonConstants.isSetBrightness = true;
     } else if (widget.region == GestureRegion.right) {
       type = LongPressType.volume;
       // 在音量调节结束时保存设置
-      _configService.setSetting(ConfigKey.VOLUME_KEY, _configService[ConfigKey.VOLUME_KEY], save: true);
+      _configService.setSetting(
+        ConfigKey.VOLUME_KEY,
+        _configService[ConfigKey.VOLUME_KEY],
+        save: true,
+      );
     }
 
     widget.setLongPressing?.call(type, false);
 
     // 结束时让信息提示淡出
     _infoMessageFadeController.reverse().whenComplete(() {
-      if (mounted) {  // 添加mounted检查
+      if (mounted) {
+        // 添加mounted检查
         setState(() {
           _infoMessage = null;
         });
@@ -317,6 +336,23 @@ class GestureAreaState extends State<GestureArea>
       return;
     }
 
+    // 检查是否从边缘区域开始滑动
+    if (_verticalDragStartY != null) {
+      const edgeThreshold = CommonConstants.videoPlayerEdgeGestureThreshold;
+      final screenHeight = widget.screenSize.height;
+
+      // 从顶部边缘向下滑动,忽略
+      if (_verticalDragStartY! < edgeThreshold && details.primaryDelta! > 0) {
+        return;
+      }
+
+      // 从底部边缘向上滑动,忽略
+      if (_verticalDragStartY! > screenHeight - edgeThreshold &&
+          details.primaryDelta! < 0) {
+        return;
+      }
+    }
+
     // 缩放因子，调低因子以加快调整速度：音量区域设置为0.3，亮度区域设置为0.2
     var scalingFactor = widget.region == GestureRegion.left ? 0.3 : 0.2;
     final double max = widget.screenSize.height * scalingFactor;
@@ -326,27 +362,36 @@ class GestureAreaState extends State<GestureArea>
         !GetPlatform.isWindows &&
         !GetPlatform.isMacOS) {
       // 左侧只在移动设备上调整亮度
-      double rx = _configService[ConfigKey.BRIGHTNESS_KEY] -
+      double rx =
+          _configService[ConfigKey.BRIGHTNESS_KEY] -
           details.primaryDelta! / max;
       rx = rx.clamp(0.0, 1.0);
 
       // 使用节流控制亮度调节
-      EasyThrottle.throttle('${widget.myVideoStateController.randomId}_setBrightness', const Duration(milliseconds: 20), () {
-        _configService.setSetting(ConfigKey.BRIGHTNESS_KEY, rx, save: false);
-        _screenBrightness?.setApplicationScreenBrightness(rx);
-      });
+      EasyThrottle.throttle(
+        '${widget.myVideoStateController.randomId}_setBrightness',
+        const Duration(milliseconds: 20),
+        () {
+          _configService.setSetting(ConfigKey.BRIGHTNESS_KEY, rx, save: false);
+          _screenBrightness?.setApplicationScreenBrightness(rx);
+        },
+      );
 
       widget.setLongPressing?.call(LongPressType.brightness, true);
     } else if (widget.region == GestureRegion.right) {
       // 右侧调整音量
-      double rx = _configService[ConfigKey.VOLUME_KEY] -
-          details.primaryDelta! / max;
+      double rx =
+          _configService[ConfigKey.VOLUME_KEY] - details.primaryDelta! / max;
       rx = rx.clamp(0.0, 1.0);
 
       // 使用节流控制音量调节
-      EasyThrottle.throttle('${widget.myVideoStateController.randomId}_setVolume', const Duration(milliseconds: 20), () {
-        widget.onVolumeChange?.call(rx);
-      });
+      EasyThrottle.throttle(
+        '${widget.myVideoStateController.randomId}_setVolume',
+        const Duration(milliseconds: 20),
+        () {
+          widget.onVolumeChange?.call(rx);
+        },
+      );
 
       widget.setLongPressing?.call(LongPressType.volume, true);
     }
@@ -365,7 +410,9 @@ class GestureAreaState extends State<GestureArea>
               child: Center(
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 8),
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.black54,
                     borderRadius: BorderRadius.circular(20),
@@ -376,7 +423,9 @@ class GestureAreaState extends State<GestureArea>
                       Text(
                         _infoMessage!,
                         style: const TextStyle(
-                            color: Colors.white, fontSize: 16),
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
                       ),
                     ],
                   ),
@@ -392,26 +441,33 @@ class GestureAreaState extends State<GestureArea>
       onLongPressStart: _onLongPressStart,
       onLongPressMoveUpdate: _onLongPressMoveUpdate,
       onLongPressEnd: _onLongPressEnd,
-      onVerticalDragStart: (_) {
+      onVerticalDragStart: (details) {
+        // 记录垂直拖动开始时的Y坐标
+        _verticalDragStartY = details.localPosition.dy;
         widget.myVideoStateController.setInteracting(true);
       },
       onVerticalDragEnd: (details) {
+        // 重置垂直拖动起始位置
+        _verticalDragStartY = null;
         widget.myVideoStateController.setInteracting(false);
         _onVerticalDragEnd(details);
       },
-      onVerticalDragUpdate: (widget.region == GestureRegion.left ||
+      onVerticalDragUpdate:
+          (widget.region == GestureRegion.left ||
               widget.region == GestureRegion.right)
           ? _onVerticalDragUpdate
           : null,
       // 所有区域都添加横向拖动手势（需要检查配置）
-      onHorizontalDragStart: _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
+      onHorizontalDragStart:
+          _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
           ? (details) {
               widget.myVideoStateController.setInteracting(true);
               widget.myVideoStateController.isHorizontalDragging.value = true;
               widget.onHorizontalDragStart?.call(details);
             }
           : null,
-      onHorizontalDragUpdate: _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
+      onHorizontalDragUpdate:
+          _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
           ? (details) {
               // 使用节流控制横向滑动更新频率，避免频繁更新进度条
               EasyThrottle.throttle(
@@ -423,7 +479,8 @@ class GestureAreaState extends State<GestureArea>
               );
             }
           : null,
-      onHorizontalDragEnd: _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
+      onHorizontalDragEnd:
+          _configService[ConfigKey.ENABLE_HORIZONTAL_DRAG_SEEK] == true
           ? (details) {
               widget.myVideoStateController.setInteracting(false);
               // 触发震动
@@ -437,9 +494,7 @@ class GestureAreaState extends State<GestureArea>
         /// 离谱奥
         color: Colors.transparent,
         child: Stack(
-          children: [
-            if (infoMessageWidget != null) infoMessageWidget,
-          ],
+          children: [if (infoMessageWidget != null) infoMessageWidget],
         ),
       ),
     );

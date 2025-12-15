@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:uuid/uuid.dart';
 import 'package:i_iwara/app/models/message_and_conversation.model.dart';
 import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/ui/pages/conversation/conversation_page.dart';
@@ -41,6 +42,7 @@ import '../ui/pages/search/search_result.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
 import '../ui/pages/post_detail/post_detail_page.dart';
+import 'package:i_iwara/app/models/download/download_task.model.dart';
 
 /// 定义转场动画类型
 enum TransitionType {
@@ -535,6 +537,39 @@ class NaviService {
     _navigateToPage(
       routeName: Routes.NAVIGATION_ORDER_SETTINGS_PAGE,
       page: const NavigationOrderSettingsPage(),
+    );
+  }
+
+  /// 跳转到本地视频播放页面（从下载任务进入）
+  static void navigateToLocalVideoPlayerPage({
+    required String localPath,
+    DownloadTask? task,
+    List<DownloadTask>? allQualityTasks,
+  }) {
+    // 生成随机 videoId 用于本地视频
+    final uuid = Uuid();
+    final randomVideoId = 'local_${uuid.v4()}';
+
+    _navigateToPage(
+      routeName: Routes.VIDEO_DETAIL(randomVideoId),
+      page: MyVideoDetailPage(
+        videoId: randomVideoId,
+        localPath: localPath,
+        localTask: task,
+        localAllQualityTasks: allQualityTasks,
+      ),
+    );
+  }
+
+  /// 跳转到本地视频播放页面（从外部文件路径进入）
+  static void navigateToLocalVideoPlayerPageFromPath(String filePath) {
+    // 生成随机 videoId 用于本地视频
+    final uuid = Uuid();
+    final randomVideoId = 'local_${uuid.v4()}';
+
+    _navigateToPage(
+      routeName: Routes.VIDEO_DETAIL(randomVideoId),
+      page: MyVideoDetailPage(videoId: randomVideoId, localPath: filePath),
     );
   }
 }

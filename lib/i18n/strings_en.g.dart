@@ -2708,6 +2708,9 @@ class TranslationsDownloadEn {
 	/// en: 'Open File'
 	String get openFile => 'Open File';
 
+	/// en: 'Play Locally'
+	String get playLocally => 'Play Locally';
+
 	/// en: 'Pause'
 	String get pause => 'Pause';
 
@@ -3626,6 +3629,30 @@ class TranslationsMediaPlayerEn {
 
 	/// en: 'VIDEO'
 	String get video => 'VIDEO';
+
+	/// en: 'Local'
+	String get local => 'Local';
+
+	/// en: 'Unknown'
+	String get unknown => 'Unknown';
+
+	/// en: 'Local video path is empty'
+	String get localVideoPathEmpty => 'Local video path is empty';
+
+	/// en: 'Local video file does not exist: ${path}'
+	String localVideoFileNotExists({required Object path}) => 'Local video file does not exist: ${path}';
+
+	/// en: 'Unable to play local video: ${error}'
+	String unableToPlayLocalVideo({required Object error}) => 'Unable to play local video: ${error}';
+
+	/// en: 'Drop video file here to play'
+	String get dropVideoFileHere => 'Drop video file here to play';
+
+	/// en: 'Supported formats: MP4, MKV, AVI, MOV, WEBM, etc.'
+	String get supportedFormats => 'Supported formats: MP4, MKV, AVI, MOV, WEBM, etc.';
+
+	/// en: 'No supported video file found'
+	String get noSupportedVideoFile => 'No supported video file found';
 
 	/// en: 'Video link open failed, retrying'
 	String get retryingOpenVideoLink => 'Video link open failed, retrying';
@@ -5519,6 +5546,12 @@ class TranslationsDownloadErrorsEn {
 	/// en: 'Failed to open file: ${message}'
 	String openFileFailedWithMessage({required Object message}) => 'Failed to open file: ${message}';
 
+	/// en: 'Failed to play locally'
+	String get playLocallyFailed => 'Failed to play locally';
+
+	/// en: 'Failed to play locally: ${message}'
+	String playLocallyFailedWithMessage({required Object message}) => 'Failed to play locally: ${message}';
+
 	/// en: 'No download source'
 	String get noDownloadSource => 'No download source';
 
@@ -7124,6 +7157,8 @@ extension on Translations {
 			'download.errors.copyFailed' => 'Copy failed',
 			'download.errors.openFileFailed' => 'Failed to open file',
 			'download.errors.openFileFailedWithMessage' => ({required Object message}) => 'Failed to open file: ${message}',
+			'download.errors.playLocallyFailed' => 'Failed to play locally',
+			'download.errors.playLocallyFailedWithMessage' => ({required Object message}) => 'Failed to play locally: ${message}',
 			'download.errors.noDownloadSource' => 'No download source',
 			'download.errors.noDownloadSourceNowPleaseWaitInfoLoaded' => 'No download source, please wait for information loading to be completed and try again',
 			'download.errors.noActiveDownloadTask' => 'No active download task',
@@ -7168,6 +7203,7 @@ extension on Translations {
 			'download.viewGalleryDetail' => 'View Gallery Detail',
 			'download.moreOptions' => 'More Options',
 			'download.openFile' => 'Open File',
+			'download.playLocally' => 'Play Locally',
 			'download.pause' => 'Pause',
 			'download.resume' => 'Resume',
 			'download.copyDownloadUrl' => 'Copy Download URL',
@@ -7461,6 +7497,14 @@ extension on Translations {
 			'mediaPlayer.appMayLackMediaPermission' => 'The app may lack necessary media playback permissions',
 			'mediaPlayer.tryOtherVideoPlayer' => 'Please try using other video players',
 			'mediaPlayer.video' => 'VIDEO',
+			'mediaPlayer.local' => 'Local',
+			'mediaPlayer.unknown' => 'Unknown',
+			'mediaPlayer.localVideoPathEmpty' => 'Local video path is empty',
+			'mediaPlayer.localVideoFileNotExists' => ({required Object path}) => 'Local video file does not exist: ${path}',
+			'mediaPlayer.unableToPlayLocalVideo' => ({required Object error}) => 'Unable to play local video: ${error}',
+			'mediaPlayer.dropVideoFileHere' => 'Drop video file here to play',
+			'mediaPlayer.supportedFormats' => 'Supported formats: MP4, MKV, AVI, MOV, WEBM, etc.',
+			'mediaPlayer.noSupportedVideoFile' => 'No supported video file found',
 			'mediaPlayer.retryingOpenVideoLink' => 'Video link open failed, retrying',
 			'mediaPlayer.decoderOpenFailedWithSuggestion' => ({required Object event}) => 'Unable to load decoder: ${event}. Try switching to software decoding in player settings and re-enter the page',
 			'mediaPlayer.videoLoadErrorWithDetail' => ({required Object event}) => 'Video load error: ${event}',
@@ -7546,6 +7590,8 @@ extension on Translations {
 			'emoji.large' => 'Large',
 			'emoji.extraLarge' => 'Extra Large',
 			'emoji.copyEmojiLinkSuccess' => 'Emoji link copied',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.preview' => 'Emoji Preview',
 			'emoji.library' => 'Emoji Library',
 			'emoji.noEmojis' => 'No emojis',
@@ -7557,8 +7603,6 @@ extension on Translations {
 			'emoji.delete' => 'Delete',
 			'emoji.close' => 'Close',
 			'emoji.deleteImage' => 'Delete Image',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.confirmDeleteImage' => 'Are you sure you want to delete this image?',
 			'emoji.cancel' => 'Cancel',
 			'emoji.batchDelete' => 'Batch Delete',

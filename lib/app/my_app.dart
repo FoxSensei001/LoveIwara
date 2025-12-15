@@ -26,6 +26,7 @@ import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:desktop_drop/desktop_drop.dart';
 
 import '../utils/proxy/proxy_util.dart';
 import 'models/dto/escape_intent.dart';
@@ -302,6 +303,14 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
   late ConfigService _configService;
   DateTime? _lastPausedTime;
 
+  // 文件拖放状态
+  bool _isDragging = false;
+
+  // 支持的视频文件扩展名
+  static const List<String> _videoExtensions = [
+    'mp4', 'mkv', 'avi', 'mov', 'wmv', 'flv', 'webm', 'm4v', '3gp', 'ts',
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -372,15 +381,126 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    // 只在桌面平台启用文件拖放功能
+    final bool isDesktop = GetPlatform.isDesktop;
+
+    Widget content = Stack(
       children: [
         Scaffold(
           body: _shortCutsWrapper(
               context, _windowTitleBarFrame(context, widget.child)),
         ),
         if (_showPrivacyOverlay) const PrivacyOverlay(),
+        // 拖拽悬浮提示
+        if (_isDragging && isDesktop)
+          _buildDragOverlay(context),
       ],
     );
+
+    // 桌面平台添加文件拖放支持
+    if (isDesktop) {
+      content = DropTarget(
+        onDragEntered: (details) {
+          setState(() => _isDragging = true);
+        },
+        onDragExited: (details) {
+          setState(() => _isDragging = false);
+        },
+        onDragDone: (details) {
+          setState(() => _isDragging = false);
+          _handleDroppedFiles(details.files);
+        },
+        child: content,
+      );
+    }
+
+    return content;
+  }
+
+  /// 构建拖拽悬浮提示
+  Widget _buildDragOverlay(BuildContext context) {
+    return Positioned.fill(
+      child: IgnorePointer(
+        child: Container(
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+          child: Center(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 32),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 20,
+                    spreadRadius: 5,
+                  ),
+                ],
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.primary,
+                  width: 2,
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.video_file,
+                    size: 64,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    t.mediaPlayer.dropVideoFileHere,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    t.mediaPlayer.supportedFormats,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 处理拖放的文件
+  void _handleDroppedFiles(List<DropItem> files) {
+    LogUtils.i('收到拖放文件: ${files.length} 个', 'FileDrop');
+
+    for (final file in files) {
+      final String path = file.path;
+      LogUtils.i('拖放文件路径: $path', 'FileDrop');
+
+      // 检查文件扩展名
+      final ext = path.toLowerCase().split('.').lastOrNull ?? '';
+      if (_videoExtensions.contains(ext)) {
+        LogUtils.i('识别为视频文件，准备播放: $path', 'FileDrop');
+        NaviService.navigateToLocalVideoPlayerPageFromPath(path);
+        return; // 只处理第一个视频文件
+      }
+    }
+
+    // 如果没有找到支持的视频文件，显示提示
+    if (Get.context != null) {
+      ScaffoldMessenger.of(Get.context!).showSnackBar(
+        SnackBar(
+          content: Text(t.mediaPlayer.noSupportedVideoFile),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
   }
 
   Widget _shortCutsWrapper(BuildContext context, Widget child) {

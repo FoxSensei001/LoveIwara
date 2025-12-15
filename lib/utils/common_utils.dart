@@ -533,6 +533,23 @@ class CommonUtils {
     return '${start.year}-${_twoDigits(start.month)}-${_twoDigits(start.day)}';
   }
 
+  /// 获取当前平台名称
+  static String getPlatformName() {
+    if (Platform.isMacOS) {
+      return 'macOS';
+    } else if (Platform.isIOS) {
+      return 'iOS';
+    } else if (Platform.isAndroid) {
+      return 'Android';
+    } else if (Platform.isWindows) {
+      return 'Windows';
+    } else if (Platform.isLinux) {
+      return 'Linux';
+    } else {
+      return 'Unknown';
+    }
+  }
+
   // 根据屏幕宽度计算卡片宽度
   static double calculateCardWidth(double screenWidth) {
     if (screenWidth <= 600) {

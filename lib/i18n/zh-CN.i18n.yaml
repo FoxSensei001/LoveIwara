@@ -1200,6 +1200,8 @@ download:
     copyFailed: '复制失败'
     openFileFailed: '打开文件失败'
     openFileFailedWithMessage: '打开文件失败: ${message}'
+    playLocallyFailed: '本地播放失败'
+    playLocallyFailedWithMessage: '本地播放失败: ${message}'
     noDownloadSource: 没有下载源
     noDownloadSourceNowPleaseWaitInfoLoaded: 暂无下载源，请等待信息加载完成后重试
     noActiveDownloadTask: 暂无正在下载的任务
@@ -1245,6 +1247,7 @@ download:
   viewGalleryDetail: 查看图库详情
   moreOptions: 更多操作
   openFile: 打开文件
+  playLocally: 本地播放
   pause: 暂停
   resume: 继续
   copyDownloadUrl: 复制下载链接
@@ -1478,7 +1481,17 @@ mediaPlayer:
   appMayLackMediaPermission: "应用可能缺少必要的媒体播放权限"
   tryOtherVideoPlayer: "请尝试使用其他视频播放器"
   video: "视频"
-  
+  # 本地视频播放
+  local: "本地"
+  unknown: "未知"
+  localVideoPathEmpty: "本地视频路径为空"
+  localVideoFileNotExists: "本地视频文件不存在: ${path}"
+  unableToPlayLocalVideo: "无法播放本地视频: ${error}"
+  # 文件拖放
+  dropVideoFileHere: "拖放视频文件到此处播放"
+  supportedFormats: "支持格式: MP4, MKV, AVI, MOV, WEBM 等"
+  noSupportedVideoFile: "未找到支持的视频文件"
+
   # 图片组件
   imageLoadFailed: "图片加载失败"
   unsupportedImageFormat: "不支持的图片格式"

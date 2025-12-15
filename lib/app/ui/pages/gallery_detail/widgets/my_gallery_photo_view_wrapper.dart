@@ -6,8 +6,10 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
+import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import 'video_player_widget.dart';
 import 'image_widget.dart';
@@ -65,6 +67,12 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
   // 存储视频播放器的GlobalKey，用于控制播放状态
   final Map<int, GlobalKey<VideoPlayerWidgetState>> _videoPlayerKeys = {};
 
+  // 预加载范围：当前图片前后各预加载多少张
+  static const int _preloadRange = 3;
+
+  // 记录已预加载的图片索引，避免重复预加载
+  final Set<int> _preloadedImages = {};
+
   // 检测媒体类型
   bool _isVideo(String url) {
     final extension = CommonUtils.getFileExtension(url).toLowerCase();
@@ -98,12 +106,13 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
     );
     _galleryControls.currentIndex = currentIndex;
 
-    // 初始化音量键监听
-    _galleryControls.initVolumeKeyListener();
-
     // 延迟执行，确保所有视频组件都已创建
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _pauseAllVideosExcept(currentIndex);
+      // 根据初始页面是否是视频来决定是否启用音量键监听
+      _updateVolumeKeyListener();
+      // 预加载初始页面周围的图片
+      _preloadNearbyImages(currentIndex);
     });
   }
 
@@ -173,6 +182,12 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
       currentIndex = index;
     });
     _galleryControls.updateCurrentIndex(index);
+
+    // 根据当前页面是否是视频来决定是否启用音量键监听
+    _updateVolumeKeyListener();
+
+    // 预加载周围的图片
+    _preloadNearbyImages(index);
   }
 
   /// 暂停除指定索引外的所有视频
@@ -185,6 +200,70 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
           key!.currentState!.pauseVideo();
         }
       }
+    }
+  }
+
+  /// 根据当前是否是视频来更新音量键监听状态
+  void _updateVolumeKeyListener() {
+    final isCurrentVideo = _isVideo(widget.galleryItems[currentIndex].data.originalUrl);
+
+    if (isCurrentVideo) {
+      // 如果当前是视频，禁用音量键监听，让系统处理音量调节
+      _galleryControls.disableVolumeKeyListener();
+    } else {
+      // 如果当前是图片，启用音量键监听用于翻页
+      _galleryControls.initVolumeKeyListener();
+    }
+  }
+
+  /// 预加载当前索引周围的图片（不包括视频）
+  void _preloadNearbyImages(int centerIndex) {
+    if (!mounted) return;
+
+    // 计算预加载范围
+    final startIndex = (centerIndex - _preloadRange).clamp(0, widget.galleryItems.length - 1);
+    final endIndex = (centerIndex + _preloadRange).clamp(0, widget.galleryItems.length - 1);
+
+    for (int i = startIndex; i <= endIndex; i++) {
+      // 跳过已经预加载的
+      if (_preloadedImages.contains(i)) continue;
+
+      final item = widget.galleryItems[i];
+      final imageUrl = item.data.originalUrl;
+
+      // 只预加载图片，跳过视频
+      if (_isVideo(imageUrl)) continue;
+
+      // 跳过本地文件（file://）
+      if (imageUrl.startsWith('file://')) continue;
+
+      // 使用 CachedNetworkImage 预加载
+      _preloadImage(i, imageUrl, item.headers);
+    }
+  }
+
+  /// 预加载单张图片
+  Future<void> _preloadImage(int index, String imageUrl, Map<String, String>? headers) async {
+    if (!mounted) return;
+
+    try {
+      // 标记为已预加载（避免重复预加载）
+      _preloadedImages.add(index);
+
+      // 使用 CachedNetworkImage 的预缓存功能
+      final imageProvider = CachedNetworkImageProvider(
+        imageUrl,
+        headers: headers,
+      );
+
+      // 预加载到缓存
+      await precacheImage(imageProvider, context);
+
+      LogUtils.d('预加载图片成功: 索引=$index', 'GalleryPreload');
+    } catch (e) {
+      LogUtils.e('预加载图片失败: 索引=$index, URL=$imageUrl', tag: 'GalleryPreload', error: e);
+      // 预加载失败时从集合中移除，允许后续重试
+      _preloadedImages.remove(index);
     }
   }
 

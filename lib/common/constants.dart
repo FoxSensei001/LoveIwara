@@ -13,7 +13,7 @@ class CommonConstants {
   // 应用名称
   static String? applicationName = 'i_iwara';
 
-  // 应用昵称 
+  // 应用昵称
   static String applicationNickname = 'Love Iwara';
   // 应用包名
   static String packageName = 'm.c.g.a.i_iwara';
@@ -48,35 +48,53 @@ class CommonConstants {
   // 默认用户背景URL
   static const String defaultProfileHeaderUrl =
       '$iwaraBaseUrl/images/default-background.jpg';
-      
-
 
   static List<Sort> mediaSorts = [
-    Sort(id: SortId.trending, label: t.common.trending, icon: const Icon(Icons.trending_up)),
-    Sort(id: SortId.date, label: t.common.latest, icon: const Icon(Icons.new_releases)),
-    Sort(id: SortId.popularity, label: t.common.popular, icon: const Icon(Icons.star)),
-    Sort(id: SortId.likes, label: t.common.likesCount, icon: const Icon(Icons.thumb_up)),
-    Sort(id: SortId.views, label: t.common.viewsCount, icon: const Icon(Icons.remove_red_eye)),
+    Sort(
+      id: SortId.trending,
+      label: t.common.trending,
+      icon: const Icon(Icons.trending_up),
+    ),
+    Sort(
+      id: SortId.date,
+      label: t.common.latest,
+      icon: const Icon(Icons.new_releases),
+    ),
+    Sort(
+      id: SortId.popularity,
+      label: t.common.popular,
+      icon: const Icon(Icons.star),
+    ),
+    Sort(
+      id: SortId.likes,
+      label: t.common.likesCount,
+      icon: const Icon(Icons.thumb_up),
+    ),
+    Sort(
+      id: SortId.views,
+      label: t.common.viewsCount,
+      icon: const Icon(Icons.remove_red_eye),
+    ),
   ];
 
   static const List<Sort> translationSorts = [
     // 中文
     Sort(id: SortId.zhCN, label: '简体中文', extData: 'zh-CN'),
     Sort(id: SortId.zhTW, label: '繁體中文', extData: 'zh-TW'),
-    
+
     // 英语
     Sort(id: SortId.enUS, label: 'English', extData: 'en-US'),
-    
+
     // 东亚语言
     Sort(id: SortId.ja, label: '日本語', extData: 'ja'),
     Sort(id: SortId.ko, label: '한국어', extData: 'ko'),
     Sort(id: SortId.vi, label: 'Tiếng Việt', extData: 'vi'),
-    
+
     // 东南亚语言
     Sort(id: SortId.th, label: 'ภาษาไทย', extData: 'th'),
     Sort(id: SortId.id, label: 'Bahasa Indonesia', extData: 'id'),
     Sort(id: SortId.ms, label: 'Bahasa Melayu', extData: 'ms'),
-    
+
     // 欧洲语言
     Sort(id: SortId.fr, label: 'Français', extData: 'fr'),
     Sort(id: SortId.de, label: 'Deutsch', extData: 'de'),
@@ -98,6 +116,10 @@ class CommonConstants {
   // 是否记录历史记录
   static bool enableHistory = true;
 
+  // 视频播放器边缘手势阈值(像素)
+  // 用于检测从屏幕边缘开始的滑动手势,避免与系统手势冲突
+  static const double videoPlayerEdgeGestureThreshold = 50.0;
+
   static String defaultPlaylistThumbnailUrl =
       '$iwaraBaseUrl/images/default-thumbnail.jpg';
 
@@ -107,18 +129,20 @@ class CommonConstants {
   static int currentPresetIndex = 0; // 预设颜色索引
   static String currentCustomHex = ''; // 自定义颜色
   static List<String> customThemeColors = []; // 自定义颜色列表
-  
+
   static ColorScheme? dynamicLightColorScheme;
   static ColorScheme? dynamicDarkColorScheme;
 
   // 是否启用分页模式
   static bool isPaginated = false;
 
-  // 用户头像原图 
-  static String avatarOriginalUrl(String id, String name) => '$iwaraImageBaseUrl/image/original/$id/$name';
+  // 用户头像原图
+  static String avatarOriginalUrl(String id, String name) =>
+      '$iwaraImageBaseUrl/image/original/$id/$name';
 
   // 用户头像URL
-  static String avatarUrl(String id, String name) => '$iwaraImageBaseUrl/image/avatar/$id/$name.jpg';
+  static String avatarUrl(String id, String name) =>
+      '$iwaraImageBaseUrl/image/avatar/$id/$name.jpg';
 
   /// ============================== 功能开关End ==============================
 
@@ -231,7 +255,8 @@ class ApiConstants {
   static String lightProfile(String userId) => '/light/profile/$userId';
 
   // 轻量播放列表
-  static String lightPlaylist(String playlistId) => '/light/playlist/$playlistId';
+  static String lightPlaylist(String playlistId) =>
+      '/light/playlist/$playlistId';
 
   // 搜索
   static String search() => '/search';
@@ -252,7 +277,8 @@ class ApiConstants {
   static String userFriends(String userId) => '/user/$userId/friends';
 
   // 用户请求
-  static String userFriendsRequests(String userId) => '/user/$userId/friends/requests';
+  static String userFriendsRequests(String userId) =>
+      '/user/$userId/friends/requests';
 
   // 评论
   static String comment(String id) => '/comment/$id';
@@ -273,13 +299,15 @@ class ApiConstants {
   static String forum() => '/forum';
 
   // 论坛帖子
-  static String forumThread(String forumCategoryId) => '/forum/$forumCategoryId';
+  static String forumThread(String forumCategoryId) =>
+      '/forum/$forumCategoryId';
 
   // 论坛帖子回复
   static String forumThreadReply(String threadId) => '/forum/$threadId/reply';
 
   // 论坛帖子列表
-  static String forumThreadsWithCategoryId(String categoryId) => '/forum/$categoryId';
+  static String forumThreadsWithCategoryId(String categoryId) =>
+      '/forum/$categoryId';
 
   // 论坛帖子列表
   static String forumThreads() => '/forum/threads';
@@ -288,19 +316,24 @@ class ApiConstants {
   static String forumPosts(String postId) => '/forum/post/$postId';
 
   // 论坛帖子详情
-  static String forumThreadDetail(String categoryId, String threadId) => '/forum/$categoryId/$threadId';
+  static String forumThreadDetail(String categoryId, String threadId) =>
+      '/forum/$categoryId/$threadId';
 
   // 用户通知
-  static String userNotifications(String userId) => '/user/$userId/notifications';
+  static String userNotifications(String userId) =>
+      '/user/$userId/notifications';
 
   // 标记消息已读
-  static String userNotificationWithId(String notificationId) => '/notifications/$notificationId/read';
+  static String userNotificationWithId(String notificationId) =>
+      '/notifications/$notificationId/read';
 
   // 用户会话列表
-  static String userConversations(String userId) => '/user/$userId/conversations';
+  static String userConversations(String userId) =>
+      '/user/$userId/conversations';
 
   // 会话消息
-  static String conversationMessages(String conversationId) => '/conversation/$conversationId/messages';
+  static String conversationMessages(String conversationId) =>
+      '/conversation/$conversationId/messages';
 
   // 消息
   static String messageWithId(String messageId) => '/message/$messageId';
@@ -359,5 +392,5 @@ enum SortId {
   es,
   it,
   pt,
-  ru;
+  ru,
 }

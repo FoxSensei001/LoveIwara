@@ -224,31 +224,57 @@ class _ImageWidgetState extends State<ImageWidget> {
       },
       progressIndicatorBuilder: (context, url, downloadProgress) {
         final double? progress = downloadProgress.progress;
+        final int downloaded = downloadProgress.downloaded ?? 0;
+        final int? total = downloadProgress.totalSize;
+
+        // 格式化字节大小为易读格式
+        String formatBytes(int bytes) {
+          if (bytes < 1024) return '${bytes}B';
+          if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)}KB';
+          return '${(bytes / (1024 * 1024)).toStringAsFixed(1)}MB';
+        }
+
         return Container(
           color: Colors.black,
           child: Center(
-            child: SizedBox(
-              width: 72,
-              height: 72,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  CircularProgressIndicator(
-                    value: progress,
-                    color: Colors.white,
-                    strokeWidth: 3.0,
-                  ),
-                  if (progress != null)
-                    Text(
-                      '${(progress * 100).clamp(0, 100).toInt()}%',
-                      style: const TextStyle(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: 72,
+                  height: 72,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      CircularProgressIndicator(
+                        value: progress,
                         color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                        strokeWidth: 3.0,
                       ),
-                    ),
-                ],
-              ),
+                      if (progress != null)
+                        Text(
+                          '${(progress * 100).clamp(0, 100).toInt()}%',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  total != null
+                      ? '${formatBytes(downloaded)} / ${formatBytes(total)}'
+                      : formatBytes(downloaded),
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.9),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
           ),
         );

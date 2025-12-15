@@ -84,5 +84,28 @@
 	<key>FlutterDeepLinkingEnabled</key>
 	<true/>
 
+	<!-- 支持打开视频文件 -->
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>Video</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>public.movie</string>
+				<string>public.mpeg-4</string>
+				<string>public.mpeg</string>
+				<string>public.avi</string>
+				<string>public.3gpp</string>
+				<string>com.apple.quicktime-movie</string>
+				<string>public.video</string>
+			</array>
+		</dict>
+	</array>
+
 </dict>
 </plist>

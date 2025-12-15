@@ -354,7 +354,8 @@ class DesktopWindowListener extends WindowListener {
   @override
   void onWindowClose() async {
     await _closeServices();
-    await windowManager.destroy();
+    // await windowManager.destroy();
+    exit(0);
   }
 
   @override
@@ -491,6 +492,11 @@ class MyHttpOverrides extends HttpOverrides {
 Future<void> _closeServices() async {
   try {
     await LogUtils.close();
+
+    // 关闭数据库连接
+    if (Get.isRegistered<DatabaseService>()) {
+      Get.find<DatabaseService>().close();
+    }
   } catch (e) {
     // 记录关闭服务时可能出现的错误
     LogUtils.e('关闭服务失败', error: e);

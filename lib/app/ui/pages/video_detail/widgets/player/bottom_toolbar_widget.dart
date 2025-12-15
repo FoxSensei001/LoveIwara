@@ -67,7 +67,10 @@ class BottomToolbar extends StatelessWidget {
             onEnter: (_) => myVideoStateController.setToolbarHovering(true),
             onExit: (_) => myVideoStateController.setToolbarHovering(false),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12.0,
+                vertical: 4.0,
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -88,7 +91,12 @@ class BottomToolbar extends StatelessWidget {
     );
   }
 
-  Widget _buildBottomToolbar(BuildContext context, bool isSmallScreen, double iconSize, slang.Translations t) {
+  Widget _buildBottomToolbar(
+    BuildContext context,
+    bool isSmallScreen,
+    double iconSize,
+    slang.Translations t,
+  ) {
     return SlideTransition(
       position: myVideoStateController.bottomBarAnimation,
       child: MouseRegion(
@@ -98,10 +106,7 @@ class BottomToolbar extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [
-                Colors.transparent,
-                Colors.black.withValues(alpha: 0.7),
-              ],
+              colors: [Colors.transparent, Colors.black.withValues(alpha: 0.7)],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
@@ -120,13 +125,16 @@ class BottomToolbar extends StatelessWidget {
                 if (!myVideoStateController.showResumePositionTip.value) {
                   return const SizedBox.shrink();
                 }
-                
+
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8.0),
                   child: Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.black.withValues(alpha: 0.7),
                           borderRadius: BorderRadius.circular(4),
@@ -137,7 +145,7 @@ class BottomToolbar extends StatelessWidget {
                             Text(
                               t.videoDetail.resumeFromLastPosition(
                                 position: CommonUtils.formatDuration(
-                                  myVideoStateController.resumePosition.value
+                                  myVideoStateController.resumePosition.value,
                                 ),
                               ),
                               style: const TextStyle(
@@ -147,7 +155,8 @@ class BottomToolbar extends StatelessWidget {
                             ),
                             const SizedBox(width: 8),
                             InkWell(
-                              onTap: () => myVideoStateController.hideResumePositionTip(),
+                              onTap: () => myVideoStateController
+                                  .hideResumePositionTip(),
                               child: const Icon(
                                 Icons.close,
                                 color: Colors.white,
@@ -163,7 +172,8 @@ class BottomToolbar extends StatelessWidget {
               }),
               Padding(
                 padding: EdgeInsets.symmetric(
-                    horizontal: isSmallScreen ? 0.0 : 4.0),
+                  horizontal: isSmallScreen ? 0.0 : 4.0,
+                ),
                 child: CustomVideoProgressbar(
                   controller: myVideoStateController,
                 ),
@@ -189,8 +199,7 @@ class BottomToolbar extends StatelessWidget {
   void _showSeekDialog(BuildContext context) {
     final t = slang.Translations.of(context);
     // 获取当前和总时长
-    final Duration currentPosition =
-        myVideoStateController.currentPosition;
+    final Duration currentPosition = myVideoStateController.currentPosition;
     final Duration totalDuration = myVideoStateController.totalDuration.value;
 
     // 将总时长拆分为小时、分钟和秒
@@ -282,11 +291,13 @@ class BottomToolbar extends StatelessWidget {
                         child: Slider(
                           value: selectedSeconds.toDouble(),
                           min: 0,
-                          max: (selectedHours < totalHours ||
+                          max:
+                              (selectedHours < totalHours ||
                                   selectedMinutes < totalMinutes)
                               ? 59
                               : totalSeconds.toDouble(),
-                          divisions: (selectedHours < totalHours ||
+                          divisions:
+                              (selectedHours < totalHours ||
                                   selectedMinutes < totalMinutes)
                               ? 59
                               : (totalSeconds > 0 ? totalSeconds : 1),
@@ -323,8 +334,9 @@ class BottomToolbar extends StatelessWidget {
                 );
 
                 // 确保跳转时间不超过总时长
-                final Duration clampedPosition =
-                    newPosition > totalDuration ? totalDuration : newPosition;
+                final Duration clampedPosition = newPosition > totalDuration
+                    ? totalDuration
+                    : newPosition;
 
                 // 执行跳转
                 myVideoStateController.player.seek(clampedPosition);
@@ -351,10 +363,7 @@ class BottomToolbar extends StatelessWidget {
       borderRadius: BorderRadius.circular(16.0),
       splashColor: Colors.white24,
       highlightColor: Colors.white10,
-      child: Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: icon,
-      ),
+      child: Padding(padding: const EdgeInsets.all(4.0), child: icon),
     );
 
     if (tooltip != null && tooltip.isNotEmpty) {
@@ -411,6 +420,15 @@ class BottomToolbar extends StatelessWidget {
       List<VideoResolution> resolutions =
           myVideoStateController.videoResolutions;
 
+      // 去重：只保留每个清晰度标签的第一个分辨率
+      final Map<String, VideoResolution> uniqueResolutionsMap = {};
+      for (final resolution in resolutions) {
+        if (!uniqueResolutionsMap.containsKey(resolution.label)) {
+          uniqueResolutionsMap[resolution.label] = resolution;
+        }
+      }
+      final uniqueResolutions = uniqueResolutionsMap.values.toList();
+
       Map<String, IconData> resolutionIcons = {
         '360': Icons.sd,
         '540': Icons.hd,
@@ -434,7 +452,7 @@ class BottomToolbar extends StatelessWidget {
           }
         },
         itemBuilder: (BuildContext context) {
-          return resolutions.map((VideoResolution resolution) {
+          return uniqueResolutions.map((VideoResolution resolution) {
             return PopupMenuItem<String>(
               value: resolution.label,
               child: Row(
@@ -476,7 +494,7 @@ class BottomToolbar extends StatelessWidget {
         1.75,
         2.0,
         2.5,
-        3.0
+        3.0,
       ];
 
       // 只在全屏下显示
@@ -487,10 +505,7 @@ class BottomToolbar extends StatelessWidget {
       return PopupMenuButton<double>(
         initialValue: currentSpeed,
         tooltip: t.videoDetail.switchPlaybackSpeed,
-        icon: const Icon(
-          Icons.speed,
-          color: Colors.white,
-        ),
+        icon: const Icon(Icons.speed, color: Colors.white),
         onSelected: (double selected) {
           if (selected != currentSpeed) {
             myVideoStateController.playerPlaybackSpeed.value = selected;
@@ -534,15 +549,21 @@ class BottomToolbar extends StatelessWidget {
           return result.isSuccess;
         },
         onLikeChanged: (liked) {
-          myVideoStateController.videoInfo.value =
-              myVideoStateController.videoInfo.value?.copyWith(
-            liked: liked,
-            numLikes:
-                (myVideoStateController.videoInfo.value?.numLikes ?? 0) +
+          myVideoStateController.videoInfo.value = myVideoStateController
+              .videoInfo
+              .value
+              ?.copyWith(
+                liked: liked,
+                numLikes:
+                    (myVideoStateController.videoInfo.value?.numLikes ?? 0) +
                     (liked ? 1 : -1),
-          );
+              );
           // 更新缓存中的点赞信息
-          myVideoStateController.updateCachedVideoLikeInfo(videoInfo.id, liked, myVideoStateController.videoInfo.value?.numLikes ?? 0);
+          myVideoStateController.updateCachedVideoLikeInfo(
+            videoInfo.id,
+            liked,
+            myVideoStateController.videoInfo.value?.numLikes ?? 0,
+          );
         },
       );
     });
@@ -573,10 +594,7 @@ class BottomToolbar extends StatelessWidget {
       }
       return Row(
         children: [
-          AvatarWidget(
-            user: videoInfo?.user,
-            size: 30,
-          ),
+          AvatarWidget(user: videoInfo?.user, size: 30),
           const SizedBox(width: 6),
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 200),
@@ -614,33 +632,40 @@ class BottomToolbar extends StatelessWidget {
     });
   }
 
-  Widget _buildLeftControls(BuildContext context, bool isSmallScreen, double iconSize, slang.Translations t) {
+  Widget _buildLeftControls(
+    BuildContext context,
+    bool isSmallScreen,
+    double iconSize,
+    slang.Translations t,
+  ) {
     return Row(
       children: [
-        Obx(() => _buildSwitchIconButton(
-          tooltip: myVideoStateController.videoPlaying.value
-              ? t.videoDetail.pause
-              : t.videoDetail.play,
-          icon: Icon(
-            myVideoStateController.videoPlaying.value
-                ? Icons.pause
-                : Icons.play_arrow,
-            key: ValueKey(myVideoStateController.videoPlaying.value
-                ? 'pause'
-                : 'play'),
-            color: Colors.white,
-            size: iconSize,
+        Obx(
+          () => _buildSwitchIconButton(
+            tooltip: myVideoStateController.videoPlaying.value
+                ? t.videoDetail.pause
+                : t.videoDetail.play,
+            icon: Icon(
+              myVideoStateController.videoPlaying.value
+                  ? Icons.pause
+                  : Icons.play_arrow,
+              key: ValueKey(
+                myVideoStateController.videoPlaying.value ? 'pause' : 'play',
+              ),
+              color: Colors.white,
+              size: iconSize,
+            ),
+            onPressed: () async {
+              VibrateUtils.vibrate();
+              if (myVideoStateController.videoPlaying.value) {
+                myVideoStateController.videoController.player.pause();
+              } else {
+                myVideoStateController.videoController.player.play();
+                myVideoStateController.animateToTop();
+              }
+            },
           ),
-          onPressed: () async {
-            VibrateUtils.vibrate();
-            if (myVideoStateController.videoPlaying.value) {
-              myVideoStateController.videoController.player.pause();
-            } else {
-              myVideoStateController.videoController.player.play();
-              myVideoStateController.animateToTop();
-            }
-          },
-        )),
+        ),
         if (GetPlatform.isDesktop)
           VolumeControl(
             configService: _configService,
@@ -653,7 +678,8 @@ class BottomToolbar extends StatelessWidget {
           },
           style: TextButton.styleFrom(
             padding: EdgeInsets.symmetric(
-                horizontal: isSmallScreen ? 2.0 : 4.0),
+              horizontal: isSmallScreen ? 2.0 : 4.0,
+            ),
             minimumSize: Size.zero,
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
@@ -671,7 +697,12 @@ class BottomToolbar extends StatelessWidget {
     );
   }
 
-  Widget _buildRightControls(BuildContext context, bool isSmallScreen, double iconSize, slang.Translations t) {
+  Widget _buildRightControls(
+    BuildContext context,
+    bool isSmallScreen,
+    double iconSize,
+    slang.Translations t,
+  ) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -691,18 +722,22 @@ class BottomToolbar extends StatelessWidget {
                     ? SvgPicture.asset(
                         'assets/svg/app_exit_fullscreen.svg',
                         colorFilter: const ColorFilter.mode(
-                            Colors.white, BlendMode.srcIn),
-                        semanticsLabel: myVideoStateController
-                                .isDesktopAppFullScreen.value
+                          Colors.white,
+                          BlendMode.srcIn,
+                        ),
+                        semanticsLabel:
+                            myVideoStateController.isDesktopAppFullScreen.value
                             ? t.videoDetail.exitAppFullscreen
                             : t.videoDetail.enterAppFullscreen,
                       )
                     : SvgPicture.asset(
                         'assets/svg/app_enter_fullscreen.svg',
                         colorFilter: const ColorFilter.mode(
-                            Colors.white, BlendMode.srcIn),
-                        semanticsLabel: myVideoStateController
-                                .isDesktopAppFullScreen.value
+                          Colors.white,
+                          BlendMode.srcIn,
+                        ),
+                        semanticsLabel:
+                            myVideoStateController.isDesktopAppFullScreen.value
                             ? t.videoDetail.exitAppFullscreen
                             : t.videoDetail.enterAppFullscreen,
                       ),
@@ -750,12 +785,9 @@ class BottomToolbar extends StatelessWidget {
       final presetId = configService[ConfigKey.ANIME4K_PRESET_ID] as String;
       final isEnabled = presetId.isNotEmpty;
 
-      return       PopupMenuButton<String>(
+      return PopupMenuButton<String>(
         tooltip: slang.t.anime4k.settings,
-        icon: const Icon(
-          Icons.adjust,
-          color: Colors.white,
-        ),
+        icon: const Icon(Icons.adjust, color: Colors.white),
         onSelected: (value) async {
           if (value == 'disable') {
             await myVideoStateController.switchAnime4KPreset('');
@@ -763,11 +795,8 @@ class BottomToolbar extends StatelessWidget {
             await myVideoStateController.switchAnime4KPreset(value);
           }
         },
-        itemBuilder: (context) => _buildAnime4KMenuItems(
-          context,
-          isEnabled,
-          presetId,
-        ),
+        itemBuilder: (context) =>
+            _buildAnime4KMenuItems(context, isEnabled, presetId),
       );
     });
   }
@@ -835,11 +864,21 @@ class BottomToolbar extends StatelessWidget {
     items.add(const PopupMenuDivider());
 
     // 预设分组
-    final highQualityPresets = Anime4KPresets.getPresetsByGroup(Anime4KPresetGroup.highQuality);
-    final fastPresets = Anime4KPresets.getPresetsByGroup(Anime4KPresetGroup.fast);
-    final litePresets = Anime4KPresets.getPresetsByGroup(Anime4KPresetGroup.lite);
-    final moreLitePresets = Anime4KPresets.getPresetsByGroup(Anime4KPresetGroup.moreLite);
-    final customPresets = Anime4KPresets.getPresetsByGroup(Anime4KPresetGroup.custom);
+    final highQualityPresets = Anime4KPresets.getPresetsByGroup(
+      Anime4KPresetGroup.highQuality,
+    );
+    final fastPresets = Anime4KPresets.getPresetsByGroup(
+      Anime4KPresetGroup.fast,
+    );
+    final litePresets = Anime4KPresets.getPresetsByGroup(
+      Anime4KPresetGroup.lite,
+    );
+    final moreLitePresets = Anime4KPresets.getPresetsByGroup(
+      Anime4KPresetGroup.moreLite,
+    );
+    final customPresets = Anime4KPresets.getPresetsByGroup(
+      Anime4KPresetGroup.custom,
+    );
 
     // 高质量预设
     if (highQualityPresets.isNotEmpty) {

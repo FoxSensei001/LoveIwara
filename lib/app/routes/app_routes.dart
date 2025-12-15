@@ -6,10 +6,13 @@ abstract class Routes {
   static const POPULAR_VIDEOS = _Paths.ROOT; // /home/popular_videos
   static const GALLERY = _Paths.GALLERY;
   static const SUBSCRIPTIONS = _Paths.SUBSCRIPTIONS;
-  static String VIDEO_DETAIL(String videoId) => _Paths.VIDEO_DETAIL.replaceAll(':videoId', videoId);
+  static String VIDEO_DETAIL(String videoId) =>
+      _Paths.VIDEO_DETAIL.replaceAll(':videoId', videoId);
   static String VIDEO_DETAIL_PREFIX = _Paths.VIDEO_DETAIL_PREFIX;
-  static String AUTHOR_PROFILE(String userName) => _Paths.AUTHOR_PROFILE.replaceAll(':userName', userName);
-  static String GALLERY_DETAIL(String galleryId) => _Paths.GALLERY_DETAIL.replaceAll(':galleryId', galleryId);
+  static String AUTHOR_PROFILE(String userName) =>
+      _Paths.AUTHOR_PROFILE.replaceAll(':userName', userName);
+  static String GALLERY_DETAIL(String galleryId) =>
+      _Paths.GALLERY_DETAIL.replaceAll(':galleryId', galleryId);
 
   static const LOGIN = _Paths.LOGIN;
   static const SETTINGS_PAGE = _Paths.SETTINGS_PAGE;
@@ -32,13 +35,17 @@ abstract class Routes {
 
   static const HISTORY_LIST = _Paths.HISTORY_LIST;
 
-  static const FULL_SCREEN_VIDEO_PLAYER_SCREEN = '/full_screen_video_player_screen';
+  static const FULL_SCREEN_VIDEO_PLAYER_SCREEN =
+      '/full_screen_video_player_screen';
 
-  static String PLAYLIST_DETAIL(String id) => _Paths.PLAYLIST_DETAIL.replaceAll(':id', id);
+  static String PLAYLIST_DETAIL(String id) =>
+      _Paths.PLAYLIST_DETAIL.replaceAll(':id', id);
 
-  static String FOLLOWING_LIST(String userId) => _Paths.FOLLOWING_LIST.replaceAll(':userId', userId);
+  static String FOLLOWING_LIST(String userId) =>
+      _Paths.FOLLOWING_LIST.replaceAll(':userId', userId);
 
-  static String FOLLOWERS_LIST(String userId) => _Paths.FOLLOWERS_LIST.replaceAll(':userId', userId);
+  static String FOLLOWERS_LIST(String userId) =>
+      _Paths.FOLLOWERS_LIST.replaceAll(':userId', userId);
 
   static const ABOUT_PAGE = '/settings/about';
 
@@ -55,7 +62,8 @@ abstract class Routes {
 
   static String FORUM_THREAD_LIST(String categoryId) => '/forum/$categoryId';
 
-  static String FORUM_THREAD_DETAIL(String categoryId, String threadId) => '/forum/$categoryId/$threadId';
+  static String FORUM_THREAD_DETAIL(String categoryId, String threadId) =>
+      '/forum/$categoryId/$threadId';
 
   static const APP_SETTINGS_PAGE = '/app_settings_page';
 
@@ -67,11 +75,14 @@ abstract class Routes {
 
   static const AUTHOR_PROFILE_PREFIX = '/author_profile';
 
-  static String MESSAGE_DETAIL(String conversationId) => '/message_detail/$conversationId';
+  static String MESSAGE_DETAIL(String conversationId) =>
+      '/message_detail/$conversationId';
 
-  static String LOCAL_FAVORITE_DETAIL(String folderId) => '/local_favorite_detail/$folderId';
+  static String LOCAL_FAVORITE_DETAIL(String folderId) =>
+      '/local_favorite_detail/$folderId';
 
-  static const AI_TRANSLATION_SETTINGS_PAGE = _Paths.AI_TRANSLATION_SETTINGS_PAGE;
+  static const AI_TRANSLATION_SETTINGS_PAGE =
+      _Paths.AI_TRANSLATION_SETTINGS_PAGE;
   static const TRANSLATION_SETTINGS_PAGE = _Paths.TRANSLATION_SETTINGS_PAGE;
   static const DOWNLOAD_SETTINGS_PAGE = _Paths.DOWNLOAD_SETTINGS_PAGE;
   static const FORUM_SETTINGS_PAGE = _Paths.FORUM_SETTINGS_PAGE;
@@ -79,10 +90,13 @@ abstract class Routes {
   static const EMOJI_LIBRARY = _Paths.EMOJI_LIBRARY;
 
   static const LAYOUT_SETTINGS_PAGE = _Paths.LAYOUT_SETTINGS_PAGE;
-  static const NAVIGATION_ORDER_SETTINGS_PAGE = _Paths.NAVIGATION_ORDER_SETTINGS_PAGE;
+  static const NAVIGATION_ORDER_SETTINGS_PAGE =
+      _Paths.NAVIGATION_ORDER_SETTINGS_PAGE;
 
-  static String TAG_VIDEOS(String tagId) => _Paths.TAG_VIDEOS.replaceAll(':tagId', tagId);
-  static String TAG_GALLERIES(String tagId) => _Paths.TAG_GALLERIES.replaceAll(':tagId', tagId);
+  static String TAG_VIDEOS(String tagId) =>
+      _Paths.TAG_VIDEOS.replaceAll(':tagId', tagId);
+  static String TAG_GALLERIES(String tagId) =>
+      _Paths.TAG_GALLERIES.replaceAll(':tagId', tagId);
 }
 
 abstract class _Paths {
@@ -121,5 +135,6 @@ abstract class _Paths {
   static const TAG_GALLERIES = '/tag_galleries/:tagId';
   static const EMOJI_LIBRARY = '/emoji_library';
   static const LAYOUT_SETTINGS_PAGE = '/layout_settings_page';
-  static const NAVIGATION_ORDER_SETTINGS_PAGE = '/navigation_order_settings_page';
+  static const NAVIGATION_ORDER_SETTINGS_PAGE =
+      '/navigation_order_settings_page';
 }
