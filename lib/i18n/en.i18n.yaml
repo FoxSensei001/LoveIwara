@@ -1562,6 +1562,10 @@ mediaPlayer:
   localVideoPathEmpty: "Local video path is empty"
   localVideoFileNotExists: "Local video file does not exist: ${path}"
   unableToPlayLocalVideo: "Unable to play local video: ${error}"
+  # File drag and drop
+  dropVideoFileHere: "Drop video file here to play"
+  supportedFormats: "Supported formats: MP4, MKV, AVI, MOV, WEBM, etc."
+  noSupportedVideoFile: "No supported video file found"
 
   # Custom runtime messages
   retryingOpenVideoLink: "Video link open failed, retrying"

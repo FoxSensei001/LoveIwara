@@ -535,9 +535,20 @@ class MyVideoStateController extends GetxController
 
       LogUtils.d('检查文件是否存在: $localVideoPath', 'MyVideoStateController');
 
-      // 处理 file:// URI
+      // 处理不同类型的 URI
       String pathToCheck = localVideoPath!;
-      if (pathToCheck.startsWith('file://')) {
+      bool isContentUri = pathToCheck.startsWith('content://');
+
+      if (isContentUri) {
+        // Android content:// URI 需要特殊处理
+        // 对于 content:// URI，我们无法使用 File.exists() 检查
+        // media_kit 可以直接处理 content:// URI，所以只需要解码 URL 编码的字符
+        pathToCheck = Uri.decodeFull(pathToCheck);
+        LogUtils.d(
+          'content:// URI 已解码: $pathToCheck',
+          'MyVideoStateController',
+        );
+      } else if (pathToCheck.startsWith('file://')) {
         pathToCheck = Uri.parse(pathToCheck).toFilePath();
         LogUtils.d(
           '从 file:// URI 转换为路径: $pathToCheck',
@@ -545,15 +556,18 @@ class MyVideoStateController extends GetxController
         );
       }
 
-      final file = File(pathToCheck);
-      if (!await file.exists()) {
-        throw Exception(slang.t.mediaPlayer.localVideoFileNotExists(path: pathToCheck));
-      }
+      // 只有非 content:// URI 才能进行文件存在检查
+      if (!isContentUri) {
+        final file = File(pathToCheck);
+        if (!await file.exists()) {
+          throw Exception(slang.t.mediaPlayer.localVideoFileNotExists(path: pathToCheck));
+        }
 
-      LogUtils.d(
-        '文件存在，大小: ${await file.length()} bytes',
-        'MyVideoStateController',
-      );
+        LogUtils.d(
+          '文件存在，大小: ${await file.length()} bytes',
+          'MyVideoStateController',
+        );
+      }
 
       // 构建本地视频的清晰度列表
       _buildLocalVideoResolutions();
@@ -596,9 +610,17 @@ class MyVideoStateController extends GetxController
       }
 
       // 打开本地视频文件
-      final mediaPath = localVideoPath!.startsWith('file://')
-          ? localVideoPath!
-          : 'file://$localVideoPath';
+      // 对于 content:// URI，直接使用解码后的 URI
+      // 对于普通路径，转换为 file:// URI
+      String mediaPath;
+      if (localVideoPath!.startsWith('content://')) {
+        // content:// URI 需要解码 URL 编码字符并直接使用
+        mediaPath = Uri.decodeFull(localVideoPath!);
+      } else if (localVideoPath!.startsWith('file://')) {
+        mediaPath = localVideoPath!;
+      } else {
+        mediaPath = 'file://$localVideoPath';
+      }
 
       LogUtils.i('准备打开视频文件: $mediaPath', 'MyVideoStateController');
       await player.open(Media(mediaPath));

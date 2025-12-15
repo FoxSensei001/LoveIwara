@@ -3645,6 +3645,15 @@ class TranslationsMediaPlayerEn {
 	/// en: 'Unable to play local video: ${error}'
 	String unableToPlayLocalVideo({required Object error}) => 'Unable to play local video: ${error}';
 
+	/// en: 'Drop video file here to play'
+	String get dropVideoFileHere => 'Drop video file here to play';
+
+	/// en: 'Supported formats: MP4, MKV, AVI, MOV, WEBM, etc.'
+	String get supportedFormats => 'Supported formats: MP4, MKV, AVI, MOV, WEBM, etc.';
+
+	/// en: 'No supported video file found'
+	String get noSupportedVideoFile => 'No supported video file found';
+
 	/// en: 'Video link open failed, retrying'
 	String get retryingOpenVideoLink => 'Video link open failed, retrying';
 
@@ -7493,6 +7502,9 @@ extension on Translations {
 			'mediaPlayer.localVideoPathEmpty' => 'Local video path is empty',
 			'mediaPlayer.localVideoFileNotExists' => ({required Object path}) => 'Local video file does not exist: ${path}',
 			'mediaPlayer.unableToPlayLocalVideo' => ({required Object error}) => 'Unable to play local video: ${error}',
+			'mediaPlayer.dropVideoFileHere' => 'Drop video file here to play',
+			'mediaPlayer.supportedFormats' => 'Supported formats: MP4, MKV, AVI, MOV, WEBM, etc.',
+			'mediaPlayer.noSupportedVideoFile' => 'No supported video file found',
 			'mediaPlayer.retryingOpenVideoLink' => 'Video link open failed, retrying',
 			'mediaPlayer.decoderOpenFailedWithSuggestion' => ({required Object event}) => 'Unable to load decoder: ${event}. Try switching to software decoding in player settings and re-enter the page',
 			'mediaPlayer.videoLoadErrorWithDetail' => ({required Object event}) => 'Video load error: ${event}',
@@ -7578,11 +7590,11 @@ extension on Translations {
 			'emoji.large' => 'Large',
 			'emoji.extraLarge' => 'Extra Large',
 			'emoji.copyEmojiLinkSuccess' => 'Emoji link copied',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.preview' => 'Emoji Preview',
 			'emoji.library' => 'Emoji Library',
 			'emoji.noEmojis' => 'No emojis',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.clickToAddEmojis' => 'Click the button in the top right to add emojis',
 			'emoji.addEmojis' => 'Add Emojis',
 			'emoji.imagePreview' => 'Image Preview',

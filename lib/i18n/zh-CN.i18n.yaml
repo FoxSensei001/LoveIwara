@@ -1487,6 +1487,10 @@ mediaPlayer:
   localVideoPathEmpty: "本地视频路径为空"
   localVideoFileNotExists: "本地视频文件不存在: ${path}"
   unableToPlayLocalVideo: "无法播放本地视频: ${error}"
+  # 文件拖放
+  dropVideoFileHere: "拖放视频文件到此处播放"
+  supportedFormats: "支持格式: MP4, MKV, AVI, MOV, WEBM 等"
+  noSupportedVideoFile: "未找到支持的视频文件"
 
   # 图片组件
   imageLoadFailed: "图片加载失败"

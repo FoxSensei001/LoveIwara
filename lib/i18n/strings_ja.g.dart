@@ -1350,6 +1350,9 @@ class _TranslationsMediaPlayerJa implements TranslationsMediaPlayerEn {
 	@override String get localVideoPathEmpty => 'ローカルビデオパスが空です';
 	@override String localVideoFileNotExists({required Object path}) => 'ローカルビデオファイルが存在しません: ${path}';
 	@override String unableToPlayLocalVideo({required Object error}) => 'ローカルビデオを再生できません: ${error}';
+	@override String get dropVideoFileHere => 'ここにビデオファイルをドロップして再生';
+	@override String get supportedFormats => '対応形式: MP4, MKV, AVI, MOV, WEBM など';
+	@override String get noSupportedVideoFile => 'サポートされているビデオファイルが見つかりません';
 	@override String get imageLoadFailed => '画像読み込み失敗';
 	@override String get unsupportedImageFormat => 'サポートされていない画像形式';
 	@override String get tryOtherViewer => '他のビューアーをお試しください';
@@ -3900,6 +3903,9 @@ extension on TranslationsJa {
 			'mediaPlayer.localVideoPathEmpty' => 'ローカルビデオパスが空です',
 			'mediaPlayer.localVideoFileNotExists' => ({required Object path}) => 'ローカルビデオファイルが存在しません: ${path}',
 			'mediaPlayer.unableToPlayLocalVideo' => ({required Object error}) => 'ローカルビデオを再生できません: ${error}',
+			'mediaPlayer.dropVideoFileHere' => 'ここにビデオファイルをドロップして再生',
+			'mediaPlayer.supportedFormats' => '対応形式: MP4, MKV, AVI, MOV, WEBM など',
+			'mediaPlayer.noSupportedVideoFile' => 'サポートされているビデオファイルが見つかりません',
 			'mediaPlayer.imageLoadFailed' => '画像読み込み失敗',
 			'mediaPlayer.unsupportedImageFormat' => 'サポートされていない画像形式',
 			'mediaPlayer.tryOtherViewer' => '他のビューアーをお試しください',
@@ -4057,11 +4063,11 @@ extension on TranslationsJa {
 			'layoutSettings.columns' => 'カラム',
 			'layoutSettings.breakpointConfig' => 'ブレークポイント設定',
 			'layoutSettings.add' => '追加',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.defaultColumns' => 'デフォルトカラム数',
 			'layoutSettings.defaultColumnsDesc' => '大画面のデフォルト表示',
 			'layoutSettings.previewEffect' => 'プレビュー効果',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.screenWidth' => '画面幅',
 			'layoutSettings.addBreakpoint' => 'ブレークポイントを追加',
 			'layoutSettings.editBreakpoint' => 'ブレークポイントを編集',

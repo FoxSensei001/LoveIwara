@@ -100,6 +100,16 @@ class DeepLinkService extends GetxService {
   void markReady() {
     LogUtils.i('DeepLinkService 标记为已准备就绪', 'DeepLinkService');
     _isReady = true;
+
+    // 通知原生端 Flutter 已准备好（macOS）
+    if (GetPlatform.isMacOS) {
+      _fileHandlerChannel.invokeMethod('ready').then((_) {
+        LogUtils.d('已通知 macOS 端 Flutter 准备就绪', 'DeepLinkService');
+      }).catchError((e) {
+        LogUtils.w('通知 macOS 端时出错: $e', 'DeepLinkService');
+      });
+    }
+
     // 处理待处理的初始链接
     if (_pendingInitialLink != null) {
       LogUtils.i('准备处理待处理的初始链接: $_pendingInitialLink', 'DeepLinkService');
@@ -256,7 +266,12 @@ class DeepLinkService extends GetxService {
 
     if (filePath != null && filePath.isNotEmpty) {
       // 检查是否是视频文件（通过扩展名）
-      final ext = filePath.toLowerCase().split('.').lastOrNull ?? '';
+      // 对于 content:// URI，需要先解码 URL 编码再检查扩展名
+      String pathForExtCheck = filePath;
+      if (uri.scheme == 'content') {
+        pathForExtCheck = Uri.decodeFull(filePath);
+      }
+      final ext = pathForExtCheck.toLowerCase().split('.').lastOrNull ?? '';
       LogUtils.i('文件扩展名: $ext', 'DeepLinkService');
 
       final videoExtensions = [

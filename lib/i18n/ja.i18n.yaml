@@ -1484,6 +1484,10 @@ mediaPlayer:
   localVideoPathEmpty: "ローカルビデオパスが空です"
   localVideoFileNotExists: "ローカルビデオファイルが存在しません: ${path}"
   unableToPlayLocalVideo: "ローカルビデオを再生できません: ${error}"
+  # ファイルのドラッグ＆ドロップ
+  dropVideoFileHere: "ここにビデオファイルをドロップして再生"
+  supportedFormats: "対応形式: MP4, MKV, AVI, MOV, WEBM など"
+  noSupportedVideoFile: "サポートされているビデオファイルが見つかりません"
 
   # 画像ウィジェット
   imageLoadFailed: "画像読み込み失敗"

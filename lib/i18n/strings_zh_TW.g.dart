@@ -1381,6 +1381,9 @@ class _TranslationsMediaPlayerZhTw implements TranslationsMediaPlayerEn {
 	@override String get localVideoPathEmpty => '本地影片路徑為空';
 	@override String localVideoFileNotExists({required Object path}) => '本地影片檔案不存在: ${path}';
 	@override String unableToPlayLocalVideo({required Object error}) => '無法播放本地影片: ${error}';
+	@override String get dropVideoFileHere => '拖放影片檔案至此處播放';
+	@override String get supportedFormats => '支援格式: MP4, MKV, AVI, MOV, WEBM 等';
+	@override String get noSupportedVideoFile => '未找到支援的影片檔案';
 	@override String get imageLoadFailed => '圖片載入失敗';
 	@override String get unsupportedImageFormat => '不支援的圖片格式';
 	@override String get tryOtherViewer => '請嘗試使用其他檢視器';
@@ -3934,6 +3937,9 @@ extension on TranslationsZhTw {
 			'mediaPlayer.localVideoPathEmpty' => '本地影片路徑為空',
 			'mediaPlayer.localVideoFileNotExists' => ({required Object path}) => '本地影片檔案不存在: ${path}',
 			'mediaPlayer.unableToPlayLocalVideo' => ({required Object error}) => '無法播放本地影片: ${error}',
+			'mediaPlayer.dropVideoFileHere' => '拖放影片檔案至此處播放',
+			'mediaPlayer.supportedFormats' => '支援格式: MP4, MKV, AVI, MOV, WEBM 等',
+			'mediaPlayer.noSupportedVideoFile' => '未找到支援的影片檔案',
 			'mediaPlayer.imageLoadFailed' => '圖片載入失敗',
 			'mediaPlayer.unsupportedImageFormat' => '不支援的圖片格式',
 			'mediaPlayer.tryOtherViewer' => '請嘗試使用其他檢視器',
@@ -4060,11 +4066,11 @@ extension on TranslationsZhTw {
 			'emoji.selectEmoji' => '選擇表情包',
 			'emoji.noEmojisInGroup' => '該分組暫無表情包',
 			'emoji.goToSettingsToAddEmojis' => '前往設定添加表情包',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.emojiManagement' => '表情包管理',
 			'emoji.manageEmojiGroupsAndImages' => '管理表情包分組和圖片',
 			'emoji.uploadLocalImages' => '上傳本機圖片',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.uploadingImages' => '正在上傳圖片',
 			'emoji.uploadingImagesProgress' => ({required Object count}) => '正在上傳 ${count} 張圖片，請稍候...',
 			'emoji.doNotCloseDialog' => '請不要關閉此對話框',

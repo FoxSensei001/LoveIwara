@@ -1355,6 +1355,9 @@ class _TranslationsMediaPlayerZhCn implements TranslationsMediaPlayerEn {
 	@override String get localVideoPathEmpty => '本地视频路径为空';
 	@override String localVideoFileNotExists({required Object path}) => '本地视频文件不存在: ${path}';
 	@override String unableToPlayLocalVideo({required Object error}) => '无法播放本地视频: ${error}';
+	@override String get dropVideoFileHere => '拖放视频文件到此处播放';
+	@override String get supportedFormats => '支持格式: MP4, MKV, AVI, MOV, WEBM 等';
+	@override String get noSupportedVideoFile => '未找到支持的视频文件';
 	@override String get imageLoadFailed => '图片加载失败';
 	@override String get unsupportedImageFormat => '不支持的图片格式';
 	@override String get tryOtherViewer => '请尝试使用其他查看器';
@@ -3910,6 +3913,9 @@ extension on TranslationsZhCn {
 			'mediaPlayer.localVideoPathEmpty' => '本地视频路径为空',
 			'mediaPlayer.localVideoFileNotExists' => ({required Object path}) => '本地视频文件不存在: ${path}',
 			'mediaPlayer.unableToPlayLocalVideo' => ({required Object error}) => '无法播放本地视频: ${error}',
+			'mediaPlayer.dropVideoFileHere' => '拖放视频文件到此处播放',
+			'mediaPlayer.supportedFormats' => '支持格式: MP4, MKV, AVI, MOV, WEBM 等',
+			'mediaPlayer.noSupportedVideoFile' => '未找到支持的视频文件',
 			'mediaPlayer.imageLoadFailed' => '图片加载失败',
 			'mediaPlayer.unsupportedImageFormat' => '不支持的图片格式',
 			'mediaPlayer.tryOtherViewer' => '请尝试使用其他查看器',
@@ -4062,11 +4068,11 @@ extension on TranslationsZhCn {
 			'layoutSettings.autoModeDesc' => '根据屏幕宽度自动调整',
 			'layoutSettings.manualMode' => '手动模式',
 			'layoutSettings.manualModeDesc' => '使用固定列数',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.manualSettings' => '手动设置',
 			'layoutSettings.fixedColumns' => '固定列数',
 			'layoutSettings.columns' => '列',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.breakpointConfig' => '断点配置',
 			'layoutSettings.add' => '添加',
 			'layoutSettings.defaultColumns' => '默认列数',
