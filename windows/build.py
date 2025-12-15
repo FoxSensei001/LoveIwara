@@ -79,7 +79,8 @@ def main():
         iss_content = f.read()
 
     # Replace placeholders
-    root_path = os.getcwd().replace('\\', '/')
+    # Keep Windows path format with backslashes for Inno Setup
+    root_path = os.getcwd()
     new_iss_content = iss_content.replace('{{version}}', version).replace('{{root_path}}', root_path)
 
     # Write temporary changes

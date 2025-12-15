@@ -17,15 +17,15 @@ public:
   explicit FlutterWindow(const flutter::DartProject &project);
   virtual ~FlutterWindow();
 
+  // Send a file path to Flutter via MethodChannel
+  void SendFileToFlutter(const std::string &file_uri);
+
 protected:
   // Win32Window:
   bool OnCreate() override;
   void OnDestroy() override;
   LRESULT MessageHandler(HWND window, UINT const message, WPARAM const wparam,
                          LPARAM const lparam) noexcept override;
-
-  // Send a file path to Flutter via MethodChannel
-  void SendFileToFlutter(const std::string &file_uri);
 
 private:
   // The project to run.
