@@ -1,11 +1,49 @@
 # 最新版本
-currentVersion: "0.4.0"
+currentVersion: "0.4.1"
 # 更新日志
 # 格式介绍
 # 1. version: 版本号
 # 2. date: 更新日期
 # 3. changes: 更新内容
 # 4. minVersion: 最小版本号
+updates:
+  - version: "0.4.1"
+    date: "2025-12-15"
+    minVersion: "0.3.0"
+    changes:
+      zh-CN:
+        - "优化播放器的边缘滑动逻辑，避免在下拉状态栏、全面屏返回手势操作时，触发播放器的横向、竖向事件"
+        - "下载列表 UI 优化"
+        - "下载列表里的视频，支持直接应用内本地打开"
+        - "桌面端支持将文件夹内的视频拖拽到应用图标或应用内，以直接播放（linux 系统尚未经过测试，也并不保证拥有或此功能正常）"
+        - "桌面端和移动端，支持通过系统的“打开方式-i_iwara”来呼出应用，播放本地视频文件（ios、linux 系统尚未经过测试，也并不保证拥有或此功能正常）"
+        - "windwos 打包构建产物新增安装器 (installer)，无需手动解压缩 zip 再替换文件夹"
+        - "图库在大图浏览时，会预先加载 3 张图片，以优化多图时的浏览体验"
+        - "图库在大图浏览时，如果当前的浏览内容是视频文件，则会取消音量翻页功能，保证可以正常调整音量"
+        - "本地收藏列表支持拖拽排序"
+        - "回滚 Flutter 版本，以提升应用在部分系统上的稳定性"
+      en:
+        - "Optimized the player's edge swipe behavior to avoid triggering horizontal or vertical gestures while pulling down the system status bar or using full-screen back gestures"
+        - "Polished the download list UI"
+        - "Videos in the download list can now be opened directly as local files within the app"
+        - "On desktop platforms, you can drag videos from a folder onto the app icon or into the app to play them directly (Linux has not been tested and is not guaranteed to support or work correctly)"
+        - "On both desktop and mobile, you can use the system \"Open with → i_iwara\" action to launch the app and play local video files (iOS and Linux have not been tested and are not guaranteed to support or work correctly)"
+        - "Windows builds now provide an installer, so you no longer need to manually extract the zip and replace folders"
+        - "When viewing large images in the gallery, the viewer now preloads 3 images to improve the browsing experience for multi-image posts"
+        - "When viewing large images in the gallery, if the current item is a video file, the volume swipe-to-change-page gesture is disabled so that volume can be adjusted normally"
+        - "The local favorites list now supports drag-and-drop sorting"
+        - "Rolled back the Flutter version to improve app stability on some systems"
+      ja:
+        - "プレイヤーの端でのスワイプ動作を最適化し、ステータスバーのプルダウンやフルスクリーン戻るジェスチャー操作時に、プレイヤーの横方向・縦方向ジェスチャーが誤って発動しないようにしました"
+        - "ダウンロードリストのUIを最適化"
+        - "ダウンロードリスト内の動画を、アプリ内でローカルファイルとして直接再生できるようにしました"
+        - "デスクトップ版では、フォルダ内の動画をアプリのアイコンまたはアプリウィンドウにドラッグ＆ドロップして、直接再生できるようになりました（Linuxは未検証であり、本機能の有無や正常動作は保証されません）"
+        - "デスクトップおよびモバイルでは、システムの「このアプリで開く → i_iwara」機能からアプリを起動し、ローカル動画ファイルを再生できるようになりました（iOSとLinuxは未検証であり、本機能の有無や正常動作は保証されません）"
+        - "Windows版のビルド成果物にインストーラーを追加し、zipを手動で解凍してフォルダを差し替える必要がなくなりました"
+        - "ギャラリーの大画像ビューでは、複数画像の投稿での閲覧体験を向上させるため、事前に3枚の画像を読み込むようにしました"
+        - "ギャラリーの大画像ビューで、現在の表示コンテンツが動画ファイルの場合、音量スワイプによるページ送り機能を無効化し、音量を正常に調整できるようにしました"
+        - "ローカルお気に入りリストでドラッグ＆ドロップによる並べ替えをサポートしました"
+        - "一部のシステムでのアプリの安定性を向上させるため、Flutterのバージョンをロールバックしました"
 updates:
   - version: "0.4.0"
     date: "2025-12-07"
