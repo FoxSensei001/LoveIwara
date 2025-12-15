@@ -341,15 +341,17 @@ class GestureAreaState extends State<GestureArea>
       const edgeThreshold = CommonConstants.videoPlayerEdgeGestureThreshold;
       final screenHeight = widget.screenSize.height;
 
-      // 从顶部边缘向下滑动,忽略
+      // 从顶部边缘向下滑动,忽略 (全屏和非全屏都生效)
       if (_verticalDragStartY! < edgeThreshold && details.primaryDelta! > 0) {
         return;
       }
 
-      // 从底部边缘向上滑动,忽略
+      // 从底部边缘向上滑动,忽略 (仅全屏生效)
       if (_verticalDragStartY! > screenHeight - edgeThreshold &&
           details.primaryDelta! < 0) {
-        return;
+        if (widget.myVideoStateController.isFullscreen.value) {
+          return;
+        }
       }
     }
 

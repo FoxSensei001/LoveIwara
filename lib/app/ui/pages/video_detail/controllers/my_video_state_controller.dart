@@ -350,17 +350,9 @@ class MyVideoStateController extends GetxController
             'http',
             'https',
             'crypto',
-            'content',
           ],
         ),
       );
-
-      if (player.platform is NativePlayer) {
-        (player.platform as dynamic).setProperty(
-          'load-unsafe-playlists',
-          'yes',
-        );
-      }
 
       videoController = VideoController(
         player,

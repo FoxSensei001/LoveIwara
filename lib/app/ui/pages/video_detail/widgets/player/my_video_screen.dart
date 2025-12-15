@@ -575,13 +575,17 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                     // 从左侧边缘向右滑动,忽略
                     if (_horizontalDragStartX! < edgeThreshold &&
                         details.localPosition.dx - _horizontalDragStartX! > 0) {
-                      return;
+                      if (widget.myVideoStateController.isFullscreen.value) {
+                        return;
+                      }
                     }
 
                     // 从右侧边缘向左滑动,忽略
                     if (_horizontalDragStartX! > screenWidth - edgeThreshold &&
                         details.localPosition.dx - _horizontalDragStartX! < 0) {
-                      return;
+                      if (widget.myVideoStateController.isFullscreen.value) {
+                        return;
+                      }
                     }
 
                     double dragDistance =
@@ -672,13 +676,17 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                     // 从左侧边缘向右滑动,忽略
                     if (_horizontalDragStartX! < edgeThreshold &&
                         details.localPosition.dx - _horizontalDragStartX! > 0) {
-                      return;
+                      if (widget.myVideoStateController.isFullscreen.value) {
+                        return;
+                      }
                     }
 
                     // 从右侧边缘向左滑动,忽略
                     if (_horizontalDragStartX! > screenWidth - edgeThreshold &&
                         details.localPosition.dx - _horizontalDragStartX! < 0) {
-                      return;
+                      if (widget.myVideoStateController.isFullscreen.value) {
+                        return;
+                      }
                     }
 
                     double dragDistance =
@@ -774,13 +782,17 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                     // 从左侧边缘向右滑动,忽略
                     if (_horizontalDragStartX! < edgeThreshold &&
                         details.localPosition.dx - _horizontalDragStartX! > 0) {
-                      return;
+                      if (widget.myVideoStateController.isFullscreen.value) {
+                        return;
+                      }
                     }
 
                     // 从右侧边缘向左滑动,忽略
                     if (_horizontalDragStartX! > screenWidth - edgeThreshold &&
                         details.localPosition.dx - _horizontalDragStartX! < 0) {
-                      return;
+                      if (widget.myVideoStateController.isFullscreen.value) {
+                        return;
+                      }
                     }
 
                     double dragDistance =
