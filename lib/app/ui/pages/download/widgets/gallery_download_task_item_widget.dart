@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'dart:ui';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -33,227 +35,225 @@ class GalleryDownloadTaskItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
     final extData = galleryData;
-    final width = MediaQuery.of(context).size.width;
-    final isSmallScreen = width < 600;
-    
+
     if (extData == null) return const SizedBox.shrink();
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: GestureDetector(
-        onSecondaryTapUp: (details) {
-          final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-          final RelativeRect position = RelativeRect.fromRect(
-            Rect.fromPoints(
-              details.globalPosition,
-              details.globalPosition,
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        children: [
+          // 模糊背景
+          if (extData.previewUrls.isNotEmpty)
+            Positioned.fill(
+              child: CachedNetworkImage(
+                imageUrl: extData.previewUrls[0],
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Container(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                ),
+                errorWidget: (context, url, error) => Container(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                ),
+              ),
             ),
-            Offset.zero & overlay.size,
-          );
-          showMenu(
-            context: context,
-            position: position,
-            items: [
-              // 查看下载详情
-              PopupMenuItem(
-                child: Row(
-                  children: [
-                    const Icon(Icons.info),
-                    const SizedBox(width: 8),
-                    Text(t.download.downloadDetail),
-                  ],
+          if (extData.previewUrls.isNotEmpty)
+            Positioned.fill(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                child: Container(
+                  color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.7),
                 ),
-                onTap: () => showDownloadDetailDialog(context, task),
               ),
-              if (Platform.isWindows || Platform.isMacOS || Platform.isLinux)
-                PopupMenuItem(
-                  child: Row(
-                    children: [
-                      const Icon(Icons.folder_open),
-                      const SizedBox(width: 8),
-                      Text(t.download.showInFolder),
-                    ],
-                  ),
-                  onTap: () => _showInFolder(context),
-                ),
-              PopupMenuItem(
-                child: Row(
-                  children: [
-                    const Icon(Icons.delete, color: Colors.red),
-                    const SizedBox(width: 8),
-                    Text(t.download.deleteTask, style: const TextStyle(color: Colors.red)),
-                  ],
-                ),
-                onTap: () => _showDeleteConfirmDialog(context),
-              ),
-              // 强制删除
-              PopupMenuItem(
-                child: Row(
-                  children: [
-                    const Icon(Icons.delete, color: Colors.red),
-                    const SizedBox(width: 8),
-                    Text(t.download.forceDeleteTask, style: const TextStyle(color: Colors.red)),
-                  ],
-                ),
-                onTap: () => _showDeleteConfirmDialog(context, force: true),
-              ),
-            ],
-          );
-        },
-        child: InkWell(
-          onTap: () => _onTap(context),
-          borderRadius: BorderRadius.circular(12),
-          mouseCursor: task.status == DownloadStatus.completed ? SystemMouseCursors.click : SystemMouseCursors.basic,
-          splashFactory: task.status == DownloadStatus.completed ? InkSplash.splashFactory : NoSplash.splashFactory,
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              spacing: 8,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 预览图区域
-                    Container(
-                      width: 120,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color:
-                            Theme.of(context).colorScheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: _buildPreviewImages(context, extData),
+            ),
+          // 内容层
+          GestureDetector(
+            onSecondaryTapUp: (details) {
+              final RenderBox overlay =
+                  Overlay.of(context).context.findRenderObject() as RenderBox;
+              final RelativeRect position = RelativeRect.fromRect(
+                Rect.fromPoints(details.globalPosition, details.globalPosition),
+                Offset.zero & overlay.size,
+              );
+              showMenu(
+                context: context,
+                position: position,
+                items: [
+                  // 查看下载详情
+                  PopupMenuItem(
+                    child: Row(
+                      children: [
+                        const Icon(Icons.info),
+                        const SizedBox(width: 8),
+                        Text(t.download.downloadDetail),
+                      ],
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    onTap: () => showDownloadDetailDialog(context, task),
+                  ),
+                  if (Platform.isWindows ||
+                      Platform.isMacOS ||
+                      Platform.isLinux)
+                    PopupMenuItem(
+                      child: Row(
                         children: [
-                          // 标题
-                          Text(
-                            extData.title ?? t.download.errors.unknown,
-                            style: Theme.of(context).textTheme.titleMedium,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 8),
-                          // 作者信息
-                          MouseRegion(
-                            cursor: extData.authorUsername != null
-                                ? SystemMouseCursors.click
-                                : SystemMouseCursors.basic,
-                            child: GestureDetector(
-                              onTap: extData.authorUsername != null
-                                  ? () => NaviService.navigateToAuthorProfilePage(
-                                      extData.authorUsername!)
-                                  : null,
-                              child: Row(
-                                children: [
-                                  AvatarWidget(
-                                    avatarUrl: extData.authorAvatar,
-                                    size: 25
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Text(
-                                    extData.authorName ??
-                                        t.download.errors.unknown,
-                                    style:
-                                        Theme.of(context).textTheme.titleMedium,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
+                          const Icon(Icons.folder_open),
+                          const SizedBox(width: 8),
+                          Text(t.download.showInFolder),
                         ],
                       ),
+                      onTap: () => _showInFolder(context),
                     ),
-                    // 主要操作 + 快捷删除按钮
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
+                  PopupMenuItem(
+                    child: Row(
                       children: [
-                        _buildMainActionButton(context),
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline),
-                          tooltip: t.download.deleteTask,
-                          onPressed: () => _showDeleteConfirmDialog(context),
+                        const Icon(Icons.delete, color: Colors.red),
+                        const SizedBox(width: 8),
+                        Text(
+                          t.download.deleteTask,
+                          style: const TextStyle(color: Colors.red),
                         ),
                       ],
                     ),
-                  ],
-                ),
-                // 进度条和状态
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+                    onTap: () => _showDeleteConfirmDialog(context),
+                  ),
+                  // 强制删除
+                  PopupMenuItem(
+                    child: Row(
                       children: [
+                        const Icon(Icons.delete, color: Colors.red),
+                        const SizedBox(width: 8),
+                        Text(
+                          t.download.forceDeleteTask,
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      ],
+                    ),
+                    onTap: () => _showDeleteConfirmDialog(context, force: true),
+                  ),
+                ],
+              );
+            },
+            child: InkWell(
+              onTap: () => _onTap(context),
+              mouseCursor: task.status == DownloadStatus.completed
+                  ? SystemMouseCursors.click
+                  : SystemMouseCursors.basic,
+              splashFactory: task.status == DownloadStatus.completed
+                  ? InkSplash.splashFactory
+                  : NoSplash.splashFactory,
+              child: Column(
+                children: [
+                  // 上部内容区域（带 padding）
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 预览图区域
+                        Container(
+                          width: 120,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: _buildPreviewImages(context, extData),
+                        ),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // 修改状态标签显示方式，为窄屏优化
-                              if (isSmallScreen && task.status == DownloadStatus.downloading)
-                                Row(
-                                  children: [
-                                    StatusLabel(status: task.status, text: t.download.downloading),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      _getStatusText(context),
-                                      style: Theme.of(context).textTheme.bodySmall,
-                                    ),
-                                  ],
-                                )
-                              else
-                                StatusLabel(
-                                    status: task.status,
-                                    text: _getStatusText(context)),
-                              if (task.error != null)
-                                Text(
-                                  task.error!,
-                                  style: const TextStyle(color: Colors.red),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
+                              // 标题
+                              Text(
+                                extData.title ?? t.download.errors.unknown,
+                                style: Theme.of(context).textTheme.titleMedium,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 8),
+                              // 作者信息
+                              MouseRegion(
+                                cursor: extData.authorUsername != null
+                                    ? SystemMouseCursors.click
+                                    : SystemMouseCursors.basic,
+                                child: GestureDetector(
+                                  onTap: extData.authorUsername != null
+                                      ? () =>
+                                            NaviService.navigateToAuthorProfilePage(
+                                              extData.authorUsername!,
+                                            )
+                                      : null,
+                                  child: Row(
+                                    children: [
+                                      AvatarWidget(
+                                        avatarUrl: extData.authorAvatar,
+                                        size: 25,
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Text(
+                                        extData.authorName ??
+                                            t.download.errors.unknown,
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.titleMedium,
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              // 添加图片下载进度指示器
-                              if (task.status == DownloadStatus.downloading)
-                                _buildGalleryProgressIndicator(context),
+                              ),
                             ],
                           ),
                         ),
-                        // 图库详情按钮
-                        if (extData.id != null)
-                          IconButton(
-                            icon: const Icon(Icons.photo_library),
-                            onPressed: () =>
-                                NaviService.navigateToGalleryDetailPage(
-                                    extData.id!),
-                            tooltip: t.download.viewGalleryDetail,
-                          ),
-                        // 更多操作按钮
-                        IconButton(
-                          icon: const Icon(Icons.more_horiz),
-                          onPressed: () => _showMoreOptionsDialog(context),
-                          tooltip: t.download.moreOptions,
+                        // 主要操作 + 快捷删除按钮
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _buildMainActionButton(context),
+                            Obx(() {
+                              final isProcessing = DownloadService.to
+                                  .isTaskProcessing(task.id);
+                              return IconButton(
+                                icon: isProcessing
+                                    ? const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : const Icon(Icons.delete_outline),
+                                tooltip: t.download.deleteTask,
+                                onPressed: isProcessing
+                                    ? null
+                                    : () => _showDeleteConfirmDialog(context),
+                              );
+                            }),
+                          ],
                         ),
                       ],
                     ),
-                  ],
-                ),
-              ],
+                  ),
+                  // 进度和状态（紧贴边缘，无 padding）
+                  _buildProgressStatusBar(context),
+                ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
 
   Widget _buildPreviewImages(
-      BuildContext context, GalleryDownloadExtData extData) {
+    BuildContext context,
+    GalleryDownloadExtData extData,
+  ) {
     final t = slang.Translations.of(context);
     if (extData.previewUrls.isEmpty) {
-      return const Center(
-        child: Icon(Icons.image_not_supported, size: 32),
-      );
+      return const Center(child: Icon(Icons.image_not_supported, size: 32));
     }
 
     return ClipRRect(
@@ -265,9 +265,7 @@ class GalleryDownloadTaskItem extends StatelessWidget {
             child: CachedNetworkImage(
               imageUrl: extData.previewUrls[0],
               fit: BoxFit.cover,
-              placeholder: (context, url) => Container(
-                color: Colors.grey[200],
-              ),
+              placeholder: (context, url) => Container(color: Colors.grey[200]),
               errorWidget: (context, url, error) => Container(
                 color: Colors.grey[200],
                 child: const Icon(Icons.error_outline),
@@ -283,16 +281,17 @@ class GalleryDownloadTaskItem extends StatelessWidget {
                 ),
                 child: Center(
                   child: Obx(() {
-                    final progress =
-                        DownloadService.to.getGalleryDownloadProgress(task.id);
+                    final progress = DownloadService.to
+                        .getGalleryDownloadProgress(task.id);
                     if (progress == null) return const SizedBox.shrink();
 
                     final totalImages = progress.length;
                     final downloadedImages = progress.values
                         .where((downloaded) => downloaded)
                         .length;
-                    final currentProgress =
-                        totalImages > 0 ? downloadedImages / totalImages : 0;
+                    final currentProgress = totalImages > 0
+                        ? downloadedImages / totalImages
+                        : 0;
 
                     return Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -327,10 +326,7 @@ class GalleryDownloadTaskItem extends StatelessWidget {
               ),
               child: Text(
                 t.download.totalImageNums(num: extData.totalImages),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                ),
+                style: const TextStyle(color: Colors.white, fontSize: 12),
               ),
             ),
           ),
@@ -398,46 +394,196 @@ class GalleryDownloadTaskItem extends StatelessWidget {
     });
   }
 
+  Widget _buildProgressStatusBar(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final extData = galleryData;
+    if (extData == null) return const SizedBox.shrink();
+    final isSmallScreen = MediaQuery.of(context).size.width < 600;
+
+    // 计算进度
+    double progress = 0.0;
+    if (task.totalBytes > 0) {
+      progress = task.downloadedBytes / task.totalBytes;
+    } else if (task.status == DownloadStatus.completed) {
+      progress = 1.0;
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(12),
+          bottomRight: Radius.circular(12),
+        ),
+        gradient: LinearGradient(
+          colors: [
+            _getProgressColor(task.status).withValues(alpha: 0.3),
+            _getProgressColor(task.status).withValues(alpha: 0.1),
+          ],
+          stops: [progress.clamp(0.0, 1.0), progress.clamp(0.0, 1.0)],
+        ),
+      ),
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 窄屏下载中状态：分两行显示
+                if (isSmallScreen && task.status == DownloadStatus.downloading)
+                  _buildSmallScreenDownloadingStatus(context, t)
+                // 窄屏其他状态或宽屏所有状态：单行显示
+                else
+                  StatusLabel(
+                    status: task.status,
+                    text: _getStatusText(context),
+                  ),
+                if (task.error != null)
+                  Text(
+                    task.error!,
+                    style: const TextStyle(color: Colors.red),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+              ],
+            ),
+          ),
+          // 图库详情按钮
+          if (extData.id != null)
+            IconButton(
+              icon: const Icon(Icons.photo_library),
+              onPressed: () =>
+                  NaviService.navigateToGalleryDetailPage(extData.id!),
+              tooltip: t.download.viewGalleryDetail,
+            ),
+          // 更多操作按钮
+          IconButton(
+            icon: const Icon(Icons.more_horiz),
+            onPressed: () => _showMoreOptionsDialog(context),
+            tooltip: t.download.moreOptions,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _getProgressColor(DownloadStatus status) {
+    switch (status) {
+      case DownloadStatus.completed:
+        return Colors.green;
+      case DownloadStatus.failed:
+        return Colors.red;
+      case DownloadStatus.paused:
+        return Colors.orange;
+      default:
+        return Colors.blue;
+    }
+  }
+
+  // 窄屏下载中状态的专用显示组件
+  Widget _buildSmallScreenDownloadingStatus(
+    BuildContext context,
+    slang.Translations t,
+  ) {
+    String progressText;
+    if (task.totalBytes > 0) {
+      final downloaded = _formatFileSize(task.downloadedBytes);
+      final total = _formatFileSize(task.totalBytes);
+      final progress = (task.downloadedBytes / task.totalBytes * 100)
+          .toStringAsFixed(1);
+      progressText = '$downloaded/$total ($progress%)';
+    } else {
+      final downloaded = _formatFileSize(task.downloadedBytes);
+      progressText = downloaded;
+    }
+
+    return Obx(() {
+      final downloadProgress = DownloadService.to
+          .getGalleryDownloadProgress(task.id);
+
+      String imageProgressText = '';
+      if (downloadProgress != null) {
+        final totalImages = downloadProgress.length;
+        final downloadedImages = downloadProgress.values
+            .where((downloaded) => downloaded)
+            .length;
+        imageProgressText = '$downloadedImages/$totalImages';
+      }
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 4,
+        children: [
+          // 第一行：进度
+          Text(
+            progressText,
+            style: Theme.of(context).textTheme.bodySmall,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          // 第二行：下载中 tag + 图片进度
+          if (imageProgressText.isNotEmpty)
+            Row(
+              children: [
+                StatusLabel(
+                  status: task.status,
+                  text: t.download.downloading,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  imageProgressText,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ],
+            ),
+        ],
+      );
+    });
+  }
+
   String _getStatusText(BuildContext context) {
     final t = slang.Translations.of(context);
     final width = MediaQuery.of(context).size.width;
     final isSmallScreen = width < 600;
-    
+
     switch (task.status) {
       case DownloadStatus.pending:
         return t.download.waitingForDownload;
       case DownloadStatus.downloading:
         if (task.totalBytes > 0) {
-          final progress =
-              (task.downloadedBytes / task.totalBytes * 100).toStringAsFixed(1);
+          final progress = (task.downloadedBytes / task.totalBytes * 100)
+              .toStringAsFixed(1);
           final downloaded = _formatFileSize(task.downloadedBytes);
           final total = _formatFileSize(task.totalBytes);
-          
-          // 窄屏设备使用更紧凑的格式
-          if (isSmallScreen) {
-            return '$downloaded/$total';
-          }
-          
+
           return t.download.downloadingProgressForImageProgress(
-              downloaded: downloaded, total: total, progress: progress);
+            downloaded: downloaded,
+            total: total,
+            progress: progress,
+          );
         } else {
           final downloaded = _formatFileSize(task.downloadedBytes);
           return t.download.downloadingOnlyDownloaded(downloaded: downloaded);
         }
       case DownloadStatus.paused:
         if (task.totalBytes > 0) {
-          final progress =
-              (task.downloadedBytes / task.totalBytes * 100).toStringAsFixed(1);
+          final progress = (task.downloadedBytes / task.totalBytes * 100)
+              .toStringAsFixed(1);
           final downloaded = _formatFileSize(task.downloadedBytes);
           final total = _formatFileSize(task.totalBytes);
-          
+
           // 窄屏设备使用更紧凑的格式
           if (isSmallScreen) {
-            return '$downloaded/$total';
+            return '$downloaded/$total ($progress%)';
           }
-          
+
           return t.download.pausedForDownloadedAndTotal(
-              downloaded: downloaded, total: total, progress: progress);
+            downloaded: downloaded,
+            total: total,
+            progress: progress,
+          );
         } else {
           final downloaded = _formatFileSize(task.downloadedBytes);
           return t.download.pausedAndDownloaded(downloaded: downloaded);
@@ -453,8 +599,9 @@ class GalleryDownloadTaskItem extends StatelessWidget {
   String _formatFileSize(int bytes) {
     double size = bytes.toDouble();
 
-    String sizeStr =
-        size >= 10 ? size.round().toString() : size.toStringAsFixed(1);
+    String sizeStr = size >= 10
+        ? size.round().toString()
+        : size.toStringAsFixed(1);
     return sizeStr;
   }
 
@@ -477,7 +624,10 @@ class GalleryDownloadTaskItem extends StatelessWidget {
               children: [
                 // 标题
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 8.0,
+                  ),
                   child: Row(
                     children: [
                       Text(
@@ -508,7 +658,9 @@ class GalleryDownloadTaskItem extends StatelessWidget {
                           title: Text(t.download.downloadDetail),
                           onTap: () => showDownloadDetailDialog(context, task),
                         ),
-                        if (Platform.isWindows || Platform.isMacOS || Platform.isLinux)
+                        if (Platform.isWindows ||
+                            Platform.isMacOS ||
+                            Platform.isLinux)
                           ListTile(
                             leading: const Icon(Icons.folder_open),
                             title: Text(t.download.showInFolder),
@@ -520,8 +672,10 @@ class GalleryDownloadTaskItem extends StatelessWidget {
                         const Divider(height: 1),
                         ListTile(
                           leading: const Icon(Icons.delete, color: Colors.red),
-                          title: Text(t.download.deleteTask,
-                              style: const TextStyle(color: Colors.red)),
+                          title: Text(
+                            t.download.deleteTask,
+                            style: const TextStyle(color: Colors.red),
+                          ),
                           onTap: () {
                             Navigator.pop(context);
                             _showDeleteConfirmDialog(context);
@@ -530,7 +684,10 @@ class GalleryDownloadTaskItem extends StatelessWidget {
                         // 强制删除
                         ListTile(
                           leading: const Icon(Icons.delete, color: Colors.red),
-                          title: Text(t.download.forceDeleteTask, style: const TextStyle(color: Colors.red)),
+                          title: Text(
+                            t.download.forceDeleteTask,
+                            style: const TextStyle(color: Colors.red),
+                          ),
                           onTap: () {
                             Navigator.pop(context);
                             _showDeleteConfirmDialog(context, force: true);
@@ -578,48 +735,12 @@ class GalleryDownloadTaskItem extends StatelessWidget {
   }
 
   String _normalizePath(String path) {
-    // 仅做路径分隔符规范化，避免因“生成唯一路径”而在已有文件名后追加 (1)
+    // 仅做路径分隔符规范化，避免因"生成唯一路径"而在已有文件名后追加 (1)
     if (Platform.isWindows) {
       return path.replaceAll('/', '\\');
     } else {
       return path.replaceAll('\\', '/');
     }
-  }
-
-  // 构建图库下载进度指示器
-  Widget _buildGalleryProgressIndicator(BuildContext context) {
-    final progress = DownloadService.to.getGalleryDownloadProgress(task.id);
-
-    if (progress == null) return const SizedBox.shrink();
-
-    final totalImages = progress.length;
-    final downloadedImages =
-        progress.values.where((downloaded) => downloaded).length;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 4),
-        Row(
-          children: [
-            Expanded(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: LinearProgressIndicator(
-                  value: totalImages > 0 ? downloadedImages / totalImages : 0,
-                  minHeight: 8,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              '$downloadedImages/$totalImages',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ],
-        ),
-      ],
-    );
   }
 
   void _onTap(BuildContext context) {
@@ -635,8 +756,14 @@ class GalleryDownloadTaskItem extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           AlertDialog(
-            title: Text(force ? t.download.forceDeleteTask : t.download.deleteTask),
-            content: Text(force ? t.download.forceDeleteTaskConfirmation : t.download.deleteTaskConfirmation),
+            title: Text(
+              force ? t.download.forceDeleteTask : t.download.deleteTask,
+            ),
+            content: Text(
+              force
+                  ? t.download.forceDeleteTaskConfirmation
+                  : t.download.deleteTaskConfirmation,
+            ),
             actions: [
               TextButton(
                 onPressed: () => AppService.tryPop(),
@@ -645,7 +772,10 @@ class GalleryDownloadTaskItem extends StatelessWidget {
               TextButton(
                 onPressed: () {
                   AppService.tryPop();
-                  DownloadService.to.deleteTask(task.id, ignoreFileDeleteError: force);
+                  DownloadService.to.deleteTask(
+                    task.id,
+                    ignoreFileDeleteError: force,
+                  );
                 },
                 child: Text(
                   t.common.confirm,

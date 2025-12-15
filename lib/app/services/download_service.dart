@@ -311,95 +311,131 @@ class DownloadService extends GetxService {
     String taskId, {
     bool ignoreFileDeleteError = false,
   }) async {
-    LogUtils.i('开始删除下载任务: $taskId', 'DownloadService');
-    DownloadTask? task;
-    // 获取任务信息
-    task = _activeTasks[taskId] ?? await _repository.getTaskById(taskId);
-
-    // 如果内存和数据库中都没有任务信息，则直接返回
-    if (task == null) {
-      LogUtils.e('任务不存在: $taskId', tag: 'DownloadService');
-      _showMessage(slang.t.download.errors.taskNotFound, Colors.red);
-      // 防止内存问题，清理内存中的信息
-      _clearMemoryTask(taskId, '任务不存在时的清理');
+    // 防止重复删除
+    if (_processingTaskIds.contains(taskId)) {
       return;
     }
+    _processingTaskIds.add(taskId);
 
-    // 先尝试删除文件
-    final fileOrDir = FileSystemEntity.typeSync(task.savePath);
-    bool isDeleteSuccess = false;
+    try {
+      LogUtils.i('开始删除下载任务: $taskId', 'DownloadService');
+      DownloadTask? task;
+      // 获取任务信息
+      task = _activeTasks[taskId] ?? await _repository.getTaskById(taskId);
 
-    if (fileOrDir == FileSystemEntityType.notFound) {
-      // 目标不存在，视为已删除
-      LogUtils.w('目标不存在，无需删除: ${task.savePath}', 'DownloadService');
-      isDeleteSuccess = true;
-    } else if (fileOrDir == FileSystemEntityType.directory) {
-      // 如果是文件夹则删除整个文件夹
-      final dir = Directory(task.savePath);
-      if (await dir.exists()) {
-        try {
-          await dir.delete(recursive: true);
-          LogUtils.d('已删除文件夹: ${task.savePath}', 'DownloadService');
+      // 如果内存和数据库中都没有任务信息，则直接返回
+      if (task == null) {
+        LogUtils.e('任务不存在: $taskId', tag: 'DownloadService');
+        _showMessage(slang.t.download.errors.taskNotFound, Colors.red);
+        // 防止内存问题，清理内存中的信息
+        _clearMemoryTask(taskId, '任务不存在时的清理');
+        return;
+      }
+
+      // 如果任务正在下载中，先取消下载并等待资源释放
+      if (task.status == DownloadStatus.downloading || _activeDownloads.containsKey(taskId)) {
+        LogUtils.d('任务正在下载中，先取消下载: $taskId', 'DownloadService');
+        _clearMemoryTask(taskId, '删除任务前取消下载');
+        // 等待文件资源释放
+        await Future.delayed(const Duration(milliseconds: 500));
+      }
+
+      // 尝试删除文件，支持重试
+      bool isDeleteSuccess = false;
+      int retryCount = 0;
+      const maxRetries = 3;
+      const retryDelay = Duration(milliseconds: 300);
+
+      while (!isDeleteSuccess && retryCount < maxRetries) {
+        final fileOrDir = FileSystemEntity.typeSync(task.savePath);
+
+        if (fileOrDir == FileSystemEntityType.notFound) {
+          // 目标不存在，视为已删除
+          LogUtils.w('目标不存在，无需删除: ${task.savePath}', 'DownloadService');
           isDeleteSuccess = true;
-        } catch (e) {
-          // 若并发导致此时目录已不存在，也视为成功
-          if (!await dir.exists()) {
-            LogUtils.w('删除时目录已不存在: ${task.savePath}', 'DownloadService');
-            isDeleteSuccess = true;
+        } else if (fileOrDir == FileSystemEntityType.directory) {
+          // 如果是文件夹则删除整个文件夹
+          final dir = Directory(task.savePath);
+          if (await dir.exists()) {
+            try {
+              await dir.delete(recursive: true);
+              LogUtils.d('已删除文件夹: ${task.savePath}', 'DownloadService');
+              isDeleteSuccess = true;
+            } catch (e) {
+              // 若并发导致此时目录已不存在，也视为成功
+              if (!await dir.exists()) {
+                LogUtils.w('删除时目录已不存在: ${task.savePath}', 'DownloadService');
+                isDeleteSuccess = true;
+              } else {
+                LogUtils.e(
+                  '删除文件夹失败，可能被占用: ${task.savePath} (重试 $retryCount/$maxRetries)',
+                  tag: 'DownloadService',
+                  error: e,
+                );
+                if (retryCount < maxRetries - 1) {
+                  retryCount++;
+                  await Future.delayed(retryDelay);
+                } else {
+                  retryCount++;
+                }
+              }
+            }
           } else {
-            LogUtils.e(
-              '删除文件夹失败，可能被占用: ${task.savePath}',
-              tag: 'DownloadService',
-              error: e,
-            );
+            // 不存在也当做成功
+            LogUtils.w('目录不存在，无需删除: ${task.savePath}', 'DownloadService');
+            isDeleteSuccess = true;
+          }
+        } else {
+          // 如果是文件则删除文件（包含符号链接等情况）
+          final file = File(task.savePath);
+          if (await file.exists()) {
+            try {
+              await file.delete();
+              LogUtils.d('已删除文件: ${task.savePath}', 'DownloadService');
+              isDeleteSuccess = true;
+            } catch (e) {
+              // 若并发导致此时文件已不存在，也视为成功
+              if (!await file.exists()) {
+                LogUtils.w('删除时文件已不存在: ${task.savePath}', 'DownloadService');
+                isDeleteSuccess = true;
+              } else {
+                LogUtils.e(
+                  '删除文件失败，可能被占用: ${task.savePath} (重试 $retryCount/$maxRetries)',
+                  tag: 'DownloadService',
+                  error: e,
+                );
+                if (retryCount < maxRetries - 1) {
+                  retryCount++;
+                  await Future.delayed(retryDelay);
+                } else {
+                  retryCount++;
+                }
+              }
+            }
+          } else {
+            // 不存在也当做成功
+            LogUtils.w('文件不存在，无需删除: ${task.savePath}', 'DownloadService');
+            isDeleteSuccess = true;
           }
         }
-      } else {
-        // 不存在也当做成功
-        LogUtils.w('目录不存在，无需删除: ${task.savePath}', 'DownloadService');
-        isDeleteSuccess = true;
       }
-    } else {
-      // 如果是文件则删除文件（包含符号链接等情况）
-      final file = File(task.savePath);
-      if (await file.exists()) {
-        try {
-          await file.delete();
-          LogUtils.d('已删除文件: ${task.savePath}', 'DownloadService');
-          isDeleteSuccess = true;
-        } catch (e) {
-          // 若并发导致此时文件已不存在，也视为成功
-          if (!await file.exists()) {
-            LogUtils.w('删除时文件已不存在: ${task.savePath}', 'DownloadService');
-            isDeleteSuccess = true;
-          } else {
-            LogUtils.e(
-              '删除文件失败，可能被占用: ${task.savePath}',
-              tag: 'DownloadService',
-              error: e,
-            );
-          }
-        }
-      } else {
-        // 不存在也当做成功
-        LogUtils.w('文件不存在，无需删除: ${task.savePath}', 'DownloadService');
-        isDeleteSuccess = true;
+
+      if (!isDeleteSuccess && !ignoreFileDeleteError) {
+        LogUtils.e('删除文件失败: ${task.savePath}', tag: 'DownloadService');
+        _showMessage(slang.t.download.errors.deleteFileError, Colors.red);
+        return;
       }
+
+      // 从数据库删除任务记录
+      await _repository.deleteTask(taskId);
+
+      _clearMemoryTask(taskId, '任务已删除');
+
+      // 通知任务状态变更，触发UI刷新
+      _taskStatusChangedNotifier.value++;
+    } finally {
+      _processingTaskIds.remove(taskId);
     }
-
-    if (!isDeleteSuccess && !ignoreFileDeleteError) {
-      LogUtils.e('删除文件失败: ${task.savePath}', tag: 'DownloadService');
-      _showMessage(slang.t.download.errors.deleteFileError, Colors.red);
-      return;
-    }
-
-    // 从数据库删除任务记录
-    await _repository.deleteTask(taskId);
-
-    _clearMemoryTask(taskId, '任务已删除');
-
-    // 通知任务状态变更，触发UI刷新
-    _taskStatusChangedNotifier.value++;
   }
 
   // 处理下载队列

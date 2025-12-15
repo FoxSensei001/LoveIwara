@@ -199,11 +199,20 @@ class DefaultDownloadTaskItem extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         _buildMainActionButton(context),
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline),
-                          tooltip: t.download.deleteTask,
-                          onPressed: () => _showDeleteConfirmDialog(context),
-                        ),
+                        Obx(() {
+                          final isProcessing = DownloadService.to.isTaskProcessing(task.id);
+                          return IconButton(
+                            icon: isProcessing
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  )
+                                : const Icon(Icons.delete_outline),
+                            tooltip: t.download.deleteTask,
+                            onPressed: isProcessing ? null : () => _showDeleteConfirmDialog(context),
+                          );
+                        }),
                       ],
                     ),
                   ],
