@@ -162,7 +162,7 @@ jobs:
         run: |
           APP_VERSION=$(grep "version:" pubspec.yaml | cut -d':' -f2 | tr -d ' ' | cut -d'+' -f1)
           mkdir -p result
-          mv dist/i_iwara.dmg result/i_iwara-macos-$APP_VERSION.dmg
+          mv dist/i_iwara.dmg result/i_iwara-$APP_VERSION-macos.dmg
 
       - name: Upload macOS build
         uses: actions/upload-artifact@v4
