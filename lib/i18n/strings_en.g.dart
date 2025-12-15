@@ -135,6 +135,9 @@ class TranslationsCommonEn {
 
 	// Translations
 
+	/// en: 'Sort'
+	String get sort => 'Sort';
+
 	/// en: 'Love Iwara'
 	String get appName => 'Love Iwara';
 
@@ -6110,6 +6113,7 @@ extension on Translations {
 			'tutorial.afterSpecialFollow' => 'After Special Follow, you can quickly view the latest content of the author!',
 			'tutorial.specialFollowManagementTip' => 'Special Follow list can be managed in Sidebar - Following List - Special Follow List page',
 			'tutorial.skip' => 'Skip',
+			'common.sort' => 'Sort',
 			'common.appName' => 'Love Iwara',
 			'common.ok' => 'OK',
 			'common.cancel' => 'Cancel',
@@ -6608,9 +6612,9 @@ extension on Translations {
 			'settings.releaseDateLabel' => 'Release Date: {date}',
 			'settings.noChanges' => 'No update content available',
 			'settings.interaction' => 'Interaction',
-			'settings.enableVibration' => 'Enable Vibration',
 			_ => null,
 		} ?? switch (path) {
+			'settings.enableVibration' => 'Enable Vibration',
 			'settings.enableVibrationDesc' => 'Enable vibration feedback when interacting with the app',
 			'settings.defaultKeepVideoToolbarVisible' => 'Keep Video Toolbar Visible',
 			'settings.defaultKeepVideoToolbarVisibleDesc' => 'This setting determines whether the video toolbar remains visible when first entering the video page.',
@@ -7122,9 +7126,9 @@ extension on Translations {
 			'notifications.postedNewComment' => 'Posted new comment',
 			'notifications.inYour' => 'In your',
 			'notifications.video' => 'Video',
-			'notifications.repliedYourVideoComment' => 'Replied your video comment',
 			_ => null,
 		} ?? switch (path) {
+			'notifications.repliedYourVideoComment' => 'Replied your video comment',
 			'notifications.copyInfoToClipboard' => 'Copy notification info to clipboard',
 			'notifications.copySuccess' => 'Copied to clipboard',
 			'notifications.copySuccessForMessage' => ({required Object str}) => 'Copied to clipboard: ${str}',
@@ -7636,9 +7640,9 @@ extension on Translations {
 			'log.todayLogs' => ({required Object count}) => 'Today Logs: ${count} logs',
 			'log.recent7DaysLogs' => ({required Object count}) => 'Recent 7 Days Logs: ${count} logs',
 			'log.totalLogs' => ({required Object count}) => 'Total Logs: ${count} logs',
-			'log.setLogDatabaseSizeLimit' => 'Set Log Database Size Limit',
 			_ => null,
 		} ?? switch (path) {
+			'log.setLogDatabaseSizeLimit' => 'Set Log Database Size Limit',
 			'log.currentLogSizeWithSize' => ({required Object size}) => 'Current Log Size: ${size}',
 			'log.warning' => 'Warning',
 			'log.newSizeLimit' => ({required Object size}) => 'New size limit: ${size}',

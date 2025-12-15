@@ -105,6 +105,7 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	final TranslationsZhCn _root; // ignore: unused_field
 
 	// Translations
+	@override String get sort => '排序';
 	@override String get appName => 'Love Iwara';
 	@override String get ok => '确定';
 	@override String get cancel => '取消';
@@ -2563,6 +2564,7 @@ extension on TranslationsZhCn {
 			'tutorial.afterSpecialFollow' => '特别关注后，可在此快速查看作者最新内容！',
 			'tutorial.specialFollowManagementTip' => '特别关注列表可在侧边抽屉栏-关注列表-特别关注列表页面里管理',
 			'tutorial.skip' => '跳过',
+			'common.sort' => '排序',
 			'common.appName' => 'Love Iwara',
 			'common.ok' => '确定',
 			'common.cancel' => '取消',
@@ -3061,9 +3063,9 @@ extension on TranslationsZhCn {
 			'settings.importConfigSuccess' => '配置导入成功！',
 			'settings.importConfigFailed' => '配置导入失败',
 			'settings.historyUpdateLogs' => '历代更新日志',
-			'settings.noUpdateLogs' => '未获取到更新日志',
 			_ => null,
 		} ?? switch (path) {
+			'settings.noUpdateLogs' => '未获取到更新日志',
 			'settings.versionLabel' => '版本: {version}',
 			'settings.releaseDateLabel' => '发布日期: {date}',
 			'settings.noChanges' => '暂无更新内容',
@@ -3575,9 +3577,9 @@ extension on TranslationsZhCn {
 			'notifications.errors.unknownUser' => '未知用户',
 			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => '暂不支持的通知类型: ${type}',
 			'notifications.errors.unknownNotificationType' => '未知通知类型',
-			'notifications.notifications' => '通知',
 			_ => null,
 		} ?? switch (path) {
+			'notifications.notifications' => '通知',
 			'notifications.video' => '视频',
 			'notifications.profile' => '个人主页',
 			'notifications.postedNewComment' => '发表了评论',
@@ -4089,9 +4091,9 @@ extension on TranslationsZhCn {
 			'displaySettings.title' => '显示设置',
 			'displaySettings.layoutSettings' => '布局设置',
 			'displaySettings.layoutSettingsDesc' => '自定义列数和断点配置',
-			'displaySettings.gridLayout' => '网格布局',
 			_ => null,
 		} ?? switch (path) {
+			'displaySettings.gridLayout' => '网格布局',
 			'displaySettings.navigationOrderSettings' => '导航排序设置',
 			'displaySettings.customNavigationOrder' => '自定义导航顺序',
 			'displaySettings.customNavigationOrderDesc' => '调整底部导航栏和侧边栏中页面的显示顺序',

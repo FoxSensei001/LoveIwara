@@ -17,6 +17,7 @@ tutorial:
   skip: Skip
 
 common:
+  sort: Sort
   appName: Love Iwara
   ok: OK
   cancel: Cancel

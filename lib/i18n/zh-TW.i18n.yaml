@@ -14,6 +14,7 @@ tutorial:
   specialFollowManagementTip: "特別關注列表可在側邊抽屜欄-關注列表-特別關注列表頁面裡管理"
   skip: 跳過
 common:
+  sort: 排序
   appName: Love Iwara
   ok: 確定
   cancel: 取消

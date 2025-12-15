@@ -105,6 +105,7 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	final TranslationsJa _root; // ignore: unused_field
 
 	// Translations
+	@override String get sort => '並び替え';
 	@override String get appName => 'Love Iwara';
 	@override String get ok => '確定';
 	@override String get cancel => 'キャンセル';
@@ -2558,6 +2559,7 @@ extension on TranslationsJa {
 			'tutorial.afterSpecialFollow' => '特別フォロー後、著者の最新コンテンツをすばやく確認できます！',
 			'tutorial.specialFollowManagementTip' => '特別フォローリストはサイドバードロワー - フォローリスト - 特別フォローリストページで管理できます',
 			'tutorial.skip' => 'スキップ',
+			'common.sort' => '並び替え',
 			'common.appName' => 'Love Iwara',
 			'common.ok' => '確定',
 			'common.cancel' => 'キャンセル',
@@ -3056,9 +3058,9 @@ extension on TranslationsJa {
 			'settings.releaseDateLabel' => 'リリース日: {date}',
 			'settings.noChanges' => '更新内容がありません',
 			'settings.interaction' => 'インタラクション',
-			'settings.enableVibration' => 'バイブレーション',
 			_ => null,
 		} ?? switch (path) {
+			'settings.enableVibration' => 'バイブレーション',
 			'settings.enableVibrationDesc' => 'アプリの操作時にバイブレーションフィードバックを有効にする',
 			'settings.defaultKeepVideoToolbarVisible' => 'ツールバーを常に表示',
 			'settings.defaultKeepVideoToolbarVisibleDesc' => 'この設定は、動画ページに入った時にツールバーを常に表示するかどうかを決定します。',
@@ -3570,9 +3572,9 @@ extension on TranslationsJa {
 			'notifications.postedNewComment' => '新しいコメントを投稿',
 			'notifications.inYour' => 'あなたの',
 			'notifications.video' => 'ビデオ',
-			'notifications.repliedYourVideoComment' => 'あなたのビデオコメントに返信しました',
 			_ => null,
 		} ?? switch (path) {
+			'notifications.repliedYourVideoComment' => 'あなたのビデオコメントに返信しました',
 			'notifications.copyInfoToClipboard' => '通知情報をクリップボードにコピー',
 			'notifications.copySuccess' => 'クリップボードにコピーされました',
 			'notifications.copySuccessForMessage' => ({required Object str}) => 'クリップボードにコピーされました: ${str}',
@@ -4084,9 +4086,9 @@ extension on TranslationsJa {
 			'displaySettings.customNavigationOrder' => 'カスタムナビゲーション順序',
 			'displaySettings.customNavigationOrderDesc' => 'ボトムナビゲーションバーとサイドバーのページ表示順序を調整',
 			'layoutSettings.title' => 'レイアウト設定',
-			'layoutSettings.descriptionTitle' => 'レイアウト設定の説明',
 			_ => null,
 		} ?? switch (path) {
+			'layoutSettings.descriptionTitle' => 'レイアウト設定の説明',
 			'layoutSettings.descriptionContent' => 'ここでの設定は、動画とギャラリーリストページで表示されるカラム数を決定します。自動モードを選択して画面幅に基づいて自動調整するか、手動モードを選択してカラム数を固定できます。',
 			'layoutSettings.layoutMode' => 'レイアウトモード',
 			'layoutSettings.reset' => 'リセット',

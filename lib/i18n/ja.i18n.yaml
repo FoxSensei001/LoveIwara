@@ -17,6 +17,7 @@ tutorial:
   skip: スキップ
 
 common:
+  sort: 並び替え
   appName: Love Iwara
   ok: 確定
   cancel: キャンセル

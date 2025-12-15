@@ -105,6 +105,7 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	final TranslationsZhTw _root; // ignore: unused_field
 
 	// Translations
+	@override String get sort => '排序';
 	@override String get appName => 'Love Iwara';
 	@override String get ok => '確定';
 	@override String get cancel => '取消';
@@ -2561,6 +2562,7 @@ extension on TranslationsZhTw {
 			'tutorial.afterSpecialFollow' => '特別關注後，可在此快速查看作者最新內容！',
 			'tutorial.specialFollowManagementTip' => '特別關注列表可在側邊抽屜欄-關注列表-特別關注列表頁面裡管理',
 			'tutorial.skip' => '跳過',
+			'common.sort' => '排序',
 			'common.appName' => 'Love Iwara',
 			'common.ok' => '確定',
 			'common.cancel' => '取消',
@@ -3059,9 +3061,9 @@ extension on TranslationsZhTw {
 			'settings.releaseDateLabel' => '發布日期: {date}',
 			'settings.noChanges' => '暫無更新內容',
 			'settings.interaction' => '互動',
-			'settings.enableVibration' => '啟用震動',
 			_ => null,
 		} ?? switch (path) {
+			'settings.enableVibration' => '啟用震動',
 			'settings.enableVibrationDesc' => '啟用應用互動時的震動回饋',
 			'settings.defaultKeepVideoToolbarVisible' => '保持工具列常駐',
 			'settings.defaultKeepVideoToolbarVisibleDesc' => '此設定決定首次進入影片頁面時是否保持工具列常駐顯示。',
@@ -3573,9 +3575,9 @@ extension on TranslationsZhTw {
 			'forum.leafDescriptions.guides' => '分享你的經驗和教學',
 			'forum.leafDescriptions.questions' => '提出你的疑問',
 			'forum.leafDescriptions.requests' => '發布你的請求',
-			'forum.leafDescriptions.sharing' => '分享有趣的內容',
 			_ => null,
 		} ?? switch (path) {
+			'forum.leafDescriptions.sharing' => '分享有趣的內容',
 			'forum.leafDescriptions.general_zh' => '討論任何話題',
 			'forum.leafDescriptions.questions_zh' => '提出你的疑問',
 			'forum.leafDescriptions.requests_zh' => '發布你的請求',
@@ -4087,9 +4089,9 @@ extension on TranslationsZhTw {
 			'emoji.pasteJsonUrlArray' => '請貼上JSON格式的URL陣列',
 			'emoji.import' => '匯入',
 			'emoji.importSuccess' => ({required Object count}) => '成功匯入${count}張圖片',
-			'emoji.jsonFormatError' => 'JSON格式錯誤，請檢查輸入',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.jsonFormatError' => 'JSON格式錯誤，請檢查輸入',
 			'emoji.createGroup' => '建立表情包分組',
 			'emoji.groupName' => '分組名稱',
 			'emoji.enterGroupName' => '請輸入分組名稱',

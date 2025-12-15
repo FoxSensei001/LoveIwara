@@ -23,15 +23,15 @@ class FavoriteService extends GetxService {
   Future<List<FavoriteFolder>> getAllFolders() async {
     try {
       final stmt = _db.prepare('''
-        SELECT 
+        SELECT
           f.*,
           COUNT(fi.id) as item_count
         FROM favorite_folders f
         LEFT JOIN favorite_items fi ON fi.folder_id = f.id
         GROUP BY f.id
-        ORDER BY f.created_at DESC
+        ORDER BY f.display_order ASC, f.created_at DESC
       ''');
-      
+
       final results = stmt.select();
       return results.map((row) => FavoriteFolder.fromJson(row)).toList();
     } catch (e) {
@@ -405,10 +405,10 @@ class FavoriteService extends GetxService {
     String? description,
   }) async {
     if (folderId == 'default') return false;
-    
+
     try {
       _db.prepare('''
-        UPDATE favorite_folders 
+        UPDATE favorite_folders
         SET title = ?, description = ?, updated_at = ?
         WHERE id = ?
       ''').execute([
@@ -422,6 +422,37 @@ class FavoriteService extends GetxService {
       return true;
     } catch (e) {
       LogUtils.e('更新收藏夹失败', tag: 'FavoriteService', error: e);
+      return false;
+    }
+  }
+
+  // 批量更新收藏夹排序
+  Future<bool> updateFoldersOrder(List<String> folderIds) async {
+    try {
+      _db.execute('BEGIN TRANSACTION');
+
+      try {
+        for (var i = 0; i < folderIds.length; i++) {
+          _db.prepare('''
+            UPDATE favorite_folders
+            SET display_order = ?, updated_at = ?
+            WHERE id = ?
+          ''').execute([
+            i,
+            DateTime.now().millisecondsSinceEpoch ~/ 1000,
+            folderIds[i],
+          ]);
+        }
+
+        _db.execute('COMMIT');
+        favoriteChangedNotifier.value++;
+        return true;
+      } catch (e) {
+        _db.execute('ROLLBACK');
+        rethrow;
+      }
+    } catch (e) {
+      LogUtils.e('更新收藏夹排序失败', tag: 'FavoriteService', error: e);
       return false;
     }
   }

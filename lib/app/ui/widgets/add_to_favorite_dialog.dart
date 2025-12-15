@@ -197,6 +197,14 @@ class _AddToFavoriteDialogState extends State<AddToFavoriteDialog> {
                     ),
                   ),
                   IconButton(
+                    icon: const Icon(Icons.folder_open),
+                    tooltip: t.favorite.myFavorites,
+                    onPressed: () {
+                      AppService.tryPop();
+                      NaviService.navigateToLocalFavoritePage();
+                    },
+                  ),
+                  IconButton(
                     icon: const Icon(Icons.close),
                     onPressed: () => AppService.tryPop()
                   ),
