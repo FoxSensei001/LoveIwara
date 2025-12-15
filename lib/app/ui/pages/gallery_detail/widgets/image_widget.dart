@@ -263,17 +263,20 @@ class _ImageWidgetState extends State<ImageWidget> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  total != null
-                      ? '${formatBytes(downloaded)} / ${formatBytes(total)}'
-                      : formatBytes(downloaded),
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.9),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
+                // 只在有实际下载数据时显示字节数信息
+                if (downloaded > 0) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    total != null
+                        ? '${formatBytes(downloaded)} / ${formatBytes(total)}'
+                        : formatBytes(downloaded),
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.9),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ),

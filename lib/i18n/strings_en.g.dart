@@ -1976,6 +1976,8 @@ class TranslationsVideoDetailEn {
 	/// en: 'Resume from last position: ${position}'
 	String resumeFromLastPosition({required Object position}) => 'Resume from last position: ${position}';
 
+	late final TranslationsVideoDetailLocalInfoEn localInfo = TranslationsVideoDetailLocalInfoEn._(_root);
+
 	/// en: 'Video ID is empty'
 	String get videoIdIsEmpty => 'Video ID is empty';
 
@@ -5102,6 +5104,51 @@ class TranslationsOreno3dMessagesEn {
 	String get getVideoDetailFailed => 'Failed to get video details';
 }
 
+// Path: videoDetail.localInfo
+class TranslationsVideoDetailLocalInfoEn {
+	TranslationsVideoDetailLocalInfoEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Video Info'
+	String get videoInfo => 'Video Info';
+
+	/// en: 'Current Quality'
+	String get currentQuality => 'Current Quality';
+
+	/// en: 'Duration'
+	String get duration => 'Duration';
+
+	/// en: 'Resolution'
+	String get resolution => 'Resolution';
+
+	/// en: 'File Info'
+	String get fileInfo => 'File Info';
+
+	/// en: 'File Name'
+	String get fileName => 'File Name';
+
+	/// en: 'File Size'
+	String get fileSize => 'File Size';
+
+	/// en: 'File Path'
+	String get filePath => 'File Path';
+
+	/// en: 'Copy Path'
+	String get copyPath => 'Copy Path';
+
+	/// en: 'Open Folder'
+	String get openFolder => 'Open Folder';
+
+	/// en: 'Path copied to clipboard'
+	String get pathCopiedToClipboard => 'Path copied to clipboard';
+
+	/// en: 'Failed to open folder'
+	String get openFolderFailed => 'Failed to open folder';
+}
+
 // Path: videoDetail.player
 class TranslationsVideoDetailPlayerEn {
 	TranslationsVideoDetailPlayerEn._(this._root);
@@ -6826,6 +6873,18 @@ extension on Translations {
 			'subscriptions.showAllSubscribedUsersContent' => 'Show all subscribed users content',
 			'videoDetail.pipMode' => 'PiP Mode',
 			'videoDetail.resumeFromLastPosition' => ({required Object position}) => 'Resume from last position: ${position}',
+			'videoDetail.localInfo.videoInfo' => 'Video Info',
+			'videoDetail.localInfo.currentQuality' => 'Current Quality',
+			'videoDetail.localInfo.duration' => 'Duration',
+			'videoDetail.localInfo.resolution' => 'Resolution',
+			'videoDetail.localInfo.fileInfo' => 'File Info',
+			'videoDetail.localInfo.fileName' => 'File Name',
+			'videoDetail.localInfo.fileSize' => 'File Size',
+			'videoDetail.localInfo.filePath' => 'File Path',
+			'videoDetail.localInfo.copyPath' => 'Copy Path',
+			'videoDetail.localInfo.openFolder' => 'Open Folder',
+			'videoDetail.localInfo.pathCopiedToClipboard' => 'Path copied to clipboard',
+			'videoDetail.localInfo.openFolderFailed' => 'Failed to open folder',
 			'videoDetail.videoIdIsEmpty' => 'Video ID is empty',
 			'videoDetail.videoInfoIsEmpty' => 'Video info is empty',
 			'videoDetail.thisIsAPrivateVideo' => 'This is a private video',
@@ -7064,6 +7123,8 @@ extension on Translations {
 			'notifications.inYour' => 'In your',
 			'notifications.video' => 'Video',
 			'notifications.repliedYourVideoComment' => 'Replied your video comment',
+			_ => null,
+		} ?? switch (path) {
 			'notifications.copyInfoToClipboard' => 'Copy notification info to clipboard',
 			'notifications.copySuccess' => 'Copied to clipboard',
 			'notifications.copySuccessForMessage' => ({required Object str}) => 'Copied to clipboard: ${str}',
@@ -7076,8 +7137,6 @@ extension on Translations {
 			'notifications.markAsRead' => 'Mark as read',
 			'notifications.markAsReadSuccess' => 'Notification has been marked as read',
 			'notifications.markAsReadFailed' => 'Notification marked as read failed',
-			_ => null,
-		} ?? switch (path) {
 			'notifications.notificationTypeHelp' => 'Notification Type Help',
 			'notifications.dueToLackOfNotificationTypeDetails' => 'Due to the lack of notification type details, the supported types may not cover the messages you currently receive',
 			'notifications.helpUsImproveNotificationTypeSupport' => 'If you are willing to help us improve the support for notification types',
@@ -7578,6 +7637,8 @@ extension on Translations {
 			'log.recent7DaysLogs' => ({required Object count}) => 'Recent 7 Days Logs: ${count} logs',
 			'log.totalLogs' => ({required Object count}) => 'Total Logs: ${count} logs',
 			'log.setLogDatabaseSizeLimit' => 'Set Log Database Size Limit',
+			_ => null,
+		} ?? switch (path) {
 			'log.currentLogSizeWithSize' => ({required Object size}) => 'Current Log Size: ${size}',
 			'log.warning' => 'Warning',
 			'log.newSizeLimit' => ({required Object size}) => 'New size limit: ${size}',
@@ -7590,8 +7651,6 @@ extension on Translations {
 			'emoji.large' => 'Large',
 			'emoji.extraLarge' => 'Extra Large',
 			'emoji.copyEmojiLinkSuccess' => 'Emoji link copied',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.preview' => 'Emoji Preview',
 			'emoji.library' => 'Emoji Library',
 			'emoji.noEmojis' => 'No emojis',

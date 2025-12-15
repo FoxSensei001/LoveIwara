@@ -812,6 +812,7 @@ class _TranslationsVideoDetailZhCn implements TranslationsVideoDetailEn {
 	// Translations
 	@override String get pipMode => '画中画模式';
 	@override String resumeFromLastPosition({required Object position}) => '从上次播放位置继续播放: ${position}';
+	@override late final _TranslationsVideoDetailLocalInfoZhCn localInfo = _TranslationsVideoDetailLocalInfoZhCn._(_root);
 	@override String get videoIdIsEmpty => '视频ID为空';
 	@override String get videoInfoIsEmpty => '视频信息为空';
 	@override String get thisIsAPrivateVideo => '这是一个私密视频';
@@ -2048,6 +2049,27 @@ class _TranslationsOreno3dMessagesZhCn implements TranslationsOreno3dMessagesEn 
 	@override String get videoNotFoundOrDeleted => '视频不存在或已被删除';
 	@override String get unableToGetVideoPlayLink => '无法获取视频播放链接';
 	@override String get getVideoDetailFailed => '获取视频详情失败';
+}
+
+// Path: videoDetail.localInfo
+class _TranslationsVideoDetailLocalInfoZhCn implements TranslationsVideoDetailLocalInfoEn {
+	_TranslationsVideoDetailLocalInfoZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get videoInfo => '视频信息';
+	@override String get currentQuality => '当前清晰度';
+	@override String get duration => '时长';
+	@override String get resolution => '分辨率';
+	@override String get fileInfo => '文件信息';
+	@override String get fileName => '文件名';
+	@override String get fileSize => '文件大小';
+	@override String get filePath => '文件路径';
+	@override String get copyPath => '复制路径';
+	@override String get openFolder => '打开文件夹';
+	@override String get pathCopiedToClipboard => '路径已复制到剪贴板';
+	@override String get openFolderFailed => '打开文件夹失败';
 }
 
 // Path: videoDetail.player
@@ -3309,6 +3331,18 @@ extension on TranslationsZhCn {
 			'subscriptions.showAllSubscribedUsersContent' => '显示所有已订阅用户的内容',
 			'videoDetail.pipMode' => '画中画模式',
 			'videoDetail.resumeFromLastPosition' => ({required Object position}) => '从上次播放位置继续播放: ${position}',
+			'videoDetail.localInfo.videoInfo' => '视频信息',
+			'videoDetail.localInfo.currentQuality' => '当前清晰度',
+			'videoDetail.localInfo.duration' => '时长',
+			'videoDetail.localInfo.resolution' => '分辨率',
+			'videoDetail.localInfo.fileInfo' => '文件信息',
+			'videoDetail.localInfo.fileName' => '文件名',
+			'videoDetail.localInfo.fileSize' => '文件大小',
+			'videoDetail.localInfo.filePath' => '文件路径',
+			'videoDetail.localInfo.copyPath' => '复制路径',
+			'videoDetail.localInfo.openFolder' => '打开文件夹',
+			'videoDetail.localInfo.pathCopiedToClipboard' => '路径已复制到剪贴板',
+			'videoDetail.localInfo.openFolderFailed' => '打开文件夹失败',
 			'videoDetail.videoIdIsEmpty' => '视频ID为空',
 			'videoDetail.videoInfoIsEmpty' => '视频信息为空',
 			'videoDetail.thisIsAPrivateVideo' => '这是一个私密视频',
@@ -3542,6 +3576,8 @@ extension on TranslationsZhCn {
 			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => '暂不支持的通知类型: ${type}',
 			'notifications.errors.unknownNotificationType' => '未知通知类型',
 			'notifications.notifications' => '通知',
+			_ => null,
+		} ?? switch (path) {
 			'notifications.video' => '视频',
 			'notifications.profile' => '个人主页',
 			'notifications.postedNewComment' => '发表了评论',
@@ -3554,8 +3590,6 @@ extension on TranslationsZhCn {
 			'notifications.markAllAsReadFailed' => '全部标记已读失败',
 			'notifications.markSelectedAsRead' => '标记选中项为已读',
 			'notifications.markSelectedAsReadSuccess' => '选中的通知已标记为已读',
-			_ => null,
-		} ?? switch (path) {
 			'notifications.markSelectedAsReadFailed' => '标记选中项为已读失败',
 			'notifications.markAsRead' => '标记已读',
 			'notifications.markAsReadSuccess' => '已标记为已读',
@@ -4056,6 +4090,8 @@ extension on TranslationsZhCn {
 			'displaySettings.layoutSettings' => '布局设置',
 			'displaySettings.layoutSettingsDesc' => '自定义列数和断点配置',
 			'displaySettings.gridLayout' => '网格布局',
+			_ => null,
+		} ?? switch (path) {
 			'displaySettings.navigationOrderSettings' => '导航排序设置',
 			'displaySettings.customNavigationOrder' => '自定义导航顺序',
 			'displaySettings.customNavigationOrderDesc' => '调整底部导航栏和侧边栏中页面的显示顺序',
@@ -4068,8 +4104,6 @@ extension on TranslationsZhCn {
 			'layoutSettings.autoModeDesc' => '根据屏幕宽度自动调整',
 			'layoutSettings.manualMode' => '手动模式',
 			'layoutSettings.manualModeDesc' => '使用固定列数',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.manualSettings' => '手动设置',
 			'layoutSettings.fixedColumns' => '固定列数',
 			'layoutSettings.columns' => '列',

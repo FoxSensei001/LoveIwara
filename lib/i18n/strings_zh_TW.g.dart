@@ -835,6 +835,7 @@ class _TranslationsVideoDetailZhTw implements TranslationsVideoDetailEn {
 	// Translations
 	@override String get pipMode => '畫中畫模式';
 	@override String resumeFromLastPosition({required Object position}) => '從上次播放位置繼續播放: ${position}';
+	@override late final _TranslationsVideoDetailLocalInfoZhTw localInfo = _TranslationsVideoDetailLocalInfoZhTw._(_root);
 	@override String get videoIdIsEmpty => '影片ID為空';
 	@override String get videoInfoIsEmpty => '影片資訊為空';
 	@override String get thisIsAPrivateVideo => '這是私密影片';
@@ -2136,6 +2137,27 @@ class _TranslationsFirstTimeSetupCommonZhTw implements TranslationsFirstTimeSetu
 	@override String get agreeAgreementSnackbar => '請先同意使用者協議與社群規則';
 }
 
+// Path: videoDetail.localInfo
+class _TranslationsVideoDetailLocalInfoZhTw implements TranslationsVideoDetailLocalInfoEn {
+	_TranslationsVideoDetailLocalInfoZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get videoInfo => '影片資訊';
+	@override String get currentQuality => '目前清晰度';
+	@override String get duration => '時長';
+	@override String get resolution => '解析度';
+	@override String get fileInfo => '檔案資訊';
+	@override String get fileName => '檔案名稱';
+	@override String get fileSize => '檔案大小';
+	@override String get filePath => '檔案路徑';
+	@override String get copyPath => '複製路徑';
+	@override String get openFolder => '開啟資料夾';
+	@override String get pathCopiedToClipboard => '路徑已複製到剪貼簿';
+	@override String get openFolderFailed => '開啟資料夾失敗';
+}
+
 // Path: videoDetail.player
 class _TranslationsVideoDetailPlayerZhTw implements TranslationsVideoDetailPlayerEn {
 	_TranslationsVideoDetailPlayerZhTw._(this._root);
@@ -3330,6 +3352,18 @@ extension on TranslationsZhTw {
 			'subscriptions.showAllSubscribedUsersContent' => '顯示所有已訂閱使用者的內容',
 			'videoDetail.pipMode' => '畫中畫模式',
 			'videoDetail.resumeFromLastPosition' => ({required Object position}) => '從上次播放位置繼續播放: ${position}',
+			'videoDetail.localInfo.videoInfo' => '影片資訊',
+			'videoDetail.localInfo.currentQuality' => '目前清晰度',
+			'videoDetail.localInfo.duration' => '時長',
+			'videoDetail.localInfo.resolution' => '解析度',
+			'videoDetail.localInfo.fileInfo' => '檔案資訊',
+			'videoDetail.localInfo.fileName' => '檔案名稱',
+			'videoDetail.localInfo.fileSize' => '檔案大小',
+			'videoDetail.localInfo.filePath' => '檔案路徑',
+			'videoDetail.localInfo.copyPath' => '複製路徑',
+			'videoDetail.localInfo.openFolder' => '開啟資料夾',
+			'videoDetail.localInfo.pathCopiedToClipboard' => '路徑已複製到剪貼簿',
+			'videoDetail.localInfo.openFolderFailed' => '開啟資料夾失敗',
 			'videoDetail.videoIdIsEmpty' => '影片ID為空',
 			'videoDetail.videoInfoIsEmpty' => '影片資訊為空',
 			'videoDetail.thisIsAPrivateVideo' => '這是私密影片',
@@ -3540,6 +3574,8 @@ extension on TranslationsZhTw {
 			'forum.leafDescriptions.questions' => '提出你的疑問',
 			'forum.leafDescriptions.requests' => '發布你的請求',
 			'forum.leafDescriptions.sharing' => '分享有趣的內容',
+			_ => null,
+		} ?? switch (path) {
 			'forum.leafDescriptions.general_zh' => '討論任何話題',
 			'forum.leafDescriptions.questions_zh' => '提出你的疑問',
 			'forum.leafDescriptions.requests_zh' => '發布你的請求',
@@ -3552,8 +3588,6 @@ extension on TranslationsZhTw {
 			'forum.leafDescriptions.other' => '其他未分類的內容',
 			'forum.reply' => '回覆',
 			'forum.pendingReview' => '審核中',
-			_ => null,
-		} ?? switch (path) {
 			'forum.editedAt' => '編輯時間',
 			'forum.copySuccess' => '已複製到剪貼簿',
 			'forum.copySuccessForMessage' => ({required Object str}) => '已複製到剪貼簿: ${str}',
@@ -4054,6 +4088,8 @@ extension on TranslationsZhTw {
 			'emoji.import' => '匯入',
 			'emoji.importSuccess' => ({required Object count}) => '成功匯入${count}張圖片',
 			'emoji.jsonFormatError' => 'JSON格式錯誤，請檢查輸入',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.createGroup' => '建立表情包分組',
 			'emoji.groupName' => '分組名稱',
 			'emoji.enterGroupName' => '請輸入分組名稱',
@@ -4066,8 +4102,6 @@ extension on TranslationsZhTw {
 			'emoji.selectEmoji' => '選擇表情包',
 			'emoji.noEmojisInGroup' => '該分組暫無表情包',
 			'emoji.goToSettingsToAddEmojis' => '前往設定添加表情包',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.emojiManagement' => '表情包管理',
 			'emoji.manageEmojiGroupsAndImages' => '管理表情包分組和圖片',
 			'emoji.uploadLocalImages' => '上傳本機圖片',

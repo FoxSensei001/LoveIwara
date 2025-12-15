@@ -834,6 +834,19 @@ subscriptions:
 videoDetail:
   pipMode: ピプモード
   resumeFromLastPosition: '${position} から続けて再生'
+  localInfo:
+    videoInfo: ビデオ情報
+    currentQuality: 現在の品質
+    duration: 再生時間
+    resolution: 解像度
+    fileInfo: ファイル情報
+    fileName: ファイル名
+    fileSize: ファイルサイズ
+    filePath: ファイルパス
+    copyPath: パスをコピー
+    openFolder: フォルダを開く
+    pathCopiedToClipboard: パスをクリップボードにコピーしました
+    openFolderFailed: フォルダを開けませんでした
   videoIdIsEmpty: ビデオIDが空です
   videoInfoIsEmpty: ビデオ情報が空です
   thisIsAPrivateVideo: これはプライベートビデオです

@@ -833,6 +833,19 @@ subscriptions:
 videoDetail:
   pipMode: PiP Mode
   resumeFromLastPosition: 'Resume from last position: ${position}'
+  localInfo:
+    videoInfo: Video Info
+    currentQuality: Current Quality
+    duration: Duration
+    resolution: Resolution
+    fileInfo: File Info
+    fileName: File Name
+    fileSize: File Size
+    filePath: File Path
+    copyPath: Copy Path
+    openFolder: Open Folder
+    pathCopiedToClipboard: Path copied to clipboard
+    openFolderFailed: Failed to open folder
   videoIdIsEmpty: Video ID is empty
   videoInfoIsEmpty: Video info is empty
   thisIsAPrivateVideo: This is a private video

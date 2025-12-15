@@ -807,6 +807,7 @@ class _TranslationsVideoDetailJa implements TranslationsVideoDetailEn {
 	// Translations
 	@override String get pipMode => 'ピプモード';
 	@override String resumeFromLastPosition({required Object position}) => '${position} から続けて再生';
+	@override late final _TranslationsVideoDetailLocalInfoJa localInfo = _TranslationsVideoDetailLocalInfoJa._(_root);
 	@override String get videoIdIsEmpty => 'ビデオIDが空です';
 	@override String get videoInfoIsEmpty => 'ビデオ情報が空です';
 	@override String get thisIsAPrivateVideo => 'これはプライベートビデオです';
@@ -2043,6 +2044,27 @@ class _TranslationsOreno3dMessagesJa implements TranslationsOreno3dMessagesEn {
 	@override String get videoNotFoundOrDeleted => '動画が見つからないか削除されました';
 	@override String get unableToGetVideoPlayLink => '動画再生リンクを取得できません';
 	@override String get getVideoDetailFailed => '動画詳細の取得に失敗しました';
+}
+
+// Path: videoDetail.localInfo
+class _TranslationsVideoDetailLocalInfoJa implements TranslationsVideoDetailLocalInfoEn {
+	_TranslationsVideoDetailLocalInfoJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get videoInfo => 'ビデオ情報';
+	@override String get currentQuality => '現在の品質';
+	@override String get duration => '再生時間';
+	@override String get resolution => '解像度';
+	@override String get fileInfo => 'ファイル情報';
+	@override String get fileName => 'ファイル名';
+	@override String get fileSize => 'ファイルサイズ';
+	@override String get filePath => 'ファイルパス';
+	@override String get copyPath => 'パスをコピー';
+	@override String get openFolder => 'フォルダを開く';
+	@override String get pathCopiedToClipboard => 'パスをクリップボードにコピーしました';
+	@override String get openFolderFailed => 'フォルダを開けませんでした';
 }
 
 // Path: videoDetail.player
@@ -3299,6 +3321,18 @@ extension on TranslationsJa {
 			'subscriptions.showAllSubscribedUsersContent' => 'すべての購読中のユーザーのコンテンツを表示',
 			'videoDetail.pipMode' => 'ピプモード',
 			'videoDetail.resumeFromLastPosition' => ({required Object position}) => '${position} から続けて再生',
+			'videoDetail.localInfo.videoInfo' => 'ビデオ情報',
+			'videoDetail.localInfo.currentQuality' => '現在の品質',
+			'videoDetail.localInfo.duration' => '再生時間',
+			'videoDetail.localInfo.resolution' => '解像度',
+			'videoDetail.localInfo.fileInfo' => 'ファイル情報',
+			'videoDetail.localInfo.fileName' => 'ファイル名',
+			'videoDetail.localInfo.fileSize' => 'ファイルサイズ',
+			'videoDetail.localInfo.filePath' => 'ファイルパス',
+			'videoDetail.localInfo.copyPath' => 'パスをコピー',
+			'videoDetail.localInfo.openFolder' => 'フォルダを開く',
+			'videoDetail.localInfo.pathCopiedToClipboard' => 'パスをクリップボードにコピーしました',
+			'videoDetail.localInfo.openFolderFailed' => 'フォルダを開けませんでした',
 			'videoDetail.videoIdIsEmpty' => 'ビデオIDが空です',
 			'videoDetail.videoInfoIsEmpty' => 'ビデオ情報が空です',
 			'videoDetail.thisIsAPrivateVideo' => 'これはプライベートビデオです',
@@ -3537,6 +3571,8 @@ extension on TranslationsJa {
 			'notifications.inYour' => 'あなたの',
 			'notifications.video' => 'ビデオ',
 			'notifications.repliedYourVideoComment' => 'あなたのビデオコメントに返信しました',
+			_ => null,
+		} ?? switch (path) {
 			'notifications.copyInfoToClipboard' => '通知情報をクリップボードにコピー',
 			'notifications.copySuccess' => 'クリップボードにコピーされました',
 			'notifications.copySuccessForMessage' => ({required Object str}) => 'クリップボードにコピーされました: ${str}',
@@ -3549,8 +3585,6 @@ extension on TranslationsJa {
 			'notifications.markAsRead' => '既読にする',
 			'notifications.markAsReadSuccess' => '通知が既読になりました',
 			'notifications.markAsReadFailed' => '通知を既読にするに失敗しました',
-			_ => null,
-		} ?? switch (path) {
 			'notifications.notificationTypeHelp' => '通知タイプのヘルプ',
 			'notifications.dueToLackOfNotificationTypeDetails' => '通知タイプの詳細情報が不足しているため、現在サポートされているタイプが受信したメッセージをカバーしていない可能性があります',
 			'notifications.helpUsImproveNotificationTypeSupport' => '通知タイプのサポート改善にご協力いただける場合',
@@ -4051,6 +4085,8 @@ extension on TranslationsJa {
 			'displaySettings.customNavigationOrderDesc' => 'ボトムナビゲーションバーとサイドバーのページ表示順序を調整',
 			'layoutSettings.title' => 'レイアウト設定',
 			'layoutSettings.descriptionTitle' => 'レイアウト設定の説明',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.descriptionContent' => 'ここでの設定は、動画とギャラリーリストページで表示されるカラム数を決定します。自動モードを選択して画面幅に基づいて自動調整するか、手動モードを選択してカラム数を固定できます。',
 			'layoutSettings.layoutMode' => 'レイアウトモード',
 			'layoutSettings.reset' => 'リセット',
@@ -4063,8 +4099,6 @@ extension on TranslationsJa {
 			'layoutSettings.columns' => 'カラム',
 			'layoutSettings.breakpointConfig' => 'ブレークポイント設定',
 			'layoutSettings.add' => '追加',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.defaultColumns' => 'デフォルトカラム数',
 			'layoutSettings.defaultColumnsDesc' => '大画面のデフォルト表示',
 			'layoutSettings.previewEffect' => 'プレビュー効果',

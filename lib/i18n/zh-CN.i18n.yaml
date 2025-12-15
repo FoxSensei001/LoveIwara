@@ -840,6 +840,19 @@ subscriptions:
 videoDetail:
   pipMode: 画中画模式
   resumeFromLastPosition: '从上次播放位置继续播放: ${position}'
+  localInfo:
+    videoInfo: 视频信息
+    currentQuality: 当前清晰度
+    duration: 时长
+    resolution: 分辨率
+    fileInfo: 文件信息
+    fileName: 文件名
+    fileSize: 文件大小
+    filePath: 文件路径
+    copyPath: 复制路径
+    openFolder: 打开文件夹
+    pathCopiedToClipboard: 路径已复制到剪贴板
+    openFolderFailed: 打开文件夹失败
   videoIdIsEmpty: 视频ID为空
   videoInfoIsEmpty: 视频信息为空
   thisIsAPrivateVideo: 这是一个私密视频

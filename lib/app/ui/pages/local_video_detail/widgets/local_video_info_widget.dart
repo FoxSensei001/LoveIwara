@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
+import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as path;
 
@@ -55,10 +56,10 @@ class LocalVideoInfoWidget extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(Icons.info_outline, size: 20, color: theme.primaryColor),
+                Icon(Icons.info_outline, size: 20, color: theme.colorScheme.primary),
                 const SizedBox(width: 8),
                 Text(
-                  '视频信息',
+                  t.videoDetail.localInfo.videoInfo,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -110,7 +111,7 @@ class LocalVideoInfoWidget extends StatelessWidget {
               final quality = controller.currentResolutionTag.value ?? '未知';
               return _buildInfoRow(
                 context,
-                '当前清晰度',
+                t.videoDetail.localInfo.currentQuality,
                 quality,
                 Icons.high_quality,
               );
@@ -122,7 +123,7 @@ class LocalVideoInfoWidget extends StatelessWidget {
               if (duration.inSeconds > 0) {
                 return _buildInfoRow(
                   context,
-                  '时长',
+                  t.videoDetail.localInfo.duration,
                   _formatDuration(duration.inSeconds),
                   Icons.timer_outlined,
                 );
@@ -137,7 +138,7 @@ class LocalVideoInfoWidget extends StatelessWidget {
               if (width > 0 && height > 0) {
                 return _buildInfoRow(
                   context,
-                  '分辨率',
+                  t.videoDetail.localInfo.resolution,
                   '${width}x$height',
                   Icons.aspect_ratio,
                 );
@@ -164,11 +165,11 @@ class LocalVideoInfoWidget extends StatelessWidget {
                 Icon(
                   Icons.folder_outlined,
                   size: 20,
-                  color: theme.primaryColor,
+                  color: theme.colorScheme.primary,
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  '文件信息',
+                  t.videoDetail.localInfo.fileInfo,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -194,7 +195,7 @@ class LocalVideoInfoWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '文件名',
+                        t.videoDetail.localInfo.fileName,
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.hintColor,
                         ),
@@ -218,7 +219,7 @@ class LocalVideoInfoWidget extends StatelessWidget {
                 if (snapshot.hasData) {
                   return _buildInfoRow(
                     context,
-                    '文件大小',
+                    t.videoDetail.localInfo.fileSize,
                     _formatFileSize(snapshot.data!),
                     Icons.storage_outlined,
                   );
@@ -243,7 +244,7 @@ class LocalVideoInfoWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '文件路径',
+                        t.videoDetail.localInfo.filePath,
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.hintColor,
                         ),
@@ -270,13 +271,13 @@ class LocalVideoInfoWidget extends StatelessWidget {
                 TextButton.icon(
                   onPressed: () => _copyPath(context),
                   icon: const Icon(Icons.copy, size: 18),
-                  label: const Text('复制路径'),
+                  label: Text(t.videoDetail.localInfo.copyPath),
                 ),
                 const SizedBox(width: 8),
                 TextButton.icon(
                   onPressed: () => _openFolder(context),
                   icon: const Icon(Icons.folder_open, size: 18),
-                  label: const Text('打开文件夹'),
+                  label: Text(t.videoDetail.localInfo.openFolder),
                 ),
               ],
             ),
@@ -372,9 +373,9 @@ class LocalVideoInfoWidget extends StatelessWidget {
   void _copyPath(BuildContext context) {
     Clipboard.setData(ClipboardData(text: localPath));
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('路径已复制到剪贴板'),
-        duration: Duration(seconds: 2),
+      SnackBar(
+        content: Text(t.videoDetail.localInfo.pathCopiedToClipboard),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -388,14 +389,14 @@ class LocalVideoInfoWidget extends StatelessWidget {
         if (context.mounted) {
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(SnackBar(content: Text('打开文件夹失败: ${result.message}')));
+          ).showSnackBar(SnackBar(content: Text('${t.videoDetail.localInfo.openFolderFailed}: ${result.message}')));
         }
       }
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('打开文件夹失败: $e')));
+        ).showSnackBar(SnackBar(content: Text('${t.videoDetail.localInfo.openFolderFailed}: $e')));
       }
     }
   }

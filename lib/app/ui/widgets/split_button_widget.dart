@@ -116,10 +116,10 @@ class _FilledActionButtonState extends State<FilledActionButton> {
                     Shimmer.fromColors(
                       baseColor: hasAccentColor
                           ? widget.accentColor!.withValues(alpha: 0.3)
-                          : Colors.grey.shade300,
+                          : colorScheme.onSurface.withValues(alpha: 0.3),
                       highlightColor: hasAccentColor
                           ? widget.accentColor!.withValues(alpha: 0.1)
-                          : Colors.grey.shade100,
+                          : colorScheme.onSurface.withValues(alpha: 0.1),
                       child: Icon(widget.icon, size: 20),
                     )
                   else
@@ -252,7 +252,7 @@ class _FilledLikeButtonState extends State<FilledLikeButton> {
     // 如果 liked 为 null，显示 loading 状态
     final bool isLoadingState = _isLiked == null || _isLoading;
     final bool isLiked = _isLiked == true;
-    final Color? accentColor = isLiked ? Colors.pink : null;
+    final Color? accentColor = isLiked ? Theme.of(context).colorScheme.error : null;
 
     return FilledActionButton(
       icon: isLiked ? Icons.favorite : Icons.favorite_border,
