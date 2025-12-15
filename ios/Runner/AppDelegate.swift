@@ -10,6 +10,9 @@ import MediaPlayer
   private var previousVolume: Float = 0.0
   private var audioSession: AVAudioSession?
   
+  // 文件处理 MethodChannel
+  private var fileHandlerChannel: FlutterMethodChannel?
+  
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -17,6 +20,12 @@ import MediaPlayer
     let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
     channel = FlutterMethodChannel(name: "i_iwara/volume_key",
                                  binaryMessenger: controller.binaryMessenger)
+    
+    // 初始化文件处理 MethodChannel
+    fileHandlerChannel = FlutterMethodChannel(
+      name: "com.example.i_iwara/file_handler",
+      binaryMessenger: controller.binaryMessenger
+    )
     
     channel?.setMethodCallHandler({ [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
       switch call.method {
@@ -88,5 +97,15 @@ import MediaPlayer
         slider.value = self?.previousVolume ?? 0.5
       }
     }
+  }
+  
+  // 处理文件打开事件（iOS 13+）
+  override func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+    print("AppDelegate: 收到文件打开请求: \(url.absoluteString)")
+    
+    // 通过 MethodChannel 将文件路径传递给 Flutter
+    fileHandlerChannel?.invokeMethod("onFileOpened", arguments: url.absoluteString)
+    
+    return true
   }
 }

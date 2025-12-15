@@ -3,9 +3,11 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/routes/app_routes.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/home/home_navigation_layout.dart';
+import 'package:i_iwara/app/ui/pages/local_video_detail/widgets/local_video_info_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/my_video_screen.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/skeletons/video_detail_info_skeleton_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
@@ -28,10 +30,18 @@ class MyVideoDetailPage extends StatefulWidget {
   final String videoId;
   final Map<String, dynamic>? extData;
 
+  // 本地视频模式参数
+  final String? localPath;
+  final DownloadTask? localTask;
+  final List<DownloadTask>? localAllQualityTasks;
+
   const MyVideoDetailPage({
     super.key,
     required this.videoId,
     this.extData = const {},
+    this.localPath,
+    this.localTask,
+    this.localAllQualityTasks,
   });
 
   @override
@@ -44,9 +54,12 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
   late String videoId;
   final AppService appService = Get.find();
 
+  // 本地视频模式标识
+  late bool isLocalMode;
+
   late MyVideoStateController controller;
-  late CommentController commentController;
-  late RelatedMediasController relatedVideoController;
+  CommentController? commentController;
+  RelatedMediasController? relatedVideoController;
 
   // Tab控制器
   late TabController tabController;
@@ -56,33 +69,48 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
   void initState() {
     super.initState();
     videoId = widget.videoId;
+    isLocalMode = widget.localPath != null;
 
-    // 初始化Tab控制器
-    tabController = TabController(length: 3, vsync: this);
+    // 初始化Tab控制器（本地模式只有1个tab，在线模式有3个tab）
+    tabController = TabController(length: isLocalMode ? 1 : 3, vsync: this);
     tabController.addListener(() {
       currentTabIndex.value = tabController.index;
     });
 
-    if (videoId.isEmpty) {
+    if (videoId.isEmpty && !isLocalMode) {
       return;
     }
 
     // 初始化控制器
     try {
-      controller = Get.put(
-        MyVideoStateController(videoId, extData: widget.extData),
-        tag: uniqueTag,
-      );
+      if (isLocalMode) {
+        // 本地视频模式：使用 forLocalVideo 构造函数
+        controller = Get.put(
+          MyVideoStateController.forLocalVideo(
+            localPath: widget.localPath!,
+            task: widget.localTask,
+            allQualityTasks: widget.localAllQualityTasks,
+          ),
+          tag: uniqueTag,
+        );
+      } else {
+        // 在线视频模式：使用普通构造函数
+        controller = Get.put(
+          MyVideoStateController(videoId, extData: widget.extData),
+          tag: uniqueTag,
+        );
 
-      commentController = Get.put(
-        CommentController(id: videoId, type: CommentType.video),
-        tag: uniqueTag,
-      );
+        // 只在在线模式下初始化评论和相关视频控制器
+        commentController = Get.put(
+          CommentController(id: videoId, type: CommentType.video),
+          tag: uniqueTag,
+        );
 
-      relatedVideoController = Get.put(
-        RelatedMediasController(mediaId: videoId, mediaType: MediaType.VIDEO),
-        tag: uniqueTag,
-      );
+        relatedVideoController = Get.put(
+          RelatedMediasController(mediaId: videoId, mediaType: MediaType.VIDEO),
+          tag: uniqueTag,
+        );
+      }
 
       // 注册路由变化回调
       HomeNavigationLayout.homeNavigatorObserver.addRouteChangeCallback(
@@ -708,11 +736,21 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       children: [
         Container(height: paddingTop, color: Colors.transparent),
 
-        // Tab导航栏
-        _buildTabBar(context, t),
-
-        // Tab内容
-        Expanded(child: _buildTabBarView()),
+        // 本地模式：直接显示 LocalVideoInfoWidget，不显示 Tab
+        if (isLocalMode)
+          Expanded(
+            child: LocalVideoInfoWidget(
+              controller: controller,
+              task: widget.localTask,
+              allQualityTasks: widget.localAllQualityTasks ?? [],
+              localPath: widget.localPath!,
+            ),
+          )
+        else ...[
+          // 在线模式：显示 Tab 导航栏和内容
+          _buildTabBar(context, t),
+          Expanded(child: _buildTabBarView()),
+        ],
       ],
     );
   }
@@ -735,11 +773,17 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
             controller.animateToTop();
           }
         },
-        tabs: [
-          Tab(text: t.common.detail),
-          Tab(text: t.common.commentList),
-          Tab(text: t.videoDetail.relatedVideos),
-        ],
+        tabs: isLocalMode
+            ? [
+                // 本地模式：只显示详情tab
+                Tab(text: t.common.detail),
+              ]
+            : [
+                // 在线模式：显示所有tab
+                Tab(text: t.common.detail),
+                Tab(text: t.common.commentList),
+                Tab(text: t.videoDetail.relatedVideos),
+              ],
       ),
     );
   }
@@ -748,25 +792,31 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
   Widget _buildTabBarView() {
     return TabBarView(
       controller: tabController,
-      children: [
-        // 视频详情Tab
-        VideoInfoTabWidget(
-          controller: controller,
-          tabController: tabController,
-        ),
-
-        // 评论Tab
-        CommentsTabWidget(
-          commentController: commentController,
-          videoController: controller,
-        ),
-
-        // 相关视频Tab
-        RelatedVideosTabWidget(
-          videoController: controller,
-          relatedVideoController: relatedVideoController,
-        ),
-      ],
+      children: isLocalMode
+          ? [
+              // 本地模式：只显示本地视频信息
+              LocalVideoInfoWidget(
+                controller: controller,
+                task: widget.localTask,
+                allQualityTasks: widget.localAllQualityTasks ?? [],
+                localPath: widget.localPath!,
+              ),
+            ]
+          : [
+              // 在线模式：显示所有tab
+              VideoInfoTabWidget(
+                controller: controller,
+                tabController: tabController,
+              ),
+              CommentsTabWidget(
+                commentController: commentController!,
+                videoController: controller,
+              ),
+              RelatedVideosTabWidget(
+                videoController: controller,
+                relatedVideoController: relatedVideoController!,
+              ),
+            ],
     );
   }
 

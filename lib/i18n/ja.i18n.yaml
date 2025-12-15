@@ -1195,6 +1195,8 @@ download:
     copyFailed: 'コピーに失敗しました'
     openFileFailed: 'ファイルを開くのに失敗しました'
     openFileFailedWithMessage: 'ファイルを開くのに失敗しました: ${message}'
+    playLocallyFailed: 'ローカル再生に失敗しました'
+    playLocallyFailedWithMessage: 'ローカル再生に失敗しました: ${message}'
     noDownloadSource: ダウンロードソースがありません
     noDownloadSourceNowPleaseWaitInfoLoaded: ダウンロードソースがありません。情報を読み込んだ後、もう一度お試しください。
     noActiveDownloadTask: ダウンロード中のタスクがありません
@@ -1240,6 +1242,7 @@ download:
   viewGalleryDetail: ギャラリー詳細を表示
   moreOptions: もっと操作
   openFile: ファイルを開く
+  playLocally: ローカル再生
   pause: 一時停止
   resume: 継続
   copyDownloadUrl: ダウンロードリンクをコピー
@@ -1475,7 +1478,13 @@ mediaPlayer:
   appMayLackMediaPermission: "アプリに必要なメディア再生権限が不足している可能性があります"
   tryOtherVideoPlayer: "他のビデオプレイヤーをお試しください"
   video: "ビデオ"
-  
+  # ローカルビデオ再生
+  local: "ローカル"
+  unknown: "不明"
+  localVideoPathEmpty: "ローカルビデオパスが空です"
+  localVideoFileNotExists: "ローカルビデオファイルが存在しません: ${path}"
+  unableToPlayLocalVideo: "ローカルビデオを再生できません: ${error}"
+
   # 画像ウィジェット
   imageLoadFailed: "画像読み込み失敗"
   unsupportedImageFormat: "サポートされていない画像形式"

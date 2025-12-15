@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 
 import 'package:dio/dio.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart'
@@ -40,6 +41,8 @@ import '../../../../services/favorite_service.dart';
 import '../../../../services/play_list_service.dart';
 import '../../../../services/user_service.dart';
 import '../../../../services/download_service.dart';
+import '../../../../models/download/download_task.model.dart';
+import '../../../../models/download/download_task_ext_data.model.dart';
 import '../widgets/player/custom_slider_bar_shape_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import '../widgets/private_or_deleted_video_widget.dart';
@@ -89,6 +92,19 @@ class MyVideoStateController extends GetxController
   final RxBool isInAnyFavorite = false.obs; // 视频是否在任何收藏夹中
   final RxBool isInAnyPlaylist = false.obs; // 视频是否在任何播放列表中
   final RxBool hasAnyDownloadTask = false.obs; // 视频是否有任何下载任务（任意清晰度）
+
+  // ==================== 本地视频播放模式相关 ====================
+  /// 是否为本地视频播放模式
+  final bool isLocalVideoMode;
+
+  /// 本地视频文件路径（本地模式下使用）
+  final String? localVideoPath;
+
+  /// 本地视频下载任务信息（从下载任务进入时有效）
+  final DownloadTask? localVideoTask;
+
+  /// 同一视频的所有已下载清晰度任务列表（用于清晰度切换）
+  final List<DownloadTask> localVideoAllQualityTasks;
 
   // 状态
   // 播放器状态
@@ -246,7 +262,28 @@ class MyVideoStateController extends GetxController
     }
   }
 
-  MyVideoStateController(this.videoId, {this.extData});
+  MyVideoStateController(this.videoId, {this.extData})
+    : isLocalVideoMode = false,
+      localVideoPath = null,
+      localVideoTask = null,
+      localVideoAllQualityTasks = const [];
+
+  /// 本地视频播放模式构造函数
+  /// [localPath] 本地视频文件路径
+  /// [task] 下载任务信息（可选，从下载任务进入时传入）
+  /// [allQualityTasks] 同一视频的所有已下载清晰度任务列表（可选）
+  MyVideoStateController.forLocalVideo({
+    required String localPath,
+    DownloadTask? task,
+    List<DownloadTask>? allQualityTasks,
+  }) : videoId = task != null
+           ? VideoDownloadExtData.fromJson(task.extData!.data).id
+           : null,
+       extData = null,
+       isLocalVideoMode = true,
+       localVideoPath = localPath,
+       localVideoTask = task,
+       localVideoAllQualityTasks = allQualityTasks ?? [];
 
   @override
   void onInit() async {
@@ -300,7 +337,8 @@ class MyVideoStateController extends GetxController
           bufferSize: _getBufferSize(), // 根据配置设置缓冲区大小
           title: 'i_iwara Video Player',
           // 启用异步模式以提高性能
-          async: true,
+          // 注意：在 macOS 上开启 async: true 可能会导致热重启时崩溃，因此在调试模式下关闭
+          async: !kDebugMode,
           // 设置合适的协议白名单
           protocolWhitelist: const [
             'udp',
@@ -357,7 +395,15 @@ class MyVideoStateController extends GetxController
         });
       }
 
-      if (videoId == null) {
+      // 本地视频模式：直接初始化本地视频播放，不需要网络请求
+      // 注意：需要先初始化本地视频，但不能 return，后面还有通用配置需要应用
+      bool shouldSkipOnlineVideoInit = false;
+      if (isLocalVideoMode) {
+        _initLocalVideoPlayback();
+        shouldSkipOnlineVideoInit = true;
+      }
+
+      if (!shouldSkipOnlineVideoInit && videoId == null) {
         mainErrorWidget.value = CommonErrorWidget(
           text: slang.t.videoDetail.videoIdIsEmpty,
           children: [
@@ -370,27 +416,30 @@ class MyVideoStateController extends GetxController
         return;
       }
 
-      // 监听 currentVideoSourceList 变化，初始化预览播放器
-      // 提前到发起网络/缓存请求之前，避免缓存命中时事件在监听注册之前就触发导致丢失
-      currentVideoSourceList.listen((sources) {
-        if (!_isDisposed && sources.isNotEmpty) {
-          // 延迟初始化，避免影响主播放器加载
-          Future.delayed(const Duration(milliseconds: 500), () {
-            if (!_isDisposed) {
-              _initializePreviewPlayer();
-            }
-          });
-        }
-      });
+      // 在线视频模式的初始化逻辑
+      if (!shouldSkipOnlineVideoInit) {
+        // 监听 currentVideoSourceList 变化，初始化预览播放器
+        // 提前到发起网络/缓存请求之前，避免缓存命中时事件在监听注册之前就触发导致丢失
+        currentVideoSourceList.listen((sources) {
+          if (!_isDisposed && sources.isNotEmpty) {
+            // 延迟初始化，避免影响主播放器加载
+            Future.delayed(const Duration(milliseconds: 500), () {
+              if (!_isDisposed) {
+                _initializePreviewPlayer();
+              }
+            });
+          }
+        });
 
-      // 使用 WidgetsBinding.instance.addPostFrameCallback 确保基础设置完成
-      // WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_isDisposed) {
-        fetchVideoDetail(videoId!);
-        // 处理从oreno3d传入的详情信息
-        _handleOreno3dExtData();
+        // 使用 WidgetsBinding.instance.addPostFrameCallback 确保基础设置完成
+        // WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!_isDisposed) {
+          fetchVideoDetail(videoId!);
+          // 处理从oreno3d传入的详情信息
+          _handleOreno3dExtData();
+        }
+        // });
       }
-      // });
 
       // 音量初始化逻辑
       bool keepLastVolumeKey = _configService[ConfigKey.KEEP_LAST_VOLUME_KEY];
@@ -420,9 +469,9 @@ class MyVideoStateController extends GetxController
       // 设置亮度
       setDefaultBrightness();
 
-      // 想办法让native player默认走系统代理
-      if (player.platform is! NativePlayer) return;
-      if (player.platform is NativePlayer &&
+      // 想办法让native player默认走系统代理（仅在线视频需要）
+      if (!isLocalVideoMode &&
+          player.platform is NativePlayer &&
           _configService[ConfigKey.USE_PROXY]) {
         bool useProxy = _configService[ConfigKey.USE_PROXY];
         String proxyUrl = _configService[ConfigKey.PROXY_URL];
@@ -467,6 +516,194 @@ class MyVideoStateController extends GetxController
         );
       }
     }
+  }
+
+  /// 初始化本地视频播放
+  /// 从本地文件路径初始化播放，支持从下载任务或纯本地文件进入
+  Future<void> _initLocalVideoPlayback() async {
+    if (_isDisposed) return;
+
+    LogUtils.i('初始化本地视频播放模式: $localVideoPath', 'MyVideoStateController');
+
+    try {
+      pageLoadingState.value = VideoDetailPageLoadingState.loadingVideoSource;
+
+      // 验证本地文件是否存在
+      if (localVideoPath == null || localVideoPath!.isEmpty) {
+        throw Exception(slang.t.mediaPlayer.localVideoPathEmpty);
+      }
+
+      LogUtils.d('检查文件是否存在: $localVideoPath', 'MyVideoStateController');
+
+      // 处理 file:// URI
+      String pathToCheck = localVideoPath!;
+      if (pathToCheck.startsWith('file://')) {
+        pathToCheck = Uri.parse(pathToCheck).toFilePath();
+        LogUtils.d(
+          '从 file:// URI 转换为路径: $pathToCheck',
+          'MyVideoStateController',
+        );
+      }
+
+      final file = File(pathToCheck);
+      if (!await file.exists()) {
+        throw Exception(slang.t.mediaPlayer.localVideoFileNotExists(path: pathToCheck));
+      }
+
+      LogUtils.d(
+        '文件存在，大小: ${await file.length()} bytes',
+        'MyVideoStateController',
+      );
+
+      // 构建本地视频的清晰度列表
+      _buildLocalVideoResolutions();
+
+      // 如果有下载任务信息，设置视频标题等元数据
+      if (localVideoTask != null) {
+        final extData = VideoDownloadExtData.fromJson(
+          localVideoTask!.extData!.data,
+        );
+        // 创建一个简单的 videoInfo 用于显示
+        videoInfo.value = video_model.Video(
+          id: extData.id ?? '',
+          title: extData.title ?? localVideoTask!.fileName,
+          user: User(
+            id: '',
+            username: extData.authorUsername ?? '',
+            name: extData.authorName ?? '',
+          ),
+        );
+        LogUtils.d(
+          '使用下载任务信息: ${videoInfo.value?.title}',
+          'MyVideoStateController',
+        );
+      } else {
+        // 纯本地文件，使用文件名作为标题
+        final fileName = pathToCheck.split('/').last;
+        videoInfo.value = video_model.Video(
+          id: '',
+          title: fileName,
+          user: User(id: '', username: '', name: ''),
+        );
+        LogUtils.d('使用文件名作为标题: $fileName', 'MyVideoStateController');
+      }
+
+      // 设置播放模式
+      if (_configService[ConfigKey.REPEAT_KEY]) {
+        player.setPlaylistMode(PlaylistMode.loop);
+      } else {
+        player.setPlaylistMode(PlaylistMode.none);
+      }
+
+      // 打开本地视频文件
+      final mediaPath = localVideoPath!.startsWith('file://')
+          ? localVideoPath!
+          : 'file://$localVideoPath';
+
+      LogUtils.i('准备打开视频文件: $mediaPath', 'MyVideoStateController');
+      await player.open(Media(mediaPath));
+      LogUtils.i('视频文件已打开', 'MyVideoStateController');
+
+      // 设置监听器（必须在 player.open 之后调用）
+      _setupListenersAfterOpen();
+
+      // 应用 Shader 设置
+      await setShader();
+
+      videoPlayerReady.value = true;
+      pageLoadingState.value = VideoDetailPageLoadingState.idle;
+
+      LogUtils.i('本地视频播放初始化成功', 'MyVideoStateController');
+    } catch (e) {
+      LogUtils.e('本地视频播放初始化失败: $e', tag: 'MyVideoStateController', error: e);
+      if (!_isDisposed) {
+        String errorMessage = CommonUtils.parseExceptionMessage(e);
+        mainErrorWidget.value = CommonErrorWidget(
+          text: slang.t.mediaPlayer.unableToPlayLocalVideo(error: errorMessage),
+          children: [
+            ElevatedButton(
+              onPressed: () => AppService.tryPop(),
+              child: Text(slang.t.common.back),
+            ),
+          ],
+        );
+      }
+    }
+  }
+
+  /// 从本地下载任务构建清晰度列表
+  void _buildLocalVideoResolutions() {
+    videoResolutions.clear();
+
+    if (localVideoAllQualityTasks.isEmpty) {
+      // 没有多清晰度信息，只添加当前文件
+      if (localVideoPath != null) {
+        String quality = slang.t.mediaPlayer.local;
+        if (localVideoTask != null) {
+          final extData = VideoDownloadExtData.fromJson(
+            localVideoTask!.extData!.data,
+          );
+          quality = extData.quality ?? slang.t.mediaPlayer.local;
+        }
+        videoResolutions.add(
+          VideoResolution(
+            label: quality,
+            url: localVideoPath!.startsWith('file://')
+                ? localVideoPath!
+                : 'file://$localVideoPath',
+          ),
+        );
+        currentResolutionTag.value = quality;
+      }
+    } else {
+      // 有多个清晰度，按清晰度排序添加
+      final sortedTasks = List<DownloadTask>.from(localVideoAllQualityTasks)
+        ..sort((a, b) {
+          final aQuality =
+              VideoDownloadExtData.fromJson(a.extData!.data).quality ?? '';
+          final bQuality =
+              VideoDownloadExtData.fromJson(b.extData!.data).quality ?? '';
+          return _compareQuality(bQuality, aQuality); // 降序排列
+        });
+
+      for (final task in sortedTasks) {
+        if (task.status == DownloadStatus.completed) {
+          final extData = VideoDownloadExtData.fromJson(task.extData!.data);
+          final quality = extData.quality ?? slang.t.mediaPlayer.unknown;
+          final path = task.savePath.startsWith('file://')
+              ? task.savePath
+              : 'file://${task.savePath}';
+          videoResolutions.add(VideoResolution(label: quality, url: path));
+        }
+      }
+
+      // 设置当前清晰度为正在播放的那个
+      if (localVideoTask != null) {
+        final extData = VideoDownloadExtData.fromJson(
+          localVideoTask!.extData!.data,
+        );
+        currentResolutionTag.value =
+            extData.quality ?? videoResolutions.first.label;
+      } else {
+        currentResolutionTag.value = videoResolutions.first.label;
+      }
+    }
+
+    LogUtils.d(
+      '本地视频清晰度列表: ${videoResolutions.map((r) => r.label).join(", ")}',
+      'MyVideoStateController',
+    );
+  }
+
+  /// 比较两个清晰度标签（用于排序）
+  int _compareQuality(String a, String b) {
+    final order = ['Source', '1080', '720', '540', '360'];
+    final aIndex = order.indexOf(a);
+    final bIndex = order.indexOf(b);
+    if (aIndex == -1 && bIndex == -1) return a.compareTo(b);
+    if (aIndex == -1) return 1;
+    if (bIndex == -1) return -1;
+    return aIndex.compareTo(bIndex);
   }
 
   void _setupPiPListener() {
@@ -1544,7 +1781,9 @@ class MyVideoStateController extends GetxController
           if (Get.context != null) {
             ScaffoldMessenger.of(Get.context!).showSnackBar(
               SnackBar(
-                content: Text(slang.t.videoDetail.player.serverFaultDetectedAutoSwitched),
+                content: Text(
+                  slang.t.videoDetail.player.serverFaultDetectedAutoSwitched,
+                ),
                 duration: const Duration(seconds: 3),
               ),
             );
@@ -2304,7 +2543,9 @@ class MyVideoStateController extends GetxController
       // 在回调中检查控制器是否已销毁
       if (_isDisposed) return;
 
-      if (!videoPlayerReady.value) return;
+      if (!videoPlayerReady.value) {
+        return;
+      }
 
       // 只有在不是等待seek完成且不在横向拖拽的状态下才更新位置
       if (!isWaitingForSeek.value && !isHorizontalDragging.value) {
@@ -2323,12 +2564,15 @@ class MyVideoStateController extends GetxController
         // 更新位置并设置节流定时器
         currentPosition = position;
         _lastPosition = position;
+        // 同时更新显示位置，确保进度条UI能正确显示
+        toShowCurrentPosition.value = position;
 
         _positionUpdateThrottleTimer = Timer(throttleInterval, () {
           // 定时器触发时，如果最新位置与当前显示位置不同，则更新
           if (_isDisposed) return;
           if (_lastPosition != currentPosition) {
             currentPosition = _lastPosition;
+            toShowCurrentPosition.value = _lastPosition;
           }
         });
       }
@@ -2551,7 +2795,8 @@ class MyVideoStateController extends GetxController
         configuration: PlayerConfiguration(
           bufferSize: 32 * 1024 * 1024, // 32MB 缓冲区（与主播放器默认一致）
           title: 'i_iwara Preview Player',
-          async: true,
+          // 注意：在 macOS 上开启 async: true 可能会导致热重启时崩溃，因此在调试模式下关闭
+          async: !kDebugMode,
           protocolWhitelist: const [
             'udp',
             'rtp',

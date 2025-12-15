@@ -68,29 +68,38 @@ jobs:
       - name: Build APK
         run: flutter build apk --release
 
+      - name: Rename APKs with version
+        run: |
+          APP_VERSION=$(grep "version:" pubspec.yaml | cut -d':' -f2 | tr -d ' ' | cut -d'+' -f1)
+          mkdir -p result
+          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk result/i_iwara-${APP_VERSION}-arm64-v8a.apk
+          cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk result/i_iwara-${APP_VERSION}-armeabi-v7a.apk
+          cp build/app/outputs/flutter-apk/app-x86_64-release.apk result/i_iwara-${APP_VERSION}-x86_64.apk
+          cp build/app/outputs/flutter-apk/app-release.apk result/i_iwara-${APP_VERSION}-universal.apk
+
       - name: Upload ARM64 APK
         uses: actions/upload-artifact@v4
         with:
           name: android-arm64-v8a
-          path: build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+          path: result/i_iwara-*-arm64-v8a.apk
 
       - name: Upload ARMv7 APK
         uses: actions/upload-artifact@v4
         with:
           name: android-armeabi-v7a
-          path: build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
+          path: result/i_iwara-*-armeabi-v7a.apk
 
       - name: Upload x86_64 APK
         uses: actions/upload-artifact@v4
         with:
           name: android-x86_64
-          path: build/app/outputs/flutter-apk/app-x86_64-release.apk
+          path: result/i_iwara-*-x86_64.apk
 
       - name: Upload Universal APK
         uses: actions/upload-artifact@v4
         with:
           name: android-universal
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: result/i_iwara-*-universal.apk
 
   build-windows:
     if: ${{ inputs.build_windows }}
@@ -106,22 +115,34 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: pip install httpx
+
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress
+
       - name: Get dependencies
         run: flutter pub get
 
-      - name: Build Windows
-        run: flutter build windows --release
+      - name: Build Windows with Installer
+        run: python windows/build.py
 
-      - name: Create ZIP archive
-        run: |
-          Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath windows-release.zip
-
-      - name: Upload Windows build
+      - name: Upload Windows Installer
         uses: actions/upload-artifact@v4
         with:
-          name: windows-release
-          path: windows-release.zip
-          compression-level: 9
+          name: windows-installer
+          path: build/windows/i_iwara-*-windows-setup.exe
+
+      - name: Upload Windows ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-portable
+          path: build/windows/i_iwara-*-windows.zip
 
   build-macos:
     if: ${{ inputs.build_macos }}
@@ -191,18 +212,20 @@ jobs:
       - name: Build iOS
         run: flutter build ios --release --no-codesign
 
-      - name: Create IPA
+      - name: Create IPA with version
         run: |
+          APP_VERSION=$(grep "version:" pubspec.yaml | cut -d':' -f2 | tr -d ' ' | cut -d'+' -f1)
+          mkdir -p result
           cd build/ios/iphoneos
           mkdir Payload
           cp -r Runner.app Payload
-          zip -r app-release.ipa Payload
+          zip -r ../../../result/i_iwara-${APP_VERSION}-ios.ipa Payload
 
       - name: Upload iOS build
         uses: actions/upload-artifact@v4
         with:
           name: ios-release
-          path: build/ios/iphoneos/app-release.ipa
+          path: result/i_iwara-*-ios.ipa
 
   build-linux:
     if: ${{ inputs.build_linux }}

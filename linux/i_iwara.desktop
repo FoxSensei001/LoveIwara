@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=i_iwara
+Comment=i_iwara video player
+Exec=i_iwara %F
+Icon=i_iwara
+Terminal=false
+Type=Application
+Categories=AudioVideo;Player;Video;
+MimeType=video/mp4;video/x-matroska;video/avi;video/quicktime;video/x-ms-wmv;video/x-flv;video/webm;video/x-m4v;video/3gpp;video/mp2t;

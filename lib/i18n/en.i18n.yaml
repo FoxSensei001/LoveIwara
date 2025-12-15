@@ -1192,6 +1192,8 @@ download:
     copyFailed: Copy failed
     openFileFailed: Failed to open file
     openFileFailedWithMessage: 'Failed to open file: ${message}'
+    playLocallyFailed: Failed to play locally
+    playLocallyFailedWithMessage: 'Failed to play locally: ${message}'
     noDownloadSource: No download source
     noDownloadSourceNowPleaseWaitInfoLoaded: No download source, please wait for information loading to be completed and try again
     noActiveDownloadTask: No active download task
@@ -1236,6 +1238,7 @@ download:
   viewGalleryDetail: View Gallery Detail
   moreOptions: More Options
   openFile: Open File
+  playLocally: Play Locally
   pause: Pause
   resume: Resume
   copyDownloadUrl: Copy Download URL
@@ -1553,7 +1556,13 @@ mediaPlayer:
   appMayLackMediaPermission: "The app may lack necessary media playback permissions"
   tryOtherVideoPlayer: "Please try using other video players"
   video: "VIDEO"
-  
+  # Local video playback
+  local: "Local"
+  unknown: "Unknown"
+  localVideoPathEmpty: "Local video path is empty"
+  localVideoFileNotExists: "Local video file does not exist: ${path}"
+  unableToPlayLocalVideo: "Unable to play local video: ${error}"
+
   # Custom runtime messages
   retryingOpenVideoLink: "Video link open failed, retrying"
   decoderOpenFailedWithSuggestion: "Unable to load decoder: ${event}. Try switching to software decoding in player settings and re-enter the page"

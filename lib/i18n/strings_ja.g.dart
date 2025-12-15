@@ -1101,6 +1101,7 @@ class _TranslationsDownloadJa implements TranslationsDownloadEn {
 	@override String get viewGalleryDetail => 'ギャラリー詳細を表示';
 	@override String get moreOptions => 'もっと操作';
 	@override String get openFile => 'ファイルを開く';
+	@override String get playLocally => 'ローカル再生';
 	@override String get pause => '一時停止';
 	@override String get resume => '継続';
 	@override String get copyDownloadUrl => 'ダウンロードリンクをコピー';
@@ -1344,6 +1345,11 @@ class _TranslationsMediaPlayerJa implements TranslationsMediaPlayerEn {
 	@override String get appMayLackMediaPermission => 'アプリに必要なメディア再生権限が不足している可能性があります';
 	@override String get tryOtherVideoPlayer => '他のビデオプレイヤーをお試しください';
 	@override String get video => 'ビデオ';
+	@override String get local => 'ローカル';
+	@override String get unknown => '不明';
+	@override String get localVideoPathEmpty => 'ローカルビデオパスが空です';
+	@override String localVideoFileNotExists({required Object path}) => 'ローカルビデオファイルが存在しません: ${path}';
+	@override String unableToPlayLocalVideo({required Object error}) => 'ローカルビデオを再生できません: ${error}';
 	@override String get imageLoadFailed => '画像読み込み失敗';
 	@override String get unsupportedImageFormat => 'サポートされていない画像形式';
 	@override String get tryOtherViewer => '他のビューアーをお試しください';
@@ -2255,6 +2261,8 @@ class _TranslationsDownloadErrorsJa implements TranslationsDownloadErrorsEn {
 	@override String get copyFailed => 'コピーに失敗しました';
 	@override String get openFileFailed => 'ファイルを開くのに失敗しました';
 	@override String openFileFailedWithMessage({required Object message}) => 'ファイルを開くのに失敗しました: ${message}';
+	@override String get playLocallyFailed => 'ローカル再生に失敗しました';
+	@override String playLocallyFailedWithMessage({required Object message}) => 'ローカル再生に失敗しました: ${message}';
 	@override String get noDownloadSource => 'ダウンロードソースがありません';
 	@override String get noDownloadSourceNowPleaseWaitInfoLoaded => 'ダウンロードソースがありません。情報を読み込んだ後、もう一度お試しください。';
 	@override String get noActiveDownloadTask => 'ダウンロード中のタスクがありません';
@@ -3619,6 +3627,8 @@ extension on TranslationsJa {
 			'download.errors.copyFailed' => 'コピーに失敗しました',
 			'download.errors.openFileFailed' => 'ファイルを開くのに失敗しました',
 			'download.errors.openFileFailedWithMessage' => ({required Object message}) => 'ファイルを開くのに失敗しました: ${message}',
+			'download.errors.playLocallyFailed' => 'ローカル再生に失敗しました',
+			'download.errors.playLocallyFailedWithMessage' => ({required Object message}) => 'ローカル再生に失敗しました: ${message}',
 			'download.errors.noDownloadSource' => 'ダウンロードソースがありません',
 			'download.errors.noDownloadSourceNowPleaseWaitInfoLoaded' => 'ダウンロードソースがありません。情報を読み込んだ後、もう一度お試しください。',
 			'download.errors.noActiveDownloadTask' => 'ダウンロード中のタスクがありません',
@@ -3664,6 +3674,7 @@ extension on TranslationsJa {
 			'download.viewGalleryDetail' => 'ギャラリー詳細を表示',
 			'download.moreOptions' => 'もっと操作',
 			'download.openFile' => 'ファイルを開く',
+			'download.playLocally' => 'ローカル再生',
 			'download.pause' => '一時停止',
 			'download.resume' => '継続',
 			'download.copyDownloadUrl' => 'ダウンロードリンクをコピー',
@@ -3884,6 +3895,11 @@ extension on TranslationsJa {
 			'mediaPlayer.appMayLackMediaPermission' => 'アプリに必要なメディア再生権限が不足している可能性があります',
 			'mediaPlayer.tryOtherVideoPlayer' => '他のビデオプレイヤーをお試しください',
 			'mediaPlayer.video' => 'ビデオ',
+			'mediaPlayer.local' => 'ローカル',
+			'mediaPlayer.unknown' => '不明',
+			'mediaPlayer.localVideoPathEmpty' => 'ローカルビデオパスが空です',
+			'mediaPlayer.localVideoFileNotExists' => ({required Object path}) => 'ローカルビデオファイルが存在しません: ${path}',
+			'mediaPlayer.unableToPlayLocalVideo' => ({required Object error}) => 'ローカルビデオを再生できません: ${error}',
 			'mediaPlayer.imageLoadFailed' => '画像読み込み失敗',
 			'mediaPlayer.unsupportedImageFormat' => 'サポートされていない画像形式',
 			'mediaPlayer.tryOtherViewer' => '他のビューアーをお試しください',
@@ -4044,6 +4060,8 @@ extension on TranslationsJa {
 			'layoutSettings.defaultColumns' => 'デフォルトカラム数',
 			'layoutSettings.defaultColumnsDesc' => '大画面のデフォルト表示',
 			'layoutSettings.previewEffect' => 'プレビュー効果',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.screenWidth' => '画面幅',
 			'layoutSettings.addBreakpoint' => 'ブレークポイントを追加',
 			'layoutSettings.editBreakpoint' => 'ブレークポイントを編集',
@@ -4052,8 +4070,6 @@ extension on TranslationsJa {
 			'layoutSettings.screenWidthHint' => '600',
 			'layoutSettings.columnsLabel' => 'カラム数',
 			'layoutSettings.columnsHint' => '3',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.enterWidth' => '幅を入力してください',
 			'layoutSettings.enterValidWidth' => '有効な幅を入力してください',
 			'layoutSettings.widthCannotExceed9999' => '幅は9999を超えることはできません',

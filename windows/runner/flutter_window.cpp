@@ -4,7 +4,7 @@
 
 #include "flutter/generated_plugin_registrant.h"
 
-FlutterWindow::FlutterWindow(const flutter::DartProject& project)
+FlutterWindow::FlutterWindow(const flutter::DartProject &project)
     : project_(project) {}
 
 FlutterWindow::~FlutterWindow() {}
@@ -27,9 +27,10 @@ bool FlutterWindow::OnCreate() {
   RegisterPlugins(flutter_controller_->engine());
   SetChildContent(flutter_controller_->view()->GetNativeWindow());
 
-  flutter_controller_->engine()->SetNextFrameCallback([&]() {
-    this->Show();
-  });
+  // Setup file handler method channel
+  SetupFileHandlerChannel();
+
+  flutter_controller_->engine()->SetNextFrameCallback([&]() { this->Show(); });
 
   // Flutter can complete the first frame before the "show window" callback is
   // registered. The following call ensures a frame is pending to ensure the
@@ -62,10 +63,28 @@ FlutterWindow::MessageHandler(HWND hwnd, UINT const message,
   }
 
   switch (message) {
-    case WM_FONTCHANGE:
-      flutter_controller_->engine()->ReloadSystemFonts();
-      break;
+  case WM_FONTCHANGE:
+    flutter_controller_->engine()->ReloadSystemFonts();
+    break;
   }
 
   return Win32Window::MessageHandler(hwnd, message, wparam, lparam);
+}
+
+void FlutterWindow::SetupFileHandlerChannel() {
+  const flutter::StandardMethodCodec &codec =
+      flutter::StandardMethodCodec::GetInstance();
+
+  file_handler_channel_ =
+      std::make_unique<flutter::MethodChannel<flutter::EncodableValue>>(
+          flutter_controller_->engine()->messenger(),
+          "com.example.i_iwara/file_handler", &codec);
+}
+
+void FlutterWindow::SendFileToFlutter(const std::string &file_uri) {
+  if (file_handler_channel_) {
+    flutter::EncodableValue args(file_uri);
+    file_handler_channel_->InvokeMethod(
+        "onFileOpened", std::make_unique<flutter::EncodableValue>(args));
+  }
 }

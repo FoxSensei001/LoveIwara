@@ -1132,6 +1132,7 @@ class _TranslationsDownloadZhTw implements TranslationsDownloadEn {
 	@override String get viewGalleryDetail => '查看圖庫詳情';
 	@override String get moreOptions => '更多操作';
 	@override String get openFile => '打開文件';
+	@override String get playLocally => '本地播放';
 	@override String get pause => '暫停';
 	@override String get resume => '繼續';
 	@override String get copyDownloadUrl => '複製下載連結';
@@ -1375,6 +1376,11 @@ class _TranslationsMediaPlayerZhTw implements TranslationsMediaPlayerEn {
 	@override String get appMayLackMediaPermission => '應用可能缺少必要的媒體播放權限';
 	@override String get tryOtherVideoPlayer => '請嘗試使用其他影片播放器';
 	@override String get video => '影片';
+	@override String get local => '本地';
+	@override String get unknown => '未知';
+	@override String get localVideoPathEmpty => '本地影片路徑為空';
+	@override String localVideoFileNotExists({required Object path}) => '本地影片檔案不存在: ${path}';
+	@override String unableToPlayLocalVideo({required Object error}) => '無法播放本地影片: ${error}';
 	@override String get imageLoadFailed => '圖片載入失敗';
 	@override String get unsupportedImageFormat => '不支援的圖片格式';
 	@override String get tryOtherViewer => '請嘗試使用其他檢視器';
@@ -2346,6 +2352,8 @@ class _TranslationsDownloadErrorsZhTw implements TranslationsDownloadErrorsEn {
 	@override String get copyFailed => '複製失敗';
 	@override String get openFileFailed => '打開文件失敗';
 	@override String openFileFailedWithMessage({required Object message}) => '打開文件失敗: ${message}';
+	@override String get playLocallyFailed => '本地播放失敗';
+	@override String playLocallyFailedWithMessage({required Object message}) => '本地播放失敗: ${message}';
 	@override String get noDownloadSource => '沒有下載源';
 	@override String get noDownloadSourceNowPleaseWaitInfoLoaded => '暫無下載源，請等待資訊載入完成後重試';
 	@override String get noActiveDownloadTask => '暫無正在下載的任務';
@@ -3653,6 +3661,8 @@ extension on TranslationsZhTw {
 			'download.errors.copyFailed' => '複製失敗',
 			'download.errors.openFileFailed' => '打開文件失敗',
 			'download.errors.openFileFailedWithMessage' => ({required Object message}) => '打開文件失敗: ${message}',
+			'download.errors.playLocallyFailed' => '本地播放失敗',
+			'download.errors.playLocallyFailedWithMessage' => ({required Object message}) => '本地播放失敗: ${message}',
 			'download.errors.noDownloadSource' => '沒有下載源',
 			'download.errors.noDownloadSourceNowPleaseWaitInfoLoaded' => '暫無下載源，請等待資訊載入完成後重試',
 			'download.errors.noActiveDownloadTask' => '暫無正在下載的任務',
@@ -3698,6 +3708,7 @@ extension on TranslationsZhTw {
 			'download.viewGalleryDetail' => '查看圖庫詳情',
 			'download.moreOptions' => '更多操作',
 			'download.openFile' => '打開文件',
+			'download.playLocally' => '本地播放',
 			'download.pause' => '暫停',
 			'download.resume' => '繼續',
 			'download.copyDownloadUrl' => '複製下載連結',
@@ -3918,6 +3929,11 @@ extension on TranslationsZhTw {
 			'mediaPlayer.appMayLackMediaPermission' => '應用可能缺少必要的媒體播放權限',
 			'mediaPlayer.tryOtherVideoPlayer' => '請嘗試使用其他影片播放器',
 			'mediaPlayer.video' => '影片',
+			'mediaPlayer.local' => '本地',
+			'mediaPlayer.unknown' => '未知',
+			'mediaPlayer.localVideoPathEmpty' => '本地影片路徑為空',
+			'mediaPlayer.localVideoFileNotExists' => ({required Object path}) => '本地影片檔案不存在: ${path}',
+			'mediaPlayer.unableToPlayLocalVideo' => ({required Object error}) => '無法播放本地影片: ${error}',
 			'mediaPlayer.imageLoadFailed' => '圖片載入失敗',
 			'mediaPlayer.unsupportedImageFormat' => '不支援的圖片格式',
 			'mediaPlayer.tryOtherViewer' => '請嘗試使用其他檢視器',
@@ -4047,6 +4063,8 @@ extension on TranslationsZhTw {
 			'emoji.emojiManagement' => '表情包管理',
 			'emoji.manageEmojiGroupsAndImages' => '管理表情包分組和圖片',
 			'emoji.uploadLocalImages' => '上傳本機圖片',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.uploadingImages' => '正在上傳圖片',
 			'emoji.uploadingImagesProgress' => ({required Object count}) => '正在上傳 ${count} 張圖片，請稍候...',
 			'emoji.doNotCloseDialog' => '請不要關閉此對話框',
@@ -4055,8 +4073,6 @@ extension on TranslationsZhTw {
 			'emoji.uploadFailedMessage' => '圖片上傳失敗，請檢查網路連接或檔案格式',
 			'emoji.uploadErrorMessage' => ({required Object error}) => '上傳過程中發生錯誤: ${error}',
 			'displaySettings.title' => '顯示設定',
-			_ => null,
-		} ?? switch (path) {
 			'displaySettings.layoutSettings' => '版面配置設定',
 			'displaySettings.layoutSettingsDesc' => '自訂欄數和斷點配置',
 			'displaySettings.gridLayout' => '網格版面配置',

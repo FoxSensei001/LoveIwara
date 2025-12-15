@@ -33,12 +33,10 @@ class VideoDownloadTaskItem extends StatelessWidget {
 
     return GestureDetector(
       onSecondaryTapUp: (details) {
-        final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+        final RenderBox overlay =
+            Overlay.of(context).context.findRenderObject() as RenderBox;
         final RelativeRect position = RelativeRect.fromRect(
-          Rect.fromPoints(
-            details.globalPosition,
-            details.globalPosition,
-          ),
+          Rect.fromPoints(details.globalPosition, details.globalPosition),
           Offset.zero & overlay.size,
         );
         showMenu(
@@ -78,6 +76,17 @@ class VideoDownloadTaskItem extends StatelessWidget {
                 ),
                 onTap: () => _openFile(context),
               ),
+              // 本地播放按钮
+              PopupMenuItem(
+                child: Row(
+                  children: [
+                    const Icon(Icons.play_circle_outline),
+                    const SizedBox(width: 8),
+                    Text(t.download.playLocally),
+                  ],
+                ),
+                onTap: () => _playLocalVideo(context),
+              ),
               if (Platform.isWindows || Platform.isMacOS || Platform.isLinux)
                 PopupMenuItem(
                   child: Row(
@@ -95,7 +104,10 @@ class VideoDownloadTaskItem extends StatelessWidget {
                 children: [
                   const Icon(Icons.delete, color: Colors.red),
                   const SizedBox(width: 8),
-                  Text(t.download.deleteTask, style: const TextStyle(color: Colors.red)),
+                  Text(
+                    t.download.deleteTask,
+                    style: const TextStyle(color: Colors.red),
+                  ),
                 ],
               ),
               onTap: () => _showDeleteConfirmDialog(context),
@@ -106,7 +118,10 @@ class VideoDownloadTaskItem extends StatelessWidget {
                 children: [
                   const Icon(Icons.delete, color: Colors.red),
                   const SizedBox(width: 8),
-                  Text(t.download.forceDeleteTask, style: const TextStyle(color: Colors.red)),
+                  Text(
+                    t.download.forceDeleteTask,
+                    style: const TextStyle(color: Colors.red),
+                  ),
                 ],
               ),
               onTap: () => _showDeleteConfirmDialog(context, force: true),
@@ -144,7 +159,8 @@ class VideoDownloadTaskItem extends StatelessWidget {
                                 placeholder: (context, url) => Container(
                                   color: Colors.grey[300],
                                   child: const Center(
-                                      child: CircularProgressIndicator()),
+                                    child: CircularProgressIndicator(),
+                                  ),
                                 ),
                                 errorWidget: (context, url, error) => Container(
                                   color: Colors.grey[300],
@@ -159,7 +175,9 @@ class VideoDownloadTaskItem extends StatelessWidget {
                                 top: 4,
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 6, vertical: 2),
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: Colors.black54,
                                     borderRadius: BorderRadius.circular(4),
@@ -181,7 +199,9 @@ class VideoDownloadTaskItem extends StatelessWidget {
                                 bottom: 4,
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 6, vertical: 2),
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: Colors.black54,
                                     borderRadius: BorderRadius.circular(4),
@@ -224,11 +244,11 @@ class VideoDownloadTaskItem extends StatelessWidget {
                                     child: GestureDetector(
                                       onTap: () =>
                                           _navigateToAuthorProfile(videoData),
-                                      child:  AvatarWidget(
-                                            avatarUrl: videoData.authorAvatar,
-                                            size: 25
-                                          ),
-                                        ),
+                                      child: AvatarWidget(
+                                        avatarUrl: videoData.authorAvatar,
+                                        size: 25,
+                                      ),
+                                    ),
                                   ),
                                 Expanded(
                                   child: Align(
@@ -237,8 +257,9 @@ class VideoDownloadTaskItem extends StatelessWidget {
                                       child: MouseRegion(
                                         cursor: SystemMouseCursors.click,
                                         child: GestureDetector(
-                                          onTap: () =>
-                                              _navigateToAuthorProfile(videoData),
+                                          onTap: () => _navigateToAuthorProfile(
+                                            videoData,
+                                          ),
                                           child: Text(
                                             videoData.authorName!,
                                             maxLines: 1,
@@ -282,19 +303,28 @@ class VideoDownloadTaskItem extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               // 修改状态标签显示方式，为窄屏优化
-                              if (isSmallScreen && task.status == DownloadStatus.downloading)
+                              if (isSmallScreen &&
+                                  task.status == DownloadStatus.downloading)
                                 Row(
                                   children: [
-                                    StatusLabel(status: task.status, text: t.download.downloading),
+                                    StatusLabel(
+                                      status: task.status,
+                                      text: t.download.downloading,
+                                    ),
                                     const SizedBox(width: 8),
                                     Text(
                                       _getStatusText(context),
-                                      style: Theme.of(context).textTheme.bodySmall,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodySmall,
                                     ),
                                   ],
                                 )
                               else
-                                StatusLabel(status: task.status, text: _getStatusText(context)),
+                                StatusLabel(
+                                  status: task.status,
+                                  text: _getStatusText(context),
+                                ),
                               if (task.error != null)
                                 Text(
                                   task.error!,
@@ -312,7 +342,8 @@ class VideoDownloadTaskItem extends StatelessWidget {
                             tooltip: t.download.viewVideoDetail,
                             onPressed: () =>
                                 NaviService.navigateToVideoDetailPage(
-                                    videoData.id!),
+                                  videoData.id!,
+                                ),
                           ),
                         // 更多操作按钮
                         IconButton(
@@ -377,10 +408,21 @@ class VideoDownloadTaskItem extends StatelessWidget {
             onPressed: () => DownloadService.to.retryTask(task.id),
           );
         case DownloadStatus.completed:
-          return IconButton(
-            icon: const Icon(Icons.play_circle_outline),
-            tooltip: t.download.openFile,
-            onPressed: () => _openFile(context),
+          // 完成时显示两个按钮：打开文件 和 本地播放
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.open_in_new),
+                tooltip: t.download.openFile,
+                onPressed: () => _openFile(context),
+              ),
+              IconButton(
+                icon: const Icon(Icons.play_circle_outline),
+                tooltip: t.download.playLocally,
+                onPressed: () => _playLocalVideo(context),
+              ),
+            ],
           );
       }
     });
@@ -405,7 +447,10 @@ class VideoDownloadTaskItem extends StatelessWidget {
               children: [
                 // 标题
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 8.0,
+                  ),
                   child: Row(
                     children: [
                       Text(
@@ -454,7 +499,18 @@ class VideoDownloadTaskItem extends StatelessWidget {
                               _openFile(context);
                             },
                           ),
-                          if (Platform.isWindows || Platform.isMacOS || Platform.isLinux)
+                          // 本地播放按钮
+                          ListTile(
+                            leading: const Icon(Icons.play_circle_outline),
+                            title: Text(t.download.playLocally),
+                            onTap: () {
+                              Navigator.pop(context);
+                              _playLocalVideo(context);
+                            },
+                          ),
+                          if (Platform.isWindows ||
+                              Platform.isMacOS ||
+                              Platform.isLinux)
                             ListTile(
                               leading: const Icon(Icons.folder_open),
                               title: Text(t.download.showInFolder),
@@ -467,8 +523,10 @@ class VideoDownloadTaskItem extends StatelessWidget {
                         const Divider(height: 1),
                         ListTile(
                           leading: const Icon(Icons.delete, color: Colors.red),
-                          title: Text(t.download.deleteTask,
-                              style: const TextStyle(color: Colors.red)),
+                          title: Text(
+                            t.download.deleteTask,
+                            style: const TextStyle(color: Colors.red),
+                          ),
                           onTap: () {
                             Navigator.pop(context);
                             _showDeleteConfirmDialog(context);
@@ -477,7 +535,10 @@ class VideoDownloadTaskItem extends StatelessWidget {
                         // 强制删除
                         ListTile(
                           leading: const Icon(Icons.delete, color: Colors.red),
-                          title: Text(t.download.forceDeleteTask, style: const TextStyle(color: Colors.red)),
+                          title: Text(
+                            t.download.forceDeleteTask,
+                            style: const TextStyle(color: Colors.red),
+                          ),
                           onTap: () {
                             Navigator.pop(context);
                             _showDeleteConfirmDialog(context, force: true);
@@ -517,8 +578,9 @@ class VideoDownloadTaskItem extends StatelessWidget {
       return LinearProgressIndicator(
         value: task.downloadedBytes / task.totalBytes,
         backgroundColor: Colors.grey[200],
-        valueColor:
-            AlwaysStoppedAnimation<Color>(_getProgressColor(task.status)),
+        valueColor: AlwaysStoppedAnimation<Color>(
+          _getProgressColor(task.status),
+        ),
       );
     }
     // 如果没有总大小但正在下载，显示不确定进度
@@ -533,8 +595,9 @@ class VideoDownloadTaskItem extends StatelessWidget {
       return LinearProgressIndicator(
         value: task.status == DownloadStatus.completed ? 1.0 : 0.0,
         backgroundColor: Colors.grey[200],
-        valueColor:
-            AlwaysStoppedAnimation<Color>(_getProgressColor(task.status)),
+        valueColor: AlwaysStoppedAnimation<Color>(
+          _getProgressColor(task.status),
+        ),
       );
     }
   }
@@ -555,54 +618,60 @@ class VideoDownloadTaskItem extends StatelessWidget {
   String _getStatusText(BuildContext context) {
     final t = slang.Translations.of(context);
     final isSmallScreen = MediaQuery.of(context).size.width < 600;
-    
+
     switch (task.status) {
       case DownloadStatus.pending:
         return t.download.waitingForDownload;
       case DownloadStatus.downloading:
         if (task.totalBytes > 0) {
-          final progress =
-              (task.downloadedBytes / task.totalBytes * 100).toStringAsFixed(1);
+          final progress = (task.downloadedBytes / task.totalBytes * 100)
+              .toStringAsFixed(1);
           final downloaded = _formatFileSize(task.downloadedBytes);
           final total = _formatFileSize(task.totalBytes);
           final speed = (task.speed / 1024 / 1024).toStringAsFixed(2);
-          
+
           // 窄屏设备使用更紧凑的格式
           if (isSmallScreen) {
             return '$downloaded/$total\n${speed}MB/s';
           }
-          
+
           return t.download.downloadingProgressForVideoTask(
-              downloaded: downloaded,
-              total: total,
-              progress: progress,
-              speed: speed);
+            downloaded: downloaded,
+            total: total,
+            progress: progress,
+            speed: speed,
+          );
         } else {
           final downloaded = _formatFileSize(task.downloadedBytes);
           final speed = (task.speed / 1024 / 1024).toStringAsFixed(2);
-          
+
           // 窄屏设备使用更紧凑的格式
           if (isSmallScreen) {
             return '$downloaded\n${speed}MB/s';
           }
-          
+
           return t.download.downloadingOnlyDownloadedAndSpeed(
-              downloaded: downloaded, speed: speed);
+            downloaded: downloaded,
+            speed: speed,
+          );
         }
       case DownloadStatus.paused:
         if (task.totalBytes > 0) {
-          final progress =
-              (task.downloadedBytes / task.totalBytes * 100).toStringAsFixed(1);
+          final progress = (task.downloadedBytes / task.totalBytes * 100)
+              .toStringAsFixed(1);
           final downloaded = _formatFileSize(task.downloadedBytes);
           final total = _formatFileSize(task.totalBytes);
-          
+
           // 窄屏设备使用更紧凑的格式
           if (isSmallScreen) {
             return '$downloaded/$total';
           }
-          
+
           return t.download.pausedForDownloadedAndTotal(
-              downloaded: downloaded, total: total, progress: progress);
+            downloaded: downloaded,
+            total: total,
+            progress: progress,
+          );
         } else {
           final downloaded = _formatFileSize(task.downloadedBytes);
           return t.download.pausedAndDownloaded(downloaded: downloaded);
@@ -625,8 +694,9 @@ class VideoDownloadTaskItem extends StatelessWidget {
       unitIndex++;
     }
 
-    String sizeStr =
-        size >= 10 ? size.round().toString() : size.toStringAsFixed(1);
+    String sizeStr = size >= 10
+        ? size.round().toString()
+        : size.toStringAsFixed(1);
     return '$sizeStr ${units[unitIndex]}';
   }
 
@@ -708,8 +778,12 @@ class VideoDownloadTaskItem extends StatelessWidget {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-                content: Text(t.download.errors
-                    .openFolderFailedWithMessage(message: result.message))),
+              content: Text(
+                t.download.errors.openFolderFailedWithMessage(
+                  message: result.message,
+                ),
+              ),
+            ),
           );
         }
       }
@@ -718,6 +792,58 @@ class VideoDownloadTaskItem extends StatelessWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(t.download.errors.openFolderFailed)),
+        );
+      }
+    }
+  }
+
+  /// 本地播放视频
+  Future<void> _playLocalVideo(BuildContext context) async {
+    final t = slang.Translations.of(context);
+    try {
+      final filePath = path.normalize(task.savePath);
+      LogUtils.d('本地播放: $filePath', 'DownloadTaskItem');
+
+      final file = File(filePath);
+      if (!await file.exists()) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(t.download.errors.fileNotFound)),
+          );
+        }
+        return;
+      }
+
+      // 获取同一视频的所有已下载清晰度任务
+      final videoData = VideoDownloadExtData.fromJson(task.extData!.data);
+      List<DownloadTask> allQualityTasks = [];
+
+      if (videoData.id != null) {
+        final downloadService = Get.find<DownloadService>();
+        allQualityTasks = await downloadService.repository.getVideoTasksByMedia(
+          videoData.id!,
+        );
+        // 只保留已完成的任务
+        allQualityTasks = allQualityTasks
+            .where((t) => t.status == DownloadStatus.completed)
+            .toList();
+      }
+
+      // 导航到本地视频播放页面
+      NaviService.navigateToLocalVideoPlayerPage(
+        localPath: filePath,
+        task: task,
+        allQualityTasks: allQualityTasks,
+      );
+    } catch (e) {
+      LogUtils.e('本地播放失败', tag: 'DownloadTaskItem', error: e);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              t.download.errors.playLocallyFailedWithMessage(message: e.toString()),
+            ),
+          ),
         );
       }
     }
@@ -742,8 +868,14 @@ class VideoDownloadTaskItem extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           AlertDialog(
-            title: Text(force ? t.download.forceDeleteTask : t.download.deleteTask),
-            content: Text(force ? t.download.forceDeleteTaskConfirmation : t.download.deleteTaskConfirmation),
+            title: Text(
+              force ? t.download.forceDeleteTask : t.download.deleteTask,
+            ),
+            content: Text(
+              force
+                  ? t.download.forceDeleteTaskConfirmation
+                  : t.download.deleteTaskConfirmation,
+            ),
             actions: [
               TextButton(
                 onPressed: () => AppService.tryPop(),
@@ -752,7 +884,10 @@ class VideoDownloadTaskItem extends StatelessWidget {
               TextButton(
                 onPressed: () {
                   AppService.tryPop();
-                  DownloadService.to.deleteTask(task.id, ignoreFileDeleteError: force);
+                  DownloadService.to.deleteTask(
+                    task.id,
+                    ignoreFileDeleteError: force,
+                  );
                 },
                 child: Text(
                   t.common.confirm,
