@@ -81,7 +81,8 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
       _translationService = Get.find<TranslationService>();
     }
     _displayData = widget.data;
-    _showOriginal = widget.initialShowUnprocessedText ??
+    _showOriginal =
+        widget.initialShowUnprocessedText ??
         _configService[ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
     _processMarkdown(widget.data);
 
@@ -96,7 +97,8 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
   @override
   void didUpdateWidget(CustomMarkdownBody oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.data != widget.data || oldWidget.originalData != widget.originalData) {
+    if (oldWidget.data != widget.data ||
+        oldWidget.originalData != widget.originalData) {
       if (mounted) {
         setState(() {
           _displayData = widget.data;
@@ -189,38 +191,42 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     // 尝试使用流式翻译
     final stream = _translationService.translateStream(textToTranslate);
     if (stream != null) {
-      _translationStreamSubscription = stream.listen((translatedText) {
-        if (mounted) {
-          setState(() {
-            // 在翻译过程中只更新原始文本，不进行格式化
-            _rawTranslatedText = translatedText;
-            if (!_isTranslationComplete) {
+      _translationStreamSubscription = stream.listen(
+        (translatedText) {
+          if (mounted) {
+            setState(() {
+              // 在翻译过程中只更新原始文本，不进行格式化
+              _rawTranslatedText = translatedText;
+              if (!_isTranslationComplete) {
+                _translatedText = _rawTranslatedText;
+              }
+            });
+          }
+        },
+        onError: (error) {
+          if (mounted) {
+            setState(() {
+              _rawTranslatedText = t.common.translateFailedPleaseTryAgainLater;
               _translatedText = _rawTranslatedText;
-            }
-          });
-        }
-      }, onError: (error) {
-        if (mounted) {
-          setState(() {
-            _rawTranslatedText = t.common.translateFailedPleaseTryAgainLater;
-            _translatedText = _rawTranslatedText;
-            _isTranslating = false;
-            _isTranslationComplete = true;
-          });
-        }
-      }, onDone: () {
-        if (mounted) {
-          // 翻译完成后，先标记翻译完成，再进行格式化处理
-          setState(() {
-            _isTranslationComplete = true;
-            // 保持翻译中状态，但显示翻译已完成
-            _translatedText = _rawTranslatedText;
-          });
-          
-          // 在后台进行格式化处理
-          _processTranslatedText();
-        }
-      });
+              _isTranslating = false;
+              _isTranslationComplete = true;
+            });
+          }
+        },
+        onDone: () {
+          if (mounted) {
+            // 翻译完成后，先标记翻译完成，再进行格式化处理
+            setState(() {
+              _isTranslationComplete = true;
+              // 保持翻译中状态，但显示翻译已完成
+              _translatedText = _rawTranslatedText;
+            });
+
+            // 在后台进行格式化处理
+            _processTranslatedText();
+          }
+        },
+      );
       return;
     }
 
@@ -246,7 +252,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
 
   // 处理翻译文本的格式化
   Future<void> _processTranslatedText() async {
-    if (_rawTranslatedText == null || 
+    if (_rawTranslatedText == null ||
         _rawTranslatedText == t.common.translateFailedPleaseTryAgainLater) {
       setState(() {
         _isTranslating = false;
@@ -255,8 +261,10 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     }
 
     try {
-      final processed = await _markdownFormatter.processTranslatedText(_rawTranslatedText!);
-      
+      final processed = await _markdownFormatter.processTranslatedText(
+        _rawTranslatedText!,
+      );
+
       if (mounted) {
         setState(() {
           _translatedText = processed;
@@ -275,21 +283,21 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
   }
 
   /// 判断是否为表情包图片，并获取表情包规格
-  /// 
+  ///
   /// 识别规则：
   /// 1. alt文本为"emo"（标准格式，默认中等大小）
   /// 2. alt文本为"emo:text-i"、"emo:mid-i"、"emo:large-i"（指定大小）
   /// 3. alt文本包含"emoji"、"表情"、"贴图"、"sticker"、"emoticon"等关键词
-  /// 
+  ///
   /// 返回值：如果是表情包返回对应的EmojiSize，否则返回null
   EmojiSize? _getEmojiSize(String url, Map<String, String> attributes) {
     final altText = attributes['alt'] ?? '';
-    
+
     // 检查是否为标准表情格式
     if (altText == 'emo') {
       return EmojiSize.medium; // 默认中等大小
     }
-    
+
     // 检查是否为指定大小的表情格式
     if (altText.startsWith('emo:')) {
       final suffix = altText.substring(4); // 去掉"emo:"
@@ -300,7 +308,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
       // 如果不是有效的规格，回退到默认中等大小
       return EmojiSize.medium;
     }
-    
+
     return null;
   }
 
@@ -343,7 +351,9 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
           case IwaraUrlType.forumThread:
             if (urlInfo.id != null && urlInfo.secondaryId != null) {
               NaviService.navigateToForumThreadDetailPage(
-                  urlInfo.id!, urlInfo.secondaryId!);
+                urlInfo.id!,
+                urlInfo.secondaryId!,
+              );
             }
             break;
           case IwaraUrlType.rule:
@@ -352,15 +362,109 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
             break;
         }
       } else {
-        await _launchUrl(Uri.parse(url), url);
+        // Check if it's an external link (non-iwara)
+        if (!urlInfo.isIwaraUrl) {
+          // Extract domain or IP from URL
+          final uri = Uri.tryParse(url);
+          final displayUrl = uri?.host ?? url;
+
+          // Show warning dialog for external links
+          final shouldContinue = await Get.dialog<bool>(
+            Builder(
+              builder: (dialogContext) => AlertDialog(
+                title: Text(t.common.externalLinkWarning),
+                content: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(t.common.externalLinkWarningMessage),
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            dialogContext,
+                          ).colorScheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.link,
+                              size: 20,
+                              color: Theme.of(
+                                dialogContext,
+                              ).colorScheme.primary,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                displayUrl,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(
+                                    dialogContext,
+                                  ).colorScheme.primary,
+                                ),
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(dialogContext).pop(false),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Theme.of(
+                        dialogContext,
+                      ).colorScheme.primary,
+                    ),
+                    child: Text(
+                      t.common.cancelExternalLink,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  FilledButton.icon(
+                    onPressed: () => Navigator.of(dialogContext).pop(true),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Theme.of(
+                        dialogContext,
+                      ).colorScheme.error,
+                      foregroundColor: Theme.of(
+                        dialogContext,
+                      ).colorScheme.onError,
+                    ),
+                    icon: const Icon(Icons.open_in_new, size: 18),
+                    label: Text(t.common.continueToExternalLink),
+                  ),
+                ],
+              ),
+            ),
+            barrierDismissible: false,
+          );
+
+          if (shouldContinue == true) {
+            await _launchUrl(Uri.parse(url), url);
+          }
+        } else {
+          await _launchUrl(Uri.parse(url), url);
+        }
       }
     } catch (e) {
       LogUtils.e('处理链接点击时发生错误', tag: 'CustomMarkdownBody', error: e);
       showToastWidget(
-          MDToastWidget(
-              message: t.errors.errorWhileOpeningLink(link: url),
-              type: MDToastType.error),
-          position: ToastPosition.top);
+        MDToastWidget(
+          message: t.errors.errorWhileOpeningLink(link: url),
+          type: MDToastType.error,
+        ),
+        position: ToastPosition.top,
+      );
     }
   }
 
@@ -370,10 +474,12 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     } else {
       LogUtils.e('无法打开链接: $href', tag: 'CustomMarkdownBody');
       showToastWidget(
-          MDToastWidget(
-              message: t.errors.errorWhileOpeningLink(link: href),
-              type: MDToastType.error),
-          position: ToastPosition.top);
+        MDToastWidget(
+          message: t.errors.errorWhileOpeningLink(link: href),
+          type: MDToastType.error,
+        ),
+        position: ToastPosition.top,
+      );
     }
   }
 
@@ -424,10 +530,9 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
 
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context)
-            .colorScheme
-            .surfaceContainerHighest
-            .withValues(alpha: 0.3),
+        color: Theme.of(
+          context,
+        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(8),
       ),
       padding: const EdgeInsets.all(12),
@@ -471,7 +576,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
                     const SizedBox(width: 8),
                   ],
                 ),
-              translationPoweredByWidget(context, fontSize: 10)
+              translationPoweredByWidget(context, fontSize: 10),
             ],
           ),
           const SizedBox(height: 8),
@@ -490,7 +595,9 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
               children: [
                 if (_isTranslating)
                   LinearProgressIndicator(
-                    backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest,
                     valueColor: AlwaysStoppedAnimation<Color>(
                       Theme.of(context).colorScheme.primary,
                     ),
@@ -521,169 +628,203 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     final isDark = Get.theme.brightness == Brightness.dark;
     final config =
         (isDark ? MarkdownConfig.darkConfig : MarkdownConfig.defaultConfig)
-            .copy(configs: [
-      LinkConfig(
-        onTap: _onTapLink,
-        style: TextStyle(
-          decoration: TextDecoration.none, // 移除下划线
-          color: isDark ? Colors.blue[300] : Colors.blue, // 保持链接颜色
-        ),
-      ),
-      ImgConfig(
-        builder: (url, attributes) {
-          try {
-            final parsedUri = Uri.tryParse(url);
-            if (parsedUri == null || !parsedUri.hasAbsolutePath) {
-              throw FormatException(t.errors.invalidUrl);
-            }
-            
-            // 判断是否为表情包并获取规格
-            final emojiSize = _getEmojiSize(url, attributes);
-            final isEmoji = emojiSize != null;
-            
-            return GestureDetector(
-              onTap: () {
-                if (isEmoji) {
-                  // 表情包点击时显示预览弹窗
-                  EmojiPreviewDialog.show(
-                    context: context,
-                    emojiUrl: url,
-                  );
-                } else {
-                  // 普通图片进入图片详情页
-                  ImageItem item = ImageItem(
-                      url: url,
-                      data: ImageItemData(id: '', url: url, originalUrl: url));
-                  final menuItems = [
-                    MenuItem(
-                      title: t.galleryDetail.copyLink,
-                      icon: Icons.copy,
-                      onTap: () => ImageUtils.copyLink(item),
-                    ),
-                    MenuItem(
-                      title: t.galleryDetail.copyImage,
-                      icon: Icons.copy,
-                      onTap: () => ImageUtils.copyImage(item),
-                    ),
-                    if (GetPlatform.isDesktop)
-                      MenuItem(
-                        title: t.galleryDetail.saveAs,
-                        icon: Icons.download,
-                        onTap: () => ImageUtils.downloadImageToAppDirectory(item),
-                      ),
-                    MenuItem(
-                      title: t.galleryDetail.saveToAlbum,
-                      icon: Icons.save,
-                      onTap: () => ImageUtils.downloadImageToAppDirectory(item),
-                    ),
-                  ];
-                  NaviService.navigateToPhotoViewWrapper(
-                      imageItems: [item],
-                      initialIndex: 0,
-                      menuItemsBuilder: (context, item) => menuItems);
-                }
-              },
-              child: MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: isEmoji 
-                  ? Container(
-                      // 表情包使用动态布局
-                      margin: emojiSize.margin,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(emojiSize.borderRadius),
-                        child: CachedNetworkImage(
-                          imageUrl: url,
-                           httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
-                          placeholder: (context, url) => Container(
-                            width: emojiSize.displaySize,
-                            height: emojiSize.displaySize,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[200],
-                              borderRadius: BorderRadius.circular(emojiSize.borderRadius),
-                            ),
-                            child: Center(
-                              child: SizedBox(
-                                width: emojiSize.displaySize * 0.4,
-                                height: emojiSize.displaySize * 0.4,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+            .copy(
+              configs: [
+                LinkConfig(
+                  onTap: _onTapLink,
+                  style: TextStyle(
+                    decoration: TextDecoration.none, // 移除下划线
+                    color: isDark ? Colors.blue[300] : Colors.blue, // 保持链接颜色
+                  ),
+                ),
+                ImgConfig(
+                  builder: (url, attributes) {
+                    try {
+                      final parsedUri = Uri.tryParse(url);
+                      if (parsedUri == null || !parsedUri.hasAbsolutePath) {
+                        throw FormatException(t.errors.invalidUrl);
+                      }
+
+                      // 判断是否为表情包并获取规格
+                      final emojiSize = _getEmojiSize(url, attributes);
+                      final isEmoji = emojiSize != null;
+
+                      return GestureDetector(
+                        onTap: () {
+                          if (isEmoji) {
+                            // 表情包点击时显示预览弹窗
+                            EmojiPreviewDialog.show(
+                              context: context,
+                              emojiUrl: url,
+                            );
+                          } else {
+                            // 普通图片进入图片详情页
+                            ImageItem item = ImageItem(
+                              url: url,
+                              data: ImageItemData(
+                                id: '',
+                                url: url,
+                                originalUrl: url,
                               ),
-                            ),
-                          ),
-                          errorWidget: (context, url, error) => Container(
-                            width: emojiSize.displaySize,
-                            height: emojiSize.displaySize,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[200],
-                              borderRadius: BorderRadius.circular(emojiSize.borderRadius),
-                            ),
-                            child: Icon(
-                              Icons.broken_image_outlined,
-                              size: emojiSize.displaySize * 0.5,
-                              color: Colors.grey[400],
-                            ),
-                          ),
-                          fit: BoxFit.contain,
-                          width: emojiSize.displaySize,
-                          height: emojiSize.displaySize,
-                        ),
-                      ),
-                    )
-                  : ClipRRect(
-                      // 普通图片保持原有样式
-                      borderRadius: BorderRadius.circular(12),
-                      child: CachedNetworkImage(
-                        imageUrl: url,
-                        httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
-                        placeholder: (context, url) => Shimmer.fromColors(
-                          baseColor: Colors.grey[300]!,
-                          highlightColor: Colors.grey[100]!,
-                          child: Container(
-                            width: double.infinity,
-                            height: 200.0,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                        ),
-                        errorWidget: (context, url, error) => Container(
-                          width: double.infinity,
-                          height: 200.0,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.broken_image_outlined,
-                                size: 48,
-                                color: Colors.grey[400],
+                            );
+                            final menuItems = [
+                              MenuItem(
+                                title: t.galleryDetail.copyLink,
+                                icon: Icons.copy,
+                                onTap: () => ImageUtils.copyLink(item),
                               ),
-                              const SizedBox(height: 8),
-                              Text(
-                                t.errors.error,
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 14,
+                              MenuItem(
+                                title: t.galleryDetail.copyImage,
+                                icon: Icons.copy,
+                                onTap: () => ImageUtils.copyImage(item),
+                              ),
+                              if (GetPlatform.isDesktop)
+                                MenuItem(
+                                  title: t.galleryDetail.saveAs,
+                                  icon: Icons.download,
+                                  onTap: () =>
+                                      ImageUtils.downloadImageToAppDirectory(
+                                        item,
+                                      ),
                                 ),
+                              MenuItem(
+                                title: t.galleryDetail.saveToAlbum,
+                                icon: Icons.save,
+                                onTap: () =>
+                                    ImageUtils.downloadImageToAppDirectory(
+                                      item,
+                                    ),
                               ),
-                            ],
-                          ),
+                            ];
+                            NaviService.navigateToPhotoViewWrapper(
+                              imageItems: [item],
+                              initialIndex: 0,
+                              menuItemsBuilder: (context, item) => menuItems,
+                            );
+                          }
+                        },
+                        child: MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: isEmoji
+                              ? Container(
+                                  // 表情包使用动态布局
+                                  margin: emojiSize.margin,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(
+                                      emojiSize.borderRadius,
+                                    ),
+                                    child: CachedNetworkImage(
+                                      imageUrl: url,
+                                      httpHeaders: const {
+                                        'referer': CommonConstants.iwaraBaseUrl,
+                                      },
+                                      placeholder: (context, url) => Container(
+                                        width: emojiSize.displaySize,
+                                        height: emojiSize.displaySize,
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey[200],
+                                          borderRadius: BorderRadius.circular(
+                                            emojiSize.borderRadius,
+                                          ),
+                                        ),
+                                        child: Center(
+                                          child: SizedBox(
+                                            width: emojiSize.displaySize * 0.4,
+                                            height: emojiSize.displaySize * 0.4,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      errorWidget: (context, url, error) =>
+                                          Container(
+                                            width: emojiSize.displaySize,
+                                            height: emojiSize.displaySize,
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey[200],
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                    emojiSize.borderRadius,
+                                                  ),
+                                            ),
+                                            child: Icon(
+                                              Icons.broken_image_outlined,
+                                              size: emojiSize.displaySize * 0.5,
+                                              color: Colors.grey[400],
+                                            ),
+                                          ),
+                                      fit: BoxFit.contain,
+                                      width: emojiSize.displaySize,
+                                      height: emojiSize.displaySize,
+                                    ),
+                                  ),
+                                )
+                              : ClipRRect(
+                                  // 普通图片保持原有样式
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: CachedNetworkImage(
+                                    imageUrl: url,
+                                    httpHeaders: const {
+                                      'referer': CommonConstants.iwaraBaseUrl,
+                                    },
+                                    placeholder: (context, url) =>
+                                        Shimmer.fromColors(
+                                          baseColor: Colors.grey[300]!,
+                                          highlightColor: Colors.grey[100]!,
+                                          child: Container(
+                                            width: double.infinity,
+                                            height: 200.0,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                          ),
+                                        ),
+                                    errorWidget: (context, url, error) =>
+                                        Container(
+                                          width: double.infinity,
+                                          height: 200.0,
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey[200],
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Icon(
+                                                Icons.broken_image_outlined,
+                                                size: 48,
+                                                color: Colors.grey[400],
+                                              ),
+                                              const SizedBox(height: 8),
+                                              Text(
+                                                t.errors.error,
+                                                style: TextStyle(
+                                                  color: Colors.grey[600],
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
                         ),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-              ),
+                      );
+                    } catch (e) {
+                      LogUtils.e('图片加载失败', tag: 'CustomMarkdownBody', error: e);
+                      return const Icon(Icons.error);
+                    }
+                  },
+                ),
+              ],
             );
-          } catch (e) {
-            LogUtils.e('图片加载失败', tag: 'CustomMarkdownBody', error: e);
-            return const Icon(Icons.error);
-          }
-        },
-      ),
-    ]);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -746,7 +887,8 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 8),
-                        if (controller.isTranslating.value && !controller.isTranslationComplete.value)
+                        if (controller.isTranslating.value &&
+                            !controller.isTranslationComplete.value)
                           // 翻译中显示纯文本，不使用Markdown渲染
                           Container(
                             decoration: BoxDecoration(
@@ -768,16 +910,23 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
                                       t.common.translationResult,
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
                                       ),
                                     ),
                                     const Spacer(),
-                                    translationPoweredByWidget(context, fontSize: 10)
+                                    translationPoweredByWidget(
+                                      context,
+                                      fontSize: 10,
+                                    ),
                                   ],
                                 ),
                                 const SizedBox(height: 8),
                                 LinearProgressIndicator(
-                                  backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                  backgroundColor: Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainerHighest,
                                   valueColor: AlwaysStoppedAnimation<Color>(
                                     Theme.of(context).colorScheme.primary,
                                   ),
@@ -787,15 +936,19 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
                                   controller.translatedText.value ?? '',
                                   style: TextStyle(
                                     fontSize: 14,
-                                    color: Theme.of(context).colorScheme.onSurface,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
                                   ),
                                 ),
                               ],
                             ),
                           )
                         else
-                          _buildTranslatedContent(context,
-                              customText: controller.translatedText.value),
+                          _buildTranslatedContent(
+                            context,
+                            customText: controller.translatedText.value,
+                          ),
                       ],
                     );
                   }
@@ -807,16 +960,13 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
                 const SizedBox(height: 4),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    _buildTranslationButton(context),
-                  ],
+                  children: [_buildTranslationButton(context)],
                 ),
                 if (_translatedText != null) ...[
                   const SizedBox(height: 8),
                   _buildTranslatedContent(context),
                 ],
               ],
-
             ],
           ),
         );

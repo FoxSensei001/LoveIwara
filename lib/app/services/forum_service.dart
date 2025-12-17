@@ -74,12 +74,18 @@ class ForumService extends GetxService {
   /// 参数很离谱，是把请求的body改了改title字段，然后发过来了，
   /// 所以调用这个接口前，最好
   /// /forum/:id
-  Future<ApiResult<void>> editThreadTitle(String categoryId, String threadId, String title) async {
+  Future<ApiResult<void>> editThreadTitle(
+    String categoryId,
+    String threadId,
+    String title,
+  ) async {
     late Map<String, dynamic> jsonBody;
 
     try {
       // 获取帖子详情
-      var response = await _apiService.get(ApiConstants.forumThreadDetail(categoryId, threadId));
+      var response = await _apiService.get(
+        ApiConstants.forumThreadDetail(categoryId, threadId),
+      );
       jsonBody = response.data;
 
       // 修改title
@@ -91,7 +97,10 @@ class ForumService extends GetxService {
     }
 
     try {
-      await _apiService.put(ApiConstants.forumThreadsWithCategoryId(threadId), data: jsonBody);
+      await _apiService.put(
+        ApiConstants.forumThreadsWithCategoryId(threadId),
+        data: jsonBody,
+      );
       return ApiResult.success();
     } catch (e) {
       LogUtils.e('在编辑帖子标题时，编辑帖子标题失败', tag: 'ForumService', error: e);
@@ -103,7 +112,10 @@ class ForumService extends GetxService {
   /// 编辑帖子回复
   /// /forum/post/:postId
   /// 这个也是一样的，不过不能偷懒了，必须参数里接一下 转换成`Map<String, dynamic>`了
-  Future<ApiResult<void>> editPost(String postId, Map<String, dynamic> jsonBody) async {
+  Future<ApiResult<void>> editPost(
+    String postId,
+    Map<String, dynamic> jsonBody,
+  ) async {
     try {
       await _apiService.put(ApiConstants.forumPosts(postId), data: jsonBody);
       return ApiResult.success();
@@ -119,10 +131,10 @@ class ForumService extends GetxService {
   /// @params body
   Future<ApiResult<void>> postReply(String threadId, String body) async {
     try {
-      await _apiService.post(ApiConstants.forumThreadReply(threadId), data: {
-        'body': body,
-        'rulesAgreement': true,
-      });
+      await _apiService.post(
+        ApiConstants.forumThreadReply(threadId),
+        data: {'body': body, 'rulesAgreement': true},
+      );
       return ApiResult.success();
     } catch (e) {
       LogUtils.e('回复帖子失败', tag: 'ForumService', error: e);
@@ -136,24 +148,32 @@ class ForumService extends GetxService {
   /// @params page
   /// @params limit
   Future<ApiResult<Map<String, dynamic>>> fetchForumThread(
-      String categoryId, String threadId, {int page = 0, int limit = 20}) async {
+    String categoryId,
+    String threadId, {
+    int page = 0,
+    int limit = 20,
+  }) async {
     try {
-      var response = await _apiService.get(ApiConstants.forumThreadDetail(categoryId, threadId), queryParameters: {
-        'page': page,
-        'limit': limit,
-      });
+      var response = await _apiService.get(
+        ApiConstants.forumThreadDetail(categoryId, threadId),
+        queryParameters: {'page': page, 'limit': limit},
+      );
 
-      final ForumThreadModel thread = ForumThreadModel.fromJson(response.data['thread']);
+      final ForumThreadModel thread = ForumThreadModel.fromJson(
+        response.data['thread'],
+      );
       final List<ThreadCommentModel> posts = (response.data['results'] as List)
           .map((post) => ThreadCommentModel.fromJson(post))
           .toList();
-      return ApiResult.success(data: {
-        'thread': thread,
-        'posts': posts,
-        'page': response.data['page'],
-        'limit': response.data['limit'],
-        'count': response.data['count'],
-      });
+      return ApiResult.success(
+        data: {
+          'thread': thread,
+          'posts': posts,
+          'page': response.data['page'],
+          'limit': response.data['limit'],
+          'count': response.data['count'],
+        },
+      );
     } catch (e) {
       LogUtils.e('获取帖子详情失败', tag: 'ForumService', error: e);
       final errorMessage = CommonUtils.parseExceptionMessage(e);
@@ -163,22 +183,26 @@ class ForumService extends GetxService {
 
   /// 获取论坛帖子列表
   Future<ApiResult<Map<String, dynamic>>> fetchForumThreads(
-      String categoryId,
-      {int page = 0,
-      int limit = 20}) async {
+    String categoryId, {
+    int page = 0,
+    int limit = 20,
+  }) async {
     try {
-      var response = await _apiService
-          .get(ApiConstants.forumThreadsWithCategoryId(categoryId), queryParameters: {
-        'page': page,
-        'limit': limit,
-      });
+      var response = await _apiService.get(
+        ApiConstants.forumThreadsWithCategoryId(categoryId),
+        queryParameters: {'page': page, 'limit': limit},
+      );
       final List<ForumThreadModel> threads = (response.data['threads'] as List)
           .map((thread) => ForumThreadModel.fromJson(thread))
           .toList();
-      final ForumThreadSectionDto section = ForumThreadSectionDto.fromJson(response.data['section']);
+      final ForumThreadSectionDto section = ForumThreadSectionDto.fromJson(
+        response.data['section'],
+      );
       // 根据id获取分类名称和描述
-      final String categoryName = idNames[categoryId.replaceAll('-', '_')] ?? categoryId;
-      final String categoryDescription = idDescriptions[categoryId.replaceAll('-', '_')] ?? '';
+      final String categoryName =
+          idNames[categoryId.replaceAll('-', '_')] ?? categoryId;
+      final String categoryDescription =
+          idDescriptions[categoryId.replaceAll('-', '_')] ?? '';
       section.name = categoryName;
       section.description = categoryDescription;
       final Map<String, dynamic> pageData = {
@@ -214,9 +238,10 @@ class ForumService extends GetxService {
     try {
       var response = await _apiService.get(ApiConstants.forum());
       return ApiResult.success(
-          data: (response.data as List)
-              .map((e) => ForumCategoryModel.fromJson(e))
-              .toList());
+        data: (response.data as List)
+            .map((e) => ForumCategoryModel.fromJson(e))
+            .toList(),
+      );
     } catch (e) {
       LogUtils.e('获取论坛总表失败', tag: 'ForumService', error: e);
       final errorMessage = CommonUtils.parseExceptionMessage(e);
@@ -236,7 +261,9 @@ class ForumService extends GetxService {
 
       final categories = result.data;
       if (categories == null) {
-        final errorMessage = CommonUtils.parseExceptionMessage('Failed to fetch forum data');
+        final errorMessage = CommonUtils.parseExceptionMessage(
+          'Failed to fetch forum data',
+        );
         return ApiResult.fail(errorMessage);
       }
 
@@ -247,9 +274,11 @@ class ForumService extends GetxService {
         var newCategory = ForumCategoryModel(
           id: category.id,
           group: category.group, // 保持原始group用于分组
-          label: idNames[category.id.replaceAll('-', '_')] ??
+          label:
+              idNames[category.id.replaceAll('-', '_')] ??
               category.id, // 使用映射的标签名，如果没有映射则使用id
-          description: idDescriptions[category.id.replaceAll('-', '_')] ??
+          description:
+              idDescriptions[category.id.replaceAll('-', '_')] ??
               '', // 使用映射的描述，如果没有映射则使用空字符串
           locked: category.locked,
           numPosts: category.numPosts,
@@ -279,10 +308,12 @@ class ForumService extends GetxService {
           });
 
           // 创建树节点
-          tree.add(ForumCategoryTreeModel(
-            name: groupNames[group] ?? group,
-            children: groupCategories,
-          ));
+          tree.add(
+            ForumCategoryTreeModel(
+              name: groupNames[group] ?? group,
+              children: groupCategories,
+            ),
+          );
         }
       }
 
@@ -296,13 +327,15 @@ class ForumService extends GetxService {
 
   /// 发布帖子
   Future<ApiResult<ForumThreadModel>> postThread(
-      String forumCategoryId, String title, String body) async {
+    String forumCategoryId,
+    String title,
+    String body,
+  ) async {
     try {
-      var response = await _apiService
-          .post(ApiConstants.forumThread(forumCategoryId), data: {
-        'title': title,
-        'body': body,
-      });
+      var response = await _apiService.post(
+        ApiConstants.forumThread(forumCategoryId),
+        data: {'title': title, 'body': body},
+      );
       return ApiResult.success(data: ForumThreadModel.fromJson(response.data));
     } catch (e) {
       LogUtils.e('发布帖子失败', tag: 'ForumService', error: e);
@@ -314,13 +347,19 @@ class ForumService extends GetxService {
   /// 获取最近的帖子
   /// /forum/threads
   /// @params limit
-  Future<ApiResult<PageData<ForumThreadModel>>> fetchRecentThreads({int limit = 10, int page = 0}) async {
+  Future<ApiResult<PageData<ForumThreadModel>>> fetchRecentThreads({
+    int limit = 10,
+    int page = 0,
+  }) async {
     try {
-      var response = await _apiService.get(ApiConstants.forumThreads(), queryParameters: {
-        'limit': limit,
-        'page': page,
-      });
-      final pageData = PageData.fromJsonWithConverter(response.data, ForumThreadModel.fromJson);
+      var response = await _apiService.get(
+        ApiConstants.forumThreads(),
+        queryParameters: {'limit': limit, 'page': page},
+      );
+      final pageData = PageData.fromJsonWithConverter(
+        response.data,
+        ForumThreadModel.fromJson,
+      );
       return ApiResult.success(data: pageData);
     } catch (e) {
       LogUtils.e('获取最近的帖子失败', tag: 'ForumService', error: e);
@@ -329,4 +368,32 @@ class ForumService extends GetxService {
     }
   }
 
+  /// 获取置顶公告
+  /// /forum/threads?sticky=true&daysAgo=14&group=administration
+  /// @params limit 限制数量
+  /// @params daysAgo 获取多少天内的置顶帖子，默认14天
+  Future<ApiResult<List<ForumThreadModel>>> fetchStickyAnnouncements({
+    int limit = 10,
+    int daysAgo = 14,
+  }) async {
+    try {
+      var response = await _apiService.get(
+        ApiConstants.forumThreads(),
+        queryParameters: {
+          'limit': limit,
+          'sticky': true,
+          'daysAgo': daysAgo,
+          'group': 'administration',
+        },
+      );
+      final List<ForumThreadModel> threads = (response.data['results'] as List)
+          .map((thread) => ForumThreadModel.fromJson(thread))
+          .toList();
+      return ApiResult.success(data: threads);
+    } catch (e) {
+      LogUtils.e('获取置顶公告失败', tag: 'ForumService', error: e);
+      final errorMessage = CommonUtils.parseExceptionMessage(e);
+      return ApiResult.fail(errorMessage, exception: e);
+    }
+  }
 }

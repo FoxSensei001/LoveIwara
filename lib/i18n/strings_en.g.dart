@@ -645,6 +645,9 @@ class TranslationsCommonEn {
 	/// en: 'Joined at ${str}'
 	String joined({required Object str}) => 'Joined at ${str}';
 
+	/// en: 'Last seen ${str}'
+	String lastSeenAt({required Object str}) => 'Last seen ${str}';
+
 	/// en: 'Download'
 	String get download => 'Download';
 
@@ -712,6 +715,18 @@ class TranslationsCommonEn {
 
 	/// en: 'Replies'
 	String get replies => 'Replies';
+
+	/// en: 'External Link Warning'
+	String get externalLinkWarning => 'External Link Warning';
+
+	/// en: 'You are about to open an external link that is not part of iwara.tv. Please be cautious and ensure the link is safe before proceeding.'
+	String get externalLinkWarningMessage => 'You are about to open an external link that is not part of iwara.tv. Please be cautious and ensure the link is safe before proceeding.';
+
+	/// en: 'Continue'
+	String get continueToExternalLink => 'Continue';
+
+	/// en: 'Cancel'
+	String get cancelExternalLink => 'Cancel';
 }
 
 // Path: auth
@@ -6283,6 +6298,7 @@ extension on Translations {
 			'common.disabledFloatingButtons' => 'Disabled Floating Buttons',
 			'common.pendingCommentCount' => 'Pending Comment Count',
 			'common.joined' => ({required Object str}) => 'Joined at ${str}',
+			'common.lastSeenAt' => ({required Object str}) => 'Last seen ${str}',
 			'common.download' => 'Download',
 			'common.selectQuality' => 'Select Quality',
 			'common.selectDateRange' => 'Select Date Range',
@@ -6314,6 +6330,10 @@ extension on Translations {
 			'common.likeThisVideo' => 'Like This Video',
 			'common.operation' => 'Operation',
 			'common.replies' => 'Replies',
+			'common.externalLinkWarning' => 'External Link Warning',
+			'common.externalLinkWarningMessage' => 'You are about to open an external link that is not part of iwara.tv. Please be cautious and ensure the link is safe before proceeding.',
+			'common.continueToExternalLink' => 'Continue',
+			'common.cancelExternalLink' => 'Cancel',
 			'auth.login' => 'Login',
 			'auth.logout' => 'Logout',
 			'auth.email' => 'Email',
@@ -6607,13 +6627,13 @@ extension on Translations {
 			'settings.importConfigSuccess' => 'Configuration imported successfully!',
 			'settings.importConfigFailed' => 'Failed to import configuration',
 			'settings.historyUpdateLogs' => 'History Update Logs',
+			_ => null,
+		} ?? switch (path) {
 			'settings.noUpdateLogs' => 'No update logs available',
 			'settings.versionLabel' => 'Version: {version}',
 			'settings.releaseDateLabel' => 'Release Date: {date}',
 			'settings.noChanges' => 'No update content available',
 			'settings.interaction' => 'Interaction',
-			_ => null,
-		} ?? switch (path) {
 			'settings.enableVibration' => 'Enable Vibration',
 			'settings.enableVibrationDesc' => 'Enable vibration feedback when interacting with the app',
 			'settings.defaultKeepVideoToolbarVisible' => 'Keep Video Toolbar Visible',
@@ -7121,13 +7141,13 @@ extension on Translations {
 			'notifications.errors.unknownUser' => 'Unknown user',
 			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => 'Unsupported notification type: ${type}',
 			'notifications.errors.unknownNotificationType' => 'Unknown notification type',
+			_ => null,
+		} ?? switch (path) {
 			'notifications.notifications' => 'Notifications',
 			'notifications.profile' => 'Profile',
 			'notifications.postedNewComment' => 'Posted new comment',
 			'notifications.inYour' => 'In your',
 			'notifications.video' => 'Video',
-			_ => null,
-		} ?? switch (path) {
 			'notifications.repliedYourVideoComment' => 'Replied your video comment',
 			'notifications.copyInfoToClipboard' => 'Copy notification info to clipboard',
 			'notifications.copySuccess' => 'Copied to clipboard',
@@ -7635,13 +7655,13 @@ extension on Translations {
 			'log.today' => 'Today',
 			'log.selectMergeRange' => 'Select Merge Range',
 			'log.selectMergeRangeHint' => 'Please select the log time range to merge',
+			_ => null,
+		} ?? switch (path) {
 			'log.selectMergeRangeDays' => ({required Object days}) => 'Recent ${days} days',
 			'log.logStats' => 'Log Stats',
 			'log.todayLogs' => ({required Object count}) => 'Today Logs: ${count} logs',
 			'log.recent7DaysLogs' => ({required Object count}) => 'Recent 7 Days Logs: ${count} logs',
 			'log.totalLogs' => ({required Object count}) => 'Total Logs: ${count} logs',
-			_ => null,
-		} ?? switch (path) {
 			'log.setLogDatabaseSizeLimit' => 'Set Log Database Size Limit',
 			'log.currentLogSizeWithSize' => ({required Object size}) => 'Current Log Size: ${size}',
 			'log.warning' => 'Warning',

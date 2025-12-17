@@ -188,6 +188,7 @@ common:
   disabledFloatingButtons: Disabled Floating Buttons
   pendingCommentCount: Pending Comment Count
   joined: 'Joined at ${str}'
+  lastSeenAt: 'Last seen ${str}'
   download: Download
   selectQuality: Select Quality
   selectDateRange: Select Date Range
@@ -221,6 +222,10 @@ common:
   likeThisVideo: Like This Video
   operation: Operation
   replies: Replies
+  externalLinkWarning: External Link Warning
+  externalLinkWarningMessage: You are about to open an external link that is not part of iwara.tv. Please be cautious and ensure the link is safe before proceeding.
+  continueToExternalLink: Continue
+  cancelExternalLink: Cancel
 auth:
   login: Login
   logout: Logout

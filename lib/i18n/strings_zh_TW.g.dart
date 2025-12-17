@@ -277,6 +277,7 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get disabledFloatingButtons => '已停用浮動按鈕';
 	@override String get pendingCommentCount => '待審核評論';
 	@override String joined({required Object str}) => '加入於 ${str}';
+	@override String lastSeenAt({required Object str}) => '上次在線 ${str}';
 	@override String get selectDateRange => '選擇日期範圍';
 	@override String get selectDateRangeHint => '選擇日期範圍，預設選擇最近30天';
 	@override String get clearDateRange => '清除日期範圍';
@@ -298,6 +299,10 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get likeThisVideo => '喜歡這個影片的人';
 	@override String get operation => '操作';
 	@override String get replies => '回覆';
+	@override String get externalLinkWarning => '外部連結警告';
+	@override String get externalLinkWarningMessage => '您即將開啟一個非 iwara.tv 的外部連結。請注意安全，確認連結可信後再繼續訪問。';
+	@override String get continueToExternalLink => '繼續訪問';
+	@override String get cancelExternalLink => '取消';
 }
 
 // Path: auth
@@ -2734,6 +2739,7 @@ extension on TranslationsZhTw {
 			'common.disabledFloatingButtons' => '已停用浮動按鈕',
 			'common.pendingCommentCount' => '待審核評論',
 			'common.joined' => ({required Object str}) => '加入於 ${str}',
+			'common.lastSeenAt' => ({required Object str}) => '上次在線 ${str}',
 			'common.selectDateRange' => '選擇日期範圍',
 			'common.selectDateRangeHint' => '選擇日期範圍，預設選擇最近30天',
 			'common.clearDateRange' => '清除日期範圍',
@@ -2763,6 +2769,10 @@ extension on TranslationsZhTw {
 			'common.likeThisVideo' => '喜歡這個影片的人',
 			'common.operation' => '操作',
 			'common.replies' => '回覆',
+			'common.externalLinkWarning' => '外部連結警告',
+			'common.externalLinkWarningMessage' => '您即將開啟一個非 iwara.tv 的外部連結。請注意安全，確認連結可信後再繼續訪問。',
+			'common.continueToExternalLink' => '繼續訪問',
+			'common.cancelExternalLink' => '取消',
 			'auth.login' => '登入',
 			'auth.logout' => '登出',
 			'auth.email' => '電子郵件',
@@ -3056,13 +3066,13 @@ extension on TranslationsZhTw {
 			'settings.importConfigSuccess' => '配置匯入成功！',
 			'settings.importConfigFailed' => '配置匯入失敗',
 			'settings.historyUpdateLogs' => '歷代更新日誌',
+			_ => null,
+		} ?? switch (path) {
 			'settings.noUpdateLogs' => '未獲取到更新日誌',
 			'settings.versionLabel' => '版本: {version}',
 			'settings.releaseDateLabel' => '發布日期: {date}',
 			'settings.noChanges' => '暫無更新內容',
 			'settings.interaction' => '互動',
-			_ => null,
-		} ?? switch (path) {
 			'settings.enableVibration' => '啟用震動',
 			'settings.enableVibrationDesc' => '啟用應用互動時的震動回饋',
 			'settings.defaultKeepVideoToolbarVisible' => '保持工具列常駐',
@@ -3570,13 +3580,13 @@ extension on TranslationsZhTw {
 			'forum.leafNames.other' => '其他',
 			'forum.leafDescriptions.announcements' => '官方重要通知和公告',
 			'forum.leafDescriptions.feedback' => '對網站功能和服務的回饋',
+			_ => null,
+		} ?? switch (path) {
 			'forum.leafDescriptions.support' => '幫助解決網站相關問題',
 			'forum.leafDescriptions.general' => '討論任何話題',
 			'forum.leafDescriptions.guides' => '分享你的經驗和教學',
 			'forum.leafDescriptions.questions' => '提出你的疑問',
 			'forum.leafDescriptions.requests' => '發布你的請求',
-			_ => null,
-		} ?? switch (path) {
 			'forum.leafDescriptions.sharing' => '分享有趣的內容',
 			'forum.leafDescriptions.general_zh' => '討論任何話題',
 			'forum.leafDescriptions.questions_zh' => '提出你的疑問',
@@ -4084,13 +4094,13 @@ extension on TranslationsZhTw {
 			'emoji.enterImageUrl' => '請輸入圖片URL',
 			'emoji.add' => '添加',
 			'emoji.batchImport' => '批次匯入',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.enterJsonUrlArray' => '請輸入JSON格式的URL陣列:',
 			'emoji.formatExample' => '格式範例:\n["url1", "url2", "url3"]',
 			'emoji.pasteJsonUrlArray' => '請貼上JSON格式的URL陣列',
 			'emoji.import' => '匯入',
 			'emoji.importSuccess' => ({required Object count}) => '成功匯入${count}張圖片',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.jsonFormatError' => 'JSON格式錯誤，請檢查輸入',
 			'emoji.createGroup' => '建立表情包分組',
 			'emoji.groupName' => '分組名稱',

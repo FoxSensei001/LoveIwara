@@ -192,6 +192,7 @@ common:
   disabledFloatingButtons: 已禁用浮动按钮
   pendingCommentCount: 待审核评论
   joined: '加入于 ${str}'
+  lastSeenAt: '上次在线 ${str}'
   download: 下载
   selectQuality: 选择画质
   selectDateRange: 选择日期范围
@@ -225,6 +226,10 @@ common:
   likeThisVideo: 喜欢这个视频的人
   operation: 操作
   replies: 回复
+  externalLinkWarning: 外部链接警告
+  externalLinkWarningMessage: 您即将打开一个非 iwara.tv 的外部链接。请注意安全，确认链接可信后再继续访问。
+  continueToExternalLink: 继续访问
+  cancelExternalLink: 取消
 auth:
   tagLimit: 标签上限
   login: 登录

@@ -188,6 +188,7 @@ common:
   disabledFloatingButtons: 已停用浮動按鈕
   pendingCommentCount: 待審核評論
   joined: '加入於 ${str}'
+  lastSeenAt: '上次在線 ${str}'
   selectDateRange: 選擇日期範圍
   selectDateRangeHint: 選擇日期範圍，預設選擇最近30天
   clearDateRange: 清除日期範圍
@@ -219,6 +220,10 @@ common:
   likeThisVideo: 喜歡這個影片的人
   operation: 操作
   replies: 回覆
+  externalLinkWarning: 外部連結警告
+  externalLinkWarningMessage: 您即將開啟一個非 iwara.tv 的外部連結。請注意安全，確認連結可信後再繼續訪問。
+  continueToExternalLink: 繼續訪問
+  cancelExternalLink: 取消
 auth:
   login: 登入
   logout: 登出

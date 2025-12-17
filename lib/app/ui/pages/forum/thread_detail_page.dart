@@ -35,12 +35,13 @@ class ThreadDetailPage extends StatefulWidget {
   State<ThreadDetailPage> createState() => _ThreadDetailPageState();
 }
 
-class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerProviderStateMixin {
+class _ThreadDetailPageState extends State<ThreadDetailPage>
+    with SingleTickerProviderStateMixin {
   late ThreadDetailRepository listSourceRepository;
   final ScrollController _scrollController = ScrollController();
   final Rx<ForumThreadModel?> _thread = Rx<ForumThreadModel?>(null);
   final UserService _userService = Get.find<UserService>();
-  
+
   @override
   void initState() {
     super.initState();
@@ -65,49 +66,45 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
     final t = slang.Translations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Obx(() => _thread.value == null 
-          ? Shimmer.fromColors(
-              baseColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-              highlightColor: Theme.of(context).colorScheme.surface,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 200,
-                    height: 16,
-                    color: Colors.white,
+        title: Obx(
+          () => _thread.value == null
+              ? Shimmer.fromColors(
+                  baseColor: Theme.of(
+                    context,
+                  ).colorScheme.surfaceContainerHighest,
+                  highlightColor: Theme.of(context).colorScheme.surface,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(width: 200, height: 16, color: Colors.white),
+                      const SizedBox(height: 4),
+                      Container(width: 120, height: 12, color: Colors.white),
+                    ],
                   ),
-                  const SizedBox(height: 4),
-                  Container(
-                    width: 120,
-                    height: 12,
-                    color: Colors.white,
-                  ),
-                ],
-              ),
-            )
-          : Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _thread.value?.title ?? '',
-                  style: const TextStyle(fontSize: 16),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                if (_thread.value != null)
-                  Text(
-                    '${t.common.publishedAt}: ${CommonUtils.formatFriendlyTimestamp(_thread.value?.createdAt)}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                )
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _thread.value?.title ?? '',
+                      style: const TextStyle(fontSize: 16),
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-              ],
-            )),
+                    if (_thread.value != null)
+                      Text(
+                        '${t.common.publishedAt}: ${CommonUtils.formatFriendlyTimestamp(_thread.value?.createdAt)}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                  ],
+                ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -120,17 +117,21 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
               tooltip: t.forum.reply,
               onPressed: () {
                 if (_thread.value!.locked) {
-                  showToastWidget(MDToastWidget(
-                    message: slang.t.forum.errors.threadLocked,
-                    type: MDToastType.warning,
-                  ));
+                  showToastWidget(
+                    MDToastWidget(
+                      message: slang.t.forum.errors.threadLocked,
+                      type: MDToastType.warning,
+                    ),
+                  );
                   return;
                 }
                 if (!_userService.isLogin) {
-                  showToastWidget(MDToastWidget(
-                    message: slang.t.errors.pleaseLoginFirst,
-                    type: MDToastType.warning,
-                  ));
+                  showToastWidget(
+                    MDToastWidget(
+                      message: slang.t.errors.pleaseLoginFirst,
+                      type: MDToastType.warning,
+                    ),
+                  );
                   return;
                 }
                 showModalBottomSheet(
@@ -155,9 +156,8 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
                 showModalBottomSheet(
                   backgroundColor: Colors.transparent,
                   isScrollControlled: true,
-                  builder: (context) => ShareThreadBottomSheet(
-                    thread: _thread.value!,
-                  ),
+                  builder: (context) =>
+                      ShareThreadBottomSheet(thread: _thread.value!),
                   context: context,
                 );
               },
@@ -176,7 +176,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
               SliverToBoxAdapter(
                 child: Obx(() {
                   if (_thread.value == null) return const SizedBox.shrink();
-                  
+
                   return Padding(
                     padding: EdgeInsets.symmetric(
                       horizontal: isWideScreen ? 16.0 : 8.0,
@@ -192,7 +192,8 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
                           ),
                         ),
                         Text(
-                          idNames[replaceUnderline(_thread.value!.section)] ?? 'Unknown',
+                          idNames[replaceUnderline(_thread.value!.section)] ??
+                              'Unknown',
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.primary,
                             fontSize: 14,
@@ -204,7 +205,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
                   );
                 }),
               ),
-              
+
               // 帖子内容区域
               SliverToBoxAdapter(
                 child: Obx(() {
@@ -213,15 +214,23 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
                   }
 
                   return Card(
-                    margin: EdgeInsets.symmetric(horizontal: isWideScreen ? 16.0 : 8.0, vertical: 4.0),
+                    margin: EdgeInsets.symmetric(
+                      horizontal: isWideScreen ? 16.0 : 8.0,
+                      vertical: 4.0,
+                    ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         // Header：作者信息区域
                         Container(
-                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 12,
+                          ),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHighest,
                             borderRadius: const BorderRadius.only(
                               topLeft: Radius.circular(8),
                               topRight: Radius.circular(8),
@@ -235,11 +244,12 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
                                 child: GestureDetector(
                                   onTap: () {
                                     NaviService.navigateToAuthorProfilePage(
-                                        _thread.value!.user.username);
+                                      _thread.value!.user.username,
+                                    );
                                   },
                                   child: AvatarWidget(
                                     user: _thread.value!.user,
-                                    size: 40
+                                    size: 40,
                                   ),
                                 ),
                               ),
@@ -248,15 +258,54 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    MouseRegion(
-                                      cursor: SystemMouseCursors.click,
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          NaviService.navigateToAuthorProfilePage(
-                                              _thread.value!.user.username);
-                                        },
-                                        child: buildUserName(context, _thread.value!.user, fontSize: 15, bold: true),
-                                      ),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: MouseRegion(
+                                            cursor: SystemMouseCursors.click,
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                NaviService.navigateToAuthorProfilePage(
+                                                  _thread.value!.user.username,
+                                                );
+                                              },
+                                              child: buildUserName(
+                                                context,
+                                                _thread.value!.user,
+                                                fontSize: 15,
+                                                bold: true,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        // 锁和图钉图标
+                                        if (_thread.value!.sticky)
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              left: 4,
+                                            ),
+                                            child: Icon(
+                                              Icons.push_pin,
+                                              size: 18,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
+                                            ),
+                                          ),
+                                        if (_thread.value!.locked)
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              left: 4,
+                                            ),
+                                            child: Icon(
+                                              Icons.lock,
+                                              size: 18,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.error,
+                                            ),
+                                          ),
+                                      ],
                                     ),
                                     Row(
                                       spacing: 8,
@@ -266,11 +315,26 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
                                             cursor: SystemMouseCursors.click,
                                             child: GestureDetector(
                                               onTap: () {
-                                                Clipboard.setData(ClipboardData(text: _thread.value!.user.username));
-                                                showToastWidget(MDToastWidget(
-                                                  message: slang.t.forum.copySuccessForMessage(str: _thread.value!.user.username),
-                                                  type: MDToastType.success
-                                                ));
+                                                Clipboard.setData(
+                                                  ClipboardData(
+                                                    text: _thread
+                                                        .value!
+                                                        .user
+                                                        .username,
+                                                  ),
+                                                );
+                                                showToastWidget(
+                                                  MDToastWidget(
+                                                    message: slang.t.forum
+                                                        .copySuccessForMessage(
+                                                          str: _thread
+                                                              .value!
+                                                              .user
+                                                              .username,
+                                                        ),
+                                                    type: MDToastType.success,
+                                                  ),
+                                                );
                                               },
                                               child: Text(
                                                 '@${_thread.value!.user.username}',
@@ -278,7 +342,9 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
                                                 overflow: TextOverflow.ellipsis,
                                                 style: TextStyle(
                                                   fontSize: 12,
-                                                  color: Theme.of(context).textTheme.bodySmall?.color,
+                                                  color: Theme.of(
+                                                    context,
+                                                  ).textTheme.bodySmall?.color,
                                                 ),
                                               ),
                                             ),
@@ -287,13 +353,13 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
                                         const Icon(Icons.schedule, size: 14),
                                         Text(
                                           CommonUtils.formatFriendlyTimestamp(
-                                              _thread.value!.createdAt),
+                                            _thread.value!.createdAt,
+                                          ),
                                           style: TextStyle(
                                             fontSize: 12,
-                                            color: Theme.of(context)
-                                                .textTheme
-                                                .bodySmall
-                                                ?.color,
+                                            color: Theme.of(
+                                              context,
+                                            ).textTheme.bodySmall?.color,
                                           ),
                                         ),
                                       ],
@@ -311,69 +377,47 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
                             crossAxisAlignment: CrossAxisAlignment.start,
                             spacing: 8,
                             children: [
-                              // 标题和状态
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                spacing: 8,
+                              // 标题
+                              Row(
                                 children: [
-                                  Row(
-                                    spacing: 4,
-                                    children: [
-                                      if (_thread.value!.sticky)
-                                        Icon(
-                                          Icons.push_pin,
-                                          size: 18,
-                                          color: Theme.of(context).colorScheme.primary,
-                                        ),
-                                      if (_thread.value!.locked)
-                                        Icon(
-                                          Icons.lock,
-                                          size: 18,
-                                          color: Theme.of(context).colorScheme.error,
-                                        ),
-                                    ],
+                                  Expanded(
+                                    child: Text(
+                                      _thread.value!.title,
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          _thread.value!.title,
-                                          style: const TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
+                                  IconButton(
+                                    icon: const Icon(Icons.translate),
+                                    onPressed: () {
+                                      Get.dialog(
+                                        TranslationDialog(
+                                          text: _thread.value!.title,
+                                        ),
+                                      );
+                                    },
+                                    tooltip: t.common.translate,
+                                  ),
+                                  if (_userService.currentUser.value?.id ==
+                                      _thread.value!.user.id)
+                                    IconButton(
+                                      icon: const Icon(Icons.edit),
+                                      onPressed: () {
+                                        Get.dialog(
+                                          ForumEditTitleDialog(
+                                            postId: _thread.value!.id,
+                                            initialTitle: _thread.value!.title,
+                                            repository: listSourceRepository,
+                                            onSubmit: () {
+                                              listSourceRepository.refresh();
+                                            },
                                           ),
-                                        ),
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.translate),
-                                        onPressed: () {
-                                          Get.dialog(
-                                            TranslationDialog(
-                                              text: _thread.value!.title,
-                                            ),
-                                          );
-                                        },
-                                        tooltip: t.common.translate,
-                                      ),
-                                      if (_userService.currentUser.value?.id == _thread.value!.user.id)
-                                        IconButton(
-                                          icon: const Icon(Icons.edit),
-                                          onPressed: () {
-                                            Get.dialog(
-                                              ForumEditTitleDialog(
-                                                postId: _thread.value!.id,
-                                                initialTitle: _thread.value!.title,
-                                                repository: listSourceRepository,
-                                                onSubmit: () {
-                                                  listSourceRepository.refresh();
-                                                },
-                                              ),
-                                            );
-                                          },
-                                          tooltip: t.forum.editTitle,
-                                        ),
-                                    ],
-                                  ),
+                                        );
+                                      },
+                                      tooltip: t.forum.editTitle,
+                                    ),
                                 ],
                               ),
                               // 统计信息和更新时间
@@ -391,20 +435,19 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
                                             Icon(
                                               Icons.remove_red_eye,
                                               size: 16,
-                                              color: Theme.of(context)
-                                                  .textTheme
-                                                  .bodySmall
-                                                  ?.color,
+                                              color: Theme.of(
+                                                context,
+                                              ).textTheme.bodySmall?.color,
                                             ),
                                             Text(
                                               CommonUtils.formatFriendlyNumber(
-                                                  _thread.value!.numViews),
+                                                _thread.value!.numViews,
+                                              ),
                                               style: TextStyle(
                                                 fontSize: 14,
-                                                color: Theme.of(context)
-                                                    .textTheme
-                                                    .bodySmall
-                                                    ?.color,
+                                                color: Theme.of(
+                                                  context,
+                                                ).textTheme.bodySmall?.color,
                                               ),
                                             ),
                                           ],
@@ -416,20 +459,19 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
                                             Icon(
                                               Icons.comment,
                                               size: 16,
-                                              color: Theme.of(context)
-                                                  .textTheme
-                                                  .bodySmall
-                                                  ?.color,
+                                              color: Theme.of(
+                                                context,
+                                              ).textTheme.bodySmall?.color,
                                             ),
                                             Text(
                                               CommonUtils.formatFriendlyNumber(
-                                                  _thread.value!.numPosts),
+                                                _thread.value!.numPosts,
+                                              ),
                                               style: TextStyle(
                                                 fontSize: 14,
-                                                color: Theme.of(context)
-                                                    .textTheme
-                                                    .bodySmall
-                                                    ?.color,
+                                                color: Theme.of(
+                                                  context,
+                                                ).textTheme.bodySmall?.color,
                                               ),
                                             ),
                                           ],
@@ -441,10 +483,9 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
                                     '${t.common.updatedAt}: ${CommonUtils.formatFriendlyTimestamp(_thread.value!.updatedAt)}',
                                     style: TextStyle(
                                       fontSize: 12,
-                                      color: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.color,
+                                      color: Theme.of(
+                                        context,
+                                      ).textTheme.bodySmall?.color,
                                     ),
                                   ),
                                 ],
@@ -467,7 +508,9 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
                   padding: EdgeInsets.only(
                     left: isWideScreen ? 16.0 : 8.0,
                     right: isWideScreen ? 16.0 : 8.0,
-                    bottom: Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0,
+                    bottom: Get.context != null
+                        ? MediaQuery.of(Get.context!).padding.bottom
+                        : 0,
                   ),
                   indicatorBuilder: (context, status) => myLoadingMoreIndicator(
                     context,
@@ -485,7 +528,10 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
   }
 
   Widget buildCommentItem(
-      BuildContext context, ThreadCommentModel comment, bool isWideScreen) {
+    BuildContext context,
+    ThreadCommentModel comment,
+    bool isWideScreen,
+  ) {
     return ThreadCommentCardWidget(
       comment: comment,
       threadAuthorId: _thread.value?.user.id ?? '',
@@ -526,17 +572,9 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
                       spacing: 4,
                       children: [
                         // 用户名
-                        Container(
-                          width: 100,
-                          height: 14,
-                          color: Colors.white,
-                        ),
+                        Container(width: 100, height: 14, color: Colors.white),
                         // 时间
-                        Container(
-                          width: 80,
-                          height: 12,
-                          color: Colors.white,
-                        ),
+                        Container(width: 80, height: 12, color: Colors.white),
                       ],
                     ),
                   ),
@@ -552,16 +590,8 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
               Row(
                 spacing: 16,
                 children: [
-                  Container(
-                    width: 60,
-                    height: 14,
-                    color: Colors.white,
-                  ),
-                  Container(
-                    width: 60,
-                    height: 14,
-                    color: Colors.white,
-                  ),
+                  Container(width: 60, height: 14, color: Colors.white),
+                  Container(width: 60, height: 14, color: Colors.white),
                 ],
               ),
             ],
@@ -570,4 +600,4 @@ class _ThreadDetailPageState extends State<ThreadDetailPage> with SingleTickerPr
       ),
     );
   }
-} 
+}

@@ -277,6 +277,7 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String get disabledFloatingButtons => '已禁用浮动按钮';
 	@override String get pendingCommentCount => '待审核评论';
 	@override String joined({required Object str}) => '加入于 ${str}';
+	@override String lastSeenAt({required Object str}) => '上次在线 ${str}';
 	@override String get download => '下载';
 	@override String get selectQuality => '选择画质';
 	@override String get selectDateRange => '选择日期范围';
@@ -300,6 +301,10 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String get likeThisVideo => '喜欢这个视频的人';
 	@override String get operation => '操作';
 	@override String get replies => '回复';
+	@override String get externalLinkWarning => '外部链接警告';
+	@override String get externalLinkWarningMessage => '您即将打开一个非 iwara.tv 的外部链接。请注意安全，确认链接可信后再继续访问。';
+	@override String get continueToExternalLink => '继续访问';
+	@override String get cancelExternalLink => '取消';
 }
 
 // Path: auth
@@ -2736,6 +2741,7 @@ extension on TranslationsZhCn {
 			'common.disabledFloatingButtons' => '已禁用浮动按钮',
 			'common.pendingCommentCount' => '待审核评论',
 			'common.joined' => ({required Object str}) => '加入于 ${str}',
+			'common.lastSeenAt' => ({required Object str}) => '上次在线 ${str}',
 			'common.download' => '下载',
 			'common.selectQuality' => '选择画质',
 			'common.selectDateRange' => '选择日期范围',
@@ -2767,6 +2773,10 @@ extension on TranslationsZhCn {
 			'common.likeThisVideo' => '喜欢这个视频的人',
 			'common.operation' => '操作',
 			'common.replies' => '回复',
+			'common.externalLinkWarning' => '外部链接警告',
+			'common.externalLinkWarningMessage' => '您即将打开一个非 iwara.tv 的外部链接。请注意安全，确认链接可信后再继续访问。',
+			'common.continueToExternalLink' => '继续访问',
+			'common.cancelExternalLink' => '取消',
 			'auth.tagLimit' => '标签上限',
 			'auth.login' => '登录',
 			'auth.logout' => '退出登录',
@@ -3058,13 +3068,13 @@ extension on TranslationsZhCn {
 			'settings.exportConfigDesc' => '将应用配置导出为文件（不包含下载记录）',
 			'settings.importConfig' => '导入应用配置',
 			'settings.importConfigDesc' => '从文件导入应用配置',
+			_ => null,
+		} ?? switch (path) {
 			'settings.exportConfigSuccess' => '配置导出成功！',
 			'settings.exportConfigFailed' => '配置导出失败',
 			'settings.importConfigSuccess' => '配置导入成功！',
 			'settings.importConfigFailed' => '配置导入失败',
 			'settings.historyUpdateLogs' => '历代更新日志',
-			_ => null,
-		} ?? switch (path) {
 			'settings.noUpdateLogs' => '未获取到更新日志',
 			'settings.versionLabel' => '版本: {version}',
 			'settings.releaseDateLabel' => '发布日期: {date}',
@@ -3572,13 +3582,13 @@ extension on TranslationsZhCn {
 			'forum.copySuccessForMessage' => ({required Object str}) => '已复制到剪贴板: ${str}',
 			'forum.editReply' => '编辑回复',
 			'forum.editTitle' => '编辑标题',
+			_ => null,
+		} ?? switch (path) {
 			'forum.submit' => '提交',
 			'notifications.errors.unsupportedNotificationType' => '暂不支持的通知类型',
 			'notifications.errors.unknownUser' => '未知用户',
 			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => '暂不支持的通知类型: ${type}',
 			'notifications.errors.unknownNotificationType' => '未知通知类型',
-			_ => null,
-		} ?? switch (path) {
 			'notifications.notifications' => '通知',
 			'notifications.video' => '视频',
 			'notifications.profile' => '个人主页',
@@ -4086,13 +4096,13 @@ extension on TranslationsZhCn {
 			'emoji.doNotCloseDialog' => '请不要关闭此对话框',
 			'emoji.uploadSuccess' => ({required Object count}) => '成功上传 ${count} 张图片',
 			'emoji.uploadFailed' => ({required Object count}) => '失败 ${count} 张',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.uploadFailedMessage' => '图片上传失败，请检查网络连接或文件格式',
 			'emoji.uploadErrorMessage' => ({required Object error}) => '上传过程中发生错误: ${error}',
 			'displaySettings.title' => '显示设置',
 			'displaySettings.layoutSettings' => '布局设置',
 			'displaySettings.layoutSettingsDesc' => '自定义列数和断点配置',
-			_ => null,
-		} ?? switch (path) {
 			'displaySettings.gridLayout' => '网格布局',
 			'displaySettings.navigationOrderSettings' => '导航排序设置',
 			'displaySettings.customNavigationOrder' => '自定义导航顺序',

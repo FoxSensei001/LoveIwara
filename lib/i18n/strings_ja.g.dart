@@ -280,6 +280,7 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get disabledFloatingButtons => 'フローティングボタンが無効';
 	@override String get pendingCommentCount => '未審核コメント';
 	@override String joined({required Object str}) => '${str} に参加';
+	@override String lastSeenAt({required Object str}) => '最終オンライン ${str}';
 	@override String get download => 'ダウンロード';
 	@override String get selectQuality => '画質を選択';
 	@override String get selectDateRange => '日付範囲を選択';
@@ -298,6 +299,10 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get likeThisVideo => 'この動画が好きな人';
 	@override String get operation => '操作';
 	@override String get replies => '返信';
+	@override String get externalLinkWarning => '外部リンク警告';
+	@override String get externalLinkWarningMessage => 'iwara.tv 以外の外部リンクを開こうとしています。安全性に注意し、リンクが信頼できることを確認してから続行してください。';
+	@override String get continueToExternalLink => '続行';
+	@override String get cancelExternalLink => 'キャンセル';
 }
 
 // Path: auth
@@ -2734,6 +2739,7 @@ extension on TranslationsJa {
 			'common.disabledFloatingButtons' => 'フローティングボタンが無効',
 			'common.pendingCommentCount' => '未審核コメント',
 			'common.joined' => ({required Object str}) => '${str} に参加',
+			'common.lastSeenAt' => ({required Object str}) => '最終オンライン ${str}',
 			'common.download' => 'ダウンロード',
 			'common.selectQuality' => '画質を選択',
 			'common.selectDateRange' => '日付範囲を選択',
@@ -2760,6 +2766,10 @@ extension on TranslationsJa {
 			'common.likeThisVideo' => 'この動画が好きな人',
 			'common.operation' => '操作',
 			'common.replies' => '返信',
+			'common.externalLinkWarning' => '外部リンク警告',
+			'common.externalLinkWarningMessage' => 'iwara.tv 以外の外部リンクを開こうとしています。安全性に注意し、リンクが信頼できることを確認してから続行してください。',
+			'common.continueToExternalLink' => '続行',
+			'common.cancelExternalLink' => 'キャンセル',
 			'auth.login' => 'ログイン',
 			'auth.logout' => 'ログアウト',
 			'auth.email' => 'メールアドレス',
@@ -3053,13 +3063,13 @@ extension on TranslationsJa {
 			'settings.importConfigSuccess' => '設定が正常にインポートされました',
 			'settings.importConfigFailed' => '設定のインポートに失敗しました',
 			'settings.historyUpdateLogs' => '歴代アップデートログ',
+			_ => null,
+		} ?? switch (path) {
 			'settings.noUpdateLogs' => 'アップデートログが取得できませんでした',
 			'settings.versionLabel' => 'バージョン: {version}',
 			'settings.releaseDateLabel' => 'リリース日: {date}',
 			'settings.noChanges' => '更新内容がありません',
 			'settings.interaction' => 'インタラクション',
-			_ => null,
-		} ?? switch (path) {
 			'settings.enableVibration' => 'バイブレーション',
 			'settings.enableVibrationDesc' => 'アプリの操作時にバイブレーションフィードバックを有効にする',
 			'settings.defaultKeepVideoToolbarVisible' => 'ツールバーを常に表示',
@@ -3567,13 +3577,13 @@ extension on TranslationsJa {
 			'notifications.errors.unknownUser' => '未知ユーザー',
 			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => 'サポートされていない通知タイプ: ${type}',
 			'notifications.errors.unknownNotificationType' => '未知通知タイプ',
+			_ => null,
+		} ?? switch (path) {
 			'notifications.notifications' => '通知',
 			'notifications.profile' => '個人主頁',
 			'notifications.postedNewComment' => '新しいコメントを投稿',
 			'notifications.inYour' => 'あなたの',
 			'notifications.video' => 'ビデオ',
-			_ => null,
-		} ?? switch (path) {
 			'notifications.repliedYourVideoComment' => 'あなたのビデオコメントに返信しました',
 			'notifications.copyInfoToClipboard' => '通知情報をクリップボードにコピー',
 			'notifications.copySuccess' => 'クリップボードにコピーされました',
@@ -4081,13 +4091,13 @@ extension on TranslationsJa {
 			'displaySettings.title' => '表示設定',
 			'displaySettings.layoutSettings' => 'レイアウト設定',
 			'displaySettings.layoutSettingsDesc' => 'カラム数とブレークポイント設定をカスタマイズ',
+			_ => null,
+		} ?? switch (path) {
 			'displaySettings.gridLayout' => 'グリッドレイアウト',
 			'displaySettings.navigationOrderSettings' => 'ナビゲーション順序設定',
 			'displaySettings.customNavigationOrder' => 'カスタムナビゲーション順序',
 			'displaySettings.customNavigationOrderDesc' => 'ボトムナビゲーションバーとサイドバーのページ表示順序を調整',
 			'layoutSettings.title' => 'レイアウト設定',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.descriptionTitle' => 'レイアウト設定の説明',
 			'layoutSettings.descriptionContent' => 'ここでの設定は、動画とギャラリーリストページで表示されるカラム数を決定します。自動モードを選択して画面幅に基づいて自動調整するか、手動モードを選択してカラム数を固定できます。',
 			'layoutSettings.layoutMode' => 'レイアウトモード',

@@ -36,13 +36,14 @@ class ThreadCommentCardWidget extends StatefulWidget {
   });
 
   @override
-  State<ThreadCommentCardWidget> createState() => _ThreadCommentCardWidgetState();
+  State<ThreadCommentCardWidget> createState() =>
+      _ThreadCommentCardWidgetState();
 }
 
 class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
   final UserService _userService = Get.find<UserService>();
   final ConfigService _configService = Get.find();
-  
+
   // 使用翻译控制器
   late final MarkdownTranslationController _translationController;
 
@@ -63,25 +64,29 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Obx(() => IconButton(
-          onPressed: _translationController.isTranslating.value ? null : () => _handleTranslation(),
-          icon: _translationController.isTranslating.value
-              ? SizedBox(
-                  width: 14,
-                  height: 14,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      Theme.of(context).colorScheme.primary,
+        Obx(
+          () => IconButton(
+            onPressed: _translationController.isTranslating.value
+                ? null
+                : () => _handleTranslation(),
+            icon: _translationController.isTranslating.value
+                ? SizedBox(
+                    width: 14,
+                    height: 14,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Theme.of(context).colorScheme.primary,
+                      ),
                     ),
+                  )
+                : Icon(
+                    Icons.translate,
+                    size: 16,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
-                )
-              : Icon(
-                  Icons.translate,
-                  size: 16,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-        )),
+          ),
+        ),
         // 不设置间隙，紧靠着放置
         TranslationLanguageSelector(
           compact: true,
@@ -99,7 +104,10 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
   }
 
   Future<void> _handleTranslation() async {
-    await _translationController.translate(widget.comment.body, originalText: widget.comment.body);
+    await _translationController.translate(
+      widget.comment.body,
+      originalText: widget.comment.body,
+    );
   }
 
   Widget _buildCommentTag(String text, IconData icon) {
@@ -120,10 +128,7 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
       decoration: BoxDecoration(
         color: tagColor.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: tagColor.withValues(alpha: 0.12),
-          width: 0.5,
-        ),
+        border: Border.all(color: tagColor.withValues(alpha: 0.12), width: 0.5),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -145,7 +150,8 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isCurrentUser = _userService.currentUser.value?.id == widget.comment.user.id;
+    final bool isCurrentUser =
+        _userService.currentUser.value?.id == widget.comment.user.id;
     final bool isThreadAuthor = widget.threadAuthorId == widget.comment.user.id;
 
     return Card(
@@ -157,8 +163,7 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
           spacing: 12,
           children: [
             Container(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 borderRadius: const BorderRadius.only(
@@ -174,12 +179,10 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
                     child: GestureDetector(
                       onTap: () {
                         NaviService.navigateToAuthorProfilePage(
-                            widget.comment.user.username);
+                          widget.comment.user.username,
+                        );
                       },
-                      child: AvatarWidget(
-                        user: widget.comment.user,
-                        size: 40
-                      ),
+                      child: AvatarWidget(user: widget.comment.user, size: 40),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -196,10 +199,15 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
                                 child: GestureDetector(
                                   onTap: () {
                                     NaviService.navigateToAuthorProfilePage(
-                                        widget.comment.user.username);
+                                      widget.comment.user.username,
+                                    );
                                   },
-                                  child: buildUserName(context, widget.comment.user,
-                                      fontSize: 16, bold: true),
+                                  child: buildUserName(
+                                    context,
+                                    widget.comment.user,
+                                    fontSize: 16,
+                                    bold: true,
+                                  ),
                                 ),
                               ),
                             ),
@@ -209,8 +217,7 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
-                                color:
-                                    Theme.of(context).colorScheme.primary,
+                                color: Theme.of(context).colorScheme.primary,
                               ),
                             ),
                           ],
@@ -224,13 +231,20 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
                                 cursor: SystemMouseCursors.click,
                                 child: GestureDetector(
                                   onTap: () {
-                                    Clipboard.setData(ClipboardData(
-                                        text: widget.comment.user.username));
-                                    showToastWidget(MDToastWidget(
+                                    Clipboard.setData(
+                                      ClipboardData(
+                                        text: widget.comment.user.username,
+                                      ),
+                                    );
+                                    showToastWidget(
+                                      MDToastWidget(
                                         message: slang.t.forum
                                             .copySuccessForMessage(
-                                                str: widget.comment.user.username),
-                                        type: MDToastType.success));
+                                              str: widget.comment.user.username,
+                                            ),
+                                        type: MDToastType.success,
+                                      ),
+                                    );
                                   },
                                   child: Text(
                                     '@${widget.comment.user.username}',
@@ -238,10 +252,9 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       fontSize: 12,
-                                      color: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.color,
+                                      color: Theme.of(
+                                        context,
+                                      ).textTheme.bodySmall?.color,
                                     ),
                                   ),
                                 ),
@@ -251,29 +264,40 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
                             const SizedBox(width: 4),
                             Text(
                               CommonUtils.formatFriendlyTimestamp(
-                                  widget.comment.createdAt),
+                                widget.comment.createdAt,
+                              ),
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.color,
+                                color: Theme.of(
+                                  context,
+                                ).textTheme.bodySmall?.color,
                               ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 4),
                         // 第三行：标签
-                        if (!widget.comment.approved || isCurrentUser || isThreadAuthor)
+                        if (!widget.comment.approved ||
+                            isCurrentUser ||
+                            isThreadAuthor)
                           Wrap(
                             spacing: 8,
                             children: [
                               if (!widget.comment.approved)
-                                _buildCommentTag(slang.t.forum.pendingReview, Icons.pending_outlined),
+                                _buildCommentTag(
+                                  slang.t.forum.pendingReview,
+                                  Icons.pending_outlined,
+                                ),
                               if (isCurrentUser)
-                                _buildCommentTag(slang.t.common.me, Icons.person_outline),
+                                _buildCommentTag(
+                                  slang.t.common.me,
+                                  Icons.person_outline,
+                                ),
                               if (isThreadAuthor)
-                                _buildCommentTag(slang.t.common.author, Icons.stars_outlined),
+                                _buildCommentTag(
+                                  slang.t.common.author,
+                                  Icons.stars_outlined,
+                                ),
                             ],
                           ),
                       ],
@@ -290,7 +314,9 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
                   const SizedBox(width: 4),
                   const Icon(Icons.edit, size: 14),
                   Text(
-                    CommonUtils.formatFriendlyTimestamp(widget.comment.updatedAt),
+                    CommonUtils.formatFriendlyTimestamp(
+                      widget.comment.updatedAt,
+                    ),
                     style: TextStyle(
                       fontSize: 12,
                       color: Theme.of(context).textTheme.bodySmall?.color,
@@ -305,13 +331,16 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
                       UserService userService = Get.find<UserService>();
                       if (!userService.isLogin) {
                         AppService.switchGlobalDrawer();
-                        showToastWidget(MDToastWidget(
-                          message: slang.t.errors.pleaseLoginFirst,
-                          type: MDToastType.warning,
-                        ));
+                        showToastWidget(
+                          MDToastWidget(
+                            message: slang.t.errors.pleaseLoginFirst,
+                            type: MDToastType.warning,
+                          ),
+                        );
                         return;
                       }
-                      final replyTemplate = 'Reply #${widget.comment.replyNum + 1}: @${widget.comment.user.username}\n---\n';
+                      final replyTemplate =
+                          'Reply #${widget.comment.replyNum + 1}: @${widget.comment.user.username}\n---\n';
                       showModalBottomSheet(
                         context: context,
                         isScrollControlled: true,
@@ -354,17 +383,24 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
                       UserService userService = Get.find<UserService>();
                       if (!userService.isLogin) {
                         AppService.switchGlobalDrawer();
-                        showToastWidget(MDToastWidget(message: slang.t.errors.pleaseLoginFirst, type: MDToastType.warning));
+                        showToastWidget(
+                          MDToastWidget(
+                            message: slang.t.errors.pleaseLoginFirst,
+                            type: MDToastType.warning,
+                          ),
+                        );
                         return;
                       }
-                      Get.dialog(ForumEditReplyDialog(
-                        postId: widget.comment.id,
-                        initialContent: widget.comment.body,
-                        repository: widget.listSourceRepository,
-                        onSubmit: () {
-                          widget.listSourceRepository.refresh();
-                        },
-                      ));
+                      Get.dialog(
+                        ForumEditReplyDialog(
+                          postId: widget.comment.id,
+                          initialContent: widget.comment.body,
+                          repository: widget.listSourceRepository,
+                          onSubmit: () {
+                            widget.listSourceRepository.refresh();
+                          },
+                        ),
+                      );
                     },
                   ),
               ],
@@ -374,4 +410,4 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
       ),
     );
   }
-} 
+}

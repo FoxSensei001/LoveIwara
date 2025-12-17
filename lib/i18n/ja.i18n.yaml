@@ -194,6 +194,7 @@ common:
   disabledFloatingButtons: フローティングボタンが無効
   pendingCommentCount: 未審核コメント
   joined: '${str} に参加'
+  lastSeenAt: '最終オンライン ${str}'
   download: ダウンロード
   selectQuality: 画質を選択
   selectDateRange: 日付範囲を選択
@@ -222,6 +223,10 @@ common:
   likeThisVideo: この動画が好きな人
   operation: 操作
   replies: 返信
+  externalLinkWarning: 外部リンク警告
+  externalLinkWarningMessage: iwara.tv 以外の外部リンクを開こうとしています。安全性に注意し、リンクが信頼できることを確認してから続行してください。
+  continueToExternalLink: 続行
+  cancelExternalLink: キャンセル
 auth:
   login: ログイン
   logout: ログアウト
