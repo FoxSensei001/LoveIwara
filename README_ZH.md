@@ -1,10 +1,16 @@
+<div align="center">
+
+<a href="https://github.com/FoxSensei001/LoveIwara">
+    <img src="assets/icon/launcher_icon_v2.png" alt="Love Iwara logo" title="Love Iwara logo" width="80"/>
+</a>
+
 # Love Iwara (2i)
 
-<p align="center">
-  <img src="assets/icon/launcher_icon_v2.png" width="200" alt="Love Iwara Logo" style="border-radius: 16px;">
-</p>
-
-<div align="center">
+[![Telegram 群组](https://img.shields.io/badge/Telegram-群组-2CA5E0?style=flat&logo=telegram&logoColor=white)](https://t.me/+OtpMbe9DkjYzMGM1)
+[![GitHub stars](https://img.shields.io/github/stars/FoxSensei001/LoveIwara?label=stars&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara)
+[![GitHub forks](https://img.shields.io/github/forks/FoxSensei001/LoveIwara?label=forks&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara)
+[![License: MIT](https://img.shields.io/github/license/FoxSensei001/LoveIwara?labelColor=27303D&color=0877d2)](LICENSE)
+[![GitHub issues](https://img.shields.io/github/issues/FoxSensei001/LoveIwara?labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara/issues)
 
 [English](README.md) | [中文](#中文)
 
@@ -15,7 +21,7 @@
 ## 中文
 
 ### 🌟 简介
-Love Iwara（又名 i_iwara 或 2i）是一个使用 Flutter 构建的 Iwara 第三方移动应用。我们的目标是为用户提供出色的使用体验，支持多种平台和设备，包括手机、平板电脑和计算机，兼容安卓、Windows等操作系统。
+Love Iwara（又名 i_iwara 或 2i）是一个使用 Flutter 构建的 Iwara 第三方移动应用。我们的目标是为用户提供出色的使用体验，支持多种平台和设备，包括手机、平板电脑和计算机，兼容 Android、Windows、macOS、Linux 和 iOS 等操作系统。
 
 ### ⚠️ 项目说明
 作为一名 Flutter 新手，这是我第一次尝试开发跨平台应用。项目中可能存在不少不规范的地方，代码也有待优化，但主要目的是通过实践来学习和理解 Flutter 开发。
@@ -52,7 +58,7 @@ Love Iwara（又名 i_iwara 或 2i）是一个使用 Flutter 构建的 Iwara 第
 - **🖥️ 支持平台**
     - 📱 Android
     - 🪟 Windows
-    - 🍎 MacOS（由于没有属于自己的 Mac 设备，暂无法测试）
+    - 🍎 MacOS
     - 🐧 Linux（由于没有 Linux 设备，暂无法测试）
     - 📱 iOS（由于没有属于自己的 iOS 设备，暂无法测试）
 
@@ -77,6 +83,7 @@ Love Iwara（又名 i_iwara 或 2i）是一个使用 Flutter 构建的 Iwara 第
     - 视频清晰度选择
     - 播放速度控制
     - 全屏支持
+    - 桌面端支持拖拽视频文件到应用窗口直接播放
 
 - **🖼️ 图库**
     - 图片浏览
@@ -125,7 +132,8 @@ Love Iwara（又名 i_iwara 或 2i）是一个使用 Flutter 构建的 Iwara 第
 - **其他**
 
 ### 📱 交流群
-点击 [此处](https://t.me/+OtpMbe9DkjYzMGM1) 加入交流群。
+
+加入我们的 Telegram 社区：点击 [此处](https://t.me/+OtpMbe9DkjYzMGM1) 加入交流群。
 
 ### 📱 截图展示
 | | |
@@ -289,12 +297,61 @@ flutter config --clear-features
 如果您有任何建议或发现任何 bug，欢迎在项目的 issues 区提交反馈。
 
 ### 🙏 致谢
-本项目的开发过程中受到了以下优秀项目的启发：
 
-- [iwrqk/iwrqk](https://github.com/iwrqk/iwrqk) - 优秀的 Flutter 实现的 Iwara 客户端
-- [wgh136/PicaComic](https://github.com/wgh136/PicaComic) - 结构良好的 Flutter 漫画应用
+#### 感谢以下优秀项目的启发
 
-项目中的许多实现方式和最佳实践都是从这些仓库中学习得来。 
+本项目的开发过程中受到了以下优秀项目的启发，项目中的许多实现方式和最佳实践都是从这些仓库中学习得来。
+
+<div align="center">
+
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <a href="https://github.com/iwrqk/iwrqk">
+        <img src="https://opengraph.githubassets.com/1/iwrqk/iwrqk" alt="iwrqk/iwrqk" style="width: 100%; max-width: 500px;">
+      </a>
+      <br />
+      <sub><b>iwrqk/iwrqk</b></sub>
+      <br />
+      <sub>优秀的 Flutter 实现的 Iwara 客户端</sub>
+    </td>
+    <td align="center" width="50%">
+      <a href="https://github.com/wgh136/PicaComic">
+        <img src="https://opengraph.githubassets.com/1/wgh136/PicaComic" alt="wgh136/PicaComic" style="width: 100%; max-width: 500px;">
+      </a>
+      <br />
+      <sub><b>wgh136/PicaComic</b></sub>
+      <br />
+      <sub>结构良好的 Flutter 漫画应用</sub>
+    </td>
+  </tr>
+</table>
+
+</div>
+
+#### 项目贡献者
+
+感谢所有为本项目做出贡献的开发者！
+
+<div align="center">
+
+<a href="https://github.com/FoxSensei001/LoveIwara/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=FoxSensei001/LoveIwara" alt="项目贡献者" />
+</a>
+
+</div>
+
+<sub>通过 [contrib.rocks](https://contrib.rocks) 生成</sub>
+
+### 🤝 贡献
+
+欢迎提交 Pull Request！对于重大更改，请先打开一个 issue 来讨论您想要更改的内容。
+
+在报告新问题之前，请查看已打开的 [issues](https://github.com/FoxSensei001/LoveIwara/issues)；如果您有任何问题，请加入我们的 [Telegram 群组](https://t.me/+OtpMbe9DkjYzMGM1)。
+
+### ⚠️ 免责声明
+
+本应用的开发者与 Iwara 或其内容提供商没有任何关联，本应用不托管任何内容。 
 
 ## Android 签名配置
 
