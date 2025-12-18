@@ -124,7 +124,12 @@ class PopularMediaListPageBaseState<
         userInputKeywords: '',
         initialSegment: widget.searchSegment,
         onSearch: (searchInfo, segment, filters, sort) {
-          NaviService.toSearchPage(searchInfo: searchInfo, segment: segment, filters: filters, sort: sort);
+          NaviService.toSearchPage(
+            searchInfo: searchInfo,
+            segment: segment,
+            filters: filters,
+            sort: sort,
+          );
         },
       ),
     );
@@ -160,26 +165,34 @@ class PopularMediaListPageBaseState<
       final direction = _mediaListController.lastScrollDirection.value;
       bool shouldCollapse = _isHeaderCollapsed;
 
-      if (direction == ScrollDirection.reverse && // 向上滚动
-          offset > _headerCollapseThreshold &&
-          !_isHeaderCollapsed) {
-        shouldCollapse = true;
-      } else if (direction == ScrollDirection.forward && _isHeaderCollapsed) {
-        // 向下滚动
-        // 如果向下滚动足够或接近顶部，则展开
-        if (offset < (_headerCollapseThreshold * 0.8) || offset < 10.0) {
+      // 改进的折叠逻辑：
+      // 1. 向上滚动且超过阈值时折叠
+      // 2. 向下滚动时展开（更灵敏）
+      // 3. 接近顶部时始终展开
+
+      if (direction == ScrollDirection.reverse) {
+        // 向上滚动：需要滚动超过阈值才折叠
+        if (offset > _headerCollapseThreshold && !_isHeaderCollapsed) {
+          shouldCollapse = true;
+        }
+      } else if (direction == ScrollDirection.forward) {
+        // 向下滚动：更灵敏地展开
+        if (_isHeaderCollapsed) {
+          // 只要开始向下滚动就展开，提供更好的响应性
           shouldCollapse = false;
         }
-      } else if (offset <= 5.0 && _isHeaderCollapsed) {
-        // 如果在顶部或接近顶部，则始终展开
+      }
+
+      // 特殊情况：接近顶部时始终展开
+      if (offset <= 5.0 && _isHeaderCollapsed) {
         shouldCollapse = false;
       }
 
-      // 特殊情况：如果用户刚刚切换了标签或数据，offset 可能为 0。
+      // 特殊情况：切换标签或数据时展开
       if (offset == 0.0 &&
           direction == ScrollDirection.idle &&
           _isHeaderCollapsed) {
-        shouldCollapse = false; // 如果新列表从顶部开始，则展开
+        shouldCollapse = false;
       }
 
       if (mounted && _isHeaderCollapsed != shouldCollapse) {
@@ -362,8 +375,6 @@ class PopularMediaListPageBaseState<
                   final rebuildKey = _mediaListController.rebuildKey.value
                       .toString();
 
-
-
                   return TabBarView(
                     controller: _tabController,
                     children: sorts.map((sort) {
@@ -392,24 +403,27 @@ class PopularMediaListPageBaseState<
                       curve: Curves.easeInOut,
                       height:
                           systemStatusBarHeight + currentTopBarVisibleHeight,
-                      color: Theme.of(context)
-                          .colorScheme
-                          .surface
-                          .withValues(alpha: 0.85),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surface.withValues(alpha: 0.85),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           SizedBox(height: systemStatusBarHeight),
-                          AnimatedOpacity(
-                            opacity: _isHeaderCollapsed ? 0.0 : 1.0,
-                            duration: const Duration(milliseconds: 150),
-                            child: Offstage(
-                              offstage: _isHeaderCollapsed,
-                              child: SizedBox(
-                                height: headerHeight,
-                                child: CommonHeader(
-                                  searchSegment: widget.searchSegment,
-                                  avatarRadius: 20,
+                          ClipRect(
+                            child: AnimatedSize(
+                              duration: const Duration(milliseconds: 250),
+                              curve: Curves.easeInOut,
+                              child: AnimatedOpacity(
+                                opacity: _isHeaderCollapsed ? 0.0 : 1.0,
+                                duration: const Duration(milliseconds: 250),
+                                curve: Curves.easeInOut,
+                                child: SizedBox(
+                                  height: _isHeaderCollapsed ? 0 : headerHeight,
+                                  child: CommonHeader(
+                                    searchSegment: widget.searchSegment,
+                                    avatarRadius: 20,
+                                  ),
                                 ),
                               ),
                             ),
@@ -432,22 +446,19 @@ class PopularMediaListPageBaseState<
                                       child: SingleChildScrollView(
                                         controller: _tabBarScrollController,
                                         scrollDirection: Axis.horizontal,
-                                        physics:
-                                            const ClampingScrollPhysics(),
+                                        physics: const ClampingScrollPhysics(),
                                         child: TabBar(
                                           isScrollable: true,
-                                          overlayColor:
-                                              WidgetStateProperty.all(
+                                          overlayColor: WidgetStateProperty.all(
                                             Colors.transparent,
                                           ),
                                           tabAlignment: TabAlignment.start,
                                           dividerColor: Colors.transparent,
                                           padding: EdgeInsets.zero,
                                           controller: _tabController,
-                                          tabs: sorts
-                                              .asMap()
-                                              .entries
-                                              .map((entry) {
+                                          tabs: sorts.asMap().entries.map((
+                                            entry,
+                                          ) {
                                             int index = entry.key;
                                             Sort sort = entry.value;
                                             return Container(
@@ -469,42 +480,11 @@ class PopularMediaListPageBaseState<
                                     ),
                                   ),
                                 ),
-                                _buildAnimatedIconButton(
-                                  isVisible: !_isHeaderCollapsed,
-                                  child: Obx(
-                                    () => IconButton(
-                                      icon: Icon(
-                                        _mediaListController
-                                                .isPaginated.value
-                                            ? Icons.grid_view
-                                            : Icons.menu,
-                                      ),
-                                      onPressed: () {
-                                        if (!_mediaListController
-                                            .isPaginated.value) {
-                                          var sortId =
-                                              sorts[_tabController.index].id;
-                                          var repository =
-                                              _repositories[sortId]!;
-                                          repository.refresh(true);
-                                        }
-                                        _mediaListController.setPaginatedMode(
-                                          !_mediaListController
-                                              .isPaginated.value,
-                                        );
-                                      },
-                                      tooltip: _mediaListController
-                                              .isPaginated.value
-                                          ? t.common.pagination.waterfall
-                                          : t.common.pagination.pagination,
-                                    ),
-                                  ),
-                                ),
+
                                 _buildAnimatedIconButton(
                                   isVisible: !_isHeaderCollapsed,
                                   child: IconButton(
-                                    icon:
-                                        const Icon(Icons.vertical_align_top),
+                                    icon: const Icon(Icons.vertical_align_top),
                                     onPressed: () =>
                                         _mediaListController.scrollToTop(),
                                     tooltip: t.common.scrollToTop,
@@ -539,8 +519,7 @@ class PopularMediaListPageBaseState<
               // 3. 浮动按钮（仅在折叠时显示）
               if (_isHeaderCollapsed)
                 Obx(() {
-                  final isPaginatedNow =
-                      _mediaListController.isPaginated.value;
+                  final isPaginatedNow = _mediaListController.isPaginated.value;
                   final bottomSafeNow = MediaQuery.of(context).padding.bottom;
                   final double extraBottomNow = isPaginatedNow
                       ? (46 + bottomSafeNow + 20)
@@ -552,10 +531,8 @@ class PopularMediaListPageBaseState<
                     child: GridSpeedDial(
                       icon: Icons.menu,
                       activeIcon: Icons.close,
-                      backgroundColor:
-                          Theme.of(context).colorScheme.primary,
-                      foregroundColor:
-                          Theme.of(context).colorScheme.onPrimary,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
                       spacing: 6,
                       spaceBetweenChildren: 4,
                       direction: SpeedDialDirection.up,
@@ -563,72 +540,45 @@ class PopularMediaListPageBaseState<
                       childrens: [
                         [
                           SpeedDialChild(
-                            child: Obx(
-                              () => Icon(
-                                _mediaListController.isPaginated.value
-                                    ? Icons.grid_view
-                                    : Icons.menu,
-                              ),
-                            ),
-                            backgroundColor: Theme.of(context)
-                                .colorScheme
-                                .secondaryContainer,
-                            foregroundColor: Theme.of(context)
-                                .colorScheme
-                                .onSecondaryContainer,
-                            onTap: () {
-                              if (!_mediaListController
-                                  .isPaginated.value) {
-                                var sortId = sorts[_tabController.index].id;
-                                var repository = _repositories[sortId]!;
-                                repository.refresh(true);
-                              }
-                              _mediaListController.setPaginatedMode(
-                                !_mediaListController.isPaginated.value,
-                              );
-                            },
-                          ),
-                          SpeedDialChild(
                             child: const Icon(Icons.search),
-                            backgroundColor: Theme.of(context)
-                                .colorScheme
-                                .primaryContainer,
-                            foregroundColor: Theme.of(context)
-                                .colorScheme
-                                .onPrimaryContainer,
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.primaryContainer,
+                            foregroundColor: Theme.of(
+                              context,
+                            ).colorScheme.onPrimaryContainer,
                             onTap: _openSearchDialog,
                           ),
                           SpeedDialChild(
                             child: const Icon(Icons.refresh),
-                            backgroundColor: Theme.of(context)
-                                .colorScheme
-                                .primaryContainer,
-                            foregroundColor: Theme.of(context)
-                                .colorScheme
-                                .onPrimaryContainer,
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.primaryContainer,
+                            foregroundColor: Theme.of(
+                              context,
+                            ).colorScheme.onPrimaryContainer,
                             onTap: tryRefreshCurrentSort,
                           ),
                         ],
                         [
                           SpeedDialChild(
                             child: const Icon(Icons.vertical_align_top),
-                            backgroundColor: Theme.of(context)
-                                .colorScheme
-                                .primaryContainer,
-                            foregroundColor: Theme.of(context)
-                                .colorScheme
-                                .onPrimaryContainer,
-                            onTap: () =>
-                                _mediaListController.scrollToTop(),
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.primaryContainer,
+                            foregroundColor: Theme.of(
+                              context,
+                            ).colorScheme.onPrimaryContainer,
+                            onTap: () => _mediaListController.scrollToTop(),
                           ),
                           SpeedDialChild(
                             child: const Icon(Icons.filter_list),
-                            backgroundColor: Theme.of(context)
-                                .colorScheme
-                                .secondaryContainer,
-                            foregroundColor: Theme.of(context)
-                                .colorScheme
-                                .onSecondaryContainer,
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.secondaryContainer,
+                            foregroundColor: Theme.of(
+                              context,
+                            ).colorScheme.onSecondaryContainer,
                             onTap: _openParamsModal,
                           ),
                           SpeedDialChild(
@@ -646,17 +596,19 @@ class PopularMediaListPageBaseState<
                                       right: 0,
                                       top: 0,
                                       child: Obx(() {
-                                        final count = userService
-                                                .notificationCount.value +
+                                        final count =
+                                            userService
+                                                .notificationCount
+                                                .value +
                                             userService.messagesCount.value;
                                         if (count > 0) {
                                           return Container(
                                             width: 8,
                                             height: 8,
                                             decoration: BoxDecoration(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .error,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.error,
                                               shape: BoxShape.circle,
                                             ),
                                           );
@@ -670,10 +622,12 @@ class PopularMediaListPageBaseState<
                                 return const Icon(Icons.account_circle);
                               }
                             }),
-                            backgroundColor:
-                                Theme.of(context).colorScheme.surface,
-                            foregroundColor:
-                                Theme.of(context).colorScheme.onSurface,
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.surface,
+                            foregroundColor: Theme.of(
+                              context,
+                            ).colorScheme.onSurface,
                             onTap: () {
                               AppService.switchGlobalDrawer();
                             },

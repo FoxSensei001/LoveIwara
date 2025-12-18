@@ -68,6 +68,7 @@ common:
   writeYourCommentHere: ここにコメントを入力...
   tmpNoReplies: 返信はありません
   loadMore: もっと読み込む
+  loadingMore: さらに読み込み中...
   noMoreDatas: これ以上データはありません
   selectTranslationLanguage: 翻訳言語を選択
   translate: 翻訳
@@ -418,8 +419,9 @@ mediaList:
 
 settings:
   listViewMode: リスト表示モード
+  previewEffect: プレビュー効果
   useTraditionalPaginationMode: 従来のページネーションモードを使用
-  useTraditionalPaginationModeDesc: 従来のページネーションモードを使用すると、ページネーションモードが無効になります。
+  useTraditionalPaginationModeDesc: 従来のページネーションモードを使用すると、ページネーションモードが無効になります。ページを再レンダリングまたはアプリを再起動した後に有効になります
   showVideoProgressBottomBarWhenToolbarHidden: 底部プログレスバー
   showVideoProgressBottomBarWhenToolbarHiddenDesc: この設定は、ツールバーが非表示のときに底部プログレスバーを表示するかどうかを決定します。
   basicSettings: 基本設定

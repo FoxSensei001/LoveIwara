@@ -155,6 +155,7 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get writeYourCommentHere => 'ここにコメントを入力...';
 	@override String get tmpNoReplies => '返信はありません';
 	@override String get loadMore => 'もっと読み込む';
+	@override String get loadingMore => 'さらに読み込み中...';
 	@override String get noMoreDatas => 'これ以上データはありません';
 	@override String get selectTranslationLanguage => '翻訳言語を選択';
 	@override String get translate => '翻訳';
@@ -546,8 +547,9 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 
 	// Translations
 	@override String get listViewMode => 'リスト表示モード';
+	@override String get previewEffect => 'プレビュー効果';
 	@override String get useTraditionalPaginationMode => '従来のページネーションモードを使用';
-	@override String get useTraditionalPaginationModeDesc => '従来のページネーションモードを使用すると、ページネーションモードが無効になります。';
+	@override String get useTraditionalPaginationModeDesc => '従来のページネーションモードを使用すると、ページネーションモードが無効になります。ページを再レンダリングまたはアプリを再起動した後に有効になります';
 	@override String get showVideoProgressBottomBarWhenToolbarHidden => '底部プログレスバー';
 	@override String get showVideoProgressBottomBarWhenToolbarHiddenDesc => 'この設定は、ツールバーが非表示のときに底部プログレスバーを表示するかどうかを決定します。';
 	@override String get basicSettings => '基本設定';
@@ -2614,6 +2616,7 @@ extension on TranslationsJa {
 			'common.writeYourCommentHere' => 'ここにコメントを入力...',
 			'common.tmpNoReplies' => '返信はありません',
 			'common.loadMore' => 'もっと読み込む',
+			'common.loadingMore' => 'さらに読み込み中...',
 			'common.noMoreDatas' => 'これ以上データはありません',
 			'common.selectTranslationLanguage' => '翻訳言語を選択',
 			'common.translate' => '翻訳',
@@ -2943,8 +2946,9 @@ extension on TranslationsJa {
 			'search.googleSearchBrowserOpenFailed' => ({required Object error}) => 'ブラウザを開けませんでした: ${error}',
 			'mediaList.personalIntroduction' => '個人紹介',
 			'settings.listViewMode' => 'リスト表示モード',
+			'settings.previewEffect' => 'プレビュー効果',
 			'settings.useTraditionalPaginationMode' => '従来のページネーションモードを使用',
-			'settings.useTraditionalPaginationModeDesc' => '従来のページネーションモードを使用すると、ページネーションモードが無効になります。',
+			'settings.useTraditionalPaginationModeDesc' => '従来のページネーションモードを使用すると、ページネーションモードが無効になります。ページを再レンダリングまたはアプリを再起動した後に有効になります',
 			'settings.showVideoProgressBottomBarWhenToolbarHidden' => '底部プログレスバー',
 			'settings.showVideoProgressBottomBarWhenToolbarHiddenDesc' => 'この設定は、ツールバーが非表示のときに底部プログレスバーを表示するかどうかを決定します。',
 			'settings.basicSettings' => '基本設定',
@@ -3061,10 +3065,10 @@ extension on TranslationsJa {
 			'settings.exportConfigSuccess' => '設定が正常にエクスポートされました',
 			'settings.exportConfigFailed' => '設定のエクスポートに失敗しました',
 			'settings.importConfigSuccess' => '設定が正常にインポートされました',
-			'settings.importConfigFailed' => '設定のインポートに失敗しました',
-			'settings.historyUpdateLogs' => '歴代アップデートログ',
 			_ => null,
 		} ?? switch (path) {
+			'settings.importConfigFailed' => '設定のインポートに失敗しました',
+			'settings.historyUpdateLogs' => '歴代アップデートログ',
 			'settings.noUpdateLogs' => 'アップデートログが取得できませんでした',
 			'settings.versionLabel' => 'バージョン: {version}',
 			'settings.releaseDateLabel' => 'リリース日: {date}',
@@ -3575,10 +3579,10 @@ extension on TranslationsJa {
 			'forum.submit' => '提出',
 			'notifications.errors.unsupportedNotificationType' => 'サポートされていない通知タイプ',
 			'notifications.errors.unknownUser' => '未知ユーザー',
-			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => 'サポートされていない通知タイプ: ${type}',
-			'notifications.errors.unknownNotificationType' => '未知通知タイプ',
 			_ => null,
 		} ?? switch (path) {
+			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => 'サポートされていない通知タイプ: ${type}',
+			'notifications.errors.unknownNotificationType' => '未知通知タイプ',
 			'notifications.notifications' => '通知',
 			'notifications.profile' => '個人主頁',
 			'notifications.postedNewComment' => '新しいコメントを投稿',
@@ -4089,10 +4093,10 @@ extension on TranslationsJa {
 			'emoji.uploadFailedMessage' => '画像のアップロードに失敗しました。ネットワーク接続またはファイル形式を確認してください',
 			'emoji.uploadErrorMessage' => ({required Object error}) => 'アップロード中にエラーが発生しました: ${error}',
 			'displaySettings.title' => '表示設定',
-			'displaySettings.layoutSettings' => 'レイアウト設定',
-			'displaySettings.layoutSettingsDesc' => 'カラム数とブレークポイント設定をカスタマイズ',
 			_ => null,
 		} ?? switch (path) {
+			'displaySettings.layoutSettings' => 'レイアウト設定',
+			'displaySettings.layoutSettingsDesc' => 'カラム数とブレークポイント設定をカスタマイズ',
 			'displaySettings.gridLayout' => 'グリッドレイアウト',
 			'displaySettings.navigationOrderSettings' => 'ナビゲーション順序設定',
 			'displaySettings.customNavigationOrder' => 'カスタムナビゲーション順序',

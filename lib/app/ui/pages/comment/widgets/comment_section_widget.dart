@@ -12,12 +12,14 @@ class CommentSection extends StatefulWidget {
   final CommentController controller;
   final String? authorUserId;
   final double topPadding;
+  final ScrollController? scrollController;
 
   const CommentSection({
     super.key,
     required this.controller,
     this.authorUserId,
     this.topPadding = 0.0,
+    this.scrollController,
   });
 
   @override
@@ -42,14 +44,16 @@ class _CommentSectionState extends State<CommentSection> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      if (widget.controller.isLoading.value && widget.controller.comments.isEmpty) {
+      if (widget.controller.isLoading.value &&
+          widget.controller.comments.isEmpty) {
         // 初始加载时显示Shimmer骨架屏
         return _buildShimmerList();
       } else if (widget.controller.errorMessage.value.isNotEmpty &&
           widget.controller.comments.isEmpty) {
         // 如果有错误且没有评论，显示错误信息和重试按钮
         return _buildErrorState(context);
-      } else if (!widget.controller.isLoading.value && widget.controller.comments.isEmpty) {
+      } else if (!widget.controller.isLoading.value &&
+          widget.controller.comments.isEmpty) {
         // 如果没有评论，显示空状态
         return _buildEmptyState(context);
       } else {
@@ -73,7 +77,9 @@ class _CommentSectionState extends State<CommentSection> {
   // 构建单个Shimmer骨架屏项
   Widget _buildShimmerItem() {
     return Shimmer.fromColors(
-      baseColor: Theme.of(Get.context!).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+      baseColor: Theme.of(
+        Get.context!,
+      ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
       highlightColor: Theme.of(Get.context!).colorScheme.surface,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -90,7 +96,9 @@ class _CommentSectionState extends State<CommentSection> {
               width: 40.0,
               height: 40.0,
               decoration: BoxDecoration(
-                color: Theme.of(Get.context!).colorScheme.surfaceContainerHighest,
+                color: Theme.of(
+                  Get.context!,
+                ).colorScheme.surfaceContainerHighest,
                 shape: BoxShape.circle,
               ),
             ),
@@ -104,7 +112,9 @@ class _CommentSectionState extends State<CommentSection> {
                     height: 14.0,
                     width: 120.0,
                     decoration: BoxDecoration(
-                      color: Theme.of(Get.context!).colorScheme.surfaceContainerHighest,
+                      color: Theme.of(
+                        Get.context!,
+                      ).colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(4.0),
                     ),
                   ),
@@ -112,7 +122,9 @@ class _CommentSectionState extends State<CommentSection> {
                   Container(
                     height: 12.0,
                     decoration: BoxDecoration(
-                      color: Theme.of(Get.context!).colorScheme.surfaceContainerHighest,
+                      color: Theme.of(
+                        Get.context!,
+                      ).colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(4.0),
                     ),
                   ),
@@ -121,7 +133,9 @@ class _CommentSectionState extends State<CommentSection> {
                     height: 12.0,
                     width: 200.0,
                     decoration: BoxDecoration(
-                      color: Theme.of(Get.context!).colorScheme.surfaceContainerHighest,
+                      color: Theme.of(
+                        Get.context!,
+                      ).colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(4.0),
                     ),
                   ),
@@ -130,7 +144,10 @@ class _CommentSectionState extends State<CommentSection> {
                     height: 10.0,
                     width: 80.0,
                     decoration: BoxDecoration(
-                      color: Theme.of(Get.context!).colorScheme.surfaceContainerHighest.withValues(alpha:0.5),
+                      color: Theme.of(Get.context!)
+                          .colorScheme
+                          .surfaceContainerHighest
+                          .withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(4.0),
                     ),
                   ),
@@ -153,7 +170,9 @@ class _CommentSectionState extends State<CommentSection> {
           margin: const EdgeInsets.all(24.0),
           padding: const EdgeInsets.all(24.0),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.errorContainer.withValues(alpha: 0.1),
+            color: Theme.of(
+              context,
+            ).colorScheme.errorContainer.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12.0),
             border: Border.all(
               color: Theme.of(context).colorScheme.error.withValues(alpha: 0.2),
@@ -184,7 +203,10 @@ class _CommentSectionState extends State<CommentSection> {
                 icon: const Icon(Icons.refresh_rounded),
                 label: Text(t.common.retry),
                 style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24.0,
+                    vertical: 12.0,
+                  ),
                 ),
               ),
             ],
@@ -204,7 +226,9 @@ class _CommentSectionState extends State<CommentSection> {
           margin: const EdgeInsets.all(24.0),
           padding: const EdgeInsets.all(32.0),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha:0.3),
+            color: Theme.of(
+              context,
+            ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(16.0),
           ),
           child: Column(
@@ -236,6 +260,7 @@ class _CommentSectionState extends State<CommentSection> {
   Widget _buildCommentList() {
     return LoadingMoreList<Comment>(
       ListConfig<Comment>(
+        controller: widget.scrollController,
         padding: EdgeInsets.only(top: widget.topPadding + 4.0, bottom: 4.0),
         physics: const AlwaysScrollableScrollPhysics(),
         shrinkWrap: true,
@@ -257,7 +282,9 @@ class _CommentSectionState extends State<CommentSection> {
                   child: Divider(
                     height: 1,
                     thickness: 0.5,
-                    color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.outline.withValues(alpha: 0.2),
                   ),
                 ),
             ],
@@ -330,9 +357,14 @@ class _CommentSectionState extends State<CommentSection> {
           padding: const EdgeInsets.all(24.0),
           child: Center(
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0,
+              ),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                color: Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(20.0),
               ),
               child: Row(

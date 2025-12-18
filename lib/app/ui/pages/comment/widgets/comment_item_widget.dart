@@ -461,6 +461,12 @@ class _CommentItemState extends State<CommentItem> {
     final hasReplyOption = widget.comment.parent == null && !widget.isReply;
     final isOwner =
         _userService.currentUser.value?.id == widget.comment.user?.id;
+
+    // 如果只有回复选项，而旁边已经有回复按钮了，就不显示三个点菜单
+    if (hasReplyOption && !isOwner) {
+      return const SizedBox.shrink();
+    }
+
     final hasMenuItems = hasReplyOption || isOwner;
 
     // 如果没有菜单项，返回空的 SizedBox

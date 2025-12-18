@@ -19,8 +19,13 @@ class SubscriptionVideoList
   State<SubscriptionVideoList> createState() => SubscriptionVideoListState();
 }
 
-class SubscriptionVideoListState extends BaseSubscriptionListState<Video,
-    SubscriptionVideoRepository, SubscriptionVideoList> {
+class SubscriptionVideoListState
+    extends
+        BaseSubscriptionListState<
+          Video,
+          SubscriptionVideoRepository,
+          SubscriptionVideoList
+        > {
   @override
   SubscriptionVideoRepository createRepository() {
     return SubscriptionVideoRepository(userId: widget.userId);
@@ -36,5 +41,4 @@ class SubscriptionVideoListState extends BaseSubscriptionListState<Video,
       width: CommonUtils.calculateCardWidth(MediaQuery.of(context).size.width),
     );
   }
-
 }

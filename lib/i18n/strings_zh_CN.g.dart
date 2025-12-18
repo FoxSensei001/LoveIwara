@@ -151,6 +151,7 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String get writeYourCommentHere => '在此输入评论...';
 	@override String get tmpNoReplies => '暂无回复';
 	@override String get loadMore => '加载更多';
+	@override String get loadingMore => '正在加载更多...';
 	@override String get noMoreDatas => '没有更多数据了';
 	@override String get selectTranslationLanguage => '选择翻译语言';
 	@override String get translate => '翻译';
@@ -551,8 +552,9 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 
 	// Translations
 	@override String get listViewMode => '列表显示模式';
+	@override String get previewEffect => '预览效果';
 	@override String get useTraditionalPaginationMode => '使用传统分页模式';
-	@override String get useTraditionalPaginationModeDesc => '开启后列表将使用传统分页模式，关闭则使用瀑布流模式';
+	@override String get useTraditionalPaginationModeDesc => '开启后列表将使用传统分页模式，关闭则使用瀑布流模式。重新渲染页面或重启应用后生效';
 	@override String get showVideoProgressBottomBarWhenToolbarHidden => '显示底部进度条';
 	@override String get showVideoProgressBottomBarWhenToolbarHiddenDesc => '此配置决定是否在工具栏隐藏时显示底部进度条';
 	@override String get basicSettings => '基础设置';
@@ -2615,6 +2617,7 @@ extension on TranslationsZhCn {
 			'common.writeYourCommentHere' => '在此输入评论...',
 			'common.tmpNoReplies' => '暂无回复',
 			'common.loadMore' => '加载更多',
+			'common.loadingMore' => '正在加载更多...',
 			'common.noMoreDatas' => '没有更多数据了',
 			'common.selectTranslationLanguage' => '选择翻译语言',
 			'common.translate' => '翻译',
@@ -2953,8 +2956,9 @@ extension on TranslationsZhCn {
 			'search.googleSearchBrowserOpenFailed' => ({required Object error}) => '无法打开浏览器: ${error}',
 			'mediaList.personalIntroduction' => '个人简介',
 			'settings.listViewMode' => '列表显示模式',
+			'settings.previewEffect' => '预览效果',
 			'settings.useTraditionalPaginationMode' => '使用传统分页模式',
-			'settings.useTraditionalPaginationModeDesc' => '开启后列表将使用传统分页模式，关闭则使用瀑布流模式',
+			'settings.useTraditionalPaginationModeDesc' => '开启后列表将使用传统分页模式，关闭则使用瀑布流模式。重新渲染页面或重启应用后生效',
 			'settings.showVideoProgressBottomBarWhenToolbarHidden' => '显示底部进度条',
 			'settings.showVideoProgressBottomBarWhenToolbarHiddenDesc' => '此配置决定是否在工具栏隐藏时显示底部进度条',
 			'settings.basicSettings' => '基础设置',
@@ -3066,10 +3070,10 @@ extension on TranslationsZhCn {
 			'settings.signatureContent' => '小尾巴内容',
 			'settings.exportConfig' => '导出应用配置',
 			'settings.exportConfigDesc' => '将应用配置导出为文件（不包含下载记录）',
-			'settings.importConfig' => '导入应用配置',
-			'settings.importConfigDesc' => '从文件导入应用配置',
 			_ => null,
 		} ?? switch (path) {
+			'settings.importConfig' => '导入应用配置',
+			'settings.importConfigDesc' => '从文件导入应用配置',
 			'settings.exportConfigSuccess' => '配置导出成功！',
 			'settings.exportConfigFailed' => '配置导出失败',
 			'settings.importConfigSuccess' => '配置导入成功！',
@@ -3580,10 +3584,10 @@ extension on TranslationsZhCn {
 			'forum.editedAt' => '编辑时间',
 			'forum.copySuccess' => '已复制到剪贴板',
 			'forum.copySuccessForMessage' => ({required Object str}) => '已复制到剪贴板: ${str}',
-			'forum.editReply' => '编辑回复',
-			'forum.editTitle' => '编辑标题',
 			_ => null,
 		} ?? switch (path) {
+			'forum.editReply' => '编辑回复',
+			'forum.editTitle' => '编辑标题',
 			'forum.submit' => '提交',
 			'notifications.errors.unsupportedNotificationType' => '暂不支持的通知类型',
 			'notifications.errors.unknownUser' => '未知用户',
@@ -4094,10 +4098,10 @@ extension on TranslationsZhCn {
 			'emoji.uploadingImages' => '正在上传图片',
 			'emoji.uploadingImagesProgress' => ({required Object count}) => '正在上传 ${count} 张图片，请稍候...',
 			'emoji.doNotCloseDialog' => '请不要关闭此对话框',
-			'emoji.uploadSuccess' => ({required Object count}) => '成功上传 ${count} 张图片',
-			'emoji.uploadFailed' => ({required Object count}) => '失败 ${count} 张',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.uploadSuccess' => ({required Object count}) => '成功上传 ${count} 张图片',
+			'emoji.uploadFailed' => ({required Object count}) => '失败 ${count} 张',
 			'emoji.uploadFailedMessage' => '图片上传失败，请检查网络连接或文件格式',
 			'emoji.uploadErrorMessage' => ({required Object error}) => '上传过程中发生错误: ${error}',
 			'displaySettings.title' => '显示设置',

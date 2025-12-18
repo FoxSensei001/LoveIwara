@@ -151,6 +151,7 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get writeYourCommentHere => '請寫下你的評論...';
 	@override String get tmpNoReplies => '暫無回覆';
 	@override String get loadMore => '載入更多';
+	@override String get loadingMore => '正在載入更多...';
 	@override String get noMoreDatas => '沒有更多資料了';
 	@override String get selectTranslationLanguage => '選擇翻譯語言';
 	@override String get translate => '翻譯';
@@ -546,8 +547,9 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 
 	// Translations
 	@override String get listViewMode => '列表顯示模式';
+	@override String get previewEffect => '預覽效果';
 	@override String get useTraditionalPaginationMode => '使用傳統分頁模式';
-	@override String get useTraditionalPaginationModeDesc => '開啟後列表將使用傳統分頁模式，關閉則使用瀑布流模式';
+	@override String get useTraditionalPaginationModeDesc => '開啟後列表將使用傳統分頁模式，關閉則使用瀑布流模式。重新渲染頁面或重啟應用後生效';
 	@override String get showVideoProgressBottomBarWhenToolbarHidden => '顯示底部進度條';
 	@override String get showVideoProgressBottomBarWhenToolbarHiddenDesc => '此設定決定是否在工具列隱藏時顯示底部進度條';
 	@override String get basicSettings => '基礎設定';
@@ -2613,6 +2615,7 @@ extension on TranslationsZhTw {
 			'common.writeYourCommentHere' => '請寫下你的評論...',
 			'common.tmpNoReplies' => '暫無回覆',
 			'common.loadMore' => '載入更多',
+			'common.loadingMore' => '正在載入更多...',
 			'common.noMoreDatas' => '沒有更多資料了',
 			'common.selectTranslationLanguage' => '選擇翻譯語言',
 			'common.translate' => '翻譯',
@@ -2946,8 +2949,9 @@ extension on TranslationsZhTw {
 			'search.googleSearchBrowserOpenFailed' => ({required Object error}) => '無法打開瀏覽器: ${error}',
 			'mediaList.personalIntroduction' => '個人簡介',
 			'settings.listViewMode' => '列表顯示模式',
+			'settings.previewEffect' => '預覽效果',
 			'settings.useTraditionalPaginationMode' => '使用傳統分頁模式',
-			'settings.useTraditionalPaginationModeDesc' => '開啟後列表將使用傳統分頁模式，關閉則使用瀑布流模式',
+			'settings.useTraditionalPaginationModeDesc' => '開啟後列表將使用傳統分頁模式，關閉則使用瀑布流模式。重新渲染頁面或重啟應用後生效',
 			'settings.showVideoProgressBottomBarWhenToolbarHidden' => '顯示底部進度條',
 			'settings.showVideoProgressBottomBarWhenToolbarHiddenDesc' => '此設定決定是否在工具列隱藏時顯示底部進度條',
 			'settings.basicSettings' => '基礎設定',
@@ -3064,10 +3068,10 @@ extension on TranslationsZhTw {
 			'settings.exportConfigSuccess' => '配置匯出成功！',
 			'settings.exportConfigFailed' => '配置匯出失敗',
 			'settings.importConfigSuccess' => '配置匯入成功！',
-			'settings.importConfigFailed' => '配置匯入失敗',
-			'settings.historyUpdateLogs' => '歷代更新日誌',
 			_ => null,
 		} ?? switch (path) {
+			'settings.importConfigFailed' => '配置匯入失敗',
+			'settings.historyUpdateLogs' => '歷代更新日誌',
 			'settings.noUpdateLogs' => '未獲取到更新日誌',
 			'settings.versionLabel' => '版本: {version}',
 			'settings.releaseDateLabel' => '發布日期: {date}',
@@ -3578,10 +3582,10 @@ extension on TranslationsZhTw {
 			'forum.leafNames.support_ja' => '幫助',
 			'forum.leafNames.korean' => '韓語',
 			'forum.leafNames.other' => '其他',
-			'forum.leafDescriptions.announcements' => '官方重要通知和公告',
-			'forum.leafDescriptions.feedback' => '對網站功能和服務的回饋',
 			_ => null,
 		} ?? switch (path) {
+			'forum.leafDescriptions.announcements' => '官方重要通知和公告',
+			'forum.leafDescriptions.feedback' => '對網站功能和服務的回饋',
 			'forum.leafDescriptions.support' => '幫助解決網站相關問題',
 			'forum.leafDescriptions.general' => '討論任何話題',
 			'forum.leafDescriptions.guides' => '分享你的經驗和教學',
@@ -4092,10 +4096,10 @@ extension on TranslationsZhTw {
 			'emoji.addImageUrl' => '添加圖片URL',
 			'emoji.imageUrl' => '圖片URL',
 			'emoji.enterImageUrl' => '請輸入圖片URL',
-			'emoji.add' => '添加',
-			'emoji.batchImport' => '批次匯入',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.add' => '添加',
+			'emoji.batchImport' => '批次匯入',
 			'emoji.enterJsonUrlArray' => '請輸入JSON格式的URL陣列:',
 			'emoji.formatExample' => '格式範例:\n["url1", "url2", "url3"]',
 			'emoji.pasteJsonUrlArray' => '請貼上JSON格式的URL陣列',

@@ -118,42 +118,99 @@ class _HomeNavigationLayoutState extends State<HomeNavigationLayout>
                   if (!appService.showRailNavi) return const SizedBox.shrink();
                   if (!isWide) return const SizedBox.shrink();
 
-                  return SingleChildScrollView(
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minHeight: MediaQuery.of(context).size.height,
-                      ),
-                      child: IntrinsicHeight(
-                        child: NavigationRail(
+                  return LayoutBuilder(
+                    builder: (context, railConstraints) {
+                      // 计算所需的最小高度
+                      // 每个导航项约 72px，设置和退出按钮各 48px，加上一些边距
+                      final navigationItemCount =
+                          _buildNavigationRailDestinations().length;
+                      final estimatedMinHeight =
+                          (navigationItemCount * 72.0) + (2 * 48.0) + 32.0;
+                      final availableHeight = railConstraints.maxHeight;
+                      final hasEnoughSpace =
+                          availableHeight >= estimatedMinHeight;
+
+                      if (hasEnoughSpace) {
+                        // 高度足够：使用固定布局，按钮在底部
+                        return Obx(() => NavigationRail(
                           labelType: NavigationRailLabelType.all,
                           selectedIndex: appService.currentIndex,
-                          trailing: Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
+                          // leading: const SizedBox(height: 16), // 移除顶部的空隙
+                          trailing: Expanded(
                             child: Column(
-                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                IconButton(
-                                  icon: const Icon(Icons.settings),
-                                  tooltip: t.common.settings,
-                                  onPressed: () {
-                                    AppService.switchGlobalDrawer();
-                                  },
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.exit_to_app),
-                                  tooltip: t.common.back,
-                                  onPressed: () {
-                                    AppService.tryPop();
-                                  },
+                                const Spacer(),
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 16),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.settings),
+                                        tooltip: t.common.settings,
+                                        onPressed: () {
+                                          AppService.switchGlobalDrawer();
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.exit_to_app),
+                                        tooltip: t.common.back,
+                                        onPressed: () {
+                                          AppService.tryPop();
+                                        },
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
                           ),
                           onDestinationSelected: handleNavigationTap,
                           destinations: _buildNavigationRailDestinations(),
-                        ),
-                      ),
-                    ),
+                        ));
+                      } else {
+                        // 高度不够：使用滚动布局
+                        return SingleChildScrollView(
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight: railConstraints.maxHeight,
+                            ),
+                            child: IntrinsicHeight(
+                              child: Obx(() => NavigationRail(
+                                labelType: NavigationRailLabelType.all,
+                                selectedIndex: appService.currentIndex,
+                                trailing: Padding(
+                                  padding: const EdgeInsets.only(bottom: 16),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.settings),
+                                        tooltip: t.common.settings,
+                                        onPressed: () {
+                                          AppService.switchGlobalDrawer();
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.exit_to_app),
+                                        tooltip: t.common.back,
+                                        onPressed: () {
+                                          AppService.tryPop();
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                onDestinationSelected: handleNavigationTap,
+                                destinations:
+                                    _buildNavigationRailDestinations(),
+                              )),
+                            ),
+                          ),
+                        );
+                      }
+                    },
                   );
                 }),
                 // 主要内容区域：使用 Navigator 和 IndexedStack 结合懒加载页面
@@ -161,9 +218,7 @@ class _HomeNavigationLayoutState extends State<HomeNavigationLayout>
                   child: Scaffold(
                     body: Navigator(
                       key: AppService.homeNavigatorKey,
-                      observers: [
-                        HomeNavigationLayout.homeNavigatorObserver,
-                      ],
+                      observers: [HomeNavigationLayout.homeNavigatorObserver],
                       onGenerateRoute: (settings) {
                         if (settings.name == Routes.ROOT ||
                             settings.name == Routes.POPULAR_VIDEOS ||
@@ -173,12 +228,14 @@ class _HomeNavigationLayoutState extends State<HomeNavigationLayout>
                           return PageRouteBuilder(
                             pageBuilder:
                                 (context, animation, secondaryAnimation) {
-                              return Obx(() => LazyIndexedStack(
-                                    key: _lazyStackKey,
-                                    index: appService.currentIndex,
-                                    itemBuilders: _buildPageBuilders(),
-                                  ));
-                            },
+                                  return Obx(
+                                    () => LazyIndexedStack(
+                                      key: _lazyStackKey,
+                                      index: appService.currentIndex,
+                                      itemBuilders: _buildPageBuilders(),
+                                    ),
+                                  );
+                                },
                             settings: settings,
                             transitionDuration: Duration.zero,
                           );
@@ -198,16 +255,18 @@ class _HomeNavigationLayoutState extends State<HomeNavigationLayout>
                         currentIndex: appService.currentIndex,
                         type: BottomNavigationBarType.fixed,
                         backgroundColor: Theme.of(context).colorScheme.surface,
-                        selectedItemColor:
-                            Theme.of(context).colorScheme.primary,
-                        unselectedItemColor:
-                            Theme.of(context).colorScheme.onSurfaceVariant,
+                        selectedItemColor: Theme.of(
+                          context,
+                        ).colorScheme.primary,
+                        unselectedItemColor: Theme.of(
+                          context,
+                        ).colorScheme.onSurfaceVariant,
                         onTap: handleNavigationTap,
                         items: _buildBottomNavigationBarItems(),
                       );
                     }),
                   ),
-                )
+                ),
               ],
             );
           },
@@ -221,7 +280,7 @@ class _HomeNavigationLayoutState extends State<HomeNavigationLayout>
     // 监听导航配置变化
     final orderRaw = configService[ConfigKey.NAVIGATION_ORDER];
     final order = (orderRaw as List<dynamic>).cast<String>();
-    
+
     return order.map((key) {
       final item = AppService.navigationItems[key]!;
       return NavigationRailDestination(
@@ -236,13 +295,10 @@ class _HomeNavigationLayoutState extends State<HomeNavigationLayout>
     // 监听导航配置变化
     final orderRaw = configService[ConfigKey.NAVIGATION_ORDER];
     final order = (orderRaw as List<dynamic>).cast<String>();
-    
+
     return order.map((key) {
       final item = AppService.navigationItems[key]!;
-      return BottomNavigationBarItem(
-        icon: Icon(item.icon),
-        label: item.title,
-      );
+      return BottomNavigationBarItem(icon: Icon(item.icon), label: item.title);
     }).toList();
   }
 
@@ -251,19 +307,23 @@ class _HomeNavigationLayoutState extends State<HomeNavigationLayout>
     // 监听导航配置变化
     final orderRaw = configService[ConfigKey.NAVIGATION_ORDER];
     final order = (orderRaw as List<dynamic>).cast<String>();
-    
+
     return order.map((key) {
       switch (key) {
         case 'video':
-          return (context) => PopularVideoListPage(key: PopularVideoListPage.globalKey);
+          return (context) =>
+              PopularVideoListPage(key: PopularVideoListPage.globalKey);
         case 'gallery':
-          return (context) => PopularGalleryListPage(key: PopularGalleryListPage.globalKey);
+          return (context) =>
+              PopularGalleryListPage(key: PopularGalleryListPage.globalKey);
         case 'subscription':
-          return (context) => SubscriptionsPage(key: SubscriptionsPage.globalKey);
+          return (context) =>
+              SubscriptionsPage(key: SubscriptionsPage.globalKey);
         case 'forum':
           return (context) => ForumPage(key: ForumPage.globalKey);
         default:
-          return (context) => PopularVideoListPage(key: PopularVideoListPage.globalKey);
+          return (context) =>
+              PopularVideoListPage(key: PopularVideoListPage.globalKey);
       }
     }).toList();
   }
@@ -366,7 +426,9 @@ class _NaviPopScope extends StatelessWidget {
             canPop: GetPlatform.isAndroid ? false : true,
             onPopInvokedWithResult: (value, result) {
               LogUtils.d(
-                  '[顶层Popscope结果, value: $value, result: $result]', 'PopScope');
+                '[顶层Popscope结果, value: $value, result: $result]',
+                'PopScope',
+              );
               ExitConfirmUtil.handleExit(context, action);
             },
             child: child,

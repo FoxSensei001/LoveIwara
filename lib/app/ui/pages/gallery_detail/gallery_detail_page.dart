@@ -90,7 +90,9 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
 
     relatedMediasController = Get.put(
       RelatedMediasController(
-          mediaId: imageModelId, mediaType: MediaType.IMAGE),
+        mediaId: imageModelId,
+        mediaType: MediaType.IMAGE,
+      ),
       tag: uniqueTag,
     );
   }
@@ -99,44 +101,52 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return AppBar(
-        systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark,
-          systemNavigationBarColor: Colors.transparent,
-          systemNavigationBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark,
-        ),
-        backgroundColor: Colors.transparent,
-        titleSpacing: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Row(
-          children: [
-            Expanded(
-              child: Obx(() => Text(
+      systemOverlayStyle: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: isDarkMode
+            ? Brightness.light
+            : Brightness.dark,
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarIconBrightness: isDarkMode
+            ? Brightness.light
+            : Brightness.dark,
+      ),
+      backgroundColor: Colors.transparent,
+      titleSpacing: 0,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () => Navigator.of(context).pop(),
+      ),
+      title: Row(
+        children: [
+          Expanded(
+            child: Obx(
+              () => Text(
                 detailController.imageModelInfo.value?.title ?? '',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-              )),
+              ),
             ),
-            IconButton(
-              icon: const Icon(Icons.home),
-              onPressed: () {
-                AppService appService = Get.find();
-                int currentIndex = appService.currentIndex;
-                final routes = [
-                  Routes.POPULAR_VIDEOS,
-                  Routes.GALLERY,
-                  Routes.SUBSCRIPTIONS,
-                ];
-                AppService.homeNavigatorKey.currentState!
-                    .pushNamedAndRemoveUntil(
-                        routes[currentIndex], (route) => false);
-              },
-            ),
-          ],
-        ));
+          ),
+          IconButton(
+            icon: const Icon(Icons.home),
+            onPressed: () {
+              AppService appService = Get.find();
+              int currentIndex = appService.currentIndex;
+              final routes = [
+                Routes.POPULAR_VIDEOS,
+                Routes.GALLERY,
+                Routes.SUBSCRIPTIONS,
+              ];
+              AppService.homeNavigatorKey.currentState!.pushNamedAndRemoveUntil(
+                routes[currentIndex],
+                (route) => false,
+              );
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   // 计算是否需要分两列
@@ -151,14 +161,18 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
       screenSize: screenSize,
       paddingTop: paddingTop,
     );
-    
+
     LogUtils.d(
       '[智能布局] 屏幕: ${screenSize.width.toInt()}x${screenSize.height.toInt()}, '
-      '设备类型: ${result.isMobile ? "手机" : result.isTablet ? "平板" : "桌面"}, '
-      '图片区域高度: ${result.maxHeight.toInt()}px', 
-      'GalleryDetailPage'
+          '设备类型: ${result.isMobile
+              ? "手机"
+              : result.isTablet
+              ? "平板"
+              : "桌面"}, '
+          '图片区域高度: ${result.maxHeight.toInt()}px',
+      'GalleryDetailPage',
     );
-    
+
     return result.maxHeight;
   }
 
@@ -166,99 +180,134 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
         return DraggableScrollableSheet(
-          initialChildSize: 0.8,
+          initialChildSize: 0.75,
           minChildSize: 0.2,
-          maxChildSize: 0.8,
+          maxChildSize: 0.92,
           expand: false,
+          snap: true,
           builder: (context, scrollController) {
-            return Column(
-              children: [
-                // 顶部标题栏
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      Text(
-                        slang.t.common.commentList,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+            return Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(20),
+                ),
+              ),
+              child: Column(
+                children: [
+                  // 拖拽条
+                  Center(
+                    child: Container(
+                      margin: const EdgeInsets.only(top: 12, bottom: 4),
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurfaceVariant.withOpacity(0.4),
+                        borderRadius: BorderRadius.circular(2),
                       ),
-                      const Spacer(),
-                      // 排序切换按钮
-                      Obx(() => IconButton(
-                        onPressed: () {
-                          commentController.toggleSortOrder();
-                        },
-                        icon: Icon(
-                          commentController.sortOrder.value
-                              ? Icons.arrow_downward_rounded // 倒序图标
-                              : Icons.arrow_upward_rounded,  // 正序图标
-                        ),
-                        tooltip: commentController.sortOrder.value
-                            ? slang.t.common.createTimeDesc
-                            : slang.t.common.createTimeAsc,
-                      )),
-                      // 添加评论按钮
-                      IconButton(
-                        onPressed: () {
-                          showModalBottomSheet(
-                            context: context,
-                            isScrollControlled: true,
-                            backgroundColor: Colors.transparent,
-                            builder: (context) => CommentInputBottomSheet(
-                              title: slang.t.common.sendComment,
-                              submitText: slang.t.common.send,
-                              onSubmit: (text) async {
-                                if (text.trim().isEmpty) {
-                                  showToastWidget(
-                                      MDToastWidget(
-                                          message: slang
-                                              .t.errors.commentCanNotBeEmpty,
-                                          type: MDToastType.error),
-                                      position: ToastPosition.bottom);
-                                  return;
-                                }
-                                final UserService userService = Get.find();
-                                if (!userService.isLogin) {
-                                  showToastWidget(
-                                      MDToastWidget(
-                                          message:
-                                              slang.t.errors.pleaseLoginFirst,
-                                          type: MDToastType.error),
-                                      position: ToastPosition.bottom);
-                                  LoginService.showLogin();
-                                  return;
-                                }
-                                await commentController.postComment(text);
-                              },
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.add_comment),
-                      ),
-                      // 关闭按钮
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-                // 评论列表
-                Expanded(
-                  child: Obx(() => CommentSection(
-                      controller: commentController,
-                      authorUserId:
-                          detailController.imageModelInfo.value?.user?.id)),
-                ),
-              ],
+                  // 顶部标题栏
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      children: [
+                        Text(
+                          slang.t.common.commentList,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const Spacer(),
+                        // 排序切换按钮
+                        Obx(
+                          () => IconButton(
+                            onPressed: () {
+                              commentController.toggleSortOrder();
+                            },
+                            icon: Icon(
+                              commentController.sortOrder.value
+                                  ? Icons
+                                        .arrow_downward_rounded // 倒序图标
+                                  : Icons.arrow_upward_rounded, // 正序图标
+                            ),
+                            tooltip: commentController.sortOrder.value
+                                ? slang.t.common.createTimeDesc
+                                : slang.t.common.createTimeAsc,
+                          ),
+                        ),
+                        // 添加评论按钮
+                        IconButton(
+                          onPressed: () {
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              backgroundColor: Colors.transparent,
+                              builder: (context) => CommentInputBottomSheet(
+                                title: slang.t.common.sendComment,
+                                submitText: slang.t.common.send,
+                                onSubmit: (text) async {
+                                  if (text.trim().isEmpty) {
+                                    showToastWidget(
+                                      MDToastWidget(
+                                        message:
+                                            slang.t.errors.commentCanNotBeEmpty,
+                                        type: MDToastType.error,
+                                      ),
+                                      position: ToastPosition.bottom,
+                                    );
+                                    return;
+                                  }
+                                  final UserService userService = Get.find();
+                                  if (!userService.isLogin) {
+                                    showToastWidget(
+                                      MDToastWidget(
+                                        message:
+                                            slang.t.errors.pleaseLoginFirst,
+                                        type: MDToastType.error,
+                                      ),
+                                      position: ToastPosition.bottom,
+                                    );
+                                    LoginService.showLogin();
+                                    return;
+                                  }
+                                  await commentController.postComment(text);
+                                },
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.add_comment),
+                        ),
+                        // 关闭按钮
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // 评论列表
+                  Expanded(
+                    child: Obx(
+                      () => CommentSection(
+                        controller: commentController,
+                        authorUserId:
+                            detailController.imageModelInfo.value?.user?.id,
+                        scrollController: scrollController,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             );
           },
         );
@@ -291,7 +340,10 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
     bool isWide = _shouldUseWideScreenLayout(screenHeight, screenWidth);
 
     // 使用智能布局计算器计算图片滚动区域的最大高度 (移出 Obx)
-    final double imageScrollerMaxHeight = _calculateImageScrollerHeight(screenSize, paddingTop);
+    final double imageScrollerMaxHeight = _calculateImageScrollerHeight(
+      screenSize,
+      paddingTop,
+    );
 
     return Focus(
       autofocus: true,
@@ -309,7 +361,8 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
         body: Obx(() {
           if (detailController.errorMessage.value != null) {
             return CommonErrorWidget(
-              text: detailController.errorMessage.value ??
+              text:
+                  detailController.errorMessage.value ??
                   t.errors.errorWhileLoadingGallery,
               children: [
                 ElevatedButton(
@@ -334,8 +387,9 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
                   ),
                   // 右侧列表骨架
                   SizedBox(
-                      width: sideColumnMinWidth,
-                      child: const MediaTileListSkeletonWidget()),
+                    width: sideColumnMinWidth,
+                    child: const MediaTileListSkeletonWidget(),
+                  ),
                 ],
               );
             }
@@ -357,7 +411,8 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
                       Expanded(
                         child: SingleChildScrollView(
                           // 左侧内容整体可滚动
-                          physics: detailController.isHoveringHorizontalList.value
+                          physics:
+                              detailController.isHoveringHorizontalList.value
                               ? const NeverScrollableScrollPhysics()
                               : null,
                           child: Column(
@@ -400,16 +455,21 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
                         const SizedBox(height: 16), // Top padding
                         // Author's other galleries title
                         Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Text(t.galleryDetail.authorOtherGalleries,
-                                style: const TextStyle(fontSize: 18))),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(
+                            t.galleryDetail.authorOtherGalleries,
+                            style: const TextStyle(fontSize: 18),
+                          ),
+                        ),
                         const SizedBox(height: 16),
                         // Author's other galleries list (logic remains)
                         if (detailController
                                     .otherAuthorzImageModelsController !=
                                 null &&
-                            detailController.otherAuthorzImageModelsController!
-                                .isLoading.value)
+                            detailController
+                                .otherAuthorzImageModelsController!
+                                .isLoading
+                                .value)
                           const MediaTileListSkeletonWidget()
                         else if (detailController
                             .otherAuthorzImageModelsController!
@@ -418,15 +478,22 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
                           const MyEmptyWidget()
                         else
                           ...detailController
-                              .otherAuthorzImageModelsController!.imageModels
-                              .map((imageModel) => ImageModelTileListItem(
-                                  imageModel: imageModel)),
+                              .otherAuthorzImageModelsController!
+                              .imageModels
+                              .map(
+                                (imageModel) => ImageModelTileListItem(
+                                  imageModel: imageModel,
+                                ),
+                              ),
                         const SizedBox(height: 16),
                         // Related galleries title
                         Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Text(t.galleryDetail.relatedGalleries,
-                                style: const TextStyle(fontSize: 18))),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(
+                            t.galleryDetail.relatedGalleries,
+                            style: const TextStyle(fontSize: 18),
+                          ),
+                        ),
                         const SizedBox(height: 16),
                         // Related galleries list (logic remains)
                         if (relatedMediasController.isLoading.value)
@@ -434,16 +501,17 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
                         else if (relatedMediasController.imageModels.isEmpty)
                           const MyEmptyWidget()
                         else
-                          ...relatedMediasController.imageModels
-                              .map((imageModel) => ImageModelTileListItem(
-                                  imageModel: imageModel)),
+                          ...relatedMediasController.imageModels.map(
+                            (imageModel) =>
+                                ImageModelTileListItem(imageModel: imageModel),
+                          ),
                         const SafeArea(
-                            child:
-                                SizedBox.shrink()), // Safe area bottom padding
+                          child: SizedBox.shrink(),
+                        ), // Safe area bottom padding
                       ],
                     ),
                   ),
-                )
+                ),
               ],
             );
           } else {
@@ -476,41 +544,53 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
                     maxHeight: imageScrollerMaxHeight,
                   ),
                   // 3. Gallery Details
-                  ImageModelDetailContent(
-                    controller: detailController,
-                  ),
+                  ImageModelDetailContent(controller: detailController),
                   // 4. Comment Entry Area Button
                   Container(
-                      padding: const EdgeInsets.all(16),
-                      child: CommentEntryAreaButtonWidget(
-                        commentController: commentController,
-                        onClickButton: () => showCommentModal(context),
-                      ).paddingVertical(16)),
+                    padding: const EdgeInsets.all(16),
+                    child: CommentEntryAreaButtonWidget(
+                      commentController: commentController,
+                      onClickButton: () => showCommentModal(context),
+                    ).paddingVertical(16),
+                  ),
                   // 5. Author's Other Galleries Title
                   Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(t.galleryDetail.authorOtherGalleries,
-                          style: const TextStyle(fontSize: 18))),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      t.galleryDetail.authorOtherGalleries,
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                  ),
                   // 6. Author's Other Galleries List (logic remains)
                   if (detailController.otherAuthorzImageModelsController !=
                           null &&
                       detailController
-                          .otherAuthorzImageModelsController!.isLoading.value)
+                          .otherAuthorzImageModelsController!
+                          .isLoading
+                          .value)
                     const MediaTileListSkeletonWidget()
                   else if (detailController
-                      .otherAuthorzImageModelsController!.imageModels.isEmpty)
+                      .otherAuthorzImageModelsController!
+                      .imageModels
+                      .isEmpty)
                     const MyEmptyWidget()
                   else
                     ...detailController
-                        .otherAuthorzImageModelsController!.imageModels
-                        .map((imageModel) =>
-                            ImageModelTileListItem(imageModel: imageModel)),
+                        .otherAuthorzImageModelsController!
+                        .imageModels
+                        .map(
+                          (imageModel) =>
+                              ImageModelTileListItem(imageModel: imageModel),
+                        ),
                   // 7. Related Galleries Title
                   const SizedBox(height: 16),
                   Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(t.galleryDetail.relatedGalleries,
-                          style: const TextStyle(fontSize: 18))),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      t.galleryDetail.relatedGalleries,
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                  ),
                   const SizedBox(height: 16),
                   // 8. Related Galleries List (logic remains)
                   if (relatedMediasController.isLoading.value)
@@ -518,9 +598,10 @@ class GalleryDetailPageState extends State<GalleryDetailPage> {
                   else if (relatedMediasController.imageModels.isEmpty)
                     const MyEmptyWidget()
                   else
-                    ...relatedMediasController.imageModels
-                        .map((imageModel) =>
-                            ImageModelTileListItem(imageModel: imageModel)),
+                    ...relatedMediasController.imageModels.map(
+                      (imageModel) =>
+                          ImageModelTileListItem(imageModel: imageModel),
+                    ),
                   // 9. Safe Area Bottom Padding
                   const SafeArea(child: SizedBox.shrink()),
                 ],

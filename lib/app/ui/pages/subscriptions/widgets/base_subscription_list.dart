@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart'; // 用于 ScrollDirection
 import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/app/ui/pages/subscriptions/controllers/media_list_controller.dart';
@@ -7,7 +8,8 @@ import 'package:i_iwara/utils/easy_throttle.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 
 /// 订阅列表基类 - 提供通用功能以减少子类重复代码
-abstract class BaseSubscriptionList<T, R extends ExtendedLoadingMoreBase<T>> extends StatefulWidget {
+abstract class BaseSubscriptionList<T, R extends ExtendedLoadingMoreBase<T>>
+    extends StatefulWidget {
   final String userId;
   final bool isPaginated;
   final double paddingTop;
@@ -26,15 +28,19 @@ abstract class BaseSubscriptionList<T, R extends ExtendedLoadingMoreBase<T>> ext
 }
 
 /// 订阅列表基类状态 - 提供通用状态管理
-abstract class BaseSubscriptionListState<T, R extends ExtendedLoadingMoreBase<T>, W extends BaseSubscriptionList<T, R>>
-    extends State<W> with AutomaticKeepAliveClientMixin {
-
+abstract class BaseSubscriptionListState<
+  T,
+  R extends ExtendedLoadingMoreBase<T>,
+  W extends BaseSubscriptionList<T, R>
+>
+    extends State<W>
+    with AutomaticKeepAliveClientMixin {
   late R repository;
   final ScrollController _scrollController = ScrollController();
 
   // 缓存机制
   final Map<String, Widget> _itemCache = {};
-  
+
   // 添加 MediaListController 引用和监听器
   MediaListController? _mediaListController;
   VoidCallback? _rebuildKeyListener;
@@ -46,7 +52,7 @@ abstract class BaseSubscriptionListState<T, R extends ExtendedLoadingMoreBase<T>
 
     // 添加滚动监听
     _scrollController.addListener(_throttledScrollListener);
-    
+
     // 尝试获取 MediaListController 实例并监听 rebuildKey
     try {
       _mediaListController = Get.find<MediaListController>();
@@ -67,8 +73,8 @@ abstract class BaseSubscriptionListState<T, R extends ExtendedLoadingMoreBase<T>
   void _throttledScrollListener() {
     // 使用EasyThrottle进行节流控制
     EasyThrottle.throttle(
-      'scroll_${widget.userId}', 
-      const Duration(milliseconds: 16), 
+      'scroll_${widget.userId}',
+      const Duration(milliseconds: 16),
       () {
         // 处理滚动事件，例如无限加载或分页预加载等
         final position = _scrollController.position;
@@ -79,7 +85,7 @@ abstract class BaseSubscriptionListState<T, R extends ExtendedLoadingMoreBase<T>
         if (maxScroll - currentScroll <= 200 && !widget.isPaginated) {
           repository.loadMore();
         }
-      }
+      },
     );
   }
 
@@ -107,6 +113,13 @@ abstract class BaseSubscriptionListState<T, R extends ExtendedLoadingMoreBase<T>
           // 滚动到顶部
           _scrollToTop();
         });
+      }
+    }
+
+    // paddingTop 变化时强制重建 - 修复刷新时骨架屏位置偏移的问题
+    if (oldWidget.paddingTop != widget.paddingTop) {
+      if (mounted) {
+        setState(() {});
       }
     }
   }
@@ -159,10 +172,15 @@ abstract class BaseSubscriptionListState<T, R extends ExtendedLoadingMoreBase<T>
 
   /// 统一刷新方法
   Future<void> refresh() async {
+    // 重置 MediaListController 的滚动状态，这会触发父组件的头部展开
+    if (_mediaListController != null) {
+      _mediaListController!.currentScrollOffset.value = 0.0;
+      _mediaListController!.lastScrollDirection.value = ScrollDirection.idle;
+    }
+
     if (widget.isPaginated) {
-      if (mounted) { // 添加 mounted 检查
-        setState(() {});
-      }
+      // 移除这里的 setState，让组件通过 props 变化自然重建
+      // 避免与父组件的 setState 产生竞态条件
       Future.microtask(() {
         if (mounted) {
           try {
@@ -198,10 +216,11 @@ abstract class BaseSubscriptionListState<T, R extends ExtendedLoadingMoreBase<T>
       scrollController: _scrollController,
       paddingTop: widget.paddingTop,
       showBottomPadding: widget.showBottomPadding,
+      enablePullToRefresh: false, // 禁用下拉刷新，只通过刷新按钮刷新
       // 使用缓存机制构建列表项
       itemBuilder: getCachedListItem,
     );
 
     return mediaListView;
   }
-} 
+}

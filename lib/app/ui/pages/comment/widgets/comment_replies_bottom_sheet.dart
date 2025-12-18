@@ -30,7 +30,6 @@ class CommentRepliesBottomSheet extends StatefulWidget {
 
 class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
   final CommentService _commentService = Get.find();
-  final ScrollController _scrollController = ScrollController();
 
   final List<Comment> _replies = [];
   bool _isLoading = false;
@@ -44,23 +43,12 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
   void initState() {
     super.initState();
     _replyCount = widget.parentComment.numReplies;
-    _scrollController.addListener(_onScroll);
     _loadReplies(refresh: true);
   }
 
   @override
   void dispose() {
-    _scrollController.dispose();
     super.dispose();
-  }
-
-  void _onScroll() {
-    if (_scrollController.position.pixels >=
-            _scrollController.position.maxScrollExtent - 200 &&
-        !_isLoading &&
-        _hasMore) {
-      _loadReplies();
-    }
   }
 
   Future<void> _loadReplies({bool refresh = false}) async {
@@ -471,74 +459,111 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16.0)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // 头部标题栏
-          Container(
-            padding: const EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              color: Theme.of(
-                context,
-              ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(16.0),
-              ),
+    // DraggableScrollableSheet 需要我们使用它提供的 scrollController
+    return DraggableScrollableSheet(
+      initialChildSize: 0.75, // 初始高度 75%
+      minChildSize: 0.2, // 最小高度 20%
+      maxChildSize: 0.92, // 最大高度 92%
+      expand: false, // 不强制填满剩余空间
+      snap: true, // 启用吸附行为
+      builder: (context, scrollController) {
+        // 如果内部滚动控制器不同，应切换到使用此控制器。
+        // 但由于在 build 中，可以直接将 scrollController 传递给 ListView。
+        // 然而，initState 中已将 _onScroll 逻辑绑定到 _scrollController。
+        // 可能需要将监听器绑定到此控制器或进行
+
+        return Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(16.0),
             ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.comment_outlined,
-                  color: Theme.of(context).colorScheme.primary,
-                  size: 20.0,
-                ),
-                const SizedBox(width: 8.0),
-                Text(
-                  '$_replyCount ${t.common.replies}',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).colorScheme.onSurface,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 拖拽条
+              Center(
+                child: Container(
+                  margin: const EdgeInsets.only(top: 12, bottom: 4),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurfaceVariant.withOpacity(0.4),
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                const Spacer(),
-                IconButton(
-                  onPressed: _showReplyDialog,
-                  icon: const Icon(Icons.reply),
-                  visualDensity: VisualDensity.compact,
-                  tooltip: t.common.reply,
-                ),
-                IconButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close_rounded),
-                  visualDensity: VisualDensity.compact,
-                ),
-              ],
-            ),
-          ),
-          // 内容区域
-          Flexible(
-            child: Container(
-              constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * 0.7,
               ),
-              child: _buildContent(),
-            ),
+              // 头部标题栏
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 8.0,
+                ),
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(16.0),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.comment_outlined,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 20.0,
+                    ),
+                    const SizedBox(width: 8.0),
+                    Text(
+                      '$_replyCount ${t.common.replies}',
+                      style: TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      onPressed: _showReplyDialog,
+                      icon: const Icon(Icons.reply),
+                      visualDensity: VisualDensity.compact,
+                      tooltip: t.common.reply,
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: const Icon(Icons.close_rounded),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ],
+                ),
+              ),
+              // 内容区域
+              Expanded(
+                child: NotificationListener<ScrollNotification>(
+                  onNotification: (ScrollNotification scrollInfo) {
+                    if (scrollInfo.metrics.pixels >=
+                            scrollInfo.metrics.maxScrollExtent - 200 &&
+                        !_isLoading &&
+                        _hasMore) {
+                      _loadReplies();
+                    }
+                    return false;
+                  },
+                  child: _buildContent(scrollController),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(ScrollController scrollController) {
     if (_isLoading && _replies.isEmpty) {
       return ListView.builder(
-        controller: _scrollController,
+        controller: scrollController,
         padding: const EdgeInsets.all(8.0),
         itemCount: 5,
         itemBuilder: (context, index) => _buildShimmerItem(),
@@ -550,7 +575,7 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
     }
 
     return ListView.separated(
-      controller: _scrollController,
+      controller: scrollController,
       padding: const EdgeInsets.all(8.0),
       itemCount: _replies.length + 1,
       separatorBuilder: (context, index) => Container(

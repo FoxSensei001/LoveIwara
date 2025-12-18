@@ -273,6 +273,9 @@ class TranslationsCommonEn {
 	/// en: 'Load More'
 	String get loadMore => 'Load More';
 
+	/// en: 'Loading more...'
+	String get loadingMore => 'Loading more...';
+
 	/// en: 'No more data'
 	String get noMoreDatas => 'No more data';
 
@@ -1276,11 +1279,14 @@ class TranslationsSettingsEn {
 	/// en: 'List View Mode'
 	String get listViewMode => 'List View Mode';
 
+	/// en: 'Preview Effect'
+	String get previewEffect => 'Preview Effect';
+
 	/// en: 'Use Traditional Pagination Mode'
 	String get useTraditionalPaginationMode => 'Use Traditional Pagination Mode';
 
-	/// en: 'Enable traditional pagination mode, disable waterfall mode'
-	String get useTraditionalPaginationModeDesc => 'Enable traditional pagination mode, disable waterfall mode';
+	/// en: 'Enable traditional pagination mode, disable waterfall mode. Takes effect after re-rendering the page or restarting the app'
+	String get useTraditionalPaginationModeDesc => 'Enable traditional pagination mode, disable waterfall mode. Takes effect after re-rendering the page or restarting the app';
 
 	/// en: 'Show Video Progress Bottom Bar When Toolbar Hidden'
 	String get showVideoProgressBottomBarWhenToolbarHidden => 'Show Video Progress Bottom Bar When Toolbar Hidden';
@@ -6174,6 +6180,7 @@ extension on Translations {
 			'common.writeYourCommentHere' => 'Write your comment here...',
 			'common.tmpNoReplies' => 'No replies yet',
 			'common.loadMore' => 'Load More',
+			'common.loadingMore' => 'Loading more...',
 			'common.noMoreDatas' => 'No more data',
 			'common.selectTranslationLanguage' => 'Select Translation Language',
 			'common.translate' => 'Translate',
@@ -6507,8 +6514,9 @@ extension on Translations {
 			'search.googleSearchBrowserOpenFailed' => ({required Object error}) => 'Failed to open browser: ${error}',
 			'mediaList.personalIntroduction' => 'Introduction',
 			'settings.listViewMode' => 'List View Mode',
+			'settings.previewEffect' => 'Preview Effect',
 			'settings.useTraditionalPaginationMode' => 'Use Traditional Pagination Mode',
-			'settings.useTraditionalPaginationModeDesc' => 'Enable traditional pagination mode, disable waterfall mode',
+			'settings.useTraditionalPaginationModeDesc' => 'Enable traditional pagination mode, disable waterfall mode. Takes effect after re-rendering the page or restarting the app',
 			'settings.showVideoProgressBottomBarWhenToolbarHidden' => 'Show Video Progress Bottom Bar When Toolbar Hidden',
 			'settings.showVideoProgressBottomBarWhenToolbarHiddenDesc' => 'This configuration determines whether the video progress bottom bar will be shown when the toolbar is hidden.',
 			'settings.basicSettings' => 'Basic Settings',
@@ -6625,10 +6633,10 @@ extension on Translations {
 			'settings.exportConfigSuccess' => 'Configuration exported successfully!',
 			'settings.exportConfigFailed' => 'Failed to export configuration',
 			'settings.importConfigSuccess' => 'Configuration imported successfully!',
-			'settings.importConfigFailed' => 'Failed to import configuration',
-			'settings.historyUpdateLogs' => 'History Update Logs',
 			_ => null,
 		} ?? switch (path) {
+			'settings.importConfigFailed' => 'Failed to import configuration',
+			'settings.historyUpdateLogs' => 'History Update Logs',
 			'settings.noUpdateLogs' => 'No update logs available',
 			'settings.versionLabel' => 'Version: {version}',
 			'settings.releaseDateLabel' => 'Release Date: {date}',
@@ -7139,10 +7147,10 @@ extension on Translations {
 			'forum.submit' => 'Submit',
 			'notifications.errors.unsupportedNotificationType' => 'Unsupported notification type',
 			'notifications.errors.unknownUser' => 'Unknown user',
-			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => 'Unsupported notification type: ${type}',
-			'notifications.errors.unknownNotificationType' => 'Unknown notification type',
 			_ => null,
 		} ?? switch (path) {
+			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => 'Unsupported notification type: ${type}',
+			'notifications.errors.unknownNotificationType' => 'Unknown notification type',
 			'notifications.notifications' => 'Notifications',
 			'notifications.profile' => 'Profile',
 			'notifications.postedNewComment' => 'Posted new comment',
@@ -7653,10 +7661,10 @@ extension on Translations {
 			'log.noHistoryLogsToExport' => 'No history logs to export, please try using the app for a while first',
 			'log.selectLogDate' => 'Select Log Date',
 			'log.today' => 'Today',
-			'log.selectMergeRange' => 'Select Merge Range',
-			'log.selectMergeRangeHint' => 'Please select the log time range to merge',
 			_ => null,
 		} ?? switch (path) {
+			'log.selectMergeRange' => 'Select Merge Range',
+			'log.selectMergeRangeHint' => 'Please select the log time range to merge',
 			'log.selectMergeRangeDays' => ({required Object days}) => 'Recent ${days} days',
 			'log.logStats' => 'Log Stats',
 			'log.todayLogs' => ({required Object count}) => 'Today Logs: ${count} logs',

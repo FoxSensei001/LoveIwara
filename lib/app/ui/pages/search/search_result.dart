@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/search_list_widgets.dart';
 import 'package:i_iwara/app/ui/widgets/glow_notification_widget.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -26,9 +25,12 @@ class SearchController extends GetxController {
   final RxInt rebuildKey = 0.obs;
   final RxString selectedSort = 'latest'.obs; // 添加 sort 状态管理（主要用于 oreno3d）
   final RxString searchType = ''.obs; // 添加搜索类型状态管理（用于 oreno3d）
-  final Rx<Map<String, dynamic>?> extData = Rx<Map<String, dynamic>?>(null); // 添加扩展数据管理
-  final RxString currentSingleTagNameBehindSearchInput = ''.obs; // 用于显示 oreno3d 标签名
-  
+  final Rx<Map<String, dynamic>?> extData = Rx<Map<String, dynamic>?>(
+    null,
+  ); // 添加扩展数据管理
+  final RxString currentSingleTagNameBehindSearchInput =
+      ''.obs; // 用于显示 oreno3d 标签名
+
   // 筛选项状态管理
   final RxList<Filter> filters = <Filter>[].obs;
 
@@ -102,28 +104,6 @@ class SearchController extends GetxController {
     refreshSearch();
   }
 
-  // 切换分页模式
-  void togglePaginationMode() {
-    if (isPaginated.value) {
-      isPaginated.value = false;
-      Get.find<ConfigService>()
-          .settings[ConfigKey.DEFAULT_PAGINATION_MODE]!
-          .value =
-      false;
-      CommonConstants.isPaginated = false;
-    } else {
-      isPaginated.value = true;
-      Get.find<ConfigService>()
-          .settings[ConfigKey.DEFAULT_PAGINATION_MODE]!
-          .value =
-      true;
-      CommonConstants.isPaginated = true;
-    }
-    rebuildKey.value++;
-    // 切换分页模式后滚动到顶部
-    scrollToTop();
-  }
-
   // 刷新搜索结果
   void refreshSearch() {
     rebuildKey.value++;
@@ -184,9 +164,11 @@ class _SearchResultState extends State<SearchResult> {
     if (widget.initialSort != null && widget.initialSort!.isNotEmpty) {
       searchController.updateSort(widget.initialSort!);
     } else {
-      searchController.updateSort(FilterConfig.getDefaultSortForSegment(widget.initialSegment));
+      searchController.updateSort(
+        FilterConfig.getDefaultSortForSegment(widget.initialSegment),
+      );
     }
-    
+
     // 设置初始筛选项
     if (widget.initialFilters != null) {
       searchController.updateFilters(widget.initialFilters!);
@@ -222,10 +204,16 @@ class _SearchResultState extends State<SearchResult> {
     });
   }
 
-
-
   // 构建搜索列表组件
-  Widget _buildSearchListWidget(SearchSegment segment, String query, bool isPaginated, int rebuildKey, String sort, String searchType, Map<String, dynamic>? extData) {
+  Widget _buildSearchListWidget(
+    SearchSegment segment,
+    String query,
+    bool isPaginated,
+    int rebuildKey,
+    String sort,
+    String searchType,
+    Map<String, dynamic>? extData,
+  ) {
     switch (segment) {
       case SearchSegment.video:
         return VideoSearchList(
@@ -313,7 +301,7 @@ class _SearchResultState extends State<SearchResult> {
               })
               .where((s) => s.isNotEmpty)
               .join(' ');
-          
+
           if (filterStrings.isNotEmpty) {
             query = '$query $filterStrings';
           }
@@ -325,7 +313,15 @@ class _SearchResultState extends State<SearchResult> {
         'SearchResult',
       );
 
-      final child = _buildSearchListWidget(segment, query, isPaginated, rebuildKey, sort, searchType, extData);
+      final child = _buildSearchListWidget(
+        segment,
+        query,
+        isPaginated,
+        rebuildKey,
+        sort,
+        searchType,
+        extData,
+      );
       return GlowNotificationWidget(child: child);
     });
   }
@@ -338,7 +334,8 @@ class _SearchResultState extends State<SearchResult> {
     // 如果是 oreno3d 模式且有扩展数据（表示不是 /search API）
     if (segment == SearchSegment.oreno3d && extData != null) {
       final searchType = extData['searchType'] as String?;
-      return searchType != null && ['origin', 'tag', 'character'].contains(searchType);
+      return searchType != null &&
+          ['origin', 'tag', 'character'].contains(searchType);
     }
 
     return false;
@@ -355,7 +352,8 @@ class _SearchResultState extends State<SearchResult> {
 
   // 复制标签到剪贴板
   void _copyTagToClipboard() {
-    final textToCopy = searchController.currentSingleTagNameBehindSearchInput.value;
+    final textToCopy =
+        searchController.currentSingleTagNameBehindSearchInput.value;
     Clipboard.setData(ClipboardData(text: textToCopy));
     showToastWidget(
       MDToastWidget(
@@ -403,7 +401,12 @@ class _SearchResultState extends State<SearchResult> {
   }
 
   // 处理搜索结果
-  void _handleSearchResult(String searchInfo, SearchSegment segment, List<Filter> filters, String sort) {
+  void _handleSearchResult(
+    String searchInfo,
+    SearchSegment segment,
+    List<Filter> filters,
+    String sort,
+  ) {
     // 更新搜索参数
     searchController.updateSearch(searchInfo);
     searchController.updateSegment(segment);
@@ -420,10 +423,12 @@ class _SearchResultState extends State<SearchResult> {
 
   // 构建分段选择器
   Widget _buildSegmentSelector() {
-    return Obx(() => SearchSegmentSelector(
-      selectedSegment: searchController.selectedSegment.value,
-      onSegmentChanged: searchController.updateSegment,
-    ));
+    return Obx(
+      () => SearchSegmentSelector(
+        selectedSegment: searchController.selectedSegment.value,
+        onSegmentChanged: searchController.updateSegment,
+      ),
+    );
   }
 
   // 构建排序选择器
@@ -458,22 +463,6 @@ class _SearchResultState extends State<SearchResult> {
         icon: const Icon(Icons.refresh),
         tooltip: t.common.refresh,
       ),
-      // 分页模式切换按钮
-      Obx(
-        () => IconButton(
-          onPressed: () {
-            searchController.togglePaginationMode();
-          },
-          icon: Icon(
-            searchController.isPaginated.value
-                ? Icons.grid_view
-                : Icons.menu,
-          ),
-          tooltip: searchController.isPaginated.value
-              ? t.common.pagination.waterfall
-              : t.common.pagination.pagination,
-        ),
-      ),
     ];
   }
 
@@ -484,16 +473,20 @@ class _SearchResultState extends State<SearchResult> {
       child: Row(
         children: [
           // 根据条件决定是否显示搜索输入框
-          Obx(() => _shouldHideSearchInput()
-              ? _buildTagDisplayWidget()
-              : _buildSearchInputField()),
+          Obx(
+            () => _shouldHideSearchInput()
+                ? _buildTagDisplayWidget()
+                : _buildSearchInputField(),
+          ),
           _buildSegmentSelector(),
           _buildSortSelector(),
-          Obx(() => FilterButtonWidget(
-            currentSegment: searchController.selectedSegment.value,
-            filters: searchController.filters.toList(),
-            onFiltersChanged: searchController.updateFilters,
-          )),
+          Obx(
+            () => FilterButtonWidget(
+              currentSegment: searchController.selectedSegment.value,
+              filters: searchController.filters.toList(),
+              onFiltersChanged: searchController.updateFilters,
+            ),
+          ),
         ],
       ),
     );

@@ -30,10 +30,11 @@ class ThreadListPage extends StatefulWidget {
   State<ThreadListPage> createState() => _ThreadListPageState();
 }
 
-class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProviderStateMixin {
+class _ThreadListPageState extends State<ThreadListPage>
+    with SingleTickerProviderStateMixin {
   late ThreadListRepository listSourceRepository;
   late ForumListController _forumListController;
-  
+
   final ScrollController _scrollController = ScrollController();
   final RxString _categoryName = ''.obs;
   final RxString _categoryDescription = ''.obs;
@@ -43,17 +44,23 @@ class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProvid
     super.initState();
 
     // 初始化论坛控制器
-    _forumListController = Get.put(ForumListController(), tag: widget.categoryId);
-    
-    listSourceRepository = ThreadListRepository(categoryId: widget.categoryId, updateCategoryName: (name, description) {
-      _categoryName.value = name;
-      _categoryDescription.value = description;
-    });
-    
+    _forumListController = Get.put(
+      ForumListController(),
+      tag: widget.categoryId,
+    );
+
+    listSourceRepository = ThreadListRepository(
+      categoryId: widget.categoryId,
+      updateCategoryName: (name, description) {
+        _categoryName.value = name;
+        _categoryDescription.value = description;
+      },
+    );
+
     // 注册滚动回调
     _forumListController.registerScrollToTopCallback(_scrollToTop);
   }
-  
+
   // 滚动到顶部方法
   void _scrollToTop() {
     if (_scrollController.hasClients) {
@@ -79,43 +86,42 @@ class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProvid
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Obx(() => 
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              _categoryName.value,
-              overflow: TextOverflow.ellipsis,
-            ),
-            if (_categoryDescription.value.isNotEmpty)
-              Text(
-                _categoryDescription.value,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+        title: Obx(
+          () => Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(_categoryName.value, overflow: TextOverflow.ellipsis),
+              if (_categoryDescription.value.isNotEmpty)
+                Text(
+                  _categoryDescription.value,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
-                overflow: TextOverflow.ellipsis,
-              ),
-          ],
-        )
+            ],
+          ),
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
-              Get.dialog(SearchDialog(
-                userInputKeywords: '',
-                initialSegment: SearchSegment.forum,
-                onSearch: (searchInfo, segment, filters, sort) {
-                  NaviService.toSearchPage(
-                    searchInfo: searchInfo,
-                    segment: segment,
-                    filters: filters,
-                    sort: sort,
-                  );
-                },
-              ));
+              Get.dialog(
+                SearchDialog(
+                  userInputKeywords: '',
+                  initialSegment: SearchSegment.forum,
+                  onSearch: (searchInfo, segment, filters, sort) {
+                    NaviService.toSearchPage(
+                      searchInfo: searchInfo,
+                      segment: segment,
+                      filters: filters,
+                      sort: sort,
+                    );
+                  },
+                ),
+              );
             },
             tooltip: t.common.search,
             style: IconButton.styleFrom(
@@ -123,28 +129,6 @@ class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProvid
               visualDensity: VisualDensity.compact,
             ),
           ),
-          // 添加分页/瀑布流切换按钮
-          Obx(() => IconButton(
-            icon: Icon(_forumListController.isPaginated.value 
-                ? Icons.grid_view 
-                : Icons.menu),
-            onPressed: () {
-              // 如果当前为瀑布流模式，则要执行刷新以清空数据
-              if (!_forumListController.isPaginated.value) {
-                listSourceRepository.refresh();
-              }
-              _forumListController.setPaginatedMode(!_forumListController.isPaginated.value);
-              
-              // 滚动到顶部
-              _scrollToTop();
-            },
-            tooltip: _forumListController.isPaginated.value 
-                ? t.common.pagination.waterfall
-                : t.common.pagination.pagination,
-            style: IconButton.styleFrom(
-              visualDensity: VisualDensity.compact,
-            ),
-          )),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
@@ -156,23 +140,20 @@ class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProvid
                 _scrollToTop();
               }
             },
-            style: IconButton.styleFrom(
-              visualDensity: VisualDensity.compact,
-            ),
+            style: IconButton.styleFrom(visualDensity: VisualDensity.compact),
           ),
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () => _showCreateThreadDialog(context, widget.categoryId),
-            style: IconButton.styleFrom(
-              visualDensity: VisualDensity.compact,
-            ),
+            onPressed: () =>
+                _showCreateThreadDialog(context, widget.categoryId),
+            style: IconButton.styleFrom(visualDensity: VisualDensity.compact),
           ),
         ],
       ),
       body: Obx(() {
         final isPaginated = _forumListController.isPaginated.value;
         final rebuildKey = _forumListController.rebuildKey.value;
-        
+
         if (isPaginated) {
           // 分页模式
           return MediaListView<ForumThreadModel>(
@@ -195,11 +176,12 @@ class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProvid
             slivers: <Widget>[
               LoadingMoreSliverList<ForumThreadModel>(
                 SliverListConfig<ForumThreadModel>(
-                  extendedListDelegate: const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 300,
-                    crossAxisSpacing: 5,
-                    mainAxisSpacing: 5,
-                  ),
+                  extendedListDelegate:
+                      const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 300,
+                        crossAxisSpacing: 5,
+                        mainAxisSpacing: 5,
+                      ),
                   itemBuilder: (context, thread, index) => ThreadListItemWidget(
                     thread: thread,
                     categoryId: widget.categoryId,
@@ -210,7 +192,9 @@ class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProvid
                     left: 5.0,
                     right: 5.0,
                     top: 5.0,
-                    bottom: Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0,
+                    bottom: Get.context != null
+                        ? MediaQuery.of(Get.context!).padding.bottom
+                        : 0,
                   ),
                   indicatorBuilder: (context, status) => myLoadingMoreIndicator(
                     context,
@@ -232,7 +216,12 @@ class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProvid
     UserService userService = Get.find<UserService>();
     if (!userService.isLogin) {
       AppService.switchGlobalDrawer();
-      showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.warning));
+      showToastWidget(
+        MDToastWidget(
+          message: t.errors.pleaseLoginFirst,
+          type: MDToastType.warning,
+        ),
+      );
       return;
     }
     Get.dialog(
@@ -250,4 +239,4 @@ class _ThreadListPageState extends State<ThreadListPage> with SingleTickerProvid
     // 导航到帖子详情页
     NaviService.navigateToForumThreadDetailPage(widget.categoryId, thread.id);
   }
-} 
+}

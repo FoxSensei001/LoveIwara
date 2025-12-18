@@ -63,6 +63,7 @@ common:
   writeYourCommentHere: Write your comment here...
   tmpNoReplies: No replies yet
   loadMore: Load More
+  loadingMore: Loading more...
   noMoreDatas: No more data
   selectTranslationLanguage: Select Translation Language
   translate: Translate
@@ -417,8 +418,9 @@ mediaList:
 
 settings:
   listViewMode: List View Mode
+  previewEffect: Preview Effect
   useTraditionalPaginationMode: Use Traditional Pagination Mode
-  useTraditionalPaginationModeDesc: Enable traditional pagination mode, disable waterfall mode
+  useTraditionalPaginationModeDesc: Enable traditional pagination mode, disable waterfall mode. Takes effect after re-rendering the page or restarting the app
   showVideoProgressBottomBarWhenToolbarHidden: Show Video Progress Bottom Bar When Toolbar Hidden
   showVideoProgressBottomBarWhenToolbarHiddenDesc: This configuration determines whether the video progress bottom bar will be shown when the toolbar is hidden.
   basicSettings: Basic Settings

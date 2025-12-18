@@ -65,6 +65,7 @@ common:
   writeYourCommentHere: 在此输入评论...
   tmpNoReplies: 暂无回复
   loadMore: 加载更多
+  loadingMore: 正在加载更多...
   noMoreDatas: 没有更多数据了
   selectTranslationLanguage: 选择翻译语言
   translate: 翻译
@@ -424,8 +425,9 @@ mediaList:
 
 settings:
   listViewMode: 列表显示模式
+  previewEffect: 预览效果
   useTraditionalPaginationMode: 使用传统分页模式
-  useTraditionalPaginationModeDesc: 开启后列表将使用传统分页模式，关闭则使用瀑布流模式
+  useTraditionalPaginationModeDesc: 开启后列表将使用传统分页模式，关闭则使用瀑布流模式。重新渲染页面或重启应用后生效
   showVideoProgressBottomBarWhenToolbarHidden: 显示底部进度条
   showVideoProgressBottomBarWhenToolbarHiddenDesc: 此配置决定是否在工具栏隐藏时显示底部进度条
   basicSettings: 基础设置
