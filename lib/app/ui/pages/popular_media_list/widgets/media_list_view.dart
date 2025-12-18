@@ -542,7 +542,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
 
     final scrollView = LoadingMoreCustomScrollView(
       controller: widget.scrollController,
-      physics: const AlwaysScrollableScrollPhysics(),
+      physics: const ClampingScrollPhysics(),
       slivers: <Widget>[
         LoadingMoreSliverList(
           SliverListConfig<T>(
@@ -713,7 +713,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
       if (indicator is SliverFillRemaining) {
         return LoadingMoreCustomScrollView(
           controller: widget.scrollController,
-          physics: const AlwaysScrollableScrollPhysics(),
+          physics: const ClampingScrollPhysics(),
           slivers: [indicator],
         );
       }
@@ -721,7 +721,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
       // 其他情况套一个SingleChildScrollView确保可滚动
       return SingleChildScrollView(
         controller: widget.scrollController,
-        physics: const AlwaysScrollableScrollPhysics(),
+        physics: const ClampingScrollPhysics(),
         child: SizedBox(
           height: MediaQuery.of(context).size.height - 200, // 减去大致的头部和底部高度
           child: Center(child: indicator ?? const SizedBox.shrink()),
@@ -732,7 +732,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
     // 数据已加载，显示内容
     return LoadingMoreCustomScrollView(
       controller: widget.scrollController,
-      physics: const AlwaysScrollableScrollPhysics(),
+      physics: const ClampingScrollPhysics(),
       slivers: <Widget>[
         SliverPadding(
           padding: EdgeInsets.only(

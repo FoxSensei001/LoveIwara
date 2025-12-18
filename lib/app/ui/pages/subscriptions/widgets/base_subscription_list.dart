@@ -216,7 +216,7 @@ abstract class BaseSubscriptionListState<
       scrollController: _scrollController,
       paddingTop: widget.paddingTop,
       showBottomPadding: widget.showBottomPadding,
-      enablePullToRefresh: false, // 禁用下拉刷新，只通过刷新按钮刷新
+      enablePullToRefresh: true, // 启用下拉刷新
       // 使用缓存机制构建列表项
       itemBuilder: getCachedListItem,
     );
