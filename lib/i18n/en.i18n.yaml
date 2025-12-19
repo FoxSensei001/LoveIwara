@@ -133,6 +133,7 @@ common:
   paused: Paused
   clear: Clear
   clearSelection: Clear Selection
+  batchDelete: Batch Delete
   user: User
   post: Post
   seconds: Seconds

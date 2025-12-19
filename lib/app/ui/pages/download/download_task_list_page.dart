@@ -38,6 +38,65 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   // 用于监听任务状态变更
   int _lastStatusVersion = -1;
 
+  // 批量删除模式
+  bool _isSelectionMode = false;
+  final Set<String> _selectedTaskIds = {};
+
+  void _enterSelectionMode() {
+    setState(() {
+      _isSelectionMode = true;
+      _selectedTaskIds.clear();
+    });
+  }
+
+  void _exitSelectionMode() {
+    setState(() {
+      _isSelectionMode = false;
+      _selectedTaskIds.clear();
+    });
+  }
+
+  void _toggleItemSelection(String taskId) {
+    setState(() {
+      if (_selectedTaskIds.contains(taskId)) {
+        _selectedTaskIds.remove(taskId);
+      } else {
+        _selectedTaskIds.add(taskId);
+      }
+    });
+  }
+
+  Future<void> _deleteSelectedTasks() async {
+    if (_selectedTaskIds.isEmpty) return;
+
+    final t = slang.Translations.of(context);
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(t.common.confirmDelete),
+        content: Text(
+          '${t.common.areYouSureYouWantToDeleteSelectedItems(num: _selectedTaskIds.length)}\n注意：下载的文件也会被删除。',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(t.common.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: Text(t.common.confirm),
+          ),
+        ],
+      ),
+    );
+
+    if (result == true) {
+      await DownloadService.to.deleteTasks(_selectedTaskIds.toList());
+      _exitSelectionMode();
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -56,25 +115,135 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(t.download.downloadList)),
-      body: Obx(() {
-        // 监听任务状态变更
-        final currentVersion =
-            DownloadService.to.taskStatusChangedNotifier.value;
-        if (currentVersion != _lastStatusVersion) {
-          _lastStatusVersion = currentVersion;
-          // 刷新顶部区域
-          _refreshPendingTasksIfNeeded();
-          // 刷新历史区域
-          Future.microtask(() {
-            if (mounted) {
-              _historySource.refresh(true);
+      appBar: AppBar(
+        title: _isSelectionMode
+            ? Text(t.common.selectedRecords(num: _selectedTaskIds.length))
+            : Text(t.download.downloadList),
+        leading: _isSelectionMode
+            ? null // 多选模式下隐藏返回按钮，退出按钮在左下角
+            : null,
+        actions: [
+          if (!_isSelectionMode)
+            IconButton(
+              icon: const Icon(Icons.delete_sweep_outlined),
+              tooltip: t.common.batchDelete,
+              onPressed: _enterSelectionMode,
+            ),
+        ],
+      ),
+      body: Stack(
+        children: [
+          Obx(() {
+            // 监听任务状态变更
+            final currentVersion =
+                DownloadService.to.taskStatusChangedNotifier.value;
+            if (currentVersion != _lastStatusVersion) {
+              _lastStatusVersion = currentVersion;
+              // 刷新顶部区域
+              _refreshPendingTasksIfNeeded();
+              // 刷新历史区域
+              Future.microtask(() {
+                if (mounted) {
+                  _historySource.refresh(true);
+                }
+              });
             }
-          });
-        }
 
-        return _buildSingleList();
-      }),
+            return _buildSingleList();
+          }),
+          // 左下角操作按钮组
+          if (_isSelectionMode)
+            Positioned(
+              left: 16,
+              bottom: 0,
+              child: _buildBatchActionFabColumn(),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBatchActionFabColumn() {
+    final t = slang.Translations.of(context);
+    final bottomSafeNow = MediaQuery.of(context).padding.bottom;
+    // 基础底部间距
+    final double finalBottomPadding = bottomSafeNow + 20;
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: finalBottomPadding),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // 退出多选按钮
+          FloatingActionButton.small(
+            heroTag: 'exitMultiSelect_downloadList',
+            onPressed: _exitSelectionMode,
+            backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+            foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
+            tooltip: t.common.exitEditMode,
+            child: const Icon(Icons.close),
+          ),
+          const SizedBox(height: 12),
+          // 功能按钮组（清空选择和删除）
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (Widget child, Animation<double> animation) {
+              return SizeTransition(
+                sizeFactor: animation,
+                axis: Axis.vertical,
+                child: ScaleTransition(
+                  scale: animation,
+                  alignment: Alignment.bottomCenter,
+                  child: FadeTransition(opacity: animation, child: child),
+                ),
+              );
+            },
+            child: _selectedTaskIds.isNotEmpty
+                ? Column(
+                    key: const ValueKey('batch_active_actions'),
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // 清空已选按钮
+                      FloatingActionButton.small(
+                        heroTag: 'clearSelection_downloadList',
+                        onPressed: () {
+                          setState(() {
+                            _selectedTaskIds.clear();
+                          });
+                        },
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.tertiaryContainer,
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onTertiaryContainer,
+                        tooltip: t.common.clearSelection,
+                        child: const Icon(Icons.layers_clear),
+                      ),
+                      const SizedBox(height: 12),
+                      // 删除按钮
+                      Badge(
+                        label: Text(_selectedTaskIds.length.toString()),
+                        child: FloatingActionButton.small(
+                          heroTag: 'batchDeleteFAB_downloadList',
+                          onPressed: _deleteSelectedTasks,
+                          backgroundColor: Theme.of(context).colorScheme.error,
+                          foregroundColor: Theme.of(
+                            context,
+                          ).colorScheme.onError,
+                          tooltip: t.common.delete, // 假设有 delete tooltip key
+                          child: const Icon(Icons.delete),
+                        ),
+                      ),
+                    ],
+                  )
+                : const SizedBox.shrink(
+                    key: ValueKey('batch_inactive_actions'),
+                  ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -128,7 +297,8 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
               0,
               0,
               0,
-              MediaQuery.of(context).padding.bottom,
+              MediaQuery.of(context).padding.bottom +
+                  (_isSelectionMode ? 80 : 0), // 多选模式下增加底部padding防止遮挡
             ),
             indicatorBuilder: (context, status) => myLoadingMoreIndicator(
               context,
@@ -210,12 +380,48 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   }
 
   Widget _buildTaskItem(DownloadTask task) {
+    Widget item;
     if (task.extData?.type == DownloadTaskExtDataType.video) {
-      return VideoDownloadTaskItem(task: task);
+      item = VideoDownloadTaskItem(task: task);
     } else if (task.extData?.type == DownloadTaskExtDataType.gallery) {
-      return GalleryDownloadTaskItem(task: task);
+      item = GalleryDownloadTaskItem(task: task);
+    } else {
+      item = DefaultDownloadTaskItem(task: task);
     }
-    return DefaultDownloadTaskItem(task: task);
+
+    if (_isSelectionMode) {
+      final isSelected = _selectedTaskIds.contains(task.id);
+      return Stack(
+        children: [
+          // 列表项本身
+          item,
+          // 覆盖层
+          Positioned.fill(
+            child: Material(
+              color: isSelected ? Colors.black38 : Colors.black12,
+              child: InkWell(
+                onTap: () => _toggleItemSelection(task.id),
+                child: Center(
+                  child: Icon(
+                    isSelected ? Icons.check_circle : Icons.circle_outlined,
+                    color: isSelected ? Colors.white : Colors.white70,
+                    size: 40,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    } else {
+      return InkWell(
+        onLongPress: () {
+          _enterSelectionMode();
+          _toggleItemSelection(task.id);
+        },
+        child: item,
+      );
+    }
   }
 
   /// 根据 DownloadService 的任务状态版本，按需刷新等待中任务
@@ -247,9 +453,6 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
       _isLoadingPendingTasks = false;
     }
   }
-
-  /// 根据 DownloadService 的任务状态版本，按需刷新暂停任务
-  // 暂停任务不在顶部区域展示，仅在历史区域（分页列表）中展示
 }
 
 /// 历史任务数据源（paused/failed/completed），用于无限滚动加载

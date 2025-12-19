@@ -226,6 +226,7 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get paused => '一時停止';
 	@override String get clear => 'クリア';
 	@override String get clearSelection => '選択を解除';
+	@override String get batchDelete => '一括削除';
 	@override String get user => 'ユーザー';
 	@override String get post => '投稿';
 	@override String get seconds => '秒';
@@ -2724,6 +2725,7 @@ extension on TranslationsJa {
 			'common.paused' => '一時停止',
 			'common.clear' => 'クリア',
 			'common.clearSelection' => '選択を解除',
+			'common.batchDelete' => '一括削除',
 			'common.user' => 'ユーザー',
 			'common.post' => '投稿',
 			'common.seconds' => '秒',
@@ -3101,9 +3103,9 @@ extension on TranslationsJa {
 			'settings.importConfig' => 'アプリ設定をインポート',
 			'settings.importConfigDesc' => 'ファイルからアプリ設定をインポートします',
 			'settings.exportConfigSuccess' => '設定が正常にエクスポートされました',
-			'settings.exportConfigFailed' => '設定のエクスポートに失敗しました',
 			_ => null,
 		} ?? switch (path) {
+			'settings.exportConfigFailed' => '設定のエクスポートに失敗しました',
 			'settings.importConfigSuccess' => '設定が正常にインポートされました',
 			'settings.importConfigFailed' => '設定のインポートに失敗しました',
 			'settings.historyUpdateLogs' => '歴代アップデートログ',
@@ -3615,9 +3617,9 @@ extension on TranslationsJa {
 			'forum.editReply' => '編集回覆',
 			'forum.editTitle' => '編集タイトル',
 			'forum.submit' => '提出',
-			'notifications.errors.unsupportedNotificationType' => 'サポートされていない通知タイプ',
 			_ => null,
 		} ?? switch (path) {
+			'notifications.errors.unsupportedNotificationType' => 'サポートされていない通知タイプ',
 			'notifications.errors.unknownUser' => '未知ユーザー',
 			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => 'サポートされていない通知タイプ: ${type}',
 			'notifications.errors.unknownNotificationType' => '未知通知タイプ',
@@ -4129,9 +4131,9 @@ extension on TranslationsJa {
 			'emoji.add' => '追加',
 			'emoji.batchImport' => '一括インポート',
 			'emoji.enterJsonUrlArray' => 'JSON形式のURL配列を入力してください:',
-			'emoji.formatExample' => '形式例:\n["url1", "url2", "url3"]',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.formatExample' => '形式例:\n["url1", "url2", "url3"]',
 			'emoji.pasteJsonUrlArray' => 'JSON形式のURL配列を貼り付けてください',
 			'emoji.import' => 'インポート',
 			'emoji.importSuccess' => ({required Object count}) => '${count}枚の画像をインポートしました',

@@ -461,6 +461,16 @@ class DownloadService extends GetxService {
     }
   }
 
+  // 批量删除任务
+  Future<void> deleteTasks(
+    List<String> taskIds, {
+    bool ignoreFileDeleteError = false,
+  }) async {
+    for (final taskId in taskIds) {
+      await deleteTask(taskId, ignoreFileDeleteError: ignoreFileDeleteError);
+    }
+  }
+
   // 处理下载队列
   void _processQueue() async {
     // 防止并发调用导致超过最大并发数

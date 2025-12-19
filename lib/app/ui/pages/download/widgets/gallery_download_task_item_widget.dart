@@ -42,9 +42,7 @@ class GalleryDownloadTaskItem extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         clipBehavior: Clip.hardEdge,
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: Stack(
           children: [
             // 背景封面图 - 对应 Android 的 ivCoverBg
@@ -57,10 +55,14 @@ class GalleryDownloadTaskItem extends StatelessWidget {
                       imageUrl: extData.previewUrls[0],
                       fit: BoxFit.cover,
                       placeholder: (context, url) => Container(
-                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
                       ),
                       errorWidget: (context, url, error) => Container(
-                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
                       ),
                     ),
                   ),
@@ -71,187 +73,195 @@ class GalleryDownloadTaskItem extends StatelessWidget {
               Positioned.fill(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.85),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surface.withValues(alpha: 0.85),
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
               ),
             // 内容层
             GestureDetector(
-            onSecondaryTapUp: (details) {
-              final RenderBox overlay =
-                  Overlay.of(context).context.findRenderObject() as RenderBox;
-              final RelativeRect position = RelativeRect.fromRect(
-                Rect.fromPoints(details.globalPosition, details.globalPosition),
-                Offset.zero & overlay.size,
-              );
-              showMenu(
-                context: context,
-                position: position,
-                items: [
-                  // 查看下载详情
-                  PopupMenuItem(
-                    child: Row(
-                      children: [
-                        const Icon(Icons.info),
-                        const SizedBox(width: 8),
-                        Text(t.download.downloadDetail),
-                      ],
-                    ),
-                    onTap: () => showDownloadDetailDialog(context, task),
+              onSecondaryTapUp: (details) {
+                final RenderBox overlay =
+                    Overlay.of(context).context.findRenderObject() as RenderBox;
+                final RelativeRect position = RelativeRect.fromRect(
+                  Rect.fromPoints(
+                    details.globalPosition,
+                    details.globalPosition,
                   ),
-                  if (Platform.isWindows ||
-                      Platform.isMacOS ||
-                      Platform.isLinux)
+                  Offset.zero & overlay.size,
+                );
+                showMenu(
+                  context: context,
+                  position: position,
+                  items: [
+                    // 查看下载详情
                     PopupMenuItem(
                       child: Row(
                         children: [
-                          const Icon(Icons.folder_open),
+                          const Icon(Icons.info),
                           const SizedBox(width: 8),
-                          Text(t.download.showInFolder),
+                          Text(t.download.downloadDetail),
                         ],
                       ),
-                      onTap: () => _showInFolder(context),
+                      onTap: () => showDownloadDetailDialog(context, task),
                     ),
-                  PopupMenuItem(
-                    child: Row(
-                      children: [
-                        const Icon(Icons.delete, color: Colors.red),
-                        const SizedBox(width: 8),
-                        Text(
-                          t.download.deleteTask,
-                          style: const TextStyle(color: Colors.red),
-                        ),
-                      ],
-                    ),
-                    onTap: () => _showDeleteConfirmDialog(context),
-                  ),
-                  // 强制删除
-                  PopupMenuItem(
-                    child: Row(
-                      children: [
-                        const Icon(Icons.delete, color: Colors.red),
-                        const SizedBox(width: 8),
-                        Text(
-                          t.download.forceDeleteTask,
-                          style: const TextStyle(color: Colors.red),
-                        ),
-                      ],
-                    ),
-                    onTap: () => _showDeleteConfirmDialog(context, force: true),
-                  ),
-                ],
-              );
-            },
-            child: InkWell(
-              onTap: () => _onTap(context),
-              mouseCursor: task.status == DownloadStatus.completed
-                  ? SystemMouseCursors.click
-                  : SystemMouseCursors.basic,
-              splashFactory: task.status == DownloadStatus.completed
-                  ? InkSplash.splashFactory
-                  : NoSplash.splashFactory,
-              child: Column(
-                children: [
-                  // 上部内容区域（带 padding）
-                  Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // 预览图区域
-                        Container(
-                          width: 120,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.surfaceContainerHighest,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: _buildPreviewImages(context, extData),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // 标题
-                              Text(
-                                extData.title ?? t.download.errors.unknown,
-                                style: Theme.of(context).textTheme.titleMedium,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 8),
-                              // 作者信息
-                              MouseRegion(
-                                cursor: extData.authorUsername != null
-                                    ? SystemMouseCursors.click
-                                    : SystemMouseCursors.basic,
-                                child: GestureDetector(
-                                  onTap: extData.authorUsername != null
-                                      ? () =>
-                                            NaviService.navigateToAuthorProfilePage(
-                                              extData.authorUsername!,
-                                            )
-                                      : null,
-                                  child: Row(
-                                    children: [
-                                      AvatarWidget(
-                                        avatarUrl: extData.authorAvatar,
-                                        size: 25,
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Text(
-                                        extData.authorName ??
-                                            t.download.errors.unknown,
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.titleMedium,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        // 主要操作 + 快捷删除按钮
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
+                    if (Platform.isWindows ||
+                        Platform.isMacOS ||
+                        Platform.isLinux)
+                      PopupMenuItem(
+                        child: Row(
                           children: [
-                            _buildMainActionButton(context),
-                            Obx(() {
-                              final isProcessing = DownloadService.to
-                                  .isTaskProcessing(task.id);
-                              return IconButton(
-                                icon: isProcessing
-                                    ? const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                        ),
-                                      )
-                                    : const Icon(Icons.delete_outline),
-                                tooltip: t.download.deleteTask,
-                                onPressed: isProcessing
-                                    ? null
-                                    : () => _showDeleteConfirmDialog(context),
-                              );
-                            }),
+                            const Icon(Icons.folder_open),
+                            const SizedBox(width: 8),
+                            Text(t.download.showInFolder),
                           ],
                         ),
-                      ],
+                        onTap: () => _showInFolder(context),
+                      ),
+                    PopupMenuItem(
+                      child: Row(
+                        children: [
+                          const Icon(Icons.delete, color: Colors.red),
+                          const SizedBox(width: 8),
+                          Text(
+                            t.download.deleteTask,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ],
+                      ),
+                      onTap: () => _showDeleteConfirmDialog(context),
                     ),
-                  ),
-                  // 进度和状态（紧贴边缘，无 padding）
-                  _buildProgressStatusBar(context),
-                ],
+                    // 强制删除
+                    PopupMenuItem(
+                      child: Row(
+                        children: [
+                          const Icon(Icons.delete, color: Colors.red),
+                          const SizedBox(width: 8),
+                          Text(
+                            t.download.forceDeleteTask,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ],
+                      ),
+                      onTap: () =>
+                          _showDeleteConfirmDialog(context, force: true),
+                    ),
+                  ],
+                );
+              },
+              child: InkWell(
+                onTap: () => _onTap(context),
+                mouseCursor: task.status == DownloadStatus.completed
+                    ? SystemMouseCursors.click
+                    : SystemMouseCursors.basic,
+                splashFactory: task.status == DownloadStatus.completed
+                    ? InkSplash.splashFactory
+                    : NoSplash.splashFactory,
+                child: Column(
+                  children: [
+                    // 上部内容区域（带 padding）
+                    Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // 预览图区域
+                          Container(
+                            width: 120,
+                            height: 80,
+                            decoration: BoxDecoration(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainerHighest,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: _buildPreviewImages(context, extData),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // 标题
+                                Text(
+                                  extData.title ?? t.download.errors.unknown,
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.titleMedium,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 8),
+                                // 作者信息
+                                MouseRegion(
+                                  cursor: extData.authorUsername != null
+                                      ? SystemMouseCursors.click
+                                      : SystemMouseCursors.basic,
+                                  child: GestureDetector(
+                                    onTap: extData.authorUsername != null
+                                        ? () =>
+                                              NaviService.navigateToAuthorProfilePage(
+                                                extData.authorUsername!,
+                                              )
+                                        : null,
+                                    child: Row(
+                                      children: [
+                                        AvatarWidget(
+                                          avatarUrl: extData.authorAvatar,
+                                          size: 25,
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Text(
+                                          extData.authorName ??
+                                              t.download.errors.unknown,
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.titleMedium,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          // 主要操作 + 快捷删除按钮
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _buildMainActionButton(context),
+                              Obx(() {
+                                final isProcessing = DownloadService.to
+                                    .isTaskProcessing(task.id);
+                                return IconButton(
+                                  icon: isProcessing
+                                      ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                      : const Icon(Icons.delete_outline),
+                                  tooltip: t.download.deleteTask,
+                                  onPressed: isProcessing
+                                      ? null
+                                      : () => _showDeleteConfirmDialog(context),
+                                );
+                              }),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    // 进度和状态（紧贴边缘，无 padding）
+                    _buildProgressStatusBar(context),
+                  ],
+                ),
               ),
             ),
-          ),
           ],
         ),
       ),

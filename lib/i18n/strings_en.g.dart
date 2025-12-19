@@ -483,6 +483,9 @@ class TranslationsCommonEn {
 	/// en: 'Clear Selection'
 	String get clearSelection => 'Clear Selection';
 
+	/// en: 'Batch Delete'
+	String get batchDelete => 'Batch Delete';
+
 	/// en: 'User'
 	String get user => 'User';
 
@@ -6342,6 +6345,7 @@ extension on Translations {
 			'common.paused' => 'Paused',
 			'common.clear' => 'Clear',
 			'common.clearSelection' => 'Clear Selection',
+			'common.batchDelete' => 'Batch Delete',
 			'common.user' => 'User',
 			'common.post' => 'Post',
 			'common.seconds' => 'Seconds',
@@ -6724,9 +6728,9 @@ extension on Translations {
 			'settings.importConfig' => 'Import App Configuration',
 			'settings.importConfigDesc' => 'Import app configuration from a file',
 			'settings.exportConfigSuccess' => 'Configuration exported successfully!',
-			'settings.exportConfigFailed' => 'Failed to export configuration',
 			_ => null,
 		} ?? switch (path) {
+			'settings.exportConfigFailed' => 'Failed to export configuration',
 			'settings.importConfigSuccess' => 'Configuration imported successfully!',
 			'settings.importConfigFailed' => 'Failed to import configuration',
 			'settings.historyUpdateLogs' => 'History Update Logs',
@@ -7238,9 +7242,9 @@ extension on Translations {
 			'forum.editReply' => 'Edit Reply',
 			'forum.editTitle' => 'Edit Title',
 			'forum.submit' => 'Submit',
-			'notifications.errors.unsupportedNotificationType' => 'Unsupported notification type',
 			_ => null,
 		} ?? switch (path) {
+			'notifications.errors.unsupportedNotificationType' => 'Unsupported notification type',
 			'notifications.errors.unknownUser' => 'Unknown user',
 			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => 'Unsupported notification type: ${type}',
 			'notifications.errors.unknownNotificationType' => 'Unknown notification type',
@@ -7752,9 +7756,9 @@ extension on Translations {
 			'log.exportMergedLogsDesc' => 'Export merged logs within a specified date range',
 			'log.showLogStats' => 'Show Log Stats',
 			'log.logExportSuccess' => 'Log export success',
-			'log.logExportFailed' => ({required Object error}) => 'Log export failed: ${error}',
 			_ => null,
 		} ?? switch (path) {
+			'log.logExportFailed' => ({required Object error}) => 'Log export failed: ${error}',
 			'log.showLogStatsDesc' => 'View statistics of various types of logs',
 			'log.logExtractFailed' => ({required Object error}) => 'Failed to get log statistics: ${error}',
 			'log.clearAllLogs' => 'Clear All Logs',

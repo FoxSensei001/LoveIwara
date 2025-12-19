@@ -221,6 +221,7 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String get paused => '已暂停';
 	@override String get clear => '清除';
 	@override String get clearSelection => '清空选择';
+	@override String get batchDelete => '批量删除';
 	@override String get user => '用户';
 	@override String get post => '投稿';
 	@override String get seconds => '秒';
@@ -2724,6 +2725,7 @@ extension on TranslationsZhCn {
 			'common.paused' => '已暂停',
 			'common.clear' => '清除',
 			'common.clearSelection' => '清空选择',
+			'common.batchDelete' => '批量删除',
 			'common.user' => '用户',
 			'common.post' => '投稿',
 			'common.seconds' => '秒',
@@ -3106,9 +3108,9 @@ extension on TranslationsZhCn {
 			'settings.enterSignature' => '输入小尾巴',
 			'settings.editSignature' => '编辑小尾巴',
 			'settings.signatureContent' => '小尾巴内容',
-			'settings.exportConfig' => '导出应用配置',
 			_ => null,
 		} ?? switch (path) {
+			'settings.exportConfig' => '导出应用配置',
 			'settings.exportConfigDesc' => '将应用配置导出为文件（不包含下载记录）',
 			'settings.importConfig' => '导入应用配置',
 			'settings.importConfigDesc' => '从文件导入应用配置',
@@ -3620,9 +3622,9 @@ extension on TranslationsZhCn {
 			'forum.reply' => '回复',
 			'forum.pendingReview' => '审核中',
 			'forum.editedAt' => '编辑时间',
-			'forum.copySuccess' => '已复制到剪贴板',
 			_ => null,
 		} ?? switch (path) {
+			'forum.copySuccess' => '已复制到剪贴板',
 			'forum.copySuccessForMessage' => ({required Object str}) => '已复制到剪贴板: ${str}',
 			'forum.editReply' => '编辑回复',
 			'forum.editTitle' => '编辑标题',
@@ -4134,9 +4136,9 @@ extension on TranslationsZhCn {
 			'emoji.addImage' => '添加图片',
 			'emoji.addImageByUrl' => '通过URL添加',
 			'emoji.addImageUrl' => '添加图片URL',
-			'emoji.imageUrl' => '图片URL',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.imageUrl' => '图片URL',
 			'emoji.enterImageUrl' => '请输入图片URL',
 			'emoji.add' => '添加',
 			'emoji.batchImport' => '批量导入',

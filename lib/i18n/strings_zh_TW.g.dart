@@ -221,6 +221,7 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get paused => '已暫停';
 	@override String get clear => '清除';
 	@override String get clearSelection => '清空選擇';
+	@override String get batchDelete => '批量刪除';
 	@override String get user => '使用者';
 	@override String get post => '投稿';
 	@override String get seconds => '秒';
@@ -2722,6 +2723,7 @@ extension on TranslationsZhTw {
 			'common.paused' => '已暫停',
 			'common.clear' => '清除',
 			'common.clearSelection' => '清空選擇',
+			'common.batchDelete' => '批量刪除',
 			'common.user' => '使用者',
 			'common.post' => '投稿',
 			'common.seconds' => '秒',
@@ -3104,9 +3106,9 @@ extension on TranslationsZhTw {
 			'settings.importConfig' => '匯入應用配置',
 			'settings.importConfigDesc' => '從文件匯入應用配置',
 			'settings.exportConfigSuccess' => '配置匯出成功！',
-			'settings.exportConfigFailed' => '配置匯出失敗',
 			_ => null,
 		} ?? switch (path) {
+			'settings.exportConfigFailed' => '配置匯出失敗',
 			'settings.importConfigSuccess' => '配置匯入成功！',
 			'settings.importConfigFailed' => '配置匯入失敗',
 			'settings.historyUpdateLogs' => '歷代更新日誌',
@@ -3618,9 +3620,9 @@ extension on TranslationsZhTw {
 			'forum.leafNames.questions_ja' => '問題',
 			'forum.leafNames.requests_ja' => '請求',
 			'forum.leafNames.support_ja' => '幫助',
-			'forum.leafNames.korean' => '韓語',
 			_ => null,
 		} ?? switch (path) {
+			'forum.leafNames.korean' => '韓語',
 			'forum.leafNames.other' => '其他',
 			'forum.leafDescriptions.announcements' => '官方重要通知和公告',
 			'forum.leafDescriptions.feedback' => '對網站功能和服務的回饋',
@@ -4132,9 +4134,9 @@ extension on TranslationsZhTw {
 			'log.newSizeLimit' => ({required Object size}) => '新的大小限制: ${size}',
 			'log.confirmToContinue' => '確定要繼續嗎？',
 			'log.logSizeLimitSetSuccess' => ({required Object size}) => '日誌大小上限已設定為 ${size}',
-			'emoji.name' => '表情',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.name' => '表情',
 			'emoji.size' => '大小',
 			'emoji.small' => '小',
 			'emoji.medium' => '中',

@@ -764,6 +764,8 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                         widget.myVideoStateController.currentPosition;
                     widget.myVideoStateController.setInteracting(true);
                     widget.myVideoStateController.showSeekPreview(true);
+                    widget.myVideoStateController.isHorizontalDragging.value =
+                        true;
                   }
                 : null,
             onHorizontalDragUpdate:

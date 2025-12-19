@@ -135,6 +135,7 @@ common:
   paused: 已暂停
   clear: 清除
   clearSelection: 清空选择
+  batchDelete: 批量删除
   user: 用户
   post: 投稿
   seconds: 秒

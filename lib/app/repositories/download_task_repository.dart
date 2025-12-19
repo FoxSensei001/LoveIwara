@@ -34,8 +34,8 @@ class DownloadTaskRepository {
   }
 
   /// 获取所有 downloading + pending 任务，按创建时间升序排列
-  Future<List<DownloadTask>> getDownloadingAndPendingTasksOrderByCreatedAtAsc()
-      async {
+  Future<List<DownloadTask>>
+  getDownloadingAndPendingTasksOrderByCreatedAtAsc() async {
     try {
       final stmt = _db.prepare('''
         SELECT * FROM download_tasks 
@@ -67,11 +67,7 @@ class DownloadTaskRepository {
       final results = stmt.select([]);
       return results.map((row) => DownloadTask.fromRow(row)).toList();
     } catch (e) {
-      LogUtils.e(
-        '获取等待中任务失败',
-        tag: 'DownloadTaskRepository',
-        error: e,
-      );
+      LogUtils.e('获取等待中任务失败', tag: 'DownloadTaskRepository', error: e);
       rethrow;
     }
   }
@@ -79,28 +75,31 @@ class DownloadTaskRepository {
   // 插入任务
   Future<void> insertTask(DownloadTask task) async {
     try {
-      final extDataJson =
-          task.extData != null ? jsonEncode(task.extData!.toJson()) : null;
+      final extDataJson = task.extData != null
+          ? jsonEncode(task.extData!.toJson())
+          : null;
 
-      _db.prepare('''
+      _db
+          .prepare('''
         INSERT INTO download_tasks 
         (id, url, save_path, file_name, total_bytes, downloaded_bytes, status, supports_range, error, ext_data, media_type, media_id, quality)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      ''').execute([
-        task.id,
-        task.url,
-        task.savePath,
-        task.fileName,
-        task.totalBytes,
-        task.downloadedBytes,
-        task.status.name,
-        task.supportsRange ? 1 : 0,
-        task.error,
-        extDataJson,
-        task.mediaType,
-        task.mediaId,
-        task.quality,
-      ]);
+      ''')
+          .execute([
+            task.id,
+            task.url,
+            task.savePath,
+            task.fileName,
+            task.totalBytes,
+            task.downloadedBytes,
+            task.status.name,
+            task.supportsRange ? 1 : 0,
+            task.error,
+            extDataJson,
+            task.mediaType,
+            task.mediaId,
+            task.quality,
+          ]);
     } catch (e) {
       LogUtils.e('插入下载任务失败', tag: 'DownloadTaskRepository', error: e);
       rethrow;
@@ -110,10 +109,12 @@ class DownloadTaskRepository {
   // 更新任务
   Future<void> updateTask(DownloadTask task) async {
     try {
-      final extDataJson =
-          task.extData != null ? jsonEncode(task.extData!.toJson()) : null;
+      final extDataJson = task.extData != null
+          ? jsonEncode(task.extData!.toJson())
+          : null;
 
-      _db.prepare('''
+      _db
+          .prepare('''
         UPDATE download_tasks 
         SET url = ?, 
             save_path = ?, 
@@ -129,22 +130,23 @@ class DownloadTaskRepository {
             quality = ?,
             updated_at = ?
         WHERE id = ?
-      ''').execute([
-        task.url,
-        task.savePath,
-        task.fileName,
-        task.totalBytes,
-        task.downloadedBytes,
-        task.status.name,
-        task.supportsRange ? 1 : 0,
-        task.error,
-        extDataJson,
-        task.mediaType,
-        task.mediaId,
-        task.quality,
-        DateTime.now().millisecondsSinceEpoch,
-        task.id
-      ]);
+      ''')
+          .execute([
+            task.url,
+            task.savePath,
+            task.fileName,
+            task.totalBytes,
+            task.downloadedBytes,
+            task.status.name,
+            task.supportsRange ? 1 : 0,
+            task.error,
+            extDataJson,
+            task.mediaType,
+            task.mediaId,
+            task.quality,
+            DateTime.now().millisecondsSinceEpoch,
+            task.id,
+          ]);
     } catch (e) {
       LogUtils.e('更新下载任务失败', tag: 'DownloadTaskRepository', error: e);
       rethrow;
@@ -172,6 +174,7 @@ class DownloadTaskRepository {
       return false;
     }
   }
+
   Future<List<DownloadTask>> getTasksByStatus(
     DownloadStatus? status, {
     int offset = 0,
@@ -267,8 +270,9 @@ class DownloadTaskRepository {
 
   Future<void> updateTaskStatusById(String id, DownloadStatus status) async {
     try {
-      final stmt =
-          _db.prepare('UPDATE download_tasks SET status = ? WHERE id = ?');
+      final stmt = _db.prepare(
+        'UPDATE download_tasks SET status = ? WHERE id = ?',
+      );
       stmt.execute([status.name, id]);
     } catch (e) {
       LogUtils.e('更新下载任务状态失败', tag: 'DownloadTaskRepository', error: e);
