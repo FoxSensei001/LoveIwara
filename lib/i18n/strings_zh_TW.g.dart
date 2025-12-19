@@ -220,6 +220,7 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get recording => '記錄中';
 	@override String get paused => '已暫停';
 	@override String get clear => '清除';
+	@override String get clearSelection => '清空選擇';
 	@override String get user => '使用者';
 	@override String get post => '投稿';
 	@override String get seconds => '秒';
@@ -1173,6 +1174,7 @@ class _TranslationsDownloadZhTw implements TranslationsDownloadEn {
 	@override String get alreadyDownloadedWithQuality => '已有相同清晰度的任務，是否繼續下載？';
 	@override String alreadyDownloadedWithQualities({required Object qualities}) => '此視頻已有${qualities}清晰度的任務，是否繼續下載？';
 	@override String get otherQualities => '其他清晰度';
+	@override late final _TranslationsDownloadBatchDownloadZhTw batchDownload = _TranslationsDownloadBatchDownloadZhTw._(_root);
 }
 
 // Path: favorite
@@ -2410,6 +2412,41 @@ class _TranslationsDownloadErrorsZhTw implements TranslationsDownloadErrorsEn {
 	@override String get imageLoadFailed => '圖片載入失敗';
 }
 
+// Path: download.batchDownload
+class _TranslationsDownloadBatchDownloadZhTw implements TranslationsDownloadBatchDownloadEn {
+	_TranslationsDownloadBatchDownloadZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '批量下載';
+	@override String get downloadTaskAlreadyRunning => '任務正在運行中，請稍候';
+	@override String get userCancelled => '用戶取消';
+	@override String get failedToGetVideoInfo => '無法獲取影片資訊';
+	@override String get failedToGetVideoSource => '無法獲取影片源';
+	@override String get failedToGetGalleryInfo => '無法獲取圖庫資訊';
+	@override String get galleryNoImages => '圖庫中沒有圖片';
+	@override String get failedToGetSavePath => '無法獲取保存路徑';
+	@override String batchDownloadFailedWithException({required Object exception}) => '批量下載失敗: ${exception}';
+	@override String get selectQuality => '選擇清晰度';
+	@override String get downloading => '下載中';
+	@override String get downloadResult => '下載結果';
+	@override String selectedVideosCount({required Object count}) => '已選擇 ${count} 個影片';
+	@override String selectedGalleriesCount({required Object count}) => '已選擇 ${count} 個圖庫';
+	@override String get qualityNote => '如果所選清晰度不可用，將使用最佳可用清晰度';
+	@override String progress({required Object current, required Object total}) => '處理中 ${current}/${total}';
+	@override String get success => '成功';
+	@override String get skipped => '跳過';
+	@override String get failed => '失敗';
+	@override String get failureDetails => '失敗詳情';
+	@override String get reasonPrivateVideo => '私人影片';
+	@override String get reasonAlreadyExists => '任務已存在';
+	@override String get reasonNoSource => '無下載源';
+	@override String get reasonNoSavePath => '無法取得儲存路徑';
+	@override String get reasonOther => '其他錯誤';
+	@override String get startDownload => '開始下載';
+}
+
 // Path: favorite.errors
 class _TranslationsFavoriteErrorsZhTw implements TranslationsFavoriteErrorsEn {
 	_TranslationsFavoriteErrorsZhTw._(this._root);
@@ -2684,6 +2721,7 @@ extension on TranslationsZhTw {
 			'common.recording' => '記錄中',
 			'common.paused' => '已暫停',
 			'common.clear' => '清除',
+			'common.clearSelection' => '清空選擇',
 			'common.user' => '使用者',
 			'common.post' => '投稿',
 			'common.seconds' => '秒',
@@ -3067,9 +3105,9 @@ extension on TranslationsZhTw {
 			'settings.importConfigDesc' => '從文件匯入應用配置',
 			'settings.exportConfigSuccess' => '配置匯出成功！',
 			'settings.exportConfigFailed' => '配置匯出失敗',
-			'settings.importConfigSuccess' => '配置匯入成功！',
 			_ => null,
 		} ?? switch (path) {
+			'settings.importConfigSuccess' => '配置匯入成功！',
 			'settings.importConfigFailed' => '配置匯入失敗',
 			'settings.historyUpdateLogs' => '歷代更新日誌',
 			'settings.noUpdateLogs' => '未獲取到更新日誌',
@@ -3581,9 +3619,9 @@ extension on TranslationsZhTw {
 			'forum.leafNames.requests_ja' => '請求',
 			'forum.leafNames.support_ja' => '幫助',
 			'forum.leafNames.korean' => '韓語',
-			'forum.leafNames.other' => '其他',
 			_ => null,
 		} ?? switch (path) {
+			'forum.leafNames.other' => '其他',
 			'forum.leafDescriptions.announcements' => '官方重要通知和公告',
 			'forum.leafDescriptions.feedback' => '對網站功能和服務的回饋',
 			'forum.leafDescriptions.support' => '幫助解決網站相關問題',
@@ -3793,6 +3831,32 @@ extension on TranslationsZhTw {
 			'download.alreadyDownloadedWithQuality' => '已有相同清晰度的任務，是否繼續下載？',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => '此視頻已有${qualities}清晰度的任務，是否繼續下載？',
 			'download.otherQualities' => '其他清晰度',
+			'download.batchDownload.title' => '批量下載',
+			'download.batchDownload.downloadTaskAlreadyRunning' => '任務正在運行中，請稍候',
+			'download.batchDownload.userCancelled' => '用戶取消',
+			'download.batchDownload.failedToGetVideoInfo' => '無法獲取影片資訊',
+			'download.batchDownload.failedToGetVideoSource' => '無法獲取影片源',
+			'download.batchDownload.failedToGetGalleryInfo' => '無法獲取圖庫資訊',
+			'download.batchDownload.galleryNoImages' => '圖庫中沒有圖片',
+			'download.batchDownload.failedToGetSavePath' => '無法獲取保存路徑',
+			'download.batchDownload.batchDownloadFailedWithException' => ({required Object exception}) => '批量下載失敗: ${exception}',
+			'download.batchDownload.selectQuality' => '選擇清晰度',
+			'download.batchDownload.downloading' => '下載中',
+			'download.batchDownload.downloadResult' => '下載結果',
+			'download.batchDownload.selectedVideosCount' => ({required Object count}) => '已選擇 ${count} 個影片',
+			'download.batchDownload.selectedGalleriesCount' => ({required Object count}) => '已選擇 ${count} 個圖庫',
+			'download.batchDownload.qualityNote' => '如果所選清晰度不可用，將使用最佳可用清晰度',
+			'download.batchDownload.progress' => ({required Object current, required Object total}) => '處理中 ${current}/${total}',
+			'download.batchDownload.success' => '成功',
+			'download.batchDownload.skipped' => '跳過',
+			'download.batchDownload.failed' => '失敗',
+			'download.batchDownload.failureDetails' => '失敗詳情',
+			'download.batchDownload.reasonPrivateVideo' => '私人影片',
+			'download.batchDownload.reasonAlreadyExists' => '任務已存在',
+			'download.batchDownload.reasonNoSource' => '無下載源',
+			'download.batchDownload.reasonNoSavePath' => '無法取得儲存路徑',
+			'download.batchDownload.reasonOther' => '其他錯誤',
+			'download.batchDownload.startDownload' => '開始下載',
 			'favorite.errors.addFailed' => '追加失敗',
 			'favorite.errors.addSuccess' => '追加成功',
 			'favorite.errors.deleteFolderFailed' => '刪除資料夾失敗',
@@ -4069,6 +4133,8 @@ extension on TranslationsZhTw {
 			'log.confirmToContinue' => '確定要繼續嗎？',
 			'log.logSizeLimitSetSuccess' => ({required Object size}) => '日誌大小上限已設定為 ${size}',
 			'emoji.name' => '表情',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.size' => '大小',
 			'emoji.small' => '小',
 			'emoji.medium' => '中',
@@ -4096,8 +4162,6 @@ extension on TranslationsZhTw {
 			'emoji.addImageUrl' => '添加圖片URL',
 			'emoji.imageUrl' => '圖片URL',
 			'emoji.enterImageUrl' => '請輸入圖片URL',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.add' => '添加',
 			'emoji.batchImport' => '批次匯入',
 			'emoji.enterJsonUrlArray' => '請輸入JSON格式的URL陣列:',

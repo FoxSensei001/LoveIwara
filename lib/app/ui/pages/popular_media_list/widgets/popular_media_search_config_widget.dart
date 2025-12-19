@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_preference_service.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/widget_extensions.dart';
@@ -111,7 +112,7 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
                         }
                       }
                       widget.onConfirm(tags, finalDate, _selectedRating.value);
-                      Navigator.of(context).pop();
+                      AppService.tryPop();
                     },
                   ),
                 ),
@@ -138,7 +139,7 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
                   }
                 }
                 widget.onConfirm(tags, finalDate, _selectedRating.value);
-                Navigator.of(context).pop();
+                AppService.tryPop();
               },
             ),
           ],
@@ -381,28 +382,21 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
                 IconButton(
                   icon: const Icon(Icons.remove),
                   onPressed: () {
-                    showModalBottomSheet(
-                      context: context,
-                      backgroundColor: Colors.transparent,
-                      isScrollControlled: true,
-                      builder: (context) {
-                        return RemoveSearchTagDialog(
-                          onRemoveIds: (List<String> removedTags) {
-                            for (var id in removedTags) {
-                              _userPreferenceService.removeVideoSearchTagById(
-                                id,
-                              );
-                            }
-                            setState(() {
-                              tags.removeWhere(
-                                (tag) => removedTags.contains(tag.id),
-                              );
-                            });
-                          },
-                          videoSearchTagHistory:
-                              _userPreferenceService.videoSearchTagHistory,
-                        );
-                      },
+                    Get.dialog(
+                      RemoveSearchTagDialog(
+                        onRemoveIds: (List<String> removedTags) {
+                          for (var id in removedTags) {
+                            _userPreferenceService.removeVideoSearchTagById(id);
+                          }
+                          setState(() {
+                            tags.removeWhere(
+                              (tag) => removedTags.contains(tag.id),
+                            );
+                          });
+                        },
+                        videoSearchTagHistory:
+                            _userPreferenceService.videoSearchTagHistory,
+                      ),
                     );
                   },
                 ),
@@ -410,14 +404,7 @@ class _PopularMediaSearchConfigState extends State<PopularMediaSearchConfig> {
                 IconButton(
                   icon: const Icon(Icons.add),
                   onPressed: () {
-                    showModalBottomSheet(
-                      context: context,
-                      backgroundColor: Colors.transparent,
-                      isScrollControlled: true,
-                      builder: (context) {
-                        return const AddSearchTagDialog();
-                      },
-                    );
+                    Get.dialog(const AddSearchTagDialog());
                   },
                 ),
               ],

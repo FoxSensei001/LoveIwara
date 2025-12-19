@@ -5,6 +5,7 @@ import 'package:i_iwara/utils/logger_utils.dart';
 import '../../../../models/image.model.dart';
 import '../controllers/userz_image_model_list_controller.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/image_model_card_list_item_widget.dart';
 
@@ -13,6 +14,11 @@ class ProfileImageModelTabListWidget extends StatefulWidget {
   final TabController tc;
   final String userId;
   final Function({int? count})? onFetchFinished;
+  final bool isMultiSelectMode;
+  final Set<String> selectedItemIds;
+  final Function(ImageModel image)? onItemSelect;
+  final VoidCallback? onPageChanged;
+  final VoidCallback? onMultiSelectToggle;
 
   const ProfileImageModelTabListWidget({
     super.key,
@@ -20,13 +26,20 @@ class ProfileImageModelTabListWidget extends StatefulWidget {
     required this.tc,
     required this.userId,
     this.onFetchFinished,
+    this.isMultiSelectMode = false,
+    this.selectedItemIds = const {},
+    this.onItemSelect,
+    this.onPageChanged,
+    this.onMultiSelectToggle,
   });
 
   @override
-  State<ProfileImageModelTabListWidget> createState() => _ProfileImageModelTabListWidgetState();
+  State<ProfileImageModelTabListWidget> createState() =>
+      _ProfileImageModelTabListWidgetState();
 }
 
-class _ProfileImageModelTabListWidgetState extends State<ProfileImageModelTabListWidget>
+class _ProfileImageModelTabListWidgetState
+    extends State<ProfileImageModelTabListWidget>
     with AutomaticKeepAliveClientMixin {
   late UserzImageModelListRepository imageListRepository;
   late ScrollController _tabBarScrollController;
@@ -89,7 +102,9 @@ class _ProfileImageModelTabListWidgetState extends State<ProfileImageModelTabLis
       if (newOffset < 0) {
         _tabBarScrollController.jumpTo(0);
       } else if (newOffset > _tabBarScrollController.position.maxScrollExtent) {
-        _tabBarScrollController.jumpTo(_tabBarScrollController.position.maxScrollExtent);
+        _tabBarScrollController.jumpTo(
+          _tabBarScrollController.position.maxScrollExtent,
+        );
       } else {
         _tabBarScrollController.jumpTo(newOffset);
       }
@@ -185,6 +200,15 @@ class _ProfileImageModelTabListWidgetState extends State<ProfileImageModelTabLis
               ),
             ),
             IconButton(
+              icon: Icon(
+                widget.isMultiSelectMode ? Icons.close : Icons.checklist,
+              ),
+              onPressed: widget.onMultiSelectToggle,
+              tooltip: widget.isMultiSelectMode
+                  ? t.common.exitEditMode
+                  : t.common.editMode,
+            ),
+            IconButton(
               icon: const Icon(Icons.refresh),
               onPressed: () => imageListRepository.refresh(true),
             ),
@@ -198,19 +222,29 @@ class _ProfileImageModelTabListWidgetState extends State<ProfileImageModelTabLis
             child: MediaListView<ImageModel>(
               sourceList: imageListRepository,
               emptyIcon: Icons.image_outlined,
+              onPageChanged: widget.onPageChanged,
               itemBuilder: (context, image, index) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
-                    vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
-                  ),
-                  child: ImageModelCardListItemWidget(
-                    imageModel: image,
-                    width: MediaQuery.of(context).size.width <= 600 
-                        ? MediaQuery.of(context).size.width / 2 - 8 
-                        : 200,
-                  ),
-                );
+                return Obx(() {
+                  return Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: MediaQuery.of(context).size.width <= 600
+                          ? 2
+                          : 0,
+                      vertical: MediaQuery.of(context).size.width <= 600
+                          ? 2
+                          : 3,
+                    ),
+                    child: ImageModelCardListItemWidget(
+                      imageModel: image,
+                      width: MediaQuery.of(context).size.width <= 600
+                          ? MediaQuery.of(context).size.width / 2 - 8
+                          : 200,
+                      isMultiSelectMode: widget.isMultiSelectMode,
+                      isSelected: widget.selectedItemIds.contains(image.id),
+                      onSelect: () => widget.onItemSelect?.call(image),
+                    ),
+                  );
+                });
               },
             ),
           ),

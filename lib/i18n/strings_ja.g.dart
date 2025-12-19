@@ -225,6 +225,7 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get recording => '録画中';
 	@override String get paused => '一時停止';
 	@override String get clear => 'クリア';
+	@override String get clearSelection => '選択を解除';
 	@override String get user => 'ユーザー';
 	@override String get post => '投稿';
 	@override String get seconds => '秒';
@@ -1142,6 +1143,7 @@ class _TranslationsDownloadJa implements TranslationsDownloadEn {
 	@override String get alreadyDownloadedWithQuality => 'すでに同じ品質のタスクがあります。続けてダウンロードしますか？';
 	@override String alreadyDownloadedWithQualities({required Object qualities}) => 'すでに品質が${qualities}のタスクがあります。続けてダウンロードしますか？';
 	@override String get otherQualities => 'その他の品質';
+	@override late final _TranslationsDownloadBatchDownloadJa batchDownload = _TranslationsDownloadBatchDownloadJa._(_root);
 }
 
 // Path: favorite
@@ -2319,6 +2321,41 @@ class _TranslationsDownloadErrorsJa implements TranslationsDownloadErrorsEn {
 	@override String get pleaseTryOtherViewer => '他のビューアーを使用してみてください';
 }
 
+// Path: download.batchDownload
+class _TranslationsDownloadBatchDownloadJa implements TranslationsDownloadBatchDownloadEn {
+	_TranslationsDownloadBatchDownloadJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '一括ダウンロード';
+	@override String get downloadTaskAlreadyRunning => 'タスクが実行中です。しばらくお待ちください';
+	@override String get userCancelled => 'ユーザーによるキャンセル';
+	@override String get failedToGetVideoInfo => '動画情報の取得に失敗しました';
+	@override String get failedToGetVideoSource => '動画ソースの取得に失敗しました';
+	@override String get failedToGetGalleryInfo => 'ギャラリー情報の取得に失敗しました';
+	@override String get galleryNoImages => 'ギャラリーに画像がありません';
+	@override String get failedToGetSavePath => '保存パスの取得に失敗しました';
+	@override String batchDownloadFailedWithException({required Object exception}) => '一括ダウンロードに失敗しました: ${exception}';
+	@override String get selectQuality => '品質を選択';
+	@override String get downloading => 'ダウンロード中';
+	@override String get downloadResult => 'ダウンロード結果';
+	@override String selectedVideosCount({required Object count}) => '${count}件の動画を選択';
+	@override String selectedGalleriesCount({required Object count}) => '${count}件のギャラリーを選択';
+	@override String get qualityNote => '選択した品質が利用できない場合は、最適な品質が使用されます';
+	@override String progress({required Object current, required Object total}) => '処理中 ${current}/${total}';
+	@override String get success => '成功';
+	@override String get skipped => 'スキップ';
+	@override String get failed => '失敗';
+	@override String get failureDetails => '失敗の詳細';
+	@override String get reasonPrivateVideo => 'プライベート動画';
+	@override String get reasonAlreadyExists => 'タスクが既に存在';
+	@override String get reasonNoSource => 'ダウンロードソースなし';
+	@override String get reasonNoSavePath => '保存パスを取得できません';
+	@override String get reasonOther => 'その他のエラー';
+	@override String get startDownload => 'ダウンロード開始';
+}
+
 // Path: favorite.errors
 class _TranslationsFavoriteErrorsJa implements TranslationsFavoriteErrorsEn {
 	_TranslationsFavoriteErrorsJa._(this._root);
@@ -2686,6 +2723,7 @@ extension on TranslationsJa {
 			'common.recording' => '録画中',
 			'common.paused' => '一時停止',
 			'common.clear' => 'クリア',
+			'common.clearSelection' => '選択を解除',
 			'common.user' => 'ユーザー',
 			'common.post' => '投稿',
 			'common.seconds' => '秒',
@@ -3064,9 +3102,9 @@ extension on TranslationsJa {
 			'settings.importConfigDesc' => 'ファイルからアプリ設定をインポートします',
 			'settings.exportConfigSuccess' => '設定が正常にエクスポートされました',
 			'settings.exportConfigFailed' => '設定のエクスポートに失敗しました',
-			'settings.importConfigSuccess' => '設定が正常にインポートされました',
 			_ => null,
 		} ?? switch (path) {
+			'settings.importConfigSuccess' => '設定が正常にインポートされました',
 			'settings.importConfigFailed' => '設定のインポートに失敗しました',
 			'settings.historyUpdateLogs' => '歴代アップデートログ',
 			'settings.noUpdateLogs' => 'アップデートログが取得できませんでした',
@@ -3578,9 +3616,9 @@ extension on TranslationsJa {
 			'forum.editTitle' => '編集タイトル',
 			'forum.submit' => '提出',
 			'notifications.errors.unsupportedNotificationType' => 'サポートされていない通知タイプ',
-			'notifications.errors.unknownUser' => '未知ユーザー',
 			_ => null,
 		} ?? switch (path) {
+			'notifications.errors.unknownUser' => '未知ユーザー',
 			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => 'サポートされていない通知タイプ: ${type}',
 			'notifications.errors.unknownNotificationType' => '未知通知タイプ',
 			'notifications.notifications' => '通知',
@@ -3759,6 +3797,32 @@ extension on TranslationsJa {
 			'download.alreadyDownloadedWithQuality' => 'すでに同じ品質のタスクがあります。続けてダウンロードしますか？',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'すでに品質が${qualities}のタスクがあります。続けてダウンロードしますか？',
 			'download.otherQualities' => 'その他の品質',
+			'download.batchDownload.title' => '一括ダウンロード',
+			'download.batchDownload.downloadTaskAlreadyRunning' => 'タスクが実行中です。しばらくお待ちください',
+			'download.batchDownload.userCancelled' => 'ユーザーによるキャンセル',
+			'download.batchDownload.failedToGetVideoInfo' => '動画情報の取得に失敗しました',
+			'download.batchDownload.failedToGetVideoSource' => '動画ソースの取得に失敗しました',
+			'download.batchDownload.failedToGetGalleryInfo' => 'ギャラリー情報の取得に失敗しました',
+			'download.batchDownload.galleryNoImages' => 'ギャラリーに画像がありません',
+			'download.batchDownload.failedToGetSavePath' => '保存パスの取得に失敗しました',
+			'download.batchDownload.batchDownloadFailedWithException' => ({required Object exception}) => '一括ダウンロードに失敗しました: ${exception}',
+			'download.batchDownload.selectQuality' => '品質を選択',
+			'download.batchDownload.downloading' => 'ダウンロード中',
+			'download.batchDownload.downloadResult' => 'ダウンロード結果',
+			'download.batchDownload.selectedVideosCount' => ({required Object count}) => '${count}件の動画を選択',
+			'download.batchDownload.selectedGalleriesCount' => ({required Object count}) => '${count}件のギャラリーを選択',
+			'download.batchDownload.qualityNote' => '選択した品質が利用できない場合は、最適な品質が使用されます',
+			'download.batchDownload.progress' => ({required Object current, required Object total}) => '処理中 ${current}/${total}',
+			'download.batchDownload.success' => '成功',
+			'download.batchDownload.skipped' => 'スキップ',
+			'download.batchDownload.failed' => '失敗',
+			'download.batchDownload.failureDetails' => '失敗の詳細',
+			'download.batchDownload.reasonPrivateVideo' => 'プライベート動画',
+			'download.batchDownload.reasonAlreadyExists' => 'タスクが既に存在',
+			'download.batchDownload.reasonNoSource' => 'ダウンロードソースなし',
+			'download.batchDownload.reasonNoSavePath' => '保存パスを取得できません',
+			'download.batchDownload.reasonOther' => 'その他のエラー',
+			'download.batchDownload.startDownload' => 'ダウンロード開始',
 			'favorite.errors.addFailed' => '追加に失敗しました',
 			'favorite.errors.addSuccess' => '追加に成功しました',
 			'favorite.errors.deleteFolderFailed' => 'フォルダーの削除に失敗しました',
@@ -4066,6 +4130,8 @@ extension on TranslationsJa {
 			'emoji.batchImport' => '一括インポート',
 			'emoji.enterJsonUrlArray' => 'JSON形式のURL配列を入力してください:',
 			'emoji.formatExample' => '形式例:\n["url1", "url2", "url3"]',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.pasteJsonUrlArray' => 'JSON形式のURL配列を貼り付けてください',
 			'emoji.import' => 'インポート',
 			'emoji.importSuccess' => ({required Object count}) => '${count}枚の画像をインポートしました',
@@ -4093,8 +4159,6 @@ extension on TranslationsJa {
 			'emoji.uploadFailedMessage' => '画像のアップロードに失敗しました。ネットワーク接続またはファイル形式を確認してください',
 			'emoji.uploadErrorMessage' => ({required Object error}) => 'アップロード中にエラーが発生しました: ${error}',
 			'displaySettings.title' => '表示設定',
-			_ => null,
-		} ?? switch (path) {
 			'displaySettings.layoutSettings' => 'レイアウト設定',
 			'displaySettings.layoutSettingsDesc' => 'カラム数とブレークポイント設定をカスタマイズ',
 			'displaySettings.gridLayout' => 'グリッドレイアウト',

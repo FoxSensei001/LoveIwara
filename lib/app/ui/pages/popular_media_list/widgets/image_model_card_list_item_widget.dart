@@ -11,26 +11,43 @@ class ImageModelCardListItemWidget extends StatefulWidget {
   final ImageModel imageModel;
   final double width;
 
+  /// 是否处于多选模式
+  final bool isMultiSelectMode;
+
+  /// 是否被选中（多选模式下使用）
+  final bool isSelected;
+
+  /// 选中状态变化回调
+  final VoidCallback? onSelect;
+
   const ImageModelCardListItemWidget({
     super.key,
     required this.imageModel,
     required this.width,
+    this.isMultiSelectMode = false,
+    this.isSelected = false,
+    this.onSelect,
   });
 
   @override
-  State<ImageModelCardListItemWidget> createState() => _ImageModelCardListItemWidgetState();
+  State<ImageModelCardListItemWidget> createState() =>
+      _ImageModelCardListItemWidgetState();
 }
 
-class _ImageModelCardListItemWidgetState extends State<ImageModelCardListItemWidget> {
+class _ImageModelCardListItemWidgetState
+    extends State<ImageModelCardListItemWidget> {
   // 缓存标签组件
   late List<Widget> _cachedTags;
   bool _tagsInitialized = false;
-  
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_tagsInitialized) {
-      final thumbnail = _Thumbnail(imageModel: widget.imageModel, width: widget.width);
+      final thumbnail = _Thumbnail(
+        imageModel: widget.imageModel,
+        width: widget.width,
+      );
       _cachedTags = thumbnail.buildTags(context);
       _tagsInitialized = true;
     }
@@ -40,23 +57,57 @@ class _ImageModelCardListItemWidgetState extends State<ImageModelCardListItemWid
   Widget build(BuildContext context) {
     // 确保标签已初始化
     if (!_tagsInitialized) {
-      final thumbnail = _Thumbnail(imageModel: widget.imageModel, width: widget.width);
+      final thumbnail = _Thumbnail(
+        imageModel: widget.imageModel,
+        width: widget.width,
+      );
       _cachedTags = thumbnail.buildTags(context);
       _tagsInitialized = true;
     }
-    
-    return RepaintBoundary(
+
+    final card = RepaintBoundary(
       child: BaseCardListItem(
         width: widget.width,
         thumbnail: _buildCachedThumbnail(),
         title: widget.imageModel.title,
         createdAt: widget.imageModel.createdAt,
         user: widget.imageModel.user,
-        onTap: () => NaviService.navigateToGalleryDetailPage(widget.imageModel.id),
+        onTap: widget.isMultiSelectMode && widget.onSelect != null
+            ? widget.onSelect!
+            : () =>
+                  NaviService.navigateToGalleryDetailPage(widget.imageModel.id),
       ),
     );
+
+    // 多选模式下添加覆盖层
+    if (widget.isMultiSelectMode) {
+      return Stack(
+        children: [
+          card,
+          Positioned.fill(
+            child: Material(
+              color: widget.isSelected ? Colors.black38 : Colors.black12,
+              child: InkWell(
+                onTap: widget.onSelect,
+                child: Center(
+                  child: Icon(
+                    widget.isSelected
+                        ? Icons.check_circle
+                        : Icons.circle_outlined,
+                    color: widget.isSelected ? Colors.white : Colors.white70,
+                    size: 40,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return card;
   }
-  
+
   Widget _buildCachedThumbnail() {
     return _Thumbnail(
       imageModel: widget.imageModel,
@@ -72,7 +123,7 @@ class _Thumbnail extends StatelessWidget {
   final List<Widget>? cachedTags;
 
   const _Thumbnail({
-    required this.imageModel, 
+    required this.imageModel,
     required this.width,
     this.cachedTags,
   });
@@ -81,10 +132,7 @@ class _Thumbnail extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       fit: StackFit.expand,
-      children: [
-        _buildImage(),
-        ...(cachedTags ?? buildTags(context)),
-      ],
+      children: [_buildImage(), ...(cachedTags ?? buildTags(context))],
     );
   }
 
@@ -94,7 +142,7 @@ class _Thumbnail extends StatelessWidget {
       child: _buildOptimizedImage(),
     );
   }
-  
+
   Widget _buildOptimizedImage() {
     return CachedNetworkImage(
       imageUrl: imageModel.thumbnailUrl,
@@ -109,26 +157,24 @@ class _Thumbnail extends StatelessWidget {
       errorWidget: (_, __, ___) => _buildErrorPlaceholder(),
     );
   }
-  
+
   // 使用更高效的占位符
   Widget _buildPlaceholder(BuildContext context, String url) {
     return const SizedBox.expand(
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: Color(0xFFE0E0E0),
-        ),
-      ),
+      child: DecoratedBox(decoration: BoxDecoration(color: Color(0xFFE0E0E0))),
     );
   }
 
   Widget _buildErrorPlaceholder() {
     return const SizedBox.expand(
       child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: Color(0xFFE0E0E0),
-        ),
+        decoration: BoxDecoration(color: Color(0xFFE0E0E0)),
         child: Center(
-          child: Icon(Icons.image_not_supported, size: 32, color: Color(0xFF9E9E9E)),
+          child: Icon(
+            Icons.image_not_supported,
+            size: 32,
+            color: Color(0xFF9E9E9E),
+          ),
         ),
       ),
     );
@@ -137,11 +183,7 @@ class _Thumbnail extends StatelessWidget {
   List<Widget> buildTags(BuildContext context) {
     return [
       if (imageModel.rating == 'ecchi')
-        Positioned(
-          left: 0,
-          bottom: 0,
-          child: _buildRatingTag(context),
-        ),
+        Positioned(left: 0, bottom: 0, child: _buildRatingTag(context)),
       Positioned(
         right: 0,
         top: 0,

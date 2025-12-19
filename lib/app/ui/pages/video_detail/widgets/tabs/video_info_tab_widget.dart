@@ -1156,8 +1156,14 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
                   LogUtils.d('选择下载质量: ${source.name}', 'VideoInfoTabWidget');
                   AppService.tryPop();
 
-                  if (source.download == null) {
-                    LogUtils.w('所选质量没有下载链接', 'VideoInfoTabWidget');
+                  // 重新从 controller 获取最新的视频源列表，避免使用过期的源
+                  final latestSources = widget.controller.currentVideoSourceList;
+                  final latestSource = latestSources.firstWhereOrNull(
+                    (s) => (s.name?.toLowerCase() ?? '') == (source.name?.toLowerCase() ?? ''),
+                  );
+
+                  if (latestSource == null || latestSource.download == null) {
+                    LogUtils.w('所选质量没有下载链接或源已失效', 'VideoInfoTabWidget');
                     showToastWidget(
                       MDToastWidget(
                         message: t.videoDetail.noDownloadUrl,
@@ -1175,7 +1181,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
                       throw Exception(t.download.errors.videoInfoNotFound);
                     }
 
-                    // 创建视频下载的额外信息
+                    // 创建视频下载的额外信息，使用最新获取的视频源
                     final videoExtData = VideoDownloadExtData(
                       id: videoInfo.id,
                       title: videoInfo.title,
@@ -1184,15 +1190,15 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
                       authorUsername: videoInfo.user?.username,
                       authorAvatar: videoInfo.user?.avatar?.avatarUrl,
                       duration: videoInfo.file?.duration,
-                      quality: source.name,
+                      quality: latestSource.name,
                     );
-                    LogUtils.d('创建下载任务元数据', 'VideoInfoTabWidget');
+                    LogUtils.d('创建下载任务元数据，使用最新视频源', 'VideoInfoTabWidget');
 
                     // 检查是否存在重复任务
                     final duplicateCheck = await DownloadService.to
                         .checkVideoTaskDuplicate(
                           videoInfo.id,
-                          source.name ?? 'unknown',
+                          latestSource.name ?? 'unknown',
                         );
 
                     // 如果存在重复任务，显示确认对话框
@@ -1219,8 +1225,8 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
                     // 在创建下载任务之前获取保存路径
                     final savePath = await _getSavePath(
                       videoInfo.title ?? 'video',
-                      source.name ?? 'unknown',
-                      source.download ?? 'unknown',
+                      latestSource.name ?? 'unknown',
+                      latestSource.download ?? 'unknown',
                     );
 
                     if (savePath == null) {
@@ -1235,10 +1241,10 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
                     }
 
                     final task = DownloadTask(
-                      url: source.download!,
+                      url: latestSource.download!,
                       savePath: savePath,
                       fileName:
-                          '${videoInfo.title ?? 'video'}_${source.name}.mp4',
+                          '${videoInfo.title ?? 'video'}_${latestSource.name}.mp4',
                       supportsRange: true,
                       extData: DownloadTaskExtData(
                         type: DownloadTaskExtDataType.video,
@@ -1246,7 +1252,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
                       ),
                       mediaType: 'video',
                       mediaId: videoInfo.id,
-                      quality: source.name,
+                      quality: latestSource.name,
                     );
                     LogUtils.d('添加下载任务: ${task.id}', 'VideoInfoTabWidget');
 
@@ -1259,7 +1265,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
                     final configService = Get.find<ConfigService>();
                     configService.setSetting(
                       ConfigKey.LAST_DOWNLOAD_QUALITY,
-                      source.name ?? 'unknown',
+                      latestSource.name ?? 'unknown',
                     );
 
                     _showDownloadStartedSnackBar(context);

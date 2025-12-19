@@ -12,8 +12,8 @@ import 'package:i_iwara/app/ui/pages/subscriptions/widgets/subscription_post_lis
 import 'package:i_iwara/app/ui/pages/subscriptions/widgets/subscription_video_list.dart';
 import 'package:i_iwara/app/ui/widgets/grid_speed_dial.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import '../../../services/app_service.dart';
-import '../../widgets/top_padding_height_widget.dart';
+import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/ui/widgets/top_padding_height_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glow_notification_widget.dart';
 import 'package:i_iwara/app/ui/pages/home_page.dart';
@@ -23,6 +23,10 @@ import 'package:i_iwara/app/services/tutorial_service.dart';
 
 import 'dart:ui';
 import 'controllers/media_list_controller.dart';
+import '../popular_media_list/controllers/batch_select_controller.dart';
+import 'package:i_iwara/app/models/video.model.dart';
+import 'package:i_iwara/app/models/image.model.dart';
+import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
 
 class SubscriptionsPage extends StatefulWidget implements HomeWidgetInterface {
   static final globalKey = GlobalKey<SubscriptionsPageState>();
@@ -47,6 +51,8 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
   final UserPreferenceService userPreferenceService =
       Get.find<UserPreferenceService>();
   late final MediaListController mediaListController;
+  late final BatchSelectController<Video> _videoBatchController;
+  late final BatchSelectController<ImageModel> _imageBatchController;
 
   late TabController _tabController;
   String selectedId = '';
@@ -249,6 +255,20 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
 
     _tabController.addListener(_onTabChange);
     mediaListController = Get.put(MediaListController());
+    _videoBatchController = Get.put(
+      BatchSelectController<Video>(),
+      tag: 'subscriptions_video_batch',
+    );
+    _imageBatchController = Get.put(
+      BatchSelectController<ImageModel>(),
+      tag: 'subscriptions_image_batch',
+    );
+
+    // 监听列表页面变化
+    mediaListController.registerOnPageChangedCallback(() {
+      _videoBatchController.onPageChanged();
+      _imageBatchController.onPageChanged();
+    });
 
     // 显示教程指导（延迟执行，确保页面完全加载）
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -304,6 +324,9 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
 
   void _onTabChange() {
     _scrollToSelectedTab();
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   void _scrollToSelectedTab() {
@@ -415,6 +438,10 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
     _tabController.dispose();
     _tabBarScrollController.dispose();
     Get.delete<MediaListController>();
+    Get.delete<BatchSelectController<Video>>(tag: 'subscriptions_video_batch');
+    Get.delete<BatchSelectController<ImageModel>>(
+      tag: 'subscriptions_image_batch',
+    );
     super.dispose();
   }
 
@@ -455,6 +482,10 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                   final rebuildKey = mediaListController.rebuildKey.value
                       .toString();
 
+                  // 同步分页模式状态到批量选择控制器
+                  _videoBatchController.setPaginatedMode(isPaginated);
+                  _imageBatchController.setPaginatedMode(isPaginated);
+
                   return TabBarView(
                     controller: _tabController,
                     physics: const ClampingScrollPhysics(),
@@ -463,20 +494,38 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                         key: ValueKey(
                           'video_${selectedId}_${isPaginated}_$rebuildKey',
                         ),
-                        child: SubscriptionVideoList(
-                          userId: selectedId,
-                          isPaginated: isPaginated,
-                          paddingTop: listPaddingTop,
+                        child: Obx(
+                          () => SubscriptionVideoList(
+                            userId: selectedId,
+                            isPaginated: isPaginated,
+                            paddingTop: listPaddingTop,
+                            isMultiSelectMode:
+                                _videoBatchController.isMultiSelect.value,
+                            selectedItemIds: _videoBatchController
+                                .selectedMediaIds
+                                .toSet(),
+                            onItemSelect: (video) =>
+                                _videoBatchController.toggleSelection(video),
+                          ),
                         ),
                       ),
                       GlowNotificationWidget(
                         key: ValueKey(
                           'image_${selectedId}_${isPaginated}_$rebuildKey',
                         ),
-                        child: SubscriptionImageList(
-                          userId: selectedId,
-                          isPaginated: isPaginated,
-                          paddingTop: listPaddingTop,
+                        child: Obx(
+                          () => SubscriptionImageList(
+                            userId: selectedId,
+                            isPaginated: isPaginated,
+                            paddingTop: listPaddingTop,
+                            isMultiSelectMode:
+                                _imageBatchController.isMultiSelect.value,
+                            selectedItemIds: _imageBatchController
+                                .selectedMediaIds
+                                .toSet(),
+                            onItemSelect: (image) =>
+                                _imageBatchController.toggleSelection(image),
+                          ),
                         ),
                       ),
                       GlowNotificationWidget(
@@ -658,6 +707,28 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                                   onPressed: refreshCurrentList,
                                   tooltip: t.common.refresh,
                                 ),
+                                // 多选按钮
+                                Obx(() {
+                                  // 仅在视频和图库标签页显示多选按钮
+                                  if (_tabController.index > 1) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  final controller = _tabController.index == 0
+                                      ? _videoBatchController
+                                      : _imageBatchController;
+                                  return IconButton(
+                                    icon: Icon(
+                                      controller.isMultiSelect.value
+                                          ? Icons.close
+                                          : Icons.checklist,
+                                    ),
+                                    onPressed: () =>
+                                        controller.toggleMultiSelect(),
+                                    tooltip: controller.isMultiSelect.value
+                                        ? t.common.exitEditMode
+                                        : t.common.editMode,
+                                  );
+                                }),
                               ],
                             ),
                           ),
@@ -666,6 +737,19 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                     ),
                   ),
                 ),
+              ),
+              // 4. 左下角功能按钮（视频和图库列表支持多选）
+              BatchActionFabColumn<Video>(
+                controller: _videoBatchController,
+                heroTagPrefix: 'subscriptions_video',
+                isPaginated: mediaListController.isPaginated.value,
+                visible: () => _tabController.index == 0,
+              ),
+              BatchActionFabColumn<ImageModel>(
+                controller: _imageBatchController,
+                heroTagPrefix: 'subscriptions_image',
+                isPaginated: mediaListController.isPaginated.value,
+                visible: () => _tabController.index == 1,
               ),
 
               // 3. 浮动按钮（仅在折叠时显示）
@@ -731,6 +815,33 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                               context,
                             ).colorScheme.onPrimaryContainer,
                             onTap: refreshCurrentList,
+                          ),
+                          // 多选按钮
+                          SpeedDialChild(
+                            child: Obx(() {
+                              final controller = _tabController.index == 0
+                                  ? _videoBatchController
+                                  : _imageBatchController;
+                              return Icon(
+                                controller.isMultiSelect.value
+                                    ? Icons.close
+                                    : Icons.checklist,
+                              );
+                            }),
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.primaryContainer,
+                            foregroundColor: Theme.of(
+                              context,
+                            ).colorScheme.onPrimaryContainer,
+                            onTap: () {
+                              if (_tabController.index <= 1) {
+                                final controller = _tabController.index == 0
+                                    ? _videoBatchController
+                                    : _imageBatchController;
+                                controller.toggleMultiSelect();
+                              }
+                            },
                           ),
                         ],
                         [

@@ -7,6 +7,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:dio/dio.dart';
 import 'dart:ui';
 import 'package:i_iwara/app/utils/media_layout_utils.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 /// 全局错误监听器，用于捕获最近的DioException
 class GlobalErrorListener {
@@ -55,7 +56,9 @@ class SkeletonLayoutConfig {
   /// 创建默认配置（使用 MediaLayoutUtils 的默认值）
   factory SkeletonLayoutConfig.defaultConfig(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final int crossAxisCount = MediaLayoutUtils.calculateCrossAxisCount(screenWidth);
+    final int crossAxisCount = MediaLayoutUtils.calculateCrossAxisCount(
+      screenWidth,
+    );
     final double maxCrossAxisExtent = screenWidth / crossAxisCount;
 
     return SkeletonLayoutConfig(
@@ -67,7 +70,9 @@ class SkeletonLayoutConfig {
   }
 
   /// 从 SliverWaterfallFlowDelegateWithMaxCrossAxisExtent 提取配置
-  factory SkeletonLayoutConfig.fromDelegate(SliverWaterfallFlowDelegateWithMaxCrossAxisExtent delegate) {
+  factory SkeletonLayoutConfig.fromDelegate(
+    SliverWaterfallFlowDelegateWithMaxCrossAxisExtent delegate,
+  ) {
     return SkeletonLayoutConfig(
       maxCrossAxisExtent: delegate.maxCrossAxisExtent,
       crossAxisSpacing: delegate.crossAxisSpacing,
@@ -89,71 +94,87 @@ Widget? buildIndicator(
 }) {
   Widget? finalWidget;
 
-  // 提取通用的 shimmer grid 构建逻辑
-  Widget buildShimmerGrid({required int itemCount}) {
-    // 使用传入的布局配置，如果没有则使用默认配置
-    final config = skeletonLayoutConfig ?? SkeletonLayoutConfig.defaultConfig(context);
-
-    // 计算骨架项宽度
-    final screenWidth = MediaQuery.of(context).size.width;
-    final int crossAxisCount = (screenWidth / config.maxCrossAxisExtent).floor();
-    final double actualCardWidth = (screenWidth - (crossAxisCount - 1) * config.crossAxisSpacing) / crossAxisCount;
-
-    return GridView.builder(
-      shrinkWrap: true,
-      padding: EdgeInsets.zero,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: config.maxCrossAxisExtent,
-        crossAxisSpacing: config.crossAxisSpacing,
-        mainAxisSpacing: config.mainAxisSpacing,
-        childAspectRatio: config.childAspectRatio,
-      ),
-      itemCount: itemCount,
-      itemBuilder: (context, index) => buildShimmerItem(actualCardWidth),
-    );
-  }
-
   switch (status) {
     case IndicatorStatus.none:
       return null;
 
     case IndicatorStatus.loadingMoreBusying:
-      // 加载更多时的 Shimmer 效果
-      final shimmerContent = Shimmer.fromColors(
-        baseColor: Colors.grey[300]!,
-        highlightColor: Colors.grey[100]!,
-        child: buildShimmerGrid(
-          itemCount: 2
-        ),
-      );
-      // 加载更多指示器使用固定的垂直 Padding
-      return Padding(
-        padding: const EdgeInsets.symmetric(
-          vertical: 8.0, // 使用固定的垂直 padding
-          horizontal: 5.0,
-        ),
-        child: shimmerContent,
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 16.0),
+        child: Center(child: CircularProgressIndicator()),
       );
 
     case IndicatorStatus.fullScreenBusying:
-      // 全屏加载时的 Shimmer 效果
-      final fullScreenShimmerContent = Shimmer.fromColors(
-        baseColor: Colors.grey[300]!,
-        highlightColor: Colors.grey[100]!,
-        child: buildShimmerGrid(
-          itemCount: 8, // 全屏加载时显示更多骨架项
-        ),
-      );
-      // 全屏指示器需要应用传入的 paddingTop
       return SliverFillRemaining(
-        child: Padding(
-          padding: EdgeInsets.only(
-            top: paddingTop, // 应用传入的 paddingTop
-            left: 5.0,
-            right: 5.0,
+        hasScrollBody: false,
+        child: Container(
+          padding: EdgeInsets.only(top: paddingTop),
+          alignment: Alignment.center,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // 旋转的优雅加载动画
+              SizedBox(
+                    width: 50,
+                    height: 50,
+                    child: Stack(
+                      children: [
+                        Center(
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.primary.withValues(alpha: 0.1),
+                                width: 3,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Center(
+                          child: CircularProgressIndicator(
+                            strokeWidth: 3,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                  .animate(onPlay: (controller) => controller.repeat())
+                  .shimmer(
+                    duration: 2.seconds,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.2),
+                  )
+                  .scale(
+                    begin: const Offset(0.9, 0.9),
+                    end: const Offset(1.1, 1.1),
+                    duration: 1.seconds,
+                    curve: Curves.easeInOutSine,
+                  ),
+              const SizedBox(height: 24),
+              // 文字动画
+              Text(
+                    'i-iwara',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 4,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  )
+                  .animate(onPlay: (controller) => controller.repeat())
+                  .fadeIn(duration: 1.seconds)
+                  .then()
+                  .fadeOut(duration: 1.seconds),
+            ],
           ),
-          child: fullScreenShimmerContent,
         ),
       );
 
@@ -188,7 +209,12 @@ Widget? buildIndicator(
                       const SizedBox(width: 8),
                       Flexible(
                         child: Text(
-                          errorMessage ?? slang.t.conversation.errors.loadFailedClickToRetry,
+                          errorMessage ??
+                              slang
+                                  .t
+                                  .conversation
+                                  .errors
+                                  .loadFailedClickToRetry,
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.error,
                           ),
@@ -276,7 +302,10 @@ Widget? buildIndicator(
       // 无更多数据指示器
       return Padding(
         // 使用固定的垂直 Padding
-        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0), // 调整 Padding
+        padding: const EdgeInsets.symmetric(
+          vertical: 16.0,
+          horizontal: 8.0,
+        ), // 调整 Padding
         child: Center(
           child: Text(
             slang.t.common.noMoreDatas,
@@ -417,18 +446,24 @@ class _PaginationBarState extends State<PaginationBar>
     // 创建一个非线性的进度动画
     _progressAnimation = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween<double>(begin: 0.0, end: 0.6)
-            .chain(CurveTween(curve: Curves.easeOut)),
+        tween: Tween<double>(
+          begin: 0.0,
+          end: 0.6,
+        ).chain(CurveTween(curve: Curves.easeOut)),
         weight: 60.0,
       ),
       TweenSequenceItem(
-        tween: Tween<double>(begin: 0.6, end: 0.9)
-            .chain(CurveTween(curve: Curves.easeIn)),
+        tween: Tween<double>(
+          begin: 0.6,
+          end: 0.9,
+        ).chain(CurveTween(curve: Curves.easeIn)),
         weight: 30.0,
       ),
       TweenSequenceItem(
-        tween: Tween<double>(begin: 0.9, end: 0.95)
-            .chain(CurveTween(curve: Curves.easeInOut)),
+        tween: Tween<double>(
+          begin: 0.9,
+          end: 0.95,
+        ).chain(CurveTween(curve: Curves.easeInOut)),
         weight: 10.0,
       ),
     ]).animate(_loadingAnimController);
@@ -509,7 +544,11 @@ class _PaginationBarState extends State<PaginationBar>
         // 显示错误提示
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(slang.t.common.pagination.invalidPageNumber(max: widget.totalPages)),
+            content: Text(
+              slang.t.common.pagination.invalidPageNumber(
+                max: widget.totalPages,
+              ),
+            ),
             duration: const Duration(seconds: 2),
           ),
         );
@@ -536,7 +575,11 @@ class _PaginationBarState extends State<PaginationBar>
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(slang.t.common.pagination.pleaseEnterPageNumber(max: widget.totalPages)),
+            Text(
+              slang.t.common.pagination.pleaseEnterPageNumber(
+                max: widget.totalPages,
+              ),
+            ),
             const SizedBox(height: 16),
             TextField(
               controller: _pageController,
@@ -576,14 +619,18 @@ class _PaginationBarState extends State<PaginationBar>
       children: [
         Container(
           decoration: BoxDecoration(
-            color: widget.useBlurEffect ? Colors.transparent : Theme.of(context).colorScheme.surface,
-            boxShadow: widget.useBlurEffect ? [] : [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
-                blurRadius: 8,
-                offset: const Offset(0, -2),
-              ),
-            ],
+            color: widget.useBlurEffect
+                ? Colors.transparent
+                : Theme.of(context).colorScheme.surface,
+            boxShadow: widget.useBlurEffect
+                ? []
+                : [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 8,
+                      offset: const Offset(0, -2),
+                    ),
+                  ],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -595,9 +642,9 @@ class _PaginationBarState extends State<PaginationBar>
                   return isNarrow
                       ? _buildCompactPaginationBar(context)
                       : _buildFullPaginationBar(context);
-                                  },
-                ),
-                // 底部安全区域占位
+                },
+              ),
+              // 底部安全区域占位
               if (widget.showBottomPadding && widget.paddingBottom > 0)
                 SizedBox(height: widget.paddingBottom),
             ],
@@ -619,7 +666,9 @@ class _PaginationBarState extends State<PaginationBar>
                       animation: _progressAnimation,
                       builder: (context, child) {
                         return _buildProgressIndicator(
-                            context, _progressAnimation.value);
+                          context,
+                          _progressAnimation.value,
+                        );
                       },
                     ),
             ),
@@ -634,7 +683,9 @@ class _PaginationBarState extends State<PaginationBar>
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
           child: Container(
-            color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.85),
+            color: Theme.of(
+              context,
+            ).colorScheme.surface.withValues(alpha: 0.85),
             child: barContent,
           ),
         ),
@@ -680,11 +731,7 @@ class _PaginationBarState extends State<PaginationBar>
             width: double.infinity,
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [
-                  primaryColor,
-                  secondaryColor,
-                  primaryColor,
-                ],
+                colors: [primaryColor, secondaryColor, primaryColor],
                 stops: const [0.0, 0.5, 1.0],
               ),
             ),
@@ -730,11 +777,7 @@ class _PaginationBarState extends State<PaginationBar>
             width: progressWidth,
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [
-                  primaryColor,
-                  secondaryColor,
-                  primaryColor,
-                ],
+                colors: [primaryColor, secondaryColor, primaryColor],
                 stops: const [0.0, 0.5, 1.0],
               ),
             ),
@@ -749,10 +792,7 @@ class _PaginationBarState extends State<PaginationBar>
                 width: 6,
                 decoration: BoxDecoration(
                   gradient: RadialGradient(
-                    colors: [
-                      Colors.white,
-                      secondaryColor,
-                    ],
+                    colors: [Colors.white, secondaryColor],
                     radius: 0.7,
                   ),
                   borderRadius: BorderRadius.circular(3),
@@ -831,14 +871,16 @@ class _PaginationBarState extends State<PaginationBar>
               const SizedBox(width: 8),
               _buildNavButton(
                 icon: Icons.chevron_right,
-                enabled: widget.currentPage < widget.totalPages - 1 &&
+                enabled:
+                    widget.currentPage < widget.totalPages - 1 &&
                     !widget.isLoading,
                 onPressed: () => widget.onPageChanged(widget.currentPage + 1),
               ),
               const SizedBox(width: 4),
               _buildNavButton(
                 icon: Icons.last_page,
-                enabled: widget.currentPage < widget.totalPages - 1 &&
+                enabled:
+                    widget.currentPage < widget.totalPages - 1 &&
                     !widget.isLoading,
                 onPressed: () => widget.onPageChanged(widget.totalPages - 1),
               ),
@@ -853,12 +895,12 @@ class _PaginationBarState extends State<PaginationBar>
                 width: 44,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .surfaceContainerHighest
-                      .withValues(alpha: 0.3),
-                  borderRadius:
-                      const BorderRadius.horizontal(left: Radius.circular(18)),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                  borderRadius: const BorderRadius.horizontal(
+                    left: Radius.circular(18),
+                  ),
                 ),
                 child: TextField(
                   controller: _pageController,
@@ -867,16 +909,17 @@ class _PaginationBarState extends State<PaginationBar>
                   style: const TextStyle(fontSize: 14),
                   decoration: InputDecoration(
                     isDense: true,
-                    contentPadding:
-                        const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 10,
+                    ),
                     border: InputBorder.none,
                     hintText: slang.t.common.pagination.pageNumber,
                     hintStyle: TextStyle(
                       fontSize: 13,
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurfaceVariant
-                          .withValues(alpha: 0.7),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                     ),
                   ),
                   onSubmitted: (_) => _jumpToPage(),
@@ -884,17 +927,21 @@ class _PaginationBarState extends State<PaginationBar>
               ),
               InkWell(
                 onTap: widget.isLoading ? null : _jumpToPage,
-                borderRadius:
-                    const BorderRadius.horizontal(right: Radius.circular(18)),
+                borderRadius: const BorderRadius.horizontal(
+                  right: Radius.circular(18),
+                ),
                 child: Container(
                   height: 36,
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
                     color: widget.isLoading
-                        ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.5)
+                        ? Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.5)
                         : Theme.of(context).colorScheme.primary,
                     borderRadius: const BorderRadius.horizontal(
-                        right: Radius.circular(18)),
+                      right: Radius.circular(18),
+                    ),
                   ),
                   child: Center(
                     child: Text(
@@ -933,10 +980,9 @@ class _PaginationBarState extends State<PaginationBar>
                 margin: EdgeInsets.zero,
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .surfaceContainerHighest
-                      .withValues(alpha: 0.3),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
@@ -963,7 +1009,8 @@ class _PaginationBarState extends State<PaginationBar>
               const SizedBox(width: 12),
               _buildNavButton(
                 icon: Icons.chevron_right,
-                enabled: widget.currentPage < widget.totalPages - 1 &&
+                enabled:
+                    widget.currentPage < widget.totalPages - 1 &&
                     !widget.isLoading,
                 onPressed: () => widget.onPageChanged(widget.currentPage + 1),
               ),
@@ -999,14 +1046,11 @@ class _PaginationBarState extends State<PaginationBar>
             height: 28,
             decoration: BoxDecoration(
               color: enabled
-                  ? Theme.of(context)
-                      .colorScheme
-                      .surfaceContainerHighest
-                      .withValues(alpha: 0.3)
-                  : Theme.of(context)
-                      .colorScheme
-                      .surfaceContainerHighest
-                      .withValues(alpha: 0.1),
+                  ? Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)
+                  : Theme.of(context).colorScheme.surfaceContainerHighest
+                        .withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Center(

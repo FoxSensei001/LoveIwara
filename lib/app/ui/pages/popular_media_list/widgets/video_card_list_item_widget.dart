@@ -13,10 +13,22 @@ class VideoCardListItemWidget extends StatefulWidget {
   final Video video;
   final double width;
 
+  /// 是否处于多选模式
+  final bool isMultiSelectMode;
+
+  /// 是否被选中（多选模式下使用）
+  final bool isSelected;
+
+  /// 选中状态变化回调
+  final VoidCallback? onSelect;
+
   const VideoCardListItemWidget({
     super.key,
     required this.video,
     required this.width,
+    this.isMultiSelectMode = false,
+    this.isSelected = false,
+    this.onSelect,
   });
 
   @override
@@ -52,18 +64,52 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
       _tagsInitialized = true;
     }
 
-    return RepaintBoundary(
+    final card = RepaintBoundary(
       child: BaseCardListItem(
         width: widget.width,
         thumbnail: _buildCachedThumbnail(),
         title: widget.video.title ?? '',
         createdAt: widget.video.createdAt,
         user: widget.video.user,
-        onTap: () => NaviService.navigateToVideoDetailPage(widget.video.id),
-        onSecondaryTap: _showDetailsModal,
-        onLongPress: _showDetailsModal,
+        onTap: widget.isMultiSelectMode && widget.onSelect != null
+            ? widget.onSelect!
+            : () => NaviService.navigateToVideoDetailPage(widget.video.id),
+        onSecondaryTap: widget.isMultiSelectMode ? null : _showDetailsModal,
+        onLongPress: widget.isMultiSelectMode ? null : _showDetailsModal,
       ),
     );
+
+    // 多选模式下添加覆盖层
+    if (widget.isMultiSelectMode) {
+      return Stack(
+        children: [
+          card,
+          Positioned.fill(
+            child: Material(
+              color: widget.isSelected
+                  ? Colors.black38
+                  : Colors.black12,
+              child: InkWell(
+                onTap: widget.onSelect,
+                child: Center(
+                  child: Icon(
+                    widget.isSelected
+                        ? Icons.check_circle
+                        : Icons.circle_outlined,
+                    color: widget.isSelected
+                        ? Colors.white
+                        : Colors.white70,
+                    size: 40,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return card;
   }
 
   Widget _buildCachedThumbnail() {

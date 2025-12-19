@@ -6,12 +6,18 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_
 import 'package:i_iwara/utils/logger_utils.dart';
 import '../controllers/userz_video_list_controller.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:get/get.dart';
 
 class ProfileVideoTabListWidget extends StatefulWidget {
   final String tabKey;
   final TabController tc;
   final String userId;
   final Function({int? count})? onFetchFinished;
+  final bool isMultiSelectMode;
+  final Set<String> selectedItemIds;
+  final Function(Video video)? onItemSelect;
+  final VoidCallback? onPageChanged;
+  final VoidCallback? onMultiSelectToggle;
 
   const ProfileVideoTabListWidget({
     super.key,
@@ -19,10 +25,16 @@ class ProfileVideoTabListWidget extends StatefulWidget {
     required this.tc,
     required this.userId,
     this.onFetchFinished,
+    this.isMultiSelectMode = false,
+    this.selectedItemIds = const {},
+    this.onItemSelect,
+    this.onPageChanged,
+    this.onMultiSelectToggle,
   });
 
   @override
-  State<ProfileVideoTabListWidget> createState() => _ProfileVideoTabListWidgetState();
+  State<ProfileVideoTabListWidget> createState() =>
+      _ProfileVideoTabListWidgetState();
 }
 
 class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
@@ -88,7 +100,9 @@ class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
       if (newOffset < 0) {
         _tabBarScrollController.jumpTo(0);
       } else if (newOffset > _tabBarScrollController.position.maxScrollExtent) {
-        _tabBarScrollController.jumpTo(_tabBarScrollController.position.maxScrollExtent);
+        _tabBarScrollController.jumpTo(
+          _tabBarScrollController.position.maxScrollExtent,
+        );
       } else {
         _tabBarScrollController.jumpTo(newOffset);
       }
@@ -118,7 +132,7 @@ class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
             ],
           ),
         ),
-        // likes 
+        // likes
         Tab(
           child: Row(
             children: [
@@ -183,6 +197,15 @@ class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
               ),
             ),
             IconButton(
+              icon: Icon(
+                widget.isMultiSelectMode ? Icons.close : Icons.checklist,
+              ),
+              onPressed: widget.onMultiSelectToggle,
+              tooltip: widget.isMultiSelectMode
+                  ? t.common.exitEditMode
+                  : t.common.editMode,
+            ),
+            IconButton(
               icon: const Icon(Icons.refresh),
               onPressed: () => videoListRepository.refresh(true),
             ),
@@ -196,19 +219,29 @@ class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
             child: MediaListView<Video>(
               sourceList: videoListRepository,
               emptyIcon: Icons.video_library_outlined,
+              onPageChanged: widget.onPageChanged,
               itemBuilder: (context, video, index) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
-                    vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
-                  ),
-                  child: VideoCardListItemWidget(
-                    video: video,
-                    width: MediaQuery.of(context).size.width <= 600 
-                        ? MediaQuery.of(context).size.width / 2 - 8 
-                        : 200,
-                  ),
-                );
+                return Obx(() {
+                  return Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: MediaQuery.of(context).size.width <= 600
+                          ? 2
+                          : 0,
+                      vertical: MediaQuery.of(context).size.width <= 600
+                          ? 2
+                          : 3,
+                    ),
+                    child: VideoCardListItemWidget(
+                      video: video,
+                      width: MediaQuery.of(context).size.width <= 600
+                          ? MediaQuery.of(context).size.width / 2 - 8
+                          : 200,
+                      isMultiSelectMode: widget.isMultiSelectMode,
+                      isSelected: widget.selectedItemIds.contains(video.id),
+                      onSelect: () => widget.onItemSelect?.call(video),
+                    ),
+                  );
+                });
               },
             ),
           ),

@@ -37,6 +37,10 @@ import 'package:i_iwara/app/ui/pages/author_profile/widgets/post_input_dialog.da
 import 'package:i_iwara/app/ui/pages/conversation/widgets/new_conversation_dialog.dart';
 import 'package:i_iwara/app/ui/pages/author_profile/widgets/share_user_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/friend_button_widget.dart';
+import '../popular_media_list/controllers/batch_select_controller.dart';
+import 'package:i_iwara/app/models/video.model.dart';
+import 'package:i_iwara/app/models/image.model.dart';
+import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
 
 class AuthorProfilePage extends StatefulWidget {
   final String username;
@@ -58,6 +62,8 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
   late TabController videoSecondaryTC;
   late TabController imageSecondaryTC;
   late TabController playlistSecondaryTC;
+  late final BatchSelectController<Video> _videoBatchController;
+  late final BatchSelectController<ImageModel> _imageBatchController;
   late String username;
 
   final GlobalKey<ExtendedNestedScrollViewState> _key =
@@ -79,6 +85,18 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
     videoSecondaryTC = TabController(length: 5, vsync: this);
     imageSecondaryTC = TabController(length: 5, vsync: this);
     playlistSecondaryTC = TabController(length: 5, vsync: this);
+
+    primaryTC.addListener(_onTabChange);
+
+    _videoBatchController = Get.put(
+      BatchSelectController<Video>(),
+      tag: 'author_profile_video_batch_$uniqueTag',
+    );
+    _imageBatchController = Get.put(
+      BatchSelectController<ImageModel>(),
+      tag: 'author_profile_image_batch_$uniqueTag',
+    );
+
     _tabBarScrollController = ScrollController();
   }
 
@@ -91,7 +109,19 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
     playlistSecondaryTC.dispose();
     _tabBarScrollController.dispose();
     Get.delete<AuthorProfileController>(tag: uniqueTag);
+    Get.delete<BatchSelectController<Video>>(
+      tag: 'author_profile_video_batch_$uniqueTag',
+    );
+    Get.delete<BatchSelectController<ImageModel>>(
+      tag: 'author_profile_image_batch_$uniqueTag',
+    );
     super.dispose();
+  }
+
+  void _onTabChange() {
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   void _handleScroll(double delta) {
@@ -411,6 +441,8 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
               itemBuilder: (context) => popupMenuItems,
             );
           }),
+          // 多选按钮
+          // Removed the Obx multi-select button from actions as per instruction.
         ],
         flexibleSpace: FlexibleSpaceBar(
           background: Stack(
@@ -1007,126 +1039,163 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
 
   Widget _buildTabBarView(BuildContext context, {bool isWideScreen = true}) {
     final t = slang.Translations.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Stack(
       children: [
-        isWideScreen ? TopPaddingHeightWidget() : const SizedBox.shrink(),
-        MouseRegion(
-          child: Listener(
-            onPointerSignal: (pointerSignal) {
-              if (pointerSignal is PointerScrollEvent) {
-                _handleScroll(pointerSignal.scrollDelta.dy);
-              }
-            },
-            child: SingleChildScrollView(
-              controller: _tabBarScrollController,
-              scrollDirection: Axis.horizontal,
-              physics: const ClampingScrollPhysics(),
-              child: Row(
-                children: [
-                  TabBar(
-                    isScrollable: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    overlayColor: WidgetStateProperty.all(Colors.transparent),
-                    tabAlignment: TabAlignment.start,
-                    dividerColor: Colors.transparent,
-                    controller: primaryTC,
-                    tabs: [
-                      Tab(
-                        child: Row(
-                          children: [
-                            const Icon(Icons.video_collection),
-                            const SizedBox(width: 8),
-                            Text(t.common.video),
-                          ],
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            isWideScreen ? TopPaddingHeightWidget() : const SizedBox.shrink(),
+            MouseRegion(
+              child: Listener(
+                onPointerSignal: (pointerSignal) {
+                  if (pointerSignal is PointerScrollEvent) {
+                    _handleScroll(pointerSignal.scrollDelta.dy);
+                  }
+                },
+                child: SingleChildScrollView(
+                  controller: _tabBarScrollController,
+                  scrollDirection: Axis.horizontal,
+                  physics: const ClampingScrollPhysics(),
+                  child: Row(
+                    children: [
+                      TabBar(
+                        isScrollable: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        overlayColor: WidgetStateProperty.all(
+                          Colors.transparent,
                         ),
-                      ),
-                      Tab(
-                        child: Row(
-                          children: [
-                            const Icon(Icons.image),
-                            const SizedBox(width: 8),
-                            Text(t.common.gallery),
-                          ],
-                        ),
-                      ),
-                      Tab(
-                        child: Row(
-                          children: [
-                            const Icon(Icons.playlist_play),
-                            const SizedBox(width: 8),
-                            Text(t.common.playlist),
-                          ],
-                        ),
-                      ),
-                      Tab(
-                        child: Row(
-                          children: [
-                            const Icon(Icons.article),
-                            const SizedBox(width: 8),
-                            Text(t.common.post),
-                          ],
-                        ),
+                        tabAlignment: TabAlignment.start,
+                        dividerColor: Colors.transparent,
+                        controller: primaryTC,
+                        tabs: [
+                          Tab(
+                            child: Row(
+                              children: [
+                                const Icon(Icons.video_collection),
+                                const SizedBox(width: 8),
+                                Text(t.common.video),
+                              ],
+                            ),
+                          ),
+                          Tab(
+                            child: Row(
+                              children: [
+                                const Icon(Icons.image),
+                                const SizedBox(width: 8),
+                                Text(t.common.gallery),
+                              ],
+                            ),
+                          ),
+                          Tab(
+                            child: Row(
+                              children: [
+                                const Icon(Icons.playlist_play),
+                                const SizedBox(width: 8),
+                                Text(t.common.playlist),
+                              ],
+                            ),
+                          ),
+                          Tab(
+                            child: Row(
+                              children: [
+                                const Icon(Icons.article),
+                                const SizedBox(width: 8),
+                                Text(t.common.post),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ],
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: TabBarView(
+                controller: primaryTC,
+                children: <Widget>[
+                  Obx(
+                    () => profileController.author.value?.id != null
+                        ? ProfileVideoTabListWidget(
+                            key: const Key('video'),
+                            userId: profileController.author.value!.id,
+                            tabKey: t.common.video,
+                            tc: videoSecondaryTC,
+                            onFetchFinished: ({int? count}) {
+                              profileController.videoCounts.value = count;
+                            },
+                            isMultiSelectMode:
+                                _videoBatchController.isMultiSelect.value,
+                            selectedItemIds:
+                                _videoBatchController.selectedMediaIds,
+                            onItemSelect: (video) =>
+                                _videoBatchController.toggleSelection(video),
+                            onPageChanged: () =>
+                                _videoBatchController.onPageChanged(),
+                            onMultiSelectToggle: () =>
+                                _videoBatchController.toggleMultiSelect(),
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+                  Obx(
+                    () => profileController.author.value?.id != null
+                        ? ProfileImageModelTabListWidget(
+                            key: const Key('image'),
+                            userId: profileController.author.value!.id,
+                            tabKey: t.common.gallery,
+                            tc: imageSecondaryTC,
+                            onFetchFinished: ({int? count}) {},
+                            isMultiSelectMode:
+                                _imageBatchController.isMultiSelect.value,
+                            selectedItemIds:
+                                _imageBatchController.selectedMediaIds,
+                            onItemSelect: (image) =>
+                                _imageBatchController.toggleSelection(image),
+                            onPageChanged: () =>
+                                _imageBatchController.onPageChanged(),
+                            onMultiSelectToggle: () =>
+                                _imageBatchController.toggleMultiSelect(),
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+                  Obx(
+                    () => profileController.author.value?.id != null
+                        ? ProfilePlaylistTabListWidget(
+                            key: const Key('playlist'),
+                            userId: profileController.author.value!.id,
+                            tabKey: t.common.playlist,
+                            tc: playlistSecondaryTC,
+                            onFetchFinished: ({int? count}) {},
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+                  Obx(
+                    () => profileController.author.value?.id != null
+                        ? ProfilePostTabListWidget(
+                            key: _postListKey,
+                            widgetKey: _postListKey,
+                            userId: profileController.author.value!.id,
+                            tabKey: t.common.post,
+                            tc: TabController(length: 1, vsync: this),
+                          )
+                        : const SizedBox.shrink(),
                   ),
                 ],
               ),
             ),
-          ),
+          ],
         ),
-        Expanded(
-          child: TabBarView(
-            controller: primaryTC,
-            children: <Widget>[
-              Obx(
-                () => profileController.author.value?.id != null
-                    ? ProfileVideoTabListWidget(
-                        key: const Key('video'),
-                        userId: profileController.author.value!.id,
-                        tabKey: t.common.video,
-                        tc: videoSecondaryTC,
-                        onFetchFinished: ({int? count}) {
-                          profileController.videoCounts.value = count;
-                        },
-                      )
-                    : const SizedBox.shrink(),
-              ),
-              Obx(
-                () => profileController.author.value?.id != null
-                    ? ProfileImageModelTabListWidget(
-                        key: const Key('image'),
-                        userId: profileController.author.value!.id,
-                        tabKey: t.common.gallery,
-                        tc: imageSecondaryTC,
-                        onFetchFinished: ({int? count}) {},
-                      )
-                    : const SizedBox.shrink(),
-              ),
-              Obx(
-                () => profileController.author.value?.id != null
-                    ? ProfilePlaylistTabListWidget(
-                        key: const Key('playlist'),
-                        userId: profileController.author.value!.id,
-                        tabKey: t.common.playlist,
-                        tc: playlistSecondaryTC,
-                        onFetchFinished: ({int? count}) {},
-                      )
-                    : const SizedBox.shrink(),
-              ),
-              Obx(
-                () => profileController.author.value?.id != null
-                    ? ProfilePostTabListWidget(
-                        key: _postListKey,
-                        widgetKey: _postListKey,
-                        userId: profileController.author.value!.id,
-                        tabKey: t.common.post,
-                        tc: TabController(length: 1, vsync: this),
-                      )
-                    : const SizedBox.shrink(),
-              ),
-            ],
-          ),
+        // 批量下载悬浮按钮
+        BatchActionFabColumn<Video>(
+          controller: _videoBatchController,
+          heroTagPrefix: 'author_profile_video_$uniqueTag',
+          visible: () => primaryTC.index == 0,
+        ),
+        BatchActionFabColumn<ImageModel>(
+          controller: _imageBatchController,
+          heroTagPrefix: 'author_profile_image_$uniqueTag',
+          visible: () => primaryTC.index == 1,
         ),
       ],
     );

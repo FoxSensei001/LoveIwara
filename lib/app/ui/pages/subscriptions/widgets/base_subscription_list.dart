@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart'; // 用于 ScrollDirection
 import 'package:get/get.dart';
@@ -21,7 +22,19 @@ abstract class BaseSubscriptionList<T, R extends ExtendedLoadingMoreBase<T>>
     this.isPaginated = false,
     this.paddingTop = 0,
     this.showBottomPadding = false,
+    this.isMultiSelectMode = false,
+    this.selectedItemIds = const {},
+    this.onItemSelect,
   });
+
+  /// 是否开启多选模式
+  final bool isMultiSelectMode;
+
+  /// 已选中的项目ID集合
+  final Set<String> selectedItemIds;
+
+  /// 项选中状态变化回调
+  final Function(T)? onItemSelect;
 
   @override
   State<BaseSubscriptionList<T, R>> createState();
@@ -113,6 +126,15 @@ abstract class BaseSubscriptionListState<
           // 滚动到顶部
           _scrollToTop();
         });
+      }
+    }
+
+    // 多选模式、选中的ID列表变化时清除缓存并重建
+    if (oldWidget.isMultiSelectMode != widget.isMultiSelectMode ||
+        !setEquals(oldWidget.selectedItemIds, widget.selectedItemIds)) {
+      _itemCache.clear();
+      if (mounted) {
+        setState(() {});
       }
     }
 
@@ -217,6 +239,7 @@ abstract class BaseSubscriptionListState<
       paddingTop: widget.paddingTop,
       showBottomPadding: widget.showBottomPadding,
       enablePullToRefresh: true, // 启用下拉刷新
+      onPageChanged: _mediaListController?.onPageChanged,
       // 使用缓存机制构建列表项
       itemBuilder: getCachedListItem,
     );

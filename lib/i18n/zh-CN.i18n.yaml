@@ -134,6 +134,7 @@ common:
   recording: 记录中
   paused: 已暂停
   clear: 清除
+  clearSelection: 清空选择
   user: 用户
   post: 投稿
   seconds: 秒
@@ -1300,6 +1301,33 @@ download:
   alreadyDownloadedWithQuality: '已有相同清晰度的任务，是否继续下载？'
   alreadyDownloadedWithQualities: '已有清晰度为${qualities}的任务，是否继续下载？'
   otherQualities: 其他清晰度
+  batchDownload:
+    title: 批量下载
+    downloadTaskAlreadyRunning: 任务正在运行中，请稍候
+    userCancelled: 用户取消
+    failedToGetVideoInfo: 无法获取视频信息
+    failedToGetVideoSource: 无法获取视频源
+    failedToGetGalleryInfo: 无法获取图库信息
+    galleryNoImages: 图库中没有图片
+    failedToGetSavePath: 无法获取保存路径
+    batchDownloadFailedWithException(exception): '批量下载失败: ${exception}'
+    selectQuality: 选择清晰度
+    downloading: 下载中
+    downloadResult: 下载结果
+    selectedVideosCount(count): '已选择 ${count} 个视频'
+    selectedGalleriesCount(count): '已选择 ${count} 个图库'
+    qualityNote: 如果所选清晰度不可用，将使用最佳可用清晰度
+    progress(current, total): '处理中 ${current}/${total}'
+    success: 成功
+    skipped: 跳过
+    failed: 失败
+    failureDetails: 失败详情
+    reasonPrivateVideo: 私人视频
+    reasonAlreadyExists: 任务已存在
+    reasonNoSource: 无下载源
+    reasonNoSavePath: 无法获取保存路径
+    reasonOther: 其他错误
+    startDownload: 开始下载
 favorite:
   errors:
     addFailed: 追加失败

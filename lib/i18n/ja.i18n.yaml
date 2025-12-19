@@ -138,6 +138,7 @@ common:
   recording: 録画中
   paused: 一時停止
   clear: クリア
+  clearSelection: 選択を解除
   user: ユーザー
   post: 投稿
   seconds: 秒
@@ -1295,6 +1296,33 @@ download:
   alreadyDownloadedWithQuality: 'すでに同じ品質のタスクがあります。続けてダウンロードしますか？'
   alreadyDownloadedWithQualities: 'すでに品質が${qualities}のタスクがあります。続けてダウンロードしますか？'
   otherQualities: その他の品質
+  batchDownload:
+    title: 一括ダウンロード
+    downloadTaskAlreadyRunning: タスクが実行中です。しばらくお待ちください
+    userCancelled: ユーザーによるキャンセル
+    failedToGetVideoInfo: 動画情報の取得に失敗しました
+    failedToGetVideoSource: 動画ソースの取得に失敗しました
+    failedToGetGalleryInfo: ギャラリー情報の取得に失敗しました
+    galleryNoImages: ギャラリーに画像がありません
+    failedToGetSavePath: 保存パスの取得に失敗しました
+    batchDownloadFailedWithException(exception): '一括ダウンロードに失敗しました: ${exception}'
+    selectQuality: 品質を選択
+    downloading: ダウンロード中
+    downloadResult: ダウンロード結果
+    selectedVideosCount(count): '${count}件の動画を選択'
+    selectedGalleriesCount(count): '${count}件のギャラリーを選択'
+    qualityNote: 選択した品質が利用できない場合は、最適な品質が使用されます
+    progress(current, total): '処理中 ${current}/${total}'
+    success: 成功
+    skipped: スキップ
+    failed: 失敗
+    failureDetails: 失敗の詳細
+    reasonPrivateVideo: プライベート動画
+    reasonAlreadyExists: タスクが既に存在
+    reasonNoSource: ダウンロードソースなし
+    reasonNoSavePath: 保存パスを取得できません
+    reasonOther: その他のエラー
+    startDownload: ダウンロード開始
 
 favorite:
   errors:

@@ -10,16 +10,19 @@ class SubscriptionImageList
   const SubscriptionImageList({
     super.key,
     required super.userId,
-    super.isPaginated = false,
-    super.paddingTop = 0,
-    super.showBottomPadding = false,
+    super.isPaginated,
+    super.paddingTop,
+    super.showBottomPadding,
+    super.isMultiSelectMode,
+    super.selectedItemIds,
+    super.onItemSelect,
   });
 
   @override
-  State<SubscriptionImageList> createState() => SubscriptionImageListState();
+  State<SubscriptionImageList> createState() => _SubscriptionImageListState();
 }
 
-class SubscriptionImageListState
+class _SubscriptionImageListState
     extends
         BaseSubscriptionListState<
           ImageModel,
@@ -39,6 +42,9 @@ class SubscriptionImageListState
     return ImageModelCardListItemWidget(
       imageModel: image,
       width: CommonUtils.calculateCardWidth(MediaQuery.of(context).size.width),
+      isMultiSelectMode: widget.isMultiSelectMode,
+      isSelected: widget.selectedItemIds.contains(image.id),
+      onSelect: () => widget.onItemSelect?.call(image),
     );
   }
 }

@@ -7,7 +7,6 @@ import 'package:i_iwara/app/ui/pages/play_list/controllers/play_list_detail_cont
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
 import 'package:i_iwara/common/constants.dart';
-import 'package:i_iwara/utils/widget_extensions.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -98,32 +97,86 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
             ),
           ),
           // 底部多选栏
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: _buildMultiSelectBar(),
-          ),
         ],
       ),
-      floatingActionButton: Obx(
-        () => _showBackToTop.value
-            ? FloatingActionButton(
-                onPressed: () {
-                  _scrollController.animateTo(
-                    0,
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeInOut,
-                  );
-                },
-                child: const Icon(Icons.arrow_upward),
-              ).paddingBottom(
-                Get.context != null
-                    ? MediaQuery.of(Get.context!).padding.bottom
-                    : 0,
-              )
-            : const SizedBox(),
-      ),
+      floatingActionButton: Obx(() {
+        final bool isMultiSelect = controller.isMultiSelect.value;
+        final bool showBackToTop = _showBackToTop.value;
+
+        if (!isMultiSelect && !showBackToTop) return const SizedBox.shrink();
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              if (isMultiSelect)
+                Padding(
+                  padding: const EdgeInsets.only(left: 32.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (controller.selectedVideos.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: Badge(
+                            label: Text(
+                              controller.selectedVideos.length.toString(),
+                            ),
+                            child: FloatingActionButton(
+                              heroTag: 'playlistDeleteFAB',
+                              onPressed: () => _showDeleteConfirmDialog(),
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.error,
+                              foregroundColor: Theme.of(
+                                context,
+                              ).colorScheme.onError,
+                              child: const Icon(Icons.delete),
+                            ),
+                          ),
+                        ),
+                      FloatingActionButton(
+                        heroTag: 'playlistExitMultiSelectFAB',
+                        onPressed: () => controller.toggleMultiSelect(),
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.secondaryContainer,
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onSecondaryContainer,
+                        child: const Icon(Icons.close),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                const SizedBox.shrink(),
+              if (showBackToTop)
+                FloatingActionButton(
+                  heroTag: 'playlistBackToTopFAB',
+                  onPressed: () {
+                    _scrollController.animateTo(
+                      0,
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeInOut,
+                    );
+                  },
+                  child: const Icon(Icons.arrow_upward),
+                )
+              else
+                const SizedBox.shrink(),
+            ],
+          ),
+        ).paddingOnly(
+          bottom:
+              (isMultiSelect ? 120.0 : 0.0) +
+              (Get.context != null
+                  ? MediaQuery.of(Get.context!).padding.bottom
+                  : 0.0),
+        );
+      }),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
@@ -185,7 +238,8 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
   }
 
   void _copyPlaylistLink() async {
-    final String url = '${CommonConstants.iwaraBaseUrl}/playlist/${widget.playlistId}';
+    final String url =
+        '${CommonConstants.iwaraBaseUrl}/playlist/${widget.playlistId}';
     try {
       await ShareService.copyToClipboard(url);
       Get.snackbar(
@@ -347,7 +401,8 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
               AppService.tryPop();
               await controller.deleteSelected();
               // 删除完成后关闭多选模式
-              if (controller.selectedVideos.isEmpty && controller.isMultiSelect.value) {
+              if (controller.selectedVideos.isEmpty &&
+                  controller.isMultiSelect.value) {
                 controller.toggleMultiSelect();
               }
             },
@@ -382,99 +437,4 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
   //     ),
   //   );
   // }
-
-  Widget _buildMultiSelectBar() {
-    return Obx(
-      () => controller.isMultiSelect.value
-          ? BottomSheet(
-              enableDrag: false,
-              backgroundColor: Theme.of(
-                context,
-              ).bottomSheetTheme.backgroundColor,
-              onClosing: () {},
-              builder: (context) => SafeArea(
-                child: Container(
-                  padding: EdgeInsets.only(
-                    left: 16.0,
-                    right: 16.0,
-                    top: 16.0,
-                    bottom: 16.0 + (Get.context != null
-                        ? MediaQuery.of(Get.context!).padding.bottom
-                        : 0),
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Obx(
-                            () => Text(
-                              slang.t.common.selectedRecords(
-                                num: controller.selectedVideos.length,
-                              ),
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          const Spacer(),
-                          IconButton(
-                            onPressed: controller.toggleMultiSelect,
-                            icon: const Icon(Icons.close),
-                            tooltip: slang.t.common.exitEditMode,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: controller.selectAll,
-                              icon: Icon(
-                                controller.isAllSelected
-                                    ? Icons.deselect
-                                    : Icons.select_all,
-                              ),
-                              label: Text(
-                                controller.isAllSelected
-                                    ? slang.t.common.cancelSelectAll
-                                    : slang.t.common.selectAll,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Obx(() => FilledButton.icon(
-                              onPressed: controller.isDeleting.value || controller.selectedVideos.isEmpty
-                                  ? null
-                                  : () => _showDeleteConfirmDialog(),
-                              icon: controller.isDeleting.value
-                                  ? const SizedBox(
-                                      width: 16,
-                                      height: 16,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Colors.white,
-                                      ),
-                                    )
-                                  : const Icon(Icons.delete),
-                              label: Text(slang.t.common.delete),
-                              style: FilledButton.styleFrom(
-                                backgroundColor: Colors.red,
-                              ),
-                            )),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            )
-          : const SizedBox(),
-    );
-  }
 }

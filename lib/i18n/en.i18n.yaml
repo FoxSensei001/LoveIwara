@@ -132,6 +132,7 @@ common:
   recording: Recording
   paused: Paused
   clear: Clear
+  clearSelection: Clear Selection
   user: User
   post: Post
   seconds: Seconds
@@ -1292,6 +1293,33 @@ download:
   alreadyDownloadedWithQuality: 'Already downloaded with the same quality, continue downloading?'
   alreadyDownloadedWithQualities: 'Already downloaded with qualities: ${qualities}, continue downloading?'
   otherQualities: Other qualities
+  batchDownload:
+    title: Batch Download
+    downloadTaskAlreadyRunning: A task is already running, please wait.
+    userCancelled: User cancelled
+    failedToGetVideoInfo: Failed to get video information
+    failedToGetVideoSource: Failed to get video source
+    failedToGetGalleryInfo: Failed to get gallery information
+    galleryNoImages: Gallery has no images
+    failedToGetSavePath: Failed to get save path
+    batchDownloadFailedWithException(exception): 'Batch download failed: ${exception}'
+    selectQuality: Select Quality
+    downloading: Downloading
+    downloadResult: Download Result
+    selectedVideosCount(count): 'Selected ${count} video(s)'
+    selectedGalleriesCount(count): 'Selected ${count} gallery(ies)'
+    qualityNote: If the selected quality is unavailable, the best available quality will be used
+    progress(current, total): 'Processing ${current}/${total}'
+    success: Success
+    skipped: Skipped
+    failed: Failed
+    failureDetails: Failure Details
+    reasonPrivateVideo: Private video
+    reasonAlreadyExists: Already exists
+    reasonNoSource: No download source
+    reasonNoSavePath: Cannot get save path
+    reasonOther: Other error
+    startDownload: Start Download
 
 favorite:
   errors:

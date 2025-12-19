@@ -854,6 +854,31 @@ class DownloadService extends GetxService {
           }
         }
 
+        // 针对 mikoto/phoebe 服务器故障，自动切换到 hime
+        final isMikotoPhoebeError = _isMikotoPhoebeServerError(e, task.url);
+        if (isMikotoPhoebeError && retryCount < maxRetries - 1) {
+          LogUtils.w(
+            '检测到 mikoto/phoebe 服务器故障，尝试切换到 hime 服务器并重试: ${task.id}',
+            'DownloadService',
+          );
+
+          // 替换服务器
+          final newUrl = _replaceServerToHime(task.url);
+          if (newUrl != task.url) {
+            task.url = newUrl;
+            await _repository.updateTask(task);
+
+            _showMessage(
+              slang.t.videoDetail.player.serverFaultDetectedAutoSwitched,
+              Colors.orange,
+            );
+
+            retryCount++;
+            await Future.delayed(retryDelay);
+            continue;
+          }
+        }
+
         if (retryCount >= maxRetries - 1) {
           if (e is DioException) {
             final errorMsg = _getErrorMessage(e);
@@ -1598,6 +1623,46 @@ class DownloadService extends GetxService {
       _updateImageProgress(task.id, imageId, 0);
       return false;
     }
+  }
+
+  /// 检测是否是 mikoto/phoebe 服务器错误
+  bool _isMikotoPhoebeServerError(dynamic error, String url) {
+    // 检查错误消息中是否包含 mikoto 或 phoebe
+    if (error is DioException) {
+      final message = error.message?.toLowerCase() ?? '';
+      if (message.contains('mikoto') || message.contains('phoebe')) {
+        return true;
+      }
+    } else if (error is HttpException) {
+      final message = error.message.toLowerCase();
+      if (message.contains('mikoto') || message.contains('phoebe')) {
+        return true;
+      }
+    }
+
+    // 检查 URL 中是否包含 mikoto 或 phoebe
+    final lowerUrl = url.toLowerCase();
+    return lowerUrl.contains('mikoto.iwara.tv') ||
+        lowerUrl.contains('phoebe.iwara.tv');
+  }
+
+  /// 将下载 URL 中的 mikoto/phoebe 服务器替换为 hime
+  String _replaceServerToHime(String url) {
+    String newUrl = url;
+
+    // 替换 mikoto 为 hime
+    if (newUrl.contains('mikoto.iwara.tv')) {
+      newUrl = newUrl.replaceAll('mikoto.iwara.tv', 'hime.iwara.tv');
+      LogUtils.d('已将下载链接从 mikoto 替换为 hime', 'DownloadService');
+    }
+
+    // 替换 phoebe 为 hime
+    if (newUrl.contains('phoebe.iwara.tv')) {
+      newUrl = newUrl.replaceAll('phoebe.iwara.tv', 'hime.iwara.tv');
+      LogUtils.d('已将下载链接从 phoebe 替换为 hime', 'DownloadService');
+    }
+
+    return newUrl;
   }
 
   // 刷新视频任务

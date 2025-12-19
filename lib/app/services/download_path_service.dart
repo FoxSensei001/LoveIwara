@@ -148,6 +148,35 @@ class DownloadPathService extends GetxService {
     }
   }
 
+  /// 获取视频批量下载路径（不弹出对话框，直接使用默认路径）
+  /// 用于批量下载场景，避免每个视频都弹出保存对话框
+  Future<String?> getVideoDownloadPathForBatch({
+    required Video video,
+    required String quality,
+    String? downloadUrl,
+  }) async {
+    try {
+      // 生成文件名
+      final template = _configService[ConfigKey.VIDEO_FILENAME_TEMPLATE] as String;
+      LogUtils.d('批量下载使用文件命名模板: $template', 'DownloadPathService');
+
+      final filename = _filenameTemplateService.generateVideoFilename(
+        template: template,
+        video: video,
+        quality: quality,
+        originalFilename: downloadUrl != null ? _extractFilenameFromUrl(downloadUrl) : null,
+      );
+      LogUtils.d('批量下载生成的文件名: $filename', 'DownloadPathService');
+
+      // 批量下载始终使用默认路径，不弹出对话框
+      final basePath = await _getBasePath('');
+      return path.join(basePath, filename);
+    } catch (e) {
+      LogUtils.e('获取视频批量下载路径失败', tag: 'DownloadPathService', error: e);
+      return null;
+    }
+  }
+
   /// 获取图库下载路径
   Future<String?> getGalleryDownloadPath({
     required ImageModel gallery,

@@ -46,42 +46,27 @@ class _HistoryListPageState extends State<HistoryListPage>
     final historyRepo = HistoryRepository();
 
     allController = Get.put(
-      HistoryListController(
-        historyRepository: historyRepo,
-        itemType: 'all',
-      ),
+      HistoryListController(historyRepository: historyRepo, itemType: 'all'),
       tag: 'all',
     );
 
     videoController = Get.put(
-      HistoryListController(
-        historyRepository: historyRepo,
-        itemType: 'video',
-      ),
+      HistoryListController(historyRepository: historyRepo, itemType: 'video'),
       tag: 'video',
     );
 
     imageController = Get.put(
-      HistoryListController(
-        historyRepository: historyRepo,
-        itemType: 'image',
-      ),
+      HistoryListController(historyRepository: historyRepo, itemType: 'image'),
       tag: 'image',
     );
 
     postController = Get.put(
-      HistoryListController(
-        historyRepository: historyRepo,
-        itemType: 'post',
-      ),
+      HistoryListController(historyRepository: historyRepo, itemType: 'post'),
       tag: 'post',
     );
 
     threadController = Get.put(
-      HistoryListController(
-        historyRepository: historyRepo,
-        itemType: 'thread',
-      ),
+      HistoryListController(historyRepository: historyRepo, itemType: 'thread'),
       tag: 'thread',
     );
 
@@ -264,29 +249,34 @@ class _HistoryListPageState extends State<HistoryListPage>
                         children: [
                           Text(
                             slang.t.common.selectDateRange,
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           const Spacer(),
                           IconButton(
                             icon: const Icon(Icons.close),
-                            onPressed: () => Navigator.of(context).pop(),
-                          )
+                            onPressed: () => AppService.tryPop(),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 8),
                       // 排序开关：创建时间/更新时间（倒序）
-                      Obx(() => SwitchListTile(
-                            contentPadding: EdgeInsets.zero,
-                            title: Text(
-                              controller.orderByUpdated.value
-                                  ? slang.t.common.updatedAt
-                                  : slang.t.common.publishedAt,
-                            ),
-                            subtitle: const Text('(DESC)'),
-                            value: controller.orderByUpdated.value,
-                            onChanged: (v) => controller.setOrderByUpdated(v),
-                            secondary: const Icon(Icons.swap_vert),
-                          )),
+                      Obx(
+                        () => SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(
+                            controller.orderByUpdated.value
+                                ? slang.t.common.updatedAt
+                                : slang.t.common.publishedAt,
+                          ),
+                          subtitle: const Text('(DESC)'),
+                          value: controller.orderByUpdated.value,
+                          onChanged: (v) => controller.setOrderByUpdated(v),
+                          secondary: const Icon(Icons.swap_vert),
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       // 时间区间：按钮一行 + 结果单独下一行
                       Obx(() {
@@ -315,7 +305,10 @@ class _HistoryListPageState extends State<HistoryListPage>
                             ),
                             if (dateRange != null)
                               Padding(
-                                padding: const EdgeInsets.only(top: 8, left: 32),
+                                padding: const EdgeInsets.only(
+                                  top: 8,
+                                  left: 32,
+                                ),
                                 child: Text(
                                   '${CommonUtils.formatDate(dateRange.start)} - ${CommonUtils.formatDate(dateRange.end)}',
                                   style: Theme.of(context).textTheme.bodySmall,
@@ -342,19 +335,19 @@ class _HistoryListPageState extends State<HistoryListPage>
       appBar: AppBar(
         title: _buildSearchField(context),
         actions: [
-          Obx(() => AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                child: isLoading.value
-                    ? Container(
-                        margin: const EdgeInsets.only(right: 16),
-                        width: 20,
-                        height: 20,
-                        child: const CircularProgressIndicator(
-                          strokeWidth: 2,
-                        ),
-                      )
-                    : const SizedBox.shrink(),
-              )),
+          Obx(
+            () => AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              child: isLoading.value
+                  ? Container(
+                      margin: const EdgeInsets.only(right: 16),
+                      width: 20,
+                      height: 20,
+                      child: const CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+          ),
           IconButton(
             onPressed: _showFilterSheet,
             icon: const Icon(Icons.filter_list),
@@ -391,70 +384,102 @@ class _HistoryListPageState extends State<HistoryListPage>
               _buildHistoryList(threadController, _threadScrollController),
             ],
           ),
-          // 第一个tab的底部多选栏
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: _buildMultiSelectBar(allController),
-          ),
-          // 第二个tab的底部多选栏
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: _buildMultiSelectBar(videoController),
-          ),
-          // 第三个tab的底部多选栏
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: _buildMultiSelectBar(imageController),
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: _buildMultiSelectBar(postController),
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: _buildMultiSelectBar(threadController),
-          ),
         ],
       ),
-      floatingActionButton: Obx(() => allController.showBackToTop.value
-          ? FloatingActionButton(
-              onPressed: () {
-                final scrollController =
-                    _getScrollControllerForIndex(_tabController.index);
-                scrollController.animateTo(
-                  0,
-                  duration: const Duration(milliseconds: 500),
-                  curve: Curves.easeInOut,
-                );
-              },
-              child: const Icon(Icons.arrow_upward),
-            ).paddingOnly(bottom: Get.context != null ? MediaQuery.of(Get.context!).padding.bottom : 0)
-          : const SizedBox()),
+      floatingActionButton: Obx(() {
+        final controller = _getControllerForIndex(_tabController.index);
+        final bool isMultiSelect = controller.isMultiSelect.value;
+        final bool showBackToTop = allController.showBackToTop.value;
+
+        if (!isMultiSelect && !showBackToTop) return const SizedBox.shrink();
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              if (isMultiSelect)
+                Padding(
+                  padding: const EdgeInsets.only(left: 32.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (controller.selectedRecords.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: Badge(
+                            label: Text(
+                              controller.selectedRecords.length.toString(),
+                            ),
+                            child: FloatingActionButton(
+                              heroTag: 'historyDeleteFAB',
+                              onPressed: () =>
+                                  _showDeleteConfirmDialog(controller),
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.error,
+                              foregroundColor: Theme.of(
+                                context,
+                              ).colorScheme.onError,
+                              child: const Icon(Icons.delete),
+                            ),
+                          ),
+                        ),
+                      FloatingActionButton(
+                        heroTag: 'historyExitMultiSelectFAB',
+                        onPressed: () => controller.toggleMultiSelect(),
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.secondaryContainer,
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onSecondaryContainer,
+                        child: const Icon(Icons.close),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                const SizedBox.shrink(),
+              if (showBackToTop)
+                FloatingActionButton(
+                  heroTag: 'historyBackToTopFAB',
+                  onPressed: () {
+                    final scrollController = _getScrollControllerForIndex(
+                      _tabController.index,
+                    );
+                    scrollController.animateTo(
+                      0,
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeInOut,
+                    );
+                  },
+                  child: const Icon(Icons.arrow_upward),
+                )
+              else
+                const SizedBox.shrink(),
+            ],
+          ),
+        ).paddingOnly(
+          bottom:
+              (isMultiSelect ? 120.0 : 0.0) +
+              (Get.context != null
+                  ? MediaQuery.of(Get.context!).padding.bottom
+                  : 0.0),
+        );
+      }),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
   Widget _buildTabBar() {
     return Container(
       width: 400,
-      margin: const EdgeInsets.symmetric(
-        horizontal: 0,
-        vertical: 8,
-      ),
+      margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
       decoration: BoxDecoration(
-        color: Theme.of(context)
-            .colorScheme
-            .surfaceContainerHighest
-            .withValues(alpha: 0.3),
+        color: Theme.of(
+          context,
+        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(25),
       ),
       child: TabBar(
@@ -469,10 +494,7 @@ class _HistoryListPageState extends State<HistoryListPage>
         dividerColor: Colors.transparent,
         labelColor: Theme.of(context).colorScheme.onPrimary,
         unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
-        labelStyle: const TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 16,
-        ),
+        labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         padding: EdgeInsets.zero,
         tabs: [
           Tab(text: slang.t.common.all),
@@ -496,10 +518,10 @@ class _HistoryListPageState extends State<HistoryListPage>
           SliverListConfig<HistoryRecord>(
             extendedListDelegate:
                 const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 200,
-              crossAxisSpacing: 5,
-              mainAxisSpacing: 5,
-            ),
+                  maxCrossAxisExtent: 200,
+                  crossAxisSpacing: 5,
+                  mainAxisSpacing: 5,
+                ),
             itemBuilder: (context, record, index) =>
                 _buildHistoryItem(context, record, controller),
             sourceList: controller.repository,
@@ -507,7 +529,9 @@ class _HistoryListPageState extends State<HistoryListPage>
               5.0,
               5.0,
               5.0,
-              Get.context != null ? MediaQuery.of(Get.context!).padding.bottom + 5.0 : 0,
+              Get.context != null
+                  ? MediaQuery.of(Get.context!).padding.bottom + 5.0
+                  : 0,
             ),
             lastChildLayoutType: LastChildLayoutType.foot,
             indicatorBuilder: (context, status) => myLoadingMoreIndicator(
@@ -538,7 +562,9 @@ class _HistoryListPageState extends State<HistoryListPage>
           margin: EdgeInsets.zero,
           clipBehavior: Clip.antiAlias,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(MediaQuery.of(context).size.width < 600 ? 6 : 8)
+            borderRadius: BorderRadius.circular(
+              MediaQuery.of(context).size.width < 600 ? 6 : 8,
+            ),
           ),
           child: Stack(
             children: [
@@ -546,19 +572,14 @@ class _HistoryListPageState extends State<HistoryListPage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (record.itemType == 'video')
-                    VideoCardListItemWidget(
-                      video: originalData,
-                      width: 200,
-                    )
+                    VideoCardListItemWidget(video: originalData, width: 200)
                   else if (record.itemType == 'image')
                     ImageModelCardListItemWidget(
                       imageModel: originalData,
                       width: 200,
                     )
                   else if (record.itemType == 'post')
-                    PostCardListItemWidget(
-                      post: originalData,
-                    )
+                    PostCardListItemWidget(post: originalData)
                   else if (record.itemType == 'thread')
                     ThreadListItemWidget(
                       thread: originalData,
@@ -575,7 +596,9 @@ class _HistoryListPageState extends State<HistoryListPage>
                       onTap: () => controller.toggleSelection(record.id),
                       child: Center(
                         child: Icon(
-                          isSelected ? Icons.check_circle : Icons.circle_outlined,
+                          isSelected
+                              ? Icons.check_circle
+                              : Icons.circle_outlined,
                           color: Colors.white,
                           size: 40,
                         ),
@@ -590,14 +613,19 @@ class _HistoryListPageState extends State<HistoryListPage>
     });
   }
 
-  Widget _buildHistoryItemFooter(HistoryRecord record, HistoryListController controller) {
+  Widget _buildHistoryItemFooter(
+    HistoryRecord record,
+    HistoryListController controller,
+  ) {
     // 获取类型对应的颜色和图标
     final (color, icon) = _getItemTypeStyle(record.itemType);
-    
+
     return Container(
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        color: Theme.of(
+          context,
+        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -639,11 +667,7 @@ class _HistoryListPageState extends State<HistoryListPage>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      icon,
-                      size: 12,
-                      color: color,
-                    ),
+                    Icon(icon, size: 12, color: color),
                     const SizedBox(width: 4),
                     Text(
                       _getItemTypeText(record.itemType),
@@ -710,11 +734,16 @@ class _HistoryListPageState extends State<HistoryListPage>
     }
   }
 
-  void _showDeleteRecordDialog(HistoryRecord record, HistoryListController controller) {
+  void _showDeleteRecordDialog(
+    HistoryRecord record,
+    HistoryListController controller,
+  ) {
     Get.dialog(
       AlertDialog(
         title: Text(slang.t.common.confirmDelete),
-        content: Text(slang.t.common.areYouSureYouWantToDeleteSelectedItems(num: 1)),
+        content: Text(
+          slang.t.common.areYouSureYouWantToDeleteSelectedItems(num: 1),
+        ),
         actions: [
           TextButton(
             onPressed: () => AppService.tryPop(),
@@ -723,7 +752,9 @@ class _HistoryListPageState extends State<HistoryListPage>
           TextButton(
             onPressed: () async {
               AppService.tryPop();
-              await controller.historyDatabaseRepository.deleteRecord(record.id);
+              await controller.historyDatabaseRepository.deleteRecord(
+                record.id,
+              );
               controller.repository.refresh();
               showToastWidget(
                 MDToastWidget(
@@ -732,9 +763,7 @@ class _HistoryListPageState extends State<HistoryListPage>
                 ),
               );
             },
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.red,
-            ),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: Text(slang.t.common.delete),
           ),
         ],
@@ -742,89 +771,15 @@ class _HistoryListPageState extends State<HistoryListPage>
     );
   }
 
-  Widget _buildMultiSelectBar(HistoryListController controller) {
-    return Obx(() => controller.isMultiSelect.value
-        ? BottomSheet(
-            enableDrag: false,
-            backgroundColor: Theme.of(context).bottomSheetTheme.backgroundColor,
-            onClosing: () {},
-            builder: (context) => SafeArea(
-              child: Container(
-                padding: EdgeInsets.only(
-                  left: 16.0,
-                  right: 16.0,
-                  top: 16.0,
-                  bottom: 16.0 + (Get.context != null
-                      ? MediaQuery.of(Get.context!).padding.bottom
-                      : 0),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Obx(() => Text(
-                              slang.t.common.selectedRecords(
-                                  num: controller.selectedRecords.length),
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            )),
-                        const Spacer(),
-                        IconButton(
-                          onPressed: controller.toggleMultiSelect,
-                          icon: const Icon(Icons.close),
-                          tooltip: slang.t.common.exitEditMode,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: controller.selectAll,
-                            icon: Icon(
-                              controller.isAllSelected
-                                  ? Icons.deselect
-                                  : Icons.select_all,
-                            ),
-                            label: Text(
-                              controller.isAllSelected
-                                  ? slang.t.common.cancelSelectAll
-                                  : slang.t.common.selectAll,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: FilledButton.icon(
-                            onPressed: () => _showDeleteConfirmDialog(controller),
-                            icon: const Icon(Icons.delete),
-                            label: Text(slang.t.common.delete),
-                            style: FilledButton.styleFrom(
-                              backgroundColor: Colors.red,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          )
-        : const SizedBox());
-  }
-
   void _showDeleteConfirmDialog(HistoryListController controller) {
     Get.dialog(
       AlertDialog(
         title: Text(slang.t.common.confirmDelete),
-        content: Text(slang.t.common.areYouSureYouWantToDeleteSelectedItems(
-            num: controller.selectedRecords.length)),
+        content: Text(
+          slang.t.common.areYouSureYouWantToDeleteSelectedItems(
+            num: controller.selectedRecords.length,
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => AppService.tryPop(),
@@ -835,9 +790,7 @@ class _HistoryListPageState extends State<HistoryListPage>
               AppService.tryPop();
               controller.deleteSelected();
             },
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.red,
-            ),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: Text(slang.t.common.delete),
           ),
         ],
@@ -857,9 +810,7 @@ class _HistoryListPageState extends State<HistoryListPage>
         ),
         prefixIcon: const Icon(Icons.search),
       ),
-      style: TextStyle(
-        color: Theme.of(context).colorScheme.onSurface,
-      ),
+      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
       onChanged: (value) => controller.search(value),
       controller: TextEditingController(text: controller.searchKeyword.value),
     );
@@ -883,9 +834,7 @@ class _HistoryListPageState extends State<HistoryListPage>
               await controller.clearHistoryByType(itemType);
               AppService.tryPop();
             },
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.red,
-            ),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: Text(slang.t.common.confirm),
           ),
         ],

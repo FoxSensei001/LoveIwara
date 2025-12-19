@@ -177,6 +177,9 @@ class MediaListView<T> extends StatefulWidget {
   final bool showBottomPadding;
   final bool enablePullToRefresh;
 
+  /// 分页切换时的回调（用于多选模式下重置选择）
+  final VoidCallback? onPageChanged;
+
   const MediaListView({
     super.key,
     required this.sourceList,
@@ -189,6 +192,7 @@ class MediaListView<T> extends StatefulWidget {
     this.enablePerformanceLogging = false,
     this.showBottomPadding = true,
     this.enablePullToRefresh = true,
+    this.onPageChanged,
   });
 
   @override
@@ -402,6 +406,11 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
               curve: Curves.easeOut,
             );
           });
+        }
+
+        // 页面变化时触发回调（用于多选模式重置选择）
+        if (pageChanged) {
+          widget.onPageChanged?.call();
         }
       } else {
         if (!mounted) return;

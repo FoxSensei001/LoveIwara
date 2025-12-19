@@ -130,6 +130,7 @@ common:
   recording: 記錄中
   paused: 已暫停
   clear: 清除
+  clearSelection: 清空選擇
   user: 使用者
   post: 投稿
   seconds: 秒
@@ -1336,6 +1337,33 @@ download:
   alreadyDownloadedWithQuality: '已有相同清晰度的任務，是否繼續下載？'
   alreadyDownloadedWithQualities: '此視頻已有${qualities}清晰度的任務，是否繼續下載？'
   otherQualities: 其他清晰度
+  batchDownload:
+    title: 批量下載
+    downloadTaskAlreadyRunning: 任務正在運行中，請稍候
+    userCancelled: 用戶取消
+    failedToGetVideoInfo: 無法獲取影片資訊
+    failedToGetVideoSource: 無法獲取影片源
+    failedToGetGalleryInfo: 無法獲取圖庫資訊
+    galleryNoImages: 圖庫中沒有圖片
+    failedToGetSavePath: 無法獲取保存路徑
+    batchDownloadFailedWithException(exception): '批量下載失敗: ${exception}'
+    selectQuality: 選擇清晰度
+    downloading: 下載中
+    downloadResult: 下載結果
+    selectedVideosCount(count): '已選擇 ${count} 個影片'
+    selectedGalleriesCount(count): '已選擇 ${count} 個圖庫'
+    qualityNote: 如果所選清晰度不可用，將使用最佳可用清晰度
+    progress(current, total): '處理中 ${current}/${total}'
+    success: 成功
+    skipped: 跳過
+    failed: 失敗
+    failureDetails: 失敗詳情
+    reasonPrivateVideo: 私人影片
+    reasonAlreadyExists: 任務已存在
+    reasonNoSource: 無下載源
+    reasonNoSavePath: 無法取得儲存路徑
+    reasonOther: 其他錯誤
+    startDownload: 開始下載
 
 favorite:
   errors:

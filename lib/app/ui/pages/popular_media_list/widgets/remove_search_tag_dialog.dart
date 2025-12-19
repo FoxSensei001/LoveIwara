@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -10,7 +11,7 @@ class RemoveSearchTagDialog extends StatefulWidget {
   const RemoveSearchTagDialog({
     super.key,
     required this.onRemoveIds,
-    required this.videoSearchTagHistory
+    required this.videoSearchTagHistory,
   });
 
   @override
@@ -25,18 +26,13 @@ class _RemoveSearchTagDialogState extends State<RemoveSearchTagDialog> {
     final t = slang.Translations.of(context);
     return Dialog(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          maxWidth: 1200,
-          maxHeight: 800,
-        ),
+        constraints: const BoxConstraints(maxWidth: 1200, maxHeight: 800),
         child: Column(
           children: [
             Text(t.search.removeTag, style: const TextStyle(fontSize: 20)),
             _buildHeader(context),
             const Divider(),
-            Expanded(
-              child: _buildTagGrid(),
-            ),
+            Expanded(child: _buildTagGrid()),
           ],
         ),
       ),
@@ -66,9 +62,9 @@ class _RemoveSearchTagDialogState extends State<RemoveSearchTagDialog> {
         ElevatedButton(
           onPressed: _toggleSelectAll,
           child: Text(
-              selectedIds.length == widget.videoSearchTagHistory.length
-                  ? t.common.cancelSelectAll
-                  : t.common.selectAll
+            selectedIds.length == widget.videoSearchTagHistory.length
+                ? t.common.cancelSelectAll
+                : t.common.selectAll,
           ),
         ),
         if (selectedIds.isNotEmpty)
@@ -81,16 +77,10 @@ class _RemoveSearchTagDialogState extends State<RemoveSearchTagDialog> {
                 color: Colors.red,
                 borderRadius: BorderRadius.circular(8),
               ),
-              constraints: const BoxConstraints(
-                minWidth: 16,
-                minHeight: 16,
-              ),
+              constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
               child: Text(
                 '${selectedIds.length}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                ),
+                style: const TextStyle(color: Colors.white, fontSize: 12),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -110,7 +100,7 @@ class _RemoveSearchTagDialogState extends State<RemoveSearchTagDialog> {
   Widget _buildCloseButton() {
     return IconButton(
       icon: const Icon(Icons.close),
-      onPressed: () => Navigator.of(context).pop(),
+      onPressed: () => AppService.tryPop(),
     );
   }
 
@@ -144,9 +134,7 @@ class _RemoveSearchTagDialogState extends State<RemoveSearchTagDialog> {
         alignment: Alignment.center,
         child: Text(
           tag.id,
-          style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black,
-          ),
+          style: TextStyle(color: isSelected ? Colors.white : Colors.black),
           overflow: TextOverflow.ellipsis,
         ),
       ),
@@ -169,9 +157,7 @@ class _RemoveSearchTagDialogState extends State<RemoveSearchTagDialog> {
       if (selectedIds.length == widget.videoSearchTagHistory.length) {
         selectedIds.clear();
       } else {
-        selectedIds = widget.videoSearchTagHistory
-            .map((e) => e.id)
-            .toSet();
+        selectedIds = widget.videoSearchTagHistory.map((e) => e.id).toSet();
       }
     });
   }

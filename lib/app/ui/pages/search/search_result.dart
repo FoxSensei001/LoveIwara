@@ -14,10 +14,15 @@ import 'package:i_iwara/app/ui/pages/search/widgets/search_common_widgets.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_button_widget.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_config.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
+import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
+
+import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/batch_select_controller.dart';
+import 'package:i_iwara/app/models/video.model.dart';
+import 'package:i_iwara/app/models/image.model.dart';
 
 import 'search_dialog.dart';
 
-class SearchController extends GetxController {
+class SearchResultController extends GetxController {
   // 搜索状态管理
   final RxString currentSearch = ''.obs;
   final Rx<SearchSegment> selectedSegment = SearchSegment.video.obs;
@@ -33,6 +38,40 @@ class SearchController extends GetxController {
 
   // 筛选项状态管理
   final RxList<Filter> filters = <Filter>[].obs;
+
+  // 批量开启模式
+  late BatchSelectController<Video> videoBatchController;
+  late BatchSelectController<ImageModel> imageBatchController;
+
+  SearchResultController() {
+    videoBatchController = BatchSelectController<Video>();
+    imageBatchController = BatchSelectController<ImageModel>();
+
+    // 监听分页模式变化
+    ever(isPaginated, (bool val) {
+      videoBatchController.setPaginatedMode(val);
+      imageBatchController.setPaginatedMode(val);
+    });
+
+    // 监听搜索词变化，如果是分页模式则清空选择
+    ever(currentSearch, (_) {
+      videoBatchController.onPageChanged();
+      imageBatchController.onPageChanged();
+    });
+
+    // 监听分段变化，清空所有选择并退出多选模式
+    ever(selectedSegment, (_) {
+      videoBatchController.exitMultiSelect();
+      imageBatchController.exitMultiSelect();
+    });
+  }
+
+  @override
+  void onClose() {
+    videoBatchController.dispose();
+    imageBatchController.dispose();
+    super.onClose();
+  }
 
   // 存储滚动回调
   final List<Function()> _scrollToTopCallbacks = [];
@@ -137,7 +176,7 @@ class SearchResult extends StatefulWidget {
 class _SearchResultState extends State<SearchResult> {
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  late SearchController searchController;
+  late SearchResultController searchController;
 
   @override
   void initState() {
@@ -151,13 +190,16 @@ class _SearchResultState extends State<SearchResult> {
   void dispose() {
     _searchController.dispose();
     _scrollController.dispose();
-    Get.delete<SearchController>(tag: 'search_controller');
+    Get.delete<SearchResultController>(tag: 'search_controller');
     super.dispose();
   }
 
   // 初始化搜索控制器
   void _initializeSearchController() {
-    searchController = Get.put(SearchController(), tag: 'search_controller');
+    searchController = Get.put(
+      SearchResultController(),
+      tag: 'search_controller',
+    );
     searchController.updateSearch(widget.initialSearch);
     searchController.updateSegment(widget.initialSegment);
     // 初始化排序（根据分段默认或外部传入）
@@ -216,18 +258,34 @@ class _SearchResultState extends State<SearchResult> {
   ) {
     switch (segment) {
       case SearchSegment.video:
-        return VideoSearchList(
-          key: ValueKey('video_$rebuildKey'),
-          query: query,
-          isPaginated: isPaginated,
-          sort: sort,
+        return Obx(
+          () => VideoSearchList(
+            key: ValueKey('video_$rebuildKey'),
+            query: query,
+            isPaginated: isPaginated,
+            sort: sort,
+            isMultiSelectMode:
+                searchController.videoBatchController.isMultiSelect.value,
+            selectedItemIds:
+                searchController.videoBatchController.selectedMediaIds,
+            onItemSelect: (video) =>
+                searchController.videoBatchController.toggleSelection(video),
+          ),
         );
       case SearchSegment.image:
-        return ImageSearchList(
-          key: ValueKey('image_$rebuildKey'),
-          query: query,
-          isPaginated: isPaginated,
-          sort: sort,
+        return Obx(
+          () => ImageSearchList(
+            key: ValueKey('image_$rebuildKey'),
+            query: query,
+            isPaginated: isPaginated,
+            sort: sort,
+            isMultiSelectMode:
+                searchController.imageBatchController.isMultiSelect.value,
+            selectedItemIds:
+                searchController.imageBatchController.selectedMediaIds,
+            onItemSelect: (image) =>
+                searchController.imageBatchController.toggleSelection(image),
+          ),
         );
       case SearchSegment.user:
         return UserSearchList(
@@ -455,6 +513,27 @@ class _SearchResultState extends State<SearchResult> {
   List<Widget> _buildAppBarActions() {
     final t = slang.Translations.of(context);
     return [
+      // 多选模式切换按钮
+      Obx(() {
+        final segment = searchController.selectedSegment.value;
+        if (segment != SearchSegment.video && segment != SearchSegment.image) {
+          return const SizedBox.shrink();
+        }
+
+        final controller = segment == SearchSegment.video
+            ? searchController.videoBatchController
+            : searchController.imageBatchController;
+
+        return IconButton(
+          icon: Icon(
+            controller.isMultiSelect.value ? Icons.close : Icons.checklist,
+          ),
+          onPressed: () => controller.toggleMultiSelect(),
+          tooltip: controller.isMultiSelect.value
+              ? t.common.exitEditMode
+              : t.common.editMode,
+        );
+      }),
       // 刷新按钮
       IconButton(
         onPressed: () {
@@ -495,18 +574,39 @@ class _SearchResultState extends State<SearchResult> {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
+    final String uniqueTag = 'search_result_${identityHashCode(this)}';
+
     return Scaffold(
       appBar: AppBar(
         title: Text(t.search.searchResult),
         actions: _buildAppBarActions(),
       ),
       body: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
+        child: Stack(
           children: [
-            _buildSearchControlsArea(),
-            // 搜索结果区域
-            Expanded(child: _buildCurrentSearchList()),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                _buildSearchControlsArea(),
+                // 搜索结果区域
+                Expanded(child: _buildCurrentSearchList()),
+              ],
+            ),
+            // 批量下载悬浮按钮
+            BatchActionFabColumn<Video>(
+              controller: searchController.videoBatchController,
+              heroTagPrefix: 'search_video_$uniqueTag',
+              isPaginated: searchController.isPaginated.value,
+              visible: () =>
+                  searchController.selectedSegment.value == SearchSegment.video,
+            ),
+            BatchActionFabColumn<ImageModel>(
+              controller: searchController.imageBatchController,
+              heroTagPrefix: 'search_image_$uniqueTag',
+              isPaginated: searchController.isPaginated.value,
+              visible: () =>
+                  searchController.selectedSegment.value == SearchSegment.image,
+            ),
           ],
         ),
       ),

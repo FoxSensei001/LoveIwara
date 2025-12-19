@@ -480,6 +480,9 @@ class TranslationsCommonEn {
 	/// en: 'Clear'
 	String get clear => 'Clear';
 
+	/// en: 'Clear Selection'
+	String get clearSelection => 'Clear Selection';
+
 	/// en: 'User'
 	String get user => 'User';
 
@@ -2832,6 +2835,8 @@ class TranslationsDownloadEn {
 
 	/// en: 'Other qualities'
 	String get otherQualities => 'Other qualities';
+
+	late final TranslationsDownloadBatchDownloadEn batchDownload = TranslationsDownloadBatchDownloadEn._(_root);
 }
 
 // Path: favorite
@@ -5687,6 +5692,93 @@ class TranslationsDownloadErrorsEn {
 	String get pleaseTryOtherViewer => 'Please try using other viewers to open';
 }
 
+// Path: download.batchDownload
+class TranslationsDownloadBatchDownloadEn {
+	TranslationsDownloadBatchDownloadEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Batch Download'
+	String get title => 'Batch Download';
+
+	/// en: 'A task is already running, please wait.'
+	String get downloadTaskAlreadyRunning => 'A task is already running, please wait.';
+
+	/// en: 'User cancelled'
+	String get userCancelled => 'User cancelled';
+
+	/// en: 'Failed to get video information'
+	String get failedToGetVideoInfo => 'Failed to get video information';
+
+	/// en: 'Failed to get video source'
+	String get failedToGetVideoSource => 'Failed to get video source';
+
+	/// en: 'Failed to get gallery information'
+	String get failedToGetGalleryInfo => 'Failed to get gallery information';
+
+	/// en: 'Gallery has no images'
+	String get galleryNoImages => 'Gallery has no images';
+
+	/// en: 'Failed to get save path'
+	String get failedToGetSavePath => 'Failed to get save path';
+
+	/// en: 'Batch download failed: ${exception}'
+	String batchDownloadFailedWithException({required Object exception}) => 'Batch download failed: ${exception}';
+
+	/// en: 'Select Quality'
+	String get selectQuality => 'Select Quality';
+
+	/// en: 'Downloading'
+	String get downloading => 'Downloading';
+
+	/// en: 'Download Result'
+	String get downloadResult => 'Download Result';
+
+	/// en: 'Selected ${count} video(s)'
+	String selectedVideosCount({required Object count}) => 'Selected ${count} video(s)';
+
+	/// en: 'Selected ${count} gallery(ies)'
+	String selectedGalleriesCount({required Object count}) => 'Selected ${count} gallery(ies)';
+
+	/// en: 'If the selected quality is unavailable, the best available quality will be used'
+	String get qualityNote => 'If the selected quality is unavailable, the best available quality will be used';
+
+	/// en: 'Processing ${current}/${total}'
+	String progress({required Object current, required Object total}) => 'Processing ${current}/${total}';
+
+	/// en: 'Success'
+	String get success => 'Success';
+
+	/// en: 'Skipped'
+	String get skipped => 'Skipped';
+
+	/// en: 'Failed'
+	String get failed => 'Failed';
+
+	/// en: 'Failure Details'
+	String get failureDetails => 'Failure Details';
+
+	/// en: 'Private video'
+	String get reasonPrivateVideo => 'Private video';
+
+	/// en: 'Already exists'
+	String get reasonAlreadyExists => 'Already exists';
+
+	/// en: 'No download source'
+	String get reasonNoSource => 'No download source';
+
+	/// en: 'Cannot get save path'
+	String get reasonNoSavePath => 'Cannot get save path';
+
+	/// en: 'Other error'
+	String get reasonOther => 'Other error';
+
+	/// en: 'Start Download'
+	String get startDownload => 'Start Download';
+}
+
 // Path: favorite.errors
 class TranslationsFavoriteErrorsEn {
 	TranslationsFavoriteErrorsEn._(this._root);
@@ -6249,6 +6341,7 @@ extension on Translations {
 			'common.recording' => 'Recording',
 			'common.paused' => 'Paused',
 			'common.clear' => 'Clear',
+			'common.clearSelection' => 'Clear Selection',
 			'common.user' => 'User',
 			'common.post' => 'Post',
 			'common.seconds' => 'Seconds',
@@ -6632,9 +6725,9 @@ extension on Translations {
 			'settings.importConfigDesc' => 'Import app configuration from a file',
 			'settings.exportConfigSuccess' => 'Configuration exported successfully!',
 			'settings.exportConfigFailed' => 'Failed to export configuration',
-			'settings.importConfigSuccess' => 'Configuration imported successfully!',
 			_ => null,
 		} ?? switch (path) {
+			'settings.importConfigSuccess' => 'Configuration imported successfully!',
 			'settings.importConfigFailed' => 'Failed to import configuration',
 			'settings.historyUpdateLogs' => 'History Update Logs',
 			'settings.noUpdateLogs' => 'No update logs available',
@@ -7146,9 +7239,9 @@ extension on Translations {
 			'forum.editTitle' => 'Edit Title',
 			'forum.submit' => 'Submit',
 			'notifications.errors.unsupportedNotificationType' => 'Unsupported notification type',
-			'notifications.errors.unknownUser' => 'Unknown user',
 			_ => null,
 		} ?? switch (path) {
+			'notifications.errors.unknownUser' => 'Unknown user',
 			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => 'Unsupported notification type: ${type}',
 			'notifications.errors.unknownNotificationType' => 'Unknown notification type',
 			'notifications.notifications' => 'Notifications',
@@ -7327,6 +7420,32 @@ extension on Translations {
 			'download.alreadyDownloadedWithQuality' => 'Already downloaded with the same quality, continue downloading?',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'Already downloaded with qualities: ${qualities}, continue downloading?',
 			'download.otherQualities' => 'Other qualities',
+			'download.batchDownload.title' => 'Batch Download',
+			'download.batchDownload.downloadTaskAlreadyRunning' => 'A task is already running, please wait.',
+			'download.batchDownload.userCancelled' => 'User cancelled',
+			'download.batchDownload.failedToGetVideoInfo' => 'Failed to get video information',
+			'download.batchDownload.failedToGetVideoSource' => 'Failed to get video source',
+			'download.batchDownload.failedToGetGalleryInfo' => 'Failed to get gallery information',
+			'download.batchDownload.galleryNoImages' => 'Gallery has no images',
+			'download.batchDownload.failedToGetSavePath' => 'Failed to get save path',
+			'download.batchDownload.batchDownloadFailedWithException' => ({required Object exception}) => 'Batch download failed: ${exception}',
+			'download.batchDownload.selectQuality' => 'Select Quality',
+			'download.batchDownload.downloading' => 'Downloading',
+			'download.batchDownload.downloadResult' => 'Download Result',
+			'download.batchDownload.selectedVideosCount' => ({required Object count}) => 'Selected ${count} video(s)',
+			'download.batchDownload.selectedGalleriesCount' => ({required Object count}) => 'Selected ${count} gallery(ies)',
+			'download.batchDownload.qualityNote' => 'If the selected quality is unavailable, the best available quality will be used',
+			'download.batchDownload.progress' => ({required Object current, required Object total}) => 'Processing ${current}/${total}',
+			'download.batchDownload.success' => 'Success',
+			'download.batchDownload.skipped' => 'Skipped',
+			'download.batchDownload.failed' => 'Failed',
+			'download.batchDownload.failureDetails' => 'Failure Details',
+			'download.batchDownload.reasonPrivateVideo' => 'Private video',
+			'download.batchDownload.reasonAlreadyExists' => 'Already exists',
+			'download.batchDownload.reasonNoSource' => 'No download source',
+			'download.batchDownload.reasonNoSavePath' => 'Cannot get save path',
+			'download.batchDownload.reasonOther' => 'Other error',
+			'download.batchDownload.startDownload' => 'Start Download',
 			'favorite.errors.addFailed' => 'Add failed',
 			'favorite.errors.addSuccess' => 'Add success',
 			'favorite.errors.deleteFolderFailed' => 'Delete folder failed',
@@ -7634,6 +7753,8 @@ extension on Translations {
 			'log.showLogStats' => 'Show Log Stats',
 			'log.logExportSuccess' => 'Log export success',
 			'log.logExportFailed' => ({required Object error}) => 'Log export failed: ${error}',
+			_ => null,
+		} ?? switch (path) {
 			'log.showLogStatsDesc' => 'View statistics of various types of logs',
 			'log.logExtractFailed' => ({required Object error}) => 'Failed to get log statistics: ${error}',
 			'log.clearAllLogs' => 'Clear All Logs',
@@ -7661,8 +7782,6 @@ extension on Translations {
 			'log.noHistoryLogsToExport' => 'No history logs to export, please try using the app for a while first',
 			'log.selectLogDate' => 'Select Log Date',
 			'log.today' => 'Today',
-			_ => null,
-		} ?? switch (path) {
 			'log.selectMergeRange' => 'Select Merge Range',
 			'log.selectMergeRangeHint' => 'Please select the log time range to merge',
 			'log.selectMergeRangeDays' => ({required Object days}) => 'Recent ${days} days',

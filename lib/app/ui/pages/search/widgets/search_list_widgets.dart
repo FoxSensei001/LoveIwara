@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/post.model.dart';
@@ -21,88 +22,118 @@ import 'base_search_list.dart';
 /// 视频搜索列表
 class VideoSearchList extends BaseSearchList<Video, VideoSearchRepository> {
   final String? sort;
+  final bool isMultiSelectMode;
+  final Set<String> selectedItemIds;
+  final Function(Video item)? onItemSelect;
+
   const VideoSearchList({
     super.key,
     required super.query,
     super.isPaginated = false,
     this.sort,
+    this.isMultiSelectMode = false,
+    this.selectedItemIds = const {},
+    this.onItemSelect,
   });
-  
+
   @override
   State<VideoSearchList> createState() => VideoSearchListState();
 }
 
-class VideoSearchListState extends BaseSearchListState<Video, VideoSearchRepository, VideoSearchList> {
+class VideoSearchListState
+    extends BaseSearchListState<Video, VideoSearchRepository, VideoSearchList> {
   @override
   VideoSearchRepository createRepository() {
-    return VideoSearchRepository(
-      query: widget.query,
-      sortKey: widget.sort,
-    );
+    return VideoSearchRepository(query: widget.query, sortKey: widget.sort);
   }
-  
+
   @override
   IconData get emptyIcon => Icons.video_library_outlined;
-  
+
   @override
   Widget buildListItem(BuildContext context, Video video, int index) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final itemWidth = screenWidth <= 600 ? (screenWidth - 8) / 2 : (screenWidth - 24) / 3;
-    
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
-        vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
-      ),
-      child: VideoCardListItemWidget(
-        video: video,
-        width: itemWidth,
-      ),
-    );
+    final itemWidth = screenWidth <= 600
+        ? (screenWidth - 8) / 2
+        : (screenWidth - 24) / 3;
+
+    return Obx(() {
+      return Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
+          vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
+        ),
+        child: VideoCardListItemWidget(
+          video: video,
+          width: itemWidth,
+          isMultiSelectMode: widget.isMultiSelectMode,
+          isSelected: widget.selectedItemIds.contains(video.id),
+          onSelect: () => widget.onItemSelect?.call(video),
+        ),
+      );
+    });
   }
 }
 
 /// 图片搜索列表
-class ImageSearchList extends BaseSearchList<ImageModel, ImageSearchRepository> {
+class ImageSearchList
+    extends BaseSearchList<ImageModel, ImageSearchRepository> {
   final String? sort;
+  final bool isMultiSelectMode;
+  final Set<String> selectedItemIds;
+  final Function(ImageModel item)? onItemSelect;
+
   const ImageSearchList({
     super.key,
     required super.query,
     super.isPaginated = false,
     this.sort,
+    this.isMultiSelectMode = false,
+    this.selectedItemIds = const {},
+    this.onItemSelect,
   });
-  
+
   @override
   State<ImageSearchList> createState() => ImageSearchListState();
 }
 
-class ImageSearchListState extends BaseSearchListState<ImageModel, ImageSearchRepository, ImageSearchList> {
+class ImageSearchListState
+    extends
+        BaseSearchListState<
+          ImageModel,
+          ImageSearchRepository,
+          ImageSearchList
+        > {
   @override
   ImageSearchRepository createRepository() {
-    return ImageSearchRepository(
-      query: widget.query,
-      sortKey: widget.sort,
-    );
+    return ImageSearchRepository(query: widget.query, sortKey: widget.sort);
   }
-  
+
   @override
   IconData get emptyIcon => Icons.image_outlined;
-  
+
   @override
   Widget buildListItem(BuildContext context, ImageModel image, int index) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final itemWidth = screenWidth <= 600 ? (screenWidth - 8) / 2 : (screenWidth - 24) / 3;
-    
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
-        vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
-      ),
-      child: ImageModelCardListItemWidget(
-        imageModel: image,
-        width: itemWidth,
-      ),
-    );
+    final itemWidth = screenWidth <= 600
+        ? (screenWidth - 8) / 2
+        : (screenWidth - 24) / 3;
+
+    return Obx(() {
+      return Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
+          vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
+        ),
+        child: ImageModelCardListItemWidget(
+          imageModel: image,
+          width: itemWidth,
+          isMultiSelectMode: widget.isMultiSelectMode,
+          isSelected: widget.selectedItemIds.contains(image.id),
+          onSelect: () => widget.onItemSelect?.call(image),
+        ),
+      );
+    });
   }
 }
 
@@ -115,20 +146,21 @@ class UserSearchList extends BaseSearchList<User, UserSearchRepository> {
     super.isPaginated = false,
     this.sort,
   });
-  
+
   @override
   State<UserSearchList> createState() => UserSearchListState();
 }
 
-class UserSearchListState extends BaseSearchListState<User, UserSearchRepository, UserSearchList> {
+class UserSearchListState
+    extends BaseSearchListState<User, UserSearchRepository, UserSearchList> {
   @override
   UserSearchRepository createRepository() {
     return UserSearchRepository(query: widget.query, sortKey: widget.sort);
   }
-  
+
   @override
   IconData get emptyIcon => Icons.person_outline;
-  
+
   @override
   Widget buildListItem(BuildContext context, User user, int index) {
     return Padding(
@@ -136,9 +168,7 @@ class UserSearchListState extends BaseSearchListState<User, UserSearchRepository
         horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
         vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
       ),
-      child: UserCard(
-        user: user,
-      ),
+      child: UserCard(user: user),
     );
   }
 }
@@ -152,20 +182,22 @@ class PostSearchList extends BaseSearchList<PostModel, PostSearchRepository> {
     super.isPaginated = false,
     this.sort,
   });
-  
+
   @override
   State<PostSearchList> createState() => PostSearchListState();
 }
 
-class PostSearchListState extends BaseSearchListState<PostModel, PostSearchRepository, PostSearchList> {
+class PostSearchListState
+    extends
+        BaseSearchListState<PostModel, PostSearchRepository, PostSearchList> {
   @override
   PostSearchRepository createRepository() {
     return PostSearchRepository(query: widget.query, sortKey: widget.sort);
   }
-  
+
   @override
   IconData get emptyIcon => Icons.article_outlined;
-  
+
   @override
   Widget buildListItem(BuildContext context, PostModel post, int index) {
     return Padding(
@@ -173,15 +205,14 @@ class PostSearchListState extends BaseSearchListState<PostModel, PostSearchRepos
         horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
         vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
       ),
-      child: PostCardListItemWidget(
-        post: post,
-      ),
+      child: PostCardListItemWidget(post: post),
     );
   }
 }
 
 /// 论坛搜索列表
-class ForumSearchList extends BaseSearchList<ForumThreadModel, ForumSearchRepository> {
+class ForumSearchList
+    extends BaseSearchList<ForumThreadModel, ForumSearchRepository> {
   final String? sort;
   const ForumSearchList({
     super.key,
@@ -194,7 +225,13 @@ class ForumSearchList extends BaseSearchList<ForumThreadModel, ForumSearchReposi
   State<ForumSearchList> createState() => ForumSearchListState();
 }
 
-class ForumSearchListState extends BaseSearchListState<ForumThreadModel, ForumSearchRepository, ForumSearchList> {
+class ForumSearchListState
+    extends
+        BaseSearchListState<
+          ForumThreadModel,
+          ForumSearchRepository,
+          ForumSearchList
+        > {
   @override
   ForumSearchRepository createRepository() {
     return ForumSearchRepository(query: widget.query, sortKey: widget.sort);
@@ -204,22 +241,24 @@ class ForumSearchListState extends BaseSearchListState<ForumThreadModel, ForumSe
   IconData get emptyIcon => Icons.forum_outlined;
 
   @override
-  Widget buildListItem(BuildContext context, ForumThreadModel forum, int index) {
+  Widget buildListItem(
+    BuildContext context,
+    ForumThreadModel forum,
+    int index,
+  ) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
         vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
       ),
-      child: ThreadListItemWidget(
-        thread: forum,
-        categoryId: forum.section,
-      ),
+      child: ThreadListItemWidget(thread: forum, categoryId: forum.section),
     );
   }
 }
 
 /// 论坛帖子回复搜索列表
-class ForumPostsSearchList extends BaseSearchList<ThreadCommentModel, ForumPostsSearchRepository> {
+class ForumPostsSearchList
+    extends BaseSearchList<ThreadCommentModel, ForumPostsSearchRepository> {
   final String? sort;
   const ForumPostsSearchList({
     super.key,
@@ -232,31 +271,40 @@ class ForumPostsSearchList extends BaseSearchList<ThreadCommentModel, ForumPosts
   State<ForumPostsSearchList> createState() => ForumPostsSearchListState();
 }
 
-class ForumPostsSearchListState extends BaseSearchListState<ThreadCommentModel, ForumPostsSearchRepository, ForumPostsSearchList> {
+class ForumPostsSearchListState
+    extends
+        BaseSearchListState<
+          ThreadCommentModel,
+          ForumPostsSearchRepository,
+          ForumPostsSearchList
+        > {
   @override
   ForumPostsSearchRepository createRepository() {
-    return ForumPostsSearchRepository(query: widget.query, sortKey: widget.sort);
+    return ForumPostsSearchRepository(
+      query: widget.query,
+      sortKey: widget.sort,
+    );
   }
 
   @override
   IconData get emptyIcon => Icons.comment_outlined;
 
   @override
-  Widget buildListItem(BuildContext context, ThreadCommentModel comment, int index) {
+  Widget buildListItem(
+    BuildContext context,
+    ThreadCommentModel comment,
+    int index,
+  ) {
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: 2,
-        vertical: 2,
-      ),
-      child: ForumPostsSearchCard(
-        comment: comment,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+      child: ForumPostsSearchCard(comment: comment),
     );
   }
 }
 
 /// Oreno3d视频搜索列表
-class Oreno3dSearchList extends BaseSearchList<Oreno3dVideo, Oreno3dSearchRepository> {
+class Oreno3dSearchList
+    extends BaseSearchList<Oreno3dVideo, Oreno3dSearchRepository> {
   final String? sortType;
   final String? searchType; // 新增搜索类型参数
   final Map<String, dynamic>? extData; // 新增扩展数据参数
@@ -274,7 +322,13 @@ class Oreno3dSearchList extends BaseSearchList<Oreno3dVideo, Oreno3dSearchReposi
   State<Oreno3dSearchList> createState() => Oreno3dSearchListState();
 }
 
-class Oreno3dSearchListState extends BaseSearchListState<Oreno3dVideo, Oreno3dSearchRepository, Oreno3dSearchList> {
+class Oreno3dSearchListState
+    extends
+        BaseSearchListState<
+          Oreno3dVideo,
+          Oreno3dSearchRepository,
+          Oreno3dSearchList
+        > {
   @override
   Oreno3dSearchRepository createRepository() {
     return Oreno3dSearchRepository(
@@ -291,23 +345,23 @@ class Oreno3dSearchListState extends BaseSearchListState<Oreno3dVideo, Oreno3dSe
   @override
   Widget buildListItem(BuildContext context, Oreno3dVideo video, int index) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final itemWidth = screenWidth <= 600 ? (screenWidth - 8) / 2 : (screenWidth - 24) / 3;
+    final itemWidth = screenWidth <= 600
+        ? (screenWidth - 8) / 2
+        : (screenWidth - 24) / 3;
 
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: MediaQuery.of(context).size.width <= 600 ? 2 : 0,
         vertical: MediaQuery.of(context).size.width <= 600 ? 2 : 3,
       ),
-      child: Oreno3dVideoCard(
-        video: video,
-        width: itemWidth,
-      ),
+      child: Oreno3dVideoCard(video: video, width: itemWidth),
     );
   }
 }
 
 /// 播放列表搜索列表
-class PlaylistSearchList extends BaseSearchList<PlaylistModel, PlaylistSearchRepository> {
+class PlaylistSearchList
+    extends BaseSearchList<PlaylistModel, PlaylistSearchRepository> {
   final String? sort;
   const PlaylistSearchList({
     super.key,
@@ -320,22 +374,31 @@ class PlaylistSearchList extends BaseSearchList<PlaylistModel, PlaylistSearchRep
   State<PlaylistSearchList> createState() => PlaylistSearchListState();
 }
 
-class PlaylistSearchListState extends BaseSearchListState<PlaylistModel, PlaylistSearchRepository, PlaylistSearchList> {
+class PlaylistSearchListState
+    extends
+        BaseSearchListState<
+          PlaylistModel,
+          PlaylistSearchRepository,
+          PlaylistSearchList
+        > {
   @override
   PlaylistSearchRepository createRepository() {
-    return PlaylistSearchRepository(
-      query: widget.query,
-      sortKey: widget.sort,
-    );
+    return PlaylistSearchRepository(query: widget.query, sortKey: widget.sort);
   }
 
   @override
   IconData get emptyIcon => Icons.playlist_play_outlined;
 
   @override
-  Widget buildListItem(BuildContext context, PlaylistModel playlist, int index) {
+  Widget buildListItem(
+    BuildContext context,
+    PlaylistModel playlist,
+    int index,
+  ) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final itemWidth = screenWidth <= 600 ? (screenWidth - 8) / 2 : (screenWidth - 24) / 3;
+    final itemWidth = screenWidth <= 600
+        ? (screenWidth - 8) / 2
+        : (screenWidth - 24) / 3;
 
     return Padding(
       padding: EdgeInsets.symmetric(
@@ -344,9 +407,7 @@ class PlaylistSearchListState extends BaseSearchListState<PlaylistModel, Playlis
       ),
       child: SizedBox(
         width: itemWidth,
-        child: PlaylistItemWidget(
-          playlist: playlist,
-        ),
+        child: PlaylistItemWidget(playlist: playlist),
       ),
     );
   }

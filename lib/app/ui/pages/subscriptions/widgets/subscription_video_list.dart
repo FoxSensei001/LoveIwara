@@ -10,16 +10,19 @@ class SubscriptionVideoList
   const SubscriptionVideoList({
     super.key,
     required super.userId,
-    super.isPaginated = false,
-    super.paddingTop = 0,
-    super.showBottomPadding = false,
+    super.isPaginated,
+    super.paddingTop,
+    super.showBottomPadding,
+    super.isMultiSelectMode,
+    super.selectedItemIds,
+    super.onItemSelect,
   });
 
   @override
-  State<SubscriptionVideoList> createState() => SubscriptionVideoListState();
+  State<SubscriptionVideoList> createState() => _SubscriptionVideoListState();
 }
 
-class SubscriptionVideoListState
+class _SubscriptionVideoListState
     extends
         BaseSubscriptionListState<
           Video,
@@ -35,10 +38,13 @@ class SubscriptionVideoListState
   IconData get emptyIcon => Icons.video_library_outlined;
 
   @override
-  Widget buildListItem(BuildContext context, Video video, int index) {
+  Widget buildListItem(BuildContext context, Video item, int index) {
     return VideoCardListItemWidget(
-      video: video,
+      video: item,
       width: CommonUtils.calculateCardWidth(MediaQuery.of(context).size.width),
+      isMultiSelectMode: widget.isMultiSelectMode,
+      isSelected: widget.selectedItemIds.contains(item.id),
+      onSelect: () => widget.onItemSelect?.call(item),
     );
   }
 }

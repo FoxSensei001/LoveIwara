@@ -220,6 +220,7 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String get recording => '记录中';
 	@override String get paused => '已暂停';
 	@override String get clear => '清除';
+	@override String get clearSelection => '清空选择';
 	@override String get user => '用户';
 	@override String get post => '投稿';
 	@override String get seconds => '秒';
@@ -1147,6 +1148,7 @@ class _TranslationsDownloadZhCn implements TranslationsDownloadEn {
 	@override String get alreadyDownloadedWithQuality => '已有相同清晰度的任务，是否继续下载？';
 	@override String alreadyDownloadedWithQualities({required Object qualities}) => '已有清晰度为${qualities}的任务，是否继续下载？';
 	@override String get otherQualities => '其他清晰度';
+	@override late final _TranslationsDownloadBatchDownloadZhCn batchDownload = _TranslationsDownloadBatchDownloadZhCn._(_root);
 }
 
 // Path: favorite
@@ -2324,6 +2326,41 @@ class _TranslationsDownloadErrorsZhCn implements TranslationsDownloadErrorsEn {
 	@override String get pleaseTryOtherViewer => '请尝试使用其他查看器打开';
 }
 
+// Path: download.batchDownload
+class _TranslationsDownloadBatchDownloadZhCn implements TranslationsDownloadBatchDownloadEn {
+	_TranslationsDownloadBatchDownloadZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '批量下载';
+	@override String get downloadTaskAlreadyRunning => '任务正在运行中，请稍候';
+	@override String get userCancelled => '用户取消';
+	@override String get failedToGetVideoInfo => '无法获取视频信息';
+	@override String get failedToGetVideoSource => '无法获取视频源';
+	@override String get failedToGetGalleryInfo => '无法获取图库信息';
+	@override String get galleryNoImages => '图库中没有图片';
+	@override String get failedToGetSavePath => '无法获取保存路径';
+	@override String batchDownloadFailedWithException({required Object exception}) => '批量下载失败: ${exception}';
+	@override String get selectQuality => '选择清晰度';
+	@override String get downloading => '下载中';
+	@override String get downloadResult => '下载结果';
+	@override String selectedVideosCount({required Object count}) => '已选择 ${count} 个视频';
+	@override String selectedGalleriesCount({required Object count}) => '已选择 ${count} 个图库';
+	@override String get qualityNote => '如果所选清晰度不可用，将使用最佳可用清晰度';
+	@override String progress({required Object current, required Object total}) => '处理中 ${current}/${total}';
+	@override String get success => '成功';
+	@override String get skipped => '跳过';
+	@override String get failed => '失败';
+	@override String get failureDetails => '失败详情';
+	@override String get reasonPrivateVideo => '私人视频';
+	@override String get reasonAlreadyExists => '任务已存在';
+	@override String get reasonNoSource => '无下载源';
+	@override String get reasonNoSavePath => '无法获取保存路径';
+	@override String get reasonOther => '其他错误';
+	@override String get startDownload => '开始下载';
+}
+
 // Path: favorite.errors
 class _TranslationsFavoriteErrorsZhCn implements TranslationsFavoriteErrorsEn {
 	_TranslationsFavoriteErrorsZhCn._(this._root);
@@ -2686,6 +2723,7 @@ extension on TranslationsZhCn {
 			'common.recording' => '记录中',
 			'common.paused' => '已暂停',
 			'common.clear' => '清除',
+			'common.clearSelection' => '清空选择',
 			'common.user' => '用户',
 			'common.post' => '投稿',
 			'common.seconds' => '秒',
@@ -3069,9 +3107,9 @@ extension on TranslationsZhCn {
 			'settings.editSignature' => '编辑小尾巴',
 			'settings.signatureContent' => '小尾巴内容',
 			'settings.exportConfig' => '导出应用配置',
-			'settings.exportConfigDesc' => '将应用配置导出为文件（不包含下载记录）',
 			_ => null,
 		} ?? switch (path) {
+			'settings.exportConfigDesc' => '将应用配置导出为文件（不包含下载记录）',
 			'settings.importConfig' => '导入应用配置',
 			'settings.importConfigDesc' => '从文件导入应用配置',
 			'settings.exportConfigSuccess' => '配置导出成功！',
@@ -3583,9 +3621,9 @@ extension on TranslationsZhCn {
 			'forum.pendingReview' => '审核中',
 			'forum.editedAt' => '编辑时间',
 			'forum.copySuccess' => '已复制到剪贴板',
-			'forum.copySuccessForMessage' => ({required Object str}) => '已复制到剪贴板: ${str}',
 			_ => null,
 		} ?? switch (path) {
+			'forum.copySuccessForMessage' => ({required Object str}) => '已复制到剪贴板: ${str}',
 			'forum.editReply' => '编辑回复',
 			'forum.editTitle' => '编辑标题',
 			'forum.submit' => '提交',
@@ -3769,6 +3807,32 @@ extension on TranslationsZhCn {
 			'download.alreadyDownloadedWithQuality' => '已有相同清晰度的任务，是否继续下载？',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => '已有清晰度为${qualities}的任务，是否继续下载？',
 			'download.otherQualities' => '其他清晰度',
+			'download.batchDownload.title' => '批量下载',
+			'download.batchDownload.downloadTaskAlreadyRunning' => '任务正在运行中，请稍候',
+			'download.batchDownload.userCancelled' => '用户取消',
+			'download.batchDownload.failedToGetVideoInfo' => '无法获取视频信息',
+			'download.batchDownload.failedToGetVideoSource' => '无法获取视频源',
+			'download.batchDownload.failedToGetGalleryInfo' => '无法获取图库信息',
+			'download.batchDownload.galleryNoImages' => '图库中没有图片',
+			'download.batchDownload.failedToGetSavePath' => '无法获取保存路径',
+			'download.batchDownload.batchDownloadFailedWithException' => ({required Object exception}) => '批量下载失败: ${exception}',
+			'download.batchDownload.selectQuality' => '选择清晰度',
+			'download.batchDownload.downloading' => '下载中',
+			'download.batchDownload.downloadResult' => '下载结果',
+			'download.batchDownload.selectedVideosCount' => ({required Object count}) => '已选择 ${count} 个视频',
+			'download.batchDownload.selectedGalleriesCount' => ({required Object count}) => '已选择 ${count} 个图库',
+			'download.batchDownload.qualityNote' => '如果所选清晰度不可用，将使用最佳可用清晰度',
+			'download.batchDownload.progress' => ({required Object current, required Object total}) => '处理中 ${current}/${total}',
+			'download.batchDownload.success' => '成功',
+			'download.batchDownload.skipped' => '跳过',
+			'download.batchDownload.failed' => '失败',
+			'download.batchDownload.failureDetails' => '失败详情',
+			'download.batchDownload.reasonPrivateVideo' => '私人视频',
+			'download.batchDownload.reasonAlreadyExists' => '任务已存在',
+			'download.batchDownload.reasonNoSource' => '无下载源',
+			'download.batchDownload.reasonNoSavePath' => '无法获取保存路径',
+			'download.batchDownload.reasonOther' => '其他错误',
+			'download.batchDownload.startDownload' => '开始下载',
 			'favorite.errors.addFailed' => '追加失败',
 			'favorite.errors.addSuccess' => '追加成功',
 			'favorite.errors.deleteFolderFailed' => '删除文件夹失败',
@@ -4071,6 +4135,8 @@ extension on TranslationsZhCn {
 			'emoji.addImageByUrl' => '通过URL添加',
 			'emoji.addImageUrl' => '添加图片URL',
 			'emoji.imageUrl' => '图片URL',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.enterImageUrl' => '请输入图片URL',
 			'emoji.add' => '添加',
 			'emoji.batchImport' => '批量导入',
@@ -4098,8 +4164,6 @@ extension on TranslationsZhCn {
 			'emoji.uploadingImages' => '正在上传图片',
 			'emoji.uploadingImagesProgress' => ({required Object count}) => '正在上传 ${count} 张图片，请稍候...',
 			'emoji.doNotCloseDialog' => '请不要关闭此对话框',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.uploadSuccess' => ({required Object count}) => '成功上传 ${count} 张图片',
 			'emoji.uploadFailed' => ({required Object count}) => '失败 ${count} 张',
 			'emoji.uploadFailedMessage' => '图片上传失败，请检查网络连接或文件格式',

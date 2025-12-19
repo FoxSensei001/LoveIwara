@@ -9,7 +9,7 @@ import 'history_list_repository.dart';
 class HistoryListController extends GetxController {
   final HistoryRepository historyDatabaseRepository;
   late HistoryListRepository repository;
-  
+
   final RxBool isMultiSelect = false.obs;
   final RxSet<int> selectedRecords = <int>{}.obs;
   final RxBool showBackToTop = false.obs;
@@ -29,9 +29,6 @@ class HistoryListController extends GetxController {
     );
   }
 
-  bool get isAllSelected => selectedRecords.length == repository.length;
-
-
   Future<void> clearHistoryByType(String itemType) async {
     if (itemType == 'all') {
       await historyDatabaseRepository.clearHistory();
@@ -39,7 +36,9 @@ class HistoryListController extends GetxController {
       await historyDatabaseRepository.clearHistoryByType(itemType);
     }
     repository.refresh();
-    showToastWidget(MDToastWidget(message: t.common.success, type: MDToastType.success));
+    showToastWidget(
+      MDToastWidget(message: t.common.success, type: MDToastType.success),
+    );
   }
 
   void toggleMultiSelect() {
@@ -61,18 +60,6 @@ class HistoryListController extends GetxController {
     }
   }
 
-  void selectAll() {
-    if (selectedRecords.length == repository.length) {
-      selectedRecords.clear();
-    } else {
-      selectedRecords.addAll(repository.map((record) => record.id));
-    }
-    for (var tag in ['all', 'video', 'image', 'post', 'thread']) {
-      final controller = Get.find<HistoryListController>(tag: tag);
-      controller.selectedRecords.value = Set.from(selectedRecords);
-    }
-  }
-
   Future<void> deleteSelected() async {
     await historyDatabaseRepository.deleteRecords(selectedRecords.toList());
     selectedRecords.clear();
@@ -81,7 +68,9 @@ class HistoryListController extends GetxController {
       controller.repository.refresh();
     }
     isMultiSelect.value = false;
-    showToastWidget(MDToastWidget(message: t.common.success, type: MDToastType.success));
+    showToastWidget(
+      MDToastWidget(message: t.common.success, type: MDToastType.success),
+    );
   }
 
   void search(String keyword) {
@@ -107,4 +96,4 @@ class HistoryListController extends GetxController {
     repository.dispose();
     super.onClose();
   }
-} 
+}

@@ -1,26 +1,29 @@
-import 'dart:io' show Platform;
-import 'dart:ui';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'dart:io' show Platform;
 import 'package:get/get.dart';
+
 import 'package:i_iwara/app/models/sort.model.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/services/user_service.dart';
-import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/home_page.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/popular_media_list_controller.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/batch_select_controller.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_tab_view.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/popular_media_search_config_widget.dart';
-import 'package:i_iwara/common/enums/media_enums.dart';
+import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
 import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/common_header.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/grid_speed_dial.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' show t;
-import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:i_iwara/common/enums/media_enums.dart';
+import 'dart:ui';
+import 'package:flutter/gestures.dart';
 import 'package:loading_more_list/loading_more_list.dart';
+import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/base_media_controller.dart';
 
 // 定义抽象基类，包含泛型 T (媒体模型), C (特定媒体控制器), R (特定媒体仓库)
@@ -86,6 +89,7 @@ class PopularMediaListPageBaseState<
   final List<GlobalKey> _tabKeys = [];
 
   late PopularMediaListController _mediaListController;
+  late BatchSelectController<T> _batchSelectController;
   final UserService userService = Get.find<UserService>();
 
   final Map<SortId, R> _repositories = {};
@@ -141,6 +145,10 @@ class PopularMediaListPageBaseState<
     _mediaListController = Get.put(
       PopularMediaListController(),
       tag: widget.controllerTag,
+    );
+    _batchSelectController = Get.put(
+      BatchSelectController<T>(),
+      tag: '${widget.controllerTag}_batch',
     );
 
     // 注册到静态映射中，便于外部访问
@@ -210,6 +218,7 @@ class PopularMediaListPageBaseState<
     _tabController.dispose();
     _tabBarScrollController.dispose();
     Get.delete<PopularMediaListController>(tag: widget.controllerTag);
+    Get.delete<BatchSelectController<T>>(tag: '${widget.controllerTag}_batch');
 
     // 从静态映射中移除
     PopularMediaListPageBase.stateInstances.remove(widget.controllerTag);
@@ -374,6 +383,14 @@ class PopularMediaListPageBaseState<
                   final isPaginated = _mediaListController.isPaginated.value;
                   final rebuildKey = _mediaListController.rebuildKey.value
                       .toString();
+                  final isMultiSelectMode =
+                      _batchSelectController.isMultiSelect.value;
+                  final selectedMediaIds = _batchSelectController
+                      .selectedMediaIds
+                      .toSet();
+
+                  // 同步分页模式状态到批量选择控制器
+                  _batchSelectController.setPaginatedMode(isPaginated);
 
                   return TabBarView(
                     controller: _tabController,
@@ -386,6 +403,13 @@ class PopularMediaListPageBaseState<
                         rebuildKey: rebuildKey,
                         paddingTop: listPaddingTop,
                         mediaListController: _mediaListController,
+                        // 视频和图库列表都支持多选
+                        isMultiSelectMode: isMultiSelectMode,
+                        selectedItemIds: selectedMediaIds,
+                        onItemSelect: (media) =>
+                            _batchSelectController.toggleSelection(media),
+                        onPageChanged: () =>
+                            _batchSelectController.onPageChanged(),
                       );
                     }).toList(),
                   );
@@ -506,6 +530,29 @@ class PopularMediaListPageBaseState<
                                     tooltip: t.common.search,
                                   ),
                                 ),
+                                // 多选按钮（视频和图库列表都显示）
+                                _buildAnimatedIconButton(
+                                  isVisible: !_isHeaderCollapsed,
+                                  child: Obx(
+                                    () => IconButton(
+                                      icon: Icon(
+                                        _batchSelectController
+                                                .isMultiSelect
+                                                .value
+                                            ? Icons.close
+                                            : Icons.checklist,
+                                      ),
+                                      onPressed: () => _batchSelectController
+                                          .toggleMultiSelect(),
+                                      tooltip:
+                                          _batchSelectController
+                                              .isMultiSelect
+                                              .value
+                                          ? t.common.exitEditMode
+                                          : t.common.editMode,
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -518,125 +565,158 @@ class PopularMediaListPageBaseState<
 
               // 3. 浮动按钮（仅在折叠时显示）
               if (_isHeaderCollapsed)
-                Obx(() {
-                  final isPaginatedNow = _mediaListController.isPaginated.value;
-                  final bottomSafeNow = MediaQuery.of(context).padding.bottom;
-                  final double extraBottomNow = isPaginatedNow
-                      ? (46 + bottomSafeNow + 20)
-                      : 20;
+                Positioned(
+                  right: _edgePadding,
+                  bottom: 0, // 我们在内部使用 Padding 或 Offset
+                  child: Obx(() {
+                    final isPaginatedNow =
+                        _mediaListController.isPaginated.value;
+                    final bottomSafeNow = MediaQuery.of(context).padding.bottom;
+                    final double extraBottomNow = isPaginatedNow
+                        ? (46 + bottomSafeNow + 20)
+                        : 20;
 
-                  return Positioned(
-                    right: _edgePadding,
-                    bottom: _edgePadding + extraBottomNow,
-                    child: GridSpeedDial(
-                      icon: Icons.menu,
-                      activeIcon: Icons.close,
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                      spacing: 6,
-                      spaceBetweenChildren: 4,
-                      direction: SpeedDialDirection.up,
-                      childPadding: const EdgeInsets.all(6),
-                      childrens: [
-                        [
-                          SpeedDialChild(
-                            child: const Icon(Icons.search),
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.primaryContainer,
-                            foregroundColor: Theme.of(
-                              context,
-                            ).colorScheme.onPrimaryContainer,
-                            onTap: _openSearchDialog,
-                          ),
-                          SpeedDialChild(
-                            child: const Icon(Icons.refresh),
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.primaryContainer,
-                            foregroundColor: Theme.of(
-                              context,
-                            ).colorScheme.onPrimaryContainer,
-                            onTap: tryRefreshCurrentSort,
-                          ),
+                    return Padding(
+                      padding: EdgeInsets.only(
+                        bottom: _edgePadding + extraBottomNow,
+                      ),
+                      child: GridSpeedDial(
+                        icon: Icons.menu,
+                        activeIcon: Icons.close,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onPrimary,
+                        spacing: 6,
+                        spaceBetweenChildren: 4,
+                        direction: SpeedDialDirection.up,
+                        childPadding: const EdgeInsets.all(6),
+                        childrens: [
+                          [
+                            SpeedDialChild(
+                              child: const Icon(Icons.search),
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.primaryContainer,
+                              foregroundColor: Theme.of(
+                                context,
+                              ).colorScheme.onPrimaryContainer,
+                              onTap: _openSearchDialog,
+                            ),
+                            SpeedDialChild(
+                              child: const Icon(Icons.refresh),
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.primaryContainer,
+                              foregroundColor: Theme.of(
+                                context,
+                              ).colorScheme.onPrimaryContainer,
+                              onTap: tryRefreshCurrentSort,
+                            ),
+                            // 多选按钮（视频和图库列表都显示）
+                            SpeedDialChild(
+                              child: Obx(
+                                () => Icon(
+                                  _batchSelectController.isMultiSelect.value
+                                      ? Icons.close
+                                      : Icons.checklist,
+                                ),
+                              ),
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.primaryContainer,
+                              foregroundColor: Theme.of(
+                                context,
+                              ).colorScheme.onPrimaryContainer,
+                              onTap: () =>
+                                  _batchSelectController.toggleMultiSelect(),
+                            ),
+                          ],
+                          [
+                            SpeedDialChild(
+                              child: const Icon(Icons.vertical_align_top),
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.primaryContainer,
+                              foregroundColor: Theme.of(
+                                context,
+                              ).colorScheme.onPrimaryContainer,
+                              onTap: () => _mediaListController.scrollToTop(),
+                            ),
+                            SpeedDialChild(
+                              child: const Icon(Icons.filter_list),
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.secondaryContainer,
+                              foregroundColor: Theme.of(
+                                context,
+                              ).colorScheme.onSecondaryContainer,
+                              onTap: _openParamsModal,
+                            ),
+                            SpeedDialChild(
+                              child: Obx(() {
+                                if (userService.isLogin &&
+                                    userService.currentUser.value != null) {
+                                  return Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      AvatarWidget(
+                                        user: userService.currentUser.value,
+                                        size: 28,
+                                      ),
+                                      Positioned(
+                                        right: 0,
+                                        top: 0,
+                                        child: Obx(() {
+                                          final count =
+                                              userService
+                                                  .notificationCount
+                                                  .value +
+                                              userService.messagesCount.value;
+                                          if (count > 0) {
+                                            return Container(
+                                              width: 8,
+                                              height: 8,
+                                              decoration: BoxDecoration(
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.error,
+                                                shape: BoxShape.circle,
+                                              ),
+                                            );
+                                          }
+                                          return const SizedBox.shrink();
+                                        }),
+                                      ),
+                                    ],
+                                  );
+                                } else {
+                                  return const Icon(Icons.account_circle);
+                                }
+                              }),
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.surface,
+                              foregroundColor: Theme.of(
+                                context,
+                              ).colorScheme.onSurface,
+                              onTap: () {
+                                AppService.switchGlobalDrawer();
+                              },
+                            ),
+                          ],
                         ],
-                        [
-                          SpeedDialChild(
-                            child: const Icon(Icons.vertical_align_top),
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.primaryContainer,
-                            foregroundColor: Theme.of(
-                              context,
-                            ).colorScheme.onPrimaryContainer,
-                            onTap: () => _mediaListController.scrollToTop(),
-                          ),
-                          SpeedDialChild(
-                            child: const Icon(Icons.filter_list),
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.secondaryContainer,
-                            foregroundColor: Theme.of(
-                              context,
-                            ).colorScheme.onSecondaryContainer,
-                            onTap: _openParamsModal,
-                          ),
-                          SpeedDialChild(
-                            child: Obx(() {
-                              if (userService.isLogin &&
-                                  userService.currentUser.value != null) {
-                                return Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    AvatarWidget(
-                                      user: userService.currentUser.value,
-                                      size: 28,
-                                    ),
-                                    Positioned(
-                                      right: 0,
-                                      top: 0,
-                                      child: Obx(() {
-                                        final count =
-                                            userService
-                                                .notificationCount
-                                                .value +
-                                            userService.messagesCount.value;
-                                        if (count > 0) {
-                                          return Container(
-                                            width: 8,
-                                            height: 8,
-                                            decoration: BoxDecoration(
-                                              color: Theme.of(
-                                                context,
-                                              ).colorScheme.error,
-                                              shape: BoxShape.circle,
-                                            ),
-                                          );
-                                        }
-                                        return const SizedBox.shrink();
-                                      }),
-                                    ),
-                                  ],
-                                );
-                              } else {
-                                return const Icon(Icons.account_circle);
-                              }
-                            }),
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.surface,
-                            foregroundColor: Theme.of(
-                              context,
-                            ).colorScheme.onSurface,
-                            onTap: () {
-                              AppService.switchGlobalDrawer();
-                            },
-                          ),
-                        ],
-                      ],
-                    ),
-                  );
-                }),
+                      ),
+                    );
+                  }),
+                ),
+
+              // 4. 左下角功能按钮（视频和图库列表支持多选）
+              BatchActionFabColumn<T>(
+                controller: _batchSelectController,
+                heroTagPrefix: 'popular_media_list',
+                isPaginated: _mediaListController.isPaginated.value,
+              ),
             ],
           );
         },

@@ -18,6 +18,18 @@ class MediaTabView<T> extends StatefulWidget {
   final PopularMediaListController? mediaListController; // 添加控制器参数
   final bool showBottomPadding;
 
+  /// 是否处于多选模式
+  final bool isMultiSelectMode;
+
+  /// 已选中的项目ID集合
+  final Set<String>? selectedItemIds;
+
+  /// 项目选中状态变化回调
+  final void Function(dynamic item)? onItemSelect;
+
+  /// 分页切换时的回调（用于重置选择）
+  final VoidCallback? onPageChanged;
+
   const MediaTabView({
     super.key,
     required this.repository,
@@ -27,6 +39,10 @@ class MediaTabView<T> extends StatefulWidget {
     this.paddingTop = 0,
     this.mediaListController,
     this.showBottomPadding = false,
+    this.isMultiSelectMode = false,
+    this.selectedItemIds,
+    this.onItemSelect,
+    this.onPageChanged,
   });
 
   @override
@@ -50,20 +66,25 @@ class MediaTabViewState<T> extends State<MediaTabView<T>>
     if (widget.mediaListController != null) {
       // 注册滚动控制器
       final controllerKey = '${widget.rebuildKey}_${widget.hashCode}';
-      widget.mediaListController!.registerScrollController(controllerKey, _scrollController);
-      
+      widget.mediaListController!.registerScrollController(
+        controllerKey,
+        _scrollController,
+      );
+
       _scrollController.addListener(() {
         final controller = widget.mediaListController!;
         final currentOffset = _scrollController.offset;
-        
+
         // 确定滚动方向
         ScrollDirection direction = ScrollDirection.idle;
-        if (_scrollController.position.userScrollDirection == ScrollDirection.reverse) {
+        if (_scrollController.position.userScrollDirection ==
+            ScrollDirection.reverse) {
           direction = ScrollDirection.reverse; // 向上滚动
-        } else if (_scrollController.position.userScrollDirection == ScrollDirection.forward) {
+        } else if (_scrollController.position.userScrollDirection ==
+            ScrollDirection.forward) {
           direction = ScrollDirection.forward; // 向下滚动
         }
-        
+
         // 更新控制器的滚动信息
         controller.updateScrollInfo(currentOffset, direction);
       });
@@ -94,7 +115,12 @@ class MediaTabViewState<T> extends State<MediaTabView<T>>
       scrollController: _scrollController,
       paddingTop: widget.paddingTop,
       showBottomPadding: widget.showBottomPadding,
+      onPageChanged: widget.onPageChanged,
       itemBuilder: (context, item, index) {
+        // 多选模式下不使用缓存，因为选中状态会变化
+        if (widget.isMultiSelectMode) {
+          return _buildCachedItem(item, context, index);
+        }
         final cacheKey = '${item.hashCode}_$index';
         return _itemCache.putIfAbsent(cacheKey, () {
           return _buildCachedItem(item, context, index);
@@ -115,14 +141,29 @@ class MediaTabViewState<T> extends State<MediaTabView<T>>
 
   Widget _buildItem(T item, BuildContext context, double width) {
     if (T == Video) {
+      final video = item as Video;
+      final isSelected = widget.selectedItemIds?.contains(video.id) ?? false;
       return VideoCardListItemWidget(
-        video: item as Video,
+        video: video,
         width: width,
+        isMultiSelectMode: widget.isMultiSelectMode,
+        isSelected: isSelected,
+        onSelect: widget.onItemSelect != null
+            ? () => widget.onItemSelect!(video)
+            : null,
       );
     } else if (T == ImageModel) {
+      final imageModel = item as ImageModel;
+      final isSelected =
+          widget.selectedItemIds?.contains(imageModel.id) ?? false;
       return ImageModelCardListItemWidget(
-        imageModel: item as ImageModel,
+        imageModel: imageModel,
         width: width,
+        isMultiSelectMode: widget.isMultiSelectMode,
+        isSelected: isSelected,
+        onSelect: widget.onItemSelect != null
+            ? () => widget.onItemSelect!(imageModel)
+            : null,
       );
     }
     throw Exception('Unsupported type: $T');

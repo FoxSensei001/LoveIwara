@@ -12,6 +12,7 @@ import 'package:i_iwara/app/services/conversation_service.dart';
 import 'package:i_iwara/app/services/deep_link_service.dart';
 import 'package:i_iwara/app/services/forum_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
+import 'package:i_iwara/app/services/batch_download_service.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/services/light_service.dart';
 import 'package:i_iwara/app/services/play_list_service.dart';
@@ -264,6 +265,7 @@ Future<void> _initializeBusinessServices() async {
   Get.put(DownloadService());
   Get.put(DownloadPathService());
   Get.put(FilenameTemplateService());
+  Get.put(BatchDownloadService());  // 必须在 DownloadService 和 DownloadPathService 之后
   Get.put(TranslationService());
   Get.put(FavoriteService());
   Get.put(PlaybackHistoryService());

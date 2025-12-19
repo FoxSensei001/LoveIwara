@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_preference_service.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -18,7 +19,8 @@ class _AddSearchTagDialogState extends State<AddSearchTagDialog> {
   final ScrollController scrollController = ScrollController();
   final TextEditingController textEditingController = TextEditingController();
   final TagController tagController = Get.put(TagController());
-  final UserPreferenceService userPreferenceService = Get.find<UserPreferenceService>();
+  final UserPreferenceService userPreferenceService =
+      Get.find<UserPreferenceService>();
 
   @override
   void initState() {
@@ -49,9 +51,7 @@ class _AddSearchTagDialogState extends State<AddSearchTagDialog> {
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: ConstrainedBox(
         constraints: const BoxConstraints(
           maxWidth: 1200,
@@ -86,7 +86,7 @@ class _AddSearchTagDialogState extends State<AddSearchTagDialog> {
                   IconButton(
                     icon: const Icon(Icons.close),
                     onPressed: () {
-                      Navigator.of(context).pop();
+                      AppService.tryPop();
                     },
                   ),
                 ],
@@ -105,7 +105,8 @@ class _AddSearchTagDialogState extends State<AddSearchTagDialog> {
               return Expanded(
                 child: ListView.builder(
                   controller: scrollController,
-                  itemCount: tagController.tags.length +
+                  itemCount:
+                      tagController.tags.length +
                       (tagController.hasMore.value ? 1 : 0),
                   itemBuilder: (context, index) {
                     if (index == tagController.tags.length) {
@@ -116,19 +117,28 @@ class _AddSearchTagDialogState extends State<AddSearchTagDialog> {
                     return ListTile(
                       title: Text(tag.id, style: const TextStyle(fontSize: 16)),
                       subtitle: _buildTagRatings(tag, context),
-                      trailing: Obx(() => IconButton(
-                        icon: Icon(
-                          userPreferenceService.isUserSearchTagObject(tag) ? Icons.favorite : Icons.favorite_border,
-                          color: userPreferenceService.isUserSearchTagObject(tag) ? Colors.red : null,
+                      trailing: Obx(
+                        () => IconButton(
+                          icon: Icon(
+                            userPreferenceService.isUserSearchTagObject(tag)
+                                ? Icons.favorite
+                                : Icons.favorite_border,
+                            color:
+                                userPreferenceService.isUserSearchTagObject(tag)
+                                ? Colors.red
+                                : null,
+                          ),
+                          onPressed: () {
+                            if (userPreferenceService.isUserSearchTagObject(
+                              tag,
+                            )) {
+                              userPreferenceService.removeVideoSearchTag(tag);
+                            } else {
+                              userPreferenceService.addVideoSearchTag(tag);
+                            }
+                          },
                         ),
-                        onPressed: () {
-                          if (userPreferenceService.isUserSearchTagObject(tag)) {
-                            userPreferenceService.removeVideoSearchTag(tag);
-                          } else {
-                            userPreferenceService.addVideoSearchTag(tag);
-                          }
-                        },
-                      )),
+                      ),
                       onTap: () {
                         if (userPreferenceService.isUserSearchTagObject(tag)) {
                           userPreferenceService.removeVideoSearchTag(tag);
@@ -160,15 +170,21 @@ class _AddSearchTagDialogState extends State<AddSearchTagDialog> {
         if (tag.type == MediaRating.ECCHI.value) ...[
           const Icon(Icons.local_offer, size: 16, color: Colors.red),
           const SizedBox(width: 4),
-          Text(t.common.r18, style: const TextStyle(fontSize: 12, color: Colors.red)),
+          Text(
+            t.common.r18,
+            style: const TextStyle(fontSize: 12, color: Colors.red),
+          ),
         ],
         // 敏感标签
         if (sensitive) ...[
           const SizedBox(width: 8),
           const Icon(Icons.warning, size: 16, color: Colors.red),
           const SizedBox(width: 4),
-          Text(t.common.sensitive, style: const TextStyle(fontSize: 12, color: Colors.red)),
-        ]
+          Text(
+            t.common.sensitive,
+            style: const TextStyle(fontSize: 12, color: Colors.red),
+          ),
+        ],
       ],
     );
   }
