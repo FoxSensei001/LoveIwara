@@ -162,6 +162,7 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String get appName => 'Love Iwara';
 	@override String get ok => '确定';
 	@override String get cancel => '取消';
+	@override String get select => '选择';
 	@override String get save => '保存';
 	@override String get delete => '删除';
 	@override String get visit => '访问';
@@ -241,6 +242,7 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String get saveImageFailed => '保存图片失败';
 	@override String get close => '关闭';
 	@override String get more => '更多';
+	@override String get unknownError => '未知错误';
 	@override String get moreFeaturesToBeDeveloped => '更多功能待开发';
 	@override String get all => '全部';
 	@override String selectedRecords({required Object num}) => '已选择 ${num} 条记录';
@@ -1414,6 +1416,24 @@ class _TranslationsMediaPlayerZhCn implements TranslationsMediaPlayerEn {
 	@override String get appMayLackMediaPermission => '应用可能缺少必要的媒体播放权限';
 	@override String get tryOtherVideoPlayer => '请尝试使用其他视频播放器';
 	@override String get video => '视频';
+	@override String get serverSelector => 'CDN 服务器选择';
+	@override String get serverSelectorDescription => '选择延迟最低的服务器以获得最佳播放体验';
+	@override String get retestSpeed => '重新测速';
+	@override String get waitingForSpeedTest => '等待测速';
+	@override String get testingSpeed => '测速中...';
+	@override String get testFailed => '测速失败';
+	@override String get loadingServerList => '正在加载服务器列表...';
+	@override String get noAvailableServers => '暂无可用服务器';
+	@override String get refreshServerList => '刷新服务器列表';
+	@override String get cannotGetSource => '无法获取当前播放源';
+	@override String switchedToServer({required Object serverName}) => '已切换到服务器: ${serverName}';
+	@override String serverCount({required Object count}) => '共 ${count} 个服务器';
+	@override String statusCode({required Object code}) => '状态码: ${code}';
+	@override String get connectionFailed => '连接失败';
+	@override String get connectionTimeout => '连接超时';
+	@override String get networkError => '网络错误';
+	@override String get sslError => 'SSL证书错误';
+	@override String get testCompleted => '测速完成';
 	@override String get local => '本地';
 	@override String get unknown => '未知';
 	@override String get localVideoPathEmpty => '本地视频路径为空';
@@ -2708,6 +2728,7 @@ extension on TranslationsZhCn {
 			'common.appName' => 'Love Iwara',
 			'common.ok' => '确定',
 			'common.cancel' => '取消',
+			'common.select' => '选择',
 			'common.save' => '保存',
 			'common.delete' => '删除',
 			'common.visit' => '访问',
@@ -2787,6 +2808,7 @@ extension on TranslationsZhCn {
 			'common.saveImageFailed' => '保存图片失败',
 			'common.close' => '关闭',
 			'common.more' => '更多',
+			'common.unknownError' => '未知错误',
 			'common.moreFeaturesToBeDeveloped' => '更多功能待开发',
 			'common.all' => '全部',
 			'common.selectedRecords' => ({required Object num}) => '已选择 ${num} 条记录',
@@ -3158,10 +3180,10 @@ extension on TranslationsZhCn {
 			'settings.checkForUpdatesFailed' => '检查更新失败，请稍后重试',
 			'settings.autoCheckUpdate' => '自动检查更新',
 			'settings.updateContent' => '更新内容：',
-			'settings.releaseDate' => '发布日期',
-			'settings.ignoreThisVersion' => '忽略此版本',
 			_ => null,
 		} ?? switch (path) {
+			'settings.releaseDate' => '发布日期',
+			'settings.ignoreThisVersion' => '忽略此版本',
 			'settings.minVersionUpdateRequired' => '当前版本过低，请尽快更新',
 			'settings.forceUpdateTip' => '此版本为强制更新，请尽快更新到最新版本',
 			'settings.viewChangelog' => '查看更新日志',
@@ -3672,10 +3694,10 @@ extension on TranslationsZhCn {
 			'forum.selectCategory' => '选择分类',
 			'forum.cooldownRemaining' => ({required Object minutes, required Object seconds}) => '冷却剩余时间 ${minutes} 分 ${seconds} 秒',
 			'forum.groups.administration' => '管理',
-			'forum.groups.global' => '全球',
-			'forum.groups.chinese' => '中文',
 			_ => null,
 		} ?? switch (path) {
+			'forum.groups.global' => '全球',
+			'forum.groups.chinese' => '中文',
 			'forum.groups.japanese' => '日语',
 			'forum.groups.korean' => '韩语',
 			'forum.groups.other' => '其他',
@@ -4118,6 +4140,24 @@ extension on TranslationsZhCn {
 			'mediaPlayer.appMayLackMediaPermission' => '应用可能缺少必要的媒体播放权限',
 			'mediaPlayer.tryOtherVideoPlayer' => '请尝试使用其他视频播放器',
 			'mediaPlayer.video' => '视频',
+			'mediaPlayer.serverSelector' => 'CDN 服务器选择',
+			'mediaPlayer.serverSelectorDescription' => '选择延迟最低的服务器以获得最佳播放体验',
+			'mediaPlayer.retestSpeed' => '重新测速',
+			'mediaPlayer.waitingForSpeedTest' => '等待测速',
+			'mediaPlayer.testingSpeed' => '测速中...',
+			'mediaPlayer.testFailed' => '测速失败',
+			'mediaPlayer.loadingServerList' => '正在加载服务器列表...',
+			'mediaPlayer.noAvailableServers' => '暂无可用服务器',
+			'mediaPlayer.refreshServerList' => '刷新服务器列表',
+			'mediaPlayer.cannotGetSource' => '无法获取当前播放源',
+			'mediaPlayer.switchedToServer' => ({required Object serverName}) => '已切换到服务器: ${serverName}',
+			'mediaPlayer.serverCount' => ({required Object count}) => '共 ${count} 个服务器',
+			'mediaPlayer.statusCode' => ({required Object code}) => '状态码: ${code}',
+			'mediaPlayer.connectionFailed' => '连接失败',
+			'mediaPlayer.connectionTimeout' => '连接超时',
+			'mediaPlayer.networkError' => '网络错误',
+			'mediaPlayer.sslError' => 'SSL证书错误',
+			'mediaPlayer.testCompleted' => '测速完成',
 			'mediaPlayer.local' => '本地',
 			'mediaPlayer.unknown' => '未知',
 			'mediaPlayer.localVideoPathEmpty' => '本地视频路径为空',
@@ -4168,6 +4208,8 @@ extension on TranslationsZhCn {
 			'log.logExtractFailed' => ({required Object error}) => '获取日志统计失败: ${error}',
 			'log.clearAllLogs' => '清理所有日志',
 			'log.clearAllLogsDesc' => '清理所有日志数据',
+			_ => null,
+		} ?? switch (path) {
 			'log.confirmClearAllLogs' => '确认清理',
 			'log.confirmClearAllLogsDesc' => '确定要清理所有日志数据吗？此操作不可撤销。',
 			'log.clearAllLogsSuccess' => '日志清理成功',
@@ -4188,8 +4230,6 @@ extension on TranslationsZhCn {
 			'log.cleanExceededLogs' => '清理超出限制的日志',
 			'log.noLogsToExport' => '没有可导出的日志数据',
 			'log.exportingLogs' => '正在导出日志...',
-			_ => null,
-		} ?? switch (path) {
 			'log.noHistoryLogsToExport' => '尚无可导出的历史日志，请先使用应用一段时间再尝试',
 			'log.selectLogDate' => '选择日志日期',
 			'log.today' => '今天',

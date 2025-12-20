@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
 import '../../../../../../i18n/strings.g.dart' as slang;
@@ -10,11 +11,13 @@ import '../controllers/my_video_state_controller.dart';
 class VolumeControl extends StatefulWidget {
   final ConfigService configService;
   final MyVideoStateController myVideoStateController;
+  final double iconSize;
 
   const VolumeControl({
     super.key,
     required this.configService,
     required this.myVideoStateController,
+    this.iconSize = 20.0,
   });
 
   @override
@@ -38,8 +41,10 @@ class _VolumeControlState extends State<VolumeControl>
       vsync: this,
     );
 
-    _fadeAnimation =
-        CurvedAnimation(parent: _animationController, curve: Curves.easeInOut);
+    _fadeAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
   }
 
   void _onHoverChanged(bool isHovered) {
@@ -54,27 +59,21 @@ class _VolumeControlState extends State<VolumeControl>
   }
 
   Widget _getVolumeIcon(double volume) {
+    String assetName;
     if (volume == 0) {
-      return const Icon(
-        Icons.volume_off,
-        color: Colors.white,
-      );
-    } else if (volume < 0.33) {
-      return const Icon(
-        Icons.volume_mute,
-        color: Colors.white,
-      );
-    } else if (volume < 0.66) {
-      return const Icon(
-        Icons.volume_down,
-        color: Colors.white,
-      );
+      assetName = 'assets/svg/volume_off.svg';
+    } else if (volume < 0.5) {
+      assetName = 'assets/svg/volume_down.svg';
     } else {
-      return const Icon(
-        Icons.volume_up,
-        color: Colors.white,
-      );
+      assetName = 'assets/svg/volume_up.svg';
     }
+
+    return SvgPicture.asset(
+      assetName,
+      width: widget.iconSize,
+      height: widget.iconSize,
+      colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+    );
   }
 
   @override
@@ -93,12 +92,25 @@ class _VolumeControlState extends State<VolumeControl>
         double volume = widget.configService[ConfigKey.VOLUME_KEY];
         return Row(
           children: [
-            IconButton(
-              onPressed: () {
-                widget.myVideoStateController.setVolume(0, save: false);
-              },
-              icon: _getVolumeIcon(volume),
-              tooltip: '${t.videoDetail.volume}: ${(volume * 100).toInt()}%',
+            Tooltip(
+              message: '${t.videoDetail.volume}: ${(volume * 100).toInt()}%',
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(20),
+                  onTap: () {
+                    widget.myVideoStateController.setVolume(0, save: false);
+                  },
+                  child: Container(
+                    width:
+                        widget.iconSize +
+                        16, // Use consistent touch target sizing logic
+                    height: widget.iconSize + 16,
+                    alignment: Alignment.center,
+                    child: _getVolumeIcon(volume),
+                  ),
+                ),
+              ),
             ).animate().fadeIn(duration: 300.ms).scale(duration: 300.ms),
             // 使用 SliderTheme 包裹 Slider
             SizeTransition(
@@ -126,20 +138,26 @@ class _VolumeControlState extends State<VolumeControl>
                     ),
                     showValueIndicator: ShowValueIndicator.onDrag,
                   ),
-                  child: Slider(
-                    value: volume,
-                    min: 0.0,
-                    max: 1.0,
-                    focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
-                    autofocus: false,
-                    onChanged: (double newVolume) {
-                      widget.myVideoStateController.setVolume(newVolume);
-                    },
-                    label: '音量: ${(volume * 100).toInt()}%',
-                  )
-                      .animate()
-                      .fadeIn(duration: 300.ms)
-                      .slideY(begin: -0.3, end: 0.0, duration: 300.ms),
+                  child:
+                      Slider(
+                            value: volume,
+                            min: 0.0,
+                            max: 1.0,
+                            focusNode: FocusNode(
+                              skipTraversal: true,
+                              canRequestFocus: false,
+                            ),
+                            autofocus: false,
+                            onChanged: (double newVolume) {
+                              widget.myVideoStateController.setVolume(
+                                newVolume,
+                              );
+                            },
+                            label: '音量: ${(volume * 100).toInt()}%',
+                          )
+                          .animate()
+                          .fadeIn(duration: 300.ms)
+                          .slideY(begin: -0.3, end: 0.0, duration: 300.ms),
                 ),
               ),
             ),

@@ -162,6 +162,7 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get appName => 'Love Iwara';
 	@override String get ok => '確定';
 	@override String get cancel => '取消';
+	@override String get select => '選擇';
 	@override String get save => '儲存';
 	@override String get delete => '刪除';
 	@override String get visit => '訪問';
@@ -241,6 +242,7 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get saveImageFailed => '儲存圖片失敗';
 	@override String get close => '關閉';
 	@override String get more => '更多';
+	@override String get unknownError => '未知錯誤';
 	@override String get moreFeaturesToBeDeveloped => '更多功能待開發';
 	@override String get all => '全部';
 	@override String selectedRecords({required Object num}) => '已選擇 ${num} 筆資料';
@@ -1440,6 +1442,24 @@ class _TranslationsMediaPlayerZhTw implements TranslationsMediaPlayerEn {
 	@override String get appMayLackMediaPermission => '應用可能缺少必要的媒體播放權限';
 	@override String get tryOtherVideoPlayer => '請嘗試使用其他影片播放器';
 	@override String get video => '影片';
+	@override String get serverSelector => 'CDN 伺服器選擇';
+	@override String get serverSelectorDescription => '選擇延遲最低的伺服器以獲得最佳播放體驗';
+	@override String get retestSpeed => '重新測速';
+	@override String get waitingForSpeedTest => '等待測速';
+	@override String get testingSpeed => '測速中...';
+	@override String get testFailed => '測速失敗';
+	@override String get loadingServerList => '正在加載伺服器列表...';
+	@override String get noAvailableServers => '暫無可用伺服器';
+	@override String get refreshServerList => '刷新伺服器列表';
+	@override String get cannotGetSource => '無法獲取當前播放源';
+	@override String switchedToServer({required Object serverName}) => '已切換到伺服器: ${serverName}';
+	@override String serverCount({required Object count}) => '共 ${count} 個伺服器';
+	@override String statusCode({required Object code}) => '狀態碼: ${code}';
+	@override String get connectionFailed => '連接失敗';
+	@override String get connectionTimeout => '連接超時';
+	@override String get networkError => '網絡錯誤';
+	@override String get sslError => 'SSL證書錯誤';
+	@override String get testCompleted => '測速完成';
 	@override String get local => '本地';
 	@override String get unknown => '未知';
 	@override String get localVideoPathEmpty => '本地影片路徑為空';
@@ -2706,6 +2726,7 @@ extension on TranslationsZhTw {
 			'common.appName' => 'Love Iwara',
 			'common.ok' => '確定',
 			'common.cancel' => '取消',
+			'common.select' => '選擇',
 			'common.save' => '儲存',
 			'common.delete' => '刪除',
 			'common.visit' => '訪問',
@@ -2785,6 +2806,7 @@ extension on TranslationsZhTw {
 			'common.saveImageFailed' => '儲存圖片失敗',
 			'common.close' => '關閉',
 			'common.more' => '更多',
+			'common.unknownError' => '未知錯誤',
 			'common.moreFeaturesToBeDeveloped' => '更多功能待開發',
 			'common.all' => '全部',
 			'common.selectedRecords' => ({required Object num}) => '已選擇 ${num} 筆資料',
@@ -3156,10 +3178,10 @@ extension on TranslationsZhTw {
 			'settings.minVersionUpdateRequired' => '目前版本過低，請盡快更新',
 			'settings.forceUpdateTip' => '此版本為強制更新，請盡快更新到最新版本',
 			'settings.viewChangelog' => '查看更新日誌',
-			'settings.alreadyLatestVersion' => '已是最新版本',
-			'settings.appSettings' => '應用設定',
 			_ => null,
 		} ?? switch (path) {
+			'settings.alreadyLatestVersion' => '已是最新版本',
+			'settings.appSettings' => '應用設定',
 			'settings.configureYourAppSettings' => '配置您的應用程式設定',
 			'settings.history' => '歷史記錄',
 			'settings.autoRecordHistory' => '自動記錄歷史記錄',
@@ -3670,10 +3692,10 @@ extension on TranslationsZhTw {
 			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[連結文字](${link})\n![圖片描述](${imgUrl})',
 			'markdown.title' => '標題',
 			'markdown.titleDescription' => '使用 # 號建立標題，數量表示級別',
-			'markdown.titleSyntax' => '# 一級標題\n## 二級標題\n### 三級標題',
-			'markdown.separator' => '分隔線',
 			_ => null,
 		} ?? switch (path) {
+			'markdown.titleSyntax' => '# 一級標題\n## 二級標題\n### 三級標題',
+			'markdown.separator' => '分隔線',
 			'markdown.separatorDescription' => '使用三個或更多 - 號建立分隔線',
 			'markdown.separatorSyntax' => '---',
 			'markdown.syntax' => '語法',
@@ -4142,6 +4164,24 @@ extension on TranslationsZhTw {
 			'mediaPlayer.appMayLackMediaPermission' => '應用可能缺少必要的媒體播放權限',
 			'mediaPlayer.tryOtherVideoPlayer' => '請嘗試使用其他影片播放器',
 			'mediaPlayer.video' => '影片',
+			'mediaPlayer.serverSelector' => 'CDN 伺服器選擇',
+			'mediaPlayer.serverSelectorDescription' => '選擇延遲最低的伺服器以獲得最佳播放體驗',
+			'mediaPlayer.retestSpeed' => '重新測速',
+			'mediaPlayer.waitingForSpeedTest' => '等待測速',
+			'mediaPlayer.testingSpeed' => '測速中...',
+			'mediaPlayer.testFailed' => '測速失敗',
+			'mediaPlayer.loadingServerList' => '正在加載伺服器列表...',
+			'mediaPlayer.noAvailableServers' => '暫無可用伺服器',
+			'mediaPlayer.refreshServerList' => '刷新伺服器列表',
+			'mediaPlayer.cannotGetSource' => '無法獲取當前播放源',
+			'mediaPlayer.switchedToServer' => ({required Object serverName}) => '已切換到伺服器: ${serverName}',
+			'mediaPlayer.serverCount' => ({required Object count}) => '共 ${count} 個伺服器',
+			'mediaPlayer.statusCode' => ({required Object code}) => '狀態碼: ${code}',
+			'mediaPlayer.connectionFailed' => '連接失敗',
+			'mediaPlayer.connectionTimeout' => '連接超時',
+			'mediaPlayer.networkError' => '網絡錯誤',
+			'mediaPlayer.sslError' => 'SSL證書錯誤',
+			'mediaPlayer.testCompleted' => '測速完成',
 			'mediaPlayer.local' => '本地',
 			'mediaPlayer.unknown' => '未知',
 			'mediaPlayer.localVideoPathEmpty' => '本地影片路徑為空',
@@ -4166,6 +4206,8 @@ extension on TranslationsZhTw {
 			'linkInputDialog.linkParseError' => ({required Object error}) => '連結解析出錯: ${error}',
 			'linkInputDialog.unsupportedLinkDialogTitle' => '不支援的連結',
 			'linkInputDialog.unsupportedLinkDialogContent' => '該連結類型目前應用無法直接打開，需要使用外部瀏覽器訪問。\n\n是否使用瀏覽器打開此連結？',
+			_ => null,
+		} ?? switch (path) {
 			'linkInputDialog.openInBrowser' => '用瀏覽器打開',
 			'linkInputDialog.confirmOpenBrowserDialogTitle' => '確認打開瀏覽器',
 			'linkInputDialog.confirmOpenBrowserDialogContent' => '即將使用外部瀏覽器打開以下連結：',
@@ -4186,8 +4228,6 @@ extension on TranslationsZhTw {
 			'log.exportMergedLogs' => '匯出合併日誌',
 			'log.exportMergedLogsDesc' => '匯出指定日期範圍內的合併日誌',
 			'log.showLogStats' => '顯示日誌統計資訊',
-			_ => null,
-		} ?? switch (path) {
 			'log.logExportSuccess' => '日誌匯出成功',
 			'log.logExportFailed' => ({required Object error}) => '日誌匯出失敗: ${error}',
 			'log.showLogStatsDesc' => '查看各種類型日誌的統計資料',

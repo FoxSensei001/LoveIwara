@@ -67,6 +67,7 @@ common:
   appName: Love Iwara
   ok: 确定
   cancel: 取消
+  select: 选择
   save: 保存
   delete: 删除
   visit: 访问
@@ -147,6 +148,7 @@ common:
   saveImageFailed: 保存图片失败
   close: 关闭
   more: 更多
+  unknownError: 未知错误
   moreFeaturesToBeDeveloped: 更多功能待开发
   all: 全部
   selectedRecords: '已选择 ${num} 条记录'
@@ -1575,6 +1577,25 @@ mediaPlayer:
   appMayLackMediaPermission: "应用可能缺少必要的媒体播放权限"
   tryOtherVideoPlayer: "请尝试使用其他视频播放器"
   video: "视频"
+  # CDN 服务器选择
+  serverSelector: CDN 服务器选择
+  serverSelectorDescription: 选择延迟最低的服务器以获得最佳播放体验
+  retestSpeed: 重新测速
+  waitingForSpeedTest: 等待测速
+  testingSpeed: 测速中...
+  testFailed: 测速失败
+  loadingServerList: 正在加载服务器列表...
+  noAvailableServers: 暂无可用服务器
+  refreshServerList: 刷新服务器列表
+  cannotGetSource: 无法获取当前播放源
+  switchedToServer: "已切换到服务器: ${serverName}"
+  serverCount: "共 ${count} 个服务器"
+  statusCode: "状态码: ${code}"
+  connectionFailed: 连接失败
+  connectionTimeout: 连接超时
+  networkError: 网络错误
+  sslError: SSL证书错误
+  testCompleted: 测速完成
   # 本地视频播放
   local: "本地"
   unknown: "未知"

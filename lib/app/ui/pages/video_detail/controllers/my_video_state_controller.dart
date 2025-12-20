@@ -3213,6 +3213,51 @@ class MyVideoStateController extends GetxController
       }
     }
   }
+
+  /// 切换当前清晰度的服务器
+  /// [newUrl] 新的视频源 URL
+  /// [serverName] 服务器名称（用于日志）
+  Future<void> switchServerForCurrentResolution(
+    String newUrl,
+    String serverName,
+  ) async {
+    if (_isDisposed) return;
+
+    final currentTag = currentResolutionTag.value;
+    if (currentTag == null) {
+      LogUtils.w('无法切换服务器：当前清晰度标签为空', 'MyVideoStateController');
+      return;
+    }
+
+    // 更新当前清晰度的 URL
+    final updatedResolutions = videoResolutions.map((resolution) {
+      if (resolution.label == currentTag) {
+        return VideoResolution(label: resolution.label, url: newUrl);
+      }
+      return resolution;
+    }).toList();
+
+    videoResolutions.value = updatedResolutions;
+
+    LogUtils.i(
+      '切换服务器: $serverName, 清晰度: $currentTag, 新URL: $newUrl',
+      'MyVideoStateController',
+    );
+
+    // 无缝切换到新的 URL
+    await _switchResolutionSeamlessly(currentTag, newUrl);
+
+    if (Get.context != null) {
+      ScaffoldMessenger.of(Get.context!).showSnackBar(
+        SnackBar(
+          content: Text(
+            slang.t.mediaPlayer.switchedToServer(serverName: serverName),
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
 }
 
 /// 视频清晰度模型

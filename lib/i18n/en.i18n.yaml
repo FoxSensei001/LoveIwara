@@ -66,6 +66,7 @@ common:
   appName: Love Iwara
   ok: OK
   cancel: Cancel
+  select: Select
   save: Save
   delete: Delete
   visit: Visit
@@ -145,6 +146,7 @@ common:
   saveImageFailed: Save image failed
   close: Close
   more: More
+  unknownError: Unknown Error
   moreFeaturesToBeDeveloped: More features to be developed
   all: All
   selectedRecords: 'Selected ${num} records'
@@ -1650,6 +1652,25 @@ mediaPlayer:
   appMayLackMediaPermission: "The app may lack necessary media playback permissions"
   tryOtherVideoPlayer: "Please try using other video players"
   video: "VIDEO"
+  # CDN Server Selection
+  serverSelector: CDN Server Selection
+  serverSelectorDescription: Select the server with the lowest latency for the best playback experience
+  retestSpeed: Retest Speed
+  waitingForSpeedTest: Waiting for speed test
+  testingSpeed: Testing speed...
+  testFailed: Test failed
+  loadingServerList: Loading server list...
+  noAvailableServers: No available servers
+  refreshServerList: Refresh Server List
+  cannotGetSource: Cannot get current video source
+  switchedToServer: "Switched to server: ${serverName}"
+  serverCount: "Total ${count} servers"
+  statusCode: "Status code: ${code}"
+  connectionFailed: Connection failed
+  connectionTimeout: Connection timeout
+  networkError: Network error
+  sslError: SSL certificate error
+  testCompleted: Test completed
   # Local video playback
   local: "Local"
   unknown: "Unknown"

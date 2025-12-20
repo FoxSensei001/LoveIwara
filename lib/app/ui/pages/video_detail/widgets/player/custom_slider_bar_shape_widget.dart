@@ -74,7 +74,7 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
   // Cursor 半径
   static const double _thumbRadius = 6.0;
   // Cursor 覆盖区域半径（用于扩大点击区域）
-  static const double _thumbOverlayRadius = 16.0;
+  static const double _thumbOverlayRadius = 10.0;
 
   @override
   void initState() {
@@ -107,7 +107,8 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
         final toShowCurrentPosition =
             widget.controller.toShowCurrentPosition.value;
         final totalDuration = widget.controller.totalDuration.value;
-        final isHorizontalDragging = widget.controller.isHorizontalDragging.value;
+        final isHorizontalDragging =
+            widget.controller.isHorizontalDragging.value;
         final previewPosition = widget.controller.previewPosition.value;
         // 访问 animationController.value 以确保响应式系统追踪它（虽然 AnimatedBuilder 应该能独立工作）
         final _ = widget.controller.animationController.value; // 用于触发响应式更新
@@ -119,8 +120,8 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
         final currentValue = _dragging
             ? (_draggingValue ?? toShowCurrentPosition.inSeconds.toDouble())
             : (isHorizontalDragging
-                ? previewPosition.inSeconds.toDouble()
-                : toShowCurrentPosition.inSeconds.toDouble());
+                  ? previewPosition.inSeconds.toDouble()
+                  : toShowCurrentPosition.inSeconds.toDouble());
         final maxValue = totalDuration.inSeconds > 0
             ? totalDuration.inSeconds.toDouble()
             : 1.0;
@@ -141,10 +142,12 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
               final double ratio = (currentValue / maxValue).clamp(0.0, 1.0);
               tooltipX = ratio * maxWidth;
               tooltipTime = currentValue;
-              
+
               // 更新预览播放器位置（限流）
               if (isPreviewReady) {
-                widget.controller.updatePreviewSeek(Duration(seconds: currentValue.toInt()));
+                widget.controller.updatePreviewSeek(
+                  Duration(seconds: currentValue.toInt()),
+                );
               }
             } else if (isHorizontalDragging) {
               // 场景 C：横向拖动播放器 -> 显示在 cursor 位置
@@ -152,19 +155,23 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
               final double ratio = (currentValue / maxValue).clamp(0.0, 1.0);
               tooltipX = ratio * maxWidth;
               tooltipTime = currentValue;
-              
+
               // 更新预览播放器位置（限流）
               if (isPreviewReady) {
-                widget.controller.updatePreviewSeek(Duration(seconds: currentValue.toInt()));
+                widget.controller.updatePreviewSeek(
+                  Duration(seconds: currentValue.toInt()),
+                );
               }
             } else if (_hoverValue != null && _hoverPosition != null) {
               // 场景 B：仅悬停 -> 显示在鼠标位置
               tooltipX = _hoverPosition;
               tooltipTime = _hoverValue;
-              
+
               // 更新预览播放器位置（限流）
               if (isPreviewReady) {
-                widget.controller.updatePreviewSeek(Duration(seconds: _hoverValue!.toInt()));
+                widget.controller.updatePreviewSeek(
+                  Duration(seconds: _hoverValue!.toInt()),
+                );
               }
             }
 
@@ -288,7 +295,11 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
   }
 
   // 处理拖拽开始
-  void _handlePanStart(DragStartDetails details, double currentValue, double maxValue) {
+  void _handlePanStart(
+    DragStartDetails details,
+    double currentValue,
+    double maxValue,
+  ) {
     final RenderBox? renderBox =
         _progressBarKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
@@ -310,9 +321,7 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
 
     widget.controller.setInteracting(true);
     widget.controller.showSeekPreview(true);
-    widget.controller.updateSeekPreview(
-      Duration(seconds: startValue.toInt()),
-    );
+    widget.controller.updateSeekPreview(Duration(seconds: startValue.toInt()));
   }
 
   // 处理拖拽更新
@@ -323,7 +332,7 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
 
     // 计算移动距离
     final double deltaX = details.localPosition.dx - _dragStartX!;
-    
+
     // 如果移动距离超过阈值（3 像素），标记为已移动
     if (deltaX.abs() > 3.0) {
       _hasMoved = true;
@@ -340,18 +349,14 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
       _draggingValue = newValue;
     });
 
-    widget.controller.updateSeekPreview(
-      Duration(seconds: newValue.toInt()),
-    );
+    widget.controller.updateSeekPreview(Duration(seconds: newValue.toInt()));
   }
 
   // 处理拖拽结束
   Future<void> _handlePanEnd() async {
     // 如果没有移动，视为单击，直接跳转到点击位置
     if (!_hasMoved && _dragStartValue != null) {
-      widget.controller.handleSeek(
-        Duration(seconds: _dragStartValue!.toInt()),
-      );
+      widget.controller.handleSeek(Duration(seconds: _dragStartValue!.toInt()));
       setState(() {
         _dragging = false;
         _hasMoved = false;
@@ -386,9 +391,7 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
     }
 
     widget.controller.sliderDragLoadFinished.value = false;
-    widget.controller.handleSeek(
-      Duration(seconds: _draggingValue!.toInt()),
-    );
+    widget.controller.handleSeek(Duration(seconds: _draggingValue!.toInt()));
     widget.controller.setInteracting(false);
     widget.controller.showSeekPreview(false);
 
@@ -490,7 +493,8 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
           return const SizedBox.shrink();
         }
         // 获取 bottomBarAnimation 的偏移量（y 值）
-        final double bottomBarOffsetY = widget.controller.bottomBarAnimation.value.dy;
+        final double bottomBarOffsetY =
+            widget.controller.bottomBarAnimation.value.dy;
 
         // 获取屏幕高度来计算实际的滑动距离
         final double screenHeight = MediaQuery.of(context).size.height;
@@ -514,8 +518,9 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
         //     由于 toolbar 向下滑动 actualSlideDistance，tooltip 的 bottom 需要 = thinProgressBarOffset + actualSlideDistance
         //     这样当 toolbar 向下滑动后，tooltip 实际距离屏幕底部 = (thinProgressBarOffset + actualSlideDistance) - actualSlideDistance = thinProgressBarOffset
         final double dynamicBottom = toolbarValue == 1.0
-            ? baseBottom  // 展开时，使用基础位置
-            : thinProgressBarOffset + actualSlideDistance;  // 收缩时，需要加上滑动距离，以补偿 toolbar 的向下滑动
+            ? baseBottom // 展开时，使用基础位置
+            : thinProgressBarOffset +
+                  actualSlideDistance; // 收缩时，需要加上滑动距离，以补偿 toolbar 的向下滑动
 
         return Positioned(
           left: xPosition,
@@ -556,7 +561,8 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
         mainAxisSize: MainAxisSize.min,
         children: [
           // 优先使用预览视频画面；如果暂不可用，则仅展示时间信息
-          if (isPreviewReady && widget.controller.previewVideoController != null)
+          if (isPreviewReady &&
+              widget.controller.previewVideoController != null)
             Container(
               width: 160,
               height: 90,
@@ -669,11 +675,7 @@ class _ProgressBarPainter extends CustomPainter {
     // 确保 cursor 的 X 坐标在可绘制区域内，避免在两端被裁剪
     final double thumbCenterY = size.height / 2;
     final double thumbX = currentX.clamp(thumbRadius, size.width - thumbRadius);
-    canvas.drawCircle(
-      Offset(thumbX, thumbCenterY),
-      thumbRadius,
-      thumbPaint,
-    );
+    canvas.drawCircle(Offset(thumbX, thumbCenterY), thumbRadius, thumbPaint);
   }
 
   @override

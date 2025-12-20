@@ -286,6 +286,9 @@ class TranslationsCommonEn {
 	/// en: 'Cancel'
 	String get cancel => 'Cancel';
 
+	/// en: 'Select'
+	String get select => 'Select';
+
 	/// en: 'Save'
 	String get save => 'Save';
 
@@ -522,6 +525,9 @@ class TranslationsCommonEn {
 
 	/// en: 'More'
 	String get more => 'More';
+
+	/// en: 'Unknown Error'
+	String get unknownError => 'Unknown Error';
 
 	/// en: 'More features to be developed'
 	String get moreFeaturesToBeDeveloped => 'More features to be developed';
@@ -3800,6 +3806,60 @@ class TranslationsMediaPlayerEn {
 	/// en: 'VIDEO'
 	String get video => 'VIDEO';
 
+	/// en: 'CDN Server Selection'
+	String get serverSelector => 'CDN Server Selection';
+
+	/// en: 'Select the server with the lowest latency for the best playback experience'
+	String get serverSelectorDescription => 'Select the server with the lowest latency for the best playback experience';
+
+	/// en: 'Retest Speed'
+	String get retestSpeed => 'Retest Speed';
+
+	/// en: 'Waiting for speed test'
+	String get waitingForSpeedTest => 'Waiting for speed test';
+
+	/// en: 'Testing speed...'
+	String get testingSpeed => 'Testing speed...';
+
+	/// en: 'Test failed'
+	String get testFailed => 'Test failed';
+
+	/// en: 'Loading server list...'
+	String get loadingServerList => 'Loading server list...';
+
+	/// en: 'No available servers'
+	String get noAvailableServers => 'No available servers';
+
+	/// en: 'Refresh Server List'
+	String get refreshServerList => 'Refresh Server List';
+
+	/// en: 'Cannot get current video source'
+	String get cannotGetSource => 'Cannot get current video source';
+
+	/// en: 'Switched to server: ${serverName}'
+	String switchedToServer({required Object serverName}) => 'Switched to server: ${serverName}';
+
+	/// en: 'Total ${count} servers'
+	String serverCount({required Object count}) => 'Total ${count} servers';
+
+	/// en: 'Status code: ${code}'
+	String statusCode({required Object code}) => 'Status code: ${code}';
+
+	/// en: 'Connection failed'
+	String get connectionFailed => 'Connection failed';
+
+	/// en: 'Connection timeout'
+	String get connectionTimeout => 'Connection timeout';
+
+	/// en: 'Network error'
+	String get networkError => 'Network error';
+
+	/// en: 'SSL certificate error'
+	String get sslError => 'SSL certificate error';
+
+	/// en: 'Test completed'
+	String get testCompleted => 'Test completed';
+
 	/// en: 'Local'
 	String get local => 'Local';
 
@@ -6412,6 +6472,7 @@ extension on Translations {
 			'common.appName' => 'Love Iwara',
 			'common.ok' => 'OK',
 			'common.cancel' => 'Cancel',
+			'common.select' => 'Select',
 			'common.save' => 'Save',
 			'common.delete' => 'Delete',
 			'common.visit' => 'Visit',
@@ -6491,6 +6552,7 @@ extension on Translations {
 			'common.saveImageFailed' => 'Save image failed',
 			'common.close' => 'Close',
 			'common.more' => 'More',
+			'common.unknownError' => 'Unknown Error',
 			'common.moreFeaturesToBeDeveloped' => 'More features to be developed',
 			'common.all' => 'All',
 			'common.selectedRecords' => ({required Object num}) => 'Selected ${num} records',
@@ -6862,10 +6924,10 @@ extension on Translations {
 			'settings.minVersionUpdateRequired' => 'Current version is too low, please update as soon as possible',
 			'settings.forceUpdateTip' => 'This is a mandatory update. Please update to the latest version as soon as possible',
 			'settings.viewChangelog' => 'View Changelog',
-			'settings.alreadyLatestVersion' => 'Already the latest version',
-			'settings.appSettings' => 'App Settings',
 			_ => null,
 		} ?? switch (path) {
+			'settings.alreadyLatestVersion' => 'Already the latest version',
+			'settings.appSettings' => 'App Settings',
 			'settings.configureYourAppSettings' => 'Configure Your App Settings',
 			'settings.history' => 'History',
 			'settings.autoRecordHistory' => 'Auto Record History',
@@ -7376,10 +7438,10 @@ extension on Translations {
 			'forum.groups.japanese' => 'Japanese',
 			'forum.groups.korean' => 'Korean',
 			'forum.groups.other' => 'Other',
-			'forum.leafNames.announcements' => 'Announcements',
-			'forum.leafNames.feedback' => 'Feedback',
 			_ => null,
 		} ?? switch (path) {
+			'forum.leafNames.announcements' => 'Announcements',
+			'forum.leafNames.feedback' => 'Feedback',
 			'forum.leafNames.support' => 'Support',
 			'forum.leafNames.general' => 'General',
 			'forum.leafNames.guides' => 'Guides',
@@ -7889,11 +7951,29 @@ extension on Translations {
 			'mediaPlayer.appMayLackMediaPermission' => 'The app may lack necessary media playback permissions',
 			'mediaPlayer.tryOtherVideoPlayer' => 'Please try using other video players',
 			'mediaPlayer.video' => 'VIDEO',
+			'mediaPlayer.serverSelector' => 'CDN Server Selection',
+			_ => null,
+		} ?? switch (path) {
+			'mediaPlayer.serverSelectorDescription' => 'Select the server with the lowest latency for the best playback experience',
+			'mediaPlayer.retestSpeed' => 'Retest Speed',
+			'mediaPlayer.waitingForSpeedTest' => 'Waiting for speed test',
+			'mediaPlayer.testingSpeed' => 'Testing speed...',
+			'mediaPlayer.testFailed' => 'Test failed',
+			'mediaPlayer.loadingServerList' => 'Loading server list...',
+			'mediaPlayer.noAvailableServers' => 'No available servers',
+			'mediaPlayer.refreshServerList' => 'Refresh Server List',
+			'mediaPlayer.cannotGetSource' => 'Cannot get current video source',
+			'mediaPlayer.switchedToServer' => ({required Object serverName}) => 'Switched to server: ${serverName}',
+			'mediaPlayer.serverCount' => ({required Object count}) => 'Total ${count} servers',
+			'mediaPlayer.statusCode' => ({required Object code}) => 'Status code: ${code}',
+			'mediaPlayer.connectionFailed' => 'Connection failed',
+			'mediaPlayer.connectionTimeout' => 'Connection timeout',
+			'mediaPlayer.networkError' => 'Network error',
+			'mediaPlayer.sslError' => 'SSL certificate error',
+			'mediaPlayer.testCompleted' => 'Test completed',
 			'mediaPlayer.local' => 'Local',
 			'mediaPlayer.unknown' => 'Unknown',
 			'mediaPlayer.localVideoPathEmpty' => 'Local video path is empty',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.localVideoFileNotExists' => ({required Object path}) => 'Local video file does not exist: ${path}',
 			'mediaPlayer.unableToPlayLocalVideo' => ({required Object error}) => 'Unable to play local video: ${error}',
 			'mediaPlayer.dropVideoFileHere' => 'Drop video file here to play',

@@ -148,6 +148,8 @@ Future<void> _initializeBaseServices() async {
   await dbService.init();
   Get.put(dbService);
 
+  Get.put(IwaraServerService());
+
   // 清理旧的日志数据库文件
   await dbService.cleanupLogDatabase();
 
@@ -262,7 +264,6 @@ Future<void> _initializeBusinessServices() async {
   Get.lazyPut(() => PlayListService());
   Get.lazyPut(() => ForumService());
   Get.lazyPut(() => ConversationService());
-  Get.lazyPut(() => IwaraServerService());
   Get.put(PermissionService());
   Get.put(DownloadService());
   Get.put(DownloadPathService());

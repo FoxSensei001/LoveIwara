@@ -11,7 +11,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:i_iwara/app/ui/widgets/like_button_widget.dart';
 import 'package:i_iwara/app/services/video_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
-import 'package:i_iwara/common/anime4k_presets.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/server_selector_dialog.dart';
 
 import '../../../../../../utils/common_utils.dart';
 import '../../../../../services/config_service.dart';
@@ -41,7 +41,10 @@ class BottomToolbar extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
     final bool isSmallScreen = MediaQuery.of(context).size.width < 600;
-    final double iconSize = isSmallScreen ? 18 : 20;
+    // 如果是非全屏，图标更小一些
+    final double iconSize = currentScreenIsFullScreen
+        ? (isSmallScreen ? 18 : 20)
+        : (isSmallScreen ? 16 : 18);
 
     // 用 RepaintBoundary 包裹整个工具条
     return RepaintBoundary(
@@ -148,9 +151,9 @@ class BottomToolbar extends StatelessWidget {
                                   myVideoStateController.resumePosition.value,
                                 ),
                               ),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 14,
+                                fontSize: currentScreenIsFullScreen ? 14 : 12,
                               ),
                             ),
                             const SizedBox(width: 8),
@@ -179,7 +182,9 @@ class BottomToolbar extends StatelessWidget {
                 ),
               ),
               SizedBox(
-                height: isSmallScreen ? 36.0 : 40.0,
+                height: currentScreenIsFullScreen
+                    ? (isSmallScreen ? 36.0 : 40.0)
+                    : (isSmallScreen ? 32.0 : 36.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -358,12 +363,22 @@ class BottomToolbar extends StatelessWidget {
     required VoidCallback onPressed,
     String? tooltip, // 可选的tooltip参数
   }) {
-    Widget button = InkWell(
-      onTap: onPressed,
-      borderRadius: BorderRadius.circular(16.0),
-      splashColor: Colors.white24,
-      highlightColor: Colors.white10,
-      child: Padding(padding: const EdgeInsets.all(4.0), child: icon),
+    // 固定的点击区域大小，或者根据 iconSize 稍微大一点
+    // 这里使用 fixed size 策略来替代 padding
+    final double touchSize = currentScreenIsFullScreen ? 40.0 : 32.0;
+
+    Widget button = Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(20.0),
+        child: Container(
+          width: touchSize,
+          height: touchSize,
+          alignment: Alignment.center,
+          child: icon,
+        ),
+      ),
     );
 
     if (tooltip != null && tooltip.isNotEmpty) {
@@ -380,10 +395,13 @@ class BottomToolbar extends StatelessWidget {
 
   /// 创建一个带切换动画的IconButton
   Widget _buildSwitchIconButton({
-    required Icon icon,
+    required Widget icon,
     required VoidCallback onPressed,
     String? tooltip, // 添加tooltip参数
   }) {
+    // 固定的点击区域大小
+    final double touchSize = currentScreenIsFullScreen ? 40.0 : 32.0;
+
     return Tooltip(
       triggerMode: TooltipTriggerMode.tap,
       preferBelow: true,
@@ -393,8 +411,10 @@ class BottomToolbar extends StatelessWidget {
         child: InkWell(
           onTap: onPressed,
           borderRadius: BorderRadius.circular(16.0),
-          child: Padding(
-            padding: const EdgeInsets.all(6.0),
+          child: Container(
+            width: touchSize,
+            height: touchSize,
+            alignment: Alignment.center,
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
               transitionBuilder: (Widget child, Animation<double> animation) {
@@ -411,14 +431,38 @@ class BottomToolbar extends StatelessWidget {
     );
   }
 
+  /// 获取分辨率对应的 SVG 资源路径
+  String _getResolutionIconAsset(String? label) {
+    if (label == null) return 'assets/svg/res_unknown.svg';
+    switch (label) {
+      case '360':
+        return 'assets/svg/res_360p.svg';
+      case '540':
+        return 'assets/svg/res_540p.svg';
+      case '720':
+        return 'assets/svg/res_720p.svg';
+      case '1080':
+        return 'assets/svg/res_1080p.svg';
+      case 'Source':
+        return 'assets/svg/res_source.svg';
+      default:
+        return 'assets/svg/res_unknown.svg';
+    }
+  }
+
   /// 分辨率切换器
-  Widget _buildResolutionSwitcher(BuildContext context) {
+  Widget _buildResolutionSwitcher(BuildContext context, double iconSize) {
     final t = slang.Translations.of(context);
     return Obx(() {
       String? currentResolution =
           myVideoStateController.currentResolutionTag.value;
       List<VideoResolution> resolutions =
           myVideoStateController.videoResolutions;
+
+      // 如果没有获取到分辨率，不显示
+      if (resolutions.isEmpty) {
+        return const SizedBox.shrink();
+      }
 
       // 去重：只保留每个清晰度标签的第一个分辨率
       final Map<String, VideoResolution> uniqueResolutionsMap = {};
@@ -429,20 +473,20 @@ class BottomToolbar extends StatelessWidget {
       }
       final uniqueResolutions = uniqueResolutionsMap.values.toList();
 
-      Map<String, IconData> resolutionIcons = {
-        '360': Icons.sd,
-        '540': Icons.hd,
-        '720': Icons.hd,
-        '1080': Icons.high_quality,
-        'Source': Icons.video_label,
-      };
-
+      final double touchSize = currentScreenIsFullScreen ? 40.0 : 32.0;
       return PopupMenuButton<String>(
         initialValue: currentResolution,
         tooltip: t.videoDetail.switchResolution,
-        icon: Icon(
-          resolutionIcons[currentResolution] ?? Icons.settings,
-          color: Colors.white,
+        child: Container(
+          width: touchSize,
+          height: touchSize,
+          alignment: Alignment.center,
+          child: SvgPicture.asset(
+            _getResolutionIconAsset(currentResolution),
+            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+            width: iconSize,
+            height: iconSize,
+          ),
         ),
         onSelected: (String selected) {
           if (selected != currentResolution) {
@@ -453,23 +497,26 @@ class BottomToolbar extends StatelessWidget {
         },
         itemBuilder: (BuildContext context) {
           return uniqueResolutions.map((VideoResolution resolution) {
+            final isSelected = resolution.label == currentResolution;
             return PopupMenuItem<String>(
               value: resolution.label,
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      Icon(
-                        resolutionIcons[resolution.label] ?? Icons.settings,
-                        color: Theme.of(context).iconTheme.color,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(resolution.label),
-                    ],
+                  SvgPicture.asset(
+                    _getResolutionIconAsset(resolution.label),
+                    colorFilter: ColorFilter.mode(
+                      Theme.of(context).iconTheme.color!,
+                      BlendMode.srcIn,
+                    ),
+                    width: 24,
+                    height: 24,
                   ),
-                  if (resolution.label == currentResolution)
+                  const SizedBox(width: 8),
+                  Text(resolution.label),
+                  if (isSelected) ...[
+                    const Spacer(),
                     const Icon(Icons.check, color: Colors.blue),
+                  ],
                 ],
               ),
             );
@@ -480,7 +527,7 @@ class BottomToolbar extends StatelessWidget {
   }
 
   /// 播放速度切换器
-  Widget _buildPlaybackSpeedSwitcher(BuildContext context) {
+  Widget _buildPlaybackSpeedSwitcher(BuildContext context, double iconSize) {
     final t = slang.Translations.of(context);
     return Obx(() {
       double currentSpeed = myVideoStateController.playerPlaybackSpeed.value;
@@ -502,10 +549,21 @@ class BottomToolbar extends StatelessWidget {
         return const SizedBox.shrink();
       }
 
+      final double touchSize = currentScreenIsFullScreen ? 40.0 : 32.0;
       return PopupMenuButton<double>(
         initialValue: currentSpeed,
         tooltip: t.videoDetail.switchPlaybackSpeed,
-        icon: const Icon(Icons.speed, color: Colors.white),
+        child: Container(
+          width: touchSize,
+          height: touchSize,
+          alignment: Alignment.center,
+          child: SvgPicture.asset(
+            'assets/svg/playback_speed.svg',
+            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+            width: iconSize,
+            height: iconSize,
+          ),
+        ),
         onSelected: (double selected) {
           if (selected != currentSpeed) {
             myVideoStateController.playerPlaybackSpeed.value = selected;
@@ -645,15 +703,19 @@ class BottomToolbar extends StatelessWidget {
             tooltip: myVideoStateController.videoPlaying.value
                 ? t.videoDetail.pause
                 : t.videoDetail.play,
-            icon: Icon(
+            icon: SvgPicture.asset(
               myVideoStateController.videoPlaying.value
-                  ? Icons.pause
-                  : Icons.play_arrow,
+                  ? 'assets/svg/pause.svg'
+                  : 'assets/svg/play.svg',
               key: ValueKey(
                 myVideoStateController.videoPlaying.value ? 'pause' : 'play',
               ),
-              color: Colors.white,
-              size: iconSize,
+              colorFilter: const ColorFilter.mode(
+                Colors.white,
+                BlendMode.srcIn,
+              ),
+              width: iconSize,
+              height: iconSize,
             ),
             onPressed: () async {
               VibrateUtils.vibrate();
@@ -670,6 +732,7 @@ class BottomToolbar extends StatelessWidget {
           VolumeControl(
             configService: _configService,
             myVideoStateController: myVideoStateController,
+            iconSize: iconSize,
           ),
         _spacer4,
         TextButton(
@@ -688,7 +751,9 @@ class BottomToolbar extends StatelessWidget {
               '${CommonUtils.formatDuration(myVideoStateController.toShowCurrentPosition.value)} / ${CommonUtils.formatDuration(myVideoStateController.totalDuration.value)}',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: isSmallScreen ? 11 : 12,
+                fontSize: currentScreenIsFullScreen
+                    ? (isSmallScreen ? 11 : 12)
+                    : (isSmallScreen ? 10 : 11),
               ),
             ),
           ),
@@ -706,9 +771,9 @@ class BottomToolbar extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _buildAnime4KButton(context),
-        _buildPlaybackSpeedSwitcher(context),
-        _buildResolutionSwitcher(context),
+        _buildPlaybackSpeedSwitcher(context, iconSize),
+        _buildResolutionSwitcher(context, iconSize),
+        _buildServerSelectorButton(context, iconSize),
         if (GetPlatform.isDesktop && !currentScreenIsFullScreen)
           _buildIconButton(
             tooltip: myVideoStateController.isDesktopAppFullScreen.value
@@ -725,10 +790,9 @@ class BottomToolbar extends StatelessWidget {
                           Colors.white,
                           BlendMode.srcIn,
                         ),
-                        semanticsLabel:
-                            myVideoStateController.isDesktopAppFullScreen.value
-                            ? t.videoDetail.exitAppFullscreen
-                            : t.videoDetail.enterAppFullscreen,
+                        width: iconSize,
+                        height: iconSize,
+                        semanticsLabel: t.videoDetail.exitAppFullscreen,
                       )
                     : SvgPicture.asset(
                         'assets/svg/app_enter_fullscreen.svg',
@@ -736,10 +800,9 @@ class BottomToolbar extends StatelessWidget {
                           Colors.white,
                           BlendMode.srcIn,
                         ),
-                        semanticsLabel:
-                            myVideoStateController.isDesktopAppFullScreen.value
-                            ? t.videoDetail.exitAppFullscreen
-                            : t.videoDetail.enterAppFullscreen,
+                        width: iconSize,
+                        height: iconSize,
+                        semanticsLabel: t.videoDetail.enterAppFullscreen,
                       ),
               );
             }),
@@ -758,12 +821,16 @@ class BottomToolbar extends StatelessWidget {
             tooltip: currentScreenIsFullScreen
                 ? t.videoDetail.exitSystemFullscreen
                 : t.videoDetail.enterSystemFullscreen,
-            icon: Icon(
+            icon: SvgPicture.asset(
               currentScreenIsFullScreen
-                  ? Icons.fullscreen_exit
-                  : Icons.fullscreen,
-              color: Colors.white,
-              size: iconSize,
+                  ? 'assets/svg/fullscreen_exit.svg'
+                  : 'assets/svg/fullscreen_enter.svg',
+              colorFilter: const ColorFilter.mode(
+                Colors.white,
+                BlendMode.srcIn,
+              ),
+              width: iconSize,
+              height: iconSize,
             ),
             onPressed: () {
               if (currentScreenIsFullScreen) {
@@ -778,398 +845,58 @@ class BottomToolbar extends StatelessWidget {
     );
   }
 
-  /// Anime4K 设置按钮
-  Widget _buildAnime4KButton(BuildContext context) {
-    return Obx(() {
-      final configService = Get.find<ConfigService>();
-      final presetId = configService[ConfigKey.ANIME4K_PRESET_ID] as String;
-      final isEnabled = presetId.isNotEmpty;
+  /// 服务器选择按钮
+  Widget _buildServerSelectorButton(BuildContext context, double iconSize) {
+    // 只在本地视频模式下隐藏此按钮
+    if (myVideoStateController.isLocalVideoMode) {
+      return const SizedBox.shrink();
+    }
 
-      return PopupMenuButton<String>(
-        tooltip: slang.t.anime4k.settings,
-        icon: const Icon(Icons.adjust, color: Colors.white),
-        onSelected: (value) async {
-          if (value == 'disable') {
-            await myVideoStateController.switchAnime4KPreset('');
-          } else {
-            await myVideoStateController.switchAnime4KPreset(value);
-          }
+    return Obx(() {
+      // 没获取到分辨率（也就意味着没获取到视频源）时隐藏
+      if (myVideoStateController.videoResolutions.isEmpty) {
+        return const SizedBox.shrink();
+      }
+
+      return _buildIconButton(
+        tooltip: slang.t.mediaPlayer.serverSelector,
+        icon: SvgPicture.asset(
+          'assets/svg/server_selector.svg',
+          colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+          width: iconSize,
+          height: iconSize,
+        ),
+        onPressed: () {
+          _showServerSelectorDialog(context);
         },
-        itemBuilder: (context) =>
-            _buildAnime4KMenuItems(context, isEnabled, presetId),
       );
     });
   }
 
-  // 构建 Anime4K 菜单项
-  List<PopupMenuEntry<String>> _buildAnime4KMenuItems(
-    BuildContext context,
-    bool isEnabled,
-    String currentPresetId,
-  ) {
-    final items = <PopupMenuEntry<String>>[];
-
-    // 添加顶部提示文本
-    items.add(
-      PopupMenuItem<String>(
-        enabled: false,
-        child: Text(
-          slang.t.anime4k.realTimeVideoUpscalingAndDenoising,
-          style: TextStyle(
-            fontWeight: FontWeight.w500,
-            color: Colors.grey[800],
-            fontSize: 12,
-          ),
-          textAlign: TextAlign.center,
+  /// 显示服务器选择对话框
+  void _showServerSelectorDialog(BuildContext context) {
+    final currentUrl = myVideoStateController.getCurrentVideoUrl();
+    if (currentUrl == null || currentUrl.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(slang.t.mediaPlayer.cannotGetSource),
+          duration: const Duration(seconds: 2),
         ),
+      );
+      return;
+    }
+
+    Get.dialog(
+      ServerSelectorDialog(
+        currentUrl: currentUrl,
+        onServerSelected: (newUrl, serverName) {
+          myVideoStateController.switchServerForCurrentResolution(
+            newUrl,
+            serverName,
+          );
+        },
       ),
+      barrierDismissible: true,
     );
-
-    // 分隔线
-    items.add(const PopupMenuDivider());
-
-    // 关闭选项
-    items.add(
-      PopupMenuItem<String>(
-        value: 'disable',
-        child: Row(
-          children: [
-            Icon(Icons.close, color: Colors.grey[600]),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    slang.t.anime4k.disable,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey[700],
-                    ),
-                  ),
-                  Text(
-                    slang.t.anime4k.disableDescription,
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-
-    // 分隔线
-    items.add(const PopupMenuDivider());
-
-    // 预设分组
-    final highQualityPresets = Anime4KPresets.getPresetsByGroup(
-      Anime4KPresetGroup.highQuality,
-    );
-    final fastPresets = Anime4KPresets.getPresetsByGroup(
-      Anime4KPresetGroup.fast,
-    );
-    final litePresets = Anime4KPresets.getPresetsByGroup(
-      Anime4KPresetGroup.lite,
-    );
-    final moreLitePresets = Anime4KPresets.getPresetsByGroup(
-      Anime4KPresetGroup.moreLite,
-    );
-    final customPresets = Anime4KPresets.getPresetsByGroup(
-      Anime4KPresetGroup.custom,
-    );
-
-    // 高质量预设
-    if (highQualityPresets.isNotEmpty) {
-      items.add(
-        PopupMenuItem<String>(
-          enabled: false,
-          child: Text(
-            slang.t.anime4k.highQualityPresets,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.grey[700],
-              fontSize: 13,
-            ),
-          ),
-        ),
-      );
-      for (final preset in highQualityPresets) {
-        final isSelected = currentPresetId == preset.id;
-        items.add(
-          PopupMenuItem<String>(
-            value: preset.id,
-            child: Row(
-              children: [
-                Icon(
-                  isSelected
-                      ? Icons.check_circle
-                      : Icons.radio_button_unchecked,
-                  color: isSelected ? Colors.blue : Colors.grey,
-                  size: 18,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        preset.name,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: isSelected ? Colors.blue : null,
-                        ),
-                      ),
-                      Text(
-                        preset.description,
-                        style: TextStyle(fontSize: 11, color: Colors.grey[600]),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      }
-    }
-
-    // 快速预设
-    if (fastPresets.isNotEmpty) {
-      items.add(
-        PopupMenuItem<String>(
-          enabled: false,
-          child: Text(
-            slang.t.anime4k.fastPresets,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.grey[700],
-              fontSize: 13,
-            ),
-          ),
-        ),
-      );
-      for (final preset in fastPresets) {
-        final isSelected = currentPresetId == preset.id;
-        items.add(
-          PopupMenuItem<String>(
-            value: preset.id,
-            child: Row(
-              children: [
-                Icon(
-                  isSelected
-                      ? Icons.check_circle
-                      : Icons.radio_button_unchecked,
-                  color: isSelected ? Colors.blue : Colors.grey,
-                  size: 18,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        preset.name,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: isSelected ? Colors.blue : null,
-                        ),
-                      ),
-                      Text(
-                        preset.description,
-                        style: TextStyle(fontSize: 11, color: Colors.grey[600]),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      }
-    }
-
-    // 轻量级预设
-    if (litePresets.isNotEmpty) {
-      items.add(
-        PopupMenuItem<String>(
-          enabled: false,
-          child: Text(
-            slang.t.anime4k.litePresets,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.grey[700],
-              fontSize: 13,
-            ),
-          ),
-        ),
-      );
-      for (final preset in litePresets) {
-        final isSelected = currentPresetId == preset.id;
-        items.add(
-          PopupMenuItem<String>(
-            value: preset.id,
-            child: Row(
-              children: [
-                Icon(
-                  isSelected
-                      ? Icons.check_circle
-                      : Icons.radio_button_unchecked,
-                  color: isSelected ? Colors.blue : Colors.grey,
-                  size: 18,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        preset.name,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: isSelected ? Colors.blue : null,
-                        ),
-                      ),
-                      Text(
-                        preset.description,
-                        style: TextStyle(fontSize: 11, color: Colors.grey[600]),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      }
-    }
-
-    // 更多轻量级预设
-    if (moreLitePresets.isNotEmpty) {
-      items.add(
-        PopupMenuItem<String>(
-          enabled: false,
-          child: Text(
-            slang.t.anime4k.moreLitePresets,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.grey[700],
-              fontSize: 13,
-            ),
-          ),
-        ),
-      );
-      for (final preset in moreLitePresets) {
-        final isSelected = currentPresetId == preset.id;
-        items.add(
-          PopupMenuItem<String>(
-            value: preset.id,
-            child: Row(
-              children: [
-                Icon(
-                  isSelected
-                      ? Icons.check_circle
-                      : Icons.radio_button_unchecked,
-                  color: isSelected ? Colors.blue : Colors.grey,
-                  size: 18,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        preset.name,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: isSelected ? Colors.blue : null,
-                        ),
-                      ),
-                      Text(
-                        preset.description,
-                        style: TextStyle(fontSize: 11, color: Colors.grey[600]),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      }
-    }
-
-    // 自定义预设
-    if (customPresets.isNotEmpty) {
-      items.add(
-        PopupMenuItem<String>(
-          enabled: false,
-          child: Text(
-            slang.t.anime4k.customPresets,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.grey[700],
-              fontSize: 13,
-            ),
-          ),
-        ),
-      );
-      for (final preset in customPresets) {
-        final isSelected = currentPresetId == preset.id;
-        items.add(
-          PopupMenuItem<String>(
-            value: preset.id,
-            child: Row(
-              children: [
-                Icon(
-                  isSelected
-                      ? Icons.check_circle
-                      : Icons.radio_button_unchecked,
-                  color: isSelected ? Colors.blue : Colors.grey,
-                  size: 18,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        preset.name,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: isSelected ? Colors.blue : null,
-                        ),
-                      ),
-                      Text(
-                        preset.description,
-                        style: TextStyle(fontSize: 11, color: Colors.grey[600]),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      }
-    }
-
-    return items;
   }
 }

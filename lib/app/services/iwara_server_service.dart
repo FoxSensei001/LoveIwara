@@ -47,6 +47,8 @@ class IwaraServerService extends GetxService {
   Future<void> _initializeService() async {
     // 1. 加载服务器列表
     await _loadServersFromDatabase();
+    // 2. 拉取最新的服务器列表并保存到数据库
+    refreshServerList();
   }
 
   /// 从数据库加载服务器列表

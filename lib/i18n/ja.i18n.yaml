@@ -66,6 +66,7 @@ common:
   appName: Love Iwara
   ok: 確定
   cancel: キャンセル
+  select: 選択
   save: 保存
   delete: 削除
   visit: アクセス
@@ -150,6 +151,7 @@ common:
   saveImageFailed: 画像の保存に失敗しました
   close: 閉じる
   more: もっと見る
+  unknownError: 未知のエラー
   moreFeaturesToBeDeveloped: さらに機能が開発中です
   all: すべて
   selectedRecords: '${num} 件のレコードが選択されました'
@@ -1572,6 +1574,25 @@ mediaPlayer:
   appMayLackMediaPermission: "アプリに必要なメディア再生権限が不足している可能性があります"
   tryOtherVideoPlayer: "他のビデオプレイヤーをお試しください"
   video: "ビデオ"
+  # CDNサーバー選択
+  serverSelector: CDNサーバー選択
+  serverSelectorDescription: 最適な再生体験のために、遅延の最も少ないサーバーを選択してください
+  retestSpeed: 再速度テスト
+  waitingForSpeedTest: 速度テスト待ち
+  testingSpeed: 速度テスト中...
+  testFailed: テスト失敗
+  loadingServerList: サーバーリストを読み込み中...
+  noAvailableServers: 利用可能なサーバーがありません
+  refreshServerList: サーバーリストを更新
+  cannotGetSource: 現在の再生ソースを取得できません
+  switchedToServer: "サーバーを切り替えました: ${serverName}"
+  serverCount: "合計 ${count} 台のサーバー"
+  statusCode: "ステータスコード: ${code}"
+  connectionFailed: 接続失敗
+  connectionTimeout: 接続タイムアウト
+  networkError: ネットワークエラー
+  sslError: SSL証明書エラー
+  testCompleted: テスト完了
   # ローカルビデオ再生
   local: "ローカル"
   unknown: "不明"

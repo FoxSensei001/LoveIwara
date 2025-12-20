@@ -162,6 +162,7 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get appName => 'Love Iwara';
 	@override String get ok => '確定';
 	@override String get cancel => 'キャンセル';
+	@override String get select => '選択';
 	@override String get save => '保存';
 	@override String get delete => '削除';
 	@override String get visit => 'アクセス';
@@ -245,6 +246,7 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get saveImageFailed => '画像の保存に失敗しました';
 	@override String get close => '閉じる';
 	@override String get more => 'もっと見る';
+	@override String get unknownError => '未知のエラー';
 	@override String get moreFeaturesToBeDeveloped => 'さらに機能が開発中です';
 	@override String get all => 'すべて';
 	@override String selectedRecords({required Object num}) => '${num} 件のレコードが選択されました';
@@ -1409,6 +1411,24 @@ class _TranslationsMediaPlayerJa implements TranslationsMediaPlayerEn {
 	@override String get appMayLackMediaPermission => 'アプリに必要なメディア再生権限が不足している可能性があります';
 	@override String get tryOtherVideoPlayer => '他のビデオプレイヤーをお試しください';
 	@override String get video => 'ビデオ';
+	@override String get serverSelector => 'CDNサーバー選択';
+	@override String get serverSelectorDescription => '最適な再生体験のために、遅延の最も少ないサーバーを選択してください';
+	@override String get retestSpeed => '再速度テスト';
+	@override String get waitingForSpeedTest => '速度テスト待ち';
+	@override String get testingSpeed => '速度テスト中...';
+	@override String get testFailed => 'テスト失敗';
+	@override String get loadingServerList => 'サーバーリストを読み込み中...';
+	@override String get noAvailableServers => '利用可能なサーバーがありません';
+	@override String get refreshServerList => 'サーバーリストを更新';
+	@override String get cannotGetSource => '現在の再生ソースを取得できません';
+	@override String switchedToServer({required Object serverName}) => 'サーバーを切り替えました: ${serverName}';
+	@override String serverCount({required Object count}) => '合計 ${count} 台のサーバー';
+	@override String statusCode({required Object code}) => 'ステータスコード: ${code}';
+	@override String get connectionFailed => '接続失敗';
+	@override String get connectionTimeout => '接続タイムアウト';
+	@override String get networkError => 'ネットワークエラー';
+	@override String get sslError => 'SSL証明書エラー';
+	@override String get testCompleted => 'テスト完了';
 	@override String get local => 'ローカル';
 	@override String get unknown => '不明';
 	@override String get localVideoPathEmpty => 'ローカルビデオパスが空です';
@@ -2703,6 +2723,7 @@ extension on TranslationsJa {
 			'common.appName' => 'Love Iwara',
 			'common.ok' => '確定',
 			'common.cancel' => 'キャンセル',
+			'common.select' => '選択',
 			'common.save' => '保存',
 			'common.delete' => '削除',
 			'common.visit' => 'アクセス',
@@ -2786,6 +2807,7 @@ extension on TranslationsJa {
 			'common.saveImageFailed' => '画像の保存に失敗しました',
 			'common.close' => '閉じる',
 			'common.more' => 'もっと見る',
+			'common.unknownError' => '未知のエラー',
 			'common.moreFeaturesToBeDeveloped' => 'さらに機能が開発中です',
 			'common.all' => 'すべて',
 			'common.selectedRecords' => ({required Object num}) => '${num} 件のレコードが選択されました',
@@ -3153,10 +3175,10 @@ extension on TranslationsJa {
 			'settings.minVersionUpdateRequired' => '現在のバージョンが低すぎます。すぐに更新してください',
 			'settings.forceUpdateTip' => 'これは必須アップデートです。できるだけ早く最新バージョンにアップデートしてください',
 			'settings.viewChangelog' => '更新内容を表示',
-			'settings.alreadyLatestVersion' => 'すでに最新バージョンです',
-			'settings.appSettings' => 'アプリ設定',
 			_ => null,
 		} ?? switch (path) {
+			'settings.alreadyLatestVersion' => 'すでに最新バージョンです',
+			'settings.appSettings' => 'アプリ設定',
 			'settings.configureYourAppSettings' => 'アプリ設定を設定',
 			'settings.history' => '履歴',
 			'settings.autoRecordHistory' => '自動記録履歴',
@@ -3667,10 +3689,10 @@ extension on TranslationsJa {
 			'forum.groups.japanese' => '日本語',
 			'forum.groups.korean' => '韓国語',
 			'forum.groups.other' => 'その他',
-			'forum.leafNames.announcements' => 'お知らせ',
-			'forum.leafNames.feedback' => 'フィードバック',
 			_ => null,
 		} ?? switch (path) {
+			'forum.leafNames.announcements' => 'お知らせ',
+			'forum.leafNames.feedback' => 'フィードバック',
 			'forum.leafNames.support' => 'サポート',
 			'forum.leafNames.general' => '一般',
 			'forum.leafNames.guides' => 'ガイド',
@@ -4108,6 +4130,24 @@ extension on TranslationsJa {
 			'mediaPlayer.appMayLackMediaPermission' => 'アプリに必要なメディア再生権限が不足している可能性があります',
 			'mediaPlayer.tryOtherVideoPlayer' => '他のビデオプレイヤーをお試しください',
 			'mediaPlayer.video' => 'ビデオ',
+			'mediaPlayer.serverSelector' => 'CDNサーバー選択',
+			'mediaPlayer.serverSelectorDescription' => '最適な再生体験のために、遅延の最も少ないサーバーを選択してください',
+			'mediaPlayer.retestSpeed' => '再速度テスト',
+			'mediaPlayer.waitingForSpeedTest' => '速度テスト待ち',
+			'mediaPlayer.testingSpeed' => '速度テスト中...',
+			'mediaPlayer.testFailed' => 'テスト失敗',
+			'mediaPlayer.loadingServerList' => 'サーバーリストを読み込み中...',
+			'mediaPlayer.noAvailableServers' => '利用可能なサーバーがありません',
+			'mediaPlayer.refreshServerList' => 'サーバーリストを更新',
+			'mediaPlayer.cannotGetSource' => '現在の再生ソースを取得できません',
+			'mediaPlayer.switchedToServer' => ({required Object serverName}) => 'サーバーを切り替えました: ${serverName}',
+			'mediaPlayer.serverCount' => ({required Object count}) => '合計 ${count} 台のサーバー',
+			'mediaPlayer.statusCode' => ({required Object code}) => 'ステータスコード: ${code}',
+			'mediaPlayer.connectionFailed' => '接続失敗',
+			'mediaPlayer.connectionTimeout' => '接続タイムアウト',
+			'mediaPlayer.networkError' => 'ネットワークエラー',
+			'mediaPlayer.sslError' => 'SSL証明書エラー',
+			'mediaPlayer.testCompleted' => 'テスト完了',
 			'mediaPlayer.local' => 'ローカル',
 			'mediaPlayer.unknown' => '不明',
 			'mediaPlayer.localVideoPathEmpty' => 'ローカルビデオパスが空です',
@@ -4163,6 +4203,8 @@ extension on TranslationsJa {
 			'log.clearAllLogsSuccess' => 'ログクリア成功',
 			'log.clearAllLogsFailed' => ({required Object error}) => 'ログクリア失敗: ${error}',
 			'log.unableToGetLogSizeInfo' => 'ログサイズ情報を取得できません',
+			_ => null,
+		} ?? switch (path) {
 			'log.currentLogSize' => '現在のログサイズ:',
 			'log.logCount' => 'ログ数:',
 			'log.logCountUnit' => 'ログ',
@@ -4183,8 +4225,6 @@ extension on TranslationsJa {
 			'log.today' => '今日',
 			'log.selectMergeRange' => 'マージ範囲を選択',
 			'log.selectMergeRangeHint' => 'マージするログの日付範囲を選択してください',
-			_ => null,
-		} ?? switch (path) {
 			'log.selectMergeRangeDays' => ({required Object days}) => '最近 ${days} 日',
 			'log.logStats' => 'ログ統計情報',
 			'log.todayLogs' => ({required Object count}) => '今日のログ: ${count} 件',
