@@ -20,7 +20,6 @@ import 'package:i_iwara/app/ui/widgets/grid_speed_dial.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' show t;
 import 'package:i_iwara/common/enums/media_enums.dart';
-import 'dart:ui';
 import 'package:flutter/gestures.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -100,7 +99,6 @@ class PopularMediaListPageBaseState<
   String rating = '';
 
   // 头部折叠相关变量
-  bool _isHeaderCollapsed = false;
   final double _headerCollapseThreshold = 50.0; // 触发折叠/展开的滚动阈值（像素）
 
   // 头部滚动监听器
@@ -171,42 +169,40 @@ class PopularMediaListPageBaseState<
       double offset,
     ) {
       final direction = _mediaListController.lastScrollDirection.value;
-      bool shouldCollapse = _isHeaderCollapsed;
+      bool shouldShowHeader = _mediaListController.showHeader.value;
 
-      // 改进的折叠逻辑：
-      // 1. 向上滚动且超过阈值时折叠
-      // 2. 向下滚动时展开（更灵敏）
-      // 3. 接近顶部时始终展开
+      // 改进的遮罩逻辑：
+      // 1. 向上滚动且超过阈值时隐藏
+      // 2. 向下滚动时显示
+      // 3. 接近顶部时始终显示
 
       if (direction == ScrollDirection.reverse) {
-        // 向上滚动：需要滚动超过阈值才折叠
-        if (offset > _headerCollapseThreshold && !_isHeaderCollapsed) {
-          shouldCollapse = true;
+        // 向上滚动：需要滚动超过阈值才隐藏
+        if (offset > _headerCollapseThreshold && shouldShowHeader) {
+          shouldShowHeader = false;
         }
       } else if (direction == ScrollDirection.forward) {
-        // 向下滚动：更灵敏地展开
-        if (_isHeaderCollapsed) {
-          // 只要开始向下滚动就展开，提供更好的响应性
-          shouldCollapse = false;
+        // 向下滚动：更灵敏地显示
+        if (!shouldShowHeader) {
+          shouldShowHeader = true;
         }
       }
 
-      // 特殊情况：接近顶部时始终展开
-      if (offset <= 5.0 && _isHeaderCollapsed) {
-        shouldCollapse = false;
+      // 特殊情况：接近顶部时始终显示
+      if (offset <= 5.0 && !shouldShowHeader) {
+        shouldShowHeader = true;
       }
 
-      // 特殊情况：切换标签或数据时展开
+      // 特殊情况：切换标签或数据时显示
       if (offset == 0.0 &&
           direction == ScrollDirection.idle &&
-          _isHeaderCollapsed) {
-        shouldCollapse = false;
+          !shouldShowHeader) {
+        shouldShowHeader = true;
       }
 
-      if (mounted && _isHeaderCollapsed != shouldCollapse) {
-        setState(() {
-          _isHeaderCollapsed = shouldCollapse;
-        });
+      if (mounted &&
+          _mediaListController.showHeader.value != shouldShowHeader) {
+        _mediaListController.showHeader.value = shouldShowHeader;
       }
     }).call;
   }
@@ -365,364 +361,366 @@ class PopularMediaListPageBaseState<
     const double headerHeight = 56.0;
     final systemStatusBarHeight = MediaQuery.of(context).padding.top;
 
-    // 根据折叠状态计算动态高度
-    final double currentTopBarVisibleHeight = _isHeaderCollapsed
-        ? tabBarHeight
-        : (headerHeight + tabBarHeight);
-
-    final double listPaddingTop =
-        systemStatusBarHeight + currentTopBarVisibleHeight;
-
     return Scaffold(
       body: LayoutBuilder(
         builder: (context, constraints) {
           return Stack(
             children: [
-              Positioned.fill(
-                child: Obx(() {
-                  final isPaginated = _mediaListController.isPaginated.value;
-                  final rebuildKey = _mediaListController.rebuildKey.value
-                      .toString();
-                  final isMultiSelectMode =
-                      _batchSelectController.isMultiSelect.value;
-                  final selectedMediaIds = _batchSelectController
-                      .selectedMediaIds
-                      .toSet();
-
-                  // 同步分页模式状态到批量选择控制器
-                  _batchSelectController.setPaginatedMode(isPaginated);
-
-                  return TabBarView(
-                    controller: _tabController,
-                    children: sorts.map((sort) {
-                      return MediaTabView<T>(
-                        key: ValueKey('${sort.id}_$isPaginated$rebuildKey'),
-                        repository: _repositories[sort.id]!,
-                        emptyIcon: widget.emptyIcon,
-                        isPaginated: isPaginated,
-                        rebuildKey: rebuildKey,
-                        paddingTop: listPaddingTop,
-                        mediaListController: _mediaListController,
-                        // 视频和图库列表都支持多选
-                        isMultiSelectMode: isMultiSelectMode,
-                        selectedItemIds: selectedMediaIds,
-                        onItemSelect: (media) =>
-                            _batchSelectController.toggleSelection(media),
-                        onPageChanged: () =>
-                            _batchSelectController.onPageChanged(),
-                      );
-                    }).toList(),
-                  );
-                }),
-              ),
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: ClipRect(
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
+              // 使用 Column 替代 Stack + dynamic padding
+              Column(
+                children: [
+                  // 顶部空间（状态栏 + 动态折叠的头部）
+                  Obx(() {
+                    final bool showHeader =
+                        _mediaListController.showHeader.value;
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
                       curve: Curves.easeInOut,
-                      height:
-                          systemStatusBarHeight + currentTopBarVisibleHeight,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.surface.withValues(alpha: 0.85),
+                      clipBehavior: Clip.hardEdge,
+                      height: showHeader
+                          ? systemStatusBarHeight + headerHeight
+                          : systemStatusBarHeight,
+                      color: Theme.of(context).colorScheme.surface,
                       child: Column(
-                        mainAxisSize: MainAxisSize.min,
                         children: [
                           SizedBox(height: systemStatusBarHeight),
-                          ClipRect(
-                            child: AnimatedSize(
-                              duration: const Duration(milliseconds: 250),
-                              curve: Curves.easeInOut,
+                          Expanded(
+                            child: IgnorePointer(
+                              ignoring: !showHeader,
                               child: AnimatedOpacity(
-                                opacity: _isHeaderCollapsed ? 0.0 : 1.0,
-                                duration: const Duration(milliseconds: 250),
-                                curve: Curves.easeInOut,
-                                child: SizedBox(
-                                  height: _isHeaderCollapsed ? 0 : headerHeight,
-                                  child: CommonHeader(
-                                    searchSegment: widget.searchSegment,
-                                    avatarRadius: 20,
-                                  ),
+                                opacity: showHeader ? 1.0 : 0.0,
+                                duration: const Duration(milliseconds: 200),
+                                child: CommonHeader(
+                                  searchSegment: widget.searchSegment,
+                                  avatarRadius: 20,
                                 ),
                               ),
                             ),
                           ),
-                          SizedBox(
-                            height: tabBarHeight,
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: MouseRegion(
-                                    child: Listener(
-                                      onPointerSignal: (pointerSignal) {
-                                        if (pointerSignal
-                                            is PointerScrollEvent) {
-                                          _handleScroll(
-                                            pointerSignal.scrollDelta.dy,
-                                          );
-                                        }
-                                      },
-                                      child: SingleChildScrollView(
-                                        controller: _tabBarScrollController,
-                                        scrollDirection: Axis.horizontal,
-                                        physics: const ClampingScrollPhysics(),
-                                        child: TabBar(
-                                          isScrollable: true,
-                                          overlayColor: WidgetStateProperty.all(
-                                            Colors.transparent,
-                                          ),
-                                          tabAlignment: TabAlignment.start,
-                                          dividerColor: Colors.transparent,
-                                          padding: EdgeInsets.zero,
-                                          controller: _tabController,
-                                          tabs: sorts.asMap().entries.map((
-                                            entry,
-                                          ) {
-                                            int index = entry.key;
-                                            Sort sort = entry.value;
-                                            return Container(
-                                              key: _tabKeys[index],
-                                              child: Tab(
-                                                child: Row(
-                                                  children: [
-                                                    sort.icon ??
-                                                        const SizedBox(),
-                                                    const SizedBox(width: 4),
-                                                    Text(sort.label),
-                                                  ],
-                                                ),
-                                              ),
-                                            );
-                                          }).toList(),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-
-                                _buildAnimatedIconButton(
-                                  isVisible: !_isHeaderCollapsed,
-                                  child: IconButton(
-                                    icon: const Icon(Icons.vertical_align_top),
-                                    onPressed: () =>
-                                        _mediaListController.scrollToTop(),
-                                    tooltip: t.common.scrollToTop,
-                                  ),
-                                ),
-                                _buildAnimatedIconButton(
-                                  isVisible: !_isHeaderCollapsed,
-                                  child: IconButton(
-                                    icon: const Icon(Icons.refresh),
-                                    onPressed: tryRefreshCurrentSort,
-                                    tooltip: t.common.refresh,
-                                  ),
-                                ),
-                                _buildAnimatedIconButton(
-                                  isVisible: !_isHeaderCollapsed,
-                                  child: IconButton(
-                                    icon: const Icon(Icons.filter_list),
-                                    onPressed: _openParamsModal,
-                                    tooltip: t.common.search,
-                                  ),
-                                ),
-                                // 多选按钮（视频和图库列表都显示）
-                                _buildAnimatedIconButton(
-                                  isVisible: !_isHeaderCollapsed,
-                                  child: Obx(
-                                    () => IconButton(
-                                      icon: Icon(
-                                        _batchSelectController
-                                                .isMultiSelect
-                                                .value
-                                            ? Icons.close
-                                            : Icons.checklist,
-                                      ),
-                                      onPressed: () => _batchSelectController
-                                          .toggleMultiSelect(),
-                                      tooltip:
-                                          _batchSelectController
-                                              .isMultiSelect
-                                              .value
-                                          ? t.common.exitEditMode
-                                          : t.common.editMode,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              // 3. 浮动按钮（仅在折叠时显示）
-              if (_isHeaderCollapsed)
-                Positioned(
-                  right: _edgePadding,
-                  bottom: 0, // 我们在内部使用 Padding 或 Offset
-                  child: Obx(() {
-                    final isPaginatedNow =
-                        _mediaListController.isPaginated.value;
-                    final bottomSafeNow = MediaQuery.of(context).padding.bottom;
-                    final double extraBottomNow = isPaginatedNow
-                        ? (46 + bottomSafeNow + 20)
-                        : 20;
-
-                    return Padding(
-                      padding: EdgeInsets.only(
-                        bottom: _edgePadding + extraBottomNow,
-                      ),
-                      child: GridSpeedDial(
-                        icon: Icons.menu,
-                        activeIcon: Icons.close,
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor: Theme.of(
-                          context,
-                        ).colorScheme.onPrimary,
-                        spacing: 6,
-                        spaceBetweenChildren: 4,
-                        direction: SpeedDialDirection.up,
-                        childPadding: const EdgeInsets.all(6),
-                        childrens: [
-                          [
-                            SpeedDialChild(
-                              child: const Icon(Icons.search),
-                              backgroundColor: Theme.of(
-                                context,
-                              ).colorScheme.primaryContainer,
-                              foregroundColor: Theme.of(
-                                context,
-                              ).colorScheme.onPrimaryContainer,
-                              onTap: _openSearchDialog,
-                            ),
-                            SpeedDialChild(
-                              child: const Icon(Icons.refresh),
-                              backgroundColor: Theme.of(
-                                context,
-                              ).colorScheme.primaryContainer,
-                              foregroundColor: Theme.of(
-                                context,
-                              ).colorScheme.onPrimaryContainer,
-                              onTap: tryRefreshCurrentSort,
-                            ),
-                            // 多选按钮（视频和图库列表都显示）
-                            SpeedDialChild(
-                              child: Obx(
-                                () => Icon(
-                                  _batchSelectController.isMultiSelect.value
-                                      ? Icons.close
-                                      : Icons.checklist,
-                                ),
-                              ),
-                              backgroundColor: Theme.of(
-                                context,
-                              ).colorScheme.primaryContainer,
-                              foregroundColor: Theme.of(
-                                context,
-                              ).colorScheme.onPrimaryContainer,
-                              onTap: () =>
-                                  _batchSelectController.toggleMultiSelect(),
-                            ),
-                          ],
-                          [
-                            SpeedDialChild(
-                              child: const Icon(Icons.vertical_align_top),
-                              backgroundColor: Theme.of(
-                                context,
-                              ).colorScheme.primaryContainer,
-                              foregroundColor: Theme.of(
-                                context,
-                              ).colorScheme.onPrimaryContainer,
-                              onTap: () => _mediaListController.scrollToTop(),
-                            ),
-                            SpeedDialChild(
-                              child: const Icon(Icons.filter_list),
-                              backgroundColor: Theme.of(
-                                context,
-                              ).colorScheme.secondaryContainer,
-                              foregroundColor: Theme.of(
-                                context,
-                              ).colorScheme.onSecondaryContainer,
-                              onTap: _openParamsModal,
-                            ),
-                            SpeedDialChild(
-                              child: Obx(() {
-                                if (userService.isLogin &&
-                                    userService.currentUser.value != null) {
-                                  return Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      AvatarWidget(
-                                        user: userService.currentUser.value,
-                                        size: 28,
-                                      ),
-                                      Positioned(
-                                        right: 0,
-                                        top: 0,
-                                        child: Obx(() {
-                                          final count =
-                                              userService
-                                                  .notificationCount
-                                                  .value +
-                                              userService.messagesCount.value;
-                                          if (count > 0) {
-                                            return Container(
-                                              width: 8,
-                                              height: 8,
-                                              decoration: BoxDecoration(
-                                                color: Theme.of(
-                                                  context,
-                                                ).colorScheme.error,
-                                                shape: BoxShape.circle,
-                                              ),
-                                            );
-                                          }
-                                          return const SizedBox.shrink();
-                                        }),
-                                      ),
-                                    ],
-                                  );
-                                } else {
-                                  return const Icon(Icons.account_circle);
-                                }
-                              }),
-                              backgroundColor: Theme.of(
-                                context,
-                              ).colorScheme.surface,
-                              foregroundColor: Theme.of(
-                                context,
-                              ).colorScheme.onSurface,
-                              onTap: () {
-                                AppService.switchGlobalDrawer();
-                              },
-                            ),
-                          ],
                         ],
                       ),
                     );
                   }),
-                ),
+                  // TabBar 区域 - 始终显示
+                  Material(
+                    color: Theme.of(context).colorScheme.surface,
+                    child: SizedBox(
+                      height: tabBarHeight,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: MouseRegion(
+                              child: Listener(
+                                onPointerSignal: (pointerSignal) {
+                                  if (pointerSignal is PointerScrollEvent) {
+                                    _handleScroll(pointerSignal.scrollDelta.dy);
+                                  }
+                                },
+                                child: SingleChildScrollView(
+                                  controller: _tabBarScrollController,
+                                  scrollDirection: Axis.horizontal,
+                                  physics: const ClampingScrollPhysics(),
+                                  child: TabBar(
+                                    isScrollable: true,
+                                    overlayColor: WidgetStateProperty.all(
+                                      Colors.transparent,
+                                    ),
+                                    tabAlignment: TabAlignment.start,
+                                    dividerColor: Colors.transparent,
+                                    padding: EdgeInsets.zero,
+                                    controller: _tabController,
+                                    tabs: sorts.asMap().entries.map((entry) {
+                                      int index = entry.key;
+                                      Sort sort = entry.value;
+                                      return Container(
+                                        key: _tabKeys[index],
+                                        child: Tab(
+                                          child: Row(
+                                            children: [
+                                              sort.icon ?? const SizedBox(),
+                                              const SizedBox(width: 4),
+                                              Text(sort.label),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Obx(() {
+                            final bool showHeader =
+                                _mediaListController.showHeader.value;
+                            return _buildAnimatedIconButton(
+                              isVisible: showHeader,
+                              child: IconButton(
+                                icon: const Icon(Icons.vertical_align_top),
+                                onPressed: () =>
+                                    _mediaListController.scrollToTop(),
+                                tooltip: t.common.scrollToTop,
+                              ),
+                            );
+                          }),
+                          Obx(() {
+                            final bool showHeader =
+                                _mediaListController.showHeader.value;
+                            return _buildAnimatedIconButton(
+                              isVisible: showHeader,
+                              child: IconButton(
+                                icon: const Icon(Icons.refresh),
+                                onPressed: tryRefreshCurrentSort,
+                                tooltip: t.common.refresh,
+                              ),
+                            );
+                          }),
+                          Obx(() {
+                            final bool showHeader =
+                                _mediaListController.showHeader.value;
+                            return _buildAnimatedIconButton(
+                              isVisible: showHeader,
+                              child: IconButton(
+                                icon: const Icon(Icons.filter_list),
+                                onPressed: _openParamsModal,
+                                tooltip: t.common.search,
+                              ),
+                            );
+                          }),
+                          Obx(() {
+                            final bool showHeader =
+                                _mediaListController.showHeader.value;
+                            return _buildAnimatedIconButton(
+                              isVisible: showHeader,
+                              child: IconButton(
+                                icon: Icon(
+                                  _batchSelectController.isMultiSelect.value
+                                      ? Icons.close
+                                      : Icons.checklist,
+                                ),
+                                onPressed: () =>
+                                    _batchSelectController.toggleMultiSelect(),
+                                tooltip:
+                                    _batchSelectController.isMultiSelect.value
+                                    ? t.common.exitEditMode
+                                    : t.common.editMode,
+                              ),
+                            );
+                          }),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // 内容区域
+                  Expanded(
+                    child: Obx(() {
+                      final isPaginated =
+                          _mediaListController.isPaginated.value;
+                      final rebuildKey = _mediaListController.rebuildKey.value
+                          .toString();
+                      final isMultiSelectMode =
+                          _batchSelectController.isMultiSelect.value;
+                      final selectedMediaIds = _batchSelectController
+                          .selectedMediaIds
+                          .toSet();
 
-              // 4. 左下角功能按钮（视频和图库列表支持多选）
-              BatchActionFabColumn<T>(
-                controller: _batchSelectController,
-                heroTagPrefix: 'popular_media_list',
-                isPaginated: _mediaListController.isPaginated.value,
+                      _batchSelectController.setPaginatedMode(isPaginated);
+
+                      return TabBarView(
+                        controller: _tabController,
+                        children: sorts.map((sort) {
+                          return MediaTabView<T>(
+                            key: ValueKey('${sort.id}_$isPaginated$rebuildKey'),
+                            repository: _repositories[sort.id]!,
+                            emptyIcon: widget.emptyIcon,
+                            isPaginated: isPaginated,
+                            rebuildKey: rebuildKey,
+                            paddingTop: 0, // 使用 Column 布局，不需要 paddingTop
+                            mediaListController: _mediaListController,
+                            isMultiSelectMode: isMultiSelectMode,
+                            selectedItemIds: selectedMediaIds,
+                            onItemSelect: (media) =>
+                                _batchSelectController.toggleSelection(media),
+                            onPageChanged: () =>
+                                _batchSelectController.onPageChanged(),
+                          );
+                        }).toList(),
+                      );
+                    }),
+                  ),
+                ],
+              ),
+
+              // 浮动按钮（仅在头部隐藏时显示，或者根据需要调整）
+              Obx(() {
+                final bool isHeaderCollapsed =
+                    !_mediaListController.showHeader.value;
+                // 不再直接返回 SizedBox.shrink()，而是通过动画隐藏
+
+                final isPaginatedNow = _mediaListController.isPaginated.value;
+                final bottomSafeNow = MediaQuery.of(context).padding.bottom;
+                final double extraBottomNow = isPaginatedNow
+                    ? (46 + bottomSafeNow + 20)
+                    : 20;
+
+                return Positioned(
+                  right: _edgePadding,
+                  bottom: _edgePadding + extraBottomNow,
+                  child: IgnorePointer(
+                    ignoring: !isHeaderCollapsed,
+                    child: AnimatedScale(
+                      scale: isHeaderCollapsed ? 1.0 : 0.0,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOutBack,
+                      child: AnimatedOpacity(
+                        opacity: isHeaderCollapsed ? 1.0 : 0.0,
+                        duration: const Duration(milliseconds: 200),
+                        child: GridSpeedDial(
+                          icon: Icons.menu,
+                          activeIcon: Icons.close,
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.primary,
+                          foregroundColor: Theme.of(
+                            context,
+                          ).colorScheme.onPrimary,
+                          spacing: 6,
+                          spaceBetweenChildren: 4,
+                          direction: SpeedDialDirection.up,
+                          childPadding: const EdgeInsets.all(6),
+                          childrens: [
+                            [
+                              SpeedDialChild(
+                                child: const Icon(Icons.search),
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.primaryContainer,
+                                foregroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.onPrimaryContainer,
+                                onTap: _openSearchDialog,
+                              ),
+                              SpeedDialChild(
+                                child: const Icon(Icons.refresh),
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.primaryContainer,
+                                foregroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.onPrimaryContainer,
+                                onTap: tryRefreshCurrentSort,
+                              ),
+                              SpeedDialChild(
+                                child: Obx(
+                                  () => Icon(
+                                    _batchSelectController.isMultiSelect.value
+                                        ? Icons.close
+                                        : Icons.checklist,
+                                  ),
+                                ),
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.primaryContainer,
+                                foregroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.onPrimaryContainer,
+                                onTap: () =>
+                                    _batchSelectController.toggleMultiSelect(),
+                              ),
+                            ],
+                            [
+                              SpeedDialChild(
+                                child: const Icon(Icons.vertical_align_top),
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.primaryContainer,
+                                foregroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.onPrimaryContainer,
+                                onTap: () => _mediaListController.scrollToTop(),
+                              ),
+                              SpeedDialChild(
+                                child: const Icon(Icons.filter_list),
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.secondaryContainer,
+                                foregroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.onSecondaryContainer,
+                                onTap: _openParamsModal,
+                              ),
+                              SpeedDialChild(
+                                child: Obx(() {
+                                  if (userService.isLogin &&
+                                      userService.currentUser.value != null) {
+                                    return Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        AvatarWidget(
+                                          user: userService.currentUser.value,
+                                          size: 28,
+                                        ),
+                                        Positioned(
+                                          right: 0,
+                                          top: 0,
+                                          child: Obx(() {
+                                            final count =
+                                                userService
+                                                    .notificationCount
+                                                    .value +
+                                                userService.messagesCount.value;
+                                            if (count > 0) {
+                                              return Container(
+                                                width: 8,
+                                                height: 8,
+                                                decoration: BoxDecoration(
+                                                  color: Theme.of(
+                                                    context,
+                                                  ).colorScheme.error,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                              );
+                                            }
+                                            return const SizedBox.shrink();
+                                          }),
+                                        ),
+                                      ],
+                                    );
+                                  } else {
+                                    return const Icon(Icons.account_circle);
+                                  }
+                                }),
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.surface,
+                                foregroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface,
+                                onTap: () {
+                                  AppService.switchGlobalDrawer();
+                                },
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }),
+
+              // 多选操作按钮
+              Obx(
+                () => BatchActionFabColumn<T>(
+                  controller: _batchSelectController,
+                  heroTagPrefix: 'popular_media_list',
+                  isPaginated: _mediaListController.isPaginated.value,
+                ),
               ),
             ],
           );
         },
       ),
-      floatingActionButton: null,
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }

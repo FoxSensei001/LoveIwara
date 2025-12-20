@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/widgets/shimmer_card.dart';
+import 'package:i_iwara/common/constants.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -161,7 +162,7 @@ Widget? buildIndicator(
               const SizedBox(height: 24),
               // 文字动画
               Text(
-                    'i-iwara',
+                    CommonConstants.applicationNickname,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,

@@ -109,26 +109,29 @@ class BatchActionFabColumn<T> extends StatelessWidget {
                             tooltip: t.common.clearSelection,
                             child: const Icon(Icons.layers_clear),
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 4),
                           // 下载按钮
-                          Badge(
-                            label: Text(selectedCount.toString()),
-                            child: FloatingActionButton.small(
-                              heroTag: 'batchDownloadFAB_$heroTagPrefix',
-                              onPressed: () {
-                                BatchDownloadDialog.show<T>(
-                                  mediaItems: controller.selectedMediaList,
-                                  onComplete: () =>
-                                      controller.exitMultiSelect(),
-                                );
-                              },
-                              backgroundColor: Theme.of(
-                                context,
-                              ).colorScheme.primary,
-                              foregroundColor: Theme.of(
-                                context,
-                              ).colorScheme.onPrimary,
-                              child: const Icon(Icons.download),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Badge(
+                              label: Text(selectedCount.toString()),
+                              child: FloatingActionButton.small(
+                                heroTag: 'batchDownloadFAB_$heroTagPrefix',
+                                onPressed: () {
+                                  BatchDownloadDialog.show<T>(
+                                    mediaItems: controller.selectedMediaList,
+                                    onComplete: () =>
+                                        controller.exitMultiSelect(),
+                                  );
+                                },
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.primary,
+                                foregroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.onPrimary,
+                                child: const Icon(Icons.download),
+                              ),
                             ),
                           ),
                         ],

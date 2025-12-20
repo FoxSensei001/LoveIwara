@@ -8,14 +8,15 @@ import 'package:i_iwara/common/constants.dart';
 class PopularMediaListController extends GetxController {
   // 分页模式状态
   final RxBool isPaginated = CommonConstants.isPaginated.obs;
-  
+
   // 用于强制刷新的状态键
   final RxInt rebuildKey = 0.obs;
 
   // 滚动状态监听
   final Rx<double> currentScrollOffset = 0.0.obs;
   final Rx<ScrollDirection> lastScrollDirection = ScrollDirection.idle.obs;
-  
+  final RxBool showHeader = true.obs;
+
   // 设置分页模式
   void setPaginatedMode(bool value) {
     if (isPaginated.value != value) {
@@ -25,7 +26,7 @@ class PopularMediaListController extends GetxController {
       rebuildKey.value++;
     }
   }
-  
+
   // 刷新列表
   void refreshPageUI() {
     rebuildKey.value++;
@@ -62,9 +63,9 @@ class PopularMediaListController extends GetxController {
         );
       }
     }
-    
+
     // 重置滚动状态
     currentScrollOffset.value = 0.0;
     lastScrollDirection.value = ScrollDirection.idle;
   }
-} 
+}

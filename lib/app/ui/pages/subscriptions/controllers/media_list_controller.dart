@@ -22,6 +22,7 @@ class MediaListController extends GetxController {
 
   final RxDouble currentScrollOffset = 0.0.obs;
   final Rx<ScrollDirection> lastScrollDirection = ScrollDirection.idle.obs;
+  final RxBool showHeader = true.obs;
 
   // 注册滚动到顶部的回调函数
   void registerScrollToTopCallback(Function() callback) {

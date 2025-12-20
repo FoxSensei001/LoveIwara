@@ -8,15 +8,20 @@ import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:shimmer/shimmer.dart';
 
-
 class CommonHeader extends StatelessWidget {
   final double avatarRadius;
   final SearchSegment searchSegment;
+  final Widget? leading;
+  final List<Widget>? trailing;
+  final Key? searchKey;
 
   const CommonHeader({
     super.key,
     required this.searchSegment,
     this.avatarRadius = 20,
+    this.leading,
+    this.trailing,
+    this.searchKey,
   });
 
   @override
@@ -25,88 +30,96 @@ class CommonHeader extends StatelessWidget {
     final translations = slang.Translations.of(context);
     return Row(
       children: [
-        Obx(() {
-          if (userService.isLogining.value) {
-            return Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(24),
-                onTap: () {
-                  AppService.switchGlobalDrawer();
-                },
-                child: SizedBox(
-                  width: 48,
-                  height: 48,
-                  child: Center(
-                    child: Shimmer.fromColors(
-                      baseColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                      highlightColor: Theme.of(context).colorScheme.surface,
-                      child: Container(
-                        width: 24,
-                        height: 24,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
+        leading ??
+            Obx(() {
+              if (userService.isLogining.value) {
+                return Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(24),
+                    onTap: () {
+                      AppService.switchGlobalDrawer();
+                    },
+                    child: SizedBox(
+                      width: 48,
+                      height: 48,
+                      child: Center(
+                        child: Shimmer.fromColors(
+                          baseColor: Theme.of(
+                            context,
+                          ).colorScheme.surfaceContainerHighest,
+                          highlightColor: Theme.of(context).colorScheme.surface,
+                          child: Container(
+                            width: 24,
+                            height: 24,
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ),
-            );
-          } else if (userService.isLogin) {
-            return Stack(
-              children: [
-               AvatarWidget(
-                  user: userService.currentUser.value,
-                  size: 48,
-                  onTap: () {
+                );
+              } else if (userService.isLogin) {
+                return Stack(
+                  children: [
+                    AvatarWidget(
+                      user: userService.currentUser.value,
+                      size: 48,
+                      onTap: () {
+                        AppService.switchGlobalDrawer();
+                      },
+                    ),
+                    Positioned(
+                      right: 2,
+                      top: 2,
+                      child: Obx(() {
+                        final count =
+                            userService.notificationCount.value +
+                            userService.messagesCount.value;
+                        if (count > 0) {
+                          return Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.error,
+                              shape: BoxShape.circle,
+                            ),
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      }),
+                    ),
+                  ],
+                );
+              } else {
+                return IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(
+                    minWidth: 48,
+                    minHeight: 48,
+                  ),
+                  splashRadius: 24,
+                  icon: const Icon(Icons.account_circle, size: 24),
+                  onPressed: () {
                     AppService.switchGlobalDrawer();
-                  }
-                ),
-                Positioned(
-                  right: 2,
-                  top: 2,
-                  child: Obx(() {
-                    final count = userService.notificationCount.value +
-                        userService.messagesCount.value;
-                    if (count > 0) {
-                      return Container(
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.error,
-                          shape: BoxShape.circle,
-                        ),
-                      );
-                    }
-                    return const SizedBox.shrink();
-                  }),
-                ),
-              ],
-            );
-          } else {
-            return IconButton(
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
-              splashRadius: 24,
-              icon: const Icon(Icons.account_circle, size: 24),
-              onPressed: () {
-                AppService.switchGlobalDrawer();
-              },
-            );
-          }
-        }),
+                  },
+                );
+              }
+            }),
+        const SizedBox(width: 8),
         Expanded(
           child: Material(
             elevation: 0,
-            color: Theme.of(context)
-                .colorScheme
-                .surfaceContainerHighest
-                .withValues(alpha: 0.5),
+            color: Theme.of(
+              context,
+            ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(12),
             clipBehavior: Clip.antiAlias,
             child: TextField(
+              key: searchKey,
               readOnly: true,
               style: TextStyle(
                 fontSize: 16,
@@ -118,8 +131,10 @@ class CommonHeader extends StatelessWidget {
                 hintStyle: TextStyle(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 border: InputBorder.none,
                 focusedBorder: InputBorder.none,
                 prefixIcon: Icon(
@@ -136,7 +151,11 @@ class CommonHeader extends StatelessWidget {
                     initialSegment: searchSegment,
                     onSearch: (searchInfo, segment, filters, sort) {
                       NaviService.toSearchPage(
-                          searchInfo: searchInfo, segment: segment, filters: filters, sort: sort);
+                        searchInfo: searchInfo,
+                        segment: segment,
+                        filters: filters,
+                        sort: sort,
+                      );
                     },
                   ),
                 );
@@ -144,8 +163,8 @@ class CommonHeader extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: 8),
+        if (trailing != null) ...trailing! else const SizedBox(width: 8),
       ],
     );
   }
-} 
+}

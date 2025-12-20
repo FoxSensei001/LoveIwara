@@ -5,6 +5,7 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/version_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
+
 class HistoryUpdateLogsPage extends StatefulWidget {
   const HistoryUpdateLogsPage({super.key});
 
@@ -49,26 +50,24 @@ class _HistoryUpdateLogsPageState extends State<HistoryUpdateLogsPage> {
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
     return Scaffold(
-      appBar: AppBar(
-        title: Text(t.settings.historyUpdateLogs),
-      ),
+      appBar: AppBar(title: Text(t.settings.historyUpdateLogs)),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(_error!),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: _loadUpdateLogs,
-                        child: Text(t.common.retry),
-                      )
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(_error!),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: _loadUpdateLogs,
+                    child: Text(t.common.retry),
                   ),
-                )
-              : _buildLogsList(),
+                ],
+              ),
+            )
+          : _buildLogsList(),
     );
   }
 
@@ -95,12 +94,10 @@ class _HistoryUpdateLogsPageState extends State<HistoryUpdateLogsPage> {
             t.settings.releaseDateLabel.replaceAll('{date}', update.date),
           ),
           children: changes.isNotEmpty
-              ? changes
-                  .map((change) => ListTile(title: Text(change)))
-                  .toList()
+              ? changes.map((change) => ListTile(title: Text(change))).toList()
               : [ListTile(title: Text(t.settings.noChanges))],
         );
       },
     );
   }
-} 
+}
