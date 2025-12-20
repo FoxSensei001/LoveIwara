@@ -311,7 +311,6 @@ errors:
   resourceNotFound: Resource not found
   failedToSaveCredentials: "Failed to save login credentials"
   failedToLoadSavedCredentials: "Failed to load saved credentials"
-  specialFollowLimitReached: 'Special follow limit exceeded, limit: ${cnt}, please adjust in the follow list page'
   notFound: 'Content not found or has been deleted'
   network:
     basicPrefix: 'Network error - '

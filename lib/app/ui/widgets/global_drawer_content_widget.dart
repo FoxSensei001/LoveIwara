@@ -25,274 +25,344 @@ class GlobalDrawerColumns extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
+
     return Column(
       children: [
-        Obx(() => _buildHeader(context, appService)),
+        Obx(() => _buildHeader(context)),
         Expanded(
           child: ListView(
-            padding: EdgeInsets.zero,
+            padding: const EdgeInsets.symmetric(vertical: 8),
             children: [
-              // 通知
-              _buildMenuItem(Icons.notifications, t.notifications.notifications, () {
-                if (userService.isLogin) {
-                  NaviService.navigateToNotificationListPage();
-                  AppService.switchGlobalDrawer();
-                } else {
-                  AppService.switchGlobalDrawer();
-                  showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error), position: ToastPosition.top);
-                }
-              }),
-              // 会话
-              _buildMenuItem(Icons.message, t.conversation.conversation, () {
-                if (userService.isLogin) {
-                  NaviService.navigateToConversationPage();
-                  AppService.switchGlobalDrawer();
-                } else {
-                  AppService.switchGlobalDrawer();
-                  showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error), position: ToastPosition.top);
-                }
-              }),
-              // Tag黑名单
-              _buildMenuItem(Icons.block, t.common.tagBlacklist, () {
-                if (userService.isLogin) {
-                  NaviService.navigateToTagBlacklistPage();
-                  AppService.switchGlobalDrawer();
-                } else {
-                  AppService.switchGlobalDrawer();
-                  showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error), position: ToastPosition.top);
-                }
-              }),
-              // 下载管理
-              _buildMenuItem(Icons.download, t.download.downloadList, () {
-                NaviService.navigateToDownloadTaskListPage();
-                AppService.switchGlobalDrawer();
-              }),
-              // 历史记录
-              _buildMenuItem(Icons.history, t.common.history, () {
-                NaviService.navigateToHistoryListPage();
-                AppService.switchGlobalDrawer();
-              }),
-              // 最爱
-              _buildMenuItem(Icons.favorite_border, t.common.favorites, () {
-                if (userService.isLogin) {
-                  NaviService.navigateToFavoritePage();
-                  AppService.switchGlobalDrawer();
-                } else {
-                  AppService.switchGlobalDrawer();
-                  showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error), position: ToastPosition.top);
-                }
-              }),
-              // 本地收藏
-              _buildMenuItem(Icons.bookmark_border, t.favorite.localizeFavorite, () {
-                NaviService.navigateToLocalFavoritePage();
-                AppService.switchGlobalDrawer();
-              }),
-              // 好友
-              _buildMenuItem(Icons.face, t.common.friends, () {
-                if (userService.isLogin) {
-                  NaviService.navigateToFriendsPage();
-                  AppService.switchGlobalDrawer();
-                } else {
-                  AppService.switchGlobalDrawer();
-                  showToast(t.errors.pleaseLoginFirst);
-                }
-              }),
-              // 关注列表
-              _buildMenuItem(Icons.people, t.common.followingList, () {
-                if (userService.isLogin) {
-                  NaviService.navigateToFollowingListPage(userService.currentUser.value!.id, userService.currentUser.value!.name, userService.currentUser.value!.username);
-                  AppService.switchGlobalDrawer();
-                } else {
-                  AppService.switchGlobalDrawer();
-                  showToast(t.errors.pleaseLoginFirst);
-                }
-              }),
-              // 粉丝列表
-              _buildMenuItem(Icons.supervised_user_circle, t.common.followersList, () {
-                if (userService.isLogin) {
-                  NaviService.navigateToFollowersListPage(userService.currentUser.value!.id, userService.currentUser.value!.name, userService.currentUser.value!.username);
-                  AppService.switchGlobalDrawer();
-                } else {
-                  AppService.switchGlobalDrawer();
-                  showToast(t.errors.pleaseLoginFirst);
-                }
-              }),
-              // 播放列表
-              _buildMenuItem(Icons.playlist_play, t.common.playList, () {
-                if (userService.isLogin) {
-                  NaviService.navigateToPlayListPage(
-                      userService.currentUser.value!.id,
-                      isMine: true);
-                  AppService.switchGlobalDrawer();
-                } else {
-                  AppService.switchGlobalDrawer();
-                  showToast(t.errors.pleaseLoginFirst);
-                }
-              }),
-              // 戒律签到
-              _buildMenuItem(Icons.calendar_today, t.signIn.signIn, () {
-                NaviService.navigateToSignInPage();
-                AppService.switchGlobalDrawer();
-              }),
-              // 留出底部空间
-              const SizedBox(height: 8),
-            ],
-          ),
-        ),
-        // 底部固定按钮区域
-        Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 3,
-                offset: const Offset(0, -1),
+              _buildSectionHeader(t.settings.interaction),
+              _buildMenuItem(
+                context,
+                icon: Icons.notifications_outlined,
+                title: t.notifications.notifications,
+                onTap: () => _handleLoginRequiredNavi(
+                  NaviService.navigateToNotificationListPage,
+                  context,
+                ),
+                trailing: _buildNotificationBadge(),
               ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Divider(height: 1),
-              // 使用IconButton而不是ListTile
-              Padding(
-                padding: EdgeInsets.only(left: 6, right: 6, bottom: MediaQuery.paddingOf(context).bottom),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    // 设置按钮
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.settings, 
-                            color: Get.isDarkMode ? Colors.white : null,
-                            size: 28,
-                          ),
-                          onPressed: () {
-                            AppService.switchGlobalDrawer();
-                            NaviService.navigateToSettingsPage();
-                          },
-                        ),
-                        Text(t.common.settings, style: const TextStyle(fontSize: 12)),
-                      ],
-                    ),
-                     // 自定义链接按钮
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.link, 
-                            color: Get.isDarkMode ? Colors.white : null,
-                            size: 28,
-                          ),
-                          onPressed: () => LinkInputDialogWidget.show(),
-                        ),
-                        Text(t.settings.jumpLink, style: const TextStyle(fontSize: 12)),
-                      ],
-                    ),
-                    // 退出按钮 - 仅在登录状态显示
-                    Obx(() => userService.isLogin
-                        ? Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: Icon(Icons.exit_to_app, 
-                                  color: Get.isDarkMode ? Colors.white : null,
-                                  size: 28,
-                                ),
-                                onPressed: () => _showLogoutDialog(appService),
-                              ),
-                              Text(t.common.logout, style: const TextStyle(fontSize: 12)),
-                            ],
-                          )
-                        : const SizedBox.shrink()),
-                  ],
+              _buildMenuItem(
+                context,
+                icon: Icons.chat_outlined,
+                title: t.conversation.conversation,
+                onTap: () => _handleLoginRequiredNavi(
+                  NaviService.navigateToConversationPage,
+                  context,
+                ),
+                trailing: _buildMessageBadge(),
+              ),
+              _buildMenuItem(
+                context,
+                icon: Icons.people_outline,
+                title: t.common.friends,
+                onTap: () => _handleLoginRequiredNavi(
+                  NaviService.navigateToFriendsPage,
+                  context,
+                ),
+                trailing: _buildFriendRequestBadge(),
+              ),
+
+              const Divider(indent: 16, endIndent: 16, height: 24),
+
+              // --- Content Section ---
+              _buildSectionHeader(t.common.history),
+              _buildMenuItem(
+                context,
+                icon: Icons.history_outlined,
+                title: t.common.history,
+                onTap: () {
+                  NaviService.navigateToHistoryListPage();
+                  AppService.switchGlobalDrawer();
+                },
+              ),
+              _buildMenuItem(
+                context,
+                icon: Icons.download_outlined,
+                title: t.download.downloadList,
+                onTap: () {
+                  NaviService.navigateToDownloadTaskListPage();
+                  AppService.switchGlobalDrawer();
+                },
+              ),
+              _buildMenuItem(
+                context,
+                icon: Icons.favorite_outline,
+                title: t.common.favorites,
+                onTap: () => _handleLoginRequiredNavi(
+                  NaviService.navigateToFavoritePage,
+                  context,
                 ),
               ),
+              _buildMenuItem(
+                context,
+                icon: Icons.bookmark_outline,
+                title: t.favorite.localizeFavorite,
+                onTap: () {
+                  NaviService.navigateToLocalFavoritePage();
+                  AppService.switchGlobalDrawer();
+                },
+              ),
+              _buildMenuItem(
+                context,
+                icon: Icons.playlist_play_outlined,
+                title: t.common.playList,
+                onTap: () => _handleLoginRequiredNavi(
+                  () => NaviService.navigateToPlayListPage(
+                    userService.currentUser.value!.id,
+                    isMine: true,
+                  ),
+                  context,
+                ),
+              ),
+
+              const Divider(indent: 16, endIndent: 16, height: 24),
+
+              // --- Social Section ---
+              _buildSectionHeader(t.common.followsAndFans),
+              _buildMenuItem(
+                context,
+                icon: Icons.stars_outlined,
+                title: t.common.specialFollow,
+                onTap: () => _handleLoginRequiredNavi(
+                  () => NaviService.navigateToSpecialFollowsListPage(
+                    userService.currentUser.value!.id,
+                    userService.currentUser.value!.name,
+                    userService.currentUser.value!.username,
+                  ),
+                  context,
+                ),
+              ),
+              _buildMenuItem(
+                context,
+                icon: Icons.person_add_alt_1_outlined,
+                title: t.common.followingList,
+                onTap: () => _handleLoginRequiredNavi(
+                  () => NaviService.navigateToFollowingListPage(
+                    userService.currentUser.value!.id,
+                    userService.currentUser.value!.name,
+                    userService.currentUser.value!.username,
+                  ),
+                  context,
+                ),
+              ),
+              _buildMenuItem(
+                context,
+                icon: Icons.group_outlined,
+                title: t.common.followersList,
+                onTap: () => _handleLoginRequiredNavi(
+                  () => NaviService.navigateToFollowersListPage(
+                    userService.currentUser.value!.id,
+                    userService.currentUser.value!.name,
+                    userService.currentUser.value!.username,
+                  ),
+                  context,
+                ),
+              ),
+
+              const Divider(indent: 16, endIndent: 16, height: 24),
+
+              // --- Tools Section ---
+              _buildSectionHeader(t.common.more),
+              _buildMenuItem(
+                context,
+                icon: Icons.block_flipped,
+                title: t.common.tagBlacklist,
+                onTap: () => _handleLoginRequiredNavi(
+                  NaviService.navigateToTagBlacklistPage,
+                  context,
+                ),
+              ),
+
+              const SizedBox(height: 16),
             ],
           ),
         ),
+        Obx(() => _buildBottomActions(context, t)),
       ],
     );
   }
 
-  Widget _buildHeader(BuildContext context, AppService globalDrawerService) {
+  // Helper for login required navigation
+  void _handleLoginRequiredNavi(VoidCallback naviCall, BuildContext context) {
+    if (userService.isLogin) {
+      naviCall();
+      AppService.switchGlobalDrawer();
+    } else {
+      AppService.switchGlobalDrawer();
+      _showLoginError(context);
+    }
+  }
+
+  void _showLoginError(BuildContext context) {
     final t = slang.Translations.of(context);
+    showToastWidget(
+      MDToastWidget(
+        message: t.errors.pleaseLoginFirst,
+        type: MDToastType.error,
+      ),
+      position: ToastPosition.top,
+    );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      child: Text(
+        title.toUpperCase(),
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          color: Get.theme.colorScheme.primary.withOpacity(0.7),
+          letterSpacing: 1.1,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMenuItem(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+    Widget? trailing,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                size: 22,
+                color: Get.isDarkMode ? Colors.white70 : Colors.black87,
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              if (trailing != null) trailing,
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final user = userService.currentUser.value;
+    // User模型目前没有headerId，暂时传null使用默认背景
+    final headerUrl = CommonConstants.userProfileHeaderUrl(null);
+
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: () {
+          AppService.switchGlobalDrawer();
           if (!userService.isLogin) {
-            AppService.switchGlobalDrawer();
             LoginService.showLogin();
           } else {
-            AppService.switchGlobalDrawer();
-            NaviService.navigateToAuthorProfilePage(
-                userService.currentUser.value!.username);
+            NaviService.navigateToAuthorProfilePage(user!.username);
           }
         },
         child: Container(
+          height: 160 + MediaQuery.paddingOf(context).top,
           width: double.infinity,
-          padding: EdgeInsets.fromLTRB(
-              16, MediaQuery.paddingOf(context).top + 16, 16, 16),
-          decoration: BoxDecoration(
-            color: Get.theme.primaryColor,
-            image: DecorationImage(
-              image: const CachedNetworkImageProvider(
-                CommonConstants.defaultAvatarUrl,
-                headers: {'referer': CommonConstants.iwaraBaseUrl},
-              ),
-              fit: BoxFit.cover,
-              colorFilter: ColorFilter.mode(
-                Colors.black.withValues(alpha: 0.5),
-                BlendMode.darken,
-              ),
-            ),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+          decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+          child: Stack(
             children: [
-              AvatarWidget(
-                user: userService.currentUser.value,
-                size: 70
+              Positioned.fill(
+                child: CachedNetworkImage(
+                  imageUrl: headerUrl,
+                  fit: BoxFit.cover,
+                  errorWidget: (context, url, error) =>
+                      Container(color: Theme.of(context).primaryColor),
+                  httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
+                ),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.black.withOpacity(0.1),
+                        Colors.black.withOpacity(0.6),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                left: 16,
+                right: 16,
+                bottom: 16,
+                child: Row(
                   children: [
-                    SizedBox(
-                      width: double.infinity,
-                      child: userService.isLogin 
-                          ? buildUserName(
+                    Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      child: AvatarWidget(user: user, size: 60),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (userService.isLogin) ...[
+                            buildUserName(
                               context,
-                              userService.currentUser.value,
-                              fontSize: 22,
+                              user,
+                              fontSize: 18,
                               bold: true,
                               defaultNameColor: Colors.white,
-                            )
-                          : Text(
-                              t.auth.notLoggedIn,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '@${user!.username}',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.8),
+                                fontSize: 13,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      userService.isLogin
-                          ? '@${userService.currentUser.value!.username}'
-                          : t.auth.clickToLogin,
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 14,
+                          ] else ...[
+                            Text(
+                              t.auth.notLoggedIn,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              t.auth.clickToLogin,
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.8),
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -304,79 +374,139 @@ class GlobalDrawerColumns extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuItem(IconData icon, String title, VoidCallback onTap) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: ListTile(
-        leading: Icon(icon, color: Get.isDarkMode ? Colors.white : null),
-        title: Text(title, style: const TextStyle(fontSize: 16)),
-        onTap: onTap,
-        trailing: _buildMenuItemBadge(title),
+  Widget _buildNotificationBadge() {
+    return Obx(() {
+      final count = userService.notificationCount.value;
+      return count > 0 ? _buildCountBadge(count) : const SizedBox.shrink();
+    });
+  }
+
+  Widget _buildMessageBadge() {
+    return Obx(() {
+      final count = userService.messagesCount.value;
+      return count > 0 ? _buildCountBadge(count) : const SizedBox.shrink();
+    });
+  }
+
+  Widget _buildFriendRequestBadge() {
+    return Obx(() {
+      final count = userService.friendRequestsCount.value;
+      return count > 0 ? _buildCountBadge(count) : const SizedBox.shrink();
+    });
+  }
+
+  Widget _buildCountBadge(int count) {
+    return Badge(
+      backgroundColor: Colors.redAccent,
+      label: Text(
+        count > 99 ? '99+' : count.toString(),
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
 
-  Widget? _buildMenuItemBadge(String title) {
-    final t = slang.Translations.of(Get.context!);
-    if (title == t.notifications.notifications) {
-      return Obx(() {
-        final count = userService.notificationCount.value;
-        if (count > 0) {
-          return Badge(
-            backgroundColor: Theme.of(Get.context!).colorScheme.error,
-            label: Text(
-              count.toString(),
-              style: TextStyle(
-                color: Theme.of(Get.context!).colorScheme.onError,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
+  Widget _buildBottomActions(BuildContext context, slang.Translations t) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        border: Border(
+          top: BorderSide(
+            color: Theme.of(context).dividerColor.withOpacity(0.1),
+          ),
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: Padding(
+          padding: EdgeInsets.only(
+            top: 4,
+            bottom: 4 + MediaQuery.paddingOf(context).bottom,
+            left: 12,
+            right: 12,
+          ),
+          child: Row(
+            children: [
+              _BottomActionItem(
+                icon: Icons.settings_outlined,
+                label: t.common.settings,
+                onTap: () {
+                  AppService.switchGlobalDrawer();
+                  NaviService.navigateToSettingsPage();
+                },
               ),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-          );
-        }
-        return const SizedBox.shrink();
-      });
-    } else if (title == t.common.friends) {
-      return Obx(() {
-        final count = userService.friendRequestsCount.value;
-        if (count > 0) {
-          return Badge(
-            backgroundColor: Theme.of(Get.context!).colorScheme.error,
-            label: Text(
-              count.toString(),
-              style: TextStyle(
-                color: Theme.of(Get.context!).colorScheme.onError,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
+              _BottomActionItem(
+                icon: Icons.link_outlined,
+                label: t.settings.jumpLink,
+                onTap: () => LinkInputDialogWidget.show(),
               ),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-          );
-        }
-        return const SizedBox.shrink();
-      });
-    } else if (title == t.conversation.conversation) {
-      return Obx(() {
-        final count = userService.messagesCount.value;
-        if (count > 0) {
-          return Badge(
-            backgroundColor: Theme.of(Get.context!).colorScheme.error,
-            label: Text(count.toString(), style: TextStyle(color: Theme.of(Get.context!).colorScheme.onError, fontSize: 12, fontWeight: FontWeight.w500)),
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-          );
-        }
-        return const SizedBox.shrink();
-      });
-    }
-    return null;
+              if (userService.isLogin)
+                _BottomActionItem(
+                  icon: Icons.logout_outlined,
+                  label: t.common.logout,
+                  onTap: () => _showLogoutDialog(context),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
-  void _showLogoutDialog(AppService globalDrawerService) {
+  void _showLogoutDialog(BuildContext context) {
     AppService.switchGlobalDrawer();
     Get.dialog(
       LogoutDialog(userService: userService),
       barrierDismissible: true,
+    );
+  }
+}
+
+class _BottomActionItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _BottomActionItem({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        hoverColor: theme.colorScheme.primary.withOpacity(0.08),
+        highlightColor: theme.colorScheme.primary.withOpacity(0.12),
+        splashColor: theme.colorScheme.primary.withOpacity(0.12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 22, color: theme.colorScheme.onSurfaceVariant),
+              const SizedBox(height: 6),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  color: theme.colorScheme.onSurfaceVariant,
+                  letterSpacing: 0.3,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

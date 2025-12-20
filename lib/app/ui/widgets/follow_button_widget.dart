@@ -19,11 +19,7 @@ class FollowButtonWidget extends StatefulWidget {
   final User user;
   final Function(User user)? onUserUpdated;
 
-  const FollowButtonWidget({
-    super.key,
-    required this.user,
-    this.onUserUpdated,
-  });
+  const FollowButtonWidget({super.key, required this.user, this.onUserUpdated});
 
   @override
   State<FollowButtonWidget> createState() => _FollowButtonWidgetState();
@@ -42,7 +38,10 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
   }
 
   // 构建加载中的按钮
-  Widget _buildLoadingButton({bool isFollowing = false, required BuildContext context}) {
+  Widget _buildLoadingButton({
+    bool isFollowing = false,
+    required BuildContext context,
+  }) {
     return Shimmer.fromColors(
       baseColor: Colors.grey.shade300,
       highlightColor: Colors.grey.shade100,
@@ -62,8 +61,9 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
   void _showFollowOptionsSheet(BuildContext context) {
     final t = slang.Translations.of(context);
     final RxBool isProcessing = false.obs;
-    final UserDTO? likedUser =
-        _userPreferenceService.getLikedUser(_currentUser.id);
+    final UserDTO? likedUser = _userPreferenceService.getLikedUser(
+      _currentUser.id,
+    );
 
     Get.bottomSheet(
       Obx(
@@ -82,7 +82,11 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
                   likedUser != null ? Icons.star : Icons.star_border,
                   color: likedUser != null ? Colors.amber : null,
                 ),
-                title: Text(likedUser != null ? t.common.cancelSpecialFollow : t.common.specialFollow),
+                title: Text(
+                  likedUser != null
+                      ? t.common.cancelSpecialFollow
+                      : t.common.specialFollow,
+                ),
                 trailing: isProcessing.value
                     ? const SizedBox(
                         width: 16,
@@ -94,20 +98,27 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
                   VibrateUtils.vibrate();
                   final UserService userService = Get.find();
                   if (!userService.isLogin) {
-                    showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error));
+                    showToastWidget(
+                      MDToastWidget(
+                        message: t.errors.pleaseLoginFirst,
+                        type: MDToastType.error,
+                      ),
+                    );
                     Get.toNamed(Routes.LOGIN);
                     return;
                   }
                   if (likedUser != null) {
                     _userPreferenceService.removeLikedUser(likedUser);
                   } else {
-                    _userPreferenceService.addLikedUser(UserDTO(
-                      id: _currentUser.id,
-                      name: _currentUser.name,
-                      username: _currentUser.username,
-                      avatarUrl: _currentUser.avatar?.avatarUrl ?? '',
-                      likedTime: DateTime.now(),
-                    ));
+                    _userPreferenceService.addLikedUser(
+                      UserDTO(
+                        id: _currentUser.id,
+                        name: _currentUser.name,
+                        username: _currentUser.username,
+                        avatarUrl: _currentUser.avatar?.avatarUrl ?? '',
+                        likedTime: DateTime.now(),
+                      ),
+                    );
                   }
                   if (Get.isBottomSheetOpen ?? false) {
                     Get.closeAllBottomSheets();
@@ -129,17 +140,24 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
                   VibrateUtils.vibrate();
                   final UserService userService = Get.find();
                   if (!userService.isLogin) {
-                    showToastWidget(MDToastWidget(message: t.errors.pleaseLoginFirst, type: MDToastType.error));
+                    showToastWidget(
+                      MDToastWidget(
+                        message: t.errors.pleaseLoginFirst,
+                        type: MDToastType.error,
+                      ),
+                    );
                     LoginService.showLogin();
                     return;
                   }
                   isProcessing.value = true;
                   try {
-                    final result =
-                        await _userService.unfollowUser(_currentUser.id);
+                    final result = await _userService.unfollowUser(
+                      _currentUser.id,
+                    );
                     if (result.isSuccess) {
-                      final likedUser =
-                          _userPreferenceService.getLikedUser(_currentUser.id);
+                      final likedUser = _userPreferenceService.getLikedUser(
+                        _currentUser.id,
+                      );
                       if (likedUser != null) {
                         _userPreferenceService.removeLikedUser(likedUser);
                       }
@@ -156,10 +174,22 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
                         Get.closeAllBottomSheets();
                       }
                     } else {
-                      showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error),position: ToastPosition.top);
+                      showToastWidget(
+                        MDToastWidget(
+                          message: result.message,
+                          type: MDToastType.error,
+                        ),
+                        position: ToastPosition.top,
+                      );
                     }
                   } catch (e) {
-                    showToastWidget(MDToastWidget(message: t.errors.failedToOperate, type: MDToastType.error),position: ToastPosition.top);
+                    showToastWidget(
+                      MDToastWidget(
+                        message: t.errors.failedToOperate,
+                        type: MDToastType.error,
+                      ),
+                      position: ToastPosition.top,
+                    );
                   } finally {
                     isProcessing.value = false;
                   }
@@ -183,7 +213,10 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
     }
 
     if (_isLoading) {
-      return _buildLoadingButton(isFollowing: _currentUser.following, context: context);
+      return _buildLoadingButton(
+        isFollowing: _currentUser.following,
+        context: context,
+      );
     }
 
     if (!_currentUser.following) {
@@ -203,28 +236,43 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
               });
               widget.onUserUpdated?.call(updatedUser);
               final configService = Get.find<ConfigService>();
-              final showFollowTipCount = configService[ConfigKey.SHOW_FOLLOW_TIP_COUNT] as int;
-              final random = Random ();
+              final showFollowTipCount =
+                  configService[ConfigKey.SHOW_FOLLOW_TIP_COUNT] as int;
+              final random = Random();
               if (showFollowTipCount > 0) {
-                final shouldShow = showFollowTipCount > 0 && random.nextDouble() < 0.5;
+                final shouldShow =
+                    showFollowTipCount > 0 && random.nextDouble() < 0.5;
                 if (shouldShow) {
                   Get.showSnackbar(
                     GetSnackBar(
-                  message: "🔔 ${t.common.followSuccessClickAgainToSpecialFollow}",
-                  duration: const Duration(seconds: 3),
-                  backgroundColor: Colors.green,
+                      message:
+                          "🔔 ${t.common.followSuccessClickAgainToSpecialFollow}",
+                      duration: const Duration(seconds: 3),
+                      backgroundColor: Colors.green,
                     ),
                   );
 
                   final newCount = max(0, showFollowTipCount - 1);
-                  configService.setSetting(ConfigKey.SHOW_FOLLOW_TIP_COUNT, newCount);
+                  configService.setSetting(
+                    ConfigKey.SHOW_FOLLOW_TIP_COUNT,
+                    newCount,
+                  );
                 }
               }
             } else {
-              showToastWidget(MDToastWidget(message: result.message, type: MDToastType.error),position: ToastPosition.top);
+              showToastWidget(
+                MDToastWidget(message: result.message, type: MDToastType.error),
+                position: ToastPosition.top,
+              );
             }
           } catch (e) {
-            showToastWidget(MDToastWidget(message: t.errors.failedToOperate, type: MDToastType.error),position: ToastPosition.top);
+            showToastWidget(
+              MDToastWidget(
+                message: t.errors.failedToOperate,
+                type: MDToastType.error,
+              ),
+              position: ToastPosition.top,
+            );
           } finally {
             setState(() {
               _isLoading = false;
@@ -236,12 +284,25 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
       );
     }
 
-    return ElevatedButton.icon(
-      onPressed: () {
-        _showFollowOptionsSheet(context);
-      },
-      icon: const Icon(Icons.check, size: 18),
-      label: Text(t.common.followed),
-    );
+    return Obx(() {
+      final isSpecialFollowed = _userPreferenceService.likedUsers.any(
+        (u) => u.id == _currentUser.id,
+      );
+      return ElevatedButton.icon(
+        style: isSpecialFollowed
+            ? ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                foregroundColor: Theme.of(
+                  context,
+                ).colorScheme.onPrimaryContainer,
+              )
+            : null,
+        onPressed: () {
+          _showFollowOptionsSheet(context);
+        },
+        icon: Icon(isSpecialFollowed ? Icons.stars : Icons.check, size: 18),
+        label: Text(t.common.followed),
+      );
+    });
   }
 }

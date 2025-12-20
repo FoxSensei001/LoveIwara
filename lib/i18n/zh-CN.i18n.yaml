@@ -318,7 +318,6 @@ errors:
   resourceNotFound: 资源不存在
   failedToSaveCredentials: "无法安全保存登录信息"
   failedToLoadSavedCredentials: "加载保存的登录信息失败"
-  specialFollowLimitReached: '特别关注上限超出，上限: ${cnt}，请于关注列表页中调整'
   notFound: '内容不存在或已被删除'
   network:
     basicPrefix: '网络错误 - '

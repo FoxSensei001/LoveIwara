@@ -33,16 +33,16 @@ class _TagBlacklistPageState extends State<TagBlacklistPage> {
     return Obx(() {
       if (controller.isSaving.value) {
         return Shimmer.fromColors(
-          baseColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+          baseColor: Theme.of(
+            context,
+          ).colorScheme.primary.withValues(alpha: 0.5),
           highlightColor: Theme.of(context).colorScheme.primary,
           child: TextButton.icon(
             onPressed: null,
             icon: const Icon(Icons.save),
             label: Text(
               t.common.save,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.primary,
-              ),
+              style: TextStyle(color: Theme.of(context).colorScheme.primary),
             ),
           ),
         );
@@ -58,9 +58,7 @@ class _TagBlacklistPageState extends State<TagBlacklistPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(t.common.tagBlacklist),
-      ),
+      appBar: AppBar(title: Text(t.common.tagBlacklist)),
       body: Obx(() {
         Widget content;
         if (controller.isLoading.value && controller.blacklistTags.isEmpty) {
@@ -70,7 +68,9 @@ class _TagBlacklistPageState extends State<TagBlacklistPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Shimmer.fromColors(
-                  baseColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  baseColor: Theme.of(
+                    context,
+                  ).colorScheme.surfaceContainerHighest,
                   highlightColor: Theme.of(context).colorScheme.surface,
                   child: Container(
                     width: 150,
@@ -85,18 +85,23 @@ class _TagBlacklistPageState extends State<TagBlacklistPage> {
                 Wrap(
                   spacing: 8.0,
                   runSpacing: 8.0,
-                  children: List.generate(6, (index) => Shimmer.fromColors(
-                    baseColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                    highlightColor: Theme.of(context).colorScheme.surface,
-                    child: Container(
-                      width: 80 + (index % 2) * 20,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
+                  children: List.generate(
+                    6,
+                    (index) => Shimmer.fromColors(
+                      baseColor: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerHighest,
+                      highlightColor: Theme.of(context).colorScheme.surface,
+                      child: Container(
+                        width: 80 + (index % 2) * 20,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                       ),
                     ),
-                  )),
+                  ),
                 ),
               ],
             ),
@@ -107,6 +112,21 @@ class _TagBlacklistPageState extends State<TagBlacklistPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(t.errors.failedToFetchData),
+                if (controller.errorMessage.value.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      top: 8.0,
+                      left: 16.0,
+                      right: 16.0,
+                    ),
+                    child: Text(
+                      controller.errorMessage.value,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Colors.grey),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
                 const SizedBox(height: 16),
                 ElevatedButton.icon(
                   onPressed: controller.fetchBlacklistTags,
@@ -119,11 +139,7 @@ class _TagBlacklistPageState extends State<TagBlacklistPage> {
         } else if (controller.blacklistTags.isEmpty) {
           content = Column(
             children: [
-              Expanded(
-                child: MyEmptyWidget(
-                  message: t.common.noData,
-                ),
-              ),
+              Expanded(child: MyEmptyWidget(message: t.common.noData)),
               const Divider(height: 32),
               Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -136,8 +152,14 @@ class _TagBlacklistPageState extends State<TagBlacklistPage> {
                         Get.dialog(
                           BlackListTagSearchDialog(
                             onSave: (tags) async {
-                              final currentTagIds = controller.blacklistTags.map((tag) => tag.id).toList();
-                              final newTags = tags.where((tag) => !currentTagIds.contains(tag.id)).toList();
+                              final currentTagIds = controller.blacklistTags
+                                  .map((tag) => tag.id)
+                                  .toList();
+                              final newTags = tags
+                                  .where(
+                                    (tag) => !currentTagIds.contains(tag.id),
+                                  )
+                                  .toList();
                               return controller.addTags(newTags);
                             },
                           ),
@@ -191,8 +213,15 @@ class _TagBlacklistPageState extends State<TagBlacklistPage> {
                             Get.dialog(
                               BlackListTagSearchDialog(
                                 onSave: (tags) async {
-                                  final currentTagIds = controller.blacklistTags.map((tag) => tag.id).toList();
-                                  final newTags = tags.where((tag) => !currentTagIds.contains(tag.id)).toList();
+                                  final currentTagIds = controller.blacklistTags
+                                      .map((tag) => tag.id)
+                                      .toList();
+                                  final newTags = tags
+                                      .where(
+                                        (tag) =>
+                                            !currentTagIds.contains(tag.id),
+                                      )
+                                      .toList();
                                   return controller.addTags(newTags);
                                 },
                               ),
@@ -209,7 +238,7 @@ class _TagBlacklistPageState extends State<TagBlacklistPage> {
             ),
           );
         }
-  
+
         return Column(
           children: [
             // 移除未保存提醒横幅
@@ -230,4 +259,4 @@ class _TagBlacklistPageState extends State<TagBlacklistPage> {
       color: tag.type == 'ecchi' ? Colors.red : null,
     );
   }
-} 
+}

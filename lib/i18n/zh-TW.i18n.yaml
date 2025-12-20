@@ -309,7 +309,6 @@ errors:
   resourceNotFound: 資源不存在
   failedToSaveCredentials: "無法安全儲存登入資訊"
   failedToLoadSavedCredentials: "載入儲存的登入資訊失敗"
-  specialFollowLimitReached: '特別關注上限超出，上限: ${cnt}，請於關注列表頁中調整'
   notFound: '內容不存在或已被刪除'
   network:
     basicPrefix: '網路錯誤 - '

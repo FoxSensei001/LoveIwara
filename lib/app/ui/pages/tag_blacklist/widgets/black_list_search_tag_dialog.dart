@@ -9,23 +9,23 @@ import 'package:i_iwara/i18n/strings.g.dart';
 class BlackListTagSearchDialog extends StatefulWidget {
   final Future<bool> Function(List<Tag>) onSave;
 
-  const BlackListTagSearchDialog({
-    super.key,
-    required this.onSave,
-  });
+  const BlackListTagSearchDialog({super.key, required this.onSave});
 
   @override
-  State<BlackListTagSearchDialog> createState() => _BlackListTagSearchDialogState();
+  State<BlackListTagSearchDialog> createState() =>
+      _BlackListTagSearchDialogState();
 }
 
 class _BlackListTagSearchDialogState extends State<BlackListTagSearchDialog> {
   final ScrollController scrollController = ScrollController();
   final TextEditingController textEditingController = TextEditingController();
   final TagService _tagService = Get.find<TagService>();
-  
+
   final RxList<Tag> tags = <Tag>[].obs;
   final RxList<Tag> selectedTags = <Tag>[].obs;
   final RxBool isLoading = false.obs;
+  final RxBool hasError = false.obs;
+  final RxString errorMessage = ''.obs;
   final RxBool hasMore = false.obs;
   int currentPage = 0;
 
@@ -37,7 +37,8 @@ class _BlackListTagSearchDialogState extends State<BlackListTagSearchDialog> {
   }
 
   void _scrollListener() {
-    if (scrollController.position.pixels == scrollController.position.maxScrollExtent) {
+    if (scrollController.position.pixels ==
+        scrollController.position.maxScrollExtent) {
       if (!isLoading.value && hasMore.value) {
         _searchTags(loadMore: true);
       }
@@ -46,8 +47,10 @@ class _BlackListTagSearchDialogState extends State<BlackListTagSearchDialog> {
 
   Future<void> _searchTags({bool loadMore = false}) async {
     if (isLoading.value) return;
-    
+
     isLoading.value = true;
+    hasError.value = false;
+    errorMessage.value = '';
     if (!loadMore) {
       currentPage = 0;
       tags.clear();
@@ -56,9 +59,10 @@ class _BlackListTagSearchDialogState extends State<BlackListTagSearchDialog> {
 
     try {
       final result = await _tagService.fetchTags(
-          page: currentPage, limit: 20, params: {
-        'filter': textEditingController.text,
-      });
+        page: currentPage,
+        limit: 20,
+        params: {'filter': textEditingController.text},
+      );
 
       if (result.isSuccess && result.data != null) {
         if (loadMore) {
@@ -68,7 +72,13 @@ class _BlackListTagSearchDialogState extends State<BlackListTagSearchDialog> {
         }
         hasMore.value = tags.length < result.data!.count;
         currentPage++;
+      } else {
+        hasError.value = true;
+        errorMessage.value = result.message;
       }
+    } catch (e) {
+      hasError.value = true;
+      errorMessage.value = e.toString();
     } finally {
       isLoading.value = false;
     }
@@ -84,9 +94,7 @@ class _BlackListTagSearchDialogState extends State<BlackListTagSearchDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: ConstrainedBox(
         constraints: const BoxConstraints(
           maxWidth: 1200,
@@ -139,6 +147,38 @@ class _BlackListTagSearchDialogState extends State<BlackListTagSearchDialog> {
               }
 
               if (tags.isEmpty) {
+                if (hasError.value) {
+                  return Expanded(
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(t.errors.errorWhileFetching),
+                          if (errorMessage.value.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                top: 8.0,
+                                left: 16.0,
+                                right: 16.0,
+                              ),
+                              child: Text(
+                                errorMessage.value,
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(color: Colors.grey),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          const SizedBox(height: 16),
+                          ElevatedButton.icon(
+                            onPressed: () => _searchTags(),
+                            icon: const Icon(Icons.refresh),
+                            label: Text(t.common.refresh),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
                 return Expanded(child: MyEmptyWidget(message: t.common.noData));
               }
 
@@ -155,16 +195,18 @@ class _BlackListTagSearchDialogState extends State<BlackListTagSearchDialog> {
                     return ListTile(
                       title: Text(tag.id, style: const TextStyle(fontSize: 16)),
                       subtitle: _buildTagRatings(tag, context),
-                      trailing: Obx(() => Checkbox(
-                        value: selectedTags.contains(tag),
-                        onChanged: (bool? value) {
-                          if (value == true) {
-                            selectedTags.add(tag);
-                          } else {
-                            selectedTags.remove(tag);
-                          }
-                        },
-                      )),
+                      trailing: Obx(
+                        () => Checkbox(
+                          value: selectedTags.contains(tag),
+                          onChanged: (bool? value) {
+                            if (value == true) {
+                              selectedTags.add(tag);
+                            } else {
+                              selectedTags.remove(tag);
+                            }
+                          },
+                        ),
+                      ),
                       onTap: () {
                         if (selectedTags.contains(tag)) {
                           selectedTags.remove(tag);
@@ -194,15 +236,21 @@ class _BlackListTagSearchDialogState extends State<BlackListTagSearchDialog> {
         if (tag.type == 'ecchi') ...[
           const Icon(Icons.local_offer, size: 16, color: Colors.red),
           const SizedBox(width: 4),
-          Text(t.common.r18, style: const TextStyle(fontSize: 12, color: Colors.red)),
+          Text(
+            t.common.r18,
+            style: const TextStyle(fontSize: 12, color: Colors.red),
+          ),
         ],
         if (tag.sensitive) ...[
           const SizedBox(width: 8),
           const Icon(Icons.warning, size: 16, color: Colors.red),
           const SizedBox(width: 4),
-          Text(t.common.sensitive, style: const TextStyle(fontSize: 12, color: Colors.red)),
-        ]
+          Text(
+            t.common.sensitive,
+            style: const TextStyle(fontSize: 12, color: Colors.red),
+          ),
+        ],
       ],
     );
   }
-} 
+}

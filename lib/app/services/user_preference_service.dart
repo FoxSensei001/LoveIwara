@@ -4,11 +4,9 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/dto/user_dto.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/repositories/commons_repository.dart';
-import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/models/search_record.model.dart';
-import 'package:oktoast/oktoast.dart';
-import 'package:i_iwara/i18n/strings.g.dart';
+
 class UserPreferenceService extends GetxService {
   final String _tag = 'UserPreferenceService';
 
@@ -22,7 +20,6 @@ class UserPreferenceService extends GetxService {
   final RxList<UserDTO> likedUsers = <UserDTO>[].obs;
 
   final int maxSearchRecordCount = 50;
-  final int maxLikedUsersCount = 30;  // 最大特别关注数量限制
 
   final String _videoSearchHistoryKey = 'videoSearchHistory';
   final String _videoSearchTagHistoryKey = 'videoSearchTagHistory';
@@ -62,8 +59,9 @@ class UserPreferenceService extends GetxService {
   // 加载搜索记录开关状态
   Future<void> _loadSearchRecordEnabled() async {
     try {
-      final String? data = 
-          await CommonsRepository.instance.getData(_searchRecordEnabledKey);
+      final String? data = await CommonsRepository.instance.getData(
+        _searchRecordEnabledKey,
+      );
       if (data != null) {
         searchRecordEnabled.value = data == 'true';
       }
@@ -88,12 +86,14 @@ class UserPreferenceService extends GetxService {
   // 加载喜欢的用户
   Future<void> _loadUserLikeUsernames() async {
     try {
-      final String? data =
-          await CommonsRepository.instance.getData(_likedUsers);
+      final String? data = await CommonsRepository.instance.getData(
+        _likedUsers,
+      );
       if (data != null && data.isNotEmpty) {
         List<dynamic> list = jsonDecode(data);
         likedUsers.addAll(
-            list.map((e) => UserDTO.fromJson(e as Map<String, dynamic>)));
+          list.map((e) => UserDTO.fromJson(e as Map<String, dynamic>)),
+        );
       }
     } catch (e) {
       LogUtils.e('加载喜欢的用户失败', tag: _tag, error: e);
@@ -104,12 +104,14 @@ class UserPreferenceService extends GetxService {
   // 加载视频搜索历史
   Future<void> _loadVideoSearchHistory() async {
     try {
-      final String? data =
-          await CommonsRepository.instance.getData(_videoSearchHistoryKey);
+      final String? data = await CommonsRepository.instance.getData(
+        _videoSearchHistoryKey,
+      );
       if (data != null && data.isNotEmpty) {
         List<dynamic> list = jsonDecode(data);
         videoSearchHistory.addAll(
-            list.map((e) => SearchRecord.fromJson(e as Map<String, dynamic>)));
+          list.map((e) => SearchRecord.fromJson(e as Map<String, dynamic>)),
+        );
       }
     } catch (e) {
       LogUtils.e('加载视频搜索历史失败', tag: _tag, error: e);
@@ -120,12 +122,14 @@ class UserPreferenceService extends GetxService {
   // 加载视频搜索标签
   Future<void> _loadVideoSearchTagHistory() async {
     try {
-      final String? data =
-          await CommonsRepository.instance.getData(_videoSearchTagHistoryKey);
+      final String? data = await CommonsRepository.instance.getData(
+        _videoSearchTagHistoryKey,
+      );
       if (data != null && data.isNotEmpty) {
         List<dynamic> list = jsonDecode(data);
-        List<Tag> tags =
-            list.map((e) => Tag.fromJson(e as Map<String, dynamic>)).toList();
+        List<Tag> tags = list
+            .map((e) => Tag.fromJson(e as Map<String, dynamic>))
+            .toList();
         videoSearchTagHistory.addAll(tags);
       }
     } catch (e) {
@@ -136,9 +140,10 @@ class UserPreferenceService extends GetxService {
 
   // 添加视频搜索历史
   Future<void> addVideoSearchHistory(String keyword) async {
-    var existingRecord = videoSearchHistory
-        .firstWhereOrNull((element) => element.keyword == keyword);
-    
+    var existingRecord = videoSearchHistory.firstWhereOrNull(
+      (element) => element.keyword == keyword,
+    );
+
     if (existingRecord != null) {
       existingRecord.usedTimes++;
       videoSearchHistory.remove(existingRecord);
@@ -146,10 +151,7 @@ class UserPreferenceService extends GetxService {
     } else {
       videoSearchHistory.insert(
         0,
-        SearchRecord(
-          keyword: keyword,
-          lastUsedAt: DateTime.now(),
-        ),
+        SearchRecord(keyword: keyword, lastUsedAt: DateTime.now()),
       );
     }
 
@@ -198,8 +200,9 @@ class UserPreferenceService extends GetxService {
     }
     videoSearchTagHistory.insert(0, tag);
     try {
-      List<Map<String, dynamic>> tagList =
-          videoSearchTagHistory.map((e) => e.toJson()).toList();
+      List<Map<String, dynamic>> tagList = videoSearchTagHistory
+          .map((e) => e.toJson())
+          .toList();
       await CommonsRepository.instance.setData(
         _videoSearchTagHistoryKey,
         jsonEncode(tagList),
@@ -225,8 +228,9 @@ class UserPreferenceService extends GetxService {
   // 保存视频搜索标签到数据库
   Future<void> _saveVideoSearchTagHistory() async {
     try {
-      List<Map<String, dynamic>> tagList =
-          videoSearchTagHistory.map((e) => e.toJson()).toList();
+      List<Map<String, dynamic>> tagList = videoSearchTagHistory
+          .map((e) => e.toJson())
+          .toList();
       await CommonsRepository.instance.setData(
         _videoSearchTagHistoryKey,
         jsonEncode(tagList),
@@ -249,12 +253,15 @@ class UserPreferenceService extends GetxService {
   // 同步内存和持久化状态
   Future<void> syncLikedUsers() async {
     try {
-      final String? data = await CommonsRepository.instance.getData(_likedUsers);
+      final String? data = await CommonsRepository.instance.getData(
+        _likedUsers,
+      );
       if (data != null && data.isNotEmpty) {
         List<dynamic> list = jsonDecode(data);
-        final persistedUsers = list.map((e) => 
-            UserDTO.fromJson(e as Map<String, dynamic>)).toList();
-        
+        final persistedUsers = list
+            .map((e) => UserDTO.fromJson(e as Map<String, dynamic>))
+            .toList();
+
         // 使用事务更新内存状态
         likedUsers.assignAll(persistedUsers);
       }
@@ -266,21 +273,8 @@ class UserPreferenceService extends GetxService {
 
   // 添加用户的安全版本
   Future<bool> addLikedUser(UserDTO user) async {
-    // 使用锁或信号量保护并发访问
     if (likedUsers.any((element) => element.id == user.id)) {
       return true;
-    }
-
-    if (likedUsers.length >= maxLikedUsersCount) {
-      showToastWidget(
-        MDToastWidget(
-          message: t.errors.specialFollowLimitReached(cnt: maxLikedUsersCount),
-          type: MDToastType.error
-        ),
-        position: ToastPosition.bottom,
-        duration: const Duration(seconds: 5)
-      );
-      return false;
     }
 
     try {
@@ -291,7 +285,7 @@ class UserPreferenceService extends GetxService {
         avatarUrl: user.avatarUrl,
         likedTime: DateTime.now(),
       );
-      
+
       likedUsers.insert(0, userWithTime);
       await saveLikedUsers();
       return true;
@@ -353,5 +347,4 @@ class UserPreferenceService extends GetxService {
       LogUtils.e('保存特别关注列表失败', tag: _tag, error: e);
     }
   }
-
 }

@@ -11,6 +11,7 @@ class FollowsPage extends StatefulWidget {
   final String name;
   final String username;
   final bool initIsFollowing;
+  final int? initialIndex;
 
   const FollowsPage({
     super.key,
@@ -18,6 +19,7 @@ class FollowsPage extends StatefulWidget {
     required this.name,
     required this.username,
     required this.initIsFollowing,
+    this.initialIndex,
   });
 
   @override
@@ -32,14 +34,17 @@ class _FollowsPageState extends State<FollowsPage>
   @override
   void initState() {
     super.initState();
-    controller = Get.put(FollowsController(
-      userId: widget.userId,
-      initIsFollowing: widget.initIsFollowing,
-    ), tag: widget.userId);
+    controller = Get.put(
+      FollowsController(
+        userId: widget.userId,
+        initIsFollowing: widget.initIsFollowing,
+      ),
+      tag: widget.userId,
+    );
     _tabController = TabController(
       length: 3,
       vsync: this,
-      initialIndex: widget.initIsFollowing ? 0 : 1,
+      initialIndex: widget.initialIndex ?? (widget.initIsFollowing ? 0 : 1),
     );
   }
 
@@ -68,8 +73,7 @@ class _FollowsPageState extends State<FollowsPage>
           dividerColor: Colors.transparent,
           // 标签样式
           labelColor: Theme.of(context).colorScheme.onPrimary,
-          unselectedLabelColor:
-              Theme.of(context).colorScheme.onSurfaceVariant,
+          unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
           labelStyle: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 16,
@@ -100,4 +104,4 @@ class _FollowsPageState extends State<FollowsPage>
       ),
     );
   }
-} 
+}

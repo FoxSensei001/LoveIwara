@@ -8,9 +8,10 @@ import 'package:flutter/foundation.dart';
 
 class TagBlacklistController extends GetxController {
   final UserService _userService = Get.find<UserService>();
-  
+
   final RxBool isLoading = false.obs;
   final RxBool hasError = false.obs;
+  final RxString errorMessage = ''.obs;
   final RxList<Tag> blacklistTags = <Tag>[].obs;
   final RxBool isSaving = false.obs;
 
@@ -37,6 +38,7 @@ class TagBlacklistController extends GetxController {
   Future<void> fetchBlacklistTags() async {
     isLoading.value = true;
     hasError.value = false;
+    errorMessage.value = '';
     try {
       final result = await _userService.fetchProfileUser();
       if (result.isSuccess && result.data != null) {
@@ -45,17 +47,20 @@ class TagBlacklistController extends GetxController {
         initialTagIds.value = blacklistTags.map((tag) => tag.id).toList();
       } else {
         hasError.value = true;
-        showToastWidget(MDToastWidget(
-          message: result.message,
-          type: MDToastType.error,
-        ));
+        errorMessage.value = result.message;
+        showToastWidget(
+          MDToastWidget(message: result.message, type: MDToastType.error),
+        );
       }
     } catch (e) {
       hasError.value = true;
-      showToastWidget(MDToastWidget(
-        message: t.errors.failedToFetchData,
-        type: MDToastType.error,
-      ));
+      errorMessage.value = e.toString();
+      showToastWidget(
+        MDToastWidget(
+          message: t.errors.failedToFetchData,
+          type: MDToastType.error,
+        ),
+      );
     } finally {
       isLoading.value = false;
     }
@@ -69,23 +74,23 @@ class TagBlacklistController extends GetxController {
         blacklistTags.map((tag) => tag.id).toList(),
       );
       if (result.isSuccess) {
-        showToastWidget(MDToastWidget(
-          message: t.common.success,
-          type: MDToastType.success,
-        ));
+        showToastWidget(
+          MDToastWidget(message: t.common.success, type: MDToastType.success),
+        );
         // 更新初始状态为当前保存成功的状态
         initialTagIds.value = blacklistTags.map((tag) => tag.id).toList();
       } else {
-        showToastWidget(MDToastWidget(
-          message: result.message,
-          type: MDToastType.error,
-        ));
+        showToastWidget(
+          MDToastWidget(message: result.message, type: MDToastType.error),
+        );
       }
     } catch (e) {
-      showToastWidget(MDToastWidget(
-        message: t.errors.failedToOperate,
-        type: MDToastType.error,
-      ));
+      showToastWidget(
+        MDToastWidget(
+          message: t.errors.failedToOperate,
+          type: MDToastType.error,
+        ),
+      );
     } finally {
       isSaving.value = false;
     }
@@ -100,10 +105,12 @@ class TagBlacklistController extends GetxController {
   bool addTags(List<Tag> tags) {
     // 检查是否超出限制
     if (blacklistTags.length + tags.length > tagLimit) {
-      showToastWidget(MDToastWidget(
-        message: t.errors.tagLimitExceeded(limit: tagLimit),
-        type: MDToastType.error,
-      ));
+      showToastWidget(
+        MDToastWidget(
+          message: t.errors.tagLimitExceeded(limit: tagLimit),
+          type: MDToastType.error,
+        ),
+      );
       return false;
     }
 
@@ -115,4 +122,4 @@ class TagBlacklistController extends GetxController {
     }
     return true;
   }
-} 
+}

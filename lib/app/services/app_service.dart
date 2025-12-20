@@ -363,6 +363,23 @@ class NaviService {
     );
   }
 
+  static void navigateToSpecialFollowsListPage(
+    String userId,
+    String name,
+    String username,
+  ) {
+    _navigateToPage(
+      routeName: Routes.FOLLOWING_LIST(userId), // Reusing following list route
+      page: FollowsPage(
+        userId: userId,
+        name: name,
+        username: username,
+        initIsFollowing: true,
+        initialIndex: 2,
+      ),
+    );
+  }
+
   /// 跳转到帖子详情页
   static void navigateToPostDetailPage(String id, PostModel? post) {
     _navigateToPage(

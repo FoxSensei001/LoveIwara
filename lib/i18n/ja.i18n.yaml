@@ -312,7 +312,6 @@ errors:
   resourceNotFound: リソースが見つかりません
   failedToSaveCredentials: "ログイン情報の保存に失敗しました"
   failedToLoadSavedCredentials: "保存されたログイン情報の読み込みに失敗しました"
-  specialFollowLimitReached: '特別フォローの上限を超えています。上限: ${cnt}，フォローリストページで調整してください'
   notFound: 'コンテンツが見つかりませんまたは削除されました'
   network:
     basicPrefix: 'ネットワークエラー - '
