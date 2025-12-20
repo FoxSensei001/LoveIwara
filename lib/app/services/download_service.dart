@@ -729,12 +729,12 @@ class DownloadService extends GetxService {
                 );
 
                 // 先释放资源，再把错误交给外层处理（重试或失败）
-                await _cleanupDownload(task, raf, subscription);
+                await _releaseResources(task, raf, subscription);
                 completer.completeError(integrityError);
                 return; // 必须 return，避免继续走“成功完成”的逻辑
               }
             } catch (e) {
-              await _cleanupDownload(task, raf, subscription);
+              await _releaseResources(task, raf, subscription);
               completer.completeError(e);
               return;
             }
@@ -750,7 +750,7 @@ class DownloadService extends GetxService {
           onError: (error) async {
             LogUtils.e('下载出错: $error', tag: 'DownloadService', error: error);
             try {
-              await _cleanupDownload(task, raf, subscription);
+              await _releaseResources(task, raf, subscription);
 
               // 如果是连接中断错误，尝试重试
               if (error is HttpException &&
@@ -930,8 +930,8 @@ class DownloadService extends GetxService {
     }
   }
 
-  // 添加辅助方法
-  Future<void> _cleanupDownload(
+  // 释放资源（不移除 activeDownloads）
+  Future<void> _releaseResources(
     DownloadTask task,
     RandomAccessFile? raf,
     StreamSubscription? subscription,
@@ -947,11 +947,20 @@ class DownloadService extends GetxService {
       }
     }
 
-    _activeDownloads.remove(task.id);
-
     // 清理任务专用的计时器
     _taskTimers[task.id]?.cancel();
     _taskTimers.remove(task.id);
+  }
+
+  // 完全清理下载任务（移除 activeDownloads）
+  Future<void> _cleanupDownload(
+    DownloadTask task,
+    RandomAccessFile? raf,
+    StreamSubscription? subscription,
+  ) async {
+    await _releaseResources(task, raf, subscription);
+
+    _activeDownloads.remove(task.id);
 
     // 清理进度节流记录
     _lastNotifyTime.remove(task.id);

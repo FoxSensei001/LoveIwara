@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart' as d_dio;
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/models/page_data.model.dart';
@@ -37,6 +38,7 @@ class VideoService extends GetxService {
     int page = 0,
     int limit = 20,
     String? url,
+    bool skipAuthWait = false,
   }) async {
     try {
       // [HACK_IMPLEMENT] 如果params里有的值为空字符串，则去掉key
@@ -44,11 +46,11 @@ class VideoService extends GetxService {
       params = Map<String, dynamic>.from(params)
         ..removeWhere((key, value) => value == '');
       url ??= ApiConstants.videos();
-      final response = await _apiService.get(url, queryParameters: {
-        ...params,
-        'page': page,
-        'limit': limit,
-      });
+      final response = await _apiService.get(
+        url,
+        queryParameters: {...params, 'page': page, 'limit': limit},
+        options: d_dio.Options(extra: {'skipAuthWait': skipAuthWait}),
+      );
 
       final List<Video> results = (response.data['results'] as List)
           .map((video) => Video.fromJson(video))
@@ -71,11 +73,17 @@ class VideoService extends GetxService {
   }
 
   /// 根据视频ID获取相关视频列表。
-  Future<ApiResult<PageData<Video>>> fetchRelatedVideosByVideoId(String mediaId,
-      {int page = 0, int limit = 20}) async {
+  Future<ApiResult<PageData<Video>>> fetchRelatedVideosByVideoId(
+    String mediaId, {
+    int page = 0,
+    int limit = 20,
+  }) async {
     try {
       return await fetchVideosByParams(
-          page: page, limit: limit, url: ApiConstants.relatedVideos(mediaId));
+        page: page,
+        limit: limit,
+        url: ApiConstants.relatedVideos(mediaId),
+      );
     } catch (e) {
       LogUtils.e('获取相关视频列表失败', tag: 'VideoService', error: e);
       final errorMessage = CommonUtils.parseExceptionMessage(e);
@@ -84,14 +92,14 @@ class VideoService extends GetxService {
   }
 
   /// 作者的适配
-  Future<ApiResult<PageData<Video>>> fetchAuthorVideos(String userId,
-      {required String excludeVideoId, int limit = 6}) async {
+  Future<ApiResult<PageData<Video>>> fetchAuthorVideos(
+    String userId, {
+    required String excludeVideoId,
+    int limit = 6,
+  }) async {
     try {
       return await fetchVideosByParams(
-        params: {
-          'user': userId,
-          'exclude': excludeVideoId,
-        },
+        params: {'user': userId, 'exclude': excludeVideoId},
         limit: limit,
       );
     } catch (e) {
@@ -102,8 +110,11 @@ class VideoService extends GetxService {
   }
 
   /// 获取给这个视频点赞的用户列表
-  Future<ApiResult<PageData<User>>> fetchLikeVideoUsers(String videoId,
-      {int page = 0, int limit = 6}) async {
+  Future<ApiResult<PageData<User>>> fetchLikeVideoUsers(
+    String videoId, {
+    int page = 0,
+    int limit = 6,
+  }) async {
     try {
       final response = await _apiService.get(
         ApiConstants.videoLikes(videoId),
@@ -130,14 +141,15 @@ class VideoService extends GetxService {
   }
 
   /// 获取最爱
-  Future<ApiResult<PageData<Video>>> fetchFavoriteVideos(
-      {int page = 0, int limit = 20}) async {
+  Future<ApiResult<PageData<Video>>> fetchFavoriteVideos({
+    int page = 0,
+    int limit = 20,
+  }) async {
     try {
-      final response = await _apiService
-          .get(ApiConstants.favoriteVideos(), queryParameters: {
-        'page': page,
-        'limit': limit,
-      });
+      final response = await _apiService.get(
+        ApiConstants.favoriteVideos(),
+        queryParameters: {'page': page, 'limit': limit},
+      );
 
       final List<Video> results = (response.data['results'] as List)
           .map((item) => Video.fromJson(item['video']))
@@ -214,18 +226,25 @@ class VideoService extends GetxService {
       return [];
     }
     try {
-      final response = await _apiService.get(fileUrl, headers: {
-        'X-Version':
-            XVersionCalculatorUtil.calculateXVersion(fileUrl),
-      });
-      return (response.data as List).map((item) => VideoSource.fromJson(item)).toList();
+      final response = await _apiService.get(
+        fileUrl,
+        headers: {
+          'X-Version': XVersionCalculatorUtil.calculateXVersion(fileUrl),
+        },
+      );
+      return (response.data as List)
+          .map((item) => VideoSource.fromJson(item))
+          .toList();
     } catch (e) {
       LogUtils.e('获取视频源失败', tag: 'VideoService', error: e);
       return [];
     }
   }
 
-  Future<String?> getVideoDownloadUrlByIdAndQuality(String id, String quality) async {
+  Future<String?> getVideoDownloadUrlByIdAndQuality(
+    String id,
+    String quality,
+  ) async {
     if (id.isEmpty) {
       return null;
     }
@@ -235,7 +254,9 @@ class VideoService extends GetxService {
         return null;
       }
       List<VideoSource> sources = await getVideoSourcesBy(videoInfo.fileUrl);
-      VideoSource? source = sources.firstWhereOrNull((source) => source.name == quality);
+      VideoSource? source = sources.firstWhereOrNull(
+        (source) => source.name == quality,
+      );
       if (source == null) {
         return null;
       }

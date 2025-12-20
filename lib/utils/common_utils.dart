@@ -360,7 +360,7 @@ class CommonUtils {
       }
     } catch (e) {
       // 如果外部存储获取失败，使用内部存储
-      LogUtils.w('获取外部存储失败，使用内部存储', 'CommonUtils');
+      LogUtils.e('获取外部存储失败，使用内部存储', tag: 'CommonUtils', error: e);
       directory = await getApplicationDocumentsDirectory();
     }
 

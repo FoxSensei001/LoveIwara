@@ -53,18 +53,20 @@ class ApiService extends GetxService {
 
   /// 初始化
   Future<ApiService> init() async {
-    _dio = d_dio.Dio(d_dio.BaseOptions(
-      baseUrl: CommonConstants.iwaraApiBaseUrl,
-      connectTimeout: ApiServiceConfig.requestTimeout,
-      receiveTimeout: ApiServiceConfig.requestTimeout,
-      sendTimeout: ApiServiceConfig.requestTimeout,
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json, text/plain, */*',
-        'Connection': 'close',
-        'Referer': CommonConstants.iwaraApiBaseUrl,
-      },
-    ));
+    _dio = d_dio.Dio(
+      d_dio.BaseOptions(
+        baseUrl: CommonConstants.iwaraApiBaseUrl,
+        connectTimeout: ApiServiceConfig.requestTimeout,
+        receiveTimeout: ApiServiceConfig.requestTimeout,
+        sendTimeout: ApiServiceConfig.requestTimeout,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json, text/plain, */*',
+          'Connection': 'close',
+          'Referer': CommonConstants.iwaraApiBaseUrl,
+        },
+      ),
+    );
     _dio.options.persistentConnection = false;
 
     // 配置 HTTP 客户端适配器
@@ -89,20 +91,23 @@ class ApiService extends GetxService {
 
   /// 创建拦截器
   d_dio.InterceptorsWrapper _createInterceptor() {
-    return d_dio.InterceptorsWrapper(
-      onRequest: _onRequest,
-      onError: _onError,
-    );
+    return d_dio.InterceptorsWrapper(onRequest: _onRequest, onError: _onError);
   }
 
   /// 请求拦截
   void _onRequest(
-      d_dio.RequestOptions options, d_dio.RequestInterceptorHandler handler) {
+    d_dio.RequestOptions options,
+    d_dio.RequestInterceptorHandler handler,
+  ) {
     final accessToken = _authService.accessToken;
 
     // 如果 token 正在刷新中，检查是否需要等待
     final tokenManager = _authService.tokenManager;
-    if (tokenManager.isRefreshing && _authService.hasToken) {
+
+    // Check if the request should skip waiting for auth refresh
+    final bool skipAuthWait = options.extra['skipAuthWait'] == true;
+
+    if (tokenManager.isRefreshing && _authService.hasToken && !skipAuthWait) {
       LogUtils.d('$_tag Token 正在刷新中，请求 ${options.path} 等待刷新完成');
       _waitForRefreshThenRequest(options, handler);
       return;
@@ -115,13 +120,19 @@ class ApiService extends GetxService {
     // 标记请求开始时间，用于判断 token 有效性
     options.extra['requestStartTime'] = DateTime.now().millisecondsSinceEpoch;
 
-    LogUtils.d('$_tag 请求: ${options.method} ${options.path}');
+    if (skipAuthWait) {
+      LogUtils.d('$_tag 请求: ${options.method} ${options.path} (跳过鉴权等待)');
+    } else {
+      LogUtils.d('$_tag 请求: ${options.method} ${options.path}');
+    }
     handler.next(options);
   }
 
   /// 等待 token 刷新完成后发送请求
   Future<void> _waitForRefreshThenRequest(
-      d_dio.RequestOptions options, d_dio.RequestInterceptorHandler handler) async {
+    d_dio.RequestOptions options,
+    d_dio.RequestInterceptorHandler handler,
+  ) async {
     try {
       final tokenManager = _authService.tokenManager;
       final result = await tokenManager.refreshAccessToken();
@@ -132,40 +143,48 @@ class ApiService extends GetxService {
         if (accessToken != null) {
           options.headers['Authorization'] = 'Bearer $accessToken';
         }
-        options.extra['requestStartTime'] = DateTime.now().millisecondsSinceEpoch;
+        options.extra['requestStartTime'] =
+            DateTime.now().millisecondsSinceEpoch;
         LogUtils.d('$_tag Token 刷新完成，继续请求: ${options.path}');
         handler.next(options);
       } else if (result.isAuthError) {
         // 认证错误，拒绝请求
         LogUtils.w('$_tag Token 刷新失败，拒绝请求: ${options.path}');
-        handler.reject(d_dio.DioException(
-          requestOptions: options,
-          error: 'Token refresh failed: ${result.errorMessage}',
-          type: d_dio.DioExceptionType.unknown,
-        ));
+        handler.reject(
+          d_dio.DioException(
+            requestOptions: options,
+            error: 'Token refresh failed: ${result.errorMessage}',
+            type: d_dio.DioExceptionType.unknown,
+          ),
+        );
       } else {
         // 网络错误，使用现有 token 尝试请求
         final accessToken = _authService.accessToken;
         if (accessToken != null) {
           options.headers['Authorization'] = 'Bearer $accessToken';
         }
-        options.extra['requestStartTime'] = DateTime.now().millisecondsSinceEpoch;
+        options.extra['requestStartTime'] =
+            DateTime.now().millisecondsSinceEpoch;
         LogUtils.d('$_tag Token 刷新遇到网络错误，使用现有 token 尝试请求: ${options.path}');
         handler.next(options);
       }
     } catch (e) {
       LogUtils.e('$_tag 等待 token 刷新时出错', error: e);
-      handler.reject(d_dio.DioException(
-        requestOptions: options,
-        error: e,
-        type: d_dio.DioExceptionType.unknown,
-      ));
+      handler.reject(
+        d_dio.DioException(
+          requestOptions: options,
+          error: e,
+          type: d_dio.DioExceptionType.unknown,
+        ),
+      );
     }
   }
 
   /// 错误拦截
   Future<void> _onError(
-      d_dio.DioException error, d_dio.ErrorInterceptorHandler handler) async {
+    d_dio.DioException error,
+    d_dio.ErrorInterceptorHandler handler,
+  ) async {
     // 处理 Cloudflare 403 质询
     if (error.response?.statusCode == 403) {
       final cfMitigated = error.response?.headers['cf-mitigated']?.firstOrNull;
@@ -224,13 +243,15 @@ class ApiService extends GetxService {
     if (requestStartTime != null) {
       final requestTime = DateTime.fromMillisecondsSinceEpoch(requestStartTime);
       // 计算请求开始时 token 是否还有效
-      final tokenRemainingAtRequest = tokenManager.accessTokenRemainingSeconds +
+      final tokenRemainingAtRequest =
+          tokenManager.accessTokenRemainingSeconds +
           DateTime.now().difference(requestTime).inSeconds;
 
       if (tokenRemainingAtRequest > 10 && !tokenManager.isRefreshing) {
         // Token 应该还有效，可能是服务器问题，直接重试一次
         LogUtils.d(
-            '$_tag Token 在请求时应该有效 (剩余 ${tokenRemainingAtRequest}s)，直接重试');
+          '$_tag Token 在请求时应该有效 (剩余 ${tokenRemainingAtRequest}s)，直接重试',
+        );
         try {
           final response = await _retryRequest(options);
           return response;
@@ -286,7 +307,8 @@ class ApiService extends GetxService {
 
   /// 等待 token 刷新完成后重试请求
   Future<d_dio.Response?> _waitForRefreshAndRetry(
-      d_dio.RequestOptions options) async {
+    d_dio.RequestOptions options,
+  ) async {
     final completer = Completer<d_dio.Response?>();
     _pendingRequests.add(_PendingRequest(options, completer));
 
@@ -356,7 +378,8 @@ class ApiService extends GetxService {
     }
 
     // 计算延迟时间（指数退避）
-    final delayMs = ApiServiceConfig.baseRetryDelay.inMilliseconds *
+    final delayMs =
+        ApiServiceConfig.baseRetryDelay.inMilliseconds *
         (1 << currentRetry); // 2^retry
     final delay = Duration(
       milliseconds: delayMs.clamp(
@@ -365,8 +388,10 @@ class ApiService extends GetxService {
       ),
     );
 
-    LogUtils.d('$_tag 网络错误，${delay.inMilliseconds}ms 后重试 '
-        '(${currentRetry + 1}/${ApiServiceConfig.maxNetworkRetries})');
+    LogUtils.d(
+      '$_tag 网络错误，${delay.inMilliseconds}ms 后重试 '
+      '(${currentRetry + 1}/${ApiServiceConfig.maxNetworkRetries})',
+    );
 
     await Future.delayed(delay);
 
@@ -425,16 +450,24 @@ class ApiService extends GetxService {
   }
 
   /// GET 请求
-  Future<d_dio.Response<T>> get<T>(String path, {
+  Future<d_dio.Response<T>> get<T>(
+    String path, {
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? headers,
     d_dio.CancelToken? cancelToken,
+    d_dio.Options? options,
   }) async {
     try {
+      // 合并 headers 和 options
+      var requestOptions = options ?? d_dio.Options();
+      if (headers != null) {
+        requestOptions.headers = {...?requestOptions.headers, ...headers};
+      }
+
       return await _dio.get<T>(
         path,
         queryParameters: queryParameters,
-        options: d_dio.Options(headers: headers),
+        options: requestOptions,
         cancelToken: cancelToken,
       );
     } on d_dio.DioException catch (e) {
@@ -445,15 +478,18 @@ class ApiService extends GetxService {
   }
 
   /// POST 请求
-  Future<d_dio.Response<T>> post<T>(String path, {
+  Future<d_dio.Response<T>> post<T>(
+    String path, {
     dynamic data,
     Map<String, dynamic>? queryParameters,
+    d_dio.Options? options,
   }) async {
     try {
       return await _dio.post<T>(
         path,
         data: data,
         queryParameters: queryParameters,
+        options: options,
       );
     } on d_dio.DioException catch (e) {
       GlobalErrorListener.recordDioException(e);
@@ -463,11 +499,17 @@ class ApiService extends GetxService {
   }
 
   /// DELETE 请求
-  Future<d_dio.Response<T>> delete<T>(String path, {
+  Future<d_dio.Response<T>> delete<T>(
+    String path, {
     Map<String, dynamic>? queryParameters,
+    d_dio.Options? options,
   }) async {
     try {
-      return await _dio.delete<T>(path, queryParameters: queryParameters);
+      return await _dio.delete<T>(
+        path,
+        queryParameters: queryParameters,
+        options: options,
+      );
     } on d_dio.DioException catch (e) {
       GlobalErrorListener.recordDioException(e);
       LogUtils.e('$_tag DELETE 请求失败: ${e.message}', error: e);
@@ -476,15 +518,18 @@ class ApiService extends GetxService {
   }
 
   /// PUT 请求
-  Future<d_dio.Response<T>> put<T>(String path, {
+  Future<d_dio.Response<T>> put<T>(
+    String path, {
     dynamic data,
     Map<String, dynamic>? queryParameters,
+    d_dio.Options? options,
   }) async {
     try {
       return await _dio.put<T>(
         path,
         data: data,
         queryParameters: queryParameters,
+        options: options,
       );
     } on d_dio.DioException catch (e) {
       GlobalErrorListener.recordDioException(e);

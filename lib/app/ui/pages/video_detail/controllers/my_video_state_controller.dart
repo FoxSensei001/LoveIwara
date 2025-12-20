@@ -960,7 +960,7 @@ class MyVideoStateController extends GetxController
     if (expandBuffer) {
       return 32 * 1024 * 1024; // 32MB
     } else {
-      return 4 * 1024 * 1024; // 4MB
+      return 12 * 1024 * 1024; // 12MB
     }
   }
 

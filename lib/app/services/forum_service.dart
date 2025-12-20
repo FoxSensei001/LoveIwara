@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart' as d_dio;
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/models/dto/forum_thread_section_dto.dart';
@@ -236,7 +237,10 @@ class ForumService extends GetxService {
   /// /forum
   Future<ApiResult<List<ForumCategoryModel>>> fetchForumList() async {
     try {
-      var response = await _apiService.get(ApiConstants.forum());
+      var response = await _apiService.get(
+        ApiConstants.forum(),
+        options: d_dio.Options(extra: {'skipAuthWait': true}),
+      );
       return ApiResult.success(
         data: (response.data as List)
             .map((e) => ForumCategoryModel.fromJson(e))
@@ -355,6 +359,7 @@ class ForumService extends GetxService {
       var response = await _apiService.get(
         ApiConstants.forumThreads(),
         queryParameters: {'limit': limit, 'page': page},
+        options: d_dio.Options(extra: {'skipAuthWait': true}),
       );
       final pageData = PageData.fromJsonWithConverter(
         response.data,
@@ -385,6 +390,7 @@ class ForumService extends GetxService {
           'daysAgo': daysAgo,
           'group': 'administration',
         },
+        options: d_dio.Options(extra: {'skipAuthWait': true}),
       );
       final List<ForumThreadModel> threads = (response.data['results'] as List)
           .map((thread) => ForumThreadModel.fromJson(thread))

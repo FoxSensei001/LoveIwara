@@ -14,11 +14,15 @@ class PopularGalleryRepository extends BaseMediaRepository<ImageModel> {
 
   @override
   Future<ApiResult<PageData<ImageModel>>> fetchData(
-      Map<String, dynamic> params, int page, int limit) {
+    Map<String, dynamic> params,
+    int page,
+    int limit,
+  ) {
     return galleryService.fetchImageModelsByParams(
       params: params,
       page: page,
       limit: limit,
+      skipAuthWait: true,
     );
   }
-} 
+}
