@@ -1,4 +1,5 @@
 import 'package:i_iwara/app/models/user_avatar.model.dart';
+import 'package:i_iwara/app/models/user_notifications.model.dart';
 
 class User {
   final String id;
@@ -14,8 +15,12 @@ class User {
   final String? locale;
   final DateTime? seenAt;
   final UserAvatar? avatar;
+  final UserAvatar? header;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final String? description; // Mapped from 'body'
+  final bool hideSensitive;
+  final UserNotifications? notifications;
 
   bool get isAdmin => role == 'admin';
 
@@ -33,10 +38,14 @@ class User {
     this.locale,
     this.seenAt,
     this.avatar,
+    this.header,
     DateTime? createdAt,
     DateTime? updatedAt,
-  })  : createdAt = createdAt ?? DateTime.now(),
-        updatedAt = updatedAt ?? DateTime.now();
+    this.description,
+    this.hideSensitive = false,
+    this.notifications,
+  }) : createdAt = createdAt ?? DateTime.now(),
+       updatedAt = updatedAt ?? DateTime.now();
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
@@ -52,12 +61,20 @@ class User {
       creatorProgram: json['creatorProgram'] ?? false,
       locale: json['locale'],
       seenAt: json['seenAt'] != null ? DateTime.parse(json['seenAt']) : null,
-      avatar:
-          json['avatar'] != null ? UserAvatar.fromJson(json['avatar']) : null,
-      createdAt:
-          json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
-      updatedAt:
-          json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
+      avatar: json['avatar'] != null
+          ? UserAvatar.fromJson(json['avatar'])
+          : null,
+      header: json['header'] != null
+          ? UserAvatar.fromJson(json['header'])
+          : null,
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'])
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'])
+          : null,
+      description: json['body'],
+      hideSensitive: json['hideSensitive'] ?? false,
     );
   }
 
@@ -76,8 +93,12 @@ class User {
       'locale': locale,
       'seenAt': seenAt?.toIso8601String(),
       'avatar': avatar?.toJson(),
+      'header': header?.toJson(),
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
+      'body': description,
+      'hideSensitive': hideSensitive,
+      'notifications': notifications?.toJson(),
     };
   }
 
@@ -95,8 +116,12 @@ class User {
     String? locale,
     DateTime? seenAt,
     UserAvatar? avatar,
+    UserAvatar? header,
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? description,
+    bool? hideSensitive,
+    UserNotifications? notifications,
   }) {
     return User(
       id: id ?? this.id,
@@ -112,8 +137,12 @@ class User {
       locale: locale ?? this.locale,
       seenAt: seenAt ?? this.seenAt,
       avatar: avatar ?? this.avatar,
+      header: header ?? this.header,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      description: description ?? this.description,
+      hideSensitive: hideSensitive ?? this.hideSensitive,
+      notifications: notifications ?? this.notifications,
     );
   }
 }

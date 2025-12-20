@@ -37,6 +37,7 @@ class TranslationsZhTw with BaseTranslations<AppLocale, Translations> implements
 	TranslationsZhTw $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => TranslationsZhTw(meta: meta ?? this.$meta);
 
 	// Translations
+	@override late final _TranslationsPersonalProfileZhTw personalProfile = _TranslationsPersonalProfileZhTw._(_root);
 	@override late final _TranslationsTutorialZhTw tutorial = _TranslationsTutorialZhTw._(_root);
 	@override late final _TranslationsCommonZhTw common = _TranslationsCommonZhTw._(_root);
 	@override late final _TranslationsAuthZhTw auth = _TranslationsAuthZhTw._(_root);
@@ -74,6 +75,58 @@ class TranslationsZhTw with BaseTranslations<AppLocale, Translations> implements
 	@override late final _TranslationsSearchFilterZhTw searchFilter = _TranslationsSearchFilterZhTw._(_root);
 	@override late final _TranslationsTagSelectorZhTw tagSelector = _TranslationsTagSelectorZhTw._(_root);
 	@override late final _TranslationsAnime4kZhTw anime4k = _TranslationsAnime4kZhTw._(_root);
+}
+
+// Path: personalProfile
+class _TranslationsPersonalProfileZhTw implements TranslationsPersonalProfileEn {
+	_TranslationsPersonalProfileZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get personalProfile => '個人資料';
+	@override String get editPersonalProfile => '編輯個人資料';
+	@override String get avatar => '頭像';
+	@override String get background => '背景';
+	@override String fetchUserProfileFailed({required Object error}) => '取得使用者資訊失敗: ${error}';
+	@override String suggestedResolution({required Object resolution, required Object size}) => '建議解析度：${resolution}，檔案大小 < ${size}';
+	@override String supportedFormats({required Object formats}) => '支援格式：${formats}';
+	@override String premiumBenefit({required Object type, required Object formats}) => '高級使用者可以使用動態${type} (${formats})';
+	@override String get homepageBackground => '個人主頁背景';
+	@override String get basicInfo => '基本資訊';
+	@override String get nickname => '暱稱';
+	@override String get username => '使用者名稱';
+	@override String get copyUsername => '複製使用者名稱';
+	@override String get usernameCopied => '已複製使用者名稱';
+	@override String get personalIntroduction => '個人簡介';
+	@override String get noPersonalIntroduction => '暫無個人簡介';
+	@override String get clickToEdit => '點擊編輯';
+	@override String get privacySettings => '隱私設定';
+	@override String get hideSensitiveContent => '隱藏敏感內容';
+	@override String get hideSensitiveContentDesc => '隱藏任何包含敏感標籤的影片或圖片。';
+	@override String get notificationSettings => '通知設定';
+	@override String get contentCommentNotification => '內容評論通知';
+	@override String get contentCommentNotificationDesc => '有人評論您的內容時通知。';
+	@override String get commentReplyNotification => '評論回覆通知';
+	@override String get commentReplyNotificationDesc => '有人回覆您的評論時通知。';
+	@override String get mentionNotification => '提及通知';
+	@override String get mentionNotificationDesc => '有人在內容中提及您時通知。';
+	@override String get accountInfo => '帳號資訊';
+	@override String get registrationTime => '註冊時間';
+	@override String updateSettingsFailed({required Object error}) => '更新設定失敗: ${error}';
+	@override String updateNotificationSettingsFailed({required Object error}) => '更新通知設定失敗: ${error}';
+	@override String get editNickname => '修改暱稱';
+	@override String get nicknameCannotBeEmpty => '暱稱不能為空';
+	@override String get changeSuccess => '修改成功';
+	@override String get unsupportedFileFormat => '不支援的檔案格式';
+	@override String fileTooLarge({required Object size}) => '檔案大小不能超過 ${size}';
+	@override String get uploadFailed => '上傳失敗';
+	@override String get avatarUpdatedSuccessfully => '頭像更新成功';
+	@override String updateAvatarFailed({required Object error}) => '更新頭像失敗: ${error}';
+	@override String get backgroundUpdatedSuccessfully => '背景更新成功';
+	@override String updateBackgroundFailed({required Object error}) => '更新背景失敗: ${error}';
+	@override String get editPersonalIntroduction => '編輯個人簡介';
+	@override String get enterPersonalIntroduction => '請輸入個人簡介';
 }
 
 // Path: tutorial
@@ -403,7 +456,6 @@ class _TranslationsErrorsZhTw implements TranslationsErrorsEn {
 	@override String get resourceNotFound => '資源不存在';
 	@override String get failedToSaveCredentials => '無法安全儲存登入資訊';
 	@override String get failedToLoadSavedCredentials => '載入儲存的登入資訊失敗';
-	@override String specialFollowLimitReached({required Object cnt}) => '特別關注上限超出，上限: ${cnt}，請於關注列表頁中調整';
 	@override String get notFound => '內容不存在或已被刪除';
 	@override late final _TranslationsErrorsNetworkZhTw network = _TranslationsErrorsNetworkZhTw._(_root);
 }
@@ -2594,6 +2646,49 @@ class _TranslationsVideoDetailCastDlnaCastSheetZhTw implements TranslationsVideo
 extension on TranslationsZhTw {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
+			'personalProfile.personalProfile' => '個人資料',
+			'personalProfile.editPersonalProfile' => '編輯個人資料',
+			'personalProfile.avatar' => '頭像',
+			'personalProfile.background' => '背景',
+			'personalProfile.fetchUserProfileFailed' => ({required Object error}) => '取得使用者資訊失敗: ${error}',
+			'personalProfile.suggestedResolution' => ({required Object resolution, required Object size}) => '建議解析度：${resolution}，檔案大小 < ${size}',
+			'personalProfile.supportedFormats' => ({required Object formats}) => '支援格式：${formats}',
+			'personalProfile.premiumBenefit' => ({required Object type, required Object formats}) => '高級使用者可以使用動態${type} (${formats})',
+			'personalProfile.homepageBackground' => '個人主頁背景',
+			'personalProfile.basicInfo' => '基本資訊',
+			'personalProfile.nickname' => '暱稱',
+			'personalProfile.username' => '使用者名稱',
+			'personalProfile.copyUsername' => '複製使用者名稱',
+			'personalProfile.usernameCopied' => '已複製使用者名稱',
+			'personalProfile.personalIntroduction' => '個人簡介',
+			'personalProfile.noPersonalIntroduction' => '暫無個人簡介',
+			'personalProfile.clickToEdit' => '點擊編輯',
+			'personalProfile.privacySettings' => '隱私設定',
+			'personalProfile.hideSensitiveContent' => '隱藏敏感內容',
+			'personalProfile.hideSensitiveContentDesc' => '隱藏任何包含敏感標籤的影片或圖片。',
+			'personalProfile.notificationSettings' => '通知設定',
+			'personalProfile.contentCommentNotification' => '內容評論通知',
+			'personalProfile.contentCommentNotificationDesc' => '有人評論您的內容時通知。',
+			'personalProfile.commentReplyNotification' => '評論回覆通知',
+			'personalProfile.commentReplyNotificationDesc' => '有人回覆您的評論時通知。',
+			'personalProfile.mentionNotification' => '提及通知',
+			'personalProfile.mentionNotificationDesc' => '有人在內容中提及您時通知。',
+			'personalProfile.accountInfo' => '帳號資訊',
+			'personalProfile.registrationTime' => '註冊時間',
+			'personalProfile.updateSettingsFailed' => ({required Object error}) => '更新設定失敗: ${error}',
+			'personalProfile.updateNotificationSettingsFailed' => ({required Object error}) => '更新通知設定失敗: ${error}',
+			'personalProfile.editNickname' => '修改暱稱',
+			'personalProfile.nicknameCannotBeEmpty' => '暱稱不能為空',
+			'personalProfile.changeSuccess' => '修改成功',
+			'personalProfile.unsupportedFileFormat' => '不支援的檔案格式',
+			'personalProfile.fileTooLarge' => ({required Object size}) => '檔案大小不能超過 ${size}',
+			'personalProfile.uploadFailed' => '上傳失敗',
+			'personalProfile.avatarUpdatedSuccessfully' => '頭像更新成功',
+			'personalProfile.updateAvatarFailed' => ({required Object error}) => '更新頭像失敗: ${error}',
+			'personalProfile.backgroundUpdatedSuccessfully' => '背景更新成功',
+			'personalProfile.updateBackgroundFailed' => ({required Object error}) => '更新背景失敗: ${error}',
+			'personalProfile.editPersonalIntroduction' => '編輯個人簡介',
+			'personalProfile.enterPersonalIntroduction' => '請輸入個人簡介',
 			'tutorial.specialFollowFeature' => '特別關注功能',
 			'tutorial.specialFollowDescription' => '這裡顯示你特別關注的作者。在影片、圖庫、作者詳情頁點擊關注按鈕，然後選擇"添加為特別關注"即可。',
 			'tutorial.exampleAuthorInfoRow' => '範例：作者資訊行',
@@ -2895,7 +2990,6 @@ extension on TranslationsZhTw {
 			'errors.resourceNotFound' => '資源不存在',
 			'errors.failedToSaveCredentials' => '無法安全儲存登入資訊',
 			'errors.failedToLoadSavedCredentials' => '載入儲存的登入資訊失敗',
-			'errors.specialFollowLimitReached' => ({required Object cnt}) => '特別關注上限超出，上限: ${cnt}，請於關注列表頁中調整',
 			'errors.notFound' => '內容不存在或已被刪除',
 			'errors.network.basicPrefix' => '網路錯誤 - ',
 			'errors.network.failedToConnectToServer' => '連接伺服器失敗',
@@ -3064,6 +3158,8 @@ extension on TranslationsZhTw {
 			'settings.viewChangelog' => '查看更新日誌',
 			'settings.alreadyLatestVersion' => '已是最新版本',
 			'settings.appSettings' => '應用設定',
+			_ => null,
+		} ?? switch (path) {
 			'settings.configureYourAppSettings' => '配置您的應用程式設定',
 			'settings.history' => '歷史記錄',
 			'settings.autoRecordHistory' => '自動記錄歷史記錄',
@@ -3106,8 +3202,6 @@ extension on TranslationsZhTw {
 			'settings.importConfig' => '匯入應用配置',
 			'settings.importConfigDesc' => '從文件匯入應用配置',
 			'settings.exportConfigSuccess' => '配置匯出成功！',
-			_ => null,
-		} ?? switch (path) {
 			'settings.exportConfigFailed' => '配置匯出失敗',
 			'settings.importConfigSuccess' => '配置匯入成功！',
 			'settings.importConfigFailed' => '配置匯入失敗',
@@ -3578,6 +3672,8 @@ extension on TranslationsZhTw {
 			'markdown.titleDescription' => '使用 # 號建立標題，數量表示級別',
 			'markdown.titleSyntax' => '# 一級標題\n## 二級標題\n### 三級標題',
 			'markdown.separator' => '分隔線',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.separatorDescription' => '使用三個或更多 - 號建立分隔線',
 			'markdown.separatorSyntax' => '---',
 			'markdown.syntax' => '語法',
@@ -3620,8 +3716,6 @@ extension on TranslationsZhTw {
 			'forum.leafNames.questions_ja' => '問題',
 			'forum.leafNames.requests_ja' => '請求',
 			'forum.leafNames.support_ja' => '幫助',
-			_ => null,
-		} ?? switch (path) {
 			'forum.leafNames.korean' => '韓語',
 			'forum.leafNames.other' => '其他',
 			'forum.leafDescriptions.announcements' => '官方重要通知和公告',
@@ -4092,6 +4186,8 @@ extension on TranslationsZhTw {
 			'log.exportMergedLogs' => '匯出合併日誌',
 			'log.exportMergedLogsDesc' => '匯出指定日期範圍內的合併日誌',
 			'log.showLogStats' => '顯示日誌統計資訊',
+			_ => null,
+		} ?? switch (path) {
 			'log.logExportSuccess' => '日誌匯出成功',
 			'log.logExportFailed' => ({required Object error}) => '日誌匯出失敗: ${error}',
 			'log.showLogStatsDesc' => '查看各種類型日誌的統計資料',
@@ -4134,8 +4230,6 @@ extension on TranslationsZhTw {
 			'log.newSizeLimit' => ({required Object size}) => '新的大小限制: ${size}',
 			'log.confirmToContinue' => '確定要繼續嗎？',
 			'log.logSizeLimitSetSuccess' => ({required Object size}) => '日誌大小上限已設定為 ${size}',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.name' => '表情',
 			'emoji.size' => '大小',
 			'emoji.small' => '小',

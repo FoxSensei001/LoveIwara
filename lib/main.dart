@@ -14,6 +14,7 @@ import 'package:i_iwara/app/services/forum_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/batch_download_service.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
+import 'package:i_iwara/app/services/iwara_server_service.dart';
 import 'package:i_iwara/app/services/light_service.dart';
 import 'package:i_iwara/app/services/play_list_service.dart';
 import 'package:i_iwara/app/services/playback_history_service.dart';
@@ -261,11 +262,12 @@ Future<void> _initializeBusinessServices() async {
   Get.lazyPut(() => PlayListService());
   Get.lazyPut(() => ForumService());
   Get.lazyPut(() => ConversationService());
+  Get.lazyPut(() => IwaraServerService());
   Get.put(PermissionService());
   Get.put(DownloadService());
   Get.put(DownloadPathService());
   Get.put(FilenameTemplateService());
-  Get.put(BatchDownloadService());  // 必须在 DownloadService 和 DownloadPathService 之后
+  Get.put(BatchDownloadService());
   Get.put(TranslationService());
   Get.put(FavoriteService());
   Get.put(PlaybackHistoryService());

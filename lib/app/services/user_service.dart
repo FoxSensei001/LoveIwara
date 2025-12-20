@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:get/get.dart';
-import 'package:dio/dio.dart';
 import 'package:i_iwara/app/models/dto/profile_user_dto.dart';
 import 'package:i_iwara/app/models/dto/user_request_dto.dart';
 import 'package:i_iwara/app/models/page_data.model.dart';
@@ -10,6 +9,8 @@ import 'package:i_iwara/i18n/strings.g.dart';
 
 import '../../common/constants.dart';
 import '../../utils/logger_utils.dart';
+import '../models/user_avatar.model.dart';
+import '../models/user_notifications.model.dart';
 import '../models/api_result.model.dart';
 import '../models/user.model.dart';
 import '../routes/app_routes.dart';
@@ -17,6 +18,7 @@ import 'login_service.dart';
 import 'api_service.dart';
 import 'auth_service.dart';
 import 'storage_service.dart';
+import 'upload_service.dart';
 
 class UserService extends GetxService {
   final AuthService _authService = Get.find<AuthService>();
@@ -30,7 +32,10 @@ class UserService extends GetxService {
   RxInt friendRequestsCount = RxInt(0);
   RxInt messagesCount = RxInt(0);
   Timer? _notificationTimer;
-  
+
+  // 操作锁，确保资料更新和获取串行执行
+  Future<void>? _operationLock;
+
   // 认证状态监听
   StreamSubscription<bool>? _authStateSubscription;
 
@@ -50,10 +55,25 @@ class UserService extends GetxService {
   String get userAvatar =>
       currentUser.value?.avatar?.avatarUrl ?? CommonConstants.defaultAvatarUrl;
 
+  /// 封装加锁的操作
+  Future<T> _performLockedOperation<T>(Future<T> Function() operation) async {
+    final previousLock = _operationLock;
+    final completer = Completer<void>();
+    _operationLock = completer.future;
+    try {
+      await previousLock;
+      return await operation();
+    } finally {
+      completer.complete();
+    }
+  }
+
   // 开始通知计数定时任务
   void startNotificationTimer() {
     if (_notificationTimer == null) {
-      _notificationTimer = Timer.periodic(const Duration(minutes: 15), (timer) async {
+      _notificationTimer = Timer.periodic(const Duration(minutes: 15), (
+        timer,
+      ) async {
         if (_authService.hasToken) {
           await refreshNotificationCount();
         }
@@ -101,21 +121,23 @@ class UserService extends GetxService {
 
   UserService() {
     LogUtils.d('$_tag 初始化用户服务');
-    
+
     // 监听认证状态变化
     _setupAuthStateListener();
-    
+
     // 如果当前已经认证，初始化用户数据
     if (_authService.isAuthenticated) {
       _initializeUserData();
     }
   }
-  
+
   // 设置认证状态监听器
   void _setupAuthStateListener() {
-    _authStateSubscription = _authService.authStateStream.listen((isAuthenticated) {
+    _authStateSubscription = _authService.authStateStream.listen((
+      isAuthenticated,
+    ) {
       LogUtils.d('$_tag 认证状态变化: $isAuthenticated');
-      
+
       if (isAuthenticated) {
         // 用户已认证，初始化用户数据
         _initializeUserData();
@@ -125,7 +147,7 @@ class UserService extends GetxService {
       }
     });
   }
-  
+
   // 初始化用户数据
   void _initializeUserData() {
     if (_authService.hasToken) {
@@ -143,7 +165,7 @@ class UserService extends GetxService {
       LogUtils.d('$_tag 未登录');
     }
   }
-  
+
   // 清理用户数据
   void _clearUserData() {
     currentUser.value = null;
@@ -151,40 +173,59 @@ class UserService extends GetxService {
     _lastUserDataUpdate = null;
     clearAllNotificationCounts();
     stopNotificationTimer();
-    
+
     // 清理认证状态监听
     _authStateSubscription?.cancel();
     _authStateSubscription = null;
-    
+
     LogUtils.d('$_tag 用户数据已清理');
   }
 
   // 抓取用户资料
   Future<void> fetchUserProfile() async {
-    try {
-      isLogining.value = true;
-      LogUtils.d('$_tag 开始抓取用户资料');
-      final response = await _apiService.get<Map<String, dynamic>>('/user');
-      LogUtils.d('$_tag 获取到用户资料响应');
+    return _performLockedOperation(() async {
+      try {
+        isLogining.value = true;
+        LogUtils.d('$_tag 开始抓取用户资料');
+        final response = await _apiService.get<Map<String, dynamic>>('/user');
+        LogUtils.d('$_tag 获取到用户资料响应');
 
-      final user = User.fromJson(response.data!['user']);
-      currentUser.value = user;
+        final data = response.data!;
+        var user = User.fromJson(data['user']);
 
-      // 保存到缓存
-      await _saveCachedUserData(user);
+        // Extract description and header from profile
+        if (data['profile'] != null) {
+          if (data['profile']['body'] != null) {
+            user = user.copyWith(description: data['profile']['body']);
+          }
+          if (data['profile']['header'] != null) {
+            user = user.copyWith(
+              header: UserAvatar.fromJson(data['profile']['header']),
+            );
+          }
+        }
 
-      LogUtils.d('$_tag 用户资料解析完成: ${user.name}');
-      // 获取到用户资料后启动通知计数定时器
-      startNotificationTimer();
-    } catch (e) {
-      LogUtils.e('抓取用户资料失败', error: e);
-      if (e is! UnauthorizedException) {
-        throw AuthServiceException(t.errors.failedToOperate);
+        // Extract notifications
+        if (data['notifications'] != null) {
+          user = user.copyWith(
+            notifications: UserNotifications.fromJson(data['notifications']),
+          );
+        }
+
+        currentUser.value = user;
+
+        // 保存到缓存
+        await _saveCachedUserData(user);
+
+        LogUtils.d('$_tag 用户资料解析完成: ${user.name}');
+        // 获取到用户资料后启动通知计数定时器
+        startNotificationTimer();
+      } catch (e) {
+        LogUtils.e('抓取用户资料失败', error: e);
+      } finally {
+        isLogining.value = false;
       }
-      rethrow;
-    } finally {
-      isLogining.value = false;
-    }
+    });
   }
 
   // 登录
@@ -302,14 +343,16 @@ class UserService extends GetxService {
   }
 
   /// 朋友列表
-  Future<ApiResult<PageData<User>>> fetchFriends(
-      {int page = 0, int limit = 20, required String userId}) async {
+  Future<ApiResult<PageData<User>>> fetchFriends({
+    int page = 0,
+    int limit = 20,
+    required String userId,
+  }) async {
     try {
-      final response = await _apiService
-          .get(ApiConstants.userFriends(userId), queryParameters: {
-        'page': page,
-        'limit': limit,
-      });
+      final response = await _apiService.get(
+        ApiConstants.userFriends(userId),
+        queryParameters: {'page': page, 'limit': limit},
+      );
 
       final List<User> results = (response.data['results'] as List)
           .map((userJson) => User.fromJson(userJson))
@@ -330,14 +373,16 @@ class UserService extends GetxService {
   }
 
   /// 代办请求列表
-  Future<ApiResult<PageData<UserRequestDTO>>> fetchUserFriendsRequests(
-      {int page = 0, int limit = 20, required String userId}) async {
+  Future<ApiResult<PageData<UserRequestDTO>>> fetchUserFriendsRequests({
+    int page = 0,
+    int limit = 20,
+    required String userId,
+  }) async {
     try {
-      final response = await _apiService
-          .get(ApiConstants.userFriendsRequests(userId), queryParameters: {
-        'page': page,
-        'limit': limit,
-      });
+      final response = await _apiService.get(
+        ApiConstants.userFriendsRequests(userId),
+        queryParameters: {'page': page, 'limit': limit},
+      );
 
       final List<UserRequestDTO> results = (response.data['results'] as List)
           .map((userJson) => UserRequestDTO.fromJson(userJson))
@@ -357,13 +402,16 @@ class UserService extends GetxService {
   }
 
   /// 获取关注的用户
-  Future<ApiResult<PageData<User>>> fetchFollowingUsers(
-      {int page = 0, int limit = 20, required String userId}) async {
+  Future<ApiResult<PageData<User>>> fetchFollowingUsers({
+    int page = 0,
+    int limit = 20,
+    required String userId,
+  }) async {
     try {
-      final response = await _apiService.get(ApiConstants.userFollowing(userId), queryParameters: {
-        'page': page,
-        'limit': limit,
-        });
+      final response = await _apiService.get(
+        ApiConstants.userFollowing(userId),
+        queryParameters: {'page': page, 'limit': limit},
+      );
 
       final List<User> results = (response.data['results'] as List)
           .map((item) => User.fromJson(item['user']))
@@ -383,13 +431,16 @@ class UserService extends GetxService {
   }
 
   /// 获取粉丝
-  Future<ApiResult<PageData<User>>> fetchFollowers(
-      {int page = 0, int limit = 20, required String userId}) async {
+  Future<ApiResult<PageData<User>>> fetchFollowers({
+    int page = 0,
+    int limit = 20,
+    required String userId,
+  }) async {
     try {
-      final response = await _apiService.get(ApiConstants.userFollowers(userId), queryParameters: {
-        'page': page,
-        'limit': limit,
-      });
+      final response = await _apiService.get(
+        ApiConstants.userFollowers(userId),
+        queryParameters: {'page': page, 'limit': limit},
+      );
 
       final List<User> results = (response.data['results'] as List)
           .map((item) => User.fromJson(item['follower']))
@@ -409,7 +460,7 @@ class UserService extends GetxService {
   }
 
   /// 获取当前的用户信息
-  /// /user 
+  /// /user
   Future<ApiResult<ProfileUserDto>> fetchProfileUser() async {
     try {
       final response = await _apiService.get(ApiConstants.user);
@@ -423,33 +474,146 @@ class UserService extends GetxService {
   /// 更新用户信息
   /// /user/:userId
   /// @putbody {
-  /// 
+  ///   "name": "username",
+  ///   "body": "description",
   ///   // 如果更新黑名单，则给出此参数
   ///   "tagBlacklist": [
-  ///     "abigail_williams"
+  ///     "tag_id"
   ///   ]
   /// }
-  Future<ApiResult<User>> updateUserProfile(List<String>? tagBlacklist) async {
-    if (tagBlacklist != null) {
-      try {
-        final response = await _apiService.put(ApiConstants.userWithId(currentUser.value?.id ?? ''), data: {
-          'tagBlacklist': tagBlacklist,
-        });
-        return ApiResult.success(data: User.fromJson(response.data));
-      } catch (e) {
-        LogUtils.e('更新用户信息失败', error: e);
-        return ApiResult.fail(t.errors.failedToOperate);
-      }
-    }
-    return ApiResult.fail(t.errors.invalidParameter);
-  }
+  Future<ApiResult<User>> updateUserProfile({
+    List<String>? tagBlacklist,
+    String? name,
+    String? body,
+    UploadedImage? avatar,
+    UploadedImage? header,
+    bool? hideSensitive,
+    UserNotifications? notifications,
+  }) async {
+    final Map<String, dynamic> data = {};
 
+    if (tagBlacklist != null) {
+      data['tagBlacklist'] = tagBlacklist;
+    }
+
+    if (name != null) {
+      data['name'] = name;
+    }
+
+    if (body != null) {
+      // API expects "body" for description
+      data['body'] = body;
+    }
+
+    if (avatar != null) {
+      data['avatar'] = avatar.toJson();
+    }
+
+    if (header != null) {
+      data['header'] = header.toJson();
+    }
+
+    if (hideSensitive != null) {
+      data['hideSensitive'] = hideSensitive;
+    }
+
+    if (notifications != null) {
+      data['notifications'] = notifications.toJson();
+    }
+
+    return _performLockedOperation(() async {
+      if (data.isNotEmpty) {
+        try {
+          User? updatedUser;
+
+          if (body != null || header != null) {
+            // 更新个人简介或标题图片，使用 /profile/{username} 接口
+            // 注意：此处 username 理论上不为空，如果为空可能导致请求失败
+            final username = currentUser.value?.username;
+            if (username == null || username.isEmpty) {
+              return ApiResult.fail(t.errors.invalidParameter);
+            }
+
+            await _apiService.put('/profile/$username', data: data);
+
+            // 手动更新本地 user 的 description 或 header
+            if (currentUser.value != null) {
+              updatedUser = currentUser.value!;
+              if (body != null) {
+                updatedUser = updatedUser.copyWith(description: body);
+              }
+              if (header != null) {
+                updatedUser = updatedUser.copyWith(
+                  header: UserAvatar.fromJson(header.toJson()),
+                );
+              }
+              currentUser.value = updatedUser;
+              await _saveCachedUserData(updatedUser);
+            }
+          } else {
+            // 更新其他信息（如昵称、黑名单、隐私、通知），使用 /user/{id} 接口
+            final userId = currentUser.value?.id;
+            if (userId == null || userId.isEmpty) {
+              return ApiResult.fail(t.errors.invalidParameter);
+            }
+
+            final response = await _apiService.put(
+              ApiConstants.userWithId(userId),
+              data: data,
+            );
+
+            // 智能修复：兼容扁平对象和嵌套对象结构
+            final responseData = response.data;
+            if (responseData != null) {
+              if (responseData['user'] != null) {
+                // 嵌套结构: {"user": {...}, "notifications": {...}}
+                updatedUser = User.fromJson(responseData['user']);
+                if (responseData['notifications'] != null) {
+                  updatedUser = updatedUser.copyWith(
+                    notifications: UserNotifications.fromJson(
+                      responseData['notifications'],
+                    ),
+                  );
+                }
+              } else {
+                // 扁平结构: 直接就是 User 对象
+                updatedUser = User.fromJson(responseData);
+              }
+            }
+
+            // 保留本地的 description 和 header，因为 /user 系列接口通常不返回这些 profile 字段
+            if (updatedUser != null) {
+              updatedUser = updatedUser.copyWith(
+                description: currentUser.value?.description,
+                header: currentUser.value?.header,
+                // 如果返回的对象里没有通知信息，保留本地现有的
+                notifications:
+                    updatedUser.notifications ??
+                    currentUser.value?.notifications,
+              );
+
+              currentUser.value = updatedUser;
+              await _saveCachedUserData(updatedUser);
+            }
+          }
+
+          return ApiResult.success(data: currentUser.value ?? updatedUser!);
+        } catch (e) {
+          LogUtils.e('更新用户信息失败', error: e);
+          return ApiResult.fail(t.errors.failedToOperate);
+        }
+      }
+      return ApiResult.fail(t.errors.invalidParameter);
+    });
+  }
 
   /// 标记消息已读(单个)
   /// /notifications/:id/read
   Future<ApiResult<void>> markNotificationAsRead(String notificationId) async {
     try {
-      await _apiService.post(ApiConstants.userNotificationWithId(notificationId));
+      await _apiService.post(
+        ApiConstants.userNotificationWithId(notificationId),
+      );
       return ApiResult.success();
     } catch (e) {
       LogUtils.e('标记消息已读失败', error: e);
@@ -474,7 +638,9 @@ class UserService extends GetxService {
   Future<ApiResult<UserNotificationCount>> fetchUserNotificationCount() async {
     try {
       final response = await _apiService.get(ApiConstants.userCounts);
-      return ApiResult.success(data: UserNotificationCount.fromJson(response.data));
+      return ApiResult.success(
+        data: UserNotificationCount.fromJson(response.data),
+      );
     } catch (e) {
       LogUtils.e('获取消息 count 失败', error: e);
       return ApiResult.fail(t.errors.failedToFetchData);
@@ -491,20 +657,25 @@ class UserService extends GetxService {
   ///   createdAt, // notNull 创建时间
   ///   updatedAt, // notNull 更新时间
   ///   read, // notNull 是否已读
-  ///   
+  ///
   ///   /// 目前我就找到了这两种情况，所以后面在实现列表渲染时，还要记录报错 （未设计的情况，然后给个提示UI和复制按钮，可以复制该JSON）
   ///   /// 特殊情况1: type: newReply 并且有 comment、vide，此时表示有视频的回复
   ///   /// 特殊情况2: type: newComment 并且有 comment、profile (对应user.model.dart)，此时表示有人在作者详情页给自己发了评论
   /// }
-  Future<ApiResult<PageData<Map<String, dynamic>>>> fetchUserNotifications(String userId, {int page = 0, int limit = 20}) async {
+  Future<ApiResult<PageData<Map<String, dynamic>>>> fetchUserNotifications(
+    String userId, {
+    int page = 0,
+    int limit = 20,
+  }) async {
     try {
-      final response = await _apiService.get(ApiConstants.userNotifications(userId), queryParameters: {
-        'page': page,
-        'limit': limit,
-      });
-      final List<Map<String, dynamic>> results = (response.data['results'] as List)
-          .map((item) => item as Map<String, dynamic>)
-          .toList();
+      final response = await _apiService.get(
+        ApiConstants.userNotifications(userId),
+        queryParameters: {'page': page, 'limit': limit},
+      );
+      final List<Map<String, dynamic>> results =
+          (response.data['results'] as List)
+              .map((item) => item as Map<String, dynamic>)
+              .toList();
       final PageData<Map<String, dynamic>> pageData = PageData(
         page: response.data['page'],
         limit: response.data['limit'],
@@ -522,7 +693,7 @@ class UserService extends GetxService {
   void handleLogout() {
     LogUtils.d('$_tag 接收到登出通知');
     _clearUserData();
-    
+
     // 清理缓存文件
     _clearCachedUserData();
 
@@ -533,7 +704,9 @@ class UserService extends GetxService {
   Future<void> _loadCachedUserData() async {
     try {
       final cachedUserJson = await _storage.readSecureData('cached_user_data');
-      final lastUpdateStr = await _storage.readSecureData('cached_user_data_timestamp');
+      final lastUpdateStr = await _storage.readSecureData(
+        'cached_user_data_timestamp',
+      );
 
       if (cachedUserJson != null && lastUpdateStr != null) {
         final lastUpdate = DateTime.tryParse(lastUpdateStr);
@@ -574,7 +747,10 @@ class UserService extends GetxService {
 
       final userJson = jsonEncode(user.toJson());
       await _storage.writeSecureData('cached_user_data', userJson);
-      await _storage.writeSecureData('cached_user_data_timestamp', _lastUserDataUpdate!.toIso8601String());
+      await _storage.writeSecureData(
+        'cached_user_data_timestamp',
+        _lastUserDataUpdate!.toIso8601String(),
+      );
 
       LogUtils.d('$_tag 用户数据已缓存');
     } catch (e) {
@@ -610,39 +786,47 @@ class UserService extends GetxService {
 
   // 静默获取用户资料（不影响UI状态）
   Future<void> _fetchUserProfileSilently() async {
-    try {
-      LogUtils.d('$_tag 开始静默抓取用户资料');
-      final response = await _apiService.get<Map<String, dynamic>>('/user');
-      LogUtils.d('$_tag 静默获取到用户资料响应');
+    return _performLockedOperation(() async {
+      try {
+        LogUtils.d('$_tag 开始静默抓取用户资料');
+        final response = await _apiService.get<Map<String, dynamic>>('/user');
+        LogUtils.d('$_tag 静默获取到用户资料响应');
 
-      final user = User.fromJson(response.data!['user']);
-      currentUser.value = user;
+        final data = response.data!;
+        var user = User.fromJson(data['user']);
 
-      // 保存到缓存
-      await _saveCachedUserData(user);
-
-      LogUtils.d('$_tag 用户资料静默更新完成: ${user.name}');
-
-      // 获取到用户资料后启动通知计数定时器
-      startNotificationTimer();
-    } catch (e) {
-      // 核心改动：我们在这里捕获所有异常，并且不再向上抛出(rethrow)。
-      // 这是一个后台静默任务，它的失败不应该影响用户的主体验。
-      // 用户已经看到了缓存的数据，这就足够了。
-      // 我们只需要记录错误即可。
-      LogUtils.w('$_tag 静默抓取用户资料失败，已静默处理，不影响用户登录状态: $e');
-
-      // 检查是否为 Cloudflare 403 错误，这部分逻辑保留
-      if (e is DioException && e.response?.statusCode == 403) {
-        final cfMitigated = e.response?.headers['cf-mitigated']?.firstOrNull;
-        if (cfMitigated == 'challenge') {
-          LogUtils.w('$_tag 用户信息请求被 Cloudflare 拦截，跳过错误处理');
-          return;
+        // Extract description and header from profile
+        if (data['profile'] != null) {
+          if (data['profile']['body'] != null) {
+            user = user.copyWith(description: data['profile']['body']);
+          }
+          if (data['profile']['header'] != null) {
+            user = user.copyWith(
+              header: UserAvatar.fromJson(data['profile']['header']),
+            );
+          }
         }
+
+        // Extract notifications
+        if (data['notifications'] != null) {
+          user = user.copyWith(
+            notifications: UserNotifications.fromJson(data['notifications']),
+          );
+        }
+
+        currentUser.value = user;
+
+        // 保存到缓存
+        await _saveCachedUserData(user);
+
+        LogUtils.d('$_tag 用户资料静默更新完成: ${user.name}');
+
+        // 获取到用户资料后启动通知计数定时器
+        startNotificationTimer();
+      } catch (e) {
+        // 核心改动：我们在这里捕获所有异常，并且不再向上抛出(rethrow)。
+        LogUtils.w('$_tag 静默抓取用户资料失败，已静默处理: $e');
       }
-      // 对于其他错误 (包括 HandshakeException, 401, 500 等), 
-      // 我们都选择不打扰用户。API拦截器已经处理了401的重试逻辑，
-      // 如果重试后仍然失败，我们也在此处"消化"掉这个错误，等待下一次机会（比如App重启）。
-    }
+    });
   }
 }

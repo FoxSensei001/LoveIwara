@@ -37,6 +37,7 @@ class TranslationsZhCn with BaseTranslations<AppLocale, Translations> implements
 	TranslationsZhCn $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => TranslationsZhCn(meta: meta ?? this.$meta);
 
 	// Translations
+	@override late final _TranslationsPersonalProfileZhCn personalProfile = _TranslationsPersonalProfileZhCn._(_root);
 	@override late final _TranslationsTutorialZhCn tutorial = _TranslationsTutorialZhCn._(_root);
 	@override late final _TranslationsCommonZhCn common = _TranslationsCommonZhCn._(_root);
 	@override late final _TranslationsAuthZhCn auth = _TranslationsAuthZhCn._(_root);
@@ -74,6 +75,58 @@ class TranslationsZhCn with BaseTranslations<AppLocale, Translations> implements
 	@override late final _TranslationsProxyHelperZhCn proxyHelper = _TranslationsProxyHelperZhCn._(_root);
 	@override late final _TranslationsTagSelectorZhCn tagSelector = _TranslationsTagSelectorZhCn._(_root);
 	@override late final _TranslationsAnime4kZhCn anime4k = _TranslationsAnime4kZhCn._(_root);
+}
+
+// Path: personalProfile
+class _TranslationsPersonalProfileZhCn implements TranslationsPersonalProfileEn {
+	_TranslationsPersonalProfileZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get personalProfile => '个人资料';
+	@override String get editPersonalProfile => '编辑个人资料';
+	@override String get avatar => '头像';
+	@override String get background => '背景';
+	@override String fetchUserProfileFailed({required Object error}) => '获取用户信息失败: ${error}';
+	@override String suggestedResolution({required Object resolution, required Object size}) => '建议分辨率：${resolution}，文件大小 < ${size}';
+	@override String supportedFormats({required Object formats}) => '支持格式：${formats}';
+	@override String premiumBenefit({required Object type, required Object formats}) => '高级用户可以使用动态${type} (${formats})';
+	@override String get homepageBackground => '个人主页背景';
+	@override String get basicInfo => '基本信息';
+	@override String get nickname => '昵称';
+	@override String get username => '用户名';
+	@override String get copyUsername => '复制用户名';
+	@override String get usernameCopied => '已复制用户名';
+	@override String get personalIntroduction => '个人简介';
+	@override String get noPersonalIntroduction => '暂无个人简介';
+	@override String get clickToEdit => '点击编辑';
+	@override String get privacySettings => '隐私设置';
+	@override String get hideSensitiveContent => '隐藏敏感内容';
+	@override String get hideSensitiveContentDesc => '隐藏任何包含敏感标签的视频或图片。';
+	@override String get notificationSettings => '通知设置';
+	@override String get contentCommentNotification => '内容评论通知';
+	@override String get contentCommentNotificationDesc => '有人评论您的内容时通知。';
+	@override String get commentReplyNotification => '评论回复通知';
+	@override String get commentReplyNotificationDesc => '有人回复您的评论时通知。';
+	@override String get mentionNotification => '提及通知';
+	@override String get mentionNotificationDesc => '有人在内容中提及您时通知。';
+	@override String get accountInfo => '账号信息';
+	@override String get registrationTime => '注册时间';
+	@override String updateSettingsFailed({required Object error}) => '更新设置失败: ${error}';
+	@override String updateNotificationSettingsFailed({required Object error}) => '更新通知设置失败: ${error}';
+	@override String get editNickname => '修改昵称';
+	@override String get nicknameCannotBeEmpty => '昵称不能为空';
+	@override String get changeSuccess => '修改成功';
+	@override String get unsupportedFileFormat => '不支持的文件格式';
+	@override String fileTooLarge({required Object size}) => '文件大小不能超过 ${size}';
+	@override String get uploadFailed => '上传失败';
+	@override String get avatarUpdatedSuccessfully => '头像更新成功';
+	@override String updateAvatarFailed({required Object error}) => '更新头像失败: ${error}';
+	@override String get backgroundUpdatedSuccessfully => '背景更新成功';
+	@override String updateBackgroundFailed({required Object error}) => '更新背景失败: ${error}';
+	@override String get editPersonalIntroduction => '修改个人简介';
+	@override String get enterPersonalIntroduction => '请输入个人简介';
 }
 
 // Path: tutorial
@@ -408,7 +461,6 @@ class _TranslationsErrorsZhCn implements TranslationsErrorsEn {
 	@override String get resourceNotFound => '资源不存在';
 	@override String get failedToSaveCredentials => '无法安全保存登录信息';
 	@override String get failedToLoadSavedCredentials => '加载保存的登录信息失败';
-	@override String specialFollowLimitReached({required Object cnt}) => '特别关注上限超出，上限: ${cnt}，请于关注列表页中调整';
 	@override String get notFound => '内容不存在或已被删除';
 	@override late final _TranslationsErrorsNetworkZhCn network = _TranslationsErrorsNetworkZhCn._(_root);
 }
@@ -2596,6 +2648,49 @@ class _TranslationsVideoDetailCastDlnaCastSheetZhCn implements TranslationsVideo
 extension on TranslationsZhCn {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
+			'personalProfile.personalProfile' => '个人资料',
+			'personalProfile.editPersonalProfile' => '编辑个人资料',
+			'personalProfile.avatar' => '头像',
+			'personalProfile.background' => '背景',
+			'personalProfile.fetchUserProfileFailed' => ({required Object error}) => '获取用户信息失败: ${error}',
+			'personalProfile.suggestedResolution' => ({required Object resolution, required Object size}) => '建议分辨率：${resolution}，文件大小 < ${size}',
+			'personalProfile.supportedFormats' => ({required Object formats}) => '支持格式：${formats}',
+			'personalProfile.premiumBenefit' => ({required Object type, required Object formats}) => '高级用户可以使用动态${type} (${formats})',
+			'personalProfile.homepageBackground' => '个人主页背景',
+			'personalProfile.basicInfo' => '基本信息',
+			'personalProfile.nickname' => '昵称',
+			'personalProfile.username' => '用户名',
+			'personalProfile.copyUsername' => '复制用户名',
+			'personalProfile.usernameCopied' => '已复制用户名',
+			'personalProfile.personalIntroduction' => '个人简介',
+			'personalProfile.noPersonalIntroduction' => '暂无个人简介',
+			'personalProfile.clickToEdit' => '点击编辑',
+			'personalProfile.privacySettings' => '隐私设置',
+			'personalProfile.hideSensitiveContent' => '隐藏敏感内容',
+			'personalProfile.hideSensitiveContentDesc' => '隐藏任何包含敏感标签的视频或图片。',
+			'personalProfile.notificationSettings' => '通知设置',
+			'personalProfile.contentCommentNotification' => '内容评论通知',
+			'personalProfile.contentCommentNotificationDesc' => '有人评论您的内容时通知。',
+			'personalProfile.commentReplyNotification' => '评论回复通知',
+			'personalProfile.commentReplyNotificationDesc' => '有人回复您的评论时通知。',
+			'personalProfile.mentionNotification' => '提及通知',
+			'personalProfile.mentionNotificationDesc' => '有人在内容中提及您时通知。',
+			'personalProfile.accountInfo' => '账号信息',
+			'personalProfile.registrationTime' => '注册时间',
+			'personalProfile.updateSettingsFailed' => ({required Object error}) => '更新设置失败: ${error}',
+			'personalProfile.updateNotificationSettingsFailed' => ({required Object error}) => '更新通知设置失败: ${error}',
+			'personalProfile.editNickname' => '修改昵称',
+			'personalProfile.nicknameCannotBeEmpty' => '昵称不能为空',
+			'personalProfile.changeSuccess' => '修改成功',
+			'personalProfile.unsupportedFileFormat' => '不支持的文件格式',
+			'personalProfile.fileTooLarge' => ({required Object size}) => '文件大小不能超过 ${size}',
+			'personalProfile.uploadFailed' => '上传失败',
+			'personalProfile.avatarUpdatedSuccessfully' => '头像更新成功',
+			'personalProfile.updateAvatarFailed' => ({required Object error}) => '更新头像失败: ${error}',
+			'personalProfile.backgroundUpdatedSuccessfully' => '背景更新成功',
+			'personalProfile.updateBackgroundFailed' => ({required Object error}) => '更新背景失败: ${error}',
+			'personalProfile.editPersonalIntroduction' => '修改个人简介',
+			'personalProfile.enterPersonalIntroduction' => '请输入个人简介',
 			'tutorial.specialFollowFeature' => '特别关注功能',
 			'tutorial.specialFollowDescription' => '这里显示你特别关注的作者。在视频、图库、作者详情页点击关注按钮，然后选择"添加为特别关注"即可。',
 			'tutorial.exampleAuthorInfoRow' => '示例：作者信息行',
@@ -2902,7 +2997,6 @@ extension on TranslationsZhCn {
 			'errors.resourceNotFound' => '资源不存在',
 			'errors.failedToSaveCredentials' => '无法安全保存登录信息',
 			'errors.failedToLoadSavedCredentials' => '加载保存的登录信息失败',
-			'errors.specialFollowLimitReached' => ({required Object cnt}) => '特别关注上限超出，上限: ${cnt}，请于关注列表页中调整',
 			'errors.notFound' => '内容不存在或已被删除',
 			'errors.network.basicPrefix' => '网络错误 - ',
 			'errors.network.failedToConnectToServer' => '连接服务器失败',
@@ -3066,6 +3160,8 @@ extension on TranslationsZhCn {
 			'settings.updateContent' => '更新内容：',
 			'settings.releaseDate' => '发布日期',
 			'settings.ignoreThisVersion' => '忽略此版本',
+			_ => null,
+		} ?? switch (path) {
 			'settings.minVersionUpdateRequired' => '当前版本过低，请尽快更新',
 			'settings.forceUpdateTip' => '此版本为强制更新，请尽快更新到最新版本',
 			'settings.viewChangelog' => '查看更新日志',
@@ -3108,8 +3204,6 @@ extension on TranslationsZhCn {
 			'settings.enterSignature' => '输入小尾巴',
 			'settings.editSignature' => '编辑小尾巴',
 			'settings.signatureContent' => '小尾巴内容',
-			_ => null,
-		} ?? switch (path) {
 			'settings.exportConfig' => '导出应用配置',
 			'settings.exportConfigDesc' => '将应用配置导出为文件（不包含下载记录）',
 			'settings.importConfig' => '导入应用配置',
@@ -3580,6 +3674,8 @@ extension on TranslationsZhCn {
 			'forum.groups.administration' => '管理',
 			'forum.groups.global' => '全球',
 			'forum.groups.chinese' => '中文',
+			_ => null,
+		} ?? switch (path) {
 			'forum.groups.japanese' => '日语',
 			'forum.groups.korean' => '韩语',
 			'forum.groups.other' => '其他',
@@ -3622,8 +3718,6 @@ extension on TranslationsZhCn {
 			'forum.reply' => '回复',
 			'forum.pendingReview' => '审核中',
 			'forum.editedAt' => '编辑时间',
-			_ => null,
-		} ?? switch (path) {
 			'forum.copySuccess' => '已复制到剪贴板',
 			'forum.copySuccessForMessage' => ({required Object str}) => '已复制到剪贴板: ${str}',
 			'forum.editReply' => '编辑回复',
@@ -4094,6 +4188,8 @@ extension on TranslationsZhCn {
 			'log.cleanExceededLogs' => '清理超出限制的日志',
 			'log.noLogsToExport' => '没有可导出的日志数据',
 			'log.exportingLogs' => '正在导出日志...',
+			_ => null,
+		} ?? switch (path) {
 			'log.noHistoryLogsToExport' => '尚无可导出的历史日志，请先使用应用一段时间再尝试',
 			'log.selectLogDate' => '选择日志日期',
 			'log.today' => '今天',
@@ -4136,8 +4232,6 @@ extension on TranslationsZhCn {
 			'emoji.addImage' => '添加图片',
 			'emoji.addImageByUrl' => '通过URL添加',
 			'emoji.addImageUrl' => '添加图片URL',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.imageUrl' => '图片URL',
 			'emoji.enterImageUrl' => '请输入图片URL',
 			'emoji.add' => '添加',

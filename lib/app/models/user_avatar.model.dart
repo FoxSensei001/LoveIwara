@@ -1,4 +1,3 @@
-
 import 'package:i_iwara/common/constants.dart';
 
 class UserAvatar {
@@ -12,6 +11,7 @@ class UserAvatar {
   final int? height;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final String? hash;
 
   UserAvatar({
     required this.id,
@@ -24,6 +24,7 @@ class UserAvatar {
     this.height,
     required this.createdAt,
     required this.updatedAt,
+    this.hash,
   });
 
   factory UserAvatar.fromJson(Map<String, dynamic> json) {
@@ -36,8 +37,13 @@ class UserAvatar {
       size: json['size'],
       width: json['width'],
       height: json['height'],
-      createdAt: json['createdAt'] == null ? DateTime.now() : DateTime.parse(json['createdAt']),
-      updatedAt: json['updatedAt'] == null ? DateTime.now() : DateTime.parse(json['updatedAt']),
+      createdAt: json['createdAt'] == null
+          ? DateTime.now()
+          : DateTime.parse(json['createdAt']),
+      updatedAt: json['updatedAt'] == null
+          ? DateTime.now()
+          : DateTime.parse(json['updatedAt']),
+      hash: json['hash'],
     );
   }
 
@@ -53,14 +59,25 @@ class UserAvatar {
     data['height'] = height;
     data['createdAt'] = createdAt.toIso8601String();
     data['updatedAt'] = updatedAt.toIso8601String();
+    data['hash'] = hash;
     return data;
   }
 
   String get avatarUrl {
-    final isAnimated = mime == 'image/gif' || mime == 'image/webp' || mime == 'image/apng';
+    final isAnimated =
+        mime == 'image/gif' || mime == 'image/webp' || mime == 'image/apng';
     if (isAnimated) {
       return CommonConstants.avatarOriginalUrl(id, name);
     }
     return CommonConstants.avatarUrl(id, name);
+  }
+
+  String get headerUrl {
+    final isAnimated =
+        mime == 'image/gif' || mime == 'image/webp' || mime == 'image/apng';
+    if (isAnimated) {
+      return CommonConstants.avatarOriginalUrl(id, name);
+    }
+    return '${CommonConstants.iwaraImageBaseUrl}/image/profileHeader/$id/$name';
   }
 }

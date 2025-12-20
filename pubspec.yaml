@@ -89,6 +89,7 @@ dependencies:
   html: ^0.15.6
   desktop_drop: ^0.7.0
 
+  device_info_plus: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

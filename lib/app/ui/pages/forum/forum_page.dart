@@ -74,11 +74,13 @@ class _ForumPageState extends State<ForumPage> {
     super.dispose();
   }
 
-  Future<void> _loadCategories() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
+  Future<void> _loadCategories({bool isRefresh = false}) async {
+    if (!isRefresh) {
+      setState(() {
+        _isLoading = true;
+        _error = null;
+      });
+    }
 
     final result = await _forumService.getForumCategoryTree();
     if (mounted) {
@@ -96,20 +98,22 @@ class _ForumPageState extends State<ForumPage> {
   }
 
   Future<void> _refreshAll() async {
-    // 刷新分类列表
-    await _loadCategories();
-    // 刷新最近帖子列表
-    _recentThreadRepository.refresh(true);
-    // 刷新置顶公告
-    await _loadStickyAnnouncements();
+    // 刷新分类列表、最近帖子列表、置顶公告（并发执行）
+    await Future.wait([
+      _loadCategories(isRefresh: true),
+      _recentThreadRepository.refresh(true),
+      _loadStickyAnnouncements(isRefresh: true),
+    ]);
   }
 
-  Future<void> _loadStickyAnnouncements() async {
+  Future<void> _loadStickyAnnouncements({bool isRefresh = false}) async {
     if (!mounted) return;
 
-    setState(() {
-      _isLoadingStickyAnnouncements = true;
-    });
+    if (!isRefresh) {
+      setState(() {
+        _isLoadingStickyAnnouncements = true;
+      });
+    }
 
     final result = await _forumService.fetchStickyAnnouncements(limit: 5);
 
@@ -139,7 +143,7 @@ class _ForumPageState extends State<ForumPage> {
       ForumPostDialog(
         onSubmit: () {
           // 刷新帖子列表
-          _loadCategories();
+          _loadCategories(isRefresh: true);
         },
       ),
     );

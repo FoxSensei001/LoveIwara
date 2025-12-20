@@ -24,8 +24,6 @@ class GlobalDrawerColumns extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = slang.Translations.of(context);
-
     return Column(
       children: [
         Obx(() => _buildHeader(context)),
@@ -33,11 +31,11 @@ class GlobalDrawerColumns extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.symmetric(vertical: 8),
             children: [
-              _buildSectionHeader(t.settings.interaction),
+              _buildSectionHeader(slang.t.settings.interaction),
               _buildMenuItem(
                 context,
                 icon: Icons.notifications_outlined,
-                title: t.notifications.notifications,
+                title: slang.t.notifications.notifications,
                 onTap: () => _handleLoginRequiredNavi(
                   NaviService.navigateToNotificationListPage,
                   context,
@@ -47,7 +45,7 @@ class GlobalDrawerColumns extends StatelessWidget {
               _buildMenuItem(
                 context,
                 icon: Icons.chat_outlined,
-                title: t.conversation.conversation,
+                title: slang.t.conversation.conversation,
                 onTap: () => _handleLoginRequiredNavi(
                   NaviService.navigateToConversationPage,
                   context,
@@ -57,7 +55,7 @@ class GlobalDrawerColumns extends StatelessWidget {
               _buildMenuItem(
                 context,
                 icon: Icons.people_outline,
-                title: t.common.friends,
+                title: slang.t.common.friends,
                 onTap: () => _handleLoginRequiredNavi(
                   NaviService.navigateToFriendsPage,
                   context,
@@ -68,11 +66,11 @@ class GlobalDrawerColumns extends StatelessWidget {
               const Divider(indent: 16, endIndent: 16, height: 24),
 
               // --- Content Section ---
-              _buildSectionHeader(t.common.history),
+              _buildSectionHeader(slang.t.common.history),
               _buildMenuItem(
                 context,
                 icon: Icons.history_outlined,
-                title: t.common.history,
+                title: slang.t.common.history,
                 onTap: () {
                   NaviService.navigateToHistoryListPage();
                   AppService.switchGlobalDrawer();
@@ -81,7 +79,7 @@ class GlobalDrawerColumns extends StatelessWidget {
               _buildMenuItem(
                 context,
                 icon: Icons.download_outlined,
-                title: t.download.downloadList,
+                title: slang.t.download.downloadList,
                 onTap: () {
                   NaviService.navigateToDownloadTaskListPage();
                   AppService.switchGlobalDrawer();
@@ -90,7 +88,7 @@ class GlobalDrawerColumns extends StatelessWidget {
               _buildMenuItem(
                 context,
                 icon: Icons.favorite_outline,
-                title: t.common.favorites,
+                title: slang.t.common.favorites,
                 onTap: () => _handleLoginRequiredNavi(
                   NaviService.navigateToFavoritePage,
                   context,
@@ -99,7 +97,7 @@ class GlobalDrawerColumns extends StatelessWidget {
               _buildMenuItem(
                 context,
                 icon: Icons.bookmark_outline,
-                title: t.favorite.localizeFavorite,
+                title: slang.t.favorite.localizeFavorite,
                 onTap: () {
                   NaviService.navigateToLocalFavoritePage();
                   AppService.switchGlobalDrawer();
@@ -108,7 +106,7 @@ class GlobalDrawerColumns extends StatelessWidget {
               _buildMenuItem(
                 context,
                 icon: Icons.playlist_play_outlined,
-                title: t.common.playList,
+                title: slang.t.common.playList,
                 onTap: () => _handleLoginRequiredNavi(
                   () => NaviService.navigateToPlayListPage(
                     userService.currentUser.value!.id,
@@ -121,11 +119,11 @@ class GlobalDrawerColumns extends StatelessWidget {
               const Divider(indent: 16, endIndent: 16, height: 24),
 
               // --- Social Section ---
-              _buildSectionHeader(t.common.followsAndFans),
+              _buildSectionHeader(slang.t.common.followsAndFans),
               _buildMenuItem(
                 context,
                 icon: Icons.stars_outlined,
-                title: t.common.specialFollow,
+                title: slang.t.common.specialFollow,
                 onTap: () => _handleLoginRequiredNavi(
                   () => NaviService.navigateToSpecialFollowsListPage(
                     userService.currentUser.value!.id,
@@ -138,7 +136,7 @@ class GlobalDrawerColumns extends StatelessWidget {
               _buildMenuItem(
                 context,
                 icon: Icons.person_add_alt_1_outlined,
-                title: t.common.followingList,
+                title: slang.t.common.followingList,
                 onTap: () => _handleLoginRequiredNavi(
                   () => NaviService.navigateToFollowingListPage(
                     userService.currentUser.value!.id,
@@ -151,7 +149,7 @@ class GlobalDrawerColumns extends StatelessWidget {
               _buildMenuItem(
                 context,
                 icon: Icons.group_outlined,
-                title: t.common.followersList,
+                title: slang.t.common.followersList,
                 onTap: () => _handleLoginRequiredNavi(
                   () => NaviService.navigateToFollowersListPage(
                     userService.currentUser.value!.id,
@@ -165,11 +163,20 @@ class GlobalDrawerColumns extends StatelessWidget {
               const Divider(indent: 16, endIndent: 16, height: 24),
 
               // --- Tools Section ---
-              _buildSectionHeader(t.common.more),
+              _buildSectionHeader(slang.t.common.more),
+              _buildMenuItem(
+                context,
+                icon: Icons.person_outline,
+                title: slang.t.personalProfile.personalProfile,
+                onTap: () => _handleLoginRequiredNavi(
+                  NaviService.navigateToPersonalProfilePage,
+                  context,
+                ),
+              ),
               _buildMenuItem(
                 context,
                 icon: Icons.block_flipped,
-                title: t.common.tagBlacklist,
+                title: slang.t.common.tagBlacklist,
                 onTap: () => _handleLoginRequiredNavi(
                   NaviService.navigateToTagBlacklistPage,
                   context,
@@ -180,7 +187,7 @@ class GlobalDrawerColumns extends StatelessWidget {
             ],
           ),
         ),
-        Obx(() => _buildBottomActions(context, t)),
+        Obx(() => _buildBottomActions(context)),
       ],
     );
   }
@@ -262,10 +269,8 @@ class GlobalDrawerColumns extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context) {
-    final t = slang.Translations.of(context);
     final user = userService.currentUser.value;
-    // User模型目前没有headerId，暂时传null使用默认背景
-    final headerUrl = CommonConstants.userProfileHeaderUrl(null);
+    final headerUrl = CommonConstants.userProfileHeaderUrl(user?.header?.id);
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -345,7 +350,7 @@ class GlobalDrawerColumns extends StatelessWidget {
                             ),
                           ] else ...[
                             Text(
-                              t.auth.notLoggedIn,
+                              slang.t.auth.notLoggedIn,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
@@ -354,7 +359,7 @@ class GlobalDrawerColumns extends StatelessWidget {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              t.auth.clickToLogin,
+                              slang.t.auth.clickToLogin,
                               style: TextStyle(
                                 color: Colors.white.withOpacity(0.8),
                                 fontSize: 13,
@@ -409,7 +414,7 @@ class GlobalDrawerColumns extends StatelessWidget {
     );
   }
 
-  Widget _buildBottomActions(BuildContext context, slang.Translations t) {
+  Widget _buildBottomActions(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
@@ -432,7 +437,7 @@ class GlobalDrawerColumns extends StatelessWidget {
             children: [
               _BottomActionItem(
                 icon: Icons.settings_outlined,
-                label: t.common.settings,
+                label: slang.t.common.settings,
                 onTap: () {
                   AppService.switchGlobalDrawer();
                   NaviService.navigateToSettingsPage();
@@ -440,13 +445,13 @@ class GlobalDrawerColumns extends StatelessWidget {
               ),
               _BottomActionItem(
                 icon: Icons.link_outlined,
-                label: t.settings.jumpLink,
+                label: slang.t.settings.jumpLink,
                 onTap: () => LinkInputDialogWidget.show(),
               ),
               if (userService.isLogin)
                 _BottomActionItem(
                   icon: Icons.logout_outlined,
-                  label: t.common.logout,
+                  label: slang.t.common.logout,
                   onTap: () => _showLogoutDialog(context),
                 ),
             ],
@@ -518,25 +523,24 @@ class LogoutDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = slang.Translations.of(context);
     return AlertDialog(
-      title: Text(t.auth.logout),
-      content: Text(t.auth.logoutConfirmation),
+      title: Text(slang.t.auth.logout),
+      content: Text(slang.t.auth.logoutConfirmation),
       actions: [
         TextButton(
-          child: Text(t.common.cancel),
+          child: Text(slang.t.common.cancel),
           onPressed: () => Navigator.pop(context),
         ),
         ElevatedButton(
-          child: Text(t.common.confirm),
+          child: Text(slang.t.common.confirm),
           onPressed: () async {
             Navigator.pop(context);
             try {
               userService.clearAllNotificationCounts();
               await userService.logout();
-              showToast(t.auth.logoutSuccess);
+              showToast(slang.t.auth.logoutSuccess);
             } catch (e) {
-              showToast('${t.auth.logoutFailed}: $e');
+              showToast('${slang.t.auth.logoutFailed}: $e');
             }
           },
         ),

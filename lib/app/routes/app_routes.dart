@@ -97,6 +97,7 @@ abstract class Routes {
       _Paths.TAG_VIDEOS.replaceAll(':tagId', tagId);
   static String TAG_GALLERIES(String tagId) =>
       _Paths.TAG_GALLERIES.replaceAll(':tagId', tagId);
+  static const PERSONAL_PROFILE = _Paths.PERSONAL_PROFILE;
 }
 
 abstract class _Paths {
@@ -104,6 +105,7 @@ abstract class _Paths {
 
   static const HOME = '/';
   static const LOGIN = '/login';
+  static const PERSONAL_PROFILE = '/personal_profile';
   static const VIDEO_DETAIL = '/video_detail/:videoId';
   static const VIDEO_DETAIL_PREFIX = '/video_detail';
   static const SETTINGS_PAGE = '/settings_page';

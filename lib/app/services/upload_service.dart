@@ -21,6 +21,11 @@ class UploadedImage {
   final String hash;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final String? md5;
+  final String? userId;
+  final bool? animatedPreview;
+  final dynamic duration;
+  final int? numThumbnails;
 
   UploadedImage({
     required this.id,
@@ -34,6 +39,11 @@ class UploadedImage {
     required this.hash,
     required this.createdAt,
     required this.updatedAt,
+    this.md5,
+    this.userId,
+    this.animatedPreview,
+    this.duration,
+    this.numThumbnails,
   });
 
   factory UploadedImage.fromJson(Map<String, dynamic> json) {
@@ -49,7 +59,33 @@ class UploadedImage {
       hash: json['hash'],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
+      md5: json['md5'],
+      userId: json['userId'],
+      animatedPreview: json['animatedPreview'],
+      duration: json['duration'],
+      numThumbnails: json['numThumbnails'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'type': type,
+      'path': path,
+      'name': name,
+      'mime': mime,
+      'size': size,
+      'width': width,
+      'height': height,
+      'hash': hash,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+      'md5': md5,
+      'userId': userId,
+      'animatedPreview': animatedPreview,
+      'duration': duration,
+      'numThumbnails': numThumbnails,
+    };
   }
 
   // 生成缩略图URL
@@ -94,7 +130,7 @@ class UploadService extends GetxService {
       if (Platform.isAndroid || Platform.isIOS) {
         // 移动平台使用 flutter_file_dialog，但只能选择单个文件
         const params = OpenFileDialogParams(
-          fileExtensionsFilter: ['jpg', 'jpeg', 'png', 'gif'],
+          fileExtensionsFilter: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'webm'],
         );
         final filePath = await FlutterFileDialog.pickFile(params: params);
         if (filePath == null) {
@@ -105,7 +141,7 @@ class UploadService extends GetxService {
         // 桌面平台使用 file_selector
         const typeGroup = XTypeGroup(
           label: 'Images',
-          extensions: ['jpg', 'jpeg', 'png', 'gif'],
+          extensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'webm'],
         );
         final files = await openFiles(acceptedTypeGroups: [typeGroup]);
         return files.map((file) => File(file.path)).toList();
@@ -127,16 +163,9 @@ class UploadService extends GetxService {
         return null;
       }
 
-      // 检查文件大小（限制为15MB）
-      final fileSize = await file.length();
-      if (fileSize > 15 * 1024 * 1024) {
-        LogUtils.e('文件过大: $fileSize bytes', tag: _tag);
-        return null;
-      }
-
       // 读取文件内容
       final bytes = await file.readAsBytes();
-      
+
       // 创建FormData
       final formData = dio.FormData.fromMap({
         'file': dio.MultipartFile.fromBytes(
@@ -162,7 +191,8 @@ class UploadService extends GetxService {
         ),
       );
 
-      if ((response.statusCode == 200 || response.statusCode == 201) && response.data != null) {
+      if ((response.statusCode == 200 || response.statusCode == 201) &&
+          response.data != null) {
         final uploadedImage = UploadedImage.fromJson(response.data);
         LogUtils.d('图片上传成功: ${uploadedImage.id}', _tag);
         return uploadedImage;
@@ -186,15 +216,20 @@ class UploadService extends GetxService {
     // 使用并发上传，但限制并发数量为3
     const int maxConcurrent = 3;
     final List<List<File>> batches = [];
-    
+
     for (int i = 0; i < files.length; i += maxConcurrent) {
-      final end = (i + maxConcurrent < files.length) ? i + maxConcurrent : files.length;
+      final end = (i + maxConcurrent < files.length)
+          ? i + maxConcurrent
+          : files.length;
       batches.add(files.sublist(i, end));
     }
 
     for (int batchIndex = 0; batchIndex < batches.length; batchIndex++) {
       final batch = batches[batchIndex];
-      LogUtils.d('上传批次 ${batchIndex + 1}/${batches.length}, 包含 ${batch.length} 个文件', _tag);
+      LogUtils.d(
+        '上传批次 ${batchIndex + 1}/${batches.length}, 包含 ${batch.length} 个文件',
+        _tag,
+      );
 
       final futures = batch.map((file) => uploadImageFile(file)).toList();
       final results = await Future.wait(futures);
@@ -209,14 +244,15 @@ class UploadService extends GetxService {
       }
     }
 
-    LogUtils.d('批量上传完成: 成功 ${uploadedImages.length} 个, 失败 ${failedFiles.length} 个', _tag);
-    
+    LogUtils.d(
+      '批量上传完成: 成功 ${uploadedImages.length} 个, 失败 ${failedFiles.length} 个',
+      _tag,
+    );
+
     if (failedFiles.isNotEmpty) {
       LogUtils.w('上传失败的文件: ${failedFiles.join(', ')}', _tag);
     }
 
     return uploadedImages;
   }
-
-
 }

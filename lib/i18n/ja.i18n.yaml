@@ -1,5 +1,50 @@
 # ja-JP.i18n.yaml
 
+personalProfile:
+  personalProfile: プロフィール
+  editPersonalProfile: プロフィール編集
+  avatar: アバター
+  background: 背景
+  fetchUserProfileFailed: "ユーザー情報の取得に失敗しました: ${error}"
+  suggestedResolution: "推奨解像度：${resolution}、ファイルサイズ < ${size}"
+  supportedFormats: "サポート形式：${formats}"
+  premiumBenefit: "プレミアムユーザーは動的な${type} (${formats}) を使用できます"
+  homepageBackground: プロフィール背景
+  basicInfo: 基本情報
+  nickname: ニックネーム
+  username: ユーザー名
+  copyUsername: ユーザー名をコピー
+  usernameCopied: ユーザー名をコピーしました
+  personalIntroduction: 自己紹介
+  noPersonalIntroduction: 自己紹介がありません
+  clickToEdit: クリックして編集
+  privacySettings: プライバシー設定
+  hideSensitiveContent: センシティブな内容を非表示
+  hideSensitiveContentDesc: センシティブなタグを含む動画や画像を非表示にします。
+  notificationSettings: 通知設定
+  contentCommentNotification: コンテンツへのコメント通知
+  contentCommentNotificationDesc: あなたのコンテンツにコメントがあったときに通知します。
+  commentReplyNotification: コメントへの返信通知
+  commentReplyNotificationDesc: あなたのコメントに返信があったときに通知します。
+  mentionNotification: メンション通知
+  mentionNotificationDesc: コンテンツ内であなたをメンションしたときに通知します。
+  accountInfo: アカウント情報
+  registrationTime: 登録日時
+  updateSettingsFailed: "設定の更新に失敗しました: ${error}"
+  updateNotificationSettingsFailed: "通知設定の更新に失敗しました: ${error}"
+  editNickname: ニックネームの変更
+  nicknameCannotBeEmpty: ニックネームを空にすることはできません
+  changeSuccess: 変更に成功しました
+  unsupportedFileFormat: サポートされていないファイル形式
+  fileTooLarge: "ファイルサイズは ${size} を超えることはできません"
+  uploadFailed: アップロードに失敗しました
+  avatarUpdatedSuccessfully: アバターを更新しました
+  updateAvatarFailed: "アバターの更新に失敗しました: ${error}"
+  backgroundUpdatedSuccessfully: 背景を更新しました
+  updateBackgroundFailed: "背景の更新に失敗しました: ${error}"
+  editPersonalIntroduction: 自己紹介の編集
+  enterPersonalIntroduction: 自己紹介を入力してください
+
 # Tutorial Service
 tutorial:
   specialFollowFeature: "特別フォロー機能"

@@ -1,3 +1,50 @@
+# zh-TW.i18n.yaml
+
+personalProfile:
+  personalProfile: 個人資料
+  editPersonalProfile: 編輯個人資料
+  avatar: 頭像
+  background: 背景
+  fetchUserProfileFailed: "取得使用者資訊失敗: ${error}"
+  suggestedResolution: "建議解析度：${resolution}，檔案大小 < ${size}"
+  supportedFormats: "支援格式：${formats}"
+  premiumBenefit: "高級使用者可以使用動態${type} (${formats})"
+  homepageBackground: 個人主頁背景
+  basicInfo: 基本資訊
+  nickname: 暱稱
+  username: 使用者名稱
+  copyUsername: 複製使用者名稱
+  usernameCopied: 已複製使用者名稱
+  personalIntroduction: 個人簡介
+  noPersonalIntroduction: 暫無個人簡介
+  clickToEdit: 點擊編輯
+  privacySettings: 隱私設定
+  hideSensitiveContent: 隱藏敏感內容
+  hideSensitiveContentDesc: 隱藏任何包含敏感標籤的影片或圖片。
+  notificationSettings: 通知設定
+  contentCommentNotification: 內容評論通知
+  contentCommentNotificationDesc: 有人評論您的內容時通知。
+  commentReplyNotification: 評論回覆通知
+  commentReplyNotificationDesc: 有人回覆您的評論時通知。
+  mentionNotification: 提及通知
+  mentionNotificationDesc: 有人在內容中提及您時通知。
+  accountInfo: 帳號資訊
+  registrationTime: 註冊時間
+  updateSettingsFailed: "更新設定失敗: ${error}"
+  updateNotificationSettingsFailed: "更新通知設定失敗: ${error}"
+  editNickname: 修改暱稱
+  nicknameCannotBeEmpty: 暱稱不能為空
+  changeSuccess: 修改成功
+  unsupportedFileFormat: 不支援的檔案格式
+  fileTooLarge: "檔案大小不能超過 ${size}"
+  uploadFailed: 上傳失敗
+  avatarUpdatedSuccessfully: 頭像更新成功
+  updateAvatarFailed: "更新頭像失敗: ${error}"
+  backgroundUpdatedSuccessfully: 背景更新成功
+  updateBackgroundFailed: "更新背景失敗: ${error}"
+  editPersonalIntroduction: 編輯個人簡介
+  enterPersonalIntroduction: 請輸入個人簡介
+
 # Tutorial Service
 tutorial:
   specialFollowFeature: "特別關注功能"

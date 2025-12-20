@@ -65,7 +65,21 @@ class _ImageModelCardListItemWidgetState
       _tagsInitialized = true;
     }
 
-    final card = RepaintBoundary(
+    // 多选模式下的遮罩
+    final Widget? overlay = widget.isMultiSelectMode
+        ? Container(
+            color: widget.isSelected ? Colors.black38 : Colors.black12,
+            child: Center(
+              child: Icon(
+                widget.isSelected ? Icons.check_circle : Icons.circle_outlined,
+                color: widget.isSelected ? Colors.white : Colors.white70,
+                size: 40,
+              ),
+            ),
+          )
+        : null;
+
+    return RepaintBoundary(
       child: BaseCardListItem(
         width: widget.width,
         thumbnail: _buildCachedThumbnail(),
@@ -76,36 +90,9 @@ class _ImageModelCardListItemWidgetState
             ? widget.onSelect!
             : () =>
                   NaviService.navigateToGalleryDetailPage(widget.imageModel.id),
+        contentOverlay: overlay,
       ),
     );
-
-    // 多选模式下添加覆盖层
-    if (widget.isMultiSelectMode) {
-      return Stack(
-        children: [
-          card,
-          Positioned.fill(
-            child: Material(
-              color: widget.isSelected ? Colors.black38 : Colors.black12,
-              child: InkWell(
-                onTap: widget.onSelect,
-                child: Center(
-                  child: Icon(
-                    widget.isSelected
-                        ? Icons.check_circle
-                        : Icons.circle_outlined,
-                    color: widget.isSelected ? Colors.white : Colors.white70,
-                    size: 40,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      );
-    }
-
-    return card;
   }
 
   Widget _buildCachedThumbnail() {

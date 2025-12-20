@@ -37,6 +37,7 @@ class TranslationsJa with BaseTranslations<AppLocale, Translations> implements T
 	TranslationsJa $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => TranslationsJa(meta: meta ?? this.$meta);
 
 	// Translations
+	@override late final _TranslationsPersonalProfileJa personalProfile = _TranslationsPersonalProfileJa._(_root);
 	@override late final _TranslationsTutorialJa tutorial = _TranslationsTutorialJa._(_root);
 	@override late final _TranslationsCommonJa common = _TranslationsCommonJa._(_root);
 	@override late final _TranslationsAuthJa auth = _TranslationsAuthJa._(_root);
@@ -74,6 +75,58 @@ class TranslationsJa with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _TranslationsProxyHelperJa proxyHelper = _TranslationsProxyHelperJa._(_root);
 	@override late final _TranslationsTagSelectorJa tagSelector = _TranslationsTagSelectorJa._(_root);
 	@override late final _TranslationsAnime4kJa anime4k = _TranslationsAnime4kJa._(_root);
+}
+
+// Path: personalProfile
+class _TranslationsPersonalProfileJa implements TranslationsPersonalProfileEn {
+	_TranslationsPersonalProfileJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get personalProfile => 'プロフィール';
+	@override String get editPersonalProfile => 'プロフィール編集';
+	@override String get avatar => 'アバター';
+	@override String get background => '背景';
+	@override String fetchUserProfileFailed({required Object error}) => 'ユーザー情報の取得に失敗しました: ${error}';
+	@override String suggestedResolution({required Object resolution, required Object size}) => '推奨解像度：${resolution}、ファイルサイズ < ${size}';
+	@override String supportedFormats({required Object formats}) => 'サポート形式：${formats}';
+	@override String premiumBenefit({required Object type, required Object formats}) => 'プレミアムユーザーは動的な${type} (${formats}) を使用できます';
+	@override String get homepageBackground => 'プロフィール背景';
+	@override String get basicInfo => '基本情報';
+	@override String get nickname => 'ニックネーム';
+	@override String get username => 'ユーザー名';
+	@override String get copyUsername => 'ユーザー名をコピー';
+	@override String get usernameCopied => 'ユーザー名をコピーしました';
+	@override String get personalIntroduction => '自己紹介';
+	@override String get noPersonalIntroduction => '自己紹介がありません';
+	@override String get clickToEdit => 'クリックして編集';
+	@override String get privacySettings => 'プライバシー設定';
+	@override String get hideSensitiveContent => 'センシティブな内容を非表示';
+	@override String get hideSensitiveContentDesc => 'センシティブなタグを含む動画や画像を非表示にします。';
+	@override String get notificationSettings => '通知設定';
+	@override String get contentCommentNotification => 'コンテンツへのコメント通知';
+	@override String get contentCommentNotificationDesc => 'あなたのコンテンツにコメントがあったときに通知します。';
+	@override String get commentReplyNotification => 'コメントへの返信通知';
+	@override String get commentReplyNotificationDesc => 'あなたのコメントに返信があったときに通知します。';
+	@override String get mentionNotification => 'メンション通知';
+	@override String get mentionNotificationDesc => 'コンテンツ内であなたをメンションしたときに通知します。';
+	@override String get accountInfo => 'アカウント情報';
+	@override String get registrationTime => '登録日時';
+	@override String updateSettingsFailed({required Object error}) => '設定の更新に失敗しました: ${error}';
+	@override String updateNotificationSettingsFailed({required Object error}) => '通知設定の更新に失敗しました: ${error}';
+	@override String get editNickname => 'ニックネームの変更';
+	@override String get nicknameCannotBeEmpty => 'ニックネームを空にすることはできません';
+	@override String get changeSuccess => '変更に成功しました';
+	@override String get unsupportedFileFormat => 'サポートされていないファイル形式';
+	@override String fileTooLarge({required Object size}) => 'ファイルサイズは ${size} を超えることはできません';
+	@override String get uploadFailed => 'アップロードに失敗しました';
+	@override String get avatarUpdatedSuccessfully => 'アバターを更新しました';
+	@override String updateAvatarFailed({required Object error}) => 'アバターの更新に失敗しました: ${error}';
+	@override String get backgroundUpdatedSuccessfully => '背景を更新しました';
+	@override String updateBackgroundFailed({required Object error}) => '背景の更新に失敗しました: ${error}';
+	@override String get editPersonalIntroduction => '自己紹介の編集';
+	@override String get enterPersonalIntroduction => '自己紹介を入力してください';
 }
 
 // Path: tutorial
@@ -403,7 +456,6 @@ class _TranslationsErrorsJa implements TranslationsErrorsEn {
 	@override String get resourceNotFound => 'リソースが見つかりません';
 	@override String get failedToSaveCredentials => 'ログイン情報の保存に失敗しました';
 	@override String get failedToLoadSavedCredentials => '保存されたログイン情報の読み込みに失敗しました';
-	@override String specialFollowLimitReached({required Object cnt}) => '特別フォローの上限を超えています。上限: ${cnt}，フォローリストページで調整してください';
 	@override String get notFound => 'コンテンツが見つかりませんまたは削除されました';
 	@override late final _TranslationsErrorsNetworkJa network = _TranslationsErrorsNetworkJa._(_root);
 }
@@ -2591,6 +2643,49 @@ class _TranslationsVideoDetailCastDlnaCastSheetJa implements TranslationsVideoDe
 extension on TranslationsJa {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
+			'personalProfile.personalProfile' => 'プロフィール',
+			'personalProfile.editPersonalProfile' => 'プロフィール編集',
+			'personalProfile.avatar' => 'アバター',
+			'personalProfile.background' => '背景',
+			'personalProfile.fetchUserProfileFailed' => ({required Object error}) => 'ユーザー情報の取得に失敗しました: ${error}',
+			'personalProfile.suggestedResolution' => ({required Object resolution, required Object size}) => '推奨解像度：${resolution}、ファイルサイズ < ${size}',
+			'personalProfile.supportedFormats' => ({required Object formats}) => 'サポート形式：${formats}',
+			'personalProfile.premiumBenefit' => ({required Object type, required Object formats}) => 'プレミアムユーザーは動的な${type} (${formats}) を使用できます',
+			'personalProfile.homepageBackground' => 'プロフィール背景',
+			'personalProfile.basicInfo' => '基本情報',
+			'personalProfile.nickname' => 'ニックネーム',
+			'personalProfile.username' => 'ユーザー名',
+			'personalProfile.copyUsername' => 'ユーザー名をコピー',
+			'personalProfile.usernameCopied' => 'ユーザー名をコピーしました',
+			'personalProfile.personalIntroduction' => '自己紹介',
+			'personalProfile.noPersonalIntroduction' => '自己紹介がありません',
+			'personalProfile.clickToEdit' => 'クリックして編集',
+			'personalProfile.privacySettings' => 'プライバシー設定',
+			'personalProfile.hideSensitiveContent' => 'センシティブな内容を非表示',
+			'personalProfile.hideSensitiveContentDesc' => 'センシティブなタグを含む動画や画像を非表示にします。',
+			'personalProfile.notificationSettings' => '通知設定',
+			'personalProfile.contentCommentNotification' => 'コンテンツへのコメント通知',
+			'personalProfile.contentCommentNotificationDesc' => 'あなたのコンテンツにコメントがあったときに通知します。',
+			'personalProfile.commentReplyNotification' => 'コメントへの返信通知',
+			'personalProfile.commentReplyNotificationDesc' => 'あなたのコメントに返信があったときに通知します。',
+			'personalProfile.mentionNotification' => 'メンション通知',
+			'personalProfile.mentionNotificationDesc' => 'コンテンツ内であなたをメンションしたときに通知します。',
+			'personalProfile.accountInfo' => 'アカウント情報',
+			'personalProfile.registrationTime' => '登録日時',
+			'personalProfile.updateSettingsFailed' => ({required Object error}) => '設定の更新に失敗しました: ${error}',
+			'personalProfile.updateNotificationSettingsFailed' => ({required Object error}) => '通知設定の更新に失敗しました: ${error}',
+			'personalProfile.editNickname' => 'ニックネームの変更',
+			'personalProfile.nicknameCannotBeEmpty' => 'ニックネームを空にすることはできません',
+			'personalProfile.changeSuccess' => '変更に成功しました',
+			'personalProfile.unsupportedFileFormat' => 'サポートされていないファイル形式',
+			'personalProfile.fileTooLarge' => ({required Object size}) => 'ファイルサイズは ${size} を超えることはできません',
+			'personalProfile.uploadFailed' => 'アップロードに失敗しました',
+			'personalProfile.avatarUpdatedSuccessfully' => 'アバターを更新しました',
+			'personalProfile.updateAvatarFailed' => ({required Object error}) => 'アバターの更新に失敗しました: ${error}',
+			'personalProfile.backgroundUpdatedSuccessfully' => '背景を更新しました',
+			'personalProfile.updateBackgroundFailed' => ({required Object error}) => '背景の更新に失敗しました: ${error}',
+			'personalProfile.editPersonalIntroduction' => '自己紹介の編集',
+			'personalProfile.enterPersonalIntroduction' => '自己紹介を入力してください',
 			'tutorial.specialFollowFeature' => '特別フォロー機能',
 			'tutorial.specialFollowDescription' => 'ここには特別にフォローしている著者が表示されます。動画、ギャラリー、著者詳細ページでフォローボタンをクリックし、「特別フォローとして追加」を選択してください。',
 			'tutorial.exampleAuthorInfoRow' => '例：著者情報行',
@@ -2892,7 +2987,6 @@ extension on TranslationsJa {
 			'errors.resourceNotFound' => 'リソースが見つかりません',
 			'errors.failedToSaveCredentials' => 'ログイン情報の保存に失敗しました',
 			'errors.failedToLoadSavedCredentials' => '保存されたログイン情報の読み込みに失敗しました',
-			'errors.specialFollowLimitReached' => ({required Object cnt}) => '特別フォローの上限を超えています。上限: ${cnt}，フォローリストページで調整してください',
 			'errors.notFound' => 'コンテンツが見つかりませんまたは削除されました',
 			'errors.network.basicPrefix' => 'ネットワークエラー - ',
 			'errors.network.failedToConnectToServer' => 'サーバーへの接続に失敗しました',
@@ -3061,6 +3155,8 @@ extension on TranslationsJa {
 			'settings.viewChangelog' => '更新内容を表示',
 			'settings.alreadyLatestVersion' => 'すでに最新バージョンです',
 			'settings.appSettings' => 'アプリ設定',
+			_ => null,
+		} ?? switch (path) {
 			'settings.configureYourAppSettings' => 'アプリ設定を設定',
 			'settings.history' => '履歴',
 			'settings.autoRecordHistory' => '自動記録履歴',
@@ -3103,8 +3199,6 @@ extension on TranslationsJa {
 			'settings.importConfig' => 'アプリ設定をインポート',
 			'settings.importConfigDesc' => 'ファイルからアプリ設定をインポートします',
 			'settings.exportConfigSuccess' => '設定が正常にエクスポートされました',
-			_ => null,
-		} ?? switch (path) {
 			'settings.exportConfigFailed' => '設定のエクスポートに失敗しました',
 			'settings.importConfigSuccess' => '設定が正常にインポートされました',
 			'settings.importConfigFailed' => '設定のインポートに失敗しました',
@@ -3575,6 +3669,8 @@ extension on TranslationsJa {
 			'forum.groups.other' => 'その他',
 			'forum.leafNames.announcements' => 'お知らせ',
 			'forum.leafNames.feedback' => 'フィードバック',
+			_ => null,
+		} ?? switch (path) {
 			'forum.leafNames.support' => 'サポート',
 			'forum.leafNames.general' => '一般',
 			'forum.leafNames.guides' => 'ガイド',
@@ -3617,8 +3713,6 @@ extension on TranslationsJa {
 			'forum.editReply' => '編集回覆',
 			'forum.editTitle' => '編集タイトル',
 			'forum.submit' => '提出',
-			_ => null,
-		} ?? switch (path) {
 			'notifications.errors.unsupportedNotificationType' => 'サポートされていない通知タイプ',
 			'notifications.errors.unknownUser' => '未知ユーザー',
 			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => 'サポートされていない通知タイプ: ${type}',
@@ -4089,6 +4183,8 @@ extension on TranslationsJa {
 			'log.today' => '今日',
 			'log.selectMergeRange' => 'マージ範囲を選択',
 			'log.selectMergeRangeHint' => 'マージするログの日付範囲を選択してください',
+			_ => null,
+		} ?? switch (path) {
 			'log.selectMergeRangeDays' => ({required Object days}) => '最近 ${days} 日',
 			'log.logStats' => 'ログ統計情報',
 			'log.todayLogs' => ({required Object count}) => '今日のログ: ${count} 件',
@@ -4131,8 +4227,6 @@ extension on TranslationsJa {
 			'emoji.add' => '追加',
 			'emoji.batchImport' => '一括インポート',
 			'emoji.enterJsonUrlArray' => 'JSON形式のURL配列を入力してください:',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.formatExample' => '形式例:\n["url1", "url2", "url3"]',
 			'emoji.pasteJsonUrlArray' => 'JSON形式のURL配列を貼り付けてください',
 			'emoji.import' => 'インポート',

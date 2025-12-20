@@ -1,4 +1,5 @@
 /// IWARA 状态页面的数据模型
+library;
 
 /// 服务器状态
 enum IwaraServerStatus {

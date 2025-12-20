@@ -1,5 +1,50 @@
 # en.i18n.yaml
 
+personalProfile:
+  personalProfile: Personal Profile
+  editPersonalProfile: Edit Personal Profile
+  avatar: Avatar
+  background: Background
+  fetchUserProfileFailed: "Failed to fetch user profile: ${error}"
+  suggestedResolution: "Suggested resolution: ${resolution}, file size < ${size}"
+  supportedFormats: "Supported formats: ${formats}"
+  premiumBenefit: "Premium users can use dynamic ${type} (${formats})"
+  homepageBackground: Homepage Background
+  basicInfo: Basic Information
+  nickname: Nickname
+  username: Username
+  copyUsername: Copy Username
+  usernameCopied: Username copied
+  personalIntroduction: Personal Introduction
+  noPersonalIntroduction: No personal introduction
+  clickToEdit: Click to edit
+  privacySettings: Privacy Settings
+  hideSensitiveContent: Hide Sensitive Content
+  hideSensitiveContentDesc: Hide any videos or images containing sensitive tags.
+  notificationSettings: Notification Settings
+  contentCommentNotification: Content Comment Notification
+  contentCommentNotificationDesc: Notify when someone comments on your content.
+  commentReplyNotification: Comment Reply Notification
+  commentReplyNotificationDesc: Notify when someone replies to your comment.
+  mentionNotification: Mention Notification
+  mentionNotificationDesc: Notify when someone mentions you in content.
+  accountInfo: Account Info
+  registrationTime: Registration Time
+  updateSettingsFailed: "Failed to update settings: ${error}"
+  updateNotificationSettingsFailed: "Failed to update notification settings: ${error}"
+  editNickname: Edit Nickname
+  nicknameCannotBeEmpty: Nickname cannot be empty
+  changeSuccess: Change success
+  unsupportedFileFormat: Unsupported file format
+  fileTooLarge: "File size cannot exceed ${size}"
+  uploadFailed: Upload failed
+  avatarUpdatedSuccessfully: Avatar updated successfully
+  updateAvatarFailed: "Failed to update avatar: ${error}"
+  backgroundUpdatedSuccessfully: Background updated successfully
+  updateBackgroundFailed: "Failed to update background: ${error}"
+  editPersonalIntroduction: Edit Personal Introduction
+  enterPersonalIntroduction: Please enter personal introduction
+
 # Tutorial Service
 tutorial:
   specialFollowFeature: "Special Follow Feature"

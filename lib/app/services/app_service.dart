@@ -43,6 +43,7 @@ import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
 import '../ui/pages/post_detail/post_detail_page.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
+import 'package:i_iwara/app/ui/pages/profile/personal_profile_page.dart';
 
 /// 定义转场动画类型
 enum TransitionType {
@@ -414,6 +415,14 @@ class NaviService {
     _navigateToPage(
       routeName: Routes.TAG_BLACKLIST,
       page: const TagBlacklistPage(),
+    );
+  }
+
+  /// 跳转到个人资料页
+  static void navigateToPersonalProfilePage() {
+    _navigateToPage(
+      routeName: Routes.PERSONAL_PROFILE,
+      page: const PersonalProfilePage(),
     );
   }
 

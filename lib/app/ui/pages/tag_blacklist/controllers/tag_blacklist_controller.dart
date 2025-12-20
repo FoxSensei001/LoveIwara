@@ -71,7 +71,7 @@ class TagBlacklistController extends GetxController {
     isSaving.value = true;
     try {
       final result = await _userService.updateUserProfile(
-        blacklistTags.map((tag) => tag.id).toList(),
+        tagBlacklist: blacklistTags.map((tag) => tag.id).toList(),
       );
       if (result.isSuccess) {
         showToastWidget(

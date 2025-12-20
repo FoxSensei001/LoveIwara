@@ -123,7 +123,7 @@ class ShareService {
       LogUtils.d('链接已复制到剪贴板: $url', 'ShareService');
     } catch (e) {
       LogUtils.e('复制链接失败', tag: 'ShareService', error: e);
-      throw e;
+      rethrow;
     }
   }
 }

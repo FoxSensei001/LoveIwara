@@ -1,6 +1,51 @@
 # zh-CN.i18n.yaml
 # 主要的翻译文件，如果有特殊描述，请使用 '# 注释'
 
+personalProfile:
+  personalProfile: 个人资料
+  editPersonalProfile: 编辑个人资料
+  avatar: 头像
+  background: 背景
+  fetchUserProfileFailed: "获取用户信息失败: ${error}"
+  suggestedResolution: "建议分辨率：${resolution}，文件大小 < ${size}"
+  supportedFormats: "支持格式：${formats}"
+  premiumBenefit: "高级用户可以使用动态${type} (${formats})"
+  homepageBackground: 个人主页背景
+  basicInfo: 基本信息
+  nickname: 昵称
+  username: 用户名
+  copyUsername: 复制用户名
+  usernameCopied: 已复制用户名
+  personalIntroduction: 个人简介
+  noPersonalIntroduction: 暂无个人简介
+  clickToEdit: 点击编辑
+  privacySettings: 隐私设置
+  hideSensitiveContent: 隐藏敏感内容
+  hideSensitiveContentDesc: 隐藏任何包含敏感标签的视频或图片。
+  notificationSettings: 通知设置
+  contentCommentNotification: 内容评论通知
+  contentCommentNotificationDesc: 有人评论您的内容时通知。
+  commentReplyNotification: 评论回复通知
+  commentReplyNotificationDesc: 有人回复您的评论时通知。
+  mentionNotification: 提及通知
+  mentionNotificationDesc: 有人在内容中提及您时通知。
+  accountInfo: 账号信息
+  registrationTime: 注册时间
+  updateSettingsFailed: "更新设置失败: ${error}"
+  updateNotificationSettingsFailed: "更新通知设置失败: ${error}"
+  editNickname: 修改昵称
+  nicknameCannotBeEmpty: 昵称不能为空
+  changeSuccess: 修改成功
+  unsupportedFileFormat: 不支持的文件格式
+  fileTooLarge: "文件大小不能超过 ${size}"
+  uploadFailed: 上传失败
+  avatarUpdatedSuccessfully: 头像更新成功
+  updateAvatarFailed: "更新头像失败: ${error}"
+  backgroundUpdatedSuccessfully: 背景更新成功
+  updateBackgroundFailed: "更新背景失败: ${error}"
+  editPersonalIntroduction: 修改个人简介
+  enterPersonalIntroduction: 请输入个人简介
+
 # Tutorial Service
 tutorial:
   specialFollowFeature: "特别关注功能"

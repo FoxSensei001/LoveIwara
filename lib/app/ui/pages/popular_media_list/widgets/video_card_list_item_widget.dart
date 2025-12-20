@@ -34,7 +34,6 @@ class VideoCardListItemWidget extends StatefulWidget {
   @override
   State<VideoCardListItemWidget> createState() =>
       _VideoCardListItemWidgetState();
-
 }
 
 class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
@@ -48,8 +47,10 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
     if (!_tagsInitialized) {
       // 在didChangeDependencies中安全地访问InheritedWidget
       final thumbnail = _Thumbnail(video: widget.video, width: widget.width);
-      _cachedTags =
-          thumbnail.buildTags(context, slang.Translations.of(context));
+      _cachedTags = thumbnail.buildTags(
+        context,
+        slang.Translations.of(context),
+      );
       _tagsInitialized = true;
     }
   }
@@ -59,12 +60,28 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
     // 确保tags已初始化
     if (!_tagsInitialized) {
       final thumbnail = _Thumbnail(video: widget.video, width: widget.width);
-      _cachedTags =
-          thumbnail.buildTags(context, slang.Translations.of(context));
+      _cachedTags = thumbnail.buildTags(
+        context,
+        slang.Translations.of(context),
+      );
       _tagsInitialized = true;
     }
 
-    final card = RepaintBoundary(
+    // 多选模式下的遮罩
+    final Widget? overlay = widget.isMultiSelectMode
+        ? Container(
+            color: widget.isSelected ? Colors.black38 : Colors.black12,
+            child: Center(
+              child: Icon(
+                widget.isSelected ? Icons.check_circle : Icons.circle_outlined,
+                color: widget.isSelected ? Colors.white : Colors.white70,
+                size: 40,
+              ),
+            ),
+          )
+        : null;
+
+    return RepaintBoundary(
       child: BaseCardListItem(
         width: widget.width,
         thumbnail: _buildCachedThumbnail(),
@@ -76,40 +93,9 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
             : () => NaviService.navigateToVideoDetailPage(widget.video.id),
         onSecondaryTap: widget.isMultiSelectMode ? null : _showDetailsModal,
         onLongPress: widget.isMultiSelectMode ? null : _showDetailsModal,
+        contentOverlay: overlay,
       ),
     );
-
-    // 多选模式下添加覆盖层
-    if (widget.isMultiSelectMode) {
-      return Stack(
-        children: [
-          card,
-          Positioned.fill(
-            child: Material(
-              color: widget.isSelected
-                  ? Colors.black38
-                  : Colors.black12,
-              child: InkWell(
-                onTap: widget.onSelect,
-                child: Center(
-                  child: Icon(
-                    widget.isSelected
-                        ? Icons.check_circle
-                        : Icons.circle_outlined,
-                    color: widget.isSelected
-                        ? Colors.white
-                        : Colors.white70,
-                    size: 40,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      );
-    }
-
-    return card;
   }
 
   Widget _buildCachedThumbnail() {
@@ -134,11 +120,7 @@ class _Thumbnail extends StatelessWidget {
   final double width;
   final List<Widget>? cachedTags;
 
-  const _Thumbnail({
-    required this.video,
-    required this.width,
-    this.cachedTags,
-  });
+  const _Thumbnail({required this.video, required this.width, this.cachedTags});
 
   @override
   Widget build(BuildContext context) {
@@ -146,10 +128,7 @@ class _Thumbnail extends StatelessWidget {
 
     return Stack(
       fit: StackFit.expand,
-      children: [
-        _buildImage(),
-        ...(cachedTags ?? buildTags(context, t)),
-      ],
+      children: [_buildImage(), ...(cachedTags ?? buildTags(context, t))],
     );
   }
 
@@ -177,23 +156,20 @@ class _Thumbnail extends StatelessWidget {
 
   Widget _buildPlaceholder(BuildContext context, String url) {
     return const SizedBox.expand(
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: Color(0xFFE0E0E0),
-        ),
-      ),
+      child: DecoratedBox(decoration: BoxDecoration(color: Color(0xFFE0E0E0))),
     );
   }
 
   Widget _buildErrorPlaceholder() {
     return const SizedBox.expand(
       child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: Color(0xFFE0E0E0),
-        ),
+        decoration: BoxDecoration(color: Color(0xFFE0E0E0)),
         child: Center(
-          child: Icon(Icons.image_not_supported,
-              size: 32, color: Color(0xFF9E9E9E)),
+          child: Icon(
+            Icons.image_not_supported,
+            size: 32,
+            color: Color(0xFF9E9E9E),
+          ),
         ),
       ),
     );
@@ -202,7 +178,7 @@ class _Thumbnail extends StatelessWidget {
   /// 格式化数字显示（如1.2K、1.5M等）
   String _formatNumber(int? number) {
     if (number == null || number == 0) return '0';
-    
+
     if (number < 1000) {
       return number.toString();
     } else if (number < 1000000) {
@@ -228,7 +204,7 @@ class _Thumbnail extends StatelessWidget {
     // 点赞数和播放量标签组（左上角）
     bool hasLikes = video.numLikes != null && video.numLikes! > 0;
     bool hasViews = video.numViews != null && video.numViews! > 0;
-    
+
     if (hasLikes || hasViews) {
       tags.add(
         Positioned(
@@ -247,11 +223,18 @@ class _Thumbnail extends StatelessWidget {
               children: [
                 if (hasLikes) ...[
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 1,
+                    ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.favorite, size: 10, color: Colors.white),
+                        const Icon(
+                          Icons.favorite,
+                          size: 10,
+                          color: Colors.white,
+                        ),
                         const SizedBox(width: 2),
                         Text(
                           _formatNumber(video.numLikes),
@@ -268,11 +251,18 @@ class _Thumbnail extends StatelessWidget {
                 ],
                 if (hasViews) ...[
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 1,
+                    ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.visibility, size: 10, color: Colors.white),
+                        const Icon(
+                          Icons.visibility,
+                          size: 10,
+                          color: Colors.white,
+                        ),
                         const SizedBox(width: 2),
                         Text(
                           _formatNumber(video.numViews),
@@ -297,12 +287,16 @@ class _Thumbnail extends StatelessWidget {
     // Private标签和R18标签组（左下角）
     bool isPrivate = video.private == true;
     bool isR18 = video.rating == 'ecchi';
-    
+
     if (isPrivate || isR18) {
       // 如果有R18或private，整个标签组使用红色背景
-      Color backgroundColor = (isR18 || isPrivate) ? Colors.red : Colors.black54;
-      Color textColor = (isR18 || isPrivate) ? Theme.of(context).colorScheme.onSecondary : Colors.white;
-      
+      Color backgroundColor = (isR18 || isPrivate)
+          ? Colors.red
+          : Colors.black54;
+      Color textColor = (isR18 || isPrivate)
+          ? Theme.of(context).colorScheme.onSecondary
+          : Colors.white;
+
       tags.add(
         Positioned(
           left: 0,
@@ -320,7 +314,10 @@ class _Thumbnail extends StatelessWidget {
               children: [
                 if (isR18) ...[
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 1,
+                    ),
                     child: Text(
                       'R18',
                       style: TextStyle(
@@ -334,7 +331,10 @@ class _Thumbnail extends StatelessWidget {
                 ],
                 if (isPrivate) ...[
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 1,
+                    ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [

@@ -40,6 +40,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	Translations $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => Translations(meta: meta ?? this.$meta);
 
 	// Translations
+	late final TranslationsPersonalProfileEn personalProfile = TranslationsPersonalProfileEn._(_root);
 	late final TranslationsTutorialEn tutorial = TranslationsTutorialEn._(_root);
 	late final TranslationsCommonEn common = TranslationsCommonEn._(_root);
 	late final TranslationsAuthEn auth = TranslationsAuthEn._(_root);
@@ -77,6 +78,144 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsProxyHelperEn proxyHelper = TranslationsProxyHelperEn._(_root);
 	late final TranslationsTagSelectorEn tagSelector = TranslationsTagSelectorEn._(_root);
 	late final TranslationsAnime4kEn anime4k = TranslationsAnime4kEn._(_root);
+}
+
+// Path: personalProfile
+class TranslationsPersonalProfileEn {
+	TranslationsPersonalProfileEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Personal Profile'
+	String get personalProfile => 'Personal Profile';
+
+	/// en: 'Edit Personal Profile'
+	String get editPersonalProfile => 'Edit Personal Profile';
+
+	/// en: 'Avatar'
+	String get avatar => 'Avatar';
+
+	/// en: 'Background'
+	String get background => 'Background';
+
+	/// en: 'Failed to fetch user profile: ${error}'
+	String fetchUserProfileFailed({required Object error}) => 'Failed to fetch user profile: ${error}';
+
+	/// en: 'Suggested resolution: ${resolution}, file size < ${size}'
+	String suggestedResolution({required Object resolution, required Object size}) => 'Suggested resolution: ${resolution}, file size < ${size}';
+
+	/// en: 'Supported formats: ${formats}'
+	String supportedFormats({required Object formats}) => 'Supported formats: ${formats}';
+
+	/// en: 'Premium users can use dynamic ${type} (${formats})'
+	String premiumBenefit({required Object type, required Object formats}) => 'Premium users can use dynamic ${type} (${formats})';
+
+	/// en: 'Homepage Background'
+	String get homepageBackground => 'Homepage Background';
+
+	/// en: 'Basic Information'
+	String get basicInfo => 'Basic Information';
+
+	/// en: 'Nickname'
+	String get nickname => 'Nickname';
+
+	/// en: 'Username'
+	String get username => 'Username';
+
+	/// en: 'Copy Username'
+	String get copyUsername => 'Copy Username';
+
+	/// en: 'Username copied'
+	String get usernameCopied => 'Username copied';
+
+	/// en: 'Personal Introduction'
+	String get personalIntroduction => 'Personal Introduction';
+
+	/// en: 'No personal introduction'
+	String get noPersonalIntroduction => 'No personal introduction';
+
+	/// en: 'Click to edit'
+	String get clickToEdit => 'Click to edit';
+
+	/// en: 'Privacy Settings'
+	String get privacySettings => 'Privacy Settings';
+
+	/// en: 'Hide Sensitive Content'
+	String get hideSensitiveContent => 'Hide Sensitive Content';
+
+	/// en: 'Hide any videos or images containing sensitive tags.'
+	String get hideSensitiveContentDesc => 'Hide any videos or images containing sensitive tags.';
+
+	/// en: 'Notification Settings'
+	String get notificationSettings => 'Notification Settings';
+
+	/// en: 'Content Comment Notification'
+	String get contentCommentNotification => 'Content Comment Notification';
+
+	/// en: 'Notify when someone comments on your content.'
+	String get contentCommentNotificationDesc => 'Notify when someone comments on your content.';
+
+	/// en: 'Comment Reply Notification'
+	String get commentReplyNotification => 'Comment Reply Notification';
+
+	/// en: 'Notify when someone replies to your comment.'
+	String get commentReplyNotificationDesc => 'Notify when someone replies to your comment.';
+
+	/// en: 'Mention Notification'
+	String get mentionNotification => 'Mention Notification';
+
+	/// en: 'Notify when someone mentions you in content.'
+	String get mentionNotificationDesc => 'Notify when someone mentions you in content.';
+
+	/// en: 'Account Info'
+	String get accountInfo => 'Account Info';
+
+	/// en: 'Registration Time'
+	String get registrationTime => 'Registration Time';
+
+	/// en: 'Failed to update settings: ${error}'
+	String updateSettingsFailed({required Object error}) => 'Failed to update settings: ${error}';
+
+	/// en: 'Failed to update notification settings: ${error}'
+	String updateNotificationSettingsFailed({required Object error}) => 'Failed to update notification settings: ${error}';
+
+	/// en: 'Edit Nickname'
+	String get editNickname => 'Edit Nickname';
+
+	/// en: 'Nickname cannot be empty'
+	String get nicknameCannotBeEmpty => 'Nickname cannot be empty';
+
+	/// en: 'Change success'
+	String get changeSuccess => 'Change success';
+
+	/// en: 'Unsupported file format'
+	String get unsupportedFileFormat => 'Unsupported file format';
+
+	/// en: 'File size cannot exceed ${size}'
+	String fileTooLarge({required Object size}) => 'File size cannot exceed ${size}';
+
+	/// en: 'Upload failed'
+	String get uploadFailed => 'Upload failed';
+
+	/// en: 'Avatar updated successfully'
+	String get avatarUpdatedSuccessfully => 'Avatar updated successfully';
+
+	/// en: 'Failed to update avatar: ${error}'
+	String updateAvatarFailed({required Object error}) => 'Failed to update avatar: ${error}';
+
+	/// en: 'Background updated successfully'
+	String get backgroundUpdatedSuccessfully => 'Background updated successfully';
+
+	/// en: 'Failed to update background: ${error}'
+	String updateBackgroundFailed({required Object error}) => 'Failed to update background: ${error}';
+
+	/// en: 'Edit Personal Introduction'
+	String get editPersonalIntroduction => 'Edit Personal Introduction';
+
+	/// en: 'Please enter personal introduction'
+	String get enterPersonalIntroduction => 'Please enter personal introduction';
 }
 
 // Path: tutorial
@@ -991,9 +1130,6 @@ class TranslationsErrorsEn {
 
 	/// en: 'Failed to load saved credentials'
 	String get failedToLoadSavedCredentials => 'Failed to load saved credentials';
-
-	/// en: 'Special follow limit exceeded, limit: ${cnt}, please adjust in the follow list page'
-	String specialFollowLimitReached({required Object cnt}) => 'Special follow limit exceeded, limit: ${cnt}, please adjust in the follow list page';
 
 	/// en: 'Content not found or has been deleted'
 	String get notFound => 'Content not found or has been deleted';
@@ -6216,6 +6352,49 @@ class TranslationsVideoDetailCastDlnaCastSheetEn {
 extension on Translations {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
+			'personalProfile.personalProfile' => 'Personal Profile',
+			'personalProfile.editPersonalProfile' => 'Edit Personal Profile',
+			'personalProfile.avatar' => 'Avatar',
+			'personalProfile.background' => 'Background',
+			'personalProfile.fetchUserProfileFailed' => ({required Object error}) => 'Failed to fetch user profile: ${error}',
+			'personalProfile.suggestedResolution' => ({required Object resolution, required Object size}) => 'Suggested resolution: ${resolution}, file size < ${size}',
+			'personalProfile.supportedFormats' => ({required Object formats}) => 'Supported formats: ${formats}',
+			'personalProfile.premiumBenefit' => ({required Object type, required Object formats}) => 'Premium users can use dynamic ${type} (${formats})',
+			'personalProfile.homepageBackground' => 'Homepage Background',
+			'personalProfile.basicInfo' => 'Basic Information',
+			'personalProfile.nickname' => 'Nickname',
+			'personalProfile.username' => 'Username',
+			'personalProfile.copyUsername' => 'Copy Username',
+			'personalProfile.usernameCopied' => 'Username copied',
+			'personalProfile.personalIntroduction' => 'Personal Introduction',
+			'personalProfile.noPersonalIntroduction' => 'No personal introduction',
+			'personalProfile.clickToEdit' => 'Click to edit',
+			'personalProfile.privacySettings' => 'Privacy Settings',
+			'personalProfile.hideSensitiveContent' => 'Hide Sensitive Content',
+			'personalProfile.hideSensitiveContentDesc' => 'Hide any videos or images containing sensitive tags.',
+			'personalProfile.notificationSettings' => 'Notification Settings',
+			'personalProfile.contentCommentNotification' => 'Content Comment Notification',
+			'personalProfile.contentCommentNotificationDesc' => 'Notify when someone comments on your content.',
+			'personalProfile.commentReplyNotification' => 'Comment Reply Notification',
+			'personalProfile.commentReplyNotificationDesc' => 'Notify when someone replies to your comment.',
+			'personalProfile.mentionNotification' => 'Mention Notification',
+			'personalProfile.mentionNotificationDesc' => 'Notify when someone mentions you in content.',
+			'personalProfile.accountInfo' => 'Account Info',
+			'personalProfile.registrationTime' => 'Registration Time',
+			'personalProfile.updateSettingsFailed' => ({required Object error}) => 'Failed to update settings: ${error}',
+			'personalProfile.updateNotificationSettingsFailed' => ({required Object error}) => 'Failed to update notification settings: ${error}',
+			'personalProfile.editNickname' => 'Edit Nickname',
+			'personalProfile.nicknameCannotBeEmpty' => 'Nickname cannot be empty',
+			'personalProfile.changeSuccess' => 'Change success',
+			'personalProfile.unsupportedFileFormat' => 'Unsupported file format',
+			'personalProfile.fileTooLarge' => ({required Object size}) => 'File size cannot exceed ${size}',
+			'personalProfile.uploadFailed' => 'Upload failed',
+			'personalProfile.avatarUpdatedSuccessfully' => 'Avatar updated successfully',
+			'personalProfile.updateAvatarFailed' => ({required Object error}) => 'Failed to update avatar: ${error}',
+			'personalProfile.backgroundUpdatedSuccessfully' => 'Background updated successfully',
+			'personalProfile.updateBackgroundFailed' => ({required Object error}) => 'Failed to update background: ${error}',
+			'personalProfile.editPersonalIntroduction' => 'Edit Personal Introduction',
+			'personalProfile.enterPersonalIntroduction' => 'Please enter personal introduction',
 			'tutorial.specialFollowFeature' => 'Special Follow Feature',
 			'tutorial.specialFollowDescription' => 'This shows authors you follow specially. Go to video, gallery, or author detail pages, click the follow button, then select "Add as Special Follow".',
 			'tutorial.exampleAuthorInfoRow' => 'Example: Author Info Row',
@@ -6517,7 +6696,6 @@ extension on Translations {
 			'errors.resourceNotFound' => 'Resource not found',
 			'errors.failedToSaveCredentials' => 'Failed to save login credentials',
 			'errors.failedToLoadSavedCredentials' => 'Failed to load saved credentials',
-			'errors.specialFollowLimitReached' => ({required Object cnt}) => 'Special follow limit exceeded, limit: ${cnt}, please adjust in the follow list page',
 			'errors.notFound' => 'Content not found or has been deleted',
 			'errors.network.basicPrefix' => 'Network error - ',
 			'errors.network.failedToConnectToServer' => 'Failed to connect to server',
@@ -6686,6 +6864,8 @@ extension on Translations {
 			'settings.viewChangelog' => 'View Changelog',
 			'settings.alreadyLatestVersion' => 'Already the latest version',
 			'settings.appSettings' => 'App Settings',
+			_ => null,
+		} ?? switch (path) {
 			'settings.configureYourAppSettings' => 'Configure Your App Settings',
 			'settings.history' => 'History',
 			'settings.autoRecordHistory' => 'Auto Record History',
@@ -6728,8 +6908,6 @@ extension on Translations {
 			'settings.importConfig' => 'Import App Configuration',
 			'settings.importConfigDesc' => 'Import app configuration from a file',
 			'settings.exportConfigSuccess' => 'Configuration exported successfully!',
-			_ => null,
-		} ?? switch (path) {
 			'settings.exportConfigFailed' => 'Failed to export configuration',
 			'settings.importConfigSuccess' => 'Configuration imported successfully!',
 			'settings.importConfigFailed' => 'Failed to import configuration',
@@ -7200,6 +7378,8 @@ extension on Translations {
 			'forum.groups.other' => 'Other',
 			'forum.leafNames.announcements' => 'Announcements',
 			'forum.leafNames.feedback' => 'Feedback',
+			_ => null,
+		} ?? switch (path) {
 			'forum.leafNames.support' => 'Support',
 			'forum.leafNames.general' => 'General',
 			'forum.leafNames.guides' => 'Guides',
@@ -7242,8 +7422,6 @@ extension on Translations {
 			'forum.editReply' => 'Edit Reply',
 			'forum.editTitle' => 'Edit Title',
 			'forum.submit' => 'Submit',
-			_ => null,
-		} ?? switch (path) {
 			'notifications.errors.unsupportedNotificationType' => 'Unsupported notification type',
 			'notifications.errors.unknownUser' => 'Unknown user',
 			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => 'Unsupported notification type: ${type}',
@@ -7714,6 +7892,8 @@ extension on Translations {
 			'mediaPlayer.local' => 'Local',
 			'mediaPlayer.unknown' => 'Unknown',
 			'mediaPlayer.localVideoPathEmpty' => 'Local video path is empty',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.localVideoFileNotExists' => ({required Object path}) => 'Local video file does not exist: ${path}',
 			'mediaPlayer.unableToPlayLocalVideo' => ({required Object error}) => 'Unable to play local video: ${error}',
 			'mediaPlayer.dropVideoFileHere' => 'Drop video file here to play',
@@ -7756,8 +7936,6 @@ extension on Translations {
 			'log.exportMergedLogsDesc' => 'Export merged logs within a specified date range',
 			'log.showLogStats' => 'Show Log Stats',
 			'log.logExportSuccess' => 'Log export success',
-			_ => null,
-		} ?? switch (path) {
 			'log.logExportFailed' => ({required Object error}) => 'Log export failed: ${error}',
 			'log.showLogStatsDesc' => 'View statistics of various types of logs',
 			'log.logExtractFailed' => ({required Object error}) => 'Failed to get log statistics: ${error}',

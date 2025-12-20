@@ -35,6 +35,7 @@ import 'services/message_service.dart';
 import 'services/deep_link_service.dart';
 import 'services/auth_service.dart';
 import 'utils/exit_confirm_util.dart';
+import 'package:i_iwara/app/ui/pages/profile/personal_profile_page.dart';
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -61,50 +62,53 @@ class _MyAppState extends State<MyApp> {
     });
 
     // 平台亮度监听
-    WidgetsBinding.instance.addObserver(_ThemeModeObserver(
-      // 当系统亮度发生变化时，更新主题
-      onThemeModeChange: (brightness) {
-        int currentThemeMode = CommonConstants.themeMode; // 0: system(动态主题), 1: light, 2: dark
-        final bool useDynamicColor = themeService.useDynamicColor;
-        ColorScheme? colorScheme;
+    WidgetsBinding.instance.addObserver(
+      _ThemeModeObserver(
+        // 当系统亮度发生变化时，更新主题
+        onThemeModeChange: (brightness) {
+          int currentThemeMode =
+              CommonConstants.themeMode; // 0: system(动态主题), 1: light, 2: dark
+          final bool useDynamicColor = themeService.useDynamicColor;
+          ColorScheme? colorScheme;
 
-        if (useDynamicColor) {
-          // 使用动态颜色
-          colorScheme = currentThemeMode == 1 
-              ? lightColorScheme 
-              : currentThemeMode == 2 
-                  ? darkColorScheme 
-                  : brightness == Brightness.light 
-                      ? lightColorScheme 
-                      : darkColorScheme;
-        } else {
-          // 使用自定义颜色，通过 seed 生成后再 harmonized，确保色彩协调性
-          final Color seedColor = themeService.getCurrentThemeColor();
-          colorScheme = ColorScheme.fromSeed(
-            seedColor: seedColor,
-            brightness: currentThemeMode == 1 
-                ? Brightness.light 
-                : currentThemeMode == 2 
-                    ? Brightness.dark 
-                    : brightness,
-          ).harmonized();
-        }
+          if (useDynamicColor) {
+            // 使用动态颜色
+            colorScheme = currentThemeMode == 1
+                ? lightColorScheme
+                : currentThemeMode == 2
+                ? darkColorScheme
+                : brightness == Brightness.light
+                ? lightColorScheme
+                : darkColorScheme;
+          } else {
+            // 使用自定义颜色，通过 seed 生成后再 harmonized，确保色彩协调性
+            final Color seedColor = themeService.getCurrentThemeColor();
+            colorScheme = ColorScheme.fromSeed(
+              seedColor: seedColor,
+              brightness: currentThemeMode == 1
+                  ? Brightness.light
+                  : currentThemeMode == 2
+                  ? Brightness.dark
+                  : brightness,
+            ).harmonized();
+          }
 
-        Get.changeTheme(ThemeData(
-          colorScheme: colorScheme,
-          useMaterial3: true,
-        ));
-      },
-    ));
+          Get.changeTheme(
+            ThemeData(colorScheme: colorScheme, useMaterial3: true),
+          );
+        },
+      ),
+    );
   }
 
   /// 检查首次设置状态
   void _checkFirstTimeSetup() {
     try {
       final configService = Get.find<ConfigService>();
-      final bool isFirstTimeSetupCompleted = configService[ConfigKey.FIRST_TIME_SETUP_COMPLETED];
+      final bool isFirstTimeSetupCompleted =
+          configService[ConfigKey.FIRST_TIME_SETUP_COMPLETED];
       LogUtils.i('检查首次设置状态: $isFirstTimeSetupCompleted', '首次设置检测');
-      
+
       if (!isFirstTimeSetupCompleted) {
         LogUtils.i('首次设置未完成，准备跳转到首次设置页面', '首次设置检测');
         // 使用延迟确保应用完全初始化后再跳转
@@ -124,7 +128,8 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return DynamicColorBuilder(
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
-        int currentThemeMode = CommonConstants.themeMode; // 0: system(动态主题), 1: light, 2: dark
+        int currentThemeMode =
+            CommonConstants.themeMode; // 0: system(动态主题), 1: light, 2: dark
         final bool useDynamicColor = themeService.useDynamicColor;
         final Color seedColor = themeService.getCurrentThemeColor();
 
@@ -139,39 +144,49 @@ class _MyAppState extends State<MyApp> {
           // 使用动态颜色的 primary 作为 seed，通过 fromSeed 再 harmonized 生成完整颜色方案
           final Color dynamicSeedLight = lightDynamic.primary;
           final Color dynamicSeedDark = darkDynamic.primary;
-          
-          lightColorScheme = ColorScheme.fromSeed(
-            seedColor: dynamicSeedLight,
-            brightness: Brightness.light,
-          ).harmonized().copyWith(
-            surface: Colors.white, // 根据设计需求调整亮色表面色，使用 white 作为亮色背景
-          );
-          darkColorScheme = ColorScheme.fromSeed(
-            seedColor: dynamicSeedDark,
-            brightness: Brightness.dark,
-          ).harmonized().copyWith(
-            surface: Colors.black, // 根据设计需求调整暗色表面色，默认使用黑色
-          );
+
+          lightColorScheme =
+              ColorScheme.fromSeed(
+                seedColor: dynamicSeedLight,
+                brightness: Brightness.light,
+              ).harmonized().copyWith(
+                surface: Colors.white, // 根据设计需求调整亮色表面色，使用 white 作为亮色背景
+              );
+          darkColorScheme =
+              ColorScheme.fromSeed(
+                seedColor: dynamicSeedDark,
+                brightness: Brightness.dark,
+              ).harmonized().copyWith(
+                surface: Colors.black, // 根据设计需求调整暗色表面色，默认使用黑色
+              );
           // 保存到常量中
           CommonConstants.dynamicLightColorScheme = lightColorScheme;
           CommonConstants.dynamicDarkColorScheme = darkColorScheme;
-          
+
           // 只在非初始化时更新主题
           if (Get.context != null) {
             bool systemIsLight =
-                WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.light;
+                WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+                Brightness.light;
             if (currentThemeMode == 1) {
               Get.changeTheme(ThemeData.from(colorScheme: lightColorScheme));
             } else if (currentThemeMode == 2) {
               Get.changeTheme(ThemeData.from(colorScheme: darkColorScheme));
             } else {
-              Get.changeTheme(ThemeData.from(
-                  colorScheme: systemIsLight ? lightColorScheme : darkColorScheme));
+              Get.changeTheme(
+                ThemeData.from(
+                  colorScheme: systemIsLight
+                      ? lightColorScheme
+                      : darkColorScheme,
+                ),
+              );
             }
           }
         } else {
           // 使用自定义颜色，通过 seed 生成后再 harmonized，确保色彩协调性
-          lightColorScheme = ColorScheme.fromSeed(seedColor: seedColor).harmonized();
+          lightColorScheme = ColorScheme.fromSeed(
+            seedColor: seedColor,
+          ).harmonized();
           darkColorScheme = ColorScheme.fromSeed(
             seedColor: seedColor,
             brightness: Brightness.dark,
@@ -182,19 +197,16 @@ class _MyAppState extends State<MyApp> {
           child: GetMaterialApp(
             debugShowCheckedModeBanner: false,
             title: t.common.appName,
-            theme: ThemeData(
-              colorScheme: lightColorScheme,
-              useMaterial3: true,
-            ),
+            theme: ThemeData(colorScheme: lightColorScheme, useMaterial3: true),
             darkTheme: ThemeData(
               colorScheme: darkColorScheme,
               useMaterial3: true,
             ),
-            themeMode: currentThemeMode == 0 
-                ? ThemeMode.system 
-                : currentThemeMode == 1 
-                    ? ThemeMode.light 
-                    : ThemeMode.dark,
+            themeMode: currentThemeMode == 0
+                ? ThemeMode.system
+                : currentThemeMode == 1
+                ? ThemeMode.light
+                : ThemeMode.dark,
             // 添加本地化支持
             localizationsDelegates: const [
               GlobalMaterialLocalizations.delegate,
@@ -219,38 +231,46 @@ class _MyAppState extends State<MyApp> {
                 transition: Transition.fadeIn,
               ),
               GetPage(
-                  name: Routes.PLAYER_SETTINGS_PAGE,
-                  page: () => const PlayerSettingsPage(),
-                  transition: Transition.rightToLeft),
+                name: Routes.PLAYER_SETTINGS_PAGE,
+                page: () => const PlayerSettingsPage(),
+                transition: Transition.rightToLeft,
+              ),
               if (ProxyUtil.isSupportedPlatform())
                 GetPage(
-                    name: Routes.PROXY_SETTINGS_PAGE,
-                    page: () => const ProxySettingsPage(),
-                    transition: Transition.rightToLeft),
+                  name: Routes.PROXY_SETTINGS_PAGE,
+                  page: () => const ProxySettingsPage(),
+                  transition: Transition.rightToLeft,
+                ),
               GetPage(
-                  name: Routes.AI_TRANSLATION_SETTINGS_PAGE,
-                  page: () => const AITranslationSettingsPage(),
-                  transition: Transition.rightToLeft),
+                name: Routes.AI_TRANSLATION_SETTINGS_PAGE,
+                page: () => const AITranslationSettingsPage(),
+                transition: Transition.rightToLeft,
+              ),
               GetPage(
-                  name: Routes.THEME_SETTINGS_PAGE,
-                  page: () => const ThemeSettingsPage(),
-                  transition: Transition.rightToLeft),
+                name: Routes.THEME_SETTINGS_PAGE,
+                page: () => const ThemeSettingsPage(),
+                transition: Transition.rightToLeft,
+              ),
               GetPage(
-                  name: Routes.APP_SETTINGS_PAGE,
-                  page: () => const AppSettingsPage(),
-                  transition: Transition.rightToLeft),
+                name: Routes.APP_SETTINGS_PAGE,
+                page: () => const AppSettingsPage(),
+                transition: Transition.rightToLeft,
+              ),
               GetPage(
-                  name: Routes.ABOUT_PAGE,
-                  page: () => const AboutPage(),
-                  transition: Transition.rightToLeft),
+                name: Routes.ABOUT_PAGE,
+                page: () => const AboutPage(),
+                transition: Transition.rightToLeft,
+              ),
               GetPage(
-                  name: Routes.DOWNLOAD_SETTINGS_PAGE,
-                  page: () => const DownloadSettingsPage(),
-                  transition: Transition.rightToLeft),
+                name: Routes.DOWNLOAD_SETTINGS_PAGE,
+                page: () => const DownloadSettingsPage(),
+                transition: Transition.rightToLeft,
+              ),
               GetPage(
-                  name: Routes.FORUM_SETTINGS_PAGE,
-                  page: () => const ForumSettingsPage(),
-                  transition: Transition.rightToLeft),
+                name: Routes.FORUM_SETTINGS_PAGE,
+                page: () => const ForumSettingsPage(),
+                transition: Transition.rightToLeft,
+              ),
               GetPage(
                 name: Routes.LOGIN,
                 page: () => const LoginPage(),
@@ -260,6 +280,11 @@ class _MyAppState extends State<MyApp> {
                 name: Routes.SIGN_IN,
                 page: () => const SignInPage(),
                 transition: Transition.cupertino,
+              ),
+              GetPage(
+                name: Routes.PERSONAL_PROFILE,
+                page: () => const PersonalProfilePage(),
+                transition: Transition.rightToLeft,
               ),
             ],
             initialRoute: Routes.HOME,
@@ -308,7 +333,16 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
 
   // 支持的视频文件扩展名
   static const List<String> _videoExtensions = [
-    'mp4', 'mkv', 'avi', 'mov', 'wmv', 'flv', 'webm', 'm4v', '3gp', 'ts',
+    'mp4',
+    'mkv',
+    'avi',
+    'mov',
+    'wmv',
+    'flv',
+    'webm',
+    'm4v',
+    '3gp',
+    'ts',
   ];
 
   @override
@@ -388,12 +422,13 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
       children: [
         Scaffold(
           body: _shortCutsWrapper(
-              context, _windowTitleBarFrame(context, widget.child)),
+            context,
+            _windowTitleBarFrame(context, widget.child),
+          ),
         ),
         if (_showPrivacyOverlay) const PrivacyOverlay(),
         // 拖拽悬浮提示
-        if (_isDragging && isDesktop)
-          _buildDragOverlay(context),
+        if (_isDragging && isDesktop) _buildDragOverlay(context),
       ],
     );
 
@@ -524,10 +559,11 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
 
   Widget _windowTitleBarFrame(BuildContext context, Widget child) {
     return Scaffold(
-        key: AppService.globalDrawerKey,
-        drawer: _buildDrawer(),
-        drawerEnableOpenDragGesture: false,
-        body: WindowTitleBarLayout(child));
+      key: AppService.globalDrawerKey,
+      drawer: _buildDrawer(),
+      drawerEnableOpenDragGesture: false,
+      body: WindowTitleBarLayout(child),
+    );
   }
 
   Widget _buildDrawer() {

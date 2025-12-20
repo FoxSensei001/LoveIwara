@@ -14,6 +14,7 @@ class BaseCardListItem extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback? onSecondaryTap;
   final VoidCallback? onLongPress;
+  final Widget? contentOverlay;
 
   const BaseCardListItem({
     super.key,
@@ -25,6 +26,7 @@ class BaseCardListItem extends StatelessWidget {
     required this.onTap,
     this.onSecondaryTap,
     this.onLongPress,
+    this.contentOverlay,
   });
 
   @override
@@ -38,7 +40,7 @@ class BaseCardListItem extends StatelessWidget {
         margin: EdgeInsets.zero,
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(borderRadius)
+          borderRadius: BorderRadius.circular(borderRadius),
         ),
         child: InkWell(
           onTap: onTap,
@@ -46,13 +48,16 @@ class BaseCardListItem extends StatelessWidget {
           onLongPress: onLongPress,
           hoverColor: Theme.of(context).hoverColor.withValues(alpha: 0.1),
           splashColor: Theme.of(context).splashColor.withValues(alpha: 0.2),
-          highlightColor: Theme.of(context).highlightColor.withValues(alpha: 0.1),
+          highlightColor: Theme.of(
+            context,
+          ).highlightColor.withValues(alpha: 0.1),
           child: _CardContent(
             thumbnail: thumbnail,
             title: title,
             createdAt: createdAt,
             user: user,
             textTheme: textTheme,
+            contentOverlay: contentOverlay,
           ),
         ),
       ),
@@ -66,6 +71,7 @@ class _CardContent extends StatelessWidget {
   final DateTime? createdAt;
   final User? user;
   final TextTheme textTheme;
+  final Widget? contentOverlay;
 
   const _CardContent({
     required this.thumbnail,
@@ -73,38 +79,35 @@ class _CardContent extends StatelessWidget {
     required this.createdAt,
     required this.user,
     required this.textTheme,
+    this.contentOverlay,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Stack(
       children: [
-        AspectRatio(
-          aspectRatio: 1.375, // 11:8
-          child: thumbnail,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AspectRatio(
+              aspectRatio: 1.375, // 11:8
+              child: thumbnail,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(6.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _Title(title: title, textTheme: textTheme),
+                  _TimeInfo(createdAt: createdAt, textTheme: textTheme),
+                  const SizedBox(height: 4),
+                  _AuthorInfo(user: user, textTheme: textTheme),
+                ],
+              ),
+            ),
+          ],
         ),
-        Padding(
-          padding: const EdgeInsets.all(6.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _Title(
-                title: title,
-                textTheme: textTheme,
-              ),
-              _TimeInfo(
-                createdAt: createdAt,
-                textTheme: textTheme,
-              ),
-              const SizedBox(height: 4),
-              _AuthorInfo(
-                user: user,
-                textTheme: textTheme,
-              ),
-            ],
-          ),
-        ),
+        if (contentOverlay != null) Positioned.fill(child: contentOverlay!),
       ],
     );
   }
@@ -160,10 +163,7 @@ class _Title extends StatelessWidget {
   final String title;
   final TextTheme textTheme;
 
-  const _Title({
-    required this.title,
-    required this.textTheme,
-  });
+  const _Title({required this.title, required this.textTheme});
 
   @override
   Widget build(BuildContext context) {
@@ -198,19 +198,14 @@ class _TimeInfo extends StatelessWidget {
   final DateTime? createdAt;
   final TextTheme textTheme;
 
-  const _TimeInfo({
-    required this.createdAt,
-    required this.textTheme,
-  });
+  const _TimeInfo({required this.createdAt, required this.textTheme});
 
   @override
   Widget build(BuildContext context) {
     final fontSize = textTheme.bodySmall?.fontSize ?? 12;
     return Text(
       CommonUtils.formatFriendlyTimestamp(createdAt),
-      style: textTheme.bodySmall?.copyWith(
-        fontSize: fontSize * 0.9,
-      ),
+      style: textTheme.bodySmall?.copyWith(fontSize: fontSize * 0.9),
     );
   }
 }
@@ -219,22 +214,19 @@ class _AuthorInfo extends StatelessWidget {
   final User? user;
   final TextTheme textTheme;
 
-  const _AuthorInfo({
-    required this.user,
-    required this.textTheme,
-  });
+  const _AuthorInfo({required this.user, required this.textTheme});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => NaviService.navigateToAuthorProfilePage(
-          user?.username ?? ''),
+      onTap: () =>
+          NaviService.navigateToAuthorProfilePage(user?.username ?? ''),
       child: Row(
         children: [
           _buildAvatar(),
           const SizedBox(width: 4),
           Expanded(
-            child: buildUserName(context, user, bold: true, fontSize: 13)
+            child: buildUserName(context, user, bold: true, fontSize: 13),
           ),
         ],
       ),
@@ -242,10 +234,7 @@ class _AuthorInfo extends StatelessWidget {
   }
 
   Widget _buildAvatar() {
-    return AvatarWidget(
-      user: user,
-      size: 24
-    );
+    return AvatarWidget(user: user, size: 24);
   }
 }
 
@@ -269,4 +258,4 @@ class BaseTagBorderRadius {
     topRight: Radius.circular(4),
     bottomLeft: Radius.circular(6),
   );
-} 
+}
