@@ -132,8 +132,11 @@ class BatchDownloadService extends GetxService {
 
         final video = videos[i];
         currentProcessingTitle.value = video.title ?? '';
-        processedCount.value = i + 1;
-        onProgress?.call(i + 1, videos.length, video.title ?? '');
+        onProgress?.call(
+          processedCount.value,
+          videos.length,
+          video.title ?? '',
+        );
 
         try {
           await _downloadSingleVideo(video, quality);
@@ -172,6 +175,10 @@ class BatchDownloadService extends GetxService {
             error: e,
           );
         }
+
+        // 更新已完成数量（成功 + 失败 + 跳过）
+        processedCount.value =
+            successCount.value + failedCount.value + skippedCount.value;
       }
 
       final result = BatchDownloadResult(
@@ -368,8 +375,7 @@ class BatchDownloadService extends GetxService {
 
         final gallery = galleries[i];
         currentProcessingTitle.value = gallery.title;
-        processedCount.value = i + 1;
-        onProgress?.call(i + 1, galleries.length, gallery.title);
+        onProgress?.call(processedCount.value, galleries.length, gallery.title);
 
         try {
           await _downloadSingleGallery(gallery);
@@ -408,6 +414,10 @@ class BatchDownloadService extends GetxService {
             error: e,
           );
         }
+
+        // 更新已完成数量（成功 + 失败 + 跳过）
+        processedCount.value =
+            successCount.value + failedCount.value + skippedCount.value;
       }
 
       final result = BatchDownloadResult(

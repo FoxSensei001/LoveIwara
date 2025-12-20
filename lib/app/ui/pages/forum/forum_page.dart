@@ -11,7 +11,7 @@ import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
-import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
@@ -497,11 +497,11 @@ class _ForumPageState extends State<ForumPage> {
                   status == IndicatorStatus.fullScreenBusying ||
                   status == IndicatorStatus.fullScreenError ||
                   status == IndicatorStatus.empty;
-              return myLoadingMoreIndicator(
+              return buildIndicator(
                 context,
                 status,
-                isSliver: true,
-                loadingMoreBase: _recentThreadRepository,
+                () => _recentThreadRepository.errorRefresh(),
+                emptyIcon: Icons.forum_outlined,
                 // 传递 paddingTop 给指示器构建函数
                 paddingTop: isFullScreenIndicator ? effectivePaddingTop : 0,
               );

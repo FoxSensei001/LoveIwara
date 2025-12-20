@@ -158,6 +158,13 @@ Widget? buildIndicator(
                     end: const Offset(1.1, 1.1),
                     duration: 1.seconds,
                     curve: Curves.easeInOutSine,
+                  )
+                  .then()
+                  .scale(
+                    begin: const Offset(1.1, 1.1),
+                    end: const Offset(0.9, 0.9),
+                    duration: 1.seconds,
+                    curve: Curves.easeInOutSine,
                   ),
               const SizedBox(height: 24),
               // 文字动画
