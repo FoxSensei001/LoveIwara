@@ -363,15 +363,14 @@ class BottomToolbar extends StatelessWidget {
     required VoidCallback onPressed,
     String? tooltip, // 可选的tooltip参数
   }) {
-    // 固定的点击区域大小，或者根据 iconSize 稍微大一点
-    // 这里使用 fixed size 策略来替代 padding
-    final double touchSize = currentScreenIsFullScreen ? 40.0 : 32.0;
+    // 调整点击区域大小，使其更紧凑
+    final double touchSize = currentScreenIsFullScreen ? 36.0 : 28.0;
 
     Widget button = Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onPressed,
-        borderRadius: BorderRadius.circular(20.0),
+        borderRadius: BorderRadius.circular(18.0),
         child: Container(
           width: touchSize,
           height: touchSize,
@@ -399,8 +398,8 @@ class BottomToolbar extends StatelessWidget {
     required VoidCallback onPressed,
     String? tooltip, // 添加tooltip参数
   }) {
-    // 固定的点击区域大小
-    final double touchSize = currentScreenIsFullScreen ? 40.0 : 32.0;
+    // 调整点击区域大小，使其更紧凑
+    final double touchSize = currentScreenIsFullScreen ? 36.0 : 28.0;
 
     return Tooltip(
       triggerMode: TooltipTriggerMode.tap,
@@ -410,7 +409,7 @@ class BottomToolbar extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onPressed,
-          borderRadius: BorderRadius.circular(16.0),
+          borderRadius: BorderRadius.circular(14.0),
           child: Container(
             width: touchSize,
             height: touchSize,
@@ -473,7 +472,7 @@ class BottomToolbar extends StatelessWidget {
       }
       final uniqueResolutions = uniqueResolutionsMap.values.toList();
 
-      final double touchSize = currentScreenIsFullScreen ? 40.0 : 32.0;
+      final double touchSize = currentScreenIsFullScreen ? 36.0 : 28.0;
       return PopupMenuButton<String>(
         initialValue: currentResolution,
         tooltip: t.videoDetail.switchResolution,
@@ -549,7 +548,7 @@ class BottomToolbar extends StatelessWidget {
         return const SizedBox.shrink();
       }
 
-      final double touchSize = currentScreenIsFullScreen ? 40.0 : 32.0;
+      final double touchSize = currentScreenIsFullScreen ? 36.0 : 28.0;
       return PopupMenuButton<double>(
         initialValue: currentSpeed,
         tooltip: t.videoDetail.switchPlaybackSpeed,
@@ -703,19 +702,15 @@ class BottomToolbar extends StatelessWidget {
             tooltip: myVideoStateController.videoPlaying.value
                 ? t.videoDetail.pause
                 : t.videoDetail.play,
-            icon: SvgPicture.asset(
+            icon: Icon(
               myVideoStateController.videoPlaying.value
-                  ? 'assets/svg/pause.svg'
-                  : 'assets/svg/play.svg',
+                  ? Icons.pause
+                  : Icons.play_arrow,
               key: ValueKey(
                 myVideoStateController.videoPlaying.value ? 'pause' : 'play',
               ),
-              colorFilter: const ColorFilter.mode(
-                Colors.white,
-                BlendMode.srcIn,
-              ),
-              width: iconSize,
-              height: iconSize,
+              color: Colors.white,
+              size: iconSize,
             ),
             onPressed: () async {
               VibrateUtils.vibrate();
@@ -728,13 +723,15 @@ class BottomToolbar extends StatelessWidget {
             },
           ),
         ),
-        if (GetPlatform.isDesktop)
+        if (GetPlatform.isDesktop) ...[
+          const SizedBox(width: 2.0),
           VolumeControl(
             configService: _configService,
             myVideoStateController: myVideoStateController,
             iconSize: iconSize,
           ),
-        _spacer4,
+        ],
+        const SizedBox(width: 8.0),
         TextButton(
           onPressed: () {
             _showSeekDialog(context);

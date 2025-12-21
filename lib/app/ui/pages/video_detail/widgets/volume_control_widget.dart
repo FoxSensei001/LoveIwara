@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
 import '../../../../../../i18n/strings.g.dart' as slang;
@@ -59,21 +58,16 @@ class _VolumeControlState extends State<VolumeControl>
   }
 
   Widget _getVolumeIcon(double volume) {
-    String assetName;
+    IconData iconData;
     if (volume == 0) {
-      assetName = 'assets/svg/volume_off.svg';
+      iconData = Icons.volume_off;
     } else if (volume < 0.5) {
-      assetName = 'assets/svg/volume_down.svg';
+      iconData = Icons.volume_down;
     } else {
-      assetName = 'assets/svg/volume_up.svg';
+      iconData = Icons.volume_up;
     }
 
-    return SvgPicture.asset(
-      assetName,
-      width: widget.iconSize,
-      height: widget.iconSize,
-      colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-    );
+    return Icon(iconData, size: widget.iconSize, color: Colors.white);
   }
 
   @override

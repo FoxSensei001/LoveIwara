@@ -205,33 +205,26 @@ class _TopToolbarState extends State<TopToolbar> {
 
   // --- SVG 构建逻辑开始 ---
 
-  /// 根据时间段获取时间图标 SVG
+  /// 根据时间段获取时间图标
   Widget _buildTimeIcon(DateTime time) {
     final hour = time.hour;
 
-    // 定义简单的 SVG 路径
-    // 上午 6-11 点: 日出/早上
-    // 11-17 点: 太阳/白天
-    // 17-19 点: 日落/傍晚
-    // 19-6 点: 月亮/晚上
-
+    IconData iconData;
     if (hour >= 6 && hour < 11) {
-      // Morning (Sun partly rising)
-      return const Icon(Icons.wb_twilight, color: Colors.white, size: 16);
+      // Morning
+      iconData = Icons.wb_twilight;
     } else if (hour >= 11 && hour < 17) {
-      // Day (Full Sun)
-      return const Icon(Icons.wb_sunny_outlined, color: Colors.white, size: 16);
+      // Day
+      iconData = Icons.wb_sunny_outlined;
     } else if (hour >= 17 && hour < 19) {
-      // Evening (Sunset)
-      return const Icon(Icons.wb_twilight, color: Colors.white, size: 16);
+      // Evening
+      iconData = Icons.wb_twilight;
     } else {
-      // Night (Moon)
-      return const Icon(
-        Icons.nights_stay_outlined,
-        color: Colors.white,
-        size: 16,
-      );
+      // Night
+      iconData = Icons.nights_stay_outlined;
     }
+
+    return Icon(iconData, color: Colors.white, size: 16);
   }
 
   /// 动态构建电池 SVG
@@ -592,10 +585,14 @@ class _TopToolbarState extends State<TopToolbar> {
                         !widget.myVideoStateController.isLocalVideoMode)
                       IconButton(
                         tooltip: t.videoDetail.cast.dlnaCast,
-                        icon: Icon(
-                          Icons.cast,
-                          color: Colors.white,
-                          size: iconSize,
+                        icon: SvgPicture.asset(
+                          'assets/svg/cast.svg',
+                          colorFilter: const ColorFilter.mode(
+                            Colors.white,
+                            BlendMode.srcIn,
+                          ),
+                          width: iconSize,
+                          height: iconSize,
                         ),
                         onPressed: () =>
                             widget.myVideoStateController.showDlnaCastDialog(),
@@ -603,10 +600,14 @@ class _TopToolbarState extends State<TopToolbar> {
                     if (GetPlatform.isAndroid)
                       IconButton(
                         tooltip: t.videoDetail.pipMode,
-                        icon: Icon(
-                          Icons.picture_in_picture_alt,
-                          color: Colors.white,
-                          size: iconSize,
+                        icon: SvgPicture.asset(
+                          'assets/svg/pip.svg',
+                          colorFilter: const ColorFilter.mode(
+                            Colors.white,
+                            BlendMode.srcIn,
+                          ),
+                          width: iconSize,
+                          height: iconSize,
                         ),
                         onPressed: () async {
                           final floating = Floating();
@@ -637,10 +638,14 @@ class _TopToolbarState extends State<TopToolbar> {
                     _buildAnime4KButton(context, iconSize),
                     IconButton(
                       tooltip: t.videoDetail.moreSettings,
-                      icon: Icon(
-                        Icons.more_vert,
-                        color: Colors.white,
-                        size: iconSize,
+                      icon: SvgPicture.asset(
+                        'assets/svg/more_vert.svg',
+                        colorFilter: const ColorFilter.mode(
+                          Colors.white,
+                          BlendMode.srcIn,
+                        ),
+                        width: iconSize,
+                        height: iconSize,
                       ),
                       onPressed: () => showSettingsModal(context),
                     ),
@@ -685,26 +690,24 @@ class _TopToolbarState extends State<TopToolbar> {
 
   /// Anime4K 设置按钮
   Widget _buildAnime4KButton(BuildContext context, double iconSize) {
-    return Obx(() {
-      return PopupMenuButton<String>(
-        tooltip: slang.t.anime4k.settings,
-        icon: Icon(Icons.adjust, color: Colors.white, size: iconSize),
-        onSelected: (value) async {
-          if (value == 'disable') {
-            await widget.myVideoStateController.switchAnime4KPreset('');
-          } else {
-            await widget.myVideoStateController.switchAnime4KPreset(value);
-          }
-        },
-        itemBuilder: (context) {
-          final configService = Get.find<ConfigService>();
-          final currentPresetId =
-              configService[ConfigKey.ANIME4K_PRESET_ID] as String;
-          final isEnabled = currentPresetId.isNotEmpty;
-          return _buildAnime4KMenuItems(context, isEnabled, currentPresetId);
-        },
-      );
-    });
+    return PopupMenuButton<String>(
+      tooltip: slang.t.anime4k.settings,
+      icon: Icon(Icons.adjust, color: Colors.white, size: iconSize),
+      onSelected: (value) async {
+        if (value == 'disable') {
+          await widget.myVideoStateController.switchAnime4KPreset('');
+        } else {
+          await widget.myVideoStateController.switchAnime4KPreset(value);
+        }
+      },
+      itemBuilder: (context) {
+        final configService = Get.find<ConfigService>();
+        final currentPresetId =
+            configService[ConfigKey.ANIME4K_PRESET_ID] as String;
+        final isEnabled = currentPresetId.isNotEmpty;
+        return _buildAnime4KMenuItems(context, isEnabled, currentPresetId);
+      },
+    );
   }
 
   // 构建 Anime4K 菜单项
@@ -740,7 +743,11 @@ class _TopToolbarState extends State<TopToolbar> {
         value: 'disable',
         child: Row(
           children: [
-            Icon(Icons.close, color: Colors.grey[600]),
+            Icon(
+              !isEnabled ? Icons.check_circle : Icons.radio_button_unchecked,
+              color: !isEnabled ? Colors.blue : Colors.grey[600],
+              size: 18,
+            ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -751,7 +758,7 @@ class _TopToolbarState extends State<TopToolbar> {
                     slang.t.anime4k.disable,
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
-                      color: Colors.grey[700],
+                      color: !isEnabled ? Colors.blue : Colors.grey[700],
                     ),
                   ),
                   Text(
