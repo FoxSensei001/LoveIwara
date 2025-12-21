@@ -7,6 +7,7 @@ import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/repositories/download_task_repository.dart';
 import 'package:i_iwara/app/services/video_service.dart';
+import 'package:i_iwara/app/services/iwara_server_service.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:path/path.dart' as path_lib;
@@ -35,6 +36,7 @@ class DownloadService extends GetxService {
   RxInt get taskStatusChangedNotifier => _taskStatusChangedNotifier;
 
   final _repository = DownloadTaskRepository();
+  final IwaraServerService _serverService = Get.find();
 
   static const maxConcurrentDownloads = 3;
   final dio = Dio()..options.persistentConnection = false;
@@ -864,28 +866,49 @@ class DownloadService extends GetxService {
           }
         }
 
-        // 针对 mikoto/phoebe 服务器故障，自动切换到 hime
-        final isMikotoPhoebeError = _isMikotoPhoebeServerError(e, task.url);
-        if (isMikotoPhoebeError && retryCount < maxRetries - 1) {
+        // 针对 timeout、404、502 等错误，尝试切换 CDN
+        final shouldTryCdn = _shouldTryCdnSwitch(e);
+        if (shouldTryCdn && retryCount < maxRetries - 1) {
           LogUtils.w(
-            '检测到 mikoto/phoebe 服务器故障，尝试切换到 hime 服务器并重试: ${task.id}',
+            '检测到网络错误，尝试切换 CDN: ${task.id}',
             'DownloadService',
           );
 
-          // 替换服务器
-          final newUrl = _replaceServerToHime(task.url);
-          if (newUrl != task.url) {
-            task.url = newUrl;
-            await _repository.updateTask(task);
+          try {
+            final newCdnUrl = await _findWorkingCdnUrl(task.url, cancelToken);
+            if (newCdnUrl != null && newCdnUrl != task.url) {
+              // 找到可用的 CDN，更新任务 URL
+              final uri = Uri.parse(newCdnUrl);
+              final serverName = uri.host;
 
-            _showMessage(
-              slang.t.videoDetail.player.serverFaultDetectedAutoSwitched,
-              Colors.orange,
+              task.url = newCdnUrl;
+              await _repository.updateTask(task);
+
+              LogUtils.i(
+                '已切换到 CDN: $serverName',
+                'DownloadService',
+              );
+
+              _showMessage(
+                slang.t.videoDetail.player.serverFaultDetectedAutoSwitched,
+                Colors.orange,
+              );
+
+              retryCount++;
+              await Future.delayed(retryDelay);
+              continue;
+            } else {
+              LogUtils.w(
+                '未找到可用的 CDN，继续使用原有重试逻辑',
+                'DownloadService',
+              );
+            }
+          } catch (cdnError) {
+            LogUtils.w(
+              'CDN 切换失败: $cdnError',
+              'DownloadService',
             );
-
-            retryCount++;
-            await Future.delayed(retryDelay);
-            continue;
+            // CDN 切换失败，继续原有的重试逻辑
           }
         }
 
@@ -1644,44 +1667,145 @@ class DownloadService extends GetxService {
     }
   }
 
-  /// 检测是否是 mikoto/phoebe 服务器错误
-  bool _isMikotoPhoebeServerError(dynamic error, String url) {
-    // 检查错误消息中是否包含 mikoto 或 phoebe
+  /// 判断错误是否应该尝试 CDN 切换
+  /// 返回 true 表示应该尝试切换 CDN
+  bool _shouldTryCdnSwitch(dynamic error) {
     if (error is DioException) {
-      final message = error.message?.toLowerCase() ?? '';
-      if (message.contains('mikoto') || message.contains('phoebe')) {
+      // timeout 错误
+      if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout ||
+          error.type == DioExceptionType.sendTimeout) {
         return true;
       }
-    } else if (error is HttpException) {
-      final message = error.message.toLowerCase();
-      if (message.contains('mikoto') || message.contains('phoebe')) {
+
+      // 404、502 错误
+      final statusCode = error.response?.statusCode;
+      if (statusCode == 404 || statusCode == 502) {
         return true;
       }
     }
 
-    // 检查 URL 中是否包含 mikoto 或 phoebe
-    final lowerUrl = url.toLowerCase();
-    return lowerUrl.contains('mikoto.iwara.tv') ||
-        lowerUrl.contains('phoebe.iwara.tv');
+    return false;
   }
 
-  /// 将下载 URL 中的 mikoto/phoebe 服务器替换为 hime
-  String _replaceServerToHime(String url) {
-    String newUrl = url;
+  /// 替换 URL 中的服务器域名
+  String _replaceServerInUrl(String originalUrl, String newServerName) {
+    try {
+      final uri = Uri.parse(originalUrl);
+      final newUri = uri.replace(host: newServerName);
+      return newUri.toString();
+    } catch (e) {
+      LogUtils.e(
+        '替换服务器域名失败: $e',
+        tag: 'DownloadService',
+        error: e,
+      );
+      return originalUrl;
+    }
+  }
 
-    // 替换 mikoto 为 hime
-    if (newUrl.contains('mikoto.iwara.tv')) {
-      newUrl = newUrl.replaceAll('mikoto.iwara.tv', 'hime.iwara.tv');
-      LogUtils.d('已将下载链接从 mikoto 替换为 hime', 'DownloadService');
+  /// 测试单个 CDN URL 是否可用
+  /// 返回 true 表示 URL 可用
+  Future<bool> _testCdnUrl(String url, CancelToken cancelToken) async {
+    final testDio = Dio(
+      BaseOptions(
+        connectTimeout: const Duration(seconds: 3),
+        receiveTimeout: const Duration(seconds: 3),
+        sendTimeout: const Duration(seconds: 3),
+      ),
+    );
+
+    try {
+      final response = await testDio.get(
+        url,
+        cancelToken: cancelToken,
+        options: Options(
+          headers: {
+            'Range': 'bytes=0-1023', // 只请求前1KB
+            'Accept-Encoding': 'identity',
+            'Referer': 'https://www.iwara.tv/',
+            'Accept': '*/*',
+          },
+          followRedirects: true,
+          validateStatus: (status) => status != null && status < 500,
+        ),
+      );
+
+      final isSuccess = response.statusCode == 200 ||
+          response.statusCode == 206 ||
+          response.statusCode == 302 ||
+          response.statusCode == 301;
+
+      LogUtils.d(
+        'CDN URL 测试${isSuccess ? "成功" : "失败"}: $url, 状态码: ${response.statusCode}',
+        'DownloadService',
+      );
+
+      return isSuccess;
+    } on DioException catch (e) {
+      // 如果是因为任务取消，直接返回 false
+      if (e.type == DioExceptionType.cancel) {
+        LogUtils.d('CDN URL 测试被取消: $url', 'DownloadService');
+        return false;
+      }
+
+      LogUtils.w('CDN URL 测试失败: $url, 错误: ${e.type}', 'DownloadService');
+      return false;
+    } catch (e) {
+      LogUtils.w('CDN URL 测试异常: $url, $e', 'DownloadService');
+      return false;
+    } finally {
+      testDio.close();
+    }
+  }
+
+  /// 顺序测试所有 CDN，返回第一个可用的 URL
+  /// 如果所有 CDN 都不可用，返回 null
+  Future<String?> _findWorkingCdnUrl(
+    String originalUrl,
+    CancelToken cancelToken,
+  ) async {
+    // 获取 CDN 服务器列表
+    final servers = _serverService.servers;
+    if (servers.isEmpty) {
+      LogUtils.d('CDN 服务器列表为空，无法切换', 'DownloadService');
+      return null;
     }
 
-    // 替换 phoebe 为 hime
-    if (newUrl.contains('phoebe.iwara.tv')) {
-      newUrl = newUrl.replaceAll('phoebe.iwara.tv', 'hime.iwara.tv');
-      LogUtils.d('已将下载链接从 phoebe 替换为 hime', 'DownloadService');
+    LogUtils.i(
+      '开始顺序测试 CDN，共 ${servers.length} 个服务器',
+      'DownloadService',
+    );
+
+    // 顺序测试每个 CDN
+    for (final server in servers) {
+      // 检查任务是否已取消
+      if (cancelToken.isCancelled) {
+        LogUtils.d('CDN 测试被取消（任务已取消）', 'DownloadService');
+        return null;
+      }
+
+      final cdnUrl = _replaceServerInUrl(originalUrl, server.name);
+      if (cdnUrl == originalUrl) {
+        // 替换失败，跳过
+        continue;
+      }
+
+      LogUtils.d('测试 CDN: ${server.name}', 'DownloadService');
+
+      // 测试这个 CDN URL
+      final isAvailable = await _testCdnUrl(cdnUrl, cancelToken);
+      if (isAvailable) {
+        LogUtils.i(
+          '找到可用的 CDN: ${server.name}',
+          'DownloadService',
+        );
+        return cdnUrl;
+      }
     }
 
-    return newUrl;
+    LogUtils.w('所有 CDN 都不可用', 'DownloadService');
+    return null;
   }
 
   // 刷新视频任务
