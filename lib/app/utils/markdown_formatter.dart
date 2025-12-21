@@ -9,37 +9,44 @@ import 'package:i_iwara/utils/logger_utils.dart';
 class MarkdownFormatter {
   // 单例实例
   static final MarkdownFormatter _instance = MarkdownFormatter._internal();
-  
+
   // 工厂构造函数
   factory MarkdownFormatter() => _instance;
-  
+
   // 内部构造函数
   MarkdownFormatter._internal();
-  
+
   /// 格式化链接
   Future<String> formatLinks(String data) async {
     final patterns = {
       IwaraUrlType.video: RegExp(
-          r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/video/([a-zA-Z0-9]+)(?:/[^\s]*)?',
-          caseSensitive: false),
+        r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/video/([a-zA-Z0-9]+)(?:/[^\s]*)?',
+        caseSensitive: false,
+      ),
       IwaraUrlType.forum: RegExp(
-          r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/forum/([^/\s]+)/([a-zA-Z0-9-]+)(?:/[^\s]*)?',
-          caseSensitive: false),
+        r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/forum/([^/\s]+)/([a-zA-Z0-9-]+)(?:/[^\s]*)?',
+        caseSensitive: false,
+      ),
       IwaraUrlType.image: RegExp(
-          r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/image/([a-zA-Z0-9]+)(?:/[^\s]*)?',
-          caseSensitive: false),
+        r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/image/([a-zA-Z0-9]+)(?:/[^\s]*)?',
+        caseSensitive: false,
+      ),
       IwaraUrlType.profile: RegExp(
-          r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/profile/([^/\s]+)(?:/[^\s]*)?',
-          caseSensitive: false),
+        r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/profile/([^/\s]+)(?:/[^\s]*)?',
+        caseSensitive: false,
+      ),
       IwaraUrlType.playlist: RegExp(
-          r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/playlist/([a-zA-Z0-9-]+)(?:/[^\s]*)?',
-          caseSensitive: false),
+        r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/playlist/([a-zA-Z0-9-]+)(?:/[^\s]*)?',
+        caseSensitive: false,
+      ),
       IwaraUrlType.post: RegExp(
-          r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/post/([a-zA-Z0-9-]+)(?:/[^\s]*)?',
-          caseSensitive: false),
+        r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/post/([a-zA-Z0-9-]+)(?:/[^\s]*)?',
+        caseSensitive: false,
+      ),
       IwaraUrlType.rule: RegExp(
-          r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/rule/([a-zA-Z0-9-]+)(?:/[^\s]*)?',
-          caseSensitive: false),
+        r'(?<![\]\(])(?:@\s*)?https?://(?:www\.)?iwara\.tv/rule/([a-zA-Z0-9-]+)(?:/[^\s]*)?',
+        caseSensitive: false,
+      ),
     };
 
     String updatedData = data;
@@ -52,7 +59,10 @@ class MarkdownFormatter {
 
   /// 格式化特定类型的链接
   Future<String> formatLinkType(
-      String data, IwaraUrlType type, RegExp pattern) async {
+    String data,
+    IwaraUrlType type,
+    RegExp pattern,
+  ) async {
     final matches = pattern.allMatches(data).toList();
     if (matches.isEmpty) return data;
 
@@ -81,8 +91,10 @@ class MarkdownFormatter {
       // 将 emoji 放在 Markdown 链接语法外面
       final linkText = info.isSuccess
           ? info.data?.replaceAll(RegExp(r'[\[\]\(\)]'), '') ?? ''
-          : '${type.name.capitalize} $idForFallback'
-              .replaceAll(RegExp(r'[\[\]\(\)]'), '');
+          : '${type.name.capitalize} $idForFallback'.replaceAll(
+              RegExp(r'[\[\]\(\)]'),
+              '',
+            );
 
       final replacement = '$emoji [$linkText]($originalUrl)';
       updatedData = updatedData.replaceAll(originalUrl, replacement);
@@ -214,73 +226,16 @@ class MarkdownFormatter {
 
     return text.replaceAllMapped(linkPattern, (match) {
       final url = match.group(0)!;
-      final emoji = getUrlTypeEmoji(url);
-      // 将 emoji 放在 Markdown 链接语法外面
-      return '$emoji [$url]($url)';
-    });
-  }
+      final faviconUrl = UrlUtils.getFaviconUrl(url);
 
-  /// 根据URL获取对应的图标
-  String getUrlTypeEmoji(String url) {
-    final uri = Uri.tryParse(url.toLowerCase());
-    if (uri == null) return '🔗';
-
-    // 网站特定图标映射
-    final Map<String, String> siteEmojis = {
-      'github.com': '📦',
-      'youtube.com': '📺',
-      'youtu.be': '📺',
-      'twitter.com': '🐦',
-      'x.com': '🐦',
-      'facebook.com': '👥',
-      'instagram.com': '📸',
-      'linkedin.com': '💼',
-      'medium.com': '📝',
-      'reddit.com': '📱',
-      'stackoverflow.com': '💻',
-      'discord.com': '💬',
-      'telegram.org': '📨',
-      'whatsapp.com': '💭',
-      'docs.google.com': '📄',
-      'drive.google.com': '💾',
-      'maps.google.com': '🗺️',
-      'play.google.com': '🎮',
-      'apple.com': '🍎',
-      'microsoft.com': '🪟',
-      'amazon.com': '🛒',
-      'netflix.com': '🎬',
-      'spotify.com': '🎵',
-      'twitch.tv': '🎮',
-      'wikipedia.org': '📚',
-      'notion.so': '📝',
-      'figma.com': '🎨',
-      'gitlab.com': '📦',
-      'bitbucket.org': '📦',
-      'npm.com': '📦',
-      'docker.com': '🐳',
-      'kubernetes.io': '⚓',
-    };
-
-    // 检查是否为已知网站
-    final host = uri.host.replaceAll('www.', '');
-    for (final entry in siteEmojis.entries) {
-      if (host.contains(entry.key)) {
-        return entry.value;
+      // 使用 Favicon (emo:text-i 表示文本高度的图标)
+      // 如果获取失败(空字符串)，则回退到默认链接图标
+      if (faviconUrl.isNotEmpty) {
+        return '![emo:text-i]($faviconUrl) [$url]($url)';
+      } else {
+        return '🔗 [$url]($url)';
       }
-    }
-
-    // 根据URL路径判断类型
-    final path = uri.path.toLowerCase();
-    if (path.contains('.pdf')) return '📄';
-    if (path.contains('.zip') || path.contains('.rar')) return '📦';
-    if (path.contains('.mp3') || path.contains('.wav')) return '🎵';
-    if (path.contains('.mp4') || path.contains('.mov')) return '🎥';
-    if (path.contains('.jpg') || path.contains('.png')) return '🖼️';
-    if (path.contains('.doc') || path.contains('.txt')) return '📝';
-    if (path.contains('api') || path.contains('docs')) return '📚';
-
-    // 默认图标
-    return '🔗';
+    });
   }
 
   /// 将文本中的换行符替换为两个空格和换行符
@@ -291,8 +246,7 @@ class MarkdownFormatter {
   /// 将文本中的 @ 用户名格式化为 Markdown 链接
   String formatMentions(String data) {
     // 额外排除 `[`，避免在 Markdown 链接标题中重复包裹用户名
-    final mentionPattern =
-        RegExp(r'(?<![\/\w\[])@([\w\u4e00-\u9fa5]+)');
+    final mentionPattern = RegExp(r'(?<![\/\w\[])@([\w\u4e00-\u9fa5]+)');
     return data.replaceAllMapped(mentionPattern, (match) {
       final mention = match.group(0);
       final username = match.group(1);
@@ -300,17 +254,17 @@ class MarkdownFormatter {
       return '[$mention](https://www.iwara.tv/profile/$username)';
     });
   }
-  
+
   /// 处理翻译后的文本格式化
   Future<String> processTranslatedText(String rawText) async {
     String processed = rawText;
-    
+
     // 进行各种格式化处理
     processed = await formatLinks(processed);
     processed = formatMarkdownLinks(processed);
     processed = formatMentions(processed);
     processed = replaceNewlines(processed);
-    
+
     return processed;
   }
-} 
+}
