@@ -75,7 +75,10 @@ class BatchSelectController<T> extends GetxController {
 
   /// 设置分页模式
   void setPaginatedMode(bool isPaginated) {
-    isPaginatedMode.value = isPaginated;
+    if (isPaginatedMode.value != isPaginated) {
+      isPaginatedMode.value = isPaginated;
+      clearSelection();
+    }
   }
 
   /// 获取选中数量

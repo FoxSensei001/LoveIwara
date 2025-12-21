@@ -393,6 +393,14 @@ class PopularMediaListPageBaseState<
                                 child: CommonHeader(
                                   searchSegment: widget.searchSegment,
                                   avatarRadius: 20,
+                                  trailing: [
+                                    IconButton(
+                                      icon: const Icon(Icons.refresh),
+                                      onPressed: tryRefreshCurrentSort,
+                                      tooltip: t.common.refresh,
+                                    ),
+                                    const SizedBox(width: 4),
+                                  ],
                                 ),
                               ),
                             ),
@@ -469,9 +477,19 @@ class PopularMediaListPageBaseState<
                             return _buildAnimatedIconButton(
                               isVisible: showHeader,
                               child: IconButton(
-                                icon: const Icon(Icons.refresh),
-                                onPressed: tryRefreshCurrentSort,
-                                tooltip: t.common.refresh,
+                                icon: Icon(
+                                  _mediaListController.isPaginated.value
+                                      ? Icons.grid_view
+                                      : Icons.view_stream,
+                                ),
+                                onPressed: () {
+                                  _mediaListController.setPaginatedMode(
+                                    !_mediaListController.isPaginated.value,
+                                  );
+                                },
+                                tooltip: _mediaListController.isPaginated.value
+                                    ? t.common.pagination.waterfall
+                                    : t.common.pagination.pagination,
                               ),
                             );
                           }),
@@ -590,6 +608,26 @@ class PopularMediaListPageBaseState<
                           childPadding: const EdgeInsets.all(6),
                           childrens: [
                             [
+                              SpeedDialChild(
+                                child: Obx(
+                                  () => Icon(
+                                    _mediaListController.isPaginated.value
+                                        ? Icons.grid_view
+                                        : Icons.view_stream,
+                                  ),
+                                ),
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.secondaryContainer,
+                                foregroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.onSecondaryContainer,
+                                onTap: () {
+                                  _mediaListController.setPaginatedMode(
+                                    !_mediaListController.isPaginated.value,
+                                  );
+                                },
+                              ),
                               SpeedDialChild(
                                 child: const Icon(Icons.search),
                                 backgroundColor: Theme.of(

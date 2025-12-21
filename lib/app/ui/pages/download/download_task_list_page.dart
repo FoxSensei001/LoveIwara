@@ -14,6 +14,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:super_clipboard/super_clipboard.dart';
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
 import 'package:i_iwara/app/ui/widgets/md_toast_widget.dart';
+import 'package:i_iwara/app/ui/widgets/batch_action_fab_widget.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:oktoast/oktoast.dart';
 
@@ -152,95 +153,27 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
             return _buildSingleList();
           }),
           // 左下角操作按钮组
-          if (_isSelectionMode)
-            Positioned(
-              left: 16,
-              bottom: 0,
-              child: _buildBatchActionFabColumn(),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBatchActionFabColumn() {
-    final t = slang.Translations.of(context);
-    final bottomSafeNow = MediaQuery.of(context).padding.bottom;
-    // 基础底部间距
-    final double finalBottomPadding = bottomSafeNow + 20;
-
-    return Padding(
-      padding: EdgeInsets.only(bottom: finalBottomPadding),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // 退出多选按钮
-          FloatingActionButton.small(
-            heroTag: 'exitMultiSelect_downloadList',
-            onPressed: _exitSelectionMode,
-            backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-            foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
-            tooltip: t.common.exitEditMode,
-            child: const Icon(Icons.close),
-          ),
-          const SizedBox(height: 12),
-          // 功能按钮组（清空选择和删除）
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 300),
-            transitionBuilder: (Widget child, Animation<double> animation) {
-              return SizeTransition(
-                sizeFactor: animation,
-                axis: Axis.vertical,
-                child: ScaleTransition(
-                  scale: animation,
-                  alignment: Alignment.bottomCenter,
-                  child: FadeTransition(opacity: animation, child: child),
-                ),
+          // 左下角操作按钮组
+          BatchActionFab(
+            isMultiSelect: _isSelectionMode,
+            selectedCount: _selectedTaskIds.length,
+            heroTagPrefix: 'downloadList',
+            onExit: _exitSelectionMode,
+            onClear: () {
+              setState(() {
+                _selectedTaskIds.clear();
+              });
+            },
+            customActionBuilder: (context) {
+              return FloatingActionButton.small(
+                heroTag: 'batchDeleteFAB_downloadList',
+                onPressed: _deleteSelectedTasks,
+                backgroundColor: Theme.of(context).colorScheme.error,
+                foregroundColor: Theme.of(context).colorScheme.onError,
+                tooltip: t.common.delete,
+                child: const Icon(Icons.delete),
               );
             },
-            child: _selectedTaskIds.isNotEmpty
-                ? Column(
-                    key: const ValueKey('batch_active_actions'),
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // 清空已选按钮
-                      FloatingActionButton.small(
-                        heroTag: 'clearSelection_downloadList',
-                        onPressed: () {
-                          setState(() {
-                            _selectedTaskIds.clear();
-                          });
-                        },
-                        backgroundColor: Theme.of(
-                          context,
-                        ).colorScheme.tertiaryContainer,
-                        foregroundColor: Theme.of(
-                          context,
-                        ).colorScheme.onTertiaryContainer,
-                        tooltip: t.common.clearSelection,
-                        child: const Icon(Icons.layers_clear),
-                      ),
-                      const SizedBox(height: 12),
-                      // 删除按钮
-                      Badge(
-                        label: Text(_selectedTaskIds.length.toString()),
-                        child: FloatingActionButton.small(
-                          heroTag: 'batchDeleteFAB_downloadList',
-                          onPressed: _deleteSelectedTasks,
-                          backgroundColor: Theme.of(context).colorScheme.error,
-                          foregroundColor: Theme.of(
-                            context,
-                          ).colorScheme.onError,
-                          tooltip: t.common.delete, // 假设有 delete tooltip key
-                          child: const Icon(Icons.delete),
-                        ),
-                      ),
-                    ],
-                  )
-                : const SizedBox.shrink(
-                    key: ValueKey('batch_inactive_actions'),
-                  ),
           ),
         ],
       ),
@@ -395,17 +328,23 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
         children: [
           // 列表项本身
           item,
-          // 覆盖层
+          // 覆盖层 - 使用 Padding 和 ClipRRect 匹配 Card 的样式（margin 8/4, radius 12）
           Positioned.fill(
-            child: Material(
-              color: isSelected ? Colors.black38 : Colors.black12,
-              child: InkWell(
-                onTap: () => _toggleItemSelection(task.id),
-                child: Center(
-                  child: Icon(
-                    isSelected ? Icons.check_circle : Icons.circle_outlined,
-                    color: isSelected ? Colors.white : Colors.white70,
-                    size: 40,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Material(
+                  color: isSelected ? Colors.black38 : Colors.black12,
+                  child: InkWell(
+                    onTap: () => _toggleItemSelection(task.id),
+                    child: Center(
+                      child: Icon(
+                        isSelected ? Icons.check_circle : Icons.circle_outlined,
+                        color: isSelected ? Colors.white : Colors.white70,
+                        size: 40,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -414,7 +353,9 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
         ],
       );
     } else {
-      return InkWell(
+      // 使用 GestureDetector 代替 InkWell，避免水波纹超出卡片（因为卡片有 margin，外层 InkWell 会是矩形且包括 margin）
+      // 内部 Item 已经有自己的点击反馈（WaterRipple）
+      return GestureDetector(
         onLongPress: () {
           _enterSelectionMode();
           _toggleItemSelection(task.id);

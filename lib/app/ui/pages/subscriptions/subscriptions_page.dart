@@ -518,6 +518,11 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                                       ),
                                       const SizedBox(width: 4),
                                       IconButton(
+                                        icon: const Icon(Icons.refresh),
+                                        onPressed: refreshCurrentList,
+                                        tooltip: t.common.refresh,
+                                      ),
+                                      IconButton(
                                         icon: const Icon(Icons.settings),
                                         onPressed:
                                             AppService.switchGlobalDrawer,
@@ -616,11 +621,6 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                                   ? t.common.pagination.waterfall
                                   : t.common.pagination.pagination,
                             ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.refresh),
-                            onPressed: refreshCurrentList,
-                            tooltip: t.common.refresh,
                           ),
                           // 多选按钮
                           Obx(() {
