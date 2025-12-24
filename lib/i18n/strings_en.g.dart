@@ -2966,6 +2966,33 @@ class TranslationsDownloadEn {
 	/// en: 'Download Completed: ${fileName}'
 	String downloadCompletedWithName({required Object fileName}) => 'Download Completed: ${fileName}';
 
+	/// en: 'Search tasks...'
+	String get searchTasks => 'Search tasks...';
+
+	/// en: 'Status: ${label}'
+	String statusLabel({required Object label}) => 'Status: ${label}';
+
+	/// en: 'All Status'
+	String get allStatus => 'All Status';
+
+	/// en: 'Type: ${label}'
+	String typeLabel({required Object label}) => 'Type: ${label}';
+
+	/// en: 'All Types'
+	String get allTypes => 'All Types';
+
+	/// en: 'Video'
+	String get video => 'Video';
+
+	/// en: 'Gallery'
+	String get gallery => 'Gallery';
+
+	/// en: 'Other'
+	String get other => 'Other';
+
+	/// en: 'Clear filters'
+	String get clearFilters => 'Clear filters';
+
 	/// en: 'Still in development'
 	String get stillInDevelopment => 'Still in development';
 
@@ -7659,6 +7686,15 @@ extension on Translations {
 			'download.downloadingOnlyDownloaded' => ({required Object downloaded}) => 'Downloading ${downloaded}',
 			'download.galleryDownloadCompletedWithName' => ({required Object galleryName}) => 'Gallery Download Completed: ${galleryName}',
 			'download.downloadCompletedWithName' => ({required Object fileName}) => 'Download Completed: ${fileName}',
+			'download.searchTasks' => 'Search tasks...',
+			'download.statusLabel' => ({required Object label}) => 'Status: ${label}',
+			'download.allStatus' => 'All Status',
+			'download.typeLabel' => ({required Object label}) => 'Type: ${label}',
+			'download.allTypes' => 'All Types',
+			'download.video' => 'Video',
+			'download.gallery' => 'Gallery',
+			'download.other' => 'Other',
+			'download.clearFilters' => 'Clear filters',
 			'download.stillInDevelopment' => 'Still in development',
 			'download.saveToAppDirectory' => 'Save to app directory',
 			'download.alreadyDownloadedWithQuality' => 'Already downloaded with the same quality, continue downloading?',
@@ -7943,6 +7979,8 @@ extension on Translations {
 			'mediaPlayer.retry' => 'Retry',
 			'mediaPlayer.externalPlayer' => 'External Player',
 			'mediaPlayer.detailedErrorInfo' => 'Detailed Error Information',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.format' => 'Format',
 			'mediaPlayer.suggestion' => 'Suggestion',
 			'mediaPlayer.androidWebmCompatibilityIssue' => 'Android devices have limited support for WEBM format. It is recommended to use an external player or download a player app that supports WEBM',
@@ -7952,8 +7990,6 @@ extension on Translations {
 			'mediaPlayer.tryOtherVideoPlayer' => 'Please try using other video players',
 			'mediaPlayer.video' => 'VIDEO',
 			'mediaPlayer.serverSelector' => 'CDN Server Selection',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.serverSelectorDescription' => 'Select the server with the lowest latency for the best playback experience',
 			'mediaPlayer.retestSpeed' => 'Retest Speed',
 			'mediaPlayer.waitingForSpeedTest' => 'Waiting for speed test',

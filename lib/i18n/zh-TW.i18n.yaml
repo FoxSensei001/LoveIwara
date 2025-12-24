@@ -1381,6 +1381,15 @@ download:
   downloadingOnlyDownloaded: '下載中 ${downloaded}'
   galleryDownloadCompletedWithName: '圖庫下載完成: ${galleryName}'
   downloadCompletedWithName: '下載完成: ${fileName}'
+  searchTasks: 搜尋下載任務...
+  statusLabel: '狀態: ${label}'
+  allStatus: 所有狀態
+  typeLabel: '類型: ${label}'
+  allTypes: 所有類型
+  video: 影片
+  gallery: 圖庫
+  other: 其他
+  clearFilters: 清除篩選
   stillInDevelopment: 開發中
   saveToAppDirectory: 儲存到應用程式目錄
   alreadyDownloadedWithQuality: '已有相同清晰度的任務，是否繼續下載？'

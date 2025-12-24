@@ -1193,6 +1193,15 @@ class _TranslationsDownloadJa implements TranslationsDownloadEn {
 	@override String downloadingOnlyDownloaded({required Object downloaded}) => 'ダウンロード中 ${downloaded}';
 	@override String galleryDownloadCompletedWithName({required Object galleryName}) => 'ギャラリーのダウンロードが完了しました: ${galleryName}';
 	@override String downloadCompletedWithName({required Object fileName}) => 'ダウンロードが完了しました: ${fileName}';
+	@override String get searchTasks => 'タスクを検索...';
+	@override String statusLabel({required Object label}) => 'ステータス: ${label}';
+	@override String get allStatus => 'すべてのステータス';
+	@override String typeLabel({required Object label}) => 'タイプ: ${label}';
+	@override String get allTypes => 'すべてのタイプ';
+	@override String get video => '動画';
+	@override String get gallery => 'ギャラリー';
+	@override String get other => 'その他';
+	@override String get clearFilters => 'フィルターをクリア';
 	@override String get stillInDevelopment => '開発中';
 	@override String get saveToAppDirectory => 'アプリケーションディレクトリに保存';
 	@override String get alreadyDownloadedWithQuality => 'すでに同じ品質のタスクがあります。続けてダウンロードしますか？';
@@ -3910,6 +3919,15 @@ extension on TranslationsJa {
 			'download.downloadingOnlyDownloaded' => ({required Object downloaded}) => 'ダウンロード中 ${downloaded}',
 			'download.galleryDownloadCompletedWithName' => ({required Object galleryName}) => 'ギャラリーのダウンロードが完了しました: ${galleryName}',
 			'download.downloadCompletedWithName' => ({required Object fileName}) => 'ダウンロードが完了しました: ${fileName}',
+			'download.searchTasks' => 'タスクを検索...',
+			'download.statusLabel' => ({required Object label}) => 'ステータス: ${label}',
+			'download.allStatus' => 'すべてのステータス',
+			'download.typeLabel' => ({required Object label}) => 'タイプ: ${label}',
+			'download.allTypes' => 'すべてのタイプ',
+			'download.video' => '動画',
+			'download.gallery' => 'ギャラリー',
+			'download.other' => 'その他',
+			'download.clearFilters' => 'フィルターをクリア',
 			'download.stillInDevelopment' => '開発中',
 			'download.saveToAppDirectory' => 'アプリケーションディレクトリに保存',
 			'download.alreadyDownloadedWithQuality' => 'すでに同じ品質のタスクがあります。続けてダウンロードしますか？',
@@ -4194,6 +4212,8 @@ extension on TranslationsJa {
 			'log.showLogStats' => 'ログ統計情報を表示',
 			'log.logExportSuccess' => 'ログエクスポート成功',
 			'log.logExportFailed' => ({required Object error}) => 'ログエクスポート失敗: ${error}',
+			_ => null,
+		} ?? switch (path) {
 			'log.showLogStatsDesc' => '様々なタイプのログの統計情報を表示',
 			'log.logExtractFailed' => ({required Object error}) => 'ログ統計情報の取得に失敗しました: ${error}',
 			'log.clearAllLogs' => 'すべてのログをクリア',
@@ -4203,8 +4223,6 @@ extension on TranslationsJa {
 			'log.clearAllLogsSuccess' => 'ログクリア成功',
 			'log.clearAllLogsFailed' => ({required Object error}) => 'ログクリア失敗: ${error}',
 			'log.unableToGetLogSizeInfo' => 'ログサイズ情報を取得できません',
-			_ => null,
-		} ?? switch (path) {
 			'log.currentLogSize' => '現在のログサイズ:',
 			'log.logCount' => 'ログ数:',
 			'log.logCountUnit' => 'ログ',

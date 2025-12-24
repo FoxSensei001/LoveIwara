@@ -1342,6 +1342,15 @@ download:
   paused: 暂停中
   downloadingOnlyDownloaded: '下载中 ${downloaded}'
   galleryDownloadCompletedWithName: '图库下载完成: ${galleryName}'
+  searchTasks: 搜索下载任务...
+  statusLabel: '状态: ${label}'
+  allStatus: 所有状态
+  typeLabel: '类型: ${label}'
+  allTypes: 所有类型
+  video: 视频
+  gallery: 图库
+  other: 其他
+  clearFilters: 清除筛选
   downloadCompletedWithName: '下载完成: ${fileName}'
   stillInDevelopment: 开发中
   saveToAppDirectory: 保存到应用目录

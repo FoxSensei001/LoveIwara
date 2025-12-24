@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -60,9 +61,23 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Text(slang.t.personalProfile.editPersonalProfile),
         centerTitle: false,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        flexibleSpace: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              color: Theme.of(
+                context,
+              ).colorScheme.surface.withValues(alpha: 0.8),
+            ),
+          ),
+        ),
       ),
       body: _isLoading
           ? const _PersonalProfileSkeleton()
@@ -72,7 +87,16 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                 return Center(child: Text(slang.t.auth.notLoggedIn));
               }
 
+              final screenWidth = MediaQuery.of(context).size.width;
+              final bool isWide = screenWidth > 600;
+              final double avatarSize = isWide ? 140.0 : 100.0;
+              final double buttonContainerSize = isWide ? 44.0 : 36.0;
+              final double iconSize = isWide ? 24.0 : 20.0;
+
               return ListView(
+                padding: EdgeInsets.only(
+                  top: kToolbarHeight + MediaQuery.of(context).padding.top,
+                ),
                 children: [
                   const SizedBox(height: 24),
                   // 头像区域
@@ -81,7 +105,7 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                       children: [
                         Stack(
                           children: [
-                            AvatarWidget(user: user, size: 100),
+                            AvatarWidget(user: user, size: avatarSize),
                             Positioned(
                               right: 0,
                               bottom: 0,
@@ -97,10 +121,10 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                                   ),
                                 ),
                                 child: _isUploadingAvatar
-                                    ? const SizedBox(
-                                        width: 36,
-                                        height: 36,
-                                        child: Padding(
+                                    ? SizedBox(
+                                        width: buttonContainerSize,
+                                        height: buttonContainerSize,
+                                        child: const Padding(
                                           padding: EdgeInsets.all(8.0),
                                           child: CircularProgressIndicator(
                                             strokeWidth: 2,
@@ -111,17 +135,17 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                                         ),
                                       )
                                     : IconButton(
-                                        icon: const Icon(
+                                        icon: Icon(
                                           Icons.camera_alt,
-                                          size: 20,
+                                          size: iconSize,
                                         ),
                                         color: Theme.of(
                                           context,
                                         ).colorScheme.onPrimary,
                                         onPressed: _pickAndUploadAvatar,
-                                        constraints: const BoxConstraints(
-                                          minWidth: 36,
-                                          minHeight: 36,
+                                        constraints: BoxConstraints(
+                                          minWidth: buttonContainerSize,
+                                          minHeight: buttonContainerSize,
                                         ),
                                         padding: EdgeInsets.zero,
                                       ),
@@ -263,26 +287,6 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
 
                   const Divider(),
 
-                  // 隐私设置分组
-                  _buildSectionHeader(
-                    context,
-                    slang.t.personalProfile.privacySettings,
-                  ),
-                  SwitchListTile(
-                    secondary: const Icon(Icons.visibility_off_outlined),
-                    title: Text(slang.t.personalProfile.hideSensitiveContent),
-                    subtitle: Text(
-                      slang.t.personalProfile.hideSensitiveContentDesc,
-                    ),
-                    value: user.hideSensitive,
-                    onChanged: (bool value) =>
-                        _handleToggleHideSensitive(value),
-                  ),
-
-                  const Divider(),
-
-                  const Divider(),
-
                   // 通知设置分组
                   _buildSectionHeader(
                     context,
@@ -360,35 +364,6 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
         ),
       ),
     );
-  }
-
-  Future<void> _handleToggleHideSensitive(bool value) async {
-    final user = _userService.currentUser.value;
-    if (user == null) return;
-
-    final bool originalValue = user.hideSensitive;
-
-    // 1. 乐观更新：立即反映在 UI 上
-    _userService.currentUser.value = user.copyWith(hideSensitive: value);
-
-    // 2. 发送请求
-    final result = await _userService.updateUserProfile(hideSensitive: value);
-
-    if (!result.isSuccess) {
-      // 3. 如果失败，回滚状态
-      _userService.currentUser.value = user.copyWith(
-        hideSensitive: originalValue,
-      );
-      showToastWidget(
-        MDToastWidget(
-          message: slang.t.personalProfile.updateSettingsFailed(
-            error: result.message,
-          ),
-          type: MDToastType.error,
-        ),
-      );
-    }
-    // 成功则不需要操作，因为 updateUserProfile 内部已经处理了最终数据的同步
   }
 
   Future<void> _handleToggleNotification(String key, bool value) async {
@@ -625,6 +600,11 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
     final headerUrl = user.header?.headerUrl;
     final fallbackUrl = CommonConstants.defaultProfileHeaderUrl;
 
+    final screenWidth = MediaQuery.of(context).size.width;
+    final bool isWide = screenWidth > 600;
+    final double buttonContainerSize = isWide ? 44.0 : 36.0;
+    final double iconSize = isWide ? 24.0 : 20.0;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Column(
@@ -665,10 +645,10 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                     ),
                   ),
                   child: _isUploadingHeader
-                      ? const SizedBox(
-                          width: 36,
-                          height: 36,
-                          child: Padding(
+                      ? SizedBox(
+                          width: buttonContainerSize,
+                          height: buttonContainerSize,
+                          child: const Padding(
                             padding: EdgeInsets.all(8.0),
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
@@ -677,12 +657,12 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                           ),
                         )
                       : IconButton(
-                          icon: const Icon(Icons.camera_alt, size: 20),
+                          icon: Icon(Icons.camera_alt, size: iconSize),
                           color: Theme.of(context).colorScheme.onPrimary,
                           onPressed: _pickAndUploadHeader,
-                          constraints: const BoxConstraints(
-                            minWidth: 36,
-                            minHeight: 36,
+                          constraints: BoxConstraints(
+                            minWidth: buttonContainerSize,
+                            minHeight: buttonContainerSize,
                           ),
                           padding: EdgeInsets.zero,
                         ),

@@ -1197,6 +1197,15 @@ class _TranslationsDownloadZhCn implements TranslationsDownloadEn {
 	@override String get paused => '暂停中';
 	@override String downloadingOnlyDownloaded({required Object downloaded}) => '下载中 ${downloaded}';
 	@override String galleryDownloadCompletedWithName({required Object galleryName}) => '图库下载完成: ${galleryName}';
+	@override String get searchTasks => '搜索下载任务...';
+	@override String statusLabel({required Object label}) => '状态: ${label}';
+	@override String get allStatus => '所有状态';
+	@override String typeLabel({required Object label}) => '类型: ${label}';
+	@override String get allTypes => '所有类型';
+	@override String get video => '视频';
+	@override String get gallery => '图库';
+	@override String get other => '其他';
+	@override String get clearFilters => '清除筛选';
 	@override String downloadCompletedWithName({required Object fileName}) => '下载完成: ${fileName}';
 	@override String get stillInDevelopment => '开发中';
 	@override String get saveToAppDirectory => '保存到应用目录';
@@ -3919,6 +3928,15 @@ extension on TranslationsZhCn {
 			'download.paused' => '暂停中',
 			'download.downloadingOnlyDownloaded' => ({required Object downloaded}) => '下载中 ${downloaded}',
 			'download.galleryDownloadCompletedWithName' => ({required Object galleryName}) => '图库下载完成: ${galleryName}',
+			'download.searchTasks' => '搜索下载任务...',
+			'download.statusLabel' => ({required Object label}) => '状态: ${label}',
+			'download.allStatus' => '所有状态',
+			'download.typeLabel' => ({required Object label}) => '类型: ${label}',
+			'download.allTypes' => '所有类型',
+			'download.video' => '视频',
+			'download.gallery' => '图库',
+			'download.other' => '其他',
+			'download.clearFilters' => '清除筛选',
 			'download.downloadCompletedWithName' => ({required Object fileName}) => '下载完成: ${fileName}',
 			'download.stillInDevelopment' => '开发中',
 			'download.saveToAppDirectory' => '保存到应用目录',
@@ -4199,6 +4217,8 @@ extension on TranslationsZhCn {
 			'log.exportCurrentLogsDesc' => '导出当天应用日志以帮助开发者诊断问题',
 			'log.exportHistoryLogs' => '导出历史日志',
 			'log.exportHistoryLogsDesc' => '导出指定日期范围的日志',
+			_ => null,
+		} ?? switch (path) {
 			'log.exportMergedLogs' => '导出合并日志',
 			'log.exportMergedLogsDesc' => '导出指定日期范围的合并日志',
 			'log.showLogStats' => '显示日志统计信息',
@@ -4208,8 +4228,6 @@ extension on TranslationsZhCn {
 			'log.logExtractFailed' => ({required Object error}) => '获取日志统计失败: ${error}',
 			'log.clearAllLogs' => '清理所有日志',
 			'log.clearAllLogsDesc' => '清理所有日志数据',
-			_ => null,
-		} ?? switch (path) {
 			'log.confirmClearAllLogs' => '确认清理',
 			'log.confirmClearAllLogsDesc' => '确定要清理所有日志数据吗？此操作不可撤销。',
 			'log.clearAllLogsSuccess' => '日志清理成功',

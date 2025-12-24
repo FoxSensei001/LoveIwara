@@ -1338,6 +1338,15 @@ download:
   downloadingOnlyDownloaded: 'ダウンロード中 ${downloaded}'
   galleryDownloadCompletedWithName: 'ギャラリーのダウンロードが完了しました: ${galleryName}'
   downloadCompletedWithName: 'ダウンロードが完了しました: ${fileName}'
+  searchTasks: タスクを検索...
+  statusLabel: 'ステータス: ${label}'
+  allStatus: すべてのステータス
+  typeLabel: 'タイプ: ${label}'
+  allTypes: すべてのタイプ
+  video: 動画
+  gallery: ギャラリー
+  other: その他
+  clearFilters: フィルターをクリア
   stillInDevelopment: 開発中
   saveToAppDirectory: アプリケーションディレクトリに保存
   alreadyDownloadedWithQuality: 'すでに同じ品質のタスクがあります。続けてダウンロードしますか？'

@@ -1335,6 +1335,15 @@ download:
   downloadingOnlyDownloaded: 'Downloading ${downloaded}'
   galleryDownloadCompletedWithName: 'Gallery Download Completed: ${galleryName}'
   downloadCompletedWithName: 'Download Completed: ${fileName}'
+  searchTasks: Search tasks...
+  statusLabel: 'Status: ${label}'
+  allStatus: All Status
+  typeLabel: 'Type: ${label}'
+  allTypes: All Types
+  video: Video
+  gallery: Gallery
+  other: Other
+  clearFilters: Clear filters
   stillInDevelopment: Still in development
   saveToAppDirectory: Save to app directory
   alreadyDownloadedWithQuality: 'Already downloaded with the same quality, continue downloading?'

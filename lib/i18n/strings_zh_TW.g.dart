@@ -1224,6 +1224,15 @@ class _TranslationsDownloadZhTw implements TranslationsDownloadEn {
 	@override String downloadingOnlyDownloaded({required Object downloaded}) => '下載中 ${downloaded}';
 	@override String galleryDownloadCompletedWithName({required Object galleryName}) => '圖庫下載完成: ${galleryName}';
 	@override String downloadCompletedWithName({required Object fileName}) => '下載完成: ${fileName}';
+	@override String get searchTasks => '搜尋下載任務...';
+	@override String statusLabel({required Object label}) => '狀態: ${label}';
+	@override String get allStatus => '所有狀態';
+	@override String typeLabel({required Object label}) => '類型: ${label}';
+	@override String get allTypes => '所有類型';
+	@override String get video => '影片';
+	@override String get gallery => '圖庫';
+	@override String get other => '其他';
+	@override String get clearFilters => '清除篩選';
 	@override String get stillInDevelopment => '開發中';
 	@override String get saveToAppDirectory => '儲存到應用程式目錄';
 	@override String get alreadyDownloadedWithQuality => '已有相同清晰度的任務，是否繼續下載？';
@@ -3944,6 +3953,15 @@ extension on TranslationsZhTw {
 			'download.downloadingOnlyDownloaded' => ({required Object downloaded}) => '下載中 ${downloaded}',
 			'download.galleryDownloadCompletedWithName' => ({required Object galleryName}) => '圖庫下載完成: ${galleryName}',
 			'download.downloadCompletedWithName' => ({required Object fileName}) => '下載完成: ${fileName}',
+			'download.searchTasks' => '搜尋下載任務...',
+			'download.statusLabel' => ({required Object label}) => '狀態: ${label}',
+			'download.allStatus' => '所有狀態',
+			'download.typeLabel' => ({required Object label}) => '類型: ${label}',
+			'download.allTypes' => '所有類型',
+			'download.video' => '影片',
+			'download.gallery' => '圖庫',
+			'download.other' => '其他',
+			'download.clearFilters' => '清除篩選',
 			'download.stillInDevelopment' => '開發中',
 			'download.saveToAppDirectory' => '儲存到應用程式目錄',
 			'download.alreadyDownloadedWithQuality' => '已有相同清晰度的任務，是否繼續下載？',
@@ -4197,6 +4215,8 @@ extension on TranslationsZhTw {
 			'mediaPlayer.decoderOpenFailedWithSuggestion' => ({required Object event}) => '無法載入解碼器: ${event}，可在播放器設定切換為軟解，並重新進入頁面嘗試',
 			'mediaPlayer.videoLoadErrorWithDetail' => ({required Object event}) => '影片載入錯誤: ${event}',
 			'linkInputDialog.title' => '輸入連結',
+			_ => null,
+		} ?? switch (path) {
 			'linkInputDialog.supportedLinksHint' => ({required Object webName}) => '支援智慧識別多個${webName}連結，並快速跳轉到應用內對應頁面(連結與其他文字之間用空格隔開)',
 			'linkInputDialog.inputHint' => ({required Object webName}) => '請輸入${webName}連結',
 			'linkInputDialog.validatorEmptyLink' => '請輸入連結',
@@ -4206,8 +4226,6 @@ extension on TranslationsZhTw {
 			'linkInputDialog.linkParseError' => ({required Object error}) => '連結解析出錯: ${error}',
 			'linkInputDialog.unsupportedLinkDialogTitle' => '不支援的連結',
 			'linkInputDialog.unsupportedLinkDialogContent' => '該連結類型目前應用無法直接打開，需要使用外部瀏覽器訪問。\n\n是否使用瀏覽器打開此連結？',
-			_ => null,
-		} ?? switch (path) {
 			'linkInputDialog.openInBrowser' => '用瀏覽器打開',
 			'linkInputDialog.confirmOpenBrowserDialogTitle' => '確認打開瀏覽器',
 			'linkInputDialog.confirmOpenBrowserDialogContent' => '即將使用外部瀏覽器打開以下連結：',

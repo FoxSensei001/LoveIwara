@@ -348,4 +348,148 @@ class DownloadTaskRepository {
       rethrow;
     }
   }
+
+  /// Search and filter tasks with pagination
+  /// [searchQuery] - Search in fileName (case-insensitive)
+  /// [statusFilter] - Filter by status: 'all', 'failed', 'downloaded' (completed)
+  /// [typeFilter] - Filter by type: 'all', 'video', 'gallery', 'other'
+  Future<List<DownloadTask>> searchTasks({
+    required int offset,
+    required int limit,
+    String? searchQuery,
+    String statusFilter = 'all',
+    String typeFilter = 'all',
+  }) async {
+    try {
+      final whereClauses = <String>[];
+      final params = <dynamic>[];
+
+      // Search query filter
+      if (searchQuery != null && searchQuery.trim().isNotEmpty) {
+        whereClauses.add("file_name LIKE ?");
+        params.add('%${searchQuery.trim()}%');
+      }
+
+      // Status filter
+      switch (statusFilter) {
+        case 'failed':
+          whereClauses.add("status = 'failed'");
+          break;
+        case 'downloaded':
+          whereClauses.add("status = 'completed'");
+          break;
+        case 'all':
+        default:
+          // No status filter - include all statuses
+          break;
+      }
+
+      // Type filter (based on ext_data JSON)
+      switch (typeFilter) {
+        case 'video':
+          whereClauses.add("json_extract(ext_data, '\$.type') = 'video'");
+          break;
+        case 'gallery':
+          whereClauses.add("json_extract(ext_data, '\$.type') = 'gallery'");
+          break;
+        case 'other':
+          whereClauses.add(
+            "(ext_data IS NULL OR (json_extract(ext_data, '\$.type') != 'video' AND json_extract(ext_data, '\$.type') != 'gallery'))",
+          );
+          break;
+        case 'all':
+        default:
+          // No type filter
+          break;
+      }
+
+      final whereClause = whereClauses.isNotEmpty
+          ? 'WHERE ${whereClauses.join(' AND ')}'
+          : '';
+
+      final sql =
+          '''
+        SELECT * FROM download_tasks
+        $whereClause
+        ORDER BY created_at DESC
+        LIMIT ? OFFSET ?
+      ''';
+
+      params.add(limit);
+      params.add(offset);
+
+      final stmt = _db.prepare(sql);
+      final results = stmt.select(params);
+      return results.map((row) => DownloadTask.fromRow(row)).toList();
+    } catch (e) {
+      LogUtils.e('搜索下载任务失败', tag: 'DownloadTaskRepository', error: e);
+      rethrow;
+    }
+  }
+
+  /// Get count for filtered search
+  Future<int> getFilteredTasksCount({
+    String? searchQuery,
+    String statusFilter = 'all',
+    String typeFilter = 'all',
+  }) async {
+    try {
+      final whereClauses = <String>[];
+      final params = <dynamic>[];
+
+      // Search query filter
+      if (searchQuery != null && searchQuery.trim().isNotEmpty) {
+        whereClauses.add("file_name LIKE ?");
+        params.add('%${searchQuery.trim()}%');
+      }
+
+      // Status filter
+      switch (statusFilter) {
+        case 'failed':
+          whereClauses.add("status = 'failed'");
+          break;
+        case 'downloaded':
+          whereClauses.add("status = 'completed'");
+          break;
+        case 'all':
+        default:
+          break;
+      }
+
+      // Type filter
+      switch (typeFilter) {
+        case 'video':
+          whereClauses.add("json_extract(ext_data, '\$.type') = 'video'");
+          break;
+        case 'gallery':
+          whereClauses.add("json_extract(ext_data, '\$.type') = 'gallery'");
+          break;
+        case 'other':
+          whereClauses.add(
+            "(ext_data IS NULL OR (json_extract(ext_data, '\$.type') != 'video' AND json_extract(ext_data, '\$.type') != 'gallery'))",
+          );
+          break;
+        case 'all':
+        default:
+          break;
+      }
+
+      final whereClause = whereClauses.isNotEmpty
+          ? 'WHERE ${whereClauses.join(' AND ')}'
+          : '';
+
+      final sql =
+          '''
+        SELECT COUNT(*) as count FROM download_tasks
+        $whereClause
+      ''';
+
+      final stmt = _db.prepare(sql);
+      final results = stmt.select(params);
+      return results.first['count'] as int;
+    } catch (e) {
+      LogUtils.e('获取筛选任务数量失败', tag: 'DownloadTaskRepository', error: e);
+      rethrow;
+    }
+  }
 }
