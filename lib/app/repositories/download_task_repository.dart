@@ -311,15 +311,15 @@ class DownloadTaskRepository {
     }
   }
 
-  /// 分页获取历史任务（paused/failed/completed），按创建时间降序排列
+  /// 分页获取历史任务（paused/completed，不含failed），按创建时间降序排列
   Future<List<DownloadTask>> getHistoryTasks({
     required int offset,
     required int limit,
   }) async {
     try {
       final stmt = _db.prepare('''
-        SELECT * FROM download_tasks 
-        WHERE status IN ('paused', 'failed', 'completed')
+        SELECT * FROM download_tasks
+        WHERE status IN ('paused', 'completed')
         ORDER BY created_at DESC
         LIMIT ? OFFSET ?
       ''');
@@ -328,6 +328,23 @@ class DownloadTaskRepository {
       return results.map((row) => DownloadTask.fromRow(row)).toList();
     } catch (e) {
       LogUtils.e('获取历史任务失败', tag: 'DownloadTaskRepository', error: e);
+      rethrow;
+    }
+  }
+
+  /// 获取所有失败任务，按更新时间降序排列（最近失败的在前）
+  Future<List<DownloadTask>> getFailedTasksOrderByUpdatedAtDesc() async {
+    try {
+      final stmt = _db.prepare('''
+        SELECT * FROM download_tasks
+        WHERE status = 'failed'
+        ORDER BY updated_at DESC
+      ''');
+
+      final results = stmt.select([]);
+      return results.map((row) => DownloadTask.fromRow(row)).toList();
+    } catch (e) {
+      LogUtils.e('获取失败任务失败', tag: 'DownloadTaskRepository', error: e);
       rethrow;
     }
   }

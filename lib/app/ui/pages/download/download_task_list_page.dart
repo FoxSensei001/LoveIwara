@@ -36,6 +36,11 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   bool _isLoadingPendingTasks = false;
   int _lastPendingVersion = -1;
 
+  // 失败任务列表
+  List<DownloadTask> _failedTasks = [];
+  bool _isLoadingFailedTasks = false;
+  int _lastFailedVersion = -1;
+
   // 用于监听任务状态变更
   int _lastStatusVersion = -1;
 
@@ -103,6 +108,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     super.initState();
     _historySource = _HistoryDownloadTasksSource(_downloadTaskRepository);
     _reloadPendingTasks();
+    _reloadFailedTasks();
   }
 
   @override
@@ -142,6 +148,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
               _lastStatusVersion = currentVersion;
               // 刷新顶部区域
               _refreshPendingTasksIfNeeded();
+              _refreshFailedTasksIfNeeded();
               // 刷新历史区域
               Future.microtask(() {
                 if (mounted) {
@@ -200,6 +207,17 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
       activeWidgets.addAll(
         downloadingTasks.map((task) => _buildTaskItem(task)),
       );
+    }
+
+    // 添加失败的任务（放在下载中之后、等待中之前，方便用户快速重试）
+    if (_failedTasks.isNotEmpty) {
+      activeWidgets.add(
+        _buildSectionHeader(
+          title: slang.t.download.failed,
+          count: _failedTasks.length,
+        ),
+      );
+      activeWidgets.addAll(_failedTasks.map((task) => _buildTaskItem(task)));
     }
 
     // 添加等待中的任务
@@ -374,6 +392,15 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     _reloadPendingTasks();
   }
 
+  /// 根据 DownloadService 的任务状态版本，按需刷新失败任务
+  void _refreshFailedTasksIfNeeded() {
+    final currentVersion = DownloadService.to.taskStatusChangedNotifier.value;
+    if (_isLoadingFailedTasks || currentVersion == _lastFailedVersion) {
+      return;
+    }
+    _reloadFailedTasks();
+  }
+
   /// 重新加载等待中任务
   Future<void> _reloadPendingTasks() async {
     if (_isLoadingPendingTasks) return;
@@ -394,9 +421,30 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
       _isLoadingPendingTasks = false;
     }
   }
+
+  /// 重新加载失败任务
+  Future<void> _reloadFailedTasks() async {
+    if (_isLoadingFailedTasks) return;
+
+    _isLoadingFailedTasks = true;
+    _lastFailedVersion = DownloadService.to.taskStatusChangedNotifier.value;
+
+    try {
+      final tasks = await _downloadTaskRepository
+          .getFailedTasksOrderByUpdatedAtDesc();
+      if (!mounted) return;
+      setState(() {
+        _failedTasks = tasks;
+      });
+    } catch (e) {
+      // 读取失败任务失败时，静默处理，避免影响主流程
+    } finally {
+      _isLoadingFailedTasks = false;
+    }
+  }
 }
 
-/// 历史任务数据源（paused/failed/completed），用于无限滚动加载
+/// 历史任务数据源（paused/completed，不含failed），用于无限滚动加载
 class _HistoryDownloadTasksSource extends LoadingMoreBase<DownloadTask> {
   final DownloadTaskRepository _repository;
 

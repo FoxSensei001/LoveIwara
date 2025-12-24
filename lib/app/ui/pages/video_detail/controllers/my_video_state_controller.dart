@@ -84,6 +84,7 @@ class MyVideoStateController extends GetxController
   Timer? _cdnTestTimer;
   String? _lastTestedResolutionTag;
   bool _isCdnTesting = false;
+  String? _bestTestedCdnServer; // 测速获胜的 CDN 服务器名称
 
   // DLNA 投屏服务
   DlnaCastService get _dlnaCastService => DlnaCastService.instance;
@@ -2032,6 +2033,22 @@ class MyVideoStateController extends GetxController
           .map((item) => VideoSource.fromJson(item))
           .toList();
 
+      // 如果有已测速的 CDN 服务器，替换非 Preview 源的域名
+      if (_bestTestedCdnServer != null) {
+        LogUtils.i(
+          '使用已测速的CDN服务器替换源域名: $_bestTestedCdnServer',
+          'MyVideoStateController',
+        );
+        sources = sources.map((source) {
+          // Preview 不替换（使用独立 CDN）
+          if (source.name?.toLowerCase() == 'preview') {
+            return source;
+          }
+          // 其他清晰度使用已测速的 CDN 服务器
+          return source.copyWithServer(_bestTestedCdnServer!);
+        }).toList();
+      }
+
       // 更新缓存
       final cacheKey = videoInfo.value!.fileUrl!;
       _cacheManager.cacheVideoSources(cacheKey, sources);
@@ -2065,6 +2082,12 @@ class MyVideoStateController extends GetxController
           await _switchToRefreshedUrl(newUrl);
         }
       }
+
+      // 同时更新 videoResolutions（用于清晰度切换选择器）
+      videoResolutions.value = CommonUtils.convertVideoSourcesToResolutions(
+        sources,
+        filterPreview: true,
+      );
 
       // 重新设置定时器
       _setupVideoSourceExpirationTimer();
@@ -3265,17 +3288,23 @@ class MyVideoStateController extends GetxController
         final uri = Uri.parse(betterUrl);
         final serverName = uri.host;
 
+        // 存储最佳 CDN 服务器名称
+        _bestTestedCdnServer = serverName;
+
         LogUtils.i(
-          '发现更优CDN源: $serverName (清晰度: $resolutionTag)',
+          '发现更优CDN源: $serverName (清晰度: $resolutionTag)，已保存最佳CDN服务器',
           'MyVideoStateController',
         );
 
-        // 更新当前清晰度的 URL（不显示提示）
+        // 更新所有非 Preview 清晰度的 URL（Preview 使用独立 CDN，不替换）
         final updatedResolutions = videoResolutions.map((resolution) {
-          if (resolution.label == resolutionTag) {
-            return VideoResolution(label: resolution.label, url: betterUrl);
+          // Preview 不替换
+          if (resolution.label.toLowerCase() == 'preview') {
+            return resolution;
           }
-          return resolution;
+          // 其他清晰度都使用最佳 CDN 服务器
+          final newUrl = _replaceServerInUrl(resolution.url, serverName);
+          return VideoResolution(label: resolution.label, url: newUrl);
         }).toList();
         videoResolutions.value = updatedResolutions;
 
@@ -3283,11 +3312,16 @@ class MyVideoStateController extends GetxController
         await _switchResolutionSeamlessly(resolutionTag, betterUrl);
 
         LogUtils.i(
-          '已自动切换到CDN源: $serverName',
+          '已自动切换到CDN源: $serverName，并更新所有清晰度URL',
           'MyVideoStateController',
         );
+      } else if (betterUrl != null) {
+        // 原始源获胜，保存原始服务器名称
+        final uri = Uri.parse(originalUrl);
+        _bestTestedCdnServer = uri.host;
+        LogUtils.d('当前源已是最优，已保存CDN服务器: ${uri.host}', 'MyVideoStateController');
       } else {
-        LogUtils.d('当前源已是最优，无需切换', 'MyVideoStateController');
+        LogUtils.d('CDN测速无结果', 'MyVideoStateController');
       }
     } catch (e) {
       LogUtils.e('CDN自动测试失败: $e', tag: 'MyVideoStateController', error: e);
@@ -3331,42 +3365,47 @@ class MyVideoStateController extends GetxController
         cancelTokens.add(cancelToken);
 
         // 异步执行测试，谁先成功谁赢
-        _testSingleUrl(testUrl.url, testUrl.serverName, cancelToken: cancelToken)
+        _testSingleUrl(
+              testUrl.url,
+              testUrl.serverName,
+              cancelToken: cancelToken,
+            )
             .then((result) {
-          if (_isDisposed || completer.isCompleted) return;
+              if (_isDisposed || completer.isCompleted) return;
 
-          // 只要有任何一个成功，立即返回并取消其他所有测试
-          if (result.isSuccess) {
-            LogUtils.i(
-              '🏆 竞速获胜: ${result.serverName} (${result.latency}ms)',
-              'MyVideoStateController',
-            );
+              // 只要有任何一个成功，立即返回并取消其他所有测试
+              if (result.isSuccess) {
+                LogUtils.i(
+                  '🏆 竞速获胜: ${result.serverName} (${result.latency}ms)',
+                  'MyVideoStateController',
+                );
 
-            // 取消所有其他测试
-            _cancelAllTests(cancelTokens);
+                // 取消所有其他测试
+                _cancelAllTests(cancelTokens);
 
-            // 如果获胜的是原始源，返回 null（表示不需要切换）
-            // 如果获胜的是CDN源，返回该CDN的URL
-            if (!completer.isCompleted) {
-              if (result.serverName == 'original') {
-                completer.complete(null); // 原始源成功，不切换
-              } else {
-                completer.complete(result.url); // CDN源成功，切换到CDN
+                // 如果获胜的是原始源，返回 null（表示不需要切换）
+                // 如果获胜的是CDN源，返回该CDN的URL
+                if (!completer.isCompleted) {
+                  if (result.serverName == 'original') {
+                    completer.complete(null); // 原始源成功，不切换
+                  } else {
+                    completer.complete(result.url); // CDN源成功，切换到CDN
+                  }
+                }
               }
-            }
-          }
-        }).catchError((e) {
-          // 单个测试失败不影响整体，继续等待其他测试
-          LogUtils.d(
-            '测试失败: ${testUrl.serverName}, 继续等待其他源',
-            'MyVideoStateController',
-          );
-        });
+            })
+            .catchError((e) {
+              // 单个测试失败不影响整体，继续等待其他测试
+              LogUtils.d(
+                '测试失败: ${testUrl.serverName}, 继续等待其他源',
+                'MyVideoStateController',
+              );
+            });
       }
 
-      // 设置总超时（8秒）
+      // 设置总超时（20秒）
       return await completer.future.timeout(
-        const Duration(seconds: 8),
+        const Duration(seconds: 20),
         onTimeout: () {
           LogUtils.w('CDN竞速超时，所有源均失败', 'MyVideoStateController');
           _cancelAllTests(cancelTokens);
@@ -3397,16 +3436,16 @@ class MyVideoStateController extends GetxController
   }) async {
     final dio = Dio(
       BaseOptions(
-        connectTimeout: const Duration(seconds: 5),
-        receiveTimeout: const Duration(seconds: 5),
-        sendTimeout: const Duration(seconds: 5),
+        connectTimeout: const Duration(seconds: 15),
+        receiveTimeout: const Duration(seconds: 15),
+        sendTimeout: const Duration(seconds: 15),
       ),
     );
     final stopwatch = Stopwatch()..start();
     final localCancelToken = cancelToken ?? CancelToken();
 
-    // 5秒强制超时
-    final timeoutTimer = Timer(const Duration(seconds: 5), () {
+    // 15秒强制超时
+    final timeoutTimer = Timer(const Duration(seconds: 15), () {
       if (!localCancelToken.isCancelled) {
         localCancelToken.cancel('Timeout');
       }
@@ -3438,7 +3477,8 @@ class MyVideoStateController extends GetxController
       stopwatch.stop();
       final latency = stopwatch.elapsedMilliseconds;
 
-      final isSuccess = response.statusCode == 200 ||
+      final isSuccess =
+          response.statusCode == 200 ||
           response.statusCode == 206 ||
           response.statusCode == 302 ||
           response.statusCode == 301;
@@ -3463,10 +3503,7 @@ class MyVideoStateController extends GetxController
           (e.error == 'Test completed' || e.error == 'Race completed')) {
         // Race completed 的情况说明其他源已经赢了，这个可以直接返回失败
         if (e.error == 'Race completed') {
-          LogUtils.d(
-            'CDN源测试被取消（竞速结束）: $serverName',
-            'MyVideoStateController',
-          );
+          LogUtils.d('CDN源测试被取消（竞速结束）: $serverName', 'MyVideoStateController');
           return _CdnTestResult(
             url: url,
             serverName: serverName,
@@ -3523,11 +3560,7 @@ class MyVideoStateController extends GetxController
       final newUri = uri.replace(host: newServerName);
       return newUri.toString();
     } catch (e) {
-      LogUtils.e(
-        '替换服务器域名失败: $e',
-        tag: 'MyVideoStateController',
-        error: e,
-      );
+      LogUtils.e('替换服务器域名失败: $e', tag: 'MyVideoStateController', error: e);
       return originalUrl;
     }
   }

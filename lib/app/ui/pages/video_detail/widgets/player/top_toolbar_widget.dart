@@ -585,14 +585,10 @@ class _TopToolbarState extends State<TopToolbar> {
                         !widget.myVideoStateController.isLocalVideoMode)
                       IconButton(
                         tooltip: t.videoDetail.cast.dlnaCast,
-                        icon: SvgPicture.asset(
-                          'assets/svg/cast.svg',
-                          colorFilter: const ColorFilter.mode(
-                            Colors.white,
-                            BlendMode.srcIn,
-                          ),
-                          width: iconSize,
-                          height: iconSize,
+                        icon: Icon(
+                          Icons.cast,
+                          color: Colors.white,
+                          size: iconSize,
                         ),
                         onPressed: () =>
                             widget.myVideoStateController.showDlnaCastDialog(),
@@ -600,14 +596,10 @@ class _TopToolbarState extends State<TopToolbar> {
                     if (GetPlatform.isAndroid)
                       IconButton(
                         tooltip: t.videoDetail.pipMode,
-                        icon: SvgPicture.asset(
-                          'assets/svg/pip.svg',
-                          colorFilter: const ColorFilter.mode(
-                            Colors.white,
-                            BlendMode.srcIn,
-                          ),
-                          width: iconSize,
-                          height: iconSize,
+                        icon: Icon(
+                          Icons.picture_in_picture_alt,
+                          color: Colors.white,
+                          size: iconSize,
                         ),
                         onPressed: () async {
                           final floating = Floating();
@@ -638,14 +630,10 @@ class _TopToolbarState extends State<TopToolbar> {
                     _buildAnime4KButton(context, iconSize),
                     IconButton(
                       tooltip: t.videoDetail.moreSettings,
-                      icon: SvgPicture.asset(
-                        'assets/svg/more_vert.svg',
-                        colorFilter: const ColorFilter.mode(
-                          Colors.white,
-                          BlendMode.srcIn,
-                        ),
-                        width: iconSize,
-                        height: iconSize,
+                      icon: Icon(
+                        Icons.more_vert,
+                        color: Colors.white,
+                        size: iconSize,
                       ),
                       onPressed: () => showSettingsModal(context),
                     ),
