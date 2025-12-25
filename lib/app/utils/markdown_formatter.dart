@@ -195,14 +195,35 @@ class MarkdownFormatter {
     final segments = <String>[];
     int lastEnd = 0;
 
-    // 先找出所有markdown格式的链接，保持它们不变
+    // 先找出所有markdown格式的链接
     for (final match in markdownLinkPattern.allMatches(text)) {
       if (match.start > lastEnd) {
         // 处理markdown链接之间的文本
         segments.add(processPlainLinks(text.substring(lastEnd, match.start)));
       }
-      // 保持markdown链接不变
-      segments.add(text.substring(match.start, match.end));
+
+      String matchText = text.substring(match.start, match.end);
+      final label = match.group(1) ?? '';
+      final url = match.group(2) ?? '';
+
+      // 检查是否为图片
+      bool isImage = false;
+      // 1. 检查标签内部是否像图片 (针对误匹配的嵌套结构)
+      if (label.trimLeft().startsWith('![')) {
+        isImage = true;
+      }
+      // 2. 检查前一个字符是否为 ! (针对标准图片语法 ![alt](src))
+      if (match.start > 0 && text[match.start - 1] == '!') {
+        isImage = true;
+      }
+
+      // 如果不是图片，且前面没有 Emoji，则添加链接图标前缀
+      if (!isImage && !_hasEmojiPrefix(text, match.start)) {
+        final prefix = _getLinkPrefix(url);
+        matchText = '$prefix$matchText';
+      }
+
+      segments.add(matchText);
       lastEnd = match.end;
     }
 
@@ -212,6 +233,35 @@ class MarkdownFormatter {
     }
 
     return segments.join('');
+  }
+
+  /// 检查指定位置前面是否已经有了 Emoji 或图标
+  bool _hasEmojiPrefix(String text, int index) {
+    if (index <= 0) return false;
+
+    // 截取链接前面的文本
+    String preText = text.substring(0, index).trimRight();
+
+    // 检查是否以已知 Emoji 结尾
+    final emojis = ['🎬', '📌', '🖼️', '👤', '🎵', '💬', '📜', '❓', '🔗'];
+    for (final emoji in emojis) {
+      if (preText.endsWith(emoji)) {
+        return true;
+      }
+    }
+
+    // 检查是否以 Favicon 图片结尾 (![emo:text-i](...))
+    if (preText.endsWith(')')) {
+      final lastImgStart = preText.lastIndexOf('![');
+      if (lastImgStart != -1) {
+        final potentialImg = preText.substring(lastImgStart);
+        if (potentialImg.contains('emo:') || potentialImg.contains('icon:')) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   /// 处理纯文本中的链接
@@ -226,16 +276,28 @@ class MarkdownFormatter {
 
     return text.replaceAllMapped(linkPattern, (match) {
       final url = match.group(0)!;
-      final faviconUrl = UrlUtils.getFaviconUrl(url);
-
-      // 使用 Favicon (emo:text-i 表示文本高度的图标)
-      // 如果获取失败(空字符串)，则回退到默认链接图标
-      if (faviconUrl.isNotEmpty) {
-        return '![emo:text-i]($faviconUrl) [$url]($url)';
-      } else {
-        return '🔗 [$url]($url)';
-      }
+      // 既然是纯文本链接，前面肯定没有方括号包裹，直接替换即可
+      // 但为了保险起见，这里不需要检查 _hasEmojiPrefix，因为正则排除已经在链接里的情况
+      return '${_getLinkPrefix(url)}[$url]($url)';
     });
+  }
+
+  /// 获取链接前缀图标
+  String _getLinkPrefix(String url) {
+    // 1. 尝试识别 Iwara 特殊链接
+    final info = UrlUtils.parseUrl(url);
+    if (info.isIwaraUrl && info.type != IwaraUrlType.unknown) {
+      return '${UrlUtils.getIwaraTypeEmoji(info.type)} ';
+    }
+
+    // 2. 尝试获取 Favicon
+    final faviconUrl = UrlUtils.getFaviconUrl(url);
+    if (faviconUrl.isNotEmpty) {
+      return '![emo:icon-i]($faviconUrl) ';
+    }
+
+    // 3. 默认图标
+    return '🔗 ';
   }
 
   /// 将文本中的换行符替换为两个空格和换行符
@@ -251,7 +313,8 @@ class MarkdownFormatter {
       final mention = match.group(0);
       final username = match.group(1);
       if (username == null) return mention ?? '';
-      return '[$mention](https://www.iwara.tv/profile/$username)';
+      // 给提及也加上默认的用户图标
+      return '👤 [$mention](https://www.iwara.tv/profile/$username)';
     });
   }
 

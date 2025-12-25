@@ -95,7 +95,9 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
       builder: (context) => AlertDialog(
         title: Text(t.common.confirmDelete),
         content: Text(
-          '${t.common.areYouSureYouWantToDeleteSelectedItems(num: _selectedTaskIds.length)}\n注意：下载的文件也会被删除。',
+          t.common.areYouSureYouWantToDeleteSelectedItems(
+            num: _selectedTaskIds.length,
+          ),
         ),
         actions: [
           TextButton(
@@ -281,6 +283,29 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
             ),
           ),
           const SizedBox(width: 4),
+          // Clear filters button with animation
+          AnimatedSize(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              transitionBuilder: (child, animation) => FadeTransition(
+                opacity: animation,
+                child: ScaleTransition(scale: animation, child: child),
+              ),
+              child: hasActiveFilter
+                  ? IconButton(
+                      key: const ValueKey('clear_filter'),
+                      icon: Icon(
+                        Icons.filter_alt_off,
+                        color: colorScheme.error,
+                      ),
+                      tooltip: t.download.clearFilters,
+                      onPressed: _clearFilters,
+                    )
+                  : const SizedBox.shrink(key: ValueKey('no_filter')),
+            ),
+          ),
           // Status filter dropdown - 根据状态显示不同图标
           PopupMenuButton<DownloadStatusFilter>(
             icon: AnimatedSwitcher(
@@ -372,29 +397,6 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
                 isSelected: _typeFilter == DownloadTypeFilter.other,
               ),
             ],
-          ),
-          // Clear filters button with animation
-          AnimatedSize(
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeInOut,
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
-              transitionBuilder: (child, animation) => FadeTransition(
-                opacity: animation,
-                child: ScaleTransition(scale: animation, child: child),
-              ),
-              child: hasActiveFilter
-                  ? IconButton(
-                      key: const ValueKey('clear_filter'),
-                      icon: Icon(
-                        Icons.filter_alt_off,
-                        color: colorScheme.error,
-                      ),
-                      tooltip: t.download.clearFilters,
-                      onPressed: _clearFilters,
-                    )
-                  : const SizedBox.shrink(key: ValueKey('no_filter')),
-            ),
           ),
         ],
       ),

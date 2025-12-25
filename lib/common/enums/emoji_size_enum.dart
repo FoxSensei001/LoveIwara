@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 enum EmojiSize {
+  icon('icon-i'),
   small('text-i'),
   medium('mid-i'),
   large('large-i'),
@@ -24,6 +25,8 @@ enum EmojiSize {
   /// 获取国际化显示名称
   String get displayName {
     switch (this) {
+      case EmojiSize.icon:
+        return slang.t.emoji.small;
       case EmojiSize.small:
         return slang.t.emoji.small;
       case EmojiSize.medium:
@@ -38,6 +41,8 @@ enum EmojiSize {
   /// 获取对应的显示尺寸
   double get displaySize {
     switch (this) {
+      case EmojiSize.icon:
+        return 16.0; // 图标大小，接近文字高度
       case EmojiSize.small:
         return 24.0;
       case EmojiSize.medium:
@@ -52,6 +57,8 @@ enum EmojiSize {
   /// 获取对应的边距
   EdgeInsets get margin {
     switch (this) {
+      case EmojiSize.icon:
+        return const EdgeInsets.only(right: 2, top: 1); // 图标微调边距
       case EmojiSize.small:
         return const EdgeInsets.symmetric(horizontal: 1, vertical: 1);
       case EmojiSize.medium:
@@ -66,6 +73,8 @@ enum EmojiSize {
   /// 获取对应的圆角
   double get borderRadius {
     switch (this) {
+      case EmojiSize.icon:
+        return 3.0;
       case EmojiSize.small:
         return 4.0;
       case EmojiSize.medium:
