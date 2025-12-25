@@ -1571,15 +1571,6 @@ class TranslationsSettingsEn {
 	/// en: 'Theme Settings'
 	String get themeSettings => 'Theme Settings';
 
-	/// en: 'Holiday Theme Effects'
-	String get holidayThemeEffects => 'Holiday Theme Effects';
-
-	/// en: 'Enable Holiday Effects'
-	String get enableHolidayEffects => 'Enable Holiday Effects';
-
-	/// en: 'When enabled, special holiday effects (like snow) will be shown'
-	String get enableHolidayEffectsDesc => 'When enabled, special holiday effects (like snow) will be shown';
-
 	/// en: 'Follow System'
 	String get followSystem => 'Follow System';
 
@@ -6935,9 +6926,6 @@ extension on Translations {
 			'settings.configureYourProxyServer' => 'Configure Your Proxy Server',
 			'settings.settings' => 'Settings',
 			'settings.themeSettings' => 'Theme Settings',
-			'settings.holidayThemeEffects' => 'Holiday Theme Effects',
-			'settings.enableHolidayEffects' => 'Enable Holiday Effects',
-			'settings.enableHolidayEffectsDesc' => 'When enabled, special holiday effects (like snow) will be shown',
 			'settings.followSystem' => 'Follow System',
 			'settings.lightMode' => 'Light Mode',
 			'settings.darkMode' => 'Dark Mode',
@@ -6960,11 +6948,11 @@ extension on Translations {
 			'settings.updateContent' => 'Update Content',
 			'settings.releaseDate' => 'Release Date',
 			'settings.ignoreThisVersion' => 'Ignore This Version',
-			_ => null,
-		} ?? switch (path) {
 			'settings.minVersionUpdateRequired' => 'Current version is too low, please update as soon as possible',
 			'settings.forceUpdateTip' => 'This is a mandatory update. Please update to the latest version as soon as possible',
 			'settings.viewChangelog' => 'View Changelog',
+			_ => null,
+		} ?? switch (path) {
 			'settings.alreadyLatestVersion' => 'Already the latest version',
 			'settings.appSettings' => 'App Settings',
 			'settings.configureYourAppSettings' => 'Configure Your App Settings',
@@ -7474,11 +7462,11 @@ extension on Translations {
 			'forum.groups.administration' => 'Administration',
 			'forum.groups.global' => 'Global',
 			'forum.groups.chinese' => 'Chinese',
-			_ => null,
-		} ?? switch (path) {
 			'forum.groups.japanese' => 'Japanese',
 			'forum.groups.korean' => 'Korean',
 			'forum.groups.other' => 'Other',
+			_ => null,
+		} ?? switch (path) {
 			'forum.leafNames.announcements' => 'Announcements',
 			'forum.leafNames.feedback' => 'Feedback',
 			'forum.leafNames.support' => 'Support',
@@ -7988,11 +7976,11 @@ extension on Translations {
 			'mediaPlayer.networkConnectionIssue' => 'Network Connection Issue',
 			'mediaPlayer.insufficientPermission' => 'Insufficient Permission',
 			'mediaPlayer.unsupportedVideoFormat' => 'Unsupported Video Format',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.retry' => 'Retry',
 			'mediaPlayer.externalPlayer' => 'External Player',
 			'mediaPlayer.detailedErrorInfo' => 'Detailed Error Information',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.format' => 'Format',
 			'mediaPlayer.suggestion' => 'Suggestion',
 			'mediaPlayer.androidWebmCompatibilityIssue' => 'Android devices have limited support for WEBM format. It is recommended to use an external player or download a player app that supports WEBM',

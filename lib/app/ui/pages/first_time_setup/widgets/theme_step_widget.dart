@@ -27,8 +27,7 @@ class ThemeStepWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return StepResponsiveScaffold(
       desktopBuilder: (context, theme) => _buildDesktopLayout(context, theme),
-      mobileBuilder: (context, theme, isNarrow) =>
-          _buildMobileLayout(context, theme, isNarrow),
+      mobileBuilder: (context, theme, isNarrow) => _buildMobileLayout(context, theme, isNarrow),
     );
   }
 
@@ -111,7 +110,6 @@ class ThemeStepWidget extends StatelessWidget {
     bool isNarrow,
   ) {
     final themeService = Get.find<ThemeService>();
-    final appService = Get.find<AppService>();
 
     return StepSectionCard(
       isNarrow: isNarrow,
@@ -145,26 +143,6 @@ class ThemeStepWidget extends StatelessWidget {
               isSelected: themeService.themeMode == AppThemeMode.dark,
               isNarrow: isNarrow,
               onTap: () => themeService.setThemeMode(AppThemeMode.dark),
-            ),
-            Padding(
-              padding: EdgeInsets.all(isNarrow ? 12 : 16),
-              child: Text(
-                slang.t.settings.holidayThemeEffects,
-                style:
-                    (isNarrow
-                            ? theme.textTheme.titleSmall
-                            : theme.textTheme.titleMedium)
-                        ?.copyWith(fontWeight: FontWeight.bold),
-              ),
-            ),
-            SwitchListTile(
-              title: Text(slang.t.settings.enableHolidayEffects),
-              subtitle: Text(slang.t.settings.enableHolidayEffectsDesc),
-              value: appService.isHolidayThemeEnabled,
-              onChanged: (value) => appService.setHolidayThemeEnabled(value),
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: isNarrow ? 12 : 16,
-              ),
             ),
             Padding(
               padding: EdgeInsets.all(isNarrow ? 12 : 16),

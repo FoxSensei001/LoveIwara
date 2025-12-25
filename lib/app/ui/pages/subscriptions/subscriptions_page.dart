@@ -471,7 +471,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                       height: showHeader
                           ? systemStatusBarHeight + headerHeight
                           : systemStatusBarHeight,
-                      color: Colors.transparent,
+                      color: Theme.of(context).colorScheme.surface,
                       child: Column(
                         children: [
                           SizedBox(height: systemStatusBarHeight),
@@ -546,7 +546,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                   }),
                   // TabBar 区域 - 始终显示
                   Material(
-                    color: Colors.transparent,
+                    color: Theme.of(context).colorScheme.surface,
                     child: SizedBox(
                       height: tabBarHeight,
                       child: Row(

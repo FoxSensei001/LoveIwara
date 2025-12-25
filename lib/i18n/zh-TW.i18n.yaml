@@ -515,9 +515,6 @@ settings:
   configureYourProxyServer: 配置您的代理伺服器
   settings: 設定
   themeSettings: 主題設定
-  holidayThemeEffects: 節日主題效果
-  enableHolidayEffects: 啟用節日特效
-  enableHolidayEffectsDesc: 啟用後，特定節日將顯示背景特效（如下雪等）
   followSystem: 跟隨系統
   lightMode: 淺色模式
   darkMode: 深色模式

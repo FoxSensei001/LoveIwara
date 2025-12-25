@@ -356,8 +356,6 @@ enum ConfigKey {
   // CDN 内容分发策略
   CDN_DISTRIBUTION_STRATEGY, // 内容分发策略: no_change, auto, special
   CDN_SPECIAL_SERVER, // 指定的分发服务器子域名
-  ENABLE_HOLIDAY_THEME, // 是否启用节日主题
-  FORCED_HOLIDAY_THEME, // 强制指定节日主题（空为自动）
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -553,10 +551,6 @@ extension ConfigKeyExtension on ConfigKey {
         return 'cdn_distribution_strategy';
       case ConfigKey.CDN_SPECIAL_SERVER:
         return 'cdn_special_server';
-      case ConfigKey.ENABLE_HOLIDAY_THEME:
-        return 'enable_holiday_theme';
-      case ConfigKey.FORCED_HOLIDAY_THEME:
-        return 'forced_holiday_theme';
     }
   }
 
@@ -758,10 +752,6 @@ extension ConfigKeyExtension on ConfigKey {
         return 'auto'; // 默认不修改
       case ConfigKey.CDN_SPECIAL_SERVER:
         return ''; // 默认空
-      case ConfigKey.ENABLE_HOLIDAY_THEME:
-        return true; // 默认启用
-      case ConfigKey.FORCED_HOLIDAY_THEME:
-        return ''; // 默认自动
     }
   }
 }

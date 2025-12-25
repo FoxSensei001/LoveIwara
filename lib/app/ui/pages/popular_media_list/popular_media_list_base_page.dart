@@ -380,7 +380,7 @@ class PopularMediaListPageBaseState<
                       height: showHeader
                           ? systemStatusBarHeight + headerHeight
                           : systemStatusBarHeight,
-                      color: Colors.transparent,
+                      color: Theme.of(context).colorScheme.surface,
                       child: Column(
                         children: [
                           SizedBox(height: systemStatusBarHeight),
@@ -411,7 +411,7 @@ class PopularMediaListPageBaseState<
                   }),
                   // TabBar 区域 - 始终显示
                   Material(
-                    color: Colors.transparent,
+                    color: Theme.of(context).colorScheme.surface,
                     child: SizedBox(
                       height: tabBarHeight,
                       child: Row(

@@ -14,30 +14,27 @@ class ThemeService extends GetxService {
 
   // 预设的主题色
   static const List<Color> presetColors = [
-    Colors.blue, // 蓝色
-    Colors.purple, // 紫色
-    Colors.green, // 绿色
-    Colors.orange, // 橙色
-    Colors.pink, // 粉色
-    Colors.red, // 红色
-    Colors.cyan, // 青色
-    Colors.brown, // 棕色
-    Colors.teal, // 蓝绿色
-    Colors.indigo, // 靛蓝色
-    Colors.amber, // 琥珀色
-    Colors.deepPurple, // 深紫色
+    Colors.blue,      // 蓝色
+    Colors.purple,    // 紫色
+    Colors.green,     // 绿色
+    Colors.orange,    // 橙色
+    Colors.pink,      // 粉色
+    Colors.red,       // 红色
+    Colors.cyan,      // 青色
+    Colors.brown,     // 棕色
+    Colors.teal,      // 蓝绿色
+    Colors.indigo,    // 靛蓝色
+    Colors.amber,     // 琥珀色
+    Colors.deepPurple,// 深紫色
   ];
 
   ThemeService() {
     final configService = Get.find<ConfigService>();
     _useDynamicColor.value = configService[ConfigKey.USE_DYNAMIC_COLOR_KEY];
     _usePresetColor.value = configService[ConfigKey.USE_PRESET_COLOR_KEY];
-    _currentPresetIndex.value =
-        configService[ConfigKey.CURRENT_PRESET_INDEX_KEY];
+    _currentPresetIndex.value = configService[ConfigKey.CURRENT_PRESET_INDEX_KEY];
     _currentCustomHex.value = configService[ConfigKey.CURRENT_CUSTOM_HEX_KEY];
-    _customThemeColors.value = List<String>.from(
-      configService[ConfigKey.CUSTOM_THEME_COLORS_KEY],
-    );
+    _customThemeColors.value = List<String>.from(configService[ConfigKey.CUSTOM_THEME_COLORS_KEY]);
   }
 
   bool get useDynamicColor => _useDynamicColor.value;
@@ -92,10 +89,8 @@ class ThemeService extends GetxService {
     _useDynamicColor.value = value;
     Get.find<ConfigService>()[ConfigKey.USE_DYNAMIC_COLOR_KEY] = value;
     CommonConstants.useDynamicColor = value;
-
-    if (value &&
-        CommonConstants.dynamicLightColorScheme != null &&
-        CommonConstants.dynamicDarkColorScheme != null) {
+    
+    if (value && CommonConstants.dynamicLightColorScheme != null && CommonConstants.dynamicDarkColorScheme != null) {
       // 如果开启动态颜色且有可用的动态颜色方案，立即应用
       _updateTheme();
     } else if (!value) {
@@ -110,49 +105,44 @@ class ThemeService extends GetxService {
     }
     if (!_customThemeColors.contains(hex)) {
       _customThemeColors.add(hex);
-      Get.find<ConfigService>()[ConfigKey.CUSTOM_THEME_COLORS_KEY] =
-          _customThemeColors.toList();
+      Get.find<ConfigService>()[ConfigKey.CUSTOM_THEME_COLORS_KEY] = _customThemeColors.toList();
       CommonConstants.customThemeColors = _customThemeColors.toList();
       setCustomColor(hex);
     }
   }
 
   void removeCustomThemeColor(String hex) {
-    if (hex.toUpperCase() == currentCustomHex.toUpperCase() &&
-        !usePresetColor) {
+    if (hex.toUpperCase() == currentCustomHex.toUpperCase() && !usePresetColor) {
       // 如果删除的是当前选中的自定义颜色
       if (_customThemeColors.length > 1) {
         // 如果还有其他自定义颜色，选择第一个不是当前颜色的
-        String newHex = _customThemeColors.firstWhere(
-          (h) => h.toUpperCase() != hex.toUpperCase(),
-        );
+        String newHex = _customThemeColors.firstWhere((h) => h.toUpperCase() != hex.toUpperCase());
         setCustomColor(newHex);
       } else {
         // 如果没有其他自定义颜色，回到预设颜色
         setPresetColor(0);
       }
     }
-
+    
     _customThemeColors.remove(hex);
-    Get.find<ConfigService>()[ConfigKey.CUSTOM_THEME_COLORS_KEY] =
-        _customThemeColors.toList();
+    Get.find<ConfigService>()[ConfigKey.CUSTOM_THEME_COLORS_KEY] = _customThemeColors.toList();
     CommonConstants.customThemeColors = _customThemeColors.toList();
   }
-
+  
   void setThemeMode(AppThemeMode mode) {
     _themeMode.value = mode;
     Get.find<ConfigService>()[ConfigKey.THEME_MODE_KEY] = mode.index;
     CommonConstants.themeMode = mode.index;
-
+    
     // 更新 GetMaterialApp 的 themeMode
     Get.changeThemeMode(
       mode == AppThemeMode.system
           ? ThemeMode.system
           : mode == AppThemeMode.light
-          ? ThemeMode.light
-          : ThemeMode.dark,
+              ? ThemeMode.light
+              : ThemeMode.dark
     );
-
+    
     // 更新主题颜色
     _updateTheme();
   }
@@ -160,22 +150,20 @@ class ThemeService extends GetxService {
   void _updateTheme() {
     if (Get.context == null) return;
 
-    final bool systemIsLight =
-        WidgetsBinding.instance.platformDispatcher.platformBrightness ==
-        Brightness.light;
+    final bool systemIsLight = WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.light;
     ColorScheme colorScheme;
 
-    if (_useDynamicColor.value &&
-        CommonConstants.dynamicLightColorScheme != null &&
+    if (_useDynamicColor.value && 
+        CommonConstants.dynamicLightColorScheme != null && 
         CommonConstants.dynamicDarkColorScheme != null) {
       // 使用动态颜色
       colorScheme = _themeMode.value == AppThemeMode.light
           ? CommonConstants.dynamicLightColorScheme!
           : _themeMode.value == AppThemeMode.dark
-          ? CommonConstants.dynamicDarkColorScheme!
-          : systemIsLight
-          ? CommonConstants.dynamicLightColorScheme!
-          : CommonConstants.dynamicDarkColorScheme!;
+              ? CommonConstants.dynamicDarkColorScheme!
+              : systemIsLight
+                  ? CommonConstants.dynamicLightColorScheme!
+                  : CommonConstants.dynamicDarkColorScheme!;
     } else {
       // 使用自定义颜色
       final Color seedColor = getCurrentThemeColor();
@@ -184,26 +172,21 @@ class ThemeService extends GetxService {
         brightness: _themeMode.value == AppThemeMode.light
             ? Brightness.light
             : _themeMode.value == AppThemeMode.dark
-            ? Brightness.dark
-            : systemIsLight
-            ? Brightness.light
-            : Brightness.dark,
+                ? Brightness.dark
+                : systemIsLight
+                    ? Brightness.light
+                    : Brightness.dark,
       );
     }
 
-    Get.changeTheme(
-      ThemeData(
-        colorScheme: colorScheme,
-        useMaterial3: true,
-        scaffoldBackgroundColor: Colors.transparent,
-      ),
-    );
+    Get.changeTheme(ThemeData(
+      colorScheme: colorScheme,
+      useMaterial3: true,
+    ));
   }
 
   Future<ThemeService> init() async {
-    final savedThemeMode =
-        Get.find<ConfigService>()[ConfigKey.THEME_MODE_KEY] ??
-        AppThemeMode.system.index;
+    final savedThemeMode = Get.find<ConfigService>()[ConfigKey.THEME_MODE_KEY] ?? AppThemeMode.system.index;
     _themeMode.value = AppThemeMode.values[savedThemeMode];
     return this;
   }

@@ -132,46 +132,43 @@ class _HomeNavigationLayoutState extends State<HomeNavigationLayout>
 
                       if (hasEnoughSpace) {
                         // 高度足够：使用固定布局，按钮在底部
-                        return Obx(
-                          () => NavigationRail(
-                            backgroundColor: Colors.transparent,
-                            labelType: NavigationRailLabelType.all,
-                            selectedIndex: appService.currentIndex,
-                            // leading: const SizedBox(height: 16), // 移除顶部的空隙
-                            trailing: Expanded(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  const Spacer(),
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 16),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        IconButton(
-                                          icon: const Icon(Icons.settings),
-                                          tooltip: t.common.settings,
-                                          onPressed: () {
-                                            AppService.switchGlobalDrawer();
-                                          },
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(Icons.exit_to_app),
-                                          tooltip: t.common.back,
-                                          onPressed: () {
-                                            AppService.tryPop();
-                                          },
-                                        ),
-                                      ],
-                                    ),
+                        return Obx(() => NavigationRail(
+                          labelType: NavigationRailLabelType.all,
+                          selectedIndex: appService.currentIndex,
+                          // leading: const SizedBox(height: 16), // 移除顶部的空隙
+                          trailing: Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                const Spacer(),
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 16),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.settings),
+                                        tooltip: t.common.settings,
+                                        onPressed: () {
+                                          AppService.switchGlobalDrawer();
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.exit_to_app),
+                                        tooltip: t.common.back,
+                                        onPressed: () {
+                                          AppService.tryPop();
+                                        },
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                            onDestinationSelected: handleNavigationTap,
-                            destinations: _buildNavigationRailDestinations(),
                           ),
-                        );
+                          onDestinationSelected: handleNavigationTap,
+                          destinations: _buildNavigationRailDestinations(),
+                        ));
                       } else {
                         // 高度不够：使用滚动布局
                         return SingleChildScrollView(
@@ -180,38 +177,35 @@ class _HomeNavigationLayoutState extends State<HomeNavigationLayout>
                               minHeight: railConstraints.maxHeight,
                             ),
                             child: IntrinsicHeight(
-                              child: Obx(
-                                () => NavigationRail(
-                                  backgroundColor: Colors.transparent,
-                                  labelType: NavigationRailLabelType.all,
-                                  selectedIndex: appService.currentIndex,
-                                  trailing: Padding(
-                                    padding: const EdgeInsets.only(bottom: 16),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        IconButton(
-                                          icon: const Icon(Icons.settings),
-                                          tooltip: t.common.settings,
-                                          onPressed: () {
-                                            AppService.switchGlobalDrawer();
-                                          },
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(Icons.exit_to_app),
-                                          tooltip: t.common.back,
-                                          onPressed: () {
-                                            AppService.tryPop();
-                                          },
-                                        ),
-                                      ],
-                                    ),
+                              child: Obx(() => NavigationRail(
+                                labelType: NavigationRailLabelType.all,
+                                selectedIndex: appService.currentIndex,
+                                trailing: Padding(
+                                  padding: const EdgeInsets.only(bottom: 16),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.settings),
+                                        tooltip: t.common.settings,
+                                        onPressed: () {
+                                          AppService.switchGlobalDrawer();
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.exit_to_app),
+                                        tooltip: t.common.back,
+                                        onPressed: () {
+                                          AppService.tryPop();
+                                        },
+                                      ),
+                                    ],
                                   ),
-                                  onDestinationSelected: handleNavigationTap,
-                                  destinations:
-                                      _buildNavigationRailDestinations(),
                                 ),
-                              ),
+                                onDestinationSelected: handleNavigationTap,
+                                destinations:
+                                    _buildNavigationRailDestinations(),
+                              )),
                             ),
                           ),
                         );

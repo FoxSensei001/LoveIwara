@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:uuid/uuid.dart';
 import 'package:i_iwara/app/models/message_and_conversation.model.dart';
 import 'package:i_iwara/app/models/post.model.dart';
-import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/conversation/conversation_page.dart';
 import 'package:i_iwara/app/ui/pages/conversation/widgets/message_list_widget.dart';
 import 'package:i_iwara/app/ui/pages/favorite/favorite_folder_detail_page.dart';
@@ -45,7 +44,6 @@ import 'package:i_iwara/common/enums/filter_enums.dart';
 import '../ui/pages/post_detail/post_detail_page.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/ui/pages/profile/personal_profile_page.dart';
-import 'package:i_iwara/app/ui/widgets/holiday_themes/holiday_config.dart';
 
 /// 定义转场动画类型
 enum TransitionType {
@@ -62,7 +60,6 @@ class AppService extends GetxService {
   final RxBool _showRailNavi = true.obs; // 是否显示侧边栏 [ Home路由下使用 ]
   final RxBool _showBottomNavi = true.obs; // 是否显示底部导航栏 [ Home路由下使用 ]
   final RxInt _currentIndex = 0.obs; // 当前底部/侧边导航栏索引
-  final Rx<HolidayMode> _holidayMode = HolidayMode.none.obs; // 当前节日主题
 
   // 导航项配置
   static Map<String, NavigationItem> navigationItems = {
@@ -104,75 +101,6 @@ class AppService extends GetxService {
     if (GetPlatform.isDesktop) {
       _showTitleBar.value = true;
     }
-    // 检查节日主题
-    checkHolidayMode();
-  }
-
-  HolidayMode get holidayMode => _holidayMode.value;
-
-  /// 检查并设置节日主题
-  void checkHolidayMode() {
-    try {
-      final configService = Get.find<ConfigService>();
-      final bool enable = configService[ConfigKey.ENABLE_HOLIDAY_THEME];
-      final String forced = configService[ConfigKey.FORCED_HOLIDAY_THEME];
-
-      if (!enable) {
-        _holidayMode.value = HolidayMode.none;
-        return;
-      }
-
-      // 检查是否有强制主题设置
-      if (forced.isNotEmpty) {
-        switch (forced) {
-          case 'christmas':
-            _holidayMode.value = HolidayMode.christmas;
-            return;
-          case 'lunarNewYear':
-            _holidayMode.value = HolidayMode.lunarNewYear;
-            return;
-          case 'none':
-            _holidayMode.value = HolidayMode.none;
-            return;
-          default:
-            // 如果是无效值，继续使用自动检测
-            break;
-        }
-      }
-
-      // 使用自动日期检测
-      final now = DateTime.now();
-      _holidayMode.value = HolidayConfig.getHolidayMode(now);
-    } catch (e) {
-      // ConfigService 可能还没初始化
-      _holidayMode.value = HolidayMode.none;
-    }
-  }
-
-  bool get isHolidayThemeEnabled {
-    try {
-      return Get.find<ConfigService>()[ConfigKey.ENABLE_HOLIDAY_THEME] ?? true;
-    } catch (e) {
-      return true;
-    }
-  }
-
-  void setHolidayThemeEnabled(bool value) {
-    Get.find<ConfigService>()[ConfigKey.ENABLE_HOLIDAY_THEME] = value;
-    checkHolidayMode();
-  }
-
-  String get forcedHolidayTheme {
-    try {
-      return Get.find<ConfigService>()[ConfigKey.FORCED_HOLIDAY_THEME] ?? '';
-    } catch (e) {
-      return '';
-    }
-  }
-
-  void setForcedHolidayTheme(String value) {
-    Get.find<ConfigService>()[ConfigKey.FORCED_HOLIDAY_THEME] = value;
-    checkHolidayMode();
   }
 
   bool get showTitleBar => _showTitleBar.value;

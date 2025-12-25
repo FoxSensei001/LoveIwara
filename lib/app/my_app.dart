@@ -20,7 +20,6 @@ import 'package:i_iwara/app/ui/pages/sign_in/sing_in_page.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/first_time_setup_page.dart';
 import 'package:i_iwara/app/ui/widgets/global_drawer_content_widget.dart';
 import 'package:i_iwara/app/ui/widgets/privacy_over_lay_widget.dart';
-import 'package:i_iwara/app/ui/widgets/holiday_themes/holiday_theme_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/window_layout_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
@@ -95,11 +94,7 @@ class _MyAppState extends State<MyApp> {
           }
 
           Get.changeTheme(
-            ThemeData(
-              colorScheme: colorScheme,
-              useMaterial3: true,
-              scaffoldBackgroundColor: Colors.transparent,
-            ),
+            ThemeData(colorScheme: colorScheme, useMaterial3: true),
           );
         },
       ),
@@ -202,15 +197,10 @@ class _MyAppState extends State<MyApp> {
           child: GetMaterialApp(
             debugShowCheckedModeBanner: false,
             title: t.common.appName,
-            theme: ThemeData(
-              colorScheme: lightColorScheme,
-              useMaterial3: true,
-              scaffoldBackgroundColor: Colors.transparent,
-            ),
+            theme: ThemeData(colorScheme: lightColorScheme, useMaterial3: true),
             darkTheme: ThemeData(
               colorScheme: darkColorScheme,
               useMaterial3: true,
-              scaffoldBackgroundColor: Colors.transparent,
             ),
             themeMode: currentThemeMode == 0
                 ? ThemeMode.system
@@ -430,18 +420,12 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
 
     Widget content = Stack(
       children: [
-        // 1. 最底层背景颜色
-        Container(color: Theme.of(context).colorScheme.surface),
-        // 2. 节日主题效果（夹在背景和内容之间）
-        const HolidayThemeOverlay(),
-        // 3. 应用内容（Scaffold背景为透明）
         Scaffold(
           body: _shortCutsWrapper(
             context,
             _windowTitleBarFrame(context, widget.child),
           ),
         ),
-        // 4. 顶层遮罩
         if (_showPrivacyOverlay) const PrivacyOverlay(),
         // 拖拽悬浮提示
         if (_isDragging && isDesktop) _buildDragOverlay(context),
