@@ -35,10 +35,12 @@ class CompactSubscriptionDropdown extends StatefulWidget {
   });
 
   @override
-  State<CompactSubscriptionDropdown> createState() => _CompactSubscriptionDropdownState();
+  State<CompactSubscriptionDropdown> createState() =>
+      _CompactSubscriptionDropdownState();
 }
 
-class _CompactSubscriptionDropdownState extends State<CompactSubscriptionDropdown> {
+class _CompactSubscriptionDropdownState
+    extends State<CompactSubscriptionDropdown> {
   final SubscriptionDropdownItem _allItem = SubscriptionDropdownItem(
     id: '',
     label: slang.t.common.all,
@@ -64,7 +66,7 @@ class _CompactSubscriptionDropdownState extends State<CompactSubscriptionDropdow
       _openDropdown();
     }
   }
-  
+
   // 关闭下拉菜单
   void _closeDropdown() {
     if (_isDropdownOpen) {
@@ -74,7 +76,7 @@ class _CompactSubscriptionDropdownState extends State<CompactSubscriptionDropdow
       });
     }
   }
-  
+
   // 打开下拉菜单
   void _openDropdown() {
     _overlayEntry = _createOverlayEntry();
@@ -107,16 +109,17 @@ class _CompactSubscriptionDropdownState extends State<CompactSubscriptionDropdow
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: _closeDropdown,
-              child: Container(
-                color: Colors.transparent,
-              ),
+              child: Container(color: Colors.transparent),
             ),
           ),
           // 下拉菜单内容
           Positioned(
             left: offset.dx,
             top: offset.dy + size.height,
-            width: min(size.width * 1.5, screenWidth - offset.dx * 2), // 设置一个合理的宽度
+            width: min(
+              size.width * 1.5,
+              screenWidth - offset.dx * 2,
+            ), // 设置一个合理的宽度
             child: CompositedTransformFollower(
               link: _layerLink,
               showWhenUnlinked: false,
@@ -124,17 +127,17 @@ class _CompactSubscriptionDropdownState extends State<CompactSubscriptionDropdow
               child: Material(
                 elevation: 4.0,
                 borderRadius: BorderRadius.circular(8.0),
-                color: Theme.of(context).scaffoldBackgroundColor,
+                color: Theme.of(context).colorScheme.surface,
                 child: Container(
-                  constraints: BoxConstraints(
-                    maxHeight: calculatedHeight,
-                  ),
+                  constraints: BoxConstraints(maxHeight: calculatedHeight),
                   child: ListView(
                     padding: EdgeInsets.zero,
                     shrinkWrap: true,
                     children: [
                       _buildDropdownItem(_allItem),
-                      ...widget.userList.map((item) => _buildDropdownItem(item)),
+                      ...widget.userList.map(
+                        (item) => _buildDropdownItem(item),
+                      ),
                     ],
                   ),
                 ),
@@ -149,7 +152,7 @@ class _CompactSubscriptionDropdownState extends State<CompactSubscriptionDropdow
   Widget _buildDropdownItem(SubscriptionDropdownItem item) {
     final theme = Theme.of(context);
     final bool isSelected = widget.selectedUserId == item.id;
-    
+
     return InkWell(
       onTap: () {
         if (widget.selectedUserId != item.id) {
@@ -199,14 +202,14 @@ class _CompactSubscriptionDropdownState extends State<CompactSubscriptionDropdow
                     ),
                     errorWidget: (context, url, error) => CircleAvatar(
                       radius: 14,
-                      backgroundImage: const NetworkImage(CommonConstants.defaultAvatarUrl),
-                      onBackgroundImageError: (exception, stackTrace) => const Icon(
-                        Icons.person,
-                        size: 14,
+                      backgroundImage: const NetworkImage(
+                        CommonConstants.defaultAvatarUrl,
                       ),
+                      onBackgroundImageError: (exception, stackTrace) =>
+                          const Icon(Icons.person, size: 14),
                     ),
                     httpHeaders: const {
-                      'referer': CommonConstants.iwaraBaseUrl
+                      'referer': CommonConstants.iwaraBaseUrl,
                     },
                     fit: BoxFit.cover,
                   ),
@@ -227,11 +230,7 @@ class _CompactSubscriptionDropdownState extends State<CompactSubscriptionDropdow
               ),
             ),
             if (isSelected)
-              Icon(
-                Icons.check,
-                color: theme.colorScheme.primary,
-                size: 16,
-              ),
+              Icon(Icons.check, color: theme.colorScheme.primary, size: 16),
           ],
         ),
       ),
@@ -260,11 +259,11 @@ class _CompactSubscriptionDropdownState extends State<CompactSubscriptionDropdow
           height: widget.height,
           padding: const EdgeInsets.symmetric(horizontal: 12.0),
           decoration: BoxDecoration(
+            color: Theme.of(
+              context,
+            ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(8.0),
-            border: Border.all(
-              color: Colors.transparent,
-              width: 1.0,
-            ),
+            border: Border.all(color: Colors.transparent, width: 1.0),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -272,7 +271,9 @@ class _CompactSubscriptionDropdownState extends State<CompactSubscriptionDropdow
               if (selectedItem.avatarUrl.isEmpty)
                 CircleAvatar(
                   radius: 14,
-                  backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.surfaceContainerHighest,
                   child: Icon(
                     Icons.cloud,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -297,14 +298,14 @@ class _CompactSubscriptionDropdownState extends State<CompactSubscriptionDropdow
                       ),
                       errorWidget: (context, url, error) => CircleAvatar(
                         radius: 14,
-                        backgroundImage: const NetworkImage(CommonConstants.defaultAvatarUrl),
-                        onBackgroundImageError: (exception, stackTrace) => const Icon(
-                          Icons.person,
-                          size: 14,
+                        backgroundImage: const NetworkImage(
+                          CommonConstants.defaultAvatarUrl,
                         ),
+                        onBackgroundImageError: (exception, stackTrace) =>
+                            const Icon(Icons.person, size: 14),
                       ),
                       httpHeaders: const {
-                        'referer': CommonConstants.iwaraBaseUrl
+                        'referer': CommonConstants.iwaraBaseUrl,
                       },
                       fit: BoxFit.cover,
                     ),
@@ -332,8 +333,8 @@ class _CompactSubscriptionDropdownState extends State<CompactSubscriptionDropdow
       ),
     );
   }
-  
+
   double min(double a, double b) {
     return a < b ? a : b;
   }
-} 
+}

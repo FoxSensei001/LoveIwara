@@ -37,15 +37,16 @@ class SettingsPage extends StatefulWidget {
           PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) => page,
             transitionDuration: const Duration(milliseconds: 200),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              return SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(1, 0),
-                  end: Offset.zero,
-                ).animate(animation),
-                child: child,
-              );
-            },
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  return SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(1, 0),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  );
+                },
           ),
         );
       } else {
@@ -61,9 +62,10 @@ class SettingsPage extends StatefulWidget {
     if (instance == null) {
       return false;
     }
-    return (instance.enableTwoViews && (instance._nestedNavigatorKey.currentState?.canPop() ?? false)) ||
-           (!instance.enableTwoViews && instance._pageStack.isNotEmpty) ||
-           instance.currentPage != -1;
+    return (instance.enableTwoViews &&
+            (instance._nestedNavigatorKey.currentState?.canPop() ?? false)) ||
+        (!instance.enableTwoViews && instance._pageStack.isNotEmpty) ||
+        instance.currentPage != -1;
   }
 
   // 新增静态方法，用于外部触发内部pop
@@ -168,7 +170,7 @@ class _SettingsPageState extends State<SettingsPage> {
       // 重置偏移量
       offset = 0;
     });
-    
+
     // 如果是宽屏模式，清除嵌套导航器的所有路由
     if (enableTwoViews) {
       _nestedNavigatorKey.currentState?.popUntil((route) => route.isFirst);
@@ -177,7 +179,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
   void _handlePop() {
     // 宽屏模式下，先检查嵌套的Navigator是否可以pop
-    if (enableTwoViews && (_nestedNavigatorKey.currentState?.canPop() ?? false)) {
+    if (enableTwoViews &&
+        (_nestedNavigatorKey.currentState?.canPop() ?? false)) {
       _nestedNavigatorKey.currentState!.pop();
       return;
     }
@@ -206,11 +209,11 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final bool canPop = !(
-      (enableTwoViews && (_nestedNavigatorKey.currentState?.canPop() ?? false)) ||
-      (!enableTwoViews && _pageStack.isNotEmpty) ||
-      currentPage != -1
-    );
+    final bool canPop =
+        !((enableTwoViews &&
+                (_nestedNavigatorKey.currentState?.canPop() ?? false)) ||
+            (!enableTwoViews && _pageStack.isNotEmpty) ||
+            currentPage != -1);
 
     return PopScope(
       canPop: canPop,
@@ -220,7 +223,7 @@ class _SettingsPageState extends State<SettingsPage> {
         }
         _handlePop();
       },
-      child: Material(child: _buildBody()),
+      child: Material(color: Colors.transparent, child: _buildBody()),
     );
   }
 
@@ -292,7 +295,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 AnimatedPositioned(
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeInOut,
-                  left: currentPage == -1 && _pageStack.isEmpty ? 0 : -constraints.maxWidth * 0.3,
+                  left: currentPage == -1 && _pageStack.isEmpty
+                      ? 0
+                      : -constraints.maxWidth,
                   width: constraints.maxWidth,
                   top: 0,
                   bottom: 0,
@@ -307,7 +312,11 @@ class _SettingsPageState extends State<SettingsPage> {
                     width: constraints.maxWidth,
                     top: 0,
                     bottom: 0,
-                    child: Material(elevation: 8, child: _buildRight()),
+                    child: Material(
+                      elevation: 8,
+                      color: Colors.transparent,
+                      child: _buildRight(),
+                    ),
                   ),
                 // 页面栈中的页面
                 ..._pageStack.asMap().entries.map((entry) {
@@ -320,7 +329,11 @@ class _SettingsPageState extends State<SettingsPage> {
                     width: constraints.maxWidth,
                     top: 0,
                     bottom: 0,
-                    child: Material(elevation: 8 + index.toDouble(), child: page),
+                    child: Material(
+                      elevation: 8 + index.toDouble(),
+                      color: Colors.transparent,
+                      child: page,
+                    ),
                   );
                 }),
               ],
@@ -335,6 +348,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final t = slang.Translations.of(context);
 
     return Material(
+      color: Colors.transparent,
       child: CustomScrollView(
         slivers: [
           BlurredSliverAppBar(
@@ -457,7 +471,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         Material(
                           color: isSelected
                               ? Theme.of(context).colorScheme.secondaryContainer
-                              .withValues(alpha: 0.3)
+                                    .withValues(alpha: 0.3)
                               : Colors.transparent,
                           child: InkWell(
                             onTap: () {
@@ -480,8 +494,8 @@ class _SettingsPageState extends State<SettingsPage> {
                                     color: isSelected
                                         ? Theme.of(context).colorScheme.primary
                                         : Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
@@ -491,15 +505,15 @@ class _SettingsPageState extends State<SettingsPage> {
                                           .textTheme
                                           .bodyMedium
                                           ?.copyWith(
-                                        fontWeight: isSelected
-                                            ? FontWeight.w500
-                                            : FontWeight.normal,
-                                        color: isSelected
-                                            ? Theme.of(
-                                          context,
-                                        ).colorScheme.primary
-                                            : null,
-                                      ),
+                                            fontWeight: isSelected
+                                                ? FontWeight.w500
+                                                : FontWeight.normal,
+                                            color: isSelected
+                                                ? Theme.of(
+                                                    context,
+                                                  ).colorScheme.primary
+                                                : null,
+                                          ),
                                     ),
                                   ),
                                 ],
@@ -533,7 +547,7 @@ class _SettingsPageState extends State<SettingsPage> {
     if (currentPage == -1 && _pageStack.isEmpty) {
       return const SizedBox(); // 空页面
     }
-    
+
     // 如果是宽屏模式，使用Navigator来管理深层页面
     if (enableTwoViews) {
       return Navigator(
@@ -546,14 +560,14 @@ class _SettingsPageState extends State<SettingsPage> {
             transitionDuration: const Duration(milliseconds: 200),
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
-              return SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(1, 0),
-                  end: Offset.zero,
-                ).animate(animation),
-                child: child,
-              );
-            },
+                  return SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(1, 0),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  );
+                },
           );
         },
       );

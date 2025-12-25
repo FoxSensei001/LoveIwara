@@ -514,6 +514,9 @@ settings:
   configureYourProxyServer: Configure Your Proxy Server
   settings: Settings
   themeSettings: Theme Settings
+  holidayThemeEffects: Holiday Theme Effects
+  enableHolidayEffects: Enable Holiday Effects
+  enableHolidayEffectsDesc: When enabled, special holiday effects (like snow) will be shown
   followSystem: Follow System
   lightMode: Light Mode
   darkMode: Dark Mode

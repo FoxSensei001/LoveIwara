@@ -159,12 +159,12 @@ Future<void> _initializeBaseServices() async {
 
 /// 初始化业务服务
 Future<void> _initializeBusinessServices() async {
-  // 初始化应用服务
-  Get.put(AppService());
-
   // 初始化配置服务
   var configService = await ConfigService().init();
   Get.put(configService);
+
+  // 初始化应用服务
+  Get.put(AppService());
 
   // 初始化语言设置
   String applicationLocale = configService[ConfigKey.APPLICATION_LOCALE];

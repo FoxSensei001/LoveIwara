@@ -86,6 +86,7 @@ class _ThreadListPageState extends State<ThreadListPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         title: Obx(
           () => Column(
             mainAxisSize: MainAxisSize.min,

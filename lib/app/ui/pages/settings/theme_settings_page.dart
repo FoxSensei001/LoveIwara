@@ -16,6 +16,7 @@ class ThemeSettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeService = Get.find<ThemeService>();
+    final appService = Get.find<AppService>();
 
     return Scaffold(
       body: CustomScrollView(
@@ -34,6 +35,8 @@ class ThemeSettingsPage extends StatelessWidget {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 _buildThemeModeSection(context, themeService),
+                const SizedBox(height: 16),
+                _buildHolidayThemeSection(context, appService),
                 const SizedBox(height: 16),
                 _buildDynamicColorSection(context, themeService),
                 const SizedBox(height: 16),
@@ -279,7 +282,9 @@ class ThemeSettingsPage extends StatelessWidget {
                                             ? Theme.of(
                                                 context,
                                               ).colorScheme.primary
-                                            : Colors.grey.withValues(alpha: 0.2),
+                                            : Colors.grey.withValues(
+                                                alpha: 0.2,
+                                              ),
                                         width: isSelected ? 2 : 1,
                                       ),
                                     ),
@@ -392,7 +397,8 @@ class ThemeSettingsPage extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
-              final hex = pickerColor.toARGB32()
+              final hex = pickerColor
+                  .toARGB32()
                   .toRadixString(16)
                   .substring(2)
                   .toUpperCase();
@@ -400,6 +406,40 @@ class ThemeSettingsPage extends StatelessWidget {
               AppService.tryPop();
             },
             child: Text(t.common.confirm),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHolidayThemeSection(
+    BuildContext context,
+    AppService appService,
+  ) {
+    return Card(
+      elevation: 2,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              t.settings.holidayThemeEffects,
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            ),
+          ),
+          const Divider(height: 1),
+          Obx(
+            () => SwitchListTile(
+              title: Text(t.settings.enableHolidayEffects),
+              subtitle: Text(t.settings.enableHolidayEffectsDesc),
+              value: appService.isHolidayThemeEnabled,
+              onChanged: (value) => appService.setHolidayThemeEnabled(value),
+            ),
           ),
         ],
       ),

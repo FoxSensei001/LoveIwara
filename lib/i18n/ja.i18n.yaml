@@ -515,6 +515,9 @@ settings:
   configureYourProxyServer: プロキシサーバーを設定
   settings: 設定
   themeSettings: テーマ設定
+  holidayThemeEffects: 祝日テーマ効果
+  enableHolidayEffects: 祝日エフェクトを有効にする
+  enableHolidayEffectsDesc: 有効にすると、特定の祝日に背景エフェクト（雪など）が表示されます
   followSystem: システムに従う
   lightMode: ライトモード
   darkMode: ダークモード

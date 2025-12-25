@@ -656,6 +656,9 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get configureYourProxyServer => '配置您的代理服务器';
 	@override String get settings => '设置';
 	@override String get themeSettings => '主题设置';
+	@override String get holidayThemeEffects => '节日主题效果';
+	@override String get enableHolidayEffects => '启用节日特效';
+	@override String get enableHolidayEffectsDesc => '启用后，特定节日将显示背景特效（如下雪等）';
 	@override String get followSystem => '跟随系统';
 	@override String get lightMode => '浅色模式';
 	@override String get darkMode => '深色模式';
@@ -3169,6 +3172,9 @@ extension on TranslationsZhCn {
 			'settings.configureYourProxyServer' => '配置您的代理服务器',
 			'settings.settings' => '设置',
 			'settings.themeSettings' => '主题设置',
+			'settings.holidayThemeEffects' => '节日主题效果',
+			'settings.enableHolidayEffects' => '启用节日特效',
+			'settings.enableHolidayEffectsDesc' => '启用后，特定节日将显示背景特效（如下雪等）',
 			'settings.followSystem' => '跟随系统',
 			'settings.lightMode' => '浅色模式',
 			'settings.darkMode' => '深色模式',
@@ -3186,11 +3192,11 @@ extension on TranslationsZhCn {
 			'settings.release' => '版本发布',
 			'settings.issueReport' => '问题反馈',
 			'settings.openSourceLicense' => '开源许可',
+			_ => null,
+		} ?? switch (path) {
 			'settings.checkForUpdatesFailed' => '检查更新失败，请稍后重试',
 			'settings.autoCheckUpdate' => '自动检查更新',
 			'settings.updateContent' => '更新内容：',
-			_ => null,
-		} ?? switch (path) {
 			'settings.releaseDate' => '发布日期',
 			'settings.ignoreThisVersion' => '忽略此版本',
 			'settings.minVersionUpdateRequired' => '当前版本过低，请尽快更新',
@@ -3700,11 +3706,11 @@ extension on TranslationsZhCn {
 			'forum.threads' => '主题',
 			'forum.forum' => '论坛',
 			'forum.createThread' => '创建主题',
+			_ => null,
+		} ?? switch (path) {
 			'forum.selectCategory' => '选择分类',
 			'forum.cooldownRemaining' => ({required Object minutes, required Object seconds}) => '冷却剩余时间 ${minutes} 分 ${seconds} 秒',
 			'forum.groups.administration' => '管理',
-			_ => null,
-		} ?? switch (path) {
 			'forum.groups.global' => '全球',
 			'forum.groups.chinese' => '中文',
 			'forum.groups.japanese' => '日语',
@@ -4214,11 +4220,11 @@ extension on TranslationsZhCn {
 			'log.logDatabaseSizeLimit' => '日志数据库大小上限',
 			'log.logDatabaseSizeLimitDesc' => ({required Object size}) => '当前: ${size}',
 			'log.exportCurrentLogs' => '导出当前日志',
+			_ => null,
+		} ?? switch (path) {
 			'log.exportCurrentLogsDesc' => '导出当天应用日志以帮助开发者诊断问题',
 			'log.exportHistoryLogs' => '导出历史日志',
 			'log.exportHistoryLogsDesc' => '导出指定日期范围的日志',
-			_ => null,
-		} ?? switch (path) {
 			'log.exportMergedLogs' => '导出合并日志',
 			'log.exportMergedLogsDesc' => '导出指定日期范围的合并日志',
 			'log.showLogStats' => '显示日志统计信息',

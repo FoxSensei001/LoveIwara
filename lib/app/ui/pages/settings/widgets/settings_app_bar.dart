@@ -6,10 +6,7 @@ class SettingsAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final bool isWideScreen = true;
 
-  const SettingsAppBar({
-    super.key,
-    required this.title,
-  });
+  const SettingsAppBar({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +16,9 @@ class SettingsAppBar extends StatelessWidget implements PreferredSizeWidget {
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark,
       systemNavigationBarColor: Colors.transparent,
-      systemNavigationBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark,
+      systemNavigationBarIconBrightness: isDarkMode
+          ? Brightness.light
+          : Brightness.dark,
     );
 
     return AppBar(
@@ -59,15 +58,17 @@ class BlurredSliverAppBar extends StatelessWidget {
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark,
       systemNavigationBarColor: Colors.transparent,
-      systemNavigationBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark,
+      systemNavigationBarIconBrightness: isDarkMode
+          ? Brightness.light
+          : Brightness.dark,
     );
 
     return SliverAppBar(
       title: Text(
         title,
-        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-          fontWeight: FontWeight.w600,
-        ),
+        style: Theme.of(
+          context,
+        ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
       ),
       automaticallyImplyLeading: !isWideScreen,
       pinned: pinned,
@@ -83,7 +84,9 @@ class BlurredSliverAppBar extends StatelessWidget {
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Container(
             decoration: BoxDecoration(
-              color: Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.8),
+              color: Theme.of(
+                context,
+              ).colorScheme.surface.withValues(alpha: 0.8),
               border: Border(
                 bottom: BorderSide(
                   color: Theme.of(context).dividerColor.withValues(alpha: 0.2),

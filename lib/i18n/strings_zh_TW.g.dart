@@ -651,6 +651,9 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get configureYourProxyServer => '配置您的代理伺服器';
 	@override String get settings => '設定';
 	@override String get themeSettings => '主題設定';
+	@override String get holidayThemeEffects => '節日主題效果';
+	@override String get enableHolidayEffects => '啟用節日特效';
+	@override String get enableHolidayEffectsDesc => '啟用後，特定節日將顯示背景特效（如下雪等）';
 	@override String get followSystem => '跟隨系統';
 	@override String get lightMode => '淺色模式';
 	@override String get darkMode => '深色模式';
@@ -3162,6 +3165,9 @@ extension on TranslationsZhTw {
 			'settings.configureYourProxyServer' => '配置您的代理伺服器',
 			'settings.settings' => '設定',
 			'settings.themeSettings' => '主題設定',
+			'settings.holidayThemeEffects' => '節日主題效果',
+			'settings.enableHolidayEffects' => '啟用節日特效',
+			'settings.enableHolidayEffectsDesc' => '啟用後，特定節日將顯示背景特效（如下雪等）',
 			'settings.followSystem' => '跟隨系統',
 			'settings.lightMode' => '淺色模式',
 			'settings.darkMode' => '深色模式',
@@ -3184,11 +3190,11 @@ extension on TranslationsZhTw {
 			'settings.updateContent' => '更新內容',
 			'settings.releaseDate' => '發布日期',
 			'settings.ignoreThisVersion' => '忽略此版本',
+			_ => null,
+		} ?? switch (path) {
 			'settings.minVersionUpdateRequired' => '目前版本過低，請盡快更新',
 			'settings.forceUpdateTip' => '此版本為強制更新，請盡快更新到最新版本',
 			'settings.viewChangelog' => '查看更新日誌',
-			_ => null,
-		} ?? switch (path) {
 			'settings.alreadyLatestVersion' => '已是最新版本',
 			'settings.appSettings' => '應用設定',
 			'settings.configureYourAppSettings' => '配置您的應用程式設定',
@@ -3698,11 +3704,11 @@ extension on TranslationsZhTw {
 			'markdown.listSyntax' => '1. 第一項\n2. 第二項\n\n- 無序項\n  - 子項\n  - 另一個子項',
 			'markdown.linkAndImage' => '連結與圖片',
 			'markdown.linkAndImageDescription' => '連結格式：[文字](URL)\n圖片格式：![描述](URL)',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[連結文字](${link})\n![圖片描述](${imgUrl})',
 			'markdown.title' => '標題',
 			'markdown.titleDescription' => '使用 # 號建立標題，數量表示級別',
-			_ => null,
-		} ?? switch (path) {
 			'markdown.titleSyntax' => '# 一級標題\n## 二級標題\n### 三級標題',
 			'markdown.separator' => '分隔線',
 			'markdown.separatorDescription' => '使用三個或更多 - 號建立分隔線',
@@ -4212,11 +4218,11 @@ extension on TranslationsZhTw {
 			'mediaPlayer.unsupportedImageFormat' => '不支援的圖片格式',
 			'mediaPlayer.tryOtherViewer' => '請嘗試使用其他檢視器',
 			'mediaPlayer.retryingOpenVideoLink' => '影片連結開啟失敗，重試中',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.decoderOpenFailedWithSuggestion' => ({required Object event}) => '無法載入解碼器: ${event}，可在播放器設定切換為軟解，並重新進入頁面嘗試',
 			'mediaPlayer.videoLoadErrorWithDetail' => ({required Object event}) => '影片載入錯誤: ${event}',
 			'linkInputDialog.title' => '輸入連結',
-			_ => null,
-		} ?? switch (path) {
 			'linkInputDialog.supportedLinksHint' => ({required Object webName}) => '支援智慧識別多個${webName}連結，並快速跳轉到應用內對應頁面(連結與其他文字之間用空格隔開)',
 			'linkInputDialog.inputHint' => ({required Object webName}) => '請輸入${webName}連結',
 			'linkInputDialog.validatorEmptyLink' => '請輸入連結',

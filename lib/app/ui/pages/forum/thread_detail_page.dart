@@ -181,6 +181,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
     final t = slang.Translations.of(context);
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         title: Obx(
           () => _thread.value == null
               ? Shimmer.fromColors(

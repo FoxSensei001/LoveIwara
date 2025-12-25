@@ -651,6 +651,9 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get configureYourProxyServer => 'プロキシサーバーを設定';
 	@override String get settings => '設定';
 	@override String get themeSettings => 'テーマ設定';
+	@override String get holidayThemeEffects => '祝日テーマ効果';
+	@override String get enableHolidayEffects => '祝日エフェクトを有効にする';
+	@override String get enableHolidayEffectsDesc => '有効にすると、特定の祝日に背景エフェクト（雪など）が表示されます';
 	@override String get followSystem => 'システムに従う';
 	@override String get lightMode => 'ライトモード';
 	@override String get darkMode => 'ダークモード';
@@ -3159,6 +3162,9 @@ extension on TranslationsJa {
 			'settings.configureYourProxyServer' => 'プロキシサーバーを設定',
 			'settings.settings' => '設定',
 			'settings.themeSettings' => 'テーマ設定',
+			'settings.holidayThemeEffects' => '祝日テーマ効果',
+			'settings.enableHolidayEffects' => '祝日エフェクトを有効にする',
+			'settings.enableHolidayEffectsDesc' => '有効にすると、特定の祝日に背景エフェクト（雪など）が表示されます',
 			'settings.followSystem' => 'システムに従う',
 			'settings.lightMode' => 'ライトモード',
 			'settings.darkMode' => 'ダークモード',
@@ -3181,11 +3187,11 @@ extension on TranslationsJa {
 			'settings.updateContent' => '更新内容',
 			'settings.releaseDate' => 'リリース日',
 			'settings.ignoreThisVersion' => 'このバージョンを無視',
+			_ => null,
+		} ?? switch (path) {
 			'settings.minVersionUpdateRequired' => '現在のバージョンが低すぎます。すぐに更新してください',
 			'settings.forceUpdateTip' => 'これは必須アップデートです。できるだけ早く最新バージョンにアップデートしてください',
 			'settings.viewChangelog' => '更新内容を表示',
-			_ => null,
-		} ?? switch (path) {
 			'settings.alreadyLatestVersion' => 'すでに最新バージョンです',
 			'settings.appSettings' => 'アプリ設定',
 			'settings.configureYourAppSettings' => 'アプリ設定を設定',
@@ -3695,11 +3701,11 @@ extension on TranslationsJa {
 			'forum.groups.administration' => '管理',
 			'forum.groups.global' => 'グローバル',
 			'forum.groups.chinese' => '中国語',
+			_ => null,
+		} ?? switch (path) {
 			'forum.groups.japanese' => '日本語',
 			'forum.groups.korean' => '韓国語',
 			'forum.groups.other' => 'その他',
-			_ => null,
-		} ?? switch (path) {
 			'forum.leafNames.announcements' => 'お知らせ',
 			'forum.leafNames.feedback' => 'フィードバック',
 			'forum.leafNames.support' => 'サポート',
@@ -4209,11 +4215,11 @@ extension on TranslationsJa {
 			'log.exportHistoryLogsDesc' => '指定された日付範囲内のログをエクスポート',
 			'log.exportMergedLogs' => 'マージログをエクスポート',
 			'log.exportMergedLogsDesc' => '指定された日付範囲内のマージログをエクスポート',
+			_ => null,
+		} ?? switch (path) {
 			'log.showLogStats' => 'ログ統計情報を表示',
 			'log.logExportSuccess' => 'ログエクスポート成功',
 			'log.logExportFailed' => ({required Object error}) => 'ログエクスポート失敗: ${error}',
-			_ => null,
-		} ?? switch (path) {
 			'log.showLogStatsDesc' => '様々なタイプのログの統計情報を表示',
 			'log.logExtractFailed' => ({required Object error}) => 'ログ統計情報の取得に失敗しました: ${error}',
 			'log.clearAllLogs' => 'すべてのログをクリア',

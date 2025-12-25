@@ -205,7 +205,9 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
 
   /// 根据当前是否是视频来更新音量键监听状态
   void _updateVolumeKeyListener() {
-    final isCurrentVideo = _isVideo(widget.galleryItems[currentIndex].data.originalUrl);
+    final isCurrentVideo = _isVideo(
+      widget.galleryItems[currentIndex].data.originalUrl,
+    );
 
     if (isCurrentVideo) {
       // 如果当前是视频，禁用音量键监听，让系统处理音量调节
@@ -221,8 +223,14 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
     if (!mounted) return;
 
     // 计算预加载范围
-    final startIndex = (centerIndex - _preloadRange).clamp(0, widget.galleryItems.length - 1);
-    final endIndex = (centerIndex + _preloadRange).clamp(0, widget.galleryItems.length - 1);
+    final startIndex = (centerIndex - _preloadRange).clamp(
+      0,
+      widget.galleryItems.length - 1,
+    );
+    final endIndex = (centerIndex + _preloadRange).clamp(
+      0,
+      widget.galleryItems.length - 1,
+    );
 
     for (int i = startIndex; i <= endIndex; i++) {
       // 跳过已经预加载的
@@ -243,7 +251,11 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
   }
 
   /// 预加载单张图片
-  Future<void> _preloadImage(int index, String imageUrl, Map<String, String>? headers) async {
+  Future<void> _preloadImage(
+    int index,
+    String imageUrl,
+    Map<String, String>? headers,
+  ) async {
     if (!mounted) return;
 
     try {
@@ -261,7 +273,11 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
 
       LogUtils.d('预加载图片成功: 索引=$index', 'GalleryPreload');
     } catch (e) {
-      LogUtils.e('预加载图片失败: 索引=$index, URL=$imageUrl', tag: 'GalleryPreload', error: e);
+      LogUtils.e(
+        '预加载图片失败: 索引=$index, URL=$imageUrl',
+        tag: 'GalleryPreload',
+        error: e,
+      );
       // 预加载失败时从集合中移除，允许后续重试
       _preloadedImages.remove(index);
     }
@@ -317,9 +333,7 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
     // 使用 Get.dialog 显示菜单
     Get.dialog(
       Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 300),
           child: Column(
@@ -341,8 +355,7 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                       },
                     ),
                     // 添加分隔线，最后一项不添加
-                    if (index < menuItems.length - 1)
-                      const Divider(height: 1),
+                    if (index < menuItems.length - 1) const Divider(height: 1),
                   ],
                 );
               }),
@@ -378,10 +391,7 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
               setState(() {
                 _showNavigationOverlay = true;
               });
-              _showImageMenu(
-                context,
-                widget.galleryItems[currentIndex],
-              );
+              _showImageMenu(context, widget.galleryItems[currentIndex]);
             },
             onLongPressEnd: (details) {
               if (!widget.enableMenu) return;
@@ -391,10 +401,7 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
             },
             onSecondaryTapDown: (details) {
               if (!widget.enableMenu) return;
-              _showImageMenu(
-                context,
-                widget.galleryItems[currentIndex],
-              );
+              _showImageMenu(context, widget.galleryItems[currentIndex]);
             },
             child: Stack(
               alignment: Alignment.topCenter,
@@ -490,20 +497,20 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                               },
                             ),
                             // 三个点菜单按钮
-                        if (widget.enableMenu)
-                          IconButton(
-                            key: _menuButtonKey,
-                            icon: const Icon(
-                              Icons.more_vert,
-                              color: Colors.white,
-                            ),
-                            onPressed: () {
-                              _showImageMenu(
-                                context,
-                                widget.galleryItems[currentIndex],
-                              );
-                            },
-                          ),
+                            if (widget.enableMenu)
+                              IconButton(
+                                key: _menuButtonKey,
+                                icon: const Icon(
+                                  Icons.more_vert,
+                                  color: Colors.white,
+                                ),
+                                onPressed: () {
+                                  _showImageMenu(
+                                    context,
+                                    widget.galleryItems[currentIndex],
+                                  );
+                                },
+                              ),
                             // 页码显示
                             const SizedBox(width: 8),
                             Text(
