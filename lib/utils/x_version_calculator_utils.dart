@@ -5,7 +5,8 @@ import 'package:crypto/crypto.dart';
 /// 用于获取发起请求时的X-Version头
 /// 详情请看：https://github.com/yt-dlp/yt-dlp/issues/6549
 class XVersionCalculatorUtil {
-  static const String _staticString = '5nFp9kmbNnHdAFhaqMvt';
+  // salt
+  static const String _staticString = 'mSvL05GfEmeEmsEYfGCnVpEjYgTJraJN';
 
   /// 算给定URL的X-Version头
   ///
