@@ -8,7 +8,7 @@ class CommonConstants {
   CommonConstants._internal();
 
   // 应用版本
-  static const String VERSION = '0.4.1';
+  static const String VERSION = '0.4.2';
 
   // 应用名称
   static String? applicationName = 'i_iwara';

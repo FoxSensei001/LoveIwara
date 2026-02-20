@@ -1,5 +1,5 @@
 # 最新版本
-currentVersion: "0.4.1"
+currentVersion: "0.4.2"
 # 更新日志
 # 格式介绍
 # 1. version: 版本号
@@ -7,6 +7,31 @@ currentVersion: "0.4.1"
 # 3. changes: 更新内容
 # 4. minVersion: 最小版本号
 updates:
+  - version: "0.4.2"
+    date: "2026-02-20"
+    minVersion: "0.3.0"
+    changes:
+      zh-CN:
+        - "适配新版站点接口，保证服务可用"
+        - "论坛新增全站公告展示区域，论坛 UI 优化，并增加跳转链接提醒"
+        - "视频播放/下载支持 CDN 自动查询与服务端选择；优化播放器体验（实验性功能，后续可能移除）"
+        - "下载列表支持批量下载、批量删除；下载页面调整（失败任务更早展示）与 UI 优化"
+        - "新增个人信息管理；个人资料页 UI 优化"
+        - "Markdown 渲染与多选交互样式优化；多处滚动/布局细节优化"
+      en:
+        - "Adapted to the new site API for service availability"
+        - "Added a sitewide announcement section in the forum, improved the forum UI, and added external link navigation prompts"
+        - "Playback & downloads now support automatic CDN lookup and server selection; improved the player experience (experimental, may be removed later)"
+        - "Download list now supports batch download and batch delete; download page adjustments (failed tasks shown earlier) and UI polish"
+        - "Added personal info management and improved profile page UI"
+        - "Improved Markdown rendering and multi-select interactions; various scrolling/layout refinements"
+      ja:
+        - "新版サイト API に適合し、サービスの利用可能性を確保"
+        - "フォーラムに全体告知エリアを追加し、フォーラム UI を改善し、外部リンク遷移時の注意表示を追加しました"
+        - "再生/ダウンロードで CDN の自動検索とサーバー選択に対応し、プレイヤー体験を改善しました（実験的機能、今後削除の可能性あり）"
+        - "ダウンロード一覧で一括ダウンロード/一括削除に対応し、失敗タスクの表示順などを調整して UI を改善しました"
+        - "個人情報管理を追加し、プロフィールページの UI を改善しました"
+        - "Markdown 描画と複数選択の操作感を改善し、スクロール/レイアウトの細部を最適化しました"
   - version: "0.4.1"
     date: "2025-12-15"
     minVersion: "0.3.0"
